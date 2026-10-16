@@ -117,6 +117,32 @@ export default function LegalPolicyPage() {
                 <p>Hiệu lực thi hành: <strong className="text-emerald-700">Đang áp dụng toàn sàn</strong></p>
               </div>
             </div>
+
+            {/* Thanh chuyển đổi nhanh tới 3 trang riêng biệt */}
+            <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-4 text-xs font-bold">
+              <span className="text-slate-400 font-semibold mr-1">3 Trang riêng biệt:</span>
+              <Link
+                href="/quy-che-hoat-dong"
+                className="rounded-xl bg-slate-100 px-3.5 py-1.5 text-slate-700 hover:bg-red-50 hover:text-red-600 transition flex items-center gap-1.5"
+              >
+                <i className="fa-solid fa-scroll text-[11px] text-red-600"></i>
+                1. Quy chế hoạt động ↗
+              </Link>
+              <Link
+                href="/chinh-sach-bao-mat"
+                className="rounded-xl bg-slate-100 px-3.5 py-1.5 text-slate-700 hover:bg-emerald-50 hover:text-emerald-600 transition flex items-center gap-1.5"
+              >
+                <i className="fa-solid fa-shield-halved text-[11px] text-emerald-600"></i>
+                2. Chính sách bảo mật ↗
+              </Link>
+              <Link
+                href="/giai-quyet-khieu-nai"
+                className="rounded-xl bg-slate-100 px-3.5 py-1.5 text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition flex items-center gap-1.5"
+              >
+                <i className="fa-solid fa-scale-balanced text-[11px] text-blue-600"></i>
+                3. Giải quyết khiếu nại ↗
+              </Link>
+            </div>
           </div>
         </header>
 
