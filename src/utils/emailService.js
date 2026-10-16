@@ -53,112 +53,7 @@ export const REPORT_REASONS = {
  * Khởi tạo dữ liệu Email Logs ban đầu nếu chưa có
  */
 export const getEmailLogs = () => {
-  if (typeof window === 'undefined') return [];
-
-  // Đọc cấu hình email người dùng nếu đã cấu hình
-  let savedConfig = null;
-  try {
-    const rawConfig = localStorage.getItem('bds_email_config');
-    if (rawConfig) savedConfig = JSON.parse(rawConfig);
-  } catch (e) {}
-
-  const activeFrom = savedConfig?.fromEmail || 'cskh@datbiendanang.vn';
-  const activeFromName = savedConfig?.fromName || 'Đất Biển Đà Nẵng CSKH';
-
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY_EMAIL_LOGS);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      // Nếu người dùng đã cài đặt fromEmail tùy chỉnh, tự động cập nhật các thư có email mặc định cũ
-      if (savedConfig?.fromEmail) {
-        return parsed.map(m => {
-          if (m.from === 'cskh@landmark.vn' || m.from === 'kiemduyet@landmark.vn' || m.from === 'cskh@datbiendanang.vn' || m.from === 'kiemduyet@datbiendanang.vn') {
-            return {
-              ...m,
-              from: savedConfig.fromEmail,
-              fromName: savedConfig.fromName || m.fromName
-            };
-          }
-          return m;
-        });
-      }
-      return parsed;
-    }
-  } catch (err) {
-    console.error('Lỗi đọc email logs:', err);
-  }
-
-  // Seed sample emails ban đầu
-  const initialLogs = [
-    {
-      id: 'MAIL-1729012301001',
-      to: 'ban-kiem-duyet@datbiendanang.vn',
-      toName: 'Ban Kiểm Duyệt Sàn Đất Biển Đà Nẵng',
-      from: 'system-alerts@datbiendanang.vn',
-      fromName: 'Hệ Thống Kiểm Duyệt Tự Động',
-      type: 'report_admin_alert',
-      subject: '⚠️ [CẢNH BÁO VI PHẠM] Tin rao #BDS-003 bị báo cáo: Giá không đúng thực tế',
-      previewText: 'Người dùng Trần Hoàng Nam vừa gửi phản ánh vi phạm về tin rao BDS-003...',
-      reportId: 'REP-1729012300001',
-      propertyId: 'BDS-003',
-      sentAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-      status: 'delivered',
-      htmlBody: generateAdminReportAlertEmailHtml({
-        report: {
-          id: 'REP-1729012300001',
-          propertyId: 'BDS-003',
-          propertyTitle: 'Cắt lỗ 2 tỷ căn hoa hậu 3PN Masterise Park Place',
-          reason: 'price_wrong',
-          description: 'Tiêu đề ghi cắt lỗ 2 tỷ nhưng gọi điện môi giới báo giá 4.2 tỷ, báo giá ảo để kéo khách xem.',
-          contact: '0918 882 199 (hoangnam.tran@gmail.com)',
-          reporterName: 'Trần Hoàng Nam',
-          reporterEmail: 'hoangnam.tran@gmail.com',
-          createdAt: new Date(Date.now() - 3600000 * 2).toISOString()
-        },
-        property: {
-          id: 'BDS-003',
-          title: 'Cắt lỗ 2 tỷ căn hoa hậu 3PN Masterise Park Place',
-          priceDisplay: '2 Tỷ',
-          address: 'Võ Nguyên Giáp, Quận Long Biên, Hà Nội',
-          authorName: 'Đặng Tuấn Anh'
-        }
-      })
-    },
-    {
-      id: 'MAIL-1729012301002',
-      to: 'hoangnam.tran@gmail.com',
-      toName: 'Trần Hoàng Nam',
-      from: activeFrom,
-      fromName: activeFromName,
-      type: 'report_confirmation_reporter',
-      subject: '✅ Tiếp nhận phản ánh vi phạm tin rao #BDS-003 • Đất Biển Đà Nẵng',
-      previewText: 'Kính gửi Quý khách Trần Hoàng Nam, chúng tôi đã tiếp nhận báo cáo của bạn...',
-      reportId: 'REP-1729012300001',
-      propertyId: 'BDS-003',
-      sentAt: new Date(Date.now() - 3600000 * 2).toISOString(),
-      status: 'delivered',
-      htmlBody: generateReporterConfirmationEmailHtml({
-        report: {
-          id: 'REP-1729012300001',
-          propertyId: 'BDS-003',
-          propertyTitle: 'Cắt lỗ 2 tỷ căn hoa hậu 3PN Masterise Park Place',
-          reason: 'price_wrong',
-          reporterName: 'Trần Hoàng Nam',
-          createdAt: new Date(Date.now() - 3600000 * 2).toISOString()
-        },
-        property: {
-          id: 'BDS-003',
-          title: 'Cắt lỗ 2 tỷ căn hoa hậu 3PN Masterise Park Place'
-        }
-      })
-    }
-  ];
-
-  try {
-    localStorage.setItem(STORAGE_KEY_EMAIL_LOGS, JSON.stringify(initialLogs));
-  } catch (e) {}
-
-  return initialLogs;
+  return [];
 };
 
 /**
@@ -172,16 +67,10 @@ export const dispatchEmail = async ({
   subject,
   htmlBody,
   type = 'general',
-  metadata = {}
+  metadata = {},
+  emailConfig = null
 }) => {
-  // Đọc cấu hình email từ localStorage nếu người dùng đã cấu hình
-  let activeEmailConfig = null;
-  if (typeof window !== 'undefined') {
-    try {
-      const rawConfig = localStorage.getItem('bds_email_config');
-      if (rawConfig) activeEmailConfig = JSON.parse(rawConfig);
-    } catch (e) {}
-  }
+  let activeEmailConfig = emailConfig;
 
   // Ưu tiên:
   // 1. from được chỉ định riêng và khác giá trị mặc định cũ
@@ -242,17 +131,6 @@ export const dispatchEmail = async ({
     ...metadata
   };
 
-  // Lưu vào localStorage Outbox Logs
-  if (typeof window !== 'undefined') {
-    try {
-      const logs = getEmailLogs();
-      logs.unshift(newEmail);
-      localStorage.setItem(STORAGE_KEY_EMAIL_LOGS, JSON.stringify(logs));
-    } catch (err) {
-      console.warn('Lỗi ghi email log vào localStorage:', err);
-    }
-  }
-
   return {
     success: realDeliveryStatus === 'delivered',
     emailId: newEmail.id,
@@ -265,24 +143,10 @@ export const dispatchEmail = async ({
  * Lấy cấu hình email đang lưu trong localStorage
  */
 export function getActiveEmailConfig() {
-  if (typeof window === 'undefined') return null;
-  try {
-    const raw = localStorage.getItem('bds_email_config');
-    if (raw) return JSON.parse(raw);
-  } catch (e) {}
   return null;
 }
 
 export function getSystemHotlineFallback() {
-  if (typeof window !== 'undefined') {
-    try {
-      const saved = localStorage.getItem('bds_system_config');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed.hotline) return parsed.hotline;
-      }
-    } catch (e) {}
-  }
   return '0898 246 607';
 }
 

@@ -234,6 +234,19 @@ export async function upsertSupabaseSetting(key, value) {
   }
 }
 
+export async function deleteSupabaseSetting(key) {
+  if (!isSupabaseConfigured() || !supabase || !key) return false;
+  try {
+    const { error } = await supabase
+      .from('platform_settings')
+      .delete()
+      .eq('key', key);
+    return !error;
+  } catch (err) {
+    return false;
+  }
+}
+
 // ==========================================
 // 3. DỊCH VỤ NGƯỜI DÙNG & TÀI KHOẢN (PROFILES)
 // ==========================================

@@ -1,27 +1,34 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import {
+  supabase,
+  isSupabaseConfigured,
+  fetchFullSupabaseDb,
+  upsertSupabaseProperty,
+  deleteSupabaseProperty,
+  upsertSupabaseSetting,
+  deleteSupabaseSetting,
+  upsertSupabaseProfile,
+  insertSupabaseTransaction,
+  syncFullDbToSupabase
+} from '../lib/supabase';
 
-const safeStorage = {
-  getItem: (key) => {
-    if (typeof window === 'undefined') return null;
-    try {
-      return window.localStorage.getItem(key);
-    } catch (e) {
-      return null;
-    }
-  },
-  setItem: (key, val) => {
-    if (typeof window === 'undefined') return;
-    try {
-      window.localStorage.setItem(key, val);
-    } catch (e) {}
-  },
-  removeItem: (key) => {
-    if (typeof window === 'undefined') return;
-    try {
-      window.localStorage.removeItem(key);
-    } catch (e) {}
+// Helper bất đồng bộ lưu cấu hình sàn lên Supabase SDK
+const persistSettingToSupabase = async (key, value) => {
+  try {
+    await upsertSupabaseSetting(key, value);
+  } catch (err) {
+    console.warn(`Lỗi lưu cấu hình ${key} lên Supabase:`, err);
+  }
+};
+
+// Helper bất đồng bộ xóa cấu hình sàn trên Supabase SDK
+const removeSettingFromSupabase = async (key) => {
+  try {
+    await deleteSupabaseSetting(key);
+  } catch (err) {
+    console.warn(`Lỗi xóa cấu hình ${key} trên Supabase:`, err);
   }
 };
 import { 
@@ -310,11 +317,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       : MEMBERSHIP_PACKAGES;
   });
 
-  useEffect(() => {
-    if (!isHydrated) return;
-    safeStorage.setItem('bds_membership_packages', JSON.stringify(membershipPackages));
-  }, [membershipPackages, isHydrated]);
-
   // 7. Transactions History
   const [transactions, setTransactions] = useState(() => {
     return (initialData?.bds_transactions && Array.isArray(initialData.bds_transactions))
@@ -339,23 +341,19 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return initialData?.bds_payment_config || DEFAULT_PAYMENT_CONFIG;
   });
 
-  useEffect(() => {
-    if (!isHydrated) return;
-    safeStorage.setItem('bds_payment_config', JSON.stringify(paymentConfig));
-  }, [paymentConfig, isHydrated]);
-
-  const updatePaymentConfig = (newConfig) => {
+  const updatePaymentConfig = async (newConfig) => {
+    let merged;
     setPaymentConfig(prev => {
-      const merged = { ...prev, ...newConfig };
-      safeStorage.setItem('bds_payment_config', JSON.stringify(merged));
+      merged = { ...prev, ...newConfig };
       return merged;
     });
+    await persistSettingToSupabase('bds_payment_config', merged);
     showToast('Đã lưu cấu hình phương thức thanh toán thành công!', 'success');
   };
 
-  const resetPaymentConfig = () => {
-    safeStorage.removeItem('bds_payment_config');
+  const resetPaymentConfig = async () => {
     setPaymentConfig(DEFAULT_PAYMENT_CONFIG);
+    await removeSettingFromSupabase('bds_payment_config');
     showToast('Đã khôi phục cấu hình thanh toán mặc định', 'info');
   };
 
@@ -364,37 +362,21 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return initialData?.bds_system_config || DEFAULT_SYSTEM_CONFIG;
   });
 
-  useEffect(() => {
-    if (!isHydrated) return;
-    safeStorage.setItem('bds_system_config', JSON.stringify(systemConfig));
-  }, [systemConfig, isHydrated]);
-
   // 11b. Cấu hình Trang Chi Tiết Bất Động Sản (Single Property Page Config)
   const [singleConfig, setSingleConfig] = useState(() => {
     return initialData?.bds_single_config || DEFAULT_SINGLE_CONFIG;
   });
-
-  useEffect(() => {
-    if (!isHydrated) return;
-    safeStorage.setItem('bds_single_config', JSON.stringify(singleConfig));
-  }, [singleConfig, isHydrated]);
 
   // 11c. Cấu hình Email Website & Máy Chủ Gửi Thư (Email Website & SMTP Config)
   const [emailConfig, setEmailConfig] = useState(() => {
     return initialData?.bds_email_config || DEFAULT_EMAIL_CONFIG;
   });
 
-  useEffect(() => {
-    if (!isHydrated) return;
-    safeStorage.setItem('bds_email_config', JSON.stringify(emailConfig));
-  }, [emailConfig, isHydrated]);
-
   // Methods for System Config with Automatic Cross-System Brand & Hotline Synchronization
-  const updateSystemConfig = (newConfig) => {
+  const updateSystemConfig = async (newConfig) => {
     let updatedSystem;
     setSystemConfig(prev => {
       updatedSystem = { ...prev, ...newConfig };
-      safeStorage.setItem('bds_system_config', JSON.stringify(updatedSystem));
       return updatedSystem;
     });
 
@@ -403,7 +385,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const brandToSync = newConfig.brandShortName || newConfig.platformName;
     if (brandToSync || newConfig.tagline) {
       setHeaderConfig(prev => {
-        // Tách thương hiệu thành brandName và brandHighlight tinh tế cho Header
         let bName = prev.brandName;
         let bHighlight = prev.brandHighlight;
         if (brandToSync) {
@@ -429,7 +410,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           ...(brandToSync ? { brandName: bName, brandHighlight: bHighlight, logoAlt: `${brandToSync} Logo` } : {}),
           ...(newConfig.tagline ? { brandTagline: newConfig.tagline } : {})
         };
-        safeStorage.setItem('bds_header_config', JSON.stringify(updatedHeader));
         return updatedHeader;
       });
     }
@@ -446,7 +426,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           ...(brandNameForDisclaimer ? { platformName: brandNameForDisclaimer } : {})
         }
       };
-      safeStorage.setItem('bds_single_config', JSON.stringify(updatedSingle));
       return updatedSingle;
     });
 
@@ -466,30 +445,20 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           ...(newConfig.address ? { address: newConfig.address } : {})
         }
       };
-      safeStorage.setItem('bds_email_config', JSON.stringify(updatedEmail));
       return updatedEmail;
     });
 
-    // 4. LẬP TỨC ĐỒNG BỘ LÊN MÁY CHỦ / CLOUD TRÁNH MẤT KHI F5 TRANG
-    try {
-      const syncPayload = {
-        bds_system_config: updatedSystem || newConfig,
-        ...(updatedHeader ? { bds_header_config: updatedHeader } : {}),
-        ...(updatedSingle ? { bds_single_config: updatedSingle } : {}),
-        ...(updatedEmail ? { bds_email_config: updatedEmail } : {})
-      };
-      fetch('/api/db-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(syncPayload)
-      }).catch(() => {});
-    } catch (err) {}
+    await Promise.all([
+      persistSettingToSupabase('bds_system_config', updatedSystem || newConfig),
+      updatedHeader ? persistSettingToSupabase('bds_header_config', updatedHeader) : Promise.resolve(),
+      updatedSingle ? persistSettingToSupabase('bds_single_config', updatedSingle) : Promise.resolve(),
+      updatedEmail ? persistSettingToSupabase('bds_email_config', updatedEmail) : Promise.resolve()
+    ]);
 
     showToast('Đã lưu và đồng bộ toàn bộ Thông tin thương hiệu & Liên hệ hệ thống!', 'success');
   };
 
-  const resetSystemConfig = () => {
-    safeStorage.removeItem('bds_system_config');
+  const resetSystemConfig = async () => {
     setSystemConfig(DEFAULT_SYSTEM_CONFIG);
 
     let updatedHeader;
@@ -501,7 +470,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         brandTagline: DEFAULT_HEADER_CONFIG.brandTagline,
         logoAlt: DEFAULT_HEADER_CONFIG.logoAlt
       };
-      safeStorage.setItem('bds_header_config', JSON.stringify(updatedHeader));
       return updatedHeader;
     });
 
@@ -515,7 +483,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           platformName: DEFAULT_SYSTEM_CONFIG.brandShortName
         }
       };
-      safeStorage.setItem('bds_single_config', JSON.stringify(updatedSingle));
       return updatedSingle;
     });
 
@@ -533,29 +500,23 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           address: DEFAULT_SYSTEM_CONFIG.address
         }
       };
-      safeStorage.setItem('bds_email_config', JSON.stringify(updatedEmail));
       return updatedEmail;
     });
 
-    try {
-      fetch('/api/db-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          bds_system_config: DEFAULT_SYSTEM_CONFIG,
-          bds_header_config: updatedHeader,
-          bds_single_config: updatedSingle,
-          bds_email_config: updatedEmail
-        })
-      }).catch(() => {});
-    } catch (err) {}
+    await Promise.all([
+      removeSettingFromSupabase('bds_system_config'),
+      persistSettingToSupabase('bds_header_config', updatedHeader),
+      persistSettingToSupabase('bds_single_config', updatedSingle),
+      persistSettingToSupabase('bds_email_config', updatedEmail)
+    ]);
 
     showToast('Đã khôi phục cài đặt sàn và đồng bộ thương hiệu về mặc định!', 'info');
   };
 
-  const updateSingleConfig = (newConfig) => {
+  const updateSingleConfig = async (newConfig) => {
+    let merged;
     setSingleConfig(prev => {
-      const merged = {
+      merged = {
         ...prev,
         ...newConfig,
         disclaimer: {
@@ -567,21 +528,22 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           ...(newConfig.features || {})
         }
       };
-      safeStorage.setItem('bds_single_config', JSON.stringify(merged));
       return merged;
     });
+    await persistSettingToSupabase('bds_single_config', merged);
     showToast('Đã lưu cấu hình trang Single BĐS thành công!', 'success');
   };
 
-  const resetSingleConfig = () => {
-    safeStorage.removeItem('bds_single_config');
+  const resetSingleConfig = async () => {
     setSingleConfig(DEFAULT_SINGLE_CONFIG);
+    await removeSettingFromSupabase('bds_single_config');
     showToast('Đã khôi phục cấu hình trang Single về mặc định!', 'info');
   };
 
-  const updateEmailConfig = (newConfig) => {
+  const updateEmailConfig = async (newConfig) => {
+    let merged;
     setEmailConfig(prev => {
-      const merged = {
+      merged = {
         ...prev,
         ...newConfig,
         smtp: {
@@ -597,37 +559,32 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           ...(newConfig.templates || {})
         }
       };
-      safeStorage.setItem('bds_email_config', JSON.stringify(merged));
       return merged;
     });
+    await persistSettingToSupabase('bds_email_config', merged);
 
     // Cập nhật đồng bộ các thư mang địa chỉ mẫu cũ trong Email Logs
     if (newConfig.fromEmail || newConfig.fromName) {
-      setEmailLogs(prev => {
-        const updated = prev.map(m => {
-          if (m.from === 'cskh@landmark.vn' || m.from === 'kiemduyet@landmark.vn' || m.from === 'system-alerts@landmark.vn') {
-            return {
-              ...m,
-              from: newConfig.fromEmail || m.from,
-              fromName: newConfig.fromName || m.fromName
-            };
-          }
-          return m;
-        });
-        try {
-          safeStorage.setItem('bds_email_logs', JSON.stringify(updated));
-        } catch (e) {}
-        return updated;
-      });
+      setEmailLogs(prev => prev.map(m => {
+        if (m.from === 'cskh@landmark.vn' || m.from === 'kiemduyet@landmark.vn' || m.from === 'system-alerts@landmark.vn') {
+          return {
+            ...m,
+            from: newConfig.fromEmail || m.from,
+            fromName: newConfig.fromName || m.fromName
+          };
+        }
+        return m;
+      }));
     }
 
     showToast('Đã lưu cấu hình email website & máy chủ SMTP thành công!', 'success');
   };
 
   // Cập nhật 1 mẫu nội dung email tùy biến
-  const updateEmailTemplate = (templateId, templateData) => {
+  const updateEmailTemplate = async (templateId, templateData) => {
+    let merged;
     setEmailConfig(prev => {
-      const merged = {
+      merged = {
         ...prev,
         templates: {
           ...prev.templates,
@@ -637,45 +594,47 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           }
         }
       };
-      safeStorage.setItem('bds_email_config', JSON.stringify(merged));
       return merged;
     });
+    await persistSettingToSupabase('bds_email_config', merged);
     showToast(`Đã lưu tùy chỉnh mẫu thư "${DEFAULT_EMAIL_TEMPLATES[templateId]?.name || templateId}"!`, 'success');
   };
 
   // Khôi phục 1 mẫu email về chuẩn mặc định
-  const resetEmailTemplate = (templateId) => {
+  const resetEmailTemplate = async (templateId) => {
     if (!DEFAULT_EMAIL_TEMPLATES[templateId]) return;
+    let merged;
     setEmailConfig(prev => {
-      const merged = {
+      merged = {
         ...prev,
         templates: {
           ...prev.templates,
           [templateId]: DEFAULT_EMAIL_TEMPLATES[templateId]
         }
       };
-      safeStorage.setItem('bds_email_config', JSON.stringify(merged));
       return merged;
     });
+    await persistSettingToSupabase('bds_email_config', merged);
     showToast(`Đã khôi phục mẫu thư "${DEFAULT_EMAIL_TEMPLATES[templateId].name}" về mặc định!`, 'info');
   };
 
   // Khôi phục toàn bộ mẫu email về chuẩn ban đầu
-  const resetAllEmailTemplates = () => {
+  const resetAllEmailTemplates = async () => {
+    let merged;
     setEmailConfig(prev => {
-      const merged = {
+      merged = {
         ...prev,
         templates: DEFAULT_EMAIL_TEMPLATES
       };
-      safeStorage.setItem('bds_email_config', JSON.stringify(merged));
       return merged;
     });
+    await persistSettingToSupabase('bds_email_config', merged);
     showToast('Đã khôi phục toàn bộ 5 mẫu nội dung email về mặc định ban đầu!', 'info');
   };
 
-  const resetEmailConfig = () => {
-    safeStorage.removeItem('bds_email_config');
+  const resetEmailConfig = async () => {
     setEmailConfig(DEFAULT_EMAIL_CONFIG);
+    await removeSettingFromSupabase('bds_email_config');
     showToast('Đã khôi phục cấu hình email về mặc định!', 'info');
   };
 
@@ -836,18 +795,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     }
   ]);
 
-  useEffect(() => {
-    if (!isHydrated) return;
-    safeStorage.setItem('bds_reported_listings', JSON.stringify(listingReports));
-  }, [listingReports, isHydrated]);
-
   // 13. System Email Logs State (Outbox Lịch sử gửi mail)
-  const [emailLogs, setEmailLogs] = useState([]);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-    safeStorage.setItem('bds_email_logs', JSON.stringify(emailLogs));
-  }, [emailLogs, isHydrated]);
+  const [emailLogs, setEmailLogs] = useState(() => (Array.isArray(initialData?.bds_email_logs) ? initialData.bds_email_logs : []));
 
   // 14. Toast Notifications
   const [toast, setToast] = useState(null);
@@ -859,373 +808,100 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   const [selectedPropertyForVip, setSelectedPropertyForVip] = useState(null);
   const [preselectedListingType, setPreselectedListingType] = useState('vip-gold');
 
-  // Save changes to localStorage (Only after client hydration completes)
+  // Đồng bộ cookie session cho SSR
   useEffect(() => {
-    if (!isHydrated) return;
-    safeStorage.setItem('bds_properties', JSON.stringify(properties));
-  }, [properties, isHydrated]);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-    safeStorage.setItem('bds_favorites', JSON.stringify(favorites));
-  }, [favorites, isHydrated]);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-    safeStorage.setItem('bds_current_user', JSON.stringify(currentUser));
     if (typeof document !== 'undefined') {
       const val = currentUser?.id || 'guest';
       document.cookie = `bds_session_user=${encodeURIComponent(val)}; path=/; max-age=31536000; SameSite=Lax`;
     }
-  }, [currentUser, isHydrated]);
+  }, [currentUser]);
 
+  // One-time client rehydration from Supabase Client SDK
   useEffect(() => {
-    if (!isHydrated) return;
-    safeStorage.setItem('bds_users_list', JSON.stringify(usersList));
-  }, [usersList, isHydrated]);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-    safeStorage.setItem('bds_vip_packages', JSON.stringify(vipPackages));
-  }, [vipPackages, isHydrated]);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-    safeStorage.setItem('bds_transactions', JSON.stringify(transactions));
-  }, [transactions, isHydrated]);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-    safeStorage.setItem('bds_nav_menu', JSON.stringify(navMenuItems));
-  }, [navMenuItems, isHydrated]);
-
-  useEffect(() => {
-    if (!isHydrated) return;
-    safeStorage.setItem('bds_header_config', JSON.stringify(headerConfig));
-  }, [headerConfig, isHydrated]);
-
-  // One-time client rehydration from localStorage
-  useEffect(() => {
-    try {
-      const savedProps = safeStorage.getItem('bds_properties');
-      if (savedProps) {
-        const parsed = JSON.parse(savedProps);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setProperties(parsed.map(normalizePropertyExpiration));
-        }
+    let isMounted = true;
+    async function loadDataFromSupabase() {
+      // 1. Dọn dẹp triệt để mọi dữ liệu server cũ khỏi localStorage để tránh xung đột cache
+      if (typeof window !== 'undefined') {
+        const STALE_SERVER_KEYS = [
+          'bds_users_list',
+          'bds_properties',
+          'bds_vip_packages',
+          'bds_membership_packages',
+          'bds_transactions',
+          'bds_nav_menu',
+          'bds_header_config',
+          'bds_payment_config',
+          'bds_system_config',
+          'bds_single_config',
+          'bds_email_config',
+          'bds_reported_listings',
+          'bds_email_logs'
+        ];
+        STALE_SERVER_KEYS.forEach(k => {
+          try { window.localStorage.removeItem(k); } catch (e) {}
+        });
       }
 
-      const savedFav = safeStorage.getItem('bds_favorites');
-      if (savedFav) {
-        const parsed = JSON.parse(savedFav);
-        if (Array.isArray(parsed)) setFavorites(parsed);
-      }
-
-      const savedUser = safeStorage.getItem('bds_current_user');
-      if (savedUser) {
-        const parsed = JSON.parse(savedUser);
-        if (parsed) {
-          if (typeof parsed.email === 'string') {
-            parsed.email = parsed.email.replace(/@landmark\.vn/g, '@datbiendanang.vn');
+      // 2. Tải dữ liệu mới nhất trực tiếp từ Supabase qua SDK
+      try {
+        const db = await fetchFullSupabaseDb();
+        if (isMounted && db) {
+          if (Array.isArray(db.bds_properties) && db.bds_properties.length > 0) {
+            setProperties(db.bds_properties.map(normalizePropertyExpiration));
           }
-          if (typeof parsed.company === 'string' && parsed.company.includes('Landmark')) {
-            parsed.company = parsed.company.replace(/Landmark/g, 'Đất Biển Đà Nẵng');
+          if (Array.isArray(db.bds_users_list) && db.bds_users_list.length > 0) {
+            setUsersList(db.bds_users_list);
           }
-          setCurrentUser(parsed);
-          if (typeof document !== 'undefined') {
-            document.cookie = `bds_session_user=${encodeURIComponent(parsed.id || 'guest')}; path=/; max-age=31536000; SameSite=Lax`;
-          }
-        }
-      }
-
-      const savedUsers = safeStorage.getItem('bds_users_list');
-      if (savedUsers) {
-        const parsed = JSON.parse(savedUsers);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setUsersList(prev => {
-            const map = new Map();
-            (prev || []).forEach(u => map.set(u.id, u));
-            parsed.forEach(u => {
-              const existing = map.get(u.id) || {};
-              map.set(u.id, {
-                ...existing,
-                ...u,
-                email: typeof u.email === 'string' ? u.email.replace(/@landmark\.vn/g, '@datbiendanang.vn') : (u.email || existing.email),
-                company: typeof u.company === 'string' ? u.company.replace(/Landmark/g, 'Đất Biển Đà Nẵng') : (u.company || existing.company)
-              });
-            });
-            return Array.from(map.values());
-          });
-        }
-      }
-
-      const savedVip = safeStorage.getItem('bds_vip_packages');
-      if (savedVip) {
-        const parsed = JSON.parse(savedVip);
-        if (Array.isArray(parsed) && parsed.length >= 4) setVipPackages(parsed);
-      }
-
-      const savedMem = safeStorage.getItem('bds_membership_packages');
-      if (savedMem) {
-        const parsed = JSON.parse(savedMem);
-        if (Array.isArray(parsed)) setMembershipPackages(parsed);
-      }
-
-      const savedTrans = safeStorage.getItem('bds_transactions');
-      if (savedTrans) {
-        const parsed = JSON.parse(savedTrans);
-        if (Array.isArray(parsed)) setTransactions(parsed);
-      }
-
-      const savedNav = safeStorage.getItem('bds_nav_menu');
-      if (savedNav) {
-        const parsed = JSON.parse(savedNav);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setNavMenuItems(parsed);
-        }
-      }
-
-      const savedHeader = safeStorage.getItem('bds_header_config');
-      if (savedHeader) {
-        const parsed = JSON.parse(savedHeader);
-        if (parsed && typeof parsed === 'object') {
-          setHeaderConfig(prev => ({
-            ...prev,
-            ...parsed
-          }));
-        }
-      }
-
-      const savedPayment = safeStorage.getItem('bds_payment_config');
-      if (savedPayment) {
-        const parsed = JSON.parse(savedPayment);
-        if (parsed) {
-          if (parsed.vietqr?.accountName?.includes('LANDMARK')) {
-            parsed.vietqr.accountName = 'CONG TY DAT BIEN DA NANG';
-            parsed.vietqr.syntaxPrefix = 'DBDN';
-          }
-          setPaymentConfig(prev => ({
-            ...prev,
-            ...parsed,
-            approvalTiers: {
-              ...DEFAULT_APPROVAL_TIERS,
-              ...(parsed.approvalTiers || {})
-            }
-          }));
-        }
-      }
-
-      const savedSys = safeStorage.getItem('bds_system_config');
-      if (savedSys) {
-        const parsed = JSON.parse(savedSys);
-        if (parsed && typeof parsed === 'object') {
-          setSystemConfig(prev => ({
-            ...prev,
-            ...parsed
-          }));
-        }
-      }
-
-      const savedSingle = safeStorage.getItem('bds_single_config');
-      if (savedSingle) {
-        const parsed = JSON.parse(savedSingle);
-        if (parsed) {
-          setSingleConfig(prev => ({
-            ...prev,
-            ...parsed,
-            disclaimer: { ...DEFAULT_SINGLE_CONFIG.disclaimer, ...(parsed.disclaimer || {}) },
-            features: { ...DEFAULT_SINGLE_CONFIG.features, ...(parsed.features || {}) }
-          }));
-        }
-      }
-
-      const savedEmail = safeStorage.getItem('bds_email_config');
-      if (savedEmail) {
-        const parsed = JSON.parse(savedEmail);
-        if (parsed) {
-          setEmailConfig(prev => ({
-            ...prev,
-            ...parsed,
-            smtp: { ...DEFAULT_EMAIL_CONFIG.smtp, ...(parsed.smtp || {}) },
-            signature: { ...DEFAULT_EMAIL_CONFIG.signature, ...(parsed.signature || {}) },
-            templates: { ...DEFAULT_EMAIL_CONFIG.templates, ...(parsed.templates || {}) }
-          }));
-        }
-      }
-
-      const savedReports = safeStorage.getItem('bds_reported_listings');
-      if (savedReports) {
-        const parsed = JSON.parse(savedReports);
-        if (Array.isArray(parsed)) setListingReports(parsed);
-      }
-
-      setEmailLogs(getEmailLogs());
-    } catch (err) {
-      console.error('Error rehydrating local storage:', err);
-    } finally {
-      setIsHydrated(true);
-    }
-  }, []);
-
-  // Đồng bộ đa tab thời gian thực (Multi-tab real-time sync)
-  useEffect(() => {
-    const handleStorageChange = (e) => {
-      if (e.key === 'bds_properties' && e.newValue) {
-        try {
-          setProperties(JSON.parse(e.newValue));
-        } catch (err) {
-          console.error(err);
-        }
-      }
-      if (e.key === 'bds_transactions' && e.newValue) {
-        try {
-          setTransactions(JSON.parse(e.newValue));
-        } catch (err) {
-          console.error(err);
-        }
-      }
-      if (e.key === 'bds_current_user' && e.newValue) {
-        try {
-          setCurrentUser(JSON.parse(e.newValue));
-        } catch (err) {
-          console.error(err);
-        }
-      }
-      if (e.key === 'bds_payment_config' && e.newValue) {
-        try {
-          setPaymentConfig(JSON.parse(e.newValue));
-        } catch (err) {
-          console.error(err);
-        }
-      }
-      if (e.key === 'bds_system_config' && e.newValue) {
-        try {
-          setSystemConfig(JSON.parse(e.newValue));
-        } catch (err) {
-          console.error(err);
-        }
-      }
-      if (e.key === 'bds_reported_listings' && e.newValue) {
-        try {
-          const parsed = JSON.parse(e.newValue);
-          if (Array.isArray(parsed)) {
-            setListingReports(parsed);
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      }
-      if (e.key === 'bds_email_logs' && e.newValue) {
-        try {
-          const parsed = JSON.parse(e.newValue);
-          if (Array.isArray(parsed)) {
-            setEmailLogs(parsed);
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      }
-      if (e.key === 'bds_single_config' && e.newValue) {
-        try {
-          const parsed = JSON.parse(e.newValue);
-          if (parsed && typeof parsed === 'object') {
-            setSingleConfig(prev => ({ ...prev, ...parsed }));
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      }
-      if (e.key === 'bds_header_config' && e.newValue) {
-        try {
-          const parsed = JSON.parse(e.newValue);
-          if (parsed && typeof parsed === 'object') {
-            setHeaderConfig(parsed);
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      }
-      if (e.key === 'bds_nav_menu' && e.newValue) {
-        try {
-          const parsed = JSON.parse(e.newValue);
-          if (Array.isArray(parsed)) {
-            setNavMenuItems(parsed);
-          }
-        } catch (err) {
-          console.error(err);
-        }
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
-  }, []);
-
-  // Đồng bộ dữ liệu xuyên trình duyệt (Cross-browser Persistence Sync từ Server Disk)
-  useEffect(() => {
-    fetch('/api/db-sync')
-      .then(res => res.json())
-      .then(db => {
-        if (db && typeof db === 'object' && Object.keys(db).length > 0) {
-          if (db.bds_properties && Array.isArray(db.bds_properties)) {
-            const normalized = db.bds_properties.map(normalizePropertyExpiration);
-            setProperties(normalized);
-            safeStorage.setItem('bds_properties', JSON.stringify(normalized));
+          if (Array.isArray(db.bds_transactions) && db.bds_transactions.length > 0) {
+            setTransactions(db.bds_transactions);
           }
           if (db.bds_payment_config) {
             setPaymentConfig(db.bds_payment_config);
-            safeStorage.setItem('bds_payment_config', JSON.stringify(db.bds_payment_config));
           }
-          if (db.bds_header_config && typeof db.bds_header_config === 'object') {
-            const mergedHeader = { ...DEFAULT_HEADER_CONFIG, ...db.bds_header_config };
-            setHeaderConfig(prev => ({ ...prev, ...mergedHeader }));
-            safeStorage.setItem('bds_header_config', JSON.stringify(mergedHeader));
+          if (db.bds_header_config) {
+            setHeaderConfig(prev => ({ ...prev, ...db.bds_header_config }));
           }
           if (db.bds_system_config) {
             setSystemConfig(db.bds_system_config);
-            safeStorage.setItem('bds_system_config', JSON.stringify(db.bds_system_config));
           }
-          if (db.bds_nav_menu && Array.isArray(db.bds_nav_menu)) {
+          if (Array.isArray(db.bds_nav_menu) && db.bds_nav_menu.length > 0) {
             setNavMenuItems(db.bds_nav_menu);
-            safeStorage.setItem('bds_nav_menu', JSON.stringify(db.bds_nav_menu));
           }
-          if (db.bds_transactions && Array.isArray(db.bds_transactions)) {
-            setTransactions(db.bds_transactions);
-            safeStorage.setItem('bds_transactions', JSON.stringify(db.bds_transactions));
-          }
-          if (db.bds_vip_packages && Array.isArray(db.bds_vip_packages)) {
+          if (Array.isArray(db.bds_vip_packages) && db.bds_vip_packages.length > 0) {
             setVipPackages(db.bds_vip_packages);
-            safeStorage.setItem('bds_vip_packages', JSON.stringify(db.bds_vip_packages));
           }
-          if (db.bds_membership_packages && Array.isArray(db.bds_membership_packages)) {
+          if (Array.isArray(db.bds_membership_packages)) {
             setMembershipPackages(db.bds_membership_packages);
-            safeStorage.setItem('bds_membership_packages', JSON.stringify(db.bds_membership_packages));
           }
-          if (db.bds_reported_listings && Array.isArray(db.bds_reported_listings)) {
-            setListingReports(db.bds_reported_listings);
-            safeStorage.setItem('bds_reported_listings', JSON.stringify(db.bds_reported_listings));
-          }
-          if (db.bds_email_logs && Array.isArray(db.bds_email_logs)) {
-            setEmailLogs(db.bds_email_logs);
-            safeStorage.setItem('bds_email_logs', JSON.stringify(db.bds_email_logs));
-          }
-          if (db.bds_single_config && typeof db.bds_single_config === 'object') {
+          if (db.bds_single_config) {
             setSingleConfig(prev => ({ ...prev, ...db.bds_single_config }));
-            safeStorage.setItem('bds_single_config', JSON.stringify(db.bds_single_config));
           }
-          if (db.bds_users_list && Array.isArray(db.bds_users_list) && db.bds_users_list.length > 0) {
-            setUsersList(db.bds_users_list);
-            safeStorage.setItem('bds_users_list', JSON.stringify(db.bds_users_list));
+          if (db.bds_email_config) {
+            setEmailConfig(prev => ({ ...prev, ...db.bds_email_config }));
+          }
+          if (Array.isArray(db.bds_reported_listings)) {
+            setListingReports(db.bds_reported_listings);
+          }
+          if (Array.isArray(db.bds_email_logs)) {
+            setEmailLogs(db.bds_email_logs);
           }
         }
-      })
-      .catch(() => {});
+      } catch (err) {
+        console.warn('Lỗi đồng bộ dữ liệu Supabase ban đầu:', err);
+      } finally {
+        if (isMounted) {
+          setIsHydrated(true);
+        }
+      }
+    }
+
+    loadDataFromSupabase();
+    return () => { isMounted = false; };
   }, []);
 
   // Ghi nhận thay đổi xuống Server Disk định kỳ để các trình duyệt khác cùng đọc được
   useEffect(() => {
+    if (!isHydrated) return;
     const timer = setTimeout(() => {
       const payload = {
         bds_properties: properties,
@@ -1250,7 +926,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     }, 600);
 
     return () => clearTimeout(timer);
-  }, [properties, usersList, paymentConfig, headerConfig, systemConfig, navMenuItems, transactions, vipPackages, membershipPackages, listingReports, singleConfig, emailConfig, emailLogs]);
+  }, [isHydrated, properties, usersList, paymentConfig, headerConfig, systemConfig, navMenuItems, transactions, vipPackages, membershipPackages, listingReports, singleConfig, emailConfig, emailLogs]);
 
   // Background Auto-Approval Processor for Countdown Queues (VIP Vàng 15 phút, VIP Bạc 30 phút)
   useEffect(() => {
@@ -1286,9 +962,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           return prop;
         });
 
-        if (hasChanges) {
-          safeStorage.setItem('bds_properties', JSON.stringify(updated));
-        }
         return hasChanges ? updated : prevList;
       });
     };
@@ -1363,9 +1036,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           return prop;
         });
 
-        if (hasChanges) {
-          safeStorage.setItem('bds_properties', JSON.stringify(updated));
-        }
         return hasChanges ? updated : prevList;
       });
     };
@@ -1402,7 +1072,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     target = target || usersList[0];
     setCurrentUser(target);
     try {
-      safeStorage.setItem('bds_current_user', JSON.stringify(target));
       if (typeof document !== 'undefined') {
         document.cookie = `bds_session_user=${encodeURIComponent(target.id)}; path=/; max-age=31536000; SameSite=Lax`;
       }
@@ -1817,6 +1486,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     };
 
     setProperties([newProp, ...properties]);
+    upsertSupabaseProperty(newProp).catch(console.warn);
 
     if (initialStatus === 'active') {
       showToast(`⚡ Thanh toán thành công! Tin VIP Kim Cương (${newProp.id}) được Duyệt Tức Thì và đang hiển thị ngay trên website.`, 'success');
@@ -1897,23 +1567,34 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return true;
   };
 
-  const updateMembershipPackage = (id, updatedFields) => {
-    setMembershipPackages(prev => prev.map(p => p.id === id ? { ...p, ...updatedFields } : p));
+  const updateMembershipPackage = async (id, updatedFields) => {
+    let updatedList;
+    setMembershipPackages(prev => {
+      updatedList = prev.map(p => p.id === id ? { ...p, ...updatedFields } : p);
+      return updatedList;
+    });
+    await persistSettingToSupabase('bds_membership_packages', updatedList);
     showToast(`Đã cập nhật cấu hình gói hội viên!`, 'success');
   };
 
-  const addMembershipPackage = (newPkg) => {
+  const addMembershipPackage = async (newPkg) => {
     const pkgWithId = {
       ...newPkg,
       id: newPkg.id || `member-${Date.now()}`
     };
-    setMembershipPackages(prev => [...prev, pkgWithId]);
+    let updatedList;
+    setMembershipPackages(prev => {
+      updatedList = [...prev, pkgWithId];
+      return updatedList;
+    });
+    await persistSettingToSupabase('bds_membership_packages', updatedList);
     showToast(`Đã thêm gói hội viên "${pkgWithId.name}" thành công!`, 'success');
     return pkgWithId;
   };
 
-  const deleteMembershipPackage = (id) => {
+  const deleteMembershipPackage = async (id) => {
     let deletedName = '';
+    let updatedList;
     setMembershipPackages(prev => {
       if (prev.length <= 1) {
         showToast('Hệ thống cần tối thiểu 1 gói hội viên hoạt động!', 'error');
@@ -1921,26 +1602,31 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       }
       const target = prev.find(p => p.id === id);
       deletedName = target ? target.name : '';
-      return prev.filter(p => p.id !== id);
+      updatedList = prev.filter(p => p.id !== id);
+      return updatedList;
     });
+    if (updatedList) {
+      await persistSettingToSupabase('bds_membership_packages', updatedList);
+    }
     if (deletedName) {
       showToast(`Đã xóa gói hội viên "${deletedName}"!`, 'info');
     }
   };
 
-  const resetMembershipPackages = () => {
-    safeStorage.removeItem('bds_membership_packages');
+  const resetMembershipPackages = async () => {
     setMembershipPackages(MEMBERSHIP_PACKAGES);
+    await removeSettingFromSupabase('bds_membership_packages');
     showToast('Đã khôi phục các gói hội viên về mặc định ban đầu!', 'info');
   };
 
   // Admin moderation: Approve
-  const approveProperty = (propertyId) => {
+  const approveProperty = async (propertyId) => {
     const now = Date.now();
+    let approvedTarget = null;
     setProperties(prev => prev.map(p => {
       if (p.id === propertyId) {
         const days = Number(p.listingDays) || 15;
-        return { 
+        approvedTarget = { 
           ...p, 
           status: 'active', 
           approvedAt: new Date().toISOString(),
@@ -1950,44 +1636,58 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
             ? new Date(now + days * 86400 * 1000).toISOString() 
             : p.expiresAt
         };
+        return approvedTarget;
       }
       return p;
     }));
+    if (approvedTarget) {
+      await upsertSupabaseProperty(approvedTarget);
+    }
     showToast(`Đã duyệt xuất bản tin ${propertyId}!`, 'success');
   };
 
   // Admin moderation: Reject
-  const rejectProperty = (propertyId, reason = 'Vi phạm quy chế') => {
+  const rejectProperty = async (propertyId, reason = 'Vi phạm quy chế') => {
+    let rejectedTarget = null;
     setProperties(prev => prev.map(p => {
       if (p.id === propertyId) {
-        return { 
+        rejectedTarget = { 
           ...p, 
           status: 'rejected', 
           rejectReason: reason,
           updatedAt: new Date().toISOString()
         };
+        return rejectedTarget;
       }
       return p;
     }));
+    if (rejectedTarget) {
+      await upsertSupabaseProperty(rejectedTarget);
+    }
     showToast(`Đã từ chối tin ${propertyId}: ${reason}`, 'warning');
   };
 
   // Chuyển bài viết vào Thùng rác (Trash / Soft Delete)
   const moveToTrash = (propertyId) => {
+    let trashTarget = null;
     setProperties(prev => prev.map(p => {
       if (p.id === propertyId) {
-        return {
+        trashTarget = {
           ...p,
           isDeleted: true,
           status: 'trash',
           previousStatus: p.status,
           deletedAt: new Date().toISOString()
         };
+        return trashTarget;
       }
       return p;
     }));
     setCompareList(prev => prev.filter(p => p.id !== propertyId));
     setFavorites(prev => prev.filter(id => id !== propertyId));
+    if (trashTarget) {
+      deleteSupabaseProperty(propertyId, true).catch(console.warn);
+    }
     showToast(`Đã chuyển bài viết ${propertyId} vào Thùng rác! Có thể khôi phục trong tab Thùng rác.`, 'info');
     return true;
   };
@@ -1995,20 +1695,25 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   // Khôi phục bài viết từ Thùng rác (Restore)
   const restoreProperty = (propertyId) => {
     const now = Date.now();
+    let restoredTarget = null;
     setProperties(prev => prev.map(p => {
       if (p.id === propertyId) {
         const isExp = p.expiresAt && new Date(p.expiresAt).getTime() <= now;
         const restoredStatus = isExp ? 'expired' : (p.previousStatus && p.previousStatus !== 'trash' ? p.previousStatus : 'active');
-        return {
+        restoredTarget = {
           ...p,
           isDeleted: false,
           deletedAt: null,
           status: restoredStatus,
           updatedAt: new Date().toISOString()
         };
+        return restoredTarget;
       }
       return p;
     }));
+    if (restoredTarget) {
+      upsertSupabaseProperty(restoredTarget).catch(console.warn);
+    }
     showToast(`Đã khôi phục bài đăng ${propertyId} thành công!`, 'success');
     return true;
   };
@@ -2018,6 +1723,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     setProperties(prev => prev.filter(p => p.id !== propertyId));
     setCompareList(prev => prev.filter(p => p.id !== propertyId));
     setFavorites(prev => prev.filter(id => id !== propertyId));
+    deleteSupabaseProperty(propertyId, false).catch(console.warn);
     showToast(`Đã xóa vĩnh viễn bài đăng ${propertyId} khỏi cơ sở dữ liệu!`, 'warning');
     return true;
   };
@@ -2030,6 +1736,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       return 0;
     }
     setProperties(prev => prev.filter(p => !p.isDeleted && p.status !== 'trash'));
+    trashItems.forEach(p => deleteSupabaseProperty(p.id, false).catch(console.warn));
     showToast(`Đã dọn sạch vĩnh viễn ${trashItems.length} bài viết trong Thùng rác!`, 'success');
     return trashItems.length;
   };
@@ -2134,11 +1841,21 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // Admin update property
   const updateProperty = (propertyId, partialData) => {
-    setProperties(prev => prev.map(p => p.id === propertyId ? { 
-      ...p, 
-      ...partialData,
-      updatedAt: partialData.updatedAt || new Date().toISOString()
-    } : p));
+    let updatedTarget = null;
+    setProperties(prev => prev.map(p => {
+      if (p.id === propertyId) {
+        updatedTarget = { 
+          ...p, 
+          ...partialData,
+          updatedAt: partialData.updatedAt || new Date().toISOString()
+        };
+        return updatedTarget;
+      }
+      return p;
+    }));
+    if (updatedTarget) {
+      upsertSupabaseProperty(updatedTarget).catch(console.warn);
+    }
     showToast(`Đã cập nhật bài đăng ${propertyId}!`, 'success');
   };
 
@@ -2296,31 +2013,21 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   };
 
   // Admin Update VIP Package Price
-  const updateVipPackagePrice = (pkgId, newPrice) => {
+  const updateVipPackagePrice = async (pkgId, newPrice) => {
     const priceNum = parseInt(newPrice, 10);
     if (!priceNum || priceNum <= 0) return;
 
-    setVipPackages(prev => prev.map(p => {
-      if (p.id === pkgId) {
-        return { ...p, pricePerDay: priceNum };
-      }
-      return p;
-    }));
+    let updatedPackages;
+    setVipPackages(prev => {
+      updatedPackages = prev.map(p => p.id === pkgId ? { ...p, pricePerDay: priceNum } : p);
+      return updatedPackages;
+    });
+    await persistSettingToSupabase('bds_vip_packages', updatedPackages);
     showToast(`Đã cập nhật giá gói ${pkgId} thành ${priceNum.toLocaleString('vi-VN')} đ/ngày`, 'success');
   };
 
   // Reset to original seed data
-  const resetToMockData = () => {
-    safeStorage.removeItem('bds_properties');
-    safeStorage.removeItem('bds_favorites');
-    safeStorage.removeItem('bds_transactions');
-    safeStorage.removeItem('bds_current_user');
-    safeStorage.removeItem('bds_users_list');
-    safeStorage.removeItem('bds_vip_packages');
-    safeStorage.removeItem('bds_membership_packages');
-    safeStorage.removeItem('bds_nav_menu');
-    safeStorage.removeItem('bds_header_config');
-    safeStorage.removeItem('bds_system_config');
+  const resetToMockData = async () => {
     setProperties(INITIAL_PROPERTIES);
     setFavorites(['BDS-001']);
     setCompareList([]);
@@ -2332,6 +2039,18 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     setNavMenuItems(INITIAL_NAV_MENU);
     setHeaderConfig(DEFAULT_HEADER_CONFIG);
     setSystemConfig(DEFAULT_SYSTEM_CONFIG);
+
+    await syncFullDbToSupabase({
+      bds_properties: INITIAL_PROPERTIES,
+      bds_users_list: MOCK_USERS,
+      bds_transactions: MOCK_TRANSACTIONS,
+      bds_vip_packages: VIP_PACKAGES,
+      bds_membership_packages: MEMBERSHIP_PACKAGES,
+      bds_nav_menu: INITIAL_NAV_MENU,
+      bds_header_config: DEFAULT_HEADER_CONFIG,
+      bds_system_config: DEFAULT_SYSTEM_CONFIG
+    });
+
     showToast('Đã khôi phục toàn bộ dữ liệu mẫu ban đầu!', 'info');
   };
 
@@ -2356,7 +2075,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       return false;
     }
     setCurrentUser(found);
-    safeStorage.setItem('bds_current_user', JSON.stringify(found));
     if (typeof document !== 'undefined') {
       document.cookie = `bds_session_user=${encodeURIComponent(found.id)}; path=/; max-age=31536000; SameSite=Lax`;
     }
@@ -2391,7 +2109,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       const db = await res.json();
       if (db.bds_users_list && Array.isArray(db.bds_users_list)) {
         setUsersList(db.bds_users_list);
-        safeStorage.setItem('bds_users_list', JSON.stringify(db.bds_users_list));
         showToast(`Đã đồng bộ ${db.bds_users_list.length} người dùng từ máy chủ!`, 'success');
         return db.bds_users_list;
       }
@@ -2461,6 +2178,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       return p;
     }));
 
+    upsertSupabaseProfile(updated).catch(console.warn);
     showToast('Cập nhật hồ sơ thông tin cá nhân thành công!', 'success');
   };
 
@@ -2480,7 +2198,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   // Logout User
   const logoutUser = () => {
     setCurrentUser(DEFAULT_GUEST_USER);
-    safeStorage.setItem('bds_current_user', JSON.stringify(DEFAULT_GUEST_USER));
     if (typeof document !== 'undefined') {
       document.cookie = `bds_session_user=guest; path=/; max-age=31536000; SameSite=Lax`;
     }
@@ -2583,9 +2300,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     showToast(`Đã xóa mục menu con`, 'info');
   };
 
-  const resetNavMenu = () => {
-    safeStorage.removeItem('bds_nav_menu');
+  const resetNavMenu = async () => {
     setNavMenuItems(INITIAL_NAV_MENU);
+    await removeSettingFromSupabase('bds_nav_menu');
     showToast('Đã khôi phục cấu hình thanh menu mặc định!', 'info');
   };
 
@@ -2598,17 +2315,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     };
 
     setHeaderConfig(toSave);
-    safeStorage.setItem('bds_header_config', JSON.stringify(toSave));
-
-    try {
-      await fetch('/api/db-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bds_header_config: toSave })
-      });
-    } catch (e) {
-      console.warn('Lỗi ghi db-sync headerConfig:', e);
-    }
+    await persistSettingToSupabase('bds_header_config', toSave);
 
     const widthLabel = toSave.containerWidth === 'full' 
       ? 'Toàn Màn Hình (100% Full-Width)' 
@@ -2621,37 +2328,22 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   };
 
   const resetHeaderConfig = async () => {
-    safeStorage.removeItem('bds_header_config');
     setHeaderConfig(DEFAULT_HEADER_CONFIG);
-    safeStorage.setItem('bds_header_config', JSON.stringify(DEFAULT_HEADER_CONFIG));
-
-    try {
-      await fetch('/api/db-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bds_header_config: DEFAULT_HEADER_CONFIG })
-      });
-    } catch (e) {
-      console.warn('Lỗi ghi db-sync reset headerConfig:', e);
-    }
-
+    await removeSettingFromSupabase('bds_header_config');
     showToast('Đã khôi phục cấu hình Header & Logo về mặc định!', 'info');
   };
 
   // 12. Sao lưu & Di chuyển Cấu Hình Hệ Thống Toàn Diện
-  const importAllConfig = (data) => {
+  const importAllConfig = async (data) => {
     if (!data) return false;
     if (data.paymentConfig) {
       setPaymentConfig(prev => ({ ...prev, ...data.paymentConfig }));
-      safeStorage.setItem('bds_payment_config', JSON.stringify({ ...DEFAULT_PAYMENT_CONFIG, ...data.paymentConfig }));
     }
     if (data.headerConfig) {
       setHeaderConfig(prev => ({ ...prev, ...data.headerConfig }));
-      safeStorage.setItem('bds_header_config', JSON.stringify(data.headerConfig));
     }
     if (data.systemConfig) {
       setSystemConfig(prev => ({ ...prev, ...data.systemConfig }));
-      safeStorage.setItem('bds_system_config', JSON.stringify({ ...DEFAULT_SYSTEM_CONFIG, ...data.systemConfig }));
       if (data.systemConfig.hotline) {
         setSingleConfig(prev => ({
           ...prev,
@@ -2665,28 +2357,23 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     }
     if (data.navMenuItems && Array.isArray(data.navMenuItems)) {
       setNavMenuItems(data.navMenuItems);
-      safeStorage.setItem('bds_nav_menu', JSON.stringify(data.navMenuItems));
     }
     if (data.vipPackages && Array.isArray(data.vipPackages)) {
       setVipPackages(data.vipPackages);
-      safeStorage.setItem('bds_vip_packages', JSON.stringify(data.vipPackages));
     }
     if (data.membershipPackages && Array.isArray(data.membershipPackages)) {
       setMembershipPackages(data.membershipPackages);
-      safeStorage.setItem('bds_membership_packages', JSON.stringify(data.membershipPackages));
     }
     if (data.properties && Array.isArray(data.properties)) {
       setProperties(data.properties);
-      safeStorage.setItem('bds_properties', JSON.stringify(data.properties));
     }
     if (data.singleConfig && typeof data.singleConfig === 'object') {
       setSingleConfig(prev => ({ ...prev, ...data.singleConfig }));
-      safeStorage.setItem('bds_single_config', JSON.stringify(data.singleConfig));
     }
     if (data.listingReports && Array.isArray(data.listingReports)) {
       setListingReports(data.listingReports);
-      safeStorage.setItem('bds_reported_listings', JSON.stringify(data.listingReports));
     }
+    await syncFullDbToSupabase(data);
     showToast('Đã nhập và khôi phục toàn bộ cấu hình hệ thống thành công!', 'success');
     return true;
   };
@@ -2713,9 +2400,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
     setListingReports(prev => {
       const updated = [newReport, ...prev];
-      try {
-        safeStorage.setItem('bds_reported_listings', JSON.stringify(updated));
-      } catch (e) {}
+      persistSettingToSupabase('bds_reported_listings', updated);
       return updated;
     });
 
@@ -2936,9 +2621,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     if (!report.reporterEmail || report.reporterEmail !== recipientEmail) {
       setListingReports(prev => {
         const updated = prev.map(r => r.id === reportId ? { ...r, reporterEmail: recipientEmail } : r);
-        try {
-          safeStorage.setItem('bds_reported_listings', JSON.stringify(updated));
-        } catch (e) {}
+        persistSettingToSupabase('bds_reported_listings', updated);
         return updated;
       });
     }
