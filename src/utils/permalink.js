@@ -85,8 +85,8 @@ export const parseTaxonomyUrl = (urlPath) => {
 
   const clean = urlPath.replace(/^#/, '').split('?')[0];
 
-  // Không xử lý nếu là trang chi tiết (có -pr{id}, /pr..., /bds-... hoặc /bat-dong-san/)
-  if (clean.match(/-pr[a-z0-9_.-]+$/i) || clean.match(/^\/pr[a-z0-9_.-]+/i) || clean.match(/^\/bds-[a-z0-9_.-]+/i) || clean.startsWith('/bat-dong-san/')) {
+  // Không xử lý nếu là trang chi tiết bất động sản (có đuôi chuẩn -pr{id})
+  if (clean.match(/-pr[a-z0-9_.-]+$/i)) {
     return { isTaxonomy: false };
   }
 
@@ -172,159 +172,39 @@ export const getPropertyPermalink = (property) => {
   return `/${baseSlug}-pr${idSuffix || '001'}`;
 };
 
-/**
- * Phân tích URL để nhận diện ID hoặc Slug bài đăng
- * Hỗ trợ đa dạng định dạng:
- * 1. Chuẩn Batdongsan: /{slug}-pr{id} (ví dụ /cho-thue-nha-pho...-pr006, /fghfghfg...-pr011)
- * 2. Rút gọn: /pr{id} (ví dụ /pr011, /pr001)
- * 3. Chuẩn Mã BĐS: /bds-{id} (ví dụ /bds-011, /bds-001)
- * 4. Chuẩn Alias: /bat-dong-san/{slugOrId}
- */
-export const parsePropertyUrl = (urlPath) => {
-  if (!urlPath) return { isProperty: false };
-
+export const cleanUrlPath = (urlPath) => {
+  if (!urlPath) return '';
   let raw = urlPath.replace(/^#/, '').split('?')[0];
   try {
     raw = decodeURIComponent(raw);
-  } catch (e) {
-    // ignore decode error
-  }
-  // Loại bỏ slash thừa ở cuối
-  const clean = raw.length > 1 ? raw.replace(/\/+$/, '') : raw;
+  } catch (e) {}
+  return raw.length > 1 ? raw.replace(/\/+$/, '') : raw;
+};
 
-  // 1. Khớp định dạng chuẩn Batdongsan: *-pr{id} hoặc *-pr{anyId}
-  const prMatch = clean.match(/^\/([a-z0-9\u00C0-\u024F\u1E00-\u1EFF_.-]+)-pr([a-z0-9_.-]+)$/i);
-  if (prMatch) {
-    const rawSlug = prMatch[1];
-    const rawIdNumber = prMatch[2];
-    const numOnly = rawIdNumber.replace(/\D/g, '');
-    const normalizedBdsId = numOnly 
-      ? `BDS-${numOnly.padStart(3, '0')}` 
-      : (rawIdNumber.toUpperCase().startsWith('BDS-') ? rawIdNumber.toUpperCase() : `BDS-${rawIdNumber.toUpperCase()}`);
-    return {
-      isProperty: true,
-      rawSlug,
-      rawIdNumber,
-      normalizedBdsId,
-      canonicalUrl: clean
-    };
-  }
+export const formatBdsIdentifier = (rawIdNumber) => {
+  const numOnly = rawIdNumber.replace(/\D/g, '');
+  if (numOnly) return `BDS-${numOnly.padStart(3, '0')}`;
+  return rawIdNumber.toUpperCase().startsWith('BDS-')
+    ? rawIdNumber.toUpperCase()
+    : `BDS-${rawIdNumber.toUpperCase()}`;
+};
 
-  // 1b. Khớp định dạng rút gọn: /pr{id}
-  const shortPrMatch = clean.match(/^\/pr([a-z0-9_.-]+)$/i);
-  if (shortPrMatch) {
-    const rawIdNumber = shortPrMatch[1];
-    const numOnly = rawIdNumber.replace(/\D/g, '');
-    const normalizedBdsId = numOnly 
-      ? `BDS-${numOnly.padStart(3, '0')}` 
-      : `BDS-${rawIdNumber.toUpperCase()}`;
-    return {
-      isProperty: true,
-      rawSlug: null,
-      rawIdNumber,
-      normalizedBdsId,
-      canonicalUrl: clean
-    };
-  }
+/**
+ * Phân tích URL bài đăng bất động sản theo định dạng chuẩn DUY NHẤT: /{slug}-pr{id}
+ * Mọi định dạng khác (/pr..., /bds-..., /bat-dong-san/..., hoặc pure slug không có -pr) đều bị xóa bỏ.
+ */
+export const parsePropertyUrl = (urlPath) => {
+  const clean = cleanUrlPath(urlPath);
+  const match = clean.match(/^\/([a-z0-9\u00C0-\u024F\u1E00-\u1EFF_.-]+)-pr([a-z0-9_.-]+)$/i);
+  if (!match) return { isProperty: false };
 
-  // 1c. Khớp trực tiếp mã định danh /bds-{id}
-  const directBdsMatch = clean.match(/^\/(bds-?[a-z0-9_.-]+)$/i);
-  if (directBdsMatch) {
-    const bdsStr = directBdsMatch[1];
-    const numOnly = bdsStr.replace(/\D/g, '');
-    const normalizedBdsId = numOnly ? `BDS-${numOnly.padStart(3, '0')}` : bdsStr.toUpperCase();
-    return {
-      isProperty: true,
-      rawSlug: null,
-      rawIdNumber: numOnly || bdsStr,
-      normalizedBdsId,
-      canonicalUrl: clean
-    };
-  }
-
-  // 2. Khớp định dạng alias: /bat-dong-san/:slugOrId
-  if (clean.startsWith('/bat-dong-san/')) {
-    const slugOrId = clean.replace('/bat-dong-san/', '').trim();
-    
-    // 2a. Nếu alias có chứa -pr{id}
-    const innerPr = slugOrId.match(/^([a-z0-9\u00C0-\u024F\u1E00-\u1EFF_.-]+)-pr([a-z0-9_.-]+)$/i);
-    if (innerPr) {
-      const rawSlug = innerPr[1];
-      const rawIdNumber = innerPr[2];
-      const numOnly = rawIdNumber.replace(/\D/g, '');
-      const normalizedBdsId = numOnly 
-        ? `BDS-${numOnly.padStart(3, '0')}` 
-        : (rawIdNumber.toUpperCase().startsWith('BDS-') ? rawIdNumber.toUpperCase() : `BDS-${rawIdNumber.toUpperCase()}`);
-      return {
-        isProperty: true,
-        rawSlug,
-        rawIdNumber,
-        normalizedBdsId,
-        canonicalUrl: `/${slugOrId}`
-      };
-    }
-
-    // 2b. Nếu alias là dạng pr{id} hoặc bds-{id}
-    const innerShortPr = slugOrId.match(/^pr([a-z0-9_.-]+)$/i);
-    if (innerShortPr) {
-      const rawIdNumber = innerShortPr[1];
-      const numOnly = rawIdNumber.replace(/\D/g, '');
-      return {
-        isProperty: true,
-        rawSlug: null,
-        rawIdNumber,
-        normalizedBdsId: numOnly ? `BDS-${numOnly.padStart(3, '0')}` : `BDS-${rawIdNumber.toUpperCase()}`,
-        canonicalUrl: `/pr${rawIdNumber}`
-      };
-    }
-
-    const innerBds = slugOrId.match(/^bds-?([a-z0-9_.-]+)$/i);
-    if (innerBds) {
-      const rawIdNumber = innerBds[1];
-      const numOnly = rawIdNumber.replace(/\D/g, '');
-      return {
-        isProperty: true,
-        rawSlug: null,
-        rawIdNumber,
-        normalizedBdsId: numOnly ? `BDS-${numOnly.padStart(3, '0')}` : `BDS-${rawIdNumber.toUpperCase()}`,
-        canonicalUrl: `/bds-${rawIdNumber}`
-      };
-    }
-
-    const numOnly = slugOrId.replace(/\D/g, '');
-    const isId = slugOrId.match(/^BDS-?\d+$/i);
-    return {
-      isProperty: true,
-      rawSlug: isId ? null : slugOrId,
-      rawIdNumber: isId ? (numOnly || slugOrId) : null,
-      normalizedBdsId: isId ? `BDS-${numOnly.padStart(3, '0')}` : null,
-      canonicalUrl: clean
-    };
-  }
-
-  // 3. Khớp Slug đơn lẻ (không chứa -pr) nếu không thuộc danh mục hoặc trang hệ thống cố định
-  const RESERVED_STATIC_PATHS = [
-    'admin', 'api', 'bang-gia-vip', 'dang-ky', 'dang-nhap', 'dang-tin', 
-    'goi-hoi-vien', 'ho-so-ca-nhan', 'nap-tien', 'nha-dat-ban', 'nha-dat-cho-thue', 
-    'quan-ly-tin', 'quy-che-hoat-dong', 'chinh-sach-bao-mat', 'chinh-sach-phap-ly', 
-    'giai-quyet-khieu-nai', 'so-sanh', 'tin-da-luu', 'tinh-lai-vay'
-  ];
-
-  const singleSlugMatch = clean.match(/^\/([a-z0-9\u00C0-\u024F\u1E00-\u1EFF_-]+)$/i);
-  if (singleSlugMatch) {
-    const rawSlug = singleSlugMatch[1].toLowerCase();
-    if (!RESERVED_STATIC_PATHS.includes(rawSlug)) {
-      return {
-        isProperty: true,
-        rawSlug,
-        rawIdNumber: null,
-        normalizedBdsId: null,
-        canonicalUrl: clean
-      };
-    }
-  }
-
-  return { isProperty: false };
+  return {
+    isProperty: true,
+    rawSlug: match[1],
+    rawIdNumber: match[2],
+    normalizedBdsId: formatBdsIdentifier(match[2]),
+    canonicalUrl: clean
+  };
 };
 
 /**

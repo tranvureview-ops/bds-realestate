@@ -4,6 +4,8 @@
  * lưu trữ Outbox vào localStorage và cung cấp API xem trước (Preview).
  */
 
+import { getPropertyPermalink } from './permalink';
+
 const STORAGE_KEY_EMAIL_LOGS = 'bds_email_logs';
 
 /**
@@ -337,9 +339,10 @@ export function generateAdminReportAlertEmailHtml({ report, property, customConf
   const activeConfig = customConfig || getActiveEmailConfig();
   const tpl = activeConfig?.templates?.admin_alert || {};
   const reasonObj = REPORT_REASONS[report.reason] || { label: report.reason, color: 'red' };
+  const permalink = getPropertyPermalink(property);
   const propertyUrl = typeof window !== 'undefined' 
-    ? `${window.location.origin}/bat-dong-san/${property.id}`
-    : `https://datbiendanang.vn/bat-dong-san/${property.id}`;
+    ? `${window.location.origin}${permalink}`
+    : `https://datbiendanang.vn${permalink}`;
 
   const siteName = activeConfig?.signature?.companyName || 'Đất Biển Đà Nẵng';
   const hotline = (activeConfig?.signature?.hotline && activeConfig.signature.hotline !== '1900 1881') ? activeConfig.signature.hotline : getSystemHotlineFallback();

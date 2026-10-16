@@ -9,28 +9,23 @@ import { parsePropertyUrl, getPropertyPermalink, generatePropertyJsonLd, toVietn
 
 export default function PropertyDetailPage({ initialProperty = null, slug = '', currentPath: propPath = '' }) {
   const { properties, selectedPropertyDetail, setSelectedPropertyDetail, getPropertyExpirationInfo, currentUser } = useRealEstate();
-  const { currentPath: routerPath, matchRoute, goBack } = useRouter();
+  const { currentPath: routerPath, goBack } = useRouter();
 
-  // 1. Phân tích đường dẫn URL theo chuẩn Batdongsan.com.vn (*-pr{id}) hoặc alias (/bat-dong-san/:slug)
+  // 1. Phân tích đường dẫn URL theo chuẩn Batdongsan.com.vn (*-pr{id})
   const effectivePath = propPath || (slug ? (slug.startsWith('/') ? slug : `/${slug}`) : '') || routerPath || '';
   const parsed = parsePropertyUrl(effectivePath);
-  const legacyMatch = matchRoute('/bat-dong-san/:slug');
-  const slugOrId = parsed.isProperty 
-    ? (parsed.normalizedBdsId || parsed.rawSlug) 
-    : (legacyMatch?.match ? legacyMatch.params.slug : null);
 
   // 2. Tìm bất động sản phù hợp bằng quy tắc Ưu Tiên ID Tuyệt Đối (Strict ID-First Matching)
   let targetProperty = initialProperty || null;
 
-  // Tiêu chí 1: Strict ID Matching (khi URL chứa mã số BĐS hoặc -pr{id}, /pr{id}, /bds-{id})
+  // Tiêu chí 1: Strict ID Matching (khi URL chứa -pr{id})
   if (!targetProperty && (parsed.normalizedBdsId || parsed.rawIdNumber)) {
     targetProperty = properties.find(p => {
       if (!p) return false;
       if (parsed.normalizedBdsId && p.id?.toUpperCase() === parsed.normalizedBdsId.toUpperCase()) return true;
       const pNum = parseInt(String(p.id || '').replace(/\D/g, ''), 10);
       const parsedNum = parseInt(String(parsed.rawIdNumber || '').replace(/\D/g, ''), 10);
-      if (!isNaN(pNum) && !isNaN(parsedNum) && pNum === parsedNum) return true;
-      return false;
+      return !isNaN(pNum) && !isNaN(parsedNum) && pNum === parsedNum;
     });
   }
 
@@ -54,16 +49,6 @@ export default function PropertyDetailPage({ initialProperty = null, slug = '', 
     if (slugMatches.length > 0) {
       targetProperty = slugMatches.find(p => p.status === 'active') || slugMatches[0];
     }
-  }
-
-  // Tiêu chí 4: Legacy Route Matching (/bat-dong-san/:slug)
-  if (!targetProperty && slugOrId) {
-    targetProperty = properties.find(p => {
-      if (!p) return false;
-      if (p.slug && p.slug.toLowerCase() === slugOrId.toLowerCase()) return true;
-      if (p.id && p.id.toUpperCase() === slugOrId.toUpperCase()) return true;
-      return false;
-    });
   }
 
   // Tiêu chí 5: Fallback qua selectedPropertyDetail từ Context nếu trùng ID hoặc URL

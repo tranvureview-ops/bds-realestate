@@ -12,7 +12,7 @@ export default function MobileBottomNav() {
 
   // Do not render on single property detail page (which has its own mobile sticky contact action bar)
   // or on admin CMS pages
-  if (pathname.startsWith('/bat-dong-san/') || pathname.startsWith('/admin')) {
+  if (pathname.match(/-pr[a-z0-9_.-]+$/i) || pathname.startsWith('/admin')) {
     return null;
   }
 
