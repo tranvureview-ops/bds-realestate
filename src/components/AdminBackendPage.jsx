@@ -312,7 +312,7 @@ export default function AdminBackendPage() {
   // Subfilters
   const [moderationTab, setModerationTab] = useState('pending'); // 'pending', 'active', 'rejected'
   const [pendingQueueFilter, setPendingQueueFilter] = useState('all'); // 'all', 'gold', 'silver', 'normal'
-  const [clockTicker, setClockTicker] = useState(Date.now());
+  const [_clockTicker, setClockTicker] = useState(Date.now());
   const [rejectModalProp, setRejectModalProp] = useState(null);
   const [rejectReason, setRejectReason] = useState('Giá chưa phản ánh đúng thực tế thị trường');
   const [propertyAuthorFilter, setPropertyAuthorFilter] = useState('all'); // 'all', 'guest', 'member'
@@ -1018,7 +1018,7 @@ export default function AdminBackendPage() {
       .reduce((sum, t) => sum + Math.abs(t.amount), 0);
   }, [transactions]);
 
-  const totalDeposit = useMemo(() => {
+  const _totalDeposit = useMemo(() => {
     return transactions
       .filter(t => t.type === 'deposit')
       .reduce((sum, t) => sum + Math.abs(t.amount || 0), 0);

@@ -27,7 +27,6 @@ const safeStorage = {
 import { 
   INITIAL_PROPERTIES, 
   VIP_PACKAGES, 
-  LISTING_TYPES,
   MEMBERSHIP_PACKAGES,
   BUMP_SERVICE_PRICE, 
   NORMAL_PUBLISH_PRICE,
@@ -2307,7 +2306,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   };
 
   // User Login (Xác thực đăng nhập nghiêm ngặt)
-  const loginUser = (identifier, password) => {
+  const loginUser = (identifier, _password) => {
     if (!identifier) {
       showToast('Vui lòng nhập Email hoặc Số điện thoại!', 'warning');
       return false;

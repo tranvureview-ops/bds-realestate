@@ -434,6 +434,8 @@ export default function AdminPortal() {
             </div>
           </div>
         </div>
+      )}
+
       {/* TAB 5: PAYMENT CONFIGURATION */}
       {adminTab === 'payments' && (
         <div className="space-y-6">
