@@ -1791,38 +1791,38 @@ export default function AdminBackendPage() {
       <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden bg-slate-900">
         
         {/* Top Header Bar inside CMS */}
-        <header className="h-16 bg-slate-950/70 backdrop-blur-md border-b border-slate-800 px-6 flex items-center justify-between gap-4 sticky top-0 z-30">
-          <div className="flex items-center gap-3">
-            <h2 className="text-base font-black text-white capitalize">
-              {activeMenu === 'dashboard' && '📊 Dashboard Thống Kê Tổng Quan'}
-              {activeMenu === 'moderation' && '📝 Kiểm Duyệt Tin Đăng (Kiểm soát nội dung)'}
-              {activeMenu === 'reports' && '⚠️ Quản Lý Báo Cáo Tin Rao Vi Phạm & Phản Ánh'}
-              {activeMenu === 'emails' && '📬 Hộp Thư & Nhật Ký Gửi Email Hệ Thống'}
-              {activeMenu === 'properties' && '🏢 Danh Mục Bất Động Sản Toàn Sàn'}
-              {activeMenu === 'users' && '👥 Quản Lý Người Dùng & Môi Giới'}
-              {activeMenu === 'finance' && '💳 Sổ Cái Giao Dịch & Báo Cáo Doanh Thu'}
-              {activeMenu === 'pricing' && '👑 Cấu Hình Bảng Giá Gói Dịch Vụ VIP'}
+        <header className="h-14 sm:h-16 bg-slate-950/70 backdrop-blur-md border-b border-slate-800 px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4 sticky top-0 z-30">
+          <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+            <h2 className="text-xs sm:text-base font-black text-white capitalize truncate">
+              {activeMenu === 'dashboard' && '📊 Dashboard Thống Kê'}
+              {activeMenu === 'moderation' && '📝 Kiểm Duyệt Tin Đăng'}
+              {activeMenu === 'reports' && '⚠️ Quản Lý Báo Cáo Vi Phạm'}
+              {activeMenu === 'emails' && '📬 Nhật Ký Gửi Email'}
+              {activeMenu === 'properties' && '🏢 Danh Mục BĐS Toàn Sàn'}
+              {activeMenu === 'users' && '👥 Quản Lý Người Dùng'}
+              {activeMenu === 'finance' && '💳 Sổ Cái Giao Dịch & Doanh Thu'}
+              {activeMenu === 'pricing' && '👑 Bảng Giá Gói Dịch Vụ VIP'}
               {activeMenu === 'membership' && '👑 Gói Hội Viên'}
-              {activeMenu === 'header' && '🎨 Header & Logo Thương Hiệu'}
-              {activeMenu === 'menu' && '🧭 Cấu Hình Thanh Menu Điều Hướng'}
-              {activeMenu === 'payments' && '💳 Cấu Hình Cổng Thanh Toán & Tài Khoản Nhận Tiền'}
-              {activeMenu === 'single-config' && '📄 Cấu Hình Trang Chi Tiết BĐS (Single) & Miễn Trừ Trách Nhiệm'}
-              {activeMenu === 'email-config' && '✉️ Email Setting - Cấu Hình Máy Chủ SMTP & Mẫu Thư'}
+              {activeMenu === 'header' && '🎨 Header & Logo'}
+              {activeMenu === 'menu' && '🧭 Thanh Menu Điều Hướng'}
+              {activeMenu === 'payments' && '💳 Cấu Hình Cổng Thanh Toán'}
+              {activeMenu === 'single-config' && '📄 Cấu Hình Trang Chi Tiết BĐS'}
+              {activeMenu === 'email-config' && '✉️ Email Setting'}
               {activeMenu === 'settings' && (
                 settingsSubTab === 'header'
-                  ? '🎨 Cài Đặt Website › Header & Logo'
+                  ? '🎨 Cài Đặt Website › Header'
                   : settingsSubTab === 'menu'
-                  ? '🧭 Cài Đặt Website › Thanh Menu Điều Hướng'
+                  ? '🧭 Cài Đặt Website › Menu'
                   : settingsSubTab === 'email'
-                  ? '✉️ Cài Đặt Website › Email Setting'
-                  : '⚙️ Cài Đặt Website › Cài Đặt Hệ Thống & CSKH'
+                  ? '✉️ Cài Đặt Website › Email'
+                  : '⚙️ Cài Đặt Website › Hệ Thống'
               )}
             </h2>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {/* Search Box */}
-            <div className="relative hidden sm:block">
+            <div className="relative hidden md:block">
               <i className="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-xs"></i>
               <input
                 type="text"
@@ -1844,12 +1844,12 @@ export default function AdminBackendPage() {
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-emerald-400 border border-slate-800 hover:border-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+              className="px-2.5 sm:px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-emerald-400 border border-slate-800 hover:border-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
               title="Mở Trang Chủ Sàn BĐS trong tab mới"
             >
               <i className="fa-solid fa-globe text-emerald-400"></i>
-              <span className="hidden md:inline">Xem Sàn BĐS</span>
-              <i className="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-500"></i>
+              <span className="hidden sm:inline">Xem Sàn</span>
+              <i className="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-500 hidden sm:inline-block"></i>
             </a>
 
             {/* Trung Tâm Thông Báo Ban Quản Trị (Notification Center) */}
@@ -1857,7 +1857,7 @@ export default function AdminBackendPage() {
               <button
                 type="button"
                 onClick={() => setIsNotificationMenuOpen(!isNotificationMenuOpen)}
-                className={`relative w-9 h-9 rounded-xl flex items-center justify-center transition border ${
+                className={`relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition border ${
                   isNotificationMenuOpen
                     ? 'bg-rose-600 text-white border-rose-500 shadow-lg shadow-rose-600/30'
                     : pendingReportsCount > 0

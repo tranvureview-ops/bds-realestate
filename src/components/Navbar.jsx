@@ -78,6 +78,19 @@ export default function Navbar() {
     setActiveDropdown(null);
   }, [currentRoute]);
 
+  // Khóa scroll nền khi mở menu drawer trên mobile
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
   const toggleMobileSubmenu = (id) => {
     setMobileExpanded(prev => ({ ...prev, [id]: !prev[id] }));
   };
@@ -86,15 +99,15 @@ export default function Navbar() {
     <header className="relative w-full z-30 bg-white border-b border-slate-200/80 shadow-xs">
       {/* 1. TOP UTILITY BAR (Hotline, Demo Switcher, Reset) */}
       <div className="bg-slate-900 text-slate-300 text-xs py-1.5 border-b border-slate-800">
-        <div suppressHydrationWarning className={`${containerWidthClass} flex items-center justify-between gap-3`}>
+        <div suppressHydrationWarning className={`${containerWidthClass} flex items-center justify-between gap-2 sm:gap-3`}>
           {/* Left: Hotline & Slogan */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/90 text-emerald-400 border border-emerald-800/80 font-semibold text-[10px] sm:text-[11px]">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="hidden xs:inline sm:inline">Sàn BĐS {systemConfig?.brandShortName || `${headerConfig?.brandName || 'Đất Biển'} ${headerConfig?.brandHighlight || 'Đà Nẵng'}`.trim()}</span>
-              <span className="xs:hidden sm:hidden">{systemConfig?.brandShortName || `${headerConfig?.brandName || 'Đất Biển'} ${headerConfig?.brandHighlight || 'Đà Nẵng'}`.trim()}</span>
+          <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950/90 text-emerald-400 border border-emerald-800/80 font-semibold text-[10px] sm:text-[11px] truncate">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+              <span className="hidden sm:inline truncate">Sàn BĐS {systemConfig?.brandShortName || `${headerConfig?.brandName || 'Đất Biển'} ${headerConfig?.brandHighlight || 'Đà Nẵng'}`.trim()}</span>
+              <span className="sm:hidden truncate">{systemConfig?.brandShortName || 'Đất Biển'}</span>
             </span>
-            <span suppressHydrationWarning className="hidden md:inline-flex items-center gap-1.5 text-slate-400">
+            <span suppressHydrationWarning className="hidden md:inline-flex items-center gap-1.5 text-slate-400 shrink-0">
               <span className="text-slate-600">|</span>
               <span>Hotline 24/7:</span>
               <a
@@ -110,27 +123,27 @@ export default function Navbar() {
           </div>
 
           {/* Right: Demo Role Switcher & Reset Button */}
-          <div suppressHydrationWarning className="flex items-center gap-2 sm:gap-3">
+          <div suppressHydrationWarning className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {/* Quick Demo Role Switcher */}
             <div className="relative" ref={roleDropdownRef}>
               <button
                 type="button"
                 suppressHydrationWarning
                 onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-                className="inline-flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded-lg border border-slate-700 text-[11px] font-medium transition min-w-[130px] sm:min-w-[150px] justify-between"
+                className="inline-flex items-center gap-1 sm:gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg border border-slate-700 text-[10px] sm:text-[11px] font-medium transition max-w-[140px] sm:max-w-none sm:min-w-[150px] justify-between"
                 title="Chuyển đổi tài khoản demo nhanh"
               >
-                <div className="flex items-center gap-1.5 truncate">
-                  <i className="fa-solid fa-user-gear text-amber-400 text-[11px] shrink-0"></i>
+                <div className="flex items-center gap-1 truncate">
+                  <i className="fa-solid fa-user-gear text-amber-400 text-[10px] sm:text-[11px] shrink-0"></i>
                   <span suppressHydrationWarning className="hidden md:inline text-slate-400">Tài khoản:</span>
-                  <strong suppressHydrationWarning className="text-amber-400 font-semibold truncate">
+                  <strong suppressHydrationWarning className="text-amber-400 font-semibold truncate text-[10px] sm:text-[11px]">
                     {cleanUserName(currentUser?.name)}
                   </strong>
                   <span suppressHydrationWarning className="hidden lg:inline text-slate-400 text-[10px]">
                     ({currentUser?.role === 'admin' ? 'Admin' : currentUser?.role === 'broker' ? 'Môi giới Pro' : currentUser?.role === 'user' ? 'Khách mua' : 'Chưa đăng nhập'})
                   </span>
                 </div>
-                <i className={`fa-solid fa-chevron-down text-[9px] text-slate-400 transition-transform shrink-0 ${roleDropdownOpen ? 'rotate-180' : ''}`}></i>
+                <i className={`fa-solid fa-chevron-down text-[8px] sm:text-[9px] text-slate-400 transition-transform shrink-0 ${roleDropdownOpen ? 'rotate-180' : ''}`}></i>
               </button>
 
               {roleDropdownOpen && (
@@ -181,14 +194,14 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Reset Demo Data Button */}
+            {/* Reset Demo Data Button (Ẩn trên màn hình siêu nhỏ để không tràn hàng) */}
             <button
               onClick={resetToMockData}
-              className="text-slate-400 hover:text-white transition flex items-center gap-1 text-[11px] px-2 py-1 rounded hover:bg-slate-800"
+              className="hidden sm:inline-flex text-slate-400 hover:text-white transition items-center gap-1 text-[11px] px-2 py-1 rounded hover:bg-slate-800 shrink-0"
               title="Khôi phục dữ liệu mẫu ban đầu"
             >
               <i className="fa-solid fa-rotate-left text-[10px]"></i>
-              <span className="hidden sm:inline">Khôi phục mẫu</span>
+              <span>Khôi phục mẫu</span>
             </button>
           </div>
         </div>
@@ -196,47 +209,47 @@ export default function Navbar() {
 
       {/* 2. MAIN NAVBAR BAR */}
       <div className="bg-white">
-        <div suppressHydrationWarning className={`${containerWidthClass} h-18 py-2 flex items-center justify-between gap-4`}>
+        <div suppressHydrationWarning className={`${containerWidthClass} min-h-[60px] sm:min-h-[72px] py-2 flex items-center justify-between gap-2 sm:gap-4`}>
           {/* Left: Brand Logo */}
           <Link 
             to="/" 
             suppressHydrationWarning
-            className="flex items-center gap-3 cursor-pointer select-none group shrink-0"
+            className="flex items-center gap-2 sm:gap-3 cursor-pointer select-none group min-w-0 shrink"
           >
             {headerConfig?.logoType === 'image' && headerConfig?.logoImageUrl ? (
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
                 <img 
                   src={headerConfig.logoImageUrl} 
                   alt={headerConfig.logoAlt || 'Logo'} 
                   style={{ height: `${headerConfig.logoHeight || 38}px` }}
-                  className="object-contain max-h-16 max-w-[240px] transition-transform group-hover:scale-102"
+                  className="object-contain max-h-10 sm:max-h-14 max-w-[130px] sm:max-w-[240px] transition-transform group-hover:scale-102"
                   onError={(e) => { e.target.style.display = 'none'; }}
                 />
                 {headerConfig.showTaglineWithImage && headerConfig.brandTagline && (
-                  <span className="text-[10px] text-slate-500 font-bold tracking-wider uppercase hidden sm:inline-block">
+                  <span className="text-[10px] text-slate-500 font-bold tracking-wider uppercase hidden md:inline-block truncate">
                     {headerConfig.brandTagline}
                   </span>
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-600 flex items-center justify-center text-white text-lg font-black shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform shrink-0">
+              <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-600 flex items-center justify-center text-white text-base sm:text-lg font-black shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform shrink-0">
                   <i className={headerConfig?.brandIcon || 'fa-solid fa-water'}></i>
                 </div>
-                <div className="leading-tight">
-                  <div className="flex items-center gap-1.5 font-black text-slate-900 tracking-tight text-lg">
-                    <span>{headerConfig?.brandName || systemConfig?.brandShortName || 'ĐẤT BIỂN'}</span>
+                <div className="leading-tight min-w-0 truncate">
+                  <div className="flex items-center gap-1 font-black text-slate-900 tracking-tight text-base sm:text-lg truncate">
+                    <span className="truncate">{headerConfig?.brandName || systemConfig?.brandShortName || 'ĐẤT BIỂN'}</span>
                     {headerConfig?.brandHighlight ? (
-                      <span className="text-emerald-600">{headerConfig.brandHighlight}</span>
+                      <span className="text-emerald-600 shrink-0">{headerConfig.brandHighlight}</span>
                     ) : null}
                     {headerConfig?.badgeText && (
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${headerConfig?.badgeColor || 'bg-red-100 text-red-600 border border-red-200'}`}>
+                      <span className={`hidden sm:inline-block text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0 ${headerConfig?.badgeColor || 'bg-red-100 text-red-600 border border-red-200'}`}>
                         {headerConfig.badgeText}
                       </span>
                     )}
                   </div>
                   {(headerConfig?.brandTagline || systemConfig?.tagline) && (
-                    <div className="text-[10px] text-slate-400 font-bold tracking-wider uppercase truncate max-w-[220px]">
+                    <div className="hidden sm:block text-[10px] text-slate-400 font-bold tracking-wider uppercase truncate max-w-[220px]">
                       {headerConfig?.brandTagline || systemConfig?.tagline}
                     </div>
                   )}
@@ -338,12 +351,12 @@ export default function Navbar() {
           </nav>
 
           {/* Right: Actions, User Menu, Post Listing CTA */}
-          <div suppressHydrationWarning className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* So sánh BĐS Badge Link */}
+          <div suppressHydrationWarning className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+            {/* So sánh BĐS Badge Link (Ẩn trên mobile < sm:, người dùng truy cập trong Drawer) */}
             <Link
               to="/so-sanh"
               suppressHydrationWarning
-              className={`relative p-2 rounded-xl border transition ${
+              className={`hidden sm:flex relative p-2 rounded-xl border transition ${
                 currentRoute === '/so-sanh' 
                   ? 'bg-blue-50 border-blue-200 text-blue-700' 
                   : 'border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-blue-600'
@@ -358,11 +371,11 @@ export default function Navbar() {
               )}
             </Link>
 
-            {/* Yêu thích (Tin đã lưu) Link */}
+            {/* Yêu thích (Tin đã lưu) Link - Thu gọn padding trên mobile */}
             <Link
               to="/tin-da-luu"
               suppressHydrationWarning
-              className={`relative p-2 rounded-xl border transition ${
+              className={`relative p-1.5 sm:p-2 rounded-xl border transition ${
                 currentRoute === '/tin-da-luu' 
                   ? 'bg-rose-50 border-rose-200 text-rose-600' 
                   : 'border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-rose-600'
@@ -380,7 +393,7 @@ export default function Navbar() {
             {/* User Account Dropdown / Login Links */}
             <div suppressHydrationWarning>
               {isGuest ? (
-                <div suppressHydrationWarning className="flex items-center gap-2">
+                <div suppressHydrationWarning className="hidden sm:flex items-center gap-2">
                   <Link
                     to="/dang-nhap"
                     className="px-3 py-2 rounded-xl text-slate-700 hover:text-emerald-700 hover:bg-slate-100 font-bold text-xs sm:text-sm transition flex items-center gap-1.5"
@@ -400,7 +413,7 @@ export default function Navbar() {
                   <button
                     suppressHydrationWarning
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
-                    className="flex items-center gap-2 p-1.5 pl-2 pr-2.5 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition"
+                    className="flex items-center gap-1 sm:gap-2 p-1 sm:p-1.5 sm:pl-2 sm:pr-2.5 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition"
                     title="Tài khoản cá nhân"
                   >
                     <div className="relative">
@@ -559,20 +572,20 @@ export default function Navbar() {
             {/* Button: ĐĂNG TIN MỚI (High-impact CTA) */}
             <Link
               to="/dang-tin"
-              className="flex items-center gap-1.5 sm:gap-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold text-xs sm:text-sm px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-xl shadow-md shadow-red-500/20 hover:shadow-lg transition transform active:scale-95 whitespace-nowrap shrink-0"
+              className="flex items-center gap-1 sm:gap-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl shadow-md shadow-red-500/20 hover:shadow-lg transition transform active:scale-95 whitespace-nowrap shrink-0"
             >
-              <i className="fa-solid fa-circle-plus text-sm sm:text-base"></i>
+              <i className="fa-solid fa-circle-plus text-xs sm:text-base"></i>
               <span className="hidden sm:inline">Đăng Tin Ngay</span>
-              <span className="sm:hidden">Đăng Tin</span>
+              <span className="sm:hidden text-[11px]">Đăng tin</span>
             </Link>
 
             {/* Mobile Menu Hamburger Toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 transition shrink-0"
+              className="lg:hidden w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center p-0 rounded-lg sm:rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 transition shrink-0"
               aria-label="Toggle mobile menu"
             >
-              <i className={`fa-solid ${mobileMenuOpen ? 'fa-xmark' : 'fa-bars'} text-base w-4 text-center`}></i>
+              <i className={`fa-solid ${mobileMenuOpen ? 'fa-xmark' : 'fa-bars'} text-sm sm:text-base`}></i>
             </button>
           </div>
         </div>
@@ -618,8 +631,8 @@ export default function Navbar() {
 
             {/* Drawer Body */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {/* User Profile Card (if logged in) */}
-              {!isGuest && (
+              {/* User Profile Card (if logged in) or Login Banner (if guest) */}
+              {!isGuest ? (
                 <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <img src={currentUser.avatar} alt={currentUser.name} className="w-10 h-10 rounded-full object-cover border" />
@@ -630,12 +643,80 @@ export default function Navbar() {
                   </div>
                   <Link
                     to="/nap-tien"
+                    onClick={() => setMobileMenuOpen(false)}
                     className="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-bold text-xs"
                   >
                     + Nạp
                   </Link>
                 </div>
+              ) : (
+                <div className="p-3.5 bg-gradient-to-r from-slate-50 to-emerald-50/40 rounded-2xl border border-slate-200/80 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                      <i className="fa-solid fa-user text-sm"></i>
+                    </div>
+                    <div className="min-w-0 truncate">
+                      <div className="font-bold text-xs text-slate-900 truncate">Tài khoản thành viên</div>
+                      <div className="text-[10px] text-slate-500 truncate">Đăng nhập để quản lý tin</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <Link
+                      to="/dang-nhap"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs"
+                    >
+                      Đăng Nhập
+                    </Link>
+                    <Link
+                      to="/dang-ky"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 text-slate-700 font-bold text-xs"
+                    >
+                      Đăng Ký
+                    </Link>
+                  </div>
+                </div>
               )}
+
+              {/* Quick Links Grid in Drawer (So Sánh & Yêu Thích) */}
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  to="/so-sanh"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`p-2.5 rounded-xl border flex items-center justify-between text-xs font-bold transition ${
+                    currentRoute === '/so-sanh' ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <i className="fa-solid fa-code-compare text-blue-600"></i>
+                    <span>So sánh</span>
+                  </div>
+                  {compareList.length > 0 && (
+                    <span className="w-4 h-4 rounded-full bg-blue-600 text-white text-[9px] font-black flex items-center justify-center">
+                      {compareList.length}
+                    </span>
+                  )}
+                </Link>
+
+                <Link
+                  to="/tin-da-luu"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`p-2.5 rounded-xl border flex items-center justify-between text-xs font-bold transition ${
+                    currentRoute === '/tin-da-luu' ? 'bg-rose-50 border-rose-200 text-rose-600' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <i className="fa-solid fa-heart text-rose-600"></i>
+                    <span>Tin đã lưu</span>
+                  </div>
+                  {favorites.length > 0 && (
+                    <span className="w-4 h-4 rounded-full bg-rose-600 text-white text-[9px] font-black flex items-center justify-center">
+                      {favorites.length}
+                    </span>
+                  )}
+                </Link>
+              </div>
 
               {/* Dynamic Navigation Menu Items (Khớp 100% Admin) */}
               <div className="space-y-1">
