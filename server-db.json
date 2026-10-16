@@ -1,1 +1,1786 @@
-{"bds_properties":[{"id":"BDS-014","title":"Bán Căn hộ chung cư Goldmark City (136 Hồ Tùng Mậu) 75m² 2PN 3.5 Tỷ","price":3500000000,"status":"active","viewsCount":10}]}
+{
+  "bds_properties": [
+    {
+      "id": "BDS-014",
+      "price": 3500000000,
+      "title": "Bán Căn hộ chung cư Goldmark City (136 Hồ Tùng Mậu) 75m² 2PN 3.5 Tỷ",
+      "status": "active",
+      "viewsCount": 10,
+      "vipPackageId": "vip-normal",
+      "publishedAt": "2026-10-16T06:25:16.015+00:00",
+      "isDeleted": false
+    },
+    {
+      "id": "BDS-015",
+      "area": 75,
+      "city": "Hà Nội",
+      "slug": "ban-can-ho-chung-cu-goldmark-city-136-ho-tung-mau-75m-2pn-35-ty",
+      "ward": "Dịch Vọng",
+      "floor": 12,
+      "legal": "Sổ hồng lâu dài chính chủ",
+      "price": 3500000000,
+      "title": "Bán Căn hộ chung cư Goldmark City (136 Hồ Tùng Mậu) 75m² 2PN 3.5 Tỷ",
+      "author": {
+        "id": "admin-01",
+        "name": "Trần Ban Quản Trị (Admin)",
+        "zalo": "0898246607",
+        "phone": "0898 246 607",
+        "title": "Hội Viên Cao Cấp VIP",
+        "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80",
+        "rating": 5,
+        "isGuest": false,
+        "authorType": "member",
+        "isVerified": false,
+        "reviewCount": 1
+      },
+      "demand": "sale",
+      "facade": 5,
+      "images": [
+        "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "trash",
+      "street": "Đường Cầu Giấy",
+      "address": "Đường Cầu Giấy, (Dự án: Goldmark City (136 Hồ Tùng Mậu)), Phường/Xã Dịch Vọng, Quận Cầu Giấy, Hà Nội",
+      "bedroom": 2,
+      "isGuest": false,
+      "orderId": "TXN-3954",
+      "project": "Goldmark City (136 Hồ Tùng Mậu)",
+      "bathroom": 2,
+      "district": "Quận Cầu Giấy",
+      "hasVR360": false,
+      "roadType": "car_pass",
+      "videoUrl": "",
+      "autoRenew": false,
+      "deletedAt": "2026-10-16T02:10:34.485Z",
+      "direction": "Đông Nam",
+      "expiresAt": "2026-10-30T14:58:17.001+00:00",
+      "furniture": "Full nội thất cao cấp",
+      "isDeleted": true,
+      "priceType": "total",
+      "queueRank": 4,
+      "callsCount": 0,
+      "isFeatured": false,
+      "paidAmount": 2399400,
+      "pricePerM2": "46.7 tr/m²",
+      "viewsCount": 1,
+      "contactName": "Trần Ban Quản Trị (Admin)",
+      "description": "Chính chủ cần bán gấp căn hộ cao cấp view thoáng đẹp:\n- Diện tích thông thủy: 78m2, thiết kế tối ưu 2 phòng ngủ, 2 WC riêng biệt.\n- Cửa chính hướng Đông Nam, ban công hướng Nam lộng gió quanh năm, view trực diện công viên nội khu.\n- Đầy đủ nội thất cao cấp: Tủ bếp gỗ An Cường, bếp từ Bosch, điều hòa âm trần Daikin, sàn gỗ nhập khẩu, khóa cửa thông minh Hafele.\n- Tiện ích nội khu đồng bộ: Trung tâm thương mại, bể bơi 4 mùa, phòng gym tiêu chuẩn quốc tế, trường mầm non, an ninh 24/7.\n- Pháp lý: Sổ hồng lâu dài chính chủ, sang tên công chứng nhanh chóng.\n- Hỗ trợ vay ngân hàng 70% giá trị căn hộ với lãi suất ưu đãi.",
+      "listingDays": 15,
+      "publishedAt": "2026-10-15T14:58:17.001+00:00",
+      "submittedAt": "2026-10-15T14:58:17.001Z",
+      "approvalNote": "Quản trị viên xuất bản trực tiếp",
+      "approvalType": "admin_instant",
+      "contactEmail": "admin@bdslandmark.vn",
+      "contactPhone": "0898 246 607",
+      "entranceRoad": 8,
+      "priceDisplay": "3.5 Tỷ",
+      "propertyType": "apartment",
+      "vipPackageId": "vip-gold",
+      "autoApproveAt": null,
+      "autoBumpHours": [
+        "08:00",
+        "19:30"
+      ],
+      "paymentMethod": "Ví tài khoản",
+      "queuePriority": "standard_fifo",
+      "addressDisplay": "",
+      "contactAddress": "Hà Nội & TP.HCM",
+      "hasDualListing": false,
+      "paymentOrderId": "TXN-3954",
+      "previousStatus": "active",
+      "coverImageIndex": 0,
+      "balconyDirection": "Nam",
+      "propertyTypeName": "Căn hộ chung cư"
+    },
+    {
+      "id": "BDS-013",
+      "area": 75,
+      "city": "Hà Nội",
+      "slug": "ban-can-ho-chung-cu-goldmark-city-136-ho-tung-mau-75m-2pn-35-ty",
+      "ward": "Dịch Vọng",
+      "floor": 12,
+      "legal": "Sổ hồng lâu dài chính chủ",
+      "price": 3500000000,
+      "title": "Bán Căn hộ chung cư Goldmark City (136 Hồ Tùng Mậu) 75m² 2PN 3.5 Tỷ",
+      "author": {
+        "id": "broker-01",
+        "name": "Nguyễn Văn Tuấn",
+        "zalo": "0908123456",
+        "phone": "0908 123 456",
+        "title": "Hội Viên Tiêu Chuẩn",
+        "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
+        "rating": 5,
+        "isGuest": false,
+        "authorType": "member",
+        "isVerified": true,
+        "reviewCount": 1
+      },
+      "demand": "sale",
+      "facade": 5,
+      "images": [
+        "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "active",
+      "street": "Đường Cầu Giấy",
+      "address": "Đường Cầu Giấy, (Dự án: Goldmark City (136 Hồ Tùng Mậu)), Phường/Xã Dịch Vọng, Quận Cầu Giấy, Hà Nội",
+      "bedroom": 2,
+      "isGuest": false,
+      "orderId": "TXN-4274",
+      "project": "Goldmark City (136 Hồ Tùng Mậu)",
+      "bathroom": 2,
+      "district": "Quận Cầu Giấy",
+      "hasVR360": false,
+      "roadType": "car_pass",
+      "videoUrl": "",
+      "autoRenew": false,
+      "direction": "Đông Nam",
+      "expiresAt": "2026-10-30T15:55:17.641+00:00",
+      "furniture": "Full nội thất cao cấp",
+      "priceType": "total",
+      "queueRank": 4,
+      "approvedAt": "2026-10-15T15:55:17.641Z",
+      "callsCount": 0,
+      "isFeatured": false,
+      "paidAmount": 49800,
+      "pricePerM2": "46.7 tr/m²",
+      "viewsCount": 1,
+      "contactName": "Nguyễn Văn Tuấn",
+      "description": "Chính chủ cần bán gấp căn hộ cao cấp view thoáng đẹp:\n- Diện tích thông thủy: 78m2, thiết kế tối ưu 2 phòng ngủ, 2 WC riêng biệt.\n- Cửa chính hướng Đông Nam, ban công hướng Nam lộng gió quanh năm, view trực diện công viên nội khu.\n- Đầy đủ nội thất cao cấp: Tủ bếp gỗ An Cường, bếp từ Bosch, điều hòa âm trần Daikin, sàn gỗ nhập khẩu, khóa cửa thông minh Hafele.\n- Tiện ích nội khu đồng bộ: Trung tâm thương mại, bể bơi 4 mùa, phòng gym tiêu chuẩn quốc tế, trường mầm non, an ninh 24/7.\n- Pháp lý: Sổ hồng lâu dài chính chủ, sang tên công chứng nhanh chóng.\n- Hỗ trợ vay ngân hàng 70% giá trị căn hộ với lãi suất ưu đãi.",
+      "listingDays": 15,
+      "publishedAt": "2026-10-15T14:55:17.069+00:00",
+      "submittedAt": "2026-10-15T14:55:17.069Z",
+      "approvalNote": "Tin Thường: Hàng đợi tiêu chuẩn FIFO (Tự động xuất bản sau 60 phút / 1 tiếng)",
+      "approvalType": "standard_fifo_countdown",
+      "autoApproved": true,
+      "contactEmail": "tuan.batdongsan@landmark.vn",
+      "contactPhone": "0908 123 456",
+      "entranceRoad": 8,
+      "priceDisplay": "3.5 Tỷ",
+      "propertyType": "apartment",
+      "vipPackageId": "normal",
+      "autoApproveAt": "2026-10-15T15:55:17.069Z",
+      "autoBumpHours": [
+        "08:00",
+        "19:30"
+      ],
+      "paymentMethod": "Ví tài khoản",
+      "queuePriority": "standard_fifo",
+      "addressDisplay": "",
+      "contactAddress": "Hà Nội & TP.HCM",
+      "hasDualListing": false,
+      "paymentOrderId": "TXN-4274",
+      "coverImageIndex": 0,
+      "balconyDirection": "Nam",
+      "propertyTypeName": "Căn hộ chung cư",
+      "isDeleted": false
+    },
+    {
+      "id": "BDS-012",
+      "area": 75,
+      "city": "Hà Nội",
+      "slug": "ban-can-ho-chung-cu-goldmark-city-136-ho-tung-mau-75m-2pn-35-ty",
+      "ward": "Dịch Vọng",
+      "floor": 12,
+      "legal": "Sổ hồng lâu dài chính chủ",
+      "price": 3500000000,
+      "title": "Bán Căn hộ chung cư Goldmark City (136 Hồ Tùng Mậu) 75m² 2PN 3.5 Tỷ",
+      "author": {
+        "id": "broker-01",
+        "name": "Nguyễn Văn Tuấn",
+        "zalo": "0908123456",
+        "phone": "0908 123 456",
+        "title": "Hội Viên Tiêu Chuẩn",
+        "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
+        "rating": 5,
+        "isGuest": false,
+        "authorType": "member",
+        "isVerified": true,
+        "reviewCount": 1
+      },
+      "demand": "sale",
+      "facade": 5,
+      "images": [
+        "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "active",
+      "street": "Đường Cầu Giấy",
+      "address": "Đường Cầu Giấy, (Dự án: Goldmark City (136 Hồ Tùng Mậu)), Phường/Xã Dịch Vọng, Quận Cầu Giấy, Hà Nội",
+      "bedroom": 2,
+      "isGuest": false,
+      "orderId": "TXN-9724",
+      "project": "Goldmark City (136 Hồ Tùng Mậu)",
+      "bathroom": 2,
+      "district": "Quận Cầu Giấy",
+      "hasVR360": false,
+      "roadType": "car_pass",
+      "videoUrl": "",
+      "autoRenew": false,
+      "deletedAt": null,
+      "direction": "Đông Nam",
+      "expiresAt": "2026-10-30T15:05:24.756+00:00",
+      "furniture": "Full nội thất cao cấp",
+      "isDeleted": false,
+      "priceType": "total",
+      "queueRank": 2,
+      "updatedAt": "2026-10-16T02:23:33.157Z",
+      "approvedAt": "2026-10-15T15:05:24.759Z",
+      "callsCount": 0,
+      "isFeatured": false,
+      "paidAmount": 2399400,
+      "pricePerM2": "46.7 tr/m²",
+      "viewsCount": 1,
+      "contactName": "Nguyễn Văn Tuấn",
+      "description": "Chính chủ cần bán gấp căn hộ cao cấp view thoáng đẹp:\n- Diện tích thông thủy: 78m2, thiết kế tối ưu 2 phòng ngủ, 2 WC riêng biệt.\n- Cửa chính hướng Đông Nam, ban công hướng Nam lộng gió quanh năm, view trực diện công viên nội khu.\n- Đầy đủ nội thất cao cấp: Tủ bếp gỗ An Cường, bếp từ Bosch, điều hòa âm trần Daikin, sàn gỗ nhập khẩu, khóa cửa thông minh Hafele.\n- Tiện ích nội khu đồng bộ: Trung tâm thương mại, bể bơi 4 mùa, phòng gym tiêu chuẩn quốc tế, trường mầm non, an ninh 24/7.\n- Pháp lý: Sổ hồng lâu dài chính chủ, sang tên công chứng nhanh chóng.\n- Hỗ trợ vay ngân hàng 70% giá trị căn hộ với lãi suất ưu đãi.",
+      "listingDays": 15,
+      "publishedAt": "2026-10-15T14:49:35.321+00:00",
+      "submittedAt": "2026-10-15T14:49:35.321Z",
+      "approvalNote": "VIP Vàng: Ưu tiên sớm (Tự động duyệt sau 15 phút)",
+      "approvalType": "priority_countdown",
+      "autoApproved": true,
+      "contactEmail": "tuan.batdongsan@landmark.vn",
+      "contactPhone": "0908 123 456",
+      "entranceRoad": 8,
+      "priceDisplay": "3.5 Tỷ",
+      "propertyType": "apartment",
+      "vipPackageId": "vip-gold",
+      "autoApproveAt": "2026-10-15T15:04:35.321Z",
+      "autoBumpHours": [
+        "08:00",
+        "19:30"
+      ],
+      "paymentMethod": "Ví tài khoản",
+      "queuePriority": "priority_gold",
+      "addressDisplay": "",
+      "contactAddress": "Hà Nội & TP.HCM",
+      "hasDualListing": false,
+      "paymentOrderId": "TXN-9724",
+      "previousStatus": "active",
+      "coverImageIndex": 0,
+      "balconyDirection": "Nam",
+      "propertyTypeName": "Căn hộ chung cư"
+    },
+    {
+      "id": "BDS-011",
+      "area": 75,
+      "city": "Hà Nội",
+      "slug": "ban-can-ho-chung-cu-goldmark-city-136-ho-tung-mau-75m-2pn-35-ty",
+      "ward": "Dịch Vọng",
+      "floor": 12,
+      "legal": "Sổ hồng lâu dài chính chủ",
+      "price": 3500000000,
+      "title": "Bán Căn hộ chung cư Goldmark City (136 Hồ Tùng Mậu) 75m² 2PN 3.5 Tỷ",
+      "author": {
+        "id": "admin-01",
+        "name": "Trần Ban Quản Trị (Admin)",
+        "zalo": "0898246607",
+        "phone": "0898 246 607",
+        "title": "Hội Viên Cao Cấp VIP",
+        "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80",
+        "rating": 5,
+        "isGuest": false,
+        "authorType": "member",
+        "isVerified": false,
+        "reviewCount": 1
+      },
+      "demand": "sale",
+      "facade": 5,
+      "images": [
+        "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "trash",
+      "street": "Đường Cầu Giấy",
+      "address": "Đường Cầu Giấy, (Dự án: Goldmark City (136 Hồ Tùng Mậu)), Phường/Xã Dịch Vọng, Quận Cầu Giấy, Hà Nội",
+      "bedroom": 2,
+      "isGuest": false,
+      "orderId": "TXN-9056",
+      "project": "Goldmark City (136 Hồ Tùng Mậu)",
+      "bathroom": 2,
+      "district": "Quận Cầu Giấy",
+      "hasVR360": false,
+      "roadType": "car_pass",
+      "videoUrl": "",
+      "autoRenew": false,
+      "deletedAt": "2026-10-16T05:20:55.076Z",
+      "direction": "Đông Nam",
+      "expiresAt": "2026-10-30T14:49:09.983+00:00",
+      "furniture": "Full nội thất cao cấp",
+      "isDeleted": true,
+      "priceType": "total",
+      "queueRank": 4,
+      "callsCount": 0,
+      "isFeatured": false,
+      "paidAmount": 2399400,
+      "pricePerM2": "46.7 tr/m²",
+      "viewsCount": 1,
+      "contactName": "Trần Ban Quản Trị (Admin)",
+      "description": "Chính chủ cần bán gấp căn hộ cao cấp view thoáng đẹp:\n- Diện tích thông thủy: 78m2, thiết kế tối ưu 2 phòng ngủ, 2 WC riêng biệt.\n- Cửa chính hướng Đông Nam, ban công hướng Nam lộng gió quanh năm, view trực diện công viên nội khu.\n- Đầy đủ nội thất cao cấp: Tủ bếp gỗ An Cường, bếp từ Bosch, điều hòa âm trần Daikin, sàn gỗ nhập khẩu, khóa cửa thông minh Hafele.\n- Tiện ích nội khu đồng bộ: Trung tâm thương mại, bể bơi 4 mùa, phòng gym tiêu chuẩn quốc tế, trường mầm non, an ninh 24/7.\n- Pháp lý: Sổ hồng lâu dài chính chủ, sang tên công chứng nhanh chóng.\n- Hỗ trợ vay ngân hàng 70% giá trị căn hộ với lãi suất ưu đãi.",
+      "listingDays": 15,
+      "publishedAt": "2026-10-15T14:49:09.983+00:00",
+      "submittedAt": "2026-10-15T14:49:09.983Z",
+      "approvalNote": "Quản trị viên xuất bản trực tiếp",
+      "approvalType": "admin_instant",
+      "contactEmail": "admin@bdslandmark.vn",
+      "contactPhone": "0898 246 607",
+      "entranceRoad": 8,
+      "priceDisplay": "3.5 Tỷ",
+      "propertyType": "apartment",
+      "vipPackageId": "vip-gold",
+      "autoApproveAt": null,
+      "autoBumpHours": [
+        "08:00",
+        "19:30"
+      ],
+      "paymentMethod": "Ví tài khoản",
+      "queuePriority": "standard_fifo",
+      "addressDisplay": "",
+      "contactAddress": "Hà Nội & TP.HCM",
+      "hasDualListing": false,
+      "paymentOrderId": "TXN-9056",
+      "previousStatus": "active",
+      "coverImageIndex": 0,
+      "balconyDirection": "Nam",
+      "propertyTypeName": "Căn hộ chung cư"
+    },
+    {
+      "id": "BDS-001",
+      "lat": 10.7951,
+      "lng": 106.7219,
+      "area": 280,
+      "city": "TP. Hồ Chí Minh",
+      "slug": "penthouse-duplex-landmark-81-view-song-sai-gon",
+      "floor": 48,
+      "legal": "Sổ hồng lâu dài chính chủ",
+      "price": 38500000000,
+      "title": "SIÊU DỰ ÁN PENTHOUSE DUPLEX LANDMARK 81 TẦNG CAO VIEW TRỌN SÔNG SÀI GÒN - FULL NỘI THẤT HÀNG HIỆU Ý",
+      "author": {
+        "id": "broker-01",
+        "name": "Nguyễn Văn Tuấn",
+        "zalo": "0908123456",
+        "phone": "0908 123 456",
+        "title": "Giám Đốc Kinh Doanh BĐS Cao Cấp",
+        "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+        "rating": 4.9,
+        "isVerified": true,
+        "reviewCount": 38
+      },
+      "demand": "sale",
+      "images": [
+        "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "active",
+      "address": "Vinhomes Central Park, 208 Nguyễn Hữu Cảnh, Phường 22",
+      "bedroom": 4,
+      "bathroom": 5,
+      "district": "Quận Bình Thạnh",
+      "hasVR360": true,
+      "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "vrScenes": [
+        {
+          "img": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80",
+          "name": "Phòng khách thông tầng"
+        },
+        {
+          "img": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1600&q=80",
+          "name": "Ban công ngắm Sông Sài Gòn"
+        },
+        {
+          "img": "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1600&q=80",
+          "name": "Phòng ngủ Master King-size"
+        }
+      ],
+      "amenities": [
+        "Hồ bơi vô cực",
+        "Sân golf mini",
+        "Công viên 14ha",
+        "Bến du thuyền 5 sao",
+        "Bệnh viện Vinmec",
+        "Trường học Vinschool",
+        "TTTM Landmark 81"
+      ],
+      "autoRenew": true,
+      "direction": "Đông Nam",
+      "expiresAt": "2026-11-13T08:30:00+00:00",
+      "furniture": "Full nội thất cao cấp nhập khẩu Versace & B&B Italia",
+      "callsCount": 156,
+      "isFeatured": true,
+      "pricePerM2": "137.5 triệu/m²",
+      "viewsCount": 6290,
+      "description": "Tuyệt phẩm căn hộ Penthouse Duplex áp mái Landmark 81 - Tòa nhà cao nhất Việt Nam.\n- Thiết kế thông tầng trần cao 6.8m, kính Low-E tràn viền panorama 360 độ ngắm trọn sông Sài Gòn và trung tâm Quận 1 pháo hoa rực rỡ.\n- Bố trí 4 phòng ngủ Master khép kín, phòng chiếu phim riêng, phòng gym mini, quầy bar rượu vang cao cấp.\n- Hệ thống SmartHome điều khiển giọng nói toàn diện.\n- Đặc quyền cư dân VIP: Hồ bơi vô cực riêng, bãi đỗ du thuyền, sảnh Lounge VIP đón tiếp riêng biệt.\n- Pháp lý: Sổ hồng sở hữu lâu dài, sẵn sàng công chứng sang tên trong ngày.",
+      "listingDays": 30,
+      "publishedAt": "2026-10-15T13:04:54.496+00:00",
+      "priceDisplay": "38.5 Tỷ",
+      "propertyType": "apartment",
+      "vipPackageId": "vip-diamond",
+      "queuePriority": "priority_diamond",
+      "nearbyFacilities": [
+        {
+          "name": "Bến du thuyền Sài Gòn Marina",
+          "distance": "150m"
+        },
+        {
+          "name": "Bệnh viện Đa khoa Quốc tế Vinmec",
+          "distance": "300m"
+        },
+        {
+          "name": "Trường Liên cấp Quốc tế Vinschool",
+          "distance": "250m"
+        },
+        {
+          "name": "Ga Metro Tân Cảng Tuyến Số 1",
+          "distance": "500m"
+        }
+      ],
+      "propertyTypeName": "Căn hộ Penthouse Duplex",
+      "isDeleted": false
+    },
+    {
+      "id": "BDS-003",
+      "lat": 21.0083,
+      "lng": 105.7997,
+      "area": 120,
+      "city": "Hà Nội",
+      "slug": "nha-mat-pho-tran-duy-hung-cau-giay-8-tang-thang-may",
+      "floor": 8,
+      "legal": "Sổ đỏ chính chủ, nở hậu đón tài lộc",
+      "price": 49500000000,
+      "title": "NHÀ MẶT PHỐ TRẦN DUY HƯNG CẦU GIẤY 8 TẦNG THANG MÁY - DÒNG TIỀN CHO THUÊ 180 TRIỆU/THÁNG",
+      "author": {
+        "id": "broker-01",
+        "name": "Nguyễn Văn Tuấn",
+        "zalo": "0908123456",
+        "phone": "0908 123 456",
+        "title": "Giám Đốc Kinh Doanh BĐS",
+        "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+        "rating": 4.9,
+        "isVerified": true,
+        "reviewCount": 38
+      },
+      "demand": "sale",
+      "images": [
+        "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1512915922686-57c11dde9b6b?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "active",
+      "address": "Mặt phố Trần Duy Hưng, Phường Trung Hòa",
+      "bedroom": 12,
+      "bathroom": 10,
+      "district": "Quận Cầu Giấy",
+      "hasVR360": false,
+      "videoUrl": "",
+      "amenities": [
+        "Thang máy nhập khẩu",
+        "PCCC tiêu chuẩn mới",
+        "Vỉa hè 8m",
+        "Hầm để xe rộng"
+      ],
+      "autoRenew": false,
+      "direction": "Tây Bắc",
+      "expiresAt": "2026-10-28T10:00:00+00:00",
+      "furniture": "Full điều hòa âm trần Daikin, hệ thống PCCC kiểm định chuẩn",
+      "callsCount": 84,
+      "pricePerM2": "412.5 triệu/m²",
+      "viewsCount": 2915,
+      "description": "Vị trí kim cương ngay ngã tư Trần Duy Hưng - Hoàng Minh Giám.\n- Mặt tiền khủng 7.2m vỉa hè rộng 8m thênh thang, ô tô đỗ thoải mái ngày đêm.\n- Xây 8 tầng kiên cố khung bê tông cốt thép, thang máy nhập khẩu tốc độ cao tải trọng 1000kg.\n- Hiện đang cho Thẩm mỹ viện quốc tế thuê hợp đồng dài hạn 180 triệu/tháng (dòng tiền sinh lời 4.5%/năm).",
+      "listingDays": 15,
+      "publishedAt": "2026-10-15T13:03:41.203+00:00",
+      "priceDisplay": "49.5 Tỷ",
+      "propertyType": "street-house",
+      "vipPackageId": "vip-gold",
+      "queuePriority": "priority_gold",
+      "nearbyFacilities": [
+        {
+          "name": "TTTM Big C Thăng Long",
+          "distance": "200m"
+        },
+        {
+          "name": "Trường THPT Chuyên Hà Nội - Amsterdam",
+          "distance": "450m"
+        },
+        {
+          "name": "Khách sạn JW Marriott",
+          "distance": "1.2km"
+        }
+      ],
+      "propertyTypeName": "Nhà mặt phố",
+      "isDeleted": false
+    },
+    {
+      "id": "BDS-010",
+      "area": 75,
+      "city": "Hà Nội",
+      "slug": "ban-can-ho-chung-cu-goldmark-city-136-ho-tung-mau-75m-2pn-35-ty",
+      "ward": "Dịch Vọng",
+      "floor": 12,
+      "legal": "Sổ hồng lâu dài chính chủ",
+      "price": 3500000000,
+      "title": "Bán Căn hộ chung cư Goldmark City (136 Hồ Tùng Mậu) 75m² 2PN 3.5 Tỷ",
+      "author": {
+        "id": "admin-01",
+        "name": "Trần Ban Quản Trị (Admin)",
+        "zalo": "0898246607",
+        "phone": "0898 246 607",
+        "title": "Hội Viên Cao Cấp VIP",
+        "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80",
+        "rating": 5,
+        "isGuest": false,
+        "authorType": "member",
+        "isVerified": false,
+        "reviewCount": 1
+      },
+      "demand": "sale",
+      "facade": 5,
+      "images": [
+        "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "trash",
+      "street": "Đường Cầu Giấy",
+      "address": "Đường Cầu Giấy, (Dự án: Goldmark City (136 Hồ Tùng Mậu)), Phường/Xã Dịch Vọng, Quận Cầu Giấy, Hà Nội",
+      "bedroom": 2,
+      "isGuest": false,
+      "orderId": "BDS-920050",
+      "project": "Goldmark City (136 Hồ Tùng Mậu)",
+      "bathroom": 2,
+      "district": "Quận Cầu Giấy",
+      "hasVR360": false,
+      "roadType": "car_pass",
+      "videoUrl": "",
+      "autoRenew": false,
+      "deletedAt": "2026-10-16T02:12:08.126Z",
+      "direction": "Đông Nam",
+      "expiresAt": "2026-10-30T12:04:10.754+00:00",
+      "furniture": "Full nội thất cao cấp",
+      "isDeleted": true,
+      "priceType": "total",
+      "queueRank": 4,
+      "updatedAt": "2026-10-15T12:25:12.594Z",
+      "callsCount": 0,
+      "isFeatured": false,
+      "paidAmount": 2399400,
+      "pricePerM2": "46.7 tr/m²",
+      "viewsCount": 1,
+      "contactName": "Trần Ban Quản Trị (Admin)",
+      "description": "Chính chủ cần bán g�������������������������������������������������������p căn hộ cao cấp view thoáng đẹp:\n- Diện tích thông thủy: 78m2, thiết kế tối ưu 2 phòng ngủ, 2 WC riêng biệt.\n- Cửa chính hướng Đông Nam, ban công hướng Nam lộng gió quanh năm, view trực diện công viên nội khu.\n- Đầy đủ nội thất cao cấp: Tủ bếp gỗ An Cường, bếp từ Bosch, điều hòa âm trần Daikin, sàn gỗ nhập khẩu, khóa cửa thông minh Hafele.\n- Tiện ích nội khu đồng bộ: Trung tâm thương mại, bể bơi 4 mùa, phòng gym tiêu chuẩn quốc tế, trường mầm non, an ninh 24/7.\n- Pháp lý: Sổ hồng lâu dài chính chủ, sang tên công chứng nhanh chóng.\n- Hỗ trợ vay ngân hàng 70% giá trị căn hộ với lãi suất ưu đãi.",
+      "listingDays": 15,
+      "publishedAt": "2026-10-15T12:04:10.754+00:00",
+      "submittedAt": "2026-10-15T12:04:10.754Z",
+      "approvalNote": "Quản trị viên xuất bản trực tiếp",
+      "approvalType": "admin_instant",
+      "contactEmail": "admin@bdslandmark.vn",
+      "contactPhone": "0898 246 607",
+      "entranceRoad": 8,
+      "priceDisplay": "3.5 Tỷ",
+      "propertyType": "apartment",
+      "vipPackageId": "vip-gold",
+      "autoApproveAt": null,
+      "autoBumpHours": [
+        "08:00",
+        "19:30"
+      ],
+      "paymentMethod": "VietQR Ngân Hàng",
+      "queuePriority": "standard_fifo",
+      "addressDisplay": "",
+      "contactAddress": "Hà Nội & TP.HCM",
+      "hasDualListing": false,
+      "paymentOrderId": "BDS-920050",
+      "previousStatus": "active",
+      "coverImageIndex": 0,
+      "balconyDirection": "Nam",
+      "propertyTypeName": "Căn hộ chung cư"
+    },
+    {
+      "id": "BDS-009",
+      "lat": 21.0333,
+      "lng": 105.7833,
+      "area": 150,
+      "city": "Hà Nội",
+      "slug": "ban-shophouse-cau-giay-dang-cho-thue-cafe",
+      "floor": 2,
+      "legal": "Sổ hồng 50 năm",
+      "price": 16500000000,
+      "title": "Cần bán gấp căn shophouse khối đế chung cư Cầu Giấy đang kinh doanh Cafe Highlands",
+      "author": {
+        "id": "broker-01",
+        "name": "Nguyễn Văn Tuấn",
+        "zalo": "0908123456",
+        "phone": "0908 123 456",
+        "title": "Giám Đốc Kinh Doanh BĐS",
+        "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+        "rating": 4.9,
+        "isVerified": true,
+        "reviewCount": 38
+      },
+      "demand": "sale",
+      "images": [
+        "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "active",
+      "address": "Đường Duy Tân, Phường Dịch Vọng Hậu",
+      "bedroom": 1,
+      "bathroom": 2,
+      "district": "Quận Cầu Giấy",
+      "hasVR360": false,
+      "amenities": [
+        "Mặt tiền 10m",
+        "Chỗ đỗ xe rộng"
+      ],
+      "autoRenew": false,
+      "direction": "Đông Bắc",
+      "expiresAt": "2026-10-30T14:28:32.641+00:00",
+      "furniture": "Hoàn thiện đồng bộ",
+      "approvedAt": "2026-10-15T14:28:32.641Z",
+      "callsCount": 0,
+      "pricePerM2": "110 triệu/m²",
+      "viewsCount": 12,
+      "description": "Tin đăng mới đang chờ Admin kiểm duyệt nội dung và giấy tờ pháp lý. Shophouse tầng trệt tòa nhà 30 tầng với hơn 1.200 căn hộ.",
+      "listingDays": 15,
+      "publishedAt": "2026-10-15T06:00:00+00:00",
+      "approvalNote": "Tin Thường: Hàng đợi tiêu chuẩn FIFO (Tự động xuất bản trong 1 tiếng)",
+      "approvalType": "standard_fifo_countdown",
+      "autoApproved": true,
+      "priceDisplay": "16.5 Tỷ",
+      "propertyType": "shophouse",
+      "vipPackageId": "normal",
+      "autoApproveAt": "2026-10-15T14:27:44.966Z",
+      "queuePriority": "standard_fifo",
+      "nearbyFacilities": [
+        {
+          "name": "Khu công nghệ cao Duy Tân",
+          "distance": "100m"
+        }
+      ],
+      "propertyTypeName": "Shophouse thương mại",
+      "isDeleted": false
+    },
+    {
+      "id": "BDS-002",
+      "lat": 21.0506,
+      "lng": 105.9084,
+      "area": 450,
+      "city": "Hà Nội",
+      "slug": "biet-thu-don-lap-vinhomes-riverside-hoa-lan-450m2",
+      "floor": 3,
+      "legal": "Sổ đỏ vĩnh viễn sẵn sàng giao dịch",
+      "price": 78000000000,
+      "title": "BIỆT THỰ ĐƠN LẬP VINHOMES RIVERSIDE LONG BIÊN HOA LAN 450M2 HỒ ĐIỀU HÒA SANG TRỌNG BẬC NHẤT THỦ ĐÔ",
+      "author": {
+        "id": "broker-02",
+        "name": "Trần Thị Thu Hà",
+        "zalo": "0912888999",
+        "phone": "0912 888 999",
+        "title": "Chuyên Viên Tư Vấn Vinhomes",
+        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+        "rating": 5,
+        "isVerified": true,
+        "reviewCount": 52
+      },
+      "demand": "sale",
+      "images": [
+        "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "rejected",
+      "address": "Khu Đô Thị Sinh Thái Vinhomes Riverside, Đường Hoa Lan",
+      "bedroom": 6,
+      "bathroom": 7,
+      "district": "Quận Long Biên",
+      "hasVR360": true,
+      "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+      "vrScenes": [
+        {
+          "img": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1600&q=80",
+          "name": "Sân vườn & Hồ cá Koi"
+        },
+        {
+          "img": "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1600&q=80",
+          "name": "Đại sảnh phòng khách tân cổ điển"
+        }
+      ],
+      "amenities": [
+        "Sông đào sinh thái",
+        "Bể bơi vô cực",
+        "Sân Tennis tiêu chuẩn ATP",
+        "Trường Quốc tế BIS",
+        "TTTM Vincom Plaza"
+      ],
+      "autoRenew": true,
+      "direction": "Nam",
+      "expiresAt": "2026-11-14T01:15:00+00:00",
+      "furniture": "Hoàn thiện tâm huyết gỗ gõ đỏ Pachy nhập khẩu, thang máy kính",
+      "callsCount": 210,
+      "delistedAt": "2026-10-15T16:47:43.725Z",
+      "isFeatured": true,
+      "pricePerM2": "173.3 triệu/m²",
+      "viewsCount": 5120,
+      "description": "Gia chủ chuyển định cư nước ngoài cần nhượng lại căn Biệt thự đơn lập Hoa Lan đẹp nhất phân khu Riverside.\n- Lô góc 2 mặt tiền cực rộng, mặt sau ôm trọn sông đào sinh thái nước trong xanh quanh năm.\n- Sân vườn rộng rãi trồng hoa lan, hồ cá Koi Nhật Bản trị giá hàng tỷ đồng.\n- Xây dựng 3 tầng nổi + 1 tầng hầm làm hầm rượu vang và phòng karaoke chuẩn cách âm quốc tế.\n- An ninh 3 lớp bảo vệ 24/7, cộng đồng cư dân tinh hoa chính khách và chủ tịch tập đoàn lớn.",
+      "listingDays": 30,
+      "publishedAt": "2026-10-15T01:15:00+00:00",
+      "priceDisplay": "78 Tỷ",
+      "propertyType": "villa",
+      "vipPackageId": "vip-diamond",
+      "queuePriority": "priority_diamond",
+      "rejectionReason": "Đã tiếp nhận phản ánh: Hình ảnh không đúng thực tế, ảnh cắt ghép giả mạo. Đang xử lý.",
+      "nearbyFacilities": [
+        {
+          "name": "Trường Quốc Tế BIS British International",
+          "distance": "400m"
+        },
+        {
+          "name": "TTTM Vincom Long Biên",
+          "distance": "600m"
+        },
+        {
+          "name": "Sân Golf Long Biên",
+          "distance": "2.5km"
+        }
+      ],
+      "propertyTypeName": "Biệt thự đơn lập",
+      "isDeleted": false
+    },
+    {
+      "id": "BDS-004",
+      "lat": 10.8032,
+      "lng": 106.7354,
+      "area": 94,
+      "city": "TP. Hồ Chí Minh",
+      "slug": "can-ho-3pn-masteri-thao-dien-quan-2",
+      "floor": 18,
+      "legal": "Sổ hồng sẵn, hỗ trợ vay bank 70%",
+      "price": 6800000000,
+      "title": "CĂN HỘ 3PN MASTERI THẢO ĐIỀN QUẬN 2 VIEW HỒ BƠI & METRO - SỔ HỒNG TRAO TAY GIÁ CỰC TỐT",
+      "author": {
+        "id": "broker-03",
+        "name": "Lê Hoàng Nam",
+        "zalo": "0938555777",
+        "phone": "0938 555 777",
+        "title": "Môi Giới Chuyên Khu Vực Thảo Điền",
+        "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
+        "rating": 4.8,
+        "isVerified": true,
+        "reviewCount": 27
+      },
+      "demand": "sale",
+      "images": [
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1502005229762-ee1b2b8ab98f?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "active",
+      "address": "159 Xa Lộ Hà Nội, Phường Thảo Điền",
+      "bedroom": 3,
+      "bathroom": 2,
+      "district": "TP. Thủ Đức (Quận 2)",
+      "hasVR360": true,
+      "vrScenes": [
+        {
+          "img": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1600&q=80",
+          "name": "Phòng khách view hồ bơi"
+        }
+      ],
+      "amenities": [
+        "Hồ bơi 500m2",
+        "Phòng tập Gym",
+        "Sân tennis",
+        "Sân chơi trẻ em",
+        "TTTM Vincom Mega Mall Thảo Điền"
+      ],
+      "autoRenew": false,
+      "direction": "Đông Bắc",
+      "expiresAt": "2026-10-29T14:20:00+00:00",
+      "furniture": "Nội thất hiện đại gỗ An Cường cao cấp, đồ điện tử Samsung",
+      "callsCount": 65,
+      "pricePerM2": "72.3 triệu/m²",
+      "viewsCount": 1980,
+      "description": "Cần bán gấp căn hộ Masteri Thảo Điền tháp T4, view trực diện công viên và hồ bơi xanh mát, cực kỳ yên tĩnh.\n- Diện tích 94m² thiết kế 3 phòng ngủ thoáng sáng đón ánh nắng tự nhiên.\n- Kết nối trực tiếp Ga Metro An Phú qua cầu bộ hành trên cao, di chuyển vào Quận 1 chỉ 7 phút.\n- Tiện ích nội khu đẳng cấp: Vincom Mega Mall, rạp chiếu phim CGV, hồ bơi tràn bờ, phòng gym tiêu chuẩn.",
+      "listingDays": 15,
+      "publishedAt": "2026-10-14T14:20:00+00:00",
+      "priceDisplay": "6.8 Tỷ",
+      "propertyType": "apartment",
+      "vipPackageId": "vip-gold",
+      "queuePriority": "priority_gold",
+      "nearbyFacilities": [
+        {
+          "name": "Ga Metro An Phú Tuyến Bến Thành - Suối Tiên",
+          "distance": "50m"
+        },
+        {
+          "name": "Vincom Mega Mall Thảo Điền",
+          "distance": "100m"
+        },
+        {
+          "name": "Trường Quốc Tế ISHCMC",
+          "distance": "800m"
+        }
+      ],
+      "propertyTypeName": "Căn hộ chung cư cao cấp",
+      "isDeleted": false
+    },
+    {
+      "id": "BDS-005",
+      "lat": 16.0124,
+      "lng": 108.2231,
+      "area": 100,
+      "city": "Đà Nẵng",
+      "slug": "dat-nen-kdt-sinh-thai-hoa-xuan-da-nang",
+      "floor": 0,
+      "legal": "Sổ đỏ chính chủ, xây dựng tự do",
+      "price": 3650000000,
+      "title": "ĐẤT NỀN KHU ĐÔ THỊ SINH THÁI HÒA XUÂN ĐÀ NẴNG GẦN CẦU HÒA XUÂN SỔ ĐỎ CÔNG CHỨNG NGAY",
+      "author": {
+        "id": "broker-04",
+        "name": "Võ Minh Quân",
+        "zalo": "0905678999",
+        "phone": "0905 678 999",
+        "title": "Chuyên Viên Đất Nền Đà Nẵng",
+        "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80",
+        "rating": 4.7,
+        "isVerified": false,
+        "reviewCount": 15
+      },
+      "demand": "sale",
+      "images": [
+        "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1448630360428-65456885c650?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "active",
+      "address": "Đường Nguyễn Mậu Tài, Khu Đô Thị Nam Hòa Xuân",
+      "bedroom": 0,
+      "bathroom": 0,
+      "district": "Quận Ngũ Hành Sơn",
+      "hasVR360": false,
+      "amenities": [
+        "Công viên sinh thái",
+        "Bến thuyền",
+        "Đường rộng 7.5m"
+      ],
+      "autoRenew": false,
+      "direction": "Đông",
+      "expiresAt": "2026-10-27T09:10:00+00:00",
+      "furniture": "Đất trống hạ tầng hoàn thiện 100%",
+      "callsCount": 42,
+      "pricePerM2": "36.5 triệu/m²",
+      "viewsCount": 1420,
+      "description": "Chính chủ cần vốn xoay kinh doanh bán gấp lô đất nền đẹp tuyệt đối tại Nam Hòa Xuân Đà Nẵng:\n- Đường 7.5m lề mỗi bên 4m trồng cây xanh rợp bóng mát.\n- Gần kề cụm trường mầm non, cấp 1-2 và công viên hồ điều hòa trung tâm.\n- Cách bãi biển Mỹ Khê chỉ 8 phút xe máy, không khí thoáng mát biển & sông.",
+      "listingDays": 15,
+      "publishedAt": "2026-10-12T09:10:00+00:00",
+      "priceDisplay": "3.65 Tỷ",
+      "propertyType": "land",
+      "vipPackageId": "vip-silver",
+      "queuePriority": "priority_silver",
+      "nearbyFacilities": [
+        {
+          "name": "Sân bay Quốc tế Đà Nẵng",
+          "distance": "6km"
+        },
+        {
+          "name": "Bãi tắm Sơn Thủy",
+          "distance": "3km"
+        }
+      ],
+      "propertyTypeName": "Đất nền dự án",
+      "isDeleted": false
+    },
+    {
+      "id": "BDS-006",
+      "lat": 10.7769,
+      "lng": 106.7009,
+      "area": 200,
+      "city": "TP. Hồ Chí Minh",
+      "slug": "cho-thue-nha-pho-nguyen-can-quan-1-le-thanh-ton",
+      "floor": 4,
+      "legal": "Hợp đ���ng công chứng pháp lý rõ ràng",
+      "price": 65000000,
+      "title": "CHO THUÊ NHÀ PHỐ NGUYÊN CĂN QUẬN 1 LÊ THÁNH TÔN TIỆN LÀM SPA, VĂN PHÒNG HOẶC AIRBNB",
+      "author": {
+        "id": "broker-01",
+        "name": "Nguyễn Văn Tuấn",
+        "zalo": "0908123456",
+        "phone": "0908 123 456",
+        "title": "Môi Giới Cho Thuê Nhà Trung Tâm",
+        "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+        "rating": 4.9,
+        "isVerified": true,
+        "reviewCount": 38
+      },
+      "demand": "rent",
+      "images": [
+        "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "active",
+      "address": "Hẻm xe hơi Lê Thánh Tôn, Phường Bến Nghé",
+      "bedroom": 5,
+      "bathroom": 5,
+      "district": "Quận 1",
+      "hasVR360": false,
+      "amenities": [
+        "Hẻm xe hơi",
+        "Phố đi bộ",
+        "Gần tuyến Metro"
+      ],
+      "autoRenew": false,
+      "direction": "Đông Nam",
+      "expiresAt": "2026-10-16T18:38:31.75+00:00",
+      "furniture": "Đầy đủ nội thất và thiết bị từng phòng ngủ",
+      "callsCount": 37,
+      "pricePerM2": "325.000 đ/m²",
+      "viewsCount": 1650,
+      "description": "Cho thuê nhà nguyên căn khu phố Nhật Bản Little Tokyo Lê Thánh Tôn - Thái Văn Lung.\n- Kết cấu 1 trệt 3 lầu sân thượng thoáng mát. Hẻm xe hơi quay đầu rộng rãi.\n- Từng phòng đều có WC riêng, ban công đón gió. Thích hợp kinh doanh homestay, căn hộ dịch vụ cho chuyên gia Nhật Bản, hoặc mở spa làm đẹp.",
+      "listingDays": 15,
+      "publishedAt": "2026-10-11T16:00:00+00:00",
+      "priceDisplay": "65 Triệu/tháng",
+      "propertyType": "house",
+      "vipPackageId": "vip-silver",
+      "queuePriority": "priority_silver",
+      "nearbyFacilities": [
+        {
+          "name": "Chợ Bến Thành",
+          "distance": "500m"
+        },
+        {
+          "name": "Nhà hát Thành Phố",
+          "distance": "300m"
+        }
+      ],
+      "propertyTypeName": "Nhà nguyên căn",
+      "isDeleted": false
+    },
+    {
+      "id": "BDS-007",
+      "lat": 21.0318,
+      "lng": 105.8213,
+      "area": 45,
+      "city": "Hà Nội",
+      "slug": "ban-nha-rieng-kim-ma-ba-dinh-45m2",
+      "floor": 5,
+      "legal": "Sổ đỏ chính chủ, cất két giao dịch ngay",
+      "price": 6200000000,
+      "title": "Bán nhà riêng ngõ 290 Kim Mã Ba Đình 45m2 x 5 tầng cách đường ô tô 10m - Sổ đỏ vuông vắn",
+      "author": {
+        "id": "broker-05",
+        "name": "Phạm Hải Đăng",
+        "zalo": "0977123789",
+        "phone": "0977 123 789",
+        "title": "Môi Giới Thổ Cư Ba Đình",
+        "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80",
+        "rating": 4.6,
+        "isVerified": true,
+        "reviewCount": 19
+      },
+      "demand": "sale",
+      "images": [
+        "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "active",
+      "address": "Ngõ 290 Kim Mã, Phường Kim Mã",
+      "bedroom": 4,
+      "bathroom": 4,
+      "district": "Quận Ba Đình",
+      "hasVR360": false,
+      "amenities": [
+        "Gần trường học",
+        "Dân trí cao",
+        "An ninh tốt"
+      ],
+      "autoRenew": false,
+      "direction": "Tây Nam",
+      "expiresAt": "2026-10-17T16:38:31.75+00:00",
+      "furniture": "Cơ bản, sàn gỗ, tủ bếp hiện đại",
+      "callsCount": 29,
+      "pricePerM2": "137.7 triệu/m²",
+      "viewsCount": 1100,
+      "description": "Bán nhà khu trung tâm Ba Đình dân trí cao, an ninh tuyệt đối cạnh Đại sứ quán Thụy Điển:\n- Nhà chủ tự xây kiên cố để ở, thiết kế hiện đại, giếng trời thông thoáng.\n- Tầng 1: Phòng khách + bếp + WC. Tầng 2, 3, 4: Mỗi tầng 1 phòng ngủ rộng + WC khép kín. Tầng 5: Phòng thờ + sân phơi.",
+      "listingDays": 15,
+      "publishedAt": "2026-10-10T11:00:00+00:00",
+      "priceDisplay": "6.2 Tỷ",
+      "propertyType": "house",
+      "vipPackageId": "vip-silver",
+      "queuePriority": "priority_silver",
+      "nearbyFacilities": [
+        {
+          "name": "Lotte Center Liễu Giai",
+          "distance": "600m"
+        },
+        {
+          "name": "Hồ Giảng Võ",
+          "distance": "500m"
+        }
+      ],
+      "propertyTypeName": "Nhà riêng",
+      "isDeleted": false
+    },
+    {
+      "id": "BDS-008",
+      "lat": 10.8872,
+      "lng": 106.7821,
+      "area": 80,
+      "city": "Bình Dương",
+      "slug": "ban-dat-tho-cu-80m2-di-an-binh-duong",
+      "floor": 0,
+      "legal": "Sổ hồng riêng từng nền",
+      "price": 2450000000,
+      "title": "Bán đất thổ cư 80m2 tại Dĩ An Bình Dương gần làng Đại học Quốc gia TP.HCM",
+      "author": {
+        "id": "broker-06",
+        "name": "Đoàn Thị Mai",
+        "zalo": "0983999111",
+        "phone": "0983 999 111",
+        "title": "Chính chủ đăng tin",
+        "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&q=80",
+        "rating": 4.5,
+        "isVerified": false,
+        "reviewCount": 8
+      },
+      "demand": "sale",
+      "images": [
+        "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80"
+      ],
+      "status": "expired",
+      "address": "Đường Đông Hòa, Phường Đông Hòa",
+      "bedroom": 0,
+      "bathroom": 0,
+      "district": "TP. Dĩ An",
+      "hasVR360": false,
+      "amenities": [
+        "Đường bê tông 5m",
+        "Điện nước sạch"
+      ],
+      "autoRenew": false,
+      "direction": "Đông Nam",
+      "expiresAt": "2026-08-26T13:30:00.668+00:00",
+      "furniture": "Đất trống",
+      "updatedAt": "2026-10-15T13:29:55.215Z",
+      "callsCount": 14,
+      "pricePerM2": "30.6 triệu/m²",
+      "renewCount": 2,
+      "viewsCount": 780,
+      "description": "Chính chủ gửi bán lô đất thổ cư xây dựng tự do tại Dĩ An. Cách KTX Đại học Quốc gia 1km, xung quanh dân cư đông đúc, thích hợp xây nhà trọ cho sinh viên hoặc an cư lâu dài.",
+      "listingDays": 15,
+      "publishedAt": "2026-10-09T08:00:00+00:00",
+      "priceDisplay": "2.45 Tỷ",
+      "propertyType": "land",
+      "vipPackageId": "normal",
+      "lastRenewedAt": "2026-10-15T13:29:55.215Z",
+      "queuePriority": "standard_fifo",
+      "nearbyFacilities": [
+        {
+          "name": "Khu Đô Thị Đại Học Quốc Gia",
+          "distance": "1km"
+        },
+        {
+          "name": "Bến xe Miền Đông mới",
+          "distance": "2.5km"
+        }
+      ],
+      "propertyTypeName": "Đất thổ cư",
+      "isDeleted": false
+    }
+  ],
+  "bds_users_list": [
+    {
+      "id": "admin-01",
+      "name": "Trần Ban Quản Trị",
+      "email": "admin@datbiendanang.vn",
+      "role": "admin",
+      "roleName": "Tổng Quản Trị Viên (CMS Admin)",
+      "walletBalance": 99999999,
+      "phone": "0898 246 607",
+      "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80",
+      "membership": null,
+      "vouchers": null,
+      "isVerified": true
+    },
+    {
+      "id": "broker-01",
+      "name": "Nguyễn Văn Tuấn",
+      "email": "tuan.batdongsan@datbiendanang.vn",
+      "role": "broker",
+      "roleName": "Môi Giới Chuyên Nghiệp VIP",
+      "walletBalance": 4500000,
+      "phone": "0908 123 456",
+      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
+      "membership": null,
+      "vouchers": null,
+      "isVerified": true
+    },
+    {
+      "id": "user-01",
+      "name": "Lê Minh Tâm",
+      "email": "minhtam.le@gmail.com",
+      "role": "user",
+      "roleName": "Khách hàng cá nhân",
+      "walletBalance": 850000,
+      "phone": "0912 345 678",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80",
+      "membership": null,
+      "vouchers": null,
+      "isVerified": false
+    }
+  ],
+  "bds_header_config": {
+    "logoType": "text",
+    "brandName": "ĐẤT BIỂN",
+    "brandHighlight": "ĐÀ NẴNG",
+    "brandTagline": "Sàn BĐS Hàng Đầu Miền Trung",
+    "brandIcon": "fa-solid fa-water",
+    "badgeText": "VIP",
+    "badgeColor": "bg-red-100 text-red-600 border border-red-200",
+    "logoHeight": 40,
+    "containerWidth": "boxed",
+    "showTaglineWithImage": false
+  },
+  "bds_system_config": {
+    "zalo": "0904 084 888",
+    "email": "tranvanvu.dev@gmail.com",
+    "address": "Đường Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, TP. Đà Nẵng",
+    "hotline": "0904 084 888",
+    "tagline": "Sàn Giao Dịch Bất Động Sản & Đăng Tin VIP",
+    "platformName": "SÀN GIAO DỊCH BẤT ĐỘNG SẢN ĐẤT BIỂN ĐÀ NẴNG",
+    "brandShortName": "ĐẤT BIỂN ĐÀ NẴNG",
+    "maintenanceMode": false,
+    "autoApproveDiamond": true,
+    "autoCleanupEnabled": true,
+    "defaultListingDays": 15,
+    "enableAiModeration": true,
+    "trashRetentionDays": 30,
+    "expiredCleanupAction": "archive_light",
+    "expiredRetentionDays": 45
+  },
+  "bds_payment_config": {
+    "momo": {
+      "desc": "Thanh toán 1-chạm qua ứng dụng MoMo",
+      "icon": "fa-solid fa-mobile-screen-button",
+      "name": "Ví MoMo",
+      "enabled": true,
+      "qrImageUrl": "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=2|99|0898246607|BDS%20LANDMARK||0|0|0",
+      "accountName": "TRAN VAN VU",
+      "phoneNumber": "0904084888"
+    },
+    "vnpay": {
+      "desc": "Thẻ ATM & Quốc tế (Visa, Master, JCB)",
+      "icon": "fa-solid fa-credit-card",
+      "name": "Cổng VNPAY-QR",
+      "enabled": true,
+      "sandbox": true,
+      "tmnCode": "BDSLANDMARK"
+    },
+    "vietqr": {
+      "desc": "Quét mã QR 24/7 (Tự động nhận diện & Duyệt tức thì)",
+      "icon": "fa-solid fa-qrcode",
+      "name": "VietQR Ngân Hàng",
+      "bankBin": "970422",
+      "enabled": true,
+      "bankCode": "MB",
+      "bankName": "MBBank - Ngân Hàng Quân Đội",
+      "accountName": "TRAN VAN VU",
+      "syntaxPrefix": "DBS",
+      "accountNumber": "12383838999999"
+    },
+    "wallet": {
+      "desc": "Trừ trực tiếp số dư tài khoản đã nạp",
+      "icon": "fa-solid fa-wallet",
+      "name": "Ví tài khoản",
+      "enabled": true,
+      "requiresLogin": true
+    },
+    "approvalTiers": {
+      "normal": {
+        "mode": "countdown",
+        "rank": 4,
+        "title": "Tin Thường",
+        "badgeText": "Hàng đợi FIFO (Tự động 1 tiếng)",
+        "shortName": "TIN THƯỜNG",
+        "badgeColor": "bg-slate-700 text-slate-200",
+        "description": "Hàng đợi tiêu chuẩn FIFO - Tự động xuất bản trong 1 tiếng (hoặc BQT duyệt sớm)",
+        "delayMinutes": 60
+      },
+      "vip-gold": {
+        "mode": "countdown",
+        "rank": 2,
+        "title": "VIP Vàng",
+        "badgeText": "Ưu tiên sớm (15 phút)",
+        "shortName": "VIP VÀNG",
+        "badgeColor": "bg-amber-500 text-slate-950 font-bold",
+        "description": "Ưu tiên sớm: Tự động phê duyệt sau 15 phút nếu Admin chưa duyệt trước",
+        "delayMinutes": 15
+      },
+      "vip-silver": {
+        "mode": "countdown",
+        "rank": 3,
+        "title": "VIP Bạc",
+        "badgeText": "Ưu tiên sớm (30 phút)",
+        "shortName": "VIP BẠC",
+        "badgeColor": "bg-blue-600 text-white font-bold",
+        "description": "Ưu tiên sớm: Tự động phê duyệt sau 30 phút (trước tin thường)",
+        "delayMinutes": 30
+      },
+      "vip-diamond": {
+        "mode": "instant",
+        "rank": 1,
+        "title": "VIP Kim Cương",
+        "badgeText": "Duyệt Tức Thì (0s)",
+        "shortName": "VIP KIM CƯƠNG",
+        "badgeColor": "bg-red-600 text-white",
+        "description": "Duyệt Tức Thì tự động (Active ngay lập tức khi thanh toán thành công)",
+        "delayMinutes": 0
+      }
+    },
+    "autoApproveVip": true,
+    "autoApproveOther": true
+  },
+  "bds_nav_menu": [
+    {
+      "id": "menu-explore",
+      "icon": "fa-solid fa-compass",
+      "path": "/",
+      "badge": "",
+      "order": 1,
+      "title": "Khám Phá",
+      "target": "_self",
+      "children": [],
+      "isVisible": true,
+      "badgeColor": ""
+    },
+    {
+      "id": "menu-sale",
+      "icon": "fa-solid fa-house-chimney",
+      "path": "/nha-dat-ban",
+      "badge": "",
+      "order": 2,
+      "title": "Nhà Đất Bán",
+      "target": "_self",
+      "children": [
+        {
+          "id": "sub-sale-apt",
+          "icon": "fa-solid fa-building",
+          "path": "/ban-can-ho-chung-cu",
+          "title": "Bán Căn Hộ Chung Cư"
+        },
+        {
+          "id": "sub-sale-house",
+          "icon": "fa-solid fa-house",
+          "path": "/ban-nha-rieng",
+          "title": "Bán Nhà Riêng, Nhà Phố"
+        },
+        {
+          "id": "sub-sale-street",
+          "icon": "fa-solid fa-shop",
+          "path": "/ban-nha-mat-pho",
+          "title": "Bán Nhà Mặt Phố Kinh Doanh"
+        },
+        {
+          "id": "sub-sale-villa",
+          "icon": "fa-solid fa-landmark-dome",
+          "path": "/ban-nha-biet-thu-lien-ke",
+          "title": "Bán Biệt Thự Liền Kề"
+        },
+        {
+          "id": "sub-sale-land",
+          "icon": "fa-solid fa-mountain",
+          "path": "/ban-dat-nen-du-an",
+          "title": "Bán Đất Nền Dự Án"
+        }
+      ],
+      "isVisible": true,
+      "badgeColor": ""
+    },
+    {
+      "id": "menu-rent",
+      "icon": "fa-solid fa-key",
+      "path": "/nha-dat-cho-thue",
+      "badge": "",
+      "order": 3,
+      "title": "Cho Thuê",
+      "target": "_self",
+      "children": [
+        {
+          "id": "sub-rent-apt",
+          "icon": "fa-solid fa-building",
+          "path": "/cho-thue-can-ho-chung-cu",
+          "title": "Cho Thuê Căn Hộ Chung Cư"
+        },
+        {
+          "id": "sub-rent-house",
+          "icon": "fa-solid fa-house",
+          "path": "/cho-thue-nha-rieng",
+          "title": "Cho Thuê Nhà Riêng, Nguyên Căn"
+        },
+        {
+          "id": "sub-rent-street",
+          "icon": "fa-solid fa-store",
+          "path": "/cho-thue-nha-mat-pho",
+          "title": "Cho Thuê Nhà Mặt Phố"
+        },
+        {
+          "id": "sub-rent-office",
+          "icon": "fa-solid fa-briefcase",
+          "path": "/cho-thue-van-phong",
+          "title": "Cho Thuê Văn Phòng"
+        }
+      ],
+      "isVisible": true,
+      "badgeColor": ""
+    },
+    {
+      "id": "menu-membership",
+      "icon": "fa-solid fa-crown",
+      "path": "/goi-hoi-vien",
+      "badge": "",
+      "order": 4,
+      "title": "Gói Hội Viên",
+      "target": "_self",
+      "children": [],
+      "isVisible": true,
+      "badgeColor": ""
+    }
+  ],
+  "bds_vip_packages": [
+    {
+      "id": "vip-diamond",
+      "name": "VIP Kim Cương",
+      "level": 1,
+      "rates": {
+        "15": 449740,
+        "30": 337300,
+        "60": 314820
+      },
+      "minDays": 15,
+      "tagText": "lượt liên hệ so với tin thường",
+      "features": [
+        "Vị trí số 1: Luôn đứng đầu tiên trên Trang Chủ & Kết Quả Tìm Kiếm",
+        "(*) Duyệt Tức Thì tự động: Kích hoạt hiển thị (Active ngay) lập tức khi thanh toán",
+        "(**) Không hiển thị quảng cáo: Trang chi tiết không xuất hiện banner quảng cáo của bên thứ 3",
+        "(***) Nhân đôi hiển thị: Tặng kèm 1 Tin Thường hiển thị đồng thời ở kết quả tìm kiếm",
+        "Đẩy tin VIP Kim Cương được đẩy MIỄN PHÍ luôn Tin Thường kèm theo",
+        "Thẻ hiển thị cực đại (Hero Card), hiệu ứng viền phát sáng",
+        "Tỷ lệ tiếp cận khách hàng cao gấp 30 lần tin thường"
+      ],
+      "hasNoAds": true,
+      "tagClass": "bg-gradient-to-r from-red-600 to-rose-700 text-white font-bold",
+      "badgeText": "VIP KIM CƯƠNG ★★★★★",
+      "shortName": "VIP KIM CƯƠNG",
+      "badgeColor": "badge-diamond",
+      "titleClass": "text-red-600 font-extrabold uppercase text-lg tracking-wide",
+      "borderColor": "border-red-500 shadow-red-200",
+      "pricePerDay": 449740,
+      "recommended": true,
+      "approvalType": "instant",
+      "approvalBadge": "Duyệt tức thì (0s)",
+      "approvalLabel": "Duyệt Tức Thì tự động (Active ngay)",
+      "hasDualListing": true,
+      "multiplierText": "x30",
+      "hasPriorityQueue": true,
+      "approvalTimeMinutes": 0
+    },
+    {
+      "id": "vip-gold",
+      "name": "VIP Vàng",
+      "level": 2,
+      "rates": {
+        "15": 159960,
+        "30": 119970,
+        "60": 111970
+      },
+      "minDays": 15,
+      "tagText": "lượt liên hệ so với tin thường",
+      "features": [
+        "Vị trí ưu tiên: Hiển thị ngay dưới VIP Kim Cương",
+        "(*) Ưu tiên sớm (15 phút): Tự động phê duyệt sau 15 phút nếu Admin chưa duyệt trước",
+        "(**) Không hiển thị quảng cáo: Không xuất hiện banner quảng cáo ở trang chi tiết",
+        "Khung viền ánh vàng sang trọng, tiêu đề Chữ In Hoa màu Cam Vàng",
+        "Tỷ lệ tiếp cận gấp 15 lần tin thường",
+        "Hiển thị số điện thoại to & nút Gọi/Zalo 1-chạm nổi bật"
+      ],
+      "hasNoAds": true,
+      "tagClass": "bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold",
+      "badgeText": "VIP VÀNG ★★★★",
+      "shortName": "VIP VÀNG",
+      "badgeColor": "badge-gold",
+      "titleClass": "text-amber-600 font-bold uppercase text-base",
+      "borderColor": "border-amber-400 shadow-amber-100",
+      "pricePerDay": 159960,
+      "recommended": false,
+      "approvalType": "priority",
+      "approvalBadge": "Ưu tiên sớm (15 phút)",
+      "approvalLabel": "Ưu tiên sớm (15 phút tự động kích hoạt)",
+      "hasDualListing": false,
+      "multiplierText": "x15",
+      "hasPriorityQueue": true,
+      "approvalTimeMinutes": 15
+    },
+    {
+      "id": "vip-silver",
+      "name": "VIP Bạc",
+      "level": 3,
+      "rates": {
+        "15": 82490,
+        "30": 61870,
+        "60": 57740
+      },
+      "minDays": 15,
+      "tagText": "lượt liên hệ so với tin thường",
+      "features": [
+        "Vị trí nổi bật: Hiển thị trên toàn bộ Tin Thường (dưới VIP Vàng)",
+        "(*) Ưu tiên sớm (30 phút): Tự động duyệt sau 30 phút, ưu tiên trước tin thường",
+        "Gắn huy hiệu VIP Bạc tin cậy, tiêu đề màu xanh đậm hiện đại",
+        "Tỷ lệ tiếp cận gấp 8 lần tin thường",
+        "Hiển thị đầy đủ thông tin môi giới và thông số BĐS"
+      ],
+      "hasNoAds": false,
+      "tagClass": "bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold",
+      "badgeText": "VIP BẠC ★★★",
+      "shortName": "VIP BẠC",
+      "badgeColor": "badge-silver",
+      "titleClass": "text-blue-700 font-bold text-base",
+      "borderColor": "border-blue-400",
+      "pricePerDay": 82490,
+      "recommended": false,
+      "approvalType": "priority",
+      "approvalBadge": "Ưu tiên sớm (30 phút)",
+      "approvalLabel": "Ưu tiên sớm (30 phút tự động kích hoạt)",
+      "hasDualListing": false,
+      "multiplierText": "x8",
+      "hasPriorityQueue": true,
+      "approvalTimeMinutes": 30
+    },
+    {
+      "id": "normal",
+      "name": "Tin Thường",
+      "level": 4,
+      "rates": {
+        "15": 3320,
+        "30": 2500,
+        "60": 2330
+      },
+      "minDays": 15,
+      "tagText": null,
+      "features": [
+        "Vị trí hiển thị: Nằm sau tất cả các phân hạng Tin VIP (Hiển thị dưới cùng)",
+        "(*) Hàng đợi tiêu chuẩn FIFO: Tự động xuất bản trong 1 tiếng (hoặc BQT duyệt sớm)",
+        "Phí đăng tin tiêu chuẩn: 35.000 đ/lần (Hội viên áp dụng Voucher giảm 35.000 đ còn 0 đ)",
+        "Phí đẩy tin làm mới: 10.000 đ/lần (Hội viên áp dụng Voucher giảm 10.000 đ còn 0 đ)",
+        "Đầy đủ thông tin liên hệ, hình ảnh và vị trí bản đồ BĐS",
+        "Phù hợp tin đăng dài hạn, tiết kiệm chi phí tối đa (chỉ từ 2.330 đ/ngày)"
+      ],
+      "hasNoAds": false,
+      "tagClass": "bg-slate-500 text-white",
+      "badgeText": "TIN THƯỜNG",
+      "bumpPrice": 10000,
+      "shortName": "TIN THƯỜNG",
+      "badgeColor": "bg-slate-200 text-slate-700",
+      "titleClass": "text-slate-800 font-medium hover:text-blue-600",
+      "borderColor": "border-slate-200",
+      "pricePerDay": 3320,
+      "recommended": false,
+      "approvalType": "countdown_fifo",
+      "publishPrice": 35000,
+      "approvalBadge": "Hàng đợi FIFO (Tự động 1 tiếng)",
+      "approvalLabel": "Hàng đợi tiêu chuẩn FIFO (Tự động xuất bản trong 1 tiếng)",
+      "hasDualListing": false,
+      "multiplierText": null,
+      "hasPriorityQueue": false,
+      "approvalTimeMinutes": 60
+    }
+  ],
+  "bds_membership_packages": [
+    {
+      "id": "member-basic",
+      "name": "Gói Hội Viên Cơ Bản",
+      "badge": "TIẾT KIỆM 31%",
+      "features": [
+        "15 voucher giảm 35.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)",
+        "15 voucher giảm 10.000 đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)",
+        "Ưu đãi voucher cấp mới định kỳ 30 ngày trong suốt thời hạn gói",
+        "Tiết kiệm 31% chi phí so với mua lẻ từng tin đăng",
+        "Báo cáo thống kê lượt tương tác cơ bản"
+      ],
+      "shortName": "GÓI CƠ BẢN",
+      "badgeColor": "bg-emerald-600 text-white",
+      "recommended": false,
+      "savePercent": 31,
+      "monthlyPrice": 467000,
+      "billingCycles": [
+        {
+          "label": "1 tháng",
+          "price": 467000,
+          "months": 1,
+          "discount": 0
+        },
+        {
+          "note": "Tiết kiệm thêm 5%",
+          "label": "3 tháng",
+          "price": 1330000,
+          "months": 3,
+          "discount": 5
+        },
+        {
+          "note": "Tiết kiệm thêm 10%",
+          "label": "6 tháng",
+          "price": 2520000,
+          "months": 6,
+          "discount": 10
+        }
+      ],
+      "targetAudience": "Môi giới mới vào nghề hoặc có giỏ hàng nhỏ",
+      "vouchersPerCycle": {
+        "vipDiscount": 0,
+        "vipVouchers": 0,
+        "normalBumpDiscount": 10000,
+        "normalBumpVouchers": 15,
+        "normalPublishDiscount": 35000,
+        "normalPublishVouchers": 15
+      }
+    },
+    {
+      "id": "member-standard",
+      "name": "Gói Hội Viên Tiêu Chuẩn",
+      "badge": "BÁN CHẠY NHẤT ★",
+      "features": [
+        "30 voucher giảm 35.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)",
+        "1 voucher giảm 400.000 đ áp dụng cho Tin VIP (mỗi chu kỳ 30 ngày)",
+        "30 voucher giảm 10.000 đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)",
+        "Tiện ích Hẹn giờ đăng tin tự động theo khung giờ vàng",
+        "Ưu tiên Xuất bản & Duyệt tin nhanh",
+        "Báo cáo hiệu suất lượt xem & khách gọi chi tiết",
+        "Tiết kiệm 33% chi phí quảng cáo hàng tháng"
+      ],
+      "shortName": "GÓI TIÊU CHUẨN",
+      "badgeColor": "bg-amber-500 text-slate-950 font-black",
+      "recommended": true,
+      "savePercent": 33,
+      "monthlyPrice": 1267000,
+      "billingCycles": [
+        {
+          "label": "1 tháng",
+          "price": 1267000,
+          "months": 1,
+          "discount": 0
+        },
+        {
+          "note": "Tiết kiệm thêm 5%",
+          "label": "3 tháng",
+          "price": 3610000,
+          "months": 3,
+          "discount": 5
+        },
+        {
+          "note": "Tiết kiệm thêm 10%",
+          "label": "6 tháng",
+          "price": 6840000,
+          "months": 6,
+          "discount": 10
+        }
+      ],
+      "targetAudience": "Môi giới chuyên nghiệp, giỏ hàng từ ~10 BĐS",
+      "vouchersPerCycle": {
+        "vipDiscount": 400000,
+        "vipVouchers": 1,
+        "normalBumpDiscount": 10000,
+        "normalBumpVouchers": 30,
+        "normalPublishDiscount": 35000,
+        "normalPublishVouchers": 30
+      }
+    },
+    {
+      "id": "member-premium",
+      "name": "Gói Hội Viên Cao Cấp",
+      "badge": "ĐẲNG CẤP VIP",
+      "features": [
+        "50 voucher giảm 35.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)",
+        "3 voucher giảm 400.000 đ áp dụng cho Tin VIP (mỗi chu kỳ 30 ngày)",
+        "50 voucher giảm 10.000 đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)",
+        "Trọn bộ tiện ích: Hẹn giờ đăng tin & Tự động đẩy tin định kỳ",
+        "Báo cáo phân tích chuyên sâu thị trường, dự án & đối thủ",
+        "Huy hiệu \"Hội Viên Doanh Nghiệp\" nâng cao uy tín thương hiệu",
+        "Chuyên viên CSKH hỗ trợ kỹ thuật và tối ưu tin đăng riêng 24/7",
+        "Tiết kiệm tối đa 39% chi phí marketing"
+      ],
+      "shortName": "GÓI CAO CẤP",
+      "badgeColor": "bg-gradient-to-r from-red-600 to-purple-600 text-white font-black",
+      "recommended": false,
+      "savePercent": 39,
+      "monthlyPrice": 2200000,
+      "billingCycles": [
+        {
+          "label": "1 tháng",
+          "price": 2200000,
+          "months": 1,
+          "discount": 0
+        },
+        {
+          "note": "Tiết kiệm thêm 5%",
+          "label": "3 tháng",
+          "price": 6270000,
+          "months": 3,
+          "discount": 5
+        },
+        {
+          "note": "Tiết kiệm thêm 10%",
+          "label": "6 tháng",
+          "price": 11880000,
+          "months": 6,
+          "discount": 10
+        }
+      ],
+      "targetAudience": "Môi giới lớn, sàn BĐS, ngân sách tiếp thị mạnh",
+      "vouchersPerCycle": {
+        "vipDiscount": 400000,
+        "vipVouchers": 3,
+        "normalBumpDiscount": 10000,
+        "normalBumpVouchers": 50,
+        "normalPublishDiscount": 35000,
+        "normalPublishVouchers": 50
+      }
+    }
+  ],
+  "bds_single_config": {
+    "features": {
+      "showVipBadge": true,
+      "showAuthorCard": true,
+      "showPrintButton": true,
+      "showShareButton": true,
+      "showInteractiveMap": true,
+      "showLoanCalculator": true,
+      "showRelatedKeywords": true,
+      "showSimilarProperties": true,
+      "showAppointmentBooking": true,
+      "showAdministrativeMergerAlert": true
+    },
+    "disclaimer": {
+      "icon": "fa-solid fa-shield-halved",
+      "title": "Thông Báo Về Nội Dung & Miễn Trừ Trách Nhiệm",
+      "bgStyle": "slate",
+      "enabled": true,
+      "hotline": "0904 084 888",
+      "auditItems": [
+        "Đã kiểm duyệt sơ bộ",
+        "Tuân thủ quy chế sàn TMĐT",
+        "Mã tin được bảo hộ dữ liệu"
+      ],
+      "badgeColor": "amber",
+      "platformName": "ĐẤT BIỂN ĐÀ NẴNG",
+      "contentTemplate": "Quý vị đang xem nội dung tin rao \"{title}\" - Mã tin {id}. Nội dung tin đăng này do Người đăng tin cung cấp và chịu trách nhiệm về tính chính xác, đầy đủ và hợp pháp của thông tin. Với tư cách là Nền tảng thương mại điện tử trung gian, {platformName} thực hiện rà soát, kiểm duyệt trên cơ sở các thông tin được cung cấp. Quý vị vui lòng chủ động kiểm tra, thẩm định thông tin pháp lý và thực tế trước khi giao dịch. Nếu phát hiện nội dung không chính xác hoặc vi phạm, xin vui lòng thông báo qua Hotline {hotline} hoặc công cụ Báo cáo vi phạm để chúng tôi tiếp nhận và xử lý theo quy định.",
+      "reportButtonText": "Báo cáo tin này",
+      "showReportButton": true,
+      "showAuditChecklist": true
+    }
+  },
+  "bds_email_config": {
+    "smtp": {
+      "host": "smtp.gmail.com",
+      "port": 587,
+      "password": "vmsd xkzp ljwr gqae",
+      "username": "support@datbiendanang.vn",
+      "encryption": "tls",
+      "authRequired": true,
+      "timeoutSeconds": 15
+    },
+    "driver": "smtp",
+    "fromName": "Ban Quản Trị Sàn ĐẤT BIỂN ĐÀ NẴNG",
+    "sendgrid": {
+      "apiKey": ""
+    },
+    "fromEmail": "kiemduyet@datbiendanang.vn",
+    "signature": {
+      "zalo": "0904 084 888",
+      "address": "Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng",
+      "hotline": "0904 084 888",
+      "websiteUrl": "https://datbiendanang.vn",
+      "companyName": "SÀN GIAO DỊCH BẤT ĐỘNG SẢN ĐẤT BIỂN ĐÀ NẴNG"
+    },
+    "templates": {
+      "smtp_test": {
+        "id": "smtp_test",
+        "name": "Thư thử nghiệm kết nối (SMTP Test Email)",
+        "subject": "✅ [THỬ NGHIỆM] Kết nối máy chủ gửi thư thành công • {{siteName}}",
+        "greeting": "Kính gửi Quản Trị Viên,",
+        "introText": "Đây là bức thư thử nghiệm được gửi từ trang Cấu Hình Email Website nhằm xác thực thông số kết nối máy chủ gửi thư điện tử (SMTP / API) của sàn {{siteName}}.",
+        "senderSign": "Bộ Phận Kỹ Thuật Hệ Thống • {{siteName}}",
+        "closingText": "Hệ thống gửi thư điện tử đã sẵn sàng hoạt động an toàn và ổn định.",
+        "description": "Gửi để kiểm tra khả năng phát thư và xác thực kết nối máy chủ gửi thư.",
+        "headerBadge": "Thư Thử Nghiệm Hệ Thống",
+        "headerTheme": "emerald",
+        "headerTitle": "Kết Nối Máy Chủ Email Thành Công!"
+      },
+      "admin_alert": {
+        "id": "admin_alert",
+        "name": "Cảnh báo khẩn cấp tin vi phạm (Gửi Ban Quản Trị)",
+        "subject": "🚨 [CẢNH BÁO VI PHẠM] Tin rao #{{propertyId}} bị báo cáo: {{reason}}",
+        "greeting": "Kính gửi Ban Kiểm Duyệt Sàn {{siteName}},",
+        "introText": "Hệ thống tự động ghi nhận một phản ánh vi phạm mới từ người dùng trên sàn. Vui lòng đối chiếu hồ sơ và kiểm tra tính xác thực để có biện pháp xử lý kịp thời.",
+        "senderSign": "Hệ Thống Giám Sát Tự Động • {{siteName}}",
+        "closingText": "Vui lòng truy cập trang Quản Trị Hệ Thống để thẩm định và ra quyết định xử lý.",
+        "description": "Gửi tức thì tới hòm thư Admin / Kiểm duyệt viên ngay khi có tin đăng bị báo cáo.",
+        "headerBadge": "Cảnh Báo Kiểm Duyệt Khẩn Cấp",
+        "headerTheme": "rose",
+        "headerTitle": "Có Tin Rao Bị Người Dùng Báo Cáo Vi Phạm"
+      },
+      "author_warning": {
+        "id": "author_warning",
+        "name": "Cảnh báo vi phạm & Hạ tin (Gửi Chủ Tin Đăng)",
+        "subject": "⚠️ [THÔNG BÁO] Tin đăng #{{propertyId}} vi phạm tiêu chuẩn • {{siteName}}",
+        "greeting": "Kính gửi {{authorName}},",
+        "introText": "Ban kiểm duyệt {{siteName}} xin thông báo: Tin đăng của bạn đã bị tạm gỡ khỏi sàn giao dịch do có nội dung vi phạm tiêu chuẩn cộng đồng hoặc thông tin không trùng khớp thực tế.",
+        "senderSign": "Ban Pháp Chế & Kiểm Duyệt Sàn {{siteName}}",
+        "description": "Gửi cho người đăng bài khi tin bị khiếu nại hoặc khi ban kiểm duyệt ra quyết định gỡ tin.",
+        "headerBadge": "Thông Báo Hạ Tin Đăng",
+        "headerTheme": "rose",
+        "headerTitle": "Tin Đăng Bị Gỡ Do Vi Phạm Quy Chế",
+        "appealNotice": "Nếu bạn cho rằng quyết định này có sự nhầm lẫn, vui lòng liên hệ Bộ phận Khiếu nại qua Hotline {{hotline}} hoặc gửi email kèm giấy tờ chứng minh để được hỗ trợ mở lại tin.",
+        "reasonNotice": "Lý do xử lý: {{adminNote}}"
+      },
+      "report_resolution": {
+        "id": "report_resolution",
+        "name": "Thông báo kết quả giải quyết (Gửi Người Báo Cáo)",
+        "subject": "🎉 Kết quả xử lý phản ánh vi phạm tin rao #{{propertyId}} • {{siteName}}",
+        "greeting": "Kính gửi {{reporterName}},",
+        "introText": "Ban kiểm duyệt {{siteName}} xin trân trọng thông báo kết quả xác minh phản ánh của Quý khách đối với tin đăng #{{propertyId}} - {{propertyTitle}}:",
+        "senderSign": "Ban Quản Trị Sàn {{siteName}}",
+        "closingText": "Một lần nữa xin chân thành cảm ơn Quý khách đã chung tay xây dựng cộng đồng bất động sản văn minh và an toàn!",
+        "description": "Gửi cho người báo cáo sau khi kiểm duyệt viên đã thẩm định và xử lý xong tin rao.",
+        "headerBadge": "Kết Quả Thẩm Định",
+        "headerTheme": "sky",
+        "headerTitle": "Kết Quả Xử Lý Báo Cáo Vi Phạm",
+        "resolutionDetail": "Biện pháp đã thực hiện: {{actionTaken}}. {{adminNote}}"
+      },
+      "report_confirmation": {
+        "id": "report_confirmation",
+        "name": "Xác nhận tiếp nhận phản ánh (Gửi Người Báo Cáo)",
+        "subject": "✅ Tiếp nhận phản ánh vi phạm tin rao #{{propertyId}} • {{siteName}}",
+        "greeting": "Kính gửi {{reporterName}},",
+        "introText": "Cảm ơn Quý khách đã gửi phản ánh vi phạm về tin rao bất động sản trên sàn giao dịch {{siteName}}. Sự đóng góp của Quý khách có ý nghĩa rất lớn giúp xây dựng một môi trường giao dịch bất động sản minh bạch, chính xác và an toàn.",
+        "senderSign": "Đội Ngũ Kiểm Soát Chất Lượng Sàn {{siteName}}",
+        "closingText": "Chúng tôi sẽ gửi email thông báo kết quả giải quyết khi hoàn tất thẩm định.",
+        "description": "Tự động gửi cho người báo cáo ngay khi họ gửi thông tin phản ánh vi phạm.",
+        "headerBadge": "Tiếp Nhận Phản Ánh",
+        "headerTheme": "emerald",
+        "headerTitle": "Đã Tiếp Nhận Báo Cáo Vi Phạm",
+        "processNotice": "Trong vòng 24 giờ làm việc, đội ngũ thẩm định nội dung sẽ liên hệ trực tiếp với người đăng tin để kiểm tra, yêu cầu xác minh sổ đỏ/giấy tờ pháp lý hoặc mức giá thực tế. Nếu phát hiện vi phạm, tin đăng sẽ bị hạ lập tức."
+      }
+    },
+    "replyToEmail": "tranvanvu.dev@gmail.com",
+    "adminCcEmails": "giam-sat@datbiendanang.vn",
+    "adminAlertEmail": "ban-kiem-duyet@datbiendanang.vn",
+    "notifyAdminOnReport": true,
+    "notifyAdminOnNewListing": true,
+    "enableEmailNotifications": true,
+    "notifyAdminOnVipPurchase": true,
+    "notifyReporterOnResolution": true
+  }
+}

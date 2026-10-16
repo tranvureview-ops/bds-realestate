@@ -327,8 +327,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // 9. Header, Logo & Menu Width Configuration State
   const [headerConfig, setHeaderConfig] = useState(() => {
-    const base = initialData?.bds_header_config || DEFAULT_HEADER_CONFIG;
-    return { ...base, containerWidth: 'boxed' };
+    return initialData?.bds_header_config || DEFAULT_HEADER_CONFIG;
   });
 
   // 10. Payment Methods Configuration State (Backend Admin Config)
@@ -892,16 +891,10 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       const savedHeader = safeStorage.getItem('bds_header_config');
       if (savedHeader) {
         const parsed = JSON.parse(savedHeader);
-        if (parsed) {
+        if (parsed && typeof parsed === 'object') {
           setHeaderConfig(prev => ({
             ...prev,
-            ...parsed,
-            containerWidth: 'boxed',
-            brandName: 'ĐẤT BIỂN',
-            brandHighlight: 'ĐÀ NẴNG',
-            brandTagline: 'Bất Động Sản Biển & Đất Nền Đà Nẵng',
-            brandIcon: 'fa-solid fa-water',
-            logoAlt: 'Đất Biển Đà Nẵng Logo'
+            ...parsed
           }));
         }
       }
@@ -1068,10 +1061,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
             setPaymentConfig(db.bds_payment_config);
             safeStorage.setItem('bds_payment_config', JSON.stringify(db.bds_payment_config));
           }
-          if (db.bds_header_config) {
-            const syncedHeader = { ...db.bds_header_config, containerWidth: 'boxed' };
-            setHeaderConfig(syncedHeader);
-            safeStorage.setItem('bds_header_config', JSON.stringify(syncedHeader));
+          if (db.bds_header_config && typeof db.bds_header_config === 'object') {
+            setHeaderConfig(prev => ({ ...prev, ...db.bds_header_config }));
+            safeStorage.setItem('bds_header_config', JSON.stringify(db.bds_header_config));
           }
           if (db.bds_system_config) {
             setSystemConfig(db.bds_system_config);
@@ -2423,13 +2415,32 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // 11. Header & Logo Configuration Methods
   const updateHeaderConfig = (updatedFields) => {
-    setHeaderConfig(prev => ({ ...prev, ...updatedFields }));
+    setHeaderConfig(prev => {
+      const merged = { ...prev, ...updatedFields };
+      safeStorage.setItem('bds_header_config', JSON.stringify(merged));
+      try {
+        fetch('/api/db-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bds_header_config: merged })
+        }).catch(() => {});
+      } catch (e) {}
+      return merged;
+    });
     showToast('Đã lưu cấu hình Header & Logo thành công!', 'success');
   };
 
   const resetHeaderConfig = () => {
     safeStorage.removeItem('bds_header_config');
     setHeaderConfig(DEFAULT_HEADER_CONFIG);
+    safeStorage.setItem('bds_header_config', JSON.stringify(DEFAULT_HEADER_CONFIG));
+    try {
+      fetch('/api/db-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bds_header_config: DEFAULT_HEADER_CONFIG })
+      }).catch(() => {});
+    } catch (e) {}
     showToast('Đã khôi phục cấu hình Header & Logo về mặc định!', 'info');
   };
 

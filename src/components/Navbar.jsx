@@ -36,10 +36,11 @@ export default function Navbar() {
   const roleDropdownRef = useRef(null);
   const isGuest = !currentUser || currentUser.role === 'guest';
 
-  // Chuẩn hóa chiều rộng container đồng nhất với toàn bộ trang (Boxed: max-w-7xl | Full: w-full)
+  // Chuẩn hóa chiều rộng container đồng nhất với toàn bộ trang (Boxed: max-w-7xl | Wide: max-w-[1536px] | Full: w-full)
   const containerWidthClass = useMemo(() => {
     const widthType = headerConfig?.containerWidth || 'boxed';
     if (widthType === 'full') return 'w-full px-4 sm:px-6 lg:px-8';
+    if (widthType === 'wide') return 'max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8';
     return 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8';
   }, [headerConfig?.containerWidth]);
 
@@ -87,8 +88,8 @@ export default function Navbar() {
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/90 text-emerald-400 border border-emerald-800/80 font-semibold text-[10px] sm:text-[11px]">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="hidden xs:inline sm:inline">Sàn BĐS Đất Biển Đà Nẵng</span>
-              <span className="xs:hidden sm:hidden">Đất Biển Đà Nẵng</span>
+              <span className="hidden xs:inline sm:inline">Sàn BĐS {headerConfig?.brandName || 'Đất Biển'} {headerConfig?.brandHighlight || 'Đà Nẵng'}</span>
+              <span className="xs:hidden sm:hidden">{headerConfig?.brandName || 'Đất Biển'} {headerConfig?.brandHighlight || 'Đà Nẵng'}</span>
             </span>
             <span suppressHydrationWarning className="hidden md:inline-flex items-center gap-1.5 text-slate-400">
               <span className="text-slate-600">|</span>
@@ -194,26 +195,40 @@ export default function Navbar() {
             className="flex items-center gap-3 cursor-pointer select-none group shrink-0"
           >
             {headerConfig?.logoType === 'image' && headerConfig?.logoImageUrl ? (
-              <img 
-                src={headerConfig.logoImageUrl} 
-                alt={headerConfig.logoAlt || 'Logo'} 
-                style={{ height: `${headerConfig.logoHeight || 38}px` }}
-                className="object-contain max-h-12 max-w-[200px] transition-transform group-hover:scale-102"
-                onError={(e) => { e.target.style.display = 'none'; }}
-              />
+              <div className="flex items-center gap-2.5">
+                <img 
+                  src={headerConfig.logoImageUrl} 
+                  alt={headerConfig.logoAlt || 'Logo'} 
+                  style={{ height: `${headerConfig.logoHeight || 38}px` }}
+                  className="object-contain max-h-16 max-w-[240px] transition-transform group-hover:scale-102"
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
+                {headerConfig.showTaglineWithImage && headerConfig.brandTagline && (
+                  <span className="text-[10px] text-slate-500 font-bold tracking-wider uppercase hidden sm:inline-block">
+                    {headerConfig.brandTagline}
+                  </span>
+                )}
+              </div>
             ) : (
               <div className="flex items-center gap-2.5">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-600 flex items-center justify-center text-white text-lg font-black shadow-md shadow-emerald-600/20 group-hover:scale-105 transition-transform shrink-0">
                   <i className={headerConfig?.brandIcon || 'fa-solid fa-water'}></i>
                 </div>
                 <div className="leading-tight">
-                  <div className="flex items-center gap-1 font-black text-slate-900 tracking-tight text-lg">
+                  <div className="flex items-center gap-1.5 font-black text-slate-900 tracking-tight text-lg">
                     <span>{headerConfig?.brandName || 'ĐẤT BIỂN'}</span>
                     <span className="text-emerald-600">{headerConfig?.brandHighlight || 'ĐÀ NẴNG'}</span>
+                    {headerConfig?.badgeText && (
+                      <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${headerConfig?.badgeColor || 'bg-red-100 text-red-600 border border-red-200'}`}>
+                        {headerConfig.badgeText}
+                      </span>
+                    )}
                   </div>
-                  <div className="text-[10px] text-slate-400 font-bold tracking-wider uppercase">
-                    Bất Động Sản Biển
-                  </div>
+                  {headerConfig?.brandTagline && (
+                    <div className="text-[10px] text-slate-400 font-bold tracking-wider uppercase truncate max-w-[220px]">
+                      {headerConfig.brandTagline}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -565,14 +580,23 @@ export default function Navbar() {
           <div className="relative ml-auto w-full max-w-sm bg-white h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-right duration-250">
             {/* Drawer Header */}
             <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-black text-sm">
-                  <i className="fa-solid fa-water"></i>
+              {headerConfig?.logoType === 'image' && headerConfig?.logoImageUrl ? (
+                <img 
+                  src={headerConfig.logoImageUrl} 
+                  alt={headerConfig.logoAlt || 'Logo'} 
+                  className="h-8 max-w-[180px] object-contain"
+                  onError={(e) => { e.target.style.display = 'none'; }}
+                />
+              ) : (
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-black text-sm shrink-0">
+                    <i className={headerConfig?.brandIcon || 'fa-solid fa-water'}></i>
+                  </div>
+                  <div className="font-black text-slate-900 text-base">
+                    <span>{headerConfig?.brandName || 'ĐẤT BIỂN'}</span> <span className="text-emerald-600">{headerConfig?.brandHighlight || 'ĐÀ NẴNG'}</span>
+                  </div>
                 </div>
-                <div className="font-black text-slate-900 text-base">
-                  ĐẤT BIỂN <span className="text-emerald-600">ĐÀ NẴNG</span>
-                </div>
-              </div>
+              )}
               <button
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center"

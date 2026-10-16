@@ -41,8 +41,15 @@ export async function POST(request) {
     const rawText = await request.text();
     const payload = JSON.parse(rawText || '{}');
 
-    // 1. Luôn lưu vào server-db.json cục bộ để đảm bảo tốc độ và dự phòng offline
-    fs.writeFileSync(DB_FILE, rawText, 'utf-8');
+    // 1. Luôn hợp nhất và lưu vào server-db.json cục bộ để đảm bảo tốc độ và dự phòng offline
+    let currentDb = {};
+    if (fs.existsSync(DB_FILE)) {
+      try {
+        currentDb = JSON.parse(fs.readFileSync(DB_FILE, 'utf-8') || '{}');
+      } catch (err) {}
+    }
+    const mergedDb = { ...currentDb, ...payload };
+    fs.writeFileSync(DB_FILE, JSON.stringify(mergedDb, null, 2), 'utf-8');
 
     // 2. Nếu đã kết nối Supabase, đồng bộ lên đám mây Supabase
     let supabaseSynced = false;

@@ -4334,6 +4334,27 @@ export default function AdminBackendPage() {
                   </div>
                 </div>
               </div>
+
+              {/* Bottom Action Save Bar for Header Configuration */}
+              <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-800 bg-slate-950/60 p-4 rounded-2xl">
+                <button
+                  type="button"
+                  onClick={resetHeaderConfig}
+                  className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white font-bold text-xs border border-slate-800 transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <i className="fa-solid fa-rotate-left"></i>
+                  <span>Khôi Phục Mặc Định</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSaveHeaderSettings}
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-lg shadow-emerald-600/30 transition flex items-center gap-2 cursor-pointer"
+                >
+                  <i className="fa-solid fa-floppy-disk"></i>
+                  <span>Lưu Cấu Hình Header</span>
+                </button>
+              </div>
             </div>
           )}
 
