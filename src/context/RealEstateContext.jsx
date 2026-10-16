@@ -1041,9 +1041,40 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           console.error(err);
         }
       }
+      if (e.key === 'bds_header_config' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (parsed && typeof parsed === 'object') {
+            setHeaderConfig(parsed);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      if (e.key === 'bds_nav_menu' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed)) {
+            setNavMenuItems(parsed);
+          }
+        } catch (err) {
+          console.error(err);
+        }
+      }
     };
+
+    const handleCustomHeaderUpdate = (event) => {
+      if (event.detail && typeof event.detail === 'object') {
+        setHeaderConfig(event.detail);
+      }
+    };
+
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('bds_header_config_updated', handleCustomHeaderUpdate);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('bds_header_config_updated', handleCustomHeaderUpdate);
+    };
   }, []);
 
   // Đồng bộ dữ liệu xuyên trình duyệt (Cross-browser Persistence Sync từ Server Disk)
@@ -2414,33 +2445,64 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   };
 
   // 11. Header & Logo Configuration Methods
-  const updateHeaderConfig = (updatedFields) => {
+  const updateHeaderConfig = async (updatedFields) => {
+    let nextConfig = null;
     setHeaderConfig(prev => {
-      const merged = { ...prev, ...updatedFields };
-      safeStorage.setItem('bds_header_config', JSON.stringify(merged));
-      try {
-        fetch('/api/db-sync', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ bds_header_config: merged })
-        }).catch(() => {});
-      } catch (e) {}
-      return merged;
+      nextConfig = { ...prev, ...updatedFields };
+      safeStorage.setItem('bds_header_config', JSON.stringify(nextConfig));
+      return nextConfig;
     });
-    showToast('Đã lưu cấu hình Header & Logo thành công!', 'success');
+
+    const toSave = nextConfig || { ...headerConfig, ...updatedFields };
+
+    // Phát custom event đồng bộ các component cùng tab ngay lập tức
+    if (typeof window !== 'undefined') {
+      try {
+        window.dispatchEvent(new CustomEvent('bds_header_config_updated', { detail: toSave }));
+      } catch (e) {}
+    }
+
+    try {
+      await fetch('/api/db-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bds_header_config: toSave })
+      });
+    } catch (e) {
+      console.warn('Lỗi ghi db-sync headerConfig:', e);
+    }
+
+    const widthLabel = toSave.containerWidth === 'full' 
+      ? 'Toàn Màn Hình (100% Full-Width)' 
+      : toSave.containerWidth === 'wide' 
+      ? 'Rộng (Wide - 1536px)' 
+      : 'Tiêu Chuẩn (Boxed - 1280px)';
+
+    showToast(`Đã lưu cấu hình Header thành công! (Độ rộng: ${widthLabel})`, 'success');
+    return toSave;
   };
 
-  const resetHeaderConfig = () => {
+  const resetHeaderConfig = async () => {
     safeStorage.removeItem('bds_header_config');
     setHeaderConfig(DEFAULT_HEADER_CONFIG);
     safeStorage.setItem('bds_header_config', JSON.stringify(DEFAULT_HEADER_CONFIG));
+
+    if (typeof window !== 'undefined') {
+      try {
+        window.dispatchEvent(new CustomEvent('bds_header_config_updated', { detail: DEFAULT_HEADER_CONFIG }));
+      } catch (e) {}
+    }
+
     try {
-      fetch('/api/db-sync', {
+      await fetch('/api/db-sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ bds_header_config: DEFAULT_HEADER_CONFIG })
-      }).catch(() => {});
-    } catch (e) {}
+      });
+    } catch (e) {
+      console.warn('Lỗi ghi db-sync reset headerConfig:', e);
+    }
+
     showToast('Đã khôi phục cấu hình Header & Logo về mặc định!', 'info');
   };
 

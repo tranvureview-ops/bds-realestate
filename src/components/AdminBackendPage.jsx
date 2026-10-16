@@ -306,9 +306,16 @@ export default function AdminBackendPage() {
     }
   };
 
-  const handleSaveHeaderSettings = (e) => {
-    e.preventDefault();
-    updateHeaderConfig(logoFormData);
+  const [isSavingHeader, setIsSavingHeader] = useState(false);
+
+  const handleSaveHeaderSettings = async (e) => {
+    if (e?.preventDefault) e.preventDefault();
+    setIsSavingHeader(true);
+    try {
+      await updateHeaderConfig(logoFormData);
+    } finally {
+      setTimeout(() => setIsSavingHeader(false), 400);
+    }
   };
 
   const handleSavePaymentSettings = (e) => {
@@ -3808,10 +3815,11 @@ export default function AdminBackendPage() {
                   <button
                     type="button"
                     onClick={handleSaveHeaderSettings}
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition flex items-center gap-2"
+                    disabled={isSavingHeader}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition flex items-center gap-2 cursor-pointer"
                   >
-                    <i className="fa-solid fa-floppy-disk"></i>
-                    <span>Lưu Cấu Hình Header</span>
+                    <i className={`fa-solid ${isSavingHeader ? 'fa-spinner fa-spin' : 'fa-floppy-disk'}`}></i>
+                    <span>{isSavingHeader ? 'Đang Lưu...' : 'Lưu Cấu Hình Header'}</span>
                   </button>
 
                   <button
@@ -3907,10 +3915,11 @@ export default function AdminBackendPage() {
                     <button
                       type="button"
                       onClick={handleSaveHeaderSettings}
-                      className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/20 transition flex items-center gap-1.5"
+                      disabled={isSavingHeader}
+                      className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-bold text-xs shadow-lg shadow-emerald-600/20 transition flex items-center gap-1.5 cursor-pointer"
                     >
-                      <i className="fa-solid fa-floppy-disk"></i>
-                      <span>Lưu Cấu Hình</span>
+                      <i className={`fa-solid ${isSavingHeader ? 'fa-spinner fa-spin' : 'fa-floppy-disk'}`}></i>
+                      <span>{isSavingHeader ? 'Đang Lưu...' : 'Lưu Cấu Hình'}</span>
                     </button>
                   </div>
                 </div>
@@ -4147,85 +4156,88 @@ export default function AdminBackendPage() {
 
                     <div className="space-y-3">
                       {/* Boxed */}
-                      <div
-                        onClick={() => setLogoFormData({ ...logoFormData, containerWidth: 'boxed' })}
-                        className={`p-3.5 rounded-2xl border cursor-pointer transition flex items-start gap-3 ${
+                      <label
+                        onClick={() => setLogoFormData(prev => ({ ...prev, containerWidth: 'boxed' }))}
+                        className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-start gap-3 select-none ${
                           logoFormData.containerWidth === 'boxed'
-                            ? 'bg-emerald-950/40 border-emerald-500 text-white shadow-lg'
+                            ? 'bg-emerald-950/40 border-emerald-500 text-white shadow-lg ring-1 ring-emerald-500/50'
                             : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
                         }`}
                       >
                         <input
                           type="radio"
-                          name="widthOption"
+                          name="containerWidthOption"
+                          value="boxed"
                           checked={logoFormData.containerWidth === 'boxed'}
-                          onChange={() => {}}
+                          onChange={(e) => setLogoFormData(prev => ({ ...prev, containerWidth: e.target.value }))}
                           className="mt-1 w-4 h-4 accent-emerald-500 cursor-pointer"
                         />
-                        <div className="space-y-1">
-                          <div className="font-bold text-xs flex items-center gap-1.5 text-white">
+                        <div className="space-y-1 flex-1">
+                          <div className="font-bold text-xs flex items-center justify-between gap-1.5 text-white">
                             <span>Tiêu Chuẩn (Boxed - 1280px)</span>
-                            <span className="px-1.5 py-0.2 rounded text-[9px] bg-slate-800 text-slate-300 font-mono">max-w-7xl</span>
+                            <span className="px-2 py-0.5 rounded text-[9px] bg-slate-800 text-slate-300 font-mono font-bold">max-w-7xl</span>
                           </div>
                           <p className="text-[11px] leading-relaxed text-slate-400">
                             Thanh menu được giới hạn trong khung 1280px và canh giữa màn hình. Cân đối, trang nhã, tập trung tầm nhìn.
                           </p>
                         </div>
-                      </div>
+                      </label>
 
                       {/* Wide */}
-                      <div
-                        onClick={() => setLogoFormData({ ...logoFormData, containerWidth: 'wide' })}
-                        className={`p-3.5 rounded-2xl border cursor-pointer transition flex items-start gap-3 ${
+                      <label
+                        onClick={() => setLogoFormData(prev => ({ ...prev, containerWidth: 'wide' }))}
+                        className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-start gap-3 select-none ${
                           logoFormData.containerWidth === 'wide'
-                            ? 'bg-emerald-950/40 border-emerald-500 text-white shadow-lg'
+                            ? 'bg-emerald-950/40 border-emerald-500 text-white shadow-lg ring-1 ring-emerald-500/50'
                             : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
                         }`}
                       >
                         <input
                           type="radio"
-                          name="widthOption"
+                          name="containerWidthOption"
+                          value="wide"
                           checked={logoFormData.containerWidth === 'wide'}
-                          onChange={() => {}}
+                          onChange={(e) => setLogoFormData(prev => ({ ...prev, containerWidth: e.target.value }))}
                           className="mt-1 w-4 h-4 accent-emerald-500 cursor-pointer"
                         />
-                        <div className="space-y-1">
-                          <div className="font-bold text-xs flex items-center gap-1.5 text-white">
+                        <div className="space-y-1 flex-1">
+                          <div className="font-bold text-xs flex items-center justify-between gap-1.5 text-white">
                             <span>Rộng (Wide - 1536px)</span>
-                            <span className="px-1.5 py-0.2 rounded text-[9px] bg-slate-800 text-slate-300 font-mono">max-w-screen-2xl</span>
+                            <span className="px-2 py-0.5 rounded text-[9px] bg-amber-950/80 text-amber-300 border border-amber-800/50 font-mono font-bold">95% Screen / 1536px</span>
                           </div>
                           <p className="text-[11px] leading-relaxed text-slate-400">
-                            Mở rộng không gian thanh menu lên 1536px, lý tưởng cho website có nhiều menu và nút bấm.
+                            Mở rộng không gian thanh menu lên 1536px (hoặc 95% màn hình), lý tưởng cho website có nhiều menu và nút bấm.
                           </p>
                         </div>
-                      </div>
+                      </label>
 
                       {/* Full Width */}
-                      <div
-                        onClick={() => setLogoFormData({ ...logoFormData, containerWidth: 'full' })}
-                        className={`p-3.5 rounded-2xl border cursor-pointer transition flex items-start gap-3 ${
+                      <label
+                        onClick={() => setLogoFormData(prev => ({ ...prev, containerWidth: 'full' }))}
+                        className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-start gap-3 select-none ${
                           logoFormData.containerWidth === 'full'
-                            ? 'bg-emerald-950/40 border-emerald-500 text-white shadow-lg'
+                            ? 'bg-emerald-950/40 border-emerald-500 text-white shadow-lg ring-1 ring-emerald-500/50'
                             : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
                         }`}
                       >
                         <input
                           type="radio"
-                          name="widthOption"
+                          name="containerWidthOption"
+                          value="full"
                           checked={logoFormData.containerWidth === 'full'}
-                          onChange={() => {}}
+                          onChange={(e) => setLogoFormData(prev => ({ ...prev, containerWidth: e.target.value }))}
                           className="mt-1 w-4 h-4 accent-emerald-500 cursor-pointer"
                         />
-                        <div className="space-y-1">
-                          <div className="font-bold text-xs flex items-center gap-1.5 text-white">
+                        <div className="space-y-1 flex-1">
+                          <div className="font-bold text-xs flex items-center justify-between gap-1.5 text-white">
                             <span>Toàn Màn Hình (Full-Width - 100%)</span>
-                            <span className="px-1.5 py-0.2 rounded text-[9px] bg-emerald-900 text-emerald-300 font-black">FULL-WIDTH</span>
+                            <span className="px-2 py-0.5 rounded text-[9px] bg-emerald-900 text-emerald-300 border border-emerald-700/50 font-black">FULL-WIDTH 100%</span>
                           </div>
                           <p className="text-[11px] leading-relaxed text-slate-400">
                             Thanh menu trải dài 100% tràn đều sang hai mép viền màn hình (Edge-to-Edge). Phong cách hiện đại theo chuẩn các sàn TMĐT quốc tế.
                           </p>
                         </div>
-                      </div>
+                      </label>
                     </div>
                   </div>
                 </div>
@@ -4349,10 +4361,11 @@ export default function AdminBackendPage() {
                 <button
                   type="button"
                   onClick={handleSaveHeaderSettings}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm shadow-lg shadow-emerald-600/30 transition flex items-center gap-2 cursor-pointer"
+                  disabled={isSavingHeader}
+                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-bold text-sm shadow-lg shadow-emerald-600/30 transition flex items-center gap-2 cursor-pointer"
                 >
-                  <i className="fa-solid fa-floppy-disk"></i>
-                  <span>Lưu Cấu Hình Header</span>
+                  <i className={`fa-solid ${isSavingHeader ? 'fa-spinner fa-spin' : 'fa-floppy-disk'}`}></i>
+                  <span>{isSavingHeader ? 'Đang Lưu...' : 'Lưu Cấu Hình Header'}</span>
                 </button>
               </div>
             </div>

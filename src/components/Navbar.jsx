@@ -36,12 +36,15 @@ export default function Navbar() {
   const roleDropdownRef = useRef(null);
   const isGuest = !currentUser || currentUser.role === 'guest';
 
-  // Chuẩn hóa chiều rộng container đồng nhất với toàn bộ trang (Boxed: max-w-7xl | Wide: max-w-[1536px] | Full: w-full)
+  // Chuẩn hóa chiều rộng container đồng nhất với toàn bộ trang:
+  // - Boxed: 1152px (max-w-6xl) trên laptop, 1280px (xl:max-w-7xl) trên màn lớn (canh giữa)
+  // - Wide: 94% chiều rộng màn hình (max-w-[94vw]) đến 1536px (2xl:max-w-[1536px])
+  // - Full: 100% toàn màn hình (w-full) tràn viền Edge-to-Edge
   const containerWidthClass = useMemo(() => {
     const widthType = headerConfig?.containerWidth || 'boxed';
-    if (widthType === 'full') return 'w-full px-4 sm:px-6 lg:px-8';
-    if (widthType === 'wide') return 'max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8';
-    return 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8';
+    if (widthType === 'full') return 'w-full px-4 sm:px-6 lg:px-8 transition-all duration-300';
+    if (widthType === 'wide') return 'w-full max-w-[94vw] 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300';
+    return 'w-full max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300';
   }, [headerConfig?.containerWidth]);
 
   // Lấy toàn bộ các mục menu trực tiếp từ Cấu Hình Thanh Menu trong Trang Quản Trị
