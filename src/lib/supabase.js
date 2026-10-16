@@ -323,40 +323,58 @@ export async function upsertSupabaseProfile(user) {
 }
 
 export async function deleteSupabaseProfile(userId) {
-  if (!isSupabaseConfigured() || !supabase || !userId) return false;
+  if (!userId) return false;
   try {
-    // 1. Thử xóa vật lý từ bảng profiles (nếu đã cấu hình RLS Delete Policy)
-    await supabase
-      .from('profiles')
-      .delete()
-      .eq('id', userId);
-
-    // 2. Dự phòng: Đánh dấu role_name = 'deleted' để dù chưa bật DELETE RLS policy thì hệ thống vẫn loại bỏ hoàn toàn
-    await supabase
-      .from('profiles')
-      .update({
-        role_name: 'deleted',
-        name: '[Đã xóa]',
-        wallet_balance: 0
-      })
-      .eq('id', userId);
-
-    // 3. Xóa người dùng khỏi platform_settings.bds_users_list ngay lập tức
-    try {
-      const { data: settingRow } = await supabase
-        .from('platform_settings')
-        .select('value')
-        .eq('key', 'bds_users_list')
-        .single();
-
-      if (settingRow?.value && Array.isArray(settingRow.value)) {
-        const cleaned = settingRow.value.filter(u => u.id !== userId);
-        await supabase
-          .from('platform_settings')
-          .upsert({ key: 'bds_users_list', value: cleaned, updated_at: new Date().toISOString() });
+    // 1. Nếu đang ở trình duyệt, gọi API route máy chủ để hỗ trợ service_role key xóa vật lý triệt để
+    if (typeof window !== 'undefined') {
+      try {
+        await fetch('/api/admin/users/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId })
+        });
+      } catch (apiErr) {
+        // Tiếp tục fallback client
       }
-    } catch (setErr) {
-      // bỏ qua lỗi settings
+    }
+
+    if (isSupabaseConfigured() && supabase) {
+      // 2. Thử xóa vật lý từ bảng profiles
+      const { data: delData } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId)
+        .select();
+
+      // Chỉ khi RLS chặn xóa vật lý (delData rỗng) thì mới tạm đánh dấu role_name = 'deleted'
+      if (!delData || delData.length === 0) {
+        await supabase
+          .from('profiles')
+          .update({
+            role_name: 'deleted',
+            name: '[Đã xóa]',
+            wallet_balance: 0
+          })
+          .eq('id', userId);
+      }
+
+      // 3. Xóa người dùng khỏi platform_settings.bds_users_list ngay lập tức
+      try {
+        const { data: settingRow } = await supabase
+          .from('platform_settings')
+          .select('value')
+          .eq('key', 'bds_users_list')
+          .single();
+
+        if (settingRow?.value && Array.isArray(settingRow.value)) {
+          const cleaned = settingRow.value.filter(u => u.id !== userId);
+          await supabase
+            .from('platform_settings')
+            .upsert({ key: 'bds_users_list', value: cleaned, updated_at: new Date().toISOString() });
+        }
+      } catch (setErr) {
+        // bỏ qua lỗi settings
+      }
     }
 
     return true;
