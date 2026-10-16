@@ -1907,13 +1907,13 @@ export const DEFAULT_EMAIL_CONFIG = {
   enableEmailNotifications: true, // Bật/tắt toàn bộ dịch vụ email
 
   // 2. Thông tin người gửi (From & Reply-to)
-  fromEmail: 'kiemduyet@datbiendanang.vn',
+  fromEmail: 'tranvanvu.dev@gmail.com',
   fromName: 'Ban Quản Trị Sàn Đất Biển Đà Nẵng',
   replyToEmail: 'tranvanvu.dev@gmail.com',
 
   // 3. Email Quản Trị Viên / Ban Kiểm Duyệt tiếp nhận cảnh báo
-  adminAlertEmail: 'ban-kiem-duyet@datbiendanang.vn',
-  adminCcEmails: 'giam-sat@datbiendanang.vn',
+  adminAlertEmail: 'tranvanvu.dev@gmail.com',
+  adminCcEmails: 'tranvanvu.dev@gmail.com',
   notifyAdminOnReport: true, // Nhận email khi có báo cáo vi phạm mới
   notifyAdminOnNewListing: true, // Nhận email khi có tin đăng mới chờ duyệt
   notifyAdminOnVipPurchase: true, // Nhận email khi có giao dịch VIP mới
@@ -1924,8 +1924,8 @@ export const DEFAULT_EMAIL_CONFIG = {
     host: 'smtp.gmail.com',
     port: 587, // 587 (TLS), 465 (SSL), 25
     encryption: 'tls', // 'tls' | 'ssl' | 'none'
-    username: 'support@datbiendanang.vn',
-    password: 'vmsd xkzp ljwr gqae', // Mẫu mật khẩu ứng dụng Gmail (App Password)
+    username: 'tranvanvu.dev@gmail.com',
+    password: 'yjhk hdia qswa lxxd', // Mật khẩu ứng dụng Gmail (App Password)
     authRequired: true,
     timeoutSeconds: 15
   },

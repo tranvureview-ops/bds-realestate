@@ -1765,18 +1765,18 @@
     "smtp": {
       "host": "smtp.gmail.com",
       "port": 587,
-      "password": "vmsd xkzp ljwr gqae",
-      "username": "support@datbiendanang.vn",
       "encryption": "tls",
+      "username": "tranvanvu.dev@gmail.com",
+      "password": "yjhk hdia qswa lxxd",
       "authRequired": true,
       "timeoutSeconds": 15
     },
     "driver": "smtp",
-    "fromName": "Ban Quản Trị Sàn ĐẤT BIỂN ĐÀ NẴNG",
+    "fromName": "Ban Quản Trị Sàn Đất Biển Đà Nẵng",
     "sendgrid": {
       "apiKey": ""
     },
-    "fromEmail": "kiemduyet@datbiendanang.vn",
+    "fromEmail": "tranvanvu.dev@gmail.com",
     "signature": {
       "zalo": "0904 084 888",
       "address": "Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng",
@@ -1855,8 +1855,8 @@
       }
     },
     "replyToEmail": "tranvanvu.dev@gmail.com",
-    "adminCcEmails": "giam-sat@datbiendanang.vn",
-    "adminAlertEmail": "ban-kiem-duyet@datbiendanang.vn",
+    "adminCcEmails": "tranvanvu.dev@gmail.com",
+    "adminAlertEmail": "tranvanvu.dev@gmail.com",
     "notifyAdminOnReport": true,
     "notifyAdminOnNewListing": true,
     "enableEmailNotifications": true,
