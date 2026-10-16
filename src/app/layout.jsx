@@ -2,6 +2,9 @@ import './globals.css';
 import Script from 'next/script';
 import ClientLayout from './ClientLayout';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const viewport = {
   width: 'device-width',
   initialScale: 1,

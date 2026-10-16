@@ -385,21 +385,29 @@ export async function insertSupabaseTransaction(txn) {
 export function mergeProfilesWithSettingsUsers(profiles, settingsUsers) {
   const map = new Map();
   (profiles || []).forEach(p => {
+    const rawWallet = p.walletBalance !== undefined ? p.walletBalance : p.wallet_balance;
+    const rawBonus = p.bonusWalletBalance !== undefined ? p.bonusWalletBalance : (p.bonus_wallet_balance || p.promoBalance);
+    const rawRoleName = p.roleName || p.role_name;
+    const rawVerified = p.isVerified !== undefined ? p.isVerified : p.is_verified;
+    const rawDeleted = p.isDeleted !== undefined ? p.isDeleted : p.is_deleted;
+    const rawDeletedAt = p.deletedAt || p.deleted_at;
+    const rawCreatedAt = p.createdAt || p.created_at;
+
     map.set(p.id, {
       id: p.id,
       name: p.name || 'Người dùng',
       email: p.email || '',
       phone: p.phone || '',
       role: p.role || 'user',
-      roleName: p.role_name || (p.role === 'admin' ? 'Quản Trị Viên' : p.role === 'broker' ? 'Môi Giới' : 'Khách Hàng'),
+      roleName: rawRoleName || (p.role === 'admin' ? 'Quản Trị Viên' : p.role === 'broker' ? 'Môi Giới' : 'Khách Hàng'),
       avatar: p.avatar || '',
-      walletBalance: Number(p.wallet_balance !== undefined ? p.wallet_balance : (p.walletBalance || 0)),
-      bonusWalletBalance: Number(p.bonus_wallet_balance || p.bonusWalletBalance || p.promoBalance || 0),
-      isVerified: Boolean(p.is_verified !== undefined ? p.is_verified : p.isVerified),
+      walletBalance: Number(rawWallet !== undefined ? rawWallet : 0),
+      bonusWalletBalance: Number(rawBonus !== undefined ? rawBonus : 0),
+      isVerified: Boolean(rawVerified),
       status: p.status || 'active',
-      isDeleted: Boolean(p.is_deleted || p.isDeleted),
-      deletedAt: p.deleted_at || p.deletedAt || null,
-      createdAt: p.created_at || new Date().toISOString()
+      isDeleted: Boolean(rawDeleted),
+      deletedAt: rawDeletedAt || null,
+      createdAt: rawCreatedAt || new Date().toISOString()
     });
   });
 

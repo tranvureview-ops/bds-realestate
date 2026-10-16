@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import {
   supabase,
   isSupabaseConfigured,
@@ -802,6 +802,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   // 14. Toast Notifications
   const [toast, setToast] = useState(null);
 
+  // Helper show Toast
+  const showToast = useCallback((message, type = 'success') => {
+    setToast({ id: Date.now(), message, type });
+    setTimeout(() => {
+      setToast(null);
+    }, 4000);
+  }, []);
+
   // 9. Modals State
   const [activeModal, setActiveModal] = useState(null); 
   // 'post-listing', 'mortgage-calc', 'compare', 'pricing-vip', 'wallet-deposit', 'listing-detail'
@@ -817,88 +825,130 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     }
   }, [currentUser]);
 
-  // One-time client rehydration from Supabase Client SDK
-  useEffect(() => {
-    let isMounted = true;
-    async function loadDataFromSupabase() {
-      // 1. Dọn dẹp triệt để mọi dữ liệu server cũ khỏi localStorage để tránh xung đột cache
-      if (typeof window !== 'undefined') {
-        const STALE_SERVER_KEYS = [
-          'bds_users_list',
-          'bds_properties',
-          'bds_vip_packages',
-          'bds_membership_packages',
-          'bds_transactions',
-          'bds_nav_menu',
-          'bds_header_config',
-          'bds_payment_config',
-          'bds_system_config',
-          'bds_single_config',
-          'bds_email_config',
-          'bds_reported_listings',
-          'bds_email_logs'
-        ];
-        STALE_SERVER_KEYS.forEach(k => {
-          try { window.localStorage.removeItem(k); } catch (e) {}
-        });
+  // Tải dữ liệu mới nhất trực tiếp từ Supabase qua SDK (Central Fetcher)
+  const fetchLatestDataFromSupabase = useCallback(async (isSilent = true) => {
+    try {
+      const db = await fetchFullSupabaseDb();
+      if (db) {
+        if (Array.isArray(db.bds_properties) && db.bds_properties.length > 0) {
+          setProperties(db.bds_properties.map(normalizePropertyExpiration));
+        }
+        if (Array.isArray(db.bds_users_list) && db.bds_users_list.length > 0) {
+          setUsersList(db.bds_users_list);
+        }
+        if (Array.isArray(db.bds_transactions) && db.bds_transactions.length > 0) {
+          setTransactions(db.bds_transactions);
+        }
+        if (db.bds_payment_config) {
+          setPaymentConfig(db.bds_payment_config);
+        }
+        if (db.bds_header_config) {
+          setHeaderConfig(prev => ({ ...prev, ...db.bds_header_config }));
+        }
+        if (db.bds_system_config) {
+          setSystemConfig(db.bds_system_config);
+        }
+        if (Array.isArray(db.bds_nav_menu) && db.bds_nav_menu.length > 0) {
+          setNavMenuItems(db.bds_nav_menu);
+        }
+        if (Array.isArray(db.bds_vip_packages) && db.bds_vip_packages.length > 0) {
+          setVipPackages(db.bds_vip_packages);
+        }
+        if (Array.isArray(db.bds_membership_packages)) {
+          setMembershipPackages(db.bds_membership_packages);
+        }
+        if (db.bds_single_config) {
+          setSingleConfig(prev => ({ ...prev, ...db.bds_single_config }));
+        }
+        if (db.bds_email_config) {
+          setEmailConfig(prev => ({ ...prev, ...db.bds_email_config }));
+        }
+        if (Array.isArray(db.bds_reported_listings)) {
+          setListingReports(db.bds_reported_listings);
+        }
+        if (Array.isArray(db.bds_email_logs)) {
+          setEmailLogs(db.bds_email_logs);
+        }
+        if (!isSilent) {
+          showToast('Đã tải và đồng bộ dữ liệu mới nhất từ Supabase Cloud!', 'success');
+        }
+        return true;
       }
-
-      // 2. Tải dữ liệu mới nhất trực tiếp từ Supabase qua SDK
-      try {
-        const db = await fetchFullSupabaseDb();
-        if (isMounted && db) {
-          if (Array.isArray(db.bds_properties) && db.bds_properties.length > 0) {
-            setProperties(db.bds_properties.map(normalizePropertyExpiration));
-          }
-          if (Array.isArray(db.bds_users_list) && db.bds_users_list.length > 0) {
-            setUsersList(db.bds_users_list);
-          }
-          if (Array.isArray(db.bds_transactions) && db.bds_transactions.length > 0) {
-            setTransactions(db.bds_transactions);
-          }
-          if (db.bds_payment_config) {
-            setPaymentConfig(db.bds_payment_config);
-          }
-          if (db.bds_header_config) {
-            setHeaderConfig(prev => ({ ...prev, ...db.bds_header_config }));
-          }
-          if (db.bds_system_config) {
-            setSystemConfig(db.bds_system_config);
-          }
-          if (Array.isArray(db.bds_nav_menu) && db.bds_nav_menu.length > 0) {
-            setNavMenuItems(db.bds_nav_menu);
-          }
-          if (Array.isArray(db.bds_vip_packages) && db.bds_vip_packages.length > 0) {
-            setVipPackages(db.bds_vip_packages);
-          }
-          if (Array.isArray(db.bds_membership_packages)) {
-            setMembershipPackages(db.bds_membership_packages);
-          }
-          if (db.bds_single_config) {
-            setSingleConfig(prev => ({ ...prev, ...db.bds_single_config }));
-          }
-          if (db.bds_email_config) {
-            setEmailConfig(prev => ({ ...prev, ...db.bds_email_config }));
-          }
-          if (Array.isArray(db.bds_reported_listings)) {
-            setListingReports(db.bds_reported_listings);
-          }
-          if (Array.isArray(db.bds_email_logs)) {
-            setEmailLogs(db.bds_email_logs);
-          }
-        }
-      } catch (err) {
-        console.warn('Lỗi đồng bộ dữ liệu Supabase ban đầu:', err);
-      } finally {
-        if (isMounted) {
-          setIsHydrated(true);
-        }
+    } catch (err) {
+      console.warn('Lỗi fetchLatestDataFromSupabase:', err);
+      if (!isSilent) {
+        showToast('Không thể kết nối tải dữ liệu từ Supabase', 'error');
       }
     }
+    return false;
+  }, [showToast]);
 
-    loadDataFromSupabase();
+  // 1. One-time client rehydration from Supabase Client SDK
+  useEffect(() => {
+    let isMounted = true;
+    if (typeof window !== 'undefined') {
+      const STALE_SERVER_KEYS = [
+        'bds_users_list',
+        'bds_properties',
+        'bds_vip_packages',
+        'bds_membership_packages',
+        'bds_transactions',
+        'bds_nav_menu',
+        'bds_header_config',
+        'bds_payment_config',
+        'bds_system_config',
+        'bds_single_config',
+        'bds_email_config',
+        'bds_reported_listings',
+        'bds_email_logs'
+      ];
+      STALE_SERVER_KEYS.forEach(k => {
+        try { window.localStorage.removeItem(k); } catch (e) {}
+      });
+    }
+
+    fetchLatestDataFromSupabase(true).finally(() => {
+      if (isMounted) setIsHydrated(true);
+    });
+
     return () => { isMounted = false; };
-  }, []);
+  }, [fetchLatestDataFromSupabase]);
+
+  // 2. Window Focus / Tab Switch Auto-Fetch (Tự động kéo dữ liệu mới khi chuyển tab về web)
+  useEffect(() => {
+    const handleFocusOrVisible = () => {
+      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        fetchLatestDataFromSupabase(true);
+      }
+    };
+    window.addEventListener('focus', handleFocusOrVisible);
+    document.addEventListener('visibilitychange', handleFocusOrVisible);
+    return () => {
+      window.removeEventListener('focus', handleFocusOrVisible);
+      document.removeEventListener('visibilitychange', handleFocusOrVisible);
+    };
+  }, [fetchLatestDataFromSupabase]);
+
+  // 3. Supabase Realtime Subscription (Lắng nghe tức thì khi có thay đổi trên Database Supabase)
+  useEffect(() => {
+    if (!isSupabaseConfigured() || !supabase) return;
+    const channel = supabase
+      .channel('realestate-realtime-live-sync')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
+        fetchLatestDataFromSupabase(true);
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'properties' }, () => {
+        fetchLatestDataFromSupabase(true);
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'platform_settings' }, () => {
+        fetchLatestDataFromSupabase(true);
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [fetchLatestDataFromSupabase]);
 
   // Ghi nhận thay đổi xuống Server Disk định kỳ để các trình duyệt khác cùng đọc được
   useEffect(() => {
@@ -1045,14 +1095,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const expireTimer = setInterval(processExpirations, 5000);
     return () => clearInterval(expireTimer);
   }, [vipPackages, usersList, currentUser]);
-
-  // Helper show Toast
-  const showToast = (message, type = 'success') => {
-    setToast({ id: Date.now(), message, type });
-    setTimeout(() => {
-      setToast(null);
-    }, 4000);
-  };
 
   // Switch role helper
   const switchUserRole = (roleKey) => {
@@ -2844,6 +2886,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         setSelectedPropertyDetail,
         setSelectedPropertyForVip,
         showToast,
+        refetchData: (isSilent = false) => fetchLatestDataFromSupabase(isSilent),
         switchUserRole,
         navigateToProperty,
         toggleFavorite,

@@ -73,6 +73,7 @@ export default function AdminBackendPage() {
     restoreUserFromTrash,
     permanentDeleteUser,
     emptyUserTrash,
+    refetchData,
     updateVipPackagePrice, 
     navigateToProperty, 
     setCurrentView, 
@@ -3571,6 +3572,17 @@ export default function AdminBackendPage() {
                 </div>
 
                 <div className="flex items-center gap-2 flex-wrap">
+                  {/* Nút Làm Mới Tải Lại Dữ Liệu */}
+                  <button
+                    type="button"
+                    onClick={() => refetchData(false)}
+                    className="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 hover:text-white transition flex items-center gap-1.5 shadow-sm"
+                    title="Tải lại toàn bộ dữ liệu mới nhất từ Supabase Cloud"
+                  >
+                    <i className="fa-solid fa-rotate text-xs"></i>
+                    <span>Tải lại</span>
+                  </button>
+
                   {/* Sub-tabs: Thành viên vs Khách vãng lai vs Thùng rác */}
                   <div className="flex items-center gap-1.5 bg-slate-900 p-1 rounded-2xl border border-slate-800">
                     <button
