@@ -1,0 +1,1325 @@
+'use client';
+
+import React, { useState } from 'react';
+import { useRealEstate } from '../context/RealEstateContext';
+import { MEMBERSHIP_PACKAGES } from '../data/mockData';
+
+// Preset color options for package badges
+const BADGE_COLOR_PRESETS = [
+  { id: 'emerald', label: 'Xanh Ngọc (Emerald)', class: 'bg-emerald-600 text-white' },
+  { id: 'amber', label: 'Vàng Gold (Amber)', class: 'bg-amber-500 text-slate-950 font-black' },
+  { id: 'gradient-red-purple', label: 'Đỏ Tím Gradient (VIP)', class: 'bg-gradient-to-r from-red-600 to-purple-600 text-white font-black' },
+  { id: 'blue', label: 'Xanh Biển (Sky)', class: 'bg-blue-600 text-white font-bold' },
+  { id: 'purple', label: 'Tím Hoàng Gia (Purple)', class: 'bg-purple-600 text-white font-bold' },
+  { id: 'rose', label: 'Đỏ Ruby (Rose)', class: 'bg-rose-600 text-white font-bold' },
+  { id: 'slate', label: 'Đen Xám (Dark Slate)', class: 'bg-slate-800 text-white font-bold' }
+];
+
+// Suggested feature templates for quick-adding
+const SUGGESTED_FEATURES = [
+  'Ưu đãi voucher cấp mới định kỳ 30 ngày trong suốt thời hạn gói',
+  'Hẹn giờ đăng tin tự động theo khung giờ vàng tiếp cận khách mua',
+  'Tự động đẩy tin định kỳ giúp tin rao luôn ở vị trí đầu trang',
+  'Ưu tiên Xuất bản & Duyệt tin nhanh không phải chờ đợi',
+  'Báo cáo phân tích hiệu suất lượt xem & số cuộc gọi chi tiết',
+  'Huy hiệu "Hội Viên Chuyên Nghiệp" tăng 80% độ tin cậy giao dịch',
+  'Chuyên viên CSKH hỗ trợ kỹ thuật và tối ưu tin đăng riêng 24/7',
+  'Miễn phí gắn nhãn Pháp lý chuẩn / Sổ đỏ chính chủ',
+  'Tiết kiệm tối đa chi phí quảng cáo so với mua lẻ từng tin'
+];
+
+export default function AdminMembershipManager({ onNavigateToPricing = null }) {
+  const {
+    membershipPackages,
+    updateMembershipPackage,
+    addMembershipPackage,
+    deleteMembershipPackage,
+    resetMembershipPackages,
+    showToast
+  } = useRealEstate();
+
+  // State for Edit/Create Modal
+  const [editingPkg, setEditingPkg] = useState(null); // null when modal closed, pkg object when open
+  const [isCreatingNew, setIsCreatingNew] = useState(false);
+  const [modalActiveTab, setModalActiveTab] = useState('general'); // 'general' | 'pricing' | 'vouchers' | 'features'
+  const [previewCycle, setPreviewCycle] = useState(1); // 1 | 3 | 6
+  const [newFeatureInput, setNewFeatureInput] = useState('');
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+
+  // Quick package template for new package
+  const createNewTemplate = () => ({
+    id: `member-${Date.now()}`,
+    name: 'Gói Hội Viên Mới',
+    shortName: 'GÓI MỚI',
+    badge: 'ƯU ĐÃI MỚI',
+    badgeColor: 'bg-emerald-600 text-white',
+    targetAudience: 'Môi giới cá nhân hoặc sàn BĐS mới gia nhập hệ thống',
+    monthlyPrice: 500000,
+    savePercent: 30,
+    billingCycles: [
+      { months: 1, label: '1 tháng', price: 500000, discount: 0 },
+      { months: 3, label: '3 tháng', price: 1425000, discount: 5, note: 'Tiết kiệm thêm 5%' },
+      { months: 6, label: '6 tháng', price: 2700000, discount: 10, note: 'Tiết kiệm thêm 10%' }
+    ],
+    vouchersPerCycle: {
+      normalPublishVouchers: 20,
+      normalPublishDiscount: 35000,
+      normalBumpVouchers: 20,
+      normalBumpDiscount: 10000,
+      vipVouchers: 1,
+      vipDiscount: 400000
+    },
+    features: [
+      '20 voucher giảm 35.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)',
+      '20 voucher giảm 10.000 đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)',
+      '1 voucher giảm 400.000 đ áp dụng cho Tin VIP (mỗi chu kỳ 30 ngày)',
+      'Ưu đãi voucher cấp mới định kỳ 30 ngày trong suốt thời hạn gói',
+      'Báo cáo thống kê lượt tương tác cơ bản'
+    ],
+    recommended: false
+  });
+
+  // Open Edit Modal
+  const handleOpenEdit = (pkg) => {
+    // Deep clone pkg to avoid mutating state directly
+    setEditingPkg(JSON.parse(JSON.stringify(pkg)));
+    setIsCreatingNew(false);
+    setModalActiveTab('general');
+    setPreviewCycle(1);
+  };
+
+  // Open Create Modal
+  const handleOpenCreate = () => {
+    setEditingPkg(createNewTemplate());
+    setIsCreatingNew(true);
+    setModalActiveTab('general');
+    setPreviewCycle(1);
+  };
+
+  // Close Modal
+  const handleCloseModal = () => {
+    setEditingPkg(null);
+    setIsCreatingNew(false);
+    setNewFeatureInput('');
+  };
+
+  // Field change handler in editingPkg
+  const handleFieldChange = (field, value) => {
+    setEditingPkg(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Voucher quota change handler
+  const handleVoucherQuotaChange = (field, value) => {
+    const num = Math.max(0, parseInt(value, 10) || 0);
+    setEditingPkg(prev => ({
+      ...prev,
+      vouchersPerCycle: {
+        ...prev.vouchersPerCycle,
+        [field]: num
+      }
+    }));
+  };
+
+  // Billing cycle price/discount change handler
+  const handleBillingCycleChange = (index, field, value) => {
+    setEditingPkg(prev => {
+      const updated = [...prev.billingCycles];
+      if (updated[index]) {
+        updated[index] = {
+          ...updated[index],
+          [field]: field === 'note' ? value : Number(value)
+        };
+      }
+      return { ...prev, billingCycles: updated };
+    });
+  };
+
+  // Auto calculate 3 & 6 months billing cycles based on monthlyPrice
+  const handleAutoCalculateCycles = () => {
+    if (!editingPkg) return;
+    const monthly = Number(editingPkg.monthlyPrice) || 0;
+    const updated = (editingPkg.billingCycles || []).map(cycle => {
+      if (cycle.months === 1) {
+        return { ...cycle, price: monthly, discount: 0 };
+      }
+      const discountPercent = cycle.discount || (cycle.months === 3 ? 5 : 10);
+      const basePrice = monthly * cycle.months;
+      const calculatedPrice = Math.round(basePrice * (1 - discountPercent / 100));
+      return {
+        ...cycle,
+        price: calculatedPrice,
+        discount: discountPercent,
+        note: `Tiết kiệm thêm ${discountPercent}%`
+      };
+    });
+    setEditingPkg(prev => ({
+      ...prev,
+      billingCycles: updated
+    }));
+    showToast('Đã tự động tính lại đơn giá 3 tháng (-5%) và 6 tháng (-10%)!', 'info');
+  };
+
+  // Feature list handlers
+  const handleAddFeature = (featureText) => {
+    const text = (featureText || newFeatureInput).trim();
+    if (!text) return;
+    if (editingPkg.features.includes(text)) {
+      showToast('Đặc quyền này đã có trong danh sách!', 'info');
+      return;
+    }
+    setEditingPkg(prev => ({
+      ...prev,
+      features: [...prev.features, text]
+    }));
+    setNewFeatureInput('');
+  };
+
+  const handleRemoveFeature = (index) => {
+    setEditingPkg(prev => ({
+      ...prev,
+      features: prev.features.filter((_, idx) => idx !== index)
+    }));
+  };
+
+  const handleUpdateFeature = (index, value) => {
+    setEditingPkg(prev => {
+      const copy = [...prev.features];
+      copy[index] = value;
+      return { ...prev, features: copy };
+    });
+  };
+
+  const handleMoveFeature = (index, direction) => {
+    setEditingPkg(prev => {
+      const copy = [...prev.features];
+      const targetIndex = index + direction;
+      if (targetIndex < 0 || targetIndex >= copy.length) return prev;
+      const temp = copy[index];
+      copy[index] = copy[targetIndex];
+      copy[targetIndex] = temp;
+      return { ...prev, features: copy };
+    });
+  };
+
+  // Save Modal
+  const handleSaveModal = (e) => {
+    e?.preventDefault();
+    if (!editingPkg) return;
+
+    if (!editingPkg.name?.trim()) {
+      showToast('Vui lòng nhập tên gói hội viên!', 'error');
+      setModalActiveTab('general');
+      return;
+    }
+    if (!editingPkg.monthlyPrice || Number(editingPkg.monthlyPrice) <= 0) {
+      showToast('Đơn giá theo tháng phải lớn hơn 0!', 'error');
+      setModalActiveTab('pricing');
+      return;
+    }
+
+    if (isCreatingNew) {
+      addMembershipPackage(editingPkg);
+    } else {
+      updateMembershipPackage(editingPkg.id, editingPkg);
+    }
+    handleCloseModal();
+  };
+
+  // Quick toggle Recommended flag
+  const handleToggleRecommended = (pkgId) => {
+    const target = membershipPackages.find(p => p.id === pkgId);
+    if (!target) return;
+    const newRecommended = !target.recommended;
+    updateMembershipPackage(pkgId, { recommended: newRecommended });
+    showToast(newRecommended ? `Đã đặt "${target.name}" làm gói nổi bật khuyên dùng!` : `Đã bỏ cờ khuyên dùng của "${target.name}".`, 'info');
+  };
+
+  // Quick Clone Package
+  const handleClonePackage = (pkg) => {
+    const cloned = {
+      ...JSON.parse(JSON.stringify(pkg)),
+      id: `member-${Date.now()}`,
+      name: `${pkg.name} (Bản sao)`,
+      shortName: `${pkg.shortName} (COPY)`,
+      recommended: false
+    };
+    addMembershipPackage(cloned);
+  };
+
+  // Delete Package
+  const handleConfirmDelete = (id) => {
+    deleteMembershipPackage(id);
+    setConfirmDeleteId(null);
+  };
+
+  // Calculate total monthly voucher value for editing package
+  const calcTotalVoucherValue = (vouchers) => {
+    if (!vouchers) return 0;
+    const pubVal = (vouchers.normalPublishVouchers || 0) * (vouchers.normalPublishDiscount || 35000);
+    const bumpVal = (vouchers.normalBumpVouchers || 0) * (vouchers.normalBumpDiscount || 10000);
+    const vipVal = (vouchers.vipVouchers || 0) * (vouchers.vipDiscount || 400000);
+    return pubVal + bumpVal + vipVal;
+  };
+
+  return (
+    <div className="space-y-6 max-w-7xl">
+      {/* ================= 1. HEADER SECTION ================= */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-950 p-6 rounded-3xl border border-slate-800 shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center text-xl font-black shrink-0">
+            <i className="fa-solid fa-crown"></i>
+          </div>
+          <div>
+            <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2 flex-wrap">
+              <span>Cấu Hình Gói Hội Viên</span>
+              <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30 text-xs font-bold">
+                {(membershipPackages || []).length} Gói Đang Hoạt Động
+              </span>
+            </h3>
+            <p className="text-xs text-slate-400 mt-1 max-w-3xl">
+              Quản lý và tùy chỉnh toàn diện thông tin các gói hội viên: đơn giá, chu kỳ thanh toán (1/3/6 tháng), kho voucher cấp mỗi 30 ngày, danh sách đặc quyền và nhận diện thương hiệu.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {onNavigateToPricing && (
+            <button
+              type="button"
+              onClick={onNavigateToPricing}
+              className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-xs font-bold transition flex items-center gap-1.5"
+              title="Xem bảng giá tin đăng VIP"
+            >
+              <i className="fa-solid fa-tags text-slate-400"></i>
+              <span className="hidden sm:inline">Bảng Giá Tin Đăng</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => {
+              if (window.confirm('Khôi phục danh sách các gói hội viên về thiết lập mặc định ban đầu? Các thay đổi tùy chỉnh trước đó sẽ bị ghi đè.')) {
+                resetMembershipPackages();
+              }
+            }}
+            className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 text-xs font-bold transition flex items-center gap-1.5"
+            title="Khôi phục mặc định"
+          >
+            <i className="fa-solid fa-rotate-left"></i>
+            <span className="hidden sm:inline">Khôi Phục Mặc Định</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleOpenCreate}
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 transition flex items-center gap-2 cursor-pointer"
+          >
+            <i className="fa-solid fa-circle-plus"></i>
+            <span>+ Thêm Gói Hội Viên Mới</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ================= 2. QUICK STATS SUMMARY ================= */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
+          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tổng Số Gói</div>
+          <div className="text-xl font-black text-white mt-1">{(membershipPackages || []).length} Gói</div>
+          <div className="text-[10px] text-emerald-400 mt-0.5">Sẵn sàng đăng ký</div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
+          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Gói Nổi Bật</div>
+          <div className="text-xl font-black text-amber-400 mt-1 truncate">
+            {(membershipPackages || []).find(p => p.recommended)?.shortName || 'Chưa thiết lập'}
+          </div>
+          <div className="text-[10px] text-slate-400 mt-0.5">Đánh dấu khuyên dùng</div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
+          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tiết Kiệm Tối Đa</div>
+          <div className="text-xl font-black text-red-400 mt-1">
+            {Math.max(...(membershipPackages || []).map(p => p.savePercent || 0))}%
+          </div>
+          <div className="text-[10px] text-slate-400 mt-0.5">So với mua lẻ tin đăng</div>
+        </div>
+
+        <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
+          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Kho Voucher Max</div>
+          <div className="text-xl font-black text-cyan-400 mt-1">
+            {Math.max(...(membershipPackages || []).map(p => (p.vouchersPerCycle?.normalPublishVouchers || 0) + (p.vouchersPerCycle?.normalBumpVouchers || 0)))}
+          </div>
+          <div className="text-[10px] text-slate-400 mt-0.5">Voucher cấp mỗi 30 ngày</div>
+        </div>
+      </div>
+
+      {/* ================= 3. MEMBERSHIP PACKAGES CARDS GRID ================= */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+        {(membershipPackages || []).map(pkg => {
+          const totalVoucherValue = calcTotalVoucherValue(pkg.vouchersPerCycle);
+
+          return (
+            <div
+              key={pkg.id}
+              className={`rounded-3xl p-6 bg-slate-950 border flex flex-col justify-between transition-all duration-200 relative ${
+                pkg.recommended
+                  ? 'border-amber-500/60 shadow-xl shadow-amber-500/5 ring-2 ring-amber-500/20'
+                  : 'border-slate-800 hover:border-slate-700'
+              }`}
+            >
+              {pkg.recommended && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black text-[10px] uppercase px-3.5 py-0.5 rounded-full shadow-md tracking-wider flex items-center gap-1">
+                  <i className="fa-solid fa-star text-[9px]"></i>
+                  <span>Gói Phổ Biến & Khuyên Dùng</span>
+                </div>
+              )}
+
+              <div>
+                {/* Header Badge & Action Icons */}
+                <div className="flex items-center justify-between mb-3 pt-1">
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${pkg.badgeColor || 'bg-emerald-600 text-white'}`}>
+                    {pkg.badge || pkg.shortName}
+                  </span>
+
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleRecommended(pkg.id)}
+                      className={`p-1.5 rounded-lg text-xs transition ${
+                        pkg.recommended ? 'text-amber-400 bg-amber-400/10' : 'text-slate-500 hover:text-amber-400 hover:bg-slate-900'
+                      }`}
+                      title={pkg.recommended ? 'Bỏ cờ khuyên dùng' : 'Đặt làm gói khuyên dùng'}
+                    >
+                      <i className={`fa-star ${pkg.recommended ? 'fa-solid' : 'fa-regular'}`}></i>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleClonePackage(pkg)}
+                      className="p-1.5 rounded-lg text-xs text-slate-500 hover:text-cyan-400 hover:bg-slate-900 transition"
+                      title="Nhân bản (sao chép) gói này"
+                    >
+                      <i className="fa-solid fa-copy"></i>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setConfirmDeleteId(pkg.id)}
+                      className="p-1.5 rounded-lg text-xs text-slate-500 hover:text-red-400 hover:bg-slate-900 transition"
+                      title="Xóa gói hội viên này"
+                    >
+                      <i className="fa-solid fa-trash-can"></i>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Name & Audience */}
+                <h4 className="text-lg font-black text-white flex items-center justify-between gap-2">
+                  <span>{pkg.name}</span>
+                  <span className="text-xs font-bold text-red-400 shrink-0 font-mono">
+                    -{pkg.savePercent}%
+                  </span>
+                </h4>
+                <p className="text-xs text-slate-400 mt-1 min-h-[32px] line-clamp-2">
+                  {pkg.targetAudience}
+                </p>
+
+                {/* Price Display */}
+                <div className="my-4 p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                    Đơn giá niêm yết:
+                  </div>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-2xl font-black text-amber-400 font-mono tracking-tight">
+                      {Number(pkg.monthlyPrice || 0).toLocaleString('vi-VN')}
+                    </span>
+                    <span className="text-xs text-slate-400 font-bold">VNĐ / tháng</span>
+                  </div>
+
+                  {/* Billing cycles preview */}
+                  <div className="mt-3 pt-2.5 border-t border-slate-800/80 space-y-1 text-[11px]">
+                    {(pkg.billingCycles || []).map(c => (
+                      <div key={c.months} className="flex justify-between items-center text-slate-300">
+                        <span className="text-slate-400">Chu kỳ {c.label}:</span>
+                        <span className="font-mono font-bold text-slate-200">
+                          {Number(c.price || 0).toLocaleString('vi-VN')} đ
+                          {c.discount > 0 && (
+                            <span className="text-emerald-400 font-normal ml-1">(-{c.discount}%)</span>
+                          )}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Vouchers Per 30-Day Cycle */}
+                <div className="p-3.5 bg-slate-900/60 rounded-2xl border border-slate-800/80 space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                      <i className="fa-solid fa-ticket text-emerald-400"></i>
+                      <span>Kho Voucher Cấp Mỗi 30 Ngày:</span>
+                    </span>
+                    <span className="text-[10px] font-mono text-cyan-300 font-bold" title="Tổng giá trị voucher nhận được mỗi chu kỳ">
+                      ~{totalVoucherValue.toLocaleString('vi-VN')} đ/tháng
+                    </span>
+                  </div>
+
+                  <div className="space-y-1.5 text-[11px]">
+                    <div className="flex items-center justify-between p-1.5 rounded-lg bg-slate-950/60 border border-slate-800/40">
+                      <span className="text-slate-300">• Voucher Đăng Tin Thường:</span>
+                      <span className="text-emerald-400 font-mono font-bold">
+                        {pkg.vouchersPerCycle?.normalPublishVouchers || 0} voucher (-{(pkg.vouchersPerCycle?.normalPublishDiscount || 35000) / 1000}k)
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between p-1.5 rounded-lg bg-slate-950/60 border border-slate-800/40">
+                      <span className="text-slate-300">• Voucher Đẩy Tin Thường:</span>
+                      <span className="text-amber-400 font-mono font-bold">
+                        {pkg.vouchersPerCycle?.normalBumpVouchers || 0} voucher (-{(pkg.vouchersPerCycle?.normalBumpDiscount || 10000) / 1000}k)
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between p-1.5 rounded-lg bg-slate-950/60 border border-slate-800/40">
+                      <span className="text-slate-300">• Voucher Giảm Tin VIP:</span>
+                      <span className={`font-mono font-bold ${(pkg.vouchersPerCycle?.vipVouchers || 0) > 0 ? 'text-red-400' : 'text-slate-500'}`}>
+                        {(pkg.vouchersPerCycle?.vipVouchers || 0) > 0 
+                          ? `${pkg.vouchersPerCycle.vipVouchers} voucher (-${(pkg.vouchersPerCycle.vipDiscount || 400000) / 1000}k)`
+                          : 'Không áp dụng'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Features Privileges Preview */}
+                <div className="mt-4 pt-3 border-t border-slate-800/80">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                    <span>Quyền Lợi & Đặc Quyền:</span>
+                    <span className="text-slate-500">{(pkg.features || []).length} mục</span>
+                  </div>
+
+                  <div className="space-y-1 text-xs text-slate-300 max-h-36 overflow-y-auto pr-1">
+                    {(pkg.features || []).slice(0, 4).map((feat, idx) => (
+                      <div key={idx} className="flex items-start gap-1.5 text-[11px]">
+                        <i className="fa-solid fa-circle-check text-emerald-400 mt-0.5 text-[10px] shrink-0"></i>
+                        <span className="leading-tight text-slate-300">{feat}</span>
+                      </div>
+                    ))}
+                    {(pkg.features || []).length > 4 && (
+                      <div className="text-[10px] text-amber-400/90 font-bold pl-3.5 pt-0.5">
+                        + {(pkg.features || []).length - 4} đặc quyền khác...
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Button: Edit Details */}
+              <div className="mt-5 pt-3 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => handleOpenEdit(pkg)}
+                  className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs border border-slate-700 hover:border-amber-500 transition flex items-center justify-center gap-2 cursor-pointer group"
+                >
+                  <i className="fa-solid fa-pen-to-square text-amber-400 group-hover:scale-110 transition"></i>
+                  <span>Tùy Chỉnh Thông Tin Gói</span>
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ================= 4. CONFIRM DELETE DIALOG ================= */}
+      {confirmDeleteId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-slate-900 border border-red-500/40 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-4">
+            <div className="flex items-center gap-3 text-red-400">
+              <div className="w-10 h-10 rounded-2xl bg-red-500/10 border border-red-500/30 flex items-center justify-center text-lg">
+                <i className="fa-solid fa-triangle-exclamation"></i>
+              </div>
+              <div>
+                <h4 className="text-base font-black text-white">Xác Nhận Xóa Gói Hội Viên?</h4>
+                <p className="text-xs text-slate-400">Hành động này không thể hoàn tác</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Bạn có chắc chắn muốn xóa gói hội viên{' '}
+              <strong className="text-white">
+                {(membershipPackages || []).find(p => p.id === confirmDeleteId)?.name}
+              </strong>{' '}
+              khỏi sàn giao dịch? Người dùng sẽ không thể đăng ký mới gói này.
+            </p>
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setConfirmDeleteId(null)}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition"
+              >
+                Hủy Bỏ
+              </button>
+              <button
+                type="button"
+                onClick={() => handleConfirmDelete(confirmDeleteId)}
+                className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-lg shadow-red-600/30 transition flex items-center gap-1.5"
+              >
+                <i className="fa-solid fa-trash-can"></i>
+                <span>Xác Nhận Xóa</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= 5. FULL CUSTOMIZATION MODAL (TÙY CHỈNH THÔNG TIN GÓI HỘI VIÊN) ================= */}
+      {editingPkg && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/85 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl w-full max-w-5xl shadow-2xl my-auto overflow-hidden flex flex-col max-h-[92vh]">
+            
+            {/* Modal Header */}
+            <div className="p-5 sm:p-6 border-b border-slate-800 flex items-center justify-between gap-4 bg-slate-900/50 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/30 flex items-center justify-center text-lg font-bold shrink-0">
+                  <i className={`fa-solid ${isCreatingNew ? 'fa-plus' : 'fa-pen-to-square'}`}></i>
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                    <span>{isCreatingNew ? 'Thêm Mới Gói Hội Viên' : `Tùy Chỉnh Thông Tin: ${editingPkg.name}`}</span>
+                    {editingPkg.recommended && (
+                      <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30">
+                        ★ Gói Khuyên Dùng
+                      </span>
+                    )}
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Cập nhật toàn diện tên, đơn giá, chiết khấu chu kỳ, kho voucher 30 ngày và các quyền lợi đi kèm.
+                  </p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleCloseModal}
+                className="w-9 h-9 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition border border-slate-800 cursor-pointer shrink-0"
+              >
+                <i className="fa-solid fa-xmark text-sm"></i>
+              </button>
+            </div>
+
+            {/* Modal Navigation Tabs */}
+            <div className="flex items-center gap-2 px-6 pt-3 border-b border-slate-800 bg-slate-950 shrink-0 overflow-x-auto text-xs">
+              <button
+                type="button"
+                onClick={() => setModalActiveTab('general')}
+                className={`pb-3 px-3 font-bold border-b-2 transition flex items-center gap-2 cursor-pointer shrink-0 ${
+                  modalActiveTab === 'general'
+                    ? 'border-amber-400 text-amber-400'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <i className="fa-solid fa-id-card"></i>
+                <span>1. Nhận Diện & Cơ Bản</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setModalActiveTab('pricing')}
+                className={`pb-3 px-3 font-bold border-b-2 transition flex items-center gap-2 cursor-pointer shrink-0 ${
+                  modalActiveTab === 'pricing'
+                    ? 'border-amber-400 text-amber-400'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <i className="fa-solid fa-tags"></i>
+                <span>2. Đơn Giá & Chu Kỳ (1/3/6 tháng)</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setModalActiveTab('vouchers')}
+                className={`pb-3 px-3 font-bold border-b-2 transition flex items-center gap-2 cursor-pointer shrink-0 ${
+                  modalActiveTab === 'vouchers'
+                    ? 'border-amber-400 text-amber-400'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <i className="fa-solid fa-ticket"></i>
+                <span>3. Kho Voucher 30 Ngày</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setModalActiveTab('features')}
+                className={`pb-3 px-3 font-bold border-b-2 transition flex items-center gap-2 cursor-pointer shrink-0 ${
+                  modalActiveTab === 'features'
+                    ? 'border-amber-400 text-amber-400'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <i className="fa-solid fa-list-check"></i>
+                <span>4. Danh Sách Đặc Quyền ({editingPkg.features?.length || 0})</span>
+              </button>
+            </div>
+
+            {/* Modal Body: Split view (Edit Form + Realtime Preview) */}
+            <div className="p-6 overflow-y-auto space-y-6 flex-1">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+                {/* Left Column: Form Editor (8 Cols) */}
+                <div className="lg:col-span-7 space-y-5">
+                  {/* TAB 1: GENERAL & BRANDING */}
+                  {modalActiveTab === 'general' && (
+                    <div className="space-y-4 animate-in fade-in duration-150">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div className="sm:col-span-2">
+                          <label className="block text-slate-400 font-bold mb-1">
+                            Tên Đầy Đủ Gói Hội Viên <span className="text-red-400">*</span>:
+                          </label>
+                          <input
+                            type="text"
+                            value={editingPkg.name || ''}
+                            onChange={(e) => handleFieldChange('name', e.target.value)}
+                            placeholder="Ví dụ: Gói Hội Viên Tiêu Chuẩn"
+                            className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-amber-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-slate-400 font-bold mb-1">
+                            Tên Ngắn / Nhãn Viết Tắt (In Hoa):
+                          </label>
+                          <input
+                            type="text"
+                            value={editingPkg.shortName || ''}
+                            onChange={(e) => handleFieldChange('shortName', e.target.value)}
+                            placeholder="Ví dụ: GÓI TIÊU CHUẨN"
+                            className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono font-bold outline-none focus:border-amber-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-slate-400 font-bold mb-1">
+                            Mức Tiết Kiệm Hiển Thị (%):
+                          </label>
+                          <div className="relative">
+                            <input
+                              type="number"
+                              min="0"
+                              max="100"
+                              value={editingPkg.savePercent || 0}
+                              onChange={(e) => handleFieldChange('savePercent', Number(e.target.value))}
+                              placeholder="33"
+                              className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono font-bold outline-none focus:border-amber-500 pr-8"
+                            />
+                            <span className="absolute right-3 top-2.5 text-slate-400 font-bold">%</span>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-slate-400 font-bold mb-1">
+                            Nhãn Huy Hiệu (Badge Text):
+                          </label>
+                          <input
+                            type="text"
+                            value={editingPkg.badge || ''}
+                            onChange={(e) => handleFieldChange('badge', e.target.value)}
+                            placeholder="Ví dụ: BÁN CHẠY NHẤT 🔥"
+                            className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-amber-500"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-slate-400 font-bold mb-1">
+                            Màu Sắc Huy Hiệu (Badge Color):
+                          </label>
+                          <select
+                            value={editingPkg.badgeColor || ''}
+                            onChange={(e) => handleFieldChange('badgeColor', e.target.value)}
+                            className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-amber-500"
+                          >
+                            {BADGE_COLOR_PRESETS.map(preset => (
+                              <option key={preset.id} value={preset.class}>
+                                {preset.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="sm:col-span-2">
+                          <label className="block text-slate-400 font-bold mb-1">
+                            Đối Tượng Áp Dụng / Mô Tả Khách Hàng Mục Tiêu:
+                          </label>
+                          <textarea
+                            rows={2}
+                            value={editingPkg.targetAudience || ''}
+                            onChange={(e) => handleFieldChange('targetAudience', e.target.value)}
+                            placeholder="Ví dụ: Môi giới chuyên nghiệp, giỏ hàng từ ~10 BĐS cần tối ưu chi phí đăng tin..."
+                            className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-amber-500 text-xs"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Recommended Flag Toggle */}
+                      <label className="flex items-center gap-3 p-3.5 bg-slate-900/60 hover:bg-slate-900 rounded-2xl border border-slate-800 cursor-pointer transition">
+                        <input
+                          type="checkbox"
+                          checked={editingPkg.recommended || false}
+                          onChange={(e) => handleFieldChange('recommended', e.target.checked)}
+                          className="w-4 h-4 text-amber-500 rounded border-slate-700 bg-slate-800 focus:ring-amber-400 shrink-0"
+                        />
+                        <div>
+                          <div className="font-bold text-white text-xs flex items-center gap-2">
+                            <span>Đánh dấu là "Gói Khuyên Dùng & Bán Chạy Nhất"</span>
+                            <span className="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">
+                              ★ Recommended
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-400 mt-0.5">
+                            Gói này sẽ được gắn dải banner ánh vàng nổi bật và hiệu ứng viền phát sáng thu hút khách hàng trên trang Hội viên.
+                          </p>
+                        </div>
+                      </label>
+                    </div>
+                  )}
+
+                  {/* TAB 2: PRICING & BILLING CYCLES */}
+                  {modalActiveTab === 'pricing' && (
+                    <div className="space-y-4 animate-in fade-in duration-150 text-xs">
+                      <div className="p-4 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div>
+                            <label className="block text-slate-300 font-bold">
+                              Đơn Giá Cơ Bản Theo Tháng (VNĐ / Tháng) <span className="text-red-400">*</span>:
+                            </label>
+                            <p className="text-[11px] text-slate-400">Đơn giá chuẩn khi người dùng chọn thanh toán chu kỳ 1 tháng</p>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={handleAutoCalculateCycles}
+                            className="px-3 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30 font-bold text-xs transition flex items-center gap-1.5 w-max"
+                            title="Tự động tính giá 3 tháng (-5%) và 6 tháng (-10%) theo đơn giá tháng"
+                          >
+                            <i className="fa-solid fa-calculator"></i>
+                            <span>Tự Tính Chu Kỳ 3T & 6T</span>
+                          </button>
+                        </div>
+
+                        <div className="relative">
+                          <input
+                            type="number"
+                            step="1000"
+                            value={editingPkg.monthlyPrice || 0}
+                            onChange={(e) => handleFieldChange('monthlyPrice', Number(e.target.value))}
+                            placeholder="1267000"
+                            className="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-amber-400 font-mono text-base font-black outline-none focus:border-amber-500"
+                          />
+                          <span className="absolute right-3.5 top-3 text-slate-400 font-bold">VNĐ</span>
+                        </div>
+                      </div>
+
+                      {/* Detailed Billing Cycles list */}
+                      <div className="space-y-3">
+                        <div className="font-bold text-slate-300 text-xs flex items-center gap-1.5">
+                          <i className="fa-solid fa-calendar-days text-teal-400"></i>
+                          <span>Chi Tiết Giá Các Chu Kỳ Thanh Toán (1 Tháng, 3 Tháng, 6 Tháng):</span>
+                        </div>
+
+                        {(editingPkg.billingCycles || []).map((cycle, idx) => (
+                          <div key={cycle.months} className="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-white text-xs flex items-center gap-2">
+                                <span className="w-5 h-5 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center text-[10px] font-mono">
+                                  {idx + 1}
+                                </span>
+                                <span>Kỳ Hạn: <strong>{cycle.label}</strong> ({cycle.months} tháng)</span>
+                              </span>
+
+                              <span className="text-[11px] font-mono text-emerald-400 font-bold">
+                                Chiết khấu: {cycle.discount || 0}%
+                              </span>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                              <div>
+                                <label className="block text-[10px] text-slate-400 mb-0.5">Tổng Tiền Thu (VNĐ):</label>
+                                <input
+                                  type="number"
+                                  step="1000"
+                                  value={cycle.price || 0}
+                                  onChange={(e) => handleBillingCycleChange(idx, 'price', e.target.value)}
+                                  className="w-full p-2 bg-slate-950 border border-slate-700 rounded-lg text-white font-mono text-xs font-bold outline-none focus:border-amber-500"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-[10px] text-slate-400 mb-0.5">% Giảm Giá (Discount):</label>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  max="100"
+                                  value={cycle.discount || 0}
+                                  onChange={(e) => handleBillingCycleChange(idx, 'discount', e.target.value)}
+                                  className="w-full p-2 bg-slate-950 border border-slate-700 rounded-lg text-white font-mono text-xs outline-none focus:border-amber-500"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-[10px] text-slate-400 mb-0.5">Ghi Chú Ưu Đãi:</label>
+                                <input
+                                  type="text"
+                                  value={cycle.note || ''}
+                                  onChange={(e) => handleBillingCycleChange(idx, 'note', e.target.value)}
+                                  placeholder="Tiết kiệm thêm 10%"
+                                  className="w-full p-2 bg-slate-950 border border-slate-700 rounded-lg text-white text-xs outline-none focus:border-amber-500"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 3: VOUCHERS QUOTAS PER 30 DAYS */}
+                  {modalActiveTab === 'vouchers' && (
+                    <div className="space-y-4 animate-in fade-in duration-150 text-xs">
+                      <div className="p-3.5 bg-emerald-950/30 border border-emerald-500/30 rounded-2xl flex items-center justify-between">
+                        <div>
+                          <div className="font-bold text-emerald-300">Kho Voucher Cấp Mỗi Chu Kỳ 30 Ngày</div>
+                          <p className="text-[11px] text-slate-400 mt-0.5">
+                            Hệ thống tự động cộng kho voucher này vào ví người dùng ngay khi đăng ký thành công.
+                          </p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <div className="text-[10px] text-slate-400">Tổng Trị Giá Ước Tính:</div>
+                          <div className="text-sm font-black text-cyan-300 font-mono">
+                            ~{calcTotalVoucherValue(editingPkg.vouchersPerCycle).toLocaleString('vi-VN')} đ/tháng
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 1. Normal Publish Voucher */}
+                      <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-black">
+                            <i className="fa-solid fa-file-lines"></i>
+                          </span>
+                          <span className="font-bold text-white">Voucher Đăng Tin Thường:</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-slate-400 text-[11px] mb-1">Số Lượng Voucher / 30 Ngày:</label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={editingPkg.vouchersPerCycle?.normalPublishVouchers || 0}
+                              onChange={(e) => handleVoucherQuotaChange('normalPublishVouchers', e.target.value)}
+                              className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-emerald-400 font-mono font-bold outline-none focus:border-teal-500"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-slate-400 text-[11px] mb-1">Mức Giảm Mỗi Lần Dùng (VNĐ):</label>
+                            <input
+                              type="number"
+                              step="1000"
+                              min="0"
+                              value={editingPkg.vouchersPerCycle?.normalPublishDiscount || 35000}
+                              onChange={(e) => handleVoucherQuotaChange('normalPublishDiscount', e.target.value)}
+                              className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono font-bold outline-none focus:border-teal-500"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 2. Normal Bump Voucher */}
+                      <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-black">
+                            <i className="fa-solid fa-arrow-up"></i>
+                          </span>
+                          <span className="font-bold text-white">Voucher Đẩy Tin Thường (Bump Service):</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-slate-400 text-[11px] mb-1">Số Lượng Voucher / 30 Ngày:</label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={editingPkg.vouchersPerCycle?.normalBumpVouchers || 0}
+                              onChange={(e) => handleVoucherQuotaChange('normalBumpVouchers', e.target.value)}
+                              className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-amber-400 font-mono font-bold outline-none focus:border-teal-500"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-slate-400 text-[11px] mb-1">Mức Giảm Mỗi Lần Dùng (VNĐ):</label>
+                            <input
+                              type="number"
+                              step="1000"
+                              min="0"
+                              value={editingPkg.vouchersPerCycle?.normalBumpDiscount || 10000}
+                              onChange={(e) => handleVoucherQuotaChange('normalBumpDiscount', e.target.value)}
+                              className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono font-bold outline-none focus:border-teal-500"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 3. VIP Publish Voucher */}
+                      <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-lg bg-rose-600 text-white flex items-center justify-center text-xs font-black">
+                            <i className="fa-solid fa-gem"></i>
+                          </span>
+                          <span className="font-bold text-white">Voucher Giảm Giá Tin VIP (Kim Cương / Vàng):</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-slate-400 text-[11px] mb-1">Số Lượng Voucher / 30 Ngày (0 = Không áp dụng):</label>
+                            <input
+                              type="number"
+                              min="0"
+                              value={editingPkg.vouchersPerCycle?.vipVouchers || 0}
+                              onChange={(e) => handleVoucherQuotaChange('vipVouchers', e.target.value)}
+                              className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-red-400 font-mono font-bold outline-none focus:border-teal-500"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-slate-400 text-[11px] mb-1">Mức Giảm Mỗi Lần Dùng (VNĐ):</label>
+                            <input
+                              type="number"
+                              step="10000"
+                              min="0"
+                              value={editingPkg.vouchersPerCycle?.vipDiscount || 400000}
+                              onChange={(e) => handleVoucherQuotaChange('vipDiscount', e.target.value)}
+                              className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono font-bold outline-none focus:border-teal-500"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 4: PRIVILEGES & FEATURES LIST */}
+                  {modalActiveTab === 'features' && (
+                    <div className="space-y-4 animate-in fade-in duration-150 text-xs">
+                      {/* Input to add new feature */}
+                      <div className="p-3 bg-slate-900 rounded-2xl border border-slate-800 space-y-2">
+                        <label className="block text-slate-300 font-bold">Thêm Đặc Quyền / Tiện Ích Mới:</label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={newFeatureInput}
+                            onChange={(e) => setNewFeatureInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                e.preventDefault();
+                                handleAddFeature();
+                              }
+                            }}
+                            placeholder="Nhập nội dung đặc quyền (ví dụ: Miễn phí đẩy tin giờ vàng mỗi ngày)..."
+                            className="flex-1 p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs outline-none focus:border-amber-500"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleAddFeature()}
+                            className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs transition shrink-0 cursor-pointer"
+                          >
+                            + Thêm
+                          </button>
+                        </div>
+
+                        {/* Quick suggestions */}
+                        <div className="pt-2 border-t border-slate-800/80">
+                          <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-1.5">
+                            Gợi ý đặc quyền chuẩn BĐS (Bấm để thêm nhanh):
+                          </div>
+                          <div className="flex flex-wrap gap-1.5">
+                            {SUGGESTED_FEATURES.map((sug, sIdx) => {
+                              const alreadyHas = editingPkg.features?.includes(sug);
+                              return (
+                                <button
+                                  key={sIdx}
+                                  type="button"
+                                  disabled={alreadyHas}
+                                  onClick={() => handleAddFeature(sug)}
+                                  className={`text-[10px] px-2 py-1 rounded-lg border transition text-left ${
+                                    alreadyHas
+                                      ? 'bg-slate-950 text-slate-600 border-slate-800 cursor-not-allowed opacity-50'
+                                      : 'bg-slate-950 hover:bg-slate-800 text-slate-300 border-slate-700 hover:border-amber-400 cursor-pointer'
+                                  }`}
+                                >
+                                  {alreadyHas ? '✓ ' : '+ '}{sug}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Current features list (reorder & edit) */}
+                      <div className="space-y-2">
+                        <div className="font-bold text-slate-300 text-xs flex items-center justify-between">
+                          <span>Danh Sách Đặc Quyền Hiện Có ({(editingPkg.features || []).length}):</span>
+                          <span className="text-[10px] text-slate-500">Kéo hoặc dùng mũi tên để sắp xếp</span>
+                        </div>
+
+                        {(editingPkg.features || []).map((feat, idx) => (
+                          <div key={idx} className="flex items-center gap-2 p-2 bg-slate-900/80 rounded-xl border border-slate-800 group">
+                            <span className="w-5 h-5 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center text-[10px] font-mono shrink-0">
+                              {idx + 1}
+                            </span>
+
+                            <input
+                              type="text"
+                              value={feat}
+                              onChange={(e) => handleUpdateFeature(idx, e.target.value)}
+                              className="flex-1 bg-transparent border-none text-white text-xs outline-none focus:ring-1 focus:ring-amber-400 rounded px-1"
+                            />
+
+                            <div className="flex items-center gap-1 shrink-0">
+                              <button
+                                type="button"
+                                disabled={idx === 0}
+                                onClick={() => handleMoveFeature(idx, -1)}
+                                className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-[10px] disabled:opacity-30 cursor-pointer"
+                                title="Di chuyển lên"
+                              >
+                                <i className="fa-solid fa-arrow-up"></i>
+                              </button>
+
+                              <button
+                                type="button"
+                                disabled={idx === editingPkg.features.length - 1}
+                                onClick={() => handleMoveFeature(idx, 1)}
+                                className="w-6 h-6 rounded bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-[10px] disabled:opacity-30 cursor-pointer"
+                                title="Di chuyển xuống"
+                              >
+                                <i className="fa-solid fa-arrow-down"></i>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveFeature(idx)}
+                                className="w-6 h-6 rounded bg-red-950/60 hover:bg-red-900 text-red-400 hover:text-white flex items-center justify-center text-[10px] cursor-pointer"
+                                title="Xóa đặc quyền này"
+                              >
+                                <i className="fa-solid fa-xmark"></i>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Right Column: Real-time Live Preview Card (5 Cols) */}
+                <div className="lg:col-span-5 space-y-3">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <i className="fa-solid fa-eye text-cyan-400"></i>
+                      <span>Xem Trước Trực Quan (Live Preview):</span>
+                    </span>
+
+                    {/* Cycle Toggle in Preview */}
+                    <div className="flex items-center bg-slate-900 p-1 rounded-xl border border-slate-800 text-[10px] font-bold">
+                      <button
+                        type="button"
+                        onClick={() => setPreviewCycle(1)}
+                        className={`px-2 py-0.5 rounded-lg transition ${previewCycle === 1 ? 'bg-amber-500 text-slate-950 font-black' : 'text-slate-400 hover:text-white'}`}
+                      >
+                        1T
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewCycle(3)}
+                        className={`px-2 py-0.5 rounded-lg transition ${previewCycle === 3 ? 'bg-amber-500 text-slate-950 font-black' : 'text-slate-400 hover:text-white'}`}
+                      >
+                        3T
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewCycle(6)}
+                        className={`px-2 py-0.5 rounded-lg transition ${previewCycle === 6 ? 'bg-amber-500 text-slate-950 font-black' : 'text-slate-400 hover:text-white'}`}
+                      >
+                        6T
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Rendered Card replicating MembershipPage.jsx */}
+                  {(() => {
+                    const activeCycle = editingPkg.billingCycles?.find(c => c.months === previewCycle) || {
+                      months: previewCycle,
+                      price: (editingPkg.monthlyPrice || 0) * previewCycle,
+                      discount: 0
+                    };
+
+                    return (
+                      <div className={`rounded-3xl p-6 bg-white text-slate-900 border-2 transition-all relative shadow-2xl ${
+                        editingPkg.recommended 
+                          ? 'border-amber-500 ring-4 ring-amber-400/20' 
+                          : 'border-slate-200'
+                      }`}>
+                        {editingPkg.recommended && (
+                          <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black text-[10px] uppercase px-3.5 py-0.5 rounded-full shadow-md tracking-wider">
+                            ★ Gói Phổ Biến & Bán Chạy Nhất
+                          </div>
+                        )}
+
+                        {/* Top Badge */}
+                        <div className="flex items-center justify-between mb-3">
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase ${editingPkg.badgeColor || 'bg-emerald-600 text-white'}`}>
+                            {editingPkg.badge || editingPkg.shortName}
+                          </span>
+                          <span className="text-[11px] font-bold text-slate-400 font-mono">
+                            Chu kỳ {previewCycle} tháng
+                          </span>
+                        </div>
+
+                        <h4 className="text-xl font-black text-slate-900">{editingPkg.name || 'Tên Gói Hội Viên'}</h4>
+                        <p className="text-xs text-slate-500 mt-1 min-h-[32px] line-clamp-2">
+                          {editingPkg.targetAudience || 'Mô tả đối tượng khách hàng phù hợp...'}
+                        </p>
+
+                        {/* Price box */}
+                        <div className="my-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-2xl font-black text-slate-900 tracking-tight font-mono">
+                              {Number(activeCycle.price || 0).toLocaleString('vi-VN')}
+                            </span>
+                            <span className="text-xs font-bold text-slate-500">đ / {previewCycle} tháng</span>
+                          </div>
+                          {previewCycle > 1 && (
+                            <div className="text-[11px] text-emerald-600 font-bold mt-1 flex items-center gap-1">
+                              <i className="fa-solid fa-tag"></i>
+                              <span>{activeCycle.note || `Tiết kiệm thêm khi đăng ký ${previewCycle} tháng`}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Monthly Vouchers */}
+                        <div className="space-y-2 pt-2 pb-3 border-t border-slate-100 text-xs">
+                          <div className="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1">
+                            <i className="fa-solid fa-ticket text-emerald-600"></i>
+                            <span>Kho Voucher Cấp Mỗi 30 Ngày:</span>
+                          </div>
+
+                          <div className="space-y-1.5">
+                            <div className="p-2 rounded-xl bg-emerald-50/80 border border-emerald-100 flex items-center justify-between text-xs">
+                              <div className="flex items-center gap-1.5">
+                                <span className="w-5 h-5 rounded-md bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black">
+                                  {editingPkg.vouchersPerCycle?.normalPublishVouchers || 0}
+                                </span>
+                                <span className="font-bold text-emerald-950 text-[11px]">Voucher Đăng Tin Thường</span>
+                              </div>
+                              <span className="text-emerald-700 font-black text-[10px]">
+                                -{(editingPkg.vouchersPerCycle?.normalPublishDiscount || 35000).toLocaleString('vi-VN')} đ/lần
+                              </span>
+                            </div>
+
+                            <div className="p-2 rounded-xl bg-blue-50/80 border border-blue-100 flex items-center justify-between text-xs">
+                              <div className="flex items-center gap-1.5">
+                                <span className="w-5 h-5 rounded-md bg-blue-600 text-white flex items-center justify-center text-[10px] font-black">
+                                  {editingPkg.vouchersPerCycle?.normalBumpVouchers || 0}
+                                </span>
+                                <span className="font-bold text-blue-950 text-[11px]">Voucher Đẩy Tin Thường</span>
+                              </div>
+                              <span className="text-blue-700 font-black text-[10px]">
+                                -{(editingPkg.vouchersPerCycle?.normalBumpDiscount || 10000).toLocaleString('vi-VN')} đ/lần
+                              </span>
+                            </div>
+
+                            {(editingPkg.vouchersPerCycle?.vipVouchers || 0) > 0 && (
+                              <div className="p-2 rounded-xl bg-amber-50/80 border border-amber-200 flex items-center justify-between text-xs">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="w-5 h-5 rounded-md bg-amber-500 text-slate-950 flex items-center justify-center text-[10px] font-black">
+                                    {editingPkg.vouchersPerCycle.vipVouchers}
+                                  </span>
+                                  <span className="font-bold text-amber-950 text-[11px]">Voucher Giảm Tin VIP</span>
+                                </div>
+                                <span className="text-amber-800 font-black text-[10px]">
+                                  -{(editingPkg.vouchersPerCycle.vipDiscount || 400000).toLocaleString('vi-VN')} đ/tin
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Features */}
+                        <div className="space-y-1 pt-2 border-t border-slate-100 text-xs">
+                          <div className="font-bold text-slate-800 text-[11px] uppercase tracking-wider mb-1">
+                            Quyền lợi đi kèm:
+                          </div>
+                          {(editingPkg.features || []).map((feat, idx) => (
+                            <div key={idx} className="flex items-start gap-1.5 text-[11px] text-slate-600">
+                              <i className="fa-solid fa-circle-check text-emerald-500 mt-0.5 text-[10px] shrink-0"></i>
+                              <span className="leading-tight">{feat}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* CTA button */}
+                        <div className="mt-5 pt-3 border-t border-slate-100">
+                          <button
+                            type="button"
+                            className={`w-full py-2.5 px-4 rounded-xl font-black text-xs uppercase tracking-wider shadow transition flex items-center justify-center gap-2 ${
+                              editingPkg.recommended
+                                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950'
+                                : 'bg-emerald-600 text-white'
+                            }`}
+                          >
+                            <i className="fa-solid fa-crown text-xs"></i>
+                            <span>Đăng Ký {editingPkg.shortName}</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 sm:p-5 border-t border-slate-800 flex items-center justify-between gap-3 bg-slate-900/60 shrink-0">
+              <div className="text-[11px] text-slate-400">
+                Thay đổi sẽ có hiệu lực ngay lập tức cho tất cả khách hàng trên sàn BĐS.
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold text-xs border border-slate-800 transition cursor-pointer"
+                >
+                  Hủy Bỏ
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSaveModal}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs shadow-lg shadow-emerald-600/20 transition flex items-center gap-2 cursor-pointer"
+                >
+                  <i className="fa-solid fa-floppy-disk"></i>
+                  <span>{isCreatingNew ? 'Tạo Gói Hội Viên' : 'Lưu Thay Đổi Gói'}</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

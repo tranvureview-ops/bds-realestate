@@ -1,0 +1,279 @@
+'use client';
+
+import React from 'react';
+import { useRealEstate } from '../context/RealEstateContext';
+import { Link, useRouter } from '../router/RouterContext';
+import { VIP_PACKAGES } from '../data/mockData';
+import { getPropertyPermalink } from '../utils/permalink';
+
+export default function ListingCard({ property, viewMode = 'grid' }) {
+  const { navigate } = useRouter();
+  const { 
+    favorites, 
+    toggleFavorite, 
+    compareList, 
+    toggleCompare, 
+    openPropertyDetail 
+  } = useRealEstate();
+
+  if (!property) return null;
+
+  const safeImages = Array.isArray(property.images) && property.images.length > 0
+    ? property.images
+    : ['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80'];
+
+  const safeAuthor = {
+    name: property.author?.name || property.contactName || 'Người đăng tin',
+    phone: property.author?.phone || property.contactPhone || '0908 123 456',
+    zalo: property.author?.zalo || String(property.author?.phone || property.contactPhone || '0908123456').replace(/\s+/g, ''),
+    avatar: property.author?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
+    title: property.author?.title || (property.isGuest ? 'Khách vãng lai' : 'Chính chủ'),
+    isVerified: property.author?.isVerified || false
+  };
+
+  const isFav = favorites.includes(property.id);
+  const isCompared = compareList.some(item => item.id === property.id);
+
+  // Find VIP Package with robust fallback
+  const defaultPkg = VIP_PACKAGES.find(p => p.id === 'normal') || VIP_PACKAGES[VIP_PACKAGES.length - 1];
+  const vipPkg = VIP_PACKAGES.find(p => p.id === property.vipPackageId) || defaultPkg;
+  const isDiamond = property.vipPackageId === 'vip-diamond';
+  const isGold = property.vipPackageId === 'vip-gold';
+
+  // Format date
+  const timeAgo = (dateStr) => {
+    try {
+      const diffMs = Date.now() - new Date(dateStr).getTime();
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      if (diffHours < 1) return 'Vừa mới đăng';
+      if (diffHours < 24) return `${diffHours} giờ trước`;
+      const diffDays = Math.floor(diffHours / 24);
+      return `${diffDays} ngày trước`;
+    } catch {
+      return 'Gần đây';
+    }
+  };
+
+  const handleCardClick = (e) => {
+    // If clicked on an interactive button/link, don't trigger card navigation
+    if (e.target.closest('button') || e.target.closest('a')) {
+      return;
+    }
+    navigate(getPropertyPermalink(property));
+  };
+
+  return (
+    <div 
+      onClick={handleCardClick}
+      className={`relative bg-white rounded-2xl overflow-hidden transition-all duration-300 group cursor-pointer ${
+        isDiamond 
+          ? 'vip-diamond-border hover:shadow-2xl' 
+          : isGold 
+          ? 'vip-gold-border hover:shadow-xl' 
+          : 'border border-slate-200 hover:border-slate-300 hover:shadow-lg'
+      } ${viewMode === 'list' ? 'flex flex-col md:flex-row' : 'flex flex-col'}`}
+    >
+      {/* Property Image Container */}
+      <div className={`relative overflow-hidden ${viewMode === 'list' ? 'md:w-72 lg:w-80 h-56 md:h-auto shrink-0' : 'h-52 w-full'}`}>
+        <Link to={getPropertyPermalink(property)} className="block w-full h-full">
+          <img
+            src={safeImages[0]}
+            alt={property.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 cursor-pointer"
+            loading="lazy"
+          />
+        </Link>
+
+        {/* Gradient Overlay for photo contrast */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none"></div>
+
+        {/* Top Badges */}
+        <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5 z-10">
+          {/* VIP Level Badge */}
+          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase shadow-sm tracking-wide ${vipPkg.badgeColor}`}>
+            {vipPkg.shortName}
+          </span>
+
+          {/* Demand Badge */}
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold shadow-sm ${property.demand === 'sale' ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'}`}>
+            {property.demand === 'sale' ? 'BÁN' : 'CHO THUÊ'}
+          </span>
+
+          {/* VR 360 Badge */}
+          {property.hasVR360 && (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-600 text-white shadow-sm flex items-center gap-1 animate-pulse">
+              <i className="fa-solid fa-vr-cardboard"></i> VR 360°
+            </span>
+          )}
+        </div>
+
+        {/* Action Buttons Top Right: Favorite & Compare */}
+        <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10">
+          {/* Compare Button */}
+          <button
+            onClick={() => toggleCompare(property)}
+            title={isCompared ? 'Xóa khỏi bảng so sánh' : 'Thêm vào so sánh'}
+            className={`w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md ${
+              isCompared 
+                ? 'bg-blue-600 text-white' 
+                : 'bg-white/90 text-slate-700 hover:bg-white hover:text-blue-600'
+            }`}
+          >
+            <i className="fa-solid fa-code-compare"></i>
+          </button>
+
+          {/* Favorite Button */}
+          <button
+            onClick={() => toggleFavorite(property.id)}
+            title={isFav ? 'Bỏ lưu tin' : 'Lưu tin yêu thích'}
+            className={`w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md ${
+              isFav 
+                ? 'bg-rose-600 text-white' 
+                : 'bg-white/90 text-slate-700 hover:bg-white hover:text-rose-600'
+            }`}
+          >
+            <i className={`fa-solid fa-heart ${isFav ? 'text-white' : 'text-slate-600'}`}></i>
+          </button>
+        </div>
+
+        {/* Bottom Image Stats (Image count, views) */}
+        <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between text-white text-xs pointer-events-none">
+          <span className="bg-black/50 px-2 py-0.5 rounded-md text-[11px] backdrop-blur-sm">
+            <i className="fa-solid fa-camera mr-1"></i> {safeImages.length} ảnh
+          </span>
+          <span className="bg-black/50 px-2 py-0.5 rounded-md text-[11px] backdrop-blur-sm">
+            <i className="fa-regular fa-clock mr-1"></i> {timeAgo(property.publishedAt)}
+          </span>
+        </div>
+      </div>
+
+      {/* Property Details Content */}
+      <div className="p-4 flex-1 flex flex-col justify-between">
+        <div>
+          {/* Price & Area Highlight Row */}
+          <div className="flex items-baseline justify-between gap-2 mb-1.5">
+            <div className="flex items-baseline gap-1.5">
+              <span className={`text-xl font-extrabold ${isDiamond ? 'text-red-600' : isGold ? 'text-amber-600' : 'text-emerald-700'}`}>
+                {property.priceDisplay}
+              </span>
+              <span className="text-xs text-slate-400 font-medium">
+                ({property.pricePerM2})
+              </span>
+            </div>
+
+            <div className="text-sm font-bold text-slate-700">
+              <i className="fa-solid fa-vector-square mr-1 text-slate-400"></i>
+              {property.area} m²
+            </div>
+          </div>
+
+          {/* Title with VIP typography */}
+          <h3 className="mb-2">
+            <Link 
+              to={getPropertyPermalink(property)}
+              className={`line-clamp-2 hover:underline transition block ${vipPkg.titleClass}`}
+            >
+              {property.title}
+            </Link>
+          </h3>
+
+          {/* Location Address */}
+          <div className="text-xs text-slate-500 mb-3 flex items-center justify-between gap-1">
+            <div className="flex items-center gap-1 line-clamp-1 truncate">
+              <i className="fa-solid fa-location-dot text-emerald-600 shrink-0"></i>
+              <span className="truncate">{property.district}, {property.city}</span>
+            </div>
+            {property.isAdministrativeMerged && (
+              <span className="px-1.5 py-0.2 rounded bg-red-50 text-red-600 text-[10px] font-bold border border-red-200 shrink-0" title="Đã cập nhật theo đơn vị hành chính mới sau sáp nhập">
+                Đ/c mới
+              </span>
+            )}
+          </div>
+
+          {/* Key Specs Pills (Bedrooms, Bathrooms, Direction, Legal) */}
+          <div className="flex flex-wrap items-center gap-2 mb-3 text-xs text-slate-600">
+            {property.bedroom > 0 && (
+              <span className="px-2 py-1 bg-slate-100 rounded-md flex items-center gap-1 font-medium">
+                <i className="fa-solid fa-bed text-slate-400"></i>
+                {property.bedroom} PN
+              </span>
+            )}
+            {property.bathroom > 0 && (
+              <span className="px-2 py-1 bg-slate-100 rounded-md flex items-center gap-1 font-medium">
+                <i className="fa-solid fa-bath text-slate-400"></i>
+                {property.bathroom} WC
+              </span>
+            )}
+            {property.direction && (
+              <span className="px-2 py-1 bg-slate-100 rounded-md flex items-center gap-1 font-medium">
+                <i className="fa-regular fa-compass text-slate-400"></i>
+                {property.direction}
+              </span>
+            )}
+            {property.legal && (
+              <span className="px-2 py-1 bg-emerald-50 text-emerald-700 rounded-md flex items-center gap-1 font-medium border border-emerald-100">
+                <i className="fa-solid fa-certificate text-emerald-600"></i>
+                {property.legal.includes('Sổ') ? 'Sổ đỏ/hồng sẵn' : 'Pháp lý chuẩn'}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Author / Broker Contact Box & Action Buttons */}
+        <div className="pt-3 border-t border-slate-100">
+          <div className="flex items-center justify-between gap-2 mb-2.5">
+            {/* Broker Avatar & Name */}
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <img
+                src={safeAuthor.avatar}
+                alt={safeAuthor.name}
+                className="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0"
+              />
+              <div className="leading-tight min-w-0 flex-1">
+                <div className="text-xs font-bold text-slate-800 flex items-center gap-1 min-w-0">
+                  <span className="truncate block" title={safeAuthor.name}>{safeAuthor.name}</span>
+                  {safeAuthor.isVerified && (
+                    <i className="fa-solid fa-circle-check text-blue-500 text-[11px] shrink-0" title="Môi giới đã xác thực"></i>
+                  )}
+                </div>
+                <div className="text-[10px] text-slate-400 truncate" title={safeAuthor.title}>
+                  {safeAuthor.title}
+                </div>
+              </div>
+            </div>
+
+            {/* Direct Call / Zalo Buttons */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              <a
+                href={`tel:${safeAuthor.phone.replace(/\s+/g, '')}`}
+                onClick={(e) => e.stopPropagation()}
+                className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm transition shrink-0 whitespace-nowrap ${
+                  isDiamond 
+                    ? 'bg-red-600 hover:bg-red-700 text-white' 
+                    : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                }`}
+                title={`Gọi ngay: ${safeAuthor.phone}`}
+              >
+                <i className="fa-solid fa-phone text-[11px] shrink-0"></i>
+                <span className="whitespace-nowrap">{safeAuthor.phone}</span>
+              </a>
+
+              <a
+                href={`https://zalo.me/${safeAuthor.zalo}`}
+                target="_blank"
+                rel="noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="px-2.5 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1 shadow-sm transition shrink-0 whitespace-nowrap"
+                title="Chat Zalo ngay"
+              >
+                <span>Zalo</span>
+              </a>
+            </div>
+          </div>
+
+
+        </div>
+      </div>
+    </div>
+  );
+}

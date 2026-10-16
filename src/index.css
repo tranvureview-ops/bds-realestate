@@ -1,0 +1,199 @@
+
+*, ::before, ::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100%;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #f8fafc;
+  color: #1e293b;
+  text-align: left;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
+input[type="date"] {
+  cursor: pointer;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
+/* ==========================================================================
+   ENHANCED MODERN SELECT & DROPDOWN STYLING
+   ========================================================================== */
+
+/* Modernized base select styling */
+select:not(.appearance-none) {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2364748b'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd' /%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.15rem 1.15rem;
+  padding-right: 2.35rem !important;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hover state for clean interaction */
+select:not(.appearance-none):hover:not(:disabled) {
+  border-color: #94a3b8;
+}
+
+/* Focus ring and elevation */
+select:not(.appearance-none):focus {
+  outline: none;
+}
+
+/* Disabled styling */
+select:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  background-color: #f1f5f9;
+}
+
+/* Custom styled Option & Optgroup across all dropdowns */
+select option {
+  padding: 10px 14px;
+  background-color: #ffffff;
+  color: #0f172a;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+select option:hover,
+select option:focus,
+select option:checked {
+  background-color: #fef2f2;
+  color: #e11d48;
+  font-weight: 700;
+}
+
+select optgroup {
+  font-weight: 700;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+  padding: 8px 12px;
+  background-color: #f8fafc;
+}
+
+/* Dark theme / Admin backend dropdown support */
+.dark select:not(.appearance-none),
+.bg-slate-900 select:not(.appearance-none),
+.bg-slate-950 select:not(.appearance-none),
+select.bg-slate-900:not(.appearance-none),
+select.bg-slate-800:not(.appearance-none) {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2394a3b8'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd' /%3E%3C/svg%3E");
+}
+
+.dark select:not(.appearance-none):not(.bg-transparent),
+.bg-slate-900 select:not(.appearance-none):not(.bg-transparent),
+.bg-slate-950 select:not(.appearance-none):not(.bg-transparent),
+select.bg-slate-900:not(.appearance-none),
+select.bg-slate-800:not(.appearance-none) {
+  background-color: #0f172a;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+.dark select option,
+.bg-slate-900 select option,
+.bg-slate-950 select option,
+select.bg-slate-900 option,
+select.bg-slate-800 option {
+  background-color: #0f172a;
+  color: #f8fafc;
+}
+
+.dark select optgroup,
+.bg-slate-900 select optgroup,
+.bg-slate-950 select optgroup {
+  background-color: #1e293b;
+  color: #94a3b8;
+}
+
+/* ==========================================================================
+   PRINT STYLES FOR PROPERTY LISTING & BROCHURE
+   ========================================================================== */
+@media print {
+  /* Hide non-printable navigation, buttons, chat, and interactive widgets */
+  nav,
+  header,
+  footer,
+  .no-print,
+  #bds-live-chat,
+  .live-chat-container,
+  [data-print-hide="true"],
+  .fixed,
+  button:not(.print-keep),
+  .modal-backdrop {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 11pt !important;
+    line-height: 1.5 !important;
+  }
+
+  /* Expand full width on paper */
+  .max-w-7xl,
+  .max-w-6xl {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Prevent awkward page cuts in cards */
+  .bg-white,
+  article,
+  section {
+    break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+
+  /* Display print header */
+  .print-only-header {
+    display: block !important;
+    margin-bottom: 20px !important;
+    border-bottom: 2px solid #0f172a !important;
+    padding-bottom: 12px !important;
+  }
+
+  /* Force background colors and images for printing */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+@media screen {
+  .print-only-header {
+    display: none !important;
+  }
+}
