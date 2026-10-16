@@ -131,8 +131,11 @@ export const applyFontToDom = (fontNameOrId) => {
     :root {
       --font-custom-family: ${fontObj.fontFamily};
     }
-    html, body, #__next, .font-sans, button, input, select, textarea, h1, h2, h3, h4, h5, h6, p, span, a {
-      font-family: ${fontObj.fontFamily} !important;
+    html, body {
+      font-family: var(--font-custom-family, ${fontObj.fontFamily}) !important;
+    }
+    button, input, select, textarea {
+      font-family: inherit !important;
     }
   `;
 };

@@ -16,7 +16,7 @@
   box-sizing: border-box;
 }
 
-html, body, button, input, select, textarea {
+html, body {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -28,6 +28,11 @@ html, body, button, input, select, textarea {
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+}
+
+/* Ensure form controls inherit the font without polluting layout dimensions or button backgrounds */
+button, input, select, textarea {
+  font-family: inherit;
 }
 
 /* Touch & Mobile UX Utilities */
