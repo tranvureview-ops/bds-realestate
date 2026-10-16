@@ -10,6 +10,8 @@ import AdminReportsManager from './AdminReportsManager';
 import AdminSingleConfigManager from './AdminSingleConfigManager';
 import AdminEmailConfigManager from './AdminEmailConfigManager';
 import AdminMembershipManager from './AdminMembershipManager';
+import AdminHeaderConfigManager from './AdminHeaderConfigManager';
+import AdminMenuConfigManager from './AdminMenuConfigManager';
 
 export const VALID_ADMIN_TABS = [
   'dashboard',
@@ -29,9 +31,18 @@ export const VALID_ADMIN_TABS = [
   'settings'
 ];
 
+export const getSettingsSubTabFromHash = () => {
+  if (typeof window === 'undefined') return 'system';
+  const fullHash = (window.location.hash || '').replace(/^#/, '').split('?')[0].trim().toLowerCase();
+  if (fullHash === 'header' || fullHash === 'settings/header' || fullHash.startsWith('settings/header') || fullHash.includes('tab=header')) return 'header';
+  if (fullHash === 'menu' || fullHash === 'settings/menu' || fullHash.startsWith('settings/menu') || fullHash.includes('tab=menu')) return 'menu';
+  return 'system';
+};
+
 export const getTabFromHash = () => {
   if (typeof window === 'undefined') return 'dashboard';
   const rawHash = (window.location.hash || '').replace(/^#/, '').split('?')[0].split('/')[0].trim().toLowerCase();
+  if (rawHash === 'header' || rawHash === 'menu') return 'settings';
   return VALID_ADMIN_TABS.includes(rawHash) ? rawHash : 'dashboard';
 };
 
@@ -88,6 +99,30 @@ export default function AdminBackendPage() {
     singleConfig
   } = useRealEstate();
 
+  // Settings sub-tab state (synced with #settings/system, #settings/header, #settings/menu)
+  const [settingsSubTab, setSettingsSubTabState] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return getSettingsSubTabFromHash();
+    }
+    return 'system';
+  });
+
+  const handleSelectSettingsSubTab = useCallback((subTab) => {
+    setSettingsSubTabState(subTab);
+    if (typeof window !== 'undefined') {
+      const targetHash = subTab === 'system' ? '#settings' : `#settings/${subTab}`;
+      const currentFull = (window.location.hash || '').replace(/^#/, '').trim().toLowerCase();
+      const targetClean = targetHash.replace(/^#/, '').toLowerCase();
+      if (currentFull !== targetClean) {
+        if (window.history?.pushState) {
+          window.history.pushState(null, '', targetHash);
+        } else {
+          window.location.hash = targetHash;
+        }
+      }
+    }
+  }, []);
+
   // Active Admin Sidebar Menu (synced with URL hash)
   const [activeMenu, setActiveMenuState] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -96,20 +131,39 @@ export default function AdminBackendPage() {
     return 'dashboard';
   });
 
-  const setActiveMenu = useCallback((tab) => {
-    if (!VALID_ADMIN_TABS.includes(tab)) return;
-    setActiveMenuState(tab);
+  const setActiveMenu = useCallback((tab, subTab = null) => {
+    let targetTab = tab;
+    let targetSubTab = subTab;
+    if (tab === 'header') {
+      targetTab = 'settings';
+      targetSubTab = 'header';
+    } else if (tab === 'menu') {
+      targetTab = 'settings';
+      targetSubTab = 'menu';
+    }
+
+    if (!VALID_ADMIN_TABS.includes(targetTab)) return;
+    setActiveMenuState(targetTab);
+    if (targetSubTab) {
+      setSettingsSubTabState(targetSubTab);
+    }
+
     if (typeof window !== 'undefined') {
-      const currentHash = (window.location.hash || '').replace(/^#/, '').split('?')[0].split('/')[0].trim().toLowerCase();
-      if (currentHash !== tab) {
+      let targetHash = `#${targetTab}`;
+      if (targetTab === 'settings') {
+        const currentSub = targetSubTab || (tab === 'settings' && !subTab ? settingsSubTab : 'system');
+        targetHash = currentSub === 'system' ? '#settings' : `#settings/${currentSub}`;
+      }
+      const currentHash = (window.location.hash || '').trim().toLowerCase();
+      if (currentHash !== targetHash.toLowerCase()) {
         if (window.history?.pushState) {
-          window.history.pushState(null, '', `#${tab}`);
+          window.history.pushState(null, '', targetHash);
         } else {
-          window.location.hash = tab;
+          window.location.hash = targetHash;
         }
       }
     }
-  }, []);
+  }, [settingsSubTab]);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -119,6 +173,15 @@ export default function AdminBackendPage() {
         if (window.history?.replaceState) {
           window.history.replaceState(null, '', '#dashboard');
         }
+      } else if (tab === 'settings') {
+        const sub = getSettingsSubTabFromHash();
+        const expectedHash = sub === 'system' ? '#settings' : `#settings/${sub}`;
+        if (currentHash === 'header' || currentHash === 'menu') {
+          if (window.history?.replaceState) {
+            window.history.replaceState(null, '', expectedHash);
+          }
+        }
+        setSettingsSubTabState(sub);
       } else if (currentHash !== tab) {
         if (window.history?.replaceState) {
           window.history.replaceState(null, '', `#${tab}`);
@@ -130,6 +193,10 @@ export default function AdminBackendPage() {
     const handleHashOrPopState = () => {
       const tab = getTabFromHash();
       setActiveMenuState(tab);
+      if (tab === 'settings') {
+        const subTab = getSettingsSubTabFromHash();
+        setSettingsSubTabState(subTab);
+      }
     };
 
     window.addEventListener('hashchange', handleHashOrPopState);
@@ -1528,27 +1595,83 @@ export default function AdminBackendPage() {
               </span>
             </a>
 
-            <a
-              href="#header"
-              onClick={handleNavClick('header')}
-              className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
-                activeMenu === 'header' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
-              }`}
-            >
-              <i className="fa-solid fa-window-maximize text-sm w-5 text-center"></i>
-              <span>Cấu Hình Header</span>
-            </a>
+            {/* Nhóm Cài Đặt Website & Giao Diện */}
+            <div className="pt-2">
+              <a
+                href="#settings"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveMenu('settings');
+                }}
+                className={`w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between text-left ${
+                  activeMenu === 'settings' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20 font-bold' : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <i className="fa-solid fa-sliders text-sm w-5 text-center"></i>
+                  <span>Cài Đặt Website</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${activeMenu === 'settings' ? 'bg-black/30 text-white' : 'bg-slate-800 text-slate-400'}`}>
+                    3 Tab
+                  </span>
+                  <i className={`fa-solid fa-chevron-${activeMenu === 'settings' ? 'down' : 'right'} text-[10px] opacity-70`}></i>
+                </div>
+              </a>
 
-            <a
-              href="#menu"
-              onClick={handleNavClick('menu')}
-              className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
-                activeMenu === 'menu' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
-              }`}
-            >
-              <i className="fa-solid fa-bars-staggered text-sm w-5 text-center"></i>
-              <span>Cấu Hình Thanh Menu</span>
-            </a>
+              {/* Sub-items under Cài Đặt Website */}
+              {activeMenu === 'settings' && (
+                <div className="mt-1 ml-4 pl-3 py-1 space-y-1 border-l-2 border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => handleSelectSettingsSubTab('system')}
+                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between text-left transition ${
+                      settingsSubTab === 'system'
+                        ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <i className="fa-solid fa-gear text-[11px] w-4 text-center"></i>
+                      <span>1. Hệ Thống & CSKH</span>
+                    </div>
+                    {settingsSubTab === 'system' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSelectSettingsSubTab('header')}
+                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between text-left transition ${
+                      settingsSubTab === 'header'
+                        ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <i className="fa-solid fa-window-maximize text-[11px] w-4 text-center"></i>
+                      <span>2. Cấu Hình Header</span>
+                    </div>
+                    {settingsSubTab === 'header' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSelectSettingsSubTab('menu')}
+                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between text-left transition ${
+                      settingsSubTab === 'menu'
+                        ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <i className="fa-solid fa-bars-staggered text-[11px] w-4 text-center"></i>
+                      <span>3. Thanh Menu</span>
+                    </div>
+                    {settingsSubTab === 'menu' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
+                  </button>
+                </div>
+              )}
+            </div>
 
             <a
               href="#payments"
@@ -1581,17 +1704,6 @@ export default function AdminBackendPage() {
             >
               <i className="fa-solid fa-envelope-open-text text-sm w-5 text-center text-teal-400"></i>
               <span>Cấu Hình Email Website</span>
-            </a>
-
-            <a
-              href="#settings"
-              onClick={handleNavClick('settings')}
-              className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
-                activeMenu === 'settings' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
-              }`}
-            >
-              <i className="fa-solid fa-sliders text-sm w-5 text-center"></i>
-              <span>Cài Đặt</span>
             </a>
           </nav>
         </div>
@@ -1667,7 +1779,13 @@ export default function AdminBackendPage() {
               {activeMenu === 'payments' && '💳 Cấu Hình Cổng Thanh Toán & Tài Khoản Nhận Tiền'}
               {activeMenu === 'single-config' && '📄 Cấu Hình Trang Chi Tiết BĐS (Single) & Miễn Trừ Trách Nhiệm'}
               {activeMenu === 'email-config' && '✉️ Cấu Hình Email Website & Máy Chủ SMTP'}
-              {activeMenu === 'settings' && '⚙️ Cài Đặt'}
+              {activeMenu === 'settings' && (
+                settingsSubTab === 'header'
+                  ? '🎨 Cài Đặt Website › Cấu Hình Header & Logo'
+                  : settingsSubTab === 'menu'
+                  ? '🧭 Cài Đặt Website › Cấu Hình Thanh Menu Điều Hướng'
+                  : '⚙️ Cài Đặt Website › Cấu Hình Hệ Thống & CSKH'
+              )}
             </h2>
           </div>
 
@@ -4193,955 +4311,17 @@ export default function AdminBackendPage() {
           )}
 
                     {/* =========================================
-              PHÂN HỆ: CẤU HÌNH HEADER & LOGO THƯƠNG HIỆU
+              PHÂN HỆ CẤU HÌNH HEADER (FORWARD TỚI SETTINGS TAB)
              ========================================= */}
           {activeMenu === 'header' && (
-            <div className="space-y-6">
-              {/* Header Title & Summary */}
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-950 p-6 rounded-3xl border border-slate-800">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="w-8 h-8 rounded-xl bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-sm">
-                      <i className="fa-solid fa-window-maximize"></i>
-                    </span>
-                    <h2 className="text-lg font-black text-white">
-                      Cấu Hình Header & Logo Thương Hiệu (Header & Logo Customizer)
-                    </h2>
-                  </div>
-                  <p className="text-xs text-slate-400 max-w-2xl">
-                    Tùy biến nhận diện thương hiệu (Logo Text hoặc Hình Ảnh), slogan khẩu hiệu, huy hiệu và độ rộng hiển thị của thanh Menu trên toàn website (Boxed, Wide, Full-width).
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handleResetHeaderSettings}
-                    className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white font-bold text-xs border border-slate-800 transition flex items-center gap-1.5"
-                    title="Khôi phục logo và độ rộng về mặc định"
-                  >
-                    <i className="fa-solid fa-rotate-left"></i>
-                    <span>Khôi Phục Mặc Định</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleSaveHeaderSettings}
-                    disabled={isSavingHeader}
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition flex items-center gap-2 cursor-pointer"
-                  >
-                    <i className={`fa-solid ${isSavingHeader ? 'fa-spinner fa-spin' : 'fa-floppy-disk'}`}></i>
-                    <span>{isSavingHeader ? 'Đang Lưu...' : 'Lưu Cấu Hình Header'}</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setActiveMenu('menu')}
-                    className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-xs border border-slate-700 transition flex items-center gap-1.5"
-                    title="Chuyển sang phân hệ cấu hình các nút menu"
-                  >
-                    <i className="fa-solid fa-bars-staggered"></i>
-                    <span>Cấu Hình Nút Menu ➔</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Quick Summary KPIs for Header */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
-                  <div>
-                    <div className="text-[11px] text-slate-400 font-bold uppercase">Định Dạng Logo</div>
-                    <div className="text-base font-black text-white mt-1">
-                      {logoFormData.logoType === 'image' ? '🖼️ Hình Ảnh' : '🔤 Text & Icon'}
-                    </div>
-                  </div>
-                  <div className="w-10 h-10 rounded-xl bg-slate-800 text-emerald-400 flex items-center justify-center text-base">
-                    <i className="fa-solid fa-icons"></i>
-                  </div>
-                </div>
-
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
-                  <div>
-                    <div className="text-[11px] text-slate-400 font-bold uppercase">Độ Rộng Navbar</div>
-                    <div className="text-base font-black text-amber-400 mt-1">
-                      {logoFormData.containerWidth === 'full' ? 'Tràn viền 100%' : logoFormData.containerWidth === 'wide' ? 'Rộng 1536px' : 'Boxed 1280px'}
-                    </div>
-                  </div>
-                  <div className="w-10 h-10 rounded-xl bg-slate-800 text-amber-400 flex items-center justify-center text-base">
-                    <i className="fa-solid fa-arrows-left-right"></i>
-                  </div>
-                </div>
-
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
-                  <div>
-                    <div className="text-[11px] text-slate-400 font-bold uppercase">Chiều Cao Logo</div>
-                    <div className="text-base font-black text-blue-400 mt-1">
-                      {logoFormData.logoHeight || 40} px
-                    </div>
-                  </div>
-                  <div className="w-10 h-10 rounded-xl bg-slate-800 text-blue-400 flex items-center justify-center text-base">
-                    <i className="fa-solid fa-up-down"></i>
-                  </div>
-                </div>
-
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
-                  <div>
-                    <div className="text-[11px] text-slate-400 font-bold uppercase">Trạng Thái Header</div>
-                    <div className="text-base font-black text-emerald-400 mt-1 flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                      <span>Hoạt Động</span>
-                    </div>
-                  </div>
-                  <div className="w-10 h-10 rounded-xl bg-emerald-950 text-emerald-400 border border-emerald-800 flex items-center justify-center text-base">
-                    <i className="fa-solid fa-check"></i>
-                  </div>
-                </div>
-              </div>
-
-              {/* PHÂN HỆ CẤU HÌNH LOGO & ĐỘ RỘNG THANH MENU */}
-              <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-5">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-9 h-9 rounded-xl bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-base">
-                      <i className="fa-solid fa-sliders"></i>
-                    </span>
-                    <div>
-                      <h3 className="text-base font-black text-white">
-                        Cấu Hình Logo & Độ Rộng Thanh Menu (Header & Logo Customizer)
-                      </h3>
-                      <p className="text-[11px] text-slate-400">
-                        Tùy biến nhận diện thương hiệu (Text hoặc Logo ảnh) và bố cục hiển thị thanh Header (Full-width tràn viền hoặc Boxed)
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={handleResetHeaderSettings}
-                      className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white font-bold text-xs border border-slate-800 transition"
-                      title="Khôi phục logo và độ rộng về mặc định"
-                    >
-                      <i className="fa-solid fa-rotate-left mr-1"></i> Mặc Định
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleSaveHeaderSettings}
-                      disabled={isSavingHeader}
-                      className="px-4 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-bold text-xs shadow-lg shadow-emerald-600/20 transition flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <i className={`fa-solid ${isSavingHeader ? 'fa-spinner fa-spin' : 'fa-floppy-disk'}`}></i>
-                      <span>{isSavingHeader ? 'Đang Lưu...' : 'Lưu Cấu Hình'}</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                  {/* Cột 1: Cấu hình Logo (7 cols) */}
-                  <div className="lg:col-span-7 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                        <i className="fa-solid fa-icons text-emerald-400"></i>
-                        <span>1. Định Dạng Logo Thương Hiệu:</span>
-                      </label>
-                      <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
-                        <button
-                          type="button"
-                          onClick={() => setLogoFormData({ ...logoFormData, logoType: 'text' })}
-                          className={`px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
-                            logoFormData.logoType === 'text'
-                              ? 'bg-emerald-600 text-white shadow'
-                              : 'text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          <i className="fa-solid fa-font"></i>
-                          <span>Logo Chữ & Icon</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setLogoFormData({ ...logoFormData, logoType: 'image' })}
-                          className={`px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
-                            logoFormData.logoType === 'image'
-                              ? 'bg-emerald-600 text-white shadow'
-                              : 'text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          <i className="fa-solid fa-image"></i>
-                          <span>Logo Hình Ảnh</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Logo Dạng Text */}
-                    {logoFormData.logoType === 'text' ? (
-                      <div className="p-4 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-3.5 text-xs">
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-slate-400 font-bold mb-1">Tên Thương Hiệu (Tiền tố):</label>
-                            <input
-                              type="text"
-                              value={logoFormData.brandName}
-                              onChange={(e) => setLogoFormData({ ...logoFormData, brandName: e.target.value })}
-                              placeholder="Ví dụ: BDS, NHADAT..."
-                              className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-black outline-none focus:border-emerald-500"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-slate-400 font-bold mb-1">Chữ Nổi Bật (Màu Xanh):</label>
-                            <input
-                              type="text"
-                              value={logoFormData.brandHighlight}
-                              onChange={(e) => setLogoFormData({ ...logoFormData, brandHighlight: e.target.value })}
-                              placeholder="Ví dụ: ĐÀ NẴNG, BIỂN XANH..."
-                              className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-emerald-400 font-black outline-none focus:border-emerald-500"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-slate-400 font-bold mb-1">Slogan / Tagline (Mô tả phụ):</label>
-                            <input
-                              type="text"
-                              value={logoFormData.brandTagline}
-                              onChange={(e) => setLogoFormData({ ...logoFormData, brandTagline: e.target.value })}
-                              placeholder="Ví dụ: Sàn Đăng Tin BĐS Đa Trang"
-                              className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-slate-300 font-semibold outline-none focus:border-emerald-500"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-slate-400 font-bold mb-1">Huy Hiệu Tag (Badge):</label>
-                            <input
-                              type="text"
-                              value={logoFormData.badgeText}
-                              onChange={(e) => setLogoFormData({ ...logoFormData, badgeText: e.target.value })}
-                              placeholder="VIP, PRO, 24/7..."
-                              className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-red-400 font-bold outline-none focus:border-emerald-500 uppercase"
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="block text-slate-400 font-bold mb-1">Biểu Tượng FontAwesome Logo:</label>
-                          <div className="flex items-center gap-2">
-                            <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg shadow shrink-0">
-                              <i className={logoFormData.brandIcon || 'fa-solid fa-building'}></i>
-                            </div>
-                            <input
-                              type="text"
-                              value={logoFormData.brandIcon}
-                              onChange={(e) => setLogoFormData({ ...logoFormData, brandIcon: e.target.value })}
-                              placeholder="fa-solid fa-building"
-                              className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono outline-none focus:border-emerald-500"
-                            />
-                          </div>
-                          {/* Quick icon buttons */}
-                          <div className="flex flex-wrap gap-1.5 mt-2">
-                            {[
-                              { icon: 'fa-solid fa-building', label: 'Tòa nhà' },
-                              { icon: 'fa-solid fa-house-chimney', label: 'Nhà mái' },
-                              { icon: 'fa-solid fa-city', label: 'Đô thị' },
-                              { icon: 'fa-solid fa-landmark', label: 'Di tích' },
-                              { icon: 'fa-solid fa-crown', label: 'Vương miện' },
-                              { icon: 'fa-solid fa-shield-halved', label: 'Khiên bảo vệ' }
-                            ].map(ic => (
-                              <button
-                                type="button"
-                                key={ic.icon}
-                                onClick={() => setLogoFormData({ ...logoFormData, brandIcon: ic.icon })}
-                                className={`px-2 py-1 rounded-lg text-[10px] border transition flex items-center gap-1 ${
-                                  logoFormData.brandIcon === ic.icon
-                                    ? 'bg-emerald-600 text-white border-emerald-500 font-bold'
-                                    : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
-                                }`}
-                              >
-                                <i className={ic.icon}></i>
-                                <span>{ic.label}</span>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      /* Logo Dạng Hình Ảnh */
-                      <div className="p-4 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-4 text-xs">
-                        <div>
-                          <label className="block text-slate-400 font-bold mb-1">Đường Dẫn Ảnh Logo (Image URL):</label>
-                          <input
-                            type="text"
-                            value={logoFormData.logoImageUrl}
-                            onChange={(e) => setLogoFormData({ ...logoFormData, logoImageUrl: e.target.value })}
-                            placeholder="https://... hoặc data:image/..."
-                            className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-emerald-400 font-mono text-[11px] outline-none focus:border-emerald-500"
-                          />
-                        </div>
-
-                        {/* Local File Upload button */}
-                        <div className="flex flex-wrap items-center justify-between gap-2 p-3 bg-slate-950 rounded-xl border border-slate-800">
-                          <div>
-                            <div className="font-bold text-white text-xs">Tải Ảnh Logo Lên Từ Máy Tính:</div>
-                            <div className="text-[10px] text-slate-400">Hỗ trợ PNG, JPG, SVG, WebP (Tối đa 2MB)</div>
-                          </div>
-                          <label className="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs cursor-pointer shadow transition flex items-center gap-1.5">
-                            <i className="fa-solid fa-cloud-arrow-up"></i>
-                            <span>Chọn Tệp Ảnh</span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleLogoFileUpload}
-                              className="hidden"
-                            />
-                          </label>
-                        </div>
-
-                        {/* Preset sample logos */}
-                        <div>
-                          <label className="block text-slate-400 font-bold mb-1.5">Hoặc Chọn Mẫu Logo Có Sẵn (Preset Logos):</label>
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                            {(PRESET_LOGOS || []).map(preset => (
-                              <button
-                                type="button"
-                                key={preset.id}
-                                onClick={() => setLogoFormData({ ...logoFormData, logoImageUrl: preset.url })}
-                                className={`p-2 rounded-xl border text-left transition flex flex-col justify-between gap-2 ${
-                                  logoFormData.logoImageUrl === preset.url
-                                    ? 'bg-emerald-950/60 border-emerald-500 shadow-md'
-                                    : 'bg-slate-950 border-slate-800 hover:border-slate-700'
-                                }`}
-                              >
-                                <img src={preset.url} alt={preset.name} className="h-8 object-contain w-auto rounded mx-auto" />
-                                <div className="text-[10px] text-center font-bold text-slate-300 truncate w-full">
-                                  {preset.name}
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Chiều cao logo (Height Slider) */}
-                        <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <label className="text-slate-300 font-bold">Chiều Cao Hiển Thị Logo:</label>
-                            <span className="font-mono font-bold text-emerald-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">
-                              {logoFormData.logoHeight || 40} px
-                            </span>
-                          </div>
-                          <input
-                            type="range"
-                            min="28"
-                            max="64"
-                            step="2"
-                            value={logoFormData.logoHeight || 40}
-                            onChange={(e) => setLogoFormData({ ...logoFormData, logoHeight: Number(e.target.value) })}
-                            className="w-full accent-emerald-500 cursor-pointer"
-                          />
-                          <div className="flex justify-between text-[10px] text-slate-500">
-                            <span>Nhỏ (28px)</span>
-                            <span>Chuẩn (40px)</span>
-                            <span>Lớn (64px)</span>
-                          </div>
-                        </div>
-
-                        {/* Toggle tagline with image */}
-                        <div className="p-3 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
-                          <div>
-                            <div className="font-bold text-white text-xs">Hiển Thị Tagline Kèm Logo Ảnh:</div>
-                            <div className="text-[10px] text-slate-400">Hiển thị dòng chữ khẩu hiệu nhỏ bên cạnh logo hình ảnh</div>
-                          </div>
-                          <input
-                            type="checkbox"
-                            checked={logoFormData.showTaglineWithImage}
-                            onChange={(e) => setLogoFormData({ ...logoFormData, showTaglineWithImage: e.target.checked })}
-                            className="w-5 h-5 accent-emerald-500 rounded cursor-pointer"
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Cột 2: Cấu hình Độ Rộng (5 cols) */}
-                  <div className="lg:col-span-5 space-y-4">
-                    <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                      <i className="fa-solid fa-arrows-left-right text-emerald-400"></i>
-                      <span>2. Cấu Hình Độ Rộng Thanh Menu (Width):</span>
-                    </label>
-
-                    <div className="space-y-3">
-                      {/* Boxed */}
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => setLogoFormData(prev => ({ ...prev, containerWidth: 'boxed' }))}
-                        className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-start gap-3 select-none ${
-                          logoFormData.containerWidth === 'boxed'
-                            ? 'bg-emerald-950/40 border-emerald-500 text-white shadow-lg ring-1 ring-emerald-500/50'
-                            : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="containerWidthOption"
-                          value="boxed"
-                          checked={logoFormData.containerWidth === 'boxed'}
-                          readOnly
-                          className="mt-1 w-4 h-4 accent-emerald-500 cursor-pointer pointer-events-none"
-                        />
-                        <div className="space-y-1 flex-1">
-                          <div className="font-bold text-xs flex items-center justify-between gap-1.5 text-white">
-                            <span>Tiêu Chuẩn (Boxed - 1280px)</span>
-                            <span className="px-2 py-0.5 rounded text-[9px] bg-slate-800 text-slate-300 font-mono font-bold">max-w-7xl</span>
-                          </div>
-                          <p className="text-[11px] leading-relaxed text-slate-400">
-                            Thanh menu được giới hạn trong khung 1280px và canh giữa màn hình. Cân đối, trang nhã, tập trung tầm nhìn.
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Wide */}
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => setLogoFormData(prev => ({ ...prev, containerWidth: 'wide' }))}
-                        className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-start gap-3 select-none ${
-                          logoFormData.containerWidth === 'wide'
-                            ? 'bg-emerald-950/40 border-emerald-500 text-white shadow-lg ring-1 ring-emerald-500/50'
-                            : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="containerWidthOption"
-                          value="wide"
-                          checked={logoFormData.containerWidth === 'wide'}
-                          readOnly
-                          className="mt-1 w-4 h-4 accent-emerald-500 cursor-pointer pointer-events-none"
-                        />
-                        <div className="space-y-1 flex-1">
-                          <div className="font-bold text-xs flex items-center justify-between gap-1.5 text-white">
-                            <span>Rộng (Wide - 1536px)</span>
-                            <span className="px-2 py-0.5 rounded text-[9px] bg-amber-950/80 text-amber-300 border border-amber-800/50 font-mono font-bold">95% Screen / 1536px</span>
-                          </div>
-                          <p className="text-[11px] leading-relaxed text-slate-400">
-                            Mở rộng không gian thanh menu lên 1536px (hoặc 95% màn hình), lý tưởng cho website có nhiều menu và nút bấm.
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Full Width */}
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        onClick={() => setLogoFormData(prev => ({ ...prev, containerWidth: 'full' }))}
-                        className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-start gap-3 select-none ${
-                          logoFormData.containerWidth === 'full'
-                            ? 'bg-emerald-950/40 border-emerald-500 text-white shadow-lg ring-1 ring-emerald-500/50'
-                            : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="containerWidthOption"
-                          value="full"
-                          checked={logoFormData.containerWidth === 'full'}
-                          readOnly
-                          className="mt-1 w-4 h-4 accent-emerald-500 cursor-pointer pointer-events-none"
-                        />
-                        <div className="space-y-1 flex-1">
-                          <div className="font-bold text-xs flex items-center justify-between gap-1.5 text-white">
-                            <span>Toàn Màn Hình (Full-Width - 100%)</span>
-                            <span className="px-2 py-0.5 rounded text-[9px] bg-emerald-900 text-emerald-300 border border-emerald-700/50 font-black">FULL-WIDTH 100%</span>
-                          </div>
-                          <p className="text-[11px] leading-relaxed text-slate-400">
-                            Thanh menu trải dài 100% tràn đều sang hai mép viền màn hình (Edge-to-Edge). Phong cách hiện đại theo chuẩn các sàn TMĐT quốc tế.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Interactive Live Preview Header Bar */}
-              <div className="bg-slate-950 p-5 rounded-3xl border border-slate-800 space-y-3">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-                  <div className="flex items-center gap-2 text-slate-300 font-bold">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span>Xem Trước Trực Quan Thời Gian Thực (Live Navbar Header Preview)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] px-2 py-0.5 rounded-md bg-slate-900 text-emerald-400 font-mono border border-slate-800">
-                      Độ rộng: {logoFormData.containerWidth === 'full' ? '100% Full-Width' : logoFormData.containerWidth === 'wide' ? '1536px Wide' : '1280px Boxed'}
-                    </span>
-                    <span className="text-[11px] px-2 py-0.5 rounded-md bg-slate-900 text-amber-400 font-mono border border-slate-800">
-                      Logo: {logoFormData.logoType === 'image' ? 'Hình ảnh' : 'Text & Icon'}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Mockup Header Screen with configured width simulation */}
-                <div className="bg-slate-900 p-2.5 rounded-2xl border border-slate-800 overflow-x-auto">
-                  <div className={`bg-white rounded-xl p-3 border border-slate-200 shadow-md flex items-center justify-between gap-3 text-slate-800 transition-all duration-300 ${
-                    logoFormData.containerWidth === 'full' 
-                      ? 'w-full' 
-                      : logoFormData.containerWidth === 'wide' 
-                      ? 'max-w-4xl mx-auto' 
-                      : 'max-w-2xl mx-auto'
-                  }`}>
-                    {/* Live Logo */}
-                    <div className="flex items-center gap-2 shrink-0">
-                      {logoFormData.logoType === 'image' && logoFormData.logoImageUrl ? (
-                        <div className="flex items-center gap-2">
-                          <img
-                            src={logoFormData.logoImageUrl}
-                            alt="Logo"
-                            style={{ height: `${Math.min(logoFormData.logoHeight || 36, 44)}px` }}
-                            className="object-contain max-h-12"
-                          />
-                          {logoFormData.showTaglineWithImage && logoFormData.brandTagline && (
-                            <span className="hidden sm:inline text-[9px] text-slate-500 font-medium uppercase border-l pl-2 border-slate-200">
-                              {logoFormData.brandTagline}
-                            </span>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm font-black shadow-md">
-                            <i className={logoFormData.brandIcon || 'fa-solid fa-city'}></i>
-                          </div>
-                          <div className="leading-tight">
-                            <div className="text-xs font-black tracking-tight text-slate-900 flex items-center gap-1">
-                              <span>{logoFormData.brandName || 'ĐẤT BIỂN'}</span>
-                              <span className="text-emerald-600">{logoFormData.brandHighlight || 'ĐÀ NẴNG'}</span>
-                              {logoFormData.badgeText && (
-                                <span className={`text-[8px] px-1 py-0.2 rounded font-black uppercase ${logoFormData.badgeColor || 'bg-red-100 text-red-600'}`}>
-                                  {logoFormData.badgeText}
-                                </span>
-                              )}
-                            </div>
-                            {logoFormData.brandTagline && (
-                              <div className="text-[8px] text-slate-500 font-bold uppercase">{logoFormData.brandTagline}</div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Preview of visible menu items */}
-                    <div className="flex flex-wrap items-center gap-1 text-xs font-semibold">
-                      {[...navMenuItems]
-                        .filter(m => m.isVisible)
-                        .sort((a, b) => (a.order || 0) - (b.order || 0))
-                        .map((item, idx) => (
-                          <div
-                            key={item.id}
-                            className={`px-2 py-1 rounded-lg flex items-center gap-1 border transition text-[11px] ${
-                              idx === 0 
-                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200 font-bold' 
-                                : item.id === 'menu-admin'
-                                ? 'bg-red-50 text-red-700 border-red-200 font-bold'
-                                : 'bg-slate-50 text-slate-700 border-slate-200'
-                            }`}
-                          >
-                            {item.icon && <i className={`${item.icon} text-[9px]`}></i>}
-                            <span>{item.title}</span>
-                            {item.badge && (
-                              <span className={`text-[7px] px-1 py-0.2 rounded-full font-black uppercase ${item.badgeColor || 'bg-red-500 text-white'}`}>
-                                {item.badge}
-                              </span>
-                            )}
-                            {item.children && item.children.length > 0 && (
-                              <span className="text-[8px] text-slate-400">▾</span>
-                            )}
-                          </div>
-                        ))}
-                    </div>
-
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <span className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-red-600 to-rose-600 text-white text-xs font-bold shadow-sm">
-                        + Đăng Tin
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Bottom Action Save Bar for Header Configuration */}
-              <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-800 bg-slate-950/60 p-4 rounded-2xl">
-                <button
-                  type="button"
-                  onClick={handleResetHeaderSettings}
-                  className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white font-bold text-xs border border-slate-800 transition flex items-center gap-1.5 cursor-pointer"
-                >
-                  <i className="fa-solid fa-rotate-left"></i>
-                  <span>Khôi Phục Mặc Định</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleSaveHeaderSettings}
-                  disabled={isSavingHeader}
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-bold text-sm shadow-lg shadow-emerald-600/30 transition flex items-center gap-2 cursor-pointer"
-                >
-                  <i className={`fa-solid ${isSavingHeader ? 'fa-spinner fa-spin' : 'fa-floppy-disk'}`}></i>
-                  <span>{isSavingHeader ? 'Đang Lưu...' : 'Lưu Cấu Hình Header'}</span>
-                </button>
-              </div>
-            </div>
+            <AdminHeaderConfigManager onSwitchToMenu={() => handleSelectSettingsSubTab('menu')} />
           )}
 
-{/* =========================================
-              PHÂN HỆ 7: CẤU HÌNH THANH MENU ĐIỀU HƯỚNG
+          {/* =========================================
+              PHÂN HỆ CẤU HÌNH MENU (FORWARD TỚI SETTINGS TAB)
              ========================================= */}
           {activeMenu === 'menu' && (
-            <div className="space-y-6">
-              {/* Header & KPI Summary */}
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-950 p-6 rounded-3xl border border-slate-800">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="w-8 h-8 rounded-xl bg-red-600/20 text-red-500 border border-red-500/30 flex items-center justify-center text-sm">
-                      <i className="fa-solid fa-bars-staggered"></i>
-                    </span>
-                    <h2 className="text-lg font-black text-white">
-                      Cấu Hình Thanh Menu Điều Hướng (Navigation Menu Manager)
-                    </h2>
-                  </div>
-                  <p className="text-xs text-slate-400 max-w-2xl">
-                    Tùy biến các nút menu trên thanh Header website: thêm mục mới, điều chỉnh thứ tự (lên/xuống), bật/tắt hiển thị, gắn huy hiệu nổi bật (HOT, VIP) và quản lý danh mục con (Dropdown).
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  <button
-                    onClick={resetNavMenu}
-                    className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-xs border border-slate-700 transition flex items-center gap-1.5"
-                    title="Khôi phục danh sách menu về mặc định ban đầu"
-                  >
-                    <i className="fa-solid fa-rotate-left text-slate-400"></i>
-                    <span>Khôi Phục Mặc Định</span>
-                  </button>
-
-                  <button
-                    onClick={handleOpenAddMenu}
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-red-600/30 transition flex items-center gap-2"
-                  >
-                    <i className="fa-solid fa-plus-circle"></i>
-                    <span>+ Thêm Mục Menu Mới</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Quick Stats Pills */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
-                  <div>
-                    <div className="text-[11px] text-slate-400 font-bold uppercase">Tổng Số Mục Menu</div>
-                    <div className="text-xl font-black text-white mt-1">{(navMenuItems || []).length}</div>
-                  </div>
-                  <div className="w-10 h-10 rounded-xl bg-slate-800 text-slate-300 flex items-center justify-center text-base">
-                    <i className="fa-solid fa-list"></i>
-                  </div>
-                </div>
-
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
-                  <div>
-                    <div className="text-[11px] text-slate-400 font-bold uppercase">Đang Hiển Thị</div>
-                    <div className="text-xl font-black text-emerald-400 mt-1">
-                      {(navMenuItems || []).filter(m => m.isVisible).length}
-                    </div>
-                  </div>
-                  <div className="w-10 h-10 rounded-xl bg-emerald-950 text-emerald-400 border border-emerald-800 flex items-center justify-center text-base">
-                    <i className="fa-solid fa-eye"></i>
-                  </div>
-                </div>
-
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
-                  <div>
-                    <div className="text-[11px] text-slate-400 font-bold uppercase">Đang Ẩn Khỏi Header</div>
-                    <div className="text-xl font-black text-slate-400 mt-1">
-                      {(navMenuItems || []).filter(m => !m.isVisible).length}
-                    </div>
-                  </div>
-                  <div className="w-10 h-10 rounded-xl bg-slate-900 text-slate-500 border border-slate-800 flex items-center justify-center text-base">
-                    <i className="fa-solid fa-eye-slash"></i>
-                  </div>
-                </div>
-
-                <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex items-center justify-between">
-                  <div>
-                    <div className="text-[11px] text-slate-400 font-bold uppercase">Mục Con Dropdown</div>
-                    <div className="text-xl font-black text-blue-400 mt-1">
-                      {(navMenuItems || []).reduce((acc, m) => acc + (m.children?.length || 0), 0)}
-                    </div>
-                  </div>
-                  <div className="w-10 h-10 rounded-xl bg-blue-950 text-blue-400 border border-blue-800 flex items-center justify-center text-base">
-                    <i className="fa-solid fa-folder-tree"></i>
-                  </div>
-                </div>
-              </div>
-
-                            {/* Quick Link to Header Customizer */}
-              <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
-                <div className="flex items-center gap-3">
-                  <span className="w-9 h-9 rounded-xl bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-sm shrink-0">
-                    <i className="fa-solid fa-window-maximize"></i>
-                  </span>
-                  <div>
-                    <div className="font-bold text-white text-sm">Cần đổi Logo Thương Hiệu hoặc Độ Rộng Header?</div>
-                    <div className="text-[11px] text-slate-400 mt-0.5">
-                      Bạn có thể chuyển sang mục riêng <b>"Cấu Hình Header"</b> để đổi logo ảnh/chữ và chọn độ rộng (Full-width, Wide, Boxed).
-                    </div>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setActiveMenu('header')}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition flex items-center gap-1.5 shrink-0"
-                >
-                  <i className="fa-solid fa-paintbrush"></i>
-                  <span>Mở Cấu Hình Header ➔</span>
-                </button>
-              </div>
-
-              {/* Main Menu Configuration Table */}
-              <div className="bg-slate-950 rounded-3xl border border-slate-800 overflow-hidden">
-                <div className="p-4 border-b border-slate-800 flex items-center justify-between">
-                  <div className="font-bold text-white text-sm flex items-center gap-2">
-                    <i className="fa-solid fa-list-check text-slate-400"></i>
-                    <span>Danh Sách Các Nút Menu Điều Hướng</span>
-                  </div>
-                  <span className="text-xs text-slate-500">
-                    Dùng nút ▲ / ▼ để sắp xếp thứ tự hiển thị từ trái sang phải
-                  </span>
-                </div>
-
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-left">
-                    <thead className="bg-slate-900 text-slate-400 text-[11px] uppercase tracking-wider">
-                      <tr>
-                        <th className="p-3.5 text-center w-24">Thứ Tự</th>
-                        <th className="p-3.5 w-12 text-center">Icon</th>
-                        <th className="p-3.5">Tiêu Đề Menu</th>
-                        <th className="p-3.5">Đường Dẫn URL</th>
-                        <th className="p-3.5 text-center">Huy Hiệu (Badge)</th>
-                        <th className="p-3.5 text-center">Menu Con</th>
-                        <th className="p-3.5 text-center">Hiển Thị</th>
-                        <th className="p-3.5 text-right w-36">Thao Tác</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800">
-                      {[...navMenuItems]
-                        .sort((a, b) => (a.order || 0) - (b.order || 0))
-                        .map((item, index) => {
-                          const isFirst = index === 0;
-                          const isLast = index === navMenuItems.length - 1;
-                          const hasChildren = item.children && item.children.length > 0;
-                          const isExpanded = activeSubmenuParentId === item.id;
-
-                          return (
-                            <React.Fragment key={item.id}>
-                              <tr className={`hover:bg-slate-900/60 transition ${!item.isVisible ? 'opacity-60 bg-slate-950/40' : ''}`}>
-                                {/* Order with Up/Down buttons */}
-                                <td className="p-3 text-center">
-                                  <div className="flex items-center justify-center gap-1">
-                                    <span className="font-mono text-slate-400 font-bold text-xs w-5">
-                                      #{item.order || index + 1}
-                                    </span>
-                                    <div className="flex flex-col gap-0.5">
-                                      <button
-                                        onClick={() => moveMenuItem(item.id, 'up')}
-                                        disabled={isFirst}
-                                        className={`w-5 h-5 rounded flex items-center justify-center transition text-[10px] ${
-                                          isFirst ? 'text-slate-700 cursor-not-allowed' : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white'
-                                        }`}
-                                        title="Chuyển lên trên (sang trái)"
-                                      >
-                                        ▲
-                                      </button>
-                                      <button
-                                        onClick={() => moveMenuItem(item.id, 'down')}
-                                        disabled={isLast}
-                                        className={`w-5 h-5 rounded flex items-center justify-center transition text-[10px] ${
-                                          isLast ? 'text-slate-700 cursor-not-allowed' : 'bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white'
-                                        }`}
-                                        title="Chuyển xuống dưới (sang phải)"
-                                      >
-                                        ▼
-                                      </button>
-                                    </div>
-                                  </div>
-                                </td>
-
-                                {/* Icon */}
-                                <td className="p-3 text-center">
-                                  <div className="w-8 h-8 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-emerald-400 mx-auto text-sm">
-                                    <i className={item.icon || 'fa-solid fa-link'}></i>
-                                  </div>
-                                </td>
-
-                                {/* Title */}
-                                <td className="p-3 font-bold text-white">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-sm">{item.title}</span>
-                                    {item.target === '_blank' && (
-                                      <span className="text-[10px] text-slate-400" title="Mở trong tab mới">
-                                        <i className="fa-solid fa-arrow-up-right-from-square"></i>
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="text-[10px] text-slate-500 font-mono mt-0.5">{item.id}</div>
-                                </td>
-
-                                {/* Path URL */}
-                                <td className="p-3 font-mono text-slate-300">
-                                  <span className="px-2 py-1 rounded-md bg-slate-900 border border-slate-800 text-[11px] text-emerald-400 select-all">
-                                    {item.path}
-                                  </span>
-                                </td>
-
-                                {/* Badge */}
-                                <td className="p-3 text-center">
-                                  {item.badge ? (
-                                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${item.badgeColor || 'bg-red-500 text-white'}`}>
-                                      {item.badge}
-                                    </span>
-                                  ) : (
-                                    <span className="text-slate-600 text-[11px]">—</span>
-                                  )}
-                                </td>
-
-                                {/* Submenu Dropdown Counter & Action */}
-                                <td className="p-3 text-center">
-                                  <div className="flex items-center justify-center gap-1.5">
-                                    <button
-                                      onClick={() => setActiveSubmenuParentId(isExpanded ? null : item.id)}
-                                      className={`px-2.5 py-1 rounded-xl text-[10px] font-bold border transition flex items-center gap-1 ${
-                                        hasChildren
-                                          ? isExpanded
-                                            ? 'bg-blue-600 text-white border-blue-600 shadow'
-                                            : 'bg-blue-950/80 text-blue-400 border-blue-800/80 hover:bg-blue-900'
-                                          : 'bg-slate-900 text-slate-500 border-slate-800 hover:text-slate-300'
-                                      }`}
-                                      title="Bấm để xem/quản lý danh sách menu con"
-                                    >
-                                      <i className="fa-solid fa-folder-tree"></i>
-                                      <span>{item.children?.length || 0} mục con</span>
-                                      <i className={`fa-solid fa-chevron-down text-[8px] transition-transform ${isExpanded ? 'rotate-180' : ''}`}></i>
-                                    </button>
-
-                                    <button
-                                      onClick={() => handleOpenAddSubItem(item.id)}
-                                      className="w-6 h-6 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-[10px]"
-                                      title="Thêm mục con trực tiếp vào menu này"
-                                    >
-                                      +
-                                    </button>
-                                  </div>
-                                </td>
-
-                                {/* Visibility Toggle */}
-                                <td className="p-3 text-center">
-                                  <button
-                                    onClick={() => toggleMenuItemVisibility(item.id)}
-                                    className={`px-3 py-1 rounded-full text-[10px] font-bold border transition inline-flex items-center gap-1.5 ${
-                                      item.isVisible
-                                        ? 'bg-emerald-950 text-emerald-400 border-emerald-800 hover:bg-emerald-900'
-                                        : 'bg-slate-900 text-slate-500 border-slate-800 hover:bg-slate-800'
-                                    }`}
-                                  >
-                                    <span className={`w-1.5 h-1.5 rounded-full ${item.isVisible ? 'bg-emerald-400' : 'bg-slate-600'}`}></span>
-                                    <span>{item.isVisible ? 'Đang Hiển Thị' : 'Đã Ẩn'}</span>
-                                  </button>
-                                </td>
-
-                                {/* Actions */}
-                                <td className="p-3 text-right">
-                                  <div className="flex items-center justify-end gap-1.5">
-                                    <button
-                                      onClick={() => handleOpenEditMenu(item)}
-                                      className="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-xs transition"
-                                      title="Chỉnh sửa menu này"
-                                    >
-                                      <i className="fa-solid fa-pen-to-square"></i>
-                                    </button>
-
-                                    <button
-                                      onClick={() => {
-                                        if (window.confirm(`Bạn có chắc chắn muốn xóa mục menu "${item.title}"?`)) {
-                                          deleteMenuItem(item.id);
-                                        }
-                                      }}
-                                      className="px-2.5 py-1.5 rounded-xl bg-rose-950/80 hover:bg-rose-900 text-rose-400 font-bold text-xs border border-rose-900 transition"
-                                      title="Xóa menu này"
-                                    >
-                                      <i className="fa-solid fa-trash-can"></i>
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-
-                              {/* Accordion Expanded Submenu Drawer */}
-                              {isExpanded && (
-                                <tr className="bg-slate-900/90 border-t border-b border-blue-900/40">
-                                  <td colSpan={8} className="p-4 pl-12 space-y-3">
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-2 text-xs font-bold text-blue-400">
-                                        <i className="fa-solid fa-folder-open"></i>
-                                        <span>Danh Mục Con Dropdown Của "{item.title}":</span>
-                                        <span className="text-slate-400 font-normal">
-                                          (Xuất hiện dạng dropdown khi người dùng hover chuột vào menu này trên Navbar)
-                                        </span>
-                                      </div>
-
-                                      <button
-                                        onClick={() => handleOpenAddSubItem(item.id)}
-                                        className="px-3 py-1 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-[11px] shadow transition flex items-center gap-1.5"
-                                      >
-                                        <i className="fa-solid fa-plus"></i>
-                                        <span>Thêm Mục Con Mới</span>
-                                      </button>
-                                    </div>
-
-                                    {item.children && item.children.length > 0 ? (
-                                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 text-xs">
-                                        {item.children.map(sub => (
-                                          <div
-                                            key={sub.id}
-                                            className="p-2.5 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between gap-2"
-                                          >
-                                            <div className="flex items-center gap-2 truncate">
-                                              <i className={`${sub.icon || 'fa-solid fa-chevron-right'} text-slate-400 text-xs w-4 text-center`}></i>
-                                              <div className="truncate">
-                                                <div className="font-bold text-white truncate">{sub.title}</div>
-                                                <div className="text-[10px] text-emerald-400 font-mono truncate">{sub.path}</div>
-                                              </div>
-                                            </div>
-
-                                            <button
-                                              onClick={() => deleteSubMenuItem(item.id, sub.id)}
-                                              className="w-7 h-7 rounded-lg bg-rose-950/60 hover:bg-rose-900 text-rose-400 flex items-center justify-center text-xs shrink-0 transition"
-                                              title="Xóa mục con này"
-                                            >
-                                              <i className="fa-solid fa-xmark"></i>
-                                            </button>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    ) : (
-                                      <div className="p-4 text-center text-xs text-slate-500 bg-slate-950 rounded-2xl border border-slate-800">
-                                        Chưa có mục con nào trong menu này. Bấm nút <b>"+ Thêm Mục Con Mới"</b> ở trên để tạo dropdown!
-                                      </div>
-                                    )}
-                                  </td>
-                                </tr>
-                              )}
-                            </React.Fragment>
-                          );
-                        })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
+            <AdminMenuConfigManager onSwitchToHeader={() => handleSelectSettingsSubTab('header')} />
           )}
 
           {/* =========================================
@@ -5799,10 +4979,94 @@ export default function AdminBackendPage() {
           )}
 
           {/* =========================================
-              PHÂN HỆ 8: CÀI ĐẶT SÀN BĐS
+              PHÂN HỆ: CÀI ĐẶT WEBSITE TOÀN DIỆN (HỆ THỐNG, HEADER, MENU)
              ========================================= */}
           {activeMenu === 'settings' && (
-            <div className="space-y-6 max-w-5xl">
+            <div className="space-y-6">
+              {/* Top Multi-Option Segmented Tab Bar */}
+              <div className="bg-slate-950 p-3 sm:p-4 rounded-3xl border border-slate-800 shadow-xl">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  {/* Left: Section Header & Active Sub-Tab Badge */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-lg shadow-inner shrink-0">
+                      <i className="fa-solid fa-sliders"></i>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-base font-black text-white">
+                          Trung Tâm Cài Đặt Website
+                        </h2>
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
+                          {settingsSubTab === 'system' ? '⚙️ Hệ Thống' : settingsSubTab === 'header' ? '🎨 Header & Logo' : '🧭 Menu Điều Hướng'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-400">
+                        Quản lý toàn diện nhận diện thương hiệu, giao diện Header, danh mục menu và vận hành hệ thống.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Right: 3 Segmented Options Switcher */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 shrink-0">
+                    {/* Option 1: System */}
+                    <button
+                      type="button"
+                      onClick={() => handleSelectSettingsSubTab('system')}
+                      className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2.5 cursor-pointer ${
+                        settingsSubTab === 'system'
+                          ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-900/40 ring-1 ring-emerald-400/50'
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                      }`}
+                    >
+                      <i className="fa-solid fa-gear text-sm"></i>
+                      <div className="text-left">
+                        <div className="leading-tight">1. Cài Đặt Hệ Thống</div>
+                        <div className="text-[10px] font-normal opacity-80 hidden sm:block">CSKH, Duyệt Tin, DB</div>
+                      </div>
+                    </button>
+
+                    {/* Option 2: Header */}
+                    <button
+                      type="button"
+                      onClick={() => handleSelectSettingsSubTab('header')}
+                      className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2.5 cursor-pointer ${
+                        settingsSubTab === 'header'
+                          ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-900/40 ring-1 ring-emerald-400/50'
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                      }`}
+                    >
+                      <i className="fa-solid fa-window-maximize text-sm"></i>
+                      <div className="text-left">
+                        <div className="leading-tight">2. Cấu Hình Header</div>
+                        <div className="text-[10px] font-normal opacity-80 hidden sm:block">Logo & Độ Rộng Navbar</div>
+                      </div>
+                    </button>
+
+                    {/* Option 3: Menu */}
+                    <button
+                      type="button"
+                      onClick={() => handleSelectSettingsSubTab('menu')}
+                      className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2.5 cursor-pointer ${
+                        settingsSubTab === 'menu'
+                          ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-900/40 ring-1 ring-emerald-400/50'
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                      }`}
+                    >
+                      <i className="fa-solid fa-bars-staggered text-sm"></i>
+                      <div className="text-left">
+                        <div className="leading-tight">3. Thanh Menu</div>
+                        <div className="text-[10px] font-normal opacity-80 hidden sm:block">
+                          {(navMenuItems || []).length} mục điều hướng
+                        </div>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* TAB 1: HỆ THỐNG & CSKH */}
+              {settingsSubTab === 'system' && (
+                <div className="space-y-6 max-w-5xl">
               {/* Header Box */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-950 p-6 rounded-3xl border border-slate-800 shadow-sm">
                 <div>
@@ -6300,6 +5564,18 @@ export default function AdminBackendPage() {
                   </div>
                 </div>
               </div>
+                </div>
+              )}
+
+              {/* TAB 2: CẤU HÌNH HEADER & ĐỘ RỘNG */}
+              {settingsSubTab === 'header' && (
+                <AdminHeaderConfigManager onSwitchToMenu={() => handleSelectSettingsSubTab('menu')} />
+              )}
+
+              {/* TAB 3: CẤU HÌNH THANH MENU */}
+              {settingsSubTab === 'menu' && (
+                <AdminMenuConfigManager onSwitchToHeader={() => handleSelectSettingsSubTab('header')} />
+              )}
             </div>
           )}
 
@@ -7369,299 +6645,6 @@ export default function AdminBackendPage() {
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL: THÊM / CHỈNH SỬA MỤC MENU */}
-      {isMenuModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 max-w-lg w-full space-y-4 my-8 shadow-2xl animate-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-red-600/20 text-red-500 flex items-center justify-center text-sm">
-                  <i className="fa-solid fa-bars-staggered"></i>
-                </div>
-                <h3 className="text-base font-black text-white">
-                  {editingMenuItem ? `Sửa Menu: ${editingMenuItem.title}` : 'Thêm Mục Menu Mới'}
-                </h3>
-              </div>
-              <button
-                onClick={() => setIsMenuModalOpen(false)}
-                className="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveMenuItem} className="space-y-4 text-xs">
-              {/* Tiêu đề Menu */}
-              <div>
-                <label className="block text-slate-300 font-bold mb-1">
-                  Tiêu Đề Menu (Nhãn hiển thị): <span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ví dụ: Dự Án Mới, Nhà Đất Bán, Bản Đồ BĐS..."
-                  value={menuFormData.title}
-                  onChange={(e) => setMenuFormData({ ...menuFormData, title: e.target.value })}
-                  className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold placeholder:text-slate-600 focus:border-red-500 outline-none"
-                />
-              </div>
-
-              {/* Đường dẫn URL */}
-              <div>
-                <label className="block text-slate-300 font-bold mb-1">
-                  Đường Dẫn URL (Route): <span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ví dụ: /nha-dat-ban hoặc /ban-can-ho-chung-cu"
-                  value={menuFormData.path}
-                  onChange={(e) => setMenuFormData({ ...menuFormData, path: e.target.value })}
-                  className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-emerald-400 font-mono font-bold placeholder:text-slate-600 focus:border-red-500 outline-none"
-                />
-
-                {/* Quick suggestions */}
-                <div className="mt-1.5 flex flex-wrap gap-1 items-center">
-                  <span className="text-[10px] text-slate-500 font-semibold mr-1">Gợi ý nhanh:</span>
-                  {[
-                    { label: 'Bán', path: '/nha-dat-ban' },
-                    { label: 'Căn Hộ', path: '/ban-can-ho-chung-cu' },
-                    { label: 'Nhà Phố', path: '/ban-nha-mat-pho' },
-                    { label: 'Cho Thuê', path: '/nha-dat-cho-thue' },
-                    { label: 'Văn Phòng', path: '/cho-thue-van-phong' },
-                    { label: 'Bảng Giá VIP', path: '/bang-gia-vip' },
-                    { label: 'Lãi Vay', path: '/tinh-lai-vay' },
-                    { label: 'So Sánh', path: '/so-sanh' },
-                    { label: 'Đăng Tin', path: '/dang-tin' },
-                    { label: 'Quản Lý Tin', path: '/quan-ly-tin' }
-                  ].map(s => (
-                    <button
-                      type="button"
-                      key={s.path}
-                      onClick={() => setMenuFormData({ ...menuFormData, path: s.path, title: menuFormData.title || s.label })}
-                      className="px-1.5 py-0.5 rounded bg-slate-900 hover:bg-slate-800 text-[10px] text-slate-400 hover:text-emerald-400 border border-slate-800 font-mono"
-                    >
-                      {s.path}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Icon */}
-              <div>
-                <label className="block text-slate-300 font-bold mb-1 flex items-center justify-between">
-                  <span>Biểu Tượng (FontAwesome Icon Class):</span>
-                  {menuFormData.icon && (
-                    <span className="text-emerald-400 text-sm flex items-center gap-1 font-normal">
-                      Xem trước: <i className={menuFormData.icon}></i>
-                    </span>
-                  )}
-                </label>
-                <input
-                  type="text"
-                  placeholder="fa-solid fa-house-chimney"
-                  value={menuFormData.icon}
-                  onChange={(e) => setMenuFormData({ ...menuFormData, icon: e.target.value })}
-                  className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono placeholder:text-slate-600 focus:border-red-500 outline-none"
-                />
-
-                {/* Quick Icon Selector */}
-                <div className="mt-1.5 flex flex-wrap gap-1.5 items-center">
-                  {[
-                    { icon: 'fa-solid fa-house-chimney', name: 'Nhà' },
-                    { icon: 'fa-solid fa-building', name: 'Chung cư' },
-                    { icon: 'fa-solid fa-key', name: 'Thuê' },
-                    { icon: 'fa-solid fa-crown', name: 'VIP' },
-                    { icon: 'fa-solid fa-calculator', name: 'Lãi vay' },
-                    { icon: 'fa-solid fa-compass', name: 'Khám phá' },
-                    { icon: 'fa-solid fa-map-location-dot', name: 'Bản đồ' },
-                    { icon: 'fa-solid fa-shop', name: 'Mặt phố' },
-                    { icon: 'fa-solid fa-briefcase', name: 'Văn phòng' },
-                    { icon: 'fa-solid fa-newspaper', name: 'Tin tức' }
-                  ].map(ic => (
-                    <button
-                      type="button"
-                      key={ic.icon}
-                      onClick={() => setMenuFormData({ ...menuFormData, icon: ic.icon })}
-                      className={`px-2 py-1 rounded-lg text-xs flex items-center gap-1 border transition ${
-                        menuFormData.icon === ic.icon 
-                          ? 'bg-red-600 text-white border-red-500 font-bold' 
-                          : 'bg-slate-900 text-slate-400 hover:text-white border-slate-800'
-                      }`}
-                      title={ic.name}
-                    >
-                      <i className={ic.icon}></i>
-                      <span className="text-[10px]">{ic.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Huy hiệu (Badge Text & Badge Color) */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-slate-300 font-bold mb-1">
-                    Huy Hiệu (Badge Tag):
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="HOT, MỚI, VIP 4.0..."
-                    value={menuFormData.badge}
-                    onChange={(e) => setMenuFormData({ ...menuFormData, badge: e.target.value })}
-                    className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold placeholder:text-slate-600 focus:border-red-500 outline-none uppercase"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-slate-300 font-bold mb-1">
-                    Màu Sắc Huy Hiệu:
-                  </label>
-                  <select
-                    value={menuFormData.badgeColor}
-                    onChange={(e) => setMenuFormData({ ...menuFormData, badgeColor: e.target.value })}
-                    className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold focus:border-red-500 outline-none"
-                  >
-                    <option value="bg-emerald-500 text-white">Xanh Lá (Emerald)</option>
-                    <option value="bg-red-500 text-white">Đỏ Rực (Red)</option>
-                    <option value="bg-amber-500 text-slate-900">Vàng Ánh Kim (Amber)</option>
-                    <option value="bg-blue-500 text-white">Xanh Dương (Blue)</option>
-                    <option value="bg-purple-600 text-white">Tím Quý Phái (Purple)</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Target & Visibility Options */}
-              <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
-                <div>
-                  <div className="font-bold text-white text-xs">Mở Trong Tab Mới:</div>
-                  <div className="text-[10px] text-slate-400">Dùng khi liên kết tới website khác hoặc trang ngoài</div>
-                </div>
-                <select
-                  value={menuFormData.target}
-                  onChange={(e) => setMenuFormData({ ...menuFormData, target: e.target.value })}
-                  className="p-1.5 bg-slate-950 border border-slate-700 rounded-lg text-white font-bold text-xs"
-                >
-                  <option value="_self">Tab hiện tại (_self)</option>
-                  <option value="_blank">Tab mới (_blank)</option>
-                </select>
-              </div>
-
-              <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 flex items-center justify-between">
-                <div>
-                  <div className="font-bold text-white text-xs">Kích Hoạt Hiển Thị:</div>
-                  <div className="text-[10px] text-slate-400">Bật để xuất hiện trên Header website ngay lập tức</div>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={menuFormData.isVisible}
-                  onChange={(e) => setMenuFormData({ ...menuFormData, isVisible: e.target.checked })}
-                  className="w-5 h-5 accent-emerald-500 rounded cursor-pointer"
-                />
-              </div>
-
-              {/* Modal Buttons */}
-              <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setIsMenuModalOpen(false)}
-                  className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs transition"
-                >
-                  Hủy Bỏ
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold rounded-xl text-xs shadow-lg transition flex items-center gap-2"
-                >
-                  <i className="fa-solid fa-check"></i>
-                  <span>{editingMenuItem ? 'Lưu Thay Đổi Menu' : 'Thêm Mục Menu'}</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* MODAL: THÊM MENU CON (DROPDOWN SUBMENU) */}
-      {isSubModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl animate-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center text-sm">
-                  <i className="fa-solid fa-folder-tree"></i>
-                </div>
-                <h3 className="text-base font-black text-white">Thêm Mục Menu Con</h3>
-              </div>
-              <button
-                onClick={() => setIsSubModalOpen(false)}
-                className="w-7 h-7 rounded-lg bg-slate-900 text-slate-400 hover:text-white flex items-center justify-center text-xs"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveSubItem} className="space-y-3 text-xs">
-              <div>
-                <label className="block text-slate-300 font-bold mb-1">
-                  Tên Mục Menu Con: <span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ví dụ: Bán Biệt Thự Liền Kề"
-                  value={subFormData.title}
-                  onChange={(e) => setSubFormData({ ...subFormData, title: e.target.value })}
-                  className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold placeholder:text-slate-600 focus:border-blue-500 outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-300 font-bold mb-1">
-                  Đường Dẫn URL: <span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ví dụ: /ban-nha-biet-thu-lien-ke"
-                  value={subFormData.path}
-                  onChange={(e) => setSubFormData({ ...subFormData, path: e.target.value })}
-                  className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-emerald-400 font-mono font-bold placeholder:text-slate-600 focus:border-blue-500 outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-slate-300 font-bold mb-1">
-                  Biểu Tượng FontAwesome:
-                </label>
-                <input
-                  type="text"
-                  placeholder="fa-solid fa-building"
-                  value={subFormData.icon}
-                  onChange={(e) => setSubFormData({ ...subFormData, icon: e.target.value })}
-                  className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono placeholder:text-slate-600 focus:border-blue-500 outline-none"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2 border-t border-slate-800">
-                <button
-                  type="button"
-                  onClick={() => setIsSubModalOpen(false)}
-                  className="px-4 py-2 bg-slate-800 text-slate-300 font-bold rounded-xl"
-                >
-                  Hủy
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl shadow transition"
-                >
-                  Thêm Menu Con
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}
