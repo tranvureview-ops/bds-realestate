@@ -5,7 +5,7 @@ import { Link } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 
 export default function Footer() {
-  const { systemConfig } = useRealEstate();
+  const { systemConfig, currentUser } = useRealEstate();
 
   return (
     <footer className="bg-slate-900 text-slate-300 pt-12 pb-8 border-t border-slate-800">
@@ -104,7 +104,9 @@ export default function Footer() {
               <li><Link to="/tin-da-luu" className="hover:text-amber-400 transition flex items-center gap-1.5"><i className="fa-solid fa-heart text-rose-400 text-[10px]"></i> Tin Đã Lưu Yêu Thích</Link></li>
               <li><Link to="/so-sanh" className="hover:text-amber-400 transition flex items-center gap-1.5"><i className="fa-solid fa-code-compare text-blue-400 text-[10px]"></i> So Sánh Đối Đầu</Link></li>
               <li><Link to="/nap-tien" className="hover:text-amber-400 transition flex items-center gap-1.5"><i className="fa-solid fa-wallet text-emerald-400 text-[10px]"></i> Nạp Tiền Ví Tài Khoản</Link></li>
-              <li><Link to="/admin" target="_blank" rel="noopener noreferrer" className="hover:text-red-400 transition flex items-center gap-1.5"><i className="fa-solid fa-shield-halved text-red-500 text-[10px]"></i> Bàn Làm Việc CMS Admin <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-500"></i></Link></li>
+              {currentUser?.role === 'admin' && (
+                <li><Link to="/admin" target="_blank" rel="noopener noreferrer" className="hover:text-red-400 transition flex items-center gap-1.5 text-red-400 font-semibold"><i className="fa-solid fa-shield-halved text-red-500 text-[10px]"></i> Bàn Làm Việc CMS Admin <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-500"></i></Link></li>
+              )}
             </ul>
           </div>
 

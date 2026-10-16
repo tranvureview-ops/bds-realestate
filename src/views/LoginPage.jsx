@@ -1,16 +1,51 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter, Link } from '../router/RouterContext';
 
 export default function LoginPage() {
   const { loginUser, showToast } = useRealEstate();
-  const { navigate } = useRouter();
+  const { navigate, searchParams } = useRouter();
 
+  const [redirectUrl, setRedirectUrl] = useState('');
   const [identifier, setIdentifier] = useState('tuan.batdongsan@datbiendanang.vn');
   const [password, setPassword] = useState('123456');
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    let red = searchParams?.get('redirect');
+    if (!red && typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      red = urlParams.get('redirect');
+    }
+
+    if (red) {
+      setRedirectUrl(red);
+      if (red === '/admin' || red.startsWith('/admin')) {
+        setIdentifier('admin@datbiendanang.vn');
+      }
+    }
+  }, [searchParams]);
+
+  const handlePostLoginRedirect = (user) => {
+    if (!user) return;
+    if (redirectUrl) {
+      if (redirectUrl.startsWith('/admin') && user.role !== 'admin') {
+        showToast('Tài khoản của bạn không có đặc quyền Quản Trị Viên (Admin)!', 'warning');
+        navigate('/');
+        return;
+      }
+      navigate(redirectUrl);
+      return;
+    }
+
+    if (user.role === 'admin') {
+      navigate('/admin');
+    } else {
+      navigate('/');
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -18,30 +53,59 @@ export default function LoginPage() {
       showToast('Vui lòng nhập Email hoặc Số điện thoại', 'warning');
       return;
     }
-    const success = loginUser(identifier, password);
-    if (success) {
-      navigate('/');
+    const loggedUser = loginUser(identifier, password);
+    if (loggedUser) {
+      handlePostLoginRedirect(loggedUser);
     }
   };
 
   const handleQuickLogin = (email) => {
-    loginUser(email, '123456');
-    navigate('/');
+    const loggedUser = loginUser(email, '123456');
+    if (loggedUser) {
+      handlePostLoginRedirect(loggedUser);
+    }
   };
+
+  const isAdminRedirect = redirectUrl === '/admin' || redirectUrl.startsWith('/admin');
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
       <div className="max-w-md w-full space-y-6 bg-white p-8 rounded-3xl border border-slate-200 shadow-xl">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-600 text-white flex items-center justify-center text-xl font-black mx-auto shadow-md">
-            <i className="fa-solid fa-building"></i>
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-black mx-auto shadow-md ${
+            isAdminRedirect 
+              ? 'bg-gradient-to-tr from-rose-600 via-red-600 to-amber-600 text-white' 
+              : 'bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-600 text-white'
+          }`}>
+            <i className={`fa-solid ${isAdminRedirect ? 'fa-shield-halved' : 'fa-building'}`}></i>
           </div>
-          <h1 className="text-2xl font-black text-slate-900">Đăng Nhập Tài Khoản</h1>
+          <h1 className="text-2xl font-black text-slate-900">
+            {isAdminRedirect ? 'Đăng Nhập Quản Trị Viên (Admin)' : 'Đăng Nhập Tài Khoản'}
+          </h1>
           <p className="text-xs text-slate-500">
-            Truy cập để quản lý tin đăng, nạp tiền ví và nâng cấp gói VIP
+            {isAdminRedirect 
+              ? 'Xác thực đặc quyền Ban Quản Trị để truy cập Bàn làm việc CMS' 
+              : 'Truy cập để quản lý tin đăng, nạp tiền ví và nâng cấp gói VIP'}
           </p>
         </div>
+
+        {/* Security Notification if redirected from /admin */}
+        {isAdminRedirect && (
+          <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-3 text-rose-900 text-xs animate-in fade-in">
+            <i className="fa-solid fa-triangle-exclamation text-rose-600 text-base mt-0.5 shrink-0"></i>
+            <div>
+              <div className="font-bold text-rose-950">Yêu cầu quyền Quản Trị Viên</div>
+              <div className="text-[11px] text-rose-800 mt-0.5 leading-relaxed">
+                Khu vực <strong>/admin</strong> chỉ dành riêng cho tài khoản có vai trò <strong>Admin</strong>. Vui lòng đăng nhập bằng tài khoản Quản trị để tiếp tục.
+              </div>
+              <div className="mt-2 text-[11px] bg-white/80 p-2 rounded-xl border border-rose-200 font-mono text-rose-950">
+                Email: <strong>admin@datbiendanang.vn</strong><br />
+                Mật khẩu: <strong>123456</strong>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
@@ -99,9 +163,13 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-sm shadow-lg transition"
+            className={`w-full py-3 rounded-xl font-black text-sm shadow-lg transition text-white ${
+              isAdminRedirect
+                ? 'bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700'
+                : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700'
+            }`}
           >
-            Đăng Nhập Ngay
+            {isAdminRedirect ? 'Xác Thực & Vào Trang Quản Trị' : 'Đăng Nhập Ngay'}
           </button>
         </form>
 
@@ -125,7 +193,7 @@ export default function LoginPage() {
             </button>
             <button
               onClick={() => handleQuickLogin('admin@datbiendanang.vn')}
-              className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-800 font-bold border border-red-200 text-xs text-center transition"
+              className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-800 font-bold border border-red-200 text-xs text-center transition ring-2 ring-red-300"
             >
               🛡️ Admin CMS
             </button>

@@ -2306,19 +2306,29 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     showToast('Đã khôi phục toàn bộ dữ liệu mẫu ban đầu!', 'info');
   };
 
-  // User Login
+  // User Login (Xác thực đăng nhập nghiêm ngặt)
   const loginUser = (identifier, password) => {
-    const found = usersList.find(
-      u => (u.email?.toLowerCase() === identifier.toLowerCase() || u.phone?.replace(/\s+/g, '') === identifier.replace(/\s+/g, ''))
-    );
-    const target = found || usersList[1] || usersList[0];
-    setCurrentUser(target);
-    safeStorage.setItem('bds_current_user', JSON.stringify(target));
-    if (typeof document !== 'undefined') {
-      document.cookie = `bds_session_user=${encodeURIComponent(target.id)}; path=/; max-age=31536000; SameSite=Lax`;
+    if (!identifier) {
+      showToast('Vui lòng nhập Email hoặc Số điện thoại!', 'warning');
+      return false;
     }
-    showToast(`Đăng nhập thành công! Chào mừng ${target.name}`, 'success');
-    return true;
+    const cleanIdent = identifier.trim().toLowerCase();
+    const cleanPhone = identifier.replace(/\s+/g, '');
+    const found = usersList.find(
+      u => (u.email?.toLowerCase() === cleanIdent || 
+            u.phone?.replace(/\s+/g, '') === cleanPhone)
+    );
+    if (!found) {
+      showToast('Tài khoản hoặc số điện thoại không tồn tại trong hệ thống!', 'error');
+      return false;
+    }
+    setCurrentUser(found);
+    safeStorage.setItem('bds_current_user', JSON.stringify(found));
+    if (typeof document !== 'undefined') {
+      document.cookie = `bds_session_user=${encodeURIComponent(found.id)}; path=/; max-age=31536000; SameSite=Lax`;
+    }
+    showToast(`Đăng nhập thành công! Chào mừng ${found.name}`, 'success');
+    return found;
   };
 
   // User Register
@@ -2941,6 +2951,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         favorites,
         compareList,
         currentUser,
+        isHydrated,
         usersList,
         vipPackages,
         transactions,

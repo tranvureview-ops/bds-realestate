@@ -162,12 +162,18 @@ export default function Navbar() {
                     {currentUser.role === 'user' && <i className="fa-solid fa-check text-blue-600"></i>}
                   </button>
                   <button 
-                    onClick={() => switchUserRole('admin')}
+                    onClick={() => {
+                      if (currentUser.role === 'admin') {
+                        navigate('/admin');
+                      } else {
+                        navigate('/dang-nhap?redirect=/admin');
+                      }
+                    }}
                     className={`w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center justify-between transition ${currentUser.role === 'admin' ? 'bg-red-50 text-red-800 font-semibold' : ''}`}
                   >
                     <span className="flex items-center gap-2">
                       <i className="fa-solid fa-shield-halved text-red-500 w-4 text-center"></i>
-                      <span>Admin Quản trị (Admin BDS)</span>
+                      <span>Admin Quản trị {currentUser.role !== 'admin' && <span className="text-[10px] text-red-600 font-medium">(Đăng nhập)</span>}</span>
                     </span>
                     {currentUser.role === 'admin' && <i className="fa-solid fa-check text-red-600"></i>}
                   </button>

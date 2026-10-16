@@ -57,7 +57,7 @@ function RouterProviderContent({ children }) {
   };
 
   return (
-    <RouterContext.Provider value={{ currentPath, pathname, navigate, goBack, matchRoute }}>
+    <RouterContext.Provider value={{ currentPath, pathname, searchParams, navigate, goBack, matchRoute }}>
       {children}
     </RouterContext.Provider>
   );
@@ -77,6 +77,7 @@ export const useRouter = () => {
     return {
       currentPath: '/',
       pathname: '/',
+      searchParams: null,
       navigate: () => {},
       goBack: () => {},
       matchRoute: () => ({ match: false, params: {} })
