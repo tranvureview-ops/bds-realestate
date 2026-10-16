@@ -5671,6 +5671,152 @@ export default function AdminBackendPage() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Nhóm 6: Cấu Hình Chiến Dịch Quà Tặng & Xác Thực Email */}
+                  <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4">
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
+                      <div className="flex items-center gap-2">
+                        <i className="fa-solid fa-gift text-emerald-400 text-sm"></i>
+                        <h4 className="text-xs font-black uppercase tracking-wider text-white">
+                          6. Cấu Hình Chiến Dịch Quà Tặng &amp; Xác Thực Email
+                        </h4>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
+                        Welcome Bonus Campaign
+                      </span>
+                    </div>
+
+                    <div className="space-y-4 text-xs">
+                      {/* Bật/Tắt Chương Trình */}
+                      <label className="flex items-start gap-3 p-3.5 bg-slate-900/80 hover:bg-slate-900 rounded-2xl border border-slate-800 cursor-pointer transition">
+                        <input
+                          type="checkbox"
+                          checked={formSystemConfig.enableWelcomeBonus !== false}
+                          onChange={(e) => setFormSystemConfig(prev => ({ ...prev, enableWelcomeBonus: e.target.checked }))}
+                          className="w-4 h-4 text-emerald-500 rounded border-slate-700 bg-slate-800 focus:ring-emerald-500 mt-0.5 shrink-0"
+                        />
+                        <div>
+                          <div className="font-bold text-white flex items-center gap-2">
+                            <span>Kích hoạt chương trình Tặng Tiền Chào Mừng Thành Viên Mới</span>
+                            <span className="px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-300 text-[10px] font-bold border border-emerald-800">
+                              Đang áp dụng
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                            Khi bật, mọi người dùng mới đăng ký và xác thực email sẽ được nhận ngay số tiền thưởng [SỐ_TIỀN_TẶNG] vào Ví Khuyến Mãi.
+                          </p>
+                        </div>
+                      </label>
+
+                      {/* 3 Tham số cốt lõi: SỐ_TIỀN_TẶNG, THỜI_GIẠN_HẾT_HẠN_TOKEN, THỜI_GIẠN_HẾT_HẠN_TIỀN */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        {/* 1. SỐ_TIỀN_TẶNG */}
+                        <div className="p-3.5 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-1.5">
+                          <label className="block text-[11px] font-bold text-emerald-300 uppercase">
+                            🎁 [SỐ_TIỀN_TẶNG] (VNĐ):
+                          </label>
+                          <input
+                            type="number"
+                            step="10000"
+                            min="0"
+                            value={formSystemConfig.welcomeBonusAmount || 100000}
+                            onChange={(e) => setFormSystemConfig(prev => ({ ...prev, welcomeBonusAmount: Number(e.target.value) }))}
+                            className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono font-bold text-sm focus:border-emerald-500 outline-none"
+                          />
+                          <p className="text-[10px] text-slate-400">
+                            Ví dụ: 50.000, 100.000, 200.000...
+                          </p>
+                        </div>
+
+                        {/* 2. THỜI_GIẠN_HẾT_HẠN_TOKEN */}
+                        <div className="p-3.5 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-1.5">
+                          <label className="block text-[11px] font-bold text-amber-300 uppercase">
+                            ⏱ [HẠN_TOKEN_EMAIL] (Phút):
+                          </label>
+                          <select
+                            value={formSystemConfig.tokenExpiryMinutes || 30}
+                            onChange={(e) => setFormSystemConfig(prev => ({ ...prev, tokenExpiryMinutes: Number(e.target.value) }))}
+                            className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-bold text-xs focus:border-amber-500 outline-none"
+                          >
+                            <option value={15}>15 phút</option>
+                            <option value={30}>30 phút (Khuyên dùng)</option>
+                            <option value={60}>60 phút (1 giờ)</option>
+                            <option value={120}>120 phút (2 giờ)</option>
+                            <option value={1440}>1.440 phút (24 giờ)</option>
+                          </select>
+                          <p className="text-[10px] text-slate-400">
+                            Thời gian link xác thực email có hiệu lực.
+                          </p>
+                        </div>
+
+                        {/* 3. THỜI_GIẠN_HẾT_HẠN_TIỀN */}
+                        <div className="p-3.5 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-1.5">
+                          <label className="block text-[11px] font-bold text-sky-300 uppercase">
+                            📅 [HẠN_DÙNG_TIỀN] (Ngày):
+                          </label>
+                          <select
+                            value={formSystemConfig.bonusExpiryDays || 30}
+                            onChange={(e) => setFormSystemConfig(prev => ({ ...prev, bonusExpiryDays: Number(e.target.value) }))}
+                            className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-bold text-xs focus:border-sky-500 outline-none"
+                          >
+                            <option value={7}>7 ngày (1 tuần)</option>
+                            <option value={15}>15 ngày</option>
+                            <option value={30}>30 ngày (1 tháng)</option>
+                            <option value={60}>60 ngày (2 tháng)</option>
+                            <option value={90}>90 ngày (3 tháng)</option>
+                          </select>
+                          <p className="text-[10px] text-slate-400">
+                            Sau số ngày này, tiền chưa dùng sẽ bị thu hồi.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Anti-Cheat: Giới Hạn IP & Nút Quét Thu Hồi */}
+                      <div className="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div>
+                            <div className="font-bold text-white flex items-center gap-2">
+                              <i className="fa-solid fa-shield-halved text-rose-400"></i>
+                              <span>Cơ Chế Bảo Mật &amp; Chống Gian Lận (Anti-Cheat):</span>
+                            </div>
+                            <p className="text-[11px] text-slate-400 mt-0.5">
+                              Giới hạn tối đa <strong className="text-white">{formSystemConfig.maxRegistrationsPerIpPerDay || 3}</strong> tài khoản / IP / ngày để ngăn chặn việc spam nhận thưởng.
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <select
+                              value={formSystemConfig.maxRegistrationsPerIpPerDay || 3}
+                              onChange={(e) => setFormSystemConfig(prev => ({ ...prev, maxRegistrationsPerIpPerDay: Number(e.target.value) }))}
+                              className="p-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-bold text-xs"
+                            >
+                              <option value={1}>Tối đa 1 TK / IP / ngày</option>
+                              <option value={2}>Tối đa 2 TK / IP / ngày</option>
+                              <option value={3}>Tối đa 3 TK / IP / ngày</option>
+                              <option value={5}>Tối đa 5 TK / IP / ngày</option>
+                            </select>
+
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                try {
+                                  const res = await fetch('/api/cron/expire-bonus', { method: 'POST' });
+                                  const data = await res.json();
+                                  showToast(data.message || `Đã thu hồi ${data.expiredCount || 0} tài khoản quá hạn!`, 'info');
+                                } catch (e) {
+                                  showToast('Lỗi khi kích hoạt quét thu hồi', 'error');
+                                }
+                              }}
+                              className="px-3.5 py-2 bg-gradient-to-r from-amber-600 to-rose-600 hover:from-amber-500 hover:to-rose-500 text-white font-bold rounded-xl text-xs transition shadow-md flex items-center gap-1.5 shrink-0"
+                            >
+                              <i className="fa-solid fa-rotate text-xs"></i>
+                              <span>Quét Thu Hồi Quá Hạn Ngay</span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Right Column: Live Preview */}

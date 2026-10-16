@@ -119,6 +119,16 @@ export default function UserDashboard() {
             <div className="text-2xl font-black text-emerald-700">
               {(currentUser?.walletBalance || 0).toLocaleString('vi-VN')} đ
             </div>
+            {Number(currentUser?.bonusWalletBalance) > 0 && (
+              <div className="text-[10px] text-emerald-800 font-bold flex items-center gap-1.5 mt-0.5">
+                <span>Ví KM: +{Number(currentUser.bonusWalletBalance).toLocaleString('vi-VN')} đ</span>
+                {currentUser.bonusExpiresAt && (
+                  <span className="text-[9px] text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded font-normal">
+                    Hạn: {new Date(currentUser.bonusExpiresAt).toLocaleDateString('vi-VN')}
+                  </span>
+                )}
+              </div>
+            )}
           </div>
           <button
             onClick={() => setActiveModal('wallet-deposit')}

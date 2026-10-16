@@ -166,7 +166,14 @@ export default function UserProfilePage() {
               <div className="text-2xl font-black text-emerald-700 mt-0.5">
                 {currentUser.walletBalance.toLocaleString('vi-VN')} đ
               </div>
-              <div className="text-[10px] text-emerald-600">Ví khuyến mãi: 50.000 đ</div>
+              <div className="text-[10px] text-emerald-600 flex items-center gap-1.5">
+                <span>Ví khuyến mãi: <strong className="font-mono">{(Number(currentUser.bonusWalletBalance) || 0).toLocaleString('vi-VN')} đ</strong></span>
+                {currentUser.bonusExpiresAt && Number(currentUser.bonusWalletBalance) > 0 && (
+                  <span className="text-[9px] text-amber-600 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
+                    Hạn: {new Date(currentUser.bonusExpiresAt).toLocaleDateString('vi-VN')}
+                  </span>
+                )}
+              </div>
             </div>
 
             <button

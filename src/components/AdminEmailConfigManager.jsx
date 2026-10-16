@@ -264,6 +264,13 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
 
   const TEMPLATE_TABS = [
     {
+      id: 'welcome_verification',
+      name: 'Chào mừng & Kích hoạt tặng thưởng ví',
+      recipient: 'Gửi Thành Viên Mới',
+      icon: 'fa-solid fa-gift',
+      badgeClass: 'bg-emerald-950 text-emerald-300 border-emerald-800'
+    },
+    {
       id: 'report_confirmation',
       name: 'Xác nhận tiếp nhận phản ánh',
       recipient: 'Gửi Người Báo Cáo',
@@ -303,6 +310,12 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
   const AVAILABLE_TOKENS = [
     { token: '{{siteName}}', label: 'Tên Sàn BĐS', desc: 'Tên thương hiệu website (Đất Biển Đà Nẵng)' },
     { token: '{{websiteUrl}}', label: 'Địa chỉ Website', desc: 'Đường dẫn website sàn (https://datbiendanang.vn)' },
+    { token: '{{bonusAmount}}', label: 'Số tiền thưởng chào mừng', desc: 'Số tiền tặng vào Ví Khuyến Mãi (ví dụ: 100.000 đ)' },
+    { token: '{{verificationUrl}}', label: 'Link kích hoạt tài khoản', desc: 'Đường link xác thực email thành viên' },
+    { token: '{{expiryMinutes}}', label: 'Thời hạn link (phút)', desc: 'Thời gian link kích hoạt có hiệu lực (ví dụ: 30)' },
+    { token: '{{bonusExpiryDays}}', label: 'Thời hạn tiền (ngày)', desc: 'Thời gian tiền thưởng có hiệu lực trong ví (ví dụ: 30)' },
+    { token: '{{userName}}', label: 'Tên người dùng mới', desc: 'Họ tên tài khoản đăng ký' },
+    { token: '{{userEmail}}', label: 'Email người dùng', desc: 'Địa chỉ email đăng ký' },
     { token: '{{propertyId}}', label: 'Mã tin đăng', desc: 'Mã tin BDS (ví dụ: BDS-003)' },
     { token: '{{propertyTitle}}', label: 'Tiêu đề tin đăng', desc: 'Tiêu đề bài viết bất động sản' },
     { token: '{{reporterName}}', label: 'Tên người báo cáo', desc: 'Họ tên khách hàng phản ánh' },
@@ -1242,6 +1255,37 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                   </div>
 
                   {/* Specific Body Fields for Template Type */}
+                  {selectedTemplateId === 'welcome_verification' && (
+                    <>
+                      <div>
+                        <label className="block text-slate-300 font-bold mb-1">
+                          Văn Bản Nút Bấm Kích Hoạt (Action Button Text):
+                        </label>
+                        <input
+                          type="text"
+                          value={currentTemplate.actionButtonText || ''}
+                          onFocus={() => setLastFocusedField('actionButtonText')}
+                          onChange={(e) => handleTemplateFieldChange('actionButtonText', e.target.value)}
+                          placeholder="Kích Hoạt Tài Khoản & Nhận {{bonusAmount}} Vào Ví"
+                          className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-300 font-bold mb-1">
+                          Thông Báo Thời Hạn Hiệu Lực (Expiration Notice):
+                        </label>
+                        <textarea
+                          rows={2}
+                          value={currentTemplate.expirationNotice || ''}
+                          onFocus={() => setLastFocusedField('expirationNotice')}
+                          onChange={(e) => handleTemplateFieldChange('expirationNotice', e.target.value)}
+                          placeholder="Lưu ý: Liên kết kích hoạt này có hiệu lực trong vòng {{expiryMinutes}} phút. Số tiền quà tặng có thời hạn sử dụng trong {{bonusExpiryDays}} ngày..."
+                          className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white leading-relaxed outline-none focus:border-blue-500 resize-y"
+                        />
+                      </div>
+                    </>
+                  )}
+
                   {selectedTemplateId === 'report_confirmation' && (
                     <div>
                       <label className="block text-slate-300 font-bold mb-1">

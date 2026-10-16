@@ -482,6 +482,12 @@ export default function Navbar() {
                           <div className="text-sm font-black text-emerald-600">
                             {currentUser.walletBalance?.toLocaleString('vi-VN')} đ
                           </div>
+                          {Number(currentUser.bonusWalletBalance) > 0 && (
+                            <div className="text-[10px] text-emerald-700 font-bold flex items-center gap-1 pt-0.5">
+                              <i className="fa-solid fa-gift text-emerald-600"></i>
+                              <span>Ví KM: +{Number(currentUser.bonusWalletBalance).toLocaleString('vi-VN')} đ</span>
+                            </div>
+                          )}
                         </div>
                         <Link
                           to="/nap-tien"

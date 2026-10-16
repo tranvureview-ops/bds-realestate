@@ -4,10 +4,17 @@ import React, { useState } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 
 export default function AuthModal({ onClose, initialTab = 'login' }) {
-  const { loginUser, registerUser, showToast, usersList, currentUser } = useRealEstate();
+  const { loginUser, registerUser, showToast, usersList, currentUser, systemConfig } = useRealEstate();
 
   const [tab, setTab] = useState(initialTab); // 'login', 'register', 'forgot'
   const [showPassword, setShowPassword] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [registerSuccessEmail, setRegisterSuccessEmail] = useState(null);
+
+  const bonusAmount = Number(systemConfig?.welcomeBonusAmount || 100000);
+  const bonusText = `${bonusAmount >= 1000 ? Math.floor(bonusAmount / 1000) + 'k' : bonusAmount}`;
+  const bonusFormatted = `${bonusAmount.toLocaleString('vi-VN')} đ`;
+  const tokenExpiry = systemConfig?.tokenExpiryMinutes || 30;
 
   // Login form state
   const [loginIdentifier, setLoginIdentifier] = useState('tuan.batdongsan@datbiendanang.vn');
@@ -47,7 +54,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
     onClose();
   };
 
-  const handleRegisterSubmit = (e) => {
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
     if (!registerData.name.trim() || registerData.name.length < 3) {
       showToast('Họ và tên cần ít nhất 3 ký tự', 'warning');
@@ -74,9 +81,11 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
       return;
     }
 
-    const success = registerUser(registerData);
-    if (success) {
-      onClose();
+    setIsRegistering(true);
+    const result = await registerUser(registerData);
+    setIsRegistering(false);
+    if (result && result.success) {
+      setRegisterSuccessEmail(registerData.email);
     }
   };
 
@@ -130,11 +139,11 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
             Đăng Nhập
           </button>
           <button
-            onClick={() => { setTab('register'); setForgotSent(false); }}
+            onClick={() => { setTab('register'); setForgotSent(false); setRegisterSuccessEmail(null); }}
             className={`py-2 rounded-xl transition ${tab === 'register' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
           >
             <i className="fa-solid fa-user-plus mr-1.5 text-red-600"></i>
-            Đăng Ký (+100k ví)
+            Đăng Ký (+{bonusText} ví)
           </button>
         </div>
 
@@ -261,7 +270,40 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
         )}
 
         {/* BODY TAB 2: ĐĂNG KÝ (REGISTER) */}
-        {tab === 'register' && (
+        {tab === 'register' && registerSuccessEmail && (
+          <div className="p-6 pt-0 space-y-4 text-center text-xs">
+            <div className="w-16 h-16 rounded-3xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mx-auto shadow-inner">
+              <i className="fa-regular fa-envelope-open animate-bounce"></i>
+            </div>
+            <div className="space-y-1">
+              <span className="inline-block bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border border-emerald-200">
+                Đăng Ký Thành Công
+              </span>
+              <h3 className="text-lg font-black text-slate-900">Vui Lòng Kiểm Tra Email!</h3>
+              <p className="text-slate-600">
+                Liên kết kích hoạt đã được gửi đến: <strong className="text-slate-900">{registerSuccessEmail}</strong>
+              </p>
+            </div>
+            <div className="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200 text-emerald-800 space-y-1 text-left">
+              <div className="font-bold flex items-center gap-1.5">
+                <i className="fa-solid fa-gift text-emerald-600"></i>
+                <span>Quà tặng {bonusFormatted} chờ kích hoạt</span>
+              </div>
+              <p className="text-[11px] text-emerald-700">
+                Bấm vào nút trong email (hiệu lực trong <strong>{tokenExpiry} phút</strong>) để nhận ngay tiền thưởng vào Ví Khuyến Mãi!
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => { setTab('login'); setRegisterSuccessEmail(null); }}
+              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition"
+            >
+              Chuyển Đến Đăng Nhập
+            </button>
+          </div>
+        )}
+
+        {tab === 'register' && !registerSuccessEmail && (
           <form onSubmit={handleRegisterSubmit} className="p-6 pt-0 space-y-3.5 text-xs">
             {/* Promo Banner */}
             <div className="p-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-2xl flex items-center gap-3 shadow-md">
@@ -269,7 +311,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
                 🎁
               </div>
               <div className="leading-tight">
-                <div className="font-black text-xs">Tặng Ngay 100.000đ Vào Ví Tài Khoản!</div>
+                <div className="font-black text-xs">Tặng Ngay {bonusFormatted} Vào Ví Khuyến Mãi!</div>
                 <div className="text-[10px] text-white/90">Áp dụng trực tiếp để mua gói đăng tin VIP hoặc dịch vụ đẩy tin.</div>
               </div>
             </div>
@@ -421,10 +463,11 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
             {/* Submit */}
             <button
               type="submit"
-              className="w-full py-3 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-black text-sm rounded-xl shadow-lg transition flex items-center justify-center gap-2"
+              disabled={isRegistering}
+              className="w-full py-3 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 disabled:opacity-60 text-white font-black text-sm rounded-xl shadow-lg transition flex items-center justify-center gap-2"
             >
-              <i className="fa-solid fa-user-check"></i>
-              <span>Hoàn Tất Đăng Ký & Nhận 100k</span>
+              {isRegistering ? <i className="fa-solid fa-spinner animate-spin"></i> : <i className="fa-solid fa-user-check"></i>}
+              <span>{isRegistering ? 'Đang Xử Lý Đăng Ký...' : `Hoàn Tất Đăng Ký & Nhận ${bonusText}`}</span>
             </button>
           </form>
         )}

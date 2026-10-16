@@ -832,12 +832,99 @@ export function renderCustomEmailPreview(templateId, customTemplate, customConfi
       property: sampleProperty,
       customConfig: mergedConfig
     });
-  } else if (templateId === 'smtp_test') {
-    return generateTestEmailHtml({
-      emailConfig: mergedConfig,
-      testRecipient: mergedConfig?.fromEmail || 'admin@datbiendanang.vn',
+  } else if (templateId === 'welcome_verification') {
+    return generateWelcomeVerificationEmailHtml({
+      userName: 'Nguyễn Văn Tuấn',
+      userEmail: 'tuan.nguyen@example.com',
+      verificationUrl: 'https://datbiendanang.vn/xac-thuc-email?token=demo_verification_token_123',
+      bonusAmount: 100000,
+      expiryMinutes: 30,
+      bonusExpiryDays: 30,
       customConfig: mergedConfig
     });
   }
   return '';
+}
+
+/**
+ * 6. Mẫu Email Chào Mừng & Kích Hoạt Tài Khoản Tặng Tiền Thưởng Vào Ví
+ */
+export function generateWelcomeVerificationEmailHtml({
+  userName,
+  userEmail,
+  verificationUrl,
+  bonusAmount = 100000,
+  expiryMinutes = 30,
+  bonusExpiryDays = 30,
+  customConfig = null
+}) {
+  const activeConfig = customConfig || getActiveEmailConfig();
+  const tpl = activeConfig?.templates?.welcome_verification || {};
+  const siteName = activeConfig?.signature?.companyName || 'Đất Biển Đà Nẵng';
+  const hotline = activeConfig?.signature?.hotline || getSystemHotlineFallback();
+  const websiteUrl = activeConfig?.signature?.websiteUrl || 'https://datbiendanang.vn';
+  const formattedBonus = (Number(bonusAmount) || 100000).toLocaleString('vi-VN') + ' đ';
+
+  const vars = {
+    siteName,
+    websiteUrl,
+    userName: userName || 'Quý thành viên',
+    userEmail: userEmail || '',
+    bonusAmount: formattedBonus,
+    expiryMinutes: String(expiryMinutes || 30),
+    bonusExpiryDays: String(bonusExpiryDays || 30),
+    verificationUrl,
+    hotline,
+    currentTime: new Date().toLocaleString('vi-VN')
+  };
+
+  const theme = THEME_STYLES[tpl.headerTheme || 'emerald'] || THEME_STYLES.emerald;
+  const badgeText = renderEmailTemplateString(tpl.headerBadge || 'Kích Hoạt Tài Khoản Mới', vars);
+  const titleText = renderEmailTemplateString(tpl.headerTitle || 'Chào Mừng Thành Viên Mới', vars);
+  const greetingText = renderEmailTemplateString(tpl.greeting || 'Kính gửi {{userName}},', vars);
+  const introText = renderEmailTemplateString(tpl.introText || 'Cảm ơn bạn đã đăng ký tài khoản trên sàn giao dịch {{siteName}}. Chúng tôi xin gửi tặng bạn phần quà chào mừng {{bonusAmount}} vào Ví Khuyến Mãi để trải nghiệm đăng tin và đẩy tin VIP hoàn toàn miễn phí!', vars);
+  const buttonText = renderEmailTemplateString(tpl.actionButtonText || 'Kích Hoạt Tài Khoản & Nhận {{bonusAmount}} Vào Ví', vars);
+  const noticeText = renderEmailTemplateString(tpl.expirationNotice || 'Lưu ý: Liên kết kích hoạt này có hiệu lực trong vòng {{expiryMinutes}} phút. Số tiền quà tặng có thời hạn sử dụng trong {{bonusExpiryDays}} ngày kể từ lúc kích hoạt.', vars);
+  const signOffText = renderEmailTemplateString(tpl.senderSign || 'Ban Quản Trị & Chăm Sóc Khách Hàng {{siteName}}', vars);
+
+  return `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+      <div style="background: linear-gradient(135deg, #059669 0%, #0d9488 100%); padding: 32px 32px 28px 32px; color: #ffffff; text-align: center;">
+        <span style="display: inline-block; background: rgba(255,255,255,0.2); color: #ffffff; font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.5px;">${badgeText}</span>
+        <h1 style="font-size: 24px; font-weight: 900; margin: 12px 0 6px 0; color: #ffffff;">${titleText}</h1>
+        <p style="font-size: 14px; margin: 0; opacity: 0.95; color: #d1fae5;">Quà tặng độc quyền dành cho thành viên mới gia nhập</p>
+      </div>
+
+      <div style="padding: 32px; color: #334155; font-size: 14px; line-height: 1.6;">
+        <p style="margin-top: 0; font-weight: 700; font-size: 16px; color: #0f172a;">${greetingText}</p>
+        <p style="margin-bottom: 24px; color: #475569;">${introText}</p>
+
+        <div style="background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 100%); border: 2px dashed #10b981; border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 28px;">
+          <div style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: #047857; letter-spacing: 1px; margin-bottom: 4px;">🎁 Phần Quà Chào Mừng Của Bạn</div>
+          <div style="font-size: 32px; font-weight: 900; color: #059669; margin-bottom: 4px; font-family: monospace;">+${formattedBonus}</div>
+          <div style="font-size: 12px; color: #065f46;">Được cộng trực tiếp vào <strong>Ví Khuyến Mãi</strong> ngay sau khi kích hoạt</div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 28px;">
+          <a href="${verificationUrl}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #dc2626 0%, #e11d48 100%); color: #ffffff; font-size: 15px; font-weight: 900; padding: 16px 36px; border-radius: 14px; text-decoration: none; box-shadow: 0 4px 14px rgba(225, 29, 72, 0.4); text-transform: uppercase; letter-spacing: 0.5px;">
+            ${buttonText}
+          </a>
+          <div style="margin-top: 10px; font-size: 11px; color: #94a3b8;">
+            Hoặc sao chép liên kết vào trình duyệt nếu nút không mở được: <br>
+            <a href="${verificationUrl}" style="color: #059669; word-break: break-all; font-size: 11px;">${verificationUrl}</a>
+          </div>
+        </div>
+
+        <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 12px; padding: 14px 16px; font-size: 12px; color: #92400e; margin-bottom: 24px;">
+          ⏱ <strong>Thời hạn hiệu lực:</strong> ${noticeText}
+        </div>
+
+        <p style="margin-bottom: 0;">Trân trọng,<br><strong style="color: #0f172a;">${signOffText}</strong></p>
+      </div>
+
+      <div style="background: #f8fafc; padding: 18px 32px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; text-align: center;">
+        Hotline CSKH: <strong>${hotline}</strong> • Website: <a href="${websiteUrl}" style="color: #059669; text-decoration: none;">${websiteUrl}</a>
+      </div>
+    </div>
+  `;
 }

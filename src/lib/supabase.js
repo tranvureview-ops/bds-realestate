@@ -388,6 +388,7 @@ export async function fetchFullSupabaseDb() {
       bds_email_config: settingsMap['bds_email_config'] || undefined,
       bds_reported_listings: settingsMap['bds_reported_listings'] || undefined,
       bds_email_logs: settingsMap['bds_email_logs'] || undefined,
+      bds_verification_tokens: settingsMap['bds_verification_tokens'] || undefined,
     };
   } catch (err) {
     console.error('Lỗi khi fetchFullSupabaseDb:', err);
@@ -414,7 +415,8 @@ export async function syncFullDbToSupabase(payload) {
       'bds_single_config',
       'bds_email_config',
       'bds_reported_listings',
-      'bds_email_logs'
+      'bds_email_logs',
+      'bds_verification_tokens'
     ];
 
     const settingsToUpsert = [];

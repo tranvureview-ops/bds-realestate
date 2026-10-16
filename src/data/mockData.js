@@ -1768,7 +1768,14 @@ export const DEFAULT_SYSTEM_CONFIG = {
   expiredRetentionDays: 45, // Sau 45 ngày hết hạn mà không gia hạn thì xử lý
   expiredCleanupAction: 'archive_light', // 'archive_light' (Chuyển sang dữ liệu siêu nhẹ tối ưu DB) | 'permanent_delete' (Xóa vĩnh viễn) | 'move_to_trash' (Chuyển vào thùng rác)
   autoCleanupEnabled: true, // Tự động quét dọn dẹp định kỳ
-  trashRetentionDays: 30 // Tự động xóa vĩnh viễn trong thùng rác sau 30 ngày
+  trashRetentionDays: 30, // Tự động xóa vĩnh viễn trong thùng rác sau 30 ngày
+
+  // Cấu hình Chiến Dịch Tặng Tiền Chào Mừng & Xác Thực Email (Welcome Bonus Campaign)
+  welcomeBonusAmount: 100000, // [SỐ_TIỀN_TẶNG]: Mặc định 100.000đ (có thể chỉnh thành 50k, 200k... tùy chiến dịch)
+  tokenExpiryMinutes: 30, // [THỜI_GIẠN_HẾT_HẠN_TOKEN]: Tính bằng phút, thời gian link email có hiệu lực
+  bonusExpiryDays: 30, // [THỜI_GIẠN_HẾT_HẠN_TIỀN]: Tính bằng ngày, thời gian tiền khuyến mãi có hiệu lực trước khi bị thu hồi
+  maxRegistrationsPerIpPerDay: 3, // Anti-cheat: Giới hạn 1 địa chỉ IP / thiết bị chỉ nhận thưởng tối đa 3 tài khoản / ngày
+  enableWelcomeBonus: true // Bật/Tắt chương trình quà tặng chào mừng thành viên mới
 };
 
 // Cấu hình Trang Chi Tiết Bất Động Sản (Single Property Page Settings)
@@ -1875,6 +1882,20 @@ export const DEFAULT_EMAIL_TEMPLATES = {
     introText: 'Đây là bức thư thử nghiệm được gửi từ trang Cấu Hình Email Website nhằm xác thực thông số kết nối máy chủ gửi thư điện tử (SMTP / API) của sàn {{siteName}}.',
     closingText: 'Hệ thống gửi thư điện tử đã sẵn sàng hoạt động an toàn và ổn định.',
     senderSign: 'Bộ Phận Kỹ Thuật Hệ Thống • {{siteName}}',
+    headerTheme: 'emerald'
+  },
+  welcome_verification: {
+    id: 'welcome_verification',
+    name: 'Kích hoạt tài khoản & Quà tặng chào mừng',
+    description: 'Tự động gửi cho thành viên mới đăng ký kèm nút kích hoạt tài khoản và nhận tiền thưởng vào ví.',
+    subject: '🎁 Chào mừng bạn gia nhập {{siteName}} - Kích hoạt để nhận ngay {{bonusAmount}} vào ví',
+    headerBadge: 'Kích Hoạt Tài Khoản Mới',
+    headerTitle: 'Chào Mừng Thành Viên Mới',
+    greeting: 'Kính gửi {{userName}},',
+    introText: 'Cảm ơn bạn đã đăng ký tài khoản trên sàn giao dịch {{siteName}}. Chúng tôi xin gửi tặng bạn phần quà chào mừng {{bonusAmount}} vào Ví Khuyến Mãi để trải nghiệm đăng tin và đẩy tin VIP hoàn toàn miễn phí!',
+    actionButtonText: 'Kích Hoạt Tài Khoản & Nhận {{bonusAmount}} Vào Ví',
+    expirationNotice: 'Lưu ý: Liên kết kích hoạt này có hiệu lực trong vòng {{expiryMinutes}} phút. Số tiền quà tặng có thời hạn sử dụng trong {{bonusExpiryDays}} ngày kể từ lúc kích hoạt.',
+    senderSign: 'Ban Quản Trị & Chăm Sóc Khách Hàng {{siteName}}',
     headerTheme: 'emerald'
   }
 };

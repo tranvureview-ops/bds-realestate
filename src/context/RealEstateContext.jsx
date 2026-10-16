@@ -1603,17 +1603,27 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         showToast('Khách vãng lai vui lòng chọn thanh toán qua VietQR, MoMo hoặc VNPAY!', 'error');
         return null;
       }
-      if ((currentUser.walletBalance || 0) < finalCost) {
+      const totalAvailable = (Number(currentUser.walletBalance) || 0) + (Number(currentUser.bonusWalletBalance) || 0);
+      if (totalAvailable < finalCost) {
         showToast('Số dư ví không đủ thanh toán gói tin đăng!', 'error');
         return null;
       }
     }
 
     let newBal = (!isGuest && currentUser) ? (currentUser.walletBalance || 0) : 0;
+    let newBonusBal = (!isGuest && currentUser) ? (currentUser.bonusWalletBalance || 0) : 0;
     if (!isGuest && currentUser) {
-      newBal = (paymentMethod === 'wallet' && finalCost > 0) 
-        ? (currentUser.walletBalance || 0) - finalCost 
-        : (currentUser.walletBalance || 0);
+      if (paymentMethod === 'wallet' && finalCost > 0) {
+        let remaining = finalCost;
+        if (newBonusBal >= remaining) {
+          newBonusBal -= remaining;
+          remaining = 0;
+        } else {
+          remaining -= newBonusBal;
+          newBonusBal = 0;
+          newBal = Math.max(0, newBal - remaining);
+        }
+      }
 
       const updatedVouchers = usedVoucherType ? {
         ...currentUser.vouchers,
@@ -1623,6 +1633,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       const updatedUser = { 
         ...currentUser, 
         walletBalance: newBal,
+        bonusWalletBalance: newBonusBal,
         vouchers: updatedVouchers
       };
       setCurrentUser(updatedUser);
@@ -2321,6 +2332,10 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       showToast('Tài khoản hoặc số điện thoại không tồn tại trong hệ thống!', 'error');
       return false;
     }
+    if (found.status === 'pending') {
+      showToast('Tài khoản chưa được kích hoạt qua email! Vui lòng kiểm tra hộp thư để kích hoạt.', 'warning');
+      return false;
+    }
     setCurrentUser(found);
     safeStorage.setItem('bds_current_user', JSON.stringify(found));
     if (typeof document !== 'undefined') {
@@ -2330,50 +2345,25 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return found;
   };
 
-  // User Register
-  const registerUser = (userData) => {
-    const isBroker = userData.role === 'broker';
-    const newUser = {
-      id: `user-${Date.now().toString().slice(-4)}`,
-      name: userData.name,
-      email: userData.email,
-      phone: userData.phone,
-      role: userData.role || 'user',
-      roleName: isBroker ? 'Môi giới Pro' : 'Khách hàng cá nhân',
-      walletBalance: 100000, // Tặng 100k vào ví chào mừng!
-      promoBalance: 50000,
-      avatar: userData.avatar || (isBroker 
-        ? 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80' 
-        : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'),
-      isVerified: false,
-      kycStatus: 'unverified',
-      bio: userData.bio || (isBroker ? 'Chuyên viên tư vấn bất động sản uy tín, hỗ trợ 24/7' : 'Khách hàng tìm mua nhà đất'),
-      primaryArea: userData.primaryArea || 'Hà Nội & TP.HCM',
-      specialties: isBroker ? ['Căn hộ cao cấp', 'Nhà mặt phố', 'Đất nền'] : ['Tìm nhà ở'],
-      address: userData.address || '',
-      company: userData.company || 'Độc lập'
-    };
-
-    setUsersList([newUser, ...usersList]);
-    setCurrentUser(newUser);
-
-    // Welcome transaction
-    const welcomeTxn = {
-      id: `TXN-${Math.floor(1000 + Math.random() * 9000)}`,
-      userId: newUser.id,
-      userName: newUser.name,
-      type: 'deposit',
-      title: 'Quà tặng chào mừng thành viên mới Đất Biển Đà Nẵng',
-      amount: 100000,
-      balanceAfter: 100000,
-      status: 'success',
-      createdAt: new Date().toISOString(),
-      paymentMethod: 'Khuyến mãi thành viên mới'
-    };
-    setTransactions([welcomeTxn, ...transactions]);
-
-    showToast(`Đăng ký thành công! Tặng ngay 100.000đ vào ví tài khoản của bạn.`, 'success');
-    return true;
+  // User Register (Gọi API Backend kiểm tra chống trùng, hash mật khẩu và gửi email kích hoạt)
+  const registerUser = async (userData) => {
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData)
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        showToast(data.message || 'Đăng ký tài khoản thất bại!', 'error');
+        return { success: false, message: data.message };
+      }
+      showToast(data.message || 'Đăng ký thành công! Vui lòng kiểm tra email kích hoạt.', 'success');
+      return { success: true, pendingVerification: true, email: userData.email, ...data };
+    } catch (err) {
+      showToast('Lỗi kết nối máy chủ khi đăng ký tài khoản.', 'error');
+      return { success: false, message: err.message };
+    }
   };
 
   // Update User Profile

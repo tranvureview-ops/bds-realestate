@@ -634,8 +634,9 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
         showToast('Khách vãng lai vui lòng chọn thanh toán qua VietQR, MoMo hoặc VNPAY!', 'error');
         return;
       }
-      if ((currentUser?.walletBalance || 0) < finalCost) {
-        showToast(`Số dư ví (${(currentUser?.walletBalance || 0).toLocaleString('vi-VN')} đ) không đủ ${finalCost.toLocaleString('vi-VN')} đ. Vui lòng nạp thêm hoặc quét mã VietQR!`, 'error');
+      const totalAvailable = (Number(currentUser?.walletBalance) || 0) + (Number(currentUser?.bonusWalletBalance) || 0);
+      if (totalAvailable < finalCost) {
+        showToast(`Số dư ví (${totalAvailable.toLocaleString('vi-VN')} đ) không đủ ${finalCost.toLocaleString('vi-VN')} đ. Vui lòng nạp thêm hoặc quét mã VietQR!`, 'error');
         return;
       }
     }
@@ -1913,7 +1914,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         >
                           <i className="fa-solid fa-wallet mb-1 text-sm block"></i>
                           <div>Ví tài khoản</div>
-                          <div className="text-[10px] font-normal text-slate-400 mt-0.5">Dư: {(currentUser?.walletBalance || 0).toLocaleString('vi-VN')} đ</div>
+                          <div className="text-[10px] font-normal text-slate-400 mt-0.5">Dư: {((Number(currentUser?.walletBalance) || 0) + (Number(currentUser?.bonusWalletBalance) || 0)).toLocaleString('vi-VN')} đ</div>
                         </button>
                       )}
 

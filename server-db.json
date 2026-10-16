@@ -1862,5 +1862,6 @@
     "enableEmailNotifications": true,
     "notifyAdminOnVipPurchase": true,
     "notifyReporterOnResolution": true
-  }
+  },
+  "bds_verification_tokens": []
 }

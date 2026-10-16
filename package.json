@@ -12,6 +12,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0",
     "autoprefixer": "^10.6.1",
+    "bcryptjs": "^3.0.3",
     "next": "^16.4.2",
     "nodemailer": "^10.1.1",
     "postcss": "^8.5.30",

@@ -1,0 +1,118 @@
+import nodemailer from 'nodemailer';
+import { getFullSystemDatabase, persistDatabaseSlice } from './serverDbService';
+import { generateWelcomeVerificationEmailHtml } from '../utils/emailService';
+
+/**
+ * Trích xuất domain gốc từ request header hoặc fallback
+ * @param {Request} request HTTP Request
+ * @returns {string} Origin URL
+ */
+export function resolveServerOrigin(request) {
+  const host = request?.headers?.get('x-forwarded-host') || request?.headers?.get('host');
+  const proto = request?.headers?.get('x-forwarded-proto') || 'https';
+  if (host) {
+    return `${proto}://${host}`;
+  }
+  return process.env.NEXT_PUBLIC_SITE_URL || 'https://datbiendanang.vn';
+}
+
+/**
+ * Tạo nodemailer transport từ cấu hình SMTP
+ * @param {Object} smtp Cấu hình SMTP
+ * @returns {Object|null} Transporter instance hoặc null nếu thiếu thông tin
+ */
+export function createMailTransporter(smtp) {
+  const host = (smtp?.host || '').trim();
+  const user = (smtp?.username || '').trim();
+  const pass = (smtp?.password || '').replace(/\s+/g, '');
+  if (!host || !user || !pass) return null;
+
+  const port = Number(smtp?.port) || 587;
+  const isSecure = port === 465 || smtp?.encryption === 'ssl';
+  return nodemailer.createTransport({
+    host,
+    port,
+    secure: isSecure,
+    auth: { user, pass },
+    tls: { rejectUnauthorized: false }
+  });
+}
+
+/**
+ * Lưu vết email vào nhật ký gửi thư bds_email_logs
+ * @param {Object} logItem Bản ghi nhật ký email
+ */
+export async function appendEmailLog(logItem) {
+  const db = await getFullSystemDatabase();
+  const logs = Array.isArray(db.bds_email_logs) ? db.bds_email_logs : [];
+  const updatedLogs = [logItem, ...logs.slice(0, 99)];
+  await persistDatabaseSlice('bds_email_logs', updatedLogs);
+}
+
+/**
+ * Tạo nội dung HTML và tiêu đề thư chào mừng kích hoạt tài khoản
+ * @param {Object} params Tham số tạo nội dung
+ * @returns {Object} { verificationUrl, subject, htmlBody }
+ */
+export function buildWelcomeEmailPayload({ toUser, tokenRecord, origin, emailConfig }) {
+  const verificationUrl = `${origin}/xac-thuc-email?token=${tokenRecord.token}`;
+  const htmlBody = generateWelcomeVerificationEmailHtml({
+    userName: toUser.name,
+    userEmail: toUser.email,
+    verificationUrl,
+    bonusAmount: tokenRecord.bonusAmount,
+    expiryMinutes: tokenRecord.expiryMinutes || 30,
+    bonusExpiryDays: tokenRecord.bonusExpiryDays || 30,
+    customConfig: emailConfig
+  });
+  const subject = `🎁 Kích hoạt tài khoản và nhận ${Number(tokenRecord.bonusAmount).toLocaleString('vi-VN')} đ vào Ví`;
+  return { verificationUrl, subject, htmlBody };
+}
+
+/**
+ * Thực hiện gửi thư qua SMTP nếu đã cấu hình
+ * @param {Object} transporter Đối tượng nodemailer transporter
+ * @param {Object} emailConfig Cấu hình email hệ thống
+ * @param {string} toEmail Địa chỉ người nhận
+ * @param {string} subject Tiêu đề thư
+ * @param {string} htmlBody Nội dung HTML
+ */
+export async function deliverEmailViaSmtp(transporter, emailConfig, toEmail, subject, htmlBody) {
+  if (!transporter || emailConfig?.enableEmailNotifications === false) return;
+  try {
+    const fromSender = emailConfig?.fromEmail || 'cskh@datbiendanang.vn';
+    await transporter.sendMail({ from: fromSender, to: toEmail, subject, html: htmlBody });
+  } catch (err) {
+    console.warn('Lỗi gửi email qua SMTP:', err.message);
+  }
+}
+
+/**
+ * Điều phối gửi email kích hoạt tài khoản kèm thông tin quà tặng chào mừng
+ * @param {Object} params Tham số gửi email
+ * @returns {Promise<Object>} Kết quả gửi email
+ */
+export async function sendWelcomeVerificationEmail({ toUser, tokenRecord, origin }) {
+  const db = await getFullSystemDatabase();
+  const emailConfig = db.bds_email_config || null;
+  const { verificationUrl, subject, htmlBody } = buildWelcomeEmailPayload({
+    toUser,
+    tokenRecord,
+    origin,
+    emailConfig
+  });
+
+  const transporter = createMailTransporter(emailConfig?.smtp);
+  await deliverEmailViaSmtp(transporter, emailConfig, toUser.email, subject, htmlBody);
+
+  await appendEmailLog({
+    id: `LOG-MAIL-${Date.now()}`,
+    to: toUser.email,
+    type: 'welcome_verification',
+    subject,
+    status: transporter ? 'sent' : 'simulated',
+    sentAt: new Date().toISOString()
+  });
+
+  return { success: true, verificationUrl };
+}
