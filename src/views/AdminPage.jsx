@@ -5,121 +5,134 @@ import AdminBackendPage from '../components/AdminBackendPage';
 import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter } from '../router/RouterContext';
 
-export default function AdminPage() {
-  const { currentUser, isHydrated } = useRealEstate();
-  const { navigate } = useRouter();
+export function getAdminRedirectPath() {
+  if (typeof window === 'undefined') return '/dang-nhap?redirect=/admin';
+  const target = `/admin${window.location.hash || ''}`;
+  return `/dang-nhap?redirect=${encodeURIComponent(target)}`;
+}
 
-  const [countdown, setCountdown] = useState(3);
+export function LoadingScreen() {
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4">
+      <div className="w-12 h-12 border-4 border-red-500/20 border-t-red-500 rounded-full animate-spin mb-4" />
+      <p className="text-sm font-semibold text-slate-400">Đang xác thực bảo mật phân quyền CMS...</p>
+    </div>
+  );
+}
+
+export function ForbiddenSessionInfo({ currentUser }) {
+  return (
+    <div className="bg-slate-950/60 rounded-2xl p-3 border border-slate-800 text-left text-xs mb-5">
+      <div className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider mb-1.5">
+        Phiên làm việc hiện tại:
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 text-xs">
+          <i className="fa-solid fa-user" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="font-bold text-slate-200 truncate">{currentUser?.name || 'Khách vãng lai'}</div>
+          <div className="text-[10px] text-amber-400 font-medium">
+            Vai trò: {currentUser?.roleName || currentUser?.role || 'Chưa đăng nhập'}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function CountdownNotice({ countdown }) {
+  return (
+    <div className="text-[11px] text-slate-400 mb-2 flex items-center justify-center gap-2">
+      <i className="fa-solid fa-clock-rotate-left text-red-400" />
+      <span>Tự động chuyển hướng sau <strong className="text-red-400 font-bold">{countdown}s</strong>...</span>
+    </div>
+  );
+}
+
+export function ForbiddenActions({ countdown, onLogin, onQuickLogin, onHome }) {
+  return (
+    <div className="space-y-2.5">
+      <CountdownNotice countdown={countdown} />
+      <button
+        onClick={onQuickLogin}
+        className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2 cursor-pointer"
+      >
+        <i className="fa-solid fa-bolt" />
+        <span>Đăng Nhập Nhanh Quyền Admin (1-Click)</span>
+      </button>
+      <button
+        onClick={onLogin}
+        className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 text-white font-bold text-xs shadow-lg shadow-red-600/30 transition flex items-center justify-center gap-2 cursor-pointer"
+      >
+        <i className="fa-solid fa-right-to-bracket" />
+        <span>Đến Trang Đăng Nhập Admin</span>
+      </button>
+      <button
+        onClick={onHome}
+        className="w-full py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition border border-slate-700 flex items-center justify-center gap-2 cursor-pointer"
+      >
+        <i className="fa-solid fa-house" />
+        <span>Quay Về Trang Chủ</span>
+      </button>
+    </div>
+  );
+}
+
+export function ForbiddenScreen({ currentUser, countdown, onLogin, onQuickLogin, onHome }) {
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="max-w-md w-full bg-slate-900/90 backdrop-blur-xl border border-red-500/30 rounded-3xl p-8 text-center shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-200">
+        <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-500 flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg shadow-red-500/10">
+          <i className="fa-solid fa-shield-halved" />
+        </div>
+        <div className="inline-block text-[10px] uppercase font-mono tracking-widest text-red-400 bg-red-950/80 px-3 py-1 rounded-full border border-red-800/50 mb-3">
+          <i className="fa-solid fa-lock mr-1.5" /> 403 FORBIDDEN • BẢO MẬT HỆ THỐNG
+        </div>
+        <h1 className="text-xl font-black text-white mb-2">Khu Vực Quản Trị Hệ Thống Được Bảo Vệ</h1>
+        <p className="text-xs text-slate-400 leading-relaxed mb-5">
+          Trang CMS dành riêng cho tài khoản <strong>Quản Trị Viên (Admin)</strong>. Bạn cần đăng nhập với tài khoản có thẩm quyền để truy cập.
+        </p>
+        <ForbiddenSessionInfo currentUser={currentUser} />
+        <ForbiddenActions countdown={countdown} onLogin={onLogin} onQuickLogin={onQuickLogin} onHome={onHome} />
+      </div>
+    </div>
+  );
+}
+
+export default function AdminPage() {
+  const { currentUser, isHydrated, loginUser } = useRealEstate();
+  const { navigate } = useRouter();
+  const [countdown, setCountdown] = useState(5);
   const isAdmin = isHydrated && currentUser?.role === 'admin';
 
-  // Khi chưa xác thực quyền Admin, đếm ngược và tự động chuyển hướng đến trang Đăng Nhập Admin
   useEffect(() => {
-    if (!isHydrated) return;
-    if (currentUser?.role === 'admin') return;
-
+    if (!isHydrated || currentUser?.role === 'admin') return;
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          navigate('/dang-nhap?redirect=/admin');
+          navigate(getAdminRedirectPath());
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
-
     return () => clearInterval(timer);
   }, [isHydrated, currentUser?.role, navigate]);
 
-  // 1. Chờ client hydrate từ localStorage/cookies
-  if (!isHydrated) {
-    return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-4">
-        <div className="w-12 h-12 border-4 border-red-500/20 border-t-red-500 rounded-full animate-spin mb-4"></div>
-        <p className="text-sm font-semibold text-slate-400">Đang xác thực bảo mật phân quyền CMS...</p>
-      </div>
-    );
-  }
-
-  // 2. Nếu không phải Admin, chặn truy cập với màn hình 403 Forbidden
+  if (!isHydrated) return <LoadingScreen />;
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-4 relative overflow-hidden">
-        {/* Decorative background glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-red-600/10 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div className="max-w-md w-full bg-slate-900/90 backdrop-blur-xl border border-red-500/30 rounded-3xl p-8 text-center shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-200">
-          {/* Red Shield Icon */}
-          <div className="w-16 h-16 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-500 flex items-center justify-center text-2xl mx-auto mb-4 shadow-lg shadow-red-500/10">
-            <i className="fa-solid fa-shield-halved"></i>
-          </div>
-
-          {/* Security Badge */}
-          <div className="inline-block text-[10px] uppercase font-mono tracking-widest text-red-400 bg-red-950/80 px-3 py-1 rounded-full border border-red-800/50 mb-3">
-            <i className="fa-solid fa-lock mr-1.5"></i> 403 FORBIDDEN • BẢO MẬT HỆ THỐNG
-          </div>
-
-          <h1 className="text-xl font-black text-white mb-2">
-            Khu Vực Quản Trị Hệ Thống Được Bảo Vệ
-          </h1>
-
-          <p className="text-xs text-slate-400 leading-relaxed mb-5">
-            Trang Bàn Làm Việc CMS dành riêng cho tài khoản có vai trò <strong>Quản Trị Viên (Admin)</strong>. Bạn cần đăng nhập với tài khoản có thẩm quyền để truy cập tài nguyên này.
-          </p>
-
-          {/* Current Session Info */}
-          <div className="bg-slate-950/60 rounded-2xl p-3 border border-slate-800 text-left text-xs mb-5">
-            <div className="text-slate-500 text-[10px] font-semibold uppercase tracking-wider mb-1.5">
-              Phiên làm việc hiện tại:
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 text-xs">
-                <i className="fa-solid fa-user"></i>
-              </div>
-              <div className="min-w-0 flex-1">
-                <div className="font-bold text-slate-200 truncate">
-                  {currentUser?.name || 'Khách vãng lai'}
-                </div>
-                <div className="text-[10px] text-amber-400 font-medium">
-                  Vai trò: {currentUser?.roleName || currentUser?.role || 'Chưa đăng nhập'}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Redirection Notice */}
-          <div className="text-[11px] text-slate-400 mb-6 flex items-center justify-center gap-2">
-            <i className="fa-solid fa-clock-rotate-left text-red-400"></i>
-            <span>Tự động chuyển hướng sau <strong className="text-red-400 font-bold">{countdown}s</strong>...</span>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="space-y-2.5">
-            <button
-              onClick={() => navigate('/dang-nhap?redirect=/admin')}
-              className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold text-xs shadow-lg shadow-red-600/30 transition flex items-center justify-center gap-2"
-            >
-              <i className="fa-solid fa-right-to-bracket"></i>
-              <span>Đăng Nhập Tài Khoản Admin Ngay</span>
-            </button>
-
-            <button
-              onClick={() => navigate('/')}
-              className="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition border border-slate-700 flex items-center justify-center gap-2"
-            >
-              <i className="fa-solid fa-house"></i>
-              <span>Quay Về Trang Chủ</span>
-            </button>
-          </div>
-        </div>
-      </div>
+      <ForbiddenScreen
+        currentUser={currentUser}
+        countdown={countdown}
+        onLogin={() => navigate(getAdminRedirectPath())}
+        onQuickLogin={() => loginUser('admin@datbiendanang.vn')}
+        onHome={() => navigate('/')}
+      />
     );
   }
-
-  // 3. Nếu là Admin hợp lệ, hiển thị toàn bộ CMS Admin Backend
-  return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 antialiased">
-      <AdminBackendPage />
-    </div>
-  );
+  return <div className="min-h-screen bg-slate-900 text-slate-100 antialiased"><AdminBackendPage /></div>;
 }

@@ -634,7 +634,8 @@ export default function AdminReportsManager({
                     </tr>
                   ) : (
                     paginatedReports.map((report) => {
-                      const reasonMeta = REPORT_REASONS[report.reason] || { label: report.reason, color: 'rose' };
+                      const reasonMeta = REPORT_REASONS[report.reason] || { label: report.reason || 'Vi phạm khác', color: 'rose' };
+                      const targetProp = (properties || []).find((p) => p && (p.id === report.propertyId || p.id?.toUpperCase() === report.propertyId?.toUpperCase()));
                       const permalink = targetProp 
                         ? getPropertyPermalink(targetProp) 
                         : getPropertyPermalink({ id: report.propertyId, title: report.propertyTitle || 'bat-dong-san' });
@@ -655,7 +656,7 @@ export default function AdminReportsManager({
                           <td className="p-3.5 whitespace-nowrap">
                             <div className="font-mono font-bold text-rose-400">{report.id}</div>
                             <div className="text-[10px] text-slate-500 mt-0.5">
-                              {new Date(report.createdAt).toLocaleString('vi-VN')}
+                              {report.createdAt ? new Date(report.createdAt).toLocaleString('vi-VN') : 'Mới đây'}
                             </div>
                           </td>
 
@@ -677,7 +678,7 @@ export default function AdminReportsManager({
                                   <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-500"></i>
                                 </a>
                                 <div className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">
-                                  {targetProp ? `${targetProp.priceDisplay} • ${targetProp.district}, ${targetProp.city}` : 'Không rõ vị trí'}
+                                  {targetProp ? `${targetProp.priceDisplay || 'Thỏa thuận'} • ${[targetProp.district, targetProp.city].filter(Boolean).join(', ') || 'Đang cập nhật'}` : 'Không rõ vị trí'}
                                 </div>
                                 <div className="text-[10px] text-slate-500 mt-0.5">
                                   Chủ tin: <strong>{targetProp?.author?.name || targetProp?.contactName || 'Người đăng'}</strong> ({targetProp?.author?.phone || targetProp?.contactPhone || 'N/A'})
