@@ -104,7 +104,6 @@ export default function AdminBackendPage() {
     listingReports,
     emailLogs,
     singleConfig,
-    refreshUsersListFromServer,
     activateUserManually,
     resendUserVerificationEmail
   } = useRealEstate();
@@ -378,7 +377,6 @@ export default function AdminBackendPage() {
   const [adjustWalletUser, setAdjustWalletUser] = useState(null);
   const [adjustAmount, setAdjustAmount] = useState(500000);
   const [adjustNote, setAdjustNote] = useState('Nạp tiền thưởng khuyến mãi');
-  const [isSyncingUsers, setIsSyncingUsers] = useState(false);
 
   // Quick edit VIP package modal
   const [editingVipProp, setEditingVipProp] = useState(null);
@@ -1256,18 +1254,6 @@ export default function AdminBackendPage() {
     if (adjustWalletUser) {
       adjustUserBalance(adjustWalletUser.id, adjustAmount, adjustNote);
       setAdjustWalletUser(null);
-    }
-  };
-
-  const handleRefreshUsers = async () => {
-    setIsSyncingUsers(true);
-    try {
-      await refreshUsersListFromServer();
-      showToast('Đã đồng bộ danh sách người dùng mới nhất từ server!', 'success');
-    } catch (e) {
-      showToast('Không thể đồng bộ người dùng', 'error');
-    } finally {
-      setIsSyncingUsers(false);
     }
   };
 
@@ -3585,16 +3571,6 @@ export default function AdminBackendPage() {
                 </div>
 
                 <div className="flex items-center gap-2 flex-wrap">
-                  <button
-                    onClick={handleRefreshUsers}
-                    disabled={isSyncingUsers}
-                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center gap-1.5 shadow-sm"
-                    title="Đồng bộ danh sách người dùng mới nhất từ Cloud / Server"
-                  >
-                    <i className={`fa-solid ${isSyncingUsers ? 'fa-spinner fa-spin' : 'fa-arrows-rotate'} text-xs`}></i>
-                    <span>Đồng Bộ & Làm Mới</span>
-                  </button>
-
                   {/* Sub-tabs: Thành viên vs Khách vãng lai vs Thùng rác */}
                   <div className="flex items-center gap-1.5 bg-slate-900 p-1 rounded-2xl border border-slate-800">
                     <button
