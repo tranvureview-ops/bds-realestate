@@ -347,6 +347,40 @@ export async function insertSupabaseTransaction(txn) {
 // 5. ĐỒNG BỘ TOÀN BỘ CƠ SỞ DỮ LIỆU (FULL DB SYNC)
 // ==========================================
 
+export function mergeProfilesWithSettingsUsers(profiles, settingsUsers) {
+  const map = new Map();
+  (profiles || []).forEach(p => {
+    map.set(p.id, {
+      id: p.id,
+      name: p.name || 'Người dùng',
+      email: p.email || '',
+      phone: p.phone || '',
+      role: p.role || 'user',
+      roleName: p.role_name || (p.role === 'admin' ? 'Quản Trị Viên' : p.role === 'broker' ? 'Môi Giới' : 'Khách Hàng'),
+      avatar: p.avatar || '',
+      walletBalance: Number(p.wallet_balance !== undefined ? p.wallet_balance : (p.walletBalance || 0)),
+      bonusWalletBalance: Number(p.bonus_wallet_balance || p.bonusWalletBalance || p.promoBalance || 0),
+      isVerified: Boolean(p.is_verified !== undefined ? p.is_verified : p.isVerified),
+      status: p.status || 'active',
+      createdAt: p.created_at || new Date().toISOString()
+    });
+  });
+
+  (settingsUsers || []).forEach(u => {
+    const prev = map.get(u.id) || {};
+    map.set(u.id, {
+      ...prev,
+      ...u,
+      walletBalance: Number(u.walletBalance !== undefined ? u.walletBalance : (prev.walletBalance || 0)),
+      bonusWalletBalance: Number(u.bonusWalletBalance !== undefined ? u.bonusWalletBalance : (u.promoBalance || prev.bonusWalletBalance || 0)),
+      roleName: u.roleName || prev.roleName || (u.role === 'admin' ? 'Quản Trị Viên' : u.role === 'broker' ? 'Môi Giới' : 'Khách Hàng'),
+      status: u.status || prev.status || 'active'
+    });
+  });
+
+  return Array.from(map.values());
+}
+
 /**
  * Tải toàn bộ dữ liệu hệ thống từ Supabase Cloud để đồng bộ SSR và Client
  */
@@ -374,11 +408,11 @@ export async function fetchFullSupabaseDb() {
       return null;
     }
 
+    const mergedUsers = mergeProfilesWithSettingsUsers(profiles, settingsMap['bds_users_list']);
+
     return {
       bds_properties: props && props.length > 0 ? props : undefined,
-      bds_users_list: (settingsMap['bds_users_list'] && Array.isArray(settingsMap['bds_users_list']) && settingsMap['bds_users_list'].length > 0)
-        ? settingsMap['bds_users_list']
-        : (profiles && profiles.length > 0 ? profiles : undefined),
+      bds_users_list: mergedUsers.length > 0 ? mergedUsers : undefined,
       bds_transactions: txns && txns.length > 0 ? txns : undefined,
       bds_header_config: settingsMap['bds_header_config'] || undefined,
       bds_system_config: settingsMap['bds_system_config'] || undefined,

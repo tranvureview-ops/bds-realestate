@@ -77,6 +77,17 @@ export async function POST(request) {
       }
     }
 
+    if (Array.isArray(payload.bds_users_list)) {
+      const prevUsers = Array.isArray(existingSettings.bds_users_list) ? existingSettings.bds_users_list : [];
+      const userMap = new Map();
+      prevUsers.forEach(u => userMap.set(u.id, u));
+      payload.bds_users_list.forEach(u => {
+        const prev = userMap.get(u.id) || {};
+        userMap.set(u.id, { ...prev, ...u });
+      });
+      mergedPayload.bds_users_list = Array.from(userMap.values());
+    }
+
     // 2. Đồng bộ lên đám mây Supabase trước (đặc biệt quan trọng trên Vercel Serverless Function)
     let supabaseSynced = false;
     if (isSupabaseConfigured()) {

@@ -3470,7 +3470,7 @@ export default function AdminBackendPage() {
                         })
                         .map(u => {
                           const isPending = u.status === 'pending';
-                          const bonusBal = Number(u.bonusWalletBalance || 0);
+                          const bonusBal = Number(u.bonusWalletBalance !== undefined ? u.bonusWalletBalance : (u.promoBalance || 0));
                           const mainBal = Number(u.walletBalance || 0);
 
                           return (

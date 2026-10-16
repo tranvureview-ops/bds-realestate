@@ -941,12 +941,21 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       const savedUsers = safeStorage.getItem('bds_users_list');
       if (savedUsers) {
         const parsed = JSON.parse(savedUsers);
-        if (Array.isArray(parsed)) {
-          setUsersList(parsed.map(u => ({
-            ...u,
-            email: typeof u.email === 'string' ? u.email.replace(/@landmark\.vn/g, '@datbiendanang.vn') : u.email,
-            company: typeof u.company === 'string' ? u.company.replace(/Landmark/g, 'Đất Biển Đà Nẵng') : u.company
-          })));
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setUsersList(prev => {
+            const map = new Map();
+            (prev || []).forEach(u => map.set(u.id, u));
+            parsed.forEach(u => {
+              const existing = map.get(u.id) || {};
+              map.set(u.id, {
+                ...existing,
+                ...u,
+                email: typeof u.email === 'string' ? u.email.replace(/@landmark\.vn/g, '@datbiendanang.vn') : (u.email || existing.email),
+                company: typeof u.company === 'string' ? u.company.replace(/Landmark/g, 'Đất Biển Đà Nẵng') : (u.company || existing.company)
+              });
+            });
+            return Array.from(map.values());
+          });
         }
       }
 
