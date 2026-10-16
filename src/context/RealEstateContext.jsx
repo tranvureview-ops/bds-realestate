@@ -2062,30 +2062,21 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // Admin Update User
   const updateUser = async (userId, updatedFields) => {
-    let updatedTarget = null;
-    let nextList = null;
-    setUsersList(prev => {
-      nextList = prev.map(u => {
-        if (u.id === userId) {
-          updatedTarget = { ...u, ...updatedFields, updatedAt: new Date().toISOString() };
-          return updatedTarget;
-        }
-        return u;
-      });
-      return nextList;
-    });
+    const target = usersList.find(u => u.id === userId);
+    if (!target) return { success: false, error: 'Không tìm thấy người dùng' };
 
-    if (currentUser?.id === userId && updatedTarget) {
+    const updatedTarget = { ...target, ...updatedFields, updatedAt: new Date().toISOString() };
+    const nextList = usersList.map(u => u.id === userId ? updatedTarget : u);
+    setUsersList(nextList);
+
+    if (currentUser?.id === userId) {
       setCurrentUser(prev => ({ ...prev, ...updatedTarget }));
     }
 
-    if (updatedTarget) {
-      await upsertSupabaseProfile(updatedTarget);
-      await persistSettingToSupabase('bds_users_list', nextList);
-      showToast(`Đã cập nhật thông tin người dùng "${updatedTarget?.name || userId}" thành công!`, 'success');
-      return { success: true, user: updatedTarget };
-    }
-    return { success: false, error: 'Không tìm thấy người dùng' };
+    await upsertSupabaseProfile(updatedTarget);
+    await persistSettingToSupabase('bds_users_list', nextList);
+    showToast(`Đã cập nhật thông tin người dùng "${updatedTarget.name || userId}" thành công!`, 'success');
+    return { success: true, user: updatedTarget };
   };
 
   // Move User to Trash (Soft Delete)
@@ -2095,61 +2086,43 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       showToast(msg, 'error');
       return { success: false, error: msg };
     }
-    let trashedUser = null;
-    let nextList = null;
-    setUsersList(prev => {
-      nextList = prev.map(u => {
-        if (u.id === userId) {
-          trashedUser = {
-            ...u,
-            isDeleted: true,
-            status: 'trash',
-            previousStatus: u.status || 'active',
-            deletedAt: new Date().toISOString()
-          };
-          return trashedUser;
-        }
-        return u;
-      });
-      return nextList;
-    });
+    const target = usersList.find(u => u.id === userId);
+    if (!target) return { success: false, error: 'Không tìm thấy người dùng' };
 
-    if (trashedUser) {
-      await upsertSupabaseProfile(trashedUser);
-      await persistSettingToSupabase('bds_users_list', nextList);
-      showToast(`Đã chuyển người dùng "${trashedUser.name}" vào thùng rác!`, 'info');
-      return { success: true, user: trashedUser };
-    }
-    return { success: false, error: 'Không tìm thấy người dùng' };
+    const trashedUser = {
+      ...target,
+      isDeleted: true,
+      status: 'trash',
+      previousStatus: (target.status && target.status !== 'trash') ? target.status : 'active',
+      deletedAt: new Date().toISOString()
+    };
+    const nextList = usersList.map(u => u.id === userId ? trashedUser : u);
+    setUsersList(nextList);
+
+    await upsertSupabaseProfile(trashedUser);
+    await persistSettingToSupabase('bds_users_list', nextList);
+    showToast(`Đã chuyển người dùng "${trashedUser.name}" vào thùng rác!`, 'info');
+    return { success: true, user: trashedUser };
   };
 
   // Restore User from Trash
   const restoreUserFromTrash = async (userId) => {
-    let restoredUser = null;
-    let nextList = null;
-    setUsersList(prev => {
-      nextList = prev.map(u => {
-        if (u.id === userId) {
-          restoredUser = {
-            ...u,
-            isDeleted: false,
-            status: (u.previousStatus && u.previousStatus !== 'trash') ? u.previousStatus : 'active',
-            deletedAt: null
-          };
-          return restoredUser;
-        }
-        return u;
-      });
-      return nextList;
-    });
+    const target = usersList.find(u => u.id === userId);
+    if (!target) return { success: false, error: 'Không tìm thấy tài khoản để khôi phục' };
 
-    if (restoredUser) {
-      await upsertSupabaseProfile(restoredUser);
-      await persistSettingToSupabase('bds_users_list', nextList);
-      showToast(`Đã khôi phục tài khoản "${restoredUser.name}" thành công!`, 'success');
-      return { success: true, user: restoredUser };
-    }
-    return { success: false, error: 'Không tìm thấy tài khoản để khôi phục' };
+    const restoredUser = {
+      ...target,
+      isDeleted: false,
+      status: (target.previousStatus && target.previousStatus !== 'trash') ? target.previousStatus : 'active',
+      deletedAt: null
+    };
+    const nextList = usersList.map(u => u.id === userId ? restoredUser : u);
+    setUsersList(nextList);
+
+    await upsertSupabaseProfile(restoredUser);
+    await persistSettingToSupabase('bds_users_list', nextList);
+    showToast(`Đã khôi phục tài khoản "${restoredUser.name}" thành công!`, 'success');
+    return { success: true, user: restoredUser };
   };
 
   // Permanent Delete User
@@ -2160,11 +2133,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       return { success: false, error: msg };
     }
     const target = usersList.find(u => u.id === userId);
-    let nextList = null;
-    setUsersList(prev => {
-      nextList = prev.filter(u => u.id !== userId);
-      return nextList;
-    });
+    const nextList = usersList.filter(u => u.id !== userId);
+    setUsersList(nextList);
 
     await deleteSupabaseProfile(userId);
     await persistSettingToSupabase('bds_users_list', nextList);
@@ -2179,11 +2149,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       showToast('Thùng rác người dùng hiện đang trống!', 'info');
       return { success: true, count: 0 };
     }
-    let nextList = null;
-    setUsersList(prev => {
-      nextList = prev.filter(u => !u.isDeleted && u.status !== 'trash');
-      return nextList;
-    });
+    const nextList = usersList.filter(u => !u.isDeleted && u.status !== 'trash');
+    setUsersList(nextList);
 
     await Promise.all(trashUsers.map(u => deleteSupabaseProfile(u.id)));
     await persistSettingToSupabase('bds_users_list', nextList);

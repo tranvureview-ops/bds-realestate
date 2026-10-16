@@ -695,7 +695,10 @@ export async function syncFullDbToSupabase(payload) {
           avatar: u.avatar || '',
           membership: u.membership || null,
           vouchers: u.vouchers || null,
-          is_verified: Boolean(u.isVerified)
+          is_verified: Boolean(u.isVerified),
+          status: u.status || 'active',
+          is_deleted: Boolean(u.isDeleted),
+          deleted_at: u.deletedAt || null
         }));
 
       if (profilePayloads.length > 0) {
