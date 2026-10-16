@@ -29,6 +29,9 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     systemConfig
   } = useRealEstate();
 
+  // Helper check xem người dùng hiện tại là khách vãng lai hay đã đăng nhập
+  const isGuest = !currentUser || currentUser.role === 'guest' || currentUser.id === 'guest';
+
   // If prop override provided, prioritize it
   const property = propertyOverride || selectedPropertyDetail || properties[0];
 
@@ -184,22 +187,42 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
       showToast('Vui lòng chọn lý do phản ánh tin rao', 'warning');
       return;
     }
+
+    if (isGuest && (!reporterContact || !reporterContact.trim())) {
+      showToast('Vui lòng cung cấp số điện thoại hoặc email liên hệ để nhận kết quả xử lý!', 'warning');
+      return;
+    }
+
     setReportSubmitting(true);
     try {
       const isEmail = reporterContact?.includes('@');
       const isPhone = reporterContact?.match(/\d{9,11}/);
-      const rawResolvedEmail = isEmail ? reporterContact.trim() : (currentUser?.email || '');
+      const rawResolvedEmail = !isGuest
+        ? (currentUser?.email || (isEmail ? reporterContact.trim() : ''))
+        : (isEmail ? reporterContact.trim() : '');
       const resolvedEmail = (rawResolvedEmail || '').replace(/@landmark\.vn/g, '@datbiendanang.vn');
+
+      const contactValue = !isGuest
+        ? (currentUser?.email || currentUser?.phone || reporterContact || '')
+        : (reporterContact || '');
+
+      const nameValue = !isGuest
+        ? (currentUser?.name || 'Thành viên sàn')
+        : (reporterName?.trim() || 'Khách vãng lai');
+
+      const phoneValue = !isGuest
+        ? (currentUser?.phone || '')
+        : (isPhone ? reporterContact.trim() : '');
 
       const result = await addListingReport({
         propertyId: property.id,
         propertyTitle: property.title,
         reason: reportReason,
         description: reportDescription || '',
-        contact: (reporterContact || '').replace(/@landmark\.vn/g, '@datbiendanang.vn'),
-        reporterName: reporterName || currentUser?.name || 'Người dùng ẩn danh',
+        contact: String(contactValue).replace(/@landmark\.vn/g, '@datbiendanang.vn'),
+        reporterName: nameValue,
         reporterEmail: resolvedEmail,
-        reporterPhone: isPhone ? reporterContact.trim() : (currentUser?.phone || '')
+        reporterPhone: phoneValue
       });
 
       setReportSuccessData({
@@ -209,6 +232,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
       });
       setSupplementalEmail(resolvedEmail);
       setReportDescription('');
+      showToast('Đã gửi báo cáo phản ánh tin rao vi phạm thành công!', 'success');
     } catch (err) {
       showToast('Có lỗi xảy ra khi gửi báo cáo, vui lòng thử lại sau', 'error');
     } finally {
@@ -1674,66 +1698,83 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                     ></textarea>
                   </div>
 
-                  {/* Khu vực thông tin liên hệ của người báo cáo */}
-                  <div className="pt-2 border-t border-slate-100 space-y-2.5">
-                    <div className="flex flex-wrap items-center justify-between gap-1.5">
-                      <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                        <i className="fa-solid fa-address-card text-rose-500"></i>
-                        Thông tin người phản ánh:
-                      </span>
-                      {currentUser ? (
-                        <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
-                          <i className="fa-solid fa-circle-check text-[10px] text-emerald-600"></i>
-                          Đã tự động điền từ tài khoản đăng nhập
+                  {/* Khu vực thông tin liên hệ của người báo cáo: CHỈ HIỂN THỊ CÁC Ô NHẬP LIỆU KHI CHƯA ĐĂNG NHẬP */}
+                  {isGuest ? (
+                    <div className="pt-2 border-t border-slate-100 space-y-2.5">
+                      <div className="flex flex-wrap items-center justify-between gap-1.5">
+                        <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                          <i className="fa-solid fa-address-card text-rose-500"></i>
+                          Thông tin người phản ánh:
                         </span>
-                      ) : (
                         <span className="text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
                           <i className="fa-solid fa-user-secret text-[10px]"></i>
                           Khách vãng lai
                         </span>
-                      )}
-                    </div>
+                      </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">
-                          Họ và tên của bạn:
-                        </label>
-                        <div className="relative">
-                          <i className="fa-solid fa-user absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                          <input
-                            type="text"
-                            value={reporterName}
-                            onChange={(e) => setReporterName(e.target.value)}
-                            placeholder="Ví dụ: Trần Hoàng Nam"
-                            className="w-full pl-8 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 shadow-xs"
-                          />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-1">
+                            Họ và tên của bạn:
+                          </label>
+                          <div className="relative">
+                            <i className="fa-solid fa-user absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                            <input
+                              type="text"
+                              value={reporterName}
+                              onChange={(e) => setReporterName(e.target.value)}
+                              placeholder="Ví dụ: Trần Hoàng Nam"
+                              className="w-full pl-8 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 shadow-xs"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-1">
+                            Số điện thoại hoặc Email nhận phản hồi: <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative">
+                            <i className="fa-solid fa-envelope absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                            <input
+                              type="text"
+                              value={reporterContact}
+                              onChange={(e) => setReporterContact(e.target.value)}
+                              placeholder="Ví dụ: 0898 246 607 hoặc email@datbiendanang.vn"
+                              className="w-full pl-8 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 shadow-xs"
+                              required
+                            />
+                          </div>
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-bold text-slate-700 mb-1">
-                          Số điện thoại hoặc Email nhận phản hồi: <span className="text-red-500">*</span>
-                        </label>
-                        <div className="relative">
-                          <i className="fa-solid fa-envelope absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                          <input
-                            type="text"
-                            value={reporterContact}
-                            onChange={(e) => setReporterContact(e.target.value)}
-                            placeholder="Ví dụ: 0898 246 607 hoặc email@datbiendanang.vn"
-                            className="w-full pl-8 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 shadow-xs"
-                            required
+                      <p className="text-[11px] text-slate-500 flex items-center gap-1.5">
+                        <i className="fa-solid fa-circle-info text-blue-500 text-[10px] shrink-0"></i>
+                        <span>Vui lòng để lại số điện thoại hoặc email để BQT gửi thông báo giải quyết.</span>
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="pt-2 border-t border-slate-100">
+                      <div className="p-2.5 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <img
+                            src={currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'}
+                            alt=""
+                            className="w-7 h-7 rounded-full object-cover border border-slate-200 shrink-0"
                           />
+                          <div className="min-w-0 truncate">
+                            <span className="font-bold text-slate-800 block truncate">{currentUser.name}</span>
+                            <span className="text-[11px] text-slate-500 font-mono truncate block">
+                              {currentUser.email || currentUser.phone}
+                            </span>
+                          </div>
                         </div>
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold shrink-0 flex items-center gap-1">
+                          <i className="fa-solid fa-circle-check text-emerald-600"></i>
+                          Tài khoản đã đăng nhập
+                        </span>
                       </div>
                     </div>
-
-                    <p className="text-[11px] text-slate-500 flex items-center gap-1.5">
-                      <i className="fa-solid fa-circle-info text-blue-500 text-[10px] shrink-0"></i>
-                      <span>Bạn có thể kiểm tra hoặc tùy ý chỉnh sửa lại họ tên/thông tin liên hệ nhận kết quả giải quyết.</span>
-                    </p>
-                  </div>
+                  )}
                 </div>
 
                 {/* Footer Cố Định / Nổi Bật (Luôn luôn thấy rõ hai nút Hủy bỏ & Gửi) */}
