@@ -92,8 +92,14 @@ export default async function RootLayout({ children }) {
           rel="stylesheet"
         />
         <style
+          id="app-ssr-font-override"
           dangerouslySetInnerHTML={{
-            __html: `:root { --font-custom-family: ${fontConfig.cssValue}; }`
+            __html: `
+              :root { --font-custom-family: ${fontConfig.fontFamily}; }
+              html, body, #__next, .font-sans, button, input, select, textarea, h1, h2, h3, h4, h5, h6, p, span, a {
+                font-family: ${fontConfig.fontFamily} !important;
+              }
+            `
           }}
         />
         {/* Font Awesome Icons */}

@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { RouterProvider } from '../router/RouterContext';
 import { RealEstateProvider, useRealEstate } from '../context/RealEstateContext';
 import ErrorBoundary from '../components/ErrorBoundary';
-import { getFontConfig } from '../utils/fontConfig';
+import { getFontConfig, applyFontToDom } from '../utils/fontConfig';
 
 // Navigation & Layout
 import Navbar from '../components/Navbar';
@@ -29,25 +29,8 @@ function AppContent({ children }) {
 
   // Dynamic Font Family Real-time Synchronizer across all pages
   useEffect(() => {
-    if (typeof document === 'undefined') return;
     const fontName = systemConfig?.fontFamily || 'Plus Jakarta Sans';
-    const fontObj = getFontConfig(fontName);
-
-    // Set CSS variable on root HTML document
-    document.documentElement.style.setProperty('--font-custom-family', fontObj.cssValue);
-
-    // Dynamically insert or update Google Fonts stylesheet
-    const fontLinkId = 'client-dynamic-font-link';
-    let linkElem = document.getElementById(fontLinkId);
-    if (!linkElem) {
-      linkElem = document.createElement('link');
-      linkElem.id = fontLinkId;
-      linkElem.rel = 'stylesheet';
-      document.head.appendChild(linkElem);
-    }
-    if (linkElem.href !== fontObj.googleFontUrl) {
-      linkElem.href = fontObj.googleFontUrl;
-    }
+    applyFontToDom(fontName);
   }, [systemConfig?.fontFamily]);
 
   // If Admin CMS, render full-screen dark layout

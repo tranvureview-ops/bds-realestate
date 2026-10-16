@@ -12,7 +12,7 @@ import AdminEmailConfigManager from './AdminEmailConfigManager';
 import AdminMembershipManager from './AdminMembershipManager';
 import AdminHeaderConfigManager from './AdminHeaderConfigManager';
 import AdminMenuConfigManager from './AdminMenuConfigManager';
-import { AVAILABLE_FONTS, getFontConfig } from '../utils/fontConfig';
+import { AVAILABLE_FONTS, getFontConfig, applyFontToDom } from '../utils/fontConfig';
 
 export const VALID_ADMIN_TABS = [
   'dashboard',
@@ -5325,7 +5325,10 @@ export default function AdminBackendPage() {
                         return (
                           <div
                             key={font.id}
-                            onClick={() => setFormSystemConfig(prev => ({ ...prev, fontFamily: font.name }))}
+                            onClick={() => {
+                              setFormSystemConfig(prev => ({ ...prev, fontFamily: font.name }));
+                              applyFontToDom(font.name);
+                            }}
                             className={`p-4 rounded-2xl border transition-all cursor-pointer relative overflow-hidden group ${
                               isSelected
                                 ? 'bg-violet-950/40 border-violet-500 shadow-lg shadow-violet-950/50 ring-1 ring-violet-500/50'
@@ -5370,8 +5373,8 @@ export default function AdminBackendPage() {
                     </div>
 
                     {/* Preview Live Box của font đang chọn */}
-                    <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-violet-500/30">
-                      <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-800">
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-violet-500/30 space-y-3">
+                      <div className="flex items-center justify-between pb-2 border-b border-slate-800">
                         <span className="text-[11px] font-bold text-violet-400 uppercase tracking-wider flex items-center gap-1.5">
                           <i className="fa-solid fa-eye"></i>
                           Xem trước giao diện với phông chữ đang chọn:
@@ -5392,8 +5395,24 @@ export default function AdminBackendPage() {
                         </p>
                         <div className="flex items-center gap-3 text-xs pt-1">
                           <span className="text-emerald-400 font-black text-sm">5.200.000.000 ₫</span>
-                          <span className="text-slate-400">• Mặt tiền Võ Nguyên Giáp, Sơn Trà • 120m²</span>
+                          <span className="text-slate-400">• Lô A38 Trần Văn Trứ, Hải Châu • 120m²</span>
                         </div>
+                      </div>
+
+                      {/* Direct Apply & Save button right in the font preview */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-800">
+                        <div className="text-[11px] text-slate-400">
+                          Áp dụng phông chữ này cho toàn bộ khách truy cập và mọi trang trên sàn BĐS.
+                        </div>
+                        <button
+                          type="button"
+                          disabled={isSavingSystem}
+                          onClick={handleSaveSystemConfig}
+                          className="px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-violet-950/40 transition flex items-center justify-center gap-2 whitespace-nowrap self-end sm:self-auto"
+                        >
+                          <i className={isSavingSystem ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-check-double"}></i>
+                          <span>{isSavingSystem ? "Đang lưu..." : `Lưu & Kích Hoạt Phông ${formSystemConfig.fontFamily || 'Plus Jakarta Sans'}`}</span>
+                        </button>
                       </div>
                     </div>
                   </div>

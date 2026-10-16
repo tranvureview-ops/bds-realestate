@@ -28,7 +28,7 @@ export const AVAILABLE_FONTS = [
     category: 'Gọn gàng, Chuẩn Quốc tế, Tối ưu giao diện UI',
     fontFamily: "'Inter', sans-serif",
     cssValue: "'Inter', sans-serif",
-    googleFontUrl: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap',
+    googleFontUrl: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap',
     sampleHeadline: 'Căn Hộ View Biển Mỹ Khê Sơn Trà',
     sampleText: 'Font chữ số 1 thế giới cho giao diện phần mềm và cổng thông tin.',
     samplePrice: '3.200.000.000 ₫'
@@ -50,7 +50,7 @@ export const AVAILABLE_FONTS = [
     category: 'Tối ưu tốc độ đọc, Thoáng mắt, Dễ chịu',
     fontFamily: "'Lexend', sans-serif",
     cssValue: "'Lexend', sans-serif",
-    googleFontUrl: 'https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap',
+    googleFontUrl: 'https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&display=swap',
     sampleHeadline: 'Tra Cứu Bất Động Sản Nhanh Chóng',
     sampleText: 'Được thiết kế khoa học giúp người xem đọc lướt thông tin tin đăng nhanh hơn.',
     samplePrice: '7.900.000.000 ₫'
@@ -61,7 +61,7 @@ export const AVAILABLE_FONTS = [
     category: 'Phổ biến, Thân thiện, Thích ứng mọi thiết bị',
     fontFamily: "'Roboto', sans-serif",
     cssValue: "'Roboto', sans-serif",
-    googleFontUrl: 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap',
+    googleFontUrl: 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;800;900&display=swap',
     sampleHeadline: 'Bản Đồ Quy Hoạch Đất Nền Đà Nẵng 2026',
     sampleText: 'Phông chữ tiêu chuẩn của Google, hiển thị mượt mà trên tất cả thiết bị di động.',
     samplePrice: '1.850.000.000 ₫'
@@ -90,4 +90,49 @@ export const getFontConfig = (fontNameOrId) => {
          f.fontFamily.toLowerCase().includes(query)
   );
   return match || AVAILABLE_FONTS[0];
+};
+
+/**
+ * Áp dụng phông chữ lập tức vào toàn bộ DOM và mọi thành phần UI trên trang
+ */
+export const applyFontToDom = (fontNameOrId) => {
+  if (typeof document === 'undefined') return;
+  const fontObj = getFontConfig(fontNameOrId);
+
+  // 1. Gán CSS variable & thuộc tính trực tiếp trên html, body
+  document.documentElement.style.setProperty('--font-custom-family', fontObj.fontFamily);
+  document.documentElement.style.fontFamily = fontObj.fontFamily;
+  if (document.body) {
+    document.body.style.fontFamily = fontObj.fontFamily;
+  }
+
+  // 2. Nạp thẻ link Google Fonts tương ứng
+  const fontLinkId = 'app-dynamic-google-font';
+  let linkElem = document.getElementById(fontLinkId);
+  if (!linkElem) {
+    linkElem = document.createElement('link');
+    linkElem.id = fontLinkId;
+    linkElem.rel = 'stylesheet';
+    document.head.appendChild(linkElem);
+  }
+  if (linkElem.href !== fontObj.googleFontUrl) {
+    linkElem.href = fontObj.googleFontUrl;
+  }
+
+  // 3. Tiêm style ghi đè với độ ưu tiên cao (!important) để chắc chắn 100% mọi thành phần UI đều đổi font
+  const styleId = 'app-dynamic-font-override';
+  let styleElem = document.getElementById(styleId);
+  if (!styleElem) {
+    styleElem = document.createElement('style');
+    styleElem.id = styleId;
+    document.head.appendChild(styleElem);
+  }
+  styleElem.innerHTML = `
+    :root {
+      --font-custom-family: ${fontObj.fontFamily};
+    }
+    html, body, #__next, .font-sans, button, input, select, textarea, h1, h2, h3, h4, h5, h6, p, span, a {
+      font-family: ${fontObj.fontFamily} !important;
+    }
+  `;
 };

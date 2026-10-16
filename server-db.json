@@ -1163,7 +1163,7 @@
     "trashRetentionDays": 30,
     "expiredCleanupAction": "archive_light",
     "expiredRetentionDays": 45,
-    "fontFamily": "Plus Jakarta Sans"
+    "fontFamily": "Roboto"
   },
   "bds_payment_config": {
     "momo": {

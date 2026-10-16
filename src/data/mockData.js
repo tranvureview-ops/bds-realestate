@@ -1759,7 +1759,7 @@ export const DEFAULT_SYSTEM_CONFIG = {
   zalo: '0904 084 888',
   email: 'tranvanvu.dev@gmail.com',
   address: 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng',
-  fontFamily: 'Plus Jakarta Sans',
+  fontFamily: 'Roboto',
   autoApproveDiamond: true,
   enableAiModeration: true,
   defaultListingDays: 15,
