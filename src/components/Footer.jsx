@@ -139,9 +139,9 @@ export default function Footer() {
             © 2026 ĐẤT BIỂN ĐÀ NẴNG. Bản quyền thuộc về Công ty Cổ phần Bất Động Sản Đất Biển Đà Nẵng.
           </div>
           <div className="flex items-center gap-4">
-            <span className="hover:text-slate-400 cursor-pointer">Quy chế hoạt động</span>
-            <span className="hover:text-slate-400 cursor-pointer">Chính sách bảo mật</span>
-            <span className="hover:text-slate-400 cursor-pointer">Giải quyết khiếu nại</span>
+            <Link to="/chinh-sach-phap-ly#quy-che-hoat-dong" className="hover:text-emerald-400 transition">Quy chế hoạt động</Link>
+            <Link to="/chinh-sach-phap-ly#chinh-sach-bao-mat" className="hover:text-emerald-400 transition">Chính sách bảo mật</Link>
+            <Link to="/chinh-sach-phap-ly#giai-quyet-khieu-nai" className="hover:text-emerald-400 transition">Giải quyết khiếu nại</Link>
           </div>
         </div>
       </div>
