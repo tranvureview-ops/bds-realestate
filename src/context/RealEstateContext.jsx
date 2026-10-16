@@ -289,7 +289,12 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   });
 
   // 5. All Users (for CMS Admin Management)
-  const [usersList, setUsersList] = useState(MOCK_USERS);
+  const [usersList, setUsersList] = useState(() => {
+    if (initialData?.bds_users_list && Array.isArray(initialData.bds_users_list) && initialData.bds_users_list.length > 0) {
+      return initialData.bds_users_list;
+    }
+    return MOCK_USERS;
+  });
 
   // 6. Listing Types / VIP Packages Configuration (editable by Admin)
   const [vipPackages, setVipPackages] = useState(() => {
@@ -1201,6 +1206,10 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
             setSingleConfig(prev => ({ ...prev, ...db.bds_single_config }));
             safeStorage.setItem('bds_single_config', JSON.stringify(db.bds_single_config));
           }
+          if (db.bds_users_list && Array.isArray(db.bds_users_list) && db.bds_users_list.length > 0) {
+            setUsersList(db.bds_users_list);
+            safeStorage.setItem('bds_users_list', JSON.stringify(db.bds_users_list));
+          }
         }
       })
       .catch(() => {});
@@ -1211,6 +1220,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const timer = setTimeout(() => {
       const payload = {
         bds_properties: properties,
+        bds_users_list: usersList,
         bds_payment_config: paymentConfig,
         bds_header_config: headerConfig,
         bds_system_config: systemConfig,
@@ -1231,7 +1241,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     }, 600);
 
     return () => clearTimeout(timer);
-  }, [properties, paymentConfig, headerConfig, systemConfig, navMenuItems, transactions, vipPackages, membershipPackages, listingReports, singleConfig, emailConfig, emailLogs]);
+  }, [properties, usersList, paymentConfig, headerConfig, systemConfig, navMenuItems, transactions, vipPackages, membershipPackages, listingReports, singleConfig, emailConfig, emailLogs]);
 
   // Background Auto-Approval Processor for Countdown Queues (VIP Vàng 15 phút, VIP Bạc 30 phút)
   useEffect(() => {
@@ -2366,6 +2376,59 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     }
   };
 
+  const refreshUsersListFromServer = async () => {
+    try {
+      const res = await fetch('/api/db-sync');
+      const db = await res.json();
+      if (db.bds_users_list && Array.isArray(db.bds_users_list)) {
+        setUsersList(db.bds_users_list);
+        safeStorage.setItem('bds_users_list', JSON.stringify(db.bds_users_list));
+        showToast(`Đã đồng bộ ${db.bds_users_list.length} người dùng từ máy chủ!`, 'success');
+        return db.bds_users_list;
+      }
+    } catch (e) {
+      showToast('Lỗi khi đồng bộ danh sách người dùng!', 'error');
+    }
+    return usersList;
+  };
+
+  const activateUserManually = async (userId) => {
+    try {
+      const res = await fetch('/api/auth/manual-activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message || 'Đã kích hoạt tài khoản thành công!', 'success');
+        await refreshUsersListFromServer();
+        return true;
+      }
+      showToast(data.message || 'Kích hoạt thất bại!', 'error');
+      return false;
+    } catch (err) {
+      showToast('Lỗi kết nối khi kích hoạt tài khoản!', 'error');
+      return false;
+    }
+  };
+
+  const resendUserVerificationEmail = async (email) => {
+    try {
+      const res = await fetch('/api/auth/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      showToast(data.message || 'Đã phát lại liên kết kích hoạt!', data.success ? 'success' : 'error');
+      return data;
+    } catch (err) {
+      showToast('Lỗi khi gửi lại email xác thực!', 'error');
+      return { success: false };
+    }
+  };
+
   // Update User Profile
   const updateUserProfile = (profileData) => {
     const updated = { ...currentUser, ...profileData };
@@ -3035,7 +3098,10 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         resetEmailTemplate,
         resetAllEmailTemplates,
         sendTestEmail,
-        verifySmtpConnection
+        verifySmtpConnection,
+        refreshUsersListFromServer,
+        activateUserManually,
+        resendUserVerificationEmail
       }}
     >
       {children}

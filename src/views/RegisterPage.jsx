@@ -5,7 +5,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter, Link } from '../router/RouterContext';
 
 export default function RegisterPage() {
-  const { registerUser, showToast, systemConfig } = useRealEstate();
+  const { registerUser, resendUserVerificationEmail, showToast, systemConfig } = useRealEstate();
   const { navigate } = useRouter();
 
   const [registerData, setRegisterData] = useState({
@@ -19,7 +19,8 @@ export default function RegisterPage() {
     agreeTerms: true
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [registeredEmail, setRegisteredEmail] = useState(null);
+  const [isResending, setIsResending] = useState(false);
+  const [registrationResult, setRegistrationResult] = useState(null);
 
   const bonusAmount = Number(systemConfig?.welcomeBonusAmount || 100000);
   const bonusFormatted = bonusAmount.toLocaleString('vi-VN') + 'đ';
@@ -49,38 +50,71 @@ export default function RegisterPage() {
     setIsSubmitting(false);
 
     if (result && result.success) {
-      setRegisteredEmail(registerData.email);
+      setRegistrationResult(result);
     }
   };
 
-  if (registeredEmail) {
+  const handleResend = async () => {
+    if (!registerData.email) return;
+    setIsResending(true);
+    const res = await resendUserVerificationEmail(registerData.email);
+    setIsResending(false);
+    if (res?.verificationUrl) {
+      setRegistrationResult(prev => ({ ...prev, verificationUrl: res.verificationUrl }));
+    }
+  };
+
+  if (registrationResult) {
     return (
       <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
-        <div className="max-w-md w-full bg-white p-8 rounded-3xl border border-emerald-200 shadow-xl text-center space-y-5">
-          <div className="w-16 h-16 rounded-3xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mx-auto">
-            <i className="fa-regular fa-envelope-open"></i>
+        <div className="max-w-md w-full bg-white p-8 rounded-3xl border border-emerald-200 shadow-xl text-center space-y-4">
+          <div className="w-16 h-16 rounded-3xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mx-auto shadow-inner">
+            <i className="fa-regular fa-envelope-open" />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1">
             <span className="inline-block bg-emerald-50 text-emerald-700 text-[11px] font-black uppercase px-3 py-1 rounded-full border border-emerald-200">
               Đăng Ký Thành Công
             </span>
-            <h2 className="text-xl font-black text-slate-900">Vui Lòng Kiểm Tra Hộp Thư!</h2>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Chúng tôi đã gửi một liên kết kích hoạt đến địa chỉ email <strong className="text-slate-900">{registeredEmail}</strong>.
+            <h2 className="text-xl font-black text-slate-900">Kích Hoạt Tài Khoản & Nhận Quà</h2>
+            <p className="text-xs text-slate-600">
+              Hệ thống đã tạo liên kết kích hoạt cho <strong className="text-slate-900">{registerData.email}</strong>.
             </p>
           </div>
 
-          <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs text-emerald-800 space-y-1">
-            <div className="font-bold">🎁 Quà tặng {bonusFormatted} đang chờ bạn:</div>
+          <div className="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs text-emerald-900 text-left space-y-1">
+            <div className="font-bold flex items-center gap-1.5 text-emerald-900">
+              <i className="fa-solid fa-gift text-emerald-600" />
+              <span>Quà tặng {bonusFormatted} chờ kích hoạt:</span>
+            </div>
             <p className="text-[11px] text-emerald-700">
-              Bấm vào nút kích hoạt trong email (hiệu lực trong <strong>{tokenExpiry} phút</strong>) để nhận ngay tiền thưởng vào Ví Khuyến Mãi!
+              Liên kết có hiệu lực trong {tokenExpiry} phút. Bấm nút bên dưới để cộng tiền vào ví và sử dụng ngay!
             </p>
           </div>
 
-          <div className="pt-2">
+          <div className="space-y-2 pt-2">
+            {registrationResult.verificationUrl && (
+              <a
+                href={registrationResult.verificationUrl}
+                className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/25 transition cursor-pointer"
+              >
+                <i className="fa-solid fa-bolt" />
+                <span>👉 Bấm Để Kích Hoạt Ngay ({bonusFormatted})</span>
+              </a>
+            )}
+
+            <button
+              type="button"
+              onClick={handleResend}
+              disabled={isResending}
+              className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition border border-slate-200 cursor-pointer"
+            >
+              <i className={`fa-solid ${isResending ? 'fa-spinner fa-spin' : 'fa-rotate-right'}`} />
+              <span>Gửi lại email kích hoạt</span>
+            </button>
+
             <Link
               to="/"
-              className="inline-block w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider transition"
+              className="inline-block w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition"
             >
               Về Trang Chủ
             </Link>

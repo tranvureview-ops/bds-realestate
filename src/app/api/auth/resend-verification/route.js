@@ -31,8 +31,8 @@ export async function issueFreshVerificationToken(user, campaign, request) {
   const tokenRecord = generateVerificationTokenRecord(user.id, user.email, campaign);
   await saveVerificationToken(tokenRecord);
   const origin = resolveServerOrigin(request);
-  await sendWelcomeVerificationEmail({ toUser: user, tokenRecord, origin });
-  return tokenRecord;
+  const mailResult = await sendWelcomeVerificationEmail({ toUser: user, tokenRecord, origin });
+  return { tokenRecord, ...mailResult };
 }
 
 /**
@@ -46,12 +46,16 @@ export async function POST(request) {
     const { user, error, status } = validateResendEligibility(email, db.bds_users_list || []);
     if (error) return NextResponse.json({ success: false, message: error }, { status });
 
-    await issueFreshVerificationToken(user, campaign, request);
+    const mailResult = await issueFreshVerificationToken(user, campaign, request);
 
     return NextResponse.json({
       success: true,
-      message: 'Email kích hoạt mới đã được gửi. Vui lòng kiểm tra hộp thư của bạn.',
-      email: user.email
+      message: mailResult?.emailSent
+        ? 'Email kích hoạt mới đã được gửi. Vui lòng kiểm tra hộp thư của bạn.'
+        : 'Đã tạo liên kết kích hoạt mới. Bạn có thể kích hoạt trực tiếp bằng liên kết bên dưới.',
+      email: user.email,
+      verificationUrl: mailResult?.verificationUrl || null,
+      emailSent: Boolean(mailResult?.emailSent)
     });
   } catch (err) {
     return NextResponse.json({ success: false, message: err.message }, { status: 500 });

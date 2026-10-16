@@ -376,7 +376,9 @@ export async function fetchFullSupabaseDb() {
 
     return {
       bds_properties: props && props.length > 0 ? props : undefined,
-      bds_users_list: profiles && profiles.length > 0 ? profiles : undefined,
+      bds_users_list: (settingsMap['bds_users_list'] && Array.isArray(settingsMap['bds_users_list']) && settingsMap['bds_users_list'].length > 0)
+        ? settingsMap['bds_users_list']
+        : (profiles && profiles.length > 0 ? profiles : undefined),
       bds_transactions: txns && txns.length > 0 ? txns : undefined,
       bds_header_config: settingsMap['bds_header_config'] || undefined,
       bds_system_config: settingsMap['bds_system_config'] || undefined,
@@ -416,7 +418,8 @@ export async function syncFullDbToSupabase(payload) {
       'bds_email_config',
       'bds_reported_listings',
       'bds_email_logs',
-      'bds_verification_tokens'
+      'bds_verification_tokens',
+      'bds_users_list'
     ];
 
     const settingsToUpsert = [];

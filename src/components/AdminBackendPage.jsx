@@ -98,7 +98,10 @@ export default function AdminBackendPage() {
     importAllConfig,
     listingReports,
     emailLogs,
-    singleConfig
+    singleConfig,
+    refreshUsersListFromServer,
+    activateUserManually,
+    resendUserVerificationEmail
   } = useRealEstate();
 
   // Settings sub-tab state (synced with #settings/system, #settings/header, #settings/menu)
@@ -343,6 +346,7 @@ export default function AdminBackendPage() {
   const [adjustWalletUser, setAdjustWalletUser] = useState(null);
   const [adjustAmount, setAdjustAmount] = useState(500000);
   const [adjustNote, setAdjustNote] = useState('Nạp tiền thưởng khuyến mãi');
+  const [isSyncingUsers, setIsSyncingUsers] = useState(false);
 
   // Quick edit VIP package modal
   const [editingVipProp, setEditingVipProp] = useState(null);
@@ -1143,6 +1147,34 @@ export default function AdminBackendPage() {
     if (adjustWalletUser) {
       adjustUserBalance(adjustWalletUser.id, adjustAmount, adjustNote);
       setAdjustWalletUser(null);
+    }
+  };
+
+  const handleRefreshUsers = async () => {
+    setIsSyncingUsers(true);
+    try {
+      await refreshUsersListFromServer();
+      showToast('Đã đồng bộ danh sách người dùng mới nhất từ server!', 'success');
+    } catch (e) {
+      showToast('Không thể đồng bộ người dùng', 'error');
+    } finally {
+      setIsSyncingUsers(false);
+    }
+  };
+
+  const handleManualActivate = async (userId, userName) => {
+    if (!window.confirm(`Xác nhận kích hoạt tài khoản "${userName}" và cộng tiền khuyến mãi?`)) return;
+    const res = await activateUserManually(userId);
+    if (res?.success) {
+      showToast(`Đã kích hoạt tài khoản "${userName}" thành công!`, 'success');
+    }
+  };
+
+  const handleResendUserEmail = async (email) => {
+    if (!email) return;
+    const res = await resendUserVerificationEmail(email);
+    if (res?.success) {
+      showToast(`Đã gửi lại email kích hoạt tới ${email}`, 'success');
     }
   };
 
@@ -3369,30 +3401,42 @@ export default function AdminBackendPage() {
                   </div>
                 </div>
 
-                {/* Sub-tabs: Thành viên vs Khách vãng lai */}
-                <div className="flex items-center gap-1.5 bg-slate-900 p-1 rounded-2xl border border-slate-800">
+                <div className="flex items-center gap-2 flex-wrap">
                   <button
-                    onClick={() => setUserTab('members')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
-                      userTab === 'members'
-                        ? 'bg-blue-600 text-white shadow'
-                        : 'text-slate-400 hover:text-white'
-                    }`}
+                    onClick={handleRefreshUsers}
+                    disabled={isSyncingUsers}
+                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition flex items-center gap-1.5 shadow-sm"
+                    title="Đồng bộ danh sách người dùng mới nhất từ Cloud / Server"
                   >
-                    <i className="fa-solid fa-users text-xs"></i>
-                    <span>Thành Viên ({usersList.length})</span>
+                    <i className={`fa-solid ${isSyncingUsers ? 'fa-spinner fa-spin' : 'fa-arrows-rotate'} text-xs`}></i>
+                    <span>Đồng Bộ & Làm Mới</span>
                   </button>
-                  <button
-                    onClick={() => setUserTab('guests')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
-                      userTab === 'guests'
-                        ? 'bg-purple-600 text-white shadow'
-                        : 'text-purple-400 hover:text-white'
-                    }`}
-                  >
-                    <i className="fa-solid fa-user-secret text-xs"></i>
-                    <span>Khách Vãng Lai Từng Đăng Tin ({guestAuthors.length})</span>
-                  </button>
+
+                  {/* Sub-tabs: Thành viên vs Khách vãng lai */}
+                  <div className="flex items-center gap-1.5 bg-slate-900 p-1 rounded-2xl border border-slate-800">
+                    <button
+                      onClick={() => setUserTab('members')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                        userTab === 'members'
+                          ? 'bg-blue-600 text-white shadow'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      <i className="fa-solid fa-users text-xs"></i>
+                      <span>Thành Viên ({usersList.length})</span>
+                    </button>
+                    <button
+                      onClick={() => setUserTab('guests')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                        userTab === 'guests'
+                          ? 'bg-purple-600 text-white shadow'
+                          : 'text-purple-400 hover:text-white'
+                      }`}
+                    >
+                      <i className="fa-solid fa-user-secret text-xs"></i>
+                      <span>Khách Vãng Lai Từng Đăng Tin ({guestAuthors.length})</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -3406,8 +3450,10 @@ export default function AdminBackendPage() {
                         <th className="p-3">Email</th>
                         <th className="p-3">SĐT</th>
                         <th className="p-3">Vai trò</th>
-                        <th className="p-3 text-right">Số dư ví (VND)</th>
-                        <th className="p-3 text-center">Tích Xanh Xác Thực</th>
+                        <th className="p-3 text-center">Trạng thái</th>
+                        <th className="p-3 text-right">Ví Chính (VND)</th>
+                        <th className="p-3 text-right">Ví KM (VND)</th>
+                        <th className="p-3 text-center">Tích Xanh</th>
                         <th className="p-3 text-right">Thao tác Admin</th>
                       </tr>
                     </thead>
@@ -3416,53 +3462,114 @@ export default function AdminBackendPage() {
                         .filter(u => {
                           if (!searchTerm) return true;
                           const term = searchTerm.toLowerCase();
-                          return u.name.toLowerCase().includes(term) ||
-                            u.email.toLowerCase().includes(term) ||
-                            (u.phone && u.phone.includes(term));
+                          return (
+                            u.name?.toLowerCase().includes(term) ||
+                            u.email?.toLowerCase().includes(term) ||
+                            (u.phone && u.phone.includes(term))
+                          );
                         })
-                        .map(u => (
-                          <tr key={u.id} className="hover:bg-slate-900/60 transition">
-                            <td className="p-3 flex items-center gap-2.5 font-bold text-white">
-                              <img src={u.avatar} alt="" className="w-8 h-8 rounded-xl object-cover" />
-                              <span>{u.name}</span>
-                            </td>
-                            <td className="p-3 text-slate-400">{u.email}</td>
-                            <td className="p-3 font-mono text-slate-300">{u.phone}</td>
-                            <td className="p-3">
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                u.role === 'admin' ? 'bg-red-950 text-red-400 border border-red-800' :
-                                u.role === 'broker' ? 'bg-amber-950 text-amber-400 border border-amber-800' :
-                                'bg-blue-950 text-blue-400 border border-blue-800'
-                              }`}>
-                                {u.roleName}
-                              </span>
-                            </td>
-                            <td className="p-3 text-right font-black text-emerald-400">
-                              {u.walletBalance.toLocaleString('vi-VN')} đ
-                            </td>
-                            <td className="p-3 text-center">
-                              <button
-                                onClick={() => toggleUserVerification(u.id)}
-                                className={`px-2.5 py-1 rounded-xl text-[10px] font-bold transition flex items-center gap-1 mx-auto ${
-                                  u.isVerified 
-                                    ? 'bg-blue-600 text-white shadow' 
-                                    : 'bg-slate-800 text-slate-500 hover:text-white'
-                                }`}
-                              >
-                                <i className="fa-solid fa-circle-check"></i>
-                                <span>{u.isVerified ? 'Đã cấp' : 'Chưa cấp'}</span>
-                              </button>
-                            </td>
-                            <td className="p-3 text-right">
-                              <button
-                                onClick={() => { setAdjustWalletUser(u); setAdjustAmount(500000); }}
-                                className="px-2.5 py-1 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 rounded-lg text-[10px] font-bold"
-                              >
-                                ± Điều chỉnh ví
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
+                        .map(u => {
+                          const isPending = u.status === 'pending';
+                          const bonusBal = Number(u.bonusWalletBalance || 0);
+                          const mainBal = Number(u.walletBalance || 0);
+
+                          return (
+                            <tr key={u.id} className="hover:bg-slate-900/60 transition">
+                              <td className="p-3 flex items-center gap-2.5 font-bold text-white">
+                                <img
+                                  src={u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}
+                                  alt=""
+                                  className="w-8 h-8 rounded-xl object-cover shrink-0"
+                                />
+                                <div>
+                                  <div className="font-bold text-white">{u.name}</div>
+                                  {isPending && (
+                                    <span className="text-[10px] text-amber-400 font-normal">Chờ kích hoạt email</span>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="p-3 text-slate-400 font-mono text-[11px]">{u.email}</td>
+                              <td className="p-3 font-mono text-slate-300">{u.phone || '—'}</td>
+                              <td className="p-3">
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                  u.role === 'admin' ? 'bg-red-950 text-red-400 border border-red-800' :
+                                  u.role === 'broker' ? 'bg-amber-950 text-amber-400 border border-amber-800' :
+                                  'bg-blue-950 text-blue-400 border border-blue-800'
+                                }`}>
+                                  {u.roleName || (u.role === 'admin' ? 'Quản Trị Viên' : u.role === 'broker' ? 'Môi Giới' : 'Khách Hàng')}
+                                </span>
+                              </td>
+                              <td className="p-3 text-center">
+                                {isPending ? (
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-950/80 text-amber-400 border border-amber-700/60 inline-flex items-center gap-1">
+                                    <i className="fa-solid fa-clock text-[9px]"></i>
+                                    <span>Chờ kích hoạt</span>
+                                  </span>
+                                ) : (
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-700/60 inline-flex items-center gap-1">
+                                    <i className="fa-solid fa-circle-check text-[9px]"></i>
+                                    <span>Đã kích hoạt</span>
+                                  </span>
+                                )}
+                              </td>
+                              <td className="p-3 text-right font-black text-emerald-400 font-mono">
+                                {mainBal.toLocaleString('vi-VN')} đ
+                              </td>
+                              <td className="p-3 text-right font-black text-amber-400 font-mono">
+                                {bonusBal > 0 ? (
+                                  <span title={u.bonusExpiresAt ? `Hết hạn: ${new Date(u.bonusExpiresAt).toLocaleDateString('vi-VN')}` : 'Ví KM'}>
+                                    🎁 {bonusBal.toLocaleString('vi-VN')} đ
+                                  </span>
+                                ) : (
+                                  <span className="text-slate-500 font-normal">0 đ</span>
+                                )}
+                              </td>
+                              <td className="p-3 text-center">
+                                <button
+                                  onClick={() => toggleUserVerification(u.id)}
+                                  className={`px-2.5 py-1 rounded-xl text-[10px] font-bold transition flex items-center gap-1 mx-auto ${
+                                    u.isVerified 
+                                      ? 'bg-blue-600 text-white shadow' 
+                                      : 'bg-slate-800 text-slate-500 hover:text-white'
+                                  }`}
+                                >
+                                  <i className="fa-solid fa-circle-check"></i>
+                                  <span>{u.isVerified ? 'Đã cấp' : 'Chưa cấp'}</span>
+                                </button>
+                              </td>
+                              <td className="p-3 text-right">
+                                <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                                  {isPending && (
+                                    <>
+                                      <button
+                                        onClick={() => handleManualActivate(u.id, u.name)}
+                                        className="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[10px] font-bold flex items-center gap-1 shadow-xs transition"
+                                        title="Kích hoạt ngay và tặng tiền khuyến mãi"
+                                      >
+                                        <i className="fa-solid fa-bolt text-[9px]"></i>
+                                        <span>Kích hoạt</span>
+                                      </button>
+                                      <button
+                                        onClick={() => handleResendUserEmail(u.email)}
+                                        className="px-2 py-1 bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 rounded-lg text-[10px] font-bold flex items-center gap-1 transition"
+                                        title="Gửi lại email xác thực"
+                                      >
+                                        <i className="fa-solid fa-envelope text-[9px]"></i>
+                                        <span>Gửi thư</span>
+                                      </button>
+                                    </>
+                                  )}
+                                  <button
+                                    onClick={() => { setAdjustWalletUser(u); setAdjustAmount(500000); }}
+                                    className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-emerald-400 rounded-lg text-[10px] font-bold border border-slate-700"
+                                  >
+                                    ± Sửa ví
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
                     </tbody>
                   </table>
                 </div>

@@ -78,12 +78,18 @@ export function buildWelcomeEmailPayload({ toUser, tokenRecord, origin, emailCon
  * @param {string} htmlBody Nội dung HTML
  */
 export async function deliverEmailViaSmtp(transporter, emailConfig, toEmail, subject, htmlBody) {
-  if (!transporter || emailConfig?.enableEmailNotifications === false) return;
+  if (!transporter || emailConfig?.enableEmailNotifications === false) {
+    return { delivered: false, reason: 'unconfigured_or_disabled' };
+  }
   try {
-    const fromSender = emailConfig?.fromEmail || 'cskh@datbiendanang.vn';
-    await transporter.sendMail({ from: fromSender, to: toEmail, subject, html: htmlBody });
+    const fromSender = emailConfig?.fromName
+      ? `"${emailConfig.fromName}" <${emailConfig.fromEmail || emailConfig.smtp?.username}>`
+      : (emailConfig?.fromEmail || emailConfig.smtp?.username || 'cskh@datbiendanang.vn');
+    const info = await transporter.sendMail({ from: fromSender, to: toEmail, subject, html: htmlBody });
+    return { delivered: true, messageId: info?.messageId };
   } catch (err) {
     console.warn('Lỗi gửi email qua SMTP:', err.message);
+    return { delivered: false, error: err.message };
   }
 }
 
@@ -103,16 +109,22 @@ export async function sendWelcomeVerificationEmail({ toUser, tokenRecord, origin
   });
 
   const transporter = createMailTransporter(emailConfig?.smtp);
-  await deliverEmailViaSmtp(transporter, emailConfig, toUser.email, subject, htmlBody);
+  const delivery = await deliverEmailViaSmtp(transporter, emailConfig, toUser.email, subject, htmlBody);
 
   await appendEmailLog({
     id: `LOG-MAIL-${Date.now()}`,
     to: toUser.email,
     type: 'welcome_verification',
     subject,
-    status: transporter ? 'sent' : 'simulated',
+    status: delivery.delivered ? 'sent' : (delivery.error ? 'failed' : 'simulated'),
+    error: delivery.error || null,
     sentAt: new Date().toISOString()
   });
 
-  return { success: true, verificationUrl };
+  return {
+    success: true,
+    verificationUrl,
+    emailSent: Boolean(delivery.delivered),
+    deliveryError: delivery.error || null
+  };
 }

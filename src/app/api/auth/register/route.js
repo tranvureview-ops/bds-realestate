@@ -70,15 +70,19 @@ export async function executeRegistration(newUser, tokenRecord, request) {
   await saveNewUser(newUser);
   await saveVerificationToken(tokenRecord);
   const origin = resolveServerOrigin(request);
-  await sendWelcomeVerificationEmail({ toUser: newUser, tokenRecord, origin });
+  return sendWelcomeVerificationEmail({ toUser: newUser, tokenRecord, origin });
 }
 
-export function buildRegistrationSuccessResponse(newUser, bonusAmount) {
+export function buildRegistrationSuccessResponse(newUser, bonusAmount, mailResult) {
   return NextResponse.json({
     success: true,
-    message: 'Đăng ký thành công! Vui lòng kiểm tra email kích hoạt và nhận thưởng.',
+    message: mailResult?.emailSent
+      ? 'Đăng ký thành công! Vui lòng kiểm tra email kích hoạt và nhận thưởng.'
+      : 'Đăng ký thành công! Bạn có thể kích hoạt tài khoản ngay bằng liên kết bên dưới.',
     user: { id: newUser.id, name: newUser.name, email: newUser.email },
-    bonusAmount
+    bonusAmount,
+    verificationUrl: mailResult?.verificationUrl || null,
+    emailSent: Boolean(mailResult?.emailSent)
   });
 }
 
@@ -96,9 +100,9 @@ export async function POST(request) {
 
     const newUser = buildPendingUserRecord(body, clientIp);
     const tokenRecord = generateVerificationTokenRecord(newUser.id, newUser.email, campaign);
-    await executeRegistration(newUser, tokenRecord, request);
+    const mailResult = await executeRegistration(newUser, tokenRecord, request);
 
-    return buildRegistrationSuccessResponse(newUser, campaign.welcomeBonusAmount);
+    return buildRegistrationSuccessResponse(newUser, campaign.welcomeBonusAmount, mailResult);
   } catch (err) {
     return NextResponse.json({ success: false, message: err.message }, { status: 500 });
   }

@@ -3,13 +3,51 @@
 import React, { useState } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 
+const validateRegisterInputs = (data, showToast) => {
+  if (!data.name?.trim() || data.name.length < 3) {
+    showToast('Họ và tên cần ít nhất 3 ký tự', 'warning');
+    return false;
+  }
+  if (!data.phone?.trim() || data.phone.length < 9) {
+    showToast('Vui lòng nhập số điện thoại hợp lệ', 'warning');
+    return false;
+  }
+  if (!data.email?.trim() || !data.email.includes('@')) {
+    showToast('Vui lòng nhập email hợp lệ', 'warning');
+    return false;
+  }
+  if (!data.password || data.password.length < 6) {
+    showToast('Mật khẩu cần ít nhất 6 ký tự', 'warning');
+    return false;
+  }
+  if (data.password !== data.confirmPassword) {
+    showToast('Mật khẩu xác nhận không khớp', 'error');
+    return false;
+  }
+  if (!data.agreeTerms) {
+    showToast('Vui lòng đồng ý với điều khoản sử dụng', 'warning');
+    return false;
+  }
+  return true;
+};
+
 export default function AuthModal({ onClose, initialTab = 'login' }) {
-  const { loginUser, registerUser, showToast, usersList, currentUser, systemConfig } = useRealEstate();
+  const {
+    loginUser,
+    registerUser,
+    resendUserVerificationEmail,
+    showToast,
+    usersList,
+    currentUser,
+    systemConfig
+  } = useRealEstate();
 
   const [tab, setTab] = useState(initialTab); // 'login', 'register', 'forgot'
   const [showPassword, setShowPassword] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
   const [registerSuccessEmail, setRegisterSuccessEmail] = useState(null);
+  const [registrationResult, setRegistrationResult] = useState(null);
+  const [isResending, setIsResending] = useState(false);
 
   const bonusAmount = Number(systemConfig?.welcomeBonusAmount || 100000);
   const bonusText = `${bonusAmount >= 1000 ? Math.floor(bonusAmount / 1000) + 'k' : bonusAmount}`;
@@ -56,36 +94,24 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-    if (!registerData.name.trim() || registerData.name.length < 3) {
-      showToast('Họ và tên cần ít nhất 3 ký tự', 'warning');
-      return;
-    }
-    if (!registerData.phone.trim() || registerData.phone.length < 9) {
-      showToast('Vui lòng nhập số điện thoại hợp lệ', 'warning');
-      return;
-    }
-    if (!registerData.email.trim() || !registerData.email.includes('@')) {
-      showToast('Vui lòng nhập email hợp lệ', 'warning');
-      return;
-    }
-    if (!registerData.password || registerData.password.length < 6) {
-      showToast('Mật khẩu cần ít nhất 6 ký tự', 'warning');
-      return;
-    }
-    if (registerData.password !== registerData.confirmPassword) {
-      showToast('Mật khẩu xác nhận không khớp', 'error');
-      return;
-    }
-    if (!registerData.agreeTerms) {
-      showToast('Vui lòng đồng ý với điều khoản sử dụng', 'warning');
-      return;
-    }
+    if (!validateRegisterInputs(registerData, showToast)) return;
 
     setIsRegistering(true);
     const result = await registerUser(registerData);
     setIsRegistering(false);
     if (result && result.success) {
+      setRegistrationResult(result);
       setRegisterSuccessEmail(registerData.email);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!registerSuccessEmail) return;
+    setIsResending(true);
+    const res = await resendUserVerificationEmail(registerSuccessEmail);
+    setIsResending(false);
+    if (res?.verificationUrl) {
+      setRegistrationResult(prev => ({ ...prev, verificationUrl: res.verificationUrl }));
     }
   };
 
@@ -269,7 +295,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
           </form>
         )}
 
-        {/* BODY TAB 2: ĐĂNG KÝ (REGISTER) */}
+        {/* BODY TAB 2: ĐĂNG KÝ (REGISTER) - THÀNH CÔNG */}
         {tab === 'register' && registerSuccessEmail && (
           <div className="p-6 pt-0 space-y-4 text-center text-xs">
             <div className="w-16 h-16 rounded-3xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mx-auto shadow-inner">
@@ -279,9 +305,9 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
               <span className="inline-block bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border border-emerald-200">
                 Đăng Ký Thành Công
               </span>
-              <h3 className="text-lg font-black text-slate-900">Vui Lòng Kiểm Tra Email!</h3>
+              <h3 className="text-lg font-black text-slate-900">Kích Hoạt Tài Khoản & Nhận Quà</h3>
               <p className="text-slate-600">
-                Liên kết kích hoạt đã được gửi đến: <strong className="text-slate-900">{registerSuccessEmail}</strong>
+                Hệ thống đã tạo liên kết kích hoạt cho <strong className="text-slate-900">{registerSuccessEmail}</strong>
               </p>
             </div>
             <div className="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200 text-emerald-800 space-y-1 text-left">
@@ -290,16 +316,39 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
                 <span>Quà tặng {bonusFormatted} chờ kích hoạt</span>
               </div>
               <p className="text-[11px] text-emerald-700">
-                Bấm vào nút trong email (hiệu lực trong <strong>{tokenExpiry} phút</strong>) để nhận ngay tiền thưởng vào Ví Khuyến Mãi!
+                Liên kết có hiệu lực trong <strong>{tokenExpiry} phút</strong>. Bấm nút bên dưới để cộng tiền vào ví và kích hoạt tài khoản ngay!
               </p>
             </div>
-            <button
-              type="button"
-              onClick={() => { setTab('login'); setRegisterSuccessEmail(null); }}
-              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition"
-            >
-              Chuyển Đến Đăng Nhập
-            </button>
+
+            <div className="space-y-2 pt-1">
+              {registrationResult?.verificationUrl && (
+                <a
+                  href={registrationResult.verificationUrl}
+                  className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/25 transition cursor-pointer"
+                >
+                  <i className="fa-solid fa-bolt" />
+                  <span>👉 Bấm Để Kích Hoạt Ngay ({bonusFormatted})</span>
+                </a>
+              )}
+
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={isResending}
+                className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition border border-slate-200 cursor-pointer"
+              >
+                <i className={`fa-solid ${isResending ? 'fa-spinner fa-spin' : 'fa-rotate-right'}`} />
+                <span>Gửi lại email kích hoạt</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { setTab('login'); setRegisterSuccessEmail(null); setRegistrationResult(null); }}
+                className="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider transition"
+              >
+                Chuyển Đến Đăng Nhập
+              </button>
+            </div>
           </div>
         )}
 
