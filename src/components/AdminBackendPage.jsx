@@ -282,7 +282,10 @@ export default function AdminBackendPage() {
   // Sync logoFormData when context updates
   React.useEffect(() => {
     if (headerConfig) {
-      setLogoFormData(headerConfig);
+      setLogoFormData(prev => ({
+        ...prev,
+        ...headerConfig
+      }));
     }
   }, [headerConfig]);
 

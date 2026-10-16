@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { isSupabaseConfigured, fetchFullSupabaseDb, syncFullDbToSupabase } from '../../../lib/supabase';
+import { isSupabaseConfigured, supabase, fetchFullSupabaseDb, syncFullDbToSupabase } from '../../../lib/supabase';
 
 const DB_FILE = path.resolve(process.cwd(), 'server-db.json');
 
@@ -41,29 +41,70 @@ export async function POST(request) {
     const rawText = await request.text();
     const payload = JSON.parse(rawText || '{}');
 
-    // 1. Luôn hợp nhất và lưu vào server-db.json cục bộ để đảm bảo tốc độ và dự phòng offline
-    let currentDb = {};
-    if (fs.existsSync(DB_FILE)) {
+    // 1. Tải các cấu hình hiện có để hợp nhất sâu (Deep Merge) tránh việc lưu từng phần làm mất các trường khác
+    let existingSettings = {};
+    if (isSupabaseConfigured() && supabase) {
       try {
-        currentDb = JSON.parse(fs.readFileSync(DB_FILE, 'utf-8') || '{}');
+        const { data } = await supabase.from('platform_settings').select('key, value');
+        if (data && Array.isArray(data)) {
+          data.forEach(r => {
+            if (r.key && r.value) existingSettings[r.key] = r.value;
+          });
+        }
       } catch (err) {}
     }
-    const mergedDb = { ...currentDb, ...payload };
-    fs.writeFileSync(DB_FILE, JSON.stringify(mergedDb, null, 2), 'utf-8');
 
-    // 2. Nếu đã kết nối Supabase, đồng bộ lên đám mây Supabase
+    // Nếu không có từ Supabase, fallback đọc từ file server-db.json
+    if (Object.keys(existingSettings).length === 0 && fs.existsSync(DB_FILE)) {
+      try {
+        const local = JSON.parse(fs.readFileSync(DB_FILE, 'utf-8') || '{}');
+        existingSettings = local;
+      } catch (err) {}
+    }
+
+    const mergedPayload = { ...payload };
+    const objectKeys = [
+      'bds_header_config',
+      'bds_system_config',
+      'bds_payment_config',
+      'bds_single_config',
+      'bds_email_config'
+    ];
+    for (const k of objectKeys) {
+      if (mergedPayload[k] && typeof mergedPayload[k] === 'object' && !Array.isArray(mergedPayload[k])) {
+        const prevVal = existingSettings[k] || {};
+        mergedPayload[k] = { ...prevVal, ...mergedPayload[k] };
+      }
+    }
+
+    // 2. Đồng bộ lên đám mây Supabase trước (đặc biệt quan trọng trên Vercel Serverless Function)
     let supabaseSynced = false;
     if (isSupabaseConfigured()) {
       try {
-        supabaseSynced = await syncFullDbToSupabase(payload);
+        supabaseSynced = await syncFullDbToSupabase(mergedPayload);
       } catch (err) {
         console.warn('Lỗi ghi Supabase trong POST /api/db-sync:', err.message);
       }
     }
 
+    // 3. Dự phòng hợp nhất vào server-db.json cục bộ (cho localhost / máy chủ có quyền ghi đĩa)
+    try {
+      let currentDb = {};
+      if (fs.existsSync(DB_FILE)) {
+        try {
+          currentDb = JSON.parse(fs.readFileSync(DB_FILE, 'utf-8') || '{}');
+        } catch (err) {}
+      }
+      const mergedDb = { ...currentDb, ...mergedPayload };
+      fs.writeFileSync(DB_FILE, JSON.stringify(mergedDb, null, 2), 'utf-8');
+    } catch (fsErr) {
+      // Bỏ qua lỗi EROFS trên môi trường serverless (như Vercel có hệ thống tệp chỉ đọc)
+      console.warn('Không thể ghi file cục bộ (môi trường serverless read-only):', fsErr.message);
+    }
+
     return NextResponse.json({ 
       success: true, 
-      source: 'local_saved', 
+      source: supabaseSynced ? 'supabase_saved' : 'local_saved', 
       supabaseSynced 
     });
   } catch (e) {

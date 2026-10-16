@@ -1134,7 +1134,18 @@
     }
   ],
   "bds_header_config": {
-    "containerWidth": "full"
+    "logoAlt": "Đất Biển Đà Nẵng Logo",
+    "logoType": "text",
+    "badgeText": "VIP",
+    "brandIcon": "fa-solid fa-water",
+    "brandName": "ĐẤT BIỂN",
+    "badgeColor": "bg-red-100 text-red-600 border border-red-200",
+    "logoHeight": 40,
+    "brandTagline": "Bất Động Sản Biển & Đất Nền Đà Nẵng",
+    "logoImageUrl": "",
+    "brandHighlight": "ĐÀ NẴNG",
+    "containerWidth": "boxed",
+    "showTaglineWithImage": false
   },
   "bds_system_config": {
     "zalo": "0904 084 888",

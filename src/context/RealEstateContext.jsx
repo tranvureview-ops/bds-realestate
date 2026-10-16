@@ -327,7 +327,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // 9. Header, Logo & Menu Width Configuration State
   const [headerConfig, setHeaderConfig] = useState(() => {
-    return initialData?.bds_header_config || DEFAULT_HEADER_CONFIG;
+    return { ...DEFAULT_HEADER_CONFIG, ...(initialData?.bds_header_config || {}) };
   });
 
   // 10. Payment Methods Configuration State (Backend Admin Config)
@@ -1093,8 +1093,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
             safeStorage.setItem('bds_payment_config', JSON.stringify(db.bds_payment_config));
           }
           if (db.bds_header_config && typeof db.bds_header_config === 'object') {
-            setHeaderConfig(prev => ({ ...prev, ...db.bds_header_config }));
-            safeStorage.setItem('bds_header_config', JSON.stringify(db.bds_header_config));
+            const mergedHeader = { ...DEFAULT_HEADER_CONFIG, ...db.bds_header_config };
+            setHeaderConfig(prev => ({ ...prev, ...mergedHeader }));
+            safeStorage.setItem('bds_header_config', JSON.stringify(mergedHeader));
           }
           if (db.bds_system_config) {
             setSystemConfig(db.bds_system_config);
@@ -2446,14 +2447,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // 11. Header & Logo Configuration Methods
   const updateHeaderConfig = async (updatedFields) => {
-    let nextConfig = null;
-    setHeaderConfig(prev => {
-      nextConfig = { ...prev, ...updatedFields };
-      safeStorage.setItem('bds_header_config', JSON.stringify(nextConfig));
-      return nextConfig;
-    });
+    const toSave = {
+      ...DEFAULT_HEADER_CONFIG,
+      ...headerConfig,
+      ...updatedFields
+    };
 
-    const toSave = nextConfig || { ...headerConfig, ...updatedFields };
+    setHeaderConfig(toSave);
+    safeStorage.setItem('bds_header_config', JSON.stringify(toSave));
 
     // Phát custom event đồng bộ các component cùng tab ngay lập tức
     if (typeof window !== 'undefined') {
