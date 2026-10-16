@@ -1,10 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { RouterProvider } from '../router/RouterContext';
 import { RealEstateProvider, useRealEstate } from '../context/RealEstateContext';
 import ErrorBoundary from '../components/ErrorBoundary';
+import { getFontConfig } from '../utils/fontConfig';
 
 // Navigation & Layout
 import Navbar from '../components/Navbar';
@@ -24,7 +25,30 @@ import AuthModal from '../components/AuthModal';
 
 function AppContent({ children }) {
   const pathname = usePathname() || '/';
-  const { activeModal, setActiveModal, selectedPropertyDetail, setSelectedPropertyDetail } = useRealEstate();
+  const { activeModal, setActiveModal, selectedPropertyDetail, setSelectedPropertyDetail, systemConfig } = useRealEstate();
+
+  // Dynamic Font Family Real-time Synchronizer across all pages
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const fontName = systemConfig?.fontFamily || 'Plus Jakarta Sans';
+    const fontObj = getFontConfig(fontName);
+
+    // Set CSS variable on root HTML document
+    document.documentElement.style.setProperty('--font-custom-family', fontObj.cssValue);
+
+    // Dynamically insert or update Google Fonts stylesheet
+    const fontLinkId = 'client-dynamic-font-link';
+    let linkElem = document.getElementById(fontLinkId);
+    if (!linkElem) {
+      linkElem = document.createElement('link');
+      linkElem.id = fontLinkId;
+      linkElem.rel = 'stylesheet';
+      document.head.appendChild(linkElem);
+    }
+    if (linkElem.href !== fontObj.googleFontUrl) {
+      linkElem.href = fontObj.googleFontUrl;
+    }
+  }, [systemConfig?.fontFamily]);
 
   // If Admin CMS, render full-screen dark layout
   if (pathname.startsWith('/admin')) {

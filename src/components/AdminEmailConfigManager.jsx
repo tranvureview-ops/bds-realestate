@@ -885,18 +885,18 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                       <label className="block text-slate-400 font-bold">Hotline CSKH Đính Kèm:</label>
                       <button
                         type="button"
-                        onClick={() => handleSignatureChange('hotline', systemConfig?.hotline || '0898 246 607')}
+                        onClick={() => handleSignatureChange('hotline', systemConfig?.hotline || '0904 084 888')}
                         className="text-[10px] text-teal-400 hover:text-teal-300 hover:underline"
                         title="Đồng bộ từ Hotline hệ thống"
                       >
-                        Lấy từ Cài đặt sàn ({systemConfig?.hotline || '0898 246 607'})
+                        Lấy từ Cài đặt sàn ({systemConfig?.hotline || '0904 084 888'})
                       </button>
                     </div>
                     <input
                       type="text"
                       value={formData.signature?.hotline || ''}
                       onChange={(e) => handleSignatureChange('hotline', e.target.value)}
-                      placeholder={`VD: ${systemConfig?.hotline || '0898 246 607'}`}
+                      placeholder={`VD: ${systemConfig?.hotline || '0904 084 888'}`}
                       className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono font-bold outline-none focus:border-teal-500"
                     />
                   </div>

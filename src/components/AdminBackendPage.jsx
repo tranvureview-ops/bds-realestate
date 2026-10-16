@@ -12,6 +12,7 @@ import AdminEmailConfigManager from './AdminEmailConfigManager';
 import AdminMembershipManager from './AdminMembershipManager';
 import AdminHeaderConfigManager from './AdminHeaderConfigManager';
 import AdminMenuConfigManager from './AdminMenuConfigManager';
+import { AVAILABLE_FONTS, getFontConfig } from '../utils/fontConfig';
 
 export const VALID_ADMIN_TABS = [
   'dashboard',
@@ -5297,12 +5298,112 @@ export default function AdminBackendPage() {
                     </div>
                   </div>
 
-                  {/* Nhóm 3: Kiểm duyệt & Quy tắc Vận Hành */}
+                  {/* Nhóm 3: Cài Đặt Phông Chữ Toàn Sàn (Font Family & Typography) */}
+                  <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800/80 gap-2">
+                      <div className="flex items-center gap-2">
+                        <i className="fa-solid fa-font text-violet-400 text-sm"></i>
+                        <h4 className="text-xs font-black uppercase tracking-wider text-white">
+                          3. Cài Đặt Phông Chữ Toàn Sàn (Font Family & Typography)
+                        </h4>
+                      </div>
+                      <span className="text-[10px] text-violet-400 bg-violet-950/60 border border-violet-800/60 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 self-start sm:self-auto">
+                        <i className="fa-solid fa-wand-magic-sparkles"></i>
+                        Đồng bộ tự động toàn bộ website
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      Lựa chọn phông chữ chủ đạo áp dụng cho toàn bộ giao diện sàn BĐS (Header, Menu, Bộ lọc tìm kiếm, Thẻ tin đăng, Chi tiết BĐS và Trang chính sách pháp lý). Tất cả phông chữ đều được tuyển chọn chuẩn Tiếng Việt sắc nét từ Google Fonts.
+                    </p>
+
+                    {/* Danh sách thẻ phông chữ trực quan */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {AVAILABLE_FONTS.map((font) => {
+                        const currentFont = (formSystemConfig.fontFamily || 'Plus Jakarta Sans').trim().toLowerCase();
+                        const isSelected = currentFont === font.name.toLowerCase() || currentFont === font.id.toLowerCase();
+                        return (
+                          <div
+                            key={font.id}
+                            onClick={() => setFormSystemConfig(prev => ({ ...prev, fontFamily: font.name }))}
+                            className={`p-4 rounded-2xl border transition-all cursor-pointer relative overflow-hidden group ${
+                              isSelected
+                                ? 'bg-violet-950/40 border-violet-500 shadow-lg shadow-violet-950/50 ring-1 ring-violet-500/50'
+                                : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="text-xs font-bold text-white group-hover:text-violet-300 transition">
+                                {font.name}
+                              </span>
+                              {isSelected ? (
+                                <span className="w-5 h-5 rounded-full bg-violet-500 text-white flex items-center justify-center text-[10px] shadow-sm">
+                                  <i className="fa-solid fa-check"></i>
+                                </span>
+                              ) : (
+                                <span className="w-5 h-5 rounded-full border border-slate-700 group-hover:border-slate-500"></span>
+                              )}
+                            </div>
+
+                            <div className="text-[10px] text-violet-400 font-medium mb-3">
+                              {font.category}
+                            </div>
+
+                            {/* Live Text Preview with font applied */}
+                            <div 
+                              className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800/80 space-y-1"
+                              style={{ fontFamily: font.fontFamily }}
+                            >
+                              <div className="text-xs font-black text-slate-100 truncate">
+                                {font.sampleHeadline}
+                              </div>
+                              <div className="text-[11px] text-slate-400 truncate">
+                                {font.sampleText}
+                              </div>
+                              <div className="text-[11px] font-bold text-emerald-400">
+                                {font.samplePrice}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Preview Live Box của font đang chọn */}
+                    <div className="p-4 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-950 border border-violet-500/30">
+                      <div className="flex items-center justify-between mb-2 pb-2 border-b border-slate-800">
+                        <span className="text-[11px] font-bold text-violet-400 uppercase tracking-wider flex items-center gap-1.5">
+                          <i className="fa-solid fa-eye"></i>
+                          Xem trước giao diện với phông chữ đang chọn:
+                        </span>
+                        <span className="text-xs font-black text-white px-2.5 py-0.5 rounded-lg bg-violet-900/50 border border-violet-700/50">
+                          {formSystemConfig.fontFamily || 'Plus Jakarta Sans'}
+                        </span>
+                      </div>
+                      <div 
+                        className="space-y-1.5 pt-1"
+                        style={{ fontFamily: getFontConfig(formSystemConfig.fontFamily).fontFamily }}
+                      >
+                        <h3 className="text-base font-extrabold text-white">
+                          Sàn Giao Dịch Bất Động Sản Đất Biển Đà Nẵng
+                        </h3>
+                        <p className="text-xs text-slate-300 leading-relaxed">
+                          Hệ thống quản lý tin đăng VIP, bản đồ số GIS và pháp lý thương mại điện tử minh bạch. Mọi giao dịch được đảm bảo tuân thủ quy chuẩn pháp luật.
+                        </p>
+                        <div className="flex items-center gap-3 text-xs pt-1">
+                          <span className="text-emerald-400 font-black text-sm">5.200.000.000 ₫</span>
+                          <span className="text-slate-400">• Mặt tiền Võ Nguyên Giáp, Sơn Trà • 120m²</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Nhóm 4: Kiểm duyệt & Quy tắc Vận Hành */}
                   <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4">
                     <div className="flex items-center gap-2 pb-3 border-b border-slate-800/80">
                       <i className="fa-solid fa-shield-halved text-blue-400 text-sm"></i>
                       <h4 className="text-xs font-black uppercase tracking-wider text-white">
-                        3. Cơ Chế Kiểm Duyệt & Tự Động Vận Hành
+                        4. Cơ Chế Kiểm Duyệt & Tự Động Vận Hành
                       </h4>
                     </div>
 
@@ -5388,13 +5489,13 @@ export default function AdminBackendPage() {
                     </div>
                   </div>
 
-                  {/* Nhóm 4: Cấu Hình Tối Ưu Hóa Database & Bài Viết Quá Hạn */}
+                  {/* Nhóm 5: Cấu Hình Tối Ưu Hóa Database & Bài Viết Quá Hạn */}
                   <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4">
                     <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
                       <div className="flex items-center gap-2">
                         <i className="fa-solid fa-database text-cyan-400 text-sm"></i>
                         <h4 className="text-xs font-black uppercase tracking-wider text-white">
-                          4. Cấu Hình Tối Ưu Hóa Database & Dọn Dẹp Bài Viết Quá Hạn
+                          5. Cấu Hình Tối Ưu Hóa Database & Dọn Dẹp Bài Viết Quá Hạn
                         </h4>
                       </div>
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-800">
@@ -5572,7 +5673,7 @@ export default function AdminBackendPage() {
                           <span className="text-emerald-400 font-bold truncate">{formSystemConfig.brandShortName || 'ĐẤT BIỂN ĐÀ NẴNG'}</span>
                           <span className="text-slate-500">|</span>
                           <span className="text-slate-300 truncate font-mono">
-                            Hotline: <strong className="text-white">{formSystemConfig.hotline || '0898 246 607'}</strong>
+                            Hotline: <strong className="text-white">{formSystemConfig.hotline || '0904 084 888'}</strong>
                           </span>
                         </div>
                       </div>
@@ -5587,14 +5688,28 @@ export default function AdminBackendPage() {
                           <span>{formSystemConfig.brandShortName || 'ĐẤT BIỂN ĐÀ NẴNG'}</span>
                         </div>
                         <div className="text-[10px] text-slate-400 font-medium">
-                          {formSystemConfig.tagline || 'Sàn Giao Dịch Bất Động Sản Biển & Đất Nền Đà Nẵng'}
+                          {formSystemConfig.tagline || 'Sàn Giao Dịch Bất Động Sản & Đăng Tin VIP'}
                         </div>
                         <div className="pt-2 border-t border-slate-800 space-y-1 text-[11px]">
-                          <div>📞 Hotline: <strong className="text-white font-mono">{formSystemConfig.hotline || '0898 246 607'}</strong></div>
-                          <div>💬 Zalo: <strong className="text-emerald-400 font-mono">{formSystemConfig.zalo || '0898 246 607'}</strong></div>
-                          <div>✉️ Email: <strong className="text-slate-200 font-mono">{formSystemConfig.email || 'cskh@datbiendanang.vn'}</strong></div>
+                          <div>📞 Hotline: <strong className="text-white font-mono">{formSystemConfig.hotline || '0904 084 888'}</strong></div>
+                          <div>💬 Zalo: <strong className="text-emerald-400 font-mono">{formSystemConfig.zalo || '0904 084 888'}</strong></div>
+                          <div>✉️ Email: <strong className="text-slate-200 font-mono">{formSystemConfig.email || 'tranvanvu.dev@gmail.com'}</strong></div>
                           <div className="text-[10px] text-slate-400">📍 {formSystemConfig.address || 'Đường Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, TP. Đà Nẵng'}</div>
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Preview Font Applied */}
+                    <div className="space-y-1.5">
+                      <div className="text-[11px] font-bold text-slate-400">3. Phông Chữ Đang Áp Dụng Toàn Sàn:</div>
+                      <div className="p-3 bg-slate-900/90 rounded-xl border border-violet-500/30 text-xs flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <i className="fa-solid fa-font text-violet-400"></i>
+                          <span className="font-bold text-white">{formSystemConfig.fontFamily || 'Plus Jakarta Sans'}</span>
+                        </div>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-950 text-violet-300 border border-violet-800 font-mono">
+                          Google Fonts
+                        </span>
                       </div>
                     </div>
 

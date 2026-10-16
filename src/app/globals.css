@@ -20,7 +20,7 @@ html, body {
   padding: 0;
   width: 100%;
   min-height: 100%;
-  font-family: var(--font-plus-jakarta), 'Plus Jakarta Sans', sans-serif;
+  font-family: var(--font-custom-family), var(--font-plus-jakarta), 'Plus Jakarta Sans', sans-serif;
   background-color: #f8fafc;
   color: #1e293b;
   text-align: left;

@@ -350,7 +350,7 @@ export default function AdminReportsManager({
   };
 
   // Open Compose Email with pre-filled recipient
-  const activeHotline = systemConfig?.hotline || emailConfig?.signature?.hotline || '0898 246 607';
+  const activeHotline = systemConfig?.hotline || emailConfig?.signature?.hotline || '0904 084 888';
 
   const handleOpenComposeForUser = (recipientEmail, recipientName, report = null) => {
     setComposeFormData({

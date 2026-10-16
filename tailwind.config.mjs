@@ -9,7 +9,7 @@ const config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-plus-jakarta)', 'Plus Jakarta Sans', 'sans-serif'],
+        sans: ['var(--font-custom-family)', 'var(--font-plus-jakarta)', 'Plus Jakarta Sans', 'sans-serif'],
       },
       colors: {
         primary: {

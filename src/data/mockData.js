@@ -1621,7 +1621,7 @@ export const DEFAULT_HEADER_CONFIG = {
   logoType: 'text', // 'text' | 'image'
   brandName: 'ĐẤT BIỂN',
   brandHighlight: 'ĐÀ NẴNG',
-  brandTagline: 'Bất Động Sản Biển & Đất Nền Đà Nẵng',
+  brandTagline: 'Sàn Giao Dịch Bất Động Sản & Đăng Tin VIP',
   brandIcon: 'fa-solid fa-water',
   badgeText: '',
   badgeColor: 'bg-red-100 text-red-600 border border-red-200',
@@ -1754,15 +1754,16 @@ export const DEFAULT_PAYMENT_CONFIG = {
 export const DEFAULT_SYSTEM_CONFIG = {
   platformName: 'SÀN GIAO DỊCH BẤT ĐỘNG SẢN ĐẤT BIỂN ĐÀ NẴNG',
   brandShortName: 'ĐẤT BIỂN ĐÀ NẴNG',
+  tagline: 'Sàn Giao Dịch Bất Động Sản & Đăng Tin VIP',
   hotline: '0904 084 888',
   zalo: '0904 084 888',
-  email: 'cskh@datbiendanang.vn',
+  email: 'tranvanvu.dev@gmail.com',
   address: 'Đường Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, TP. Đà Nẵng',
+  fontFamily: 'Plus Jakarta Sans',
   autoApproveDiamond: true,
   enableAiModeration: true,
   defaultListingDays: 15,
   maintenanceMode: false,
-  tagline: 'Sàn Giao Dịch Bất Động Sản Biển & Đất Nền Đà Nẵng',
   // Cấu hình vòng đời lưu trữ và tối ưu hóa Database khi tin hết hạn
   expiredRetentionDays: 45, // Sau 45 ngày hết hạn mà không gia hạn thì xử lý
   expiredCleanupAction: 'archive_light', // 'archive_light' (Chuyển sang dữ liệu siêu nhẹ tối ưu DB) | 'permanent_delete' (Xóa vĩnh viễn) | 'move_to_trash' (Chuyển vào thùng rác)
@@ -1779,7 +1780,7 @@ export const DEFAULT_SINGLE_CONFIG = {
     icon: 'fa-solid fa-shield-halved', // 'fa-solid fa-shield-halved', 'fa-solid fa-scale-balanced', 'fa-solid fa-circle-info', 'fa-solid fa-triangle-exclamation'
     badgeColor: 'amber', // 'amber', 'rose', 'blue', 'slate', 'emerald'
     bgStyle: 'slate', // 'slate' | 'amber' | 'blue' | 'white'
-    hotline: '0898 246 607',
+    hotline: '0904 084 888',
     platformName: 'ĐẤT BIỂN ĐÀ NẴNG',
     contentTemplate: 'Quý vị đang xem nội dung tin rao "{title}" - Mã tin {id}. Nội dung tin đăng này do Người đăng tin cung cấp và chịu trách nhiệm về tính chính xác, đầy đủ và hợp pháp của thông tin. Với tư cách là Nền tảng thương mại điện tử trung gian, {platformName} thực hiện rà soát, kiểm duyệt trên cơ sở các thông tin được cung cấp. Quý vị vui lòng chủ động kiểm tra, thẩm định thông tin pháp lý và thực tế trước khi giao dịch. Nếu phát hiện nội dung không chính xác hoặc vi phạm, xin vui lòng thông báo qua Hotline {hotline} hoặc công cụ Báo cáo vi phạm để chúng tôi tiếp nhận và xử lý theo quy định.',
     showReportButton: true,
@@ -1887,7 +1888,7 @@ export const DEFAULT_EMAIL_CONFIG = {
   // 2. Thông tin người gửi (From & Reply-to)
   fromEmail: 'kiemduyet@datbiendanang.vn',
   fromName: 'Ban Quản Trị Sàn Đất Biển Đà Nẵng',
-  replyToEmail: 'cskh@datbiendanang.vn',
+  replyToEmail: 'tranvanvu.dev@gmail.com',
 
   // 3. Email Quản Trị Viên / Ban Kiểm Duyệt tiếp nhận cảnh báo
   adminAlertEmail: 'ban-kiem-duyet@datbiendanang.vn',
@@ -1915,8 +1916,8 @@ export const DEFAULT_EMAIL_CONFIG = {
 
   // 6. Chữ ký thương hiệu & Chân trang Email (Signature / Footer)
   signature: {
-    companyName: 'Sàn Giao Dịch Bất Động Sản Đất Biển Đà Nẵng',
-    hotline: '0898 246 607',
+    companyName: 'SÀN GIAO DỊCH BẤT ĐỘNG SẢN ĐẤT BIỂN ĐÀ NẴNG',
+    hotline: '0904 084 888',
     address: 'Đường Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, TP. Đà Nẵng',
     websiteUrl: 'https://datbiendanang.vn'
   },

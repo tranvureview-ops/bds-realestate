@@ -34,6 +34,7 @@ import path from 'path';
 import { cookies } from 'next/headers';
 import { MOCK_USERS, DEFAULT_GUEST_USER } from '../data/mockData';
 import { isSupabaseConfigured, fetchFullSupabaseDb } from '../lib/supabase';
+import { getFontConfig } from '../utils/fontConfig';
 
 async function getInitialDb() {
   try {
@@ -76,6 +77,9 @@ export default async function RootLayout({ children }) {
     // fallback if cookies() not available
   }
 
+  const activeFontFamily = initialDb?.bds_system_config?.fontFamily || 'Plus Jakarta Sans';
+  const fontConfig = getFontConfig(activeFontFamily);
+
   return (
     <html lang="vi" suppressHydrationWarning>
       <head>
@@ -83,8 +87,14 @@ export default async function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+          id="server-google-font-link"
+          href={fontConfig.googleFontUrl}
           rel="stylesheet"
+        />
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `:root { --font-custom-family: ${fontConfig.cssValue}; }`
+          }}
         />
         {/* Font Awesome Icons */}
         <link

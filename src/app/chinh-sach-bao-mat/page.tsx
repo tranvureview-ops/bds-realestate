@@ -2,13 +2,13 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 // ============================================================================
-// HẰNG SỐ & PLACEHOLDER THÔNG TIN THƯƠNG HIỆU
+// HẰNG SỐ THÔNG TIN THƯƠNG HIỆU ĐỒNG BỘ CÀI ĐẶT WEBSITE
 // ============================================================================
-const BRAND_NAME = '[Tên Thương Hiệu]';
-const COMPANY_NAME = '[Tên Doanh Nghiệp/Công Ty Cổ Phần BĐS]';
-const HOTLINE = '[Hotline CSKH: 0898 246 607]';
-const EMAIL = '[Email CSKH: cskh@datbiendanang.vn]';
-const ADDRESS = '[Địa chỉ trụ sở: Đường Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, TP. Đà Nẵng]';
+const BRAND_NAME = 'Đất Biển Đà Nẵng';
+const COMPANY_NAME = 'Sàn Giao Dịch Bất Động Sản Đất Biển Đà Nẵng';
+const HOTLINE = '0904 084 888';
+const EMAIL = 'tranvanvu.dev@gmail.com';
+const ADDRESS = 'Đường Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, TP. Đà Nẵng';
 const DOMAIN = 'https://bds-realestate.vercel.app';
 
 // ============================================================================
@@ -80,7 +80,7 @@ export default function PrivacyPolicyPage() {
       <div className="min-h-screen bg-slate-50 text-slate-800 antialiased selection:bg-emerald-500 selection:text-white">
         {/* Header Trang & Breadcrumb */}
         <header className="border-b border-slate-200 bg-white shadow-sm">
-          <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
             <nav aria-label="Breadcrumb" className="mb-4">
               <ol className="flex items-center space-x-2 text-xs font-medium text-slate-500">
                 <li>
@@ -148,11 +148,11 @@ export default function PrivacyPolicyPage() {
         </header>
 
         {/* Thân bài viết */}
-        <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+        <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
             
             {/* Cột Trái: Mục lục tự động (TOC Sticky) */}
-            <aside className="lg:col-span-4">
+            <aside className="lg:col-span-3">
               <div className="sticky top-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
                 <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
                   <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
@@ -227,7 +227,7 @@ export default function PrivacyPolicyPage() {
             </aside>
 
             {/* Cột Phải: Nội dung chi tiết */}
-            <article className="lg:col-span-8 rounded-3xl border border-slate-200 bg-white p-6 sm:p-10 shadow-sm leading-relaxed text-slate-700">
+            <article className="lg:col-span-9 rounded-3xl border border-slate-200 bg-white p-6 sm:p-10 shadow-sm leading-relaxed text-slate-700">
               
               <div className="mb-8 rounded-2xl bg-emerald-50/60 p-4 border border-emerald-200 text-xs text-emerald-950 leading-relaxed">
                 <p className="font-bold uppercase tracking-wider text-emerald-950 mb-1 flex items-center gap-1.5">
