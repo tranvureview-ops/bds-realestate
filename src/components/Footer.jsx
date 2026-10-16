@@ -74,7 +74,7 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-2">
                 <i className="fa-solid fa-location-dot text-emerald-400"></i>
-                <span>Trụ sở chính: {systemConfig?.address || 'Đường Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, TP. Đà Nẵng'}</span>
+                <span>Trụ sở chính: {systemConfig?.address || 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng'}</span>
               </div>
             </div>
           </div>

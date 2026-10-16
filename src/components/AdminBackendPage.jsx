@@ -5291,7 +5291,7 @@ export default function AdminBackendPage() {
                           rows={2}
                           value={formSystemConfig.address || ''}
                           onChange={(e) => setFormSystemConfig(prev => ({ ...prev, address: e.target.value }))}
-                          placeholder="Ví dụ: Đường Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, TP. Đà Nẵng"
+                          placeholder="Ví dụ: Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng"
                           className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-medium outline-none focus:border-emerald-500 text-xs"
                         />
                       </div>
@@ -5694,7 +5694,7 @@ export default function AdminBackendPage() {
                           <div>📞 Hotline: <strong className="text-white font-mono">{formSystemConfig.hotline || '0904 084 888'}</strong></div>
                           <div>💬 Zalo: <strong className="text-emerald-400 font-mono">{formSystemConfig.zalo || '0904 084 888'}</strong></div>
                           <div>✉️ Email: <strong className="text-slate-200 font-mono">{formSystemConfig.email || 'tranvanvu.dev@gmail.com'}</strong></div>
-                          <div className="text-[10px] text-slate-400">📍 {formSystemConfig.address || 'Đường Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, TP. Đà Nẵng'}</div>
+                          <div className="text-[10px] text-slate-400">📍 {formSystemConfig.address || 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng'}</div>
                         </div>
                       </div>
                     </div>

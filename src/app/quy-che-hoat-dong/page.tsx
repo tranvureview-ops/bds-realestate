@@ -8,7 +8,7 @@ const BRAND_NAME = 'Đất Biển Đà Nẵng';
 const COMPANY_NAME = 'Sàn Giao Dịch Bất Động Sản Đất Biển Đà Nẵng';
 const HOTLINE = '0904 084 888';
 const EMAIL = 'tranvanvu.dev@gmail.com';
-const ADDRESS = 'Đường Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, TP. Đà Nẵng';
+const ADDRESS = 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng';
 const DOMAIN = 'https://bds-realestate.vercel.app';
 
 // ============================================================================

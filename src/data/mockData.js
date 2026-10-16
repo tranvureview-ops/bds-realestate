@@ -1758,7 +1758,7 @@ export const DEFAULT_SYSTEM_CONFIG = {
   hotline: '0904 084 888',
   zalo: '0904 084 888',
   email: 'tranvanvu.dev@gmail.com',
-  address: 'Đường Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, TP. Đà Nẵng',
+  address: 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng',
   fontFamily: 'Plus Jakarta Sans',
   autoApproveDiamond: true,
   enableAiModeration: true,
@@ -1918,7 +1918,7 @@ export const DEFAULT_EMAIL_CONFIG = {
   signature: {
     companyName: 'SÀN GIAO DỊCH BẤT ĐỘNG SẢN ĐẤT BIỂN ĐÀ NẴNG',
     hotline: '0904 084 888',
-    address: 'Đường Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, TP. Đà Nẵng',
+    address: 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng',
     websiteUrl: 'https://datbiendanang.vn'
   },
 

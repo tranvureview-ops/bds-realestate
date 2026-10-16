@@ -918,7 +918,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                       type="text"
                       value={formData.signature?.address || ''}
                       onChange={(e) => handleSignatureChange('address', e.target.value)}
-                      placeholder="Đường Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, TP. Đà Nẵng"
+                      placeholder="Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng"
                       className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-teal-500"
                     />
                   </div>
