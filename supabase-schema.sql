@@ -75,6 +75,9 @@ CREATE TABLE IF NOT EXISTS profiles (
   membership JSONB,
   vouchers JSONB,
   is_verified BOOLEAN DEFAULT false,
+  status TEXT DEFAULT 'active',
+  is_deleted BOOLEAN DEFAULT false,
+  deleted_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -152,6 +155,14 @@ CREATE POLICY "Public Insert Profiles" ON profiles FOR INSERT WITH CHECK (true);
 
 DROP POLICY IF EXISTS "Public Update Profiles" ON profiles;
 CREATE POLICY "Public Update Profiles" ON profiles FOR UPDATE USING (true);
+
+DROP POLICY IF EXISTS "Public Delete Profiles" ON profiles;
+CREATE POLICY "Public Delete Profiles" ON profiles FOR DELETE USING (true);
+
+-- Tự động bổ sung các cột trạng thái nếu bảng profiles đã tồn tại từ trước
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'active';
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS is_deleted BOOLEAN DEFAULT false;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ;
 
 DROP POLICY IF EXISTS "Public Insert Transactions" ON transactions;
 CREATE POLICY "Public Insert Transactions" ON transactions FOR INSERT WITH CHECK (true);

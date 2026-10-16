@@ -2082,16 +2082,18 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     if (updatedTarget) {
       await upsertSupabaseProfile(updatedTarget);
       await persistSettingToSupabase('bds_users_list', nextList);
+      showToast(`Đã cập nhật thông tin người dùng "${updatedTarget?.name || userId}" thành công!`, 'success');
+      return { success: true, user: updatedTarget };
     }
-    showToast(`Đã cập nhật thông tin người dùng "${updatedTarget?.name || userId}" thành công!`, 'success');
-    return updatedTarget;
+    return { success: false, error: 'Không tìm thấy người dùng' };
   };
 
   // Move User to Trash (Soft Delete)
   const moveUserToTrash = async (userId) => {
     if (currentUser?.id === userId) {
-      showToast('Không thể đưa tài khoản đang đăng nhập của bạn vào thùng rác!', 'error');
-      return false;
+      const msg = 'Không thể đưa tài khoản đang đăng nhập của bạn vào thùng rác!';
+      showToast(msg, 'error');
+      return { success: false, error: msg };
     }
     let trashedUser = null;
     let nextList = null;
@@ -2116,9 +2118,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       await upsertSupabaseProfile(trashedUser);
       await persistSettingToSupabase('bds_users_list', nextList);
       showToast(`Đã chuyển người dùng "${trashedUser.name}" vào thùng rác!`, 'info');
-      return true;
+      return { success: true, user: trashedUser };
     }
-    return false;
+    return { success: false, error: 'Không tìm thấy người dùng' };
   };
 
   // Restore User from Trash
@@ -2145,16 +2147,17 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       await upsertSupabaseProfile(restoredUser);
       await persistSettingToSupabase('bds_users_list', nextList);
       showToast(`Đã khôi phục tài khoản "${restoredUser.name}" thành công!`, 'success');
-      return true;
+      return { success: true, user: restoredUser };
     }
-    return false;
+    return { success: false, error: 'Không tìm thấy tài khoản để khôi phục' };
   };
 
   // Permanent Delete User
   const permanentDeleteUser = async (userId) => {
     if (currentUser?.id === userId) {
-      showToast('Không thể xóa tài khoản của chính bạn!', 'error');
-      return false;
+      const msg = 'Không thể xóa tài khoản của chính bạn!';
+      showToast(msg, 'error');
+      return { success: false, error: msg };
     }
     const target = usersList.find(u => u.id === userId);
     let nextList = null;
@@ -2166,7 +2169,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     await deleteSupabaseProfile(userId);
     await persistSettingToSupabase('bds_users_list', nextList);
     showToast(`Đã xóa vĩnh viễn tài khoản "${target?.name || userId}" khỏi hệ thống!`, 'warning');
-    return true;
+    return { success: true, id: userId };
   };
 
   // Empty User Trash
@@ -2174,7 +2177,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const trashUsers = usersList.filter(u => u.isDeleted || u.status === 'trash');
     if (trashUsers.length === 0) {
       showToast('Thùng rác người dùng hiện đang trống!', 'info');
-      return 0;
+      return { success: true, count: 0 };
     }
     let nextList = null;
     setUsersList(prev => {
@@ -2185,7 +2188,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     await Promise.all(trashUsers.map(u => deleteSupabaseProfile(u.id)));
     await persistSettingToSupabase('bds_users_list', nextList);
     showToast(`Đã dọn sạch vĩnh viễn ${trashUsers.length} tài khoản trong thùng rác!`, 'success');
-    return trashUsers.length;
+    return { success: true, count: trashUsers.length };
   };
 
   // Admin Update VIP Package Price

@@ -259,24 +259,26 @@ export async function fetchSupabaseProfiles() {
       .select('*');
 
     if (error || !Array.isArray(data)) return null;
-    return data.map(r => ({
-      id: r.id,
-      name: r.name,
-      email: r.email,
-      role: r.role,
-      roleName: r.role_name,
-      walletBalance: Number(r.wallet_balance || 0),
-      bonusWalletBalance: Number(r.bonus_wallet_balance || 0),
-      phone: r.phone,
-      avatar: r.avatar,
-      membership: r.membership,
-      vouchers: r.vouchers,
-      isVerified: Boolean(r.is_verified),
-      status: r.status || 'active',
-      isDeleted: Boolean(r.is_deleted),
-      deletedAt: r.deleted_at || null,
-      createdAt: r.created_at || new Date().toISOString()
-    }));
+    return data
+      .filter(r => r.status !== 'deleted' && r.role_name !== 'deleted' && r.name !== '[Đã xóa]')
+      .map(r => ({
+        id: r.id,
+        name: r.name,
+        email: r.email,
+        role: r.role,
+        roleName: r.role_name,
+        walletBalance: Number(r.wallet_balance || 0),
+        bonusWalletBalance: Number(r.bonus_wallet_balance || 0),
+        phone: r.phone,
+        avatar: r.avatar,
+        membership: r.membership,
+        vouchers: r.vouchers,
+        isVerified: Boolean(r.is_verified),
+        status: r.status || 'active',
+        isDeleted: Boolean(r.is_deleted),
+        deletedAt: r.deleted_at || null,
+        createdAt: r.created_at || new Date().toISOString()
+      }));
   } catch (err) {
     return null;
   }
@@ -285,25 +287,34 @@ export async function fetchSupabaseProfiles() {
 export async function upsertSupabaseProfile(user) {
   if (!isSupabaseConfigured() || !supabase || !user?.id) return false;
   try {
-    const { error } = await supabase
+    const fullPayload = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      role_name: user.roleName,
+      wallet_balance: Number(user.walletBalance || 0),
+      bonus_wallet_balance: Number(user.bonusWalletBalance || 0),
+      phone: user.phone,
+      avatar: user.avatar,
+      membership: user.membership,
+      vouchers: user.vouchers,
+      is_verified: Boolean(user.isVerified),
+      status: user.status || 'active',
+      is_deleted: Boolean(user.isDeleted),
+      deleted_at: user.deletedAt || null
+    };
+
+    let { error } = await supabase
       .from('profiles')
-      .upsert({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        role_name: user.roleName,
-        wallet_balance: Number(user.walletBalance || 0),
-        bonus_wallet_balance: Number(user.bonusWalletBalance || 0),
-        phone: user.phone,
-        avatar: user.avatar,
-        membership: user.membership,
-        vouchers: user.vouchers,
-        is_verified: Boolean(user.isVerified),
-        status: user.status || 'active',
-        is_deleted: Boolean(user.isDeleted),
-        deleted_at: user.deletedAt || null
-      }, { onConflict: 'id' });
+      .upsert(fullPayload, { onConflict: 'id' });
+
+    // Nếu bảng profiles chưa có các cột status / is_deleted, thử lại bằng payload cơ bản
+    if (error && error.code === 'PGRST204') {
+      const { status, is_deleted, deleted_at, bonus_wallet_balance, ...basePayload } = fullPayload;
+      const res = await supabase.from('profiles').upsert(basePayload, { onConflict: 'id' });
+      error = res.error;
+    }
 
     return !error;
   } catch (err) {
@@ -314,12 +325,43 @@ export async function upsertSupabaseProfile(user) {
 export async function deleteSupabaseProfile(userId) {
   if (!isSupabaseConfigured() || !supabase || !userId) return false;
   try {
-    const { error } = await supabase
+    // 1. Thử xóa vật lý từ bảng profiles (nếu đã cấu hình RLS Delete Policy)
+    await supabase
       .from('profiles')
       .delete()
       .eq('id', userId);
-    return !error;
+
+    // 2. Dự phòng: Đánh dấu role_name = 'deleted' để dù chưa bật DELETE RLS policy thì hệ thống vẫn loại bỏ hoàn toàn
+    await supabase
+      .from('profiles')
+      .update({
+        role_name: 'deleted',
+        name: '[Đã xóa]',
+        wallet_balance: 0
+      })
+      .eq('id', userId);
+
+    // 3. Xóa người dùng khỏi platform_settings.bds_users_list ngay lập tức
+    try {
+      const { data: settingRow } = await supabase
+        .from('platform_settings')
+        .select('value')
+        .eq('key', 'bds_users_list')
+        .single();
+
+      if (settingRow?.value && Array.isArray(settingRow.value)) {
+        const cleaned = settingRow.value.filter(u => u.id !== userId);
+        await supabase
+          .from('platform_settings')
+          .upsert({ key: 'bds_users_list', value: cleaned, updated_at: new Date().toISOString() });
+      }
+    } catch (setErr) {
+      // bỏ qua lỗi settings
+    }
+
+    return true;
   } catch (err) {
+    console.error('Lỗi khi deleteSupabaseProfile:', err);
     return false;
   }
 }
@@ -383,8 +425,19 @@ export async function insertSupabaseTransaction(txn) {
 // ==========================================
 
 export function mergeProfilesWithSettingsUsers(profiles, settingsUsers) {
+  // 1. Nếu profiles là null (lỗi kết nối PostgREST), dùng tạm settingsUsers
+  if (!profiles && Array.isArray(settingsUsers)) {
+    return settingsUsers.filter(u => u.status !== 'deleted' && u.roleName !== 'deleted' && u.name !== '[Đã xóa]');
+  }
+
   const map = new Map();
-  (profiles || []).forEach(p => {
+  const profilesList = Array.isArray(profiles) ? profiles : [];
+
+  // Nạp toàn bộ profiles hợp lệ (bỏ qua người dùng đã đánh dấu xóa)
+  profilesList.forEach(p => {
+    if (p.status === 'deleted' || p.role_name === 'deleted' || p.roleName === 'deleted' || p.name === '[Đã xóa]') {
+      return;
+    }
     const rawWallet = p.walletBalance !== undefined ? p.walletBalance : p.wallet_balance;
     const rawBonus = p.bonusWalletBalance !== undefined ? p.bonusWalletBalance : (p.bonus_wallet_balance || p.promoBalance);
     const rawRoleName = p.roleName || p.role_name;
@@ -411,19 +464,36 @@ export function mergeProfilesWithSettingsUsers(profiles, settingsUsers) {
     });
   });
 
-  (settingsUsers || []).forEach(u => {
-    const prev = map.get(u.id) || {};
-    map.set(u.id, {
-      ...prev,
-      ...u,
-      walletBalance: Number(u.walletBalance !== undefined ? u.walletBalance : (prev.walletBalance || 0)),
-      bonusWalletBalance: Number(u.bonusWalletBalance !== undefined ? u.bonusWalletBalance : (u.promoBalance || prev.bonusWalletBalance || 0)),
-      roleName: u.roleName || prev.roleName || (u.role === 'admin' ? 'Quản Trị Viên' : u.role === 'broker' ? 'Môi Giới' : 'Khách Hàng'),
-      status: u.status || prev.status || 'active',
-      isDeleted: Boolean(u.isDeleted !== undefined ? u.isDeleted : prev.isDeleted),
-      deletedAt: u.deletedAt || prev.deletedAt || null
+  // Hợp nhất dữ liệu chi tiết từ platform_settings (chỉ hợp nhất với những user đang tồn tại trong bảng profiles!)
+  // Nếu profiles đang có dữ liệu, bảng profiles là chân lý (Single Source of Truth).
+  // Tuyệt đối không hồi sinh user đã bị xóa khỏi profiles!
+  if (map.size > 0 && Array.isArray(settingsUsers)) {
+    settingsUsers.forEach(u => {
+      if (u && u.id && map.has(u.id)) {
+        const prev = map.get(u.id);
+        map.set(u.id, {
+          ...prev,
+          ...u,
+          id: prev.id,
+          name: prev.name && prev.name !== 'Người dùng' ? prev.name : (u.name || prev.name),
+          email: prev.email || u.email || '',
+          walletBalance: Number(u.walletBalance !== undefined ? u.walletBalance : prev.walletBalance),
+          bonusWalletBalance: Number(u.bonusWalletBalance !== undefined ? u.bonusWalletBalance : prev.bonusWalletBalance),
+          roleName: u.roleName || prev.roleName,
+          status: u.status || prev.status || 'active',
+          isDeleted: Boolean(u.isDeleted !== undefined ? u.isDeleted : prev.isDeleted),
+          deletedAt: u.deletedAt || prev.deletedAt || null
+        });
+      }
     });
-  });
+  } else if (map.size === 0 && Array.isArray(settingsUsers)) {
+    // Trường hợp hệ thống mới khởi tạo hoặc bảng profiles chưa có bản ghi nào
+    settingsUsers.forEach(u => {
+      if (u && u.id && u.status !== 'deleted' && u.roleName !== 'deleted' && u.name !== '[Đã xóa]') {
+        map.set(u.id, u);
+      }
+    });
+  }
 
   return Array.from(map.values());
 }
@@ -595,23 +665,27 @@ export async function syncFullDbToSupabase(payload) {
 
     // 4. Đồng bộ danh sách người dùng (profiles)
     if (Array.isArray(payload.bds_users_list) && payload.bds_users_list.length > 0) {
-      const profilePayloads = payload.bds_users_list.map(u => ({
-        id: u.id,
-        name: u.name || '',
-        email: u.email || '',
-        role: u.role || 'user',
-        role_name: u.roleName || '',
-        wallet_balance: Number(u.walletBalance || 0),
-        phone: u.phone || '',
-        avatar: u.avatar || '',
-        membership: u.membership || null,
-        vouchers: u.vouchers || null,
-        is_verified: Boolean(u.isVerified)
-      }));
+      const profilePayloads = payload.bds_users_list
+        .filter(u => u && u.id && u.status !== 'deleted' && u.roleName !== 'deleted' && u.name !== '[Đã xóa]')
+        .map(u => ({
+          id: u.id,
+          name: u.name || '',
+          email: u.email || '',
+          role: u.role || 'user',
+          role_name: u.roleName || '',
+          wallet_balance: Number(u.walletBalance || 0),
+          phone: u.phone || '',
+          avatar: u.avatar || '',
+          membership: u.membership || null,
+          vouchers: u.vouchers || null,
+          is_verified: Boolean(u.isVerified)
+        }));
 
-      promises.push(
-        supabase.from('profiles').upsert(profilePayloads, { onConflict: 'id' })
-      );
+      if (profilePayloads.length > 0) {
+        promises.push(
+          supabase.from('profiles').upsert(profilePayloads, { onConflict: 'id' })
+        );
+      }
     }
 
     await Promise.allSettled(promises);

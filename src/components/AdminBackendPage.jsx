@@ -1295,8 +1295,7 @@ export default function AdminBackendPage() {
     if (!editingUser) return;
     try {
       const res = await updateUser(editingUser.id, editUserForm);
-      if (res?.success) {
-        showToast('Đã cập nhật thông tin người dùng thành công!', 'success');
+      if (res?.success || res?.id || res === true) {
         setEditingUser(null);
       } else {
         showToast(res?.error || 'Không thể cập nhật người dùng', 'error');
@@ -1308,42 +1307,53 @@ export default function AdminBackendPage() {
 
   const handleConfirmMoveToTrash = async () => {
     if (!confirmTrashUser) return;
-    const res = await moveUserToTrash(confirmTrashUser.id);
-    if (res?.success) {
-      showToast(`Đã chuyển tài khoản "${confirmTrashUser.name}" vào thùng rác`, 'success');
-      setConfirmTrashUser(null);
-    } else {
-      showToast(res?.error || 'Không thể chuyển vào thùng rác', 'error');
+    try {
+      const res = await moveUserToTrash(confirmTrashUser.id);
+      if (res?.success || res === true) {
+        setConfirmTrashUser(null);
+      } else {
+        showToast(res?.error || 'Không thể chuyển vào thùng rác', 'error');
+      }
+    } catch (err) {
+      showToast(err.message || 'Lỗi khi chuyển vào thùng rác', 'error');
     }
   };
 
   const handleRestoreUser = async (user) => {
-    const res = await restoreUserFromTrash(user.id);
-    if (res?.success) {
-      showToast(`Đã khôi phục tài khoản "${user.name}" thành công!`, 'success');
-    } else {
-      showToast(res?.error || 'Không thể khôi phục tài khoản', 'error');
+    try {
+      const res = await restoreUserFromTrash(user.id);
+      if (!res?.success && res !== true) {
+        showToast(res?.error || 'Không thể khôi phục tài khoản', 'error');
+      }
+    } catch (err) {
+      showToast(err.message || 'Lỗi khi khôi phục tài khoản', 'error');
     }
   };
 
   const handleConfirmPermanentDelete = async () => {
     if (!confirmPermanentDeleteUser) return;
-    const res = await permanentDeleteUser(confirmPermanentDeleteUser.id);
-    if (res?.success) {
-      showToast(`Đã xóa vĩnh viễn tài khoản "${confirmPermanentDeleteUser.name}"!`, 'success');
-      setConfirmPermanentDeleteUser(null);
-    } else {
-      showToast(res?.error || 'Không thể xóa tài khoản', 'error');
+    try {
+      const res = await permanentDeleteUser(confirmPermanentDeleteUser.id);
+      if (res?.success || res === true) {
+        setConfirmPermanentDeleteUser(null);
+      } else {
+        showToast(res?.error || 'Không thể xóa tài khoản', 'error');
+      }
+    } catch (err) {
+      showToast(err.message || 'Lỗi khi xóa tài khoản', 'error');
     }
   };
 
   const handleConfirmEmptyTrash = async () => {
-    const res = await emptyUserTrash();
-    if (res?.success) {
-      showToast('Đã dọn sạch thùng rác người dùng!', 'success');
-      setShowEmptyTrashConfirm(false);
-    } else {
-      showToast(res?.error || 'Không thể dọn sạch thùng rác', 'error');
+    try {
+      const res = await emptyUserTrash();
+      if (res?.success || typeof res === 'number' || res === true) {
+        setShowEmptyTrashConfirm(false);
+      } else {
+        showToast(res?.error || 'Không thể dọn sạch thùng rác', 'error');
+      }
+    } catch (err) {
+      showToast(err.message || 'Lỗi khi dọn sạch thùng rác', 'error');
     }
   };
 
