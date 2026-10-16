@@ -91,8 +91,8 @@ export default function Navbar() {
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/90 text-emerald-400 border border-emerald-800/80 font-semibold text-[10px] sm:text-[11px]">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="hidden xs:inline sm:inline">Sàn BĐS {headerConfig?.brandName || 'Đất Biển'} {headerConfig?.brandHighlight || 'Đà Nẵng'}</span>
-              <span className="xs:hidden sm:hidden">{headerConfig?.brandName || 'Đất Biển'} {headerConfig?.brandHighlight || 'Đà Nẵng'}</span>
+              <span className="hidden xs:inline sm:inline">Sàn BĐS {systemConfig?.brandShortName || `${headerConfig?.brandName || 'Đất Biển'} ${headerConfig?.brandHighlight || 'Đà Nẵng'}`.trim()}</span>
+              <span className="xs:hidden sm:hidden">{systemConfig?.brandShortName || `${headerConfig?.brandName || 'Đất Biển'} ${headerConfig?.brandHighlight || 'Đà Nẵng'}`.trim()}</span>
             </span>
             <span suppressHydrationWarning className="hidden md:inline-flex items-center gap-1.5 text-slate-400">
               <span className="text-slate-600">|</span>
@@ -219,17 +219,19 @@ export default function Navbar() {
                 </div>
                 <div className="leading-tight">
                   <div className="flex items-center gap-1.5 font-black text-slate-900 tracking-tight text-lg">
-                    <span>{headerConfig?.brandName || 'ĐẤT BIỂN'}</span>
-                    <span className="text-emerald-600">{headerConfig?.brandHighlight || 'ĐÀ NẴNG'}</span>
+                    <span>{headerConfig?.brandName || systemConfig?.brandShortName || 'ĐẤT BIỂN'}</span>
+                    {headerConfig?.brandHighlight ? (
+                      <span className="text-emerald-600">{headerConfig.brandHighlight}</span>
+                    ) : null}
                     {headerConfig?.badgeText && (
                       <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${headerConfig?.badgeColor || 'bg-red-100 text-red-600 border border-red-200'}`}>
                         {headerConfig.badgeText}
                       </span>
                     )}
                   </div>
-                  {headerConfig?.brandTagline && (
+                  {(headerConfig?.brandTagline || systemConfig?.tagline) && (
                     <div className="text-[10px] text-slate-400 font-bold tracking-wider uppercase truncate max-w-[220px]">
-                      {headerConfig.brandTagline}
+                      {headerConfig?.brandTagline || systemConfig?.tagline}
                     </div>
                   )}
                 </div>
@@ -596,7 +598,7 @@ export default function Navbar() {
                     <i className={headerConfig?.brandIcon || 'fa-solid fa-water'}></i>
                   </div>
                   <div className="font-black text-slate-900 text-base">
-                    <span>{headerConfig?.brandName || 'ĐẤT BIỂN'}</span> <span className="text-emerald-600">{headerConfig?.brandHighlight || 'ĐÀ NẴNG'}</span>
+                    <span>{headerConfig?.brandName || systemConfig?.brandShortName || 'ĐẤT BIỂN'}</span> {headerConfig?.brandHighlight ? <span className="text-emerald-600">{headerConfig.brandHighlight}</span> : null}
                   </div>
                 </div>
               )}

@@ -136,7 +136,7 @@ export default function Footer() {
         {/* Bottom copyright */}
         <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <div>
-            © 2026 ĐẤT BIỂN ĐÀ NẴNG. Bản quyền thuộc về Công ty Cổ phần Bất Động Sản Đất Biển Đà Nẵng.
+            © 2026 {systemConfig?.brandShortName || 'ĐẤT BIỂN ĐÀ NẴNG'}. Bản quyền thuộc về {systemConfig?.platformName || 'Công ty Cổ phần Bất Động Sản Đất Biển Đà Nẵng'}.
           </div>
           <div className="flex items-center gap-4">
             <Link to="/quy-che-hoat-dong" className="hover:text-emerald-400 transition">Quy chế hoạt động</Link>

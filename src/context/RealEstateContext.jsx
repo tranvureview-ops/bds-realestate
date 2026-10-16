@@ -385,58 +385,125 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     safeStorage.setItem('bds_email_config', JSON.stringify(emailConfig));
   }, [emailConfig, isHydrated]);
 
-  // Methods for System Config with Automatic Cross-System Hotline Synchronization
+  // Methods for System Config with Automatic Cross-System Brand & Hotline Synchronization
   const updateSystemConfig = (newConfig) => {
+    let updatedSystem;
     setSystemConfig(prev => {
-      const merged = { ...prev, ...newConfig };
-      safeStorage.setItem('bds_system_config', JSON.stringify(merged));
-      return merged;
+      updatedSystem = { ...prev, ...newConfig };
+      safeStorage.setItem('bds_system_config', JSON.stringify(updatedSystem));
+      return updatedSystem;
     });
 
-    // TỰ ĐỘNG ĐỒNG BỘ TOÀN BỘ SỐ HOTLINE & LIÊN HỆ CHO CÁC PHÂN HỆ KHÁC
-    if (newConfig.hotline) {
-      // 1. Đồng bộ sang trang Chi Tiết BĐS (Single Disclaimer)
-      setSingleConfig(prev => {
-        const updated = {
-          ...prev,
-          disclaimer: {
-            ...(prev.disclaimer || {}),
-            hotline: newConfig.hotline,
-            ...(newConfig.brandShortName ? { platformName: newConfig.brandShortName } : {})
+    let updatedHeader;
+    // 1. TỰ ĐỘNG ĐỒNG BỘ NHẬN DIỆN THƯƠNG HIỆU SANG HEADER / NAVBAR
+    const brandToSync = newConfig.brandShortName || newConfig.platformName;
+    if (brandToSync || newConfig.tagline) {
+      setHeaderConfig(prev => {
+        // Tách thương hiệu thành brandName và brandHighlight tinh tế cho Header
+        let bName = prev.brandName;
+        let bHighlight = prev.brandHighlight;
+        if (brandToSync) {
+          const words = brandToSync.trim().split(/\s+/).filter(Boolean);
+          if (words.length <= 1) {
+            bName = words[0] || '';
+            bHighlight = '';
+          } else if (words.length === 2) {
+            bName = words[0];
+            bHighlight = words[1];
+          } else if (words.length === 3) {
+            bName = `${words[0]} ${words[1]}`;
+            bHighlight = words[2];
+          } else {
+            const mid = Math.ceil(words.length / 2);
+            bName = words.slice(0, mid).join(' ');
+            bHighlight = words.slice(mid).join(' ');
           }
-        };
-        safeStorage.setItem('bds_single_config', JSON.stringify(updated));
-        return updated;
-      });
+        }
 
-      // 2. Đồng bộ sang Chữ Ký Email & Người gửi Email
-      setEmailConfig(prev => {
-        const updated = {
+        updatedHeader = {
           ...prev,
-          ...(newConfig.email ? { replyToEmail: newConfig.email } : {}),
-          ...(newConfig.brandShortName ? { fromName: `Ban Quản Trị Sàn ${newConfig.brandShortName}` } : {}),
-          signature: {
-            ...(prev.signature || {}),
-            hotline: newConfig.hotline,
-            ...(newConfig.zalo ? { zalo: newConfig.zalo } : {}),
-            ...(newConfig.platformName || newConfig.brandShortName ? { companyName: newConfig.platformName || newConfig.brandShortName } : {}),
-            ...(newConfig.address ? { address: newConfig.address } : {})
-          }
+          ...(brandToSync ? { brandName: bName, brandHighlight: bHighlight, logoAlt: `${brandToSync} Logo` } : {}),
+          ...(newConfig.tagline ? { brandTagline: newConfig.tagline } : {})
         };
-        safeStorage.setItem('bds_email_config', JSON.stringify(updated));
-        return updated;
+        safeStorage.setItem('bds_header_config', JSON.stringify(updatedHeader));
+        return updatedHeader;
       });
     }
 
-    showToast('Đã lưu và đồng bộ toàn bộ Hotline & liên hệ website thành công!', 'success');
+    let updatedSingle;
+    // 2. TỰ ĐỘNG ĐỒNG BỘ SANG TRANG CHI TIẾT BĐS (Single Disclaimer)
+    setSingleConfig(prev => {
+      const brandNameForDisclaimer = newConfig.brandShortName || newConfig.platformName;
+      updatedSingle = {
+        ...prev,
+        disclaimer: {
+          ...(prev.disclaimer || {}),
+          ...(newConfig.hotline ? { hotline: newConfig.hotline } : {}),
+          ...(brandNameForDisclaimer ? { platformName: brandNameForDisclaimer } : {})
+        }
+      };
+      safeStorage.setItem('bds_single_config', JSON.stringify(updatedSingle));
+      return updatedSingle;
+    });
+
+    let updatedEmail;
+    // 3. TỰ ĐỘNG ĐỒNG BỘ SANG CHỮ KÝ EMAIL & NGƯỜI GỬI EMAIL
+    setEmailConfig(prev => {
+      const brandForEmail = newConfig.platformName || newConfig.brandShortName;
+      updatedEmail = {
+        ...prev,
+        ...(newConfig.email ? { replyToEmail: newConfig.email } : {}),
+        ...(brandForEmail ? { fromName: `Ban Quản Trị Sàn ${newConfig.brandShortName || brandForEmail}` } : {}),
+        signature: {
+          ...(prev.signature || {}),
+          ...(newConfig.hotline ? { hotline: newConfig.hotline } : {}),
+          ...(newConfig.zalo ? { zalo: newConfig.zalo } : {}),
+          ...(brandForEmail ? { companyName: brandForEmail } : {}),
+          ...(newConfig.address ? { address: newConfig.address } : {})
+        }
+      };
+      safeStorage.setItem('bds_email_config', JSON.stringify(updatedEmail));
+      return updatedEmail;
+    });
+
+    // 4. LẬP TỨC ĐỒNG BỘ LÊN MÁY CHỦ / CLOUD TRÁNH MẤT KHI F5 TRANG
+    try {
+      const syncPayload = {
+        bds_system_config: updatedSystem || newConfig,
+        ...(updatedHeader ? { bds_header_config: updatedHeader } : {}),
+        ...(updatedSingle ? { bds_single_config: updatedSingle } : {}),
+        ...(updatedEmail ? { bds_email_config: updatedEmail } : {})
+      };
+      fetch('/api/db-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(syncPayload)
+      }).catch(() => {});
+    } catch (err) {}
+
+    showToast('Đã lưu và đồng bộ toàn bộ Thông tin thương hiệu & Liên hệ hệ thống!', 'success');
   };
 
   const resetSystemConfig = () => {
     safeStorage.removeItem('bds_system_config');
     setSystemConfig(DEFAULT_SYSTEM_CONFIG);
 
+    let updatedHeader;
+    setHeaderConfig(prev => {
+      updatedHeader = {
+        ...prev,
+        brandName: DEFAULT_HEADER_CONFIG.brandName,
+        brandHighlight: DEFAULT_HEADER_CONFIG.brandHighlight,
+        brandTagline: DEFAULT_HEADER_CONFIG.brandTagline,
+        logoAlt: DEFAULT_HEADER_CONFIG.logoAlt
+      };
+      safeStorage.setItem('bds_header_config', JSON.stringify(updatedHeader));
+      return updatedHeader;
+    });
+
+    let updatedSingle;
     setSingleConfig(prev => {
-      const updated = {
+      updatedSingle = {
         ...prev,
         disclaimer: {
           ...(prev.disclaimer || {}),
@@ -444,25 +511,42 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           platformName: DEFAULT_SYSTEM_CONFIG.brandShortName
         }
       };
-      safeStorage.setItem('bds_single_config', JSON.stringify(updated));
-      return updated;
+      safeStorage.setItem('bds_single_config', JSON.stringify(updatedSingle));
+      return updatedSingle;
     });
 
+    let updatedEmail;
     setEmailConfig(prev => {
-      const updated = {
+      updatedEmail = {
         ...prev,
+        fromName: `Ban Quản Trị Sàn ${DEFAULT_SYSTEM_CONFIG.brandShortName}`,
+        replyToEmail: DEFAULT_SYSTEM_CONFIG.email,
         signature: {
           ...(prev.signature || {}),
           hotline: DEFAULT_SYSTEM_CONFIG.hotline,
+          zalo: DEFAULT_SYSTEM_CONFIG.zalo,
           companyName: DEFAULT_SYSTEM_CONFIG.platformName,
           address: DEFAULT_SYSTEM_CONFIG.address
         }
       };
-      safeStorage.setItem('bds_email_config', JSON.stringify(updated));
-      return updated;
+      safeStorage.setItem('bds_email_config', JSON.stringify(updatedEmail));
+      return updatedEmail;
     });
 
-    showToast('Đã khôi phục cài đặt sàn và đồng bộ Hotline về mặc định!', 'info');
+    try {
+      fetch('/api/db-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bds_system_config: DEFAULT_SYSTEM_CONFIG,
+          bds_header_config: updatedHeader,
+          bds_single_config: updatedSingle,
+          bds_email_config: updatedEmail
+        })
+      }).catch(() => {});
+    } catch (err) {}
+
+    showToast('Đã khôi phục cài đặt sàn và đồng bộ thương hiệu về mặc định!', 'info');
   };
 
   const updateSingleConfig = (newConfig) => {
@@ -921,13 +1005,10 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       const savedSys = safeStorage.getItem('bds_system_config');
       if (savedSys) {
         const parsed = JSON.parse(savedSys);
-        if (parsed) {
+        if (parsed && typeof parsed === 'object') {
           setSystemConfig(prev => ({
             ...prev,
-            ...parsed,
-            platformName: 'SÀN GIAO DỊCH BẤT ĐỘNG SẢN ĐẤT BIỂN ĐÀ NẴNG',
-            brandShortName: 'ĐẤT BIỂN ĐÀ NẴNG',
-            address: 'Đường Võ Nguyên Giáp, Phước Mỹ, Sơn Trà, TP. Đà Nẵng'
+            ...parsed
           }));
         }
       }

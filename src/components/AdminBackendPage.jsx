@@ -480,6 +480,25 @@ export default function AdminBackendPage() {
     }
   };
 
+  const [isSavingSystem, setIsSavingSystem] = useState(false);
+
+  const handleSaveSystemConfig = async (e) => {
+    if (e?.preventDefault) e.preventDefault();
+    setIsSavingSystem(true);
+    try {
+      await updateSystemConfig(formSystemConfig);
+    } finally {
+      setTimeout(() => setIsSavingSystem(false), 500);
+    }
+  };
+
+  const handleResetSystemSettings = () => {
+    if (window.confirm('Bạn có chắc chắn muốn khôi phục toàn bộ thông tin nhận diện thương hiệu và cài đặt vận hành sàn về mặc định?')) {
+      resetSystemConfig();
+      setFormSystemConfig(DEFAULT_SYSTEM_CONFIG);
+    }
+  };
+
   const handleSavePaymentSettings = (e) => {
     if (e) e.preventDefault();
     updatePaymentConfig(formPaymentConfig);
@@ -5086,7 +5105,7 @@ export default function AdminBackendPage() {
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     type="button"
-                    onClick={resetSystemConfig}
+                    onClick={handleResetSystemSettings}
                     className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white font-bold text-xs border border-slate-800 transition flex items-center gap-1.5"
                     title="Khôi phục toàn bộ cài đặt sàn về mặc định"
                   >
@@ -5096,11 +5115,12 @@ export default function AdminBackendPage() {
 
                   <button
                     type="button"
-                    onClick={() => updateSystemConfig(formSystemConfig)}
-                    className="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-900/30 transition flex items-center gap-1.5"
+                    disabled={isSavingSystem}
+                    onClick={handleSaveSystemConfig}
+                    className="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-60 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-900/30 transition flex items-center gap-1.5"
                   >
-                    <i className="fa-solid fa-floppy-disk"></i>
-                    <span>Lưu Cài Đặt Hệ Thống</span>
+                    <i className={isSavingSystem ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-floppy-disk"}></i>
+                    <span>{isSavingSystem ? "Đang lưu..." : "Lưu Cài Đặt Hệ Thống"}</span>
                   </button>
                 </div>
               </div>
@@ -5111,11 +5131,17 @@ export default function AdminBackendPage() {
                 <div className="lg:col-span-2 space-y-6">
                   {/* Nhóm 1: Nhận diện thương hiệu sàn */}
                   <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4">
-                    <div className="flex items-center gap-2 pb-3 border-b border-slate-800/80">
-                      <i className="fa-solid fa-building text-emerald-400 text-sm"></i>
-                      <h4 className="text-xs font-black uppercase tracking-wider text-white">
-                        1. Thông Tin Nhận Diện Thương Hiệu
-                      </h4>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800/80 gap-2">
+                      <div className="flex items-center gap-2">
+                        <i className="fa-solid fa-building text-emerald-400 text-sm"></i>
+                        <h4 className="text-xs font-black uppercase tracking-wider text-white">
+                          1. Thông Tin Nhận Diện Thương Hiệu
+                        </h4>
+                      </div>
+                      <span className="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 self-start sm:self-auto">
+                        <i className="fa-solid fa-arrows-rotate"></i>
+                        Đồng bộ tự động Header, Footer & Email
+                      </span>
                     </div>
 
                     <div className="space-y-3 text-xs">
@@ -5127,9 +5153,12 @@ export default function AdminBackendPage() {
                           type="text"
                           value={formSystemConfig.platformName || ''}
                           onChange={(e) => setFormSystemConfig(prev => ({ ...prev, platformName: e.target.value }))}
-                          placeholder="Ví dụ: SÀN GIAO DỊCH BẤT ĐỘNG SẢN ĐẤT BIỂN ĐÀ NẴNG"
+                          placeholder="Ví dụ: SÀN GIAO DỊCH BẤT ĐỘNG SẢN LANDMARK VIỆT NAM"
                           className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                         />
+                        <p className="text-[10px] text-slate-500 mt-1">
+                          Tên pháp nhân đầy đủ dùng cho bản quyền chân trang (Footer), Chữ ký Email & Miễn trừ trách nhiệm tin BĐS.
+                        </p>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -5141,9 +5170,12 @@ export default function AdminBackendPage() {
                             type="text"
                             value={formSystemConfig.brandShortName || ''}
                             onChange={(e) => setFormSystemConfig(prev => ({ ...prev, brandShortName: e.target.value }))}
-                            placeholder="Ví dụ: ĐẤT BIỂN ĐÀ NẴNG"
+                            placeholder="Ví dụ: LANDMARK VIỆT NAM"
                             className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-emerald-500"
                           />
+                          <p className="text-[10px] text-slate-500 mt-1">
+                            Tự động đồng bộ lên Logo Navbar, Topbar, Chân trang Footer & Khối kiểm duyệt tin.
+                          </p>
                         </div>
 
                         <div>
@@ -5157,6 +5189,9 @@ export default function AdminBackendPage() {
                             placeholder="Ví dụ: Sàn Giao Dịch Bất Động Sản & Đăng Tin VIP"
                             className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-emerald-500"
                           />
+                          <p className="text-[10px] text-slate-500 mt-1">
+                            Khẩu hiệu phụ hiển thị dưới Logo Menu chính và Chân trang Footer.
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -5555,11 +5590,12 @@ export default function AdminBackendPage() {
 
                     <button
                       type="button"
-                      onClick={() => updateSystemConfig(formSystemConfig)}
-                      className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-xs shadow-lg transition flex items-center justify-center gap-2"
+                      disabled={isSavingSystem}
+                      onClick={handleSaveSystemConfig}
+                      className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-black rounded-xl text-xs shadow-lg transition flex items-center justify-center gap-2"
                     >
-                      <i className="fa-solid fa-check"></i>
-                      <span>Lưu Thay Đổi Ngay</span>
+                      <i className={isSavingSystem ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-check"}></i>
+                      <span>{isSavingSystem ? "Đang lưu hệ thống..." : "Lưu Thay Đổi Ngay"}</span>
                     </button>
                   </div>
                 </div>
