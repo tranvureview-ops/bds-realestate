@@ -294,7 +294,6 @@ export async function upsertSupabaseProfile(user) {
       role: user.role,
       role_name: user.roleName,
       wallet_balance: Number(user.walletBalance || 0),
-      bonus_wallet_balance: Number(user.bonusWalletBalance || 0),
       phone: user.phone,
       avatar: user.avatar,
       membership: user.membership,
@@ -311,7 +310,7 @@ export async function upsertSupabaseProfile(user) {
 
     // Nếu bảng profiles chưa có các cột status / is_deleted, thử lại bằng payload cơ bản
     if (error && error.code === 'PGRST204') {
-      const { status, is_deleted, deleted_at, bonus_wallet_balance, ...basePayload } = fullPayload;
+      const { status, is_deleted, deleted_at, ...basePayload } = fullPayload;
       const res = await supabase.from('profiles').upsert(basePayload, { onConflict: 'id' });
       error = res.error;
     }
