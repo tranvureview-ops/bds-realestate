@@ -154,21 +154,20 @@ export const parseTaxonomyUrl = (urlPath) => {
 };
 
 /**
- * Tạo URL Permalink bài đăng chi tiết chuẩn Batdongsan.com.vn
- * Định dạng: /{slug-tieu-de}-pr{id}
- * Ví dụ: BDS-006 -> /cho-thue-nha-pho-nguyen-can-quan-1-le-thanh-ton-pr006
+ * Tạo URL Permalink bài đăng chi tiết chuẩn duy nhất Batdongsan.com.vn: /{slug-tieu-de}-pr{id}
+ * Ví dụ: BDS-012 -> /ban-can-ho-chung-cu-goldmark-city-136-ho-tung-mau-75m-2pn-35-ty-pr012
  */
 export const getPropertyPermalink = (property) => {
   if (!property) return '/';
-  
-  // Trích xuất mã ID định danh gọn (bỏ tiền tố BDS- nếu có)
-  const idSuffix = String(property.id || '').replace(/^BDS-?/i, '').toLowerCase();
-  const baseSlug = property.slug || toVietnameseSlug(property.title) || 'bat-dong-san';
-  
-  // Nếu baseSlug đã có đuôi -pr... thì giữ nguyên
-  if (baseSlug.match(/-pr[a-z0-9]+$/i)) {
-    return `/${baseSlug}`;
-  }
+
+  const numOnly = String(property.id || '').replace(/\D/g, '');
+  const idSuffix = numOnly
+    ? numOnly.padStart(3, '0')
+    : String(property.id || '').replace(/^BDS-?/i, '').toLowerCase();
+
+  let baseSlug = property.slug || toVietnameseSlug(property.title) || 'bat-dong-san';
+  // Loại bỏ hậu tố -pr cũ nếu đã có trong slug để đảm bảo tính nhất quán tuyệt đối
+  baseSlug = baseSlug.replace(/-pr[a-z0-9_.-]+$/i, '').trim();
 
   return `/${baseSlug}-pr${idSuffix || '001'}`;
 };

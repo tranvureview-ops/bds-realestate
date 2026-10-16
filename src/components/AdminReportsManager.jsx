@@ -635,8 +635,9 @@ export default function AdminReportsManager({
                   ) : (
                     paginatedReports.map((report) => {
                       const reasonMeta = REPORT_REASONS[report.reason] || { label: report.reason, color: 'rose' };
-                      const targetProp = (properties || []).find(p => p.id === report.propertyId);
-                      const permalink = targetProp ? getPropertyPermalink(targetProp) : `/bat-dong-san/${report.propertyId}`;
+                      const permalink = targetProp 
+                        ? getPropertyPermalink(targetProp) 
+                        : getPropertyPermalink({ id: report.propertyId, title: report.propertyTitle || 'bat-dong-san' });
                       const isSelected = selectedReportIds.includes(report.id);
 
                       return (
