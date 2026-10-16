@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
-import { DEFAULT_APPROVAL_TIERS, DEFAULT_HEADER_CONFIG } from '../data/mockData';
+import { DEFAULT_APPROVAL_TIERS, DEFAULT_HEADER_CONFIG, PROPERTY_TYPES } from '../data/mockData';
 import { Link } from '../router/RouterContext';
 import { getPropertyPermalink } from '../utils/permalink';
 import { REPORT_REASONS } from '../utils/emailService';
@@ -282,6 +282,9 @@ export default function AdminBackendPage() {
   // Property Management States (Search, Multi-Filter, Sorting, Expiration & Renewal - Chuẩn Batdongsan.com.vn)
   const [propertySearchTerm, setPropertySearchTerm] = useState('');
   const [propertyStatusFilter, setPropertyStatusFilter] = useState('all'); // 'all', 'active', 'expiring_soon', 'expired', 'pending', 'rejected'
+  const [propertyDemandFilter, setPropertyDemandFilter] = useState('all'); // 'all', 'sale', 'rent'
+  const [propertyCategoryFilter, setPropertyCategoryFilter] = useState('all'); // 'all' or propertyType
+  const [propertyCityFilter, setPropertyCityFilter] = useState('all'); // 'all' or city name
   const [propertyVipFilter, setPropertyVipFilter] = useState('all'); // 'all', 'vip-diamond', 'vip-gold', 'vip-silver', 'normal'
   const [propertySortBy, setPropertySortBy] = useState('newest'); // 'newest', 'oldest', 'expiring_first', 'price_desc', 'price_asc'
 
@@ -786,6 +789,33 @@ export default function AdminBackendPage() {
     return counts;
   }, [properties]);
 
+  // Thống kê số lượng BĐS theo Nhu cầu (Bán / Thuê)
+  const propertyDemandCounts = useMemo(() => {
+    let sale = 0;
+    let rent = 0;
+    properties.forEach(p => {
+      const isTrash = p.isDeleted || p.status === 'trash';
+      if (isTrash) return;
+      if (p.demand === 'rent') {
+        rent++;
+      } else {
+        sale++;
+      }
+    });
+    return { sale, rent, all: sale + rent };
+  }, [properties]);
+
+  // Danh sách Tỉnh/Thành phố hiện có trong hệ thống BĐS
+  const availableCities = useMemo(() => {
+    const set = new Set();
+    properties.forEach(p => {
+      if (p.city && p.city.trim() && !p.isDeleted && p.status !== 'trash') {
+        set.add(p.city.trim());
+      }
+    });
+    return Array.from(set).sort();
+  }, [properties]);
+
   // Bộ lọc tìm kiếm & đa tiêu chí BĐS chuẩn Batdongsan.com.vn (Hỗ trợ Thùng rác)
   const filteredPropertiesList = useMemo(() => {
     const now = Date.now();
@@ -795,6 +825,25 @@ export default function AdminBackendPage() {
         const isTrash = p.isDeleted || p.status === 'trash';
         if (propertyStatusFilter === 'trash') return isTrash;
         return !isTrash;
+      })
+      // 0.1 Phân loại Nhu cầu (Tất cả / Cần bán / Cho thuê)
+      .filter(p => {
+        if (propertyStatusFilter === 'trash') return true;
+        if (propertyDemandFilter === 'all') return true;
+        const d = p.demand || 'sale';
+        return d === propertyDemandFilter;
+      })
+      // 0.2 Phân loại Danh mục / Loại hình BĐS (8 loại hình chuẩn)
+      .filter(p => {
+        if (propertyStatusFilter === 'trash') return true;
+        if (propertyCategoryFilter === 'all') return true;
+        return p.propertyType === propertyCategoryFilter || p.type === propertyCategoryFilter;
+      })
+      // 0.3 Phân loại Tỉnh / Thành phố
+      .filter(p => {
+        if (propertyStatusFilter === 'trash') return true;
+        if (propertyCityFilter === 'all') return true;
+        return (p.city && p.city.trim()) === propertyCityFilter;
       })
       // 1. Phân loại tác giả: Tất cả / Khách vãng lai / Thành viên
       .filter(p => {
@@ -828,18 +877,25 @@ export default function AdminBackendPage() {
         if (propertyStatusFilter === 'rejected') return isRejected;
         return true;
       })
-      // 4. Tìm kiếm từ khóa đa trường (Mã tin, Tiêu đề, Tên người đăng, SĐT, Địa chỉ, Quận/Huyện, Tỉnh/Thành)
+      // 4. Tìm kiếm từ khóa đa trường (Mã tin, Tiêu đề, Tên người đăng, SĐT, Dự án, Danh mục, Pháp lý, Địa chỉ, Phường, Quận/Huyện, Tỉnh/Thành)
       .filter(p => {
         const term = (propertySearchTerm || searchTerm || '').trim().toLowerCase();
         if (!term) return true;
         return (
           (p.id && p.id.toLowerCase().includes(term)) ||
           (p.title && p.title.toLowerCase().includes(term)) ||
+          (p.project && p.project.toLowerCase().includes(term)) ||
+          (p.propertyTypeName && p.propertyTypeName.toLowerCase().includes(term)) ||
+          (p.legal && p.legal.toLowerCase().includes(term)) ||
           (p.author?.name && p.author.name.toLowerCase().includes(term)) ||
+          (p.contactName && p.contactName.toLowerCase().includes(term)) ||
           (p.author?.phone && p.author.phone.includes(term)) ||
+          (p.contactPhone && p.contactPhone.includes(term)) ||
           (p.address && p.address.toLowerCase().includes(term)) ||
-          (p.city && p.city.toLowerCase().includes(term)) ||
-          (p.district && p.district.toLowerCase().includes(term))
+          (p.street && p.street.toLowerCase().includes(term)) ||
+          (p.ward && p.ward.toLowerCase().includes(term)) ||
+          (p.district && p.district.toLowerCase().includes(term)) ||
+          (p.city && p.city.toLowerCase().includes(term))
         );
       })
       // 5. Sắp xếp đa dạng
@@ -863,7 +919,7 @@ export default function AdminBackendPage() {
         }
         return 0;
       });
-  }, [properties, propertyAuthorFilter, propertyVipFilter, propertyStatusFilter, propertySearchTerm, searchTerm, propertySortBy]);
+  }, [properties, propertyAuthorFilter, propertyDemandFilter, propertyCategoryFilter, propertyCityFilter, propertyVipFilter, propertyStatusFilter, propertySearchTerm, searchTerm, propertySortBy]);
 
   const totalRevenue = useMemo(() => {
     return transactions
@@ -1009,27 +1065,63 @@ export default function AdminBackendPage() {
   // Quản lý Chỉnh sửa chi tiết bài đăng Bất động sản
   const [editingProperty, setEditingProperty] = useState(null);
   const [editPropFormData, setEditPropFormData] = useState({});
+  const [editPropTab, setEditPropTab] = useState('general'); // 'general' | 'specs' | 'media' | 'content'
+  const [newImageInput, setNewImageInput] = useState('');
 
   const handleOpenEditProperty = (prop) => {
     setEditingProperty(prop);
+    setEditPropTab('general');
+    setNewImageInput('');
     const expDateStr = prop.expiresAt ? new Date(prop.expiresAt).toISOString().slice(0, 16) : '';
+    const currentPropType = prop.propertyType || prop.type || 'apartment';
+    const currentTypeName = prop.propertyTypeName || PROPERTY_TYPES.find(t => t.id === currentPropType)?.name || 'Căn hộ chung cư';
+
     setEditPropFormData({
-      title: prop.title || '',
-      priceDisplay: prop.priceDisplay || '',
-      price: prop.price || 0,
-      area: prop.area || 0,
+      // 1. Nhu cầu, Loại hình & Vị trí
+      demand: prop.demand || 'sale',
+      propertyType: currentPropType,
+      propertyTypeName: currentTypeName,
+      project: prop.project || '',
+      addressDisplay: prop.addressDisplay || '',
       street: prop.street || '',
       ward: prop.ward || '',
       district: prop.district || '',
       city: prop.city || '',
+
+      // 2. Định giá & Thông số kỹ thuật
+      priceDisplay: prop.priceDisplay || '',
+      price: prop.price || 0,
+      priceType: prop.priceType || 'total',
+      pricePerM2: prop.pricePerM2 || '',
+      area: prop.area || 0,
+      facade: prop.facade ?? '',
+      entranceRoad: prop.entranceRoad ?? '',
+      roadType: prop.roadType || 'car_pass',
+      bedroom: prop.bedroom ?? 0,
+      bathroom: prop.bathroom ?? 0,
+      floor: prop.floor ?? '',
+      direction: prop.direction || '',
+      balconyDirection: prop.balconyDirection || '',
+      legal: prop.legal || 'Sổ hồng lâu dài chính chủ',
+      furniture: prop.furniture || 'Full nội thất',
+
+      // 3. Media & Hình ảnh
+      images: Array.isArray(prop.images) ? [...prop.images] : (prop.images ? [prop.images] : []),
+      videoUrl: prop.videoUrl || '',
+      hasVR360: Boolean(prop.hasVR360),
+
+      // 4. Nội dung bài viết, Liên hệ & VIP
+      title: prop.title || '',
+      description: prop.description || '',
       vipPackageId: prop.vipPackageId || 'normal',
       status: prop.status || 'active',
       listingDays: prop.listingDays || 15,
       expiresAt: expDateStr,
       autoRenew: prop.autoRenew ?? false,
-      contactName: prop.author?.name || '',
-      contactPhone: prop.author?.phone || '',
-      description: prop.description || ''
+      contactName: prop.author?.name || prop.contactName || '',
+      contactPhone: prop.author?.phone || prop.contactPhone || '',
+      contactEmail: prop.author?.email || prop.contactEmail || '',
+      contactAddress: prop.author?.address || prop.contactAddress || ''
     });
   };
 
@@ -1040,25 +1132,65 @@ export default function AdminBackendPage() {
     if (editPropFormData.expiresAt) {
       newExpiresAt = new Date(editPropFormData.expiresAt).toISOString();
     }
+    
+    const matchedType = PROPERTY_TYPES.find(t => t.id === editPropFormData.propertyType);
+    const resolvedTypeName = matchedType?.name || editPropFormData.propertyTypeName || 'Căn hộ chung cư';
+
+    const fullAddress = [
+      editPropFormData.street,
+      editPropFormData.ward,
+      editPropFormData.district,
+      editPropFormData.city
+    ].filter(Boolean).join(', ');
+
     updateProperty(editingProperty.id, {
-      title: editPropFormData.title,
-      priceDisplay: editPropFormData.priceDisplay,
-      price: Number(editPropFormData.price) || editingProperty.price,
-      area: Number(editPropFormData.area) || editingProperty.area,
-      street: editPropFormData.street,
-      ward: editPropFormData.ward,
-      district: editPropFormData.district,
-      city: editPropFormData.city,
-      vipPackageId: editPropFormData.vipPackageId,
-      status: editPropFormData.status,
+      demand: editPropFormData.demand || 'sale',
+      propertyType: editPropFormData.propertyType || 'apartment',
+      propertyTypeName: resolvedTypeName,
+      project: editPropFormData.project || '',
+      addressDisplay: editPropFormData.addressDisplay || '',
+      address: fullAddress || editingProperty.address || '',
+      street: editPropFormData.street || '',
+      ward: editPropFormData.ward || '',
+      district: editPropFormData.district || '',
+      city: editPropFormData.city || '',
+      title: editPropFormData.title || '',
+      description: editPropFormData.description || '',
+      priceDisplay: editPropFormData.priceDisplay || '',
+      price: Number(editPropFormData.price) || editingProperty.price || 0,
+      priceType: editPropFormData.priceType || 'total',
+      pricePerM2: editPropFormData.pricePerM2 || '',
+      area: Number(editPropFormData.area) || editingProperty.area || 0,
+      facade: editPropFormData.facade !== '' && editPropFormData.facade !== null ? Number(editPropFormData.facade) : null,
+      entranceRoad: editPropFormData.entranceRoad !== '' && editPropFormData.entranceRoad !== null ? Number(editPropFormData.entranceRoad) : null,
+      roadType: editPropFormData.roadType || 'car_pass',
+      bedroom: Number(editPropFormData.bedroom) || 0,
+      bathroom: Number(editPropFormData.bathroom) || 0,
+      floor: editPropFormData.floor !== '' && editPropFormData.floor !== null ? Number(editPropFormData.floor) : null,
+      direction: editPropFormData.direction || '',
+      balconyDirection: editPropFormData.balconyDirection || '',
+      legal: editPropFormData.legal || '',
+      furniture: editPropFormData.furniture || '',
+      images: Array.isArray(editPropFormData.images) && editPropFormData.images.length > 0 
+        ? editPropFormData.images 
+        : editingProperty.images,
+      videoUrl: editPropFormData.videoUrl || '',
+      hasVR360: Boolean(editPropFormData.hasVR360),
+      vipPackageId: editPropFormData.vipPackageId || 'normal',
+      status: editPropFormData.status || 'active',
       listingDays: Number(editPropFormData.listingDays) || editingProperty.listingDays || 15,
       expiresAt: newExpiresAt,
       autoRenew: Boolean(editPropFormData.autoRenew),
-      description: editPropFormData.description,
+      contactName: editPropFormData.contactName || '',
+      contactPhone: editPropFormData.contactPhone || '',
+      contactEmail: editPropFormData.contactEmail || '',
+      contactAddress: editPropFormData.contactAddress || '',
       author: {
         ...editingProperty.author,
-        name: editPropFormData.contactName || editingProperty.author?.name,
-        phone: editPropFormData.contactPhone || editingProperty.author?.phone
+        name: editPropFormData.contactName || editingProperty.author?.name || '',
+        phone: editPropFormData.contactPhone || editingProperty.author?.phone || '',
+        email: editPropFormData.contactEmail || editingProperty.author?.email || '',
+        address: editPropFormData.contactAddress || editingProperty.author?.address || ''
       },
       updatedAt: nowIso
     });
@@ -2327,8 +2459,8 @@ export default function AdminBackendPage() {
               
               {/* === TOOLBAR TÌM KIẾM & BỘ LỌC ĐA NĂNG CHUẨN BATDONGSAN.COM.VN === */}
               <div className="p-4 border-b border-slate-800 space-y-3.5 bg-slate-950/90">
-                {/* Hàng 1: Tiêu đề phân hệ & Thanh tìm kiếm mở rộng */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                {/* Hàng 1: Tiêu đề phân hệ, Nút đăng tin mới & Thanh tìm kiếm mở rộng */}
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                   <div className="space-y-0.5">
                     <h3 className="text-sm font-black uppercase text-white tracking-wider flex items-center gap-2">
                       <span className="w-7 h-7 rounded-lg bg-red-600/20 text-red-500 flex items-center justify-center text-xs">
@@ -2337,29 +2469,41 @@ export default function AdminBackendPage() {
                       <span>Danh Sách Bất Động Sản Toàn Sàn ({properties.length})</span>
                     </h3>
                     <div className="text-[11px] text-slate-400">
-                      Quản lý vòng đời tin đăng, thời hạn hiển thị, cảnh báo hết hạn & tự động gia hạn chuẩn Batdongsan
+                      Quản lý đầy đủ danh mục, nhu cầu Mua bán / Cho thuê, thông số kỹ thuật, hạn hiển thị & tự động gia hạn chuẩn Batdongsan
                     </div>
                   </div>
 
-                  {/* Thanh tìm kiếm tức thì theo nhiều trường */}
-                  <div className="relative w-full md:w-80">
-                    <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
-                    <input
-                      type="text"
-                      placeholder="Tìm mã BDS, tiêu đề, SĐT, người đăng, khu vực..."
-                      value={propertySearchTerm}
-                      onChange={(e) => setPropertySearchTerm(e.target.value)}
-                      className="w-full pl-9 pr-9 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-red-500 font-medium transition"
-                    />
-                    {propertySearchTerm && (
-                      <button
-                        onClick={() => setPropertySearchTerm('')}
-                        className="absolute right-2.5 top-2 text-slate-400 hover:text-white text-xs w-5 h-5 rounded-full flex items-center justify-center bg-slate-800 hover:bg-slate-700 transition"
-                        title="Xóa tìm kiếm"
-                      >
-                        ✕
-                      </button>
-                    )}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    {/* Nút Đăng Tin BĐS Mới */}
+                    <Link
+                      to="/dang-tin"
+                      target="_blank"
+                      className="px-3.5 py-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-red-600/20 flex items-center gap-1.5 shrink-0"
+                    >
+                      <i className="fa-solid fa-circle-plus text-sm"></i>
+                      <span>Đăng Tin Mới</span>
+                    </Link>
+
+                    {/* Thanh tìm kiếm tức thì theo nhiều trường */}
+                    <div className="relative w-full sm:w-72">
+                      <i className="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                      <input
+                        type="text"
+                        placeholder="Tìm mã BDS, tiêu đề, SĐT, dự án, khu vực..."
+                        value={propertySearchTerm}
+                        onChange={(e) => setPropertySearchTerm(e.target.value)}
+                        className="w-full pl-9 pr-9 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-red-500 font-medium transition"
+                      />
+                      {propertySearchTerm && (
+                        <button
+                          onClick={() => setPropertySearchTerm('')}
+                          className="absolute right-2.5 top-2 text-slate-400 hover:text-white text-xs w-5 h-5 rounded-full flex items-center justify-center bg-slate-800 hover:bg-slate-700 transition"
+                          title="Xóa tìm kiếm"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -2469,9 +2613,81 @@ export default function AdminBackendPage() {
                   </button>
                 </div>
 
-                {/* Hàng 3: Bộ lọc chi tiết (Người đăng, Gói VIP, Sắp xếp) */}
-                <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1 border-t border-slate-800/80 text-xs">
+                {/* Hàng 3: Bộ lọc chi tiết (Nhu cầu, Danh mục BĐS, Tỉnh/Thành, Người đăng, Gói VIP, Sắp xếp) */}
+                <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2 border-t border-slate-800/80 text-xs">
                   <div className="flex flex-wrap items-center gap-2">
+                    {/* Filter Nhu cầu (Bán / Thuê) */}
+                    <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
+                      <button
+                        onClick={() => setPropertyDemandFilter('all')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-bold transition ${
+                          propertyDemandFilter === 'all' ? 'bg-red-600 text-white' : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        Tất cả nhu cầu ({propertyDemandCounts.all})
+                      </button>
+                      <button
+                        onClick={() => setPropertyDemandFilter('sale')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
+                          propertyDemandFilter === 'sale' ? 'bg-emerald-600 text-white' : 'text-emerald-400 hover:text-white'
+                        }`}
+                      >
+                        <i className="fa-solid fa-tag text-[10px]"></i>
+                        <span>Cần bán ({propertyDemandCounts.sale})</span>
+                      </button>
+                      <button
+                        onClick={() => setPropertyDemandFilter('rent')}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1 ${
+                          propertyDemandFilter === 'rent' ? 'bg-blue-600 text-white' : 'text-blue-400 hover:text-white'
+                        }`}
+                      >
+                        <i className="fa-solid fa-key text-[10px]"></i>
+                        <span>Cho thuê ({propertyDemandCounts.rent})</span>
+                      </button>
+                    </div>
+
+                    {/* Filter Danh mục BĐS (8 loại hình chuẩn) */}
+                    <div className="flex items-center gap-1.5 bg-slate-900 px-3 py-1 rounded-xl border border-slate-800 text-xs">
+                      <span className="text-slate-400 font-bold flex items-center gap-1">
+                        <i className="fa-solid fa-layer-group text-amber-400"></i>
+                        <span>Danh mục:</span>
+                      </span>
+                      <select
+                        value={propertyCategoryFilter}
+                        onChange={(e) => setPropertyCategoryFilter(e.target.value)}
+                        className="bg-transparent text-white font-bold outline-none cursor-pointer max-w-[170px] truncate"
+                      >
+                        <option value="all" className="bg-slate-900 text-white">Tất cả danh mục ({properties.length})</option>
+                        {PROPERTY_TYPES.map(cat => (
+                          <option key={cat.id} value={cat.id} className="bg-slate-900 text-white font-medium">
+                            {cat.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Filter Tỉnh / Thành phố */}
+                    {availableCities.length > 0 && (
+                      <div className="flex items-center gap-1.5 bg-slate-900 px-3 py-1 rounded-xl border border-slate-800 text-xs">
+                        <span className="text-slate-400 font-bold flex items-center gap-1">
+                          <i className="fa-solid fa-location-dot text-rose-400"></i>
+                          <span>Tỉnh/Thành:</span>
+                        </span>
+                        <select
+                          value={propertyCityFilter}
+                          onChange={(e) => setPropertyCityFilter(e.target.value)}
+                          className="bg-transparent text-white font-bold outline-none cursor-pointer max-w-[140px] truncate"
+                        >
+                          <option value="all" className="bg-slate-900 text-white">Tất cả địa bàn ({availableCities.length})</option>
+                          {availableCities.map(city => (
+                            <option key={city} value={city} className="bg-slate-900 text-white">
+                              {city}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
                     {/* Filter Người đăng */}
                     <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
                       <button
@@ -2543,17 +2759,20 @@ export default function AdminBackendPage() {
                     </div>
 
                     {/* Nút đặt lại bộ lọc nếu có lọc */}
-                    {(propertySearchTerm || propertyStatusFilter !== 'all' || propertyVipFilter !== 'all' || propertyAuthorFilter !== 'all' || propertySortBy !== 'newest') && (
+                    {(propertySearchTerm || propertyStatusFilter !== 'all' || propertyDemandFilter !== 'all' || propertyCategoryFilter !== 'all' || propertyCityFilter !== 'all' || propertyVipFilter !== 'all' || propertyAuthorFilter !== 'all' || propertySortBy !== 'newest') && (
                       <button
                         onClick={() => {
                           setPropertySearchTerm('');
                           setPropertyStatusFilter('all');
+                          setPropertyDemandFilter('all');
+                          setPropertyCategoryFilter('all');
+                          setPropertyCityFilter('all');
                           setPropertyVipFilter('all');
                           setPropertyAuthorFilter('all');
                           setPropertySortBy('newest');
                         }}
                         className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold transition flex items-center gap-1"
-                        title="Đặt lại bộ lọc về mặc định"
+                        title="Đặt lại toàn bộ bộ lọc về mặc định"
                       >
                         <i className="fa-solid fa-rotate-left text-[10px]"></i>
                         <span>Đặt lại</span>
@@ -2605,10 +2824,10 @@ export default function AdminBackendPage() {
                 <table className="w-full text-xs text-left">
                   <thead className="bg-slate-900 text-slate-400">
                     <tr>
-                      <th className="p-3">Mã BĐS</th>
-                      <th className="p-3">Hình ảnh & Tiêu đề</th>
+                      <th className="p-3">Mã & Nhu Cầu</th>
+                      <th className="p-3 min-w-[320px]">Hình ảnh, Tiêu đề & Danh mục</th>
+                      <th className="p-3 min-w-[160px]">Thông số & Định giá</th>
                       <th className="p-3">Người đăng & Phân loại</th>
-                      <th className="p-3">Mức giá & Diện tích</th>
                       <th className="p-3">Gói VIP</th>
                       <th className="p-3">Khu vực</th>
                       <th className="p-3 min-w-[140px]">
@@ -2648,6 +2867,9 @@ export default function AdminBackendPage() {
                             onClick={() => {
                               setPropertySearchTerm('');
                               setPropertyStatusFilter('all');
+                              setPropertyDemandFilter('all');
+                              setPropertyCategoryFilter('all');
+                              setPropertyCityFilter('all');
                               setPropertyVipFilter('all');
                               setPropertyAuthorFilter('all');
                             }}
@@ -2661,28 +2883,110 @@ export default function AdminBackendPage() {
                       filteredPropertiesList.map(p => {
                         const isGuest = p.isGuest || p.author?.isGuest || String(p.author?.id).startsWith('guest') || p.author?.title?.includes('Khách');
                         const expInfo = getPropertyExpirationInfo(p);
+                        const matchedType = PROPERTY_TYPES.find(t => t.id === (p.propertyType || p.type));
+                        const typeName = p.propertyTypeName || matchedType?.name || 'Căn hộ chung cư';
+                        const typeIcon = matchedType?.icon || 'fa-building';
+                        const isRent = p.demand === 'rent';
 
                         return (
                           <tr key={p.id} className="hover:bg-slate-900/60 transition">
-                            <td className="p-3 font-mono font-bold text-slate-400">{p.id}</td>
-                            <td className="p-3 flex items-center gap-3 min-w-[280px]">
-                              <img src={p.images?.[0] || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=400&q=80'} alt="" className="w-12 h-10 object-cover rounded-lg shrink-0" />
-                              <Link 
-                                to={getPropertyPermalink(p)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="font-bold text-white hover:text-emerald-400 cursor-pointer line-clamp-1 block"
-                              >
-                                {p.title}
-                              </Link>
+                            {/* Cột 1: Mã BĐS & Nhu Cầu (Bán / Thuê) */}
+                            <td className="p-3">
+                              <div className="font-mono font-bold text-slate-400">{p.id}</div>
+                              <div className="mt-1">
+                                {isRent ? (
+                                  <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-blue-950 text-blue-300 border border-blue-800 flex items-center gap-1 w-fit shadow-sm">
+                                    <i className="fa-solid fa-key text-[9px]"></i> CHO THUÊ
+                                  </span>
+                                ) : (
+                                  <span className="px-2 py-0.5 rounded-md text-[10px] font-black uppercase bg-emerald-950 text-emerald-300 border border-emerald-800 flex items-center gap-1 w-fit shadow-sm">
+                                    <i className="fa-solid fa-tag text-[9px]"></i> CẦN BÁN
+                                  </span>
+                                )}
+                              </div>
                             </td>
+
+                            {/* Cột 2: Hình ảnh, Tiêu đề, Danh mục & Dự án */}
+                            <td className="p-3 min-w-[320px]">
+                              <div className="flex items-start gap-3">
+                                <div className="relative shrink-0">
+                                  <img src={p.images?.[0] || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=400&q=80'} alt="" className="w-14 h-12 object-cover rounded-xl border border-slate-800" />
+                                  {p.images && p.images.length > 1 && (
+                                    <span className="absolute bottom-0.5 right-0.5 bg-black/80 text-white text-[9px] px-1 py-0.2 rounded font-mono font-bold">
+                                      {p.images.length} ảnh
+                                    </span>
+                                  )}
+                                  {p.hasVR360 && (
+                                    <span className="absolute top-0.5 left-0.5 bg-cyan-600 text-white text-[8px] px-1 rounded font-black">
+                                      VR 360
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-950/70 text-amber-300 border border-amber-800/70 inline-flex items-center gap-1">
+                                      <i className={`fa-solid ${typeIcon} text-[9px]`}></i>
+                                      <span>{typeName}</span>
+                                    </span>
+                                    {p.project && (
+                                      <span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-800 text-slate-300 border border-slate-700 truncate max-w-[150px]" title={p.project}>
+                                        <i className="fa-solid fa-city text-[9px] mr-1 text-slate-400"></i>
+                                        {p.project}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <Link 
+                                    to={getPropertyPermalink(p)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="font-bold text-white hover:text-emerald-400 cursor-pointer line-clamp-2 block transition text-xs leading-snug"
+                                  >
+                                    {p.title}
+                                  </Link>
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* Cột 3: Mức giá, Diện tích & Thông số kỹ thuật (PN, WC, Hướng, Pháp lý) */}
+                            <td className="p-3 min-w-[160px]">
+                              <div className="font-black text-emerald-400 text-sm">{p.priceDisplay}</div>
+                              <div className="text-[11px] text-slate-300 font-bold">
+                                {p.area} m² {p.pricePerM2 && <span className="text-[10px] text-slate-400 font-normal">({p.pricePerM2})</span>}
+                              </div>
+                              <div className="flex items-center gap-1.5 mt-1 text-[10px] text-slate-400 flex-wrap">
+                                {Number(p.bedroom) > 0 && (
+                                  <span className="px-1 py-0.2 rounded bg-slate-900 border border-slate-800 flex items-center gap-0.5" title="Phòng ngủ">
+                                    <i className="fa-solid fa-bed text-slate-500 text-[9px]"></i>
+                                    <span>{p.bedroom} PN</span>
+                                  </span>
+                                )}
+                                {Number(p.bathroom) > 0 && (
+                                  <span className="px-1 py-0.2 rounded bg-slate-900 border border-slate-800 flex items-center gap-0.5" title="Phòng tắm / WC">
+                                    <i className="fa-solid fa-bath text-slate-500 text-[9px]"></i>
+                                    <span>{p.bathroom} WC</span>
+                                  </span>
+                                )}
+                                {p.direction && (
+                                  <span className="px-1 py-0.2 rounded bg-slate-900 border border-slate-800 flex items-center gap-0.5" title="Hướng cửa">
+                                    <i className="fa-solid fa-compass text-slate-500 text-[9px]"></i>
+                                    <span>{p.direction}</span>
+                                  </span>
+                                )}
+                                {p.legal && (
+                                  <span className="px-1.5 py-0.2 rounded bg-slate-900 border border-slate-800 text-[9px] text-slate-300 truncate max-w-[120px]" title={p.legal}>
+                                    {p.legal}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+
                             {/* Column: Người Đăng & Phân Loại */}
                             <td className="p-3 min-w-[170px]">
                               <div className="font-bold text-white flex items-center gap-1.5">
-                                <span className="truncate max-w-[130px]">{p.author?.name || 'Khách vãng lai'}</span>
+                                <span className="truncate max-w-[130px]">{p.author?.name || p.contactName || 'Khách vãng lai'}</span>
                               </div>
                               <div className="text-[11px] font-mono text-slate-400">
-                                {p.author?.phone || 'Chưa có SĐT'}
+                                {p.author?.phone || p.contactPhone || 'Chưa có SĐT'}
                               </div>
                               <div className="mt-1">
                                 {isGuest ? (
@@ -2696,10 +3000,7 @@ export default function AdminBackendPage() {
                                 )}
                               </div>
                             </td>
-                            <td className="p-3">
-                              <div className="font-black text-emerald-400">{p.priceDisplay}</div>
-                              <div className="text-[10px] text-slate-400">{p.area} m²</div>
-                            </td>
+
                             <td className="p-3">
                               <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
                                 p.vipPackageId === 'vip-diamond' ? 'bg-red-600 text-white' :
@@ -2710,7 +3011,11 @@ export default function AdminBackendPage() {
                                 {p.vipPackageId?.replace('vip-', 'VIP ') || 'TIN THƯỜNG'}
                               </span>
                             </td>
-                            <td className="p-3 text-slate-300">{p.district}, {p.city}</td>
+
+                            <td className="p-3 text-slate-300 min-w-[130px]">
+                              <div className="font-medium text-white">{p.district || 'Chưa rõ quận'}, {p.city || 'Chưa rõ'}</div>
+                              {p.street && <div className="text-[10px] text-slate-400 truncate max-w-[130px]">{p.street}</div>}
+                            </td>
                             
                             {/* Cột: Thời Gian Đăng Tin */}
                             <td className="p-3 min-w-[140px]">
@@ -6159,23 +6464,34 @@ export default function AdminBackendPage() {
         </div>
       )}
 
-      {/* MODAL: CHỈNH SỬA CHI TIẾT BÀI ĐĂNG BẤT ĐỘNG SẢN */}
+      {/* MODAL: CHỈNH SỬA CHI TIẾT BÀI ĐĂNG BẤT ĐỘNG SẢN (ĐẦY ĐỦ TRƯỜNG & DANH MỤC THEO /dang-tin) */}
       {editingProperty && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 max-w-2xl w-full space-y-4 my-8 shadow-2xl animate-in zoom-in-95 duration-150">
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-5 sm:p-6 max-w-4xl w-full space-y-4 my-6 shadow-2xl animate-in zoom-in-95 duration-150">
+            {/* Header Modal */}
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <div className="flex items-center gap-2.5">
                 <div className="w-9 h-9 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center text-sm">
                   <i className="fa-solid fa-pen-to-square"></i>
                 </div>
                 <div>
-                  <h3 className="text-base font-black text-white">
-                    Chỉnh Sửa Tin BĐS: {editingProperty.id}
-                  </h3>
-                  <div className="text-[11px] text-slate-400 flex items-center gap-2 flex-wrap">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-base font-black text-white">
+                      Chỉnh Sửa Tin BĐS: {editingProperty.id}
+                    </h3>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${
+                      editPropFormData.demand === 'rent' ? 'bg-blue-950 text-blue-300 border border-blue-800' : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                    }`}>
+                      {editPropFormData.demand === 'rent' ? 'Cho Thuê' : 'Cần Bán'}
+                    </span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-950/80 text-amber-300 border border-amber-800">
+                      {editPropFormData.propertyTypeName || 'Căn hộ'}
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-400 flex items-center gap-2 flex-wrap mt-0.5">
                     <span>Đăng lúc: <strong className="text-slate-200 font-mono">{formatDateTime(editingProperty.publishedAt || editingProperty.createdAt || editingProperty.submittedAt).full}</strong></span>
                     {editingProperty.updatedAt && (
-                      <span>• Đã sửa lúc: <strong className="text-amber-300 font-mono">{formatDateTime(editingProperty.updatedAt).full}</strong></span>
+                      <span>• Đã sửa: <strong className="text-amber-300 font-mono">{formatDateTime(editingProperty.updatedAt).full}</strong></span>
                     )}
                   </div>
                 </div>
@@ -6190,171 +6506,670 @@ export default function AdminBackendPage() {
               </button>
             </div>
 
-            <div className="space-y-3.5 max-h-[70vh] overflow-y-auto pr-1 text-xs">
-              {/* Tiêu đề */}
-              <div>
-                <label className="block text-slate-400 font-bold mb-1">Tiêu đề bài đăng:</label>
-                <input
-                  type="text"
-                  value={editPropFormData.title || ''}
-                  onChange={(e) => setEditPropFormData({ ...editPropFormData, title: e.target.value })}
-                  className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-blue-500"
-                />
-              </div>
-
-              {/* Mức giá & Diện tích */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-slate-400 font-bold mb-1">Mức giá hiển thị (VD: 3.5 Tỷ, 15 tr/tháng):</label>
-                  <input
-                    type="text"
-                    value={editPropFormData.priceDisplay || ''}
-                    onChange={(e) => setEditPropFormData({ ...editPropFormData, priceDisplay: e.target.value })}
-                    className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-emerald-400 font-black outline-none focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-400 font-bold mb-1">Diện tích (m²):</label>
-                  <input
-                    type="number"
-                    value={editPropFormData.area || 0}
-                    onChange={(e) => setEditPropFormData({ ...editPropFormData, area: Number(e.target.value) })}
-                    className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-blue-500"
-                  />
-                </div>
-              </div>
-
-              {/* Gói VIP & Trạng thái */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-slate-400 font-bold mb-1">Cấp độ gói VIP:</label>
-                  <select
-                    value={editPropFormData.vipPackageId || 'normal'}
-                    onChange={(e) => setEditPropFormData({ ...editPropFormData, vipPackageId: e.target.value })}
-                    className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-blue-500"
-                  >
-                    <option value="vip-diamond">VIP Kim Cương (VIP 1)</option>
-                    <option value="vip-gold">VIP Vàng (VIP 2)</option>
-                    <option value="vip-silver">VIP Bạc (VIP 3)</option>
-                    <option value="normal">Tin Thường</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-slate-400 font-bold mb-1">Trạng thái xuất bản:</label>
-                  <select
-                    value={editPropFormData.status || 'active'}
-                    onChange={(e) => setEditPropFormData({ ...editPropFormData, status: e.target.value })}
-                    className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-blue-500"
-                  >
-                    <option value="active">Hiển thị (Active)</option>
-                    <option value="expired">Đã hết hạn (Expired)</option>
-                    <option value="pending">Chờ phê duyệt (Pending)</option>
-                    <option value="rejected">Từ chối (Rejected)</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Chu kỳ & Hạn hiển thị (Chuẩn Batdongsan.com.vn) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-900/60 rounded-xl border border-slate-800">
-                <div>
-                  <label className="block text-slate-400 font-bold mb-1">Số ngày hiển thị (listingDays):</label>
-                  <select
-                    value={editPropFormData.listingDays || 15}
-                    onChange={(e) => setEditPropFormData({ ...editPropFormData, listingDays: Number(e.target.value) })}
-                    className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-blue-500"
-                  >
-                    <option value={7}>7 ngày</option>
-                    <option value={10}>10 ngày</option>
-                    <option value={15}>15 ngày (Tiêu chuẩn)</option>
-                    <option value={30}>30 ngày</option>
-                    <option value={60}>60 ngày</option>
-                    <option value={90}>90 ngày</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-slate-400 font-bold mb-1">Thời điểm hết hạn (expiresAt):</label>
-                  <input
-                    type="datetime-local"
-                    value={editPropFormData.expiresAt || ''}
-                    onChange={(e) => setEditPropFormData({ ...editPropFormData, expiresAt: e.target.value })}
-                    className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-emerald-400 font-mono font-bold outline-none focus:border-blue-500"
-                  />
-                </div>
-                <div className="sm:col-span-2 flex items-center justify-between pt-1 border-t border-slate-800/60">
-                  <span className="text-[11px] text-slate-300 font-bold flex items-center gap-1.5">
-                    <i className="fa-solid fa-arrows-rotate text-cyan-400"></i>
-                    <span>Tự động gia hạn khi hết hạn (Auto-Renew):</span>
-                  </span>
-                  <input
-                    type="checkbox"
-                    checked={Boolean(editPropFormData.autoRenew)}
-                    onChange={(e) => setEditPropFormData({ ...editPropFormData, autoRenew: e.target.checked })}
-                    className="w-4 h-4 accent-cyan-500 rounded cursor-pointer"
-                  />
-                </div>
-              </div>
-
-              {/* Khu vực */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-slate-400 font-bold mb-1">Quận / Huyện:</label>
-                  <input
-                    type="text"
-                    value={editPropFormData.district || ''}
-                    onChange={(e) => setEditPropFormData({ ...editPropFormData, district: e.target.value })}
-                    className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-400 font-bold mb-1">Tỉnh / Thành phố:</label>
-                  <input
-                    type="text"
-                    value={editPropFormData.city || ''}
-                    onChange={(e) => setEditPropFormData({ ...editPropFormData, city: e.target.value })}
-                    className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
-                  />
-                </div>
-              </div>
-
-              {/* Thông tin người liên hệ */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-slate-400 font-bold mb-1">Họ tên người đăng:</label>
-                  <input
-                    type="text"
-                    value={editPropFormData.contactName || ''}
-                    onChange={(e) => setEditPropFormData({ ...editPropFormData, contactName: e.target.value })}
-                    className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-slate-400 font-bold mb-1">Số điện thoại liên hệ:</label>
-                  <input
-                    type="text"
-                    value={editPropFormData.contactPhone || ''}
-                    onChange={(e) => setEditPropFormData({ ...editPropFormData, contactPhone: e.target.value })}
-                    className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono outline-none focus:border-blue-500"
-                  />
-                </div>
-              </div>
-
-              {/* Mô tả chi tiết */}
-              <div>
-                <label className="block text-slate-400 font-bold mb-1">Mô tả chi tiết:</label>
-                <textarea
-                  rows="4"
-                  value={editPropFormData.description || ''}
-                  onChange={(e) => setEditPropFormData({ ...editPropFormData, description: e.target.value })}
-                  className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs outline-none focus:border-blue-500"
-                ></textarea>
-              </div>
+            {/* Tab Navigation */}
+            <div className="flex items-center gap-1.5 border-b border-slate-800 pb-2 overflow-x-auto scrollbar-thin text-xs">
+              <button
+                type="button"
+                onClick={() => setEditPropTab('general')}
+                className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 shrink-0 ${
+                  editPropTab === 'general'
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
+                    : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                }`}
+              >
+                <i className="fa-solid fa-layer-group text-xs"></i>
+                <span>1. Nhu Cầu & Vị Trí</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditPropTab('specs')}
+                className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 shrink-0 ${
+                  editPropTab === 'specs'
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
+                    : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                }`}
+              >
+                <i className="fa-solid fa-ruler-combined text-xs"></i>
+                <span>2. Thông Số & Pháp Lý & Giá</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditPropTab('media')}
+                className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 shrink-0 ${
+                  editPropTab === 'media'
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
+                    : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                }`}
+              >
+                <i className="fa-solid fa-images text-xs"></i>
+                <span>3. Hình Ảnh ({editPropFormData.images?.length || 0})</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setEditPropTab('content')}
+                className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 shrink-0 ${
+                  editPropTab === 'content'
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20'
+                    : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+                }`}
+              >
+                <i className="fa-solid fa-file-lines text-xs"></i>
+                <span>4. Nội Dung & Liên Hệ & VIP</span>
+              </button>
             </div>
 
-            <div className="flex items-center justify-between border-t border-slate-800 pt-3">
-              <div className="text-[11px] text-slate-500">
-                * Khi bấm Lưu, hệ thống sẽ tự động cập nhật mốc <strong>Thời gian đã sửa tin</strong>.
+            {/* Modal Body Container */}
+            <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-1 text-xs">
+              
+              {/* === TAB 1: NHU CẦU, DANH MỤC & VỊ TRÍ === */}
+              {editPropTab === 'general' && (
+                <div className="space-y-4 animate-in fade-in duration-150">
+                  {/* Nhu cầu giao dịch */}
+                  <div className="p-3.5 bg-slate-900/70 rounded-2xl border border-slate-800 space-y-2">
+                    <label className="block text-slate-300 font-bold">Nhu cầu giao dịch:</label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setEditPropFormData({ ...editPropFormData, demand: 'sale' })}
+                        className={`p-3 rounded-xl border text-center font-bold flex items-center justify-center gap-2 transition ${
+                          editPropFormData.demand === 'sale'
+                            ? 'bg-emerald-600/20 border-emerald-500 text-emerald-300 shadow-sm'
+                            : 'bg-slate-900 border-slate-700 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        <i className="fa-solid fa-tag text-emerald-400"></i>
+                        <span>Cần Bán (Sale)</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditPropFormData({ ...editPropFormData, demand: 'rent' })}
+                        className={`p-3 rounded-xl border text-center font-bold flex items-center justify-center gap-2 transition ${
+                          editPropFormData.demand === 'rent'
+                            ? 'bg-blue-600/20 border-blue-500 text-blue-300 shadow-sm'
+                            : 'bg-slate-900 border-slate-700 text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        <i className="fa-solid fa-key text-blue-400"></i>
+                        <span>Cho Thuê (Rent)</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Danh mục / Loại hình BĐS */}
+                  <div className="p-3.5 bg-slate-900/70 rounded-2xl border border-slate-800 space-y-2">
+                    <label className="block text-slate-300 font-bold flex items-center gap-1.5">
+                      <i className="fa-solid fa-layer-group text-amber-400"></i>
+                      <span>Danh mục loại hình BĐS ({PROPERTY_TYPES.length} loại hình chuẩn):</span>
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {PROPERTY_TYPES.map(cat => {
+                        const isSelected = editPropFormData.propertyType === cat.id;
+                        return (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => setEditPropFormData({
+                              ...editPropFormData,
+                              propertyType: cat.id,
+                              propertyTypeName: cat.name
+                            })}
+                            className={`p-2.5 rounded-xl border text-left font-bold transition flex items-center gap-2 ${
+                              isSelected
+                                ? 'bg-amber-600/20 border-amber-500 text-amber-300 shadow-sm'
+                                : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                            }`}
+                          >
+                            <i className={`fa-solid ${cat.icon} text-xs text-amber-400`}></i>
+                            <span className="truncate">{cat.name}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Dự án & Địa chỉ hiển thị */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-slate-400 font-bold mb-1">Tên Dự án / Khu đô thị:</label>
+                      <input
+                        type="text"
+                        placeholder="VD: Goldmark City, Vinhomes Ocean Park..."
+                        value={editPropFormData.project || ''}
+                        onChange={(e) => setEditPropFormData({ ...editPropFormData, project: e.target.value })}
+                        className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-400 font-bold mb-1">Địa chỉ hiển thị tùy chọn:</label>
+                      <input
+                        type="text"
+                        placeholder="VD: 136 Hồ Tùng Mậu, Cầu Giấy"
+                        value={editPropFormData.addressDisplay || ''}
+                        onChange={(e) => setEditPropFormData({ ...editPropFormData, addressDisplay: e.target.value })}
+                        className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Vị trí hành chính 4 cấp */}
+                  <div className="p-3.5 bg-slate-900/70 rounded-2xl border border-slate-800 space-y-3">
+                    <div className="font-bold text-slate-300 flex items-center gap-1.5">
+                      <i className="fa-solid fa-location-dot text-rose-400"></i>
+                      <span>Vị trí hành chính:</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-slate-400 font-bold mb-1">Tỉnh / Thành phố:</label>
+                        <input
+                          type="text"
+                          placeholder="VD: Hà Nội, TP.HCM, Đà Nẵng..."
+                          value={editPropFormData.city || ''}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, city: e.target.value })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-400 font-bold mb-1">Quận / Huyện:</label>
+                        <input
+                          type="text"
+                          placeholder="VD: Quận Cầu Giấy..."
+                          value={editPropFormData.district || ''}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, district: e.target.value })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-400 font-bold mb-1">Phường / Xã:</label>
+                        <input
+                          type="text"
+                          placeholder="VD: Dịch Vọng..."
+                          value={editPropFormData.ward || ''}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, ward: e.target.value })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-400 font-bold mb-1">Tuyến đường / Phố:</label>
+                        <input
+                          type="text"
+                          placeholder="VD: Đường Cầu Giấy..."
+                          value={editPropFormData.street || ''}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, street: e.target.value })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* === TAB 2: THÔNG SỐ KỸ THUẬT & PHÁP LÝ & GIÁ === */}
+              {editPropTab === 'specs' && (
+                <div className="space-y-4 animate-in fade-in duration-150">
+                  {/* Định giá & Diện tích */}
+                  <div className="p-3.5 bg-slate-900/70 rounded-2xl border border-slate-800 space-y-3">
+                    <div className="font-bold text-slate-300 flex items-center gap-1.5">
+                      <i className="fa-solid fa-coins text-emerald-400"></i>
+                      <span>Định giá & Diện tích:</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-slate-400 font-bold mb-1">Giá hiển thị (VD: 3.5 Tỷ, 15 tr/tháng):</label>
+                        <input
+                          type="text"
+                          value={editPropFormData.priceDisplay || ''}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, priceDisplay: e.target.value })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-emerald-400 font-black outline-none focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-400 font-bold mb-1">Giá trị số chuẩn (VNĐ):</label>
+                        <input
+                          type="number"
+                          step="10000000"
+                          value={editPropFormData.price || 0}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, price: Number(e.target.value) })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono font-bold outline-none focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-400 font-bold mb-1">Kiểu định giá:</label>
+                        <select
+                          value={editPropFormData.priceType || 'total'}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, priceType: e.target.value })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-blue-500"
+                        >
+                          <option value="total">Tổng giá trọn gói</option>
+                          <option value="m2">Theo m²</option>
+                          <option value="deal">Thỏa thuận</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-slate-400 font-bold mb-1">Diện tích (m²):</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          value={editPropFormData.area || 0}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, area: Number(e.target.value) })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-blue-500"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="block text-slate-400 font-bold mb-1">Đơn giá trên m² (pricePerM2):</label>
+                        <input
+                          type="text"
+                          placeholder="VD: 46.7 tr/m²"
+                          value={editPropFormData.pricePerM2 || ''}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, pricePerM2: e.target.value })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mặt tiền & Lộ giới đường */}
+                  <div className="p-3.5 bg-slate-900/70 rounded-2xl border border-slate-800 space-y-3">
+                    <div className="font-bold text-slate-300 flex items-center gap-1.5">
+                      <i className="fa-solid fa-road text-cyan-400"></i>
+                      <span>Quy hoạch & Đường sá:</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-slate-400 font-bold mb-1">Mặt tiền (m):</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          placeholder="VD: 5.0"
+                          value={editPropFormData.facade ?? ''}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, facade: e.target.value })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-400 font-bold mb-1">Đường vào / Lộ giới (m):</label>
+                        <input
+                          type="number"
+                          step="0.1"
+                          placeholder="VD: 8.0"
+                          value={editPropFormData.entranceRoad ?? ''}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, entranceRoad: e.target.value })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-400 font-bold mb-1">Đặc điểm đường vào:</label>
+                        <select
+                          value={editPropFormData.roadType || 'car_pass'}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, roadType: e.target.value })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
+                        >
+                          <option value="car_pass">Đường ô tô tránh nhau</option>
+                          <option value="truck">Đường xe tải tránh</option>
+                          <option value="car_in">Đường ô tô vào nhà</option>
+                          <option value="bike">Đường xe máy / Ngõ nhỏ</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Cấu trúc & Hướng */}
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                    <div>
+                      <label className="block text-slate-400 font-bold mb-1">Phòng ngủ:</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={editPropFormData.bedroom ?? 0}
+                        onChange={(e) => setEditPropFormData({ ...editPropFormData, bedroom: Number(e.target.value) })}
+                        className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-400 font-bold mb-1">Phòng tắm / WC:</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={editPropFormData.bathroom ?? 0}
+                        onChange={(e) => setEditPropFormData({ ...editPropFormData, bathroom: Number(e.target.value) })}
+                        className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-400 font-bold mb-1">Số tầng:</label>
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="VD: 3"
+                        value={editPropFormData.floor ?? ''}
+                        onChange={(e) => setEditPropFormData({ ...editPropFormData, floor: e.target.value })}
+                        className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-400 font-bold mb-1">Hướng cửa chính:</label>
+                      <select
+                        value={editPropFormData.direction || ''}
+                        onChange={(e) => setEditPropFormData({ ...editPropFormData, direction: e.target.value })}
+                        className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
+                      >
+                        <option value="">Chưa xác định</option>
+                        <option value="Đông">Đông</option>
+                        <option value="Tây">Tây</option>
+                        <option value="Nam">Nam</option>
+                        <option value="Bắc">Bắc</option>
+                        <option value="Đông Nam">Đông Nam</option>
+                        <option value="Đông Bắc">Đông Bắc</option>
+                        <option value="Tây Nam">Tây Nam</option>
+                        <option value="Tây Bắc">Tây Bắc</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-slate-400 font-bold mb-1">Hướng ban công:</label>
+                      <select
+                        value={editPropFormData.balconyDirection || ''}
+                        onChange={(e) => setEditPropFormData({ ...editPropFormData, balconyDirection: e.target.value })}
+                        className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
+                      >
+                        <option value="">Chưa xác định</option>
+                        <option value="Đông">Đông</option>
+                        <option value="Tây">Tây</option>
+                        <option value="Nam">Nam</option>
+                        <option value="Bắc">Bắc</option>
+                        <option value="Đông Nam">Đông Nam</option>
+                        <option value="Đông Bắc">Đông Bắc</option>
+                        <option value="Tây Nam">Tây Nam</option>
+                        <option value="Tây Bắc">Tây Bắc</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Pháp lý & Nội thất */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-slate-400 font-bold mb-1">Tình trạng pháp lý:</label>
+                      <input
+                        type="text"
+                        placeholder="VD: Sổ hồng lâu dài chính chủ, Hợp đồng mua bán..."
+                        value={editPropFormData.legal || ''}
+                        onChange={(e) => setEditPropFormData({ ...editPropFormData, legal: e.target.value })}
+                        className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-slate-400 font-bold mb-1">Tình trạng nội thất:</label>
+                      <input
+                        type="text"
+                        placeholder="VD: Full nội thất cao cấp, Đầy đủ, Cơ bản, Nhà thô..."
+                        value={editPropFormData.furniture || ''}
+                        onChange={(e) => setEditPropFormData({ ...editPropFormData, furniture: e.target.value })}
+                        className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* === TAB 3: HÌNH ẢNH & ĐA PHƯƠNG TIỆN === */}
+              {editPropTab === 'media' && (
+                <div className="space-y-4 animate-in fade-in duration-150">
+                  {/* VR 360 & Video URL */}
+                  <div className="p-3.5 bg-slate-900/70 rounded-2xl border border-slate-800 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-slate-300 flex items-center gap-1.5">
+                        <i className="fa-solid fa-vr-cardboard text-cyan-400"></i>
+                        <span>Thực tế ảo VR 360 độ:</span>
+                      </span>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(editPropFormData.hasVR360)}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, hasVR360: e.target.checked })}
+                          className="w-4 h-4 accent-cyan-500 rounded cursor-pointer"
+                        />
+                        <span className="text-white font-bold">Kích hoạt xem nhà 360°</span>
+                      </label>
+                    </div>
+                    <div>
+                      <label className="block text-slate-400 font-bold mb-1">Link Video giới thiệu (Youtube / TikTok / FB):</label>
+                      <input
+                        type="text"
+                        placeholder="VD: https://www.youtube.com/watch?v=..."
+                        value={editPropFormData.videoUrl || ''}
+                        onChange={(e) => setEditPropFormData({ ...editPropFormData, videoUrl: e.target.value })}
+                        className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500 font-mono text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Quản lý danh sách hình ảnh */}
+                  <div className="p-3.5 bg-slate-900/70 rounded-2xl border border-slate-800 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="font-bold text-slate-300 flex items-center gap-1.5">
+                        <i className="fa-solid fa-images text-blue-400"></i>
+                        <span>Danh sách hình ảnh ({editPropFormData.images?.length || 0} ảnh):</span>
+                      </div>
+                      <span className="text-[10px] text-slate-400">Ảnh đầu tiên là ảnh bìa chính</span>
+                    </div>
+
+                    {/* Quick Add Image */}
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        placeholder="Dán link ảnh (https://...)"
+                        value={newImageInput}
+                        onChange={(e) => setNewImageInput(e.target.value)}
+                        className="flex-1 p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500 font-mono text-xs"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!newImageInput.trim()) return;
+                          const currentImgs = Array.isArray(editPropFormData.images) ? [...editPropFormData.images] : [];
+                          setEditPropFormData({ ...editPropFormData, images: [...currentImgs, newImageInput.trim()] });
+                          setNewImageInput('');
+                        }}
+                        className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-bold flex items-center gap-1 transition shrink-0"
+                      >
+                        <i className="fa-solid fa-plus"></i>
+                        <span>Thêm ảnh</span>
+                      </button>
+                    </div>
+
+                    {/* Image Preview Grid */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                      {Array.isArray(editPropFormData.images) && editPropFormData.images.map((imgUrl, idx) => (
+                        <div key={idx} className="relative group rounded-xl overflow-hidden border border-slate-800 bg-slate-900">
+                          <img src={imgUrl} alt="" className="w-full h-24 object-cover" />
+                          <div className="absolute top-1 left-1 bg-black/80 text-white text-[9px] px-1.5 py-0.2 rounded font-mono font-bold">
+                            #{idx + 1} {idx === 0 ? '• BÌA' : ''}
+                          </div>
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
+                            {idx !== 0 && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const imgs = [...editPropFormData.images];
+                                  const [moved] = imgs.splice(idx, 1);
+                                  imgs.unshift(moved);
+                                  setEditPropFormData({ ...editPropFormData, images: imgs });
+                                }}
+                                className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs"
+                                title="Đặt làm ảnh bìa"
+                              >
+                                <i className="fa-solid fa-star"></i>
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const imgs = editPropFormData.images.filter((_, i) => i !== idx);
+                                setEditPropFormData({ ...editPropFormData, images: imgs });
+                              }}
+                              className="w-7 h-7 rounded-lg bg-rose-600 text-white flex items-center justify-center text-xs"
+                              title="Xóa ảnh này"
+                            >
+                              <i className="fa-solid fa-trash-can"></i>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* === TAB 4: NỘI DUNG, LIÊN HỆ & VIP === */}
+              {editPropTab === 'content' && (
+                <div className="space-y-4 animate-in fade-in duration-150">
+                  {/* Tiêu đề */}
+                  <div>
+                    <label className="block text-slate-400 font-bold mb-1">Tiêu đề bài đăng:</label>
+                    <input
+                      type="text"
+                      value={editPropFormData.title || ''}
+                      onChange={(e) => setEditPropFormData({ ...editPropFormData, title: e.target.value })}
+                      className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-blue-500"
+                    />
+                  </div>
+
+                  {/* Mô tả chi tiết */}
+                  <div>
+                    <label className="block text-slate-400 font-bold mb-1">Mô tả chi tiết:</label>
+                    <textarea
+                      rows="5"
+                      value={editPropFormData.description || ''}
+                      onChange={(e) => setEditPropFormData({ ...editPropFormData, description: e.target.value })}
+                      className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs outline-none focus:border-blue-500 leading-relaxed font-sans"
+                    ></textarea>
+                  </div>
+
+                  {/* Thông tin người liên hệ */}
+                  <div className="p-3.5 bg-slate-900/70 rounded-2xl border border-slate-800 space-y-3">
+                    <div className="font-bold text-slate-300 flex items-center gap-1.5">
+                      <i className="fa-solid fa-user-tie text-blue-400"></i>
+                      <span>Thông tin người liên hệ (Môi giới / Chủ nhà):</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-slate-400 font-bold mb-1">Họ tên người đăng / liên hệ:</label>
+                        <input
+                          type="text"
+                          value={editPropFormData.contactName || ''}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, contactName: e.target.value })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-400 font-bold mb-1">Số điện thoại liên hệ:</label>
+                        <input
+                          type="text"
+                          value={editPropFormData.contactPhone || ''}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, contactPhone: e.target.value })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono outline-none focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-400 font-bold mb-1">Email liên hệ:</label>
+                        <input
+                          type="email"
+                          value={editPropFormData.contactEmail || ''}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, contactEmail: e.target.value })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono outline-none focus:border-blue-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-400 font-bold mb-1">Địa chỉ người liên hệ:</label>
+                        <input
+                          type="text"
+                          value={editPropFormData.contactAddress || ''}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, contactAddress: e.target.value })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Gói VIP & Trạng thái & Vòng đời */}
+                  <div className="p-3.5 bg-slate-900/70 rounded-2xl border border-slate-800 space-y-3">
+                    <div className="font-bold text-slate-300 flex items-center gap-1.5">
+                      <i className="fa-solid fa-crown text-amber-400"></i>
+                      <span>Gói VIP & Vòng đời tin đăng:</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-slate-400 font-bold mb-1">Cấp độ gói VIP:</label>
+                        <select
+                          value={editPropFormData.vipPackageId || 'normal'}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, vipPackageId: e.target.value })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-blue-500"
+                        >
+                          <option value="vip-diamond">VIP Kim Cương (VIP 1 - Vị trí số 1)</option>
+                          <option value="vip-gold">VIP Vàng (VIP 2)</option>
+                          <option value="vip-silver">VIP Bạc (VIP 3)</option>
+                          <option value="normal">Tin Thường</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-slate-400 font-bold mb-1">Trạng thái xuất bản:</label>
+                        <select
+                          value={editPropFormData.status || 'active'}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, status: e.target.value })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-blue-500"
+                        >
+                          <option value="active">Hiển thị (Active)</option>
+                          <option value="expired">Đã hết hạn (Expired)</option>
+                          <option value="pending">Chờ phê duyệt (Pending)</option>
+                          <option value="rejected">Từ chối (Rejected)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-slate-400 font-bold mb-1">Số ngày hiển thị (listingDays):</label>
+                        <select
+                          value={editPropFormData.listingDays || 15}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, listingDays: Number(e.target.value) })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-blue-500"
+                        >
+                          <option value={7}>7 ngày</option>
+                          <option value={10}>10 ngày</option>
+                          <option value={15}>15 ngày (Tiêu chuẩn)</option>
+                          <option value={30}>30 ngày</option>
+                          <option value={60}>60 ngày</option>
+                          <option value={90}>90 ngày</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-slate-400 font-bold mb-1">Thời điểm hết hạn (expiresAt):</label>
+                        <input
+                          type="datetime-local"
+                          value={editPropFormData.expiresAt || ''}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, expiresAt: e.target.value })}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-emerald-400 font-mono font-bold outline-none focus:border-blue-500"
+                        />
+                      </div>
+                      <div className="sm:col-span-2 flex items-center justify-between pt-1 border-t border-slate-800/60">
+                        <span className="text-[11px] text-slate-300 font-bold flex items-center gap-1.5">
+                          <i className="fa-solid fa-arrows-rotate text-cyan-400"></i>
+                          <span>Tự động gia hạn khi hết hạn (Auto-Renew):</span>
+                        </span>
+                        <input
+                          type="checkbox"
+                          checked={Boolean(editPropFormData.autoRenew)}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, autoRenew: e.target.checked })}
+                          className="w-4 h-4 accent-cyan-500 rounded cursor-pointer"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex flex-col sm:flex-row items-center justify-between border-t border-slate-800 pt-3 gap-2">
+              <div className="text-[11px] text-slate-500 text-left w-full sm:w-auto">
+                * Mọi thay đổi về Nhu cầu, Danh mục, Thông số & Vị trí sẽ được đồng bộ tức thì trên toàn sàn.
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 justify-end w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={() => setEditingProperty(null)}
@@ -6368,7 +7183,7 @@ export default function AdminBackendPage() {
                   className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-black shadow-lg shadow-blue-600/30 flex items-center gap-1.5 transition"
                 >
                   <i className="fa-solid fa-floppy-disk"></i>
-                  <span>Lưu Thay Đổi & Ghi Nhận Giờ Sửa</span>
+                  <span>Lưu Thay Đổi BĐS</span>
                 </button>
               </div>
             </div>
