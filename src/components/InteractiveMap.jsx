@@ -142,7 +142,7 @@ export default function InteractiveMap({ properties, activePropertyId = null, he
         mapInstanceRef.current = null;
       }
     };
-  }, [properties]);
+  }, [properties, openPropertyDetail]);
 
   return (
     <div className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-md">

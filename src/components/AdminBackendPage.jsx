@@ -629,9 +629,9 @@ export default function AdminBackendPage() {
   const filteredUsersForReport = useMemo(() => {
     if (!userReportSearch.trim()) return userFinanceSummaries;
     const term = userReportSearch.toLowerCase().trim();
-    const cleanTermPhone = term.replace(/[\s\.\-\+\(\)]/g, '');
+    const cleanTermPhone = term.replace(/[\s.+\-()]/g, '');
     return userFinanceSummaries.filter(u => {
-      const uPhone = (u.phone || '').replace(/[\s\.\-\+\(\)]/g, '');
+      const uPhone = (u.phone || '').replace(/[\s.+\-()]/g, '');
       return (u.name || '').toLowerCase().includes(term) ||
              (u.email || '').toLowerCase().includes(term) ||
              (u.id || '').toLowerCase().includes(term) ||
@@ -793,10 +793,10 @@ export default function AdminBackendPage() {
       // 2. Text Search match (Mã GD, Tên người dùng, SĐT, Email, Nội dung, Số tiền, Phương thức)
       if (financeSearch.trim()) {
         const term = financeSearch.toLowerCase().trim();
-        const cleanTermPhone = term.replace(/[\s\.\-\+\(\)]/g, '');
+        const cleanTermPhone = term.replace(/[\s.+\-()]/g, '');
 
         const userPhone = userInfo.phone || '';
-        const cleanUserPhone = userPhone.replace(/[\s\.\-\+\(\)]/g, '');
+        const cleanUserPhone = userPhone.replace(/[\s.+\-()]/g, '');
         const userEmail = (userInfo.email || '').toLowerCase();
 
         const matchId = (t.id || '').toLowerCase().includes(term);
