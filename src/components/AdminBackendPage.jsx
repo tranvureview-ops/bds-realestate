@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
-import { DEFAULT_APPROVAL_TIERS } from '../data/mockData';
+import { DEFAULT_APPROVAL_TIERS, DEFAULT_HEADER_CONFIG } from '../data/mockData';
 import { Link } from '../router/RouterContext';
 import { getPropertyPermalink } from '../utils/permalink';
 import { REPORT_REASONS } from '../utils/emailService';
@@ -343,7 +343,7 @@ export default function AdminBackendPage() {
   const [isSubModalOpen, setIsSubModalOpen] = useState(false);
 
   // Logo & Header Width State
-  const [logoFormData, setLogoFormData] = useState({
+  const [logoFormData, setLogoFormData] = useState(() => ({
     logoType: headerConfig?.logoType || 'text',
     brandName: headerConfig?.brandName || 'ĐẤT BIỂN',
     brandHighlight: headerConfig?.brandHighlight || 'ĐÀ NẴNG',
@@ -356,17 +356,27 @@ export default function AdminBackendPage() {
     logoAlt: headerConfig?.logoAlt || 'Đất Biển Đà Nẵng Logo',
     showTaglineWithImage: headerConfig?.showTaglineWithImage || false,
     containerWidth: headerConfig?.containerWidth || 'boxed',
-  });
+  }));
 
-  // Sync logoFormData when context updates
-  React.useEffect(() => {
-    if (headerConfig) {
+  // Only sync logoFormData on initial load when cloud/database config arrives
+  const isHeaderLoadedRef = useRef(false);
+  useEffect(() => {
+    if (!isHeaderLoadedRef.current && headerConfig && Object.keys(headerConfig).length > 0) {
       setLogoFormData(prev => ({
         ...prev,
         ...headerConfig
       }));
+      isHeaderLoadedRef.current = true;
     }
   }, [headerConfig]);
+
+  const handleResetHeaderSettings = async () => {
+    if (window.confirm('Bạn có chắc chắn muốn khôi phục toàn bộ cấu hình Header & Độ rộng về mặc định ban đầu?')) {
+      await resetHeaderConfig();
+      setLogoFormData(DEFAULT_HEADER_CONFIG);
+      showToast('Đã khôi phục cấu hình Header về mặc định!', 'info');
+    }
+  };
 
   const handleLogoFileUpload = (e) => {
     const file = e.target.files?.[0];
@@ -3901,7 +3911,7 @@ export default function AdminBackendPage() {
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
-                    onClick={resetHeaderConfig}
+                    onClick={handleResetHeaderSettings}
                     className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white font-bold text-xs border border-slate-800 transition flex items-center gap-1.5"
                     title="Khôi phục logo và độ rộng về mặc định"
                   >
@@ -4003,7 +4013,7 @@ export default function AdminBackendPage() {
                   <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={resetHeaderConfig}
+                      onClick={handleResetHeaderSettings}
                       className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white font-bold text-xs border border-slate-800 transition"
                       title="Khôi phục logo và độ rộng về mặc định"
                     >
@@ -4253,7 +4263,9 @@ export default function AdminBackendPage() {
 
                     <div className="space-y-3">
                       {/* Boxed */}
-                      <label
+                      <div
+                        role="button"
+                        tabIndex={0}
                         onClick={() => setLogoFormData(prev => ({ ...prev, containerWidth: 'boxed' }))}
                         className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-start gap-3 select-none ${
                           logoFormData.containerWidth === 'boxed'
@@ -4266,8 +4278,8 @@ export default function AdminBackendPage() {
                           name="containerWidthOption"
                           value="boxed"
                           checked={logoFormData.containerWidth === 'boxed'}
-                          onChange={(e) => setLogoFormData(prev => ({ ...prev, containerWidth: e.target.value }))}
-                          className="mt-1 w-4 h-4 accent-emerald-500 cursor-pointer"
+                          readOnly
+                          className="mt-1 w-4 h-4 accent-emerald-500 cursor-pointer pointer-events-none"
                         />
                         <div className="space-y-1 flex-1">
                           <div className="font-bold text-xs flex items-center justify-between gap-1.5 text-white">
@@ -4278,10 +4290,12 @@ export default function AdminBackendPage() {
                             Thanh menu được giới hạn trong khung 1280px và canh giữa màn hình. Cân đối, trang nhã, tập trung tầm nhìn.
                           </p>
                         </div>
-                      </label>
+                      </div>
 
                       {/* Wide */}
-                      <label
+                      <div
+                        role="button"
+                        tabIndex={0}
                         onClick={() => setLogoFormData(prev => ({ ...prev, containerWidth: 'wide' }))}
                         className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-start gap-3 select-none ${
                           logoFormData.containerWidth === 'wide'
@@ -4294,8 +4308,8 @@ export default function AdminBackendPage() {
                           name="containerWidthOption"
                           value="wide"
                           checked={logoFormData.containerWidth === 'wide'}
-                          onChange={(e) => setLogoFormData(prev => ({ ...prev, containerWidth: e.target.value }))}
-                          className="mt-1 w-4 h-4 accent-emerald-500 cursor-pointer"
+                          readOnly
+                          className="mt-1 w-4 h-4 accent-emerald-500 cursor-pointer pointer-events-none"
                         />
                         <div className="space-y-1 flex-1">
                           <div className="font-bold text-xs flex items-center justify-between gap-1.5 text-white">
@@ -4306,10 +4320,12 @@ export default function AdminBackendPage() {
                             Mở rộng không gian thanh menu lên 1536px (hoặc 95% màn hình), lý tưởng cho website có nhiều menu và nút bấm.
                           </p>
                         </div>
-                      </label>
+                      </div>
 
                       {/* Full Width */}
-                      <label
+                      <div
+                        role="button"
+                        tabIndex={0}
                         onClick={() => setLogoFormData(prev => ({ ...prev, containerWidth: 'full' }))}
                         className={`p-3.5 rounded-2xl border cursor-pointer transition-all flex items-start gap-3 select-none ${
                           logoFormData.containerWidth === 'full'
@@ -4322,8 +4338,8 @@ export default function AdminBackendPage() {
                           name="containerWidthOption"
                           value="full"
                           checked={logoFormData.containerWidth === 'full'}
-                          onChange={(e) => setLogoFormData(prev => ({ ...prev, containerWidth: e.target.value }))}
-                          className="mt-1 w-4 h-4 accent-emerald-500 cursor-pointer"
+                          readOnly
+                          className="mt-1 w-4 h-4 accent-emerald-500 cursor-pointer pointer-events-none"
                         />
                         <div className="space-y-1 flex-1">
                           <div className="font-bold text-xs flex items-center justify-between gap-1.5 text-white">
@@ -4334,7 +4350,7 @@ export default function AdminBackendPage() {
                             Thanh menu trải dài 100% tràn đều sang hai mép viền màn hình (Edge-to-Edge). Phong cách hiện đại theo chuẩn các sàn TMĐT quốc tế.
                           </p>
                         </div>
-                      </label>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -4448,7 +4464,7 @@ export default function AdminBackendPage() {
               <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-800 bg-slate-950/60 p-4 rounded-2xl">
                 <button
                   type="button"
-                  onClick={resetHeaderConfig}
+                  onClick={handleResetHeaderSettings}
                   className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white font-bold text-xs border border-slate-800 transition flex items-center gap-1.5 cursor-pointer"
                 >
                   <i className="fa-solid fa-rotate-left"></i>

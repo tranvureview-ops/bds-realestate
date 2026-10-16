@@ -1063,17 +1063,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       }
     };
 
-    const handleCustomHeaderUpdate = (event) => {
-      if (event.detail && typeof event.detail === 'object') {
-        setHeaderConfig(event.detail);
-      }
-    };
-
     window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('bds_header_config_updated', handleCustomHeaderUpdate);
     return () => {
       window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('bds_header_config_updated', handleCustomHeaderUpdate);
     };
   }, []);
 
@@ -2456,13 +2448,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     setHeaderConfig(toSave);
     safeStorage.setItem('bds_header_config', JSON.stringify(toSave));
 
-    // Phát custom event đồng bộ các component cùng tab ngay lập tức
-    if (typeof window !== 'undefined') {
-      try {
-        window.dispatchEvent(new CustomEvent('bds_header_config_updated', { detail: toSave }));
-      } catch (e) {}
-    }
-
     try {
       await fetch('/api/db-sync', {
         method: 'POST',
@@ -2487,12 +2472,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     safeStorage.removeItem('bds_header_config');
     setHeaderConfig(DEFAULT_HEADER_CONFIG);
     safeStorage.setItem('bds_header_config', JSON.stringify(DEFAULT_HEADER_CONFIG));
-
-    if (typeof window !== 'undefined') {
-      try {
-        window.dispatchEvent(new CustomEvent('bds_header_config_updated', { detail: DEFAULT_HEADER_CONFIG }));
-      } catch (e) {}
-    }
 
     try {
       await fetch('/api/db-sync', {
