@@ -10,6 +10,7 @@ import {
   upsertSupabaseSetting,
   deleteSupabaseSetting,
   upsertSupabaseProfile,
+  deleteSupabaseProfile,
   insertSupabaseTransaction,
   syncFullDbToSupabase
 } from '../lib/supabase';
@@ -1999,6 +2000,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // Admin Toggle User Verification
   const toggleUserVerification = (userId) => {
+    let updatedTarget = null;
     setUsersList(prev => prev.map(u => {
       if (u.id === userId) {
         const nextState = !u.isVerified;
@@ -2006,10 +2008,142 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         if (currentUser.id === userId) {
           setCurrentUser({ ...currentUser, isVerified: nextState });
         }
-        return { ...u, isVerified: nextState };
+        updatedTarget = { ...u, isVerified: nextState };
+        return updatedTarget;
       }
       return u;
     }));
+    if (updatedTarget) {
+      upsertSupabaseProfile(updatedTarget).catch(console.warn);
+    }
+  };
+
+  // Admin Update User
+  const updateUser = async (userId, updatedFields) => {
+    let updatedTarget = null;
+    let nextList = null;
+    setUsersList(prev => {
+      nextList = prev.map(u => {
+        if (u.id === userId) {
+          updatedTarget = { ...u, ...updatedFields, updatedAt: new Date().toISOString() };
+          return updatedTarget;
+        }
+        return u;
+      });
+      return nextList;
+    });
+
+    if (currentUser?.id === userId && updatedTarget) {
+      setCurrentUser(prev => ({ ...prev, ...updatedTarget }));
+    }
+
+    if (updatedTarget) {
+      await upsertSupabaseProfile(updatedTarget);
+      await persistSettingToSupabase('bds_users_list', nextList);
+    }
+    showToast(`Đã cập nhật thông tin người dùng "${updatedTarget?.name || userId}" thành công!`, 'success');
+    return updatedTarget;
+  };
+
+  // Move User to Trash (Soft Delete)
+  const moveUserToTrash = async (userId) => {
+    if (currentUser?.id === userId) {
+      showToast('Không thể đưa tài khoản đang đăng nhập của bạn vào thùng rác!', 'error');
+      return false;
+    }
+    let trashedUser = null;
+    let nextList = null;
+    setUsersList(prev => {
+      nextList = prev.map(u => {
+        if (u.id === userId) {
+          trashedUser = {
+            ...u,
+            isDeleted: true,
+            status: 'trash',
+            previousStatus: u.status || 'active',
+            deletedAt: new Date().toISOString()
+          };
+          return trashedUser;
+        }
+        return u;
+      });
+      return nextList;
+    });
+
+    if (trashedUser) {
+      await upsertSupabaseProfile(trashedUser);
+      await persistSettingToSupabase('bds_users_list', nextList);
+      showToast(`Đã chuyển người dùng "${trashedUser.name}" vào thùng rác!`, 'info');
+      return true;
+    }
+    return false;
+  };
+
+  // Restore User from Trash
+  const restoreUserFromTrash = async (userId) => {
+    let restoredUser = null;
+    let nextList = null;
+    setUsersList(prev => {
+      nextList = prev.map(u => {
+        if (u.id === userId) {
+          restoredUser = {
+            ...u,
+            isDeleted: false,
+            status: (u.previousStatus && u.previousStatus !== 'trash') ? u.previousStatus : 'active',
+            deletedAt: null
+          };
+          return restoredUser;
+        }
+        return u;
+      });
+      return nextList;
+    });
+
+    if (restoredUser) {
+      await upsertSupabaseProfile(restoredUser);
+      await persistSettingToSupabase('bds_users_list', nextList);
+      showToast(`Đã khôi phục tài khoản "${restoredUser.name}" thành công!`, 'success');
+      return true;
+    }
+    return false;
+  };
+
+  // Permanent Delete User
+  const permanentDeleteUser = async (userId) => {
+    if (currentUser?.id === userId) {
+      showToast('Không thể xóa tài khoản của chính bạn!', 'error');
+      return false;
+    }
+    const target = usersList.find(u => u.id === userId);
+    let nextList = null;
+    setUsersList(prev => {
+      nextList = prev.filter(u => u.id !== userId);
+      return nextList;
+    });
+
+    await deleteSupabaseProfile(userId);
+    await persistSettingToSupabase('bds_users_list', nextList);
+    showToast(`Đã xóa vĩnh viễn tài khoản "${target?.name || userId}" khỏi hệ thống!`, 'warning');
+    return true;
+  };
+
+  // Empty User Trash
+  const emptyUserTrash = async () => {
+    const trashUsers = usersList.filter(u => u.isDeleted || u.status === 'trash');
+    if (trashUsers.length === 0) {
+      showToast('Thùng rác người dùng hiện đang trống!', 'info');
+      return 0;
+    }
+    let nextList = null;
+    setUsersList(prev => {
+      nextList = prev.filter(u => !u.isDeleted && u.status !== 'trash');
+      return nextList;
+    });
+
+    await Promise.all(trashUsers.map(u => deleteSupabaseProfile(u.id)));
+    await persistSettingToSupabase('bds_users_list', nextList);
+    showToast(`Đã dọn sạch vĩnh viễn ${trashUsers.length} tài khoản trong thùng rác!`, 'success');
+    return trashUsers.length;
   };
 
   // Admin Update VIP Package Price
@@ -2733,6 +2867,11 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         depositWallet,
         adjustUserBalance,
         toggleUserVerification,
+        updateUser,
+        moveUserToTrash,
+        restoreUserFromTrash,
+        permanentDeleteUser,
+        emptyUserTrash,
         updateVipPackagePrice,
         resetToMockData,
         openPropertyDetail,

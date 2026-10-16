@@ -68,6 +68,11 @@ export default function AdminBackendPage() {
     getPropertyExpirationInfo,
     adjustUserBalance, 
     toggleUserVerification, 
+    updateUser,
+    moveUserToTrash,
+    restoreUserFromTrash,
+    permanentDeleteUser,
+    emptyUserTrash,
     updateVipPackagePrice, 
     navigateToProperty, 
     setCurrentView, 
@@ -319,7 +324,34 @@ export default function AdminBackendPage() {
   const [rejectModalProp, setRejectModalProp] = useState(null);
   const [rejectReason, setRejectReason] = useState('Giá chưa phản ánh đúng thực tế thị trường');
   const [propertyAuthorFilter, setPropertyAuthorFilter] = useState('all'); // 'all', 'guest', 'member'
-  const [userTab, setUserTab] = useState('members'); // 'members', 'guests'
+  const [userTab, setUserTab] = useState('members'); // 'members', 'guests', 'trash'
+
+  // User Management Advanced States (Search, Filter, Pagination, Edit, Trash)
+  const [userSearch, setUserSearch] = useState('');
+  const [userRoleFilter, setUserRoleFilter] = useState('all'); // 'all', 'admin', 'broker', 'user'
+  const [userStatusFilter, setUserStatusFilter] = useState('all'); // 'all', 'active', 'pending', 'locked'
+  const [userVerifiedFilter, setUserVerifiedFilter] = useState('all'); // 'all', 'verified', 'unverified'
+  const [userCurrentPage, setUserCurrentPage] = useState(1);
+  const [userItemsPerPage, setUserItemsPerPage] = useState(10); // 5, 10, 20, 50
+
+  // Edit User State & Modal
+  const [editingUser, setEditingUser] = useState(null);
+  const [editUserForm, setEditUserForm] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    role: 'user',
+    roleName: 'Khách Hàng',
+    status: 'active',
+    walletBalance: 0,
+    bonusWalletBalance: 0,
+    isVerified: false
+  });
+
+  // Confirm delete modal state
+  const [confirmTrashUser, setConfirmTrashUser] = useState(null);
+  const [confirmPermanentDeleteUser, setConfirmPermanentDeleteUser] = useState(null);
+  const [showEmptyTrashConfirm, setShowEmptyTrashConfirm] = useState(false);
 
   // Live 1-second ticker for real-time countdown
   useEffect(() => {
@@ -637,6 +669,83 @@ export default function AdminBackendPage() {
     });
     return Array.from(map.values());
   }, [properties]);
+
+  // 1. Phân loại thành viên hoạt động và thành viên trong thùng rác
+  const activeMembers = useMemo(() => {
+    return (usersList || []).filter(u => !u.isDeleted && u.status !== 'trash');
+  }, [usersList]);
+
+  const trashedUsers = useMemo(() => {
+    return (usersList || []).filter(u => u.isDeleted || u.status === 'trash');
+  }, [usersList]);
+
+  // 2. Lọc danh sách thành viên hoạt động
+  const filteredMembers = useMemo(() => {
+    return activeMembers.filter(u => {
+      if (userSearch) {
+        const term = userSearch.toLowerCase().trim();
+        const matchName = u.name?.toLowerCase().includes(term);
+        const matchEmail = u.email?.toLowerCase().includes(term);
+        const matchPhone = u.phone?.replace(/\s+/g, '').includes(term.replace(/\s+/g, ''));
+        const matchId = u.id?.toLowerCase().includes(term);
+        if (!matchName && !matchEmail && !matchPhone && !matchId) return false;
+      }
+      if (userRoleFilter !== 'all' && u.role !== userRoleFilter) return false;
+      if (userStatusFilter !== 'all' && u.status !== userStatusFilter) return false;
+      if (userVerifiedFilter !== 'all') {
+        const isVer = Boolean(u.isVerified);
+        if (userVerifiedFilter === 'verified' && !isVer) return false;
+        if (userVerifiedFilter === 'unverified' && isVer) return false;
+      }
+      return true;
+    });
+  }, [activeMembers, userSearch, userRoleFilter, userStatusFilter, userVerifiedFilter]);
+
+  // 3. Lọc danh sách thùng rác
+  const filteredTrashUsers = useMemo(() => {
+    return trashedUsers.filter(u => {
+      if (!userSearch) return true;
+      const term = userSearch.toLowerCase().trim();
+      return (
+        u.name?.toLowerCase().includes(term) ||
+        u.email?.toLowerCase().includes(term) ||
+        u.phone?.includes(term) ||
+        u.id?.toLowerCase().includes(term)
+      );
+    });
+  }, [trashedUsers, userSearch]);
+
+  // 4. Lọc khách vãng lai
+  const filteredGuests = useMemo(() => {
+    return (guestAuthors || []).filter(g => {
+      if (!userSearch) return true;
+      const term = userSearch.toLowerCase().trim();
+      return (
+        g.name?.toLowerCase().includes(term) ||
+        g.email?.toLowerCase().includes(term) ||
+        (g.phone && g.phone.includes(term))
+      );
+    });
+  }, [guestAuthors, userSearch]);
+
+  // 5. Phân trang
+  const totalMemberPages = Math.ceil(filteredMembers.length / userItemsPerPage) || 1;
+  const paginatedMembers = useMemo(() => {
+    const start = (userCurrentPage - 1) * userItemsPerPage;
+    return filteredMembers.slice(start, start + userItemsPerPage);
+  }, [filteredMembers, userCurrentPage, userItemsPerPage]);
+
+  const totalTrashPages = Math.ceil(filteredTrashUsers.length / userItemsPerPage) || 1;
+  const paginatedTrashUsers = useMemo(() => {
+    const start = (userCurrentPage - 1) * userItemsPerPage;
+    return filteredTrashUsers.slice(start, start + userItemsPerPage);
+  }, [filteredTrashUsers, userCurrentPage, userItemsPerPage]);
+
+  const totalGuestPages = Math.ceil(filteredGuests.length / userItemsPerPage) || 1;
+  const paginatedGuests = useMemo(() => {
+    const start = (userCurrentPage - 1) * userItemsPerPage;
+    return filteredGuests.slice(start, start + userItemsPerPage);
+  }, [filteredGuests, userCurrentPage, userItemsPerPage]);
 
   // Danh bạ người dùng tổng hợp (Thành viên + Khách) để tra cứu SĐT, Email trong Sổ cái
   const userDirectoryMap = useMemo(() => {
@@ -1175,6 +1284,79 @@ export default function AdminBackendPage() {
     const res = await resendUserVerificationEmail(email);
     if (res?.success) {
       showToast(`Đã gửi lại email kích hoạt tới ${email}`, 'success');
+    }
+  };
+
+  // User Management Handlers (Edit, Trash, Restore, Delete, Empty Trash)
+  const handleOpenEditUser = (user) => {
+    setEditingUser(user);
+    setEditUserForm({
+      name: user.name || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      role: user.role || 'user',
+      roleName: user.roleName || (user.role === 'admin' ? 'Quản Trị Viên' : user.role === 'broker' ? 'Môi Giới' : 'Khách Hàng'),
+      status: user.status || 'active',
+      walletBalance: Number(user.walletBalance || 0),
+      bonusWalletBalance: Number(user.bonusWalletBalance !== undefined ? user.bonusWalletBalance : (user.promoBalance || 0)),
+      isVerified: Boolean(user.isVerified)
+    });
+  };
+
+  const handleSaveEditUser = async (e) => {
+    if (e) e.preventDefault();
+    if (!editingUser) return;
+    try {
+      const res = await updateUser(editingUser.id, editUserForm);
+      if (res?.success) {
+        showToast('Đã cập nhật thông tin người dùng thành công!', 'success');
+        setEditingUser(null);
+      } else {
+        showToast(res?.error || 'Không thể cập nhật người dùng', 'error');
+      }
+    } catch (err) {
+      showToast(err.message || 'Lỗi khi lưu người dùng', 'error');
+    }
+  };
+
+  const handleConfirmMoveToTrash = async () => {
+    if (!confirmTrashUser) return;
+    const res = await moveUserToTrash(confirmTrashUser.id);
+    if (res?.success) {
+      showToast(`Đã chuyển tài khoản "${confirmTrashUser.name}" vào thùng rác`, 'success');
+      setConfirmTrashUser(null);
+    } else {
+      showToast(res?.error || 'Không thể chuyển vào thùng rác', 'error');
+    }
+  };
+
+  const handleRestoreUser = async (user) => {
+    const res = await restoreUserFromTrash(user.id);
+    if (res?.success) {
+      showToast(`Đã khôi phục tài khoản "${user.name}" thành công!`, 'success');
+    } else {
+      showToast(res?.error || 'Không thể khôi phục tài khoản', 'error');
+    }
+  };
+
+  const handleConfirmPermanentDelete = async () => {
+    if (!confirmPermanentDeleteUser) return;
+    const res = await permanentDeleteUser(confirmPermanentDeleteUser.id);
+    if (res?.success) {
+      showToast(`Đã xóa vĩnh viễn tài khoản "${confirmPermanentDeleteUser.name}"!`, 'success');
+      setConfirmPermanentDeleteUser(null);
+    } else {
+      showToast(res?.error || 'Không thể xóa tài khoản', 'error');
+    }
+  };
+
+  const handleConfirmEmptyTrash = async () => {
+    const res = await emptyUserTrash();
+    if (res?.success) {
+      showToast('Đã dọn sạch thùng rác người dùng!', 'success');
+      setShowEmptyTrashConfirm(false);
+    } else {
+      showToast(res?.error || 'Không thể dọn sạch thùng rác', 'error');
     }
   };
 
@@ -3391,13 +3573,14 @@ export default function AdminBackendPage() {
              ========================================= */}
           {activeMenu === 'users' && (
             <div className="bg-slate-950 rounded-3xl border border-slate-800 overflow-hidden shadow-sm space-y-4">
+              {/* Header: Title & Sub-tabs */}
               <div className="p-4 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="space-y-1">
                   <h3 className="text-xs font-black uppercase text-slate-400 tracking-wider">
                     Quản Lý Tài Khoản Thành Viên & Khách Vãng Lai
                   </h3>
                   <div className="text-[11px] text-slate-500">
-                    Tra cứu hồ sơ môi giới, người mua đã đăng ký và khách vãng lai từng đăng tin
+                    Tìm kiếm, sửa thông tin, phân quyền, quản lý thùng rác và phân trang tự động
                   </div>
                 </div>
 
@@ -3412,10 +3595,10 @@ export default function AdminBackendPage() {
                     <span>Đồng Bộ & Làm Mới</span>
                   </button>
 
-                  {/* Sub-tabs: Thành viên vs Khách vãng lai */}
+                  {/* Sub-tabs: Thành viên vs Khách vãng lai vs Thùng rác */}
                   <div className="flex items-center gap-1.5 bg-slate-900 p-1 rounded-2xl border border-slate-800">
                     <button
-                      onClick={() => setUserTab('members')}
+                      onClick={() => { setUserTab('members'); setUserCurrentPage(1); }}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
                         userTab === 'members'
                           ? 'bg-blue-600 text-white shadow'
@@ -3423,10 +3606,10 @@ export default function AdminBackendPage() {
                       }`}
                     >
                       <i className="fa-solid fa-users text-xs"></i>
-                      <span>Thành Viên ({usersList.length})</span>
+                      <span>Thành Viên ({activeMembers.length})</span>
                     </button>
                     <button
-                      onClick={() => setUserTab('guests')}
+                      onClick={() => { setUserTab('guests'); setUserCurrentPage(1); }}
                       className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
                         userTab === 'guests'
                           ? 'bg-purple-600 text-white shadow'
@@ -3434,44 +3617,161 @@ export default function AdminBackendPage() {
                       }`}
                     >
                       <i className="fa-solid fa-user-secret text-xs"></i>
-                      <span>Khách Vãng Lai Từng Đăng Tin ({guestAuthors.length})</span>
+                      <span>Khách Vãng Lai ({guestAuthors.length})</span>
+                    </button>
+                    <button
+                      onClick={() => { setUserTab('trash'); setUserCurrentPage(1); }}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+                        userTab === 'trash'
+                          ? 'bg-rose-600 text-white shadow'
+                          : trashedUsers.length > 0
+                          ? 'text-rose-400 hover:text-rose-300'
+                          : 'text-slate-400 hover:text-white'
+                      }`}
+                    >
+                      <i className="fa-solid fa-trash-can text-xs"></i>
+                      <span>Thùng Rác</span>
+                      {trashedUsers.length > 0 && (
+                        <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-black ${
+                          userTab === 'trash' ? 'bg-white text-rose-600' : 'bg-rose-950 text-rose-300 border border-rose-800'
+                        }`}>
+                          {trashedUsers.length}
+                        </span>
+                      )}
                     </button>
                   </div>
+                </div>
+              </div>
+
+              {/* Toolbar: Tìm kiếm & Bộ Lọc Nâng Cao */}
+              <div className="px-4 py-2 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+                <div className="flex items-center gap-2 flex-1 flex-wrap">
+                  {/* Ô tìm kiếm */}
+                  <div className="relative min-w-[220px] flex-1 max-w-sm">
+                    <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                    <input
+                      type="text"
+                      value={userSearch}
+                      onChange={(e) => { setUserSearch(e.target.value); setUserCurrentPage(1); }}
+                      placeholder={userTab === 'guests' ? 'Tìm theo tên, email, SĐT khách...' : 'Tìm theo Họ tên, Email, SĐT, User ID...'}
+                      className="w-full pl-8 pr-8 py-1.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 font-medium"
+                    />
+                    {userSearch && (
+                      <button
+                        onClick={() => { setUserSearch(''); setUserCurrentPage(1); }}
+                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 text-xs"
+                      >
+                        <i className="fa-solid fa-xmark"></i>
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Bộ lọc cho tab Thành viên */}
+                  {userTab === 'members' && (
+                    <>
+                      {/* Lọc Vai trò */}
+                      <select
+                        value={userRoleFilter}
+                        onChange={(e) => { setUserRoleFilter(e.target.value); setUserCurrentPage(1); }}
+                        className="px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-xl text-xs font-semibold text-slate-300 focus:outline-none focus:border-blue-500 cursor-pointer"
+                      >
+                        <option value="all">Tất cả vai trò</option>
+                        <option value="admin">Quản Trị Viên (Admin)</option>
+                        <option value="broker">Môi Giới</option>
+                        <option value="user">Khách Hàng</option>
+                      </select>
+
+                      {/* Lọc Trạng thái */}
+                      <select
+                        value={userStatusFilter}
+                        onChange={(e) => { setUserStatusFilter(e.target.value); setUserCurrentPage(1); }}
+                        className="px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-xl text-xs font-semibold text-slate-300 focus:outline-none focus:border-blue-500 cursor-pointer"
+                      >
+                        <option value="all">Tất cả trạng thái</option>
+                        <option value="active">Đã kích hoạt</option>
+                        <option value="pending">Chờ kích hoạt</option>
+                        <option value="locked">Bị khóa</option>
+                      </select>
+
+                      {/* Lọc Tích Xanh */}
+                      <select
+                        value={userVerifiedFilter}
+                        onChange={(e) => { setUserVerifiedFilter(e.target.value); setUserCurrentPage(1); }}
+                        className="px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-xl text-xs font-semibold text-slate-300 focus:outline-none focus:border-blue-500 cursor-pointer"
+                      >
+                        <option value="all">Tất cả KYC</option>
+                        <option value="verified">Đã cấp tích xanh</option>
+                        <option value="unverified">Chưa cấp tích xanh</option>
+                      </select>
+                    </>
+                  )}
+
+                  {/* Nút đặt lại bộ lọc */}
+                  {(userSearch || userRoleFilter !== 'all' || userStatusFilter !== 'all' || userVerifiedFilter !== 'all') && (
+                    <button
+                      onClick={() => {
+                        setUserSearch('');
+                        setUserRoleFilter('all');
+                        setUserStatusFilter('all');
+                        setUserVerifiedFilter('all');
+                        setUserCurrentPage(1);
+                      }}
+                      className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition flex items-center gap-1"
+                      title="Đặt lại toàn bộ bộ lọc"
+                    >
+                      <i className="fa-solid fa-arrow-rotate-left text-[10px]"></i>
+                      <span>Đặt lại</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Chọn số dòng mỗi trang */}
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-[11px] text-slate-500 font-medium">Hiển thị:</span>
+                  <select
+                    value={userItemsPerPage}
+                    onChange={(e) => { setUserItemsPerPage(Number(e.target.value)); setUserCurrentPage(1); }}
+                    className="px-2.5 py-1.5 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold text-slate-300 focus:outline-none focus:border-blue-500 cursor-pointer"
+                  >
+                    <option value={5}>5 dòng</option>
+                    <option value={10}>10 dòng</option>
+                    <option value={20}>20 dòng</option>
+                    <option value={50}>50 dòng</option>
+                  </select>
                 </div>
               </div>
 
               {/* VIEW 1: THÀNH VIÊN ĐÃ ĐĂNG KÝ */}
               {userTab === 'members' && (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-left">
-                    <thead className="bg-slate-900 text-slate-400">
-                      <tr>
-                        <th className="p-3">Họ và tên</th>
-                        <th className="p-3">Email</th>
-                        <th className="p-3">SĐT</th>
-                        <th className="p-3">Vai trò</th>
-                        <th className="p-3 text-center">Trạng thái</th>
-                        <th className="p-3 text-right">Ví Chính (VND)</th>
-                        <th className="p-3 text-right">Ví KM (VND)</th>
-                        <th className="p-3 text-center">Tích Xanh</th>
-                        <th className="p-3 text-right">Thao tác Admin</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-800">
-                      {usersList
-                        .filter(u => {
-                          if (!searchTerm) return true;
-                          const term = searchTerm.toLowerCase();
-                          return (
-                            u.name?.toLowerCase().includes(term) ||
-                            u.email?.toLowerCase().includes(term) ||
-                            (u.phone && u.phone.includes(term))
-                          );
-                        })
-                        .map(u => {
+                  {filteredMembers.length === 0 ? (
+                    <div className="p-12 text-center text-slate-400 text-xs">
+                      <i className="fa-solid fa-user-xmark text-3xl text-slate-600 mb-2"></i>
+                      <p className="font-semibold">Không tìm thấy thành viên phù hợp với tiêu chí tìm kiếm.</p>
+                      <p className="text-[11px] text-slate-500 mt-1">Hãy thử xóa bộ lọc hoặc tìm kiếm bằng từ khóa khác.</p>
+                    </div>
+                  ) : (
+                    <table className="w-full text-xs text-left">
+                      <thead className="bg-slate-900 text-slate-400">
+                        <tr>
+                          <th className="p-3">Họ và tên</th>
+                          <th className="p-3">Email</th>
+                          <th className="p-3">SĐT</th>
+                          <th className="p-3">Vai trò</th>
+                          <th className="p-3 text-center">Trạng thái</th>
+                          <th className="p-3 text-right">Ví Chính (VND)</th>
+                          <th className="p-3 text-right">Ví KM (VND)</th>
+                          <th className="p-3 text-center">Tích Xanh</th>
+                          <th className="p-3 text-right">Thao tác Admin</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800">
+                        {paginatedMembers.map(u => {
                           const isPending = u.status === 'pending';
+                          const isLocked = u.status === 'locked';
                           const bonusBal = Number(u.bonusWalletBalance !== undefined ? u.bonusWalletBalance : (u.promoBalance || 0));
                           const mainBal = Number(u.walletBalance || 0);
+                          const isSelf = currentUser?.id === u.id;
 
                           return (
                             <tr key={u.id} className="hover:bg-slate-900/60 transition">
@@ -3479,13 +3779,18 @@ export default function AdminBackendPage() {
                                 <img
                                   src={u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}
                                   alt=""
-                                  className="w-8 h-8 rounded-xl object-cover shrink-0"
+                                  className="w-8 h-8 rounded-xl object-cover shrink-0 border border-slate-800"
                                 />
                                 <div>
-                                  <div className="font-bold text-white">{u.name}</div>
-                                  {isPending && (
-                                    <span className="text-[10px] text-amber-400 font-normal">Chờ kích hoạt email</span>
-                                  )}
+                                  <div className="font-bold text-white flex items-center gap-1.5">
+                                    <span>{u.name}</span>
+                                    {isSelf && (
+                                      <span className="px-1.5 py-0.2 rounded bg-blue-950 text-blue-300 font-bold text-[9px] border border-blue-800">
+                                        Bạn
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-[10px] text-slate-500 font-mono">ID: {u.id?.slice(0, 8)}...</div>
                                 </div>
                               </td>
                               <td className="p-3 text-slate-400 font-mono text-[11px]">{u.email}</td>
@@ -3504,6 +3809,11 @@ export default function AdminBackendPage() {
                                   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-950/80 text-amber-400 border border-amber-700/60 inline-flex items-center gap-1">
                                     <i className="fa-solid fa-clock text-[9px]"></i>
                                     <span>Chờ kích hoạt</span>
+                                  </span>
+                                ) : isLocked ? (
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-950/80 text-rose-400 border border-rose-700/60 inline-flex items-center gap-1">
+                                    <i className="fa-solid fa-lock text-[9px]"></i>
+                                    <span>Bị khóa</span>
                                   </span>
                                 ) : (
                                   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/80 text-emerald-400 border border-emerald-700/60 inline-flex items-center gap-1">
@@ -3532,6 +3842,7 @@ export default function AdminBackendPage() {
                                       ? 'bg-blue-600 text-white shadow' 
                                       : 'bg-slate-800 text-slate-500 hover:text-white'
                                   }`}
+                                  title="Bấm để bật/tắt tích xanh KYC"
                                 >
                                   <i className="fa-solid fa-circle-check"></i>
                                   <span>{u.isVerified ? 'Đã cấp' : 'Chưa cấp'}</span>
@@ -3559,29 +3870,58 @@ export default function AdminBackendPage() {
                                       </button>
                                     </>
                                   )}
+
+                                  {/* Nút Sửa người dùng */}
+                                  <button
+                                    onClick={() => handleOpenEditUser(u)}
+                                    className="px-2 py-1 bg-blue-600/20 hover:bg-blue-600/40 text-blue-300 rounded-lg text-[10px] font-bold flex items-center gap-1 transition border border-blue-800/40"
+                                    title="Chỉnh sửa thông tin tài khoản"
+                                  >
+                                    <i className="fa-solid fa-pen-to-square text-[9px]"></i>
+                                    <span>Sửa</span>
+                                  </button>
+
+                                  {/* Nút Sửa ví */}
                                   <button
                                     onClick={() => { setAdjustWalletUser(u); setAdjustAmount(500000); }}
                                     className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-emerald-400 rounded-lg text-[10px] font-bold border border-slate-700"
+                                    title="Điều chỉnh số dư ví chính"
                                   >
-                                    ± Sửa ví
+                                    ± Ví
+                                  </button>
+
+                                  {/* Nút Xóa vào thùng rác */}
+                                  <button
+                                    onClick={() => setConfirmTrashUser(u)}
+                                    disabled={isSelf}
+                                    className={`px-2 py-1 rounded-lg text-[10px] font-bold flex items-center gap-1 transition ${
+                                      isSelf
+                                        ? 'bg-slate-800/40 text-slate-600 cursor-not-allowed border border-slate-800'
+                                        : 'bg-rose-600/20 hover:bg-rose-600/40 text-rose-300 border border-rose-800/40'
+                                    }`}
+                                    title={isSelf ? 'Không thể tự đưa chính mình vào thùng rác' : 'Chuyển vào thùng rác (xóa mềm)'}
+                                  >
+                                    <i className="fa-solid fa-trash-can text-[9px]"></i>
+                                    <span>Xóa</span>
                                   </button>
                                 </div>
                               </td>
                             </tr>
                           );
                         })}
-                    </tbody>
-                  </table>
+                      </tbody>
+                    </table>
+                  )}
                 </div>
               )}
 
               {/* VIEW 2: KHÁCH VÃNG LAI TỪNG ĐĂNG TIN */}
               {userTab === 'guests' && (
                 <div className="overflow-x-auto">
-                  {guestAuthors.length === 0 ? (
-                    <div className="p-8 text-center text-slate-400 text-xs">
+                  {filteredGuests.length === 0 ? (
+                    <div className="p-12 text-center text-slate-400 text-xs">
                       <i className="fa-solid fa-user-clock text-3xl text-slate-600 mb-2"></i>
-                      <p>Chưa có khách vãng lai nào đăng tin trên hệ thống.</p>
+                      <p className="font-semibold">Chưa có khách vãng lai nào đăng tin hoặc khớp bộ lọc.</p>
                     </div>
                   ) : (
                     <table className="w-full text-xs text-left">
@@ -3596,57 +3936,257 @@ export default function AdminBackendPage() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-800">
-                        {guestAuthors
-                          .filter(g => {
-                            if (!searchTerm) return true;
-                            const term = searchTerm.toLowerCase();
-                            return g.name.toLowerCase().includes(term) ||
-                              g.email.toLowerCase().includes(term) ||
-                              (g.phone && g.phone.includes(term));
-                          })
-                          .map((g, idx) => (
-                            <tr key={idx} className="hover:bg-slate-900/60 transition">
-                              <td className="p-3 flex items-center gap-2.5 font-bold text-white">
-                                <div className="w-8 h-8 rounded-xl bg-purple-950 text-purple-400 border border-purple-800 flex items-center justify-center text-xs">
-                                  <i className="fa-solid fa-user-secret"></i>
-                                </div>
-                                <div>
-                                  <div className="font-bold text-white">{g.name}</div>
-                                  <span className="text-[10px] px-1.5 py-0.2 rounded bg-purple-950 text-purple-300 font-bold border border-purple-800">
-                                    Chưa Đăng Ký TK
-                                  </span>
-                                </div>
-                              </td>
-                              <td className="p-3 font-mono font-bold text-emerald-400">{g.phone}</td>
-                              <td className="p-3 text-slate-400">{g.email}</td>
-                              <td className="p-3 text-center">
-                                <span className="px-2.5 py-0.5 rounded-full bg-slate-800 text-white font-bold text-xs">
-                                  {g.listingsCount} tin
+                        {paginatedGuests.map((g, idx) => (
+                          <tr key={idx} className="hover:bg-slate-900/60 transition">
+                            <td className="p-3 flex items-center gap-2.5 font-bold text-white">
+                              <div className="w-8 h-8 rounded-xl bg-purple-950 text-purple-400 border border-purple-800 flex items-center justify-center text-xs">
+                                <i className="fa-solid fa-user-secret"></i>
+                              </div>
+                              <div>
+                                <div className="font-bold text-white">{g.name}</div>
+                                <span className="text-[10px] px-1.5 py-0.2 rounded bg-purple-950 text-purple-300 font-bold border border-purple-800">
+                                  Chưa Đăng Ký TK
                                 </span>
-                              </td>
-                              <td className="p-3 text-slate-400">
-                                {new Date(g.latestDate).toLocaleDateString('vi-VN')} {new Date(g.latestDate).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-                              </td>
-                              <td className="p-3 text-right">
-                                <button
-                                  onClick={() => {
-                                    setActiveMenu('properties');
-                                    setPropertyAuthorFilter('guest');
-                                    setSearchTerm(g.phone !== 'Chưa có SĐT' ? g.phone : g.name);
-                                  }}
-                                  className="px-3 py-1.5 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ml-auto"
-                                >
-                                  <i className="fa-solid fa-newspaper text-xs"></i>
-                                  <span>Xem Tin Của Khách</span>
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
+                              </div>
+                            </td>
+                            <td className="p-3 font-mono font-bold text-emerald-400">{g.phone}</td>
+                            <td className="p-3 text-slate-400">{g.email}</td>
+                            <td className="p-3 text-center">
+                              <span className="px-2.5 py-0.5 rounded-full bg-slate-800 text-white font-bold text-xs">
+                                {g.listingsCount} tin
+                              </span>
+                            </td>
+                            <td className="p-3 text-slate-400">
+                              {new Date(g.latestDate).toLocaleDateString('vi-VN')} {new Date(g.latestDate).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                            </td>
+                            <td className="p-3 text-right">
+                              <button
+                                onClick={() => {
+                                  setActiveMenu('properties');
+                                  setPropertyAuthorFilter('guest');
+                                  setSearchTerm(g.phone !== 'Chưa có SĐT' ? g.phone : g.name);
+                                }}
+                                className="px-3 py-1.5 bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ml-auto"
+                              >
+                                <i className="fa-solid fa-newspaper text-xs"></i>
+                                <span>Xem Tin Của Khách</span>
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   )}
                 </div>
               )}
+
+              {/* VIEW 3: THÙNG RÁC NGƯỜI DÙNG */}
+              {userTab === 'trash' && (
+                <div className="space-y-4">
+                  {/* Banner thông tin thùng rác & Nút dọn sạch */}
+                  <div className="mx-4 p-3.5 bg-rose-950/30 border border-rose-900/50 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5 text-xs text-rose-300">
+                      <i className="fa-solid fa-trash-can text-rose-400 text-base shrink-0"></i>
+                      <span>
+                        Tài khoản trong thùng rác đã bị vô hiệu hóa đăng nhập. Bạn có thể <strong>khôi phục</strong> hoặc <strong>xóa vĩnh viễn</strong>.
+                      </span>
+                    </div>
+                    {trashedUsers.length > 0 && (
+                      <button
+                        onClick={() => setShowEmptyTrashConfirm(true)}
+                        className="px-3 py-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-sm"
+                      >
+                        <i className="fa-solid fa-dumpster-fire text-xs"></i>
+                        <span>Dọn Sạch Thùng Rác ({trashedUsers.length})</span>
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="overflow-x-auto">
+                    {filteredTrashUsers.length === 0 ? (
+                      <div className="p-12 text-center text-slate-400 text-xs">
+                        <i className="fa-solid fa-trash-can-arrow-up text-3xl text-slate-600 mb-2"></i>
+                        <p className="font-semibold">Thùng rác người dùng đang trống.</p>
+                        <p className="text-[11px] text-slate-500 mt-1">Không có tài khoản nào bị xóa mềm.</p>
+                      </div>
+                    ) : (
+                      <table className="w-full text-xs text-left">
+                        <thead className="bg-slate-900 text-slate-400">
+                          <tr>
+                            <th className="p-3">Thành Viên</th>
+                            <th className="p-3">Email & SĐT</th>
+                            <th className="p-3">Vai Trò Trước Đó</th>
+                            <th className="p-3 text-right">Ví Chính / Ví KM</th>
+                            <th className="p-3 text-center">Thời Gian Xóa</th>
+                            <th className="p-3 text-right">Hành Động Khôi Phục / Xóa</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800">
+                          {paginatedTrashUsers.map(u => {
+                            const bonusBal = Number(u.bonusWalletBalance !== undefined ? u.bonusWalletBalance : (u.promoBalance || 0));
+                            const mainBal = Number(u.walletBalance || 0);
+
+                            return (
+                              <tr key={u.id} className="hover:bg-slate-900/60 transition">
+                                <td className="p-3 flex items-center gap-2.5 font-bold text-white">
+                                  <img
+                                    src={u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}
+                                    alt=""
+                                    className="w-8 h-8 rounded-xl object-cover shrink-0 grayscale opacity-60 border border-slate-800"
+                                  />
+                                  <div>
+                                    <div className="font-bold text-slate-300 line-through">{u.name}</div>
+                                    <div className="text-[10px] text-slate-500 font-mono">ID: {u.id?.slice(0, 8)}...</div>
+                                  </div>
+                                </td>
+                                <td className="p-3">
+                                  <div className="font-mono text-slate-400 text-[11px]">{u.email}</div>
+                                  <div className="font-mono text-slate-500 text-[10px]">{u.phone || 'Chưa có SĐT'}</div>
+                                </td>
+                                <td className="p-3">
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-900 text-slate-400 border border-slate-800">
+                                    {u.roleName || (u.role === 'admin' ? 'Quản Trị Viên' : u.role === 'broker' ? 'Môi Giới' : 'Khách Hàng')}
+                                  </span>
+                                </td>
+                                <td className="p-3 text-right font-mono">
+                                  <div className="text-slate-400 font-bold">{mainBal.toLocaleString('vi-VN')} đ</div>
+                                  {bonusBal > 0 && <div className="text-amber-500 text-[10px]">KM: {bonusBal.toLocaleString('vi-VN')} đ</div>}
+                                </td>
+                                <td className="p-3 text-center text-slate-400 text-[11px]">
+                                  {u.deletedAt ? new Date(u.deletedAt).toLocaleString('vi-VN') : '—'}
+                                </td>
+                                <td className="p-3 text-right">
+                                  <div className="flex items-center justify-end gap-2">
+                                    <button
+                                      onClick={() => handleRestoreUser(u)}
+                                      className="px-2.5 py-1 bg-emerald-600/20 hover:bg-emerald-600/40 text-emerald-300 rounded-lg text-[10px] font-bold flex items-center gap-1 transition border border-emerald-800/40"
+                                      title="Khôi phục tài khoản này trở lại danh sách hoạt động"
+                                    >
+                                      <i className="fa-solid fa-rotate-left text-[9px]"></i>
+                                      <span>Khôi phục</span>
+                                    </button>
+                                    <button
+                                      onClick={() => setConfirmPermanentDeleteUser(u)}
+                                      className="px-2.5 py-1 bg-rose-600/20 hover:bg-rose-600/40 text-rose-300 rounded-lg text-[10px] font-bold flex items-center gap-1 transition border border-rose-800/40"
+                                      title="Xóa vĩnh viễn khỏi Database"
+                                    >
+                                      <i className="fa-solid fa-trash-xmark text-[9px]"></i>
+                                      <span>Xóa vĩnh viễn</span>
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* THANH PHÂN TRANG (Dùng chung cho cả 3 Sub-tabs) */}
+              {(() => {
+                const currentTabTotalCount = userTab === 'members'
+                  ? filteredMembers.length
+                  : userTab === 'guests'
+                  ? filteredGuests.length
+                  : filteredTrashUsers.length;
+
+                const currentTabTotalPages = userTab === 'members'
+                  ? totalMemberPages
+                  : userTab === 'guests'
+                  ? totalGuestPages
+                  : totalTrashPages;
+
+                const currentTabStartIdx = (userCurrentPage - 1) * userItemsPerPage;
+
+                return (
+                  <div className="p-4 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-950/60">
+                    <div className="text-xs text-slate-400">
+                      Hiển thị <strong className="text-white">{currentTabTotalCount > 0 ? currentTabStartIdx + 1 : 0}</strong> - <strong className="text-white">{Math.min(currentTabStartIdx + userItemsPerPage, currentTabTotalCount)}</strong> trên tổng số <strong className="text-white">{currentTabTotalCount}</strong> tài khoản (Trang <strong className="text-white">{userCurrentPage}</strong> / <strong className="text-white">{currentTabTotalPages}</strong>)
+                    </div>
+
+                    {currentTabTotalPages > 1 && (
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {/* Nút Về Đầu */}
+                        <button
+                          type="button"
+                          onClick={() => setUserCurrentPage(1)}
+                          disabled={userCurrentPage === 1}
+                          className="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition"
+                          title="Trang đầu"
+                        >
+                          <i className="fa-solid fa-angles-left text-[10px]"></i>
+                        </button>
+
+                        {/* Nút Trang Trước */}
+                        <button
+                          type="button"
+                          onClick={() => setUserCurrentPage(p => Math.max(1, p - 1))}
+                          disabled={userCurrentPage === 1}
+                          className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition flex items-center gap-1"
+                          title="Trang trước"
+                        >
+                          <i className="fa-solid fa-chevron-left text-[10px]"></i>
+                          <span className="hidden sm:inline">Trước</span>
+                        </button>
+
+                        {/* Danh sách các số trang */}
+                        {(() => {
+                          const pages = [];
+                          const maxVisible = 5;
+                          let start = Math.max(1, userCurrentPage - Math.floor(maxVisible / 2));
+                          let end = Math.min(currentTabTotalPages, start + maxVisible - 1);
+                          if (end - start + 1 < maxVisible) {
+                            start = Math.max(1, end - maxVisible + 1);
+                          }
+                          for (let i = start; i <= end; i++) {
+                            pages.push(i);
+                          }
+                          return pages.map(p => (
+                            <button
+                              key={p}
+                              type="button"
+                              onClick={() => setUserCurrentPage(p)}
+                              className={`w-8 h-8 rounded-xl text-xs font-bold transition ${
+                                userCurrentPage === p
+                                  ? 'bg-blue-600 text-white font-black shadow-md shadow-blue-600/30'
+                                  : 'bg-slate-900 text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800'
+                              }`}
+                            >
+                              {p}
+                            </button>
+                          ));
+                        })()}
+
+                        {/* Nút Trang Sau */}
+                        <button
+                          type="button"
+                          onClick={() => setUserCurrentPage(p => Math.min(currentTabTotalPages, p + 1))}
+                          disabled={userCurrentPage === currentTabTotalPages}
+                          className="px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition flex items-center gap-1"
+                          title="Trang sau"
+                        >
+                          <span className="hidden sm:inline">Sau</span>
+                          <i className="fa-solid fa-chevron-right text-[10px]"></i>
+                        </button>
+
+                        {/* Nút Về Cuối */}
+                        <button
+                          type="button"
+                          onClick={() => setUserCurrentPage(currentTabTotalPages)}
+                          disabled={userCurrentPage === currentTabTotalPages}
+                          className="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-800 disabled:opacity-30 disabled:pointer-events-none transition"
+                          title="Trang cuối"
+                        >
+                          <i className="fa-solid fa-angles-right text-[10px]"></i>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           )}
 
@@ -7371,6 +7911,306 @@ export default function AdminBackendPage() {
                   Đóng
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 1: CHỈNH SỬA THÔNG TIN NGƯỜI DÙNG */}
+      {editingUser && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl max-w-lg w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+            {/* Modal Header */}
+            <div className="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/50">
+              <div className="flex items-center gap-3">
+                <img
+                  src={editingUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}
+                  alt=""
+                  className="w-10 h-10 rounded-2xl object-cover border border-slate-700"
+                />
+                <div>
+                  <h3 className="text-sm font-black text-white">Chỉnh Sửa Người Dùng</h3>
+                  <div className="text-[10px] text-slate-400 font-mono">ID: {editingUser.id}</div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingUser(null)}
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition"
+              >
+                <i className="fa-solid fa-xmark text-xs"></i>
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleSaveEditUser} className="p-5 space-y-4 overflow-y-auto flex-1 text-xs">
+              {/* Họ và tên */}
+              <div>
+                <label className="block text-slate-300 font-bold mb-1">Họ và tên <span className="text-rose-400">*</span></label>
+                <input
+                  type="text"
+                  required
+                  value={editUserForm.name}
+                  onChange={(e) => setEditUserForm({ ...editUserForm, name: e.target.value })}
+                  className="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white font-bold focus:outline-none focus:border-blue-500"
+                  placeholder="Nhập họ và tên..."
+                />
+              </div>
+
+              {/* Email & SĐT */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Email <span className="text-rose-400">*</span></label>
+                  <input
+                    type="email"
+                    required
+                    value={editUserForm.email}
+                    onChange={(e) => setEditUserForm({ ...editUserForm, email: e.target.value })}
+                    className="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white font-mono focus:outline-none focus:border-blue-500"
+                    placeholder="email@example.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Số điện thoại</label>
+                  <input
+                    type="text"
+                    value={editUserForm.phone}
+                    onChange={(e) => setEditUserForm({ ...editUserForm, phone: e.target.value })}
+                    className="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white font-mono focus:outline-none focus:border-blue-500"
+                    placeholder="0905 xxx xxx"
+                  />
+                </div>
+              </div>
+
+              {/* Vai trò & Trạng thái */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Phân quyền vai trò</label>
+                  <select
+                    value={editUserForm.role}
+                    onChange={(e) => {
+                      const r = e.target.value;
+                      const rName = r === 'admin' ? 'Quản Trị Viên' : r === 'broker' ? 'Môi Giới' : 'Khách Hàng';
+                      setEditUserForm({ ...editUserForm, role: r, roleName: rName });
+                    }}
+                    className="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white font-bold focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="user">Khách Hàng (User)</option>
+                    <option value="broker">Môi Giới Chuyên Nghiệp</option>
+                    <option value="admin">Quản Trị Viên (Admin)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Trạng thái tài khoản</label>
+                  <select
+                    value={editUserForm.status}
+                    onChange={(e) => setEditUserForm({ ...editUserForm, status: e.target.value })}
+                    className="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white font-bold focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="active">Đã kích hoạt (Active)</option>
+                    <option value="pending">Chờ kích hoạt email</option>
+                    <option value="locked">Khóa tài khoản (Locked)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Ví Chính & Ví Khuyến Mãi */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Số dư Ví Chính (VND)</label>
+                  <input
+                    type="number"
+                    step="10000"
+                    min="0"
+                    value={editUserForm.walletBalance}
+                    onChange={(e) => setEditUserForm({ ...editUserForm, walletBalance: Number(e.target.value) })}
+                    className="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-emerald-400 font-mono font-bold focus:outline-none focus:border-emerald-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">Số dư Ví Khuyến Mãi (VND)</label>
+                  <input
+                    type="number"
+                    step="10000"
+                    min="0"
+                    value={editUserForm.bonusWalletBalance}
+                    onChange={(e) => setEditUserForm({ ...editUserForm, bonusWalletBalance: Number(e.target.value) })}
+                    className="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-amber-400 font-mono font-bold focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              {/* Tích xanh KYC Checkbox */}
+              <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex items-center justify-between">
+                <div>
+                  <div className="font-bold text-white flex items-center gap-1.5">
+                    <i className="fa-solid fa-circle-check text-blue-400 text-sm"></i>
+                    <span>Tích Xanh Xác Thực KYC</span>
+                  </div>
+                  <div className="text-[10px] text-slate-400 mt-0.5">
+                    Cấp huy hiệu môi giới uy tín đã xác thực hồ sơ danh tính
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editUserForm.isVerified}
+                    onChange={(e) => setEditUserForm({ ...editUserForm, isVerified: e.target.checked })}
+                    className="sr-only peer"
+                  />
+                  <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+
+              {/* Buttons */}
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setEditingUser(null)}
+                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition"
+                >
+                  Hủy Bỏ
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition shadow-lg shadow-blue-600/30 flex items-center gap-1.5"
+                >
+                  <i className="fa-solid fa-floppy-disk"></i>
+                  <span>Lưu Thay Đổi</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: XÁC NHẬN CHUYỂN VÀO THÙNG RÁC */}
+      {confirmTrashUser && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <div className="flex items-center gap-3 text-amber-400">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-lg">
+                <i className="fa-solid fa-trash-can"></i>
+              </div>
+              <div>
+                <h3 className="text-base font-black text-white">Chuyển Vào Thùng Rác</h3>
+                <div className="text-xs text-amber-400 font-medium">Xác nhận chuyển tài khoản</div>
+              </div>
+            </div>
+
+            <div className="p-3 bg-slate-900 rounded-2xl border border-slate-800 space-y-1 text-xs">
+              <div className="font-bold text-white">{confirmTrashUser.name}</div>
+              <div className="text-slate-400 font-mono text-[11px]">{confirmTrashUser.email}</div>
+              <div className="text-slate-500 font-mono text-[10px]">ID: {confirmTrashUser.id}</div>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Tài khoản này sẽ bị chuyển vào tab <strong>Thùng Rác</strong> và tạm thời bị vô hiệu hóa đăng nhập.
+              Số dư ví và tin đăng vẫn được bảo toàn. Bạn có thể <strong>khôi phục</strong> lại bất kỳ lúc nào.
+            </p>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setConfirmTrashUser(null)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmMoveToTrash}
+                className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5"
+              >
+                <i className="fa-solid fa-trash-can text-xs"></i>
+                <span>Chuyển Vào Thùng Rác</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: XÁC NHẬN XÓA VĨNH VIỄN KHỎI DATABASE */}
+      {confirmPermanentDeleteUser && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-950 border border-rose-900/60 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <div className="flex items-center gap-3 text-rose-500">
+              <div className="w-10 h-10 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-lg animate-pulse">
+                <i className="fa-solid fa-triangle-exclamation"></i>
+              </div>
+              <div>
+                <h3 className="text-base font-black text-white">Xóa Vĩnh Viễn Người Dùng</h3>
+                <div className="text-xs text-rose-400 font-medium">Hành động không thể hoàn tác!</div>
+              </div>
+            </div>
+
+            <div className="p-3 bg-rose-950/20 rounded-2xl border border-rose-900/40 space-y-1 text-xs">
+              <div className="font-bold text-white">{confirmPermanentDeleteUser.name}</div>
+              <div className="text-slate-400 font-mono text-[11px]">{confirmPermanentDeleteUser.email}</div>
+              <div className="text-slate-500 font-mono text-[10px]">ID: {confirmPermanentDeleteUser.id}</div>
+            </div>
+
+            <p className="text-xs text-rose-300/90 leading-relaxed">
+              Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản này khỏi cơ sở dữ liệu Supabase?
+              Mọi thông tin hồ sơ và quyền truy cập sẽ bị xóa hoàn toàn.
+            </p>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setConfirmPermanentDeleteUser(null)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmPermanentDelete}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-rose-600/40 flex items-center gap-1.5"
+              >
+                <i className="fa-solid fa-trash-xmark text-xs"></i>
+                <span>Xóa Vĩnh Viễn Ngay</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: XÁC NHẬN DỌN SẠCH THÙNG RÁC */}
+      {showEmptyTrashConfirm && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-950 border border-rose-900/60 rounded-3xl p-6 max-w-md w-full space-y-4 shadow-2xl">
+            <div className="flex items-center gap-3 text-rose-500">
+              <div className="w-10 h-10 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-lg animate-bounce">
+                <i className="fa-solid fa-dumpster-fire"></i>
+              </div>
+              <div>
+                <h3 className="text-base font-black text-white">Dọn Sạch Thùng Rác</h3>
+                <div className="text-xs text-rose-400 font-medium">Xóa vĩnh viễn tất cả</div>
+              </div>
+            </div>
+
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Bạn có chắc chắn muốn xóa vĩnh viễn tất cả <strong className="text-rose-400">{trashedUsers.length}</strong> tài khoản trong thùng rác không?
+              Dữ liệu của các tài khoản này sẽ bị xóa hoàn toàn và không thể khôi phục.
+            </p>
+
+            <div className="flex justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowEmptyTrashConfirm(false)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition"
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmEmptyTrash}
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition shadow-lg shadow-rose-600/40 flex items-center gap-1.5"
+              >
+                <i className="fa-solid fa-dumpster-fire text-xs"></i>
+                <span>Xác Nhận Dọn Sạch</span>
+              </button>
             </div>
           </div>
         </div>

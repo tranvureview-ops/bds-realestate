@@ -266,11 +266,16 @@ export async function fetchSupabaseProfiles() {
       role: r.role,
       roleName: r.role_name,
       walletBalance: Number(r.wallet_balance || 0),
+      bonusWalletBalance: Number(r.bonus_wallet_balance || 0),
       phone: r.phone,
       avatar: r.avatar,
       membership: r.membership,
       vouchers: r.vouchers,
-      isVerified: Boolean(r.is_verified)
+      isVerified: Boolean(r.is_verified),
+      status: r.status || 'active',
+      isDeleted: Boolean(r.is_deleted),
+      deletedAt: r.deleted_at || null,
+      createdAt: r.created_at || new Date().toISOString()
     }));
   } catch (err) {
     return null;
@@ -289,13 +294,30 @@ export async function upsertSupabaseProfile(user) {
         role: user.role,
         role_name: user.roleName,
         wallet_balance: Number(user.walletBalance || 0),
+        bonus_wallet_balance: Number(user.bonusWalletBalance || 0),
         phone: user.phone,
         avatar: user.avatar,
         membership: user.membership,
         vouchers: user.vouchers,
-        is_verified: Boolean(user.isVerified)
+        is_verified: Boolean(user.isVerified),
+        status: user.status || 'active',
+        is_deleted: Boolean(user.isDeleted),
+        deleted_at: user.deletedAt || null
       }, { onConflict: 'id' });
 
+    return !error;
+  } catch (err) {
+    return false;
+  }
+}
+
+export async function deleteSupabaseProfile(userId) {
+  if (!isSupabaseConfigured() || !supabase || !userId) return false;
+  try {
+    const { error } = await supabase
+      .from('profiles')
+      .delete()
+      .eq('id', userId);
     return !error;
   } catch (err) {
     return false;
@@ -375,6 +397,8 @@ export function mergeProfilesWithSettingsUsers(profiles, settingsUsers) {
       bonusWalletBalance: Number(p.bonus_wallet_balance || p.bonusWalletBalance || p.promoBalance || 0),
       isVerified: Boolean(p.is_verified !== undefined ? p.is_verified : p.isVerified),
       status: p.status || 'active',
+      isDeleted: Boolean(p.is_deleted || p.isDeleted),
+      deletedAt: p.deleted_at || p.deletedAt || null,
       createdAt: p.created_at || new Date().toISOString()
     });
   });
@@ -387,7 +411,9 @@ export function mergeProfilesWithSettingsUsers(profiles, settingsUsers) {
       walletBalance: Number(u.walletBalance !== undefined ? u.walletBalance : (prev.walletBalance || 0)),
       bonusWalletBalance: Number(u.bonusWalletBalance !== undefined ? u.bonusWalletBalance : (u.promoBalance || prev.bonusWalletBalance || 0)),
       roleName: u.roleName || prev.roleName || (u.role === 'admin' ? 'Quản Trị Viên' : u.role === 'broker' ? 'Môi Giới' : 'Khách Hàng'),
-      status: u.status || prev.status || 'active'
+      status: u.status || prev.status || 'active',
+      isDeleted: Boolean(u.isDeleted !== undefined ? u.isDeleted : prev.isDeleted),
+      deletedAt: u.deletedAt || prev.deletedAt || null
     });
   });
 
