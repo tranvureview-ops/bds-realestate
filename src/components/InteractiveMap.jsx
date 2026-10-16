@@ -145,9 +145,9 @@ export default function InteractiveMap({ properties, activePropertyId = null, he
   }, [properties, openPropertyDetail]);
 
   return (
-    <div className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-md">
+    <div className="relative isolate z-0 rounded-2xl overflow-hidden border border-slate-200 shadow-md">
       {/* Map Header Controls */}
-      <div className="absolute top-3 left-3 z-[1000] bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-md border border-slate-200 flex items-center gap-2 text-xs font-bold text-slate-700">
+      <div className="absolute top-3 left-3 z-10 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-xl shadow-md border border-slate-200 flex items-center gap-2 text-xs font-bold text-slate-700">
         <span className="flex items-center gap-1 text-emerald-700">
           <i className="fa-solid fa-map-location-dot"></i>
           Bản đồ BĐS Số
@@ -159,7 +159,7 @@ export default function InteractiveMap({ properties, activePropertyId = null, he
       </div>
 
       {/* Amenity Filter Quick Chips */}
-      <div className="absolute top-3 right-3 z-[1000] bg-white/95 backdrop-blur-md px-2 py-1.5 rounded-xl shadow-md border border-slate-200 hidden sm:flex items-center gap-1.5 text-xs">
+      <div className="absolute top-3 right-3 z-10 bg-white/95 backdrop-blur-md px-2 py-1.5 rounded-xl shadow-md border border-slate-200 hidden sm:flex items-center gap-1.5 text-xs">
         <span className="text-[11px] text-slate-500 font-semibold px-1">Tiện ích:</span>
         <button
           onClick={() => setActiveAmenity('all')}

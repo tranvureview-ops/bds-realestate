@@ -76,6 +76,17 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     }
   }, [isReportModalOpen, currentUser]);
 
+  // Khóa cuộn trang khi mở modal chia sẻ hoặc modal báo cáo vi phạm
+  useEffect(() => {
+    if (isReportModalOpen || isShareModalOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isReportModalOpen, isShareModalOpen]);
+
   // Chia sẻ tin rao state
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [copiedShareLink, setCopiedShareLink] = useState(false);
@@ -1296,7 +1307,12 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
       {/* 5. MODAL CHIA SẺ TIN ĐĂNG */}
       {isShareModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+        <div 
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsShareModalOpen(false);
+          }}
+          className="fixed inset-0 z-[9999] bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200"
+        >
           <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-5 relative">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
@@ -1457,16 +1473,21 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
       {/* 6. MODAL BÁO CÁO TIN RAO CÓ THÔNG TIN KHÔNG ĐÚNG */}
       {isReportModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 space-y-5 relative max-h-[90vh] overflow-y-auto">
-            {/* Header */}
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2">
-                <span className="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-base">
+        <div 
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsReportModalOpen(false);
+          }}
+          className="fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-200"
+        >
+          <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-200 relative flex flex-col max-h-[90vh] sm:max-h-[85vh] overflow-hidden">
+            {/* Header (Cố định ở trên cùng) */}
+            <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-slate-100 bg-white shrink-0">
+              <div className="flex items-center gap-2.5">
+                <span className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg shrink-0">
                   <i className="fa-solid fa-flag"></i>
                 </span>
                 <div>
-                  <h3 className="text-base font-extrabold text-slate-900">
+                  <h3 className="text-base font-extrabold text-slate-900 leading-snug">
                     Báo Cáo Tin Rao Vi Phạm
                   </h3>
                   <div className="text-[11px] text-slate-500">
@@ -1478,249 +1499,256 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               <button
                 type="button"
                 onClick={() => setIsReportModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition cursor-pointer"
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition cursor-pointer shrink-0"
+                aria-label="Đóng"
               >
                 ✕
               </button>
             </div>
 
-            {/* Target Property Summary */}
-            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 text-xs">
-              <div className="font-bold text-slate-800 line-clamp-1">{property.title}</div>
-              <div className="text-slate-500 text-[11px] mt-0.5">
-                {property.priceDisplay} • {property.address}, {property.district}, {property.city}
-              </div>
-            </div>
-
-            {/* Form or Success State */}
+            {/* Form hoặc Success State */}
             {reportSuccessData ? (
-              <div className="space-y-4 py-2 text-center animate-in zoom-in-95 duration-200">
-                <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mx-auto shadow-inner">
-                  <i className="fa-solid fa-check"></i>
-                </div>
-
-                <div>
-                  <h4 className="text-base font-black text-slate-900">
-                    Đã Tiếp Nhận Báo Cáo & Kích Hoạt Gửi Email
-                  </h4>
-                  <div className="text-xs text-slate-500 mt-1">
-                    Hồ sơ phản ánh: <strong className="font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">#{reportSuccessData.report.id}</strong>
+              <div className="flex flex-col flex-1 overflow-hidden">
+                <div className="p-5 sm:p-6 space-y-4 text-center overflow-y-auto flex-1">
+                  <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mx-auto shadow-inner">
+                    <i className="fa-solid fa-check"></i>
                   </div>
-                </div>
 
-                <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 text-left space-y-2 text-xs">
-                  <div className="flex items-start gap-2.5 text-slate-700">
-                    <span className="w-5 h-5 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-[10px] shrink-0 mt-0.5 font-bold">1</span>
-                    <div>
-                      <strong>Email Thông Báo Khẩn Cấp BQT:</strong> Đã chuyển tiếp toàn bộ nội dung vi phạm tới ban kiểm duyệt sàn.
+                  <div>
+                    <h4 className="text-base font-black text-slate-900">
+                      Đã Tiếp Nhận Báo Cáo & Kích Hoạt Gửi Email
+                    </h4>
+                    <div className="text-xs text-slate-500 mt-1">
+                      Hồ sơ phản ánh: <strong className="font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">#{reportSuccessData.report.id}</strong>
                     </div>
                   </div>
-                  <div className="flex items-start gap-2.5 text-slate-700">
-                    <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[10px] shrink-0 mt-0.5 font-bold">2</span>
-                    <div className="flex-1">
-                      <div>
-                        <strong>Email Biên Nhận:</strong>{' '}
-                        {reportSuccessData.reporterEmail ? (
-                          <span>Đã phát xác nhận tới <code className="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono text-[11px] font-bold text-slate-900">{reportSuccessData.reporterEmail}</code>.</span>
-                        ) : (
-                          <span className="text-amber-700 font-semibold">Chưa có email để gửi biên nhận xác nhận.</span>
-                        )}
-                      </div>
 
-                      {/* Nút / Form Phát Lại Email Xác Nhận */}
-                      <div className="mt-2 pt-2 border-t border-slate-200 flex flex-wrap items-center gap-2">
-                        {reportSuccessData.reporterEmail ? (
-                          <button
-                            type="button"
-                            disabled={isResendingInModal}
-                            onClick={async () => {
-                              setIsResendingInModal(true);
-                              try {
-                                await resendReportConfirmationEmail(reportSuccessData.report.id, reportSuccessData.reporterEmail);
-                              } finally {
-                                setIsResendingInModal(false);
-                              }
-                            }}
-                            className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition flex items-center gap-1.5 shadow-xs"
-                          >
-                            <i className={`fa-solid ${isResendingInModal ? 'fa-spinner fa-spin' : 'fa-rotate-right'} text-[10px]`}></i>
-                            <span>{isResendingInModal ? 'Đang phát lại...' : 'Phát lại email xác nhận'}</span>
-                          </button>
-                        ) : (
-                          <div className="flex items-center gap-1.5 w-full">
-                            <input
-                              type="email"
-                              value={supplementalEmail}
-                              onChange={(e) => setSupplementalEmail(e.target.value)}
-                              placeholder="Nhập email của bạn để nhận biên bản xác nhận..."
-                              className="flex-1 px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                            />
+                  <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 text-left space-y-2 text-xs">
+                    <div className="flex items-start gap-2.5 text-slate-700">
+                      <span className="w-5 h-5 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-[10px] shrink-0 mt-0.5 font-bold">1</span>
+                      <div>
+                        <strong>Email Thông Báo Khẩn Cấp BQT:</strong> Đã chuyển tiếp toàn bộ nội dung vi phạm tới ban kiểm duyệt sàn.
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2.5 text-slate-700">
+                      <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-[10px] shrink-0 mt-0.5 font-bold">2</span>
+                      <div className="flex-1">
+                        <div>
+                          <strong>Email Biên Nhận:</strong>{' '}
+                          {reportSuccessData.reporterEmail ? (
+                            <span>Đã phát xác nhận tới <code className="bg-white px-1.5 py-0.5 rounded border border-slate-200 font-mono text-[11px] font-bold text-slate-900">{reportSuccessData.reporterEmail}</code>.</span>
+                          ) : (
+                            <span className="text-amber-700 font-semibold">Chưa có email để gửi biên nhận xác nhận.</span>
+                          )}
+                        </div>
+
+                        {/* Nút / Form Phát Lại Email Xác Nhận */}
+                        <div className="mt-2 pt-2 border-t border-slate-200 flex flex-wrap items-center gap-2">
+                          {reportSuccessData.reporterEmail ? (
                             <button
                               type="button"
                               disabled={isResendingInModal}
                               onClick={async () => {
-                                if (!supplementalEmail || !supplementalEmail.includes('@')) {
-                                  showToast('Vui lòng nhập địa chỉ email hợp lệ!', 'warning');
-                                  return;
-                                }
                                 setIsResendingInModal(true);
                                 try {
-                                  const res = await resendReportConfirmationEmail(reportSuccessData.report.id, supplementalEmail);
-                                  if (res.success) {
-                                    setReportSuccessData(prev => ({ ...prev, reporterEmail: supplementalEmail }));
-                                  }
+                                  await resendReportConfirmationEmail(reportSuccessData.report.id, reportSuccessData.reporterEmail);
                                 } finally {
                                   setIsResendingInModal(false);
                                 }
                               }}
-                              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition flex items-center gap-1 shadow-xs shrink-0"
+                              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition flex items-center gap-1.5 shadow-xs cursor-pointer"
                             >
-                              <i className={`fa-solid ${isResendingInModal ? 'fa-spinner fa-spin' : 'fa-paper-plane'} text-[10px]`}></i>
-                              <span>Phát Email Xác Nhận</span>
+                              <i className={`fa-solid ${isResendingInModal ? 'fa-spinner fa-spin' : 'fa-rotate-right'} text-[10px]`}></i>
+                              <span>{isResendingInModal ? 'Đang phát lại...' : 'Phát lại email xác nhận'}</span>
                             </button>
-                          </div>
-                        )}
+                          ) : (
+                            <div className="flex items-center gap-1.5 w-full">
+                              <input
+                                type="email"
+                                value={supplementalEmail}
+                                onChange={(e) => setSupplementalEmail(e.target.value)}
+                                placeholder="Nhập email của bạn để nhận biên bản xác nhận..."
+                                className="flex-1 px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                              />
+                              <button
+                                type="button"
+                                disabled={isResendingInModal}
+                                onClick={async () => {
+                                  if (!supplementalEmail || !supplementalEmail.includes('@')) {
+                                    showToast('Vui lòng nhập địa chỉ email hợp lệ!', 'warning');
+                                    return;
+                                  }
+                                  setIsResendingInModal(true);
+                                  try {
+                                    const res = await resendReportConfirmationEmail(reportSuccessData.report.id, supplementalEmail);
+                                    if (res.success) {
+                                      setReportSuccessData(prev => ({ ...prev, reporterEmail: supplementalEmail }));
+                                    }
+                                  } finally {
+                                    setIsResendingInModal(false);
+                                  }
+                                }}
+                                className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition flex items-center gap-1 shadow-xs shrink-0 cursor-pointer"
+                              >
+                                <i className={`fa-solid ${isResendingInModal ? 'fa-spinner fa-spin' : 'fa-paper-plane'} text-[10px]`}></i>
+                                <span>Phát Email Xác Nhận</span>
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-2 flex items-center justify-end gap-2">
+                <div className="px-5 sm:px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-end shrink-0 rounded-b-3xl">
                   <button
                     type="button"
                     onClick={() => {
                       setIsReportModalOpen(false);
                       setReportSuccessData(null);
                     }}
-                    className="w-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl transition text-xs shadow"
+                    className="w-full py-2.5 px-4 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl transition text-xs shadow cursor-pointer"
                   >
                     Đóng Hộp Thoại
                   </button>
                 </div>
               </div>
             ) : (
-              <form onSubmit={handleReportSubmit} className="space-y-4 text-xs">
-                <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-2">
-                    Vui lòng chọn lý do phản ánh tin rao này: <span className="text-red-500">*</span>
-                  </label>
-                  <div className="space-y-2">
-                    {[
-                      { id: 'address_wrong', label: 'Địa chỉ bất động sản không có thật hoặc sai vị trí', icon: 'fa-location-dot text-rose-500' },
-                      { id: 'price_wrong', label: 'Giá bán/cho thuê không đúng thực tế (kê giá, giá ảo, báo giá một đằng bán một nẻo)', icon: 'fa-tag text-amber-500' },
-                      { id: 'already_sold', label: 'Bất động sản đã bán hoặc đã cho thuê nhưng người đăng không hạ tin', icon: 'fa-circle-check text-blue-500' },
-                      { id: 'fake_images', label: 'Hình ảnh không đúng thực tế, cắt ghép hoặc giả mạo dự án khác', icon: 'fa-image text-purple-500' },
-                      { id: 'duplicate', label: 'Tin đăng trùng lặp với nhiều bài đăng khác gây nhiễu thông tin', icon: 'fa-copy text-indigo-500' },
-                      { id: 'unreachable', label: 'Không liên hệ được với người đăng tin (SĐT ảo, không nghe máy)', icon: 'fa-phone-slash text-slate-500' },
-                      { id: 'other', label: 'Lý do khác (dấu hiệu lừa đảo, tranh chấp pháp lý, nội dung thô tục...)', icon: 'fa-circle-exclamation text-rose-600' }
-                    ].map((item) => (
-                      <label
-                        key={item.id}
-                        className={`flex items-start gap-2.5 p-2.5 rounded-xl border transition cursor-pointer ${reportReason === item.id ? 'bg-rose-50/50 border-rose-300 text-slate-900 font-semibold' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700'}`}
-                      >
-                        <input
-                          type="radio"
-                          name="reportReason"
-                          value={item.id}
-                          checked={reportReason === item.id}
-                          onChange={(e) => setReportReason(e.target.value)}
-                          className="mt-0.5 accent-rose-600"
-                        />
-                        <span className="flex-1 flex items-center gap-1.5 text-xs">
-                          <i className={`fa-solid ${item.icon} text-xs shrink-0`}></i>
-                          <span>{item.label}</span>
+              <form onSubmit={handleReportSubmit} className="flex flex-col flex-1 overflow-hidden">
+                {/* Cuộn nội dung mượt mà, không bị che khuất */}
+                <div className="overflow-y-auto px-5 sm:px-6 py-4 flex-1 space-y-4 text-xs">
+                  {/* Target Property Summary */}
+                  <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 text-xs">
+                    <div className="font-bold text-slate-800 line-clamp-1">{property.title}</div>
+                    <div className="text-slate-500 text-[11px] mt-0.5">
+                      {property.priceDisplay} • {property.address}, {property.district}, {property.city}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-2">
+                      Vui lòng chọn lý do phản ánh tin rao này: <span className="text-red-500">*</span>
+                    </label>
+                    <div className="space-y-2">
+                      {[
+                        { id: 'address_wrong', label: 'Địa chỉ bất động sản không có thật hoặc sai vị trí', icon: 'fa-location-dot text-rose-500' },
+                        { id: 'price_wrong', label: 'Giá bán/cho thuê không đúng thực tế (kê giá, giá ảo, báo giá một đằng bán một nẻo)', icon: 'fa-tag text-amber-500' },
+                        { id: 'already_sold', label: 'Bất động sản đã bán hoặc đã cho thuê nhưng người đăng không hạ tin', icon: 'fa-circle-check text-blue-500' },
+                        { id: 'fake_images', label: 'Hình ảnh không đúng thực tế, cắt ghép hoặc giả mạo dự án khác', icon: 'fa-image text-purple-500' },
+                        { id: 'duplicate', label: 'Tin đăng trùng lặp với nhiều bài đăng khác gây nhiễu thông tin', icon: 'fa-copy text-indigo-500' },
+                        { id: 'unreachable', label: 'Không liên hệ được với người đăng tin (SĐT ảo, không nghe máy)', icon: 'fa-phone-slash text-slate-500' },
+                        { id: 'other', label: 'Lý do khác (dấu hiệu lừa đảo, tranh chấp pháp lý, nội dung thô tục...)', icon: 'fa-circle-exclamation text-rose-600' }
+                      ].map((item) => (
+                        <label
+                          key={item.id}
+                          className={`flex items-start gap-2.5 p-2.5 rounded-xl border transition cursor-pointer ${reportReason === item.id ? 'bg-rose-50/70 border-rose-400 text-slate-900 font-semibold shadow-xs' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700'}`}
+                        >
+                          <input
+                            type="radio"
+                            name="reportReason"
+                            value={item.id}
+                            checked={reportReason === item.id}
+                            onChange={(e) => setReportReason(e.target.value)}
+                            className="mt-0.5 accent-rose-600 shrink-0"
+                          />
+                          <span className="flex-1 flex items-center gap-1.5 text-xs">
+                            <i className={`fa-solid ${item.icon} text-xs shrink-0`}></i>
+                            <span>{item.label}</span>
+                          </span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                      Mô tả chi tiết nội dung sai lệch (Tùy chọn):
+                    </label>
+                    <textarea
+                      rows="3"
+                      value={reportDescription}
+                      onChange={(e) => setReportDescription(e.target.value)}
+                      placeholder="Cung cấp thêm chi tiết (ví dụ: tôi đã gọi và chủ nhà bảo đã bán từ tháng trước...)"
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 shadow-xs"
+                    ></textarea>
+                  </div>
+
+                  {/* Khu vực thông tin liên hệ của người báo cáo */}
+                  <div className="pt-2 border-t border-slate-100 space-y-2.5">
+                    <div className="flex flex-wrap items-center justify-between gap-1.5">
+                      <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                        <i className="fa-solid fa-address-card text-rose-500"></i>
+                        Thông tin người phản ánh:
+                      </span>
+                      {currentUser ? (
+                        <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                          <i className="fa-solid fa-circle-check text-[10px] text-emerald-600"></i>
+                          Đã tự động điền từ tài khoản đăng nhập
                         </span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
+                      ) : (
+                        <span className="text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                          <i className="fa-solid fa-user-secret text-[10px]"></i>
+                          Khách vãng lai
+                        </span>
+                      )}
+                    </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-slate-800 mb-1">
-                    Mô tả chi tiết nội dung sai lệch (Tùy chọn):
-                  </label>
-                  <textarea
-                    rows="3"
-                    value={reportDescription}
-                    onChange={(e) => setReportDescription(e.target.value)}
-                    placeholder="Cung cấp thêm chi tiết (ví dụ: tôi đã gọi và chủ nhà bảo đã bán từ tháng trước...)"
-                    className="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 shadow-sm"
-                  ></textarea>
-                </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Họ và tên của bạn:
+                        </label>
+                        <div className="relative">
+                          <i className="fa-solid fa-user absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                          <input
+                            type="text"
+                            value={reporterName}
+                            onChange={(e) => setReporterName(e.target.value)}
+                            placeholder="Ví dụ: Trần Hoàng Nam"
+                            className="w-full pl-8 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 shadow-xs"
+                          />
+                        </div>
+                      </div>
 
-                {/* Khu vực thông tin liên hệ của người báo cáo: Giữ nguyên ngay cả khi đã đăng nhập để người dùng chủ động kiểm tra/thay đổi */}
-                <div className="pt-2 border-t border-slate-100">
-                  <div className="flex flex-wrap items-center justify-between gap-1.5 mb-2">
-                    <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                      <i className="fa-solid fa-address-card text-rose-500"></i>
-                      Thông tin người phản ánh:
-                    </span>
-                    {currentUser ? (
-                      <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
-                        <i className="fa-solid fa-circle-check text-[10px] text-emerald-600"></i>
-                        Đã tự động điền từ tài khoản đăng nhập
-                      </span>
-                    ) : (
-                      <span className="text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
-                        <i className="fa-solid fa-user-secret text-[10px]"></i>
-                        Khách vãng lai
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">
-                        Họ và tên của bạn:
-                      </label>
-                      <div className="relative">
-                        <i className="fa-solid fa-user absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                        <input
-                          type="text"
-                          value={reporterName}
-                          onChange={(e) => setReporterName(e.target.value)}
-                          placeholder="Ví dụ: Trần Hoàng Nam"
-                          className="w-full pl-8 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 shadow-sm"
-                        />
+                      <div>
+                        <label className="block text-xs font-bold text-slate-700 mb-1">
+                          Số điện thoại hoặc Email nhận phản hồi: <span className="text-red-500">*</span>
+                        </label>
+                        <div className="relative">
+                          <i className="fa-solid fa-envelope absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                          <input
+                            type="text"
+                            value={reporterContact}
+                            onChange={(e) => setReporterContact(e.target.value)}
+                            placeholder="Ví dụ: 0898 246 607 hoặc email@datbiendanang.vn"
+                            className="w-full pl-8 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 shadow-xs"
+                            required
+                          />
+                        </div>
                       </div>
                     </div>
 
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">
-                        Số điện thoại hoặc Email nhận phản hồi: <span className="text-red-500">*</span>
-                      </label>
-                      <div className="relative">
-                        <i className="fa-solid fa-envelope absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                        <input
-                          type="text"
-                          value={reporterContact}
-                          onChange={(e) => setReporterContact(e.target.value)}
-                          placeholder="Ví dụ: 0898 246 607 hoặc email@datbiendanang.vn"
-                          className="w-full pl-8 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 shadow-sm"
-                          required
-                        />
-                      </div>
-                    </div>
+                    <p className="text-[11px] text-slate-500 flex items-center gap-1.5">
+                      <i className="fa-solid fa-circle-info text-blue-500 text-[10px] shrink-0"></i>
+                      <span>Bạn có thể kiểm tra hoặc tùy ý chỉnh sửa lại họ tên/thông tin liên hệ nhận kết quả giải quyết.</span>
+                    </p>
                   </div>
-
-                  <p className="text-[11px] text-slate-500 mt-1.5 flex items-center gap-1.5">
-                    <i className="fa-solid fa-circle-info text-blue-500 text-[10px] shrink-0"></i>
-                    <span>Bạn có thể kiểm tra hoặc tùy ý chỉnh sửa lại họ tên/thông tin liên hệ nhận kết quả giải quyết.</span>
-                  </p>
                 </div>
 
-                <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+                {/* Footer Cố Định / Nổi Bật (Luôn luôn thấy rõ hai nút Hủy bỏ & Gửi) */}
+                <div className="px-5 sm:px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2.5 shrink-0 rounded-b-3xl">
                   <button
                     type="button"
                     onClick={() => setIsReportModalOpen(false)}
-                    className="px-4 py-2 border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-xl transition cursor-pointer"
+                    className="px-4 py-2 border border-slate-200 hover:bg-white text-slate-700 font-bold rounded-xl transition text-xs cursor-pointer shadow-xs"
                   >
                     Hủy bỏ
                   </button>
                   <button
                     type="submit"
                     disabled={reportSubmitting}
-                    className="px-5 py-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-bold rounded-xl shadow transition flex items-center gap-1.5 cursor-pointer"
+                    className="px-5 py-2 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-bold rounded-xl shadow-md shadow-rose-600/20 transition flex items-center gap-1.5 text-xs cursor-pointer active:scale-95"
                   >
                     <i className="fa-solid fa-paper-plane text-xs"></i>
                     <span>{reportSubmitting ? 'Đang gửi...' : 'Gửi Báo Cáo Vi Phạm'}</span>
