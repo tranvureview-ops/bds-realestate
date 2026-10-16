@@ -6,14 +6,10 @@ import NextLink from 'next/link';
 
 const RouterContext = createContext(null);
 
-function RouterProviderContent({ children }) {
+function RouterProviderWrapper({ children }) {
   const nextRouter = useNextRouter();
   const pathname = usePathname() || '/';
-  const searchParams = useSearchParams();
   const [, startTransition] = useTransition();
-
-  const queryString = searchParams?.toString();
-  const currentPath = queryString ? `${pathname}?${queryString}` : pathname;
 
   const navigate = (to) => {
     let target = to;
@@ -56,19 +52,48 @@ function RouterProviderContent({ children }) {
     return { match: true, params };
   };
 
+  const baseContext = {
+    pathname,
+    currentPath: pathname,
+    searchParams: null,
+    navigate,
+    goBack,
+    matchRoute
+  };
+
   return (
-    <RouterContext.Provider value={{ currentPath, pathname, searchParams, navigate, goBack, matchRoute }}>
+    <Suspense fallback={
+      <RouterContext.Provider value={baseContext}>
+        <div className="min-h-screen bg-slate-50">{children}</div>
+      </RouterContext.Provider>
+    }>
+      <SearchParamsConsumer baseContext={baseContext} pathname={pathname}>
+        {children}
+      </SearchParamsConsumer>
+    </Suspense>
+  );
+}
+
+function SearchParamsConsumer({ children, baseContext, pathname }) {
+  const searchParams = useSearchParams();
+  const queryString = searchParams?.toString();
+  const currentPath = queryString ? `${pathname}?${queryString}` : pathname;
+
+  const value = {
+    ...baseContext,
+    currentPath,
+    searchParams
+  };
+
+  return (
+    <RouterContext.Provider value={value}>
       {children}
     </RouterContext.Provider>
   );
 }
 
 export const RouterProvider = ({ children }) => {
-  return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-50">{children}</div>}>
-      <RouterProviderContent>{children}</RouterProviderContent>
-    </Suspense>
-  );
+  return <RouterProviderWrapper>{children}</RouterProviderWrapper>;
 };
 
 export const useRouter = () => {

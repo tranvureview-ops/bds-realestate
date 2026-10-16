@@ -245,7 +245,53 @@ export const parsePropertyUrl = (urlPath) => {
 
   // 2. Khớp định dạng alias: /bat-dong-san/:slugOrId
   if (clean.startsWith('/bat-dong-san/')) {
-    const slugOrId = clean.replace('/bat-dong-san/', '');
+    const slugOrId = clean.replace('/bat-dong-san/', '').trim();
+    
+    // 2a. Nếu alias có chứa -pr{id}
+    const innerPr = slugOrId.match(/^([a-z0-9\u00C0-\u024F\u1E00-\u1EFF_.-]+)-pr([a-z0-9_.-]+)$/i);
+    if (innerPr) {
+      const rawSlug = innerPr[1];
+      const rawIdNumber = innerPr[2];
+      const numOnly = rawIdNumber.replace(/\D/g, '');
+      const normalizedBdsId = numOnly 
+        ? `BDS-${numOnly.padStart(3, '0')}` 
+        : (rawIdNumber.toUpperCase().startsWith('BDS-') ? rawIdNumber.toUpperCase() : `BDS-${rawIdNumber.toUpperCase()}`);
+      return {
+        isProperty: true,
+        rawSlug,
+        rawIdNumber,
+        normalizedBdsId,
+        canonicalUrl: `/${slugOrId}`
+      };
+    }
+
+    // 2b. Nếu alias là dạng pr{id} hoặc bds-{id}
+    const innerShortPr = slugOrId.match(/^pr([a-z0-9_.-]+)$/i);
+    if (innerShortPr) {
+      const rawIdNumber = innerShortPr[1];
+      const numOnly = rawIdNumber.replace(/\D/g, '');
+      return {
+        isProperty: true,
+        rawSlug: null,
+        rawIdNumber,
+        normalizedBdsId: numOnly ? `BDS-${numOnly.padStart(3, '0')}` : `BDS-${rawIdNumber.toUpperCase()}`,
+        canonicalUrl: `/pr${rawIdNumber}`
+      };
+    }
+
+    const innerBds = slugOrId.match(/^bds-?([a-z0-9_.-]+)$/i);
+    if (innerBds) {
+      const rawIdNumber = innerBds[1];
+      const numOnly = rawIdNumber.replace(/\D/g, '');
+      return {
+        isProperty: true,
+        rawSlug: null,
+        rawIdNumber,
+        normalizedBdsId: numOnly ? `BDS-${numOnly.padStart(3, '0')}` : `BDS-${rawIdNumber.toUpperCase()}`,
+        canonicalUrl: `/bds-${rawIdNumber}`
+      };
+    }
+
     const numOnly = slugOrId.replace(/\D/g, '');
     const isId = slugOrId.match(/^BDS-?\d+$/i);
     return {
@@ -255,6 +301,28 @@ export const parsePropertyUrl = (urlPath) => {
       normalizedBdsId: isId ? `BDS-${numOnly.padStart(3, '0')}` : null,
       canonicalUrl: clean
     };
+  }
+
+  // 3. Khớp Slug đơn lẻ (không chứa -pr) nếu không thuộc danh mục hoặc trang hệ thống cố định
+  const RESERVED_STATIC_PATHS = [
+    'admin', 'api', 'bang-gia-vip', 'dang-ky', 'dang-nhap', 'dang-tin', 
+    'goi-hoi-vien', 'ho-so-ca-nhan', 'nap-tien', 'nha-dat-ban', 'nha-dat-cho-thue', 
+    'quan-ly-tin', 'quy-che-hoat-dong', 'chinh-sach-bao-mat', 'chinh-sach-phap-ly', 
+    'giai-quyet-khieu-nai', 'so-sanh', 'tin-da-luu', 'tinh-lai-vay'
+  ];
+
+  const singleSlugMatch = clean.match(/^\/([a-z0-9\u00C0-\u024F\u1E00-\u1EFF_-]+)$/i);
+  if (singleSlugMatch) {
+    const rawSlug = singleSlugMatch[1].toLowerCase();
+    if (!RESERVED_STATIC_PATHS.includes(rawSlug)) {
+      return {
+        isProperty: true,
+        rawSlug,
+        rawIdNumber: null,
+        normalizedBdsId: null,
+        canonicalUrl: clean
+      };
+    }
   }
 
   return { isProperty: false };

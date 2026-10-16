@@ -7,51 +7,73 @@ import SinglePropertyPage from '../components/SinglePropertyPage';
 import ListingCard from '../components/ListingCard';
 import { parsePropertyUrl, getPropertyPermalink, generatePropertyJsonLd, toVietnameseSlug } from '../utils/permalink';
 
-export default function PropertyDetailPage() {
+export default function PropertyDetailPage({ initialProperty = null, slug = '', currentPath: propPath = '' }) {
   const { properties, selectedPropertyDetail, setSelectedPropertyDetail, getPropertyExpirationInfo, currentUser } = useRealEstate();
-  const { currentPath, matchRoute, goBack } = useRouter();
+  const { currentPath: routerPath, matchRoute, goBack } = useRouter();
 
   // 1. Phân tích đường dẫn URL theo chuẩn Batdongsan.com.vn (*-pr{id}) hoặc alias (/bat-dong-san/:slug)
-  const parsed = parsePropertyUrl(currentPath);
+  const effectivePath = propPath || (slug ? (slug.startsWith('/') ? slug : `/${slug}`) : '') || routerPath || '';
+  const parsed = parsePropertyUrl(effectivePath);
   const legacyMatch = matchRoute('/bat-dong-san/:slug');
   const slugOrId = parsed.isProperty 
     ? (parsed.normalizedBdsId || parsed.rawSlug) 
-    : (legacyMatch.match ? legacyMatch.params.slug : null);
+    : (legacyMatch?.match ? legacyMatch.params.slug : null);
 
-  // 2. Tìm bất động sản phù hợp bằng mọi tiêu chí (ID chuẩn BDS-006, id number 006, slug tiêu đề, permalink)
-  const targetProperty = properties.find(p => {
-    if (!p) return false;
-    
-    // Tiêu chí 1: Mã BĐS chuẩn (BDS-011, BDS-001)
-    if (parsed.normalizedBdsId && p.id?.toUpperCase() === parsed.normalizedBdsId.toUpperCase()) return true;
-    
-    // Tiêu chí 2: Khớp mã số định danh (kể cả 11 khớp 011 hoặc BDS-011)
-    const pNum = parseInt(String(p.id || '').replace(/\D/g, ''), 10);
-    const parsedNum = parseInt(String(parsed.rawIdNumber || '').replace(/\D/g, ''), 10);
-    if (!isNaN(pNum) && !isNaN(parsedNum) && pNum === parsedNum) return true;
+  // 2. Tìm bất động sản phù hợp bằng quy tắc Ưu Tiên ID Tuyệt Đối (Strict ID-First Matching)
+  let targetProperty = initialProperty || null;
 
-    // Tiêu chí 3: Khớp slug tiêu đề SEO
-    if (parsed.rawSlug) {
+  // Tiêu chí 1: Strict ID Matching (khi URL chứa mã số BĐS hoặc -pr{id}, /pr{id}, /bds-{id})
+  if (!targetProperty && (parsed.normalizedBdsId || parsed.rawIdNumber)) {
+    targetProperty = properties.find(p => {
+      if (!p) return false;
+      if (parsed.normalizedBdsId && p.id?.toUpperCase() === parsed.normalizedBdsId.toUpperCase()) return true;
+      const pNum = parseInt(String(p.id || '').replace(/\D/g, ''), 10);
+      const parsedNum = parseInt(String(parsed.rawIdNumber || '').replace(/\D/g, ''), 10);
+      if (!isNaN(pNum) && !isNaN(parsedNum) && pNum === parsedNum) return true;
+      return false;
+    });
+  }
+
+  // Tiêu chí 2: Exact Canonical Permalink Matching
+  if (!targetProperty && effectivePath) {
+    targetProperty = properties.find(p => {
+      if (!p) return false;
+      const pLink = getPropertyPermalink(p);
+      return pLink === effectivePath || pLink.replace(/\/$/, '') === effectivePath.replace(/\/$/, '');
+    });
+  }
+
+  // Tiêu chí 3: Slug Matching (Chỉ dùng khi URL không có ID định danh hoặc ID không tìm thấy trong properties)
+  if (!targetProperty && parsed.rawSlug) {
+    const slugMatches = properties.filter(p => {
+      if (!p) return false;
       if (p.slug && p.slug.toLowerCase() === parsed.rawSlug.toLowerCase()) return true;
       if (toVietnameseSlug(p.title) === parsed.rawSlug.toLowerCase()) return true;
-      if (p.slug && (p.slug.includes(parsed.rawSlug) || parsed.rawSlug.includes(p.slug))) return true;
+      return false;
+    });
+    if (slugMatches.length > 0) {
+      targetProperty = slugMatches.find(p => p.status === 'active') || slugMatches[0];
     }
+  }
 
-    // Tiêu chí 4: Khớp URL Canonical Permalink
-    const pLink = getPropertyPermalink(p);
-    if (pLink === currentPath || pLink.replace(/\/$/, '') === currentPath.replace(/\/$/, '')) return true;
-
-    // Tiêu chí 5: Khớp slugOrId
-    if (slugOrId) {
+  // Tiêu chí 4: Legacy Route Matching (/bat-dong-san/:slug)
+  if (!targetProperty && slugOrId) {
+    targetProperty = properties.find(p => {
+      if (!p) return false;
       if (p.slug && p.slug.toLowerCase() === slugOrId.toLowerCase()) return true;
       if (p.id && p.id.toUpperCase() === slugOrId.toUpperCase()) return true;
-    }
+      return false;
+    });
+  }
 
-    return false;
-  }) || (selectedPropertyDetail && (
-    selectedPropertyDetail.id?.toUpperCase() === parsed.normalizedBdsId?.toUpperCase() ||
-    getPropertyPermalink(selectedPropertyDetail) === currentPath
-  ) ? selectedPropertyDetail : null);
+  // Tiêu chí 5: Fallback qua selectedPropertyDetail từ Context nếu trùng ID hoặc URL
+  if (!targetProperty && selectedPropertyDetail) {
+    if (parsed.normalizedBdsId && selectedPropertyDetail.id?.toUpperCase() === parsed.normalizedBdsId.toUpperCase()) {
+      targetProperty = selectedPropertyDetail;
+    } else if (getPropertyPermalink(selectedPropertyDetail) === effectivePath) {
+      targetProperty = selectedPropertyDetail;
+    }
+  }
 
   // 3. Đồng bộ hóa với Context & Bơm Schema.org JSON-LD vào thẻ <head>
   useEffect(() => {
