@@ -336,7 +336,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
           </div>
           <div>
             <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2 flex-wrap">
-              <span>Cấu Hình Email Website & Tùy Chỉnh Nội Dung Mẫu Thư</span>
+              <span>Email Setting - Cấu Hình Máy Chủ SMTP & Mẫu Thư</span>
               {formData.enableEmailNotifications ? (
                 <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-xs font-bold flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>

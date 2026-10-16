@@ -274,7 +274,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
           </div>
           <div>
             <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2 flex-wrap">
-              <span>Cấu Hình Gói Hội Viên</span>
+              <span>Gói Hội Viên</span>
               <span className="px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/30 text-xs font-bold">
                 {(membershipPackages || []).length} Gói Đang Hoạt Động
               </span>

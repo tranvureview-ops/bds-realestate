@@ -36,13 +36,14 @@ export const getSettingsSubTabFromHash = () => {
   const fullHash = (window.location.hash || '').replace(/^#/, '').split('?')[0].trim().toLowerCase();
   if (fullHash === 'header' || fullHash === 'settings/header' || fullHash.startsWith('settings/header') || fullHash.includes('tab=header')) return 'header';
   if (fullHash === 'menu' || fullHash === 'settings/menu' || fullHash.startsWith('settings/menu') || fullHash.includes('tab=menu')) return 'menu';
+  if (fullHash === 'email-config' || fullHash === 'email' || fullHash === 'settings/email' || fullHash.startsWith('settings/email') || fullHash.includes('tab=email')) return 'email';
   return 'system';
 };
 
 export const getTabFromHash = () => {
   if (typeof window === 'undefined') return 'dashboard';
   const rawHash = (window.location.hash || '').replace(/^#/, '').split('?')[0].split('/')[0].trim().toLowerCase();
-  if (rawHash === 'header' || rawHash === 'menu') return 'settings';
+  if (rawHash === 'header' || rawHash === 'menu' || rawHash === 'email-config' || rawHash === 'email') return 'settings';
   return VALID_ADMIN_TABS.includes(rawHash) ? rawHash : 'dashboard';
 };
 
@@ -140,6 +141,9 @@ export default function AdminBackendPage() {
     } else if (tab === 'menu') {
       targetTab = 'settings';
       targetSubTab = 'menu';
+    } else if (tab === 'email-config' || tab === 'email') {
+      targetTab = 'settings';
+      targetSubTab = 'email';
     }
 
     if (!VALID_ADMIN_TABS.includes(targetTab)) return;
@@ -176,7 +180,7 @@ export default function AdminBackendPage() {
       } else if (tab === 'settings') {
         const sub = getSettingsSubTabFromHash();
         const expectedHash = sub === 'system' ? '#settings' : `#settings/${sub}`;
-        if (currentHash === 'header' || currentHash === 'menu') {
+        if (currentHash === 'header' || currentHash === 'menu' || currentHash === 'email-config' || currentHash === 'email') {
           if (window.history?.replaceState) {
             window.history.replaceState(null, '', expectedHash);
           }
@@ -1607,7 +1611,7 @@ export default function AdminBackendPage() {
             >
               <div className="flex items-center gap-3">
                 <i className="fa-solid fa-crown text-sm w-5 text-center text-amber-400"></i>
-                <span>Cấu Hình Gói Hội Viên</span>
+                <span>Gói Hội Viên</span>
               </div>
               <span className="px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30">
                 {(membershipPackages || []).length} gói
@@ -1632,7 +1636,7 @@ export default function AdminBackendPage() {
                 </div>
                 <div className="flex items-center gap-1">
                   <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${activeMenu === 'settings' ? 'bg-black/30 text-white' : 'bg-slate-800 text-slate-400'}`}>
-                    3 Tab
+                    4 Tab
                   </span>
                   <i className={`fa-solid fa-chevron-${activeMenu === 'settings' ? 'down' : 'right'} text-[10px] opacity-70`}></i>
                 </div>
@@ -1668,7 +1672,7 @@ export default function AdminBackendPage() {
                   >
                     <div className="flex items-center gap-2">
                       <i className="fa-solid fa-window-maximize text-[11px] w-4 text-center"></i>
-                      <span>2. Cấu Hình Header</span>
+                      <span>2. Header</span>
                     </div>
                     {settingsSubTab === 'header' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
                   </button>
@@ -1687,6 +1691,22 @@ export default function AdminBackendPage() {
                       <span>3. Thanh Menu</span>
                     </div>
                     {settingsSubTab === 'menu' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSelectSettingsSubTab('email')}
+                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between text-left transition ${
+                      settingsSubTab === 'email'
+                        ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <i className="fa-solid fa-envelope-open-text text-[11px] w-4 text-center text-teal-400"></i>
+                      <span>4. Email Setting</span>
+                    </div>
+                    {settingsSubTab === 'email' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
                   </button>
                 </div>
               )}
@@ -1712,17 +1732,6 @@ export default function AdminBackendPage() {
             >
               <i className="fa-solid fa-file-contract text-sm w-5 text-center text-rose-400"></i>
               <span>Cấu Hình Single</span>
-            </a>
-
-            <a
-              href="#email-config"
-              onClick={handleNavClick('email-config')}
-              className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
-                activeMenu === 'email-config' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
-              }`}
-            >
-              <i className="fa-solid fa-envelope-open-text text-sm w-5 text-center text-teal-400"></i>
-              <span>Cấu Hình Email Website</span>
             </a>
           </nav>
         </div>
@@ -1792,18 +1801,20 @@ export default function AdminBackendPage() {
               {activeMenu === 'users' && '👥 Quản Lý Người Dùng & Môi Giới'}
               {activeMenu === 'finance' && '💳 Sổ Cái Giao Dịch & Báo Cáo Doanh Thu'}
               {activeMenu === 'pricing' && '👑 Cấu Hình Bảng Giá Gói Dịch Vụ VIP'}
-              {activeMenu === 'membership' && '👑 Cấu Hình Gói Hội Viên'}
-              {activeMenu === 'header' && '🎨 Cấu Hình Header & Logo Thương Hiệu'}
+              {activeMenu === 'membership' && '👑 Gói Hội Viên'}
+              {activeMenu === 'header' && '🎨 Header & Logo Thương Hiệu'}
               {activeMenu === 'menu' && '🧭 Cấu Hình Thanh Menu Điều Hướng'}
               {activeMenu === 'payments' && '💳 Cấu Hình Cổng Thanh Toán & Tài Khoản Nhận Tiền'}
               {activeMenu === 'single-config' && '📄 Cấu Hình Trang Chi Tiết BĐS (Single) & Miễn Trừ Trách Nhiệm'}
-              {activeMenu === 'email-config' && '✉️ Cấu Hình Email Website & Máy Chủ SMTP'}
+              {activeMenu === 'email-config' && '✉️ Email Setting - Cấu Hình Máy Chủ SMTP & Mẫu Thư'}
               {activeMenu === 'settings' && (
                 settingsSubTab === 'header'
-                  ? '🎨 Cài Đặt Website › Cấu Hình Header & Logo'
+                  ? '🎨 Cài Đặt Website › Header & Logo'
                   : settingsSubTab === 'menu'
-                  ? '🧭 Cài Đặt Website › Cấu Hình Thanh Menu Điều Hướng'
-                  : '⚙️ Cài Đặt Website › Cấu Hình Hệ Thống & CSKH'
+                  ? '🧭 Cài Đặt Website › Thanh Menu Điều Hướng'
+                  : settingsSubTab === 'email'
+                  ? '✉️ Cài Đặt Website › Email Setting'
+                  : '⚙️ Cài Đặt Website › Cài Đặt Hệ Thống & CSKH'
               )}
             </h2>
           </div>
@@ -4248,7 +4259,7 @@ export default function AdminBackendPage() {
                   className="px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold hover:bg-amber-500/30 transition flex items-center gap-1.5 self-start sm:self-auto"
                 >
                   <i className="fa-solid fa-crown text-amber-400"></i>
-                  <span>Sang Cấu Hình Gói Hội Viên ➔</span>
+                  <span>Sang Gói Hội Viên ➔</span>
                 </button>
               </div>
 
@@ -5016,22 +5027,22 @@ export default function AdminBackendPage() {
                           Trung Tâm Cài Đặt Website
                         </h2>
                         <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
-                          {settingsSubTab === 'system' ? '⚙️ Hệ Thống' : settingsSubTab === 'header' ? '🎨 Header & Logo' : '🧭 Menu Điều Hướng'}
+                          {settingsSubTab === 'system' ? '⚙️ Hệ Thống' : settingsSubTab === 'header' ? '🎨 Header' : settingsSubTab === 'menu' ? '🧭 Thanh Menu' : '✉️ Email Setting'}
                         </span>
                       </div>
                       <p className="text-xs text-slate-400">
-                        Quản lý toàn diện nhận diện thương hiệu, giao diện Header, danh mục menu và vận hành hệ thống.
+                        Quản lý toàn diện nhận diện thương hiệu, giao diện Header, danh mục menu, Email Setting và vận hành hệ thống.
                       </p>
                     </div>
                   </div>
 
-                  {/* Right: 3 Segmented Options Switcher */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 shrink-0">
+                  {/* Right: 4 Segmented Options Switcher */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 shrink-0">
                     {/* Option 1: System */}
                     <button
                       type="button"
                       onClick={() => handleSelectSettingsSubTab('system')}
-                      className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2.5 cursor-pointer ${
+                      className={`px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2.5 cursor-pointer ${
                         settingsSubTab === 'system'
                           ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-900/40 ring-1 ring-emerald-400/50'
                           : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -5048,7 +5059,7 @@ export default function AdminBackendPage() {
                     <button
                       type="button"
                       onClick={() => handleSelectSettingsSubTab('header')}
-                      className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2.5 cursor-pointer ${
+                      className={`px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2.5 cursor-pointer ${
                         settingsSubTab === 'header'
                           ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-900/40 ring-1 ring-emerald-400/50'
                           : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -5056,7 +5067,7 @@ export default function AdminBackendPage() {
                     >
                       <i className="fa-solid fa-window-maximize text-sm"></i>
                       <div className="text-left">
-                        <div className="leading-tight">2. Cấu Hình Header</div>
+                        <div className="leading-tight">2. Header</div>
                         <div className="text-[10px] font-normal opacity-80 hidden sm:block">Logo & Độ Rộng Navbar</div>
                       </div>
                     </button>
@@ -5065,7 +5076,7 @@ export default function AdminBackendPage() {
                     <button
                       type="button"
                       onClick={() => handleSelectSettingsSubTab('menu')}
-                      className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2.5 cursor-pointer ${
+                      className={`px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2.5 cursor-pointer ${
                         settingsSubTab === 'menu'
                           ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-900/40 ring-1 ring-emerald-400/50'
                           : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -5076,6 +5087,25 @@ export default function AdminBackendPage() {
                         <div className="leading-tight">3. Thanh Menu</div>
                         <div className="text-[10px] font-normal opacity-80 hidden sm:block">
                           {(navMenuItems || []).length} mục điều hướng
+                        </div>
+                      </div>
+                    </button>
+
+                    {/* Option 4: Email Setting */}
+                    <button
+                      type="button"
+                      onClick={() => handleSelectSettingsSubTab('email')}
+                      className={`px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2.5 cursor-pointer ${
+                        settingsSubTab === 'email'
+                          ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-900/40 ring-1 ring-emerald-400/50'
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                      }`}
+                    >
+                      <i className="fa-solid fa-envelope-open-text text-sm"></i>
+                      <div className="text-left">
+                        <div className="leading-tight">4. Email Setting</div>
+                        <div className="text-[10px] font-normal opacity-80 hidden sm:block">
+                          SMTP & 5 Mẫu Thư
                         </div>
                       </div>
                     </button>
@@ -5603,7 +5633,7 @@ export default function AdminBackendPage() {
                 </div>
               )}
 
-              {/* TAB 2: CẤU HÌNH HEADER & ĐỘ RỘNG */}
+              {/* TAB 2: HEADER & ĐỘ RỘNG */}
               {settingsSubTab === 'header' && (
                 <AdminHeaderConfigManager onSwitchToMenu={() => handleSelectSettingsSubTab('menu')} />
               )}
@@ -5611,6 +5641,11 @@ export default function AdminBackendPage() {
               {/* TAB 3: CẤU HÌNH THANH MENU */}
               {settingsSubTab === 'menu' && (
                 <AdminMenuConfigManager onSwitchToHeader={() => handleSelectSettingsSubTab('header')} />
+              )}
+
+              {/* TAB 4: EMAIL SETTING */}
+              {settingsSubTab === 'email' && (
+                <AdminEmailConfigManager onNavigateToEmails={() => setActiveMenu('emails')} />
               )}
             </div>
           )}

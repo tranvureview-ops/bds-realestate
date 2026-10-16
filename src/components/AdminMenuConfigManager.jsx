@@ -201,7 +201,7 @@ export default function AdminMenuConfigManager({ onSwitchToHeader = null }) {
             <div>
               <div className="font-bold text-white text-sm">Cần đổi Logo Thương Hiệu hoặc Độ Rộng Header?</div>
               <div className="text-[11px] text-slate-400 mt-0.5">
-                Bạn có thể chuyển sang mục <b>"Cấu Hình Header"</b> để đổi logo ảnh/chữ và chọn độ rộng (Full-width, Wide, Boxed).
+                Bạn có thể chuyển sang mục <b>"Header"</b> để đổi logo ảnh/chữ và chọn độ rộng (Full-width, Wide, Boxed).
               </div>
             </div>
           </div>
@@ -211,7 +211,7 @@ export default function AdminMenuConfigManager({ onSwitchToHeader = null }) {
             className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition flex items-center gap-1.5 shrink-0"
           >
             <i className="fa-solid fa-paintbrush"></i>
-            <span>Mở Cấu Hình Header ➔</span>
+            <span>Mở Header ➔</span>
           </button>
         </div>
       )}

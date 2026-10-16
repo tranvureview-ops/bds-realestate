@@ -91,7 +91,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
               <i className="fa-solid fa-window-maximize"></i>
             </span>
             <h2 className="text-lg font-black text-white">
-              Cấu Hình Header & Logo Thương Hiệu (Header & Logo Customizer)
+              Header & Logo Thương Hiệu
             </h2>
           </div>
           <p className="text-xs text-slate-400 max-w-2xl">
@@ -117,7 +117,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
             className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition flex items-center gap-2 cursor-pointer"
           >
             <i className={`fa-solid ${isSavingHeader ? 'fa-spinner fa-spin' : 'fa-floppy-disk'}`}></i>
-            <span>{isSavingHeader ? 'Đang Lưu...' : 'Lưu Cấu Hình Header'}</span>
+            <span>{isSavingHeader ? 'Đang Lưu...' : 'Lưu Header'}</span>
           </button>
 
           {onSwitchToMenu && (
@@ -671,7 +671,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
           className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-bold text-sm shadow-lg shadow-emerald-600/30 transition flex items-center gap-2 cursor-pointer"
         >
           <i className={`fa-solid ${isSavingHeader ? 'fa-spinner fa-spin' : 'fa-floppy-disk'}`}></i>
-          <span>{isSavingHeader ? 'Đang Lưu...' : 'Lưu Cấu Hình Header'}</span>
+          <span>{isSavingHeader ? 'Đang Lưu...' : 'Lưu Header'}</span>
         </button>
       </div>
     </div>
