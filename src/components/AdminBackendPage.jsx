@@ -11,6 +11,30 @@ import AdminSingleConfigManager from './AdminSingleConfigManager';
 import AdminEmailConfigManager from './AdminEmailConfigManager';
 import AdminMembershipManager from './AdminMembershipManager';
 
+export const VALID_ADMIN_TABS = [
+  'dashboard',
+  'moderation',
+  'reports',
+  'emails',
+  'properties',
+  'users',
+  'finance',
+  'pricing',
+  'membership',
+  'header',
+  'menu',
+  'payments',
+  'single-config',
+  'email-config',
+  'settings'
+];
+
+export const getTabFromHash = () => {
+  if (typeof window === 'undefined') return 'dashboard';
+  const rawHash = (window.location.hash || '').replace(/^#/, '').split('?')[0].split('/')[0].trim().toLowerCase();
+  return VALID_ADMIN_TABS.includes(rawHash) ? rawHash : 'dashboard';
+};
+
 export default function AdminBackendPage() {
   const { 
     properties, 
@@ -64,9 +88,64 @@ export default function AdminBackendPage() {
     singleConfig
   } = useRealEstate();
 
-  // Active Admin Sidebar Menu
-  const [activeMenu, setActiveMenu] = useState('dashboard'); 
-  // 'dashboard', 'moderation', 'reports', 'emails', 'properties', 'users', 'finance', 'pricing', 'membership', 'header', 'menu', 'payments', 'single-config', 'settings'
+  // Active Admin Sidebar Menu (synced with URL hash)
+  const [activeMenu, setActiveMenuState] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return getTabFromHash();
+    }
+    return 'dashboard';
+  });
+
+  const setActiveMenu = useCallback((tab) => {
+    if (!VALID_ADMIN_TABS.includes(tab)) return;
+    setActiveMenuState(tab);
+    if (typeof window !== 'undefined') {
+      const currentHash = (window.location.hash || '').replace(/^#/, '').split('?')[0].split('/')[0].trim().toLowerCase();
+      if (currentHash !== tab) {
+        if (window.history?.pushState) {
+          window.history.pushState(null, '', `#${tab}`);
+        } else {
+          window.location.hash = tab;
+        }
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const currentHash = (window.location.hash || '').replace(/^#/, '').trim().toLowerCase();
+      const tab = getTabFromHash();
+      if (!currentHash) {
+        if (window.history?.replaceState) {
+          window.history.replaceState(null, '', '#dashboard');
+        }
+      } else if (currentHash !== tab) {
+        if (window.history?.replaceState) {
+          window.history.replaceState(null, '', `#${tab}`);
+        }
+      }
+      setActiveMenuState(tab);
+    }
+
+    const handleHashOrPopState = () => {
+      const tab = getTabFromHash();
+      setActiveMenuState(tab);
+    };
+
+    window.addEventListener('hashchange', handleHashOrPopState);
+    window.addEventListener('popstate', handleHashOrPopState);
+    return () => {
+      window.removeEventListener('hashchange', handleHashOrPopState);
+      window.removeEventListener('popstate', handleHashOrPopState);
+    };
+  }, []);
+
+  const handleNavClick = useCallback((tab) => (e) => {
+    if (!e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0) {
+      e.preventDefault();
+      setActiveMenu(tab);
+    }
+  }, [setActiveMenu]);
 
   const pendingReportsCount = (listingReports || []).filter(r => r.status === 'pending').length;
 
@@ -1175,18 +1254,20 @@ export default function AdminBackendPage() {
 
           {/* Navigation Menu Links */}
           <nav className="px-3 space-y-1 text-xs font-bold">
-            <button
-              onClick={() => setActiveMenu('dashboard')}
+            <a
+              href="#dashboard"
+              onClick={handleNavClick('dashboard')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
                 activeMenu === 'dashboard' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
               <i className="fa-solid fa-chart-line text-sm w-5 text-center"></i>
               <span>Dashboard Tổng Quan</span>
-            </button>
+            </a>
 
-            <button
-              onClick={() => setActiveMenu('moderation')}
+            <a
+              href="#moderation"
+              onClick={handleNavClick('moderation')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between text-left ${
                 activeMenu === 'moderation' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
@@ -1200,10 +1281,11 @@ export default function AdminBackendPage() {
                   {pendingProps.length}
                 </span>
               )}
-            </button>
+            </a>
 
-            <button
-              onClick={() => setActiveMenu('reports')}
+            <a
+              href="#reports"
+              onClick={handleNavClick('reports')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between text-left ${
                 activeMenu === 'reports' ? 'bg-rose-600 text-white shadow-lg shadow-rose-600/30' : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
@@ -1221,10 +1303,11 @@ export default function AdminBackendPage() {
                   {(listingReports || []).length}
                 </span>
               )}
-            </button>
+            </a>
 
-            <button
-              onClick={() => setActiveMenu('emails')}
+            <a
+              href="#emails"
+              onClick={handleNavClick('emails')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between text-left ${
                 activeMenu === 'emails' ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30' : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
@@ -1236,40 +1319,44 @@ export default function AdminBackendPage() {
               <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-[10px] text-blue-300 font-bold border border-slate-700">
                 {(emailLogs || []).length}
               </span>
-            </button>
+            </a>
 
-            <button
-              onClick={() => setActiveMenu('properties')}
+            <a
+              href="#properties"
+              onClick={handleNavClick('properties')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
                 activeMenu === 'properties' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
               <i className="fa-solid fa-city text-sm w-5 text-center"></i>
               <span>Quản Lý Bất Động Sản</span>
-            </button>
+            </a>
 
-            <button
-              onClick={() => setActiveMenu('users')}
+            <a
+              href="#users"
+              onClick={handleNavClick('users')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
                 activeMenu === 'users' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
               <i className="fa-solid fa-users-gear text-sm w-5 text-center"></i>
               <span>Người Dùng & Phân Quyền</span>
-            </button>
+            </a>
 
-            <button
-              onClick={() => setActiveMenu('finance')}
+            <a
+              href="#finance"
+              onClick={handleNavClick('finance')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
                 activeMenu === 'finance' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
               <i className="fa-solid fa-money-bill-trend-up text-sm w-5 text-center"></i>
               <span>Doanh Thu & Giao Dịch</span>
-            </button>
+            </a>
 
-            <button
-              onClick={() => setActiveMenu('pricing')}
+            <a
+              href="#pricing"
+              onClick={handleNavClick('pricing')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between text-left ${
                 activeMenu === 'pricing' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
@@ -1281,10 +1368,11 @@ export default function AdminBackendPage() {
               <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-[10px] text-slate-300 font-bold">
                 4 cấp
               </span>
-            </button>
+            </a>
 
-            <button
-              onClick={() => setActiveMenu('membership')}
+            <a
+              href="#membership"
+              onClick={handleNavClick('membership')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between text-left ${
                 activeMenu === 'membership' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
@@ -1296,67 +1384,73 @@ export default function AdminBackendPage() {
               <span className="px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30">
                 {(membershipPackages || []).length} gói
               </span>
-            </button>
+            </a>
 
-            <button
-              onClick={() => setActiveMenu('header')}
+            <a
+              href="#header"
+              onClick={handleNavClick('header')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
                 activeMenu === 'header' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
               <i className="fa-solid fa-window-maximize text-sm w-5 text-center"></i>
               <span>Cấu Hình Header</span>
-            </button>
+            </a>
 
-            <button
-              onClick={() => setActiveMenu('menu')}
+            <a
+              href="#menu"
+              onClick={handleNavClick('menu')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
                 activeMenu === 'menu' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
               <i className="fa-solid fa-bars-staggered text-sm w-5 text-center"></i>
               <span>Cấu Hình Thanh Menu</span>
-            </button>
+            </a>
 
-            <button
-              onClick={() => setActiveMenu('payments')}
+            <a
+              href="#payments"
+              onClick={handleNavClick('payments')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
                 activeMenu === 'payments' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
               <i className="fa-solid fa-credit-card text-sm w-5 text-center"></i>
               <span>Cấu Hình Thanh Toán</span>
-            </button>
+            </a>
 
-            <button
-              onClick={() => setActiveMenu('single-config')}
+            <a
+              href="#single-config"
+              onClick={handleNavClick('single-config')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
                 activeMenu === 'single-config' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
               <i className="fa-solid fa-file-contract text-sm w-5 text-center text-rose-400"></i>
               <span>Cấu Hình Single</span>
-            </button>
+            </a>
 
-            <button
-              onClick={() => setActiveMenu('email-config')}
+            <a
+              href="#email-config"
+              onClick={handleNavClick('email-config')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
                 activeMenu === 'email-config' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
               <i className="fa-solid fa-envelope-open-text text-sm w-5 text-center text-teal-400"></i>
               <span>Cấu Hình Email Website</span>
-            </button>
+            </a>
 
-            <button
-              onClick={() => setActiveMenu('settings')}
+            <a
+              href="#settings"
+              onClick={handleNavClick('settings')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
                 activeMenu === 'settings' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
               <i className="fa-solid fa-sliders text-sm w-5 text-center"></i>
               <span>Cài Đặt</span>
-            </button>
+            </a>
           </nav>
         </div>
 
