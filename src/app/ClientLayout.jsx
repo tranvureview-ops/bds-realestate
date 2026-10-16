@@ -12,6 +12,7 @@ import Footer from '../components/Footer';
 import CompareDrawer from '../components/CompareDrawer';
 import LiveChatWidget from '../components/LiveChatWidget';
 import ToastNotification from '../components/ToastNotification';
+import MobileBottomNav from '../components/MobileBottomNav';
 
 // Global Modals
 import ListingDetailModal from '../components/ListingDetailModal';
@@ -44,13 +45,16 @@ function AppContent({ children }) {
       <Navbar />
 
       {/* Main Page Content */}
-      <main className="flex-1">
+      <main className="flex-1 pb-16 md:pb-0">
         {children}
       </main>
 
       {/* Persistent Bottom Components */}
       <CompareDrawer />
       <LiveChatWidget />
+
+      {/* Mobile App-like Bottom Navigation Bar */}
+      <MobileBottomNav />
 
       {/* Multi-page Footer */}
       <Footer />

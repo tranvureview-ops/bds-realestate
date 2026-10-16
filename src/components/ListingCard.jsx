@@ -255,7 +255,8 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
                 title={`Gọi ngay: ${safeAuthor.phone}`}
               >
                 <i className="fa-solid fa-phone text-[11px] shrink-0"></i>
-                <span className="whitespace-nowrap">{safeAuthor.phone}</span>
+                <span className="hidden sm:inline whitespace-nowrap">{safeAuthor.phone}</span>
+                <span className="sm:hidden whitespace-nowrap">Gọi</span>
               </a>
 
               <a

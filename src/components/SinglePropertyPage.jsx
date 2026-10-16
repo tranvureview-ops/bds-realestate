@@ -242,7 +242,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   ];
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-16">
+    <div className="bg-slate-50 min-h-screen pb-24 md:pb-16">
       {/* 1. BREADCRUMBS & TOP ACTIONS BAR */}
       <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
@@ -1113,7 +1113,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
           
           {/* Main Broker Box */}
           {(singleConfig?.features?.showAuthorCard !== false || singleConfig?.features?.showAppointmentBooking !== false) && (
-            <div className="bg-white rounded-3xl border-2 border-emerald-500/30 p-6 shadow-xl space-y-5">
+            <div id="broker-contact-box" className="bg-white rounded-3xl border-2 border-emerald-500/30 p-6 shadow-xl space-y-5">
               {singleConfig?.features?.showAuthorCard !== false && (
                 <>
                   {/* Broker Header */}
@@ -1749,6 +1749,55 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
           </div>
         </div>
       </div>
+
+      {/* 8. MOBILE STICKY CONTACT ACTION BAR (World-class Mobile UX) */}
+      <aside 
+        aria-label="Thanh liên hệ nhanh di động"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md px-3 py-2 border-t border-slate-200/90 shadow-[0_-4px_25px_rgba(0,0,0,0.12)] pb-safe flex items-center justify-between gap-2"
+      >
+        <div className="flex flex-col min-w-0 pr-1">
+          <div className="text-base font-black text-red-600 truncate leading-tight">
+            {property.priceDisplay}
+          </div>
+          <div className="text-[11px] text-slate-500 font-medium truncate">
+            {property.area} m² • {property.district}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-1.5 shrink-0">
+          <a
+            href={`tel:${safeAuthor.phone.replace(/\s+/g, '')}`}
+            className="px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-emerald-600/30 active:scale-95 transition whitespace-nowrap"
+          >
+            <i className="fa-solid fa-phone text-xs animate-pulse"></i>
+            <span>Gọi Ngay</span>
+          </a>
+
+          <a
+            href={`https://zalo.me/${safeAuthor.zalo}`}
+            target="_blank"
+            rel="noreferrer"
+            className="px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1 shadow-md shadow-blue-600/30 active:scale-95 transition whitespace-nowrap"
+          >
+            <i className="fa-solid fa-comment-dots text-xs"></i>
+            <span>Zalo</span>
+          </a>
+
+          <button
+            type="button"
+            onClick={() => {
+              const el = document.getElementById('broker-contact-box');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+              else showToast('Mời bạn kéo xuống form đặt lịch xem nhà bên dưới', 'info');
+            }}
+            className="px-2.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1 active:scale-95 transition whitespace-nowrap"
+            title="Đặt lịch xem nhà"
+          >
+            <i className="fa-regular fa-calendar-check text-xs"></i>
+            <span>Hẹn Xem</span>
+          </button>
+        </div>
+      </aside>
     </div>
   );
 }

@@ -61,30 +61,30 @@ export default function HeroSearch({ filters, setFilters, totalResults }) {
         {/* Search Box Container */}
         <div className="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 text-slate-800 border border-slate-100">
           {/* Demand Tabs: Tất cả / Mua bán / Cho thuê */}
-          <div className="flex items-center gap-2 border-b border-slate-200 pb-3 mb-4">
+          <div className="flex items-center gap-2 border-b border-slate-200 pb-3 mb-4 overflow-x-auto no-scrollbar whitespace-nowrap">
             <button
               onClick={() => setFilters(prev => ({ ...prev, demand: 'all' }))}
-              className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition flex items-center gap-2 ${filters.demand === 'all' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
+              className={`px-3.5 sm:px-4 py-2 sm:py-1.5 rounded-lg text-xs sm:text-sm font-bold transition flex items-center gap-2 shrink-0 ${filters.demand === 'all' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
             >
-              <i className="fa-solid fa-layer-group"></i>
+              <i className="fa-solid fa-layer-group text-xs"></i>
               Tất Cả
             </button>
             <button
               onClick={() => setFilters(prev => ({ ...prev, demand: 'sale' }))}
-              className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition flex items-center gap-2 ${filters.demand === 'sale' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
+              className={`px-3.5 sm:px-4 py-2 sm:py-1.5 rounded-lg text-xs sm:text-sm font-bold transition flex items-center gap-2 shrink-0 ${filters.demand === 'sale' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
             >
-              <i className="fa-solid fa-tag"></i>
+              <i className="fa-solid fa-tag text-xs"></i>
               Nhà Đất Bán
             </button>
             <button
               onClick={() => setFilters(prev => ({ ...prev, demand: 'rent' }))}
-              className={`px-4 py-1.5 rounded-lg text-xs sm:text-sm font-bold transition flex items-center gap-2 ${filters.demand === 'rent' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
+              className={`px-3.5 sm:px-4 py-2 sm:py-1.5 rounded-lg text-xs sm:text-sm font-bold transition flex items-center gap-2 shrink-0 ${filters.demand === 'rent' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}
             >
-              <i className="fa-solid fa-key"></i>
+              <i className="fa-solid fa-key text-xs"></i>
               Nhà Đất Cho Thuê
             </button>
 
-            <div className="ml-auto text-xs text-slate-500 hidden sm:block">
+            <div className="ml-auto text-xs text-slate-500 hidden sm:block shrink-0">
               Tìm thấy <strong className="text-emerald-600 font-bold">{totalResults}</strong> bất động sản phù hợp
             </div>
           </div>

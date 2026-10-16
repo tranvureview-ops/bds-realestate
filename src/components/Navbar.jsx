@@ -84,12 +84,13 @@ export default function Navbar() {
       <div className="bg-slate-900 text-slate-300 text-xs py-1.5 border-b border-slate-800">
         <div suppressHydrationWarning className={`${containerWidthClass} flex items-center justify-between gap-3`}>
           {/* Left: Hotline & Slogan */}
-          <div className="flex items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/90 text-emerald-400 border border-emerald-800/80 font-semibold text-[11px]">
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-950/90 text-emerald-400 border border-emerald-800/80 font-semibold text-[10px] sm:text-[11px]">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              Sàn BĐS Đất Biển Đà Nẵng
+              <span className="hidden xs:inline sm:inline">Sàn BĐS Đất Biển Đà Nẵng</span>
+              <span className="xs:hidden sm:hidden">Đất Biển Đà Nẵng</span>
             </span>
-            <span suppressHydrationWarning className="hidden sm:inline-flex items-center gap-1.5 text-slate-400">
+            <span suppressHydrationWarning className="hidden md:inline-flex items-center gap-1.5 text-slate-400">
               <span className="text-slate-600">|</span>
               <span>Hotline 24/7:</span>
               <a
