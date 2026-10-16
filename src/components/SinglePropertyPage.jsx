@@ -66,6 +66,10 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   const [isResendingInModal, setIsResendingInModal] = useState(false);
   const [supplementalEmail, setSupplementalEmail] = useState('');
 
+  // Chia sẻ tin rao state
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [copiedShareLink, setCopiedShareLink] = useState(false);
+
   // Tự động đồng bộ và điền sẵn thông tin người dùng nếu đã đăng nhập khi mở modal báo cáo
   useEffect(() => {
     if (isReportModalOpen && currentUser) {
@@ -89,10 +93,6 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
       };
     }
   }, [isReportModalOpen, isShareModalOpen]);
-
-  // Chia sẻ tin rao state
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [copiedShareLink, setCopiedShareLink] = useState(false);
 
   if (!property) return null;
 
