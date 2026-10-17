@@ -307,28 +307,18 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
               </p>
             </div>
 
-            {/* Khung màu xanh thông báo khôi phục */}
+            {/* Khung màu xanh thông báo */}
             <div className="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200 text-emerald-800 space-y-1 text-left">
               <div className="font-bold flex items-center gap-1.5">
                 <i className="fa-solid fa-gift text-emerald-600"></i>
                 <span>Quà tặng {bonusFormatted} chờ kích hoạt:</span>
               </div>
               <p className="text-[11px] text-emerald-700">
-                Liên kết có hiệu lực trong <strong>{tokenExpiry} phút</strong>. Bấm nút bên dưới để cộng tiền vào ví và sử dụng ngay!
+                Liên kết có hiệu lực trong <strong>{tokenExpiry} phút</strong>. Vui lòng kiểm tra email và bấm vào liên kết để cộng tiền vào ví và sử dụng ngay!
               </p>
             </div>
 
             <div className="space-y-2 pt-1">
-              {registrationResult?.verificationUrl && (
-                <a
-                  href={registrationResult.verificationUrl}
-                  className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/25 transition cursor-pointer"
-                >
-                  <i className="fa-solid fa-bolt" />
-                  <span>⚡ 👉 BẤM ĐỂ KÍCH HOẠT NGAY ({bonusFormatted})</span>
-                </a>
-              )}
-
               <button
                 type="button"
                 onClick={handleResend}
