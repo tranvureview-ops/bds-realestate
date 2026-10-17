@@ -293,6 +293,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // 4. Current User & Switcher (User, Broker, Admin) - Nhận initialUser từ Cookie Server SSR để đồng nhất 100%
   const [currentUser, setCurrentUser] = useState(() => {
+    if (initialUser && (initialUser.status === 'trash' || initialUser.isDeleted || initialUser.status === 'locked')) {
+      return DEFAULT_GUEST_USER;
+    }
     return initialUser || DEFAULT_GUEST_USER;
   });
 
@@ -2214,6 +2217,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     );
     if (!found) {
       showToast('Tài khoản hoặc số điện thoại không tồn tại trong hệ thống!', 'error');
+      return false;
+    }
+    if (found.status === 'trash' || found.isDeleted) {
+      showToast('Tài khoản này đã bị chuyển vào thùng rác hoặc vô hiệu hóa. Vui lòng liên hệ Quản trị viên để được hỗ trợ!', 'error');
+      return false;
+    }
+    if (found.status === 'locked' || found.status === 'banned') {
+      showToast('Tài khoản này hiện đang bị tạm khóa. Vui lòng liên hệ Quản trị viên!', 'error');
       return false;
     }
     if (found.status === 'pending') {
