@@ -2,30 +2,13 @@
 
 import React, { useState } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
+import { validateFullRegistration, validatePhoneNumber, validateEmailAddress } from '../utils/authValidation';
+import PasswordSecurityChecker from './PasswordSecurityChecker';
 
 const validateRegisterInputs = (data, showToast) => {
-  if (!data.name?.trim() || data.name.length < 3) {
-    showToast('Họ và tên cần ít nhất 3 ký tự', 'warning');
-    return false;
-  }
-  if (!data.phone?.trim() || data.phone.length < 9) {
-    showToast('Vui lòng nhập số điện thoại hợp lệ', 'warning');
-    return false;
-  }
-  if (!data.email?.trim() || !data.email.includes('@')) {
-    showToast('Vui lòng nhập email hợp lệ', 'warning');
-    return false;
-  }
-  if (!data.password || data.password.length < 6) {
-    showToast('Mật khẩu cần ít nhất 6 ký tự', 'warning');
-    return false;
-  }
-  if (data.password !== data.confirmPassword) {
-    showToast('Mật khẩu xác nhận không khớp', 'error');
-    return false;
-  }
-  if (!data.agreeTerms) {
-    showToast('Vui lòng đồng ý với điều khoản sử dụng', 'warning');
+  const result = validateFullRegistration(data);
+  if (!result.isValid) {
+    showToast(result.message, 'warning');
     return false;
   }
   return true;
@@ -44,6 +27,10 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
 
   const [tab, setTab] = useState(initialTab); // 'login', 'register', 'forgot'
   const [showPassword, setShowPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [showRegisterConfirmPassword, setShowRegisterConfirmPassword] = useState(false);
+  const [phoneTouched, setPhoneTouched] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
   const [registerSuccessEmail, setRegisterSuccessEmail] = useState(null);
   const [registrationResult, setRegistrationResult] = useState(null);
@@ -73,6 +60,10 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
     agreeTerms: true
   });
 
+  // Real-time register validations
+  const phoneValidation = validatePhoneNumber(registerData.phone);
+  const emailValidation = validateEmailAddress(registerData.email);
+
   // Forgot password state
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotSent, setForgotSent] = useState(false);
@@ -97,6 +88,8 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
 
   const handleRegisterSubmit = async (e) => {
     e.preventDefault();
+    setPhoneTouched(true);
+    setEmailTouched(true);
     if (!validateRegisterInputs(registerData, showToast)) return;
 
     setIsRegistering(true);
@@ -386,57 +379,110 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
               </div>
 
               <div>
-                <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">Số điện thoại chính chủ:</label>
+                <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">
+                  Số điện thoại chính chủ <span className="text-red-500">*</span>:
+                </label>
                 <input
                   type="tel"
                   placeholder="VD: 0908 123 456"
                   value={registerData.phone}
+                  onBlur={() => setPhoneTouched(true)}
                   onChange={(e) => setRegisterData({ ...registerData, phone: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                  className={`w-full px-3 py-2 bg-slate-50 border rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 transition ${
+                    phoneTouched && !phoneValidation.isValid ? 'border-red-400 bg-red-50/30' : 'border-slate-300'
+                  }`}
                   required
                 />
+                {phoneTouched && !phoneValidation.isValid && (
+                  <p className="text-[10px] text-red-500 font-semibold mt-1 flex items-center gap-1">
+                    <i className="fa-solid fa-circle-exclamation text-[9px]" />
+                    <span>{phoneValidation.message}</span>
+                  </p>
+                )}
               </div>
             </div>
 
             {/* Email */}
             <div>
-              <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">Email đăng nhập:</label>
+              <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">
+                Email đăng nhập <span className="text-red-500">*</span>:
+              </label>
               <input
                 type="email"
                 placeholder="VD: tuan.batdongsan@gmail.com"
                 value={registerData.email}
+                onBlur={() => setEmailTouched(true)}
                 onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                className={`w-full px-3 py-2 bg-slate-50 border rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 transition ${
+                  emailTouched && !emailValidation.isValid ? 'border-red-400 bg-red-50/30' : 'border-slate-300'
+                }`}
                 required
               />
+              {emailTouched && !emailValidation.isValid && (
+                <p className="text-[10px] text-red-500 font-semibold mt-1 flex items-center gap-1">
+                  <i className="fa-solid fa-circle-exclamation text-[9px]" />
+                  <span>{emailValidation.message}</span>
+                </p>
+              )}
             </div>
 
             {/* Passwords */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">Mật khẩu:</label>
-                <input
-                  type="password"
-                  placeholder="Tối thiểu 6 ký tự"
-                  value={registerData.password}
-                  onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500"
-                  required
-                />
+                <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">
+                  Mật khẩu <span className="text-red-500">*</span>:
+                </label>
+                <div className="relative">
+                  <input
+                    type={showRegisterPassword ? 'text' : 'password'}
+                    placeholder="Tối thiểu 8 ký tự"
+                    value={registerData.password}
+                    onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
+                    className="w-full px-3 py-2 pr-9 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowRegisterPassword(prev => !prev)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition p-1"
+                    title={showRegisterPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                  >
+                    <i className={`fa-regular ${showRegisterPassword ? 'fa-eye-slash' : 'fa-eye'}`} />
+                  </button>
+                </div>
               </div>
 
               <div>
-                <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">Xác nhận mật khẩu:</label>
-                <input
-                  type="password"
-                  placeholder="Nhập lại mật khẩu"
-                  value={registerData.confirmPassword}
-                  onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500"
-                  required
-                />
+                <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">
+                  Xác nhận mật khẩu <span className="text-red-500">*</span>:
+                </label>
+                <div className="relative">
+                  <input
+                    type={showRegisterConfirmPassword ? 'text' : 'password'}
+                    placeholder="Nhập lại mật khẩu"
+                    value={registerData.confirmPassword}
+                    onChange={(e) => setRegisterData({ ...registerData, confirmPassword: e.target.value })}
+                    className="w-full px-3 py-2 pr-9 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowRegisterConfirmPassword(prev => !prev)}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition p-1"
+                    title={showRegisterConfirmPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                  >
+                    <i className={`fa-regular ${showRegisterConfirmPassword ? 'fa-eye-slash' : 'fa-eye'}`} />
+                  </button>
+                </div>
               </div>
             </div>
+
+            {/* Real-time Password Security Checklist & Strength Meter */}
+            <PasswordSecurityChecker
+              password={registerData.password}
+              confirmPassword={registerData.confirmPassword}
+              compact={true}
+            />
 
             {/* If broker: primary area & company */}
             {registerData.role === 'broker' && (

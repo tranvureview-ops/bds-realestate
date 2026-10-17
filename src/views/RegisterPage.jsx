@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter, Link } from '../router/RouterContext';
+import { validateFullRegistration, validatePhoneNumber, validateEmailAddress } from '../utils/authValidation';
+import PasswordSecurityChecker from '../components/PasswordSecurityChecker';
 
 export default function RegisterPage() {
   const { registerUser, resendUserVerificationEmail, showToast, systemConfig } = useRealEstate();
@@ -14,10 +16,15 @@ export default function RegisterPage() {
     phone: '',
     email: '',
     password: '',
+    confirmPassword: '',
     primaryArea: 'TP. Đà Nẵng',
     company: 'Đất Biển Đà Nẵng',
     agreeTerms: true
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [phoneTouched, setPhoneTouched] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [registrationResult, setRegistrationResult] = useState(null);
@@ -26,22 +33,18 @@ export default function RegisterPage() {
   const bonusFormatted = bonusAmount.toLocaleString('vi-VN') + 'đ';
   const tokenExpiry = systemConfig?.tokenExpiryMinutes || 30;
 
+  // Real-time field validation messages
+  const phoneValidation = validatePhoneNumber(registerData.phone);
+  const emailValidation = validateEmailAddress(registerData.email);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!registerData.name.trim() || registerData.name.length < 3) {
-      showToast('Họ và tên cần ít nhất 3 ký tự', 'warning');
-      return;
-    }
-    if (!registerData.phone.trim() || registerData.phone.length < 9) {
-      showToast('Vui lòng nhập số điện thoại hợp lệ', 'warning');
-      return;
-    }
-    if (!registerData.email.trim() || !registerData.email.includes('@')) {
-      showToast('Vui lòng nhập email hợp lệ', 'warning');
-      return;
-    }
-    if (!registerData.password || registerData.password.length < 6) {
-      showToast('Mật khẩu cần tối thiểu 6 ký tự', 'warning');
+    setPhoneTouched(true);
+    setEmailTouched(true);
+
+    const validation = validateFullRegistration(registerData);
+    if (!validation.isValid) {
+      showToast(validation.message, 'warning');
       return;
     }
 
@@ -183,7 +186,7 @@ export default function RegisterPage() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block font-bold text-slate-700 uppercase mb-1">
                 Số điện thoại <span className="text-red-500">*</span>
@@ -191,11 +194,20 @@ export default function RegisterPage() {
               <input
                 type="tel"
                 required
-                placeholder="0904 084 888"
+                placeholder="VD: 0904 084 888"
                 value={registerData.phone}
+                onBlur={() => setPhoneTouched(true)}
                 onChange={(e) => setRegisterData(prev => ({ ...prev, phone: e.target.value }))}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-red-500"
+                className={`w-full px-3 py-2.5 bg-slate-50 border rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-red-500 transition ${
+                  phoneTouched && !phoneValidation.isValid ? 'border-red-400 bg-red-50/30' : 'border-slate-300'
+                }`}
               />
+              {phoneTouched && !phoneValidation.isValid && (
+                <p className="text-[10px] text-red-500 font-semibold mt-1 flex items-center gap-1">
+                  <i className="fa-solid fa-circle-exclamation text-[9px]" />
+                  <span>{phoneValidation.message}</span>
+                </p>
+              )}
             </div>
 
             <div>
@@ -207,25 +219,77 @@ export default function RegisterPage() {
                 required
                 placeholder="email@example.com"
                 value={registerData.email}
+                onBlur={() => setEmailTouched(true)}
                 onChange={(e) => setRegisterData(prev => ({ ...prev, email: e.target.value }))}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-red-500"
+                className={`w-full px-3 py-2.5 bg-slate-50 border rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-red-500 transition ${
+                  emailTouched && !emailValidation.isValid ? 'border-red-400 bg-red-50/30' : 'border-slate-300'
+                }`}
               />
+              {emailTouched && !emailValidation.isValid && (
+                <p className="text-[10px] text-red-500 font-semibold mt-1 flex items-center gap-1">
+                  <i className="fa-solid fa-circle-exclamation text-[9px]" />
+                  <span>{emailValidation.message}</span>
+                </p>
+              )}
             </div>
           </div>
 
-          <div>
-            <label className="block font-bold text-slate-700 uppercase mb-1">
-              Mật khẩu tạo mới <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="password"
-              required
-              placeholder="Tối thiểu 6 ký tự..."
-              value={registerData.password}
-              onChange={(e) => setRegisterData(prev => ({ ...prev, password: e.target.value }))}
-              className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-red-500"
-            />
+          {/* Password & Confirm Password */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block font-bold text-slate-700 uppercase mb-1">
+                Mật khẩu tạo mới <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  placeholder="Tối thiểu 8 ký tự..."
+                  value={registerData.password}
+                  onChange={(e) => setRegisterData(prev => ({ ...prev, password: e.target.value }))}
+                  className="w-full px-3 py-2.5 pr-10 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-red-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(prev => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition p-1"
+                  title={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                >
+                  <i className={`fa-regular ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`} />
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block font-bold text-slate-700 uppercase mb-1">
+                Xác nhận mật khẩu <span className="text-red-500">*</span>
+              </label>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  required
+                  placeholder="Nhập lại mật khẩu..."
+                  value={registerData.confirmPassword}
+                  onChange={(e) => setRegisterData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                  className="w-full px-3 py-2.5 pr-10 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-red-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(prev => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition p-1"
+                  title={showConfirmPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                >
+                  <i className={`fa-regular ${showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'}`} />
+                </button>
+              </div>
+            </div>
           </div>
+
+          {/* Real-time Password Security Checklist & Strength Meter */}
+          <PasswordSecurityChecker
+            password={registerData.password}
+            confirmPassword={registerData.confirmPassword}
+          />
 
           {/* Welcome Promo Gift Banner */}
           <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 flex items-center gap-3">

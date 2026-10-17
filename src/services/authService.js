@@ -1,9 +1,13 @@
 import bcrypt from 'bcryptjs';
+import {
+  normalizePhone,
+  validatePhoneNumber,
+  validateEmailAddress,
+  evaluatePasswordSecurity,
+  validateFullRegistration
+} from '../utils/authValidation';
 
 const SALT_ROUNDS = 10;
-const MIN_PASSWORD_LENGTH = 6;
-const MIN_NAME_LENGTH = 3;
-const MIN_PHONE_LENGTH = 9;
 
 /**
  * Mã hóa mật khẩu an toàn với thuật toán bcrypt
@@ -32,24 +36,18 @@ export function verifyPassword(plainPassword, passwordHash) {
 
 /**
  * Kiểm tra tính hợp lệ của thông tin form đăng ký thành viên
+ * Yêu cầu:
+ * - Họ tên >= 3 ký tự
+ * - SDT: 10 chữ số chuẩn di động Việt Nam (03, 05, 07, 08, 09)
+ * - Email: Chuẩn RFC, không khoảng trắng
+ * - Mật khẩu: Tối thiểu 8 ký tự, có chữ hoa, chữ thường, số và ký tự đặc biệt
  * @param {Object} registrationData Dữ liệu form đăng ký
  * @returns {string|null} Chuỗi thông báo lỗi nếu không hợp lệ, null nếu hợp lệ
  */
 export function validateRegistrationInput(registrationData) {
-  const { name, phone, email, password } = registrationData || {};
-
-  if (!name || name.trim().length < MIN_NAME_LENGTH) {
-    return 'Họ và tên hiển thị cần có ít nhất 3 ký tự.';
-  }
-  if (!phone || phone.replace(/\D/g, '').length < MIN_PHONE_LENGTH) {
-    return 'Vui lòng cung cấp số điện thoại hợp lệ (tối thiểu 9 số).';
-  }
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!email || !emailPattern.test(email.trim())) {
-    return 'Địa chỉ email không đúng định dạng chuẩn.';
-  }
-  if (!password || password.length < MIN_PASSWORD_LENGTH) {
-    return 'Mật khẩu cần tối thiểu 6 ký tự để đảm bảo an toàn.';
+  const result = validateFullRegistration(registrationData);
+  if (!result.isValid) {
+    return result.message;
   }
   return null;
 }
@@ -67,8 +65,8 @@ export function isEmailTaken(email, users = []) {
 }
 
 export function isPhoneTaken(phone, users = []) {
-  const normalizedPhone = (phone || '').replace(/\D/g, '');
-  return users.some((user) => (user.phone || '').replace(/\D/g, '') === normalizedPhone);
+  const normalizedPhone = normalizePhone(phone);
+  return users.some((user) => normalizePhone(user.phone) === normalizedPhone);
 }
 
 export function checkUserDuplication(email, phone, existingUsers = []) {
