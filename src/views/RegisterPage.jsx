@@ -75,33 +75,16 @@ export default function RegisterPage() {
             <span className="inline-block bg-emerald-50 text-emerald-700 text-[11px] font-black uppercase px-3 py-1 rounded-full border border-emerald-200">
               Đăng Ký Thành Công
             </span>
-            <h2 className="text-xl font-black text-slate-900">Kích Hoạt Tài Khoản & Nhận Quà</h2>
-            <p className="text-xs text-slate-600">
-              Hệ thống đã tạo liên kết kích hoạt cho <strong className="text-slate-900">{registerData.email}</strong>.
+            <h2 className="text-xl font-black text-slate-900">Kiểm Tra Email Để Kích Hoạt</h2>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Hệ thống đã gửi liên kết kích hoạt tài khoản đến <strong className="text-slate-900">{registerData.email}</strong>.
+            </p>
+            <p className="text-[11px] text-slate-500 pt-1">
+              Vui lòng kiểm tra hộp thư đến (hoặc thư mục Spam/Thư rác) và bấm vào liên kết trong email để kích hoạt tài khoản.
             </p>
           </div>
 
-          <div className="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs text-emerald-900 text-left space-y-1">
-            <div className="font-bold flex items-center gap-1.5 text-emerald-900">
-              <i className="fa-solid fa-gift text-emerald-600" />
-              <span>Quà tặng {bonusFormatted} chờ kích hoạt:</span>
-            </div>
-            <p className="text-[11px] text-emerald-700">
-              Liên kết có hiệu lực trong {tokenExpiry} phút. Bấm nút bên dưới để cộng tiền vào ví và sử dụng ngay!
-            </p>
-          </div>
-
-          <div className="space-y-2 pt-2">
-            {registrationResult.verificationUrl && (
-              <a
-                href={registrationResult.verificationUrl}
-                className="inline-flex items-center justify-center gap-2 w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/25 transition cursor-pointer"
-              >
-                <i className="fa-solid fa-bolt" />
-                <span>👉 Bấm Để Kích Hoạt Ngay ({bonusFormatted})</span>
-              </a>
-            )}
-
+          <div className="space-y-2 pt-3">
             <button
               type="button"
               onClick={handleResend}
@@ -113,8 +96,16 @@ export default function RegisterPage() {
             </button>
 
             <Link
+              to="/dang-nhap"
+              className="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition cursor-pointer"
+            >
+              <i className="fa-solid fa-right-to-bracket" />
+              <span>Đến Trang Đăng Nhập</span>
+            </Link>
+
+            <Link
               to="/"
-              className="inline-block w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition"
+              className="inline-block w-full py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition"
             >
               Về Trang Chủ
             </Link>

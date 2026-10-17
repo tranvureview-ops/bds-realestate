@@ -287,32 +287,16 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
               <span className="inline-block bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border border-emerald-200">
                 Đăng Ký Thành Công
               </span>
-              <h3 className="text-lg font-black text-slate-900">Kích Hoạt Tài Khoản & Nhận Quà</h3>
-              <p className="text-slate-600">
-                Hệ thống đã tạo liên kết kích hoạt cho <strong className="text-slate-900">{registerSuccessEmail}</strong>
+              <h3 className="text-lg font-black text-slate-900">Kiểm Tra Email Để Kích Hoạt</h3>
+              <p className="text-slate-600 leading-relaxed">
+                Hệ thống đã gửi liên kết kích hoạt tài khoản đến <strong className="text-slate-900">{registerSuccessEmail}</strong>.
               </p>
-            </div>
-            <div className="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200 text-emerald-800 space-y-1 text-left">
-              <div className="font-bold flex items-center gap-1.5">
-                <i className="fa-solid fa-gift text-emerald-600"></i>
-                <span>Quà tặng {bonusFormatted} chờ kích hoạt</span>
-              </div>
-              <p className="text-[11px] text-emerald-700">
-                Liên kết có hiệu lực trong <strong>{tokenExpiry} phút</strong>. Bấm nút bên dưới để cộng tiền vào ví và kích hoạt tài khoản ngay!
+              <p className="text-[11px] text-slate-500 pt-1">
+                Vui lòng kiểm tra hộp thư đến (hoặc thư mục Spam/Thư rác) và bấm vào liên kết trong email để kích hoạt tài khoản.
               </p>
             </div>
 
-            <div className="space-y-2 pt-1">
-              {registrationResult?.verificationUrl && (
-                <a
-                  href={registrationResult.verificationUrl}
-                  className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/25 transition cursor-pointer"
-                >
-                  <i className="fa-solid fa-bolt" />
-                  <span>👉 Bấm Để Kích Hoạt Ngay ({bonusFormatted})</span>
-                </a>
-              )}
-
+            <div className="space-y-2 pt-2">
               <button
                 type="button"
                 onClick={handleResend}
@@ -326,7 +310,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
               <button
                 type="button"
                 onClick={() => { setTab('login'); setRegisterSuccessEmail(null); setRegistrationResult(null); }}
-                className="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider transition"
+                className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider transition cursor-pointer"
               >
                 Chuyển Đến Đăng Nhập
               </button>
