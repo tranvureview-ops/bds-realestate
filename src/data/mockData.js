@@ -1431,7 +1431,7 @@ export const MOCK_USERS = [
     name: 'Nguyễn Văn Tuấn',
     email: 'tuan.batdongsan@datbiendanang.vn',
     role: 'broker',
-    roleName: 'Môi giới Pro (Đã xác thực)',
+    roleName: 'Môi Giới',
     walletBalance: 4250000, // 4,250,000 VND
     phone: '0908 123 456',
     avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80',

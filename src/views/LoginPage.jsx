@@ -183,7 +183,7 @@ export default function LoginPage() {
               onClick={() => handleQuickLogin('tuan.batdongsan@datbiendanang.vn')}
               className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold border border-amber-200 text-xs text-center transition"
             >
-              👑 Môi giới Pro
+              👑 Môi Giới
             </button>
             <button
               onClick={() => handleQuickLogin('mai.tran@gmail.com')}

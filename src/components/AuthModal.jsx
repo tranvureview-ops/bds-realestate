@@ -192,7 +192,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
                   >
                     <img src={u.avatar} alt="" className="w-7 h-7 rounded-full object-cover mb-1 group-hover:scale-105 transition" />
                     <div className="font-bold text-slate-800 text-[11px] truncate w-full">{u.name}</div>
-                    <div className="text-[9px] text-slate-400 font-semibold">{u.role === 'admin' ? 'Admin' : u.role === 'broker' ? 'Môi giới Pro' : 'Khách hàng'}</div>
+                    <div className="text-[9px] text-slate-400 font-semibold">{u.role === 'admin' ? 'Admin' : u.role === 'broker' ? 'Môi Giới' : 'Khách hàng'}</div>
                   </button>
                 ))}
               </div>
@@ -382,7 +382,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
                 >
                   <div className="font-extrabold flex items-center gap-1.5">
                     <i className="fa-solid fa-crown text-amber-500"></i>
-                    <span>Môi Giới Chuyên Nghiệp</span>
+                    <span>Môi Giới</span>
                   </div>
                   <div className="text-[10px] text-slate-500 mt-0.5">Đăng tin BĐS, mua gói VIP Kim Cương</div>
                 </button>

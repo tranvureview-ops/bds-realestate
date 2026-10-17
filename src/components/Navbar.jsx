@@ -140,7 +140,7 @@ export default function Navbar() {
                     {cleanUserName(currentUser?.name)}
                   </strong>
                   <span suppressHydrationWarning className="hidden lg:inline text-slate-400 text-[10px]">
-                    ({currentUser?.role === 'admin' ? 'Admin' : currentUser?.role === 'broker' ? 'Môi giới Pro' : currentUser?.role === 'user' ? 'Khách mua' : 'Chưa đăng nhập'})
+                    ({currentUser?.role === 'admin' ? 'Admin' : currentUser?.role === 'broker' ? 'Môi Giới' : currentUser?.role === 'user' ? 'Khách mua' : 'Chưa đăng nhập'})
                   </span>
                 </div>
                 <i className={`fa-solid fa-chevron-down text-[8px] sm:text-[9px] text-slate-400 transition-transform shrink-0 ${roleDropdownOpen ? 'rotate-180' : ''}`}></i>
@@ -160,7 +160,7 @@ export default function Navbar() {
                   >
                     <span className="flex items-center gap-2">
                       <i className="fa-solid fa-crown text-amber-500 w-4 text-center"></i>
-                      <span>Môi giới Pro (Nguyễn Văn Tuấn)</span>
+                      <span>Môi Giới (Nguyễn Văn Tuấn)</span>
                     </span>
                     {currentUser.role === 'broker' && <i className="fa-solid fa-check text-amber-600"></i>}
                   </button>

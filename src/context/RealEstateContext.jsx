@@ -1390,7 +1390,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const authorObj = (!isGuest && currentUser) ? {
       id: currentUser.id,
       name: currentUser.name || contactName,
-      title: currentUser.membership ? `${currentUser.membership.packageName}` : (currentUser.role === 'broker' ? 'Môi giới chuyên nghiệp' : 'Chính chủ'),
+      title: currentUser.membership ? `${currentUser.membership.packageName}` : (currentUser.role === 'broker' ? 'Môi Giới' : 'Chính chủ'),
       phone: currentUser.phone || contactPhone,
       zalo: String(currentUser.phone || contactPhone).replace(/\s+/g, ''),
       avatar: currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',

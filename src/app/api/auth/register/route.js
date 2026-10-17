@@ -23,14 +23,18 @@ export function extractClientIp(request) {
 export function buildPendingUserRecord(input, clientIp) {
   const cleanPhone = (input.phone || '').replace(/\D/g, '');
   const cleanEmail = (input.email || '').trim().toLowerCase();
+  const selectedRole = input?.role === 'broker' ? 'broker' : 'user';
+  const roleName = selectedRole === 'broker' ? 'Môi Giới' : 'Khách hàng';
   return {
     id: `user-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
     name: (input.name || '').trim(),
     email: cleanEmail,
     phone: cleanPhone,
     passwordHash: hashPassword(input.password),
-    role: 'user',
-    roleName: 'Thành viên mới',
+    role: selectedRole,
+    roleName: roleName,
+    company: (input.company || '').trim(),
+    primaryArea: (input.primaryArea || '').trim(),
     walletBalance: 0,
     bonusWalletBalance: 0,
     bonusExpiresAt: null,

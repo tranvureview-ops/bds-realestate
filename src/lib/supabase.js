@@ -457,7 +457,10 @@ export function mergeProfilesWithSettingsUsers(profiles, settingsUsers) {
     }
     const rawWallet = p.walletBalance !== undefined ? p.walletBalance : p.wallet_balance;
     const rawBonus = p.bonusWalletBalance !== undefined ? p.bonusWalletBalance : (p.bonus_wallet_balance || p.promoBalance);
-    const rawRoleName = p.roleName || p.role_name;
+    let rawRoleName = p.roleName || p.role_name;
+    if (p.role === 'broker' || (rawRoleName && (rawRoleName.includes('Môi giới') || rawRoleName.includes('Môi Giới')))) {
+      rawRoleName = 'Môi Giới';
+    }
     const rawVerified = p.isVerified !== undefined ? p.isVerified : p.is_verified;
     const rawDeleted = p.isDeleted !== undefined ? p.isDeleted : p.is_deleted;
     const rawDeletedAt = p.deletedAt || p.deleted_at;
@@ -488,6 +491,10 @@ export function mergeProfilesWithSettingsUsers(profiles, settingsUsers) {
     settingsUsers.forEach(u => {
       if (u && u.id && map.has(u.id)) {
         const prev = map.get(u.id);
+        let normalizedRoleName = u.roleName || prev.roleName;
+        if (u.role === 'broker' || prev.role === 'broker' || (normalizedRoleName && (normalizedRoleName.includes('Môi giới') || normalizedRoleName.includes('Môi Giới')))) {
+          normalizedRoleName = 'Môi Giới';
+        }
         map.set(u.id, {
           ...prev,
           ...u,
@@ -496,7 +503,8 @@ export function mergeProfilesWithSettingsUsers(profiles, settingsUsers) {
           email: prev.email || u.email || '',
           walletBalance: Number(u.walletBalance !== undefined ? u.walletBalance : prev.walletBalance),
           bonusWalletBalance: Number(u.bonusWalletBalance !== undefined ? u.bonusWalletBalance : prev.bonusWalletBalance),
-          roleName: u.roleName || prev.roleName,
+          role: u.role || prev.role,
+          roleName: normalizedRoleName,
           status: u.status || prev.status || 'active',
           isDeleted: Boolean(u.isDeleted !== undefined ? u.isDeleted : prev.isDeleted),
           deletedAt: u.deletedAt || prev.deletedAt || null
@@ -507,7 +515,11 @@ export function mergeProfilesWithSettingsUsers(profiles, settingsUsers) {
     // Trường hợp hệ thống mới khởi tạo hoặc bảng profiles chưa có bản ghi nào
     settingsUsers.forEach(u => {
       if (u && u.id && u.status !== 'deleted' && u.roleName !== 'deleted' && u.name !== '[Đã xóa]') {
-        map.set(u.id, u);
+        const item = { ...u };
+        if (item.role === 'broker' || (item.roleName && (item.roleName.includes('Môi giới') || item.roleName.includes('Môi Giới')))) {
+          item.roleName = 'Môi Giới';
+        }
+        map.set(u.id, item);
       }
     });
   }
@@ -689,7 +701,9 @@ export async function syncFullDbToSupabase(payload) {
           name: u.name || '',
           email: u.email || '',
           role: u.role || 'user',
-          role_name: u.roleName || '',
+          role_name: (u.role === 'broker' || u.roleName?.includes('Môi giới') || u.roleName?.includes('Môi Giới'))
+            ? 'Môi Giới'
+            : (u.roleName || (u.role === 'admin' ? 'Quản Trị Viên' : 'Khách hàng')),
           wallet_balance: Number(u.walletBalance || 0),
           phone: u.phone || '',
           avatar: u.avatar || '',

@@ -3799,7 +3799,7 @@ export default function AdminBackendPage() {
                                   u.role === 'broker' ? 'bg-amber-950 text-amber-400 border border-amber-800' :
                                   'bg-blue-950 text-blue-400 border border-blue-800'
                                 }`}>
-                                  {u.roleName || (u.role === 'admin' ? 'Quản Trị Viên' : u.role === 'broker' ? 'Môi Giới' : 'Khách Hàng')}
+                                  {(u.role === 'broker' || u.roleName?.includes('Môi giới') || u.roleName?.includes('Môi Giới')) ? 'Môi Giới' : (u.roleName || (u.role === 'admin' ? 'Quản Trị Viên' : 'Khách Hàng'))}
                                 </span>
                               </td>
                               <td className="p-3 text-center">
@@ -4043,7 +4043,7 @@ export default function AdminBackendPage() {
                                 </td>
                                 <td className="p-3">
                                   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-900 text-slate-400 border border-slate-800">
-                                    {u.roleName || (u.role === 'admin' ? 'Quản Trị Viên' : u.role === 'broker' ? 'Môi Giới' : 'Khách Hàng')}
+                                    {(u.role === 'broker' || u.roleName?.includes('Môi giới') || u.roleName?.includes('Môi Giới')) ? 'Môi Giới' : (u.roleName || (u.role === 'admin' ? 'Quản Trị Viên' : 'Khách Hàng'))}
                                   </span>
                                 </td>
                                 <td className="p-3 text-right font-mono">
@@ -7994,7 +7994,7 @@ export default function AdminBackendPage() {
                     className="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white font-bold focus:outline-none focus:border-blue-500"
                   >
                     <option value="user">Khách Hàng (User)</option>
-                    <option value="broker">Môi Giới Chuyên Nghiệp</option>
+                    <option value="broker">Môi Giới</option>
                     <option value="admin">Quản Trị Viên (Admin)</option>
                   </select>
                 </div>
