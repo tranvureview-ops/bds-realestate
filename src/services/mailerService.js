@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 import { getFullSystemDatabase, persistDatabaseSlice } from './serverDbService';
-import { generateWelcomeVerificationEmailHtml } from '../utils/emailService';
+import { generateWelcomeVerificationEmailHtml, generatePasswordResetEmailHtml } from '../utils/emailService';
 
 /**
  * Trích xuất domain gốc từ request header hoặc fallback
@@ -124,6 +124,45 @@ export async function sendWelcomeVerificationEmail({ toUser, tokenRecord, origin
   return {
     success: true,
     verificationUrl,
+    emailSent: Boolean(delivery.delivered),
+    deliveryError: delivery.error || null
+  };
+}
+
+/**
+ * Điều phối gửi email đặt lại mật khẩu cho thành viên
+ * @param {Object} params Tham số gửi email
+ * @returns {Promise<Object>} Kết quả gửi email
+ */
+export async function sendPasswordResetEmail({ toUser, tokenRecord, origin }) {
+  const db = await getFullSystemDatabase();
+  const emailConfig = db.bds_email_config || null;
+  const resetUrl = `${origin}/dat-lai-mat-khau?token=${tokenRecord.token}`;
+  const subject = `[Bảo Mật] Hướng dẫn đặt lại mật khẩu tài khoản ${emailConfig?.companyName || 'Đất Biển Đà Nẵng'}`;
+  const htmlBody = generatePasswordResetEmailHtml({
+    userName: toUser.name,
+    userEmail: toUser.email,
+    resetUrl,
+    expiryMinutes: tokenRecord.expiryMinutes || 30,
+    customConfig: emailConfig
+  });
+
+  const transporter = createMailTransporter(emailConfig?.smtp);
+  const delivery = await deliverEmailViaSmtp(transporter, emailConfig, toUser.email, subject, htmlBody);
+
+  await appendEmailLog({
+    id: `LOG-MAIL-RESET-${Date.now()}`,
+    to: toUser.email,
+    type: 'password_reset',
+    subject,
+    status: delivery.delivered ? 'sent' : (delivery.error ? 'failed' : 'simulated'),
+    error: delivery.error || null,
+    sentAt: new Date().toISOString()
+  });
+
+  return {
+    success: true,
+    resetUrl,
     emailSent: Boolean(delivery.delivered),
     deliveryError: delivery.error || null
   };

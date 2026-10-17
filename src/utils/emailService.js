@@ -795,3 +795,66 @@ export function generateWelcomeVerificationEmailHtml({
     </div>
   `;
 }
+
+/**
+ * Tạo nội dung HTML email khôi phục / đặt lại mật khẩu
+ * @param {Object} params Tham số tạo nội dung
+ * @returns {string} HTML nội dung thư
+ */
+export function generatePasswordResetEmailHtml({
+  userName,
+  userEmail,
+  resetUrl,
+  expiryMinutes = 30,
+  customConfig = null
+}) {
+  const activeCfg = customConfig || getActiveEmailConfig();
+  const siteName = activeCfg?.companyName || 'Sàn Bất Động Sản Đất Biển Đà Nẵng';
+  const websiteUrl = activeCfg?.siteUrl || 'https://datbiendanang.vn';
+  const hotline = activeCfg?.hotline || getSystemHotlineFallback();
+
+  return `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+      <div style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 32px 32px 28px 32px; color: #ffffff; text-align: center;">
+        <span style="display: inline-block; background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.4); font-size: 11px; font-weight: 800; padding: 4px 12px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.5px;">Bảo Mật Tài Khoản</span>
+        <h1 style="font-size: 24px; font-weight: 900; margin: 12px 0 6px 0; color: #ffffff;">Yêu Cầu Đặt Lại Mật Khẩu</h1>
+        <p style="font-size: 14px; margin: 0; opacity: 0.95; color: #cbd5e1;">Hệ thống xác thực an toàn sàn giao dịch ${siteName}</p>
+      </div>
+
+      <div style="padding: 32px; color: #334155; font-size: 14px; line-height: 1.6;">
+        <p style="margin-top: 0; font-weight: 700; font-size: 16px; color: #0f172a;">Kính gửi ${userName || 'Quý khách'},</p>
+        <p style="color: #475569;">
+          Hệ thống vừa nhận được yêu cầu đặt lại mật khẩu cho tài khoản liên kết với địa chỉ email: <strong style="color: #0f172a;">${userEmail}</strong>.
+        </p>
+        <p style="color: #475569;">
+          Để bảo vệ tài khoản và thiết lập mật khẩu mới, vui lòng bấm vào nút xác nhận bên dưới:
+        </p>
+
+        <div style="text-align: center; margin: 32px 0;">
+          <a href="${resetUrl}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #dc2626 0%, #e11d48 100%); color: #ffffff; font-size: 15px; font-weight: 900; padding: 16px 36px; border-radius: 14px; text-decoration: none; box-shadow: 0 4px 14px rgba(225, 29, 72, 0.4); text-transform: uppercase; letter-spacing: 0.5px;">
+            🔑 Đặt Lại Mật Khẩu Mới
+          </a>
+          <div style="margin-top: 12px; font-size: 11px; color: #94a3b8;">
+            Hoặc sao chép liên kết vào thanh địa chỉ trình duyệt: <br>
+            <a href="${resetUrl}" style="color: #2563eb; word-break: break-all; font-size: 11px;">${resetUrl}</a>
+          </div>
+        </div>
+
+        <div style="background: #fffbeb; border: 1px solid #fef3c7; border-radius: 12px; padding: 14px 16px; font-size: 12px; color: #92400e; margin-bottom: 24px;">
+          ⏱ <strong>Thời hạn hiệu lực:</strong> Liên kết đặt lại mật khẩu này chỉ có giá trị trong vòng <strong>${expiryMinutes} phút</strong>. Sau thời gian này hoặc sau khi sử dụng, liên kết sẽ tự động vô hiệu hóa.
+        </div>
+
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; font-size: 12px; color: #64748b; margin-bottom: 24px;">
+          🛡️ <strong>Lưu ý an toàn:</strong> Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua thư hoặc liên hệ ngay hotline CSKH để được hỗ trợ bảo vệ tài khoản.
+        </div>
+
+        <p style="margin-bottom: 0;">Trân trọng,<br><strong style="color: #0f172a;">Ban Quản Trị & Kỹ Thuật ${siteName}</strong></p>
+      </div>
+
+      <div style="background: #f8fafc; padding: 18px 32px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; text-align: center;">
+        Hotline CSKH: <strong>${hotline}</strong> • Website: <a href="${websiteUrl}" style="color: #059669; text-decoration: none;">${websiteUrl}</a>
+      </div>
+    </div>
+  `;
+}
+

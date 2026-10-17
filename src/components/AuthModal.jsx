@@ -66,7 +66,8 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
 
   // Forgot password state
   const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotSent, setForgotSent] = useState(false);
+  const [isSendingForgot, setIsSendingForgot] = useState(false);
+  const [forgotResult, setForgotResult] = useState(null);
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
@@ -111,14 +112,34 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
     }
   };
 
-  const handleForgotSubmit = (e) => {
+  const handleForgotSubmit = async (e) => {
     e.preventDefault();
     if (!forgotEmail.trim()) {
-      showToast('Vui lòng nhập email để khôi phục mật khẩu', 'warning');
+      showToast('Vui lòng nhập Email hoặc Số điện thoại để khôi phục mật khẩu', 'warning');
       return;
     }
-    setForgotSent(true);
-    showToast(`Đã gửi liên kết đặt lại mật khẩu đến ${forgotEmail}!`, 'success');
+
+    setIsSendingForgot(true);
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: forgotEmail.trim() })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        showToast(data.message || 'Không tìm thấy tài khoản tương ứng.', 'error');
+        return;
+      }
+
+      setForgotResult(data);
+      showToast('Đã gửi liên kết đặt lại mật khẩu!', 'success');
+    } catch (err) {
+      showToast('Lỗi kết nối máy chủ. Vui lòng thử lại sau.', 'error');
+    } finally {
+      setIsSendingForgot(false);
+    }
   };
 
   return (
@@ -280,16 +301,34 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
               <span className="inline-block bg-emerald-50 text-emerald-700 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full border border-emerald-200">
                 Đăng Ký Thành Công
               </span>
-              <h3 className="text-lg font-black text-slate-900">Kiểm Tra Email Để Kích Hoạt</h3>
-              <p className="text-slate-600 leading-relaxed">
-                Hệ thống đã gửi liên kết kích hoạt tài khoản đến <strong className="text-slate-900">{registerSuccessEmail}</strong>.
-              </p>
-              <p className="text-[11px] text-slate-500 pt-1">
-                Vui lòng kiểm tra hộp thư đến (hoặc thư mục Spam/Thư rác) và bấm vào liên kết trong email để kích hoạt tài khoản.
+              <h3 className="text-lg font-black text-slate-900">Kích Hoạt Tài Khoản & Nhận Quà</h3>
+              <p className="text-slate-600">
+                Hệ thống đã tạo liên kết kích hoạt cho <strong className="text-slate-900">{registerSuccessEmail}</strong>
               </p>
             </div>
 
-            <div className="space-y-2 pt-2">
+            {/* Khung màu xanh thông báo khôi phục */}
+            <div className="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200 text-emerald-800 space-y-1 text-left">
+              <div className="font-bold flex items-center gap-1.5">
+                <i className="fa-solid fa-gift text-emerald-600"></i>
+                <span>Quà tặng {bonusFormatted} chờ kích hoạt:</span>
+              </div>
+              <p className="text-[11px] text-emerald-700">
+                Liên kết có hiệu lực trong <strong>{tokenExpiry} phút</strong>. Bấm nút bên dưới để cộng tiền vào ví và sử dụng ngay!
+              </p>
+            </div>
+
+            <div className="space-y-2 pt-1">
+              {registrationResult?.verificationUrl && (
+                <a
+                  href={registrationResult.verificationUrl}
+                  className="inline-flex items-center justify-center gap-2 w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 text-white font-black text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/25 transition cursor-pointer"
+                >
+                  <i className="fa-solid fa-bolt" />
+                  <span>⚡ 👉 BẤM ĐỂ KÍCH HOẠT NGAY ({bonusFormatted})</span>
+                </a>
+              )}
+
               <button
                 type="button"
                 onClick={handleResend}
@@ -303,7 +342,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
               <button
                 type="button"
                 onClick={() => { setTab('login'); setRegisterSuccessEmail(null); setRegistrationResult(null); }}
-                className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs uppercase tracking-wider transition cursor-pointer"
+                className="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider transition cursor-pointer"
               >
                 Chuyển Đến Đăng Nhập
               </button>
@@ -536,40 +575,78 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
         {/* BODY TAB 3: QUÊN MẬT KHẨU (FORGOT) */}
         {tab === 'forgot' && (
           <form onSubmit={handleForgotSubmit} className="p-6 pt-0 space-y-4 text-xs">
-            <p className="text-slate-600 leading-relaxed">
-              Nhập email hoặc số điện thoại đã đăng ký của bạn. Hệ thống sẽ gửi mã xác thực OTP để tạo mật khẩu mới.
-            </p>
-
-            <div>
-              <label className="block text-slate-700 font-bold mb-1 uppercase text-[11px]">Email đã đăng ký:</label>
-              <input
-                type="email"
-                placeholder="VD: user@datbiendanang.vn"
-                value={forgotEmail}
-                onChange={(e) => setForgotEmail(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500"
-                required
-              />
+            <div className="text-center space-y-1">
+              <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center text-xl mx-auto shadow-inner">
+                <i className="fa-solid fa-key" />
+              </div>
+              <h3 className="text-base font-black text-slate-900">Quên Mật Khẩu?</h3>
+              <p className="text-slate-600 leading-relaxed text-[11px]">
+                Nhập Email hoặc Số điện thoại đã đăng ký. Hệ thống sẽ gửi liên kết an toàn để bạn thiết lập mật khẩu mới.
+              </p>
             </div>
 
-            {forgotSent ? (
-              <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl font-bold text-center">
-                ✓ Đã gửi hướng dẫn khôi phục mật khẩu vào hòm thư của bạn!
+            {forgotResult ? (
+              <div className="space-y-3 pt-1">
+                <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl space-y-1 text-center">
+                  <div className="font-bold flex items-center justify-center gap-1.5 text-emerald-900 text-xs">
+                    <i className="fa-solid fa-circle-check text-emerald-600" />
+                    <span>Đã Gửi Hướng Dẫn Khôi Phục</span>
+                  </div>
+                  <p className="text-[11px] text-emerald-700">
+                    {forgotResult.message}
+                  </p>
+                </div>
+
+                {forgotResult.resetUrl && (
+                  <a
+                    href={forgotResult.resetUrl}
+                    className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold text-xs uppercase tracking-wider hover:from-red-700 transition shadow cursor-pointer text-center"
+                  >
+                    <i className="fa-solid fa-key" />
+                    <span>👉 Đổi Mật Khẩu Ngay (Thử Nghiệm Nhanh)</span>
+                  </a>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setForgotResult(null)}
+                  className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer"
+                >
+                  Nhập Email / Số Khác
+                </button>
               </div>
             ) : (
-              <button
-                type="submit"
-                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow transition"
-              >
-                Gửi Hướng Dẫn Khôi Phục
-              </button>
+              <div className="space-y-3">
+                <div>
+                  <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">
+                    Email hoặc Số điện thoại <span className="text-red-500">*</span>:
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="VD: tuan.bds@gmail.com hoặc 0904084888"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-red-500"
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSendingForgot}
+                  className="w-full py-2.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 disabled:opacity-60 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow transition flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  {isSendingForgot ? <i className="fa-solid fa-spinner animate-spin" /> : <i className="fa-solid fa-paper-plane" />}
+                  <span>{isSendingForgot ? 'Đang Xử Lý Gửi Thư...' : 'Gửi Hướng Dẫn Khôi Phục'}</span>
+                </button>
+              </div>
             )}
 
-            <div className="text-center pt-2">
+            <div className="text-center pt-1 border-t border-slate-100">
               <button
                 type="button"
-                onClick={() => setTab('login')}
-                className="text-xs text-slate-500 hover:text-slate-900 font-bold"
+                onClick={() => { setTab('login'); setForgotResult(null); }}
+                className="text-xs text-slate-500 hover:text-slate-900 font-bold cursor-pointer"
               >
                 ← Quay lại Đăng nhập
               </button>

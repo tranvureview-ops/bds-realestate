@@ -165,3 +165,50 @@ export async function recordTransaction(transactionRecord) {
   await persistDatabaseSlice('bds_transactions', updatedTxns);
   return true;
 }
+
+/**
+ * Lấy toàn bộ danh sách token đặt lại mật khẩu
+ * @returns {Promise<Array>} Danh sách token đặt lại mật khẩu
+ */
+export async function getAllPasswordResetTokens() {
+  const db = await getFullSystemDatabase();
+  return Array.isArray(db.bds_password_reset_tokens) ? db.bds_password_reset_tokens : [];
+}
+
+/**
+ * Lưu bản ghi token đặt lại mật khẩu mới
+ * @param {Object} tokenRecord Bản ghi token
+ * @returns {Promise<boolean>} True nếu thành công
+ */
+export async function savePasswordResetToken(tokenRecord) {
+  const tokens = await getAllPasswordResetTokens();
+  const updatedTokens = [tokenRecord, ...tokens.filter((t) => t.token !== tokenRecord.token)];
+  await persistDatabaseSlice('bds_password_reset_tokens', updatedTokens);
+  return true;
+}
+
+/**
+ * Tìm bản ghi token đặt lại mật khẩu
+ * @param {string} tokenString Chuỗi token
+ * @returns {Promise<Object|null>} Bản ghi token
+ */
+export async function findPasswordResetToken(tokenString) {
+  const tokens = await getAllPasswordResetTokens();
+  return tokens.find((t) => t.token === tokenString) || null;
+}
+
+/**
+ * Đánh dấu token đặt lại mật khẩu đã sử dụng
+ * @param {string} tokenString Chuỗi token
+ * @returns {Promise<Object|null>} Bản ghi token sau khi đánh dấu
+ */
+export async function markPasswordResetTokenAsUsed(tokenString) {
+  const tokens = await getAllPasswordResetTokens();
+  const tokenRecord = tokens.find((t) => t.token === tokenString);
+  if (!tokenRecord) return null;
+
+  tokenRecord.used = true;
+  tokenRecord.usedAt = new Date().toISOString();
+  await persistDatabaseSlice('bds_password_reset_tokens', tokens);
+  return tokenRecord;
+}

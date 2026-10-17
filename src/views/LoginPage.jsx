@@ -139,13 +139,12 @@ export default function LoginPage() {
               <label className="font-bold text-slate-700 uppercase">
                 Mật khẩu
               </label>
-              <button 
-                type="button" 
-                onClick={() => showToast('Mật khẩu mẫu thử nghiệm là: 123456', 'info')}
-                className="text-emerald-600 hover:underline"
+              <Link 
+                to="/quen-mat-khau" 
+                className="text-emerald-600 hover:underline font-semibold"
               >
                 Quên mật khẩu?
-              </button>
+              </Link>
             </div>
             <div className="relative">
               <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
