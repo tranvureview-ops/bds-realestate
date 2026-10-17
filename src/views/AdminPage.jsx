@@ -50,17 +50,10 @@ export function CountdownNotice({ countdown }) {
   );
 }
 
-export function ForbiddenActions({ countdown, onLogin, onQuickLogin, onHome }) {
+export function ForbiddenActions({ countdown, onLogin, onHome }) {
   return (
     <div className="space-y-2.5">
       <CountdownNotice countdown={countdown} />
-      <button
-        onClick={onQuickLogin}
-        className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2 cursor-pointer"
-      >
-        <i className="fa-solid fa-bolt" />
-        <span>Đăng Nhập Nhanh Quyền Admin (1-Click)</span>
-      </button>
       <button
         onClick={onLogin}
         className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 text-white font-bold text-xs shadow-lg shadow-red-600/30 transition flex items-center justify-center gap-2 cursor-pointer"
@@ -79,7 +72,7 @@ export function ForbiddenActions({ countdown, onLogin, onQuickLogin, onHome }) {
   );
 }
 
-export function ForbiddenScreen({ currentUser, countdown, onLogin, onQuickLogin, onHome }) {
+export function ForbiddenScreen({ currentUser, countdown, onLogin, onHome }) {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-4 relative overflow-hidden">
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
@@ -95,14 +88,14 @@ export function ForbiddenScreen({ currentUser, countdown, onLogin, onQuickLogin,
           Trang CMS dành riêng cho tài khoản <strong>Quản Trị Viên (Admin)</strong>. Bạn cần đăng nhập với tài khoản có thẩm quyền để truy cập.
         </p>
         <ForbiddenSessionInfo currentUser={currentUser} />
-        <ForbiddenActions countdown={countdown} onLogin={onLogin} onQuickLogin={onQuickLogin} onHome={onHome} />
+        <ForbiddenActions countdown={countdown} onLogin={onLogin} onHome={onHome} />
       </div>
     </div>
   );
 }
 
 export default function AdminPage() {
-  const { currentUser, isHydrated, loginUser } = useRealEstate();
+  const { currentUser, isHydrated } = useRealEstate();
   const { navigate } = useRouter();
   const [countdown, setCountdown] = useState(5);
   const isAdmin = isHydrated && currentUser?.role === 'admin';
@@ -129,7 +122,6 @@ export default function AdminPage() {
         currentUser={currentUser}
         countdown={countdown}
         onLogin={() => navigate(getAdminRedirectPath())}
-        onQuickLogin={() => loginUser('admin@datbiendanang.vn')}
         onHome={() => navigate('/')}
       />
     );

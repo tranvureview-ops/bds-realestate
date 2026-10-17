@@ -5,13 +5,21 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter, Link } from '../router/RouterContext';
 
 export default function LoginPage() {
-  const { loginUser, showToast } = useRealEstate();
+  const { loginUser, showToast, systemConfig } = useRealEstate();
   const { navigate, searchParams } = useRouter();
 
   const [redirectUrl, setRedirectUrl] = useState('');
-  const [identifier, setIdentifier] = useState('tuan.batdongsan@datbiendanang.vn');
-  const [password, setPassword] = useState('123456');
+  const [identifier, setIdentifier] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const bonusAmount = Number(systemConfig?.welcomeBonusAmount || 100000);
+  const enableWelcomeBonus = systemConfig?.enableWelcomeBonus !== false && bonusAmount > 0;
+  const bonusFormatted = bonusAmount >= 1000 ? `${(bonusAmount / 1000).toLocaleString('vi-VN')}k` : `${bonusAmount.toLocaleString('vi-VN')}đ`;
+  const registerLinkText = enableWelcomeBonus 
+    ? `Đăng ký thành viên mới (Tặng ${bonusFormatted})` 
+    : 'Đăng ký thành viên mới';
 
   useEffect(() => {
     let red = searchParams?.get('redirect');
@@ -47,20 +55,19 @@ export default function LoginPage() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!identifier.trim()) {
       showToast('Vui lòng nhập Email hoặc Số điện thoại', 'warning');
       return;
     }
-    const loggedUser = loginUser(identifier, password);
-    if (loggedUser) {
-      handlePostLoginRedirect(loggedUser);
+    if (!password) {
+      showToast('Vui lòng nhập mật khẩu', 'warning');
+      return;
     }
-  };
-
-  const handleQuickLogin = (email) => {
-    const loggedUser = loginUser(email, '123456');
+    setIsSubmitting(true);
+    const loggedUser = await loginUser(identifier, password);
+    setIsSubmitting(false);
     if (loggedUser) {
       handlePostLoginRedirect(loggedUser);
     }
@@ -163,48 +170,27 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className={`w-full py-3 rounded-xl font-black text-sm shadow-lg transition text-white ${
+            disabled={isSubmitting}
+            className={`w-full py-3 rounded-xl font-black text-sm shadow-lg transition text-white flex items-center justify-center gap-2 cursor-pointer ${
               isAdminRedirect
                 ? 'bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700'
                 : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700'
             }`}
           >
-            {isAdminRedirect ? 'Xác Thực & Vào Trang Quản Trị' : 'Đăng Nhập Ngay'}
+            {isSubmitting && <i className="fa-solid fa-spinner animate-spin"></i>}
+            <span>
+              {isSubmitting 
+                ? 'Đang Xác Thực...' 
+                : (isAdminRedirect ? 'Xác Thực & Vào Trang Quản Trị' : 'Đăng Nhập Ngay')}
+            </span>
           </button>
         </form>
 
-        {/* 1-Click Quick Demo Login */}
-        <div className="pt-4 border-t border-slate-100">
-          <div className="text-[11px] font-bold text-slate-400 mb-2.5 text-center uppercase tracking-wider">
-            Hoặc đăng nhập nhanh 1-chạm để trải nghiệm:
-          </div>
-          <div className="grid grid-cols-3 gap-2">
-            <button
-              onClick={() => handleQuickLogin('tuan.batdongsan@datbiendanang.vn')}
-              className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 font-bold border border-amber-200 text-xs text-center transition"
-            >
-              👑 Môi Giới
-            </button>
-            <button
-              onClick={() => handleQuickLogin('mai.tran@gmail.com')}
-              className="p-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-800 font-bold border border-blue-200 text-xs text-center transition"
-            >
-              👤 Khách mua
-            </button>
-            <button
-              onClick={() => handleQuickLogin('admin@datbiendanang.vn')}
-              className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-800 font-bold border border-red-200 text-xs text-center transition ring-2 ring-red-300"
-            >
-              🛡️ Admin CMS
-            </button>
-          </div>
-        </div>
-
         {/* Switch to Register */}
-        <div className="text-center text-xs text-slate-500 pt-2">
+        <div className="text-center text-xs text-slate-500 pt-2 border-t border-slate-100">
           Chưa có tài khoản Đất Biển Đà Nẵng?{' '}
           <Link to="/dang-ky" className="text-emerald-600 font-bold hover:underline">
-            Đăng ký thành viên mới (Tặng 100k)
+            {registerLinkText}
           </Link>
         </div>
       </div>

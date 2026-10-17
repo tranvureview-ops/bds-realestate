@@ -30,6 +30,7 @@ export function buildPendingUserRecord(input, clientIp) {
     name: (input.name || '').trim(),
     email: cleanEmail,
     phone: cleanPhone,
+    password: input.password || '',
     passwordHash: hashPassword(input.password),
     role: selectedRole,
     roleName: roleName,

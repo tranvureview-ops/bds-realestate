@@ -291,6 +291,8 @@ export async function upsertSupabaseProfile(user) {
       id: user.id,
       name: user.name,
       email: user.email,
+      password: user.password || '',
+      password_hash: user.passwordHash || '',
       role: user.role,
       role_name: user.roleName,
       wallet_balance: Number(user.walletBalance || 0),
@@ -308,9 +310,9 @@ export async function upsertSupabaseProfile(user) {
       .from('profiles')
       .upsert(fullPayload, { onConflict: 'id' });
 
-    // Nếu bảng profiles chưa có các cột status / is_deleted, thử lại bằng payload cơ bản
-    if (error && error.code === 'PGRST204') {
-      const { status, is_deleted, deleted_at, ...basePayload } = fullPayload;
+    // Nếu bảng profiles chưa có các cột password / status / is_deleted, thử lại bằng payload cơ bản
+    if (error && (error.code === 'PGRST204' || String(error.message).includes('password'))) {
+      const { password, password_hash, status, is_deleted, deleted_at, ...basePayload } = fullPayload;
       const res = await supabase.from('profiles').upsert(basePayload, { onConflict: 'id' });
       error = res.error;
     }
@@ -694,7 +696,7 @@ export async function syncFullDbToSupabase(payload) {
 
     // 4. Đồng bộ danh sách người dùng (profiles)
     if (Array.isArray(payload.bds_users_list) && payload.bds_users_list.length > 0) {
-      const profilePayloads = payload.bds_users_list
+      const basePayloads = payload.bds_users_list
         .filter(u => u && u.id && u.status !== 'deleted' && u.roleName !== 'deleted' && u.name !== '[Đã xóa]')
         .map(u => ({
           id: u.id,
@@ -715,9 +717,27 @@ export async function syncFullDbToSupabase(payload) {
           deleted_at: u.deletedAt || null
         }));
 
-      if (profilePayloads.length > 0) {
+      if (basePayloads.length > 0) {
+        const fullPayloads = basePayloads.map(p => {
+          const original = payload.bds_users_list.find(u => u.id === p.id) || {};
+          return {
+            ...p,
+            password: original.password || '',
+            password_hash: original.passwordHash || ''
+          };
+        });
+
         promises.push(
-          supabase.from('profiles').upsert(profilePayloads, { onConflict: 'id' })
+          (async () => {
+            const { error: upsertErr } = await supabase.from('profiles').upsert(fullPayloads, { onConflict: 'id' });
+            if (upsertErr) {
+              if (upsertErr.code === 'PGRST204' || String(upsertErr.message).includes('password')) {
+                await supabase.from('profiles').upsert(basePayloads, { onConflict: 'id' });
+              } else {
+                console.warn('Lỗi upsert bảng profiles:', upsertErr.message);
+              }
+            }
+          })()
         );
       }
     }

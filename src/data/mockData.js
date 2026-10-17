@@ -1414,6 +1414,8 @@ export const MOCK_USERS = [
     id: 'user-01',
     name: 'Lê Minh Tâm',
     email: 'minhtam.le@gmail.com',
+    password: '123456',
+    passwordHash: '$2b$10$jgjsVvPtPeI7WDBTiFSj1eDC8xz6aYTszoychODv7PYe.94N0oTNi',
     role: 'user', // user, broker, admin
     roleName: 'Khách hàng cá nhân',
     walletBalance: 850000, // 850,000 VND
@@ -1430,6 +1432,8 @@ export const MOCK_USERS = [
     id: 'broker-01',
     name: 'Nguyễn Văn Tuấn',
     email: 'tuan.batdongsan@datbiendanang.vn',
+    password: '123456',
+    passwordHash: '$2b$10$jgjsVvPtPeI7WDBTiFSj1eDC8xz6aYTszoychODv7PYe.94N0oTNi',
     role: 'broker',
     roleName: 'Môi Giới',
     walletBalance: 4250000, // 4,250,000 VND
@@ -1457,6 +1461,8 @@ export const MOCK_USERS = [
     id: 'admin-01',
     name: 'Trần Ban Quản Trị',
     email: 'admin@datbiendanang.vn',
+    password: '123456',
+    passwordHash: '$2b$10$jgjsVvPtPeI7WDBTiFSj1eDC8xz6aYTszoychODv7PYe.94N0oTNi',
     role: 'admin',
     roleName: 'Tổng Quản Trị Viên (CMS Admin)',
     walletBalance: 99999999,

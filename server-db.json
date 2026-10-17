@@ -1181,7 +1181,9 @@
       "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80",
       "membership": null,
       "vouchers": null,
-      "isVerified": true
+      "isVerified": true,
+      "password": "123456",
+      "passwordHash": "\\.94N0oTNi"
     },
     {
       "id": "broker-01",
@@ -1194,7 +1196,9 @@
       "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
       "membership": null,
       "vouchers": null,
-      "isVerified": true
+      "isVerified": true,
+      "password": "123456",
+      "passwordHash": "\\.94N0oTNi"
     },
     {
       "id": "user-01",
@@ -1207,7 +1211,9 @@
       "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80",
       "membership": null,
       "vouchers": null,
-      "isVerified": false
+      "isVerified": false,
+      "password": "123456",
+      "passwordHash": "\\.94N0oTNi"
     }
   ],
   "bds_header_config": {

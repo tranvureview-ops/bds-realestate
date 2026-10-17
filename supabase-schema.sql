@@ -67,6 +67,8 @@ CREATE TABLE IF NOT EXISTS profiles (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   email TEXT,
+  password TEXT,
+  password_hash TEXT,
   role TEXT DEFAULT 'user',
   role_name TEXT,
   wallet_balance NUMERIC DEFAULT 0,
@@ -80,6 +82,10 @@ CREATE TABLE IF NOT EXISTS profiles (
   deleted_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- Tự động thêm cột password và password_hash nếu bảng profiles đã tồn tại:
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS password TEXT;
+ALTER TABLE profiles ADD COLUMN IF NOT EXISTS password_hash TEXT;
 
 -- 5. TẠO BẢNG LỊCH SỬ GIAO DỊCH (TRANSACTIONS)
 CREATE TABLE IF NOT EXISTS transactions (

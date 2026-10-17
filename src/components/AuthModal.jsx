@@ -48,15 +48,17 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
   const [registerSuccessEmail, setRegisterSuccessEmail] = useState(null);
   const [registrationResult, setRegistrationResult] = useState(null);
   const [isResending, setIsResending] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const bonusAmount = Number(systemConfig?.welcomeBonusAmount || 100000);
+  const enableWelcomeBonus = systemConfig?.enableWelcomeBonus !== false && bonusAmount > 0;
   const bonusText = `${bonusAmount >= 1000 ? Math.floor(bonusAmount / 1000) + 'k' : bonusAmount}`;
   const bonusFormatted = `${bonusAmount.toLocaleString('vi-VN')} đ`;
   const tokenExpiry = systemConfig?.tokenExpiryMinutes || 30;
 
   // Login form state
-  const [loginIdentifier, setLoginIdentifier] = useState('tuan.batdongsan@datbiendanang.vn');
-  const [loginPassword, setLoginPassword] = useState('123456');
+  const [loginIdentifier, setLoginIdentifier] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
 
   // Register form state
   const [registerData, setRegisterData] = useState({
@@ -75,21 +77,22 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotSent, setForgotSent] = useState(false);
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
     if (!loginIdentifier.trim()) {
       showToast('Vui lòng nhập Email hoặc Số điện thoại', 'warning');
       return;
     }
-    const success = loginUser(loginIdentifier, loginPassword);
+    if (!loginPassword) {
+      showToast('Vui lòng nhập mật khẩu', 'warning');
+      return;
+    }
+    setIsLoggingIn(true);
+    const success = await loginUser(loginIdentifier, loginPassword);
+    setIsLoggingIn(false);
     if (success) {
       onClose();
     }
-  };
-
-  const handleQuickLogin = (user) => {
-    loginUser(user.email, '123456');
-    onClose();
   };
 
   const handleRegisterSubmit = async (e) => {
@@ -169,35 +172,13 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
             className={`py-2 rounded-xl transition ${tab === 'register' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
           >
             <i className="fa-solid fa-user-plus mr-1.5 text-red-600"></i>
-            Đăng Ký (+{bonusText} ví)
+            Đăng Ký {enableWelcomeBonus ? `(+${bonusText} ví)` : ''}
           </button>
         </div>
 
         {/* BODY TAB 1: ĐĂNG NHẬP (LOGIN) */}
         {tab === 'login' && (
           <form onSubmit={handleLoginSubmit} className="p-6 pt-0 space-y-4 text-xs">
-            {/* Quick Demo Switcher */}
-            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200">
-              <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center justify-between">
-                <span>Chọn nhanh tài khoản kiểm thử:</span>
-                <span className="text-emerald-700 font-normal">1-Click Login</span>
-              </div>
-              <div className="grid grid-cols-3 gap-1.5">
-                {usersList.slice(0, 3).map(u => (
-                  <button
-                    key={u.id}
-                    type="button"
-                    onClick={() => handleQuickLogin(u)}
-                    className="p-2 rounded-xl bg-white hover:bg-emerald-50 border border-slate-200 hover:border-emerald-500 text-left transition flex flex-col items-center text-center shadow-xs group"
-                  >
-                    <img src={u.avatar} alt="" className="w-7 h-7 rounded-full object-cover mb-1 group-hover:scale-105 transition" />
-                    <div className="font-bold text-slate-800 text-[11px] truncate w-full">{u.name}</div>
-                    <div className="text-[9px] text-slate-400 font-semibold">{u.role === 'admin' ? 'Admin' : u.role === 'broker' ? 'Môi Giới' : 'Khách hàng'}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Email/Phone */}
             <div>
               <label className="block text-slate-700 font-bold mb-1 uppercase text-[11px]">
@@ -259,10 +240,11 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-sm rounded-xl shadow-lg transition flex items-center justify-center gap-2"
+              disabled={isLoggingIn}
+              className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-60 text-white font-black text-sm rounded-xl shadow-lg transition flex items-center justify-center gap-2 cursor-pointer"
             >
-              <i className="fa-solid fa-arrow-right-to-bracket"></i>
-              <span>Đăng Nhập Ngay</span>
+              {isLoggingIn ? <i className="fa-solid fa-spinner animate-spin"></i> : <i className="fa-solid fa-arrow-right-to-bracket"></i>}
+              <span>{isLoggingIn ? 'Đang Xác Thực...' : 'Đăng Nhập Ngay'}</span>
             </button>
 
             {/* Social Logins */}
@@ -271,22 +253,22 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
-                  onClick={() => { loginUser('tuan.batdongsan@datbiendanang.vn', ''); onClose(); }}
-                  className="py-2 px-3 border border-slate-200 rounded-xl hover:bg-slate-50 font-bold text-[11px] flex items-center justify-center gap-1.5"
+                  onClick={() => showToast('Tính năng đăng nhập Google đang được tích hợp.', 'info')}
+                  className="py-2 px-3 border border-slate-200 rounded-xl hover:bg-slate-50 font-bold text-[11px] flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <i className="fa-brands fa-google text-red-500"></i> Google
                 </button>
                 <button
                   type="button"
-                  onClick={() => { loginUser('tuan.batdongsan@datbiendanang.vn', ''); onClose(); }}
-                  className="py-2 px-3 border border-slate-200 rounded-xl hover:bg-slate-50 font-bold text-[11px] flex items-center justify-center gap-1.5"
+                  onClick={() => showToast('Tính năng đăng nhập Facebook đang được tích hợp.', 'info')}
+                  className="py-2 px-3 border border-slate-200 rounded-xl hover:bg-slate-50 font-bold text-[11px] flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <i className="fa-brands fa-facebook text-blue-600"></i> Facebook
                 </button>
                 <button
                   type="button"
-                  onClick={() => { loginUser('tuan.batdongsan@datbiendanang.vn', ''); onClose(); }}
-                  className="py-2 px-3 border border-slate-200 rounded-xl hover:bg-slate-50 font-bold text-[11px] flex items-center justify-center gap-1.5"
+                  onClick={() => showToast('Tính năng đăng nhập Zalo đang được tích hợp.', 'info')}
+                  className="py-2 px-3 border border-slate-200 rounded-xl hover:bg-slate-50 font-bold text-[11px] flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <i className="fa-solid fa-comment-dots text-blue-500"></i> Zalo
                 </button>
@@ -516,7 +498,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
               className="w-full py-3 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 disabled:opacity-60 text-white font-black text-sm rounded-xl shadow-lg transition flex items-center justify-center gap-2"
             >
               {isRegistering ? <i className="fa-solid fa-spinner animate-spin"></i> : <i className="fa-solid fa-user-check"></i>}
-              <span>{isRegistering ? 'Đang Xử Lý Đăng Ký...' : `Hoàn Tất Đăng Ký & Nhận ${bonusText}`}</span>
+              <span>{isRegistering ? 'Đang Xử Lý Đăng Ký...' : enableWelcomeBonus ? `Hoàn Tất Đăng Ký & Nhận ${bonusText}` : 'Hoàn Tất Đăng Ký'}</span>
             </button>
           </form>
         )}
