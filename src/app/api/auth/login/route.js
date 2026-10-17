@@ -7,8 +7,17 @@ import { getFullSystemDatabase } from '../../../../services/serverDbService';
  * @param {string} phone Chuỗi số điện thoại
  * @returns {string} Chuỗi các chữ số
  */
-function extractDigits(phone) {
-  return (phone || '').replace(/\D/g, '');
+/**
+ * Chuẩn hóa số điện thoại Việt Nam (loại bỏ ký tự lạ, chuyển đầu số +84/84 về 0)
+ * @param {string} phone Chuỗi số điện thoại
+ * @returns {string} Chuỗi các chữ số chuẩn hóa
+ */
+function normalizePhone(phone) {
+  let digits = (phone || '').replace(/\D/g, '');
+  if (digits.startsWith('84') && digits.length >= 11) {
+    digits = '0' + digits.slice(2);
+  }
+  return digits;
 }
 
 /**
@@ -37,11 +46,11 @@ export async function POST(request) {
     const users = Array.isArray(db.bds_users_list) ? db.bds_users_list : [];
 
     const cleanIdent = identifier.trim().toLowerCase();
-    const inputDigits = extractDigits(identifier);
+    const inputDigits = normalizePhone(identifier);
 
     const found = users.find((u) => {
       const emailMatch = u.email && u.email.trim().toLowerCase() === cleanIdent;
-      const uPhoneDigits = extractDigits(u.phone);
+      const uPhoneDigits = normalizePhone(u.phone);
       const phoneMatch = inputDigits.length >= 9 && uPhoneDigits.length >= 9 && uPhoneDigits === inputDigits;
       return emailMatch || phoneMatch;
     });

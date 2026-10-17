@@ -2236,12 +2236,18 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     } catch (err) {
       // Fallback offline / local check nếu fetch gặp lỗi mạng
       const cleanIdent = identifier.trim().toLowerCase();
-      const digitsOnly = str => (str || '').replace(/\D/g, '');
-      const inputDigits = digitsOnly(identifier);
+      const normalizePhone = phone => {
+        let digits = (phone || '').replace(/\D/g, '');
+        if (digits.startsWith('84') && digits.length >= 11) {
+          digits = '0' + digits.slice(2);
+        }
+        return digits;
+      };
+      const inputDigits = normalizePhone(identifier);
 
       const found = usersList.find(u => {
         const emailMatch = u.email && u.email.trim().toLowerCase() === cleanIdent;
-        const uPhoneDigits = digitsOnly(u.phone);
+        const uPhoneDigits = normalizePhone(u.phone);
         const phoneMatch = inputDigits.length >= 9 && uPhoneDigits.length >= 9 && uPhoneDigits === inputDigits;
         return emailMatch || phoneMatch;
       });
