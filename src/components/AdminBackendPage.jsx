@@ -58,6 +58,7 @@ export default function AdminBackendPage() {
     vipPackages, 
     transactions, 
     currentUser, 
+    logoutUser,
     approveProperty, 
     rejectProperty, 
     deleteProperty, 
@@ -147,6 +148,18 @@ export default function AdminBackendPage() {
 
   // State hiển thị modal Cài đặt 2FA Google Authenticator
   const [is2FAModalOpen, setIs2FAModalOpen] = useState(false);
+
+  // Xử lý đăng xuất tài khoản Quản trị viên
+  const handleAdminLogout = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      const confirmLogout = window.confirm('Bạn có chắc chắn muốn đăng xuất khỏi trang quản trị CMS?');
+      if (!confirmLogout) return;
+    }
+    logoutUser();
+    if (typeof window !== 'undefined') {
+      window.location.href = '/dang-nhap?redirect=/admin';
+    }
+  }, [logoutUser]);
 
   const setActiveMenu = useCallback((tab, subTab = null) => {
     let targetTab = tab;
@@ -2018,6 +2031,17 @@ export default function AdminBackendPage() {
             />
           </div>
 
+          {/* Nút Đăng Xuất CMS ở Sidebar */}
+          <button
+            type="button"
+            onClick={handleAdminLogout}
+            className="w-full py-2.5 px-3 rounded-xl bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 hover:text-rose-200 text-xs font-bold transition flex items-center justify-center gap-2 border border-rose-800/60 hover:border-rose-700 shadow-sm cursor-pointer"
+            title="Đăng xuất khỏi tài khoản Quản trị và khóa phiên làm việc"
+          >
+            <i className="fa-solid fa-arrow-right-from-bracket text-rose-400"></i>
+            <span>Đăng Xuất Khỏi CMS</span>
+          </button>
+
           <button
             onClick={resetToMockData}
             className="w-full py-1 text-slate-500 hover:text-slate-300 text-[11px] text-center"
@@ -2102,6 +2126,17 @@ export default function AdminBackendPage() {
             >
               <i className="fa-solid fa-shield-halved text-emerald-400"></i>
               <span className="hidden sm:inline">2FA: Google Auth</span>
+            </button>
+
+            {/* Quick Button: Đăng Xuất Khỏi Admin */}
+            <button
+              type="button"
+              onClick={handleAdminLogout}
+              className="px-2.5 sm:px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/30 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+              title="Đăng xuất khỏi tài khoản Quản trị và khóa phiên làm việc"
+            >
+              <i className="fa-solid fa-arrow-right-from-bracket text-rose-400"></i>
+              <span className="hidden sm:inline">Đăng Xuất</span>
             </button>
 
             {/* Trung Tâm Thông Báo Ban Quản Trị (Notification Center) */}
