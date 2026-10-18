@@ -71,11 +71,11 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
           : isGold 
           ? 'vip-gold-border hover:shadow-xl' 
           : 'border border-slate-200 hover:border-slate-300 hover:shadow-lg'
-      } ${viewMode === 'list' ? 'flex flex-col md:flex-row' : 'flex flex-col'}`}
+      } ${viewMode === 'list' ? 'flex flex-col md:flex-row md:items-stretch' : 'flex flex-col'}`}
     >
       {/* Property Image Container */}
-      <div className={`relative overflow-hidden ${viewMode === 'list' ? 'md:w-72 lg:w-80 h-56 md:h-auto shrink-0' : 'h-52 w-full'}`}>
-        <Link to={getPropertyPermalink(property)} className="block w-full h-full">
+      <div className={`relative overflow-hidden shrink-0 ${viewMode === 'list' ? 'w-full md:w-72 lg:w-80 h-56 md:h-auto md:self-stretch min-h-[220px]' : 'h-52 w-full'}`}>
+        <Link to={getPropertyPermalink(property)} className="block w-full h-full absolute inset-0">
           <img
             src={safeImages[0]}
             alt={property.title}
@@ -148,7 +148,7 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
       </div>
 
       {/* Property Details Content */}
-      <div className="p-4 flex-1 flex flex-col justify-between">
+      <div className={`p-4 flex-1 flex flex-col justify-between min-w-0 ${viewMode === 'list' ? 'md:min-h-[220px]' : ''}`}>
         <div>
           {/* Price & Area Highlight Row */}
           <div className="flex items-baseline justify-between gap-2 mb-1.5">
