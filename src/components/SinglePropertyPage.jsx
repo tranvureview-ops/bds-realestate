@@ -1613,16 +1613,6 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
           {/* BỘ ĐIỀU HƯỚNG ĐA DIỆN (FACETED TAXONOMY NAVIGATION) TRÊN SIDEBAR */}
           <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                <i className="fa-solid fa-sitemap text-emerald-600 text-sm"></i>
-                <span>Điều Hướng Danh Mục & Khu Vực</span>
-              </div>
-              <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold border border-emerald-200 hidden sm:inline">
-                Chuẩn sàn
-              </span>
-            </div>
-
             <div className="space-y-3.5 text-xs">
               {/* Mục 1: Quận / Huyện lân cận */}
               {neighboringDistricts.length > 0 && (
