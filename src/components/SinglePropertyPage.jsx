@@ -46,7 +46,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   // Appointment Form state
   const [appointmentDate, setAppointmentDate] = useState('Hôm nay (Buổi chiều 14h - 16h)');
   const [appointmentName, setAppointmentName] = useState(() => currentUser?.name || '');
-  const [appointmentPhone, setAppointmentPhone] = useState(() => currentUser?.phone || '');
+  const [appointmentPhone, setAppointmentPhone] = useState('');
   const [appointmentNote, setAppointmentNote] = useState('');
   const [appointmentPhoneError, setAppointmentPhoneError] = useState('');
   const [isSubmittingAppointment, setIsSubmittingAppointment] = useState(false);
