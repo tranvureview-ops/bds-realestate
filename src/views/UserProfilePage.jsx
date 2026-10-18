@@ -64,7 +64,7 @@ export default function UserProfilePage() {
           </h1>
           
           <p className="text-xs text-slate-500 leading-relaxed mb-5">
-            Trang <strong>Hồ Sơ Cá Nhân & Xác Thực KYC</strong> chứa thông tin liên hệ bảo mật, ví tiền và danh sách lịch hẹn của bạn. Bạn cần đăng nhập để truy cập khu vực này.
+            Trang <strong>Hồ Sơ Cá Nhân</strong> chứa thông tin liên hệ bảo mật, ví tiền và danh sách lịch hẹn của bạn. Bạn cần đăng nhập để truy cập khu vực này.
           </p>
 
           {/* Countdown timer */}
@@ -111,7 +111,7 @@ export default function UserProfilePage() {
         <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
           <Link to="/" className="hover:text-emerald-600 font-medium">Trang chủ</Link>
           <i className="fa-solid fa-chevron-right text-[10px]"></i>
-          <span className="text-slate-800 font-bold">Hồ Sơ Cá Nhân & Xác Thực KYC</span>
+          <span className="text-slate-800 font-bold">Hồ Sơ Cá Nhân</span>
         </div>
       </div>
       <UserProfileComponent />

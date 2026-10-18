@@ -506,7 +506,7 @@ export default function Navbar() {
                           className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center gap-2.5 ${currentRoute === '/ho-so-ca-nhan' ? 'bg-emerald-50 text-emerald-700 font-bold' : 'hover:bg-slate-50 text-slate-700'}`}
                         >
                           <i className="fa-solid fa-user-pen text-emerald-600 w-4 text-center"></i>
-                          <span>Hồ sơ cá nhân & Xác thực KYC</span>
+                          <span>Hồ sơ cá nhân</span>
                         </Link>
 
                         <Link
