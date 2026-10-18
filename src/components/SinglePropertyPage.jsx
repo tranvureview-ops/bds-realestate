@@ -9,6 +9,7 @@ import InteractiveMap from './InteractiveMap';
 import ListingCard from './ListingCard';
 import CustomSelect from './CustomSelect';
 import { findAdministrativeMerger } from '../data/vietnamAdministrativeData';
+import { validatePhoneNumber, normalizePhone } from '../utils/authValidation';
 
 export default function SinglePropertyPage({ propertyOverride = null }) {
   const { 
@@ -26,7 +27,8 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     addListingReport,
     resendReportConfirmationEmail,
     singleConfig,
-    systemConfig
+    systemConfig,
+    bookAppointment
   } = useRealEstate();
 
   // Helper check xem người dùng hiện tại là khách vãng lai hay đã đăng nhập
@@ -42,9 +44,12 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   const [activeVrIndex, setActiveVrIndex] = useState(0);
 
   // Appointment Form state
-  const [appointmentDate, setAppointmentDate] = useState('Hôm nay (Buổi chiều)');
-  const [appointmentPhone, setAppointmentPhone] = useState('');
+  const [appointmentDate, setAppointmentDate] = useState('Hôm nay (Buổi chiều 14h - 16h)');
+  const [appointmentName, setAppointmentName] = useState(() => currentUser?.name || '');
+  const [appointmentPhone, setAppointmentPhone] = useState(() => currentUser?.phone || '');
   const [appointmentNote, setAppointmentNote] = useState('');
+  const [appointmentPhoneError, setAppointmentPhoneError] = useState('');
+  const [isSubmittingAppointment, setIsSubmittingAppointment] = useState(false);
   const [appointmentSuccess, setAppointmentSuccess] = useState(false);
 
   // Embedded loan calculator state
@@ -143,15 +148,46 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     .filter(p => p.id !== property.id && (p.city === property.city || p.propertyType === property.propertyType))
     .slice(0, 3);
 
-  const handleAppointmentSubmit = (e) => {
+  const handleAppointmentSubmit = async (e) => {
     e.preventDefault();
-    if (!appointmentPhone || appointmentPhone.length < 9) {
-      showToast('Vui lòng nhập số điện thoại hợp lệ để môi giới liên hệ', 'warning');
+    setAppointmentPhoneError('');
+
+    const phoneValidation = validatePhoneNumber(appointmentPhone);
+    if (!phoneValidation.isValid) {
+      setAppointmentPhoneError(phoneValidation.message);
+      showToast(phoneValidation.message, 'warning');
       return;
     }
-    setAppointmentSuccess(true);
-    showToast(`Đã đặt lịch xem nhà thành công! Người đăng ${safeAuthor.name} sẽ gọi xác nhận trong 10 phút.`, 'success');
-    setTimeout(() => setAppointmentSuccess(false), 6000);
+
+    setIsSubmittingAppointment(true);
+    const appointmentPayload = {
+      propertyId: property.id,
+      propertyTitle: property.title,
+      propertyAddress: property.address || `${property.district}, ${property.city}`,
+      propertyPrice: property.priceDisplay,
+      propertyPermalink: typeof window !== 'undefined' ? window.location.pathname : '',
+      propertyCover: property.images?.[0] || '',
+      appointmentDate: appointmentDate || 'Hôm nay (Buổi chiều 14h - 16h)',
+      customerPhone: phoneValidation.normalized,
+      customerName: (appointmentName || currentUser?.name || 'Khách hàng quan tâm').trim(),
+      customerId: currentUser?.id && currentUser.id !== 'guest' ? currentUser.id : null,
+      customerNote: (appointmentNote || '').trim(),
+      brokerId: safeAuthor?.id || null,
+      brokerName: safeAuthor?.name || 'Môi Giới Phụ Trách',
+      brokerPhone: safeAuthor?.phone || '',
+      brokerEmail: safeAuthor?.email || ''
+    };
+
+    const res = await bookAppointment(appointmentPayload);
+    setIsSubmittingAppointment(false);
+
+    if (res.success) {
+      setAppointmentSuccess(true);
+      showToast(`Đã gửi lịch hẹn xem nhà thành công! Môi giới ${safeAuthor.name} sẽ liên hệ xác nhận sớm nhất.`, 'success');
+      setAppointmentNote('');
+    } else {
+      showToast(res.message || 'Lỗi khi gửi lịch hẹn xem nhà', 'error');
+    }
   };
 
   const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
@@ -1210,9 +1246,14 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               {/* Appointment Form */}
               {singleConfig?.features?.showAppointmentBooking !== false && (
                 <form onSubmit={handleAppointmentSubmit} className={`space-y-3 ${singleConfig?.features?.showAuthorCard !== false ? 'pt-4 border-t border-slate-100' : ''}`}>
-                  <div className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                    <i className="fa-regular fa-calendar-check text-emerald-600"></i>
-                    <span>Đặt Lịch Hẹn Xem Nhà Trực Tiếp</span>
+                  <div className="text-xs font-bold text-slate-800 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <i className="fa-regular fa-calendar-check text-emerald-600"></i>
+                      <span>Đặt Lịch Hẹn Xem Nhà Trực Tiếp</span>
+                    </div>
+                    <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">
+                      Miễn phí 100%
+                    </span>
                   </div>
 
                   <div>
@@ -1241,22 +1282,78 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                       type="tel"
                       placeholder="Nhập SĐT để môi giới xác nhận..."
                       value={appointmentPhone}
-                      onChange={(e) => setAppointmentPhone(e.target.value)}
-                      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                      onChange={(e) => {
+                        setAppointmentPhone(e.target.value);
+                        if (appointmentPhoneError) setAppointmentPhoneError('');
+                      }}
+                      onBlur={() => {
+                        if (appointmentPhone) {
+                          const v = validatePhoneNumber(appointmentPhone);
+                          if (!v.isValid) setAppointmentPhoneError(v.message);
+                        }
+                      }}
+                      className={`w-full px-3 py-2 bg-slate-50 border rounded-xl text-xs font-semibold text-slate-900 focus:ring-2 focus:outline-none transition ${
+                        appointmentPhoneError
+                          ? 'border-rose-400 focus:ring-rose-400 bg-rose-50/30'
+                          : 'border-slate-200 focus:ring-emerald-500'
+                      }`}
                       required
                     />
+                    {appointmentPhoneError && (
+                      <p className="text-[10.5px] text-rose-600 font-medium mt-1 flex items-center gap-1">
+                        <i className="fa-solid fa-circle-exclamation text-[10px]"></i>
+                        <span>{appointmentPhoneError}</span>
+                      </p>
+                    )}
                   </div>
 
                   {appointmentSuccess ? (
-                    <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-bold text-center">
-                      ✓ Đã gửi lịch hẹn thành công!
+                    <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-900 rounded-2xl text-xs space-y-2 animate-in fade-in duration-300">
+                      <div className="font-bold flex items-center gap-1.5 text-emerald-800">
+                        <i className="fa-solid fa-circle-check text-emerald-600 text-sm"></i>
+                        <span>Đã gửi lời hẹn xem nhà thành công!</span>
+                      </div>
+                      <p className="text-[11px] text-emerald-700 leading-relaxed">
+                        Môi giới <strong>{safeAuthor.name}</strong> đã nhận được thông báo qua Email & Zalo, sẽ sớm gọi xác nhận với bạn qua SĐT <strong>{appointmentPhone}</strong>.
+                      </p>
+                      <div className="pt-1 flex flex-col sm:flex-row gap-2">
+                        {safeAuthor.phone && (
+                          <a
+                            href={`https://zalo.me/${normalizePhone(safeAuthor.phone)}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex-1 py-1.5 px-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-center text-[11px] transition flex items-center justify-center gap-1.5"
+                          >
+                            <i className="fa-solid fa-comment-dots"></i>
+                            <span>Chat Zalo Môi Giới</span>
+                          </a>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setAppointmentSuccess(false)}
+                          className="py-1.5 px-3 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg font-bold text-center text-[11px] transition"
+                        >
+                          Đặt lịch khác
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <button
                       type="submit"
-                      className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition shadow"
+                      disabled={isSubmittingAppointment}
+                      className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white font-bold text-xs rounded-xl transition shadow flex items-center justify-center gap-2 cursor-pointer"
                     >
-                      Gửi Lời Hẹn Xem Nhà Ngay
+                      {isSubmittingAppointment ? (
+                        <>
+                          <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          <span>Đang gửi lời hẹn...</span>
+                        </>
+                      ) : (
+                        <>
+                          <i className="fa-regular fa-paper-plane"></i>
+                          <span>Gửi Lời Hẹn Xem Nhà Ngay</span>
+                        </>
+                      )}
                     </button>
                   )}
                 </form>

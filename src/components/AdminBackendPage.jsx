@@ -12,11 +12,13 @@ import AdminEmailConfigManager from './AdminEmailConfigManager';
 import AdminMembershipManager from './AdminMembershipManager';
 import AdminHeaderConfigManager from './AdminHeaderConfigManager';
 import AdminMenuConfigManager from './AdminMenuConfigManager';
+import AdminAppointmentsManager from './AdminAppointmentsManager';
 import { AVAILABLE_FONTS, getFontConfig, applyFontToDom } from '../utils/fontConfig';
 
 export const VALID_ADMIN_TABS = [
   'dashboard',
   'moderation',
+  'appointments',
   'reports',
   'emails',
   'properties',
@@ -106,7 +108,8 @@ export default function AdminBackendPage() {
     emailLogs,
     singleConfig,
     activateUserManually,
-    resendUserVerificationEmail
+    resendUserVerificationEmail,
+    appointmentsList
   } = useRealEstate();
 
   // Settings sub-tab state (synced with #settings/system, #settings/header, #settings/menu)
@@ -1728,6 +1731,28 @@ export default function AdminBackendPage() {
             </a>
 
             <a
+              href="#appointments"
+              onClick={handleNavClick('appointments')}
+              className={`w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between text-left ${
+                activeMenu === 'appointments' ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <i className="fa-regular fa-calendar-check text-sm w-5 text-center text-emerald-400"></i>
+                <span>Lịch Hẹn Xem Nhà</span>
+              </div>
+              {Array.isArray(appointmentsList) && appointmentsList.filter(a => a.status === 'pending').length > 0 ? (
+                <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black animate-pulse">
+                  {appointmentsList.filter(a => a.status === 'pending').length}
+                </span>
+              ) : (
+                <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-[10px] text-slate-400 font-bold">
+                  {(appointmentsList || []).length}
+                </span>
+              )}
+            </a>
+
+            <a
               href="#reports"
               onClick={handleNavClick('reports')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between text-left ${
@@ -2007,6 +2032,7 @@ export default function AdminBackendPage() {
             <h2 className="text-xs sm:text-base font-black text-white capitalize truncate">
               {activeMenu === 'dashboard' && '📊 Dashboard Thống Kê'}
               {activeMenu === 'moderation' && '📝 Kiểm Duyệt Tin Đăng'}
+              {activeMenu === 'appointments' && '🗓️ Quản Lý Lịch Hẹn Xem Nhà'}
               {activeMenu === 'reports' && '⚠️ Quản Lý Báo Cáo Vi Phạm'}
               {activeMenu === 'emails' && '📬 Nhật Ký Gửi Email'}
               {activeMenu === 'properties' && '🏢 Danh Mục BĐS Toàn Sàn'}
@@ -6573,6 +6599,13 @@ export default function AdminBackendPage() {
                 <AdminEmailConfigManager onNavigateToEmails={() => setActiveMenu('emails')} />
               )}
             </div>
+          )}
+
+          {/* =========================================
+              PHÂN HỆ: QUẢN LÝ LỊCH HẸN XEM NHÀ TRỰC TIẾP
+             ========================================= */}
+          {activeMenu === 'appointments' && (
+            <AdminAppointmentsManager />
           )}
 
           {/* =========================================

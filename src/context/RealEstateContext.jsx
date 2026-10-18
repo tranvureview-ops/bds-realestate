@@ -376,6 +376,20 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return initialData?.bds_email_config || DEFAULT_EMAIL_CONFIG;
   });
 
+  // 11d. Danh sách Lịch hẹn xem nhà (Direct Property Viewing Appointments)
+  const [appointmentsList, setAppointmentsList] = useState(() => {
+    return (initialData?.bds_appointments && Array.isArray(initialData.bds_appointments))
+      ? initialData.bds_appointments
+      : [];
+  });
+
+  // 11e. Danh sách Thông báo nội bộ hệ thống (In-App Notifications)
+  const [inAppNotifications, setInAppNotifications] = useState(() => {
+    return (initialData?.bds_notifications && Array.isArray(initialData.bds_notifications))
+      ? initialData.bds_notifications
+      : [];
+  });
+
   // Methods for System Config with Automatic Cross-System Brand & Hotline Synchronization
   const updateSystemConfig = async (newConfig) => {
     let updatedSystem;
@@ -872,6 +886,12 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         if (Array.isArray(db.bds_email_logs)) {
           setEmailLogs(db.bds_email_logs);
         }
+        if (Array.isArray(db.bds_appointments)) {
+          setAppointmentsList(db.bds_appointments);
+        }
+        if (Array.isArray(db.bds_notifications)) {
+          setInAppNotifications(db.bds_notifications);
+        }
         if (!isSilent) {
           showToast('Đã tải và đồng bộ dữ liệu mới nhất từ Supabase Cloud!', 'success');
         }
@@ -970,7 +990,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         bds_reported_listings: listingReports,
         bds_single_config: singleConfig,
         bds_email_config: emailConfig,
-        bds_email_logs: emailLogs
+        bds_email_logs: emailLogs,
+        bds_appointments: appointmentsList,
+        bds_notifications: inAppNotifications
       };
       fetch('/api/db-sync', {
         method: 'POST',
@@ -980,7 +1002,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     }, 600);
 
     return () => clearTimeout(timer);
-  }, [isHydrated, properties, usersList, paymentConfig, headerConfig, systemConfig, navMenuItems, transactions, vipPackages, membershipPackages, listingReports, singleConfig, emailConfig, emailLogs]);
+  }, [isHydrated, properties, usersList, paymentConfig, headerConfig, systemConfig, navMenuItems, transactions, vipPackages, membershipPackages, listingReports, singleConfig, emailConfig, emailLogs, appointmentsList, inAppNotifications]);
 
   // Background Auto-Approval Processor for Countdown Queues (VIP Vàng 15 phút, VIP Bạc 30 phút)
   useEffect(() => {
@@ -2413,6 +2435,70 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     showToast('Đã đăng xuất khỏi tài khoản!', 'info');
   };
 
+  // Đặt lịch hẹn xem nhà trực tiếp
+  const bookAppointment = async (appointmentData) => {
+    try {
+      const res = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(appointmentData)
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Không thể đặt lịch hẹn xem nhà.');
+      }
+      setAppointmentsList(prev => [data.appointment, ...prev.filter(a => a.id !== data.appointment.id)]);
+      return { success: true, appointment: data.appointment, notifications: data.notifications };
+    } catch (err) {
+      return { success: false, message: err.message };
+    }
+  };
+
+  // Cập nhật trạng thái lịch hẹn (pending, confirmed, completed, cancelled)
+  const updateAppointmentStatus = async (appointmentId, newStatus, adminNote = '') => {
+    try {
+      const res = await fetch(`/api/appointments/${appointmentId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus, adminNote })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Không thể cập nhật trạng thái lịch hẹn.');
+      }
+      setAppointmentsList(prev => prev.map(a => a.id === appointmentId ? data.appointment : a));
+      showToast('Đã cập nhật trạng thái lịch hẹn thành công!', 'success');
+      return { success: true, appointment: data.appointment };
+    } catch (err) {
+      showToast(err.message, 'error');
+      return { success: false, message: err.message };
+    }
+  };
+
+  // Xóa lịch hẹn xem nhà
+  const deleteAppointment = async (appointmentId) => {
+    try {
+      const res = await fetch(`/api/appointments/${appointmentId}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Không thể xóa lịch hẹn.');
+      }
+      setAppointmentsList(prev => prev.filter(a => a.id !== appointmentId));
+      showToast('Đã xóa lịch hẹn xem nhà thành công!', 'info');
+      return { success: true };
+    } catch (err) {
+      showToast(err.message, 'error');
+      return { success: false, message: err.message };
+    }
+  };
+
+  // Đánh dấu thông báo nội bộ đã đọc
+  const markNotificationAsRead = (notificationId) => {
+    setInAppNotifications(prev => prev.map(n => n.id === notificationId ? { ...n, isRead: true } : n));
+  };
+
   // Open property detail (default to dedicated single page)
   const openPropertyDetail = (property) => {
     navigateToProperty(property);
@@ -3008,7 +3094,13 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         verifySmtpConnection,
         refreshUsersListFromServer,
         activateUserManually,
-        resendUserVerificationEmail
+        resendUserVerificationEmail,
+        appointmentsList,
+        inAppNotifications,
+        bookAppointment,
+        updateAppointmentStatus,
+        deleteAppointment,
+        markNotificationAsRead
       }}
     >
       {children}

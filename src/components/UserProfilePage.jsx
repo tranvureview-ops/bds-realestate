@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
+import { normalizePhone } from '../utils/authValidation';
 
 export default function UserProfilePage() {
   const { 
@@ -12,10 +13,25 @@ export default function UserProfilePage() {
     setActiveModal, 
     setCurrentView, 
     properties, 
-    showToast 
+    showToast,
+    appointmentsList,
+    updateAppointmentStatus,
+    deleteAppointment,
+    navigateToProperty
   } = useRealEstate();
 
-  const [activeTab, setActiveTab] = useState('info'); // 'info', 'kyc', 'security', 'notifications'
+  const [activeTab, setActiveTab] = useState('info'); // 'info', 'kyc', 'security', 'notifications', 'appointments'
+  const [appointmentFilter, setAppointmentFilter] = useState('all'); // 'all', 'pending', 'confirmed', 'completed', 'cancelled'
+
+  // Notification toggles state (Email, Zalo, SMS, In-App)
+  const [notificationSettings, setNotificationSettings] = useState(() => ({
+    emailAppointment: currentUser?.notificationSettings?.emailAppointment !== false,
+    zaloAppointment: currentUser?.notificationSettings?.zaloAppointment !== false,
+    smsAppointment: currentUser?.notificationSettings?.smsAppointment !== false,
+    inAppAppointment: currentUser?.notificationSettings?.inAppAppointment !== false,
+    vipExpiryAlert: currentUser?.notificationSettings?.vipExpiryAlert !== false,
+    priceFluctuationAlert: currentUser?.notificationSettings?.priceFluctuationAlert !== false
+  }));
 
   // Profile Form state
   const [formData, setFormData] = useState({
@@ -56,9 +72,27 @@ export default function UserProfilePage() {
   // User's active listings
   const myListings = properties.filter(p => p.author && p.author.id === currentUser.id);
 
+  // Appointments for this user (either as broker or as customer)
+  const myAppointments = (appointmentsList || []).filter(a => {
+    const isBroker = (a.brokerId && String(a.brokerId) === String(currentUser.id)) ||
+                     (a.brokerPhone && normalizePhone(a.brokerPhone) === normalizePhone(currentUser.phone)) ||
+                     (a.brokerEmail && currentUser.email && a.brokerEmail.toLowerCase() === currentUser.email.toLowerCase());
+    const isCustomer = (a.customerId && String(a.customerId) === String(currentUser.id)) ||
+                       (a.customerPhone && normalizePhone(a.customerPhone) === normalizePhone(currentUser.phone));
+    return isBroker || isCustomer;
+  });
+
+  const pendingAppointmentsCount = myAppointments.filter(a => a.status === 'pending').length;
+
   const handleProfileSubmit = (e) => {
     e.preventDefault();
     updateUserProfile(formData);
+  };
+
+  const handleSaveNotificationSettings = (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    updateUserProfile({ notificationSettings });
+    showToast('Đã lưu tùy chọn thông báo (Email, Zalo, SMS) thành công!', 'success');
   };
 
   const handleKycSubmit = (e) => {
@@ -236,7 +270,32 @@ export default function UserProfilePage() {
             }`}
           >
             <i className="fa-solid fa-bell text-sm w-5 text-center"></i>
-            <span>Cài Đặt Thông Báo & SMS</span>
+            <span>Cài Đặt Thông Báo (Email/Zalo/SMS)</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('appointments')}
+            className={`w-full p-3 rounded-2xl transition flex items-center justify-between text-left ${
+              activeTab === 'appointments' ? 'bg-emerald-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <i className="fa-regular fa-calendar-check text-sm w-5 text-center"></i>
+              <span>Lịch Hẹn Xem Nhà</span>
+            </div>
+            {pendingAppointmentsCount > 0 ? (
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                activeTab === 'appointments' ? 'bg-white text-emerald-700' : 'bg-amber-500 text-white'
+              }`}>
+                {pendingAppointmentsCount} mới
+              </span>
+            ) : myAppointments.length > 0 ? (
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                activeTab === 'appointments' ? 'bg-white/30 text-white' : 'bg-slate-100 text-slate-600'
+              }`}>
+                {myAppointments.length}
+              </span>
+            ) : null}
           </button>
 
           <div className="pt-3 border-t border-slate-100 space-y-1">
@@ -524,45 +583,356 @@ export default function UserProfilePage() {
 
           {/* TAB 4: THÔNG BÁO */}
           {activeTab === 'notifications' && (
-            <div className="space-y-5 text-xs">
+            <form onSubmit={handleSaveNotificationSettings} className="space-y-5 text-xs">
               <div className="border-b border-slate-100 pb-3">
-                <h3 className="text-base font-black text-slate-900">Cài Đặt Nhận Thông Báo</h3>
-                <p className="text-slate-500 text-[11px] mt-0.5">Tùy chỉnh các kênh nhận tin tức và thông báo khách hàng liên hệ</p>
+                <h3 className="text-base font-black text-slate-900">Cài Đặt Kênh Nhận Thông Báo</h3>
+                <p className="text-slate-500 text-[11px] mt-0.5">Bật hoặc tắt các kênh nhận tin tức và thông báo khi có khách hàng đặt lịch hẹn xem nhà</p>
               </div>
 
               <div className="space-y-3">
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
-                  <div>
-                    <div className="font-bold text-slate-800">Thông báo có khách gửi yêu cầu hẹn xem nhà</div>
-                    <div className="text-[11px] text-slate-500">Gửi tin nhắn SMS & Email tức thì khi khách bấm nút hẹn xem nhà</div>
+                {/* 1. Kênh Email */}
+                <div className="p-4 bg-slate-50 hover:bg-slate-100/70 transition rounded-2xl border border-slate-200 flex items-center justify-between gap-4">
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-9 h-9 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center text-sm shrink-0">
+                      <i className="fa-solid fa-envelope"></i>
+                    </div>
+                    <div>
+                      <div className="font-bold text-slate-800 text-sm">Thông báo qua Email</div>
+                      <div className="text-[11px] text-slate-500 leading-relaxed">
+                        Gửi email chi tiết (thông tin khách, SĐT, giờ hẹn, BĐS) đến <strong>{currentUser.email || 'địa chỉ email của bạn'}</strong> ngay khi khách đặt lịch xem nhà.
+                      </div>
+                    </div>
                   </div>
-                  <input type="checkbox" defaultChecked className="w-5 h-5 text-emerald-600 rounded" />
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(notificationSettings.emailAppointment)}
+                      onChange={(e) => setNotificationSettings({ ...notificationSettings, emailAppointment: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                  </label>
                 </div>
 
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
+                {/* 2. Kênh Zalo */}
+                <div className="p-4 bg-slate-50 hover:bg-slate-100/70 transition rounded-2xl border border-slate-200 flex items-center justify-between gap-4">
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-9 h-9 rounded-xl bg-blue-500 text-white flex items-center justify-center text-sm shrink-0 font-black">
+                      Z
+                    </div>
+                    <div>
+                      <div className="font-bold text-slate-800 text-sm">Thông báo qua Zalo</div>
+                      <div className="text-[11px] text-slate-500 leading-relaxed">
+                        Tự động chuẩn bị liên kết nhắn tin Zalo tức thì và kích hoạt thông báo điều hướng chat nhanh với khách hàng đặt lịch.
+                      </div>
+                    </div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(notificationSettings.zaloAppointment)}
+                      onChange={(e) => setNotificationSettings({ ...notificationSettings, zaloAppointment: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                  </label>
+                </div>
+
+                {/* 3. Kênh Tin Nhắn SMS */}
+                <div className="p-4 bg-slate-50 hover:bg-slate-100/70 transition rounded-2xl border border-slate-200 flex items-center justify-between gap-4">
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-9 h-9 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center text-sm shrink-0">
+                      <i className="fa-solid fa-comment-sms"></i>
+                    </div>
+                    <div>
+                      <div className="font-bold text-slate-800 text-sm">Thông báo qua Tin Nhắn SMS</div>
+                      <div className="text-[11px] text-slate-500 leading-relaxed">
+                        Gửi tin nhắn SMS Brandname về số điện thoại <strong>{currentUser.phone || 'chính của bạn'}</strong> thông báo mã hẹn và số liên hệ của khách.
+                      </div>
+                    </div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(notificationSettings.smsAppointment)}
+                      onChange={(e) => setNotificationSettings({ ...notificationSettings, smsAppointment: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                  </label>
+                </div>
+
+                {/* 4. Kênh Chuông Thông Báo Website (In-App) */}
+                <div className="p-4 bg-slate-50 hover:bg-slate-100/70 transition rounded-2xl border border-slate-200 flex items-center justify-between gap-4">
+                  <div className="flex items-start gap-3.5">
+                    <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-sm shrink-0">
+                      <i className="fa-solid fa-bell"></i>
+                    </div>
+                    <div>
+                      <div className="font-bold text-slate-800 text-sm">Thông báo nội bộ trên Website</div>
+                      <div className="text-[11px] text-slate-500 leading-relaxed">
+                        Hiển thị quả chuông thông báo màu đỏ góc trên màn hình khi có khách đặt lịch hẹn mới hoặc cập nhật trạng thái.
+                      </div>
+                    </div>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(notificationSettings.inAppAppointment)}
+                      onChange={(e) => setNotificationSettings({ ...notificationSettings, inAppAppointment: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                  </label>
+                </div>
+
+                {/* 5. Nhắc nhở tin VIP */}
+                <div className="p-4 bg-slate-50 hover:bg-slate-100/70 transition rounded-2xl border border-slate-200 flex items-center justify-between gap-4">
                   <div>
                     <div className="font-bold text-slate-800">Nhắc nhở tin đăng VIP sắp hết hạn</div>
                     <div className="text-[11px] text-slate-500">Nhắc trước 24 giờ để gia hạn gói VIP hoặc đẩy tin top 1</div>
                   </div>
-                  <input type="checkbox" defaultChecked className="w-5 h-5 text-emerald-600 rounded" />
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(notificationSettings.vipExpiryAlert)}
+                      onChange={(e) => setNotificationSettings({ ...notificationSettings, vipExpiryAlert: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                  </label>
                 </div>
 
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
+                {/* 6. Biến động giá */}
+                <div className="p-4 bg-slate-50 hover:bg-slate-100/70 transition rounded-2xl border border-slate-200 flex items-center justify-between gap-4">
                   <div>
                     <div className="font-bold text-slate-800">Bản tin biến động giá BĐS khu vực quan tâm</div>
-                    <div className="text-[11px] text-slate-500">Cập nhật chỉ số giá đất, căn hộ hàng tuần từ hệ thống GIS Đất Biển Đà Nẵng</div>
+                    <div className="text-[11px] text-slate-500">Cập nhật chỉ số giá đất, căn hộ hàng tuần từ hệ thống dữ liệu thị trường</div>
                   </div>
-                  <input type="checkbox" defaultChecked className="w-5 h-5 text-emerald-600 rounded" />
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(notificationSettings.priceFluctuationAlert)}
+                      onChange={(e) => setNotificationSettings({ ...notificationSettings, priceFluctuationAlert: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                  </label>
                 </div>
               </div>
 
               <button
-                type="button"
-                onClick={() => showToast('Đã lưu cài đặt thông báo!', 'success')}
-                className="px-6 py-2.5 bg-emerald-600 text-white font-bold rounded-xl text-xs shadow-md"
+                type="submit"
+                className="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow-md transition flex items-center gap-2 cursor-pointer"
               >
-                Lưu Thiết Lập Thông Báo
+                <i className="fa-solid fa-floppy-disk"></i>
+                <span>Lưu Thiết Lập Kênh Thông Báo</span>
               </button>
+            </form>
+          )}
+
+          {/* TAB 5: LỊCH HẸN XEM NHÀ */}
+          {activeTab === 'appointments' && (
+            <div className="space-y-5 text-xs">
+              <div className="border-b border-slate-100 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+                    <span>Lịch Hẹn Xem Nhà Trực Tiếp</span>
+                    {myAppointments.length > 0 && (
+                      <span className="text-xs bg-slate-100 text-slate-700 font-bold px-2.5 py-0.5 rounded-full border border-slate-200">
+                        {myAppointments.length} lịch hẹn
+                      </span>
+                    )}
+                  </h3>
+                  <p className="text-slate-500 text-[11px] mt-0.5">
+                    Quản lý khách hẹn xem nhà cho bài đăng của bạn hoặc các cuộc hẹn bạn đã đặt
+                  </p>
+                </div>
+
+                {/* Filter Pills */}
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {[
+                    { id: 'all', label: 'Tất cả' },
+                    { id: 'pending', label: 'Chờ xác nhận' },
+                    { id: 'confirmed', label: 'Đã xác nhận' },
+                    { id: 'completed', label: 'Hoàn thành' },
+                    { id: 'cancelled', label: 'Đã hủy' }
+                  ].map(f => (
+                    <button
+                      key={f.id}
+                      type="button"
+                      onClick={() => setAppointmentFilter(f.id)}
+                      className={`px-3 py-1 rounded-lg text-[11px] font-bold transition ${
+                        appointmentFilter === f.id
+                          ? 'bg-emerald-600 text-white shadow-sm'
+                          : 'bg-slate-100 hover:bg-slate-200 text-slate-600'
+                      }`}
+                    >
+                      {f.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Appointment Items List */}
+              {myAppointments.filter(a => appointmentFilter === 'all' || a.status === appointmentFilter).length === 0 ? (
+                <div className="py-12 text-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 space-y-3">
+                  <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 mx-auto flex items-center justify-center text-xl">
+                    <i className="fa-regular fa-calendar-xmark"></i>
+                  </div>
+                  <div className="font-bold text-slate-700">Chưa có lịch hẹn xem nhà nào</div>
+                  <p className="text-slate-400 text-[11px] max-w-sm mx-auto">
+                    {appointmentFilter !== 'all'
+                      ? 'Không có lịch hẹn nào phù hợp với bộ lọc đã chọn.'
+                      : 'Khi có khách bấm nút "Đặt Lịch Hẹn Xem Nhà Trực Tiếp" trên bài đăng của bạn, thông tin sẽ hiển thị đầy đủ tại đây.'}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {myAppointments
+                    .filter(a => appointmentFilter === 'all' || a.status === appointmentFilter)
+                    .map(appt => {
+                      const isCustomer = (appt.customerId && String(appt.customerId) === String(currentUser.id)) ||
+                                         (appt.customerPhone && normalizePhone(appt.customerPhone) === normalizePhone(currentUser.phone));
+                      return (
+                        <div
+                          key={appt.id}
+                          className="p-5 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition space-y-4"
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                                  appt.status === 'pending' ? 'bg-amber-100 text-amber-800 border border-amber-200' :
+                                  appt.status === 'confirmed' ? 'bg-blue-100 text-blue-800 border border-blue-200' :
+                                  appt.status === 'completed' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' :
+                                  'bg-rose-100 text-rose-800 border border-rose-200'
+                                }`}>
+                                  {appt.status === 'pending' && '⏳ Chờ Xác Nhận'}
+                                  {appt.status === 'confirmed' && '✓ Đã Xác Nhận'}
+                                  {appt.status === 'completed' && '🎉 Đã Hoàn Thành'}
+                                  {appt.status === 'cancelled' && '✕ Đã Hủy'}
+                                </span>
+                                <span className="text-[11px] text-slate-400 font-mono">
+                                  #{appt.id}
+                                </span>
+                                {isCustomer && (
+                                  <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md font-semibold">
+                                    Cuộc hẹn của bạn
+                                  </span>
+                                )}
+                              </div>
+                              <h4 className="text-sm font-bold text-slate-900 hover:text-emerald-600 transition">
+                                {appt.propertyTitle}
+                              </h4>
+                              <div className="text-[11px] text-slate-500 flex flex-wrap items-center gap-3">
+                                <span>💰 <strong className="text-rose-600">{appt.propertyPrice}</strong></span>
+                                {appt.propertyAddress && <span>📍 {appt.propertyAddress}</span>}
+                              </div>
+                            </div>
+
+                            <div className="sm:text-right shrink-0">
+                              <div className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-100 inline-block">
+                                ⏰ {appt.appointmentDate}
+                              </div>
+                              <div className="text-[10px] text-slate-400 mt-1">
+                                Tạo lúc: {new Date(appt.createdAt).toLocaleString('vi-VN')}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Customer / Broker Details Box */}
+                          <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="space-y-0.5">
+                              <div className="text-[11px] text-slate-500 font-semibold uppercase">
+                                {isCustomer ? 'Môi giới phụ trách:' : 'Khách hàng đặt hẹn:'}
+                              </div>
+                              <div className="font-bold text-slate-900 text-xs">
+                                {isCustomer ? appt.brokerName : appt.customerName}
+                              </div>
+                              <div className="text-xs font-mono font-bold text-emerald-700">
+                                📞 {isCustomer ? (appt.brokerPhone || 'Chưa có SĐT') : appt.customerPhone}
+                              </div>
+                              {appt.customerNote && (
+                                <div className="text-[11px] text-slate-600 italic mt-1">
+                                  "{appt.customerNote}"
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Contact Action Buttons */}
+                            <div className="flex flex-wrap items-center gap-2">
+                              {/* Call Action */}
+                              <a
+                                href={`tel:${isCustomer ? appt.brokerPhone : appt.customerPhone}`}
+                                className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-bold text-[11px] transition flex items-center gap-1.5"
+                              >
+                                <i className="fa-solid fa-phone"></i>
+                                <span>Gọi Ngay</span>
+                              </a>
+
+                              {/* Zalo Action */}
+                              <a
+                                href={`https://zalo.me/${normalizePhone(isCustomer ? appt.brokerPhone : appt.customerPhone)}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-[11px] transition flex items-center gap-1.5"
+                              >
+                                <i className="fa-solid fa-comment-dots"></i>
+                                <span>Chat Zalo</span>
+                              </a>
+                            </div>
+                          </div>
+
+                          {/* Status Management Bar */}
+                          <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              {appt.status !== 'confirmed' && (
+                                <button
+                                  type="button"
+                                  onClick={() => updateAppointmentStatus(appt.id, 'confirmed')}
+                                  className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-lg text-[10.5px] font-bold border border-blue-200 transition"
+                                >
+                                  ✓ Đánh dấu đã xác nhận
+                                </button>
+                              )}
+                              {appt.status !== 'completed' && (
+                                <button
+                                  type="button"
+                                  onClick={() => updateAppointmentStatus(appt.id, 'completed')}
+                                  className="px-2.5 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-lg text-[10.5px] font-bold border border-emerald-200 transition"
+                                >
+                                  🎉 Đã hoàn thành buổi xem
+                                </button>
+                              )}
+                              {appt.status !== 'cancelled' && (
+                                <button
+                                  type="button"
+                                  onClick={() => updateAppointmentStatus(appt.id, 'cancelled')}
+                                  className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-[10.5px] font-bold transition"
+                                >
+                                  ✕ Hủy lịch
+                                </button>
+                              )}
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (confirm(`Bạn có chắc muốn xóa lịch hẹn #${appt.id} này?`)) {
+                                  deleteAppointment(appt.id);
+                                }
+                              }}
+                              className="text-slate-400 hover:text-rose-600 text-[11px] font-semibold transition"
+                            >
+                              <i className="fa-regular fa-trash-can mr-1"></i> Xóa
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+              )}
             </div>
           )}
 

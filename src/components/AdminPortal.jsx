@@ -5,6 +5,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { VIP_PACKAGES, MOCK_USERS, LOCATIONS } from '../data/mockData';
 import AdminReportsManager from './AdminReportsManager';
 import AdminSingleConfigManager from './AdminSingleConfigManager';
+import AdminAppointmentsManager from './AdminAppointmentsManager';
 
 export default function AdminPortal() {
   const { 
@@ -117,6 +118,14 @@ export default function AdminPortal() {
         >
           <i className="fa-solid fa-list-check"></i>
           Kiểm Duyệt Tin Đăng ({pendingProperties.length})
+        </button>
+
+        <button
+          onClick={() => setAdminTab('appointments')}
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 shrink-0 ${adminTab === 'appointments' ? 'bg-emerald-600 text-white shadow' : 'text-slate-600 hover:bg-slate-100'}`}
+        >
+          <i className="fa-regular fa-calendar-check text-emerald-500"></i>
+          Lịch Hẹn Xem Nhà
         </button>
 
         <button
@@ -877,6 +886,11 @@ export default function AdminPortal() {
       {/* TAB: CẤU HÌNH SINGLE & MIỄN TRỪ TRÁCH NHIỆM */}
       {adminTab === 'single-config' && (
         <AdminSingleConfigManager />
+      )}
+
+      {/* TAB: QUẢN LÝ LỊCH HẸN XEM NHÀ */}
+      {adminTab === 'appointments' && (
+        <AdminAppointmentsManager />
       )}
 
       {/* Reject Reason Modal */}

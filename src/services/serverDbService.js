@@ -212,3 +212,74 @@ export async function markPasswordResetTokenAsUsed(tokenString) {
   await persistDatabaseSlice('bds_password_reset_tokens', tokens);
   return tokenRecord;
 }
+
+/**
+ * Lấy toàn bộ danh sách lịch hẹn xem nhà từ cơ sở dữ liệu
+ * @returns {Promise<Array>} Danh sách lịch hẹn
+ */
+export async function getAllAppointments() {
+  const db = await getFullSystemDatabase();
+  return Array.isArray(db.bds_appointments) ? db.bds_appointments : [];
+}
+
+/**
+ * Lưu một lịch hẹn xem nhà mới vào cơ sở dữ liệu
+ * @param {Object} appointment Bản ghi lịch hẹn
+ * @returns {Promise<Object>} Lịch hẹn sau khi lưu
+ */
+export async function saveAppointment(appointment) {
+  const appointments = await getAllAppointments();
+  const updated = [appointment, ...appointments.filter(a => a.id !== appointment.id)];
+  await persistDatabaseSlice('bds_appointments', updated);
+  return appointment;
+}
+
+/**
+ * Cập nhật thông tin hoặc trạng thái lịch hẹn xem nhà
+ * @param {string} appointmentId ID lịch hẹn
+ * @param {Object} updates Các trường cần sửa (status, note, ...)
+ * @returns {Promise<Object|null>}
+ */
+export async function updateAppointmentById(appointmentId, updates) {
+  const appointments = await getAllAppointments();
+  const index = appointments.findIndex(a => a.id === appointmentId);
+  if (index === -1) return null;
+
+  const updatedAppointment = { ...appointments[index], ...updates, updatedAt: new Date().toISOString() };
+  appointments[index] = updatedAppointment;
+  await persistDatabaseSlice('bds_appointments', appointments);
+  return updatedAppointment;
+}
+
+/**
+ * Xóa một lịch hẹn xem nhà khỏi cơ sở dữ liệu
+ * @param {string} appointmentId ID lịch hẹn
+ * @returns {Promise<boolean>}
+ */
+export async function deleteAppointmentById(appointmentId) {
+  const appointments = await getAllAppointments();
+  const filtered = appointments.filter(a => a.id !== appointmentId);
+  await persistDatabaseSlice('bds_appointments', filtered);
+  return true;
+}
+
+/**
+ * Lấy danh sách thông báo hệ thống (In-app notifications)
+ * @returns {Promise<Array>}
+ */
+export async function getAllInAppNotifications() {
+  const db = await getFullSystemDatabase();
+  return Array.isArray(db.bds_notifications) ? db.bds_notifications : [];
+}
+
+/**
+ * Lưu thông báo mới vào hệ thống
+ * @param {Object} notification
+ * @returns {Promise<Object>}
+ */
+export async function saveInAppNotification(notification) {
+  const notifications = await getAllInAppNotifications();
+  const updated = [notification, ...notifications.slice(0, 99)];
+  await persistDatabaseSlice('bds_notifications', updated);
+  return notification;
+}
