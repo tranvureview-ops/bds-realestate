@@ -88,8 +88,8 @@ export default function HomePage() {
               <i className="fa-solid fa-plus-circle"></i>
             </div>
             <div>
-              <div className="font-bold text-sm text-slate-900 group-hover:text-red-600">Đăng Tin Chuẩn Sàn</div>
-              <div className="text-[11px] text-slate-500">Chuẩn Batdongsan.com.vn</div>
+              <div className="font-bold text-sm text-slate-900 group-hover:text-red-600">Đăng Tin Hiệu Quả</div>
+              <div className="text-[11px] text-slate-500">Phủ sóng sản phẩm, kết nối người mua</div>
             </div>
           </Link>
 

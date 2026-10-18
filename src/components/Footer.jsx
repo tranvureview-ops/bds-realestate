@@ -88,7 +88,7 @@ export default function Footer() {
               <li><Link to="/nha-dat-ban" className="hover:text-emerald-400 transition">Nhà Đất Cần Bán</Link></li>
               <li><Link to="/nha-dat-cho-thue" className="hover:text-emerald-400 transition">Cho Thuê Nhà Đất</Link></li>
               <li><Link to="/bang-gia-vip" className="hover:text-emerald-400 transition">Bảng Giá Gói Tin VIP</Link></li>
-              <li><Link to="/dang-tin" className="hover:text-emerald-400 transition">Đăng Tin Chuẩn Sàn</Link></li>
+              <li><Link to="/dang-tin" className="hover:text-emerald-400 transition">Đăng Tin Hiệu Quả</Link></li>
               <li><Link to="/tinh-lai-vay" className="hover:text-emerald-400 transition">Công Cụ Tính Lãi Vay</Link></li>
             </ul>
           </div>
