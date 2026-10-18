@@ -1,8 +1,16 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import ListingCard from './ListingCard';
-import InteractiveMap from './InteractiveMap';
+const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[750px] bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400">
+      <i className="fa-solid fa-spinner fa-spin text-2xl mr-2 text-emerald-600"></i> Đang tải bản đồ...
+    </div>
+  ),
+});
 import { VIP_PACKAGES } from '../data/mockData';
 import CustomSelect from './CustomSelect';
 

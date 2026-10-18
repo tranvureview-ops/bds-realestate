@@ -7,21 +7,23 @@ import { RealEstateProvider, useRealEstate } from '../context/RealEstateContext'
 import ErrorBoundary from '../components/ErrorBoundary';
 import { getFontConfig, applyFontToDom } from '../utils/fontConfig';
 
+import dynamic from 'next/dynamic';
+
 // Navigation & Layout
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import CompareDrawer from '../components/CompareDrawer';
-import LiveChatWidget from '../components/LiveChatWidget';
 import ToastNotification from '../components/ToastNotification';
 import MobileBottomNav from '../components/MobileBottomNav';
 
-// Global Modals
-import ListingDetailModal from '../components/ListingDetailModal';
-import PostListingModal from '../components/PostListingModal';
-import MortgageCalculatorModal from '../components/MortgageCalculatorModal';
-import CompareModal from '../components/CompareModal';
-import WalletDepositModal from '../components/WalletDepositModal';
-import AuthModal from '../components/AuthModal';
+// Lazy-loaded Widgets & Modals (On-demand Code Splitting to eliminate unused initial JS)
+const LiveChatWidget = dynamic(() => import('../components/LiveChatWidget'), { ssr: false });
+const AuthModal = dynamic(() => import('../components/AuthModal'), { ssr: false });
+const ListingDetailModal = dynamic(() => import('../components/ListingDetailModal'), { ssr: false });
+const PostListingModal = dynamic(() => import('../components/PostListingModal'), { ssr: false });
+const MortgageCalculatorModal = dynamic(() => import('../components/MortgageCalculatorModal'), { ssr: false });
+const CompareModal = dynamic(() => import('../components/CompareModal'), { ssr: false });
+const WalletDepositModal = dynamic(() => import('../components/WalletDepositModal'), { ssr: false });
 
 function AppContent({ children }) {
   const pathname = usePathname() || '/';

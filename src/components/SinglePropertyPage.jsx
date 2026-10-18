@@ -4,8 +4,16 @@ import React, { useState, useEffect } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link } from '../router/RouterContext';
 import { VIP_PACKAGES } from '../data/mockData';
+import dynamic from 'next/dynamic';
 import { getCategoryPermalink, toVietnameseSlug, buildFacetedUrl, buildKeywordCleanSlug, CITY_SLUGS, BATDONGSAN_TAXONOMY } from '../utils/permalink';
-import InteractiveMap from './InteractiveMap';
+const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[380px] bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400">
+      <i className="fa-solid fa-spinner fa-spin text-xl mr-2 text-emerald-600"></i> Đang tải bản đồ...
+    </div>
+  ),
+});
 import ListingCard from './ListingCard';
 import CustomSelect from './CustomSelect';
 import { findAdministrativeMerger, VIETNAM_ADMINISTRATIVE_DATA } from '../data/vietnamAdministrativeData';

@@ -112,6 +112,8 @@ export default async function RootLayout({ children }) {
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          crossOrigin="anonymous"
+          referrerPolicy="no-referrer"
         />
         {/* Leaflet CSS */}
         <link
@@ -122,12 +124,12 @@ export default async function RootLayout({ children }) {
         />
       </head>
       <body suppressHydrationWarning>
-        {/* Leaflet JS */}
+        {/* Leaflet JS (Lazy loaded on idle to eliminate render blocking) */}
         <Script
           src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
           integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
           crossOrigin=""
-          strategy="beforeInteractive"
+          strategy="lazyOnload"
         />
         <ClientLayout initialDb={initialDb} initialUser={initialUser}>{children}</ClientLayout>
       </body>

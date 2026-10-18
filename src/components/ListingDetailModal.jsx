@@ -2,8 +2,16 @@
 
 import React, { useState } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
+import dynamic from 'next/dynamic';
 import { VIP_PACKAGES } from '../data/mockData';
-import InteractiveMap from './InteractiveMap';
+const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[380px] bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400">
+      <i className="fa-solid fa-spinner fa-spin text-xl mr-2 text-emerald-600"></i> Đang tải bản đồ...
+    </div>
+  ),
+});
 
 export default function ListingDetailModal({ property, onClose }) {
   const { 
