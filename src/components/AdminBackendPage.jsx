@@ -14,6 +14,7 @@ import AdminHeaderConfigManager from './AdminHeaderConfigManager';
 import AdminMenuConfigManager from './AdminMenuConfigManager';
 import AdminAppointmentsManager from './AdminAppointmentsManager';
 import AdminTwoFactorScreen from './AdminTwoFactorScreen';
+import MaintenanceScreen from './MaintenanceScreen';
 import { AVAILABLE_FONTS, getFontConfig, applyFontToDom } from '../utils/fontConfig';
 
 export const VALID_ADMIN_TABS = [
@@ -541,12 +542,33 @@ export default function AdminBackendPage() {
   };
 
   const [isSavingSystem, setIsSavingSystem] = useState(false);
+  const [showPreviewMaintenance, setShowPreviewMaintenance] = useState(false);
+
+  const handleToggleMaintenanceInstant = async (enableState) => {
+    const updated = { ...formSystemConfig, maintenanceMode: enableState };
+    setFormSystemConfig(updated);
+    setIsSavingSystem(true);
+    try {
+      await updateSystemConfig(updated);
+      showToast(
+        enableState
+          ? 'Đã BẬT chế độ bảo trì hệ thống! Khách vãng lai và thành viên sẽ thấy màn hình thông báo bảo trì nâng cấp.'
+          : 'Đã TẮT chế độ bảo trì hệ thống! Website đã mở lại hoạt động bình thường.',
+        enableState ? 'warning' : 'success'
+      );
+    } catch (err) {
+      showToast('Có lỗi xảy ra khi cập nhật chế độ bảo trì!', 'error');
+    } finally {
+      setIsSavingSystem(false);
+    }
+  };
 
   const handleSaveSystemConfig = async (e) => {
     if (e?.preventDefault) e.preventDefault();
     setIsSavingSystem(true);
     try {
       await updateSystemConfig(formSystemConfig);
+      showToast('Đã lưu cấu hình hệ thống thành công!', 'success');
     } finally {
       setTimeout(() => setIsSavingSystem(false), 500);
     }
@@ -6214,22 +6236,64 @@ export default function AdminBackendPage() {
                       </div>
 
                       {/* Maintenance mode */}
-                      <label className="flex items-start gap-3 p-3.5 bg-rose-950/20 hover:bg-rose-950/30 rounded-2xl border border-rose-900/50 cursor-pointer transition">
-                        <input
-                          type="checkbox"
-                          checked={formSystemConfig.maintenanceMode === true}
-                          onChange={(e) => setFormSystemConfig(prev => ({ ...prev, maintenanceMode: e.target.checked }))}
-                          className="w-4 h-4 text-rose-500 rounded border-slate-700 bg-slate-800 focus:ring-rose-500 mt-0.5 shrink-0"
-                        />
-                        <div>
-                          <div className="font-bold text-rose-300 flex items-center gap-2">
-                            <span>Chế độ bảo trì hệ thống (Maintenance Mode)</span>
+                      <div className={`p-4 rounded-2xl border transition ${
+                        formSystemConfig.maintenanceMode 
+                          ? 'bg-rose-950/40 border-rose-500/80 shadow-lg shadow-rose-950/30' 
+                          : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
+                      }`}>
+                        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                          <label className="flex items-start gap-3 cursor-pointer select-none">
+                            <input
+                              type="checkbox"
+                              checked={formSystemConfig.maintenanceMode === true}
+                              onChange={(e) => setFormSystemConfig(prev => ({ ...prev, maintenanceMode: e.target.checked }))}
+                              className="w-5 h-5 text-rose-500 rounded border-slate-700 bg-slate-800 focus:ring-rose-500 mt-0.5 shrink-0"
+                            />
+                            <div>
+                              <div className="font-bold text-white flex flex-wrap items-center gap-2">
+                                <span>Chế độ bảo trì hệ thống (Maintenance Mode)</span>
+                                {formSystemConfig.maintenanceMode ? (
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500 text-white animate-pulse inline-flex items-center gap-1 shadow-sm">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                                    ĐANG BẬT BẢO TRÌ
+                                  </span>
+                                ) : (
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700">
+                                    ĐANG TẮT
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                                Chỉ mở giao diện cho tài khoản Ban Quản Trị (Admin), khách vãng lai và thành viên sẽ thấy thông báo bảo trì nâng cấp.
+                              </p>
+                            </div>
+                          </label>
+
+                          <div className="flex items-center gap-2 self-start lg:self-center shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => setShowPreviewMaintenance(true)}
+                              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold border border-slate-700 transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+                            >
+                              <i className="fa-solid fa-eye text-cyan-400"></i>
+                              <span>Xem trước giao diện</span>
+                            </button>
+                            <button
+                              type="button"
+                              disabled={isSavingSystem}
+                              onClick={() => handleToggleMaintenanceInstant(!formSystemConfig.maintenanceMode)}
+                              className={`px-3.5 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-md cursor-pointer ${
+                                formSystemConfig.maintenanceMode
+                                  ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:text-white'
+                                  : 'bg-rose-600 hover:bg-rose-700 text-white shadow-rose-900/40'
+                              }`}
+                            >
+                              <i className={`fa-solid ${formSystemConfig.maintenanceMode ? 'fa-power-off text-emerald-400' : 'fa-triangle-exclamation text-amber-300'}`}></i>
+                              <span>{formSystemConfig.maintenanceMode ? 'Tắt bảo trì ngay' : 'Bật bảo trì ngay'}</span>
+                            </button>
                           </div>
-                          <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                            Chỉ mở giao diện cho tài khoản Ban Quản Trị (Admin), khách vãng lai và thành viên sẽ thấy thông báo bảo trì nâng cấp.
-                          </p>
                         </div>
-                      </label>
+                      </div>
                     </div>
                   </div>
 
@@ -6620,6 +6684,16 @@ export default function AdminBackendPage() {
                       <div className="flex items-center justify-between">
                         <span>Thời hạn tin mặc định:</span>
                         <span className="font-bold text-white font-mono">{formSystemConfig.defaultListingDays || 15} ngày</span>
+                      </div>
+                      <div className="flex items-center justify-between pt-1 border-t border-slate-800">
+                        <span>Chế độ bảo trì hệ thống:</span>
+                        <span className={`font-bold px-2 py-0.5 rounded text-[10px] ${
+                          formSystemConfig.maintenanceMode 
+                            ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' 
+                            : 'bg-slate-800 text-slate-400 border border-slate-700'
+                        }`}>
+                          {formSystemConfig.maintenanceMode ? '🔴 Đang bật bảo trì' : '⚪ Đang tắt (Bình thường)'}
+                        </span>
                       </div>
                     </div>
 
@@ -8377,6 +8451,36 @@ export default function AdminBackendPage() {
                 setIs2FAModalOpen(false);
               }}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Modal Xem Trước Giao Diện Bảo Trì (Preview Maintenance Screen) */}
+      {showPreviewMaintenance && (
+        <div className="fixed inset-0 z-[110] bg-slate-950 flex flex-col overflow-y-auto animate-fadeIn">
+          {/* Top Control Bar for Preview */}
+          <div className="sticky top-0 z-50 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-6 py-3 flex items-center justify-between shadow-xl">
+            <div className="flex items-center gap-3">
+              <span className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></span>
+              <span className="text-xs font-bold text-white uppercase tracking-wider">
+                Chế độ xem trước giao diện: <span className="text-cyan-400 font-black">Khách vãng lai & Thành viên thấy gì khi bật bảo trì</span>
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShowPreviewMaintenance(false)}
+                className="px-4 py-1.5 bg-rose-600 hover:bg-rose-500 text-white font-bold rounded-xl text-xs transition flex items-center gap-2 cursor-pointer shadow-lg shadow-rose-950/50"
+              >
+                <i className="fa-solid fa-xmark"></i>
+                <span>Đóng Xem Trước</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Embedded Maintenance Screen */}
+          <div className="flex-1">
+            <MaintenanceScreen />
           </div>
         </div>
       )}

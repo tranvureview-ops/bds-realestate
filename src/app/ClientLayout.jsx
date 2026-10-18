@@ -24,10 +24,20 @@ const PostListingModal = dynamic(() => import('../components/PostListingModal'),
 const MortgageCalculatorModal = dynamic(() => import('../components/MortgageCalculatorModal'), { ssr: false });
 const CompareModal = dynamic(() => import('../components/CompareModal'), { ssr: false });
 const WalletDepositModal = dynamic(() => import('../components/WalletDepositModal'), { ssr: false });
+import MaintenanceScreen from '../components/MaintenanceScreen';
 
 function AppContent({ children }) {
   const pathname = usePathname() || '/';
-  const { activeModal, setActiveModal, selectedPropertyDetail, setSelectedPropertyDetail, systemConfig } = useRealEstate();
+  const { 
+    activeModal, 
+    setActiveModal, 
+    selectedPropertyDetail, 
+    setSelectedPropertyDetail, 
+    systemConfig,
+    updateSystemConfig,
+    currentUser,
+    showToast
+  } = useRealEstate();
 
   // Dynamic Font Family Real-time Synchronizer across all pages
   useEffect(() => {
@@ -35,7 +45,7 @@ function AppContent({ children }) {
     applyFontToDom(fontName);
   }, [systemConfig?.fontFamily]);
 
-  // If Admin CMS, render full-screen dark layout
+  // If Admin CMS, render full-screen dark layout (always accessible for admins)
   if (pathname.startsWith('/admin')) {
     return (
       <div className="min-h-screen bg-slate-900 font-sans text-slate-100 antialiased">
@@ -45,8 +55,49 @@ function AppContent({ children }) {
     );
   }
 
+  // Check Maintenance Mode
+  const isMaintenance = systemConfig?.maintenanceMode === true;
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.email === 'tranvu.review@gmail.com' || currentUser?.email === 'admin@gmail.com';
+
+  // If Maintenance Mode is active AND visitor is NOT an admin: show Maintenance Screen
+  if (isMaintenance && !isAdmin) {
+    return (
+      <>
+        <ToastNotification />
+        <MaintenanceScreen />
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 antialiased selection:bg-emerald-500 selection:text-white overflow-x-hidden w-full">
+      {/* Sticky Top Warning Banner if Admin is viewing site while Maintenance Mode is active */}
+      {isMaintenance && isAdmin && (
+        <div className="bg-gradient-to-r from-rose-800 via-amber-800 to-rose-800 text-white px-4 py-2.5 text-xs font-bold shadow-lg flex items-center justify-between sticky top-0 z-50 border-b border-rose-500">
+          <div className="max-w-7xl mx-auto w-full flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping shrink-0"></span>
+              <i className="fa-solid fa-triangle-exclamation text-amber-300 text-sm"></i>
+              <span>
+                <strong>CHẾ ĐỘ BẢO TRÌ ĐANG BẬT:</strong> Khách vãng lai và thành viên đang thấy thông báo bảo trì nâng cấp. Bạn đang xem giao diện với quyền Quản Trị Viên (Admin).
+              </span>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={async () => {
+                  await updateSystemConfig({ ...systemConfig, maintenanceMode: false });
+                  if (showToast) showToast('Đã tắt chế độ bảo trì hệ thống! Website đã mở lại bình thường cho toàn bộ người dùng.', 'success');
+                }}
+                className="px-3.5 py-1.5 bg-white hover:bg-emerald-50 text-slate-900 font-black rounded-lg text-xs shadow-md transition flex items-center gap-1.5 cursor-pointer"
+              >
+                <i className="fa-solid fa-power-off text-rose-600"></i>
+                <span>Tắt bảo trì ngay</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Toast Alert Notifications */}
       <ToastNotification />
 
