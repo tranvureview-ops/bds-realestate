@@ -13,6 +13,7 @@ import AdminMembershipManager from './AdminMembershipManager';
 import AdminHeaderConfigManager from './AdminHeaderConfigManager';
 import AdminMenuConfigManager from './AdminMenuConfigManager';
 import AdminAppointmentsManager from './AdminAppointmentsManager';
+import AdminTwoFactorScreen from './AdminTwoFactorScreen';
 import { AVAILABLE_FONTS, getFontConfig, applyFontToDom } from '../utils/fontConfig';
 
 export const VALID_ADMIN_TABS = [
@@ -143,6 +144,9 @@ export default function AdminBackendPage() {
     }
     return 'dashboard';
   });
+
+  // State hiển thị modal Cài đặt 2FA Google Authenticator
+  const [is2FAModalOpen, setIs2FAModalOpen] = useState(false);
 
   const setActiveMenu = useCallback((tab, subTab = null) => {
     let targetTab = tab;
@@ -2088,6 +2092,17 @@ export default function AdminBackendPage() {
               <span className="hidden sm:inline">Xem Sàn</span>
               <i className="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-500 hidden sm:inline-block"></i>
             </a>
+
+            {/* Quick Button: Quản lý 2FA Google Authenticator */}
+            <button
+              type="button"
+              onClick={() => setIs2FAModalOpen(true)}
+              className="px-2.5 sm:px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+              title="Cài đặt mã QR Google Authenticator (2FA)"
+            >
+              <i className="fa-solid fa-shield-halved text-emerald-400"></i>
+              <span className="hidden sm:inline">2FA: Google Auth</span>
+            </button>
 
             {/* Trung Tâm Thông Báo Ban Quản Trị (Notification Center) */}
             <div className="relative" ref={notificationRef}>
@@ -8300,6 +8315,25 @@ export default function AdminBackendPage() {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Cài Đặt / Quản Lý 2FA Google Authenticator */}
+      {is2FAModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
+          <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto">
+            <AdminTwoFactorScreen
+              adminUser={currentUser}
+              initialMode="setup"
+              onSuccess={() => {
+                showToast('Cập nhật xác thực 2FA thành công!', 'success');
+                setIs2FAModalOpen(false);
+              }}
+              onCancel={() => {
+                setIs2FAModalOpen(false);
+              }}
+            />
           </div>
         </div>
       )}

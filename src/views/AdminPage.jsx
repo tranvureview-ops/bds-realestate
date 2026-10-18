@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import AdminBackendPage from '../components/AdminBackendPage';
+import AdminTwoFactorScreen from '../components/AdminTwoFactorScreen';
 import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter } from '../router/RouterContext';
 
@@ -100,6 +101,14 @@ export default function AdminPage() {
   const [countdown, setCountdown] = useState(5);
   const isAdmin = isHydrated && currentUser?.role === 'admin';
 
+  // Kiểm tra xem phiên làm việc hiện tại của Admin đã xác thực 2FA Google Authenticator chưa
+  const [is2faVerified, setIs2faVerified] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('bds_admin_2fa_verified') === 'true';
+    }
+    return false;
+  });
+
   useEffect(() => {
     if (!isHydrated || currentUser?.role === 'admin') return;
     const timer = setInterval(() => {
@@ -126,5 +135,19 @@ export default function AdminPage() {
       />
     );
   }
+
+  // Nếu tài khoản là Admin nhưng chưa hoàn thành xác thực 2FA trong phiên này
+  if (!is2faVerified) {
+    return (
+      <AdminTwoFactorScreen
+        adminUser={currentUser}
+        onSuccess={() => {
+          setIs2faVerified(true);
+        }}
+        onCancel={() => navigate('/')}
+      />
+    );
+  }
+
   return <div className="min-h-screen bg-slate-900 text-slate-100 antialiased"><AdminBackendPage /></div>;
 }

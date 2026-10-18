@@ -2432,6 +2432,10 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     if (typeof document !== 'undefined') {
       document.cookie = `bds_session_user=guest; path=/; max-age=31536000; SameSite=Lax`;
     }
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      window.sessionStorage.removeItem('bds_admin_2fa_verified');
+      window.sessionStorage.removeItem('bds_admin_2fa_time');
+    }
     showToast('Đã đăng xuất khỏi tài khoản!', 'info');
   };
 

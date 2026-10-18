@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter, Link } from '../router/RouterContext';
+import AdminTwoFactorScreen from '../components/AdminTwoFactorScreen';
 
 export default function LoginPage() {
   const { loginUser, showToast, systemConfig } = useRealEstate();
@@ -13,6 +14,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [pending2FAUser, setPending2FAUser] = useState(null);
 
   const bonusAmount = Number(systemConfig?.welcomeBonusAmount || 100000);
   const enableWelcomeBonus = systemConfig?.enableWelcomeBonus !== false && bonusAmount > 0;
@@ -69,11 +71,29 @@ export default function LoginPage() {
     const loggedUser = await loginUser(identifier, password);
     setIsSubmitting(false);
     if (loggedUser) {
+      if (loggedUser.role === 'admin') {
+        // Tài khoản Admin bắt buộc phải xác thực / kích hoạt 2FA Google Authenticator
+        setPending2FAUser(loggedUser);
+        return;
+      }
       handlePostLoginRedirect(loggedUser);
     }
   };
 
   const isAdminRedirect = redirectUrl === '/admin' || redirectUrl.startsWith('/admin');
+
+  // Nếu tài khoản là Admin và cần xác thực 2FA
+  if (pending2FAUser) {
+    return (
+      <AdminTwoFactorScreen
+        adminUser={pending2FAUser}
+        onSuccess={() => {
+          handlePostLoginRedirect(pending2FAUser);
+        }}
+        onCancel={() => setPending2FAUser(null)}
+      />
+    );
+  }
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
