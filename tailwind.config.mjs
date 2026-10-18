@@ -6,7 +6,8 @@ const config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-custom-family)', 'Roboto', 'var(--font-plus-jakarta)', 'Plus Jakarta Sans', 'sans-serif'],
+        sans: ['var(--font-custom-family)', 'inherit', 'sans-serif'],
+        mono: ['var(--font-custom-family)', 'inherit', 'sans-serif'],
       },
       colors: {
         primary: {

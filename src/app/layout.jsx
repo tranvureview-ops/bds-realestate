@@ -100,10 +100,18 @@ export default async function RootLayout({ children }) {
             __html: `
               :root { --font-custom-family: ${fontConfig.fontFamily}; }
               html, body {
-                font-family: var(--font-custom-family, ${fontConfig.fontFamily});
+                font-family: var(--font-custom-family, ${fontConfig.fontFamily}) !important;
+                -webkit-font-smoothing: antialiased;
+                -moz-osx-font-smoothing: grayscale;
               }
-              button, input, select, textarea {
-                font-family: inherit;
+              button, input, select, textarea, optgroup, option, label {
+                font-family: inherit !important;
+              }
+              .font-mono, .font-sans {
+                font-family: var(--font-custom-family, ${fontConfig.fontFamily}) !important;
+              }
+              .font-mono {
+                font-variant-numeric: tabular-nums;
               }
             `
           }}

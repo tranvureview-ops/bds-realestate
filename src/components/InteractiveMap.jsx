@@ -87,7 +87,7 @@ export default function InteractiveMap({ properties, activePropertyId = null, he
 
           // Popup Content
           const popupHtml = `
-            <div style="width: 200px; font-family: sans-serif; cursor: pointer;" id="popup-${prop.id}">
+            <div style="width: 200px; font-family: inherit; cursor: pointer;" id="popup-${prop.id}">
               <img src="${prop.images[0]}" style="width: 100%; height: 110px; object-fit: cover; border-radius: 8px; margin-bottom: 6px;" />
               <div style="font-size: 11px; color: #ef4444; font-weight: bold; text-transform: uppercase;">${prop.vipPackageId === 'vip-diamond' ? 'VIP KIM CƯƠNG' : 'BẤT ĐỘNG SẢN'}</div>
               <div style="font-size: 13px; font-weight: bold; color: #0f172a; margin-bottom: 4px; line-height: 1.2; max-height: 32px; overflow: hidden;">${prop.title}</div>

@@ -133,9 +133,17 @@ export const applyFontToDom = (fontNameOrId) => {
     }
     html, body {
       font-family: var(--font-custom-family, ${fontObj.fontFamily}) !important;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
-    button, input, select, textarea {
+    button, input, select, textarea, optgroup, option, label {
       font-family: inherit !important;
+    }
+    .font-mono, .font-sans {
+      font-family: var(--font-custom-family, ${fontObj.fontFamily}) !important;
+    }
+    .font-mono {
+      font-variant-numeric: tabular-nums;
     }
   `;
 };
