@@ -61,6 +61,12 @@ export default function UserProfilePage() {
     newPassword: '',
     confirmNewPassword: ''
   });
+  const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // Avatar choices
   const AVATAR_PRESETS = [
@@ -107,18 +113,80 @@ export default function UserProfilePage() {
     submitKycVerification(kycForm);
   };
 
-  const handlePasswordSubmit = (e) => {
+  const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-    if (!passwordForm.newPassword || passwordForm.newPassword.length < 6) {
-      showToast('Mật khẩu mới cần ít nhất 6 ký tự', 'warning');
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    if (!passwordForm.currentPassword || !passwordForm.currentPassword.trim()) {
+      const msg = 'Vui lòng nhập mật khẩu hiện tại của bạn.';
+      setPasswordError(msg);
+      showToast(msg, 'warning');
+      return;
+    }
+    if (!passwordForm.newPassword || !passwordForm.newPassword.trim()) {
+      const msg = 'Vui lòng nhập mật khẩu mới.';
+      setPasswordError(msg);
+      showToast(msg, 'warning');
+      return;
+    }
+    if (passwordForm.newPassword.length < 8) {
+      const msg = 'Mật khẩu mới phải có tối thiểu 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt.';
+      setPasswordError(msg);
+      showToast(msg, 'warning');
       return;
     }
     if (passwordForm.newPassword !== passwordForm.confirmNewPassword) {
-      showToast('Xác nhận mật khẩu mới không khớp', 'error');
+      const msg = 'Xác nhận mật khẩu mới không khớp.';
+      setPasswordError(msg);
+      showToast(msg, 'error');
       return;
     }
-    showToast('Đổi mật khẩu thành công! Hãy đăng nhập lại bằng mật khẩu mới vào lần tới.', 'success');
-    setPasswordForm({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
+    if (passwordForm.currentPassword === passwordForm.newPassword) {
+      const msg = 'Mật khẩu mới không được trùng với mật khẩu hiện tại.';
+      setPasswordError(msg);
+      showToast(msg, 'warning');
+      return;
+    }
+
+    try {
+      setIsSubmittingPassword(true);
+      const res = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId: currentUser?.id,
+          email: currentUser?.email,
+          phone: currentUser?.phone,
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword,
+          confirmNewPassword: passwordForm.confirmNewPassword
+        })
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data.success) {
+        const errorMsg = data.message || 'Đổi mật khẩu thất bại. Vui lòng kiểm tra lại mật khẩu hiện tại!';
+        setPasswordError(errorMsg);
+        showToast(errorMsg, 'error');
+        return;
+      }
+
+      const successMsg = data.message || 'Đổi mật khẩu tài khoản thành công! Mật khẩu mới đã được cập nhật an toàn.';
+      setPasswordSuccess(successMsg);
+      showToast(successMsg, 'success');
+      setPasswordForm({ currentPassword: '', newPassword: '', confirmNewPassword: '' });
+    } catch (err) {
+      console.error('Lỗi khi gửi yêu cầu đổi mật khẩu:', err);
+      const errorMsg = 'Lỗi kết nối máy chủ khi đổi mật khẩu. Vui lòng thử lại sau.';
+      setPasswordError(errorMsg);
+      showToast(errorMsg, 'error');
+    } finally {
+      setIsSubmittingPassword(false);
+    }
   };
 
   return (
@@ -524,45 +592,113 @@ export default function UserProfilePage() {
             <form onSubmit={handlePasswordSubmit} className="space-y-5 text-xs">
               <div className="border-b border-slate-100 pb-3">
                 <h3 className="text-base font-black text-slate-900">Bảo Mật Tài Khoản & Mật Khẩu</h3>
-                <p className="text-slate-500 text-[11px] mt-0.5">Khuyến nghị đổi mật khẩu định kỳ 6 tháng một lần để bảo vệ an toàn số dư ví</p>
+                <p className="text-slate-500 text-[11px] mt-0.5">Khuyến nghị đổi mật khẩu định kỳ 6 tháng một lần để bảo vệ an toàn số dư ví và quyền quản lý tin đăng</p>
               </div>
+
+              {/* Banner thông báo lỗi nếu có */}
+              {passwordError && (
+                <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs flex items-start gap-2.5">
+                  <i className="fa-solid fa-circle-exclamation text-rose-500 mt-0.5 text-sm shrink-0"></i>
+                  <div className="font-semibold leading-relaxed">{passwordError}</div>
+                </div>
+              )}
+
+              {/* Banner thông báo thành công */}
+              {passwordSuccess && (
+                <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-start gap-2.5">
+                  <i className="fa-solid fa-circle-check text-emerald-600 mt-0.5 text-sm shrink-0"></i>
+                  <div className="font-semibold leading-relaxed">{passwordSuccess}</div>
+                </div>
+              )}
 
               <div>
                 <label className="block text-slate-700 font-bold mb-1 uppercase text-[11px]">Mật khẩu hiện tại:</label>
-                <input
-                  type="password"
-                  placeholder="Nhập mật khẩu cũ"
-                  value={passwordForm.currentPassword}
-                  onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900"
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type={showCurrentPassword ? 'text' : 'password'}
+                    placeholder="Nhập mật khẩu hiện tại đang dùng"
+                    value={passwordForm.currentPassword}
+                    onChange={(e) => {
+                      setPasswordForm({ ...passwordForm, currentPassword: e.target.value });
+                      if (passwordError) setPasswordError('');
+                    }}
+                    className="w-full px-3.5 py-2.5 pr-10 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-sm"
+                    title={showCurrentPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                  >
+                    <i className={`fa-solid ${showCurrentPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-slate-700 font-bold mb-1 uppercase text-[11px]">Mật khẩu mới:</label>
-                  <input
-                    type="password"
-                    placeholder="Tối thiểu 6 ký tự"
-                    value={passwordForm.newPassword}
-                    onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type={showNewPassword ? 'text' : 'password'}
+                      placeholder="Tối thiểu 8 ký tự (hoa, thường, số, ký tự đặc biệt)"
+                      value={passwordForm.newPassword}
+                      onChange={(e) => {
+                        setPasswordForm({ ...passwordForm, newPassword: e.target.value });
+                        if (passwordError) setPasswordError('');
+                      }}
+                      className="w-full px-3.5 py-2.5 pr-10 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-sm"
+                      title={showNewPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                    >
+                      <i className={`fa-solid ${showNewPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                    </button>
+                  </div>
                 </div>
 
                 <div>
                   <label className="block text-slate-700 font-bold mb-1 uppercase text-[11px]">Xác nhận mật khẩu mới:</label>
-                  <input
-                    type="password"
-                    placeholder="Nhập lại mật khẩu mới"
-                    value={passwordForm.confirmNewPassword}
-                    onChange={(e) => setPasswordForm({ ...passwordForm, confirmNewPassword: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900"
-                    required
-                  />
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      placeholder="Nhập lại mật khẩu mới vừa đặt"
+                      value={passwordForm.confirmNewPassword}
+                      onChange={(e) => {
+                        setPasswordForm({ ...passwordForm, confirmNewPassword: e.target.value });
+                        if (passwordError) setPasswordError('');
+                      }}
+                      className="w-full px-3.5 py-2.5 pr-10 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-900 focus:bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-sm"
+                      title={showConfirmPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                    >
+                      <i className={`fa-solid ${showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                    </button>
+                  </div>
                 </div>
+              </div>
+
+              {/* Hướng dẫn tiêu chuẩn mật khẩu an toàn */}
+              <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200">
+                <div className="font-bold text-slate-700 mb-1 flex items-center gap-1.5">
+                  <i className="fa-solid fa-shield-halved text-emerald-600"></i>
+                  <span>Yêu cầu tiêu chuẩn bảo mật cho mật khẩu mới:</span>
+                </div>
+                <ul className="text-[11px] text-slate-500 list-disc list-inside space-y-0.5 leading-relaxed">
+                  <li>Độ dài tối thiểu từ <strong>8 ký tự</strong> trở lên.</li>
+                  <li>Bao gồm đồng thời: chữ in hoa (A-Z), chữ thường (a-z), chữ số (0-9) và ký tự đặc biệt (@, #, $, %, v.v.).</li>
+                  <li>Không trùng khớp với mật khẩu cũ đang sử dụng.</li>
+                </ul>
               </div>
 
               {/* 2FA setting */}
@@ -576,10 +712,22 @@ export default function UserProfilePage() {
 
               <button
                 type="submit"
-                className="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs shadow-md transition flex items-center gap-2"
+                disabled={isSubmittingPassword}
+                className={`px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs shadow-md transition flex items-center gap-2 ${
+                  isSubmittingPassword ? 'opacity-70 cursor-not-allowed' : ''
+                }`}
               >
-                <i className="fa-solid fa-key"></i>
-                <span>Cập Nhật Mật Khẩu Mới</span>
+                {isSubmittingPassword ? (
+                  <>
+                    <i className="fa-solid fa-circle-notch fa-spin"></i>
+                    <span>Đang xác thực & lưu mật khẩu...</span>
+                  </>
+                ) : (
+                  <>
+                    <i className="fa-solid fa-key"></i>
+                    <span>Cập Nhật Mật Khẩu Mới</span>
+                  </>
+                )}
               </button>
             </form>
           )}
