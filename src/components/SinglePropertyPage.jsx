@@ -1258,96 +1258,6 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   ))}
                 </div>
               </div>
-
-              {/* BỘ ĐIỀU HƯỚNG ĐA DIỆN (FACETED TAXONOMY NAVIGATION) */}
-              <div className="pt-4 border-t border-slate-100 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                    <i className="fa-solid fa-sitemap text-emerald-600 text-xs"></i>
-                    Điều Hướng Danh Mục & Khu Vực Liên Quan (Faceted Navigation)
-                  </div>
-                  <span className="text-[11px] text-slate-400 hidden sm:inline">Chuẩn sàn Batdongsan.com.vn</span>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-                  {/* Cột 1: Khu vực lân cận */}
-                  {neighboringDistricts.length > 0 && (
-                    <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2.5">
-                      <div className="font-extrabold text-slate-800 flex items-center gap-1.5 text-[11px] uppercase tracking-wide">
-                        <i className="fa-solid fa-location-dot text-emerald-600"></i>
-                        <span>Quận / Huyện tại {property.city}</span>
-                      </div>
-                      <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
-                        {neighboringDistricts.map((nd, idx) => (
-                          <Link
-                            key={idx}
-                            to={nd.url}
-                            className={`flex items-center justify-between p-1.5 rounded-lg transition ${
-                              nd.name.toLowerCase().includes((property.district || '').toLowerCase().replace(/^(quận|huyện|thị xã|tp\.)\s+/i, ''))
-                                ? 'bg-emerald-100 text-emerald-900 font-bold'
-                                : 'hover:bg-white text-slate-600 hover:text-emerald-700'
-                            }`}
-                          >
-                            <span className="truncate">{nd.name}</span>
-                            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-slate-500 font-semibold shrink-0">
-                              {nd.count} tin
-                            </span>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Cột 2: Loại hình BĐS tại quận */}
-                  <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2.5">
-                    <div className="font-extrabold text-slate-800 flex items-center gap-1.5 text-[11px] uppercase tracking-wide">
-                      <i className="fa-solid fa-building text-blue-600"></i>
-                      <span>Loại hình tại {property.district}</span>
-                    </div>
-                    <div className="space-y-1.5">
-                      {propertyTypesInDistrict.map((pt, idx) => (
-                        <Link
-                          key={idx}
-                          to={pt.url}
-                          className={`flex items-center justify-between p-1.5 rounded-lg transition ${
-                            property.propertyType === pt.key
-                              ? 'bg-blue-100 text-blue-900 font-bold'
-                              : 'hover:bg-white text-slate-600 hover:text-blue-700'
-                          }`}
-                        >
-                          <span className="truncate flex items-center gap-1.5">
-                            <i className={`fa-solid ${pt.icon} text-[10px] text-slate-400`}></i>
-                            {pt.name}
-                          </span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-slate-500 font-semibold shrink-0">
-                            {pt.count} tin
-                          </span>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Cột 3: Khoảng giá tại quận */}
-                  <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2.5">
-                    <div className="font-extrabold text-slate-800 flex items-center gap-1.5 text-[11px] uppercase tracking-wide">
-                      <i className="fa-solid fa-tag text-rose-600"></i>
-                      <span>Mức giá tại {property.district}</span>
-                    </div>
-                    <div className="space-y-1.5">
-                      {priceRangesInDistrict.map((pr, idx) => (
-                        <Link
-                          key={idx}
-                          to={pr.url}
-                          className="flex items-center justify-between p-1.5 rounded-lg hover:bg-white text-slate-600 hover:text-rose-700 transition"
-                        >
-                          <span className="truncate">{demandText} nhà {pr.label}</span>
-                          <i className="fa-solid fa-arrow-right text-[9px] text-slate-300"></i>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
           )}
 
@@ -1699,6 +1609,98 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             <p className="text-[11px] text-amber-800/90 leading-relaxed">
               Mọi tin đăng trên sàn đều được kiểm tra địa chỉ thực tế. Tuyệt đối không đặt cọc hoặc chuyển khoản trước khi kiểm tra sổ đỏ/hồng bản gốc tại văn phòng công chứng.
             </p>
+          </div>
+
+          {/* BỘ ĐIỀU HƯỚNG ĐA DIỆN (FACETED TAXONOMY NAVIGATION) TRÊN SIDEBAR */}
+          <div className="bg-white rounded-3xl p-5 border border-slate-200 shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <i className="fa-solid fa-sitemap text-emerald-600 text-sm"></i>
+                <span>Điều Hướng Danh Mục & Khu Vực</span>
+              </div>
+              <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold border border-emerald-200 hidden sm:inline">
+                Chuẩn sàn
+              </span>
+            </div>
+
+            <div className="space-y-3.5 text-xs">
+              {/* Mục 1: Quận / Huyện lân cận */}
+              {neighboringDistricts.length > 0 && (
+                <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                  <div className="font-extrabold text-slate-800 flex items-center gap-1.5 text-[11px] uppercase tracking-wide">
+                    <i className="fa-solid fa-location-dot text-emerald-600"></i>
+                    <span>Quận / Huyện tại {property.city}</span>
+                  </div>
+                  <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                    {neighboringDistricts.map((nd, idx) => (
+                      <Link
+                        key={idx}
+                        to={nd.url}
+                        className={`flex items-center justify-between p-1.5 rounded-lg transition ${
+                          nd.name.toLowerCase().includes((property.district || '').toLowerCase().replace(/^(quận|huyện|thị xã|tp\.)\s+/i, ''))
+                            ? 'bg-emerald-100 text-emerald-900 font-bold'
+                            : 'hover:bg-white text-slate-600 hover:text-emerald-700'
+                        }`}
+                      >
+                        <span className="truncate">{nd.name}</span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-slate-500 font-semibold shrink-0">
+                          {nd.count} tin
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Mục 2: Loại hình BĐS tại quận */}
+              <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                <div className="font-extrabold text-slate-800 flex items-center gap-1.5 text-[11px] uppercase tracking-wide">
+                  <i className="fa-solid fa-building text-blue-600"></i>
+                  <span>Loại hình tại {property.district}</span>
+                </div>
+                <div className="space-y-1.5">
+                  {propertyTypesInDistrict.map((pt, idx) => (
+                    <Link
+                      key={idx}
+                      to={pt.url}
+                      className={`flex items-center justify-between p-1.5 rounded-lg transition ${
+                        property.propertyType === pt.key
+                          ? 'bg-blue-100 text-blue-900 font-bold'
+                          : 'hover:bg-white text-slate-600 hover:text-blue-700'
+                      }`}
+                    >
+                      <span className="truncate flex items-center gap-1.5">
+                        <i className={`fa-solid ${pt.icon} text-[10px] text-slate-400`}></i>
+                        {pt.name}
+                      </span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-slate-500 font-semibold shrink-0">
+                        {pt.count} tin
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Mục 3: Khoảng giá tại quận */}
+              <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
+                <div className="font-extrabold text-slate-800 flex items-center gap-1.5 text-[11px] uppercase tracking-wide">
+                  <i className="fa-solid fa-tag text-rose-600"></i>
+                  <span>Mức giá tại {property.district}</span>
+                </div>
+                <div className="space-y-1.5">
+                  {priceRangesInDistrict.map((pr, idx) => (
+                    <Link
+                      key={idx}
+                      to={pr.url}
+                      className="flex items-center justify-between p-1.5 rounded-lg hover:bg-white text-slate-600 hover:text-rose-700 transition"
+                    >
+                      <span className="truncate">{demandText} nhà {pr.label}</span>
+                      <i className="fa-solid fa-arrow-right text-[9px] text-slate-300"></i>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
 
         </div>
