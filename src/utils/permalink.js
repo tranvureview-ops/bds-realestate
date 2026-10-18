@@ -73,12 +73,60 @@ export const SLUG_TO_CITY = {
   'binh-duong': 'Bình Dương'
 };
 
+// Bảng ánh xạ Quận/Huyện sang Tỉnh/Thành phố chuẩn hỗ trợ Clean Slug SEO
+export const DISTRICT_MAP = {
+  'ba-dinh': { name: 'Quận Ba Đình', city: 'Hà Nội' },
+  'cau-giay': { name: 'Quận Cầu Giấy', city: 'Hà Nội' },
+  'dong-da': { name: 'Quận Đống Đa', city: 'Hà Nội' },
+  'hoan-kiem': { name: 'Quận Hoàn Kiếm', city: 'Hà Nội' },
+  'tay-ho': { name: 'Quận Tây Hồ', city: 'Hà Nội' },
+  'hai-ba-trung': { name: 'Quận Hai Bà Trưng', city: 'Hà Nội' },
+  'thanh-xuan': { name: 'Quận Thanh Xuân', city: 'Hà Nội' },
+  'hoang-mai': { name: 'Quận Hoàng Mai', city: 'Hà Nội' },
+  'long-bien': { name: 'Quận Long Biên', city: 'Hà Nội' },
+  'nam-tu-liem': { name: 'Quận Nam Từ Liêm', city: 'Hà Nội' },
+  'bac-tu-liem': { name: 'Quận Bắc Từ Liêm', city: 'Hà Nội' },
+  'ha-dong': { name: 'Quận Hà Đông', city: 'Hà Nội' },
+  'tan-phu': { name: 'Quận Tân Phú', city: 'TP. Hồ Chí Minh' },
+  'binh-thanh': { name: 'Quận Bình Thạnh', city: 'TP. Hồ Chí Minh' },
+  'thu-duc': { name: 'TP. Thủ Đức', city: 'TP. Hồ Chí Minh' },
+  'quan-1': { name: 'Quận 1', city: 'TP. Hồ Chí Minh' },
+  'quan-2': { name: 'Quận 2', city: 'TP. Hồ Chí Minh' },
+  'quan-3': { name: 'Quận 3', city: 'TP. Hồ Chí Minh' },
+  'quan-4': { name: 'Quận 4', city: 'TP. Hồ Chí Minh' },
+  'quan-5': { name: 'Quận 5', city: 'TP. Hồ Chí Minh' },
+  'quan-7': { name: 'Quận 7', city: 'TP. Hồ Chí Minh' },
+  'quan-10': { name: 'Quận 10', city: 'TP. Hồ Chí Minh' },
+  'tan-binh': { name: 'Quận Tân Bình', city: 'TP. Hồ Chí Minh' },
+  'go-vap': { name: 'Quận Gò Vấp', city: 'TP. Hồ Chí Minh' },
+  'binh-chanh': { name: 'Huyện Bình Chánh', city: 'TP. Hồ Chí Minh' },
+  'nha-be': { name: 'Huyện Nhà Bè', city: 'TP. Hồ Chí Minh' },
+  'ngu-hanh-son': { name: 'Quận Ngũ Hành Sơn', city: 'Đà Nẵng' },
+  'son-tra': { name: 'Quận Sơn Trà', city: 'Đà Nẵng' },
+  'hai-chau': { name: 'Quận Hải Châu', city: 'Đà Nẵng' },
+  'lien-chieu': { name: 'Quận Liên Chiểu', city: 'Đà Nẵng' },
+  'di-an': { name: 'TP. Dĩ An', city: 'Bình Dương' },
+  'thuan-an': { name: 'TP. Thuận An', city: 'Bình Dương' },
+  'thu-dau-mot': { name: 'TP. Thủ Dầu Một', city: 'Bình Dương' }
+};
+
 /**
- * Phân tích URL danh mục (Taxonomy URL) theo chuẩn Batdongsan.com.vn
+ * Chuyển đổi chuỗi cụm từ khóa thành Clean Slug URL chuẩn SEO (Không chứa query parameters)
+ * Ví dụ: "Bán căn hộ chung cư Celadon City từ 80 m2 đến 100 m2"
+ *        -> "/ban-can-ho-chung-cu-celadon-city-tu-80-m2-den-100-m2"
+ */
+export const buildKeywordCleanSlug = (text) => {
+  if (!text) return '/nha-dat-ban';
+  const clean = toVietnameseSlug(text);
+  return clean ? `/${clean}` : '/nha-dat-ban';
+};
+
+/**
+ * Phân tích URL danh mục (Taxonomy URL) theo chuẩn Batdongsan.com.vn & Clean Slug SEO URLs
  * Ví dụ:
  * - /ban-can-ho-chung-cu-ha-noi -> { isTaxonomy: true, demand: 'sale', propertyType: 'apartment', city: 'Hà Nội', ... }
- * - /nha-dat-cho-thue-tp-hcm -> { isTaxonomy: true, demand: 'rent', propertyType: 'all', city: 'TP. Hồ Chí Minh', ... }
- * - /cho-thue-van-phong -> { isTaxonomy: true, demand: 'rent', propertyType: 'office', city: '', ... }
+ * - /ban-can-ho-chung-cu-duong-n1-tan-phu -> { isTaxonomy: true, demand: 'sale', propertyType: 'apartment', district: 'Quận Tân Phú', keyword: 'n1', ... }
+ * - /ban-nha-rieng-quan-ba-dinh-tu-3-ty-den-5-ty -> { isTaxonomy: true, demand: 'sale', propertyType: 'house', district: 'Quận Ba Đình', priceRange: '2b-5b', ... }
  */
 export const parseTaxonomyUrl = (urlPath) => {
   if (!urlPath) return { isTaxonomy: false };
@@ -148,6 +196,128 @@ export const parseTaxonomyUrl = (urlPath) => {
         }
       }
     }
+  }
+
+  // 3. Phân tích Clean Slug URL mở rộng (Faceted Keyword & Taxonomy Clean Slugs)
+  if (clean.startsWith('/ban-') || clean.startsWith('/cho-thue-') || clean.startsWith('/nha-dat-')) {
+    const raw = clean.slice(1); // bỏ dấu /
+
+    // A. Demand
+    const isRent = raw.startsWith('cho-thue-') || raw.startsWith('nha-dat-cho-thue');
+    const demand = isRent ? 'rent' : 'sale';
+
+    // B. PropertyType
+    let propertyType = 'all';
+    if (raw.includes('can-ho-chung-cu') || raw.includes('chung-cu')) propertyType = 'apartment';
+    else if (raw.includes('nha-mat-pho')) propertyType = 'street-house';
+    else if (raw.includes('nha-biet-thu') || raw.includes('biet-thu')) propertyType = 'villa';
+    else if (raw.includes('dat-nen') || raw.includes('du-an')) propertyType = 'land';
+    else if (raw.includes('shophouse')) propertyType = 'shophouse';
+    else if (raw.includes('van-phong')) propertyType = 'office';
+    else if (raw.includes('nha-rieng')) propertyType = 'house';
+
+    // C. Thành phố & Quận/Huyện
+    let city = '';
+    let district = '';
+
+    if (raw.includes('ho-chi-minh') || raw.includes('tp-hcm') || raw.includes('hcm')) {
+      city = 'TP. Hồ Chí Minh';
+    } else if (raw.includes('ha-noi')) {
+      city = 'Hà Nội';
+    } else if (raw.includes('da-nang')) {
+      city = 'Đà Nẵng';
+    } else if (raw.includes('binh-duong')) {
+      city = 'Bình Dương';
+    }
+
+    // Đối chiếu các quận huyện
+    for (const [dSlug, dInfo] of Object.entries(DISTRICT_MAP)) {
+      if (raw.includes(dSlug) || raw.includes(`quan-${dSlug}`) || raw.includes(`huyen-${dSlug}`)) {
+        district = dInfo.name;
+        if (!city) city = dInfo.city;
+        break;
+      }
+    }
+
+    // D. Số phòng ngủ (PN)
+    let bedroom = 'all';
+    const bedMatch = raw.match(/([1-9])\s*-?pn/);
+    if (bedMatch) bedroom = bedMatch[1];
+
+    // E. Khoảng giá (Pricing Tier)
+    let priceRange = 'all';
+    const priceMatch = raw.match(/tu-([0-9]+)-ty-den-([0-9]+)-ty/);
+    if (priceMatch) {
+      const maxVal = parseInt(priceMatch[2], 10);
+      if (maxVal <= 2) priceRange = 'under-2b';
+      else if (maxVal <= 5) priceRange = '2b-5b';
+      else if (maxVal <= 10) priceRange = '5b-10b';
+      else if (maxVal <= 30) priceRange = '10b-30b';
+      else priceRange = 'over-30b';
+    } else if (raw.includes('gia-re') || raw.includes('duoi-2-ty')) {
+      priceRange = 'under-2b';
+    }
+
+    // F. Diện tích (Area Range)
+    let areaRange = 'all';
+    const areaMatch = raw.match(/tu-([0-9]+)-m2-den-([0-9]+)-m2/);
+    if (areaMatch) {
+      const maxArea = parseInt(areaMatch[2], 10);
+      if (maxArea <= 50) areaRange = 'under-50';
+      else if (maxArea <= 100) areaRange = '50-100';
+      else if (maxArea <= 200) areaRange = '100-200';
+      else areaRange = 'over-200';
+    }
+
+    // G. Tiện ích & Từ khóa đặc biệt
+    let keyword = '';
+    if (raw.includes('full-noi-that')) {
+      keyword = 'full nội thất';
+    } else if (raw.includes('co-ban-cong') || raw.includes('ban-cong')) {
+      keyword = 'ban công';
+    } else if (raw.includes('so-do') || raw.includes('so-hong')) {
+      keyword = 'sổ đỏ';
+    } else if (raw.includes('celadon-city')) {
+      keyword = 'Celadon City';
+    } else if (raw.includes('goldmark-city')) {
+      keyword = 'Goldmark City';
+    } else if (raw.includes('vinhomes')) {
+      keyword = 'Vinhomes';
+    } else if (raw.includes('duong-')) {
+      const streetMatch = raw.match(/duong-([a-z0-9-]+?)(?:-(?:quan|phuong|ha-noi|tp-hcm|ho-chi-minh|$))/);
+      if (streetMatch) {
+        keyword = streetMatch[1].replace(/-/g, ' ');
+      }
+    }
+
+    // H. Phường
+    let ward = '';
+    const wardMatch = raw.match(/phuong-([a-z0-9-]+?)(?:-(?:quan|ha-noi|tp-hcm|ho-chi-minh|$))/);
+    if (wardMatch) {
+      ward = 'Phường ' + wardMatch[1].replace(/-/g, ' ');
+    }
+
+    // Sinh Title SEO chuẩn
+    let title = raw
+      .replace(/-/g, ' ')
+      .replace(/^(ban|cho thue)\s+/i, (m) => m.charAt(0).toUpperCase() + m.slice(1).toLowerCase());
+    title = title.charAt(0).toUpperCase() + title.slice(1);
+
+    return {
+      isTaxonomy: true,
+      isFacetedCleanSlug: true,
+      demand,
+      propertyType,
+      city,
+      district,
+      ward,
+      bedroom,
+      priceRange,
+      areaRange,
+      keyword,
+      title,
+      canonicalUrl: clean
+    };
   }
 
   return { isTaxonomy: false };

@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link } from '../router/RouterContext';
 import { VIP_PACKAGES } from '../data/mockData';
-import { getCategoryPermalink, toVietnameseSlug, buildFacetedUrl, CITY_SLUGS, BATDONGSAN_TAXONOMY } from '../utils/permalink';
+import { getCategoryPermalink, toVietnameseSlug, buildFacetedUrl, buildKeywordCleanSlug, CITY_SLUGS, BATDONGSAN_TAXONOMY } from '../utils/permalink';
 import InteractiveMap from './InteractiveMap';
 import ListingCard from './ListingCard';
 import CustomSelect from './CustomSelect';
@@ -374,7 +374,20 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     }
   }
 
-  // TỔNG HỢP CÁC CỤM TỪ KHÓA THEO 3 NHÓM CÔNG THỨC SEO CHUẨN:
+  // CHUẨN BỊ NỘI DUNG TỪ KHÓA THEO 6 CÔNG THỨC SEO CHUẨN
+  const formula1Text = cleanProject 
+    ? `${demandText} ${typeText} ${cleanProject} từ ${areaMin} m2 đến ${areaMax} m2`
+    : `${demandText} ${typeText} ${districtName} từ ${areaMin} m2 đến ${areaMax} m2`;
+  const formula2Text = `${demandText} ${typeText} Đường ${cleanStreet} ${districtName}`;
+  const formula3Text = `${demandText} ${typeText} phường ${cleanWard} ${districtName}`;
+  const formula4CityText = `${demandText} ${typeText} ${cityName} ${bedroomCount} PN`;
+  const formula4DistrictText = `${demandText} ${typeText} ${districtName} ${bedroomCount} PN`;
+  const formula5FurnitureText = `${demandText} ${typeText} ${districtName} full nội thất`;
+  const formula5BalconyText = `${demandText} ${typeText} ${districtName} có ban công`;
+  const formula6CityText = `${demandText} ${typeText} ${cityName} từ ${priceMinText} đến ${priceMaxText}`;
+  const formula6DistrictText = `${demandText} ${typeText} ${districtName} từ ${priceMinText} đến ${priceMaxText}`;
+
+  // TỔNG HỢP CÁC CỤM TỪ KHÓA THEO 3 NHÓM CÔNG THỨC SEO CHUẨN (CLEAN SLUG URLS):
   const seoFormulaKeywords = [
     // -------------------------------------------------------------
     // NHÓM 1: CÔNG THỨC GHÉP THEO VỊ TRÍ & ĐỊA LÝ (Location-based)
@@ -384,47 +397,27 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
       group: 'location',
       groupName: 'Vị trí & Địa lý',
       formula: 'Công thức 1: Dự án & Diện tích',
-      text: cleanProject 
-        ? `${demandText} ${typeText} ${cleanProject} từ ${areaMin} m2 đến ${areaMax} m2`
-        : `${demandText} ${typeText} ${districtName} từ ${areaMin} m2 đến ${areaMax} m2`,
+      text: formula1Text,
       badge: `${areaMin} - ${areaMax} m²`,
-      url: buildFacetedUrl({
-        demand: property.demand,
-        propertyType: property.propertyType,
-        city: cityName,
-        district: districtName,
-        keyword: cleanProject || ''
-      })
+      url: buildKeywordCleanSlug(formula1Text)
     },
     // Công thức 2: [Loại hình] + Đường [Tên đường] + [Quận/Khu vực]
     {
       group: 'location',
       groupName: 'Vị trí & Địa lý',
       formula: 'Công thức 2: Đường & Khu vực',
-      text: `${demandText} ${typeText} Đường ${cleanStreet} ${districtName}`,
+      text: formula2Text,
       badge: `Đường ${cleanStreet}`,
-      url: buildFacetedUrl({
-        demand: property.demand,
-        propertyType: property.propertyType,
-        city: cityName,
-        district: districtName,
-        keyword: cleanStreet
-      })
+      url: buildKeywordCleanSlug(formula2Text)
     },
     // Công thức 3: [Loại hình] + Phường [Tên phường] + [Quận]
     {
       group: 'location',
       groupName: 'Vị trí & Địa lý',
       formula: 'Công thức 3: Phường & Quận',
-      text: `${demandText} ${typeText} phường ${cleanWard} ${districtName}`,
+      text: formula3Text,
       badge: `Phường ${cleanWard}`,
-      url: buildFacetedUrl({
-        demand: property.demand,
-        propertyType: property.propertyType,
-        city: cityName,
-        district: districtName,
-        keyword: cleanWard
-      })
+      url: buildKeywordCleanSlug(formula3Text)
     },
 
     // -------------------------------------------------------------
@@ -435,57 +428,34 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
       group: 'attributes',
       groupName: 'Đặc điểm & Tiện ích',
       formula: 'Công thức 4: Số phòng ngủ',
-      text: `${demandText} ${typeText} ${cityName} ${bedroomCount} PN`,
+      text: formula4CityText,
       badge: `${bedroomCount} PN ${cityName}`,
-      url: buildFacetedUrl({
-        demand: property.demand,
-        propertyType: property.propertyType,
-        city: cityName,
-        keyword: `${bedroomCount} PN`
-      })
+      url: buildKeywordCleanSlug(formula4CityText)
     },
     {
       group: 'attributes',
       groupName: 'Đặc điểm & Tiện ích',
       formula: 'Công thức 4: Số phòng ngủ (Quận)',
-      text: `${demandText} ${typeText} ${districtName} ${bedroomCount} PN`,
+      text: formula4DistrictText,
       badge: `${bedroomCount} PN ${districtName}`,
-      url: buildFacetedUrl({
-        demand: property.demand,
-        propertyType: property.propertyType,
-        city: cityName,
-        district: districtName,
-        keyword: `${bedroomCount} PN`
-      })
+      url: buildKeywordCleanSlug(formula4DistrictText)
     },
     // Công thức 5: [Loại hình] + [Khu vực] + full nội thất / có ban công
     {
       group: 'attributes',
       groupName: 'Đặc điểm & Tiện ích',
       formula: 'Công thức 5: Tiện ích / Nội thất',
-      text: `${demandText} ${typeText} ${districtName} full nội thất`,
+      text: formula5FurnitureText,
       badge: 'Full nội thất',
-      url: buildFacetedUrl({
-        demand: property.demand,
-        propertyType: property.propertyType,
-        city: cityName,
-        district: districtName,
-        keyword: 'full nội thất'
-      })
+      url: buildKeywordCleanSlug(formula5FurnitureText)
     },
     {
       group: 'attributes',
       groupName: 'Đặc điểm & Tiện ích',
       formula: 'Công thức 5: Ban công / View thoáng',
-      text: `${demandText} ${typeText} ${districtName} có ban công`,
+      text: formula5BalconyText,
       badge: 'Có ban công',
-      url: buildFacetedUrl({
-        demand: property.demand,
-        propertyType: property.propertyType,
-        city: cityName,
-        district: districtName,
-        keyword: 'ban công'
-      })
+      url: buildKeywordCleanSlug(formula5BalconyText)
     },
 
     // -------------------------------------------------------------
@@ -496,28 +466,17 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
       group: 'pricing',
       groupName: 'Khoảng giá & Tài chính',
       formula: 'Công thức 6: Khoảng giá (Thành phố)',
-      text: `${demandText} ${typeText} ${cityName} từ ${priceMinText} đến ${priceMaxText}`,
+      text: formula6CityText,
       badge: `${priceMinText} - ${priceMaxText}`,
-      url: buildFacetedUrl({
-        demand: property.demand,
-        propertyType: property.propertyType,
-        city: cityName,
-        priceRange: matchedPriceRange
-      })
+      url: buildKeywordCleanSlug(formula6CityText)
     },
     {
       group: 'pricing',
       groupName: 'Khoảng giá & Tài chính',
       formula: 'Công thức 6: Khoảng giá (Quận / Huyện)',
-      text: `${demandText} ${typeText} ${districtName} từ ${priceMinText} đến ${priceMaxText}`,
+      text: formula6DistrictText,
       badge: `${priceMinText} - ${priceMaxText}`,
-      url: buildFacetedUrl({
-        demand: property.demand,
-        propertyType: property.propertyType,
-        city: cityName,
-        district: districtName,
-        priceRange: matchedPriceRange
-      })
+      url: buildKeywordCleanSlug(formula6DistrictText)
     }
   ];
 
@@ -533,31 +492,31 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   const relatedHashtags = [
     {
       tag: `#${cleanTypeSlug}`,
-      url: buildFacetedUrl({ demand: property.demand, propertyType: property.propertyType, city: property.city })
+      url: buildKeywordCleanSlug(`${demandText} ${typeText}`)
     },
     {
       tag: `#${cleanDistrictSlug}`,
-      url: buildFacetedUrl({ demand: property.demand, city: property.city, district: property.district })
+      url: buildKeywordCleanSlug(`${demandText} ${typeText} ${districtName}`)
     },
     {
       tag: `#${cleanCitySlug}`,
-      url: buildFacetedUrl({ demand: property.demand, city: property.city })
+      url: buildKeywordCleanSlug(`${demandText} ${typeText} ${cityName}`)
     },
     {
       tag: `#bds${cleanDistrictSlug}`,
-      url: buildFacetedUrl({ demand: property.demand, city: property.city, district: property.district })
+      url: buildKeywordCleanSlug(`${demandText} nhà đất ${districtName}`)
     },
     {
       tag: `#nhadep${cleanCitySlug}`,
-      url: buildFacetedUrl({ demand: property.demand, city: property.city })
+      url: buildKeywordCleanSlug(`${demandText} nhà riêng ${cityName}`)
     },
     {
       tag: `#sodochinhchu`,
-      url: buildFacetedUrl({ demand: property.demand, city: property.city, keyword: 'sổ đỏ' })
+      url: buildKeywordCleanSlug(`${demandText} ${typeText} ${districtName} sổ đỏ`)
     },
     {
       tag: `#batdongsangiare`,
-      url: buildFacetedUrl({ demand: property.demand, city: property.city, priceRange: 'under-2b' })
+      url: buildKeywordCleanSlug(`${demandText} ${typeText} ${districtName} giá rẻ`)
     },
     {
       tag: `#muabannhadat`,

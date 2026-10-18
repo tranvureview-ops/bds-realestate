@@ -12,14 +12,15 @@ export default function RentListingsPage({ taxonomyInfo = null }) {
   const searchParams = useSearchParams();
   const { navigate } = useRouter();
 
-  // Đọc các giá trị bộ lọc đa diện (Faceted Taxonomy parameters) từ URL
-  const queryDistrict = searchParams?.get('district') || '';
+  // Đọc các giá trị bộ lọc đa diện (Faceted Taxonomy parameters) từ URL hoặc Clean Slug taxonomyInfo
+  const queryDistrict = searchParams?.get('district') || taxonomyInfo?.district || '';
   const queryCity = searchParams?.get('city') || taxonomyInfo?.city || '';
   const queryType = searchParams?.get('propertyType') || taxonomyInfo?.propertyType || 'all';
-  const queryKeyword = searchParams?.get('keyword') || searchParams?.get('q') || '';
-  const queryPrice = searchParams?.get('priceRange') || searchParams?.get('price') || 'all';
-  const queryArea = searchParams?.get('areaRange') || searchParams?.get('area') || 'all';
-  const queryVerified = searchParams?.get('onlyVerified') === 'true';
+  const queryKeyword = searchParams?.get('keyword') || searchParams?.get('q') || taxonomyInfo?.keyword || '';
+  const queryPrice = searchParams?.get('priceRange') || searchParams?.get('price') || taxonomyInfo?.priceRange || 'all';
+  const queryArea = searchParams?.get('areaRange') || searchParams?.get('area') || taxonomyInfo?.areaRange || 'all';
+  const queryBedroom = searchParams?.get('bedroom') || taxonomyInfo?.bedroom || 'all';
+  const queryVerified = searchParams?.get('onlyVerified') === 'true' || taxonomyInfo?.onlyVerified || false;
 
   const [filters, setFilters] = useState(() => ({
     keyword: queryKeyword,
@@ -29,7 +30,7 @@ export default function RentListingsPage({ taxonomyInfo = null }) {
     district: queryDistrict,
     priceRange: queryPrice,
     areaRange: queryArea,
-    bedroom: 'all',
+    bedroom: queryBedroom,
     direction: 'all',
     hasVR360: false,
     onlyVerified: queryVerified
@@ -46,6 +47,7 @@ export default function RentListingsPage({ taxonomyInfo = null }) {
       keyword: queryKeyword,
       priceRange: queryPrice,
       areaRange: queryArea,
+      bedroom: queryBedroom,
       onlyVerified: queryVerified
     }));
 
