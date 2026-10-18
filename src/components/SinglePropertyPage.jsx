@@ -75,8 +75,6 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [copiedShareLink, setCopiedShareLink] = useState(false);
 
-  // Tab lọc cụm từ khóa theo công thức SEO ('all', 'location', 'attributes', 'pricing')
-  const [seoFormulaTab, setSeoFormulaTab] = useState('all');
 
   // Tự động đồng bộ và điền sẵn thông tin người dùng nếu đã đăng nhập khi mở modal báo cáo
   useEffect(() => {
@@ -480,10 +478,6 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     }
   ];
 
-  // Danh sách từ khóa lọc theo tab hiện tại
-  const visibleKeywords = seoFormulaTab === 'all' 
-    ? seoFormulaKeywords 
-    : seoFormulaKeywords.filter(k => k.group === seoFormulaTab);
 
   const cleanCitySlug = toVietnameseSlug(property.city || '').replace(/-/g, '');
   const cleanDistrictSlug = toVietnameseSlug(property.district || '').replace(/-/g, '');
@@ -1231,72 +1225,9 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 </div>
               </div>
 
-              {/* Cụm từ khóa tìm kiếm chuẩn SEO (3 nhóm công thức) */}
-              <div className="space-y-3.5">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                  <div className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                    <i className="fa-solid fa-magnifying-glass text-indigo-500 text-xs"></i>
-                    CỤM TỪ KHÓA TÌM KIẾM PHỔ BIẾN (TỐI ƯU SEO):
-                  </div>
-
-                  {/* Tabs phân loại 3 nhóm công thức */}
-                  <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100/80 rounded-xl text-[11px] font-bold">
-                    <button
-                      type="button"
-                      onClick={() => setSeoFormulaTab('all')}
-                      className={`px-2.5 py-1 rounded-lg transition ${
-                        seoFormulaTab === 'all' 
-                          ? 'bg-white text-indigo-700 shadow-xs' 
-                          : 'text-slate-500 hover:text-slate-900'
-                      }`}
-                    >
-                      Tất cả ({seoFormulaKeywords.length})
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSeoFormulaTab('location')}
-                      className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 ${
-                        seoFormulaTab === 'location' 
-                          ? 'bg-white text-emerald-700 shadow-xs' 
-                          : 'text-slate-500 hover:text-slate-900'
-                      }`}
-                      title="Công thức 1 (Dự án & Diện tích), Công thức 2 (Đường & Khu vực), Công thức 3 (Phường / Quận)"
-                    >
-                      <i className="fa-solid fa-location-dot text-[10px] text-emerald-600"></i>
-                      <span>1. Vị trí & Địa lý</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSeoFormulaTab('attributes')}
-                      className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 ${
-                        seoFormulaTab === 'attributes' 
-                          ? 'bg-white text-blue-700 shadow-xs' 
-                          : 'text-slate-500 hover:text-slate-900'
-                      }`}
-                      title="Công thức 4 (Số phòng ngủ), Công thức 5 (Tiện ích / Nội thất & Ban công)"
-                    >
-                      <i className="fa-solid fa-couch text-[10px] text-blue-600"></i>
-                      <span>2. Đặc điểm & Tiện ích</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSeoFormulaTab('pricing')}
-                      className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 ${
-                        seoFormulaTab === 'pricing' 
-                          ? 'bg-white text-rose-700 shadow-xs' 
-                          : 'text-slate-500 hover:text-slate-900'
-                      }`}
-                      title="Công thức 6 (Khoảng giá ngân sách)"
-                    >
-                      <i className="fa-solid fa-tag text-[10px] text-rose-600"></i>
-                      <span>3. Khoảng giá</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Danh sách các cụm từ khóa sinh theo công thức SEO */}
-                <div className="flex flex-wrap gap-2.5">
-                  {visibleKeywords.map((kw, idx) => (
+              {/* Danh sách các cụm từ khóa sinh theo công thức SEO */}
+              <div className="flex flex-wrap gap-2.5">
+                {seoFormulaKeywords.map((kw, idx) => (
                     <Link
                       key={idx}
                       to={kw.url}
@@ -1319,7 +1250,6 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                     </Link>
                   ))}
                 </div>
-              </div>
 
               {/* Hashtags BĐS */}
               <div className="space-y-2.5 pt-3 border-t border-slate-100">
