@@ -683,7 +683,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // 2. Gửi email thử nghiệm kiểm tra kết nối SMTP thực tế
   const sendTestEmail = async (recipientEmail) => {
-    const to = (recipientEmail || emailConfig.adminAlertEmail || 'admin@datbiendanang.vn').trim();
+    const to = (recipientEmail || emailConfig.adminAlertEmail || 'tranvu.review@gmail.com').trim();
     if (!to || !to.includes('@')) {
       showToast('Vui lòng nhập địa chỉ email người nhận hợp lệ!', 'warning');
       return { success: false, error: 'Địa chỉ email người nhận không hợp lệ' };
@@ -1128,7 +1128,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       target = MOCK_USERS.find(u => u.role === 'admin') || {
         id: 'admin-01',
         name: 'Trần Ban Quản Trị',
-        email: 'admin@datbiendanang.vn',
+        email: 'tranvu.review@gmail.com',
         role: 'admin',
         roleName: 'Tổng Quản Trị Viên (CMS Admin)',
         walletBalance: 99999999,

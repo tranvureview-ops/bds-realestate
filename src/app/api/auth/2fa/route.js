@@ -37,7 +37,7 @@ export async function GET(request) {
       await updateUserById(user.id, { twoFactorSecret: secret });
     }
 
-    const email = user.email || 'admin@datbiendanang.vn';
+    const email = user.email || 'tranvu.review@gmail.com';
     const otpAuthUrl = getOtpAuthUrl(secret, email, 'DatBienDaNang-Admin');
     const qrCodeUrl = getQrCodeUrl(otpAuthUrl, 240);
 
@@ -140,7 +140,7 @@ export async function POST(request) {
         twoFactorVerifiedAt: null
       });
 
-      const email = user.email || 'admin@datbiendanang.vn';
+      const email = user.email || 'tranvu.review@gmail.com';
       const otpAuthUrl = getOtpAuthUrl(newSecret, email, 'DatBienDaNang-Admin');
       const qrCodeUrl = getQrCodeUrl(otpAuthUrl, 240);
 

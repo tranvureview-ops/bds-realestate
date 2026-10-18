@@ -22,7 +22,7 @@ export default function AdminTwoFactorScreen({
     secret: '',
     formattedSecret: '',
     qrCodeUrl: '',
-    email: adminUser?.email || 'admin@datbiendanang.vn'
+    email: adminUser?.email || 'tranvu.review@gmail.com'
   });
 
   // Chế độ hiện tại: 'setup' (kích hoạt lần đầu) hoặc 'verify' (đã có secret, chỉ cần nhập mã)

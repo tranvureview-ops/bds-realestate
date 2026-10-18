@@ -510,7 +510,7 @@ INSERT INTO properties (
 
 -- 8.3. Nạp Danh sách Tài khoản Mẫu (Profiles)
 INSERT INTO profiles (id, name, email, role, role_name, wallet_balance, phone, avatar, is_verified)
-VALUES ('admin-01', 'Trần Ban Quản Trị', 'admin@datbiendanang.vn', 'admin', 'Tổng Quản Trị Viên (CMS Admin)', 99999999, '0898 246 607', 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80', true)
+VALUES ('admin-01', 'Trần Ban Quản Trị', 'tranvu.review@gmail.com', 'admin', 'Tổng Quản Trị Viên (CMS Admin)', 99999999, '0898 246 607', 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80', true)
 ON CONFLICT (id) DO UPDATE SET wallet_balance = EXCLUDED.wallet_balance;
 INSERT INTO profiles (id, name, email, role, role_name, wallet_balance, phone, avatar, is_verified)
 VALUES ('broker-01', 'Nguyễn Văn Tuấn', 'tuan.batdongsan@datbiendanang.vn', 'broker', 'Môi Giới Chuyên Nghiệp VIP', 4500000, '0908 123 456', 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80', true)

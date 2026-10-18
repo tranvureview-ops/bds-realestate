@@ -1460,7 +1460,7 @@ export const MOCK_USERS = [
   {
     id: 'admin-01',
     name: 'Trần Ban Quản Trị',
-    email: 'admin@datbiendanang.vn',
+    email: 'tranvu.review@gmail.com',
     password: '123456',
     passwordHash: '$2b$10$jgjsVvPtPeI7WDBTiFSj1eDC8xz6aYTszoychODv7PYe.94N0oTNi',
     role: 'admin',

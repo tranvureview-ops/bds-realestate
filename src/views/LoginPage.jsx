@@ -33,7 +33,7 @@ export default function LoginPage() {
     if (red) {
       setRedirectUrl(red);
       if (red === '/admin' || red.startsWith('/admin')) {
-        setIdentifier('admin@datbiendanang.vn');
+        setIdentifier('tranvu.review@gmail.com');
       }
     }
   }, [searchParams]);
@@ -127,7 +127,7 @@ export default function LoginPage() {
                 Khu vực <strong>/admin</strong> chỉ dành riêng cho tài khoản có vai trò <strong>Admin</strong>. Vui lòng đăng nhập bằng tài khoản Quản trị để tiếp tục.
               </div>
               <div className="mt-2 text-[11px] bg-white/80 p-2 rounded-xl border border-rose-200 font-mono text-rose-950">
-                Email: <strong>admin@datbiendanang.vn</strong><br />
+                Email: <strong>tranvu.review@gmail.com</strong><br />
                 Mật khẩu: <strong>123456</strong>
               </div>
             </div>

@@ -26,7 +26,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
   // Local state for editing form
   const [formData, setFormData] = useState(emailConfig || DEFAULT_EMAIL_CONFIG);
   const [showPassword, setShowPassword] = useState(false);
-  const [testEmailRecipient, setTestEmailRecipient] = useState(emailConfig?.adminAlertEmail || 'admin@datbiendanang.vn');
+  const [testEmailRecipient, setTestEmailRecipient] = useState(emailConfig?.adminAlertEmail || 'tranvu.review@gmail.com');
   const [isSendingTest, setIsSendingTest] = useState(false);
   const [lastTestResult, setLastTestResult] = useState(null);
   const [showGuide, setShowGuide] = useState(false);
@@ -44,8 +44,8 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
   useEffect(() => {
     if (emailConfig) {
       setFormData(emailConfig);
-      if (!testEmailRecipient || testEmailRecipient === 'admin@landmark.vn' || testEmailRecipient === 'admin@datbiendanang.vn') {
-        setTestEmailRecipient(emailConfig.adminAlertEmail || 'admin@datbiendanang.vn');
+      if (!testEmailRecipient || testEmailRecipient === 'admin@landmark.vn' || testEmailRecipient === 'admin@datbiendanang.vn' || testEmailRecipient === 'tranvu.review@gmail.com') {
+        setTestEmailRecipient(emailConfig.adminAlertEmail || 'tranvu.review@gmail.com');
       }
     }
   }, [emailConfig]);
@@ -963,7 +963,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                       type="email"
                       value={testEmailRecipient}
                       onChange={(e) => setTestEmailRecipient(e.target.value)}
-                      placeholder="admin@datbiendanang.vn hoặc email của bạn..."
+                      placeholder="tranvu.review@gmail.com hoặc email của bạn..."
                       className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono font-bold outline-none focus:border-teal-500"
                     />
                   </div>

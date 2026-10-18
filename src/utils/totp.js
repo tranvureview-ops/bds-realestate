@@ -43,7 +43,7 @@ export function formatSecret(secret) {
 /**
  * Sinh chuỗi URI otpauth:// chuẩn quốc tế cho Google Authenticator
  */
-export function getOtpAuthUrl(secret, accountName = 'admin@datbiendanang.vn', issuer = 'DatBienDaNang') {
+export function getOtpAuthUrl(secret, accountName = 'tranvu.review@gmail.com', issuer = 'DatBienDaNang') {
   const cleanSecret = (secret || '').replace(/\s+/g, '').toUpperCase();
   return `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(accountName)}?secret=${cleanSecret}&issuer=${encodeURIComponent(issuer)}&algorithm=SHA1&digits=6&period=30`;
 }
