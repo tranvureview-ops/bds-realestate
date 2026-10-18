@@ -2117,15 +2117,19 @@ export default function AdminBackendPage() {
               <i className="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-500 hidden sm:inline-block"></i>
             </a>
 
-            {/* Quick Button: Quản lý 2FA Google Authenticator */}
+            {/* Quick Button: Quản lý 2FA Google Authenticator (Hiển thị Bật / Tắt) */}
             <button
               type="button"
               onClick={() => setIs2FAModalOpen(true)}
-              className="px-2.5 sm:px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
-              title="Cài đặt mã QR Google Authenticator (2FA)"
+              className={`px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm ${
+                currentUser?.twoFactorEnabled
+                  ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                  : 'bg-slate-800/90 hover:bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700'
+              }`}
+              title={`Cài đặt bảo mật 2FA (Hiện tại: ${currentUser?.twoFactorEnabled ? 'ĐANG BẬT' : 'ĐÃ TẮT'})`}
             >
-              <i className="fa-solid fa-shield-halved text-emerald-400"></i>
-              <span className="hidden sm:inline">2FA: Google Auth</span>
+              <i className={`fa-solid ${currentUser?.twoFactorEnabled ? 'fa-shield-halved text-emerald-400' : 'fa-shield text-slate-400'}`}></i>
+              <span className="hidden sm:inline">2FA: {currentUser?.twoFactorEnabled ? 'Đang Bật' : 'Đã Tắt'}</span>
             </button>
 
             {/* Quick Button: Đăng Xuất Khỏi Admin */}
@@ -8360,9 +8364,13 @@ export default function AdminBackendPage() {
           <div className="w-full max-w-xl max-h-[90vh] overflow-y-auto">
             <AdminTwoFactorScreen
               adminUser={currentUser}
-              initialMode="setup"
-              onSuccess={() => {
-                showToast('Cập nhật xác thực 2FA thành công!', 'success');
+              initialMode={currentUser?.twoFactorEnabled ? 'verify' : 'setup'}
+              onSuccess={(result) => {
+                const isEnabled = result?.twoFactorEnabled !== false;
+                if (updateUser && currentUser?.id) {
+                  updateUser(currentUser.id, { twoFactorEnabled: isEnabled });
+                }
+                showToast(isEnabled ? 'Đã kích hoạt 2FA thành công!' : 'Đã tắt tính năng xác thực 2FA!', 'success');
                 setIs2FAModalOpen(false);
               }}
               onCancel={() => {

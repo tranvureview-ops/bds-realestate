@@ -154,6 +154,35 @@ export async function POST(request) {
       });
     }
 
+    // D. TẮT TÍNH NĂNG 2FA (DISABLE 2FA)
+    if (action === 'disable') {
+      const updatedUser = await updateUserById(user.id, {
+        twoFactorEnabled: false
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'Đã tắt tính năng xác thực 2 bước (2FA) thành công!',
+        twoFactorEnabled: false,
+        user: updatedUser
+      });
+    }
+
+    // E. BẬT LẠI TÍNH NĂNG 2FA (ENABLE 2FA)
+    if (action === 'enable') {
+      const updatedUser = await updateUserById(user.id, {
+        twoFactorEnabled: true,
+        twoFactorVerifiedAt: new Date().toISOString()
+      });
+
+      return NextResponse.json({
+        success: true,
+        message: 'Đã kích hoạt lại tính năng xác thực 2 bước (2FA)!',
+        twoFactorEnabled: true,
+        user: updatedUser
+      });
+    }
+
     return NextResponse.json({ success: false, message: 'Hành động không hợp lệ!' }, { status: 400 });
   } catch (error) {
     return NextResponse.json({

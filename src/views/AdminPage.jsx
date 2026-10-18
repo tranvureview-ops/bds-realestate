@@ -136,8 +136,11 @@ export default function AdminPage() {
     );
   }
 
-  // Nếu tài khoản là Admin nhưng chưa hoàn thành xác thực 2FA trong phiên này
-  if (!is2faVerified) {
+  // Chỉ bắt buộc xác thực 2FA nếu tài khoản Admin đang BẬT tính năng 2FA (twoFactorEnabled === true)
+  const is2faRequired = currentUser?.twoFactorEnabled === true;
+
+  // Nếu tài khoản là Admin, đang BẬT 2FA nhưng chưa hoàn thành xác thực 2FA trong phiên này
+  if (is2faRequired && !is2faVerified) {
     return (
       <AdminTwoFactorScreen
         adminUser={currentUser}

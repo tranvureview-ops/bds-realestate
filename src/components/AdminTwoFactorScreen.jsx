@@ -13,7 +13,9 @@ export default function AdminTwoFactorScreen({
 }) {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [toggling, setToggling] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [successMsg, setSuccessMsg] = useState('');
   const [copySuccess, setCopySuccess] = useState(false);
 
   // Dữ liệu 2FA từ server
@@ -112,6 +114,42 @@ export default function AdminTwoFactorScreen({
     }
   };
 
+  // Tắt tính năng 2FA
+  const handleDisable2FA = async () => {
+    if (!window.confirm('Bạn có chắc chắn muốn TẮT tính năng xác thực 2 bước (2FA)? Sau khi tắt, tài khoản Admin có thể đăng nhập trực tiếp bằng mật khẩu mà không cần mã Google Authenticator.')) return;
+    setToggling(true);
+    setErrorMsg('');
+    try {
+      const res = await fetch('/api/auth/2fa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'disable',
+          userId: adminUser?.id || 'admin-01'
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setTwoFactorData(prev => ({
+          ...prev,
+          twoFactorEnabled: false
+        }));
+        if (typeof window !== 'undefined') {
+          sessionStorage.setItem('bds_admin_2fa_verified', 'true');
+        }
+        setSuccessMsg('Đã TẮT tính năng xác thực 2FA thành công!');
+        setTimeout(() => setSuccessMsg(''), 4000);
+        if (onSuccess) onSuccess({ ...data, twoFactorEnabled: false });
+      } else {
+        setErrorMsg(data.message || 'Không thể tắt 2FA');
+      }
+    } catch (err) {
+      setErrorMsg('Lỗi khi tắt 2FA: ' + err.message);
+    } finally {
+      setToggling(false);
+    }
+  };
+
   // Xử lý Submit mã OTP 6 số
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
@@ -205,6 +243,70 @@ export default function AdminTwoFactorScreen({
           </p>
         </div>
 
+        {/* Khối Trạng Thái & Tùy Chọn Bật / Tắt 2FA */}
+        <div className="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800 flex items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm shrink-0 ${
+              twoFactorData.twoFactorEnabled 
+                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40' 
+                : 'bg-slate-800 text-slate-400 border border-slate-700'
+            }`}>
+              <i className={`fa-solid ${twoFactorData.twoFactorEnabled ? 'fa-shield-halved text-emerald-400' : 'fa-shield text-slate-400'}`}></i>
+            </div>
+            <div className="text-left min-w-0">
+              <div className="font-bold text-white flex items-center gap-2 flex-wrap">
+                <span>Trạng Thái 2FA</span>
+                <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider ${
+                  twoFactorData.twoFactorEnabled 
+                    ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' 
+                    : 'bg-slate-800 text-slate-400 border border-slate-700'
+                }`}>
+                  {twoFactorData.twoFactorEnabled ? '● ĐANG BẬT' : '○ ĐÃ TẮT'}
+                </span>
+              </div>
+              <div className="text-[11px] text-slate-400 truncate">
+                {twoFactorData.twoFactorEnabled 
+                  ? 'Bắt buộc nhập mã 6 số từ Google Authenticator khi vào CMS' 
+                  : 'Đang tắt: Bạn có thể vào CMS bằng mật khẩu'}
+              </div>
+            </div>
+          </div>
+
+          {twoFactorData.twoFactorEnabled ? (
+            <button
+              type="button"
+              disabled={toggling}
+              onClick={handleDisable2FA}
+              className="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/30 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shrink-0 disabled:opacity-50"
+              title="Tắt bảo vệ 2FA cho tài khoản này"
+            >
+              <i className="fa-solid fa-power-off text-rose-400"></i>
+              <span>{toggling ? 'Đang tắt...' : 'Tắt 2FA'}</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => {
+                setMode('setup');
+                setErrorMsg('');
+              }}
+              className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs transition flex items-center gap-1.5 cursor-pointer shadow-md shadow-emerald-500/20 shrink-0"
+              title="Kích hoạt 2FA Google Authenticator"
+            >
+              <i className="fa-solid fa-shield-halved"></i>
+              <span>Bật 2FA</span>
+            </button>
+          )}
+        </div>
+
+        {/* Thông báo thành công nếu có */}
+        {successMsg && (
+          <div className="p-3.5 bg-emerald-950/80 border border-emerald-500/40 rounded-2xl text-xs text-emerald-300 flex items-start gap-2.5 animate-in fade-in duration-200">
+            <i className="fa-solid fa-circle-check text-emerald-400 text-sm mt-0.5 shrink-0"></i>
+            <div className="flex-1 font-medium">{successMsg}</div>
+          </div>
+        )}
+
         {/* Thông báo lỗi nếu có */}
         {errorMsg && (
           <div className="p-3.5 bg-rose-950/80 border border-rose-500/40 rounded-2xl text-xs text-rose-300 flex items-start gap-2.5 animate-in fade-in duration-200">
@@ -266,50 +368,88 @@ export default function AdminTwoFactorScreen({
           </div>
         )}
 
-        {/* === FORM NHẬP MÃ 6 SỐ (Áp dụng cho cả Setup và Verify) === */}
-        <form id="two-factor-form" onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2 text-center">
-            <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
-              {mode === 'setup' ? 'Bước 2: Nhập mã 6 chữ số để kích hoạt' : 'Nhập mã xác thực 6 chữ số'}
-            </label>
-
-            <div className="flex justify-center">
-              <input
-                ref={inputRef}
-                type="text"
-                inputMode="numeric"
-                autoComplete="one-time-code"
-                maxLength={6}
-                value={otpCode}
-                onChange={handleOtpChange}
-                placeholder="• • • • • •"
-                className="w-full max-w-xs py-3 px-4 text-center font-mono font-black text-2xl tracking-[0.5em] bg-slate-950 border-2 border-emerald-500/40 focus:border-emerald-500 rounded-2xl text-emerald-400 placeholder-slate-700 focus:outline-none focus:ring-4 focus:ring-emerald-500/20 transition shadow-inner"
-              />
+        {/* Nếu 2FA đang TẮT và không ở chế độ Setup: hiển thị thông báo thân thiện */}
+        {!twoFactorData.twoFactorEnabled && mode !== 'setup' ? (
+          <div className="p-5 bg-slate-950/60 rounded-2xl border border-slate-800 text-center space-y-3 animate-in fade-in">
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center text-xl mx-auto">
+              <i className="fa-solid fa-lock-open"></i>
             </div>
-            <p className="text-[11px] text-slate-400">
-              Mã 6 chữ số thay đổi tự động mỗi 30 giây trong Google Authenticator.
+            <div className="text-sm font-bold text-white">Xác Thực 2 Bước (2FA) Đang Tắt</div>
+            <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
+              Bạn có thể vào CMS Quản Trị trực tiếp bằng mật khẩu mà không cần nhập mã Google Authenticator.
             </p>
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => setMode('setup')}
+                className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-900/30 cursor-pointer"
+              >
+                <i className="fa-solid fa-qrcode"></i>
+                <span>Quét Mã QR Để Bật 2FA</span>
+              </button>
+              {onSuccess && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (typeof window !== 'undefined') {
+                      sessionStorage.setItem('bds_admin_2fa_verified', 'true');
+                    }
+                    onSuccess({ twoFactorEnabled: false });
+                  }}
+                  className="w-full sm:w-auto px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded-xl text-xs transition flex items-center justify-center gap-2 border border-slate-700 cursor-pointer"
+                >
+                  <i className="fa-solid fa-arrow-right"></i>
+                  <span>Vào CMS Ngay (Bỏ qua 2FA)</span>
+                </button>
+              )}
+            </div>
           </div>
+        ) : (
+          /* === FORM NHẬP MÃ 6 SỐ (Áp dụng cho Setup hoặc Verify khi 2FA đang bật) === */
+          <form id="two-factor-form" onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2 text-center">
+              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider">
+                {mode === 'setup' ? 'Bước 2: Nhập mã 6 chữ số để kích hoạt' : 'Nhập mã xác thực 6 chữ số'}
+              </label>
 
-          {/* Action Button */}
-          <button
-            type="submit"
-            disabled={submitting || otpCode.length !== 6}
-            className="w-full py-3.5 px-4 rounded-xl font-black text-xs sm:text-sm transition flex items-center justify-center gap-2 cursor-pointer shadow-lg disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-emerald-900/40"
-          >
-            {submitting ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                <span>Đang kiểm tra mã xác thực...</span>
-              </>
-            ) : (
-              <>
-                <i className="fa-solid fa-lock-open"></i>
-                <span>{mode === 'setup' ? 'Xác Nhận & Kích Hoạt 2FA Ngay' : 'Xác Thực & Vào Trang Quản Trị'}</span>
-              </>
-            )}
-          </button>
-        </form>
+              <div className="flex justify-center">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="one-time-code"
+                  maxLength={6}
+                  value={otpCode}
+                  onChange={handleOtpChange}
+                  placeholder="• • • • • •"
+                  className="w-full max-w-xs py-3 px-4 text-center font-mono font-black text-2xl tracking-[0.5em] bg-slate-950 border-2 border-emerald-500/40 focus:border-emerald-500 rounded-2xl text-emerald-400 placeholder-slate-700 focus:outline-none focus:ring-4 focus:ring-emerald-500/20 transition shadow-inner"
+                />
+              </div>
+              <p className="text-[11px] text-slate-400">
+                Mã 6 chữ số thay đổi tự động mỗi 30 giây trong Google Authenticator.
+              </p>
+            </div>
+
+            {/* Action Button */}
+            <button
+              type="submit"
+              disabled={submitting || otpCode.length !== 6}
+              className="w-full py-3.5 px-4 rounded-xl font-black text-xs sm:text-sm transition flex items-center justify-center gap-2 cursor-pointer shadow-lg disabled:opacity-40 disabled:cursor-not-allowed bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-emerald-900/40"
+            >
+              {submitting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span>Đang kiểm tra mã xác thực...</span>
+                </>
+              ) : (
+                <>
+                  <i className="fa-solid fa-lock-open"></i>
+                  <span>{mode === 'setup' ? 'Xác Nhận & Kích Hoạt 2FA Ngay' : 'Xác Thực & Vào Trang Quản Trị'}</span>
+                </>
+              )}
+            </button>
+          </form>
+        )}
 
         {/* Footer Actions */}
         <div className="flex items-center justify-between text-xs pt-4 border-t border-slate-800 text-slate-400">

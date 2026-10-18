@@ -72,9 +72,19 @@ export default function LoginPage() {
     setIsSubmitting(false);
     if (loggedUser) {
       if (loggedUser.role === 'admin') {
-        // Tài khoản Admin bắt buộc phải xác thực / kích hoạt 2FA Google Authenticator
-        setPending2FAUser(loggedUser);
-        return;
+        // Chỉ bắt buộc 2FA nếu tài khoản Admin đang BẬT tính năng 2FA
+        if (loggedUser.twoFactorEnabled === true) {
+          setPending2FAUser(loggedUser);
+          return;
+        } else {
+          // 2FA đang TẮT: cấp quyền phiên làm việc ngay để vào CMS
+          if (typeof window !== 'undefined' && window.sessionStorage) {
+            window.sessionStorage.setItem('bds_admin_2fa_verified', 'true');
+            window.sessionStorage.setItem('bds_admin_2fa_time', Date.now().toString());
+          }
+          handlePostLoginRedirect(loggedUser);
+          return;
+        }
       }
       handlePostLoginRedirect(loggedUser);
     }
