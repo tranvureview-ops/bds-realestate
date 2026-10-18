@@ -111,7 +111,7 @@ export default function UserDashboardPage() {
         <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
           <Link to="/" className="hover:text-emerald-600 font-medium">Trang chủ</Link>
           <i className="fa-solid fa-chevron-right text-[10px]"></i>
-          <span className="text-slate-800 font-bold">Quản Lý Tin Đăng Của Tôi</span>
+          <span className="text-slate-800 font-bold">Quản lý tin đăng</span>
         </div>
       </div>
       <UserDashboard />

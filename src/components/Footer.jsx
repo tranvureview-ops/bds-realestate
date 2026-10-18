@@ -99,8 +99,8 @@ export default function Footer() {
               Trang Thành Viên
             </h4>
             <ul className="space-y-2 text-xs text-slate-400">
-              <li><Link to="/ho-so-ca-nhan" className="hover:text-amber-400 transition flex items-center gap-1.5"><i className="fa-solid fa-user text-amber-500 text-[10px]"></i> Hồ Sơ Cá Nhân & KYC</Link></li>
-              <li><Link to="/quan-ly-tin" className="hover:text-amber-400 transition flex items-center gap-1.5"><i className="fa-solid fa-list-check text-blue-400 text-[10px]"></i> Quản Lý Tin Của Tôi</Link></li>
+              <li><Link to="/ho-so-ca-nhan" className="hover:text-amber-400 transition flex items-center gap-1.5"><i className="fa-solid fa-user text-amber-500 text-[10px]"></i> Hồ Sơ Cá Nhân</Link></li>
+              <li><Link to="/quan-ly-tin" className="hover:text-amber-400 transition flex items-center gap-1.5"><i className="fa-solid fa-list-check text-blue-400 text-[10px]"></i> Quản Lý Tin Đăng</Link></li>
               <li><Link to="/tin-da-luu" className="hover:text-amber-400 transition flex items-center gap-1.5"><i className="fa-solid fa-heart text-rose-400 text-[10px]"></i> Tin Đã Lưu Yêu Thích</Link></li>
               <li><Link to="/so-sanh" className="hover:text-amber-400 transition flex items-center gap-1.5"><i className="fa-solid fa-code-compare text-blue-400 text-[10px]"></i> So Sánh Đối Đầu</Link></li>
               <li><Link to="/nap-tien" className="hover:text-amber-400 transition flex items-center gap-1.5"><i className="fa-solid fa-wallet text-emerald-400 text-[10px]"></i> Nạp Tiền Ví Tài Khoản</Link></li>

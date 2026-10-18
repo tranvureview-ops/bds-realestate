@@ -307,7 +307,7 @@ export default function UserProfilePage() {
               className="w-full p-3 rounded-2xl text-slate-700 hover:bg-slate-50 hover:text-emerald-700 transition flex items-center gap-3 text-left font-bold"
             >
               <i className="fa-solid fa-list-check text-sm w-5 text-center text-emerald-600"></i>
-              <span>Quản Lý Tin Đăng Của Tôi</span>
+              <span>Quản lý tin đăng</span>
             </Link>
 
             <button

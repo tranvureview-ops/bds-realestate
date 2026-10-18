@@ -51,7 +51,7 @@ export default function PostListingPage() {
               className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition flex items-center gap-1.5 shadow-sm"
             >
               <i className="fa-solid fa-list-check text-xs"></i>
-              <span>Quản Lý Tin Của Tôi</span>
+              <span>Quản Lý Tin Đăng</span>
             </Link>
           </div>
         </div>
