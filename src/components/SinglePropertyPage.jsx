@@ -1011,10 +1011,9 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                     <Link
                       key={idx}
                       to={getCategoryPermalink(property.demand, property.propertyType, property.city)}
-                      className="px-3 py-1.5 bg-rose-50/70 hover:bg-rose-100 border border-rose-200 hover:border-rose-300 rounded-full text-xs font-bold text-rose-700 hover:text-rose-800 transition flex items-center gap-1"
+                      className="px-3 py-1.5 bg-rose-50/70 hover:bg-rose-100 border border-rose-200 hover:border-rose-300 rounded-full text-xs font-bold text-rose-700 hover:text-rose-800 transition inline-flex items-center"
                     >
-                      <span className="text-rose-400">#</span>
-                      <span>{tag.replace(/^#/, '')}</span>
+                      <span className="text-rose-400">#</span><span>{tag.replace(/^#/, '')}</span>
                     </Link>
                   ))}
                 </div>
