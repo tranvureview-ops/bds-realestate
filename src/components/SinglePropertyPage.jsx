@@ -1235,17 +1235,6 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                     >
                       <i className="fa-solid fa-magnifying-glass text-[11px] text-slate-400 group-hover:text-indigo-600 transition"></i>
                       <span>{kw.text}</span>
-                      {kw.badge && (
-                        <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-md border shrink-0 ${
-                          kw.group === 'location'
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                            : kw.group === 'attributes'
-                            ? 'bg-blue-50 text-blue-700 border-blue-200'
-                            : 'bg-rose-50 text-rose-700 border-rose-200'
-                        }`}>
-                          {kw.badge}
-                        </span>
-                      )}
                       <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-300 group-hover:text-indigo-500 transition opacity-0 group-hover:opacity-100"></i>
                     </Link>
                   ))}
