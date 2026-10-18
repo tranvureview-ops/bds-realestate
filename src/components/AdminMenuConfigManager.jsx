@@ -109,7 +109,7 @@ export default function AdminMenuConfigManager({ onSwitchToHeader = null }) {
               <i className="fa-solid fa-bars-staggered"></i>
             </span>
             <h2 className="text-lg font-black text-white">
-              Cấu Hình Thanh Menu Điều Hướng (Navigation Menu Manager)
+              Cấu Hình Menu Điều Hướng (Navigation Menu Manager)
             </h2>
           </div>
           <p className="text-xs text-slate-400 max-w-2xl">

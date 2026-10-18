@@ -47,7 +47,7 @@ export default function Navbar() {
     return 'w-full max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300';
   }, [headerConfig?.containerWidth]);
 
-  // Lấy toàn bộ các mục menu trực tiếp từ Cấu Hình Thanh Menu trong Trang Quản Trị
+  // Lấy toàn bộ các mục menu trực tiếp từ Cấu Hình Menu trong Trang Quản Trị
   const menuItems = useMemo(() => {
     return (navMenuItems || [])
       .filter(item => {
@@ -258,7 +258,7 @@ export default function Navbar() {
             )}
           </Link>
 
-          {/* Center: Desktop Navigation Links (Khớp 100% Cấu Hình Thanh Menu từ Admin) */}
+          {/* Center: Desktop Navigation Links (Khớp 100% Cấu Hình Menu từ Admin) */}
           <nav suppressHydrationWarning className="hidden lg:flex items-center gap-1 xl:gap-1.5 font-semibold text-[13.5px] text-slate-700 shrink-0">
             {menuItems.map(item => {
               const hasChildren = item.children && item.children.length > 0;

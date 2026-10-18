@@ -2598,7 +2598,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   const resetNavMenu = async () => {
     setNavMenuItems(INITIAL_NAV_MENU);
     await removeSettingFromSupabase('bds_nav_menu');
-    showToast('Đã khôi phục cấu hình thanh menu mặc định!', 'info');
+    showToast('Đã khôi phục cấu hình menu mặc định!', 'info');
   };
 
   // 11. Header & Logo Configuration Methods

@@ -1559,7 +1559,7 @@ export const MOCK_TRANSACTIONS = [
   }
 ];
 
-// Cấu hình danh mục thanh Menu Điều Hướng (Navigation Menu Items)
+// Cấu hình danh mục Menu Điều Hướng (Navigation Menu Items)
 export const INITIAL_NAV_MENU = [
   {
     id: 'menu-explore',
@@ -1622,7 +1622,7 @@ export const INITIAL_NAV_MENU = [
   }
 ];
 
-// Cấu hình Header, Logo & Độ Rộng Thanh Menu (Header & Logo Settings)
+// Cấu hình Header, Logo & Độ Rộng Menu (Header & Logo Settings)
 export const DEFAULT_HEADER_CONFIG = {
   logoType: 'text', // 'text' | 'image'
   brandName: 'ĐẤT BIỂN',

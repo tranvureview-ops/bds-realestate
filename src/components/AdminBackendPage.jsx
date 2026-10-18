@@ -1925,7 +1925,7 @@ export default function AdminBackendPage() {
                   >
                     <div className="flex items-center gap-2">
                       <i className="fa-solid fa-bars-staggered text-[11px] w-4 text-center"></i>
-                      <span>3. Thanh Menu</span>
+                      <span>3. Menu</span>
                     </div>
                     {settingsSubTab === 'menu' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
                   </button>
@@ -2041,7 +2041,7 @@ export default function AdminBackendPage() {
               {activeMenu === 'pricing' && '👑 Bảng Giá Gói Dịch Vụ VIP'}
               {activeMenu === 'membership' && '👑 Gói Hội Viên'}
               {activeMenu === 'header' && '🎨 Header & Logo'}
-              {activeMenu === 'menu' && '🧭 Thanh Menu Điều Hướng'}
+              {activeMenu === 'menu' && '🧭 Menu Điều Hướng'}
               {activeMenu === 'payments' && '💳 Cấu Hình Cổng Thanh Toán'}
               {activeMenu === 'single-config' && '📄 Cấu Hình Trang Chi Tiết BĐS'}
               {activeMenu === 'email-config' && '✉️ Email Setting'}
@@ -5699,7 +5699,7 @@ export default function AdminBackendPage() {
                           Trung Tâm Cài Đặt Website
                         </h2>
                         <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
-                          {settingsSubTab === 'system' ? '⚙️ Hệ Thống' : settingsSubTab === 'header' ? '🎨 Header' : settingsSubTab === 'menu' ? '🧭 Thanh Menu' : '✉️ Email Setting'}
+                          {settingsSubTab === 'system' ? '⚙️ Hệ Thống' : settingsSubTab === 'header' ? '🎨 Header' : settingsSubTab === 'menu' ? '🧭 Menu' : '✉️ Email Setting'}
                         </span>
                       </div>
                       <p className="text-xs text-slate-400">
@@ -5756,7 +5756,7 @@ export default function AdminBackendPage() {
                     >
                       <i className="fa-solid fa-bars-staggered text-sm"></i>
                       <div className="text-left">
-                        <div className="leading-tight">3. Thanh Menu</div>
+                        <div className="leading-tight">3. Menu</div>
                         <div className="text-[10px] font-normal opacity-80 hidden sm:block">
                           {(navMenuItems || []).length} mục điều hướng
                         </div>
@@ -6589,7 +6589,7 @@ export default function AdminBackendPage() {
                 <AdminHeaderConfigManager onSwitchToMenu={() => handleSelectSettingsSubTab('menu')} />
               )}
 
-              {/* TAB 3: CẤU HÌNH THANH MENU */}
+              {/* TAB 3: CẤU HÌNH MENU */}
               {settingsSubTab === 'menu' && (
                 <AdminMenuConfigManager onSwitchToHeader={() => handleSelectSettingsSubTab('header')} />
               )}

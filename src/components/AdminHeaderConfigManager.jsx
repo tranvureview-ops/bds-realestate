@@ -95,7 +95,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
             </h2>
           </div>
           <p className="text-xs text-slate-400 max-w-2xl">
-            Tùy biến nhận diện thương hiệu (Logo Text hoặc Hình Ảnh), slogan khẩu hiệu, huy hiệu và độ rộng hiển thị của thanh Menu trên toàn website (Boxed, Wide, Full-width).
+            Tùy biến nhận diện thương hiệu (Logo Text hoặc Hình Ảnh), slogan khẩu hiệu, huy hiệu và độ rộng hiển thị của Menu trên toàn website (Boxed, Wide, Full-width).
           </p>
         </div>
 
@@ -186,7 +186,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
         </div>
       </div>
 
-      {/* PHÂN HỆ CẤU HÌNH LOGO & ĐỘ RỘNG THANH MENU */}
+      {/* PHÂN HỆ CẤU HÌNH LOGO & ĐỘ RỘNG MENU */}
       <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
           <div className="flex items-center gap-2.5">
@@ -195,7 +195,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
             </span>
             <div>
               <h3 className="text-base font-black text-white">
-                Cấu Hình Logo & Độ Rộng Thanh Menu (Header & Logo Customizer)
+                Cấu Hình Logo & Độ Rộng Menu (Header & Logo Customizer)
               </h3>
               <p className="text-[11px] text-slate-400">
                 Tùy biến nhận diện thương hiệu (Text hoặc Logo ảnh) và bố cục hiển thị thanh Header (Full-width tràn viền hoặc Boxed)
@@ -451,7 +451,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
           <div className="lg:col-span-5 space-y-4">
             <label className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
               <i className="fa-solid fa-arrows-left-right text-emerald-400"></i>
-              <span>2. Cấu Hình Độ Rộng Thanh Menu (Width):</span>
+              <span>2. Cấu Hình Độ Rộng Menu (Width):</span>
             </label>
 
             <div className="space-y-3">
@@ -476,11 +476,11 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
                 />
                 <div className="space-y-1 flex-1">
                   <div className="font-bold text-xs flex items-center justify-between gap-1.5 text-white">
-                    <span>Tiêu Chuẩn (Boxed - 1280px)</span>
+                    <span>Chuẩn (Boxed - 1280px)</span>
                     <span className="px-2 py-0.5 rounded text-[9px] bg-slate-800 text-slate-300 font-mono font-bold">max-w-7xl</span>
                   </div>
                   <p className="text-[11px] leading-relaxed text-slate-400">
-                    Thanh menu được giới hạn trong khung 1280px và canh giữa màn hình. Cân đối, trang nhã, tập trung tầm nhìn.
+                    Menu được giới hạn trong khung 1280px và canh giữa màn hình. Cân đối, trang nhã, tập trung tầm nhìn.
                   </p>
                 </div>
               </div>
@@ -510,7 +510,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
                     <span className="px-2 py-0.5 rounded text-[9px] bg-amber-950/80 text-amber-300 border border-amber-800/50 font-mono font-bold">95% Screen / 1536px</span>
                   </div>
                   <p className="text-[11px] leading-relaxed text-slate-400">
-                    Mở rộng không gian thanh menu lên 1536px (hoặc 95% màn hình), lý tưởng cho website có nhiều menu và nút bấm.
+                    Mở rộng không gian menu lên 1536px (hoặc 95% màn hình), lý tưởng cho website có nhiều menu và nút bấm.
                   </p>
                 </div>
               </div>
@@ -540,7 +540,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
                     <span className="px-2 py-0.5 rounded text-[9px] bg-emerald-900 text-emerald-300 border border-emerald-700/50 font-black">FULL-WIDTH 100%</span>
                   </div>
                   <p className="text-[11px] leading-relaxed text-slate-400">
-                    Thanh menu trải dài 100% tràn đều sang hai mép viền màn hình (Edge-to-Edge). Phong cách hiện đại theo chuẩn các sàn TMĐT quốc tế.
+                    Menu trải dài 100% tràn đều sang hai mép viền màn hình (Edge-to-Edge). Phong cách hiện đại theo chuẩn các sàn TMĐT quốc tế.
                   </p>
                 </div>
               </div>
