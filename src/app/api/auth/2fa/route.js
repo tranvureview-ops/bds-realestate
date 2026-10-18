@@ -29,17 +29,17 @@ export async function GET(request) {
       return NextResponse.json({ success: false, message: 'Tính năng 2FA chỉ áp dụng cho Quản Trị Viên (Admin)!' }, { status: 403 });
     }
 
-    // Nếu đã có secret thì dùng lại, nếu chưa có thì sinh mới
+    // Nếu đã có secret chuẩn 32 ký tự thì dùng lại, nếu chưa có hoặc không chuẩn thì sinh mới
     let secret = user.twoFactorSecret;
-    if (!secret) {
-      secret = generateBase32Secret(20);
+    if (!secret || secret.length !== 32) {
+      secret = generateBase32Secret(32);
       // Lưu tạm secret vào database để chuẩn bị xác minh kích hoạt
       await updateUserById(user.id, { twoFactorSecret: secret });
     }
 
     const email = user.email || 'tranvu.review@gmail.com';
     const otpAuthUrl = getOtpAuthUrl(secret, email, 'DatBienDaNang-Admin');
-    const qrCodeUrl = getQrCodeUrl(otpAuthUrl, 240);
+    const qrCodeUrl = await getQrCodeUrl(otpAuthUrl, 240);
 
     return NextResponse.json({
       success: true,
@@ -133,7 +133,7 @@ export async function POST(request) {
 
     // C. RESET / TẠO LẠI MÃ QR 2FA
     if (action === 'reset') {
-      const newSecret = generateBase32Secret(20);
+      const newSecret = generateBase32Secret(32);
       await updateUserById(user.id, {
         twoFactorEnabled: false,
         twoFactorSecret: newSecret,
@@ -142,7 +142,7 @@ export async function POST(request) {
 
       const email = user.email || 'tranvu.review@gmail.com';
       const otpAuthUrl = getOtpAuthUrl(newSecret, email, 'DatBienDaNang-Admin');
-      const qrCodeUrl = getQrCodeUrl(otpAuthUrl, 240);
+      const qrCodeUrl = await getQrCodeUrl(otpAuthUrl, 240);
 
       return NextResponse.json({
         success: true,

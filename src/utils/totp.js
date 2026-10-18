@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import QRCode from 'qrcode';
 
 const BASE32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
@@ -21,9 +22,9 @@ export function base32ToBuffer(base32) {
 }
 
 /**
- * Sinh chuỗi Secret Base32 ngẫu nhiên cho Google Authenticator
+ * Sinh chuỗi Secret Base32 ngẫu nhiên cho Google Authenticator (chuẩn 32 ký tự = 160 bits = 20 bytes chẵn)
  */
-export function generateBase32Secret(length = 20) {
+export function generateBase32Secret(length = 32) {
   let secret = '';
   const randomBytes = crypto.randomBytes(length);
   for (let i = 0; i < length; i++) {
@@ -45,14 +46,31 @@ export function formatSecret(secret) {
  */
 export function getOtpAuthUrl(secret, accountName = 'tranvu.review@gmail.com', issuer = 'DatBienDaNang') {
   const cleanSecret = (secret || '').replace(/\s+/g, '').toUpperCase();
-  return `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(accountName)}?secret=${cleanSecret}&issuer=${encodeURIComponent(issuer)}&algorithm=SHA1&digits=6&period=30`;
+  const cleanIssuer = (issuer || 'DatBienDaNang').trim();
+  const cleanAccount = (accountName || 'tranvu.review@gmail.com').trim();
+  // Định dạng chuẩn Google Authenticator: Issuer:account (không mã hóa ký tự @ trong label)
+  const label = `${encodeURIComponent(cleanIssuer)}:${cleanAccount}`;
+  return `otpauth://totp/${label}?secret=${cleanSecret}&issuer=${encodeURIComponent(cleanIssuer)}&algorithm=SHA1&digits=6&period=30`;
 }
 
 /**
- * Sinh URL hình ảnh mã QR Code sắc nét quét được bằng Google Authenticator
+ * Sinh URL hình ảnh mã QR Code sắc nét (Data URI base64) tương thích 100% với Google Authenticator
  */
-export function getQrCodeUrl(otpAuthUrl, size = 220) {
-  return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&margin=10&data=${encodeURIComponent(otpAuthUrl)}`;
+export async function getQrCodeUrl(otpAuthUrl, size = 240) {
+  try {
+    return await QRCode.toDataURL(otpAuthUrl, {
+      width: size,
+      margin: 2,
+      errorCorrectionLevel: 'M',
+      color: {
+        dark: '#000000',
+        light: '#ffffff'
+      }
+    });
+  } catch (err) {
+    // Fallback dịch vụ dự phòng nếu lỗi
+    return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&margin=10&data=${encodeURIComponent(otpAuthUrl)}`;
+  }
 }
 
 /**
