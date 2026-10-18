@@ -1861,8 +1861,8 @@
       }
     },
     "replyToEmail": "tranvanvu.dev@gmail.com",
-    "adminCcEmails": "tranvanvu.dev@gmail.com",
-    "adminAlertEmail": "tranvanvu.dev@gmail.com",
+    "adminCcEmails": "tranvu.review@gmail.com",
+    "adminAlertEmail": "tranvu.review@gmail.com",
     "notifyAdminOnReport": true,
     "notifyAdminOnNewListing": true,
     "enableEmailNotifications": true,
