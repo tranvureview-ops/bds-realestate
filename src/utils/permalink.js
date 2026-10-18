@@ -229,6 +229,48 @@ export const getCategoryPermalink = (demand = 'sale', propertyType = null, cityN
 };
 
 /**
+ * Xây dựng URL Faceted Taxonomy & Navigation chuẩn hóa
+ * Hỗ trợ kết hợp đa diện (Phân cấp danh mục + Địa giới hành chính + Khoảng giá + Diện tích + Từ khóa + Xác thực)
+ */
+export const buildFacetedUrl = ({
+  demand = 'sale',
+  propertyType = null,
+  city = null,
+  district = null,
+  keyword = null,
+  priceRange = null,
+  areaRange = null,
+  onlyVerified = false
+} = {}) => {
+  const baseCategory = getCategoryPermalink(demand, propertyType, city);
+  const params = new URLSearchParams();
+
+  if (district && district.trim()) {
+    params.set('district', district.trim());
+  }
+  if (keyword && keyword.trim()) {
+    params.set('keyword', keyword.trim());
+  }
+  if (priceRange && priceRange !== 'all') {
+    params.set('priceRange', priceRange);
+  }
+  if (areaRange && areaRange !== 'all') {
+    params.set('areaRange', areaRange);
+  }
+  if (onlyVerified) {
+    params.set('onlyVerified', 'true');
+  }
+
+  // Nếu city không có trong CITY_SLUGS thì đưa vào query parameter
+  if (city && !CITY_SLUGS[city]) {
+    params.set('city', city.trim());
+  }
+
+  const queryString = params.toString();
+  return queryString ? `${baseCategory}?${queryString}` : baseCategory;
+};
+
+/**
  * Sinh Schema.org JSON-LD Structured Data chuẩn SEO cho Bất Động Sản (Google Search Rich Results)
  */
 export const generatePropertyJsonLd = (property, siteUrl = 'https://datbiendanang.vn') => {

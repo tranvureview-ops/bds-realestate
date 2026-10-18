@@ -4,11 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link } from '../router/RouterContext';
 import { VIP_PACKAGES } from '../data/mockData';
-import { getCategoryPermalink, toVietnameseSlug } from '../utils/permalink';
+import { getCategoryPermalink, toVietnameseSlug, buildFacetedUrl, CITY_SLUGS, BATDONGSAN_TAXONOMY } from '../utils/permalink';
 import InteractiveMap from './InteractiveMap';
 import ListingCard from './ListingCard';
 import CustomSelect from './CustomSelect';
-import { findAdministrativeMerger } from '../data/vietnamAdministrativeData';
+import { findAdministrativeMerger, VIETNAM_ADMINISTRATIVE_DATA } from '../data/vietnamAdministrativeData';
 import { validatePhoneNumber, normalizePhone } from '../utils/authValidation';
 
 export default function SinglePropertyPage({ propertyOverride = null }) {
@@ -276,7 +276,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     }
   };
 
-  // Trích xuất các cụm từ khóa tìm kiếm liên quan và hashtag
+  // Trích xuất các cụm từ khóa tìm kiếm liên quan và hashtag theo chuẩn Faceted Taxonomy
   const demandText = property.demand === 'sale' ? 'Bán' : 'Cho thuê';
   const typeText = property.propertyType === 'apartment' ? 'căn hộ chung cư'
     : property.propertyType === 'street-house' ? 'nhà mặt phố'
@@ -286,15 +286,82 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     : property.propertyType === 'shophouse' ? 'shophouse'
     : 'nhà riêng';
 
+  // Trích xuất tên đường/phố chính từ địa chỉ
+  const streetNameMatch = (property.address || '').split(',')[0]?.replace(/^(ngõ|ngách|hẻm|số)\s+[^,]+/i, '').trim();
+  const validStreet = streetNameMatch && streetNameMatch.length > 2 ? streetNameMatch : '';
+
   const relatedKeywords = [
-    `${demandText} ${typeText} ${property.district} ${property.city}`,
-    `Mua bán nhà đất ${property.district} chính chủ`,
-    `${demandText} ${typeText} đường ${property.address || property.district}`,
-    `Bất động sản ${property.district} sổ đỏ pháp lý rõ ràng`,
-    `${demandText} ${typeText} ${property.city} giá tốt`,
-    `Nhà đất ${property.district} vị trí đẹp`,
-    `Dự án bất động sản tại ${property.city}`,
-    `Bán nhà mặt tiền kinh doanh ${property.district}`
+    {
+      text: `${demandText} ${typeText} ${property.district} ${property.city}`,
+      url: buildFacetedUrl({
+        demand: property.demand,
+        propertyType: property.propertyType,
+        city: property.city,
+        district: property.district
+      })
+    },
+    {
+      text: `Mua bán nhà đất ${property.district} chính chủ`,
+      url: buildFacetedUrl({
+        demand: 'sale',
+        city: property.city,
+        district: property.district,
+        onlyVerified: true
+      })
+    },
+    {
+      text: `${demandText} ${typeText} đường ${property.address || property.district}`,
+      url: buildFacetedUrl({
+        demand: property.demand,
+        propertyType: property.propertyType,
+        city: property.city,
+        district: property.district,
+        keyword: validStreet || property.district
+      })
+    },
+    {
+      text: `Bất động sản ${property.district} sổ đỏ pháp lý rõ ràng`,
+      url: buildFacetedUrl({
+        demand: property.demand,
+        city: property.city,
+        district: property.district,
+        keyword: 'sổ đỏ'
+      })
+    },
+    {
+      text: `${demandText} ${typeText} ${property.city} giá tốt`,
+      url: buildFacetedUrl({
+        demand: property.demand,
+        propertyType: property.propertyType,
+        city: property.city,
+        priceRange: '2b-5b'
+      })
+    },
+    {
+      text: `Nhà đất ${property.district} vị trí đẹp`,
+      url: buildFacetedUrl({
+        demand: property.demand,
+        city: property.city,
+        district: property.district
+      })
+    },
+    {
+      text: `Dự án bất động sản tại ${property.city}`,
+      url: buildFacetedUrl({
+        demand: property.demand,
+        propertyType: 'land',
+        city: property.city
+      })
+    },
+    {
+      text: `Bán nhà mặt tiền kinh doanh ${property.district}`,
+      url: buildFacetedUrl({
+        demand: 'sale',
+        propertyType: 'street-house',
+        city: property.city,
+        district: property.district
+      })
+    }
   ];
 
   const cleanCitySlug = toVietnameseSlug(property.city || '').replace(/-/g, '');
@@ -302,15 +369,79 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   const cleanTypeSlug = toVietnameseSlug(typeText || '').replace(/-/g, '');
 
   const relatedHashtags = [
-    `#${cleanTypeSlug}`,
-    `#${cleanDistrictSlug}`,
-    `#${cleanCitySlug}`,
-    `#bds${cleanDistrictSlug}`,
-    `#nhadep${cleanCitySlug}`,
-    `#sodochinhchu`,
-    `#batdongsangiare`,
-    `#muabannhadat`
+    {
+      tag: `#${cleanTypeSlug}`,
+      url: buildFacetedUrl({ demand: property.demand, propertyType: property.propertyType, city: property.city })
+    },
+    {
+      tag: `#${cleanDistrictSlug}`,
+      url: buildFacetedUrl({ demand: property.demand, city: property.city, district: property.district })
+    },
+    {
+      tag: `#${cleanCitySlug}`,
+      url: buildFacetedUrl({ demand: property.demand, city: property.city })
+    },
+    {
+      tag: `#bds${cleanDistrictSlug}`,
+      url: buildFacetedUrl({ demand: property.demand, city: property.city, district: property.district })
+    },
+    {
+      tag: `#nhadep${cleanCitySlug}`,
+      url: buildFacetedUrl({ demand: property.demand, city: property.city })
+    },
+    {
+      tag: `#sodochinhchu`,
+      url: buildFacetedUrl({ demand: property.demand, city: property.city, keyword: 'sổ đỏ' })
+    },
+    {
+      tag: `#batdongsangiare`,
+      url: buildFacetedUrl({ demand: property.demand, city: property.city, priceRange: 'under-2b' })
+    },
+    {
+      tag: `#muabannhadat`,
+      url: property.demand === 'sale' ? '/nha-dat-ban' : '/nha-dat-cho-thue'
+    }
   ];
+
+  // Danh sách các quận/huyện thuộc cùng thành phố để điều hướng khu vực lân cận
+  const matchedAdminCity = (VIETNAM_ADMINISTRATIVE_DATA || []).find(c => 
+    c.name.toLowerCase() === (property.city || '').toLowerCase() ||
+    (property.city || '').toLowerCase().includes(c.name.toLowerCase())
+  );
+  const neighboringDistricts = (matchedAdminCity?.districts || []).slice(0, 8).map(d => ({
+    name: d.name,
+    count: properties.filter(p => 
+      p.status === 'active' && 
+      p.city === property.city && 
+      p.district?.toLowerCase().includes(d.name.toLowerCase().replace(/^(quận|huyện|thị xã|tp\.)\s+/i, ''))
+    ).length,
+    url: buildFacetedUrl({ demand: property.demand, city: property.city, district: d.name })
+  }));
+
+  // Điều hướng đa diện theo Loại Hình tại cùng Quận/Huyện
+  const propertyTypesInDistrict = [
+    { key: 'apartment', name: 'Căn hộ chung cư', icon: 'fa-building' },
+    { key: 'house', name: 'Nhà riêng, nhà ngõ', icon: 'fa-house' },
+    { key: 'street-house', name: 'Nhà mặt phố kinh doanh', icon: 'fa-store' },
+    { key: 'villa', name: 'Biệt thự liền kề', icon: 'fa-landmark-dome' },
+    { key: 'land', name: 'Đất nền dự án', icon: 'fa-map' }
+  ].map(t => ({
+    ...t,
+    count: properties.filter(p => p.status === 'active' && p.demand === property.demand && p.district === property.district && p.propertyType === t.key).length,
+    url: buildFacetedUrl({ demand: property.demand, propertyType: t.key, city: property.city, district: property.district })
+  }));
+
+  // Điều hướng đa diện theo Khoảng Giá tại Quận/Huyện
+  const priceRangesInDistrict = [
+    { key: 'under-2b', label: 'Dưới 2 tỷ' },
+    { key: '2b-5b', label: 'Từ 2 - 5 tỷ' },
+    { key: '5b-10b', label: 'Từ 5 - 10 tỷ' },
+    { key: '10b-30b', label: 'Từ 10 - 30 tỷ' },
+    { key: 'over-30b', label: 'Trên 30 tỷ' }
+  ].map(pr => ({
+    ...pr,
+    url: buildFacetedUrl({ demand: property.demand, city: property.city, district: property.district, priceRange: pr.key })
+  }));
 
   return (
     <div className="bg-slate-50 min-h-screen pb-24 md:pb-16">
@@ -989,11 +1120,11 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   {relatedKeywords.map((kw, idx) => (
                     <Link
                       key={idx}
-                      to={getCategoryPermalink(property.demand, property.propertyType, property.city)}
+                      to={kw.url}
                       className="group px-3.5 py-2 bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-xl text-xs font-semibold text-slate-700 hover:text-indigo-700 transition flex items-center gap-2 shadow-sm"
                     >
                       <i className="fa-solid fa-magnifying-glass text-[10px] text-slate-400 group-hover:text-indigo-600 transition"></i>
-                      <span>{kw}</span>
+                      <span>{kw.text}</span>
                       <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-300 group-hover:text-indigo-400 transition opacity-0 group-hover:opacity-100"></i>
                     </Link>
                   ))}
@@ -1007,15 +1138,105 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   Hashtag nổi bật:
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {relatedHashtags.map((tag, idx) => (
+                  {relatedHashtags.map((tagObj, idx) => (
                     <Link
                       key={idx}
-                      to={getCategoryPermalink(property.demand, property.propertyType, property.city)}
+                      to={tagObj.url}
                       className="px-3 py-1.5 bg-rose-50/70 hover:bg-rose-100 border border-rose-200 hover:border-rose-300 rounded-full text-xs font-bold text-rose-700 hover:text-rose-800 transition inline-flex items-center"
                     >
-                      <span className="text-rose-400">#</span><span>{tag.replace(/^#/, '')}</span>
+                      <span className="text-rose-400">#</span><span>{tagObj.tag.replace(/^#/, '')}</span>
                     </Link>
                   ))}
+                </div>
+              </div>
+
+              {/* BỘ ĐIỀU HƯỚNG ĐA DIỆN (FACETED TAXONOMY NAVIGATION) */}
+              <div className="pt-4 border-t border-slate-100 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <i className="fa-solid fa-sitemap text-emerald-600 text-xs"></i>
+                    Điều Hướng Danh Mục & Khu Vực Liên Quan (Faceted Navigation)
+                  </div>
+                  <span className="text-[11px] text-slate-400 hidden sm:inline">Chuẩn sàn Batdongsan.com.vn</span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                  {/* Cột 1: Khu vực lân cận */}
+                  {neighboringDistricts.length > 0 && (
+                    <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2.5">
+                      <div className="font-extrabold text-slate-800 flex items-center gap-1.5 text-[11px] uppercase tracking-wide">
+                        <i className="fa-solid fa-location-dot text-emerald-600"></i>
+                        <span>Quận / Huyện tại {property.city}</span>
+                      </div>
+                      <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                        {neighboringDistricts.map((nd, idx) => (
+                          <Link
+                            key={idx}
+                            to={nd.url}
+                            className={`flex items-center justify-between p-1.5 rounded-lg transition ${
+                              nd.name.toLowerCase().includes((property.district || '').toLowerCase().replace(/^(quận|huyện|thị xã|tp\.)\s+/i, ''))
+                                ? 'bg-emerald-100 text-emerald-900 font-bold'
+                                : 'hover:bg-white text-slate-600 hover:text-emerald-700'
+                            }`}
+                          >
+                            <span className="truncate">{nd.name}</span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-slate-500 font-semibold shrink-0">
+                              {nd.count} tin
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Cột 2: Loại hình BĐS tại quận */}
+                  <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2.5">
+                    <div className="font-extrabold text-slate-800 flex items-center gap-1.5 text-[11px] uppercase tracking-wide">
+                      <i className="fa-solid fa-building text-blue-600"></i>
+                      <span>Loại hình tại {property.district}</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {propertyTypesInDistrict.map((pt, idx) => (
+                        <Link
+                          key={idx}
+                          to={pt.url}
+                          className={`flex items-center justify-between p-1.5 rounded-lg transition ${
+                            property.propertyType === pt.key
+                              ? 'bg-blue-100 text-blue-900 font-bold'
+                              : 'hover:bg-white text-slate-600 hover:text-blue-700'
+                          }`}
+                        >
+                          <span className="truncate flex items-center gap-1.5">
+                            <i className={`fa-solid ${pt.icon} text-[10px] text-slate-400`}></i>
+                            {pt.name}
+                          </span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-white border border-slate-200 text-slate-500 font-semibold shrink-0">
+                            {pt.count} tin
+                          </span>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Cột 3: Khoảng giá tại quận */}
+                  <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2.5">
+                    <div className="font-extrabold text-slate-800 flex items-center gap-1.5 text-[11px] uppercase tracking-wide">
+                      <i className="fa-solid fa-tag text-rose-600"></i>
+                      <span>Mức giá tại {property.district}</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {priceRangesInDistrict.map((pr, idx) => (
+                        <Link
+                          key={idx}
+                          to={pr.url}
+                          className="flex items-center justify-between p-1.5 rounded-lg hover:bg-white text-slate-600 hover:text-rose-700 transition"
+                        >
+                          <span className="truncate">{demandText} nhà {pr.label}</span>
+                          <i className="fa-solid fa-arrow-right text-[9px] text-slate-300"></i>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

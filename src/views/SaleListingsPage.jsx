@@ -1,42 +1,61 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useRealEstate } from '../context/RealEstateContext';
-import { Link } from '../router/RouterContext';
+import { Link, useRouter } from '../router/RouterContext';
 import ListingGrid from '../components/ListingGrid';
 import { generateCategoryJsonLd } from '../utils/permalink';
 
 export default function SaleListingsPage({ taxonomyInfo = null }) {
   const { properties } = useRealEstate();
+  const searchParams = useSearchParams();
+  const { navigate } = useRouter();
+
+  // Đọc các giá trị bộ lọc đa diện (Faceted Taxonomy parameters) từ URL
+  const queryDistrict = searchParams?.get('district') || '';
+  const queryCity = searchParams?.get('city') || taxonomyInfo?.city || '';
+  const queryType = searchParams?.get('propertyType') || taxonomyInfo?.propertyType || 'all';
+  const queryKeyword = searchParams?.get('keyword') || searchParams?.get('q') || '';
+  const queryPrice = searchParams?.get('priceRange') || searchParams?.get('price') || 'all';
+  const queryArea = searchParams?.get('areaRange') || searchParams?.get('area') || 'all';
+  const queryVerified = searchParams?.get('onlyVerified') === 'true';
 
   const [filters, setFilters] = useState(() => ({
-    keyword: '',
+    keyword: queryKeyword,
     demand: 'sale', // Cố định chuyên trang Nhà Đất Bán
-    propertyType: taxonomyInfo?.propertyType || 'all',
-    city: taxonomyInfo?.city || '',
-    district: '',
-    priceRange: 'all',
-    areaRange: 'all',
+    propertyType: queryType,
+    city: queryCity,
+    district: queryDistrict,
+    priceRange: queryPrice,
+    areaRange: queryArea,
     bedroom: 'all',
     direction: 'all',
     hasVR360: false,
-    onlyVerified: false
+    onlyVerified: queryVerified
   }));
 
-  // Cập nhật bộ lọc và SEO Schema khi taxonomy URL thay đổi
+  // Cập nhật bộ lọc khi URL query parameters hoặc taxonomyInfo thay đổi
   useEffect(() => {
-    if (taxonomyInfo) {
-      setFilters(prev => ({
-        ...prev,
-        demand: 'sale',
-        propertyType: taxonomyInfo.propertyType || 'all',
-        city: taxonomyInfo.city || ''
-      }));
-    }
+    setFilters(prev => ({
+      ...prev,
+      demand: 'sale',
+      propertyType: queryType,
+      city: queryCity,
+      district: queryDistrict,
+      keyword: queryKeyword,
+      priceRange: queryPrice,
+      areaRange: queryArea,
+      onlyVerified: queryVerified
+    }));
 
     // Bơm Schema.org Category/CollectionPage JSON-LD
     const jsonLdData = generateCategoryJsonLd(
-      taxonomyInfo || { demand: 'sale', title: 'Mua Bán Nhà Đất Toàn Quốc', canonicalUrl: '/nha-dat-ban' },
+      taxonomyInfo || { 
+        demand: 'sale', 
+        title: queryDistrict ? `Mua Bán Nhà Đất tại ${queryDistrict}, ${queryCity || 'Toàn Quốc'}` : 'Mua Bán Nhà Đất Toàn Quốc', 
+        canonicalUrl: '/nha-dat-ban' 
+      },
       properties.filter(p => p.demand === 'sale')
     );
 
@@ -54,7 +73,35 @@ export default function SaleListingsPage({ taxonomyInfo = null }) {
         scriptTag.parentNode.removeChild(scriptTag);
       }
     };
-  }, [taxonomyInfo, properties]);
+  }, [taxonomyInfo, queryDistrict, queryCity, queryType, queryKeyword, queryPrice, queryArea, queryVerified, properties]);
+
+  // Kiểm tra có đang áp dụng Faceted Filters nào không
+  const hasActiveFacets = Boolean(
+    filters.district || 
+    (filters.city && !taxonomyInfo?.city) || 
+    (filters.propertyType !== 'all' && filters.propertyType !== taxonomyInfo?.propertyType) ||
+    filters.keyword || 
+    filters.priceRange !== 'all' || 
+    filters.areaRange !== 'all' || 
+    filters.onlyVerified
+  );
+
+  const resetAllFacets = () => {
+    setFilters({
+      keyword: '',
+      demand: 'sale',
+      propertyType: taxonomyInfo?.propertyType || 'all',
+      city: taxonomyInfo?.city || '',
+      district: '',
+      priceRange: 'all',
+      areaRange: 'all',
+      bedroom: 'all',
+      direction: 'all',
+      hasVR360: false,
+      onlyVerified: false
+    });
+    navigate(taxonomyInfo?.canonicalUrl || '/nha-dat-ban');
+  };
 
   const saleCount = properties.filter(p => p.status === 'active' && p.demand === 'sale' && (!p.expiresAt || Date.now() < new Date(p.expiresAt).getTime())).length;
 
@@ -99,6 +146,111 @@ export default function SaleListingsPage({ taxonomyInfo = null }) {
           </div>
         </div>
       </div>
+
+      {/* Active Faceted Filters Banner */}
+      {hasActiveFacets && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          <div className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-sm flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-bold text-slate-500 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                <i className="fa-solid fa-filter text-emerald-600"></i>
+                Đang lọc theo:
+              </span>
+
+              {filters.city && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full font-bold">
+                  <i className="fa-solid fa-location-dot text-[10px]"></i>
+                  {filters.city}
+                  <button 
+                    onClick={() => setFilters(prev => ({ ...prev, city: '' }))}
+                    className="hover:text-emerald-900 ml-0.5"
+                    title="Bỏ lọc thành phố"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {filters.district && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full font-bold">
+                  <i className="fa-solid fa-map-pin text-[10px]"></i>
+                  {filters.district}
+                  <button 
+                    onClick={() => setFilters(prev => ({ ...prev, district: '' }))}
+                    className="hover:text-blue-900 ml-0.5"
+                    title="Bỏ lọc quận huyện"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {filters.propertyType && filters.propertyType !== 'all' && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full font-bold">
+                  <i className="fa-solid fa-building text-[10px]"></i>
+                  {filters.propertyType === 'apartment' ? 'Chung cư' : filters.propertyType === 'house' ? 'Nhà riêng' : filters.propertyType === 'street-house' ? 'Nhà mặt phố' : filters.propertyType === 'villa' ? 'Biệt thự' : filters.propertyType === 'land' ? 'Đất nền' : filters.propertyType}
+                  <button 
+                    onClick={() => setFilters(prev => ({ ...prev, propertyType: 'all' }))}
+                    className="hover:text-indigo-900 ml-0.5"
+                    title="Bỏ lọc loại hình"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {filters.keyword && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full font-bold">
+                  <i className="fa-solid fa-magnifying-glass text-[10px]"></i>
+                  "{filters.keyword}"
+                  <button 
+                    onClick={() => setFilters(prev => ({ ...prev, keyword: '' }))}
+                    className="hover:text-amber-900 ml-0.5"
+                    title="Bỏ lọc từ khóa"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {filters.priceRange && filters.priceRange !== 'all' && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-full font-bold">
+                  <i className="fa-solid fa-tag text-[10px]"></i>
+                  Khoảng giá: {filters.priceRange}
+                  <button 
+                    onClick={() => setFilters(prev => ({ ...prev, priceRange: 'all' }))}
+                    className="hover:text-rose-900 ml-0.5"
+                    title="Bỏ lọc giá"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {filters.onlyVerified && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-teal-50 text-teal-700 border border-teal-200 rounded-full font-bold">
+                  <i className="fa-solid fa-certificate text-[10px]"></i>
+                  Chính chủ / Đã xác thực
+                  <button 
+                    onClick={() => setFilters(prev => ({ ...prev, onlyVerified: false }))}
+                    className="hover:text-teal-900 ml-0.5"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+            </div>
+
+            <button
+              onClick={resetAllFacets}
+              className="text-slate-500 hover:text-rose-600 font-bold transition flex items-center gap-1 cursor-pointer"
+            >
+              <i className="fa-solid fa-rotate-left"></i>
+              <span>Xóa toàn bộ lọc</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main Listing Grid Component */}
       <ListingGrid 
