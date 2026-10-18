@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { normalizePhone } from '../utils/authValidation';
+import { Link, useRouter } from '../router/RouterContext';
 
 export default function UserProfilePage() {
   const { 
@@ -19,6 +20,8 @@ export default function UserProfilePage() {
     deleteAppointment,
     navigateToProperty
   } = useRealEstate();
+
+  const { navigate } = useRouter();
 
   const [activeTab, setActiveTab] = useState('info'); // 'info', 'kyc', 'security', 'notifications', 'appointments'
   const [appointmentFilter, setAppointmentFilter] = useState('all'); // 'all', 'pending', 'confirmed', 'completed', 'cancelled'
@@ -299,20 +302,20 @@ export default function UserProfilePage() {
           </button>
 
           <div className="pt-3 border-t border-slate-100 space-y-1">
-            <button
-              onClick={() => setCurrentView('dashboard')}
-              className="w-full p-3 rounded-2xl text-slate-700 hover:bg-slate-50 transition flex items-center gap-3 text-left"
+            <Link
+              to="/quan-ly-tin"
+              className="w-full p-3 rounded-2xl text-slate-700 hover:bg-slate-50 hover:text-emerald-700 transition flex items-center gap-3 text-left font-bold"
             >
-              <i className="fa-solid fa-list-check text-sm w-5 text-center text-slate-500"></i>
+              <i className="fa-solid fa-list-check text-sm w-5 text-center text-emerald-600"></i>
               <span>Quản Lý Tin Đăng Của Tôi</span>
-            </button>
+            </Link>
 
             <button
               onClick={() => {
                 logoutUser();
-                setCurrentView('listings');
+                navigate('/dang-nhap');
               }}
-              className="w-full p-3 rounded-2xl text-rose-600 hover:bg-rose-50 transition flex items-center gap-3 text-left"
+              className="w-full p-3 rounded-2xl text-rose-600 hover:bg-rose-50 transition flex items-center gap-3 text-left font-bold cursor-pointer"
             >
               <i className="fa-solid fa-arrow-right-from-bracket text-sm w-5 text-center"></i>
               <span>Đăng Xuất Tài Khoản</span>
