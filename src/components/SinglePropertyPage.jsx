@@ -75,6 +75,9 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [copiedShareLink, setCopiedShareLink] = useState(false);
 
+  // Tab lọc cụm từ khóa theo công thức SEO ('all', 'location', 'attributes', 'pricing')
+  const [seoFormulaTab, setSeoFormulaTab] = useState('all');
+
   // Tự động đồng bộ và điền sẵn thông tin người dùng nếu đã đăng nhập khi mở modal báo cáo
   useEffect(() => {
     if (isReportModalOpen && currentUser) {
@@ -276,7 +279,9 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     }
   };
 
-  // Trích xuất các cụm từ khóa tìm kiếm liên quan và hashtag theo chuẩn Faceted Taxonomy
+  // --------------------------------------------------------------------------
+  // HỆ THỐNG CÔNG THỨC GHÉP TỪ KHÓA TỐI ƯU HÓA SEO BẤT ĐỘNG SẢN (3 NHÓM / 6 CÔNG THỨC)
+  // --------------------------------------------------------------------------
   const demandText = property.demand === 'sale' ? 'Bán' : 'Cho thuê';
   const typeText = property.propertyType === 'apartment' ? 'căn hộ chung cư'
     : property.propertyType === 'street-house' ? 'nhà mặt phố'
@@ -286,83 +291,240 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     : property.propertyType === 'shophouse' ? 'shophouse'
     : 'nhà riêng';
 
-  // Trích xuất tên đường/phố chính từ địa chỉ
-  const streetNameMatch = (property.address || '').split(',')[0]?.replace(/^(ngõ|ngách|hẻm|số)\s+[^,]+/i, '').trim();
-  const validStreet = streetNameMatch && streetNameMatch.length > 2 ? streetNameMatch : '';
+  // 1. Tên Dự án (hoặc fallback tên khu vực)
+  const cleanProject = (property.project || '')
+    .replace(/\(.*?\)/g, '')
+    .replace(/^Dự án:\s*/i, '')
+    .trim() || (property.title.includes('Celadon') ? 'Celadon City' : property.title.includes('Goldmark') ? 'Goldmark City' : property.title.includes('Vinhomes') ? 'Vinhomes' : '');
 
-  const relatedKeywords = [
+  // 2. Tên Đường (Làm sạch chữ 'Đường' để chuẩn hóa ghép: Đường [Tên đường])
+  let rawStreet = property.street || '';
+  if (!rawStreet && property.address) {
+    const firstPart = property.address.split(',')[0] || '';
+    rawStreet = firstPart.replace(/^địa chỉ:\s*/i, '').trim();
+  }
+  const cleanStreet = rawStreet
+    .replace(/^(đường|phố|ngõ|ngách|hẻm|số)\s+[^,]+/i, '')
+    .replace(/^(đường|phố)\s+/i, '')
+    .trim() || 'Kim Mã';
+
+  // 3. Tên Phường (Làm sạch chữ 'Phường', 'Xã' để chuẩn hóa ghép: phường [Tên phường])
+  let rawWard = property.ward || '';
+  if (!rawWard && property.address) {
+    const matchWard = property.address.match(/(?:phường|xã|phường\/xã)\s+([^,]+)/i);
+    if (matchWard) rawWard = matchWard[1];
+  }
+  const cleanWard = (rawWard || '').replace(/^(phường|xã|phường\/xã)\s+/i, '').trim() || 'Kim Mã';
+
+  // 4. Quận / Khu vực & Thành phố
+  const districtName = property.district || 'Quận Ba Đình';
+  const cityName = property.city || 'Hà Nội';
+
+  // 5. Diện tích min - max (Diện tích làm tròn bao quanh diện tích thực tế)
+  const curArea = Number(property.area) || 80;
+  const areaMin = Math.max(20, Math.floor((curArea - 5) / 10) * 10);
+  const areaMax = areaMin + 20;
+
+  // 6. Số phòng ngủ
+  const bedroomCount = property.bedroom || 2;
+
+  // 7. Khoảng giá min - max (Dựa trên giá thực tế của BĐS)
+  const curPrice = Number(property.price) || 3500000000;
+  let priceMinText = '3 tỷ';
+  let priceMaxText = '5 tỷ';
+  let matchedPriceRange = '2b-5b';
+
+  if (property.demand === 'rent') {
+    const priceMillion = curPrice / 1000000;
+    if (priceMillion < 10) {
+      priceMinText = '5 triệu';
+      priceMaxText = '10 triệu';
+      matchedPriceRange = 'under-2b';
+    } else if (priceMillion < 25) {
+      priceMinText = '10 triệu';
+      priceMaxText = '20 triệu';
+      matchedPriceRange = '2b-5b';
+    } else {
+      priceMinText = '20 triệu';
+      priceMaxText = '40 triệu';
+      matchedPriceRange = '5b-10b';
+    }
+  } else {
+    const priceBillion = curPrice / 1000000000;
+    if (priceBillion < 2) {
+      priceMinText = '1 tỷ';
+      priceMaxText = '2 tỷ';
+      matchedPriceRange = 'under-2b';
+    } else if (priceBillion <= 5) {
+      priceMinText = '3 tỷ';
+      priceMaxText = '5 tỷ';
+      matchedPriceRange = '2b-5b';
+    } else if (priceBillion <= 10) {
+      priceMinText = '7 tỷ';
+      priceMaxText = '10 tỷ';
+      matchedPriceRange = '5b-10b';
+    } else if (priceBillion <= 20) {
+      priceMinText = '10 tỷ';
+      priceMaxText = '20 tỷ';
+      matchedPriceRange = '10b-30b';
+    } else {
+      priceMinText = '20 tỷ';
+      priceMaxText = '30 tỷ';
+      matchedPriceRange = 'over-30b';
+    }
+  }
+
+  // TỔNG HỢP CÁC CỤM TỪ KHÓA THEO 3 NHÓM CÔNG THỨC SEO CHUẨN:
+  const seoFormulaKeywords = [
+    // -------------------------------------------------------------
+    // NHÓM 1: CÔNG THỨC GHÉP THEO VỊ TRÍ & ĐỊA LÝ (Location-based)
+    // -------------------------------------------------------------
+    // Công thức 1: [Loại hình] + [Tên dự án] + từ [Diện tích min] đến [Diện tích max]
     {
-      text: `${demandText} ${typeText} ${property.district} ${property.city}`,
+      group: 'location',
+      groupName: 'Vị trí & Địa lý',
+      formula: 'Công thức 1: Dự án & Diện tích',
+      text: cleanProject 
+        ? `${demandText} ${typeText} ${cleanProject} từ ${areaMin} m2 đến ${areaMax} m2`
+        : `${demandText} ${typeText} ${districtName} từ ${areaMin} m2 đến ${areaMax} m2`,
+      badge: `${areaMin} - ${areaMax} m²`,
       url: buildFacetedUrl({
         demand: property.demand,
         propertyType: property.propertyType,
-        city: property.city,
-        district: property.district
+        city: cityName,
+        district: districtName,
+        keyword: cleanProject || ''
       })
     },
+    // Công thức 2: [Loại hình] + Đường [Tên đường] + [Quận/Khu vực]
     {
-      text: `Mua bán nhà đất ${property.district} chính chủ`,
-      url: buildFacetedUrl({
-        demand: 'sale',
-        city: property.city,
-        district: property.district,
-        onlyVerified: true
-      })
-    },
-    {
-      text: `${demandText} ${typeText} đường ${property.address || property.district}`,
+      group: 'location',
+      groupName: 'Vị trí & Địa lý',
+      formula: 'Công thức 2: Đường & Khu vực',
+      text: `${demandText} ${typeText} Đường ${cleanStreet} ${districtName}`,
+      badge: `Đường ${cleanStreet}`,
       url: buildFacetedUrl({
         demand: property.demand,
         propertyType: property.propertyType,
-        city: property.city,
-        district: property.district,
-        keyword: validStreet || property.district
+        city: cityName,
+        district: districtName,
+        keyword: cleanStreet
       })
     },
+    // Công thức 3: [Loại hình] + Phường [Tên phường] + [Quận]
     {
-      text: `Bất động sản ${property.district} sổ đỏ pháp lý rõ ràng`,
-      url: buildFacetedUrl({
-        demand: property.demand,
-        city: property.city,
-        district: property.district,
-        keyword: 'sổ đỏ'
-      })
-    },
-    {
-      text: `${demandText} ${typeText} ${property.city} giá tốt`,
+      group: 'location',
+      groupName: 'Vị trí & Địa lý',
+      formula: 'Công thức 3: Phường & Quận',
+      text: `${demandText} ${typeText} phường ${cleanWard} ${districtName}`,
+      badge: `Phường ${cleanWard}`,
       url: buildFacetedUrl({
         demand: property.demand,
         propertyType: property.propertyType,
-        city: property.city,
-        priceRange: '2b-5b'
+        city: cityName,
+        district: districtName,
+        keyword: cleanWard
       })
     },
+
+    // -------------------------------------------------------------
+    // NHÓM 2: CÔNG THỨC GHÉP THEO ĐẶC ĐIỂM / TIỆN ÍCH (Property Attributes)
+    // -------------------------------------------------------------
+    // Công thức 4: [Loại hình] + [Khu vực/Thành phố] + [Số phòng ngủ] PN
     {
-      text: `Nhà đất ${property.district} vị trí đẹp`,
+      group: 'attributes',
+      groupName: 'Đặc điểm & Tiện ích',
+      formula: 'Công thức 4: Số phòng ngủ',
+      text: `${demandText} ${typeText} ${cityName} ${bedroomCount} PN`,
+      badge: `${bedroomCount} PN ${cityName}`,
       url: buildFacetedUrl({
         demand: property.demand,
-        city: property.city,
-        district: property.district
+        propertyType: property.propertyType,
+        city: cityName,
+        keyword: `${bedroomCount} PN`
       })
     },
     {
-      text: `Dự án bất động sản tại ${property.city}`,
+      group: 'attributes',
+      groupName: 'Đặc điểm & Tiện ích',
+      formula: 'Công thức 4: Số phòng ngủ (Quận)',
+      text: `${demandText} ${typeText} ${districtName} ${bedroomCount} PN`,
+      badge: `${bedroomCount} PN ${districtName}`,
       url: buildFacetedUrl({
         demand: property.demand,
-        propertyType: 'land',
-        city: property.city
+        propertyType: property.propertyType,
+        city: cityName,
+        district: districtName,
+        keyword: `${bedroomCount} PN`
+      })
+    },
+    // Công thức 5: [Loại hình] + [Khu vực] + full nội thất / có ban công
+    {
+      group: 'attributes',
+      groupName: 'Đặc điểm & Tiện ích',
+      formula: 'Công thức 5: Tiện ích / Nội thất',
+      text: `${demandText} ${typeText} ${districtName} full nội thất`,
+      badge: 'Full nội thất',
+      url: buildFacetedUrl({
+        demand: property.demand,
+        propertyType: property.propertyType,
+        city: cityName,
+        district: districtName,
+        keyword: 'full nội thất'
       })
     },
     {
-      text: `Bán nhà mặt tiền kinh doanh ${property.district}`,
+      group: 'attributes',
+      groupName: 'Đặc điểm & Tiện ích',
+      formula: 'Công thức 5: Ban công / View thoáng',
+      text: `${demandText} ${typeText} ${districtName} có ban công`,
+      badge: 'Có ban công',
       url: buildFacetedUrl({
-        demand: 'sale',
-        propertyType: 'street-house',
-        city: property.city,
-        district: property.district
+        demand: property.demand,
+        propertyType: property.propertyType,
+        city: cityName,
+        district: districtName,
+        keyword: 'ban công'
+      })
+    },
+
+    // -------------------------------------------------------------
+    // NHÓM 3: CÔNG THỨC GHÉP THEO KHOẢNG GIÁ & TÀI CHÍNH (Pricing Tier)
+    // -------------------------------------------------------------
+    // Công thức 6: [Loại hình] + [Khu vực] + từ [Giá min] đến [Giá max]
+    {
+      group: 'pricing',
+      groupName: 'Khoảng giá & Tài chính',
+      formula: 'Công thức 6: Khoảng giá (Thành phố)',
+      text: `${demandText} ${typeText} ${cityName} từ ${priceMinText} đến ${priceMaxText}`,
+      badge: `${priceMinText} - ${priceMaxText}`,
+      url: buildFacetedUrl({
+        demand: property.demand,
+        propertyType: property.propertyType,
+        city: cityName,
+        priceRange: matchedPriceRange
+      })
+    },
+    {
+      group: 'pricing',
+      groupName: 'Khoảng giá & Tài chính',
+      formula: 'Công thức 6: Khoảng giá (Quận / Huyện)',
+      text: `${demandText} ${typeText} ${districtName} từ ${priceMinText} đến ${priceMaxText}`,
+      badge: `${priceMinText} - ${priceMaxText}`,
+      url: buildFacetedUrl({
+        demand: property.demand,
+        propertyType: property.propertyType,
+        city: cityName,
+        district: districtName,
+        priceRange: matchedPriceRange
       })
     }
   ];
+
+  // Danh sách từ khóa lọc theo tab hiện tại
+  const visibleKeywords = seoFormulaTab === 'all' 
+    ? seoFormulaKeywords 
+    : seoFormulaKeywords.filter(k => k.group === seoFormulaTab);
 
   const cleanCitySlug = toVietnameseSlug(property.city || '').replace(/-/g, '');
   const cleanDistrictSlug = toVietnameseSlug(property.district || '').replace(/-/g, '');
@@ -1110,22 +1272,91 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 </div>
               </div>
 
-              {/* Cụm từ khóa tìm kiếm liên quan */}
-              <div className="space-y-2.5">
-                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                  <i className="fa-solid fa-magnifying-glass text-indigo-500 text-xs"></i>
-                  Cụm từ khóa tìm kiếm phổ biến:
+              {/* Cụm từ khóa tìm kiếm chuẩn SEO (3 nhóm công thức) */}
+              <div className="space-y-3.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                  <div className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <i className="fa-solid fa-magnifying-glass text-indigo-500 text-xs"></i>
+                    CỤM TỪ KHÓA TÌM KIẾM PHỔ BIẾN (TỐI ƯU SEO):
+                  </div>
+
+                  {/* Tabs phân loại 3 nhóm công thức */}
+                  <div className="flex flex-wrap items-center gap-1.5 p-1 bg-slate-100/80 rounded-xl text-[11px] font-bold">
+                    <button
+                      type="button"
+                      onClick={() => setSeoFormulaTab('all')}
+                      className={`px-2.5 py-1 rounded-lg transition ${
+                        seoFormulaTab === 'all' 
+                          ? 'bg-white text-indigo-700 shadow-xs' 
+                          : 'text-slate-500 hover:text-slate-900'
+                      }`}
+                    >
+                      Tất cả ({seoFormulaKeywords.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSeoFormulaTab('location')}
+                      className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 ${
+                        seoFormulaTab === 'location' 
+                          ? 'bg-white text-emerald-700 shadow-xs' 
+                          : 'text-slate-500 hover:text-slate-900'
+                      }`}
+                      title="Công thức 1 (Dự án & Diện tích), Công thức 2 (Đường & Khu vực), Công thức 3 (Phường / Quận)"
+                    >
+                      <i className="fa-solid fa-location-dot text-[10px] text-emerald-600"></i>
+                      <span>1. Vị trí & Địa lý</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSeoFormulaTab('attributes')}
+                      className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 ${
+                        seoFormulaTab === 'attributes' 
+                          ? 'bg-white text-blue-700 shadow-xs' 
+                          : 'text-slate-500 hover:text-slate-900'
+                      }`}
+                      title="Công thức 4 (Số phòng ngủ), Công thức 5 (Tiện ích / Nội thất & Ban công)"
+                    >
+                      <i className="fa-solid fa-couch text-[10px] text-blue-600"></i>
+                      <span>2. Đặc điểm & Tiện ích</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSeoFormulaTab('pricing')}
+                      className={`px-2.5 py-1 rounded-lg transition flex items-center gap-1 ${
+                        seoFormulaTab === 'pricing' 
+                          ? 'bg-white text-rose-700 shadow-xs' 
+                          : 'text-slate-500 hover:text-slate-900'
+                      }`}
+                      title="Công thức 6 (Khoảng giá ngân sách)"
+                    >
+                      <i className="fa-solid fa-tag text-[10px] text-rose-600"></i>
+                      <span>3. Khoảng giá</span>
+                    </button>
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {relatedKeywords.map((kw, idx) => (
+
+                {/* Danh sách các cụm từ khóa sinh theo công thức SEO */}
+                <div className="flex flex-wrap gap-2.5">
+                  {visibleKeywords.map((kw, idx) => (
                     <Link
                       key={idx}
                       to={kw.url}
-                      className="group px-3.5 py-2 bg-slate-50 hover:bg-indigo-50 border border-slate-200 hover:border-indigo-300 rounded-xl text-xs font-semibold text-slate-700 hover:text-indigo-700 transition flex items-center gap-2 shadow-sm"
+                      className="group px-3.5 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 hover:border-indigo-400 rounded-2xl text-xs font-semibold text-slate-800 hover:text-indigo-700 transition flex items-center gap-2 shadow-xs hover:shadow-sm"
                     >
-                      <i className="fa-solid fa-magnifying-glass text-[10px] text-slate-400 group-hover:text-indigo-600 transition"></i>
+                      <i className="fa-solid fa-magnifying-glass text-[11px] text-slate-400 group-hover:text-indigo-600 transition"></i>
                       <span>{kw.text}</span>
-                      <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-300 group-hover:text-indigo-400 transition opacity-0 group-hover:opacity-100"></i>
+                      {kw.badge && (
+                        <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-md border shrink-0 ${
+                          kw.group === 'location'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : kw.group === 'attributes'
+                            ? 'bg-blue-50 text-blue-700 border-blue-200'
+                            : 'bg-rose-50 text-rose-700 border-rose-200'
+                        }`}>
+                          {kw.badge}
+                        </span>
+                      )}
+                      <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-300 group-hover:text-indigo-500 transition opacity-0 group-hover:opacity-100"></i>
                     </Link>
                   ))}
                 </div>
