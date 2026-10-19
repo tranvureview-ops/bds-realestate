@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link } from '../router/RouterContext';
 import HeroSearch from '../components/HeroSearch';
 import ListingGrid from '../components/ListingGrid';
 import VipPackageShowcase from '../components/VipPackageShowcase';
+import { filterProperties } from '../utils/propertyFilter';
 
 
 export default function HomePage() {
@@ -26,22 +27,9 @@ export default function HomePage() {
     onlyVerified: false
   });
 
-  const matchingCount = properties.filter(prop => {
-    if (prop.status !== 'active') return false;
-    if (prop.expiresAt && Date.now() >= new Date(prop.expiresAt).getTime()) return false;
-    if (filters.demand && filters.demand !== 'all' && prop.demand !== filters.demand) return false;
-    if (filters.propertyType && filters.propertyType !== 'all' && prop.propertyType !== filters.propertyType) return false;
-    if (filters.city && !prop.city?.toLowerCase().includes(filters.city.toLowerCase())) return false;
-    if (filters.district && !prop.district?.toLowerCase().includes(filters.district.toLowerCase())) return false;
-    if (filters.keyword) {
-      const kw = filters.keyword.toLowerCase();
-      const matchTitle = prop.title?.toLowerCase().includes(kw);
-      const matchAddress = prop.address?.toLowerCase().includes(kw);
-      const matchDesc = prop.description?.toLowerCase().includes(kw);
-      if (!matchTitle && !matchAddress && !matchDesc) return false;
-    }
-    return true;
-  }).length;
+  const matchingCount = useMemo(() => {
+    return filterProperties(properties, filters).length;
+  }, [properties, filters]);
 
   return (
     <div className="space-y-8">

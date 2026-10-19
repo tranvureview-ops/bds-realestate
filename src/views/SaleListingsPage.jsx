@@ -6,6 +6,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { Link, useRouter } from '../router/RouterContext';
 import ListingGrid from '../components/ListingGrid';
 import { generateCategoryJsonLd, formatPriceRangeText, formatAreaRangeText } from '../utils/permalink';
+import { filterProperties } from '../utils/propertyFilter';
 
 export default function SaleListingsPage({ taxonomyInfo = null }) {
   const { properties } = useRealEstate();
@@ -121,7 +122,9 @@ export default function SaleListingsPage({ taxonomyInfo = null }) {
     navigate(taxonomyInfo?.canonicalUrl || '/nha-dat-ban');
   };
 
-  const saleCount = properties.filter(p => p.status === 'active' && p.demand === 'sale' && (!p.expiresAt || Date.now() < new Date(p.expiresAt).getTime())).length;
+  const saleCount = useMemo(() => {
+    return filterProperties(properties, filters).length;
+  }, [properties, filters]);
 
   return (
     <div className="space-y-6 pb-12">
