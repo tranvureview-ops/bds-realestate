@@ -582,25 +582,33 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             </Link>
             <span className="text-slate-300">/</span>
             <Link 
-              to={property.demand === 'sale' ? '/nha-dat-ban' : '/nha-dat-cho-thue'} 
+              to={getCategoryPermalink(property.demand, property.propertyType)} 
               className="hover:text-emerald-600 transition font-semibold"
             >
-              {property.demand === 'sale' ? 'Nhà đất bán' : 'Nhà đất cho thuê'}
+              {(property.propertyType && BATDONGSAN_TAXONOMY[property.demand]?.types[property.propertyType]?.name) || (property.demand === 'sale' ? 'Bán nhà riêng, nhà phố' : 'Cho thuê nhà riêng, nhà phố')}
             </Link>
-            <span className="text-slate-300">/</span>
-            <Link 
-              to={getCategoryPermalink(property.demand, null, property.city)}
-              className="text-slate-600 hover:text-emerald-600 transition font-semibold"
-            >
-              {property.city}
-            </Link>
-            <span className="text-slate-300">/</span>
-            <Link 
-              to={getCategoryPermalink(property.demand, property.propertyType, property.city)}
-              className="text-slate-600 hover:text-emerald-600 transition font-semibold"
-            >
-              {property.district}
-            </Link>
+            {property.city && (
+              <>
+                <span className="text-slate-300">/</span>
+                <Link 
+                  to={getCategoryPermalink(property.demand, property.propertyType, property.city)}
+                  className="text-slate-600 hover:text-emerald-600 transition font-semibold"
+                >
+                  {property.city}
+                </Link>
+              </>
+            )}
+            {property.district && (
+              <>
+                <span className="text-slate-300">/</span>
+                <Link 
+                  to={getCategoryPermalink(property.demand, property.propertyType, property.city, property.district)}
+                  className="text-slate-600 hover:text-emerald-600 transition font-semibold"
+                >
+                  {property.district}
+                </Link>
+              </>
+            )}
             <span className="text-slate-300">/</span>
             <span className="text-slate-900 font-bold truncate max-w-[200px] sm:max-w-xs">{property.title}</span>
           </nav>

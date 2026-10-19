@@ -35,7 +35,7 @@ export const BATDONGSAN_TAXONOMY = {
     title: 'Nhà Đất Bán Toàn Quốc',
     types: {
       apartment: { slug: '/ban-can-ho-chung-cu', name: 'Bán căn hộ chung cư' },
-      house: { slug: '/ban-nha-rieng', name: 'Bán nhà riêng' },
+      house: { slug: '/ban-nha-rieng', name: 'Bán nhà riêng, nhà phố' },
       'street-house': { slug: '/ban-nha-mat-pho', name: 'Bán nhà mặt phố' },
       villa: { slug: '/ban-nha-biet-thu-lien-ke', name: 'Bán nhà biệt thự, liền kề' },
       land: { slug: '/ban-dat-nen-du-an', name: 'Bán đất nền dự án' },
@@ -48,7 +48,7 @@ export const BATDONGSAN_TAXONOMY = {
     title: 'Cho Thuê Nhà Đất Toàn Quốc',
     types: {
       apartment: { slug: '/cho-thue-can-ho-chung-cu', name: 'Cho thuê căn hộ chung cư' },
-      house: { slug: '/cho-thue-nha-rieng', name: 'Cho thuê nhà riêng, nguyên căn' },
+      house: { slug: '/cho-thue-nha-rieng', name: 'Cho thuê nhà riêng, nhà phố' },
       'street-house': { slug: '/cho-thue-nha-mat-pho', name: 'Cho thuê nhà mặt phố kinh doanh' },
       villa: { slug: '/cho-thue-nha-biet-thu-lien-ke', name: 'Cho thuê biệt thự nghỉ dưỡng' },
       land: { slug: '/cho-thue-kho-nha-xuong-dat', name: 'Cho thuê kho, bãi, đất' },
@@ -170,8 +170,10 @@ export const parseTaxonomyUrl = (urlPath) => {
 
     // 2. Khớp từng loại hình: /ban-can-ho-chung-cu, /cho-thue-van-phong...
     for (const [typeKey, typeInfo] of Object.entries(group.types)) {
-      // Khớp chính xác loại hình
-      if (clean === typeInfo.slug) {
+      // Khớp chính xác loại hình hoặc alias Bán nhà riêng, nhà phố
+      if (clean === typeInfo.slug || 
+          (typeKey === 'house' && clean === '/ban-nha-rieng-nha-pho' && demand === 'sale') ||
+          (typeKey === 'house' && clean === '/cho-thue-nha-rieng-nha-pho' && demand === 'rent')) {
         return {
           isTaxonomy: true,
           demand,
@@ -297,11 +299,29 @@ export const parseTaxonomyUrl = (urlPath) => {
       ward = 'Phường ' + wardMatch[1].replace(/-/g, ' ');
     }
 
-    // Sinh Title SEO chuẩn
-    let title = raw
-      .replace(/-/g, ' ')
-      .replace(/^(ban|cho thue)\s+/i, (m) => m.charAt(0).toUpperCase() + m.slice(1).toLowerCase());
-    title = title.charAt(0).toUpperCase() + title.slice(1);
+    // Sinh Title SEO chuẩn tiếng Việt có dấu
+    let typeName = '';
+    if (propertyType && propertyType !== 'all' && BATDONGSAN_TAXONOMY[demand]?.types[propertyType]) {
+      typeName = BATDONGSAN_TAXONOMY[demand].types[propertyType].name;
+    } else {
+      typeName = demand === 'sale' ? 'Mua Bán Nhà Đất' : 'Cho Thuê Nhà Đất';
+    }
+
+    let title = typeName;
+    if (ward && district) {
+      title = `${typeName} tại ${ward}, ${district}`;
+      if (city) title += `, ${city}`;
+    } else if (district) {
+      title = `${typeName} tại ${district}`;
+      if (city) title += `, ${city}`;
+    } else if (city) {
+      title = `${typeName} tại ${city}`;
+    } else {
+      title = raw
+        .replace(/-/g, ' ')
+        .replace(/^(ban|cho thue)\s+/i, (m) => m.charAt(0).toUpperCase() + m.slice(1).toLowerCase());
+      title = title.charAt(0).toUpperCase() + title.slice(1);
+    }
 
     return {
       isTaxonomy: true,
@@ -378,23 +398,41 @@ export const parsePropertyUrl = (urlPath) => {
 };
 
 /**
- * Tạo URL danh mục chuẩn Batdongsan theo Nhu cầu & Loại hình
+ * Tạo URL danh mục chuẩn Batdongsan theo Nhu cầu, Loại hình, Tỉnh/Thành & Quận/Huyện
+ * Hỗ trợ các trường hợp Breadcrumb & Faceted Navigation:
+ * - Cấp Loại hình: /ban-nha-rieng-nha-pho (hoặc /ban-can-ho-chung-cu, /cho-thue-can-ho-chung-cu)
+ * - Cấp Tỉnh/Thành: /ban-nha-rieng-ha-noi
+ * - Cấp Quận/Huyện: /ban-nha-rieng-quan-ba-dinh
  */
-export const getCategoryPermalink = (demand = 'sale', propertyType = null, cityName = null) => {
+export const getCategoryPermalink = (demand = 'sale', propertyType = null, cityName = null, districtName = null) => {
   const group = BATDONGSAN_TAXONOMY[demand] || BATDONGSAN_TAXONOMY.sale;
   
+  // Base type slug chuẩn (ví dụ /ban-nha-rieng, /ban-can-ho-chung-cu, hoặc base /nha-dat-ban)
+  const baseTypeSlug = (propertyType && group.types[propertyType])
+    ? group.types[propertyType].slug
+    : group.base;
+
+  // 1. Nếu có Quận/Huyện: Kết hợp Loại hình + Quận/Huyện (Ví dụ: /ban-nha-rieng-quan-ba-dinh)
+  if (districtName && districtName.trim()) {
+    const rawDistrictSlug = toVietnameseSlug(districtName.trim());
+    return `${baseTypeSlug}-${rawDistrictSlug}`;
+  }
+
+  // 2. Nếu có Tỉnh/Thành phố (không có Quận/Huyện): Kết hợp Loại hình + Tỉnh/Thành phố (Ví dụ: /ban-nha-rieng-ha-noi)
+  if (cityName && cityName.trim()) {
+    const citySlug = CITY_SLUGS[cityName.trim()] || toVietnameseSlug(cityName.trim());
+    return `${baseTypeSlug}-${citySlug}`;
+  }
+
+  // 3. Nếu chỉ có Loại hình BĐS (Ví dụ: Bán nhà riêng, nhà phố -> /ban-nha-rieng-nha-pho)
   if (propertyType && group.types[propertyType]) {
-    const typeSlug = group.types[propertyType].slug;
-    if (cityName && CITY_SLUGS[cityName]) {
-      return `${typeSlug}-${CITY_SLUGS[cityName]}`;
+    if (propertyType === 'house') {
+      return demand === 'sale' ? '/ban-nha-rieng-nha-pho' : '/cho-thue-nha-rieng-nha-pho';
     }
-    return typeSlug;
+    return group.types[propertyType].slug;
   }
 
-  if (cityName && CITY_SLUGS[cityName]) {
-    return `${group.base}-${CITY_SLUGS[cityName]}`;
-  }
-
+  // 4. Mặc định trả về Base nhóm nhu cầu: /nha-dat-ban hoặc /nha-dat-cho-thue
   return group.base;
 };
 
@@ -471,18 +509,24 @@ export const generatePropertyJsonLd = (property, siteUrl = 'https://datbiendanan
           {
             '@type': 'ListItem',
             'position': 2,
-            'name': property.demand === 'sale' ? 'Nhà đất bán' : 'Cho thuê nhà đất',
-            'item': `${siteUrl}${property.demand === 'sale' ? '/nha-dat-ban' : '/nha-dat-cho-thue'}`
+            'name': (property.propertyType && BATDONGSAN_TAXONOMY[property.demand]?.types[property.propertyType]?.name) || (property.demand === 'sale' ? 'Nhà đất bán' : 'Cho thuê nhà đất'),
+            'item': `${siteUrl}${getCategoryPermalink(property.demand, property.propertyType)}`
           },
-          {
+          ...(property.city ? [{
             '@type': 'ListItem',
             'position': 3,
-            'name': property.city || 'Toàn quốc',
-            'item': `${siteUrl}${getCategoryPermalink(property.demand, null, property.city)}`
-          },
+            'name': property.city,
+            'item': `${siteUrl}${getCategoryPermalink(property.demand, property.propertyType, property.city)}`
+          }] : []),
+          ...(property.district ? [{
+            '@type': 'ListItem',
+            'position': property.city ? 4 : 3,
+            'name': property.district,
+            'item': `${siteUrl}${getCategoryPermalink(property.demand, property.propertyType, property.city, property.district)}`
+          }] : []),
           {
             '@type': 'ListItem',
-            'position': 4,
+            'position': (property.city ? 1 : 0) + (property.district ? 1 : 0) + 3,
             'name': property.title,
             'item': fullUrl
           }
