@@ -689,8 +689,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
         </div>
 
         <div className="flex items-center gap-2">
-
-          {onClose && !isEmbedded ? (
+          {onClose && !isEmbedded && (
             <button
               type="button"
               onClick={onClose}
@@ -698,15 +697,6 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
               title="Đóng cửa sổ"
             >
               <i className="fa-solid fa-xmark"></i>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => navigate('/quan-ly-tin')}
-              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition flex items-center gap-1.5"
-            >
-              <i className="fa-solid fa-list-check text-xs"></i>
-              <span className="hidden sm:inline">Quản lý tin</span>
             </button>
           )}
         </div>
