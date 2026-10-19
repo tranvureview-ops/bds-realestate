@@ -334,7 +334,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   // 6. Số phòng ngủ
   const bedroomCount = property.bedroom || 2;
 
-  // 7. Khoảng giá min - max (Dựa trên giá thực tế của BĐS)
+  // 7. Khoảng giá min - max (Dựa trên giá thực tế của BĐS, đảm bảo minPrice <= curPrice <= maxPrice)
   const curPrice = Number(property.price) || 3500000000;
   let priceMinText = '3 tỷ';
   let priceMaxText = '5 tỷ';
@@ -342,18 +342,34 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
   if (property.demand === 'rent') {
     const priceMillion = curPrice / 1000000;
-    if (priceMillion < 10) {
+    if (priceMillion < 5) {
+      priceMinText = '3 triệu';
+      priceMaxText = '5 triệu';
+      matchedPriceRange = 'under-2b';
+    } else if (priceMillion < 10) {
       priceMinText = '5 triệu';
       priceMaxText = '10 triệu';
       matchedPriceRange = 'under-2b';
-    } else if (priceMillion < 25) {
+    } else if (priceMillion < 15) {
       priceMinText = '10 triệu';
+      priceMaxText = '15 triệu';
+      matchedPriceRange = '2b-5b';
+    } else if (priceMillion < 20) {
+      priceMinText = '15 triệu';
       priceMaxText = '20 triệu';
       matchedPriceRange = '2b-5b';
-    } else {
+    } else if (priceMillion < 30) {
       priceMinText = '20 triệu';
-      priceMaxText = '40 triệu';
+      priceMaxText = '30 triệu';
       matchedPriceRange = '5b-10b';
+    } else if (priceMillion < 50) {
+      priceMinText = '30 triệu';
+      priceMaxText = '50 triệu';
+      matchedPriceRange = '5b-10b';
+    } else {
+      priceMinText = '50 triệu';
+      priceMaxText = '100 triệu';
+      matchedPriceRange = '10b-30b';
     }
   } else {
     const priceBillion = curPrice / 1000000000;
@@ -361,21 +377,37 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
       priceMinText = '1 tỷ';
       priceMaxText = '2 tỷ';
       matchedPriceRange = 'under-2b';
-    } else if (priceBillion <= 5) {
+    } else if (priceBillion < 3) {
+      priceMinText = '2 tỷ';
+      priceMaxText = '3 tỷ';
+      matchedPriceRange = '2b-5b';
+    } else if (priceBillion < 5) {
       priceMinText = '3 tỷ';
       priceMaxText = '5 tỷ';
       matchedPriceRange = '2b-5b';
+    } else if (priceBillion < 7) {
+      priceMinText = '5 tỷ';
+      priceMaxText = '7 tỷ';
+      matchedPriceRange = '5b-10b';
     } else if (priceBillion <= 10) {
       priceMinText = '7 tỷ';
       priceMaxText = '10 tỷ';
       matchedPriceRange = '5b-10b';
-    } else if (priceBillion <= 20) {
+    } else if (priceBillion <= 15) {
       priceMinText = '10 tỷ';
+      priceMaxText = '15 tỷ';
+      matchedPriceRange = '10b-30b';
+    } else if (priceBillion <= 20) {
+      priceMinText = '15 tỷ';
       priceMaxText = '20 tỷ';
       matchedPriceRange = '10b-30b';
-    } else {
+    } else if (priceBillion <= 30) {
       priceMinText = '20 tỷ';
       priceMaxText = '30 tỷ';
+      matchedPriceRange = '10b-30b';
+    } else {
+      priceMinText = '30 tỷ';
+      priceMaxText = '50 tỷ';
       matchedPriceRange = 'over-30b';
     }
   }
