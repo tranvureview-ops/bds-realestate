@@ -1585,10 +1585,12 @@ export const INITIAL_NAV_MENU = [
     target: '_self',
     children: [
       { id: 'sub-sale-apt', title: 'Bán Căn Hộ Chung Cư', path: '/ban-can-ho-chung-cu', icon: 'fa-solid fa-building' },
-      { id: 'sub-sale-house', title: 'Bán Nhà Riêng, Nhà Phố', path: '/ban-nha-rieng', icon: 'fa-solid fa-house' },
+      { id: 'sub-sale-house', title: 'Bán Nhà Riêng, Nhà Phố', path: '/ban-nha-rieng-nha-pho', icon: 'fa-solid fa-house' },
       { id: 'sub-sale-street', title: 'Bán Nhà Mặt Phố Kinh Doanh', path: '/ban-nha-mat-pho', icon: 'fa-solid fa-shop' },
-      { id: 'sub-sale-villa', title: 'Bán Biệt Thự Liền Kề', path: '/ban-nha-biet-thu-lien-ke', icon: 'fa-solid fa-landmark-dome' },
-      { id: 'sub-sale-land', title: 'Bán Đất Nền Dự Án', path: '/ban-dat-nen-du-an', icon: 'fa-solid fa-mountain' }
+      { id: 'sub-sale-land', title: 'Bán Đất Nền Dự Án', path: '/ban-dat-nen-du-an', icon: 'fa-solid fa-mountain' },
+      { id: 'sub-sale-hanoi', title: 'Bán Nhà Đất Hà Nội', path: '/ban-can-ho-chung-cu-ha-noi', icon: 'fa-solid fa-location-dot' },
+      { id: 'sub-sale-hcm', title: 'Bán Nhà Đất TP.HCM', path: '/ban-can-ho-chung-cu-tp-hcm', icon: 'fa-solid fa-location-dot' },
+      { id: 'sub-sale-danang', title: 'Bán Đất Nền Đà Nẵng', path: '/ban-dat-nen-du-an-da-nang', icon: 'fa-solid fa-location-dot' }
     ]
   },
   {
@@ -1605,7 +1607,8 @@ export const INITIAL_NAV_MENU = [
       { id: 'sub-rent-apt', title: 'Cho Thuê Căn Hộ Chung Cư', path: '/cho-thue-can-ho-chung-cu', icon: 'fa-solid fa-building' },
       { id: 'sub-rent-house', title: 'Cho Thuê Nhà Riêng, Nguyên Căn', path: '/cho-thue-nha-rieng', icon: 'fa-solid fa-house' },
       { id: 'sub-rent-street', title: 'Cho Thuê Nhà Mặt Phố', path: '/cho-thue-nha-mat-pho', icon: 'fa-solid fa-store' },
-      { id: 'sub-rent-office', title: 'Cho Thuê Văn Phòng', path: '/cho-thue-van-phong', icon: 'fa-solid fa-briefcase' }
+      { id: 'sub-rent-office', title: 'Cho Thuê Văn Phòng', path: '/cho-thue-van-phong', icon: 'fa-solid fa-briefcase' },
+      { id: 'sub-rent-q1', title: 'Cho Thuê Nhà Đất Quận 1', path: '/cho-thue-nha-rieng-quan-1', icon: 'fa-solid fa-location-dot' }
     ]
   },
   {

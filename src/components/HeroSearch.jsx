@@ -3,6 +3,9 @@
 import React, { useState } from 'react';
 import { LOCATIONS, PROPERTY_TYPES } from '../data/mockData';
 import CustomSelect from './CustomSelect';
+import { Link } from '../router/RouterContext';
+
+
 
 export default function HeroSearch({ filters, setFilters, totalResults }) {
   const [showAdvanced, setShowAdvanced] = useState(false);
@@ -301,20 +304,31 @@ export default function HeroSearch({ filters, setFilters, totalResults }) {
           )}
         </div>
 
-        {/* Popular Tags */}
+        {/* Popular Trending SEO Categories & Tags */}
         <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-300">
-          <span className="text-slate-400">Gợi ý tìm nhanh:</span>
-          {['Đất Biển Mỹ Khê', 'Đất Nam Hòa Xuân', 'Biệt thự Sơn Trà', 'Căn hộ view biển Đà Nẵng', 'Shophouse Võ Nguyên Giáp'].map((tag, idx) => (
-            <button
+          <span className="text-slate-400 font-semibold text-[11px] flex items-center gap-1">
+            <i className="fa-solid fa-fire text-amber-400 text-[10px]"></i>
+            Xu hướng tìm kiếm:
+          </span>
+          {[
+            { label: 'Căn hộ Cầu Giấy', path: '/ban-can-ho-chung-cu-quan-cau-giay' },
+            { label: 'Nhà riêng Ba Đình', path: '/ban-nha-rieng-quan-ba-dinh' },
+            { label: 'Dự án Goldmark City', path: '/ban-can-ho-chung-cu-du-an-goldmark-city' },
+            { label: 'Cho thuê Quận 1', path: '/cho-thue-nha-rieng-quan-1' },
+            { label: 'Đất nền Đà Nẵng', path: '/ban-dat-nen-du-an-da-nang' },
+            { label: 'Nhà mặt phố Hà Nội', path: '/ban-nha-mat-pho-ha-noi' }
+          ].map((item, idx) => (
+            <Link
               key={idx}
-              onClick={() => setFilters(prev => ({ ...prev, keyword: tag }))}
-              className="px-2.5 py-1 bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white rounded-full border border-slate-700 text-[11px] transition"
+              to={item.path}
+              className="px-2.5 py-1 bg-slate-800/80 hover:bg-emerald-600/90 text-slate-300 hover:text-white rounded-full border border-slate-700/80 hover:border-emerald-500 text-[11px] font-medium transition"
             >
-              {tag}
-            </button>
+              {item.label}
+            </Link>
           ))}
         </div>
       </div>
     </div>
   );
 }
+
