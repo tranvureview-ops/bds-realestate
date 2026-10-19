@@ -6,7 +6,6 @@ import { Link } from '../router/RouterContext';
 import HeroSearch from '../components/HeroSearch';
 import ListingGrid from '../components/ListingGrid';
 import VipPackageShowcase from '../components/VipPackageShowcase';
-import FeaturedCategories from '../components/FeaturedCategories';
 
 
 export default function HomePage() {
@@ -109,9 +108,6 @@ export default function HomePage() {
           </Link>
         </div>
       </section>
-
-      {/* Featured Categories & Locations SEO Showcase */}
-      <FeaturedCategories />
 
       {/* Core Listings Grid & Interactive Map */}
 
