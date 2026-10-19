@@ -129,20 +129,20 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     
     // 3. Thông số kỹ thuật & Định giá
     priceType: 'total', // 'total' (Tổng giá), 'm2' (Theo m²), 'deal' (Thỏa thuận)
-    price: 3500000000,
-    priceDisplay: '3.5 Tỷ',
-    pricePerM2: '46.7 tr/m²',
-    area: 75,
-    facade: 5.0, // Mặt tiền (m)
-    entranceRoad: 8.0, // Đường vào / Lộ giới (m)
+    price: '',
+    priceDisplay: '',
+    pricePerM2: '',
+    area: '',
+    facade: '', // Mặt tiền (m)
+    entranceRoad: '', // Đường vào / Lộ giới (m)
     roadType: 'car_pass', // 'truck', 'car_pass', 'car_in', 'bike'
-    bedroom: 2,
-    bathroom: 2,
-    floor: 12,
-    direction: 'Đông Nam',
-    balconyDirection: 'Nam',
-    legal: 'Sổ hồng lâu dài chính chủ',
-    furniture: 'Full nội thất cao cấp',
+    bedroom: '',
+    bathroom: '',
+    floor: '',
+    direction: '',
+    balconyDirection: '',
+    legal: '',
+    furniture: '',
     
     // 4. Hình ảnh & VR 360
     images: [
@@ -232,21 +232,32 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     if (newPriceType === 'deal') {
       pDisplay = 'Thỏa thuận';
       pPerM2 = 'Thỏa thuận';
-    } else if (newPriceType === 'm2') {
-      pPerM2 = `${(newPrice / 1000000).toFixed(1)} tr/m²`;
-      const totalPrice = newPrice * currentArea;
-      pDisplay = formatPriceToVietnameseText(totalPrice);
     } else {
-      // Total price
-      pDisplay = formatPriceToVietnameseText(newPrice);
-      if (currentArea > 0) {
-        pPerM2 = `${(newPrice / currentArea / 1000000).toFixed(1)} tr/m²`;
+      const numPrice = Number(newPrice);
+      const numArea = Number(currentArea);
+
+      if (newPrice !== '' && !isNaN(numPrice) && numPrice > 0) {
+        if (newPriceType === 'm2') {
+          pPerM2 = `${(numPrice / 1000000).toFixed(1)} tr/m²`;
+          if (numArea > 0) {
+            const totalPrice = numPrice * numArea;
+            pDisplay = formatPriceToVietnameseText(totalPrice);
+          } else {
+            pDisplay = `${(numPrice / 1000000).toFixed(1)} tr/m²`;
+          }
+        } else {
+          // Total price
+          pDisplay = formatPriceToVietnameseText(numPrice);
+          if (numArea > 0) {
+            pPerM2 = `${(numPrice / numArea / 1000000).toFixed(1)} tr/m²`;
+          }
+        }
       }
     }
 
     setFormData(prev => ({
       ...prev,
-      price: newPriceType === 'deal' ? 0 : newPrice,
+      price: newPriceType === 'deal' ? '' : newPrice,
       priceType: newPriceType,
       priceDisplay: pDisplay,
       pricePerM2: pPerM2
@@ -371,22 +382,22 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       id: 'BDS-PREVIEW',
       title: formData.title?.trim() || 'Căn hộ cao cấp view thoáng mát, thiết kế hiện đại sang trọng',
       description: formData.description?.trim() || 'Chính chủ cần bán gấp căn hộ thiết kế hiện đại, đầy đủ tiện nghi cao cấp, pháp lý minh bạch sổ hồng trao tay.',
-      price: Number(formData.price) || 3500000000,
-      priceDisplay: formData.priceDisplay || (formData.priceType === 'deal' ? 'Thỏa thuận' : '3.5 tỷ'),
-      pricePerM2: formData.pricePerM2 || (formData.priceType === 'deal' ? 'Thỏa thuận' : '45 tr/m²'),
+      price: Number(formData.price) || 0,
+      priceDisplay: formData.priceDisplay || (formData.priceType === 'deal' ? 'Thỏa thuận' : ''),
+      pricePerM2: formData.pricePerM2 || (formData.priceType === 'deal' ? 'Thỏa thuận' : ''),
       priceType: formData.priceType || 'total',
       priceUnit: formData.priceType === 'deal' ? 'Thỏa thuận' : (formData.priceType === 'm2' ? 'tr/m²' : 'tỷ'),
-      area: Number(formData.area) || 75,
-      bedrooms: Number(formData.bedrooms) || 2,
-      bathrooms: Number(formData.bathrooms) || 2,
-      direction: formData.direction || 'Đông Nam',
-      balconyDirection: formData.balconyDirection || 'Đông Nam',
-      floor: formData.floor || '12',
-      juridical: formData.juridical || 'Sổ hồng lâu dài',
-      interior: formData.interior || 'Đầy đủ nội thất cao cấp',
-      type: formData.type || 'apartment',
+      area: Number(formData.area) || 0,
+      bedrooms: Number(formData.bedroom ?? formData.bedrooms) || 0,
+      bathrooms: Number(formData.bathroom ?? formData.bathrooms) || 0,
+      direction: formData.direction || '',
+      balconyDirection: formData.balconyDirection || '',
+      floor: formData.floor || '',
+      juridical: formData.legal || formData.juridical || '',
+      interior: formData.furniture || formData.interior || '',
+      type: formData.type || formData.propertyType || 'apartment',
       typeName: typeName,
-      category: formData.category || 'sale',
+      category: formData.demand || formData.category || 'sale',
       status: 'active',
       location: {
         province: formData.city || 'Đà Nẵng',
@@ -1194,7 +1205,15 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   <button
                     type="button"
                     onClick={() => {
-                      const suggest = `${formData.demand === 'sale' ? 'Bán' : 'Cho thuê'} ${formData.propertyTypeName} ${formData.project ? formData.project : formData.street} ${formData.area}m² ${formData.bedroom}PN ${formData.priceDisplay}`;
+                      const parts = [
+                        formData.demand === 'sale' ? 'Bán' : 'Cho thuê',
+                        formData.propertyTypeName,
+                        formData.project ? formData.project : formData.street,
+                        formData.area ? `${formData.area}m²` : '',
+                        formData.bedroom ? `${formData.bedroom}PN` : '',
+                        formData.priceDisplay || ''
+                      ].filter(Boolean);
+                      const suggest = parts.join(' ');
                       setFormData(prev => ({ ...prev, title: suggest }));
                     }}
                     className="text-emerald-700 hover:underline font-bold"
@@ -1250,7 +1269,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         type="radio" 
                         name="price-type" 
                         checked={formData.priceType === 'total'} 
-                        onChange={() => updatePriceCalculations(formData.price || 3500000000, 'total', formData.area)} 
+                        onChange={() => updatePriceCalculations(formData.price, 'total', formData.area)} 
                       />
                       <span>Tổng tiền</span>
                     </label>
@@ -1259,7 +1278,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         type="radio" 
                         name="price-type" 
                         checked={formData.priceType === 'm2'} 
-                        onChange={() => updatePriceCalculations(45000000, 'm2', formData.area)} 
+                        onChange={() => updatePriceCalculations(formData.price, 'm2', formData.area)} 
                       />
                       <span>Theo m²</span>
                     </label>
@@ -1268,7 +1287,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         type="radio" 
                         name="price-type" 
                         checked={formData.priceType === 'deal'} 
-                        onChange={() => updatePriceCalculations(0, 'deal', formData.area)} 
+                        onChange={() => updatePriceCalculations('', 'deal', formData.area)} 
                       />
                       <span>Thỏa thuận</span>
                     </label>
@@ -1284,13 +1303,20 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                       type="number"
                       disabled={formData.priceType === 'deal'}
                       step="1000000"
-                      value={formData.priceType === 'deal' ? '' : formData.price}
-                      onChange={(e) => updatePriceCalculations(Number(e.target.value), formData.priceType, formData.area)}
+                      placeholder={formData.priceType === 'deal' ? 'Giá thỏa thuận' : (formData.priceType === 'm2' ? 'VD: 45000000' : 'VD: 3500000000')}
+                      value={formData.priceType === 'deal' ? '' : (formData.price ?? '')}
+                      onChange={(e) => updatePriceCalculations(e.target.value === '' ? '' : Number(e.target.value), formData.priceType, formData.area)}
                       className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-black text-slate-900 disabled:bg-slate-200"
                     />
-                    <div className="text-[11px] text-emerald-700 font-black mt-1 truncate">
-                      = {formData.priceDisplay} ({formData.pricePerM2})
-                    </div>
+                    {formData.priceDisplay ? (
+                      <div className="text-[11px] text-emerald-700 font-black mt-1 truncate">
+                        = {formData.priceDisplay} {formData.pricePerM2 ? `(${formData.pricePerM2})` : ''}
+                      </div>
+                    ) : (
+                      <div className="text-[11px] text-slate-400 font-medium mt-1 truncate">
+                        {formData.priceType === 'deal' ? '= Thỏa thuận' : 'Nhập giá để tự động quy đổi'}
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -1299,9 +1325,12 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     </label>
                     <input
                       type="number"
-                      value={formData.area}
+                      step="0.1"
+                      placeholder="VD: 75"
+                      value={formData.area ?? ''}
                       onChange={(e) => {
-                        const newArea = Number(e.target.value);
+                        const val = e.target.value;
+                        const newArea = val === '' ? '' : Number(val);
                         setFormData(prev => ({ ...prev, area: newArea }));
                         updatePriceCalculations(formData.price, formData.priceType, newArea);
                       }}
@@ -1314,7 +1343,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                       Bàn giao nội thất
                     </label>
                     <CustomSelect
-                      value={formData.furniture}
+                      value={formData.furniture || ''}
                       onChange={(val) => setFormData(prev => ({ ...prev, furniture: val }))}
                       options={[
                         'Full nội thất cao cấp',
@@ -1339,8 +1368,9 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     <input
                       type="number"
                       step="0.1"
-                      value={formData.facade}
-                      onChange={(e) => setFormData(prev => ({ ...prev, facade: Number(e.target.value) }))}
+                      placeholder="VD: 5"
+                      value={formData.facade ?? ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, facade: e.target.value === '' ? '' : Number(e.target.value) }))}
                       className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl font-bold"
                     />
                   </div>
@@ -1349,15 +1379,16 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     <input
                       type="number"
                       step="0.5"
-                      value={formData.entranceRoad}
-                      onChange={(e) => setFormData(prev => ({ ...prev, entranceRoad: Number(e.target.value) }))}
+                      placeholder="VD: 8"
+                      value={formData.entranceRoad ?? ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, entranceRoad: e.target.value === '' ? '' : Number(e.target.value) }))}
                       className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl font-bold"
                     />
                   </div>
                   <div>
                     <label className="block text-[11px] font-bold text-slate-600 mb-1">Hướng nhà</label>
                     <CustomSelect
-                      value={formData.direction}
+                      value={formData.direction || ''}
                       onChange={(val) => setFormData(prev => ({ ...prev, direction: val }))}
                       options={['Đông', 'Tây', 'Nam', 'Bắc', 'Đông Nam', 'Tây Nam', 'Đông Bắc', 'Tây Bắc']}
                       placeholder="Chọn hướng"
@@ -1366,7 +1397,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   <div>
                     <label className="block text-[11px] font-bold text-slate-600 mb-1">Hướng ban công</label>
                     <CustomSelect
-                      value={formData.balconyDirection}
+                      value={formData.balconyDirection || ''}
                       onChange={(val) => setFormData(prev => ({ ...prev, balconyDirection: val }))}
                       options={['Đông', 'Tây', 'Nam', 'Bắc', 'Đông Nam', 'Tây Nam', 'Đông Bắc', 'Tây Bắc']}
                       placeholder="Chọn hướng ban công"
@@ -1379,8 +1410,9 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     <label className="block text-[11px] font-bold text-slate-600 mb-1">Số phòng ngủ</label>
                     <input
                       type="number"
-                      value={formData.bedroom}
-                      onChange={(e) => setFormData(prev => ({ ...prev, bedroom: Number(e.target.value) }))}
+                      placeholder="VD: 2"
+                      value={formData.bedroom ?? ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, bedroom: e.target.value === '' ? '' : Number(e.target.value) }))}
                       className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl font-bold"
                     />
                   </div>
@@ -1388,8 +1420,9 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     <label className="block text-[11px] font-bold text-slate-600 mb-1">Số phòng vệ sinh (WC)</label>
                     <input
                       type="number"
-                      value={formData.bathroom}
-                      onChange={(e) => setFormData(prev => ({ ...prev, bathroom: Number(e.target.value) }))}
+                      placeholder="VD: 2"
+                      value={formData.bathroom ?? ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, bathroom: e.target.value === '' ? '' : Number(e.target.value) }))}
                       className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl font-bold"
                     />
                   </div>
@@ -1397,15 +1430,16 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     <label className="block text-[11px] font-bold text-slate-600 mb-1">Số tầng</label>
                     <input
                       type="number"
-                      value={formData.floor}
-                      onChange={(e) => setFormData(prev => ({ ...prev, floor: Number(e.target.value) }))}
+                      placeholder="VD: 1"
+                      value={formData.floor ?? ''}
+                      onChange={(e) => setFormData(prev => ({ ...prev, floor: e.target.value === '' ? '' : Number(e.target.value) }))}
                       className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-xl font-bold"
                     />
                   </div>
                   <div>
                     <label className="block text-[11px] font-bold text-slate-600 mb-1">Giấy tờ pháp lý</label>
                     <CustomSelect
-                      value={formData.legal}
+                      value={formData.legal || ''}
                       onChange={(val) => setFormData(prev => ({ ...prev, legal: val }))}
                       options={[
                         'Sổ đỏ/Sổ hồng chính chủ',
