@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
+import { PROPERTY_TYPES } from '../data/mockData';
 
 export default function AdminMenuConfigManager({ onSwitchToHeader = null }) {
   const {
@@ -96,6 +97,39 @@ export default function AdminMenuConfigManager({ onSwitchToHeader = null }) {
       addSubMenuItem(activeSubmenuParentId, subFormData);
       showToast('Đã thêm mục menu con thành công!', 'success');
       setIsSubModalOpen(false);
+    }
+  };
+
+  // Helper: Xác định menu cha là Bán hay Cho Thuê để gợi ý đường dẫn chính xác
+  const getMenuCategoryInfo = (parentItem) => {
+    const isRent = parentItem?.path?.includes('cho-thue') || parentItem?.title?.toLowerCase().includes('thuê');
+    const prefix = isRent ? 'cho-thue' : 'ban';
+    return { isRent, prefix };
+  };
+
+  // Helper: Đồng bộ / khôi phục nhanh 12 danh mục BĐS chuẩn SEO cho menu cha
+  const handleRestoreStandardSubItems = (parentItem) => {
+    if (!parentItem) return;
+    const { prefix } = getMenuCategoryInfo(parentItem);
+    const existingPaths = new Set((parentItem.children || []).map(c => c.path));
+    let addedCount = 0;
+
+    PROPERTY_TYPES.forEach(pt => {
+      const targetPath = `/${prefix}-${pt.slug}`;
+      if (!existingPaths.has(targetPath)) {
+        addSubMenuItem(parentItem.id, {
+          title: pt.name,
+          path: targetPath,
+          icon: `fa-solid ${pt.icon}`
+        });
+        addedCount++;
+      }
+    });
+
+    if (addedCount > 0) {
+      showToast(`Đã khôi phục ${addedCount} danh mục chuẩn vào "${parentItem.title}"!`, 'success');
+    } else {
+      showToast(`"${parentItem.title}" đã có đầy đủ 12 danh mục chuẩn SEO!`, 'info');
     }
   };
 
@@ -376,46 +410,126 @@ export default function AdminMenuConfigManager({ onSwitchToHeader = null }) {
                       </tr>
 
                       {/* Sub-menu rows (nested) */}
-                      {item.children && item.children.length > 0 && (
-                        <tr className="bg-slate-950/80">
-                          <td colSpan="7" className="p-2.5 pl-12 border-b border-slate-900">
-                            <div className="space-y-1.5">
-                              <div className="text-[10px] text-slate-500 uppercase tracking-wider font-bold flex items-center gap-1.5">
-                                <i className="fa-solid fa-turn-down text-blue-500"></i>
-                                <span>Danh sách mục con của "{item.title}":</span>
-                                <button
-                                  onClick={() => handleOpenAddSubItem(item.id)}
-                                  className="ml-2 text-blue-400 hover:underline font-bold text-[10px]"
-                                >
-                                  + Thêm mục con
-                                </button>
-                              </div>
-                              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                                {item.children.map(sub => (
-                                  <div
-                                    key={sub.id}
-                                    className="p-2 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-2"
-                                  >
-                                    <div className="flex items-center gap-1.5 truncate">
-                                      <i className={`${sub.icon || 'fa-solid fa-chevron-right'} text-[10px] text-blue-400 shrink-0`}></i>
-                                      <span className="font-bold text-slate-200 text-xs truncate">{sub.title}</span>
-                                      <span className="text-[10px] font-mono text-slate-500 truncate">({sub.path})</span>
-                                    </div>
-                                    <button
-                                      onClick={() => {
-                                        if (window.confirm(`Xóa menu con "${sub.title}"?`)) {
-                                          deleteSubMenuItem(item.id, sub.id);
-                                          showToast('Đã xóa menu con!', 'info');
+                      {((item.children && item.children.length > 0) || item.path?.includes('nha-dat')) && (
+                        <tr className="bg-slate-950/90">
+                          <td colSpan="7" className="p-3 pl-8 sm:pl-12 border-b border-slate-900">
+                            <div className="space-y-2.5">
+                              {/* Submenu Management Toolbar */}
+                              <div className="flex flex-wrap items-center justify-between gap-2.5 bg-slate-900/80 p-2.5 rounded-2xl border border-slate-800 shadow-sm">
+                                <div className="text-[11px] text-slate-300 font-bold flex items-center gap-2">
+                                  <i className="fa-solid fa-turn-down text-blue-400"></i>
+                                  <span>Danh sách mục con của <span className="text-white font-extrabold">"{item.title}"</span>:</span>
+                                  <span className="px-2 py-0.5 rounded-full bg-blue-950 text-blue-400 border border-blue-900/60 text-[10px] font-mono font-bold">
+                                    {(item.children || []).length} mục
+                                  </span>
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-2">
+                                  {/* DROPDOWN THÊM NHANH DANH MỤC BĐS CHUẨN SEO */}
+                                  <div className="flex items-center gap-1.5 bg-slate-950 px-2.5 py-1 rounded-xl border border-blue-900/50 shadow-inner">
+                                    <i className="fa-solid fa-wand-magic-sparkles text-amber-400 text-xs"></i>
+                                    <span className="text-[10px] text-slate-400 font-bold">Thêm nhanh:</span>
+                                    <select
+                                      onChange={(e) => {
+                                        const selectedSlug = e.target.value;
+                                        if (!selectedSlug) return;
+                                        const found = PROPERTY_TYPES.find(p => p.slug === selectedSlug);
+                                        if (found) {
+                                          const { prefix } = getMenuCategoryInfo(item);
+                                          const targetPath = `/${prefix}-${found.slug}`;
+                                          const exists = item.children?.some(c => c.path === targetPath || c.title?.toLowerCase() === found.name.toLowerCase());
+                                          if (exists) {
+                                            showToast(`"${found.name}" đã có trong menu này!`, 'warning');
+                                            e.target.value = '';
+                                            return;
+                                          }
+                                          addSubMenuItem(item.id, {
+                                            title: found.name,
+                                            path: targetPath,
+                                            icon: `fa-solid ${found.icon}`
+                                          });
+                                          showToast(`Đã thêm "${found.name}" vào menu!`, 'success');
+                                          e.target.value = '';
                                         }
                                       }}
-                                      className="text-red-400 hover:text-red-300 text-xs p-1 rounded hover:bg-red-950/50 transition"
-                                      title="Xóa menu con này"
+                                      defaultValue=""
+                                      className="bg-slate-900 text-emerald-400 font-bold text-xs rounded-lg px-2 py-1 border border-slate-700 outline-none hover:border-emerald-500 cursor-pointer max-w-[210px] truncate"
+                                      title="Chọn nhanh danh mục BĐS chuẩn SEO để thêm ngay tức thì"
                                     >
-                                      ✕
-                                    </button>
+                                      <option value="" className="text-slate-400 font-normal">-- Chọn danh mục để thêm lại --</option>
+                                      {PROPERTY_TYPES.map(pt => {
+                                        const { prefix } = getMenuCategoryInfo(item);
+                                        const targetPath = `/${prefix}-${pt.slug}`;
+                                        const isAlreadyAdded = item.children?.some(c => c.path === targetPath || c.title?.toLowerCase() === pt.name.toLowerCase());
+                                        return (
+                                          <option 
+                                            key={pt.slug} 
+                                            value={pt.slug}
+                                            disabled={isAlreadyAdded}
+                                            className={isAlreadyAdded ? 'text-slate-600 bg-slate-950' : 'text-emerald-400 font-bold bg-slate-900'}
+                                          >
+                                            {pt.name} {isAlreadyAdded ? '(✓ Đã có)' : '+ Thêm ngay'}
+                                          </option>
+                                        );
+                                      })}
+                                    </select>
                                   </div>
-                                ))}
+
+                                  {/* Nút Khôi phục đủ 12 danh mục chuẩn */}
+                                  <button
+                                    onClick={() => handleRestoreStandardSubItems(item)}
+                                    className="px-2.5 py-1.5 rounded-xl bg-amber-950/40 hover:bg-amber-900/60 text-amber-300 font-bold text-[10px] border border-amber-800/60 transition flex items-center gap-1 shadow-sm"
+                                    title="Khôi phục/Bổ sung lại toàn bộ 12 danh mục BĐS chuẩn SEO bị thiếu"
+                                  >
+                                    <i className="fa-solid fa-rotate-left text-[10px]"></i>
+                                    <span>Đồng bộ 12 mục chuẩn</span>
+                                  </button>
+
+                                  {/* Nút Mở modal thêm mục con tùy chỉnh */}
+                                  <button
+                                    onClick={() => handleOpenAddSubItem(item.id)}
+                                    className="px-2.5 py-1.5 rounded-xl bg-blue-950 hover:bg-blue-900 text-blue-400 hover:text-white font-bold text-[10px] border border-blue-900 transition flex items-center gap-1"
+                                    title="Mở form thêm mục con tùy ý"
+                                  >
+                                    <i className="fa-solid fa-plus text-[10px]"></i>
+                                    <span>Tùy chỉnh khác...</span>
+                                  </button>
+                                </div>
                               </div>
+
+                              {/* Grid danh sách mục con */}
+                              {item.children && item.children.length > 0 ? (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                                  {item.children.map(sub => (
+                                    <div
+                                      key={sub.id}
+                                      className="p-2 rounded-xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-2 hover:border-slate-700 transition"
+                                    >
+                                      <div className="flex items-center gap-1.5 truncate">
+                                        <i className={`${sub.icon || 'fa-solid fa-chevron-right'} text-[10px] text-blue-400 shrink-0`}></i>
+                                        <span className="font-bold text-slate-200 text-xs truncate">{sub.title}</span>
+                                        <span className="text-[10px] font-mono text-slate-500 truncate">({sub.path})</span>
+                                      </div>
+                                      <button
+                                        onClick={() => {
+                                          if (window.confirm(`Xóa menu con "${sub.title}"?`)) {
+                                            deleteSubMenuItem(item.id, sub.id);
+                                            showToast('Đã xóa menu con!', 'info');
+                                          }
+                                        }}
+                                        className="text-red-400 hover:text-red-300 text-xs p-1 rounded hover:bg-red-950/50 transition"
+                                        title="Xóa menu con này"
+                                      >
+                                        ✕
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="text-center py-4 bg-slate-900/40 rounded-xl border border-dashed border-slate-800 text-slate-500 text-xs">
+                                  Chưa có mục con nào. Hãy dùng dropdown "Thêm nhanh" hoặc bấm "Đồng bộ 12 mục chuẩn" ở trên để thêm lại.
+                                </div>
+                              )}
                             </div>
                           </td>
                         </tr>
@@ -649,7 +763,17 @@ export default function AdminMenuConfigManager({ onSwitchToHeader = null }) {
                 <div className="w-8 h-8 rounded-xl bg-blue-600/20 text-blue-400 flex items-center justify-center text-sm">
                   <i className="fa-solid fa-folder-tree"></i>
                 </div>
-                <h3 className="text-base font-black text-white">Thêm Mục Menu Con</h3>
+                <div>
+                  <h3 className="text-base font-black text-white">Thêm Mục Menu Con</h3>
+                  {(() => {
+                    const parent = (navMenuItems || []).find(m => m.id === activeSubmenuParentId);
+                    return parent ? (
+                      <div className="text-[10px] text-slate-400">
+                        Thêm vào menu cha: <span className="text-emerald-400 font-bold">{parent.title}</span>
+                      </div>
+                    ) : null;
+                  })()}
+                </div>
               </div>
               <button
                 onClick={() => setIsSubModalOpen(false)}
@@ -660,6 +784,64 @@ export default function AdminMenuConfigManager({ onSwitchToHeader = null }) {
             </div>
 
             <form onSubmit={handleSaveSubItem} className="space-y-3 text-xs">
+              {/* DROPDOWN CHỌN NHANH TỪ 12 DANH MỤC BĐS CHUẨN */}
+              {(() => {
+                const parent = (navMenuItems || []).find(m => m.id === activeSubmenuParentId);
+                const { prefix } = getMenuCategoryInfo(parent);
+                return (
+                  <div className="p-3 bg-slate-900 rounded-2xl border border-blue-900/50 space-y-2">
+                    <label className="block text-blue-400 font-bold text-xs flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <i className="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
+                        <span>Chọn nhanh từ 12 danh mục BĐS chuẩn:</span>
+                      </span>
+                      <span className="text-[10px] text-slate-400 font-normal">
+                        (Tự động điền đầy đủ)
+                      </span>
+                    </label>
+
+                    <select
+                      onChange={(e) => {
+                        const selectedSlug = e.target.value;
+                        if (!selectedSlug) return;
+                        const found = PROPERTY_TYPES.find(p => p.slug === selectedSlug);
+                        if (found) {
+                          setSubFormData({
+                            title: found.name,
+                            path: `/${prefix}-${found.slug}`,
+                            icon: `fa-solid ${found.icon}`
+                          });
+                        }
+                      }}
+                      defaultValue=""
+                      className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-emerald-400 font-bold focus:border-blue-500 outline-none text-xs cursor-pointer"
+                    >
+                      <option value="" className="text-slate-400 font-normal">
+                        -- Bấm vào đây để chọn danh mục BĐS chuẩn SEO --
+                      </option>
+                      {PROPERTY_TYPES.map(pt => {
+                        const targetPath = `/${prefix}-${pt.slug}`;
+                        const isAlreadyAdded = parent?.children?.some(c => c.path === targetPath || c.title?.toLowerCase() === pt.name.toLowerCase());
+                        return (
+                          <option 
+                            key={pt.slug} 
+                            value={pt.slug}
+                            className={isAlreadyAdded ? 'text-slate-500 bg-slate-950' : 'text-emerald-400 font-bold bg-slate-900'}
+                          >
+                            {pt.name} {isAlreadyAdded ? '(✓ Đã có trong menu)' : '★ (Chưa có - thêm lại)'}
+                          </option>
+                        );
+                      })}
+                    </select>
+
+                    <div className="text-[10px] text-slate-400 flex items-center gap-1">
+                      <i className="fa-solid fa-circle-info text-blue-400"></i>
+                      <span>Tự động tạo URL dạng: <code className="text-emerald-400">/{prefix}-[slug]</code> và điền Icon chuẩn.</span>
+                    </div>
+                  </div>
+                );
+              })()}
+
               <div>
                 <label className="block text-slate-300 font-bold mb-1">
                   Tên Mục Menu Con: <span className="text-red-400">*</span>
