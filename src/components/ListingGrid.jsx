@@ -55,22 +55,70 @@ export default function ListingGrid({ properties, filters, setFilters }) {
       }
 
       // Price filter
+      const p = prop.price;
+      if (filters.minPrice !== undefined && filters.minPrice !== null && filters.minPrice > 0) {
+        if (p < filters.minPrice) return false;
+      }
+      if (filters.maxPrice !== undefined && filters.maxPrice !== null && filters.maxPrice > 0) {
+        if (p > filters.maxPrice) return false;
+      }
       if (filters.priceRange && filters.priceRange !== 'all') {
-        const p = prop.price;
         if (filters.priceRange === 'under-2b' && p > 2000000000) return false;
-        if (filters.priceRange === '2b-5b' && (p < 2000000000 || p > 5000000000)) return false;
-        if (filters.priceRange === '5b-10b' && (p < 5000000000 || p > 10000000000)) return false;
-        if (filters.priceRange === '10b-30b' && (p < 10000000000 || p > 30000000000)) return false;
-        if (filters.priceRange === 'over-30b' && p < 30000000000) return false;
+        else if (filters.priceRange === '2b-5b' && (p < 2000000000 || p > 5000000000)) return false;
+        else if (filters.priceRange === '5b-10b' && (p < 5000000000 || p > 10000000000)) return false;
+        else if (filters.priceRange === '10b-30b' && (p < 10000000000 || p > 30000000000)) return false;
+        else if (filters.priceRange === 'over-30b' && p < 30000000000) return false;
+        else {
+          // Dynamic price ranges (VD: '7b-10b', '3b-5b', '500m-1b')
+          const dynBetween = filters.priceRange.match(/^([0-9.]+)([bm])-([0-9.]+)([bm])$/i);
+          if (dynBetween) {
+            const minUnit = dynBetween[2].toLowerCase() === 'm' ? 1000000 : 1000000000;
+            const maxUnit = dynBetween[4].toLowerCase() === 'm' ? 1000000 : 1000000000;
+            const minP = parseFloat(dynBetween[1]) * minUnit;
+            const maxP = parseFloat(dynBetween[3]) * maxUnit;
+            if (p < minP || p > maxP) return false;
+          } else {
+            const dynUnder = filters.priceRange.match(/^under-([0-9.]+)([bm])$/i);
+            if (dynUnder) {
+              const maxP = parseFloat(dynUnder[1]) * (dynUnder[2].toLowerCase() === 'm' ? 1000000 : 1000000000);
+              if (p > maxP) return false;
+            } else {
+              const dynOver = filters.priceRange.match(/^over-([0-9.]+)([bm])$/i);
+              if (dynOver) {
+                const minP = parseFloat(dynOver[1]) * (dynOver[2].toLowerCase() === 'm' ? 1000000 : 1000000000);
+                if (p < minP) return false;
+              }
+            }
+          }
+        }
       }
 
       // Area filter
+      const a = prop.area;
+      if (filters.minArea !== undefined && filters.minArea !== null && filters.minArea > 0) {
+        if (a < filters.minArea) return false;
+      }
+      if (filters.maxArea !== undefined && filters.maxArea !== null && filters.maxArea > 0) {
+        if (a > filters.maxArea) return false;
+      }
       if (filters.areaRange && filters.areaRange !== 'all') {
-        const a = prop.area;
         if (filters.areaRange === 'under-50' && a > 50) return false;
-        if (filters.areaRange === '50-100' && (a < 50 || a > 100)) return false;
-        if (filters.areaRange === '100-200' && (a < 100 || a > 200)) return false;
-        if (filters.areaRange === 'over-200' && a < 200) return false;
+        else if (filters.areaRange === '50-100' && (a < 50 || a > 100)) return false;
+        else if (filters.areaRange === '100-200' && (a < 100 || a > 200)) return false;
+        else if (filters.areaRange === 'over-200' && a < 200) return false;
+        else {
+          const dynBetween = filters.areaRange.match(/^([0-9.]+)-([0-9.]+)$/);
+          if (dynBetween) {
+            const minA = parseFloat(dynBetween[1]);
+            const maxA = parseFloat(dynBetween[2]);
+            if (a < minA || a > maxA) return false;
+          } else {
+            const dynUnder = filters.areaRange.match(/^under-([0-9.]+)$/);
+            if (dynUnder && a > parseFloat(dynUnder[1])) return false;
+            const dynOver = filters.areaRange.match(/^over-([0-9.]+)$/);
+            if (dynOver && a < parseFloat(dynOver[1])) return false;
+          }
+        }
       }
 
       // Bedroom filter

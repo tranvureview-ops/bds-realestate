@@ -244,7 +244,12 @@ export const buildSeoUrl = ({
     else if (priceRange.startsWith('gia-') || priceRange.startsWith('tu-')) {
       priceCleanSlug = `-${toVietnameseSlug(priceRange)}`;
     } else {
-      priceCleanSlug = `-gia-${toVietnameseSlug(priceRange)}`;
+      const dynMatch = priceRange.match(/^([0-9.]+)[bB]-([0-9.]+)[bB]$/);
+      if (dynMatch) {
+        priceCleanSlug = `-gia-tu-${dynMatch[1]}-den-${dynMatch[2]}-ty`;
+      } else {
+        priceCleanSlug = `-gia-${toVietnameseSlug(priceRange)}`;
+      }
     }
   }
 
@@ -428,55 +433,116 @@ export const parseTaxonomyUrl = (urlPath) => {
     // G. Khoảng giá (Pricing Tier)
     let priceRange = 'all';
     let priceLabel = '';
-    const priceBetweenMatch = raw.match(/(?:gia-)?(?:tu-)?([0-9.]+)(?:-ty)?-den-([0-9.]+)-ty/);
-    const priceUnderMatch = raw.match(/(?:gia-)?duoi-([0-9.]+)-ty/);
-    const priceOverMatch = raw.match(/(?:gia-)?tren-([0-9.]+)-ty/);
+    let minPrice = null;
+    let maxPrice = null;
+
+    // Hỗ trợ cả các dạng slug:
+    // - tu-7-ty-den-10-ty, gia-tu-7-den-10-ty, tu-7-den-10-ty, 7-ty-den-10-ty, 7-den-10-ty
+    // - tu-500-trieu-den-1-ty, tu-500-den-800-trieu
+    // - duoi-2-ty, duoi-500-trieu, gia-duoi-2-ty
+    // - tren-30-ty, gia-tren-30-ty, tren-500-trieu
+    const priceBetweenMatch = raw.match(/(?:gia-)?(?:tu-)?([0-9.]+)(?:-(ty|trieu))?-den-([0-9.]+)-(ty|trieu)/);
+    const priceUnderMatch = raw.match(/(?:gia-)?duoi-([0-9.]+)-(ty|trieu)/);
+    const priceOverMatch = raw.match(/(?:gia-)?tren-([0-9.]+)-(ty|trieu)/);
 
     if (priceBetweenMatch) {
       const minVal = parseFloat(priceBetweenMatch[1]);
-      const maxVal = parseFloat(priceBetweenMatch[2]);
-      priceLabel = `giá từ ${minVal} đến ${maxVal} tỷ`;
-      if (maxVal <= 2) priceRange = 'under-2b';
-      else if (maxVal <= 5) priceRange = '2b-5b';
-      else if (maxVal <= 10) priceRange = '5b-10b';
-      else if (maxVal <= 30) priceRange = '10b-30b';
-      else priceRange = 'over-30b';
+      const minUnit = priceBetweenMatch[2]; // 'ty' | 'trieu' | undefined
+      const maxVal = parseFloat(priceBetweenMatch[3]);
+      const maxUnit = priceBetweenMatch[4]; // 'ty' | 'trieu'
+
+      // Nếu không có minUnit (ví dụ: tu-7-den-10-ty), thừa hưởng đơn vị từ maxUnit
+      const actualMinUnit = minUnit || maxUnit;
+      const minMultiplier = actualMinUnit === 'trieu' ? 1000000 : 1000000000;
+      const maxMultiplier = maxUnit === 'trieu' ? 1000000 : 1000000000;
+
+      minPrice = minVal * minMultiplier;
+      maxPrice = maxVal * maxMultiplier;
+
+      const minUnitText = actualMinUnit === 'trieu' ? 'triệu' : 'tỷ';
+      const maxUnitText = maxUnit === 'trieu' ? 'triệu' : 'tỷ';
+      if (actualMinUnit === maxUnit) {
+        priceLabel = `giá từ ${minVal} đến ${maxVal} ${maxUnitText}`;
+      } else {
+        priceLabel = `giá từ ${minVal} ${minUnitText} đến ${maxVal} ${maxUnitText}`;
+      }
+
+      // Khớp chuẩn các preset hệ thống nếu min-max khớp hoàn hảo
+      if (minVal === 0 && maxVal === 2 && maxUnit === 'ty') {
+        priceRange = 'under-2b';
+      } else if (minVal === 2 && maxVal === 5 && actualMinUnit === 'ty' && maxUnit === 'ty') {
+        priceRange = '2b-5b';
+      } else if (minVal === 5 && maxVal === 10 && actualMinUnit === 'ty' && maxUnit === 'ty') {
+        priceRange = '5b-10b';
+      } else if (minVal === 10 && maxVal === 30 && actualMinUnit === 'ty' && maxUnit === 'ty') {
+        priceRange = '10b-30b';
+      } else {
+        // Dải giá động (ví dụ: 7b-10b, 3b-5b, 500m-1b)
+        priceRange = `${minVal}${actualMinUnit === 'trieu' ? 'm' : 'b'}-${maxVal}${maxUnit === 'trieu' ? 'm' : 'b'}`;
+      }
     } else if (priceUnderMatch) {
       const maxVal = parseFloat(priceUnderMatch[1]);
-      priceLabel = `giá dưới ${maxVal} tỷ`;
-      priceRange = maxVal <= 2 ? 'under-2b' : '2b-5b';
+      const unit = priceUnderMatch[2];
+      const unitText = unit === 'trieu' ? 'triệu' : 'tỷ';
+      maxPrice = maxVal * (unit === 'trieu' ? 1000000 : 1000000000);
+      priceLabel = `giá dưới ${maxVal} ${unitText}`;
+      if (unit === 'ty' && maxVal <= 2) {
+        priceRange = 'under-2b';
+      } else if (unit === 'ty') {
+        priceRange = `under-${maxVal}b`;
+      } else {
+        priceRange = `under-${maxVal}m`;
+      }
     } else if (priceOverMatch) {
       const minVal = parseFloat(priceOverMatch[1]);
-      priceLabel = `giá trên ${minVal} tỷ`;
-      priceRange = minVal >= 30 ? 'over-30b' : '10b-30b';
+      const unit = priceOverMatch[2];
+      const unitText = unit === 'trieu' ? 'triệu' : 'tỷ';
+      minPrice = minVal * (unit === 'trieu' ? 1000000 : 1000000000);
+      priceLabel = `giá trên ${minVal} ${unitText}`;
+      if (unit === 'ty' && minVal >= 30) {
+        priceRange = 'over-30b';
+      } else if (unit === 'ty') {
+        priceRange = `over-${minVal}b`;
+      } else {
+        priceRange = `over-${minVal}m`;
+      }
     } else if (raw.includes('gia-re')) {
       priceRange = 'under-2b';
+      maxPrice = 2000000000;
       priceLabel = 'giá rẻ';
     }
 
     // H. Diện tích (Area Range)
     let areaRange = 'all';
     let areaLabel = '';
+    let minArea = null;
+    let maxArea = null;
     const areaBetweenMatch = raw.match(/(?:dien-tich-)?(?:tu-)?([0-9.]+)(?:-den|-)([0-9.]+)-m2/);
     const areaUnderMatch = raw.match(/(?:dien-tich-)?duoi-([0-9.]+)-m2/);
     const areaOverMatch = raw.match(/(?:dien-tich-)?tren-([0-9.]+)-m2/);
 
     if (areaBetweenMatch) {
-      const minArea = parseFloat(areaBetweenMatch[1]);
-      const maxArea = parseFloat(areaBetweenMatch[2]);
-      areaLabel = `diện tích ${minArea} - ${maxArea} m²`;
-      if (maxArea <= 50) areaRange = 'under-50';
-      else if (maxArea <= 100) areaRange = '50-100';
-      else if (maxArea <= 200) areaRange = '100-200';
-      else areaRange = 'over-200';
+      const minVal = parseFloat(areaBetweenMatch[1]);
+      const maxVal = parseFloat(areaBetweenMatch[2]);
+      minArea = minVal;
+      maxArea = maxVal;
+      areaLabel = `diện tích ${minVal} - ${maxVal} m²`;
+      if (minVal === 0 && maxVal === 50) areaRange = 'under-50';
+      else if (minVal === 50 && maxVal === 100) areaRange = '50-100';
+      else if (minVal === 100 && maxVal === 200) areaRange = '100-200';
+      else areaRange = `${minVal}-${maxVal}`;
     } else if (areaUnderMatch) {
-      const maxArea = parseFloat(areaUnderMatch[1]);
-      areaLabel = `diện tích dưới ${maxArea} m²`;
-      areaRange = 'under-50';
+      const maxVal = parseFloat(areaUnderMatch[1]);
+      maxArea = maxVal;
+      areaLabel = `diện tích dưới ${maxVal} m²`;
+      if (maxVal <= 50) areaRange = 'under-50';
+      else areaRange = `under-${maxVal}`;
     } else if (areaOverMatch) {
-      const minArea = parseFloat(areaOverMatch[1]);
-      areaLabel = `diện tích trên ${minArea} m²`;
-      areaRange = 'over-200';
+      const minVal = parseFloat(areaOverMatch[1]);
+      minArea = minVal;
+      areaLabel = `diện tích trên ${minVal} m²`;
+      if (minVal >= 200) areaRange = 'over-200';
+      else areaRange = `over-${minVal}`;
     }
 
     // I. Tiện ích & Từ khóa đặc biệt
@@ -525,7 +591,13 @@ export const parseTaxonomyUrl = (urlPath) => {
       project,
       bedroom,
       priceRange,
+      minPrice,
+      maxPrice,
+      priceLabel,
       areaRange,
+      minArea,
+      maxArea,
+      areaLabel,
       keyword,
       title,
       canonicalUrl: clean
@@ -533,6 +605,77 @@ export const parseTaxonomyUrl = (urlPath) => {
   }
 
   return { isTaxonomy: false };
+};
+
+/**
+ * Định dạng nhãn hiển thị cho bộ lọc mức giá thân thiện chuẩn tiếng Việt
+ */
+export const formatPriceRangeText = (priceRange, label = '') => {
+  if (label) {
+    return label.replace(/^giá\s+/i, '');
+  }
+  if (!priceRange || priceRange === 'all') return 'Mọi mức giá';
+  if (priceRange === 'under-2b') return 'Dưới 2 tỷ';
+  if (priceRange === '2b-5b') return '2 - 5 tỷ';
+  if (priceRange === '5b-10b') return '5 - 10 tỷ';
+  if (priceRange === '10b-30b') return '10 - 30 tỷ';
+  if (priceRange === 'over-30b') return 'Trên 30 tỷ';
+
+  // Dynamic formats: ví dụ '7b-10b', '3b-5b', '500m-1b'
+  const dynBetween = priceRange.match(/^([0-9.]+)([bm])-([0-9.]+)([bm])$/i);
+  if (dynBetween) {
+    const minUnit = dynBetween[2].toLowerCase() === 'm' ? 'triệu' : 'tỷ';
+    const maxUnit = dynBetween[4].toLowerCase() === 'm' ? 'triệu' : 'tỷ';
+    if (minUnit === maxUnit) {
+      return `${dynBetween[1]} - ${dynBetween[3]} ${maxUnit}`;
+    }
+    return `${dynBetween[1]} ${minUnit} - ${dynBetween[3]} ${maxUnit}`;
+  }
+
+  const dynUnder = priceRange.match(/^under-([0-9.]+)([bm])$/i);
+  if (dynUnder) {
+    const unit = dynUnder[2].toLowerCase() === 'm' ? 'triệu' : 'tỷ';
+    return `Dưới ${dynUnder[1]} ${unit}`;
+  }
+
+  const dynOver = priceRange.match(/^over-([0-9.]+)([bm])$/i);
+  if (dynOver) {
+    const unit = dynOver[2].toLowerCase() === 'm' ? 'triệu' : 'tỷ';
+    return `Trên ${dynOver[1]} ${unit}`;
+  }
+
+  return priceRange;
+};
+
+/**
+ * Định dạng nhãn hiển thị cho bộ lọc diện tích thân thiện chuẩn tiếng Việt
+ */
+export const formatAreaRangeText = (areaRange, label = '') => {
+  if (label) {
+    return label.replace(/^diện tích\s+/i, '');
+  }
+  if (!areaRange || areaRange === 'all') return 'Mọi diện tích';
+  if (areaRange === 'under-50') return 'Dưới 50 m²';
+  if (areaRange === '50-100') return '50 - 100 m²';
+  if (areaRange === '100-200') return '100 - 200 m²';
+  if (areaRange === 'over-200') return 'Trên 200 m²';
+
+  const dynBetween = areaRange.match(/^([0-9.]+)-([0-9.]+)$/);
+  if (dynBetween) {
+    return `${dynBetween[1]} - ${dynBetween[2]} m²`;
+  }
+
+  const dynUnder = areaRange.match(/^under-([0-9.]+)$/);
+  if (dynUnder) {
+    return `Dưới ${dynUnder[1]} m²`;
+  }
+
+  const dynOver = areaRange.match(/^over-([0-9.]+)$/);
+  if (dynOver) {
+    return `Trên ${dynOver[1]} m²`;
+  }
+
+  return `${areaRange} m²`;
 };
 
 /**

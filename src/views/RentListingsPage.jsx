@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link, useRouter } from '../router/RouterContext';
 import ListingGrid from '../components/ListingGrid';
-import { generateCategoryJsonLd } from '../utils/permalink';
+import { generateCategoryJsonLd, formatPriceRangeText, formatAreaRangeText } from '../utils/permalink';
 
 export default function RentListingsPage({ taxonomyInfo = null }) {
   const { properties } = useRealEstate();
@@ -18,7 +18,11 @@ export default function RentListingsPage({ taxonomyInfo = null }) {
   const queryType = searchParams?.get('propertyType') || taxonomyInfo?.propertyType || 'all';
   const queryKeyword = searchParams?.get('keyword') || searchParams?.get('q') || taxonomyInfo?.project || (taxonomyInfo?.ward ? taxonomyInfo.ward.replace('Phường ', '') : '') || taxonomyInfo?.keyword || '';
   const queryPrice = searchParams?.get('priceRange') || searchParams?.get('price') || taxonomyInfo?.priceRange || 'all';
+  const queryMinPrice = taxonomyInfo?.minPrice ? Number(taxonomyInfo.minPrice) : (searchParams?.get('minPrice') ? Number(searchParams.get('minPrice')) : null);
+  const queryMaxPrice = taxonomyInfo?.maxPrice ? Number(taxonomyInfo.maxPrice) : (searchParams?.get('maxPrice') ? Number(searchParams.get('maxPrice')) : null);
   const queryArea = searchParams?.get('areaRange') || searchParams?.get('area') || taxonomyInfo?.areaRange || 'all';
+  const queryMinArea = taxonomyInfo?.minArea ? Number(taxonomyInfo.minArea) : (searchParams?.get('minArea') ? Number(searchParams.get('minArea')) : null);
+  const queryMaxArea = taxonomyInfo?.maxArea ? Number(taxonomyInfo.maxArea) : (searchParams?.get('maxArea') ? Number(searchParams.get('maxArea')) : null);
   const queryBedroom = searchParams?.get('bedroom') || taxonomyInfo?.bedroom || 'all';
   const queryVerified = searchParams?.get('onlyVerified') === 'true' || taxonomyInfo?.onlyVerified || false;
 
@@ -29,7 +33,11 @@ export default function RentListingsPage({ taxonomyInfo = null }) {
     city: queryCity,
     district: queryDistrict,
     priceRange: queryPrice,
+    minPrice: queryMinPrice,
+    maxPrice: queryMaxPrice,
     areaRange: queryArea,
+    minArea: queryMinArea,
+    maxArea: queryMaxArea,
     bedroom: queryBedroom,
     direction: 'all',
     hasVR360: false,
@@ -46,7 +54,11 @@ export default function RentListingsPage({ taxonomyInfo = null }) {
       district: queryDistrict,
       keyword: queryKeyword,
       priceRange: queryPrice,
+      minPrice: queryMinPrice,
+      maxPrice: queryMaxPrice,
       areaRange: queryArea,
+      minArea: queryMinArea,
+      maxArea: queryMaxArea,
       bedroom: queryBedroom,
       onlyVerified: queryVerified
     }));
@@ -96,7 +108,11 @@ export default function RentListingsPage({ taxonomyInfo = null }) {
       city: taxonomyInfo?.city || '',
       district: '',
       priceRange: 'all',
+      minPrice: null,
+      maxPrice: null,
       areaRange: 'all',
+      minArea: null,
+      maxArea: null,
       bedroom: 'all',
       direction: 'all',
       hasVR360: false,
@@ -218,11 +234,25 @@ export default function RentListingsPage({ taxonomyInfo = null }) {
               {filters.priceRange && filters.priceRange !== 'all' && (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-50 text-rose-700 border border-rose-200 rounded-full font-bold">
                   <i className="fa-solid fa-tag text-[10px]"></i>
-                  Khoảng giá: {filters.priceRange}
+                  Khoảng giá: {formatPriceRangeText(filters.priceRange, taxonomyInfo?.priceLabel)}
                   <button 
-                    onClick={() => setFilters(prev => ({ ...prev, priceRange: 'all' }))}
+                    onClick={() => setFilters(prev => ({ ...prev, priceRange: 'all', minPrice: null, maxPrice: null }))}
                     className="hover:text-rose-900 ml-0.5"
                     title="Bỏ lọc giá"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {filters.areaRange && filters.areaRange !== 'all' && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full font-bold">
+                  <i className="fa-solid fa-ruler-combined text-[10px]"></i>
+                  Diện tích: {formatAreaRangeText(filters.areaRange, taxonomyInfo?.areaLabel)}
+                  <button 
+                    onClick={() => setFilters(prev => ({ ...prev, areaRange: 'all', minArea: null, maxArea: null }))}
+                    className="hover:text-amber-900 ml-0.5"
+                    title="Bỏ lọc diện tích"
                   >
                     ×
                   </button>
