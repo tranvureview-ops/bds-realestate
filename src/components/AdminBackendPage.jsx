@@ -7095,7 +7095,7 @@ export default function AdminBackendPage() {
                         <label className="block text-slate-400 font-bold mb-1">Tỉnh / Thành phố:</label>
                         <input
                           type="text"
-                          placeholder="VD: Hà Nội, TP.HCM, Đà Nẵng..."
+                          placeholder="VD: Đà Nẵng"
                           value={editPropFormData.city || ''}
                           onChange={(e) => setEditPropFormData({ ...editPropFormData, city: e.target.value })}
                           className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-blue-500"

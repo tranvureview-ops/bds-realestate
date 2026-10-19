@@ -193,18 +193,18 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* Column 4: Địa Lý Trọng Điểm & Dự Án */}
+            {/* Column 4: BĐS Trọng Điểm Đà Nẵng */}
             <div className="space-y-1.5">
               <div className="font-bold text-white text-[11px] uppercase tracking-wider mb-2 text-rose-300">
-                Địa Lý Trọng Điểm & Dự Án
+                BĐS Trọng Điểm Đà Nẵng
               </div>
               <ul className="space-y-1.5">
-                <li><Link to="/ban-can-ho-chung-cu-ha-noi" className="hover:text-rose-400 transition">Căn hộ chung cư Hà Nội</Link></li>
-                <li><Link to="/ban-can-ho-chung-cu-quan-cau-giay" className="hover:text-rose-400 transition">Căn hộ Cầu Giấy (Goldmark City)</Link></li>
-                <li><Link to="/ban-nha-rieng-quan-ba-dinh" className="hover:text-rose-400 transition">Nhà riêng Quận Ba Đình (Kim Mã)</Link></li>
-                <li><Link to="/cho-thue-nha-rieng-quan-1" className="hover:text-rose-400 transition">Nhà riêng Quận 1 TP.HCM (Bến Nghé)</Link></li>
-                <li><Link to="/ban-dat-nen-du-an-da-nang" className="hover:text-rose-400 transition">Đất nền dự án Đà Nẵng</Link></li>
+                <li><Link to="/ban-can-ho-chung-cu-quan-son-tra" className="hover:text-rose-400 transition">Căn hộ Sơn Trà (The Sang)</Link></li>
                 <li><Link to="/ban-nha-rieng-quan-hai-chau" className="hover:text-rose-400 transition">Nhà riêng Quận Hải Châu</Link></li>
+                <li><Link to="/ban-dat-nen-du-an-quan-ngu-hanh-son" className="hover:text-rose-400 transition">Đất nền Nam Hòa Xuân</Link></li>
+                <li><Link to="/ban-dat-nen-du-an-da-nang" className="hover:text-rose-400 transition">Đất nền dự án Đà Nẵng</Link></li>
+                <li><Link to="/cho-thue-nha-biethu-lien-ke-quan-son-tra" className="hover:text-rose-400 transition">Biệt thự biển Sơn Trà</Link></li>
+                <li><Link to="/ban-dat-quan-cam-le" className="hover:text-rose-400 transition">Đất Cẩm Lệ & Hòa Vang</Link></li>
               </ul>
             </div>
           </div>

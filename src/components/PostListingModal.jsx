@@ -34,39 +34,20 @@ function playPaymentSuccessSound() {
   }
 }
 
-// Gợi ý dự án tiêu biểu theo tỉnh/thành chuẩn Batdongsan.com.vn
+// Gợi ý dự án tiêu biểu tại Đà Nẵng
 const MOCK_PROJECTS = {
-  'Hà Nội': [
-    'Vinhomes Smart City (Tây Mỗ - Đại Mỗ)',
-    'Vinhomes Ocean Park 1, 2, 3',
-    'Vinhomes Skylake (Phạm Hùng)',
-    'Goldmark City (136 Hồ Tùng Mậu)',
-    'Imperia Smart City',
-    'The Manor Central Park (Nguyễn Xiển)',
-    'Sun Grand City Ancora (Lương Yên)',
-    'Ciputra Hanoi International City'
-  ],
-  'TP. Hồ Chí Minh': [
-    'Vinhomes Central Park (Landmark 81)',
-    'Masteri Thảo Điền & Masteri An Phú',
-    'Vinhomes Grand Park (TP. Thủ Đức)',
-    'The River Thủ Thiêm & Empire City',
-    'Khu đô thị Sala Đại Quang Minh',
-    'Sunrise City (Quận 7)',
-    'Phú Mỹ Hưng (Midtown, The Peak)',
-    'Chung cư The Sun Avenue (Mai Chí Thọ)'
-  ],
   'Đà Nẵng': [
+    'The Filmore Đà Nẵng (Bạch Đằng)',
     'Sun Cosmo Residence Đà Nẵng',
-    'Sun Ponte Residence',
-    'The Filmore Đà Nẵng',
-    'Khu đô thị Nam Hòa Xuân'
-  ],
-  'Bình Dương': [
-    'Bcons City & Bcons Plaza',
-    'Opal Boulevard & Opal Skyline',
-    'Khu đô thị EcoLakes Mỹ Phước',
-    'The Habitat Bình Dương'
+    'Sun Ponte Residence (Cầu Rồng)',
+    'Wyndham Soleil Danang',
+    'The Sang Residence',
+    'Khu đô thị Nam Hòa Xuân (Sun Group)',
+    'Khu đô thị FPT City Đà Nẵng',
+    'Chung cư Monarchy Đà Nẵng',
+    'Hiyori Garden Tower',
+    'Risemount Apartment Đà Nẵng',
+    'Chung cư FPT Plaza 1 & 2'
   ]
 };
 
@@ -135,11 +116,11 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     demand: 'sale', // 'sale' (Cần bán), 'rent' (Cho thuê)
     propertyType: 'apartment',
     propertyTypeName: 'Căn hộ chung cư',
-    city: 'Hà Nội',
-    district: 'Quận Cầu Giấy',
-    ward: 'Dịch Vọng',
-    street: 'Đường Cầu Giấy',
-    project: 'Goldmark City (136 Hồ Tùng Mậu)',
+    city: 'Đà Nẵng',
+    district: 'Quận Hải Châu',
+    ward: 'Phường Thạch Thang',
+    street: 'Bạch Đằng',
+    project: 'The Filmore Đà Nẵng (Bạch Đằng)',
     addressDisplay: '',
     
     // 2. Thông tin bài viết
@@ -177,7 +158,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     contactName: (!isGuest && currentUser?.name) ? currentUser.name : 'Nguyễn Văn Tuấn',
     contactPhone: (!isGuest && currentUser?.phone) ? currentUser.phone : '0908 123 456',
     contactEmail: (!isGuest && currentUser?.email) ? currentUser.email : 'khach.bds@datbiendanang.vn',
-    contactAddress: (!isGuest && currentUser?.address) ? currentUser.address : 'Hà Nội & TP.HCM'
+    contactAddress: (!isGuest && currentUser?.address) ? currentUser.address : 'TP. Đà Nẵng'
   });
 
   // Listing Type & Billing state
@@ -408,14 +389,14 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       category: formData.category || 'sale',
       status: 'active',
       location: {
-        province: formData.city || 'Hà Nội',
-        district: formData.district || 'Cầu Giấy',
-        ward: formData.ward || 'Dịch Vọng Hậu',
-        street: formData.street || 'Trần Duy Hưng',
+        province: formData.city || 'Đà Nẵng',
+        district: formData.district || 'Quận Hải Châu',
+        ward: formData.ward || 'Phường Thạch Thang',
+        street: formData.street || 'Bạch Đằng',
         project: formData.project || '',
-        fullAddress: computedFullAddress || `${formData.street || 'Trần Duy Hưng'}, ${formData.ward || 'Dịch Vọng Hậu'}, ${formData.district || 'Cầu Giấy'}, ${formData.city || 'Hà Nội'}`
+        fullAddress: computedFullAddress || `${formData.street || 'Bạch Đằng'}, ${formData.ward || 'Phường Thạch Thang'}, ${formData.district || 'Quận Hải Châu'}, ${formData.city || 'Đà Nẵng'}`
       },
-      address: computedFullAddress || `${formData.street || 'Trần Duy Hưng'}, ${formData.ward || 'Dịch Vọng Hậu'}, ${formData.district || 'Cầu Giấy'}, ${formData.city || 'Hà Nội'}`,
+      address: computedFullAddress || `${formData.street || 'Bạch Đằng'}, ${formData.ward || 'Phường Thạch Thang'}, ${formData.district || 'Quận Hải Châu'}, ${formData.city || 'Đà Nẵng'}`,
       images: images,
       vr360Tour: formData.vr360Tour || null,
       hasVR360: Boolean(formData.vr360Tour),

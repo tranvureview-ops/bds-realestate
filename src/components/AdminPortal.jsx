@@ -421,24 +421,24 @@ export default function AdminPortal() {
 
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
             <h3 className="text-xs font-black uppercase text-slate-700 tracking-wider">
-              Thị Phần BĐS Theo Tỉnh/Thành Trọng Điểm
+              Thị Phần BĐS Theo Quận/Huyện Đà Nẵng
             </h3>
             <div className="space-y-2 text-xs">
               <div className="flex justify-between p-2 bg-slate-50 rounded-lg">
-                <span className="font-semibold text-slate-800">1. TP. Hồ Chí Minh</span>
-                <strong className="text-emerald-700">48% tin đăng</strong>
+                <span className="font-semibold text-slate-800">1. Quận Hải Châu & Cẩm Lệ</span>
+                <strong className="text-emerald-700">38% tin đăng</strong>
               </div>
               <div className="flex justify-between p-2 bg-slate-50 rounded-lg">
-                <span className="font-semibold text-slate-800">2. Hà Nội</span>
-                <strong className="text-emerald-700">36% tin đăng</strong>
+                <span className="font-semibold text-slate-800">2. Quận Sơn Trà (BĐS Biển)</span>
+                <strong className="text-emerald-700">32% tin đăng</strong>
               </div>
               <div className="flex justify-between p-2 bg-slate-50 rounded-lg">
-                <span className="font-semibold text-slate-800">3. Đà Nẵng</span>
+                <span className="font-semibold text-slate-800">3. Quận Ngũ Hành Sơn (Resort/Biệt Thự)</span>
+                <strong className="text-emerald-700">20% tin đăng</strong>
+              </div>
+              <div className="flex justify-between p-2 bg-slate-50 rounded-lg">
+                <span className="font-semibold text-slate-800">4. Liên Chiểu, Thanh Khê & Hòa Vang</span>
                 <strong className="text-emerald-700">10% tin đăng</strong>
-              </div>
-              <div className="flex justify-between p-2 bg-slate-50 rounded-lg">
-                <span className="font-semibold text-slate-800">4. Bình Dương & Đồng Nai</span>
-                <strong className="text-emerald-700">6% tin đăng</strong>
               </div>
             </div>
           </div>

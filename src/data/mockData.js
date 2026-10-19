@@ -264,13 +264,13 @@ export const INITIAL_PROPERTIES = [
     "demand": "sale",
     "propertyType": "apartment",
     "propertyTypeName": "Căn hộ chung cư",
-    "city": "Hà Nội",
-    "district": "Quận Cầu Giấy",
-    "ward": "Dịch Vọng",
-    "street": "Đường Cầu Giấy",
-    "project": "Goldmark City (136 Hồ Tùng Mậu)",
+    "city": "Đà Nẵng",
+    "district": "Quận Hải Châu",
+    "ward": "Phường Thạch Thang",
+    "street": "Bạch Đằng",
+    "project": "The Filmore Đà Nẵng (Bạch Đằng)",
     "addressDisplay": "",
-    "title": "Bán Căn hộ chung cư Goldmark City (136 Hồ Tùng Mậu) 75m² 2PN 3.5 Tỷ",
+    "title": "Bán Căn hộ chung cư The Filmore Đà Nẵng (Bạch Đằng) 75m² 2PN 3.5 Tỷ",
     "description": "Chính chủ cần bán gấp căn hộ cao cấp view thoáng đẹp:\n- Diện tích thông thủy: 78m2, thiết kế tối ưu 2 phòng ngủ, 2 WC riêng biệt.\n- Cửa chính hướng Đông Nam, ban công hướng Nam lộng gió quanh năm, view trực diện công viên nội khu.\n- Đầy đủ nội thất cao cấp: Tủ bếp gỗ An Cường, bếp từ Bosch, điều hòa âm trần Daikin, sàn gỗ nhập khẩu, khóa cửa thông minh Hafele.\n- Tiện ích nội khu đồng bộ: Trung tâm thương mại, bể bơi 4 mùa, phòng gym tiêu chuẩn quốc tế, trường mầm non, an ninh 24/7.\n- Pháp lý: Sổ hồng lâu dài chính chủ, sang tên công chứng nhanh chóng.\n- Hỗ trợ vay ngân hàng 70% giá trị căn hộ với lãi suất ưu đãi.",
     "priceType": "total",
     "price": 3500000000,
@@ -298,9 +298,9 @@ export const INITIAL_PROPERTIES = [
     "contactName": "Trần Ban Quản Trị (Admin)",
     "contactPhone": "0898 246 607",
     "contactEmail": "admin@bdslandmark.vn",
-    "contactAddress": "Hà Nội & TP.HCM",
+    "contactAddress": "Đà Nẵng",
     "orderId": "TXN-3954",
-    "address": "Đường Cầu Giấy, (Dự án: Goldmark City (136 Hồ Tùng Mậu)), Phường/Xã Dịch Vọng, Quận Cầu Giấy, Hà Nội",
+    "address": "Bạch Đằng, (Dự án: The Filmore Đà Nẵng (Bạch Đằng)), Phường Thạch Thang, Quận Hải Châu, Đà Nẵng",
     "publishedAt": "2026-10-15T14:58:17.001Z",
     "listingDays": 15,
     "autoBumpHours": [
@@ -308,7 +308,7 @@ export const INITIAL_PROPERTIES = [
       "19:30"
     ],
     "id": "BDS-015",
-    "slug": "ban-can-ho-chung-cu-goldmark-city-136-ho-tung-mau-75m-2pn-35-ty",
+    "slug": "ban-can-ho-chung-cu-the-filmore-da-nang-bach-dang-75m-2pn-35-ty",
     "vipPackageId": "vip-gold",
     "status": "trash",
     "expiresAt": "2026-10-30T14:58:17.001Z",
@@ -348,13 +348,13 @@ export const INITIAL_PROPERTIES = [
     "demand": "sale",
     "propertyType": "apartment",
     "propertyTypeName": "Căn hộ chung cư",
-    "city": "Hà Nội",
-    "district": "Quận Cầu Giấy",
-    "ward": "Dịch Vọng",
-    "street": "Đường Cầu Giấy",
-    "project": "Goldmark City (136 Hồ Tùng Mậu)",
+    "city": "Đà Nẵng",
+    "district": "Quận Hải Châu",
+    "ward": "Phường Thạch Thang",
+    "street": "Bạch Đằng",
+    "project": "The Filmore Đà Nẵng (Bạch Đằng)",
     "addressDisplay": "",
-    "title": "Bán Căn hộ chung cư Goldmark City (136 Hồ Tùng Mậu) 75m² 2PN 3.5 Tỷ",
+    "title": "Bán Căn hộ chung cư The Filmore Đà Nẵng (Bạch Đằng) 75m² 2PN 3.5 Tỷ",
     "description": "Chính chủ cần bán gấp căn hộ cao cấp view thoáng đẹp:\n- Diện tích thông thủy: 78m2, thiết kế tối ưu 2 phòng ngủ, 2 WC riêng biệt.\n- Cửa chính hướng Đông Nam, ban công hướng Nam lộng gió quanh năm, view trực diện công viên nội khu.\n- Đầy đủ nội thất cao cấp: Tủ bếp gỗ An Cường, bếp từ Bosch, điều hòa âm trần Daikin, sàn gỗ nhập khẩu, khóa cửa thông minh Hafele.\n- Tiện ích nội khu đồng bộ: Trung tâm thương mại, bể bơi 4 mùa, phòng gym tiêu chuẩn quốc tế, trường mầm non, an ninh 24/7.\n- Pháp lý: Sổ hồng lâu dài chính chủ, sang tên công chứng nhanh chóng.\n- Hỗ trợ vay ngân hàng 70% giá trị căn hộ với lãi suất ưu đãi.",
     "priceType": "total",
     "price": 3500000000,
@@ -382,9 +382,9 @@ export const INITIAL_PROPERTIES = [
     "contactName": "Trần Ban Quản Trị (Admin)",
     "contactPhone": "0898 246 607",
     "contactEmail": "admin@bdslandmark.vn",
-    "contactAddress": "Hà Nội & TP.HCM",
+    "contactAddress": "Đà Nẵng",
     "orderId": "TXN-7567",
-    "address": "Đường Cầu Giấy, (Dự án: Goldmark City (136 Hồ Tùng Mậu)), Phường/Xã Dịch Vọng, Quận Cầu Giấy, Hà Nội",
+    "address": "Bạch Đằng, (Dự án: The Filmore Đà Nẵng (Bạch Đằng)), Phường Thạch Thang, Quận Hải Châu, Đà Nẵng",
     "publishedAt": "2026-10-15T14:57:50.044Z",
     "listingDays": 15,
     "autoBumpHours": [
@@ -392,7 +392,7 @@ export const INITIAL_PROPERTIES = [
       "19:30"
     ],
     "id": "BDS-014",
-    "slug": "ban-can-ho-chung-cu-goldmark-city-136-ho-tung-mau-75m-2pn-35-ty",
+    "slug": "ban-can-ho-chung-cu-the-filmore-da-nang-bach-dang-75m-2pn-35-ty",
     "vipPackageId": "vip-gold",
     "status": "active",
     "expiresAt": "2026-10-30T14:57:50.043Z",
@@ -429,14 +429,14 @@ export const INITIAL_PROPERTIES = [
     "demand": "sale",
     "propertyType": "apartment",
     "propertyTypeName": "Căn hộ chung cư",
-    "city": "Hà Nội",
-    "district": "Quận Cầu Giấy",
-    "ward": "Dịch Vọng",
-    "street": "Đường Cầu Giấy",
-    "project": "Goldmark City (136 Hồ Tùng Mậu)",
+    "city": "Đà Nẵng",
+    "district": "Quận Sơn Trà",
+    "ward": "Phường Phước Mỹ",
+    "street": "Võ Nguyên Giáp",
+    "project": "The Sang Residence",
     "addressDisplay": "",
-    "title": "Bán Căn hộ chung cư Goldmark City (136 Hồ Tùng Mậu) 75m² 2PN 3.5 Tỷ",
-    "description": "Chính chủ cần bán gấp căn hộ cao cấp view thoáng đẹp:\n- Diện tích thông thủy: 78m2, thiết kế tối ưu 2 phòng ngủ, 2 WC riêng biệt.\n- Cửa chính hướng Đông Nam, ban công hướng Nam lộng gió quanh năm, view trực diện công viên nội khu.\n- Đầy đủ nội thất cao cấp: Tủ bếp gỗ An Cường, bếp từ Bosch, điều hòa âm trần Daikin, sàn gỗ nhập khẩu, khóa cửa thông minh Hafele.\n- Tiện ích nội khu đồng bộ: Trung tâm thương mại, bể bơi 4 mùa, phòng gym tiêu chuẩn quốc tế, trường mầm non, an ninh 24/7.\n- Pháp lý: Sổ hồng lâu dài chính chủ, sang tên công chứng nhanh chóng.\n- Hỗ trợ vay ngân hàng 70% giá trị căn hộ với lãi suất ưu đãi.",
+    "title": "Bán Căn hộ The Sang Residence Võ Nguyên Giáp Mỹ Khê 75m² 2PN View Biển",
+    "description": "Chính chủ cần bán gấp căn hộ cao cấp view biển Mỹ Khê cực đẹp:\n- Diện tích thông thủy: 75m2, thiết kế tối ưu 2 phòng ngủ, 2 WC riêng biệt.\n- Cửa chính hướng Tây Nam, ban công hướng Đông ngắm trọn bình minh trên biển Đà Nẵng.\n- Đầy đủ nội thất cao cấp: Tủ bếp gỗ An Cường, bếp từ Bosch, điều hòa âm trần Daikin, sàn gỗ nhập khẩu, khóa cửa thông minh Hafele.\n- Tiện ích nội khu đồng bộ: Trung tâm thương mại, bể bơi 4 mùa, phòng gym tiêu chuẩn quốc tế, trường mầm non, an ninh 24/7.\n- Pháp lý: Sổ hồng lâu dài chính chủ, sang tên công chứng nhanh chóng.\n- Hỗ trợ vay ngân hàng 70% giá trị căn hộ với lãi suất ưu đãi.",
     "priceType": "total",
     "price": 3500000000,
     "priceDisplay": "3.5 Tỷ",
@@ -449,7 +449,7 @@ export const INITIAL_PROPERTIES = [
     "bathroom": 2,
     "floor": 12,
     "direction": "Đông Nam",
-    "balconyDirection": "Nam",
+    "balconyDirection": "Đông",
     "legal": "Sổ hồng lâu dài chính chủ",
     "furniture": "Full nội thất cao cấp",
     "images": [
@@ -463,9 +463,9 @@ export const INITIAL_PROPERTIES = [
     "contactName": "Nguyễn Văn Tuấn",
     "contactPhone": "0908 123 456",
     "contactEmail": "tuan.batdongsan@landmark.vn",
-    "contactAddress": "Hà Nội & TP.HCM",
+    "contactAddress": "Đà Nẵng",
     "orderId": "TXN-4274",
-    "address": "Đường Cầu Giấy, (Dự án: Goldmark City (136 Hồ Tùng Mậu)), Phường/Xã Dịch Vọng, Quận Cầu Giấy, Hà Nội",
+    "address": "Võ Nguyên Giáp, (Dự án: The Sang Residence), Phường Phước Mỹ, Quận Sơn Trà, Đà Nẵng",
     "publishedAt": "2026-10-15T14:55:17.069Z",
     "listingDays": 15,
     "autoBumpHours": [
@@ -473,7 +473,7 @@ export const INITIAL_PROPERTIES = [
       "19:30"
     ],
     "id": "BDS-013",
-    "slug": "ban-can-ho-chung-cu-goldmark-city-136-ho-tung-mau-75m-2pn-35-ty",
+    "slug": "ban-can-ho-the-sang-residence-vo-nguyen-giap-my-khe-75m-2pn-view-bien",
     "vipPackageId": "normal",
     "status": "active",
     "expiresAt": "2026-10-30T15:55:17.641Z",
@@ -512,14 +512,14 @@ export const INITIAL_PROPERTIES = [
     "demand": "sale",
     "propertyType": "apartment",
     "propertyTypeName": "Căn hộ chung cư",
-    "city": "Hà Nội",
-    "district": "Quận Cầu Giấy",
-    "ward": "Dịch Vọng",
-    "street": "Đường Cầu Giấy",
-    "project": "Goldmark City (136 Hồ Tùng Mậu)",
+    "city": "Đà Nẵng",
+    "district": "Quận Hải Châu",
+    "ward": "Phường Hải Châu 1",
+    "street": "Bạch Đằng",
+    "project": "Chung cư Bạch Đằng Complex",
     "addressDisplay": "",
-    "title": "Bán Căn hộ chung cư Goldmark City (136 Hồ Tùng Mậu) 75m² 2PN 3.5 Tỷ",
-    "description": "Chính chủ cần bán gấp căn hộ cao cấp view thoáng đẹp:\n- Diện tích thông thủy: 78m2, thiết kế tối ưu 2 phòng ngủ, 2 WC riêng biệt.\n- Cửa chính hướng Đông Nam, ban công hướng Nam lộng gió quanh năm, view trực diện công viên nội khu.\n- Đầy đủ nội thất cao cấp: Tủ bếp gỗ An Cường, bếp từ Bosch, điều hòa âm trần Daikin, sàn gỗ nhập khẩu, khóa cửa thông minh Hafele.\n- Tiện ích nội khu đồng bộ: Trung tâm thương mại, bể bơi 4 mùa, phòng gym tiêu chuẩn quốc tế, trường mầm non, an ninh 24/7.\n- Pháp lý: Sổ hồng lâu dài chính chủ, sang tên công chứng nhanh chóng.\n- Hỗ trợ vay ngân hàng 70% giá trị căn hộ với lãi suất ưu đãi.",
+    "title": "Bán Căn hộ cao cấp Bạch Đằng Complex Sông Hàn 75m² 2PN Full Nội Thất",
+    "description": "Chính chủ cần bán gấp căn hộ cao cấp view sông Hàn thoáng đẹp:\n- Diện tích thông thủy: 75m2, thiết kế tối ưu 2 phòng ngủ, 2 WC riêng biệt.\n- Cửa chính hướng Tây, ban công hướng Đông ngắm trực diện Cầu Sông Hàn thơ mộng.\n- Đầy đủ nội thất cao cấp: Tủ bếp gỗ An Cường, bếp từ Bosch, điều hòa âm trần Daikin, sàn gỗ nhập khẩu, khóa cửa thông minh Hafele.\n- Tiện ích nội khu đồng bộ: Trung tâm thương mại, bể bơi 4 mùa, phòng gym tiêu chuẩn quốc tế, trường mầm non, an ninh 24/7.\n- Pháp lý: Sổ hồng lâu dài chính chủ, sang tên công chứng nhanh chóng.\n- Hỗ trợ vay ngân hàng 70% giá trị căn hộ với lãi suất ưu đãi.",
     "priceType": "total",
     "price": 3500000000,
     "priceDisplay": "3.5 Tỷ",
@@ -532,7 +532,7 @@ export const INITIAL_PROPERTIES = [
     "bathroom": 2,
     "floor": 12,
     "direction": "Đông Nam",
-    "balconyDirection": "Nam",
+    "balconyDirection": "Đông",
     "legal": "Sổ hồng lâu dài chính chủ",
     "furniture": "Full nội thất cao cấp",
     "images": [
@@ -546,9 +546,9 @@ export const INITIAL_PROPERTIES = [
     "contactName": "Nguyễn Văn Tuấn",
     "contactPhone": "0908 123 456",
     "contactEmail": "tuan.batdongsan@landmark.vn",
-    "contactAddress": "Hà Nội & TP.HCM",
+    "contactAddress": "Đà Nẵng",
     "orderId": "TXN-9724",
-    "address": "Đường Cầu Giấy, (Dự án: Goldmark City (136 Hồ Tùng Mậu)), Phường/Xã Dịch Vọng, Quận Cầu Giấy, Hà Nội",
+    "address": "Bạch Đằng, (Dự án: Chung cư Bạch Đằng Complex), Phường Hải Châu 1, Quận Hải Châu, Đà Nẵng",
     "publishedAt": "2026-10-15T14:49:35.321Z",
     "listingDays": 15,
     "autoBumpHours": [
@@ -556,7 +556,7 @@ export const INITIAL_PROPERTIES = [
       "19:30"
     ],
     "id": "BDS-012",
-    "slug": "ban-can-ho-chung-cu-goldmark-city-136-ho-tung-mau-75m-2pn-35-ty",
+    "slug": "ban-can-ho-cao-cap-bach-dang-complex-song-han-75m-2pn-full-noi-that",
     "vipPackageId": "vip-gold",
     "status": "active",
     "expiresAt": "2026-10-30T15:05:24.756Z",
@@ -599,14 +599,14 @@ export const INITIAL_PROPERTIES = [
     "demand": "sale",
     "propertyType": "apartment",
     "propertyTypeName": "Căn hộ chung cư",
-    "city": "Hà Nội",
-    "district": "Quận Cầu Giấy",
-    "ward": "Dịch Vọng",
-    "street": "Đường Cầu Giấy",
-    "project": "Goldmark City (136 Hồ Tùng Mậu)",
+    "city": "Đà Nẵng",
+    "district": "Quận Ngũ Hành Sơn",
+    "ward": "Phường Hòa Hải",
+    "street": "Nam Kỳ Khởi Nghĩa",
+    "project": "Chung cư FPT Plaza 1 & 2",
     "addressDisplay": "",
-    "title": "Bán Căn hộ chung cư Goldmark City (136 Hồ Tùng Mậu) 75m² 2PN 3.5 Tỷ",
-    "description": "Chính chủ cần bán gấp căn hộ cao cấp view thoáng đẹp:\n- Diện tích thông thủy: 78m2, thiết kế tối ưu 2 phòng ngủ, 2 WC riêng biệt.\n- Cửa chính hướng Đông Nam, ban công hướng Nam lộng gió quanh năm, view trực diện công viên nội khu.\n- Đầy đủ nội thất cao cấp: Tủ bếp gỗ An Cường, bếp từ Bosch, điều hòa âm trần Daikin, sàn gỗ nhập khẩu, khóa cửa thông minh Hafele.\n- Tiện ích nội khu đồng bộ: Trung tâm thương mại, bể bơi 4 mùa, phòng gym tiêu chuẩn quốc tế, trường mầm non, an ninh 24/7.\n- Pháp lý: Sổ hồng lâu dài chính chủ, sang tên công chứng nhanh chóng.\n- Hỗ trợ vay ngân hàng 70% giá trị căn hộ với lãi suất ưu đãi.",
+    "title": "Bán Căn hộ FPT Plaza 2 Ngũ Hành Sơn Đà Nẵng 75m² 2PN Giá Tốt",
+    "description": "Chính chủ cần bán gấp căn hộ FPT Plaza 2 khu đô thị FPT City Đà Nẵng:\n- Diện tích thông thủy: 75m2, thiết kế tối ưu 2 phòng ngủ, 2 WC riêng biệt.\n- Cửa chính hướng Tây, ban công hướng Đông Nam thoáng mát nhìn về sông Cổ Cò.\n- Đầy đủ nội thất: Tủ bếp, bếp từ, điều hòa, sàn gạch bóng kiếng, khóa cửa thông minh.\n- Tiện ích nội khu đồng bộ: Công viên FPT, hồ bơi, trường quốc tế FPT School, đại học FPT, an ninh 24/7.\n- Pháp lý: Sổ hồng lâu dài chính chủ, sang tên công chứng nhanh chóng.\n- Hỗ trợ vay ngân hàng 70% giá trị căn hộ với lãi suất ưu đãi.",
     "priceType": "total",
     "price": 3500000000,
     "priceDisplay": "3.5 Tỷ",
@@ -619,7 +619,7 @@ export const INITIAL_PROPERTIES = [
     "bathroom": 2,
     "floor": 12,
     "direction": "Đông Nam",
-    "balconyDirection": "Nam",
+    "balconyDirection": "Đông Nam",
     "legal": "Sổ hồng lâu dài chính chủ",
     "furniture": "Full nội thất cao cấp",
     "images": [
@@ -633,9 +633,9 @@ export const INITIAL_PROPERTIES = [
     "contactName": "Trần Ban Quản Trị (Admin)",
     "contactPhone": "0898 246 607",
     "contactEmail": "admin@bdslandmark.vn",
-    "contactAddress": "Hà Nội & TP.HCM",
+    "contactAddress": "Đà Nẵng",
     "orderId": "TXN-9056",
-    "address": "Đường Cầu Giấy, (Dự án: Goldmark City (136 Hồ Tùng Mậu)), Phường/Xã Dịch Vọng, Quận Cầu Giấy, Hà Nội",
+    "address": "Nam Kỳ Khởi Nghĩa, (Dự án: Chung cư FPT Plaza 1 & 2), Phường Hòa Hải, Quận Ngũ Hành Sơn, Đà Nẵng",
     "publishedAt": "2026-10-15T14:49:09.983Z",
     "listingDays": 15,
     "autoBumpHours": [
@@ -643,7 +643,7 @@ export const INITIAL_PROPERTIES = [
       "19:30"
     ],
     "id": "BDS-011",
-    "slug": "ban-can-ho-chung-cu-goldmark-city-136-ho-tung-mau-75m-2pn-35-ty",
+    "slug": "ban-can-ho-fpt-plaza-2-ngu-hanh-son-da-nang-75m-2pn-gia-tot",
     "vipPackageId": "vip-gold",
     "status": "trash",
     "expiresAt": "2026-10-30T14:49:09.983Z",
@@ -683,13 +683,13 @@ export const INITIAL_PROPERTIES = [
     "demand": "sale",
     "propertyType": "apartment",
     "propertyTypeName": "Căn hộ chung cư",
-    "city": "Hà Nội",
-    "district": "Quận Cầu Giấy",
-    "ward": "Dịch Vọng",
-    "street": "Đường Cầu Giấy",
-    "project": "Goldmark City (136 Hồ Tùng Mậu)",
+    "city": "Đà Nẵng",
+    "district": "Quận Sơn Trà",
+    "ward": "Phường An Hải Tây",
+    "street": "Trần Hưng Đạo",
+    "project": "Chung cư Monarchy Đà Nẵng",
     "addressDisplay": "",
-    "title": "Bán Căn hộ chung cư Goldmark City (136 Hồ Tùng Mậu) 75m² 2PN 3.5 Tỷ",
+    "title": "Bán Căn hộ The Monarchy Trần Hưng Đạo Ven Sông Hàn 75m² 2PN",
     "description": "Chính chủ cần bán g�������������������������������������������������������p căn hộ cao cấp view thoáng đẹp:\n- Diện tích thông thủy: 78m2, thiết kế tối ưu 2 phòng ngủ, 2 WC riêng biệt.\n- Cửa chính hướng Đông Nam, ban công hướng Nam lộng gió quanh năm, view trực diện công viên nội khu.\n- Đầy đủ nội thất cao cấp: Tủ bếp gỗ An Cường, bếp từ Bosch, điều hòa âm trần Daikin, sàn gỗ nhập khẩu, khóa cửa thông minh Hafele.\n- Tiện ích nội khu đồng bộ: Trung tâm thương mại, bể bơi 4 mùa, phòng gym tiêu chuẩn quốc tế, trường mầm non, an ninh 24/7.\n- Pháp lý: Sổ hồng lâu dài chính chủ, sang tên công chứng nhanh chóng.\n- Hỗ trợ vay ngân hàng 70% giá trị căn hộ với lãi suất ưu đãi.",
     "priceType": "total",
     "price": 3500000000,
@@ -717,9 +717,9 @@ export const INITIAL_PROPERTIES = [
     "contactName": "Trần Ban Quản Trị (Admin)",
     "contactPhone": "0898 246 607",
     "contactEmail": "admin@bdslandmark.vn",
-    "contactAddress": "Hà Nội & TP.HCM",
+    "contactAddress": "Đà Nẵng",
     "orderId": "BDS-920050",
-    "address": "Đường Cầu Giấy, (Dự án: Goldmark City (136 Hồ Tùng Mậu)), Phường/Xã Dịch Vọng, Quận Cầu Giấy, Hà Nội",
+    "address": "Trần Hưng Đạo, (Dự án: Chung cư Monarchy Đà Nẵng), Phường An Hải Tây, Quận Sơn Trà, Đà Nẵng",
     "publishedAt": "2026-10-15T12:04:10.754Z",
     "listingDays": 15,
     "autoBumpHours": [
@@ -727,7 +727,7 @@ export const INITIAL_PROPERTIES = [
       "19:30"
     ],
     "id": "BDS-010",
-    "slug": "ban-can-ho-chung-cu-goldmark-city-136-ho-tung-mau-75m-2pn-35-ty",
+    "slug": "ban-can-ho-the-monarchy-tran-hung-dao-ven-song-han-75m-2pn",
     "vipPackageId": "vip-gold",
     "status": "trash",
     "submittedAt": "2026-10-15T12:04:10.754Z",
@@ -766,8 +766,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-001",
-    "title": "SIÊU DỰ ÁN PENTHOUSE DUPLEX LANDMARK 81 TẦNG CAO VIEW TRỌN SÔNG SÀI GÒN - FULL NỘI THẤT HÀNG HIỆU Ý",
-    "slug": "penthouse-duplex-landmark-81-view-song-sai-gon",
+    "title": "SIÊU DỰ ÁN PENTHOUSE DUPLEX WYNDHAM SOLEIL ĐÀ NẴNG VIEW TRỌN BIỂN MỸ KHÊ - FULL NỘI THẤT Ý",
+    "slug": "penthouse-duplex-wyndham-soleil-da-nang-view-bien-my-khe",
     "vipPackageId": "vip-diamond",
     "status": "active",
     "demand": "sale",
@@ -783,12 +783,12 @@ export const INITIAL_PROPERTIES = [
     "direction": "Đông Nam",
     "legal": "Sổ hồng lâu dài chính chủ",
     "furniture": "Full nội thất cao cấp nhập khẩu Versace & B&B Italia",
-    "address": "Vinhomes Central Park, 208 Nguyễn Hữu Cảnh, Phường 22",
-    "district": "Quận Bình Thạnh",
-    "city": "TP. Hồ Chí Minh",
-    "lat": 10.7951,
-    "lng": 106.7219,
-    "description": "Tuyệt phẩm căn hộ Penthouse Duplex áp mái Landmark 81 - Tòa nhà cao nhất Việt Nam.\n- Thiết kế thông tầng trần cao 6.8m, kính Low-E tràn viền panorama 360 độ ngắm trọn sông Sài Gòn và trung tâm Quận 1 pháo hoa rực rỡ.\n- Bố trí 4 phòng ngủ Master khép kín, phòng chiếu phim riêng, phòng gym mini, quầy bar rượu vang cao cấp.\n- Hệ thống SmartHome điều khiển giọng nói toàn diện.\n- Đặc quyền cư dân VIP: Hồ bơi vô cực riêng, bãi đỗ du thuyền, sảnh Lounge VIP đón tiếp riêng biệt.\n- Pháp lý: Sổ hồng sở hữu lâu dài, sẵn sàng công chứng sang tên trong ngày.",
+    "address": "Góc Võ Nguyên Giáp & Phạm Văn Đồng, Phường Phước Mỹ",
+    "district": "Quận Sơn Trà",
+    "city": "Đà Nẵng",
+    "lat": 16.0684,
+    "lng": 108.2467,
+    "description": "Tuyệt phẩm căn hộ Penthouse Duplex áp mái Wyndham Soleil Danang - Biểu tượng kiến trúc mặt biển Đà Nẵng.\n- Thiết kế thông tầng trần cao 6.8m, kính Low-E tràn viền panorama 360 độ ngắm trọn biển Mỹ Khê và cầu Rồng lung linh pháo hoa.\n- Bố trí 4 phòng ngủ Master khép kín, phòng chiếu phim riêng, phòng gym mini, quầy bar rượu vang cao cấp.\n- Hệ thống SmartHome điều khiển giọng nói toàn diện.\n- Đặc quyền cư dân VIP: Hồ bơi vô cực trên không, bãi đỗ trực thăng, sảnh Lounge VIP đón tiếp riêng biệt.\n- Pháp lý: Sổ hồng sở hữu lâu dài, sẵn sàng công chứng sang tên trong ngày.",
     "images": [
       "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80",
@@ -803,7 +803,7 @@ export const INITIAL_PROPERTIES = [
         "img": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80"
       },
       {
-        "name": "Ban công ngắm Sông Sài Gòn",
+        "name": "Ban công ngắm Biển Mỹ Khê",
         "img": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1600&q=80"
       },
       {
@@ -812,30 +812,30 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "amenities": [
-      "Hồ bơi vô cực",
-      "Sân golf mini",
-      "Công viên 14ha",
-      "Bến du thuyền 5 sao",
-      "Bệnh viện Vinmec",
-      "Trường học Vinschool",
-      "TTTM Landmark 81"
+      "Hồ bơi vô cực trên không",
+      "Khu Spa 5 sao",
+      "Công viên Biển Đông",
+      "Bến du thuyền Sông Hàn",
+      "Bệnh viện Quốc tế Vinmec Đà Nẵng",
+      "Trường Quốc tế Skyline",
+      "TTTM Vincom Plaza"
     ],
     "nearbyFacilities": [
       {
-        "name": "Bến du thuyền Sài Gòn Marina",
+        "name": "Bãi tắm Biển Mỹ Khê",
+        "distance": "100m"
+      },
+      {
+        "name": "Công viên Biển Đông",
         "distance": "150m"
       },
       {
-        "name": "Bệnh viện Đa khoa Quốc tế Vinmec",
-        "distance": "300m"
+        "name": "Cầu Rồng & Cầu Sông Hàn",
+        "distance": "1.5km"
       },
       {
-        "name": "Trường Liên cấp Quốc tế Vinschool",
-        "distance": "250m"
-      },
-      {
-        "name": "Ga Metro Tân Cảng Tuyến Số 1",
-        "distance": "500m"
+        "name": "Sân bay Quốc tế Đà Nẵng",
+        "distance": "4.5km"
       }
     ],
     "author": {
@@ -860,8 +860,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-002",
-    "title": "BIỆT THỰ ĐƠN LẬP VINHOMES RIVERSIDE LONG BIÊN HOA LAN 450M2 HỒ ĐIỀU HÒA SANG TRỌNG BẬC NHẤT THỦ ĐÔ",
-    "slug": "biet-thu-don-lap-vinhomes-riverside-hoa-lan-450m2",
+    "title": "BIỆT THỰ ĐƠN LẬP MẶT BIỂN HYATT REGENCY ĐÀ NẴNG 450M2 HỒ BƠI RIÊNG SANG TRỌNG BẬC NHẤT ĐÀ THÀNH",
+    "slug": "biet-thu-don-lap-mat-bien-hyatt-regency-da-nang-450m2",
     "vipPackageId": "vip-diamond",
     "status": "rejected",
     "demand": "sale",
@@ -877,12 +877,12 @@ export const INITIAL_PROPERTIES = [
     "direction": "Nam",
     "legal": "Sổ đỏ vĩnh viễn sẵn sàng giao dịch",
     "furniture": "Hoàn thiện tâm huyết gỗ gõ đỏ Pachy nhập khẩu, thang máy kính",
-    "address": "Khu Đô Thị Sinh Thái Vinhomes Riverside, Đường Hoa Lan",
-    "district": "Quận Long Biên",
-    "city": "Hà Nội",
-    "lat": 21.0506,
-    "lng": 105.9084,
-    "description": "Gia chủ chuyển định cư nước ngoài cần nhượng lại căn Biệt thự đơn lập Hoa Lan đẹp nhất phân khu Riverside.\n- Lô góc 2 mặt tiền cực rộng, mặt sau ôm trọn sông đào sinh thái nước trong xanh quanh năm.\n- Sân vườn rộng rãi trồng hoa lan, hồ cá Koi Nhật Bản trị giá hàng tỷ đồng.\n- Xây dựng 3 tầng nổi + 1 tầng hầm làm hầm rượu vang và phòng karaoke chuẩn cách âm quốc tế.\n- An ninh 3 lớp bảo vệ 24/7, cộng đồng cư dân tinh hoa chính khách và chủ tịch tập đoàn lớn.",
+    "address": "Đường Trường Sa, Phường Khuê Mỹ",
+    "district": "Quận Ngũ Hành Sơn",
+    "city": "Đà Nẵng",
+    "lat": 16.0125,
+    "lng": 108.2612,
+    "description": "Gia chủ chuyển định cư nước ngoài cần nhượng lại căn Biệt thự đơn lập mặt biển đẹp nhất Hyatt Regency Danang Resort & Spa.\n- Lô góc 2 mặt tiền cực rộng, mặt trước ôm trọn bãi cát trắng mịn và biển xanh ngọc bích.\n- Sân vườn rộng rãi trồng dừa và hoa nhiệt đới, hồ bơi riêng tràn bờ ngắm bình minh.\n- Xây dựng 3 tầng nổi với phong cách kiến trúc nhiệt đới đương đại kết hợp tinh hoa nội thất gỗ tự nhiên.\n- An ninh 3 lớp bảo vệ 24/7, cộng đồng cư dân thượng lưu và các chủ tịch tập đoàn lớn.",
     "images": [
       "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80",
@@ -893,39 +893,43 @@ export const INITIAL_PROPERTIES = [
     "hasVR360": true,
     "vrScenes": [
       {
-        "name": "Sân vườn & Hồ cá Koi",
+        "name": "Sân vườn & Hồ bơi riêng mặt biển",
         "img": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1600&q=80"
       },
       {
-        "name": "Đại sảnh phòng khách tân cổ điển",
+        "name": "Đại sảnh phòng khách phong cách Resort",
         "img": "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1600&q=80"
       }
     ],
     "amenities": [
-      "Sông đào sinh thái",
+      "Bãi biển riêng biệt",
       "Bể bơi vô cực",
-      "Sân Tennis tiêu chuẩn ATP",
-      "Trường Quốc tế BIS",
-      "TTTM Vincom Plaza"
+      "Sân Tennis tiêu chuẩn quốc tế",
+      "Trường Quốc tế Singapore",
+      "Sân Golf BRG Danang"
     ],
     "nearbyFacilities": [
       {
-        "name": "Trường Quốc Tế BIS British International",
-        "distance": "400m"
+        "name": "Danh thắng Ngũ Hành Sơn",
+        "distance": "1.2km"
       },
       {
-        "name": "TTTM Vincom Long Biên",
-        "distance": "600m"
-      },
-      {
-        "name": "Sân Golf Long Biên",
+        "name": "Sân Golf BRG Danang Golf Resort",
         "distance": "2.5km"
+      },
+      {
+        "name": "Trường Quốc Tế Singapore SIS",
+        "distance": "3km"
+      },
+      {
+        "name": "Phố cổ Hội An",
+        "distance": "15km"
       }
     ],
     "author": {
       "id": "broker-02",
       "name": "Trần Thị Thu Hà",
-      "title": "Chuyên Viên Tư Vấn Vinhomes",
+      "title": "Chuyên Viên Tư Vấn BĐS Nghỉ Dưỡng Đà Nẵng",
       "phone": "0912 888 999",
       "zalo": "0912888999",
       "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -946,8 +950,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-003",
-    "title": "NHÀ MẶT PHỐ TRẦN DUY HƯNG CẦU GIẤY 8 TẦNG THANG MÁY - DÒNG TIỀN CHO THUÊ 180 TRIỆU/THÁNG",
-    "slug": "nha-mat-pho-tran-duy-hung-cau-giay-8-tang-thang-may",
+    "title": "NHÀ MẶT PHỐ NGUYỄN VĂN LINH HẢI CHÂU 8 TẦNG THANG MÁY - DÒNG TIỀN CHO THUÊ 180 TRIỆU/THÁNG",
+    "slug": "nha-mat-pho-nguyen-van-linh-hai-chau-8-tang-thang-may",
     "vipPackageId": "vip-gold",
     "status": "active",
     "demand": "sale",
@@ -963,12 +967,12 @@ export const INITIAL_PROPERTIES = [
     "direction": "Tây Bắc",
     "legal": "Sổ đỏ chính chủ, nở hậu đón tài lộc",
     "furniture": "Full điều hòa âm trần Daikin, hệ thống PCCC kiểm định chuẩn",
-    "address": "Mặt phố Trần Duy Hưng, Phường Trung Hòa",
-    "district": "Quận Cầu Giấy",
-    "city": "Hà Nội",
-    "lat": 21.0083,
-    "lng": 105.7997,
-    "description": "Vị trí kim cương ngay ngã tư Trần Duy Hưng - Hoàng Minh Giám.\n- Mặt tiền khủng 7.2m vỉa hè rộng 8m thênh thang, ô tô đỗ thoải mái ngày đêm.\n- Xây 8 tầng kiên cố khung bê tông cốt thép, thang máy nhập khẩu tốc độ cao tải trọng 1000kg.\n- Hiện đang cho Thẩm mỹ viện quốc tế thuê hợp đồng dài hạn 180 triệu/tháng (dòng tiền sinh lời 4.5%/năm).",
+    "address": "Mặt phố Nguyễn Văn Linh, Phường Hải Châu 1",
+    "district": "Quận Hải Châu",
+    "city": "Đà Nẵng",
+    "lat": 16.0612,
+    "lng": 108.2195,
+    "description": "Vị trí kim cương ngay trục đường tài chính huyết mạch Nguyễn Văn Linh - Cầu Rồng.\n- Mặt tiền khủng 7.2m vỉa hè rộng 8m thênh thang, ô tô đỗ thoải mái ngày đêm.\n- Xây 8 tầng kiên cố khung bê tông cốt thép, thang máy nhập khẩu tốc độ cao tải trọng 1000kg.\n- Hiện đang cho Ngân hàng và Thẩm mỹ viện quốc tế thuê hợp đồng dài hạn 180 triệu/tháng (dòng tiền sinh lời 4.5%/năm).",
     "images": [
       "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1512915922686-57c11dde9b6b?auto=format&fit=crop&w=1200&q=80",
@@ -984,16 +988,16 @@ export const INITIAL_PROPERTIES = [
     ],
     "nearbyFacilities": [
       {
-        "name": "TTTM Big C Thăng Long",
-        "distance": "200m"
+        "name": "Cầu Rồng Đà Nẵng",
+        "distance": "300m"
       },
       {
-        "name": "Trường THPT Chuyên Hà Nội - Amsterdam",
-        "distance": "450m"
+        "name": "Sân bay Quốc tế Đà Nẵng",
+        "distance": "1.5km"
       },
       {
-        "name": "Khách sạn JW Marriott",
-        "distance": "1.2km"
+        "name": "Bệnh viện Hoàn Mỹ Đà Nẵng",
+        "distance": "600m"
       }
     ],
     "author": {
@@ -1017,8 +1021,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-004",
-    "title": "CĂN HỘ 3PN MASTERI THẢO ĐIỀN QUẬN 2 VIEW HỒ BƠI & METRO - SỔ HỒNG TRAO TAY GIÁ CỰC TỐT",
-    "slug": "can-ho-3pn-masteri-thao-dien-quan-2",
+    "title": "CĂN HỘ 3PN SUN PONTE RESIDENCE CẦU RỒNG VIEW SÔNG HÀN - SỔ HỒNG TRAO TAY GIÁ CỰC TỐT",
+    "slug": "can-ho-3pn-sun-ponte-residence-cau-rong-view-song-han",
     "vipPackageId": "vip-gold",
     "status": "active",
     "demand": "sale",
@@ -1034,12 +1038,12 @@ export const INITIAL_PROPERTIES = [
     "direction": "Đông Bắc",
     "legal": "Sổ hồng sẵn, hỗ trợ vay bank 70%",
     "furniture": "Nội thất hiện đại gỗ An Cường cao cấp, đồ điện tử Samsung",
-    "address": "159 Xa Lộ Hà Nội, Phường Thảo Điền",
-    "district": "TP. Thủ Đức (Quận 2)",
-    "city": "TP. Hồ Chí Minh",
-    "lat": 10.8032,
-    "lng": 106.7354,
-    "description": "Cần bán gấp căn hộ Masteri Thảo Điền tháp T4, view trực diện công viên và hồ bơi xanh mát, cực kỳ yên tĩnh.\n- Diện tích 94m² thiết kế 3 phòng ngủ thoáng sáng đón ánh nắng tự nhiên.\n- Kết nối trực tiếp Ga Metro An Phú qua cầu bộ hành trên cao, di chuyển vào Quận 1 chỉ 7 phút.\n- Tiện ích nội khu đẳng cấp: Vincom Mega Mall, rạp chiếu phim CGV, hồ bơi tràn bờ, phòng gym tiêu chuẩn.",
+    "address": "Mặt đường Trần Hưng Đạo, Phường An Hải Tây",
+    "district": "Quận Sơn Trà",
+    "city": "Đà Nẵng",
+    "lat": 16.0610,
+    "lng": 108.2325,
+    "description": "Cần bán gấp căn hộ Sun Ponte Residence tháp The Ponte ven bờ sông Hàn, view trực diện Cầu Rồng và Cầu Tình Yêu xanh mát, cực kỳ đẳng cấp.\n- Diện tích 94m² thiết kế 3 phòng ngủ thoáng sáng đón gió sông trong lành.\n- Kết nối trực tiếp trung tâm Hải Châu qua Cầu Rồng chỉ 2 phút di chuyển.\n- Tiện ích nội khu đẳng cấp: Bến du thuyền Sun Group, hồ bơi vô cực view pháo hoa quốc tế, phòng gym tiêu chuẩn 5 sao.",
     "images": [
       "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80",
@@ -1048,35 +1052,35 @@ export const INITIAL_PROPERTIES = [
     "hasVR360": true,
     "vrScenes": [
       {
-        "name": "Phòng khách view hồ bơi",
+        "name": "Phòng khách view Cầu Rồng & Sông Hàn",
         "img": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1600&q=80"
       }
     ],
     "amenities": [
-      "Hồ bơi 500m2",
+      "Hồ bơi vô cực ngắm Cầu Rồng",
       "Phòng tập Gym",
-      "Sân tennis",
+      "Bến du thuyền sông Hàn",
       "Sân chơi trẻ em",
-      "TTTM Vincom Mega Mall Thảo Điền"
+      "TTTM Vincom Center Đà Nẵng"
     ],
     "nearbyFacilities": [
       {
-        "name": "Ga Metro An Phú Tuyến Bến Thành - Suối Tiên",
-        "distance": "50m"
+        "name": "Cầu Rồng Đà Nẵng",
+        "distance": "150m"
       },
       {
-        "name": "Vincom Mega Mall Thảo Điền",
-        "distance": "100m"
+        "name": "Cầu Tình Yêu & Tượng Cá Chép Hóa Rồng",
+        "distance": "200m"
       },
       {
-        "name": "Trường Quốc Tế ISHCMC",
-        "distance": "800m"
+        "name": "Bãi biển Mỹ Khê",
+        "distance": "1.8km"
       }
     ],
     "author": {
       "id": "broker-03",
       "name": "Lê Hoàng Nam",
-      "title": "Môi Giới Chuyên Khu Vực Thảo Điền",
+      "title": "Môi Giới Chuyên Căn Hộ Sông Hàn Đà Nẵng",
       "phone": "0938 555 777",
       "zalo": "0938555777",
       "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
@@ -1158,8 +1162,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-006",
-    "title": "CHO THUÊ NHÀ PHỐ NGUYÊN CĂN QUẬN 1 LÊ THÁNH TÔN TIỆN LÀM SPA, VĂN PHÒNG HOẶC AIRBNB",
-    "slug": "cho-thue-nha-pho-nguyen-can-quan-1-le-thanh-ton",
+    "title": "CHO THUÊ NHÀ PHỐ NGUYÊN CĂN SƠN TRÀ PHẠM VĂN ĐỒNG TIỆN LÀM SPA, VĂN PHÒNG HOẶC HOMESTAY DU LỊCH",
+    "slug": "cho-thue-nha-pho-nguyen-can-son-tra-pham-van-dong",
     "vipPackageId": "vip-silver",
     "status": "active",
     "demand": "rent",
@@ -1175,36 +1179,36 @@ export const INITIAL_PROPERTIES = [
     "direction": "Đông Nam",
     "legal": "Hợp đ���ng công chứng pháp lý rõ ràng",
     "furniture": "Đầy đủ nội thất và thiết bị từng phòng ngủ",
-    "address": "Hẻm xe hơi Lê Thánh Tôn, Phường Bến Nghé",
-    "district": "Quận 1",
-    "city": "TP. Hồ Chí Minh",
-    "lat": 10.7769,
-    "lng": 106.7009,
-    "description": "Cho thuê nhà nguyên căn khu phố Nhật Bản Little Tokyo Lê Thánh Tôn - Thái Văn Lung.\n- Kết cấu 1 trệt 3 lầu sân thượng thoáng mát. Hẻm xe hơi quay đầu rộng rãi.\n- Từng phòng đều có WC riêng, ban công đón gió. Thích hợp kinh doanh homestay, căn hộ dịch vụ cho chuyên gia Nhật Bản, hoặc mở spa làm đẹp.",
+    "address": "Đường Phạm Văn Đồng, Phường An Hải Bắc",
+    "district": "Quận Sơn Trà",
+    "city": "Đà Nẵng",
+    "lat": 16.0712,
+    "lng": 108.2355,
+    "description": "Cho thuê nhà nguyên căn trục đại lộ du lịch biển Phạm Văn Đồng - Sơn Trà.\n- Kết cấu 1 trệt 3 lầu sân thượng thoáng mát. Mặt tiền đường lớn vỉa hè rộng rãi đậu đỗ xe thoải mái.\n- Từng phòng đều có WC riêng, ban công đón gió biển. Thích hợp kinh doanh homestay, căn hộ dịch vụ cho chuyên gia nước ngoài, hoặc mở spa làm đẹp.",
     "images": [
       "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1200&q=80"
     ],
     "hasVR360": false,
     "amenities": [
-      "Hẻm xe hơi",
-      "Phố đi bộ",
-      "Gần tuyến Metro"
+      "Đường lớn vỉa hè rộng",
+      "Gần bãi biển Mỹ Khê",
+      "Gần cầu Sông Hàn"
     ],
     "nearbyFacilities": [
       {
-        "name": "Chợ Bến Thành",
-        "distance": "500m"
+        "name": "Bãi biển Mỹ Khê",
+        "distance": "600m"
       },
       {
-        "name": "Nhà hát Thành Phố",
-        "distance": "300m"
+        "name": "Cầu Sông Hàn & TTTM Vincom",
+        "distance": "800m"
       }
     ],
     "author": {
       "id": "broker-01",
       "name": "Nguyễn Văn Tuấn",
-      "title": "Môi Giới Cho Thuê Nhà Trung Tâm",
+      "title": "Môi Giới Cho Thuê Nhà Biển Đà Nẵng",
       "phone": "0908 123 456",
       "zalo": "0908123456",
       "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
@@ -1222,8 +1226,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-007",
-    "title": "Bán nhà riêng ngõ 290 Kim Mã Ba Đình 45m2 x 5 tầng cách đường ô tô 10m - Sổ đỏ vuông vắn",
-    "slug": "ban-nha-rieng-kim-ma-ba-dinh-45m2",
+    "title": "Bán nhà riêng kiệt ô tô Hùng Vương Thanh Khê 45m2 x 3 tầng gần chợ Cồn - Sổ hồng vuông vắn",
+    "slug": "ban-nha-rieng-hung-vuong-thanh-khe-45m2",
     "vipPackageId": "vip-silver",
     "status": "active",
     "demand": "sale",
@@ -1239,12 +1243,12 @@ export const INITIAL_PROPERTIES = [
     "direction": "Tây Nam",
     "legal": "Sổ đỏ chính chủ, cất két giao dịch ngay",
     "furniture": "Cơ bản, sàn gỗ, tủ bếp hiện đại",
-    "address": "Ngõ 290 Kim Mã, Phường Kim Mã",
-    "district": "Quận Ba Đình",
-    "city": "Hà Nội",
-    "lat": 21.0318,
-    "lng": 105.8213,
-    "description": "Bán nhà khu trung tâm Ba Đình dân trí cao, an ninh tuyệt đối cạnh Đại sứ quán Thụy Điển:\n- Nhà chủ tự xây kiên cố để ở, thiết kế hiện đại, giếng trời thông thoáng.\n- Tầng 1: Phòng khách + bếp + WC. Tầng 2, 3, 4: Mỗi tầng 1 phòng ngủ rộng + WC khép kín. Tầng 5: Phòng thờ + sân phơi.",
+    "address": "Kiệt ô tô Hùng Vương, Phường Vĩnh Trung",
+    "district": "Quận Thanh Khê",
+    "city": "Đà Nẵng",
+    "lat": 16.0691,
+    "lng": 108.2144,
+    "description": "Bán nhà kiệt ô tô trung tâm Thanh Khê Đà Nẵng, dân trí cao, an ninh tuyệt đối gần chợ Cồn và Big C:\n- Nhà chủ tự xây kiên cố để ở, thiết kế hiện đại, giếng trời thông thoáng.\n- Tầng 1: Phòng khách + bếp + WC. Tầng 2, 3: Mỗi tầng phòng ngủ rộng + WC khép kín. Sân thượng: Phòng thờ + sân phơi thoáng mát.",
     "images": [
       "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=1200&q=80"
@@ -1257,18 +1261,22 @@ export const INITIAL_PROPERTIES = [
     ],
     "nearbyFacilities": [
       {
-        "name": "Lotte Center Liễu Giai",
-        "distance": "600m"
+        "name": "Chợ Cồn Đà Nẵng",
+        "distance": "300m"
       },
       {
-        "name": "Hồ Giảng Võ",
-        "distance": "500m"
+        "name": "Siêu thị GO! Đà Nẵng (Big C)",
+        "distance": "400m"
+      },
+      {
+        "name": "Sân bay Quốc tế Đà Nẵng",
+        "distance": "1.8km"
       }
     ],
     "author": {
       "id": "broker-05",
       "name": "Phạm Hải Đăng",
-      "title": "Môi Giới Thổ Cư Ba Đình",
+      "title": "Môi Giới Nhà Phố Thanh Khê Đà Nẵng",
       "phone": "0977 123 789",
       "zalo": "0977123789",
       "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80",
@@ -1286,8 +1294,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-008",
-    "title": "Bán đất thổ cư 80m2 tại Dĩ An Bình Dương gần làng Đại học Quốc gia TP.HCM",
-    "slug": "ban-dat-tho-cu-80m2-di-an-binh-duong",
+    "title": "Bán đất thổ cư 80m2 tại Liên Chiểu Đà Nẵng gần Làng Đại học Bách Khoa Đà Nẵng",
+    "slug": "ban-dat-tho-cu-80m2-lien-chieu-da-nang",
     "vipPackageId": "normal",
     "status": "expired",
     "demand": "sale",
@@ -1303,12 +1311,12 @@ export const INITIAL_PROPERTIES = [
     "direction": "Đông Nam",
     "legal": "Sổ hồng riêng từng nền",
     "furniture": "Đất trống",
-    "address": "Đường Đông Hòa, Phường Đông Hòa",
-    "district": "TP. Dĩ An",
-    "city": "Bình Dương",
-    "lat": 10.8872,
-    "lng": 106.7821,
-    "description": "Chính chủ gửi bán lô đất thổ cư xây dựng tự do tại Dĩ An. Cách KTX Đại học Quốc gia 1km, xung quanh dân cư đông đúc, thích hợp xây nhà trọ cho sinh viên hoặc an cư lâu dài.",
+    "address": "Đường Nguyễn Lương Bằng, Phường Hòa Khánh Bắc",
+    "district": "Quận Liên Chiểu",
+    "city": "Đà Nẵng",
+    "lat": 16.0745,
+    "lng": 108.1492,
+    "description": "Chính chủ gửi bán lô đất thổ cư xây dựng tự do tại Liên Chiểu Đà Nẵng. Cách cổng trường Đại học Bách Khoa chỉ 800m, xung quanh dân cư sầm uất, thích hợp xây căn hộ mini, nhà trọ cho sinh viên hoặc an cư lâu dài.",
     "images": [
       "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80"
     ],
@@ -1319,12 +1327,16 @@ export const INITIAL_PROPERTIES = [
     ],
     "nearbyFacilities": [
       {
-        "name": "Khu Đô Thị Đại Học Quốc Gia",
-        "distance": "1km"
+        "name": "Trường Đại Học Bách Khoa Đà Nẵng",
+        "distance": "800m"
       },
       {
-        "name": "Bến xe Miền Đông mới",
-        "distance": "2.5km"
+        "name": "Khu Công Nghiệp Hòa Khánh",
+        "distance": "1.5km"
+      },
+      {
+        "name": "Bến xe Trung tâm Đà Nẵng",
+        "distance": "3km"
       }
     ],
     "author": {
@@ -1351,8 +1363,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-009",
-    "title": "Cần bán gấp căn shophouse khối đế chung cư Cầu Giấy đang kinh doanh Cafe Highlands",
-    "slug": "ban-shophouse-cau-giay-dang-cho-thue-cafe",
+    "title": "Cần bán gấp căn shophouse khối đế chung cư Cẩm Lệ Đà Nẵng đang kinh doanh Cafe Highlands",
+    "slug": "ban-shophouse-cam-le-da-nang-dang-cho-thue-cafe",
     "vipPackageId": "normal",
     "status": "active",
     "demand": "sale",
@@ -1368,12 +1380,12 @@ export const INITIAL_PROPERTIES = [
     "direction": "Đông Bắc",
     "legal": "Sổ hồng 50 năm",
     "furniture": "Hoàn thiện đồng bộ",
-    "address": "Đường Duy Tân, Phường Dịch Vọng Hậu",
-    "district": "Quận Cầu Giấy",
-    "city": "Hà Nội",
-    "lat": 21.0333,
-    "lng": 105.7833,
-    "description": "Tin đăng mới đang chờ Admin kiểm duyệt nội dung và giấy tờ pháp lý. Shophouse tầng trệt tòa nhà 30 tầng với hơn 1.200 căn hộ.",
+    "address": "Đường Cách Mạng Tháng 8, Phường Khuê Trung",
+    "district": "Quận Cẩm Lệ",
+    "city": "Đà Nẵng",
+    "lat": 16.0315,
+    "lng": 108.2045,
+    "description": "Shophouse khối đế tòa căn hộ cao tầng trung tâm Cẩm Lệ Đà Nẵng đang cho thương hiệu Highlands Coffee thuê dài hạn dòng tiền ổn định 60 triệu/tháng. Mặt tiền đường lớn Cách Mạng Tháng 8 thông thoáng, bãi đỗ ô tô xe máy rộng rãi.",
     "images": [
       "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80"
     ],
@@ -1384,14 +1396,18 @@ export const INITIAL_PROPERTIES = [
     ],
     "nearbyFacilities": [
       {
-        "name": "Khu công nghệ cao Duy Tân",
-        "distance": "100m"
+        "name": "Trung tâm Hội chợ Triển lãm Đà Nẵng",
+        "distance": "400m"
+      },
+      {
+        "name": "Cầu Cẩm Lệ",
+        "distance": "800m"
       }
     ],
     "author": {
       "id": "broker-01",
       "name": "Nguyễn Văn Tuấn",
-      "title": "Giám Đốc Kinh Doanh BĐS",
+      "title": "Giám Đốc Kinh Doanh BĐS Đà Nẵng",
       "phone": "0908 123 456",
       "zalo": "0908123456",
       "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",

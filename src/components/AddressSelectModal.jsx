@@ -28,10 +28,10 @@ export default function AddressSelectModal({
   const [selectedAddressType, setSelectedAddressType] = useState('new'); // 'new' | 'old'
 
   // Form states
-  const [selectedCity, setSelectedCity] = useState(initialData.city || 'Hà Nội');
-  const [selectedDistrict, setSelectedDistrict] = useState(initialData.district || 'Quận Cầu Giấy');
-  const [selectedWard, setSelectedWard] = useState(initialData.ward || 'Phường Dịch Vọng Hậu');
-  const [selectedStreet, setSelectedStreet] = useState(initialData.street || 'Trần Duy Hưng');
+  const [selectedCity, setSelectedCity] = useState(initialData.city || 'Đà Nẵng');
+  const [selectedDistrict, setSelectedDistrict] = useState(initialData.district || 'Quận Hải Châu');
+  const [selectedWard, setSelectedWard] = useState(initialData.ward || 'Phường Thạch Thang');
+  const [selectedStreet, setSelectedStreet] = useState(initialData.street || 'Bạch Đằng');
   const [detailedAddress, setDetailedAddress] = useState(initialData.detailedAddress || '');
   const [selectedProject, setSelectedProject] = useState(initialData.project || '');
 

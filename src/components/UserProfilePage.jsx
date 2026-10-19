@@ -42,9 +42,9 @@ export default function UserProfilePage() {
     phone: currentUser.phone || '',
     email: currentUser.email || '',
     bio: currentUser.bio || 'Chuyên viên tư vấn bất động sản cao cấp, cam kết pháp lý minh bạch 100%.',
-    primaryArea: currentUser.primaryArea || 'Hà Nội & TP. Hồ Chí Minh',
+    primaryArea: currentUser.primaryArea || 'TP. Đà Nẵng',
     company: currentUser.company || 'Đất Biển Đà Nẵng Partner',
-    address: currentUser.address || '208 Nguyễn Hữu Cảnh, P. 22, Bình Thạnh, TP.HCM',
+    address: currentUser.address || 'Góc Võ Nguyên Giáp & Phạm Văn Đồng, P. Phước Mỹ, Q. Sơn Trà, TP. Đà Nẵng',
     avatar: currentUser.avatar || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80'
   });
 

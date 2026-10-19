@@ -664,9 +664,9 @@ export function renderCustomEmailPreview(templateId, customTemplate, customConfi
 
   const sampleProperty = {
     id: 'BDS-003',
-    title: 'Căn hộ Masterise Park Place 2PN 75m2 view sông',
-    priceDisplay: '2 Tỷ',
-    address: 'Võ Nguyên Giáp, Quận Long Biên, Hà Nội',
+    title: 'Căn hộ The Filmore 2PN 75m2 view sông Hàn',
+    priceDisplay: '3.5 Tỷ',
+    address: 'Bạch Đằng, Phường Bình Thuận, Quận Hải Châu, Đà Nẵng',
     author: { name: 'Đặng Tuấn Anh', phone: '0988 777 666' },
     contactName: 'Đặng Tuấn Anh'
   };

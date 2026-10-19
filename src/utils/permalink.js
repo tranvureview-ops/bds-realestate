@@ -11,7 +11,7 @@
  *    - /cho-thue-can-ho-chung-cu, /cho-thue-nha-mat-pho, /cho-thue-van-phong
  * 
  * 3. Schema URL Địa Giới Hành Chính:
- *    - /nha-dat-ban-ha-noi, /nha-dat-ban-tp-hcm, /ban-can-ho-chung-cu-cau-giay
+ *    - /nha-dat-ban-da-nang, /ban-can-ho-chung-cu-hai-chau, /ban-dat-nen-du-an-ngu-hanh-son
  * 
  * 4. Schema.org JSON-LD Structured Data:
  *    - RealEstateListing, SingleFamilyResidence / Apartment, Offer, PostalAddress, BreadcrumbList
@@ -71,90 +71,67 @@ export const BATDONGSAN_TAXONOMY = {
 };
 
 
-// Ánh xạ thành phố chuẩn Batdongsan
+// Ánh xạ thành phố chuẩn Đà Nẵng
 export const CITY_SLUGS = {
-  'Hà Nội': 'ha-noi',
-  'TP. Hồ Chí Minh': 'tp-hcm',
-  'Đà Nẵng': 'da-nang',
-  'Bình Dương': 'binh-duong'
+  'Đà Nẵng': 'da-nang'
 };
 
 export const SLUG_TO_CITY = {
-  'ha-noi': 'Hà Nội',
-  'tp-hcm': 'TP. Hồ Chí Minh',
-  'da-nang': 'Đà Nẵng',
-  'binh-duong': 'Bình Dương'
+  'da-nang': 'Đà Nẵng'
 };
 
-// Bảng ánh xạ Quận/Huyện sang Tỉnh/Thành phố chuẩn hỗ trợ Clean Slug SEO
+// Bảng ánh xạ Quận/Huyện TP. Đà Nẵng chuẩn hỗ trợ Clean Slug SEO
 export const DISTRICT_MAP = {
-  'ba-dinh': { name: 'Quận Ba Đình', city: 'Hà Nội' },
-  'cau-giay': { name: 'Quận Cầu Giấy', city: 'Hà Nội' },
-  'dong-da': { name: 'Quận Đống Đa', city: 'Hà Nội' },
-  'hoan-kiem': { name: 'Quận Hoàn Kiếm', city: 'Hà Nội' },
-  'tay-ho': { name: 'Quận Tây Hồ', city: 'Hà Nội' },
-  'hai-ba-trung': { name: 'Quận Hai Bà Trưng', city: 'Hà Nội' },
-  'thanh-xuan': { name: 'Quận Thanh Xuân', city: 'Hà Nội' },
-  'hoang-mai': { name: 'Quận Hoàng Mai', city: 'Hà Nội' },
-  'long-bien': { name: 'Quận Long Biên', city: 'Hà Nội' },
-  'nam-tu-liem': { name: 'Quận Nam Từ Liêm', city: 'Hà Nội' },
-  'bac-tu-liem': { name: 'Quận Bắc Từ Liêm', city: 'Hà Nội' },
-  'ha-dong': { name: 'Quận Hà Đông', city: 'Hà Nội' },
-  'tan-phu': { name: 'Quận Tân Phú', city: 'TP. Hồ Chí Minh' },
-  'binh-thanh': { name: 'Quận Bình Thạnh', city: 'TP. Hồ Chí Minh' },
-  'thu-duc': { name: 'TP. Thủ Đức', city: 'TP. Hồ Chí Minh' },
-  'quan-1': { name: 'Quận 1', city: 'TP. Hồ Chí Minh' },
-  'quan-2': { name: 'Quận 2', city: 'TP. Hồ Chí Minh' },
-  'quan-3': { name: 'Quận 3', city: 'TP. Hồ Chí Minh' },
-  'quan-4': { name: 'Quận 4', city: 'TP. Hồ Chí Minh' },
-  'quan-5': { name: 'Quận 5', city: 'TP. Hồ Chí Minh' },
-  'quan-7': { name: 'Quận 7', city: 'TP. Hồ Chí Minh' },
-  'quan-10': { name: 'Quận 10', city: 'TP. Hồ Chí Minh' },
-  'tan-binh': { name: 'Quận Tân Bình', city: 'TP. Hồ Chí Minh' },
-  'go-vap': { name: 'Quận Gò Vấp', city: 'TP. Hồ Chí Minh' },
-  'binh-chanh': { name: 'Huyện Bình Chánh', city: 'TP. Hồ Chí Minh' },
-  'nha-be': { name: 'Huyện Nhà Bè', city: 'TP. Hồ Chí Minh' },
-  'ngu-hanh-son': { name: 'Quận Ngũ Hành Sơn', city: 'Đà Nẵng' },
-  'son-tra': { name: 'Quận Sơn Trà', city: 'Đà Nẵng' },
   'hai-chau': { name: 'Quận Hải Châu', city: 'Đà Nẵng' },
+  'son-tra': { name: 'Quận Sơn Trà', city: 'Đà Nẵng' },
+  'ngu-hanh-son': { name: 'Quận Ngũ Hành Sơn', city: 'Đà Nẵng' },
+  'thanh-khe': { name: 'Quận Thanh Khê', city: 'Đà Nẵng' },
   'lien-chieu': { name: 'Quận Liên Chiểu', city: 'Đà Nẵng' },
-  'di-an': { name: 'TP. Dĩ An', city: 'Bình Dương' },
-  'thuan-an': { name: 'TP. Thuận An', city: 'Bình Dương' },
-  'thu-dau-mot': { name: 'TP. Thủ Dầu Một', city: 'Bình Dương' }
+  'cam-le': { name: 'Quận Cẩm Lệ', city: 'Đà Nẵng' },
+  'hoa-vang': { name: 'Huyện Hòa Vang', city: 'Đà Nẵng' },
+  'hoang-sa': { name: 'Huyện Hoàng Sa', city: 'Đà Nẵng' }
 };
 
-// Danh mục thực thể địa danh và dự án phổ biến để chuyển đổi sang tiếng Việt có dấu chuẩn đẹp
+// Danh mục thực thể địa danh và dự án BĐS tiêu biểu tại TP. Đà Nẵng
 export const KNOWN_ENTITIES = {
-  'goldmark-city': 'Goldmark City',
-  'celadon-city': 'Celadon City',
-  'vinhomes-smart-city': 'Vinhomes Smart City',
-  'vinhomes-ocean-park': 'Vinhomes Ocean Park',
-  'vinhomes-grand-park': 'Vinhomes Grand Park',
-  'vinhomes-central-park': 'Vinhomes Central Park',
-  'masteri-thao-dien': 'Masteri Thảo Điền',
-  'landmark-81': 'Landmark 81',
-  'times-city': 'Times City',
-  'royal-city': 'Royal City',
-  'ecopark': 'Ecopark',
-  'dich-vong': 'Dịch Vọng',
-  'dich-vong-hau': 'Dịch Vọng Hậu',
-  'nghia-do': 'Nghĩa Đô',
-  'nghia-tan': 'Nghĩa Tân',
-  'mai-dich': 'Mai Dịch',
-  'yen-hoa': 'Yên Hòa',
-  'trung-hoa': 'Trung Hòa',
-  'kim-ma': 'Kim Mã',
-  'lieu-giai': 'Liễu Giai',
-  'cong-vi': 'Cống Vị',
-  'ngoc-khanh': 'Ngọc Khánh',
-  'giang-vo': 'Giảng Võ',
-  'ben-nghe': 'Bến Nghé',
-  'ben-thanh': 'Bến Thành',
-  'da-kao': 'Đa Kao',
-  'tan-dinh': 'Tân Định',
-  'thao-dien': 'Thảo Điền',
-  'an-phu': 'An Phú',
-  'thanh-my-loi': 'Thạnh Mỹ Lợi'
+  'the-filmore': 'The Filmore Đà Nẵng',
+  'sun-cosmo-residence': 'Sun Cosmo Residence',
+  'sun-ponte-residence': 'Sun Ponte Residence',
+  'nam-hoa-xuan': 'KĐT Nam Hòa Xuân',
+  'fpt-city': 'KĐT FPT City Đà Nẵng',
+  'shantira': 'Shantira Beach Resort',
+  'wyndham-soleil': 'Wyndham Soleil Danang',
+  'the-sang-residence': 'The Sang Residence',
+  'golden-hills': 'Golden Hills Đà Nẵng',
+  'dragon-smart-city': 'Dragon Smart City',
+  'ocean-villas': 'Ocean Villas Đà Nẵng',
+  'hyatt-regency': 'Hyatt Regency Danang',
+  'aria-danang': 'Aria Danang Hotel & Resort',
+  'monarchy': 'Chung cư Monarchy Đà Nẵng',
+  'hiyori': 'Hiyori Garden Tower',
+  'thach-thang': 'Thạch Thang',
+  'hai-chau-1': 'Hải Châu 1',
+  'hai-chau-2': 'Hải Châu 2',
+  'binh-thuan': 'Bình Thuận',
+  'hoa-cuong-bac': 'Hòa Cường Bắc',
+  'hoa-cuong-nam': 'Hòa Cường Nam',
+  'thuan-phuoc': 'Thuận Phước',
+  'phuoc-ninh': 'Phước Ninh',
+  'an-hai-bac': 'An Hải Bắc',
+  'an-hai-tay': 'An Hải Tây',
+  'phuoc-my': 'Phước Mỹ',
+  'man-thai': 'Mân Thái',
+  'tho-quang': 'Thọ Quang',
+  'my-an': 'Mỹ An',
+  'khue-my': 'Khuê Mỹ',
+  'hoa-quy': 'Hòa Quý',
+  'hoa-hai': 'Hòa Hải',
+  'vinh-trung': 'Vĩnh Trung',
+  'hoa-minh': 'Hòa Minh',
+  'hoa-khanh': 'Hòa Khánh',
+  'khue-trung': 'Khuê Trung',
+  'hoa-xuan': 'Hòa Xuân',
+  'hoa-chau': 'Hòa Châu'
 };
 
 /**
@@ -189,10 +166,10 @@ export const buildKeywordCleanSlug = (text) => {
  * @param {Object} options
  * @param {'sale'|'rent'} [options.demand='sale']
  * @param {string} [options.propertyType] - 'apartment' | 'house' | 'street-house' | 'villa' | 'land' | 'shophouse' | 'office'
- * @param {string} [options.city] - 'ha-noi' | 'tp-hcm' | 'da-nang' | 'Hà Nội'...
- * @param {string} [options.district] - 'quan-cau-giay' | 'Quận Cầu Giấy'...
- * @param {string} [options.ward] - 'phuong-dich-vong' | 'Phường Dịch Vọng'...
- * @param {string} [options.project] - 'du-an-goldmark-city' | 'Goldmark City'...
+ * @param {string} [options.city] - 'da-nang' | 'Đà Nẵng'...
+ * @param {string} [options.district] - 'quan-hai-chau' | 'Quận Hải Châu'...
+ * @param {string} [options.ward] - 'phuong-thach-thang' | 'Phường Thạch Thang'...
+ * @param {string} [options.project] - 'du-an-the-filmore' | 'The Filmore'...
  * @param {string} [options.priceRange] - 'tu-2-den-5-ty' | '2b-5b' | 'duoi-2-ty'...
  * @param {string} [options.areaRange] - '50-100' | 'tu-50-den-100-m2' | 'under-50'...
  * @param {string|number} [options.bedroom] - 1 | 2 | 3 | '4+'...
@@ -309,11 +286,11 @@ export const buildSeoUrl = ({
 /**
  * Phân tích URL danh mục (Taxonomy URL) theo chuẩn Batdongsan.com.vn & Clean Slug SEO URLs
  * Ví dụ:
- * - /ban-can-ho-chung-cu-ha-noi -> { isTaxonomy: true, demand: 'sale', propertyType: 'apartment', city: 'Hà Nội', ... }
- * - /ban-can-ho-chung-cu-quan-cau-giay -> { isTaxonomy: true, demand: 'sale', propertyType: 'apartment', district: 'Quận Cầu Giấy', city: 'Hà Nội' }
- * - /ban-can-ho-chung-cu-phuong-dich-vong-cau-giay -> { isTaxonomy: true, ward: 'Phường Dịch Vọng', district: 'Quận Cầu Giấy' }
- * - /ban-can-ho-chung-cu-du-an-goldmark-city -> { isTaxonomy: true, project: 'Goldmark City' }
- * - /ban-can-ho-chung-cu-quan-cau-giay-gia-tu-2-den-5-ty -> { isTaxonomy: true, priceRange: '2b-5b' }
+ * - /ban-can-ho-chung-cu-da-nang -> { isTaxonomy: true, demand: 'sale', propertyType: 'apartment', city: 'Đà Nẵng', ... }
+ * - /ban-can-ho-chung-cu-quan-hai-chau -> { isTaxonomy: true, demand: 'sale', propertyType: 'apartment', district: 'Quận Hải Châu', city: 'Đà Nẵng' }
+ * - /ban-can-ho-chung-cu-phuong-thach-thang-hai-chau -> { isTaxonomy: true, ward: 'Phường Thạch Thang', district: 'Quận Hải Châu' }
+ * - /ban-can-ho-chung-cu-du-an-the-filmore -> { isTaxonomy: true, project: 'The Filmore' }
+ * - /ban-can-ho-chung-cu-quan-hai-chau-gia-tu-2-den-5-ty -> { isTaxonomy: true, priceRange: '2b-5b' }
  */
 export const parseTaxonomyUrl = (urlPath) => {
   if (!urlPath) return { isTaxonomy: false };
@@ -425,30 +402,20 @@ export const parseTaxonomyUrl = (urlPath) => {
 
     // D. Phường/Xã (Ward)
     let ward = '';
-    const wardMatch = raw.match(/phuong-([a-z0-9-]+?)(?:-(?:quan|huyen|cau-giay|ba-dinh|dong-da|ha-noi|tp-hcm|ho-chi-minh|$))/);
+    const wardMatch = raw.match(/phuong-([a-z0-9-]+?)(?:-(?:quan|huyen|hai-chau|son-tra|ngu-hanh-son|lien-chieu|thanh-khe|cam-le|hoa-vang|da-nang|$))/);
     if (wardMatch) {
       ward = 'Phường ' + slugToTitleCase(wardMatch[1]);
     }
 
-    // E. Thành phố & Quận/Huyện
-    let city = '';
+    // E. Thành phố & Quận/Huyện TP. Đà Nẵng
+    let city = 'Đà Nẵng';
     let district = '';
 
-    if (raw.includes('ho-chi-minh') || raw.includes('tp-hcm') || raw.includes('hcm')) {
-      city = 'TP. Hồ Chí Minh';
-    } else if (raw.includes('ha-noi')) {
-      city = 'Hà Nội';
-    } else if (raw.includes('da-nang')) {
-      city = 'Đà Nẵng';
-    } else if (raw.includes('binh-duong')) {
-      city = 'Bình Dương';
-    }
-
-    // Đối chiếu các quận huyện
+    // Đối chiếu các quận huyện Đà Nẵng
     for (const [dSlug, dInfo] of Object.entries(DISTRICT_MAP)) {
       if (raw.includes(`quan-${dSlug}`) || raw.includes(`huyen-${dSlug}`) || raw.includes(`tp-${dSlug}`) || raw.includes(dSlug)) {
         district = dInfo.name;
-        if (!city) city = dInfo.city;
+        city = dInfo.city || 'Đà Nẵng';
         break;
       }
     }

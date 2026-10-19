@@ -114,18 +114,18 @@ export default function HeroSearch({ filters, setFilters, totalResults }) {
             {/* City Selection */}
             <div>
               <label className="block text-[11px] font-bold text-slate-500 uppercase mb-1">
-                Tỉnh / Thành phố
+                Khu Vực / Thành Phố
               </label>
               <CustomSelect
                 value={filters.city}
                 onChange={handleCityChange}
                 options={[
-                  { value: '', label: 'Toàn quốc (Tất cả)' },
-                  ...LOCATIONS.map(loc => ({ value: loc.name, label: loc.name, sublabel: loc.region }))
+                  { value: '', label: 'TP. Đà Nẵng (Tất cả)' },
+                  ...LOCATIONS.map(loc => ({ value: loc.name, label: loc.name, sublabel: 'Trung tâm BĐS Đà Nẵng' }))
                 ]}
-                placeholder="Toàn quốc (Tất cả)"
+                placeholder="TP. Đà Nẵng (Tất cả)"
                 showSearch={true}
-                searchPlaceholder="Tìm tỉnh / thành phố..."
+                searchPlaceholder="Tìm kiếm..."
                 icon={<i className="fa-solid fa-location-dot text-slate-400 text-xs"></i>}
               />
             </div>
@@ -311,12 +311,12 @@ export default function HeroSearch({ filters, setFilters, totalResults }) {
             Xu hướng tìm kiếm:
           </span>
           {[
-            { label: 'Căn hộ Cầu Giấy', path: '/ban-can-ho-chung-cu-quan-cau-giay' },
-            { label: 'Nhà riêng Ba Đình', path: '/ban-nha-rieng-quan-ba-dinh' },
-            { label: 'Dự án Goldmark City', path: '/ban-can-ho-chung-cu-du-an-goldmark-city' },
-            { label: 'Cho thuê Quận 1', path: '/cho-thue-nha-rieng-quan-1' },
-            { label: 'Đất nền Đà Nẵng', path: '/ban-dat-nen-du-an-da-nang' },
-            { label: 'Nhà mặt phố Hà Nội', path: '/ban-nha-mat-pho-ha-noi' }
+            { label: 'Căn hộ Hải Châu', path: '/ban-can-ho-chung-cu-quan-hai-chau' },
+            { label: 'Căn hộ biển Sơn Trà', path: '/ban-can-ho-chung-cu-quan-son-tra' },
+            { label: 'Đất Nam Hòa Xuân', path: '/ban-dat-nen-du-an-quan-ngu-hanh-son' },
+            { label: 'Nhà mặt phố Hải Châu', path: '/ban-nha-mat-pho-quan-hai-chau' },
+            { label: 'Biệt thự biển Đà Nẵng', path: '/ban-nha-biethu-lien-ke-da-nang' },
+            { label: 'Đất nền Đà Nẵng', path: '/ban-dat-nen-du-an-da-nang' }
           ].map((item, idx) => (
             <Link
               key={idx}

@@ -320,11 +320,11 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     const matchWard = property.address.match(/(?:phường|xã|phường\/xã)\s+([^,]+)/i);
     if (matchWard) rawWard = matchWard[1];
   }
-  const cleanWard = (rawWard || '').replace(/^(phường|xã|phường\/xã)\s+/i, '').trim() || 'Kim Mã';
+  const cleanWard = (rawWard || '').replace(/^(phường|xã|phường\/xã)\s+/i, '').trim() || 'Hải Châu 1';
 
   // 4. Quận / Khu vực & Thành phố
-  const districtName = property.district || 'Quận Ba Đình';
-  const cityName = property.city || 'Hà Nội';
+  const districtName = property.district || 'Quận Hải Châu';
+  const cityName = property.city || 'Đà Nẵng';
 
   // 5. Diện tích min - max (Diện tích làm tròn bao quanh diện tích thực tế)
   const curArea = Number(property.area) || 80;
