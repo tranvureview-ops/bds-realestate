@@ -427,7 +427,7 @@ export const parseTaxonomyUrl = (urlPath) => {
 
     // F. Số phòng ngủ (PN)
     let bedroom = 'all';
-    const bedMatch = raw.match(/([1-9])\s*-?pn/);
+    const bedMatch = raw.match(/(?:^|-)([0-9]+(?:\+)?)-?pn(?:-|$)/i) || raw.match(/([0-9]+(?:\+)?)\s*-?pn/i);
     if (bedMatch) bedroom = bedMatch[1];
 
     // G. Khoảng giá (Pricing Tier)

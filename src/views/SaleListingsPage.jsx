@@ -98,6 +98,7 @@ export default function SaleListingsPage({ taxonomyInfo = null }) {
     filters.keyword || 
     filters.priceRange !== 'all' || 
     filters.areaRange !== 'all' || 
+    filters.bedroom !== 'all' || 
     filters.onlyVerified
   );
 
@@ -256,6 +257,20 @@ export default function SaleListingsPage({ taxonomyInfo = null }) {
                     onClick={() => setFilters(prev => ({ ...prev, areaRange: 'all', minArea: null, maxArea: null }))}
                     className="hover:text-amber-900 ml-0.5"
                     title="Bỏ lọc diện tích"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {filters.bedroom && filters.bedroom !== 'all' && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-full font-bold">
+                  <i className="fa-solid fa-bed text-[10px]"></i>
+                  {filters.bedroom === '4+' ? 'Từ 4+ phòng ngủ' : `${filters.bedroom} phòng ngủ`}
+                  <button 
+                    onClick={() => setFilters(prev => ({ ...prev, bedroom: 'all' }))}
+                    className="hover:text-purple-900 ml-0.5"
+                    title="Bỏ lọc phòng ngủ"
                   >
                     ×
                   </button>
