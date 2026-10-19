@@ -13,8 +13,8 @@ export default function FeaturedCategories() {
   // Đếm số lượng tin cho từng danh mục
   const countByType = (demand, type) => activeProps.filter(p => p.demand === demand && p.propertyType === type).length;
   const countByCity = (cityKeyword) => activeProps.filter(p => p.city?.toLowerCase().includes(cityKeyword.toLowerCase())).length;
-  const countByDistrict = (distKeyword) => activeProps.filter(p => p.district?.toLowerCase().includes(distKeyword.toLowerCase())).length;
 
+  // 12 Danh mục Bất Động Sản Bán chuẩn SEO
   const saleCategories = [
     {
       title: 'Căn Hộ Chung Cư',
@@ -22,7 +22,7 @@ export default function FeaturedCategories() {
       icon: 'fa-solid fa-building',
       color: 'from-blue-500 to-indigo-600',
       badgeBg: 'bg-blue-50 text-blue-700 border-blue-200',
-      description: 'Chung cư cao cấp, view đẹp, đầy đủ sổ hồng',
+      description: 'Chung cư thương mại, view thoáng, đầy đủ sổ hồng',
       count: countByType('sale', 'apartment'),
       popularLinks: [
         { label: 'Hà Nội', path: '/ban-can-ho-chung-cu-ha-noi' },
@@ -32,12 +32,27 @@ export default function FeaturedCategories() {
       ]
     },
     {
-      title: 'Nhà Riêng, Nhà Phố',
-      path: '/ban-nha-rieng-nha-pho',
+      title: 'Chung Cư Mini, Căn Hộ Dịch Vụ',
+      path: '/ban-chung-cu-mini-can-ho-dich-vu',
+      icon: 'fa-solid fa-city',
+      color: 'from-sky-500 to-blue-600',
+      badgeBg: 'bg-sky-50 text-sky-700 border-sky-200',
+      description: 'Tòa nhà dòng tiền cao, khai thác cho thuê ổn định',
+      count: countByType('sale', 'mini-apartment'),
+      popularLinks: [
+        { label: 'Cầu Giấy', path: '/ban-chung-cu-mini-can-ho-dich-vu-quan-cau-giay' },
+        { label: 'Hà Nội', path: '/ban-chung-cu-mini-can-ho-dich-vu-ha-noi' },
+        { label: 'TP.HCM', path: '/ban-chung-cu-mini-can-ho-dich-vu-tp-hcm' },
+        { label: 'Quận 1', path: '/ban-chung-cu-mini-can-ho-dich-vu-quan-1' }
+      ]
+    },
+    {
+      title: 'Nhà Riêng',
+      path: '/ban-nha-rieng',
       icon: 'fa-solid fa-house',
       color: 'from-emerald-500 to-teal-600',
       badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      description: 'Nhà thổ cư chính chủ, ngõ ô tô, pháp lý chuẩn',
+      description: 'Nhà thổ cư chính chủ, ngõ nông ô tô, sổ đỏ vuông vắn',
       count: countByType('sale', 'house'),
       popularLinks: [
         { label: 'Hà Nội', path: '/ban-nha-rieng-ha-noi' },
@@ -47,27 +62,27 @@ export default function FeaturedCategories() {
       ]
     },
     {
-      title: 'Đất Nền Dự Án',
-      path: '/ban-dat-nen-du-an',
-      icon: 'fa-solid fa-mountain-sun',
-      color: 'from-amber-500 to-orange-600',
+      title: 'Nhà Biệt Thự, Liền Kề',
+      path: '/ban-nha-biethu-lien-ke',
+      icon: 'fa-solid fa-landmark',
+      color: 'from-amber-500 to-yellow-600',
       badgeBg: 'bg-amber-50 text-amber-700 border-amber-200',
-      description: 'Đất quy hoạch hạ tầng đồng bộ, sinh lời cao',
-      count: countByType('sale', 'land'),
+      description: 'Biệt thự đơn lập, song lập, khu đô thị compound an ninh',
+      count: countByType('sale', 'villa'),
       popularLinks: [
-        { label: 'Đà Nẵng', path: '/ban-dat-nen-du-an-da-nang' },
-        { label: 'Ngũ Hành Sơn', path: '/ban-dat-nen-du-an-quan-ngu-hanh-son' },
-        { label: 'Hải Châu', path: '/ban-dat-nen-du-an-quan-hai-chau' },
-        { label: 'Hà Nội', path: '/ban-dat-nen-du-an-ha-noi' }
+        { label: 'Hà Nội', path: '/ban-nha-biethu-lien-ke-ha-noi' },
+        { label: 'TP.HCM', path: '/ban-nha-biethu-lien-ke-tp-hcm' },
+        { label: 'Đà Nẵng', path: '/ban-nha-biethu-lien-ke-da-nang' },
+        { label: 'Sơn Trà', path: '/ban-nha-biethu-lien-ke-quan-son-tra' }
       ]
     },
     {
       title: 'Nhà Mặt Phố',
       path: '/ban-nha-mat-pho',
       icon: 'fa-solid fa-shop',
-      color: 'from-purple-500 to-rose-600',
-      badgeBg: 'bg-purple-50 text-purple-700 border-purple-200',
-      description: 'Mặt tiền kinh doanh, lưu lượng sầm uất',
+      color: 'from-rose-500 to-red-600',
+      badgeBg: 'bg-rose-50 text-rose-700 border-rose-200',
+      description: 'Mặt tiền tuyến phố kinh doanh sầm uất, vỉa hè rộng',
       count: countByType('sale', 'street-house'),
       popularLinks: [
         { label: 'Hà Nội', path: '/ban-nha-mat-pho-ha-noi' },
@@ -75,68 +90,280 @@ export default function FeaturedCategories() {
         { label: 'Đà Nẵng', path: '/ban-nha-mat-pho-da-nang' },
         { label: 'Ba Đình', path: '/ban-nha-mat-pho-quan-ba-dinh' }
       ]
+    },
+    {
+      title: 'Shophouse',
+      path: '/ban-shophouse-nha-pho-thuong-mai',
+      icon: 'fa-solid fa-store',
+      color: 'from-orange-500 to-amber-600',
+      badgeBg: 'bg-orange-50 text-orange-700 border-orange-200',
+      description: 'Nhà phố thương mại khối đế dự án, vừa ở vừa kinh doanh',
+      count: countByType('sale', 'shophouse'),
+      popularLinks: [
+        { label: 'Hà Nội', path: '/ban-shophouse-nha-pho-thuong-mai-ha-noi' },
+        { label: 'TP.HCM', path: '/ban-shophouse-nha-pho-thuong-mai-tp-hcm' },
+        { label: 'Cầu Giấy', path: '/ban-shophouse-nha-pho-thuong-mai-quan-cau-giay' },
+        { label: 'Đà Nẵng', path: '/ban-shophouse-nha-pho-thuong-mai-da-nang' }
+      ]
+    },
+    {
+      title: 'Đất Nền Dự Án',
+      path: '/ban-dat-nen-du-an',
+      icon: 'fa-solid fa-mountain-sun',
+      color: 'from-teal-500 to-emerald-600',
+      badgeBg: 'bg-teal-50 text-teal-700 border-teal-200',
+      description: 'Đất phân lô quy hoạch hoàn chỉnh, pháp lý an toàn',
+      count: countByType('sale', 'project-land') || countByType('sale', 'land'),
+      popularLinks: [
+        { label: 'Đà Nẵng', path: '/ban-dat-nen-du-an-da-nang' },
+        { label: 'Ngũ Hành Sơn', path: '/ban-dat-nen-du-an-quan-ngu-hanh-son' },
+        { label: 'Hải Châu', path: '/ban-dat-nen-du-an-quan-hai-chau' },
+        { label: 'Bình Dương', path: '/ban-dat-nen-du-an-binh-duong' }
+      ]
+    },
+    {
+      title: 'Đất',
+      path: '/ban-dat',
+      icon: 'fa-solid fa-map',
+      color: 'from-lime-600 to-green-700',
+      badgeBg: 'bg-lime-50 text-lime-700 border-lime-200',
+      description: 'Đất thổ cư chính chủ, đất vườn ven đô, giá đầu tư',
+      count: countByType('sale', 'land'),
+      popularLinks: [
+        { label: 'Hà Nội', path: '/ban-dat-ha-noi' },
+        { label: 'TP.HCM', path: '/ban-dat-tp-hcm' },
+        { label: 'Đà Nẵng', path: '/ban-dat-da-nang' },
+        { label: 'Ngũ Hành Sơn', path: '/ban-dat-quan-ngu-hanh-son' }
+      ]
+    },
+    {
+      title: 'Trang Trại, Khu Nghỉ Dưỡng',
+      path: '/ban-trang-trai-khu-nghi-duong',
+      icon: 'fa-solid fa-tree',
+      color: 'from-green-600 to-emerald-700',
+      badgeBg: 'bg-green-50 text-green-700 border-green-200',
+      description: 'Farmstay, homestay nghỉ dưỡng sinh thái ven đô view hồ, núi',
+      count: countByType('sale', 'farm-resort'),
+      popularLinks: [
+        { label: 'Hà Nội', path: '/ban-trang-trai-khu-nghi-duong-ha-noi' },
+        { label: 'Đà Nẵng', path: '/ban-trang-trai-khu-nghi-duong-da-nang' },
+        { label: 'Bình Dương', path: '/ban-trang-trai-khu-nghi-duong-binh-duong' }
+      ]
+    },
+    {
+      title: 'Condotel',
+      path: '/ban-condotel',
+      icon: 'fa-solid fa-hotel',
+      color: 'from-violet-500 to-purple-600',
+      badgeBg: 'bg-violet-50 text-violet-700 border-violet-200',
+      description: 'Căn hộ khách sạn du lịch biển, cam kết lợi nhuận',
+      count: countByType('sale', 'condotel'),
+      popularLinks: [
+        { label: 'Đà Nẵng', path: '/ban-condotel-da-nang' },
+        { label: 'Ngũ Hành Sơn', path: '/ban-condotel-quan-ngu-hanh-son' },
+        { label: 'Sơn Trà', path: '/ban-condotel-quan-son-tra' }
+      ]
+    },
+    {
+      title: 'Kho, Nhà Xưởng',
+      path: '/ban-kho-nha-xuong',
+      icon: 'fa-solid fa-warehouse',
+      color: 'from-slate-600 to-slate-800',
+      badgeBg: 'bg-slate-100 text-slate-700 border-slate-300',
+      description: 'Kho bãi xưởng công nghiệp chuẩn PCCC, trạm biến áp riêng',
+      count: countByType('sale', 'warehouse'),
+      popularLinks: [
+        { label: 'Bình Dương', path: '/ban-kho-nha-xuong-binh-duong' },
+        { label: 'Hà Nội', path: '/ban-kho-nha-xuong-ha-noi' },
+        { label: 'TP.HCM', path: '/ban-kho-nha-xuong-tp-hcm' }
+      ]
+    },
+    {
+      title: 'Loại BĐS Khác',
+      path: '/ban-bat-dong-san-khac',
+      icon: 'fa-solid fa-shapes',
+      color: 'from-fuchsia-500 to-pink-600',
+      badgeBg: 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200',
+      description: 'Tòa nhà hỗn hợp, bến bãi, mặt bằng đa công năng',
+      count: countByType('sale', 'other'),
+      popularLinks: [
+        { label: 'Hà Nội', path: '/ban-bat-dong-san-khac-ha-noi' },
+        { label: 'TP.HCM', path: '/ban-bat-dong-san-khac-tp-hcm' },
+        { label: 'Đà Nẵng', path: '/ban-bat-dong-san-khac-da-nang' }
+      ]
     }
   ];
 
+  // 12 Danh mục Bất Động Sản Cho Thuê chuẩn SEO
   const rentCategories = [
     {
-      title: 'Cho Thuê Căn Hộ Chung Cư',
+      title: 'Căn Hộ Chung Cư',
       path: '/cho-thue-can-ho-chung-cu',
       icon: 'fa-solid fa-building',
-      color: 'from-cyan-500 to-blue-600',
-      badgeBg: 'bg-cyan-50 text-cyan-700 border-cyan-200',
-      description: 'Căn hộ đầy đủ nội thất, dịch vụ trọn gói',
+      color: 'from-blue-500 to-indigo-600',
+      badgeBg: 'bg-blue-50 text-blue-700 border-blue-200',
+      description: 'Căn hộ chung cư đủ đồ nội thất, tiện ích hồ bơi, gym',
       count: countByType('rent', 'apartment'),
       popularLinks: [
         { label: 'TP.HCM', path: '/cho-thue-can-ho-chung-cu-tp-hcm' },
         { label: 'Quận 1', path: '/cho-thue-can-ho-chung-cu-quan-1' },
-        { label: 'Phường Bến Nghé', path: '/cho-thue-can-ho-chung-cu-phuong-ben-nghe-quan-1' },
-        { label: 'Hà Nội', path: '/cho-thue-can-ho-chung-cu-ha-noi' }
+        { label: 'Hà Nội', path: '/cho-thue-can-ho-chung-cu-ha-noi' },
+        { label: 'Cầu Giấy', path: '/cho-thue-can-ho-chung-cu-quan-cau-giay' }
       ]
     },
     {
-      title: 'Cho Thuê Nhà Riêng, Nhà Phố',
+      title: 'Chung Cư Mini, Căn Hộ Dịch Vụ',
+      path: '/cho-thue-chung-cu-mini-can-ho-dich-vu',
+      icon: 'fa-solid fa-city',
+      color: 'from-sky-500 to-blue-600',
+      badgeBg: 'bg-sky-50 text-sky-700 border-sky-200',
+      description: 'Studio, 1PN full nội thất, giờ giấc tự do, thang máy',
+      count: countByType('rent', 'mini-apartment'),
+      popularLinks: [
+        { label: 'Quận 1', path: '/cho-thue-chung-cu-mini-can-ho-dich-vu-quan-1' },
+        { label: 'Cầu Giấy', path: '/cho-thue-chung-cu-mini-can-ho-dich-vu-quan-cau-giay' },
+        { label: 'Hà Nội', path: '/cho-thue-chung-cu-mini-can-ho-dich-vu-ha-noi' },
+        { label: 'TP.HCM', path: '/cho-thue-chung-cu-mini-can-ho-dich-vu-tp-hcm' }
+      ]
+    },
+    {
+      title: 'Nhà Riêng',
       path: '/cho-thue-nha-rieng',
-      icon: 'fa-solid fa-house-chimney-window',
+      icon: 'fa-solid fa-house',
       color: 'from-emerald-500 to-teal-600',
       badgeBg: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      description: 'Nhà nguyên căn, phù hợp ở gia đình hoặc làm văn phòng',
+      description: 'Nhà nguyên căn ở gia đình, làm văn phòng công ty',
       count: countByType('rent', 'house'),
       popularLinks: [
         { label: 'Quận 1', path: '/cho-thue-nha-rieng-quan-1' },
         { label: 'Phường Bến Nghé', path: '/cho-thue-nha-rieng-phuong-ben-nghe-quan-1' },
         { label: 'Hà Nội', path: '/cho-thue-nha-rieng-ha-noi' },
-        { label: 'Cầu Giấy', path: '/cho-thue-nha-rieng-quan-cau-giay' }
+        { label: 'Ba Đình', path: '/cho-thue-nha-rieng-quan-ba-dinh' }
       ]
     },
     {
-      title: 'Cho Thuê Nhà Mặt Phố',
-      path: '/cho-thue-nha-mat-pho',
-      icon: 'fa-solid fa-store',
-      color: 'from-amber-500 to-orange-600',
+      title: 'Nhà Biệt Thự, Liền Kề',
+      path: '/cho-thue-nha-biethu-lien-ke',
+      icon: 'fa-solid fa-landmark',
+      color: 'from-amber-500 to-yellow-600',
       badgeBg: 'bg-amber-50 text-amber-700 border-amber-200',
-      description: 'Vị trí đắc địa kinh doanh, buôn bán sầm uất',
+      description: 'Biệt thự sang trọng cho chuyên gia nước ngoài, làm trụ sở',
+      count: countByType('rent', 'villa'),
+      popularLinks: [
+        { label: 'TP.HCM', path: '/cho-thue-nha-biethu-lien-ke-tp-hcm' },
+        { label: 'Hà Nội', path: '/cho-thue-nha-biethu-lien-ke-ha-noi' },
+        { label: 'Đà Nẵng', path: '/cho-thue-nha-biethu-lien-ke-da-nang' }
+      ]
+    },
+    {
+      title: 'Nhà Mặt Phố',
+      path: '/cho-thue-nha-mat-pho',
+      icon: 'fa-solid fa-shop',
+      color: 'from-rose-500 to-red-600',
+      badgeBg: 'bg-rose-50 text-rose-700 border-rose-200',
+      description: 'Mặt bằng kinh doanh thời trang, spa, showroom thương hiệu',
       count: countByType('rent', 'street-house'),
       popularLinks: [
+        { label: 'Quận 1', path: '/cho-thue-nha-mat-pho-quan-1' },
         { label: 'Hà Nội', path: '/cho-thue-nha-mat-pho-ha-noi' },
         { label: 'TP.HCM', path: '/cho-thue-nha-mat-pho-tp-hcm' },
-        { label: 'Quận 1', path: '/cho-thue-nha-mat-pho-quan-1' },
         { label: 'Đà Nẵng', path: '/cho-thue-nha-mat-pho-da-nang' }
       ]
     },
     {
-      title: 'Cho Thuê Văn Phòng, Mặt Bằng',
-      path: '/cho-thue-van-phong',
-      icon: 'fa-solid fa-briefcase',
+      title: 'Shophouse',
+      path: '/cho-thue-shophouse-nha-pho-thuong-mai',
+      icon: 'fa-solid fa-store',
+      color: 'from-orange-500 to-amber-600',
+      badgeBg: 'bg-orange-50 text-orange-700 border-orange-200',
+      description: 'Shophouse khối đế chung cư cư dân đông đúc, mở F&B',
+      count: countByType('rent', 'shophouse'),
+      popularLinks: [
+        { label: 'TP.HCM', path: '/cho-thue-shophouse-nha-pho-thuong-mai-tp-hcm' },
+        { label: 'Hà Nội', path: '/cho-thue-shophouse-nha-pho-thuong-mai-ha-noi' },
+        { label: 'Cầu Giấy', path: '/cho-thue-shophouse-nha-pho-thuong-mai-quan-cau-giay' }
+      ]
+    },
+    {
+      title: 'Đất Nền Dự Án',
+      path: '/cho-thue-dat-nen-du-an',
+      icon: 'fa-solid fa-mountain-sun',
+      color: 'from-teal-500 to-emerald-600',
+      badgeBg: 'bg-teal-50 text-teal-700 border-teal-200',
+      description: 'Thuê đất dự án làm bãi đỗ xe, sân thể thao, kho trung chuyển',
+      count: countByType('rent', 'project-land'),
+      popularLinks: [
+        { label: 'Đà Nẵng', path: '/cho-thue-dat-nen-du-an-da-nang' },
+        { label: 'TP.HCM', path: '/cho-thue-dat-nen-du-an-tp-hcm' },
+        { label: 'Bình Dương', path: '/cho-thue-dat-nen-du-an-binh-duong' }
+      ]
+    },
+    {
+      title: 'Đất',
+      path: '/cho-thue-dat',
+      icon: 'fa-solid fa-map',
+      color: 'from-lime-600 to-green-700',
+      badgeBg: 'bg-lime-50 text-lime-700 border-lime-200',
+      description: 'Thuê đất trống dài hạn làm vườn ươm, kho bãi kinh doanh',
+      count: countByType('rent', 'land'),
+      popularLinks: [
+        { label: 'TP.HCM', path: '/cho-thue-dat-tp-hcm' },
+        { label: 'Hà Nội', path: '/cho-thue-dat-ha-noi' },
+        { label: 'Đà Nẵng', path: '/cho-thue-dat-da-nang' }
+      ]
+    },
+    {
+      title: 'Trang Trại, Khu Nghỉ Dưỡng',
+      path: '/cho-thue-trang-trai-khu-nghi-duong',
+      icon: 'fa-solid fa-tree',
+      color: 'from-green-600 to-emerald-700',
+      badgeBg: 'bg-green-50 text-green-700 border-green-200',
+      description: 'Thuê khu nghỉ dưỡng, resort tổ chức sự kiện, retreat',
+      count: countByType('rent', 'farm-resort'),
+      popularLinks: [
+        { label: 'Hà Nội', path: '/cho-thue-trang-trai-khu-nghi-duong-ha-noi' },
+        { label: 'Đà Nẵng', path: '/cho-thue-trang-trai-khu-nghi-duong-da-nang' }
+      ]
+    },
+    {
+      title: 'Condotel',
+      path: '/cho-thue-condotel',
+      icon: 'fa-solid fa-hotel',
       color: 'from-violet-500 to-purple-600',
       badgeBg: 'bg-violet-50 text-violet-700 border-violet-200',
-      description: 'Mặt sàn văn phòng hạng A-B-C, chuẩn PCCC',
-      count: countByType('rent', 'office'),
+      description: 'Thuê căn hộ condotel nghỉ dưỡng dài hạn view biển',
+      count: countByType('rent', 'condotel'),
       popularLinks: [
-        { label: 'Hà Nội', path: '/cho-thue-van-phong-ha-noi' },
-        { label: 'TP.HCM', path: '/cho-thue-van-phong-tp-hcm' },
-        { label: 'Cầu Giấy', path: '/cho-thue-van-phong-quan-cau-giay' },
-        { label: 'Quận 1', path: '/cho-thue-van-phong-quan-1' }
+        { label: 'Đà Nẵng', path: '/cho-thue-condotel-da-nang' },
+        { label: 'Ngũ Hành Sơn', path: '/cho-thue-condotel-quan-ngu-hanh-son' }
+      ]
+    },
+    {
+      title: 'Kho, Nhà Xưởng',
+      path: '/cho-thue-kho-nha-xuong',
+      icon: 'fa-solid fa-warehouse',
+      color: 'from-slate-600 to-slate-800',
+      badgeBg: 'bg-slate-100 text-slate-700 border-slate-300',
+      description: 'Thuê kho chứa hàng, nhà xưởng sản xuất, xe container ra vào',
+      count: countByType('rent', 'warehouse'),
+      popularLinks: [
+        { label: 'Bình Dương', path: '/cho-thue-kho-nha-xuong-binh-duong' },
+        { label: 'TP.HCM', path: '/cho-thue-kho-nha-xuong-tp-hcm' },
+        { label: 'Hà Nội', path: '/cho-thue-kho-nha-xuong-ha-noi' }
+      ]
+    },
+    {
+      title: 'Loại BĐS Khác',
+      path: '/cho-thue-bat-dong-san-khac',
+      icon: 'fa-solid fa-shapes',
+      color: 'from-fuchsia-500 to-pink-600',
+      badgeBg: 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200',
+      description: 'Thuê mặt bằng kiot, rooftop, bến bãi, không gian sáng tạo',
+      count: countByType('rent', 'other'),
+      popularLinks: [
+        { label: 'Hà Nội', path: '/cho-thue-bat-dong-san-khac-ha-noi' },
+        { label: 'TP.HCM', path: '/cho-thue-bat-dong-san-khac-tp-hcm' },
+        { label: 'Đà Nẵng', path: '/cho-thue-bat-dong-san-khac-da-nang' }
       ]
     }
   ];
@@ -217,6 +444,8 @@ export default function FeaturedCategories() {
     }
   ];
 
+  const currentCategories = activeTab === 'sale' ? saleCategories : rentCategories;
+
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
       {/* Header & Tabs */}
@@ -224,7 +453,7 @@ export default function FeaturedCategories() {
         <div>
           <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 uppercase tracking-wider mb-1">
             <i className="fa-solid fa-sitemap"></i>
-            Danh Mục Bất Động Sản Chuẩn SEO
+            Hệ Thống 12 Danh Mục Bất Động Sản Chuẩn SEO
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
             Khám Phá Theo Nhu Cầu & Địa Lý Trọng Điểm
@@ -242,7 +471,7 @@ export default function FeaturedCategories() {
             }`}
           >
             <i className="fa-solid fa-tag text-emerald-600 text-[11px]"></i>
-            Bán BĐS
+            Bán BĐS (12 Danh Mục)
           </button>
           <button
             onClick={() => setActiveTab('rent')}
@@ -253,7 +482,7 @@ export default function FeaturedCategories() {
             }`}
           >
             <i className="fa-solid fa-key text-blue-600 text-[11px]"></i>
-            Cho Thuê BĐS
+            Cho Thuê (12 Danh Mục)
           </button>
           <button
             onClick={() => setActiveTab('location')}
@@ -264,7 +493,7 @@ export default function FeaturedCategories() {
             }`}
           >
             <i className="fa-solid fa-location-dot text-indigo-600 text-[11px]"></i>
-            Địa Lý (Hà Nội, TP.HCM, ĐN)
+            Hà Nội, TP.HCM, ĐN
           </button>
           <button
             onClick={() => setActiveTab('project')}
@@ -280,91 +509,48 @@ export default function FeaturedCategories() {
         </div>
       </div>
 
-      {/* Tab 1: Danh Mục Nhà Đất Bán */}
-      {activeTab === 'sale' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in duration-200">
-          {saleCategories.map((cat, idx) => (
+      {/* Tab 1 & Tab 2: Hiển thị 12 Danh mục Bán / Cho Thuê dạng Grid 4 cột */}
+      {(activeTab === 'sale' || activeTab === 'rent') && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 animate-in fade-in duration-200">
+          {currentCategories.map((cat, idx) => (
             <div
               key={idx}
-              className="p-5 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-emerald-500 transition flex flex-col justify-between group"
+              className={`p-4 bg-white rounded-2xl border border-slate-200/90 shadow-xs hover:shadow-md transition flex flex-col justify-between group ${
+                activeTab === 'sale' ? 'hover:border-emerald-500' : 'hover:border-blue-500'
+              }`}
             >
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className={`w-11 h-11 rounded-xl bg-gradient-to-tr ${cat.color} text-white flex items-center justify-center text-lg shadow-sm group-hover:scale-110 transition`}>
+                <div className="flex items-center justify-between mb-2.5">
+                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-tr ${cat.color} text-white flex items-center justify-center text-base shadow-xs group-hover:scale-108 transition-transform`}>
                     <i className={cat.icon}></i>
                   </div>
-                  <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${cat.badgeBg}`}>
-                    {cat.count > 0 ? `${cat.count} BĐS` : 'Đang cập nhật'}
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${cat.badgeBg}`}>
+                    {cat.count > 0 ? `${cat.count} BĐS` : 'Mới cập nhật'}
                   </span>
                 </div>
 
-                <Link to={cat.path} className="block group-hover:text-emerald-600 transition">
-                  <h3 className="font-extrabold text-base text-slate-900 mb-1">{cat.title}</h3>
+                <Link to={cat.path} className={`block transition ${activeTab === 'sale' ? 'group-hover:text-emerald-600' : 'group-hover:text-blue-600'}`}>
+                  <h3 className="font-extrabold text-[13.5px] text-slate-900 mb-1 leading-snug line-clamp-1">
+                    {cat.title}
+                  </h3>
                 </Link>
-                <p className="text-xs text-slate-500 line-clamp-2 mb-4 leading-relaxed">
+                <p className="text-[11px] text-slate-500 line-clamp-2 mb-3 leading-relaxed">
                   {cat.description}
                 </p>
               </div>
 
               {/* Sub links */}
-              <div className="pt-3 border-t border-slate-100 space-y-1.5">
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  Khu vực nổi bật:
-                </div>
-                <div className="flex flex-wrap gap-1.5">
+              <div className="pt-2.5 border-t border-slate-100 space-y-1">
+                <div className="flex flex-wrap gap-1">
                   {cat.popularLinks.map((sub, sIdx) => (
                     <Link
                       key={sIdx}
                       to={sub.path}
-                      className="text-[11px] px-2 py-0.5 rounded-md bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 text-slate-600 font-semibold transition border border-slate-200/60"
-                    >
-                      {sub.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Tab 2: Danh Mục Cho Thuê */}
-      {activeTab === 'rent' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 animate-in fade-in duration-200">
-          {rentCategories.map((cat, idx) => (
-            <div
-              key={idx}
-              className="p-5 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-blue-500 transition flex flex-col justify-between group"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <div className={`w-11 h-11 rounded-xl bg-gradient-to-tr ${cat.color} text-white flex items-center justify-center text-lg shadow-sm group-hover:scale-110 transition`}>
-                    <i className={cat.icon}></i>
-                  </div>
-                  <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${cat.badgeBg}`}>
-                    {cat.count > 0 ? `${cat.count} BĐS` : 'Đang cập nhật'}
-                  </span>
-                </div>
-
-                <Link to={cat.path} className="block group-hover:text-blue-600 transition">
-                  <h3 className="font-extrabold text-base text-slate-900 mb-1">{cat.title}</h3>
-                </Link>
-                <p className="text-xs text-slate-500 line-clamp-2 mb-4 leading-relaxed">
-                  {cat.description}
-                </p>
-              </div>
-
-              {/* Sub links */}
-              <div className="pt-3 border-t border-slate-100 space-y-1.5">
-                <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  Khu vực nổi bật:
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {cat.popularLinks.map((sub, sIdx) => (
-                    <Link
-                      key={sIdx}
-                      to={sub.path}
-                      className="text-[11px] px-2 py-0.5 rounded-md bg-slate-50 hover:bg-blue-50 hover:text-blue-700 text-slate-600 font-semibold transition border border-slate-200/60"
+                      className={`text-[10px] px-1.5 py-0.5 rounded-md bg-slate-50 text-slate-600 font-semibold transition border border-slate-200/60 ${
+                        activeTab === 'sale' 
+                          ? 'hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200' 
+                          : 'hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200'
+                      }`}
                     >
                       {sub.label}
                     </Link>

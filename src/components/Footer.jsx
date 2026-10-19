@@ -148,69 +148,68 @@ export default function Footer() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-xs text-slate-400">
-            {/* Column 1: BĐS Bán Hà Nội & Cầu Giấy, Ba Đình */}
+            {/* Column 1: BĐS Bán - Nhà Ở & Căn Hộ */}
             <div className="space-y-1.5">
               <div className="font-bold text-white text-[11px] uppercase tracking-wider mb-2 text-emerald-300">
-                Nhà Đất Bán Hà Nội
+                Bất Động Sản Nhà Ở & Căn Hộ
               </div>
               <ul className="space-y-1.5">
-                <li><Link to="/ban-can-ho-chung-cu-ha-noi" className="hover:text-emerald-400 transition">Bán căn hộ chung cư Hà Nội</Link></li>
-                <li><Link to="/ban-can-ho-chung-cu-quan-cau-giay" className="hover:text-emerald-400 transition">Bán căn hộ Quận Cầu Giấy</Link></li>
-                <li><Link to="/ban-can-ho-chung-cu-phuong-dich-vong-cau-giay" className="hover:text-emerald-400 transition">Bán căn hộ Phường Dịch Vọng</Link></li>
-                <li><Link to="/ban-nha-rieng-ha-noi" className="hover:text-emerald-400 transition">Bán nhà riêng, nhà phố Hà Nội</Link></li>
-                <li><Link to="/ban-nha-rieng-quan-ba-dinh" className="hover:text-emerald-400 transition">Bán nhà riêng Quận Ba Đình</Link></li>
-                <li><Link to="/ban-nha-rieng-phuong-kim-ma-ba-dinh" className="hover:text-emerald-400 transition">Bán nhà riêng Phường Kim Mã</Link></li>
-                <li><Link to="/ban-nha-mat-pho-ha-noi" className="hover:text-emerald-400 transition">Bán nhà mặt phố Hà Nội</Link></li>
+                <li><Link to="/ban-can-ho-chung-cu" className="hover:text-emerald-400 transition">Căn hộ chung cư</Link></li>
+                <li><Link to="/ban-chung-cu-mini-can-ho-dich-vu" className="hover:text-emerald-400 transition">Chung cư mini, căn hộ dịch vụ</Link></li>
+                <li><Link to="/ban-nha-rieng" className="hover:text-emerald-400 transition">Nhà riêng thổ cư</Link></li>
+                <li><Link to="/ban-nha-biethu-lien-ke" className="hover:text-emerald-400 transition">Nhà biệt thự, liền kề</Link></li>
+                <li><Link to="/ban-nha-mat-pho" className="hover:text-emerald-400 transition">Nhà mặt phố kinh doanh</Link></li>
+                <li><Link to="/ban-shophouse-nha-pho-thuong-mai" className="hover:text-emerald-400 transition">Shophouse thương mại</Link></li>
               </ul>
             </div>
 
-            {/* Column 2: BĐS Cho Thuê & TP.HCM */}
-            <div className="space-y-1.5">
-              <div className="font-bold text-white text-[11px] uppercase tracking-wider mb-2 text-blue-300">
-                Cho Thuê & TP. Hồ Chí Minh
-              </div>
-              <ul className="space-y-1.5">
-                <li><Link to="/ban-can-ho-chung-cu-tp-hcm" className="hover:text-blue-400 transition">Bán căn hộ chung cư TP.HCM</Link></li>
-                <li><Link to="/cho-thue-can-ho-chung-cu-tp-hcm" className="hover:text-blue-400 transition">Cho thuê căn hộ TP.HCM</Link></li>
-                <li><Link to="/cho-thue-can-ho-chung-cu-quan-1" className="hover:text-blue-400 transition">Cho thuê căn hộ Quận 1</Link></li>
-                <li><Link to="/cho-thue-nha-rieng-quan-1" className="hover:text-blue-400 transition">Cho thuê nhà riêng Quận 1</Link></li>
-                <li><Link to="/cho-thue-nha-rieng-phuong-ben-nghe-quan-1" className="hover:text-blue-400 transition">Cho thuê Phường Bến Nghé Quận 1</Link></li>
-                <li><Link to="/ban-nha-mat-pho-quan-1" className="hover:text-blue-400 transition">Bán nhà mặt phố Quận 1</Link></li>
-                <li><Link to="/cho-thue-van-phong" className="hover:text-blue-400 transition">Cho thuê văn phòng TP.HCM & HN</Link></li>
-              </ul>
-            </div>
-
-            {/* Column 3: Đất Nền & BĐS Đà Nẵng */}
+            {/* Column 2: BĐS Đất Nền & Đầu Tư */}
             <div className="space-y-1.5">
               <div className="font-bold text-white text-[11px] uppercase tracking-wider mb-2 text-amber-300">
-                Đất Nền & BĐS Đà Nẵng
+                Đất Nền, Nghỉ Dưỡng & Kho Xưởng
               </div>
               <ul className="space-y-1.5">
-                <li><Link to="/ban-dat-nen-du-an-da-nang" className="hover:text-amber-400 transition">Bán đất nền dự án Đà Nẵng</Link></li>
-                <li><Link to="/ban-dat-nen-du-an-quan-ngu-hanh-son" className="hover:text-amber-400 transition">Bán đất nền Ngũ Hành Sơn</Link></li>
-                <li><Link to="/ban-nha-rieng-quan-hai-chau" className="hover:text-amber-400 transition">Bán nhà riêng Quận Hải Châu</Link></li>
-                <li><Link to="/ban-dat-nen-du-an-quan-hai-chau" className="hover:text-amber-400 transition">Bán đất nền Quận Hải Châu</Link></li>
-                <li><Link to="/ban-can-ho-chung-cu-da-nang" className="hover:text-amber-400 transition">Bán căn hộ chung cư Đà Nẵng</Link></li>
-                <li><Link to="/ban-nha-biet-thu-lien-ke" className="hover:text-amber-400 transition">Bán biệt thự liền kề nghỉ dưỡng</Link></li>
+                <li><Link to="/ban-dat-nen-du-an" className="hover:text-amber-400 transition">Đất nền dự án</Link></li>
+                <li><Link to="/ban-dat" className="hover:text-amber-400 transition">Đất thổ cư, đất vườn</Link></li>
+                <li><Link to="/ban-trang-trai-khu-nghi-duong" className="hover:text-amber-400 transition">Trang trại, khu nghỉ dưỡng</Link></li>
+                <li><Link to="/ban-condotel" className="hover:text-amber-400 transition">Căn hộ condotel nghỉ dưỡng</Link></li>
+                <li><Link to="/ban-kho-nha-xuong" className="hover:text-amber-400 transition">Kho, nhà xưởng sản xuất</Link></li>
+                <li><Link to="/ban-bat-dong-san-khac" className="hover:text-amber-400 transition">Loại BĐS khác</Link></li>
               </ul>
             </div>
 
-            {/* Column 4: Dự Án & Bộ Lọc Chuẩn SEO */}
+            {/* Column 3: BĐS Cho Thuê Chuẩn SEO */}
             <div className="space-y-1.5">
-              <div className="font-bold text-white text-[11px] uppercase tracking-wider mb-2 text-rose-300">
-                Dự Án & Lọc Theo Tiêu Chí
+              <div className="font-bold text-white text-[11px] uppercase tracking-wider mb-2 text-blue-300">
+                Bất Động Sản Cho Thuê
               </div>
               <ul className="space-y-1.5">
-                <li><Link to="/ban-can-ho-chung-cu-du-an-goldmark-city" className="hover:text-rose-400 transition">Dự án Goldmark City Cầu Giấy</Link></li>
-                <li><Link to="/ban-can-ho-chung-cu-du-an-celadon-city" className="hover:text-rose-400 transition">Dự án Celadon City Tân Phú</Link></li>
-                <li><Link to="/ban-can-ho-chung-cu-quan-cau-giay-gia-tu-2-den-5-ty" className="hover:text-rose-400 transition">Căn hộ Cầu Giấy giá 2 - 5 tỷ</Link></li>
-                <li><Link to="/ban-nha-rieng-quan-ba-dinh-dien-tich-50-100-m2" className="hover:text-rose-400 transition">Nhà riêng Ba Đình 50 - 100 m²</Link></li>
-                <li><Link to="/ban-nha-rieng-quan-ba-dinh-tu-3-ty-den-5-ty" className="hover:text-rose-400 transition">Nhà riêng Ba Đình 3 - 5 tỷ</Link></li>
-                <li><Link to="/ban-nha-rieng-nha-pho" className="hover:text-rose-400 transition">Bán nhà riêng, nhà phố toàn quốc</Link></li>
+                <li><Link to="/cho-thue-can-ho-chung-cu" className="hover:text-blue-400 transition">Cho thuê căn hộ chung cư</Link></li>
+                <li><Link to="/cho-thue-chung-cu-mini-can-ho-dich-vu" className="hover:text-blue-400 transition">Cho thuê chung cư mini, CH dịch vụ</Link></li>
+                <li><Link to="/cho-thue-nha-rieng" className="hover:text-blue-400 transition">Cho thuê nhà riêng, nguyên căn</Link></li>
+                <li><Link to="/cho-thue-nha-biethu-lien-ke" className="hover:text-blue-400 transition">Cho thuê biệt thự, liền kề</Link></li>
+                <li><Link to="/cho-thue-nha-mat-pho" className="hover:text-blue-400 transition">Cho thuê nhà mặt phố</Link></li>
+                <li><Link to="/cho-thue-kho-nha-xuong" className="hover:text-blue-400 transition">Cho thuê kho, nhà xưởng</Link></li>
+              </ul>
+            </div>
+
+            {/* Column 4: Địa Lý Trọng Điểm & Dự Án */}
+            <div className="space-y-1.5">
+              <div className="font-bold text-white text-[11px] uppercase tracking-wider mb-2 text-rose-300">
+                Địa Lý Trọng Điểm & Dự Án
+              </div>
+              <ul className="space-y-1.5">
+                <li><Link to="/ban-can-ho-chung-cu-ha-noi" className="hover:text-rose-400 transition">Căn hộ chung cư Hà Nội</Link></li>
+                <li><Link to="/ban-can-ho-chung-cu-quan-cau-giay" className="hover:text-rose-400 transition">Căn hộ Cầu Giấy (Goldmark City)</Link></li>
+                <li><Link to="/ban-nha-rieng-quan-ba-dinh" className="hover:text-rose-400 transition">Nhà riêng Quận Ba Đình (Kim Mã)</Link></li>
+                <li><Link to="/cho-thue-nha-rieng-quan-1" className="hover:text-rose-400 transition">Nhà riêng Quận 1 TP.HCM (Bến Nghé)</Link></li>
+                <li><Link to="/ban-dat-nen-du-an-da-nang" className="hover:text-rose-400 transition">Đất nền dự án Đà Nẵng</Link></li>
+                <li><Link to="/ban-nha-rieng-quan-hai-chau" className="hover:text-rose-400 transition">Nhà riêng Quận Hải Châu</Link></li>
               </ul>
             </div>
           </div>
         </div>
+
 
         {/* Bottom copyright */}
         <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">

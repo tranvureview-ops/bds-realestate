@@ -866,8 +866,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           setSystemConfig(db.bds_system_config);
         }
         if (Array.isArray(db.bds_nav_menu) && db.bds_nav_menu.length > 0) {
-          setNavMenuItems(db.bds_nav_menu);
+          const hasNewCategories = db.bds_nav_menu.some(m => m.children?.some(c => c.path?.includes('chung-cu-mini')));
+          if (hasNewCategories) {
+            setNavMenuItems(db.bds_nav_menu);
+          } else {
+            setNavMenuItems(INITIAL_NAV_MENU);
+          }
         }
+
         if (Array.isArray(db.bds_vip_packages) && db.bds_vip_packages.length > 0) {
           setVipPackages(db.bds_vip_packages);
         }

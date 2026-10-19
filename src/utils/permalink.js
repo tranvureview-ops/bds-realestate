@@ -28,18 +28,24 @@ export const toVietnameseSlug = (str) => {
   return slug;
 };
 
-// Bảng ánh xạ danh mục loại hình BĐS chuẩn Batdongsan.com.vn
+// Bảng ánh xạ danh mục loại hình BĐS chuẩn Batdongsan.com.vn & 12 danh mục chuẩn SEO
 export const BATDONGSAN_TAXONOMY = {
   sale: {
     base: '/nha-dat-ban',
     title: 'Nhà Đất Bán Toàn Quốc',
     types: {
       apartment: { slug: '/ban-can-ho-chung-cu', name: 'Bán căn hộ chung cư' },
-      house: { slug: '/ban-nha-rieng', name: 'Bán nhà riêng, nhà phố' },
+      'mini-apartment': { slug: '/ban-chung-cu-mini-can-ho-dich-vu', name: 'Bán chung cư mini, căn hộ dịch vụ' },
+      house: { slug: '/ban-nha-rieng', name: 'Bán nhà riêng' },
+      villa: { slug: '/ban-nha-biethu-lien-ke', name: 'Bán nhà biệt thự, liền kề' },
       'street-house': { slug: '/ban-nha-mat-pho', name: 'Bán nhà mặt phố' },
-      villa: { slug: '/ban-nha-biet-thu-lien-ke', name: 'Bán nhà biệt thự, liền kề' },
-      land: { slug: '/ban-dat-nen-du-an', name: 'Bán đất nền dự án' },
-      shophouse: { slug: '/ban-shophouse-nha-pho-thuong-mai', name: 'Bán shophouse, nhà phố thương mại' },
+      shophouse: { slug: '/ban-shophouse-nha-pho-thuong-mai', name: 'Bán shophouse' },
+      'project-land': { slug: '/ban-dat-nen-du-an', name: 'Bán đất nền dự án' },
+      land: { slug: '/ban-dat', name: 'Bán đất' },
+      'farm-resort': { slug: '/ban-trang-trai-khu-nghi-duong', name: 'Bán trang trại, khu nghỉ dưỡng' },
+      condotel: { slug: '/ban-condotel', name: 'Bán condotel' },
+      warehouse: { slug: '/ban-kho-nha-xuong', name: 'Bán kho, nhà xưởng' },
+      other: { slug: '/ban-bat-dong-san-khac', name: 'Bán loại BĐS khác' },
       office: { slug: '/ban-mat-bang-van-phong', name: 'Bán văn phòng, mặt bằng' }
     }
   },
@@ -48,15 +54,22 @@ export const BATDONGSAN_TAXONOMY = {
     title: 'Cho Thuê Nhà Đất Toàn Quốc',
     types: {
       apartment: { slug: '/cho-thue-can-ho-chung-cu', name: 'Cho thuê căn hộ chung cư' },
-      house: { slug: '/cho-thue-nha-rieng', name: 'Cho thuê nhà riêng, nhà phố' },
-      'street-house': { slug: '/cho-thue-nha-mat-pho', name: 'Cho thuê nhà mặt phố kinh doanh' },
-      villa: { slug: '/cho-thue-nha-biet-thu-lien-ke', name: 'Cho thuê biệt thự nghỉ dưỡng' },
-      land: { slug: '/cho-thue-kho-nha-xuong-dat', name: 'Cho thuê kho, bãi, đất' },
+      'mini-apartment': { slug: '/cho-thue-chung-cu-mini-can-ho-dich-vu', name: 'Cho thuê chung cư mini, căn hộ dịch vụ' },
+      house: { slug: '/cho-thue-nha-rieng', name: 'Cho thuê nhà riêng' },
+      villa: { slug: '/cho-thue-nha-biethu-lien-ke', name: 'Cho thuê nhà biệt thự, liền kề' },
+      'street-house': { slug: '/cho-thue-nha-mat-pho', name: 'Cho thuê nhà mặt phố' },
       shophouse: { slug: '/cho-thue-shophouse-nha-pho-thuong-mai', name: 'Cho thuê shophouse' },
+      'project-land': { slug: '/cho-thue-dat-nen-du-an', name: 'Cho thuê đất nền dự án' },
+      land: { slug: '/cho-thue-dat', name: 'Cho thuê đất' },
+      'farm-resort': { slug: '/cho-thue-trang-trai-khu-nghi-duong', name: 'Cho thuê trang trại, khu nghỉ dưỡng' },
+      condotel: { slug: '/cho-thue-condotel', name: 'Cho thuê condotel' },
+      warehouse: { slug: '/cho-thue-kho-nha-xuong', name: 'Cho thuê kho, nhà xưởng' },
+      other: { slug: '/cho-thue-bat-dong-san-khac', name: 'Cho thuê loại BĐS khác' },
       office: { slug: '/cho-thue-van-phong', name: 'Cho thuê văn phòng' }
     }
   }
 };
+
 
 // Ánh xạ thành phố chuẩn Batdongsan
 export const CITY_SLUGS = {
@@ -344,10 +357,14 @@ export const parseTaxonomyUrl = (urlPath) => {
 
     // 2. Khớp từng loại hình: /ban-can-ho-chung-cu, /cho-thue-van-phong...
     for (const [typeKey, typeInfo] of Object.entries(group.types)) {
-      // Khớp chính xác loại hình hoặc alias Bán nhà riêng, nhà phố
+      // Khớp chính xác loại hình hoặc alias
       if (clean === typeInfo.slug || 
           (typeKey === 'house' && clean === '/ban-nha-rieng-nha-pho' && demand === 'sale') ||
-          (typeKey === 'house' && clean === '/cho-thue-nha-rieng-nha-pho' && demand === 'rent')) {
+          (typeKey === 'house' && clean === '/cho-thue-nha-rieng-nha-pho' && demand === 'rent') ||
+          (typeKey === 'villa' && clean === '/ban-nha-biet-thu-lien-ke' && demand === 'sale') ||
+          (typeKey === 'villa' && clean === '/cho-thue-nha-biet-thu-lien-ke' && demand === 'rent') ||
+          (typeKey === 'shophouse' && clean === '/ban-shophouse' && demand === 'sale') ||
+          (typeKey === 'warehouse' && clean === '/cho-thue-kho-nha-xuong-dat' && demand === 'rent')) {
         return {
           isTaxonomy: true,
           demand,
@@ -382,15 +399,22 @@ export const parseTaxonomyUrl = (urlPath) => {
     const isRent = raw.startsWith('cho-thue-') || raw.startsWith('nha-dat-cho-thue');
     const demand = isRent ? 'rent' : 'sale';
 
-    // B. PropertyType
+    // B. PropertyType (Nhận diện chính xác 12 danh mục chuẩn SEO)
     let propertyType = 'all';
-    if (raw.includes('can-ho-chung-cu') || raw.includes('chung-cu')) propertyType = 'apartment';
+    if (raw.includes('chung-cu-mini-can-ho-dich-vu') || raw.includes('chung-cu-mini')) propertyType = 'mini-apartment';
+    else if (raw.includes('can-ho-chung-cu') || raw.includes('chung-cu')) propertyType = 'apartment';
+    else if (raw.includes('nha-biethu-lien-ke') || raw.includes('nha-biet-thu') || raw.includes('biet-thu')) propertyType = 'villa';
     else if (raw.includes('nha-mat-pho')) propertyType = 'street-house';
-    else if (raw.includes('nha-biet-thu') || raw.includes('biet-thu')) propertyType = 'villa';
-    else if (raw.includes('dat-nen') || raw.includes('dat-nen-du-an')) propertyType = 'land';
-    else if (raw.includes('shophouse')) propertyType = 'shophouse';
+    else if (raw.includes('shophouse-nha-pho-thuong-mai') || raw.includes('shophouse')) propertyType = 'shophouse';
+    else if (raw.includes('dat-nen-du-an')) propertyType = 'project-land';
+    else if (raw.includes('trang-trai-khu-nghi-duong') || raw.includes('trang-trai')) propertyType = 'farm-resort';
+    else if (raw.includes('condotel')) propertyType = 'condotel';
+    else if (raw.includes('kho-nha-xuong') || raw.includes('kho-xuong')) propertyType = 'warehouse';
+    else if (raw.includes('bat-dong-san-khac')) propertyType = 'other';
     else if (raw.includes('van-phong') || raw.includes('mat-bang-van-phong')) propertyType = 'office';
     else if (raw.includes('nha-rieng')) propertyType = 'house';
+    else if (raw.includes('-dat-') || raw.endsWith('-dat') || raw.startsWith('ban-dat') || raw.startsWith('cho-thue-dat')) propertyType = 'land';
+
 
     // C. Dự án (Project)
     let project = '';

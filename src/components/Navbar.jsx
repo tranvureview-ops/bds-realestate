@@ -298,29 +298,33 @@ export default function Navbar() {
 
                     {/* Category Dropdown Menu */}
                     {isDropdownOpen && (
-                      <div className="absolute top-full left-0 pt-1.5 w-60 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
-                        <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-2 text-xs space-y-1">
-                          <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 mb-1">
-                            Danh mục {item.title}
+                      <div className={`absolute top-full ${item.children.length > 6 ? 'left-0 sm:-left-12 w-[520px]' : 'left-0 w-64'} pt-1.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150`}>
+                        <div className="bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-3 text-xs">
+                          <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 mb-2 flex items-center justify-between">
+                            <span>Danh mục {item.title}</span>
+                            <span className="text-emerald-600 font-bold lowercase">({item.children.length} loại hình)</span>
                           </div>
-                          {item.children.map(sub => (
-                            <Link
-                              key={sub.id}
-                              to={sub.path}
-                              onClick={() => setActiveDropdown(null)}
-                              className={`w-full px-3 py-2 rounded-xl flex items-center gap-2.5 transition font-medium whitespace-nowrap ${
-                                currentRoute === sub.path 
-                                  ? 'bg-emerald-50 text-emerald-700 font-bold' 
-                                  : 'hover:bg-slate-50 text-slate-700 hover:text-emerald-600'
-                              }`}
-                            >
-                              {sub.icon && <i className={`${sub.icon} text-slate-400 w-4 text-center text-xs`}></i>}
-                              <span>{sub.title}</span>
-                            </Link>
-                          ))}
+                          <div className={item.children.length > 6 ? "grid grid-cols-2 gap-1" : "space-y-1"}>
+                            {item.children.map(sub => (
+                              <Link
+                                key={sub.id}
+                                to={sub.path}
+                                onClick={() => setActiveDropdown(null)}
+                                className={`px-2.5 py-2 rounded-xl flex items-center gap-2 transition font-medium ${
+                                  currentRoute === sub.path 
+                                    ? 'bg-emerald-50 text-emerald-700 font-bold' 
+                                    : 'hover:bg-slate-50 text-slate-700 hover:text-emerald-600'
+                                }`}
+                              >
+                                {sub.icon && <i className={`${sub.icon} text-slate-400 w-4 text-center text-xs shrink-0`}></i>}
+                                <span className="truncate">{sub.title}</span>
+                              </Link>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     )}
+
                   </div>
                 );
               }
