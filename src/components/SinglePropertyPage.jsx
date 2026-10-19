@@ -565,45 +565,6 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   ];
 
 
-  const cleanCitySlug = toVietnameseSlug(property.city || '').replace(/-/g, '');
-  const cleanDistrictSlug = toVietnameseSlug(property.district || '').replace(/-/g, '');
-  const cleanTypeSlug = toVietnameseSlug(typeText || '').replace(/-/g, '');
-
-  const relatedHashtags = [
-    {
-      tag: `#${cleanTypeSlug}`,
-      url: buildKeywordCleanSlug(`${demandText} ${typeText}`)
-    },
-    {
-      tag: `#${cleanDistrictSlug}`,
-      url: buildKeywordCleanSlug(`${demandText} ${typeText} ${districtName}`)
-    },
-    {
-      tag: `#${cleanCitySlug}`,
-      url: buildKeywordCleanSlug(`${demandText} ${typeText} ${cityName}`)
-    },
-    {
-      tag: `#bds${cleanDistrictSlug}`,
-      url: buildKeywordCleanSlug(`${demandText} nhà đất ${districtName}`)
-    },
-    {
-      tag: `#nhadep${cleanCitySlug}`,
-      url: buildKeywordCleanSlug(`${demandText} nhà riêng ${cityName}`)
-    },
-    {
-      tag: `#sodochinhchu`,
-      url: buildKeywordCleanSlug(`${demandText} ${typeText} ${districtName} sổ đỏ`)
-    },
-    {
-      tag: `#batdongsangiare`,
-      url: buildKeywordCleanSlug(`${demandText} ${typeText} ${districtName} giá rẻ`)
-    },
-    {
-      tag: `#muabannhadat`,
-      url: property.demand === 'sale' ? '/nha-dat-ban' : '/nha-dat-cho-thue'
-    }
-  ];
-
   // Danh sách các quận/huyện thuộc cùng thành phố để điều hướng khu vực lân cận
   const matchedAdminCity = (VIETNAM_ADMINISTRATIVE_DATA || []).find(c => 
     c.name.toLowerCase() === (property.city || '').toLowerCase() ||
@@ -1336,24 +1297,6 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   ))}
                 </div>
 
-              {/* Hashtags BĐS */}
-              <div className="space-y-2.5 pt-3 border-t border-slate-100">
-                <div className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                  <i className="fa-solid fa-hashtag text-rose-500 text-xs"></i>
-                  Hashtag nổi bật:
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {relatedHashtags.map((tagObj, idx) => (
-                    <Link
-                      key={idx}
-                      to={tagObj.url}
-                      className="px-3 py-1.5 bg-rose-50/70 hover:bg-rose-100 border border-rose-200 hover:border-rose-300 rounded-full text-xs font-bold text-rose-700 hover:text-rose-800 transition inline-flex items-center"
-                    >
-                      <span className="text-rose-400">#</span><span>{tagObj.tag.replace(/^#/, '')}</span>
-                    </Link>
-                  ))}
-                </div>
-              </div>
             </div>
           )}
 
