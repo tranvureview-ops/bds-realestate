@@ -188,25 +188,6 @@ export default function ListingGrid({ properties, filters, setFilters }) {
         </div>
       </div>
 
-      {/* VIP Ranking Explanation Bar */}
-      <div className="my-4 py-2 px-3 bg-gradient-to-r from-red-50 via-amber-50 to-blue-50 border border-amber-200/60 rounded-xl flex flex-wrap items-center justify-between gap-2 text-xs">
-        <div className="flex items-center gap-2 font-bold text-slate-700">
-          <i className="fa-solid fa-ranking-star text-amber-500"></i>
-          <span>Thứ tự ưu tiên hiển thị:</span>
-        </div>
-        <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
-          <span className="px-2 py-0.5 rounded-full badge-diamond font-bold">1. VIP Kim Cương</span>
-          <span className="text-slate-400">➔</span>
-          <span className="px-2 py-0.5 rounded-full badge-gold font-bold">2. VIP Vàng</span>
-          <span className="text-slate-400">➔</span>
-          <span className="px-2 py-0.5 rounded-full badge-silver font-bold">3. VIP Bạc</span>
-          <span className="text-slate-400">➔</span>
-          <span className="px-2 py-0.5 rounded-full badge-bronze font-bold">4. VIP Đồng</span>
-          <span className="text-slate-400">➔</span>
-          <span className="px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-bold">5. Tin Thường</span>
-        </div>
-      </div>
-
       {/* Main Content Area */}
       {sortedProperties.length === 0 ? (
         /* Empty State */
