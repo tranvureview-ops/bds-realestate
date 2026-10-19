@@ -8,7 +8,7 @@ import ListingGrid from '../components/ListingGrid';
 import { generateCategoryJsonLd, formatPriceRangeText, formatAreaRangeText, generateCategoryMetadata } from '../utils/permalink';
 import { filterProperties } from '../utils/propertyFilter';
 
-export default function SaleListingsPage({ taxonomyInfo = null }) {
+export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 }) {
   const { properties } = useRealEstate();
   const searchParams = useSearchParams();
   const { navigate } = useRouter();
@@ -334,6 +334,8 @@ export default function SaleListingsPage({ taxonomyInfo = null }) {
         filters={filters} 
         setFilters={setFilters}
         enablePagination={true}
+        initialPage={initialPage}
+        basePath={taxonomyInfo?.basePath || (taxonomyInfo?.demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban')}
       />
     </div>
   );

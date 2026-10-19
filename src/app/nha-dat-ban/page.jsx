@@ -1,10 +1,38 @@
+import { permanentRedirect } from 'next/navigation';
 import SaleListingsPage from '../../views/SaleListingsPage';
+import { generateCategoryMetadata, getCanonicalUrl } from '../../utils/permalink';
 
-export const metadata = {
-  title: 'Mua Bán Nhà Đất Giá Tốt, Sổ Đỏ Chính Chủ [2026] Toàn Quốc',
-  description: 'Tổng hợp tin mua bán nhà đất giá tốt 2026. BĐS chính chủ, pháp lý minh bạch, sổ đỏ riêng, hỗ trợ vay ngân hàng lãi suất thấp. Xem ngay hôm nay tại toàn quốc!',
-};
+export async function generateMetadata() {
+  const { title, description } = generateCategoryMetadata({ demand: 'sale' }, 2026, 1);
+  const canonical = getCanonicalUrl('/nha-dat-ban', 1);
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      type: 'website'
+    }
+  };
+}
 
-export default function Page() {
-  return <SaleListingsPage />;
+export default async function Page({ searchParams }) {
+  const sp = (await searchParams) || {};
+  if (sp.page) {
+    const p = parseInt(sp.page, 10);
+    const params = new URLSearchParams();
+    for (const [k, v] of Object.entries(sp)) {
+      if (k !== 'page' && v) params.set(k, String(v));
+    }
+    const qs = params.toString();
+    if (p > 1 && String(p) === sp.page) {
+      permanentRedirect(qs ? `/nha-dat-ban/page/${p}/?${qs}` : `/nha-dat-ban/page/${p}/`);
+    } else {
+      permanentRedirect(qs ? `/nha-dat-ban/?${qs}` : `/nha-dat-ban/`);
+    }
+  }
+
+  return <SaleListingsPage initialPage={1} />;
 }

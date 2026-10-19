@@ -28,6 +28,67 @@ export const toVietnameseSlug = (str) => {
   return slug;
 };
 
+// Cấu hình Base Domain chuẩn SEO
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://bds-realestate.vercel.app';
+
+/**
+ * Xây dựng đường dẫn phân trang chuẩn SEO (SEO Pagination Path)
+ * - Trang 1: /{basePath}/ (không tạo URL biến thể /page/1/)
+ * - Trang 2+: /{basePath}/page/{number}/
+ */
+export const getPaginationPath = (basePath, page = 1) => {
+  if (!basePath) return '/';
+  let clean = basePath.replace(/\/+$/, '');
+  // Loại bỏ /page/\d+ nếu basePath đã có sẵn
+  clean = clean.replace(/\/page\/\d+$/i, '');
+  if (!clean.startsWith('/')) clean = '/' + clean;
+
+  const pageNum = parseInt(page, 10);
+  if (isNaN(pageNum) || pageNum <= 1) {
+    return `${clean}/`;
+  }
+  return `${clean}/page/${pageNum}/`;
+};
+
+/**
+ * Tạo thẻ Canonical tuyệt đối tự tham chiếu chuẩn SEO
+ * Ví dụ: https://bds-realestate.vercel.app/nha-dat-ban/page/2/
+ */
+export const getCanonicalUrl = (basePath, page = 1, siteUrl = SITE_URL) => {
+  const path = getPaginationPath(basePath, page);
+  const domain = (siteUrl || SITE_URL).replace(/\/+$/, '');
+  return `${domain}${path}`;
+};
+
+/**
+ * Tạo URL phân trang kèm giữ nguyên các Query Parameters lọc hiện tại (trừ param `page`)
+ */
+export const buildPaginationUrl = (basePath, pageNumber, currentSearchParams = '') => {
+  const pagePath = getPaginationPath(basePath, pageNumber);
+  
+  let params;
+  if (typeof currentSearchParams === 'string') {
+    params = new URLSearchParams(currentSearchParams.replace(/^\?/, ''));
+  } else if (currentSearchParams instanceof URLSearchParams) {
+    params = new URLSearchParams(currentSearchParams);
+  } else if (currentSearchParams && typeof currentSearchParams === 'object') {
+    params = new URLSearchParams();
+    for (const [k, v] of Object.entries(currentSearchParams)) {
+      if (v !== undefined && v !== null && v !== '') {
+        params.set(k, String(v));
+      }
+    }
+  } else {
+    params = new URLSearchParams();
+  }
+
+  // Luôn xóa param `page` vì đã được chuẩn hóa qua pathname
+  params.delete('page');
+
+  const qs = params.toString();
+  return qs ? `${pagePath}?${qs}` : pagePath;
+};
+
 // Bảng ánh xạ danh mục loại hình BĐS chuẩn Batdongsan.com.vn & 12 danh mục chuẩn SEO
 export const BATDONGSAN_TAXONOMY = {
   sale: {
@@ -310,12 +371,49 @@ export const buildSeoUrl = ({
 export const parseTaxonomyUrl = (urlPath) => {
   if (!urlPath) return { isTaxonomy: false };
 
-  const clean = urlPath.replace(/^#/, '').split('?')[0];
+  let raw = urlPath.replace(/^#/, '').split('?')[0];
 
   // Không xử lý nếu là trang chi tiết bất động sản (có đuôi chuẩn -pr{id})
-  if (clean.match(/-pr[a-z0-9_.-]+$/i)) {
+  if (raw.match(/-pr[a-z0-9_.-]+$/i)) {
     return { isTaxonomy: false };
   }
+
+  // Tách segment phân trang: /page/:page
+  let page = 1;
+  let hasPageSegment = false;
+  let isInvalidPage = false;
+
+  const pageMatch = raw.match(/\/page\/([^/?#]+)\/?$/i);
+  if (pageMatch) {
+    hasPageSegment = true;
+    const rawPageVal = pageMatch[1];
+    const parsedNum = parseInt(rawPageVal, 10);
+    if (isNaN(parsedNum) || parsedNum < 1 || String(parsedNum) !== rawPageVal) {
+      isInvalidPage = true;
+    } else {
+      page = parsedNum;
+    }
+    raw = raw.replace(/\/page\/[^/?#]+\/?$/i, '');
+  }
+
+  const clean = raw.length > 1 ? raw.replace(/\/+$/, '') : raw;
+  if (!clean || clean === '/') return { isTaxonomy: false };
+
+  // Helper chuẩn hóa kết quả kèm thông tin phân trang & canonical URL chuẩn
+  const buildResult = (data) => {
+    const basePath = data.canonicalUrl || clean;
+    const canonicalPath = getPaginationPath(basePath, page);
+    const fullCanonicalUrl = getCanonicalUrl(basePath, page);
+    return {
+      ...data,
+      page,
+      hasPageSegment,
+      isInvalidPage,
+      basePath,
+      canonicalPath,
+      canonicalUrl: fullCanonicalUrl
+    };
+  };
 
   // 1. Kiểm tra Base danh mục: /nha-dat-ban hoặc /nha-dat-cho-thue
   for (const demand of ['sale', 'rent']) {
@@ -323,27 +421,27 @@ export const parseTaxonomyUrl = (urlPath) => {
     
     // Khớp chính xác base: /nha-dat-ban hoặc /nha-dat-cho-thue
     if (clean === group.base) {
-      return {
+      return buildResult({
         isTaxonomy: true,
         demand,
         propertyType: 'all',
         city: '',
         title: group.title,
         canonicalUrl: group.base
-      };
+      });
     }
 
     // Khớp base + city: /nha-dat-ban-ha-noi
     for (const [cityName, citySlug] of Object.entries(CITY_SLUGS)) {
       if (clean === `${group.base}-${citySlug}`) {
-        return {
+        return buildResult({
           isTaxonomy: true,
           demand,
           propertyType: 'all',
           city: cityName,
           title: `${group.title} tại ${cityName}`,
           canonicalUrl: clean
-        };
+        });
       }
     }
 
@@ -357,27 +455,27 @@ export const parseTaxonomyUrl = (urlPath) => {
           (typeKey === 'villa' && clean === '/cho-thue-nha-biet-thu-lien-ke' && demand === 'rent') ||
           (typeKey === 'shophouse' && clean === '/ban-shophouse' && demand === 'sale') ||
           (typeKey === 'warehouse' && clean === '/cho-thue-kho-nha-xuong-dat' && demand === 'rent')) {
-        return {
+        return buildResult({
           isTaxonomy: true,
           demand,
           propertyType: typeKey,
           city: '',
           title: typeInfo.name,
           canonicalUrl: clean
-        };
+        });
       }
 
       // Khớp loại hình + thành phố: /ban-can-ho-chung-cu-ha-noi
       for (const [cityName, citySlug] of Object.entries(CITY_SLUGS)) {
         if (clean === `${typeInfo.slug}-${citySlug}`) {
-          return {
+          return buildResult({
             isTaxonomy: true,
             demand,
             propertyType: typeKey,
             city: cityName,
             title: `${typeInfo.name} tại ${cityName}`,
             canonicalUrl: clean
-          };
+          });
         }
       }
     }
@@ -619,7 +717,7 @@ export const parseTaxonomyUrl = (urlPath) => {
     if (areaLabel) title += ` ${areaLabel}`;
     if (bedroom !== 'all') title += ` ${bedroom} phòng ngủ`;
 
-    return {
+    return buildResult({
       isTaxonomy: true,
       isFacetedCleanSlug: true,
       demand,
@@ -641,7 +739,7 @@ export const parseTaxonomyUrl = (urlPath) => {
       keyword,
       title,
       canonicalUrl: clean
-    };
+    });
   }
 
   return { isTaxonomy: false };
@@ -1000,9 +1098,13 @@ export const generateCategoryJsonLd = (categoryInfo, properties = [], siteUrl = 
  * Đảm bảo Title 50-60 ký tự, Description 150-160 ký tự
  * Thấu hiểu Search Intent, tích hợp mốc thời gian [2026] và hỗ trợ Local SEO linh hoạt.
  */
-export const generateCategoryMetadata = (taxonomyInfo = {}, year = 2026) => {
+export const generateCategoryMetadata = (taxonomyInfo = {}, year = 2026, page = 1) => {
   const isRent = taxonomyInfo.demand === 'rent';
   const type = taxonomyInfo.propertyType || 'all';
+  const actualPage = Number(page || taxonomyInfo.page || 1);
+  const isPaginated = actualPage > 1;
+  const pageStr = isPaginated ? ` - Trang ${actualPage}` : '';
+  const pageDescStr = isPaginated ? ` (Trang ${actualPage})` : '';
 
   const hasSpecificLocation = Boolean(taxonomyInfo.district || taxonomyInfo.city);
   let titleLoc = taxonomyInfo.district 
@@ -1022,79 +1124,151 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, year = 2026) => {
   if (!isRent) {
     switch (type) {
       case 'apartment':
-        title = hasSpecificLocation
-          ? `Bán Căn Hộ Chung Cư Sổ Hồng Riêng [${year}] | ${titleLoc}`
-          : `Bán Căn Hộ Chung Cư Sổ Hồng Riêng, Giá Tốt [${year}] Toàn Quốc`;
-        description = `Bán căn hộ chung cư cao cấp ${year}, sổ hồng lâu dài, tiện ích resort, vay 0% lãi suất. Khám phá bảng giá mới tại ${descLoc}`;
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Bán Căn Hộ Chung Cư [${year}]${pageStr} | ${titleLoc}`
+            : `Bán Căn Hộ Chung Cư Sổ Hồng Riêng [${year}]${pageStr}`;
+        } else {
+          title = hasSpecificLocation
+            ? `Bán Căn Hộ Chung Cư Sổ Hồng Riêng [${year}] | ${titleLoc}`
+            : `Bán Căn Hộ Chung Cư Sổ Hồng Riêng, Giá Tốt [${year}] Toàn Quốc`;
+        }
+        description = `Bán căn hộ chung cư cao cấp ${year}${pageDescStr}, sổ hồng lâu dài, tiện ích resort, vay 0% lãi suất. Khám phá bảng giá mới tại ${descLoc}`;
         break;
       case 'mini-apartment':
-        title = hasSpecificLocation
-          ? `Bán Chung Cư Mini, Căn Hộ Dịch Vụ [${year}] | ${titleLoc}`
-          : `Bán Chung Cư Mini, Căn Hộ Dịch Vụ Giá Tốt [${year}] Toàn Quốc`;
-        description = `Bán chung cư mini, căn hộ dịch vụ dòng tiền sinh lời cao ${year}, full nội thất, pháp lý chuẩn. Xem bảng giá tại ${descLoc}`;
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Bán Chung Cư Mini, Căn Hộ Dịch Vụ${pageStr} | ${titleLoc}`
+            : `Bán Chung Cư Mini, Căn Hộ Dịch Vụ [${year}]${pageStr}`;
+        } else {
+          title = hasSpecificLocation
+            ? `Bán Chung Cư Mini, Căn Hộ Dịch Vụ [${year}] | ${titleLoc}`
+            : `Bán Chung Cư Mini, Căn Hộ Dịch Vụ Giá Tốt [${year}] Toàn Quốc`;
+        }
+        description = `Bán chung cư mini, căn hộ dịch vụ dòng tiền sinh lời cao ${year}${pageDescStr}, full nội thất, pháp lý chuẩn. Xem bảng giá tại ${descLoc}`;
         break;
       case 'house':
-        title = hasSpecificLocation
-          ? `Bán Nhà Riêng, Nhà Phố Sổ Đỏ Riêng [${year}] | ${titleLoc}`
-          : `Bán Nhà Riêng, Nhà Phố Sổ Đỏ Chính Chủ [${year}] Toàn Quốc`;
-        description = `Mua bán nhà riêng, nhà phố chính chủ ${year}, vị trí đẹp đường ô tô, pháp lý an toàn có sổ đỏ. Xem nhà giá tốt tại ${descLoc}`;
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Bán Nhà Riêng, Nhà Phố Sổ Đỏ [${year}]${pageStr} | ${titleLoc}`
+            : `Bán Nhà Riêng, Nhà Phố Sổ Đỏ Chính Chủ [${year}]${pageStr}`;
+        } else {
+          title = hasSpecificLocation
+            ? `Bán Nhà Riêng, Nhà Phố Sổ Đỏ Riêng [${year}] | ${titleLoc}`
+            : `Bán Nhà Riêng, Nhà Phố Sổ Đỏ Chính Chủ [${year}] Toàn Quốc`;
+        }
+        description = `Mua bán nhà riêng, nhà phố chính chủ ${year}${pageDescStr}, vị trí đẹp đường ô tô, pháp lý an toàn có sổ đỏ. Xem nhà giá tốt tại ${descLoc}`;
         break;
       case 'street-house':
-        title = hasSpecificLocation
-          ? `Bán Nhà Mặt Phố Tiện Kinh Doanh [${year}] | ${titleLoc}`
-          : `Bán Nhà Mặt Phố Vị Trí Đẹp Kinh Doanh [${year}] Toàn Quốc`;
-        description = `Bán nhà mặt phố vị trí đắc địa, kinh doanh sầm uất, BĐS chính chủ, sổ hồng riêng, pháp lý sạch 100%. Xem vị trí tại ${descLoc}`;
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Bán Nhà Mặt Phố Kinh Doanh [${year}]${pageStr} | ${titleLoc}`
+            : `Bán Nhà Mặt Phố Vị Trí Đẹp Kinh Doanh${pageStr} Toàn Quốc`;
+        } else {
+          title = hasSpecificLocation
+            ? `Bán Nhà Mặt Phố Tiện Kinh Doanh [${year}] | ${titleLoc}`
+            : `Bán Nhà Mặt Phố Vị Trí Đẹp Kinh Doanh [${year}] Toàn Quốc`;
+        }
+        description = `Bán nhà mặt phố vị trí đắc địa, kinh doanh sầm uất, BĐS chính chủ, sổ hồng riêng, pháp lý sạch 100%${pageDescStr}. Xem vị trí tại ${descLoc}`;
         break;
       case 'project-land':
       case 'land':
-        title = hasSpecificLocation
-          ? `Bán Đất Nền Dự Án Pháp Lý Sạch [${year}] | ${titleLoc}`
-          : `Bán Đất Nền Dự Án Pháp Lý Sạch, Giá Tốt [${year}] Toàn Quốc`;
-        description = `Bán đất nền dự án quy hoạch chuẩn, pháp lý sạch sổ đỏ trao tay, hỗ trợ trả góp linh hoạt. Xem ngay giỏ hàng đất đẹp tại ${descLoc}`;
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Bán Đất Nền Dự Án Pháp Lý Sạch${pageStr} | ${titleLoc}`
+            : `Bán Đất Nền Dự Án Pháp Lý Sạch [${year}]${pageStr}`;
+        } else {
+          title = hasSpecificLocation
+            ? `Bán Đất Nền Dự Án Pháp Lý Sạch [${year}] | ${titleLoc}`
+            : `Bán Đất Nền Dự Án Pháp Lý Sạch, Giá Tốt [${year}] Toàn Quốc`;
+        }
+        description = `Bán đất nền dự án quy hoạch chuẩn, pháp lý sạch sổ đỏ trao tay, hỗ trợ trả góp linh hoạt${pageDescStr}. Xem ngay giỏ hàng đất đẹp tại ${descLoc}`;
         break;
       case 'villa':
-        title = hasSpecificLocation
-          ? `Bán Biệt Thự Liền Kề Sổ Đỏ Trao Tay [${year}] | ${titleLoc}`
-          : `Bán Biệt Thự Liền Kề Cao Cấp Sổ Đỏ [${year}] Toàn Quốc`;
-        description = `Bán biệt thự liền kề, villa sinh thái cao cấp ${year}, an ninh 24/7, sổ hồng lâu dài ven sông biển. Bảng giá tại ${descLoc}`;
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Bán Biệt Thự Liền Kề Sổ Đỏ [${year}]${pageStr} | ${titleLoc}`
+            : `Bán Biệt Thự Liền Kề Cao Cấp Sổ Đỏ${pageStr} Toàn Quốc`;
+        } else {
+          title = hasSpecificLocation
+            ? `Bán Biệt Thự Liền Kề Sổ Đỏ Trao Tay [${year}] | ${titleLoc}`
+            : `Bán Biệt Thự Liền Kề Cao Cấp Sổ Đỏ [${year}] Toàn Quốc`;
+        }
+        description = `Bán biệt thự liền kề, villa sinh thái cao cấp ${year}${pageDescStr}, an ninh 24/7, sổ hồng lâu dài ven sông biển. Bảng giá tại ${descLoc}`;
         break;
       default:
-        title = hasSpecificLocation
-          ? `Mua Bán Nhà Đất Sổ Đỏ Chính Chủ [${year}] | ${titleLoc}`
-          : `Mua Bán Nhà Đất Giá Tốt Sổ Đỏ Chính Chủ [${year}] Toàn Quốc`;
-        description = `Mua bán nhà đất chính chủ giá tốt ${year}, pháp lý minh bạch, sổ đỏ riêng, hỗ trợ vay ngân hàng nhanh. Xem tin tại ${descLoc}`;
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Mua Bán Nhà Đất Sổ Đỏ [${year}]${pageStr} | ${titleLoc}`
+            : `Mua Bán Nhà Đất Sổ Đỏ Chính Chủ [${year}]${pageStr}`;
+        } else {
+          title = hasSpecificLocation
+            ? `Mua Bán Nhà Đất Sổ Đỏ Chính Chủ [${year}] | ${titleLoc}`
+            : `Mua Bán Nhà Đất Giá Tốt Sổ Đỏ Chính Chủ [${year}] Toàn Quốc`;
+        }
+        description = `Mua bán nhà đất chính chủ giá tốt ${year}${pageDescStr}, pháp lý minh bạch, sổ đỏ riêng, hỗ trợ vay ngân hàng nhanh. Xem tin tại ${descLoc}`;
     }
   } else {
     switch (type) {
       case 'apartment':
-        title = hasSpecificLocation
-          ? `Cho Thuê Căn Hộ Chung Cư Giá Rẻ [${year}] | ${titleLoc}`
-          : `Cho Thuê Căn Hộ Chung Cư Giá Rẻ, Đẹp [${year}] Toàn Quốc`;
-        description = `Cho thuê căn hộ chung cư giá rẻ ${year}, đầy đủ nội thất cao cấp, an ninh 24/7, chính chủ đăng tin. Xem phòng tại ${descLoc}`;
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Cho Thuê Căn Hộ Chung Cư [${year}]${pageStr} | ${titleLoc}`
+            : `Cho Thuê Căn Hộ Chung Cư Giá Rẻ [${year}]${pageStr}`;
+        } else {
+          title = hasSpecificLocation
+            ? `Cho Thuê Căn Hộ Chung Cư Giá Rẻ [${year}] | ${titleLoc}`
+            : `Cho Thuê Căn Hộ Chung Cư Giá Rẻ, Đẹp [${year}] Toàn Quốc`;
+        }
+        description = `Cho thuê căn hộ chung cư giá rẻ ${year}${pageDescStr}, đầy đủ nội thất cao cấp, an ninh 24/7, chính chủ đăng tin. Xem phòng tại ${descLoc}`;
         break;
       case 'mini-apartment':
-        title = hasSpecificLocation
-          ? `Cho Thuê Chung Cư Mini, Căn Hộ DV [${year}] | ${titleLoc}`
-          : `Cho Thuê Chung Cư Mini, Căn Hộ Dịch Vụ [${year}] Toàn Quốc`;
-        description = `Cho thuê chung cư mini, căn hộ dịch vụ khép kín giá rẻ ${year}, full nội thất cao cấp, giờ tự do. Xem phòng tại ${descLoc}`;
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Cho Thuê Chung Cư Mini, Căn Hộ DV${pageStr} | ${titleLoc}`
+            : `Cho Thuê Chung Cư Mini, Căn Hộ Dịch Vụ${pageStr} Toàn Quốc`;
+        } else {
+          title = hasSpecificLocation
+            ? `Cho Thuê Chung Cư Mini, Căn Hộ DV [${year}] | ${titleLoc}`
+            : `Cho Thuê Chung Cư Mini, Căn Hộ Dịch Vụ [${year}] Toàn Quốc`;
+        }
+        description = `Cho thuê chung cư mini, căn hộ dịch vụ khép kín giá rẻ ${year}${pageDescStr}, full nội thất cao cấp, giờ tự do. Xem phòng tại ${descLoc}`;
         break;
       case 'street-house':
-        title = hasSpecificLocation
-          ? `Cho Thuê Nhà Mặt Phố Kinh Doanh [${year}] | ${titleLoc}`
-          : `Cho Thuê Nhà Mặt Phố Tiện Kinh Doanh [${year}] Toàn Quốc`;
-        description = `Cho thuê nhà mặt phố vị trí kim cương, mặt tiền lớn tiện kinh doanh, mở văn phòng công ty chính chủ. Xem mặt bằng tại ${descLoc}`;
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Cho Thuê Nhà Mặt Phố Kinh Doanh${pageStr} | ${titleLoc}`
+            : `Cho Thuê Nhà Mặt Phố Tiện Kinh Doanh${pageStr} Toàn Quốc`;
+        } else {
+          title = hasSpecificLocation
+            ? `Cho Thuê Nhà Mặt Phố Kinh Doanh [${year}] | ${titleLoc}`
+            : `Cho Thuê Nhà Mặt Phố Tiện Kinh Doanh [${year}] Toàn Quốc`;
+        }
+        description = `Cho thuê nhà mặt phố vị trí kim cương, mặt tiền lớn tiện kinh doanh, mở văn phòng công ty chính chủ${pageDescStr}. Xem mặt bằng tại ${descLoc}`;
         break;
       case 'office':
-        title = hasSpecificLocation
-          ? `Cho Thuê Văn Phòng, Mặt Bằng Đẹp [${year}] | ${titleLoc}`
-          : `Cho Thuê Văn Phòng, Mặt Bằng Giá Rẻ [${year}] Toàn Quốc`;
-        description = `Cho thuê văn phòng, mặt bằng kinh doanh vị trí trung tâm, diện tích đa dạng, giá rẻ chính chủ ${year}. Đặt xem tại ${descLoc}`;
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Cho Thuê Văn Phòng, Mặt Bằng Đẹp${pageStr} | ${titleLoc}`
+            : `Cho Thuê Văn Phòng, Mặt Bằng Giá Rẻ${pageStr} Toàn Quốc`;
+        } else {
+          title = hasSpecificLocation
+            ? `Cho Thuê Văn Phòng, Mặt Bằng Đẹp [${year}] | ${titleLoc}`
+            : `Cho Thuê Văn Phòng, Mặt Bằng Giá Rẻ [${year}] Toàn Quốc`;
+        }
+        description = `Cho thuê văn phòng, mặt bằng kinh doanh vị trí trung tâm, diện tích đa dạng, giá rẻ chính chủ ${year}${pageDescStr}. Đặt xem tại ${descLoc}`;
         break;
       default:
-        title = hasSpecificLocation
-          ? `Cho Thuê Nhà Riêng, Nhà Nguyên Căn [${year}] | ${titleLoc}`
-          : `Cho Thuê Nhà Riêng, Nguyên Căn Giá Rẻ [${year}] Toàn Quốc`;
-        description = `Cho thuê nhà riêng, nguyên căn giá tốt ${year}, nhà đẹp tiện ở gia đình hoặc làm văn phòng dài hạn. Xem nhà tại ${descLoc}`;
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Cho Thuê Nhà Riêng, Nguyên Căn${pageStr} | ${titleLoc}`
+            : `Cho Thuê Nhà Riêng, Nguyên Căn Giá Rẻ${pageStr} Toàn Quốc`;
+        } else {
+          title = hasSpecificLocation
+            ? `Cho Thuê Nhà Riêng, Nhà Nguyên Căn [${year}] | ${titleLoc}`
+            : `Cho Thuê Nhà Riêng, Nguyên Căn Giá Rẻ [${year}] Toàn Quốc`;
+        }
+        description = `Cho thuê nhà riêng, nguyên căn giá tốt ${year}${pageDescStr}, nhà đẹp tiện ở gia đình hoặc làm văn phòng dài hạn. Xem nhà tại ${descLoc}`;
     }
   }
 
