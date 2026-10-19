@@ -154,12 +154,12 @@ export default function Footer() {
                 Bất Động Sản Nhà Ở & Căn Hộ
               </div>
               <ul className="space-y-1.5">
-                <li><Link to="/ban-can-ho-chung-cu" className="hover:text-emerald-400 transition">Căn hộ chung cư</Link></li>
-                <li><Link to="/ban-chung-cu-mini-can-ho-dich-vu" className="hover:text-emerald-400 transition">Chung cư mini, căn hộ dịch vụ</Link></li>
-                <li><Link to="/ban-nha-rieng" className="hover:text-emerald-400 transition">Nhà riêng thổ cư</Link></li>
-                <li><Link to="/ban-nha-biethu-lien-ke" className="hover:text-emerald-400 transition">Nhà biệt thự, liền kề</Link></li>
-                <li><Link to="/ban-nha-mat-pho" className="hover:text-emerald-400 transition">Nhà mặt phố kinh doanh</Link></li>
-                <li><Link to="/ban-shophouse-nha-pho-thuong-mai" className="hover:text-emerald-400 transition">Shophouse thương mại</Link></li>
+                <li><Link to="/ban-can-ho-chung-cu" className="hover:text-emerald-400 transition">Bán căn hộ chung cư</Link></li>
+                <li><Link to="/ban-chung-cu-mini-can-ho-dich-vu" className="hover:text-emerald-400 transition">Bán chung cư mini, căn hộ dịch vụ</Link></li>
+                <li><Link to="/ban-nha-rieng" className="hover:text-emerald-400 transition">Bán nhà riêng</Link></li>
+                <li><Link to="/ban-nha-biethu-lien-ke" className="hover:text-emerald-400 transition">Bán nhà biệt thự, liền kề</Link></li>
+                <li><Link to="/ban-nha-mat-pho" className="hover:text-emerald-400 transition">Bán nhà mặt phố</Link></li>
+                <li><Link to="/ban-shophouse-nha-pho-thuong-mai" className="hover:text-emerald-400 transition">Bán shophouse</Link></li>
               </ul>
             </div>
 
@@ -169,12 +169,12 @@ export default function Footer() {
                 Đất Nền, Nghỉ Dưỡng & Kho Xưởng
               </div>
               <ul className="space-y-1.5">
-                <li><Link to="/ban-dat-nen-du-an" className="hover:text-amber-400 transition">Đất nền dự án</Link></li>
-                <li><Link to="/ban-dat" className="hover:text-amber-400 transition">Đất thổ cư, đất vườn</Link></li>
-                <li><Link to="/ban-trang-trai-khu-nghi-duong" className="hover:text-amber-400 transition">Trang trại, khu nghỉ dưỡng</Link></li>
-                <li><Link to="/ban-condotel" className="hover:text-amber-400 transition">Căn hộ condotel nghỉ dưỡng</Link></li>
-                <li><Link to="/ban-kho-nha-xuong" className="hover:text-amber-400 transition">Kho, nhà xưởng sản xuất</Link></li>
-                <li><Link to="/ban-bat-dong-san-khac" className="hover:text-amber-400 transition">Loại BĐS khác</Link></li>
+                <li><Link to="/ban-dat-nen-du-an" className="hover:text-amber-400 transition">Bán đất nền dự án</Link></li>
+                <li><Link to="/ban-dat" className="hover:text-amber-400 transition">Bán đất</Link></li>
+                <li><Link to="/ban-trang-trai-khu-nghi-duong" className="hover:text-amber-400 transition">Bán trang trại, khu nghỉ dưỡng</Link></li>
+                <li><Link to="/ban-condotel" className="hover:text-amber-400 transition">Bán condotel</Link></li>
+                <li><Link to="/ban-kho-nha-xuong" className="hover:text-amber-400 transition">Bán kho, nhà xưởng</Link></li>
+                <li><Link to="/ban-bat-dong-san-khac" className="hover:text-amber-400 transition">Bán loại BĐS khác</Link></li>
               </ul>
             </div>
 

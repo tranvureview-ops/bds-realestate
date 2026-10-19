@@ -1589,18 +1589,18 @@ export const INITIAL_NAV_MENU = [
     order: 2,
     target: '_self',
     children: [
-      { id: 'sub-sale-apt', title: 'Căn Hộ Chung Cư', path: '/ban-can-ho-chung-cu', icon: 'fa-solid fa-building' },
-      { id: 'sub-sale-mini-apt', title: 'Chung Cư Mini, Căn Hộ Dịch Vụ', path: '/ban-chung-cu-mini-can-ho-dich-vu', icon: 'fa-solid fa-city' },
-      { id: 'sub-sale-house', title: 'Nhà Riêng', path: '/ban-nha-rieng', icon: 'fa-solid fa-house' },
-      { id: 'sub-sale-villa', title: 'Nhà Biệt Thự, Liền Kề', path: '/ban-nha-biethu-lien-ke', icon: 'fa-solid fa-landmark' },
-      { id: 'sub-sale-street', title: 'Nhà Mặt Phố', path: '/ban-nha-mat-pho', icon: 'fa-solid fa-shop' },
-      { id: 'sub-sale-shophouse', title: 'Shophouse', path: '/ban-shophouse-nha-pho-thuong-mai', icon: 'fa-solid fa-store' },
-      { id: 'sub-sale-project-land', title: 'Đất Nền Dự Án', path: '/ban-dat-nen-du-an', icon: 'fa-solid fa-mountain-sun' },
-      { id: 'sub-sale-land', title: 'Đất', path: '/ban-dat', icon: 'fa-solid fa-map' },
-      { id: 'sub-sale-farm', title: 'Trang Trại, Khu Nghỉ Dưỡng', path: '/ban-trang-trai-khu-nghi-duong', icon: 'fa-solid fa-tree' },
-      { id: 'sub-sale-condotel', title: 'Condotel', path: '/ban-condotel', icon: 'fa-solid fa-hotel' },
-      { id: 'sub-sale-warehouse', title: 'Kho, Nhà Xưởng', path: '/ban-kho-nha-xuong', icon: 'fa-solid fa-warehouse' },
-      { id: 'sub-sale-other', title: 'Loại BĐS Khác', path: '/ban-bat-dong-san-khac', icon: 'fa-solid fa-shapes' }
+      { id: 'sub-sale-apt', title: 'Bán Căn Hộ Chung Cư', path: '/ban-can-ho-chung-cu', icon: 'fa-solid fa-building' },
+      { id: 'sub-sale-mini-apt', title: 'Bán Chung Cư Mini, Căn Hộ Dịch Vụ', path: '/ban-chung-cu-mini-can-ho-dich-vu', icon: 'fa-solid fa-city' },
+      { id: 'sub-sale-house', title: 'Bán Nhà Riêng', path: '/ban-nha-rieng', icon: 'fa-solid fa-house' },
+      { id: 'sub-sale-villa', title: 'Bán Nhà Biệt Thự, Liền Kề', path: '/ban-nha-biethu-lien-ke', icon: 'fa-solid fa-landmark' },
+      { id: 'sub-sale-street', title: 'Bán Nhà Mặt Phố', path: '/ban-nha-mat-pho', icon: 'fa-solid fa-shop' },
+      { id: 'sub-sale-shophouse', title: 'Bán Shophouse', path: '/ban-shophouse-nha-pho-thuong-mai', icon: 'fa-solid fa-store' },
+      { id: 'sub-sale-project-land', title: 'Bán Đất Nền Dự Án', path: '/ban-dat-nen-du-an', icon: 'fa-solid fa-mountain-sun' },
+      { id: 'sub-sale-land', title: 'Bán Đất', path: '/ban-dat', icon: 'fa-solid fa-map' },
+      { id: 'sub-sale-farm', title: 'Bán Trang Trại, Khu Nghỉ Dưỡng', path: '/ban-trang-trai-khu-nghi-duong', icon: 'fa-solid fa-tree' },
+      { id: 'sub-sale-condotel', title: 'Bán Condotel', path: '/ban-condotel', icon: 'fa-solid fa-hotel' },
+      { id: 'sub-sale-warehouse', title: 'Bán Kho, Nhà Xưởng', path: '/ban-kho-nha-xuong', icon: 'fa-solid fa-warehouse' },
+      { id: 'sub-sale-other', title: 'Bán Loại BĐS Khác', path: '/ban-bat-dong-san-khac', icon: 'fa-solid fa-shapes' }
     ]
   },
   {
@@ -1614,18 +1614,18 @@ export const INITIAL_NAV_MENU = [
     order: 3,
     target: '_self',
     children: [
-      { id: 'sub-rent-apt', title: 'Căn Hộ Chung Cư', path: '/cho-thue-can-ho-chung-cu', icon: 'fa-solid fa-building' },
-      { id: 'sub-rent-mini-apt', title: 'Chung Cư Mini, Căn Hộ Dịch Vụ', path: '/cho-thue-chung-cu-mini-can-ho-dich-vu', icon: 'fa-solid fa-city' },
-      { id: 'sub-rent-house', title: 'Nhà Riêng', path: '/cho-thue-nha-rieng', icon: 'fa-solid fa-house' },
-      { id: 'sub-rent-villa', title: 'Nhà Biệt Thự, Liền Kề', path: '/cho-thue-nha-biethu-lien-ke', icon: 'fa-solid fa-landmark' },
-      { id: 'sub-rent-street', title: 'Nhà Mặt Phố', path: '/cho-thue-nha-mat-pho', icon: 'fa-solid fa-shop' },
-      { id: 'sub-rent-shophouse', title: 'Shophouse', path: '/cho-thue-shophouse-nha-pho-thuong-mai', icon: 'fa-solid fa-store' },
-      { id: 'sub-rent-project-land', title: 'Đất Nền Dự Án', path: '/cho-thue-dat-nen-du-an', icon: 'fa-solid fa-mountain-sun' },
-      { id: 'sub-rent-land', title: 'Đất', path: '/cho-thue-dat', icon: 'fa-solid fa-map' },
-      { id: 'sub-rent-farm', title: 'Trang Trại, Khu Nghỉ Dưỡng', path: '/cho-thue-trang-trai-khu-nghi-duong', icon: 'fa-solid fa-tree' },
-      { id: 'sub-rent-condotel', title: 'Condotel', path: '/cho-thue-condotel', icon: 'fa-solid fa-hotel' },
-      { id: 'sub-rent-warehouse', title: 'Kho, Nhà Xưởng', path: '/cho-thue-kho-nha-xuong', icon: 'fa-solid fa-warehouse' },
-      { id: 'sub-rent-other', title: 'Loại BĐS Khác', path: '/cho-thue-bat-dong-san-khac', icon: 'fa-solid fa-shapes' }
+      { id: 'sub-rent-apt', title: 'Cho Thuê Căn Hộ Chung Cư', path: '/cho-thue-can-ho-chung-cu', icon: 'fa-solid fa-building' },
+      { id: 'sub-rent-mini-apt', title: 'Cho Thuê Chung Cư Mini, Căn Hộ Dịch Vụ', path: '/cho-thue-chung-cu-mini-can-ho-dich-vu', icon: 'fa-solid fa-city' },
+      { id: 'sub-rent-house', title: 'Cho Thuê Nhà Riêng', path: '/cho-thue-nha-rieng', icon: 'fa-solid fa-house' },
+      { id: 'sub-rent-villa', title: 'Cho Thuê Nhà Biệt Thự, Liền Kề', path: '/cho-thue-nha-biethu-lien-ke', icon: 'fa-solid fa-landmark' },
+      { id: 'sub-rent-street', title: 'Cho Thuê Nhà Mặt Phố', path: '/cho-thue-nha-mat-pho', icon: 'fa-solid fa-shop' },
+      { id: 'sub-rent-shophouse', title: 'Cho Thuê Shophouse', path: '/cho-thue-shophouse-nha-pho-thuong-mai', icon: 'fa-solid fa-store' },
+      { id: 'sub-rent-project-land', title: 'Cho Thuê Đất Nền Dự Án', path: '/cho-thue-dat-nen-du-an', icon: 'fa-solid fa-mountain-sun' },
+      { id: 'sub-rent-land', title: 'Cho Thuê Đất', path: '/cho-thue-dat', icon: 'fa-solid fa-map' },
+      { id: 'sub-rent-farm', title: 'Cho Thuê Trang Trại, Khu Nghỉ Dưỡng', path: '/cho-thue-trang-trai-khu-nghi-duong', icon: 'fa-solid fa-tree' },
+      { id: 'sub-rent-condotel', title: 'Cho Thuê Condotel', path: '/cho-thue-condotel', icon: 'fa-solid fa-hotel' },
+      { id: 'sub-rent-warehouse', title: 'Cho Thuê Kho, Nhà Xưởng', path: '/cho-thue-kho-nha-xuong', icon: 'fa-solid fa-warehouse' },
+      { id: 'sub-rent-other', title: 'Cho Thuê Loại BĐS Khác', path: '/cho-thue-bat-dong-san-khac', icon: 'fa-solid fa-shapes' }
     ]
   },
   {

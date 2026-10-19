@@ -330,9 +330,29 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // 8. Navigation Menu Configuration State
   const [navMenuItems, setNavMenuItems] = useState(() => {
-    return (initialData?.bds_nav_menu && Array.isArray(initialData.bds_nav_menu) && initialData.bds_nav_menu.length > 0)
+    const raw = (initialData?.bds_nav_menu && Array.isArray(initialData.bds_nav_menu) && initialData.bds_nav_menu.length > 0)
       ? initialData.bds_nav_menu
       : INITIAL_NAV_MENU;
+    return raw.map(item => {
+      const isSale = item.path?.includes('nha-dat-ban') || item.id === 'menu-sale' || item.title?.toLowerCase().includes('bán');
+      const isRent = item.path?.includes('cho-thue') || item.id === 'menu-rent' || item.title?.toLowerCase().includes('thuê');
+      if ((isSale || isRent) && Array.isArray(item.children)) {
+        return {
+          ...item,
+          children: item.children.map(sub => {
+            const rawTitle = sub.title || '';
+            if (isSale && !rawTitle.toLowerCase().startsWith('bán')) {
+              return { ...sub, title: `Bán ${rawTitle}` };
+            }
+            if (isRent && !rawTitle.toLowerCase().startsWith('cho thuê')) {
+              return { ...sub, title: `Cho Thuê ${rawTitle}` };
+            }
+            return sub;
+          })
+        };
+      }
+      return item;
+    });
   });
 
   // 9. Header, Logo & Menu Width Configuration State
@@ -867,11 +887,28 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         }
         if (Array.isArray(db.bds_nav_menu) && db.bds_nav_menu.length > 0) {
           const hasNewCategories = db.bds_nav_menu.some(m => m.children?.some(c => c.path?.includes('chung-cu-mini')));
-          if (hasNewCategories) {
-            setNavMenuItems(db.bds_nav_menu);
-          } else {
-            setNavMenuItems(INITIAL_NAV_MENU);
-          }
+          const baseMenu = hasNewCategories ? db.bds_nav_menu : INITIAL_NAV_MENU;
+          const normalized = baseMenu.map(item => {
+            const isSale = item.path?.includes('nha-dat-ban') || item.id === 'menu-sale' || item.title?.toLowerCase().includes('bán');
+            const isRent = item.path?.includes('cho-thue') || item.id === 'menu-rent' || item.title?.toLowerCase().includes('thuê');
+            if ((isSale || isRent) && Array.isArray(item.children)) {
+              return {
+                ...item,
+                children: item.children.map(sub => {
+                  const rawTitle = sub.title || '';
+                  if (isSale && !rawTitle.toLowerCase().startsWith('bán')) {
+                    return { ...sub, title: `Bán ${rawTitle}` };
+                  }
+                  if (isRent && !rawTitle.toLowerCase().startsWith('cho thuê')) {
+                    return { ...sub, title: `Cho Thuê ${rawTitle}` };
+                  }
+                  return sub;
+                })
+              };
+            }
+            return item;
+          });
+          setNavMenuItems(normalized);
         }
 
         if (Array.isArray(db.bds_vip_packages) && db.bds_vip_packages.length > 0) {

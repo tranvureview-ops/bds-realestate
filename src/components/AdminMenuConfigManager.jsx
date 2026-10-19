@@ -117,8 +117,9 @@ export default function AdminMenuConfigManager({ onSwitchToHeader = null }) {
     PROPERTY_TYPES.forEach(pt => {
       const targetPath = `/${prefix}-${pt.slug}`;
       if (!existingPaths.has(targetPath)) {
+        const subTitle = isRent ? `Cho Thuê ${pt.name}` : `Bán ${pt.name}`;
         addSubMenuItem(parentItem.id, {
-          title: pt.name,
+          title: subTitle,
           path: targetPath,
           icon: `fa-solid ${pt.icon}`
         });
@@ -435,20 +436,21 @@ export default function AdminMenuConfigManager({ onSwitchToHeader = null }) {
                                         if (!selectedSlug) return;
                                         const found = PROPERTY_TYPES.find(p => p.slug === selectedSlug);
                                         if (found) {
-                                          const { prefix } = getMenuCategoryInfo(item);
+                                          const { prefix, isRent } = getMenuCategoryInfo(item);
                                           const targetPath = `/${prefix}-${found.slug}`;
-                                          const exists = item.children?.some(c => c.path === targetPath || c.title?.toLowerCase() === found.name.toLowerCase());
+                                          const subTitle = isRent ? `Cho Thuê ${found.name}` : `Bán ${found.name}`;
+                                          const exists = item.children?.some(c => c.path === targetPath || c.title?.toLowerCase() === subTitle.toLowerCase());
                                           if (exists) {
-                                            showToast(`"${found.name}" đã có trong menu này!`, 'warning');
+                                            showToast(`"${subTitle}" đã có trong menu này!`, 'warning');
                                             e.target.value = '';
                                             return;
                                           }
                                           addSubMenuItem(item.id, {
-                                            title: found.name,
+                                            title: subTitle,
                                             path: targetPath,
                                             icon: `fa-solid ${found.icon}`
                                           });
-                                          showToast(`Đã thêm "${found.name}" vào menu!`, 'success');
+                                          showToast(`Đã thêm "${subTitle}" vào menu!`, 'success');
                                           e.target.value = '';
                                         }
                                       }}
@@ -458,9 +460,10 @@ export default function AdminMenuConfigManager({ onSwitchToHeader = null }) {
                                     >
                                       <option value="" className="text-slate-400 font-normal">-- Chọn danh mục để thêm lại --</option>
                                       {PROPERTY_TYPES.map(pt => {
-                                        const { prefix } = getMenuCategoryInfo(item);
+                                        const { prefix, isRent } = getMenuCategoryInfo(item);
                                         const targetPath = `/${prefix}-${pt.slug}`;
-                                        const isAlreadyAdded = item.children?.some(c => c.path === targetPath || c.title?.toLowerCase() === pt.name.toLowerCase());
+                                        const subTitle = isRent ? `Cho Thuê ${pt.name}` : `Bán ${pt.name}`;
+                                        const isAlreadyAdded = item.children?.some(c => c.path === targetPath || c.title?.toLowerCase() === subTitle.toLowerCase());
                                         return (
                                           <option 
                                             key={pt.slug} 
@@ -468,7 +471,7 @@ export default function AdminMenuConfigManager({ onSwitchToHeader = null }) {
                                             disabled={isAlreadyAdded}
                                             className={isAlreadyAdded ? 'text-slate-600 bg-slate-950' : 'text-emerald-400 font-bold bg-slate-900'}
                                           >
-                                            {pt.name} {isAlreadyAdded ? '(✓ Đã có)' : '+ Thêm ngay'}
+                                            {subTitle} {isAlreadyAdded ? '(✓ Đã có)' : '+ Thêm ngay'}
                                           </option>
                                         );
                                       })}
@@ -806,8 +809,10 @@ export default function AdminMenuConfigManager({ onSwitchToHeader = null }) {
                         if (!selectedSlug) return;
                         const found = PROPERTY_TYPES.find(p => p.slug === selectedSlug);
                         if (found) {
+                          const isRent = prefix === 'cho-thue';
+                          const subTitle = isRent ? `Cho Thuê ${found.name}` : `Bán ${found.name}`;
                           setSubFormData({
-                            title: found.name,
+                            title: subTitle,
                             path: `/${prefix}-${found.slug}`,
                             icon: `fa-solid ${found.icon}`
                           });
@@ -821,14 +826,16 @@ export default function AdminMenuConfigManager({ onSwitchToHeader = null }) {
                       </option>
                       {PROPERTY_TYPES.map(pt => {
                         const targetPath = `/${prefix}-${pt.slug}`;
-                        const isAlreadyAdded = parent?.children?.some(c => c.path === targetPath || c.title?.toLowerCase() === pt.name.toLowerCase());
+                        const isRent = prefix === 'cho-thue';
+                        const subTitle = isRent ? `Cho Thuê ${pt.name}` : `Bán ${pt.name}`;
+                        const isAlreadyAdded = parent?.children?.some(c => c.path === targetPath || c.title?.toLowerCase() === subTitle.toLowerCase());
                         return (
                           <option 
                             key={pt.slug} 
                             value={pt.slug}
                             className={isAlreadyAdded ? 'text-slate-500 bg-slate-950' : 'text-emerald-400 font-bold bg-slate-900'}
                           >
-                            {pt.name} {isAlreadyAdded ? '(✓ Đã có trong menu)' : '★ (Chưa có - thêm lại)'}
+                            {subTitle} {isAlreadyAdded ? '(✓ Đã có trong menu)' : '★ (Chưa có - thêm lại)'}
                           </option>
                         );
                       })}

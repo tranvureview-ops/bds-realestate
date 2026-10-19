@@ -9,6 +9,27 @@ const cleanUserName = (name) => {
   return name.replace(/\s*\([^)]*\)\s*$/, '').trim();
 };
 
+const formatSubMenuTitle = (parentItem, subItem) => {
+  if (!subItem?.title) return '';
+  const rawTitle = subItem.title.trim();
+  const isSale = parentItem?.path?.includes('ban') || parentItem?.id === 'menu-sale' || parentItem?.title?.toLowerCase().includes('bán');
+  const isRent = parentItem?.path?.includes('cho-thue') || parentItem?.id === 'menu-rent' || parentItem?.title?.toLowerCase().includes('thuê');
+
+  if (isSale) {
+    if (!rawTitle.toLowerCase().startsWith('bán')) {
+      return `Bán ${rawTitle}`;
+    }
+    return rawTitle;
+  }
+  if (isRent) {
+    if (!rawTitle.toLowerCase().startsWith('cho thuê')) {
+      return `Cho Thuê ${rawTitle}`;
+    }
+    return rawTitle;
+  }
+  return rawTitle;
+};
+
 export default function Navbar() {
   const { 
     currentUser, 
@@ -317,7 +338,7 @@ export default function Navbar() {
                                 }`}
                               >
                                 {sub.icon && <i className={`${sub.icon} text-slate-400 w-4 text-center text-xs shrink-0`}></i>}
-                                <span className="truncate">{sub.title}</span>
+                                <span className="truncate">{formatSubMenuTitle(item, sub)}</span>
                               </Link>
                             ))}
                           </div>
@@ -767,7 +788,7 @@ export default function Navbar() {
                                 }`}
                               >
                                 {sub.icon && <i className={`${sub.icon} text-slate-400 w-3 text-center`}></i>}
-                                <span>{sub.title}</span>
+                                <span>{formatSubMenuTitle(item, sub)}</span>
                               </Link>
                             ))}
                           </div>
