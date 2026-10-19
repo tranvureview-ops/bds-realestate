@@ -282,7 +282,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const raw = (initialData?.bds_properties && Array.isArray(initialData.bds_properties) && initialData.bds_properties.length > 0)
       ? initialData.bds_properties
       : INITIAL_PROPERTIES;
-    return raw.map(normalizePropertyExpiration);
+    return raw.filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng')).map(normalizePropertyExpiration);
   });
 
   // 2. Favorites List
@@ -868,7 +868,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       const db = await fetchFullSupabaseDb();
       if (db) {
         if (Array.isArray(db.bds_properties) && db.bds_properties.length > 0) {
-          setProperties(db.bds_properties.map(normalizePropertyExpiration));
+          const danangProps = db.bds_properties.filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng'));
+          setProperties(danangProps.map(normalizePropertyExpiration));
         }
         if (Array.isArray(db.bds_users_list) && db.bds_users_list.length > 0) {
           setUsersList(db.bds_users_list);

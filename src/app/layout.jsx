@@ -45,6 +45,9 @@ async function getInitialDb() {
       try {
         const cloudData = await fetchFullSupabaseDb();
         if (cloudData && (cloudData.bds_properties?.length > 0 || cloudData.bds_header_config)) {
+          if (Array.isArray(cloudData.bds_properties)) {
+            cloudData.bds_properties = cloudData.bds_properties.filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng'));
+          }
           return cloudData;
         }
       } catch (err) {
@@ -54,7 +57,11 @@ async function getInitialDb() {
     const dbFile = path.resolve(process.cwd(), 'server-db.json');
     if (fs.existsSync(dbFile)) {
       const content = fs.readFileSync(dbFile, 'utf8');
-      return JSON.parse(content || '{}');
+      const parsed = JSON.parse(content || '{}');
+      if (Array.isArray(parsed.bds_properties)) {
+        parsed.bds_properties = parsed.bds_properties.filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng'));
+      }
+      return parsed;
     }
   } catch (e) {
     console.error('Error reading server-db.json in layout:', e);
