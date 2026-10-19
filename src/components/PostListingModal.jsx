@@ -665,7 +665,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
             <i className="fa-solid fa-cloud-arrow-up"></i>
           </div>
           <div>
-            <h2 className="text-base sm:text-lg font-black text-white">Đăng Tin Bất Động Sản Chuẩn Sàn</h2>
+            <h2 className="text-base sm:text-lg font-black text-white">Đăng Tin Bất Động Sản</h2>
             <div className="text-xs text-slate-400 mt-0.5">
               Bước {step}/4: {
                 step === 1 ? 'Loại BĐS & Địa giới hành chính' :
