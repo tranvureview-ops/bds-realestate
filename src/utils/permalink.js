@@ -517,7 +517,7 @@ export const parseTaxonomyUrl = (urlPath) => {
     let areaLabel = '';
     let minArea = null;
     let maxArea = null;
-    const areaBetweenMatch = raw.match(/(?:dien-tich-)?(?:tu-)?([0-9.]+)(?:-den|-)([0-9.]+)-m2/);
+    const areaBetweenMatch = raw.match(/(?:dien-tich-)?(?:tu-)?([0-9.]+)(?:-m2)?-(?:den-)?([0-9.]+)-m2/);
     const areaUnderMatch = raw.match(/(?:dien-tich-)?duoi-([0-9.]+)-m2/);
     const areaOverMatch = raw.match(/(?:dien-tich-)?tren-([0-9.]+)-m2/);
 

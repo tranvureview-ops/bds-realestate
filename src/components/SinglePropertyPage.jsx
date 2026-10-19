@@ -290,12 +290,19 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   // --------------------------------------------------------------------------
   const demandText = property.demand === 'sale' ? 'Bán' : 'Cho thuê';
   const typeText = property.propertyType === 'apartment' ? 'căn hộ chung cư'
-    : property.propertyType === 'street-house' ? 'nhà mặt phố'
+    : property.propertyType === 'mini-apartment' ? 'chung cư mini, căn hộ dịch vụ'
+    : property.propertyType === 'house' ? 'nhà riêng'
     : property.propertyType === 'villa' ? 'biệt thự liền kề'
-    : property.propertyType === 'land' ? 'đất nền dự án'
-    : property.propertyType === 'office' ? 'văn phòng'
+    : property.propertyType === 'street-house' ? 'nhà mặt phố'
     : property.propertyType === 'shophouse' ? 'shophouse'
-    : 'nhà riêng';
+    : property.propertyType === 'project-land' ? 'đất nền dự án'
+    : property.propertyType === 'land' ? 'đất'
+    : property.propertyType === 'farm-resort' ? 'trang trại, khu nghỉ dưỡng'
+    : property.propertyType === 'condotel' ? 'condotel'
+    : property.propertyType === 'warehouse' ? 'kho, nhà xưởng'
+    : property.propertyType === 'office' ? 'văn phòng'
+    : property.propertyType === 'other' ? 'bất động sản khác'
+    : (property.propertyTypeName || 'nhà riêng').toLowerCase();
 
   // 1. Tên Dự án (hoặc fallback tên khu vực)
   const cleanProject = (property.project || '')
@@ -615,10 +622,12 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   // Điều hướng đa diện theo Loại Hình tại cùng Quận/Huyện
   const propertyTypesInDistrict = [
     { key: 'apartment', name: 'Căn hộ chung cư', icon: 'fa-building' },
+    { key: 'mini-apartment', name: 'Chung cư mini, CH dịch vụ', icon: 'fa-hotel' },
     { key: 'house', name: 'Nhà riêng, nhà ngõ', icon: 'fa-house' },
     { key: 'street-house', name: 'Nhà mặt phố kinh doanh', icon: 'fa-store' },
     { key: 'villa', name: 'Biệt thự liền kề', icon: 'fa-landmark-dome' },
-    { key: 'land', name: 'Đất nền dự án', icon: 'fa-map' }
+    { key: 'shophouse', name: 'Shophouse', icon: 'fa-shop' },
+    { key: 'land', name: 'Đất nền, đất thổ cư', icon: 'fa-map' }
   ].map(t => ({
     ...t,
     count: properties.filter(p => p.status === 'active' && p.demand === property.demand && p.district === property.district && p.propertyType === t.key).length,
