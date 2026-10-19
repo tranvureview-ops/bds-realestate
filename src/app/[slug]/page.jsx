@@ -2,7 +2,7 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import PropertyDetailPage from '../../views/PropertyDetailPage';
 import SaleListingsPage from '../../views/SaleListingsPage';
 import RentListingsPage from '../../views/RentListingsPage';
-import { parsePropertyUrl, parseTaxonomyUrl, getPropertyPermalink } from '../../utils/permalink';
+import { parsePropertyUrl, parseTaxonomyUrl, getPropertyPermalink, generateCategoryMetadata } from '../../utils/permalink';
 import { INITIAL_PROPERTIES } from '../../data/mockData';
 import { fetchServerProperties, findProperty } from '../../services/propertyService';
 
@@ -24,8 +24,7 @@ export function buildPropertyMetadata(matchedProperty) {
 
 export function buildTaxonomyMetadata(taxonomyInfo) {
   const canonicalUrl = `https://datbiendanang.vn${taxonomyInfo.canonicalUrl || ''}`;
-  const title = `${taxonomyInfo.title} | BDS Real Estate`;
-  const description = `Danh sách tin đăng ${taxonomyInfo.title} giá tốt, chính chủ, sổ hồng pháp lý rõ ràng, cập nhật liên tục 24/7.`;
+  const { title, description } = generateCategoryMetadata(taxonomyInfo, 2026);
   return {
     title,
     description,

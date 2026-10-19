@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link, useRouter } from '../router/RouterContext';
 import ListingGrid from '../components/ListingGrid';
-import { generateCategoryJsonLd, formatPriceRangeText, formatAreaRangeText } from '../utils/permalink';
+import { generateCategoryJsonLd, formatPriceRangeText, formatAreaRangeText, generateCategoryMetadata } from '../utils/permalink';
 import { filterProperties } from '../utils/propertyFilter';
 
 export default function RentListingsPage({ taxonomyInfo = null }) {
@@ -90,6 +90,32 @@ export default function RentListingsPage({ taxonomyInfo = null }) {
     };
   }, [taxonomyInfo, queryDistrict, queryCity, queryType, queryKeyword, queryPrice, queryArea, queryVerified, properties]);
 
+  const categorySeo = useMemo(() => {
+    return generateCategoryMetadata(
+      taxonomyInfo || {
+        demand: 'rent',
+        propertyType: queryType !== 'all' ? queryType : null,
+        city: queryCity,
+        district: queryDistrict
+      },
+      2026
+    );
+  }, [taxonomyInfo, queryType, queryCity, queryDistrict]);
+
+  // Cập nhật thẻ Title & Meta Description tối ưu SEO
+  useEffect(() => {
+    if (categorySeo?.title && typeof document !== 'undefined') {
+      document.title = categorySeo.title;
+      let metaDesc = document.querySelector('meta[name="description"]');
+      if (!metaDesc) {
+        metaDesc = document.createElement('meta');
+        metaDesc.name = 'description';
+        document.head.appendChild(metaDesc);
+      }
+      metaDesc.setAttribute('content', categorySeo.description);
+    }
+  }, [categorySeo]);
+
   // Kiểm tra có đang áp dụng Faceted Filters nào không
   const hasActiveFacets = Boolean(
     filters.district || 
@@ -154,7 +180,7 @@ export default function RentListingsPage({ taxonomyInfo = null }) {
                 </span>
               </h1>
               <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
-                Tổng hợp căn hộ chung cư cao cấp, phòng trọ, nhà nguyên căn, văn phòng làm việc và mặt bằng kinh doanh cho thuê giá tốt nhất.
+                {categorySeo.description}
               </p>
             </div>
 

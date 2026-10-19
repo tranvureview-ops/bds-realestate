@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link, useRouter } from '../router/RouterContext';
 import ListingGrid from '../components/ListingGrid';
-import { generateCategoryJsonLd, formatPriceRangeText, formatAreaRangeText } from '../utils/permalink';
+import { generateCategoryJsonLd, formatPriceRangeText, formatAreaRangeText, generateCategoryMetadata } from '../utils/permalink';
 import { filterProperties } from '../utils/propertyFilter';
 
 export default function SaleListingsPage({ taxonomyInfo = null }) {
@@ -90,6 +90,32 @@ export default function SaleListingsPage({ taxonomyInfo = null }) {
     };
   }, [taxonomyInfo, queryDistrict, queryCity, queryType, queryKeyword, queryPrice, queryArea, queryVerified, properties]);
 
+  const categorySeo = useMemo(() => {
+    return generateCategoryMetadata(
+      taxonomyInfo || {
+        demand: 'sale',
+        propertyType: queryType !== 'all' ? queryType : null,
+        city: queryCity,
+        district: queryDistrict
+      },
+      2026
+    );
+  }, [taxonomyInfo, queryType, queryCity, queryDistrict]);
+
+  // Cập nhật thẻ Title & Meta Description tối ưu SEO
+  useEffect(() => {
+    if (categorySeo?.title && typeof document !== 'undefined') {
+      document.title = categorySeo.title;
+      let metaDesc = document.querySelector('meta[name="description"]');
+      if (!metaDesc) {
+        metaDesc = document.createElement('meta');
+        metaDesc.name = 'description';
+        document.head.appendChild(metaDesc);
+      }
+      metaDesc.setAttribute('content', categorySeo.description);
+    }
+  }, [categorySeo]);
+
   // Kiểm tra có đang áp dụng Faceted Filters nào không
   const hasActiveFacets = Boolean(
     filters.district || 
@@ -154,7 +180,7 @@ export default function SaleListingsPage({ taxonomyInfo = null }) {
                 </span>
               </h1>
               <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
-                Cập nhật liên tục tin đăng bán căn hộ chung cư, nhà phố, biệt thự liền kề, đất nền dự án chính chủ với pháp lý sổ hồng minh bạch 100%.
+                {categorySeo.description}
               </p>
             </div>
 
