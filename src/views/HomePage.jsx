@@ -98,11 +98,11 @@ export default function HomePage() {
       </section>
 
       {/* Core Listings Grid & Interactive Map */}
-
       <ListingGrid 
         properties={properties} 
         filters={filters} 
         setFilters={setFilters}
+        isHomePage={true}
       />
 
       {/* VIP Package Showcase Section */}

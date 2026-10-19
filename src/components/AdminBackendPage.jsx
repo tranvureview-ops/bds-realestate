@@ -6606,6 +6606,127 @@ export default function AdminBackendPage() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Nhóm 7: Cấu Hình Phân Trang & Hiển Thị Danh Mục */}
+                  <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4">
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
+                      <div className="flex items-center gap-2">
+                        <i className="fa-solid fa-list-ol text-emerald-400 text-sm"></i>
+                        <h4 className="text-xs font-black uppercase tracking-wider text-white">
+                          7. Cấu Hình Phân Trang &amp; Hiển Thị Danh Mục
+                        </h4>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
+                        Pagination Settings
+                      </span>
+                    </div>
+
+                    <div className="space-y-4 text-xs">
+                      {/* 1. Số lượng tin hiển thị mỗi trang danh mục (Phân trang) */}
+                      <div className="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div>
+                            <div className="font-bold text-white text-xs flex items-center gap-2">
+                              <span>Số tin hiển thị mỗi trang tại các Danh mục (Phân trang):</span>
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-950 text-emerald-300 border border-emerald-800">
+                                {formSystemConfig.categoryPageSize || 12} tin / trang
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                              Áp dụng cho các chuyên mục Nhà Đất Bán, Nhà Đất Cho Thuê, và các trang danh mục từ khóa (Taxonomy). Khi số lượng tin vượt quá mốc này, hệ thống sẽ tự động tạo phân trang (Trang 1, 2, 3...).
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <select
+                              value={formSystemConfig.categoryPageSize || 12}
+                              onChange={(e) => setFormSystemConfig(prev => ({ ...prev, categoryPageSize: Number(e.target.value) }))}
+                              className="p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-bold text-xs outline-none focus:border-emerald-500"
+                            >
+                              <option value={6}>6 tin / trang</option>
+                              <option value={9}>9 tin / trang</option>
+                              <option value={12}>12 tin / trang (Mặc định)</option>
+                              <option value={15}>15 tin / trang</option>
+                              <option value={18}>18 tin / trang</option>
+                              <option value={24}>24 tin / trang</option>
+                              <option value={30}>30 tin / trang</option>
+                              <option value={36}>36 tin / trang</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        {/* Preset buttons */}
+                        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80">
+                          <span className="text-[10px] font-bold text-slate-500 uppercase">Chọn nhanh:</span>
+                          {[6, 9, 12, 18, 24, 30].map(val => (
+                            <button
+                              key={val}
+                              type="button"
+                              onClick={() => setFormSystemConfig(prev => ({ ...prev, categoryPageSize: val }))}
+                              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
+                                (formSystemConfig.categoryPageSize || 12) === val
+                                  ? 'bg-emerald-600 text-white shadow-sm'
+                                  : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                              }`}
+                            >
+                              {val} tin
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* 2. Số lượng tin hiển thị trên Trang Chủ */}
+                      <div className="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div>
+                            <div className="font-bold text-white text-xs flex items-center gap-2">
+                              <span>Số tin hiển thị trong danh sách Trang Chủ:</span>
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-950 text-blue-300 border border-blue-800">
+                                {formSystemConfig.homePageSize || 18} tin
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                              Quy định số lượng bất động sản nổi bật hiển thị trên Trang Chủ (ưu tiên tin VIP và tin mới nhất). Mặc định là 18 sản phẩm.
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <select
+                              value={formSystemConfig.homePageSize || 18}
+                              onChange={(e) => setFormSystemConfig(prev => ({ ...prev, homePageSize: Number(e.target.value) }))}
+                              className="p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-bold text-xs outline-none focus:border-blue-500"
+                            >
+                              <option value={9}>9 tin</option>
+                              <option value={12}>12 tin</option>
+                              <option value={15}>15 tin</option>
+                              <option value={18}>18 tin (Mặc định)</option>
+                              <option value={24}>24 tin</option>
+                              <option value={30}>30 tin</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        {/* Preset buttons for Home */}
+                        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80">
+                          <span className="text-[10px] font-bold text-slate-500 uppercase">Chọn nhanh:</span>
+                          {[9, 12, 18, 24, 30].map(val => (
+                            <button
+                              key={val}
+                              type="button"
+                              onClick={() => setFormSystemConfig(prev => ({ ...prev, homePageSize: val }))}
+                              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
+                                (formSystemConfig.homePageSize || 18) === val
+                                  ? 'bg-blue-600 text-white shadow-sm'
+                                  : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                              }`}
+                            >
+                              {val} tin
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Right Column: Live Preview */}
@@ -6684,6 +6805,14 @@ export default function AdminBackendPage() {
                       <div className="flex items-center justify-between">
                         <span>Thời hạn tin mặc định:</span>
                         <span className="font-bold text-white font-mono">{formSystemConfig.defaultListingDays || 15} ngày</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Phân trang Danh mục:</span>
+                        <span className="font-bold text-emerald-400 font-mono">{formSystemConfig.categoryPageSize || 12} tin/trang</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span>Tin hiển thị Trang chủ:</span>
+                        <span className="font-bold text-blue-400 font-mono">{formSystemConfig.homePageSize || 18} tin</span>
                       </div>
                       <div className="flex items-center justify-between pt-1 border-t border-slate-800">
                         <span>Chế độ bảo trì hệ thống:</span>

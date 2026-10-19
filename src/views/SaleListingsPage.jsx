@@ -333,6 +333,7 @@ export default function SaleListingsPage({ taxonomyInfo = null }) {
         properties={properties} 
         filters={filters} 
         setFilters={setFilters}
+        enablePagination={true}
       />
     </div>
   );

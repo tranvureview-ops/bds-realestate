@@ -2435,7 +2435,11 @@ export const DEFAULT_SYSTEM_CONFIG = {
   tokenExpiryMinutes: 30, // [THỜI_GIẠN_HẾT_HẠN_TOKEN]: Tính bằng phút, thời gian link email có hiệu lực
   bonusExpiryDays: 30, // [THỜI_GIẠN_HẾT_HẠN_TIỀN]: Tính bằng ngày, thời gian tiền khuyến mãi có hiệu lực trước khi bị thu hồi
   maxRegistrationsPerIpPerDay: 3, // Anti-cheat: Giới hạn 1 địa chỉ IP / thiết bị chỉ nhận thưởng tối đa 3 tài khoản / ngày
-  enableWelcomeBonus: true // Bật/Tắt chương trình quà tặng chào mừng thành viên mới
+  enableWelcomeBonus: true, // Bật/Tắt chương trình quà tặng chào mừng thành viên mới
+
+  // Cấu hình Phân Trang Danh Mục & Số lượng tin Trang Chủ
+  categoryPageSize: 12, // Số lượng BĐS trên mỗi trang phân trang tại các danh mục (Nhà đất bán, Cho thuê, Taxonomy)
+  homePageSize: 18 // Số lượng BĐS hiển thị trên Trang Chủ
 };
 
 // Cấu hình Trang Chi Tiết Bất Động Sản (Single Property Page Settings)
