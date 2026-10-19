@@ -1,4 +1,18 @@
 /**
+ * Chuẩn hóa chuỗi loại bỏ dấu tiếng Việt để tìm kiếm không phân biệt dấu
+ */
+export function removeAccents(str) {
+  if (!str) return '';
+  return str.toString().toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[đĐ]/g, 'd')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/**
  * Utility hàm lọc danh sách Bất động sản chuẩn hóa dùng chung
  * Đảm bảo tính nhất quán giữa ListingGrid, SaleListingsPage, RentListingsPage, HomePage
  */
@@ -23,16 +37,20 @@ export function filterProperties(properties = [], filters = {}) {
 
     // 4. Thành phố (City)
     if (filters.city && filters.city.trim() && prop.city) {
-      if (!prop.city.toLowerCase().includes(filters.city.trim().toLowerCase())) {
+      const filterCityClean = removeAccents(filters.city);
+      const propCityClean = removeAccents(prop.city);
+      if (!propCityClean.includes(filterCityClean) && !prop.city.toLowerCase().includes(filters.city.trim().toLowerCase())) {
         return false;
       }
     }
 
     // 5. Quận / Huyện (District)
     if (filters.district && filters.district.trim() && prop.district) {
-      const filterDistClean = filters.district.trim().toLowerCase().replace(/^(quận|huyện|thị xã|tp\.)\s+/i, '');
-      const propDistClean = prop.district.toLowerCase().replace(/^(quận|huyện|thị xã|tp\.)\s+/i, '');
-      if (!propDistClean.includes(filterDistClean) && !prop.district.toLowerCase().includes(filters.district.trim().toLowerCase())) {
+      const filterDistClean = removeAccents(filters.district.replace(/^(quận|huyện|thị xã|tp\.)\s+/i, ''));
+      const propDistClean = removeAccents(prop.district.replace(/^(quận|huyện|thị xã|tp\.)\s+/i, ''));
+      const directMatch = prop.district.toLowerCase().includes(filters.district.trim().toLowerCase());
+      const cleanMatch = propDistClean.includes(filterDistClean);
+      if (!directMatch && !cleanMatch) {
         return false;
       }
     }
@@ -40,11 +58,25 @@ export function filterProperties(properties = [], filters = {}) {
     // 6. Từ khóa (Keyword / Search Query)
     if (filters.keyword && filters.keyword.trim()) {
       const kw = filters.keyword.trim().toLowerCase();
-      const matchTitle = prop.title?.toLowerCase().includes(kw);
-      const matchAddress = prop.address?.toLowerCase().includes(kw);
-      const matchDesc = prop.description?.toLowerCase().includes(kw);
-      const matchProject = prop.project?.toLowerCase().includes(kw);
-      if (!matchTitle && !matchAddress && !matchDesc && !matchProject) return false;
+      const kwClean = removeAccents(kw);
+
+      const searchTargetRaw = [
+        prop.title,
+        prop.address,
+        prop.description,
+        prop.project,
+        prop.street,
+        prop.ward,
+        prop.district,
+        prop.city
+      ].filter(Boolean).join(' ').toLowerCase();
+
+      const searchTargetClean = removeAccents(searchTargetRaw);
+
+      const matchExact = searchTargetRaw.includes(kw);
+      const matchClean = searchTargetClean.includes(kwClean);
+
+      if (!matchExact && !matchClean) return false;
     }
 
     // 7. Khoảng giá (Price)

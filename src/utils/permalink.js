@@ -131,7 +131,17 @@ export const KNOWN_ENTITIES = {
   'hoa-khanh': 'Hòa Khánh',
   'khue-trung': 'Khuê Trung',
   'hoa-xuan': 'Hòa Xuân',
-  'hoa-chau': 'Hòa Châu'
+  'hoa-chau': 'Hòa Châu',
+  'nguyen-mau-tai': 'Nguyễn Mậu Tài',
+  'bach-dang': 'Bạch Đằng',
+  'vo-nguyen-giap': 'Võ Nguyên Giáp',
+  'nguyen-tat-thanh': 'Nguyễn Tất Thành',
+  'nguyen-van-linh': 'Nguyễn Văn Linh',
+  'le-duan': 'Lê Duẩn',
+  'pham-van-dong': 'Phạm Văn Đồng',
+  'truong-sa': 'Trường Sa',
+  'an-thuong-2': 'An Thượng 2',
+  'nam-ky-khoi-nghia': 'Nam Kỳ Khởi Nghĩa'
 };
 
 /**
@@ -139,7 +149,7 @@ export const KNOWN_ENTITIES = {
  */
 export const slugToTitleCase = (slug) => {
   if (!slug) return '';
-  const clean = slug.toLowerCase().replace(/^phuong-|^du-an-|^quan-|^huyen-/, '');
+  const clean = slug.toLowerCase().replace(/^(?:phuong|xa|duong|pho|du-an|quan|huyen)-/, '');
   if (KNOWN_ENTITIES[clean]) return KNOWN_ENTITIES[clean];
   if (KNOWN_ENTITIES[slug.toLowerCase()]) return KNOWN_ENTITIES[slug.toLowerCase()];
   return clean
@@ -383,36 +393,59 @@ export const parseTaxonomyUrl = (urlPath) => {
 
     // B. PropertyType (Nhận diện chính xác 12 danh mục chuẩn SEO)
     let propertyType = 'all';
-    if (raw.includes('chung-cu-mini-can-ho-dich-vu') || raw.includes('chung-cu-mini')) propertyType = 'mini-apartment';
-    else if (raw.includes('can-ho-chung-cu') || raw.includes('chung-cu')) propertyType = 'apartment';
-    else if (raw.includes('nha-biethu-lien-ke') || raw.includes('nha-biet-thu') || raw.includes('biet-thu')) propertyType = 'villa';
-    else if (raw.includes('nha-mat-pho')) propertyType = 'street-house';
-    else if (raw.includes('shophouse-nha-pho-thuong-mai') || raw.includes('shophouse')) propertyType = 'shophouse';
-    else if (raw.includes('dat-nen-du-an')) propertyType = 'project-land';
-    else if (raw.includes('trang-trai-khu-nghi-duong') || raw.includes('trang-trai')) propertyType = 'farm-resort';
-    else if (raw.includes('condotel')) propertyType = 'condotel';
-    else if (raw.includes('kho-nha-xuong') || raw.includes('kho-xuong')) propertyType = 'warehouse';
-    else if (raw.includes('bat-dong-san-khac')) propertyType = 'other';
-    else if (raw.includes('van-phong') || raw.includes('mat-bang-van-phong')) propertyType = 'office';
-    else if (raw.includes('nha-rieng')) propertyType = 'house';
-    else if (raw.includes('-dat-') || raw.endsWith('-dat') || raw.startsWith('ban-dat') || raw.startsWith('cho-thue-dat')) propertyType = 'land';
+    let matchedTypeSlug = '';
+    if (raw.includes('chung-cu-mini-can-ho-dich-vu')) { propertyType = 'mini-apartment'; matchedTypeSlug = 'chung-cu-mini-can-ho-dich-vu'; }
+    else if (raw.includes('chung-cu-mini')) { propertyType = 'mini-apartment'; matchedTypeSlug = 'chung-cu-mini'; }
+    else if (raw.includes('can-ho-chung-cu')) { propertyType = 'apartment'; matchedTypeSlug = 'can-ho-chung-cu'; }
+    else if (raw.includes('chung-cu')) { propertyType = 'apartment'; matchedTypeSlug = 'chung-cu'; }
+    else if (raw.includes('nha-biethu-lien-ke')) { propertyType = 'villa'; matchedTypeSlug = 'nha-biethu-lien-ke'; }
+    else if (raw.includes('nha-biet-thu')) { propertyType = 'villa'; matchedTypeSlug = 'nha-biet-thu'; }
+    else if (raw.includes('biet-thu')) { propertyType = 'villa'; matchedTypeSlug = 'biet-thu'; }
+    else if (raw.includes('nha-mat-pho')) { propertyType = 'street-house'; matchedTypeSlug = 'nha-mat-pho'; }
+    else if (raw.includes('shophouse-nha-pho-thuong-mai')) { propertyType = 'shophouse'; matchedTypeSlug = 'shophouse-nha-pho-thuong-mai'; }
+    else if (raw.includes('shophouse')) { propertyType = 'shophouse'; matchedTypeSlug = 'shophouse'; }
+    else if (raw.includes('dat-nen-du-an')) { propertyType = 'project-land'; matchedTypeSlug = 'dat-nen-du-an'; }
+    else if (raw.includes('trang-trai-khu-nghi-duong')) { propertyType = 'farm-resort'; matchedTypeSlug = 'trang-trai-khu-nghi-duong'; }
+    else if (raw.includes('trang-trai')) { propertyType = 'farm-resort'; matchedTypeSlug = 'trang-trai'; }
+    else if (raw.includes('condotel')) { propertyType = 'condotel'; matchedTypeSlug = 'condotel'; }
+    else if (raw.includes('kho-nha-xuong')) { propertyType = 'warehouse'; matchedTypeSlug = 'kho-nha-xuong'; }
+    else if (raw.includes('kho-xuong')) { propertyType = 'warehouse'; matchedTypeSlug = 'kho-xuong'; }
+    else if (raw.includes('bat-dong-san-khac')) { propertyType = 'other'; matchedTypeSlug = 'bat-dong-san-khac'; }
+    else if (raw.includes('mat-bang-van-phong')) { propertyType = 'office'; matchedTypeSlug = 'mat-bang-van-phong'; }
+    else if (raw.includes('van-phong')) { propertyType = 'office'; matchedTypeSlug = 'van-phong'; }
+    else if (raw.includes('nha-rieng')) { propertyType = 'house'; matchedTypeSlug = 'nha-rieng'; }
+    else if (raw.includes('-dat-') || raw.endsWith('-dat') || raw.startsWith('ban-dat') || raw.startsWith('cho-thue-dat')) { propertyType = 'land'; matchedTypeSlug = 'dat'; }
 
+    // Loại bỏ demand prefix và propertyType prefix để thu được remainder thuần túy
+    let remainder = raw.replace(/^(?:ban|cho-thue|nha-dat-ban|nha-dat-cho-thue|nha-dat)-?/, '');
+    if (matchedTypeSlug && remainder.startsWith(matchedTypeSlug)) {
+      remainder = remainder.slice(matchedTypeSlug.length).replace(/^-/, '');
+    }
 
-    // C. Dự án (Project)
+    // C. Dự án (Project) - chỉ tìm trong remainder sau khi đã bóc tách propertyType
     let project = '';
-    const projMatch = raw.match(/du-an-([a-z0-9-]+)/);
+    const projMatch = remainder.match(/(?:^|-)du-an-([a-z0-9-]+?)(?:-(?:phuong|xa|duong|pho|quan|huyen|tp|da-nang|$))/);
     if (projMatch) {
       project = slugToTitleCase(projMatch[1]);
     }
 
-    // D. Phường/Xã (Ward)
+    // D. Đường / Phố (Street)
+    let street = '';
+    const streetMatch = remainder.match(/(?:^|-)duong-([a-z0-9-]+?)(?:-(?:phuong|xa|quan|huyen|tp|da-nang|$))/i) ||
+                       remainder.match(/(?:^|-)pho-([a-z0-9-]+?)(?:-(?:phuong|xa|quan|huyen|tp|da-nang|$))/i);
+    if (streetMatch) {
+      street = slugToTitleCase(streetMatch[1]);
+    }
+
+    // E. Phường/Xã (Ward)
     let ward = '';
-    const wardMatch = raw.match(/phuong-([a-z0-9-]+?)(?:-(?:quan|huyen|hai-chau|son-tra|ngu-hanh-son|lien-chieu|thanh-khe|cam-le|hoa-vang|da-nang|$))/);
+    const wardMatch = remainder.match(/(?:^|-)phuong-([a-z0-9-]+?)(?:-(?:quan|huyen|tp|da-nang|$))/i) ||
+                     remainder.match(/(?:^|-)xa-([a-z0-9-]+?)(?:-(?:quan|huyen|tp|da-nang|$))/i);
     if (wardMatch) {
       ward = 'Phường ' + slugToTitleCase(wardMatch[1]);
     }
 
-    // E. Thành phố & Quận/Huyện TP. Đà Nẵng
+    // F. Thành phố & Quận/Huyện TP. Đà Nẵng
     let city = 'Đà Nẵng';
     let district = '';
 
@@ -546,7 +579,7 @@ export const parseTaxonomyUrl = (urlPath) => {
     }
 
     // I. Tiện ích & Từ khóa đặc biệt
-    let keyword = project || (ward ? ward.replace('Phường ', '') : '');
+    let keyword = project || street || (ward ? ward.replace('Phường ', '') : '');
     if (!keyword) {
       if (raw.includes('full-noi-that')) keyword = 'full nội thất';
       else if (raw.includes('co-ban-cong') || raw.includes('ban-cong')) keyword = 'ban công';
@@ -565,6 +598,12 @@ export const parseTaxonomyUrl = (urlPath) => {
     if (project) {
       title += ` tại Dự án ${project}`;
       if (district) title += `, ${district}`;
+      if (city) title += `, ${city}`;
+    } else if (street && district) {
+      title += ` tại Đường ${street}, ${district}`;
+      if (city) title += `, ${city}`;
+    } else if (street) {
+      title += ` tại Đường ${street}`;
       if (city) title += `, ${city}`;
     } else if (ward && district) {
       title += ` tại ${ward}, ${district}`;
@@ -588,6 +627,7 @@ export const parseTaxonomyUrl = (urlPath) => {
       city,
       district,
       ward,
+      street,
       project,
       bedroom,
       priceRange,
@@ -966,12 +1006,14 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, year = 2026) => {
 
   const hasSpecificLocation = Boolean(taxonomyInfo.district || taxonomyInfo.city);
   let titleLoc = taxonomyInfo.district 
-    ? taxonomyInfo.district.replace(/^Quận\s+|^Huyện\s+/i, '') 
+    ? taxonomyInfo.district.replace(/^(?:Quận|Huyện)\s+/i, '') 
     : (taxonomyInfo.city || '');
 
   let descLoc = taxonomyInfo.district || taxonomyInfo.city || 'toàn quốc';
   if (taxonomyInfo.ward && taxonomyInfo.district) {
-    descLoc = `${taxonomyInfo.ward.replace(/^Phường\s+/i, '')}, ${taxonomyInfo.district.replace(/^Quận\s+/i, '')}`;
+    descLoc = `${taxonomyInfo.ward.replace(/^Phường\s+/i, '')}, ${taxonomyInfo.district.replace(/^(?:Quận|Huyện)\s+/i, '')}`;
+  } else if (taxonomyInfo.street && taxonomyInfo.district) {
+    descLoc = `${taxonomyInfo.street}, ${taxonomyInfo.district.replace(/^(?:Quận|Huyện)\s+/i, '')}`;
   }
 
   let title = '';
@@ -981,88 +1023,147 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, year = 2026) => {
     switch (type) {
       case 'apartment':
         title = hasSpecificLocation
-          ? `Bán Căn Hộ Chung Cư Sổ Hồng Riêng, Giá Tốt [${year}] | ${titleLoc}`
+          ? `Bán Căn Hộ Chung Cư Sổ Hồng Riêng [${year}] | ${titleLoc}`
           : `Bán Căn Hộ Chung Cư Sổ Hồng Riêng, Giá Tốt [${year}] Toàn Quốc`;
-        description = `Danh sách bán căn hộ chung cư giá rẻ ${year}. Căn hộ cao cấp, sổ hồng lâu dài, tiện ích chuẩn resort, hỗ trợ trả góp 0%. Khám phá bảng giá mới tại ${descLoc}!`;
+        description = `Bán căn hộ chung cư cao cấp ${year}, sổ hồng lâu dài, tiện ích resort, vay 0% lãi suất. Khám phá bảng giá mới tại ${descLoc}`;
         break;
       case 'mini-apartment':
         title = hasSpecificLocation
-          ? `Bán Chung Cư Mini, Căn Hộ Dịch Vụ Giá Tốt [${year}] | ${titleLoc}`
+          ? `Bán Chung Cư Mini, Căn Hộ Dịch Vụ [${year}] | ${titleLoc}`
           : `Bán Chung Cư Mini, Căn Hộ Dịch Vụ Giá Tốt [${year}] Toàn Quốc`;
-        description = `Bán chung cư mini, căn hộ dịch vụ dòng tiền sinh lời cao ${year}. Tòa nhà mới, full nội thất cao cấp, pháp lý chuẩn chỉnh. Xem bảng giá tại ${descLoc}!`;
+        description = `Bán chung cư mini, căn hộ dịch vụ dòng tiền sinh lời cao ${year}, full nội thất, pháp lý chuẩn. Xem bảng giá tại ${descLoc}`;
         break;
       case 'house':
         title = hasSpecificLocation
-          ? `Bán Nhà Riêng, Nhà Phố Sổ Đỏ Chính Chủ [${year}] tại ${titleLoc}`
+          ? `Bán Nhà Riêng, Nhà Phố Sổ Đỏ Riêng [${year}] | ${titleLoc}`
           : `Bán Nhà Riêng, Nhà Phố Sổ Đỏ Chính Chủ [${year}] Toàn Quốc`;
-        description = `Mua bán nhà riêng, nhà phố vị trí đẹp, đường ô tô tránh nhau. Nhà chính chủ có sổ đỏ, pháp lý an toàn, tiện kinh doanh. Xem giỏ hàng giá tốt tại ${descLoc}!`;
+        description = `Mua bán nhà riêng, nhà phố chính chủ ${year}, vị trí đẹp đường ô tô, pháp lý an toàn có sổ đỏ. Xem nhà giá tốt tại ${descLoc}`;
         break;
       case 'street-house':
         title = hasSpecificLocation
-          ? `Bán Nhà Mặt Phố Vị Trí Đẹp, Tiện Kinh Doanh | ${titleLoc}`
-          : `Bán Nhà Mặt Phố Vị Trí Đẹp, Tiện Kinh Doanh [${year}] Toàn Quốc`;
-        description = `Bán nhà mặt phố vị trí đắc địa, vỉa hè rộng, kinh doanh sầm uất. BĐS chính chủ, sổ hồng riêng, pháp lý sạch 100%, sinh lời cao. Xem vị trí tại ${descLoc}!`;
+          ? `Bán Nhà Mặt Phố Tiện Kinh Doanh [${year}] | ${titleLoc}`
+          : `Bán Nhà Mặt Phố Vị Trí Đẹp Kinh Doanh [${year}] Toàn Quốc`;
+        description = `Bán nhà mặt phố vị trí đắc địa, kinh doanh sầm uất, BĐS chính chủ, sổ hồng riêng, pháp lý sạch 100%. Xem vị trí tại ${descLoc}`;
         break;
       case 'project-land':
       case 'land':
         title = hasSpecificLocation
-          ? `Bán Đất Nền Dự Án Pháp Lý Sạch, Trả Góp [${year}] tại ${titleLoc}`
-          : `Bán Đất Nền Dự Án Pháp Lý Sạch, Trả Góp [${year}] Toàn Quốc`;
-        description = `Bán đất nền dự án quy hoạch đồng bộ, hạ tầng hoàn thiện. Pháp lý minh bạch, sổ đỏ trao tay, hỗ trợ thanh toán trả góp linh hoạt. Xem đất đẹp tại ${descLoc}!`;
+          ? `Bán Đất Nền Dự Án Pháp Lý Sạch [${year}] | ${titleLoc}`
+          : `Bán Đất Nền Dự Án Pháp Lý Sạch, Giá Tốt [${year}] Toàn Quốc`;
+        description = `Bán đất nền dự án quy hoạch chuẩn, pháp lý sạch sổ đỏ trao tay, hỗ trợ trả góp linh hoạt. Xem ngay giỏ hàng đất đẹp tại ${descLoc}`;
         break;
       case 'villa':
         title = hasSpecificLocation
-          ? `Bán Biệt Thự Liền Kề Đẳng Cấp, Sổ Đỏ Trao Tay | ${titleLoc}`
-          : `Bán Biệt Thự Liền Kề Đẳng Cấp, Sổ Đỏ Trao Tay [${year}] Toàn Quốc`;
-        description = `Mua bán biệt thự liền kề, villa sinh thái cao cấp, an ninh 24/7. Pháp lý sổ hồng lâu dài, vị trí đắc địa ven sông biển. Xem ngay bảng giá tại ${descLoc}!`;
+          ? `Bán Biệt Thự Liền Kề Sổ Đỏ Trao Tay [${year}] | ${titleLoc}`
+          : `Bán Biệt Thự Liền Kề Cao Cấp Sổ Đỏ [${year}] Toàn Quốc`;
+        description = `Bán biệt thự liền kề, villa sinh thái cao cấp ${year}, an ninh 24/7, sổ hồng lâu dài ven sông biển. Bảng giá tại ${descLoc}`;
         break;
       default:
         title = hasSpecificLocation
-          ? `Mua Bán Nhà Đất Giá Tốt, Sổ Đỏ Chính Chủ [${year}] | ${titleLoc}`
-          : `Mua Bán Nhà Đất Giá Tốt, Sổ Đỏ Chính Chủ [${year}] Toàn Quốc`;
-        description = `Tổng hợp tin mua bán nhà đất giá tốt ${year}. BĐS chính chủ, pháp lý minh bạch, sổ đỏ riêng, hỗ trợ vay ngân hàng lãi suất thấp. Xem ngay hôm nay tại ${descLoc}!`;
+          ? `Mua Bán Nhà Đất Sổ Đỏ Chính Chủ [${year}] | ${titleLoc}`
+          : `Mua Bán Nhà Đất Giá Tốt Sổ Đỏ Chính Chủ [${year}] Toàn Quốc`;
+        description = `Mua bán nhà đất chính chủ giá tốt ${year}, pháp lý minh bạch, sổ đỏ riêng, hỗ trợ vay ngân hàng nhanh. Xem tin tại ${descLoc}`;
     }
   } else {
     switch (type) {
       case 'apartment':
         title = hasSpecificLocation
-          ? `Cho Thuê Căn Hộ Chung Cư Giá Rẻ, Full Nội Thất | ${titleLoc}`
-          : `Cho Thuê Căn Hộ Chung Cư Giá Rẻ, Full Nội Thất [${year}]`;
-        description = `Tổng hợp tin cho thuê căn hộ chung cư giá rẻ ${year}. Đầy đủ nội thất cao cấp, an ninh 24/7, vị trí trung tâm, chính chủ đăng tin. Xem phòng ngay tại ${descLoc}!`;
+          ? `Cho Thuê Căn Hộ Chung Cư Giá Rẻ [${year}] | ${titleLoc}`
+          : `Cho Thuê Căn Hộ Chung Cư Giá Rẻ, Đẹp [${year}] Toàn Quốc`;
+        description = `Cho thuê căn hộ chung cư giá rẻ ${year}, đầy đủ nội thất cao cấp, an ninh 24/7, chính chủ đăng tin. Xem phòng tại ${descLoc}`;
         break;
       case 'mini-apartment':
         title = hasSpecificLocation
-          ? `Cho Thuê Chung Cư Mini, Căn Hộ Dịch Vụ Giá Rẻ | ${titleLoc}`
-          : `Cho Thuê Chung Cư Mini, Căn Hộ Dịch Vụ Giá Rẻ [${year}] Toàn Quốc`;
-        description = `Cho thuê chung cư mini, căn hộ dịch vụ khép kín giá rẻ ${year}. Full nội thất tiện nghi, thang máy thẻ từ, an ninh tốt, giờ tự do. Xem phòng ngay tại ${descLoc}!`;
+          ? `Cho Thuê Chung Cư Mini, Căn Hộ DV [${year}] | ${titleLoc}`
+          : `Cho Thuê Chung Cư Mini, Căn Hộ Dịch Vụ [${year}] Toàn Quốc`;
+        description = `Cho thuê chung cư mini, căn hộ dịch vụ khép kín giá rẻ ${year}, full nội thất cao cấp, giờ tự do. Xem phòng tại ${descLoc}`;
         break;
       case 'street-house':
         title = hasSpecificLocation
-          ? `Cho Thuê Nhà Mặt Phố Vị Trí Đẹp, Tiện Kinh Doanh | ${titleLoc}`
-          : `Cho Thuê Nhà Mặt Phố Vị Trí Đẹp, Tiện Kinh Doanh [${year}] Toàn Quốc`;
-        description = `Cho thuê nhà mặt phố vị trí kim cương, mặt tiền lớn tiện kinh doanh buôn bán, mở showroom văn phòng. Giá thuê hợp lý chính chủ. Xem mặt bằng tại ${descLoc}!`;
+          ? `Cho Thuê Nhà Mặt Phố Kinh Doanh [${year}] | ${titleLoc}`
+          : `Cho Thuê Nhà Mặt Phố Tiện Kinh Doanh [${year}] Toàn Quốc`;
+        description = `Cho thuê nhà mặt phố vị trí kim cương, mặt tiền lớn tiện kinh doanh, mở văn phòng công ty chính chủ. Xem mặt bằng tại ${descLoc}`;
         break;
       case 'office':
         title = hasSpecificLocation
-          ? `Cho Thuê Văn Phòng, Mặt Bằng Đẹp Giá Tốt [${year}] | ${titleLoc}`
-          : `Cho Thuê Văn Phòng, Mặt Bằng Đẹp Giá Tốt [${year}] Toàn Quốc`;
-        description = `Cho thuê văn phòng, mặt bằng kinh doanh vị trí trung tâm, giao thông thuận tiện, diện tích đa dạng, giá rẻ trực tiếp chính chủ. Đặt lịch xem tại ${descLoc}!`;
+          ? `Cho Thuê Văn Phòng, Mặt Bằng Đẹp [${year}] | ${titleLoc}`
+          : `Cho Thuê Văn Phòng, Mặt Bằng Giá Rẻ [${year}] Toàn Quốc`;
+        description = `Cho thuê văn phòng, mặt bằng kinh doanh vị trí trung tâm, diện tích đa dạng, giá rẻ chính chủ ${year}. Đặt xem tại ${descLoc}`;
         break;
       default:
         title = hasSpecificLocation
-          ? `Cho Thuê Nhà Riêng, Nguyên Căn Giá Tốt [${year}] tại ${titleLoc}`
-          : `Cho Thuê Nhà Riêng, Nguyên Căn Giá Tốt [${year}] Toàn Quốc`;
-        description = `Cho thuê nhà riêng, nguyên căn giá tốt ${year}. Nhà đẹp, tiện ở gia đình hoặc mở văn phòng kinh doanh, hợp đồng dài hạn chính chủ. Xem nhà ngay tại ${descLoc}!`;
+          ? `Cho Thuê Nhà Riêng, Nhà Nguyên Căn [${year}] | ${titleLoc}`
+          : `Cho Thuê Nhà Riêng, Nguyên Căn Giá Rẻ [${year}] Toàn Quốc`;
+        description = `Cho thuê nhà riêng, nguyên căn giá tốt ${year}, nhà đẹp tiện ở gia đình hoặc làm văn phòng dài hạn. Xem nhà tại ${descLoc}`;
     }
   }
 
-  // Đảm bảo Title chuẩn 50 - 60 ký tự
+  // Đảm bảo Title chuẩn 50 - 60 ký tự không bị cắt ngang từ
+  if (title.length < 50) {
+    const diff = 50 - title.length;
+    if (title.includes(' | ')) {
+      if (diff <= 8) title = title.replace(' | ', ' Giá Tốt | ');
+      else title = title.replace(' | ', ' Giá Tốt Nhất | ');
+    } else {
+      title = title + ' [Mới Nhất]';
+    }
+  }
   if (title.length > 60) {
-    title = title.slice(0, 60);
-  } else if (title.length < 50) {
-    title = title + ' [Mới]';
+    if (title.includes(` [${year}]`)) {
+      title = title.replace(` [${year}]`, '');
+    }
+    if (title.length > 60) {
+      const cut = title.slice(0, 60);
+      const lastSpace = cut.lastIndexOf(' ');
+      if (lastSpace >= 50) {
+        title = cut.slice(0, lastSpace);
+      }
+    }
   }
 
-  return { title, description };
+  // Đảm bảo Description chuẩn 150 - 160 ký tự
+  let desc = description;
+  if (desc.length < 150) {
+    const ctas = [
+      '! Liên hệ ngay để xem thực tế!',
+      '! Đặt lịch hẹn xem ngay hôm nay!',
+      '! Liên hệ xem nhà đất thực tế!',
+      '! Xem giỏ hàng giá tốt hôm nay!',
+      '! Khám phá ngay hôm nay!',
+      '! Xem bảng giá hôm nay!',
+      '! Xem ngay hôm nay!',
+      '! Xem chi tiết ngay!',
+      '! Xem chi tiết!',
+      '! Xem ngay!',
+      '!'
+    ];
+    let matchedCta = null;
+    for (const cta of ctas) {
+      const len = desc.length + cta.length;
+      if (len >= 150 && len <= 160) {
+        matchedCta = cta;
+        break;
+      }
+    }
+    if (matchedCta) {
+      desc = desc + matchedCta;
+    } else {
+      while (desc.length < 150) {
+        desc = desc + ' Xem ngay!';
+      }
+    }
+  }
+
+  if (desc.length > 160) {
+    const cut = desc.slice(0, 159);
+    const lastSpace = cut.lastIndexOf(' ');
+    if (lastSpace >= 148) {
+      desc = cut.slice(0, lastSpace) + '!';
+    } else {
+      desc = cut + '!';
+    }
+  }
+
+  return { title, description: desc };
 };
 
