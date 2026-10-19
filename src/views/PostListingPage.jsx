@@ -10,10 +10,6 @@ export default function PostListingPage() {
   const { navigate } = useRouter();
   const { currentUser, systemConfig } = useRealEstate();
 
-  const normalVouchers = currentUser?.vouchers?.normalPublish || 0;
-  const bumpVouchers = currentUser?.vouchers?.normalBump || 0;
-  const vipVouchers = currentUser?.vouchers?.vipPublish || 0;
-
   return (
     <div className="min-h-screen bg-slate-100 py-6 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto space-y-5">
@@ -65,85 +61,7 @@ export default function PostListingPage() {
 
           {/* Right Column: Broker Sidebar & Real-time Insights */}
           <div className="lg:col-span-4 space-y-5">
-            {/* 1. Kho Voucher & Gói Hội Viên Live Status */}
-            <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-5 rounded-3xl shadow-xl border border-slate-700/60 space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-700 pb-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center font-black shadow-md">
-                    <i className="fa-solid fa-ticket text-base"></i>
-                  </div>
-                  <div>
-                    <h3 className="font-black text-sm text-white">Kho Voucher Môi Giới</h3>
-                    <div className="text-[11px] text-amber-300 font-semibold">
-                      {currentUser?.membership ? currentUser.membership.packageName : 'Thành viên thường'}
-                    </div>
-                  </div>
-                </div>
-
-                <a
-                  href="/goi-hoi-vien"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[11px] font-bold text-amber-400 hover:text-amber-300 underline flex items-center gap-1"
-                >
-                  <span>{currentUser?.membership ? 'Nâng cấp' : 'Đăng ký'}</span>
-                  <i className="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-                </a>
-              </div>
-
-              {/* Voucher Inventory Grid */}
-              <div className="space-y-2 text-xs">
-                <div className="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <div>
-                      <div className="font-bold text-slate-200">Voucher Đăng Tin Thường</div>
-                      <div className="text-[10px] text-emerald-400">Giảm 35.000 đ (Đăng tin 0 đ)</div>
-                    </div>
-                  </div>
-                  <span className="font-black text-base text-emerald-400">{normalVouchers} lượt</span>
-                </div>
-
-                <div className="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-                    <div>
-                      <div className="font-bold text-slate-200">Voucher Đẩy Tin Thường</div>
-                      <div className="text-[10px] text-amber-300">Giảm 10.000 đ/lần làm mới</div>
-                    </div>
-                  </div>
-                  <span className="font-black text-base text-amber-400">{bumpVouchers} lượt</span>
-                </div>
-
-                <div className="p-3 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-rose-400"></span>
-                    <div>
-                      <div className="font-bold text-slate-200">Voucher Đăng Tin VIP</div>
-                      <div className="text-[10px] text-rose-300">Giảm trực tiếp 400.000 đ</div>
-                    </div>
-                  </div>
-                  <span className="font-black text-base text-rose-400">{vipVouchers} voucher</span>
-                </div>
-              </div>
-
-              {/* CTA for Membership */}
-              {!currentUser?.membership && (
-                <div className="pt-2">
-                  <a
-                    href="/goi-hoi-vien"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-full py-2.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 font-black text-xs text-center rounded-xl transition shadow-md flex items-center justify-center gap-1.5"
-                  >
-                    <span>Đăng Ký Gói Hội Viên (Tiết kiệm 39%)</span>
-                    <i className="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                  </a>
-                </div>
-              )}
-            </div>
-
-            {/* 2. So Sánh Hiệu Quả 4 Cấp Độ Tin Đăng (Batdongsan Benchmark) */}
+            {/* 1. So Sánh Hiệu Quả 4 Cấp Độ Tin Đăng (Batdongsan Benchmark) */}
             <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
