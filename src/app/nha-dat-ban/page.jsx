@@ -6,7 +6,7 @@ export async function generateMetadata() {
   const { title, description } = generateCategoryMetadata({ demand: 'sale' }, 2026, 1);
   const canonical = getCanonicalUrl('/nha-dat-ban', 1);
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: { canonical },
     openGraph: {

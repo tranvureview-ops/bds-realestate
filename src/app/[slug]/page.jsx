@@ -29,7 +29,7 @@ export function buildTaxonomyMetadata(taxonomyInfo) {
     : `${(process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '')}${taxonomyInfo.canonicalPath || taxonomyInfo.canonicalUrl || ''}`;
   const { title, description } = generateCategoryMetadata(taxonomyInfo, 2026, taxonomyInfo.page || 1);
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: {
       canonical: canonicalUrl

@@ -13,7 +13,7 @@ export async function generateMetadata({ params }) {
   const { title, description } = generateCategoryMetadata({ demand: 'rent' }, 2026, pageNum);
   const canonical = getCanonicalUrl('/nha-dat-cho-thue', pageNum);
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: { canonical },
     openGraph: {

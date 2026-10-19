@@ -90,17 +90,32 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
     };
   }, [taxonomyInfo, queryDistrict, queryCity, queryType, queryKeyword, queryPrice, queryArea, queryVerified, properties]);
 
+  const activePage = useMemo(() => {
+    if (initialPage && Number(initialPage) > 0) return Number(initialPage);
+    if (taxonomyInfo?.page && Number(taxonomyInfo.page) > 0) return Number(taxonomyInfo.page);
+    if (typeof window !== 'undefined') {
+      const pageMatch = window.location.pathname.match(/\/page\/(\d+)/i);
+      if (pageMatch) {
+        const num = parseInt(pageMatch[1], 10);
+        if (!isNaN(num) && num > 0) return num;
+      }
+    }
+    return 1;
+  }, [initialPage, taxonomyInfo?.page]);
+
   const categorySeo = useMemo(() => {
     return generateCategoryMetadata(
       taxonomyInfo || {
         demand: 'rent',
         propertyType: queryType !== 'all' ? queryType : null,
         city: queryCity,
-        district: queryDistrict
+        district: queryDistrict,
+        page: activePage
       },
-      2026
+      2026,
+      activePage
     );
-  }, [taxonomyInfo, queryType, queryCity, queryDistrict]);
+  }, [taxonomyInfo, queryType, queryCity, queryDistrict, activePage]);
 
   // Cập nhật thẻ Title & Meta Description tối ưu SEO
   useEffect(() => {

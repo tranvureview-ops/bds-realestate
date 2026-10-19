@@ -24,7 +24,7 @@ export async function generateMetadata({ params }) {
   const canonical = getCanonicalUrl(currentPath, pageNum);
 
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: {
       canonical
