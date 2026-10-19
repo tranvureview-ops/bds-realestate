@@ -203,7 +203,7 @@ export default function PropertyDetailPage({ initialProperty = null, slug = '', 
               <div>
                 <span className="font-extrabold uppercase tracking-wide">THÔNG BÁO HẾT HẠN HIỂN THỊ</span>
                 <p className="text-rose-100 text-xs font-normal mt-0.5">
-                  Tin đăng này đã hết hạn hiển thị vào ngày <strong>{targetProperty.expiresAt ? new Date(targetProperty.expiresAt).toLocaleDateString('vi-VN') : 'vừa qua'}</strong> theo quy chế thời gian hiển thị của Batdongsan.com.vn. Tin hiện không xuất hiện trên các trang tìm kiếm công khai.
+                  Tin đăng này đã hết hạn hiển thị vào ngày <strong>{targetProperty.expiresAt ? new Date(targetProperty.expiresAt).toLocaleDateString('vi-VN') : 'vừa qua'}</strong> theo quy chế thời gian hiển thị. Tin hiện không xuất hiện trên các trang tìm kiếm công khai.
                 </p>
               </div>
             </div>

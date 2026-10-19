@@ -442,7 +442,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     }
     if (step === 2) {
       if (!formData.title || formData.title.length < 30) {
-        showToast('Tiêu đề chuẩn Batdongsan.com.vn cần tối thiểu 30 ký tự để thu hút khách!', 'warning');
+        showToast('Tiêu đề cần tối thiểu 30 ký tự để thu hút khách!', 'warning');
         return;
       }
       if (formData.title.length > 99) {
@@ -464,7 +464,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     }
     if (step === 3) {
       if (formData.images.length === 0) {
-        showToast('Batdongsan.com.vn yêu cầu tối thiểu 1 hình ảnh thật của bất động sản', 'warning');
+        showToast('Hệ thống yêu cầu tối thiểu 1 hình ảnh thật của bất động sản', 'warning');
         return;
       }
     }
@@ -1462,7 +1462,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   <span className="text-xs font-bold text-emerald-600">{formData.images.length} ảnh đã chọn</span>
                 </div>
                 <p className="text-xs text-slate-500 mb-2">
-                  Theo thuật toán của Batdongsan.com.vn, bài đăng có từ 4 ảnh thực tế trở lên tăng 250% tỷ lệ người mua liên hệ.
+                  Theo thuật toán của hệ thống, bài đăng có từ 4 ảnh thực tế trở lên tăng 250% tỷ lệ người mua liên hệ.
                 </p>
 
                 {/* Grid ảnh */}
@@ -1641,7 +1641,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-slate-800 uppercase">
-                    {isGuest ? '2. ' : ''}Chọn Loại Tin Đăng & Thời Gian Hiển Thị (Chuẩn Batdongsan.com.vn) <span className="text-red-500">*</span>
+                    {isGuest ? '2. ' : ''}Chọn Loại Tin Đăng & Thời Gian Hiển Thị <span className="text-red-500">*</span>
                   </label>
                   <span className="text-[11px] text-slate-500 font-medium">Bảng giá niêm yết theo ngày</span>
                 </div>

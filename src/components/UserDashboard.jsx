@@ -454,7 +454,7 @@ export default function UserDashboard() {
                             ? 'bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold' 
                             : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                         }`}
-                        title="Gia hạn thời gian hiển thị bài viết theo chuẩn Batdongsan.com.vn"
+                        title="Gia hạn thời gian hiển thị bài viết"
                       >
                         <i className="fa-solid fa-arrows-rotate"></i>
                         <span>Gia Hạn</span>
@@ -739,7 +739,7 @@ export default function UserDashboard() {
                 </div>
                 <div>
                   <h3 className="text-base font-extrabold">Gia Hạn Hiển Thị Tin Đăng</h3>
-                  <p className="text-[11px] text-slate-300">Chuẩn quy chế thời gian hiển thị Batdongsan.com.vn</p>
+                  <p className="text-[11px] text-slate-300">Quy chế gia hạn thời gian hiển thị tin đăng</p>
                 </div>
               </div>
               <button

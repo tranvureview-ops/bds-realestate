@@ -116,9 +116,6 @@ export default function VipPricingPage() {
             </Link>
             <i className="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
             <span className="text-white font-bold">Bảng Phân Loại & Đơn Giá Tin Đăng</span>
-            <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-bold text-[10px] border border-amber-500/30">
-              Chuẩn Batdongsan.com.vn
-            </span>
           </div>
 
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
@@ -253,13 +250,13 @@ export default function VipPricingPage() {
             <div className="space-y-1">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-100 text-red-800 text-xs font-black uppercase">
                 <i className="fa-solid fa-layer-group text-red-600"></i>
-                Bảng Biểu Phí & Lựa Chọn Trực Quan Chuẩn Batdongsan.com.vn
+                Bảng Biểu Phí & Lựa Chọn Trực Quan
               </div>
               <h2 className="text-xl sm:text-2xl font-black text-slate-900">
                 Chọn Phân Loại Tin Đăng & Thời Hạn Hiển Thị
               </h2>
               <p className="text-xs text-slate-500">
-                Giao diện thực tế trích xuất trực tiếp từ Batdongsan.com.vn: Bấm chọn thẻ và thời hạn để mô phỏng biểu phí niêm yết
+                Bấm chọn thẻ và thời hạn để mô phỏng biểu phí niêm yết
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -470,7 +467,7 @@ export default function VipPricingPage() {
               Bảng So Sánh Quyền Lợi Chi Tiết 4 Cấp Độ Tin Đăng
             </h2>
             <p className="text-xs sm:text-sm text-slate-500">
-              Đối chiếu từng tiêu chí hiển thị, nhận diện thương hiệu và đặc quyền dịch vụ theo tiêu chuẩn Batdongsan.com.vn.
+              Đối chiếu từng tiêu chí hiển thị, nhận diện thương hiệu và đặc quyền dịch vụ chuyên nghiệp.
             </p>
           </div>
 

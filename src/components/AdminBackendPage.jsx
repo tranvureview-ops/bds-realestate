@@ -3614,7 +3614,7 @@ export default function AdminBackendPage() {
                                     type="button"
                                     onClick={() => handleOpenRenewModal(p)}
                                     className="px-2.5 py-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white rounded-lg text-[10px] font-bold flex items-center gap-1 transition shadow-sm"
-                                    title="Gia hạn thời gian hiển thị (Chuẩn Batdongsan.com.vn)"
+                                    title="Gia hạn thời gian hiển thị tin đăng"
                                   >
                                     <i className="fa-solid fa-clock-rotate-left text-[9px]"></i>
                                     <span>Gia Hạn</span>
@@ -7640,7 +7640,7 @@ export default function AdminBackendPage() {
                     <span className="font-mono text-emerald-400 text-xs">({renewModalProp.id})</span>
                   </h3>
                   <div className="text-[11px] text-slate-400">
-                    Cơ chế gia hạn & khôi phục hiển thị theo chuẩn sàn Batdongsan.com.vn
+                    Cơ chế gia hạn & khôi phục hiển thị theo quy chế sàn
                   </div>
                 </div>
               </div>

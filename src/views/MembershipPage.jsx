@@ -331,7 +331,7 @@ export default function MembershipPage() {
               Bảng So Sánh Chi Tiết Quyền Lợi Các Gói Hội Viên
             </h3>
             <p className="text-xs text-slate-500 mt-1">
-              Tham khảo chính sách cấp voucher định kỳ 30 ngày theo tiêu chuẩn Batdongsan.com.vn
+              Chính sách cấp voucher định kỳ 30 ngày theo quy chế sàn
             </p>
           </div>
 
