@@ -678,15 +678,6 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setIsPreviewOpen(true)}
-            className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 text-xs font-black transition flex items-center gap-1.5 shadow-md active:scale-95"
-            title="Xem trước giao diện tin rao trên website"
-          >
-            <i className="fa-regular fa-eye text-xs"></i>
-            <span>Xem trước</span>
-          </button>
 
           {onClose && !isEmbedded ? (
             <button
