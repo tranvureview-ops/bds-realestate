@@ -110,6 +110,54 @@ export const DISTRICT_MAP = {
   'thu-dau-mot': { name: 'TP. Thủ Dầu Một', city: 'Bình Dương' }
 };
 
+// Danh mục thực thể địa danh và dự án phổ biến để chuyển đổi sang tiếng Việt có dấu chuẩn đẹp
+export const KNOWN_ENTITIES = {
+  'goldmark-city': 'Goldmark City',
+  'celadon-city': 'Celadon City',
+  'vinhomes-smart-city': 'Vinhomes Smart City',
+  'vinhomes-ocean-park': 'Vinhomes Ocean Park',
+  'vinhomes-grand-park': 'Vinhomes Grand Park',
+  'vinhomes-central-park': 'Vinhomes Central Park',
+  'masteri-thao-dien': 'Masteri Thảo Điền',
+  'landmark-81': 'Landmark 81',
+  'times-city': 'Times City',
+  'royal-city': 'Royal City',
+  'ecopark': 'Ecopark',
+  'dich-vong': 'Dịch Vọng',
+  'dich-vong-hau': 'Dịch Vọng Hậu',
+  'nghia-do': 'Nghĩa Đô',
+  'nghia-tan': 'Nghĩa Tân',
+  'mai-dich': 'Mai Dịch',
+  'yen-hoa': 'Yên Hòa',
+  'trung-hoa': 'Trung Hòa',
+  'kim-ma': 'Kim Mã',
+  'lieu-giai': 'Liễu Giai',
+  'cong-vi': 'Cống Vị',
+  'ngoc-khanh': 'Ngọc Khánh',
+  'giang-vo': 'Giảng Võ',
+  'ben-nghe': 'Bến Nghé',
+  'ben-thanh': 'Bến Thành',
+  'da-kao': 'Đa Kao',
+  'tan-dinh': 'Tân Định',
+  'thao-dien': 'Thảo Điền',
+  'an-phu': 'An Phú',
+  'thanh-my-loi': 'Thạnh Mỹ Lợi'
+};
+
+/**
+ * Chuyển đổi slug dự án/phường xã/địa danh thành Title có dấu hoặc viết hoa chuẩn
+ */
+export const slugToTitleCase = (slug) => {
+  if (!slug) return '';
+  const clean = slug.toLowerCase().replace(/^phuong-|^du-an-|^quan-|^huyen-/, '');
+  if (KNOWN_ENTITIES[clean]) return KNOWN_ENTITIES[clean];
+  if (KNOWN_ENTITIES[slug.toLowerCase()]) return KNOWN_ENTITIES[slug.toLowerCase()];
+  return clean
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 /**
  * Chuyển đổi chuỗi cụm từ khóa thành Clean Slug URL chuẩn SEO (Không chứa query parameters)
  * Ví dụ: "Bán căn hộ chung cư Celadon City từ 80 m2 đến 100 m2"
@@ -122,11 +170,137 @@ export const buildKeywordCleanSlug = (text) => {
 };
 
 /**
+ * Xây dựng URL chuẩn Technical SEO Bất Động Sản (SEO URL Structure Standard)
+ * Hỗ trợ phân tầng: Nhu cầu -> Loại hình -> Địa lý (Tỉnh/Quận/Phường) -> Dự án -> Bộ lọc đơn -> Multi-filter
+ * 
+ * @param {Object} options
+ * @param {'sale'|'rent'} [options.demand='sale']
+ * @param {string} [options.propertyType] - 'apartment' | 'house' | 'street-house' | 'villa' | 'land' | 'shophouse' | 'office'
+ * @param {string} [options.city] - 'ha-noi' | 'tp-hcm' | 'da-nang' | 'Hà Nội'...
+ * @param {string} [options.district] - 'quan-cau-giay' | 'Quận Cầu Giấy'...
+ * @param {string} [options.ward] - 'phuong-dich-vong' | 'Phường Dịch Vọng'...
+ * @param {string} [options.project] - 'du-an-goldmark-city' | 'Goldmark City'...
+ * @param {string} [options.priceRange] - 'tu-2-den-5-ty' | '2b-5b' | 'duoi-2-ty'...
+ * @param {string} [options.areaRange] - '50-100' | 'tu-50-den-100-m2' | 'under-50'...
+ * @param {string|number} [options.bedroom] - 1 | 2 | 3 | '4+'...
+ * @param {Object} [options.extraParams] - các tham số query phụ khác
+ * @returns {string} Clean URL hoặc URL kèm Query Parameters cho Multi-filter
+ */
+export const buildSeoUrl = ({
+  demand = 'sale',
+  propertyType = null,
+  city = null,
+  district = null,
+  ward = null,
+  project = null,
+  priceRange = null,
+  areaRange = null,
+  bedroom = null,
+  extraParams = {}
+} = {}) => {
+  const isRent = demand === 'rent';
+  const group = BATDONGSAN_TAXONOMY[isRent ? 'rent' : 'sale'] || BATDONGSAN_TAXONOMY.sale;
+
+  // 1. Base slug theo loại hình
+  let basePath = '';
+  if (propertyType && group.types[propertyType]) {
+    basePath = (propertyType === 'house' && !city && !district && !ward && !project)
+      ? (isRent ? '/cho-thue-nha-rieng-nha-pho' : '/ban-nha-rieng-nha-pho')
+      : group.types[propertyType].slug;
+  } else {
+    basePath = group.base;
+  }
+
+  // 2. Dự án (Ưu tiên cao nhất)
+  let locationOrProjectSegment = '';
+  if (project && project.trim()) {
+    let projSlug = toVietnameseSlug(project.trim()).replace(/^du-an-/, '');
+    locationOrProjectSegment = `-du-an-${projSlug}`;
+  } 
+  // 3. Phường/Xã (Cấp 3)
+  else if (ward && ward.trim()) {
+    let wardSlug = toVietnameseSlug(ward.trim()).replace(/^phuong-/, '');
+    let distShort = '';
+    if (district && district.trim()) {
+      distShort = toVietnameseSlug(district.trim()).replace(/^quan-|^huyen-|^tp-/, '');
+    }
+    locationOrProjectSegment = distShort ? `-phuong-${wardSlug}-${distShort}` : `-phuong-${wardSlug}`;
+  } 
+  // 4. Quận/Huyện (Cấp 2)
+  else if (district && district.trim()) {
+    let distSlug = toVietnameseSlug(district.trim());
+    if (!distSlug.startsWith('quan-') && !distSlug.startsWith('huyen-') && !distSlug.startsWith('tp-')) {
+      distSlug = `quan-${distSlug}`;
+    }
+    locationOrProjectSegment = `-${distSlug}`;
+  } 
+  // 5. Tỉnh/Thành phố (Cấp 1)
+  else if (city && city.trim()) {
+    const citySlug = CITY_SLUGS[city.trim()] || toVietnameseSlug(city.trim());
+    locationOrProjectSegment = `-${citySlug}`;
+  }
+
+  let fullCleanPath = `${basePath}${locationOrProjectSegment}`;
+  const queryParams = new URLSearchParams();
+
+  // 6. Xử lý Single Clean Filter & Multi-filter
+  let priceCleanSlug = '';
+  if (priceRange && priceRange !== 'all') {
+    if (priceRange === 'under-2b') priceCleanSlug = '-gia-duoi-2-ty';
+    else if (priceRange === '2b-5b') priceCleanSlug = '-gia-tu-2-den-5-ty';
+    else if (priceRange === '5b-10b') priceCleanSlug = '-gia-tu-5-den-10-ty';
+    else if (priceRange === '10b-30b') priceCleanSlug = '-gia-tu-10-den-30-ty';
+    else if (priceRange === 'over-30b') priceCleanSlug = '-gia-tren-30-ty';
+    else if (priceRange.startsWith('gia-') || priceRange.startsWith('tu-')) {
+      priceCleanSlug = `-${toVietnameseSlug(priceRange)}`;
+    } else {
+      priceCleanSlug = `-gia-${toVietnameseSlug(priceRange)}`;
+    }
+  }
+
+  let areaCleanSlug = '';
+  if (areaRange && areaRange !== 'all') {
+    if (areaRange === 'under-50') areaCleanSlug = '-dien-tich-duoi-50-m2';
+    else if (areaRange === '50-100') areaCleanSlug = '-dien-tich-50-100-m2';
+    else if (areaRange === '100-200') areaCleanSlug = '-dien-tich-100-200-m2';
+    else if (areaRange === 'over-200') areaCleanSlug = '-dien-tich-tren-200-m2';
+    else if (areaRange.startsWith('dien-tich-')) {
+      areaCleanSlug = `-${toVietnameseSlug(areaRange)}`;
+    } else {
+      areaCleanSlug = `-dien-tich-${toVietnameseSlug(areaRange)}-m2`;
+    }
+  }
+
+  if (priceCleanSlug) {
+    fullCleanPath += priceCleanSlug;
+    if (areaCleanSlug) {
+      queryParams.set('areaRange', areaRange);
+    }
+  } else if (areaCleanSlug) {
+    fullCleanPath += areaCleanSlug;
+  }
+
+  if (bedroom && bedroom !== 'all') queryParams.set('bedroom', String(bedroom));
+  if (extraParams && typeof extraParams === 'object') {
+    for (const [k, v] of Object.entries(extraParams)) {
+      if (v !== undefined && v !== null && v !== '' && v !== 'all') {
+        queryParams.set(k, String(v));
+      }
+    }
+  }
+
+  const qs = queryParams.toString();
+  return qs ? `${fullCleanPath}?${qs}` : fullCleanPath;
+};
+
+/**
  * Phân tích URL danh mục (Taxonomy URL) theo chuẩn Batdongsan.com.vn & Clean Slug SEO URLs
  * Ví dụ:
  * - /ban-can-ho-chung-cu-ha-noi -> { isTaxonomy: true, demand: 'sale', propertyType: 'apartment', city: 'Hà Nội', ... }
- * - /ban-can-ho-chung-cu-duong-n1-tan-phu -> { isTaxonomy: true, demand: 'sale', propertyType: 'apartment', district: 'Quận Tân Phú', keyword: 'n1', ... }
- * - /ban-nha-rieng-quan-ba-dinh-tu-3-ty-den-5-ty -> { isTaxonomy: true, demand: 'sale', propertyType: 'house', district: 'Quận Ba Đình', priceRange: '2b-5b', ... }
+ * - /ban-can-ho-chung-cu-quan-cau-giay -> { isTaxonomy: true, demand: 'sale', propertyType: 'apartment', district: 'Quận Cầu Giấy', city: 'Hà Nội' }
+ * - /ban-can-ho-chung-cu-phuong-dich-vong-cau-giay -> { isTaxonomy: true, ward: 'Phường Dịch Vọng', district: 'Quận Cầu Giấy' }
+ * - /ban-can-ho-chung-cu-du-an-goldmark-city -> { isTaxonomy: true, project: 'Goldmark City' }
+ * - /ban-can-ho-chung-cu-quan-cau-giay-gia-tu-2-den-5-ty -> { isTaxonomy: true, priceRange: '2b-5b' }
  */
 export const parseTaxonomyUrl = (urlPath) => {
   if (!urlPath) return { isTaxonomy: false };
@@ -213,12 +387,26 @@ export const parseTaxonomyUrl = (urlPath) => {
     if (raw.includes('can-ho-chung-cu') || raw.includes('chung-cu')) propertyType = 'apartment';
     else if (raw.includes('nha-mat-pho')) propertyType = 'street-house';
     else if (raw.includes('nha-biet-thu') || raw.includes('biet-thu')) propertyType = 'villa';
-    else if (raw.includes('dat-nen') || raw.includes('du-an')) propertyType = 'land';
+    else if (raw.includes('dat-nen') || raw.includes('dat-nen-du-an')) propertyType = 'land';
     else if (raw.includes('shophouse')) propertyType = 'shophouse';
-    else if (raw.includes('van-phong')) propertyType = 'office';
+    else if (raw.includes('van-phong') || raw.includes('mat-bang-van-phong')) propertyType = 'office';
     else if (raw.includes('nha-rieng')) propertyType = 'house';
 
-    // C. Thành phố & Quận/Huyện
+    // C. Dự án (Project)
+    let project = '';
+    const projMatch = raw.match(/du-an-([a-z0-9-]+)/);
+    if (projMatch) {
+      project = slugToTitleCase(projMatch[1]);
+    }
+
+    // D. Phường/Xã (Ward)
+    let ward = '';
+    const wardMatch = raw.match(/phuong-([a-z0-9-]+?)(?:-(?:quan|huyen|cau-giay|ba-dinh|dong-da|ha-noi|tp-hcm|ho-chi-minh|$))/);
+    if (wardMatch) {
+      ward = 'Phường ' + slugToTitleCase(wardMatch[1]);
+    }
+
+    // E. Thành phố & Quận/Huyện
     let city = '';
     let district = '';
 
@@ -234,72 +422,81 @@ export const parseTaxonomyUrl = (urlPath) => {
 
     // Đối chiếu các quận huyện
     for (const [dSlug, dInfo] of Object.entries(DISTRICT_MAP)) {
-      if (raw.includes(dSlug) || raw.includes(`quan-${dSlug}`) || raw.includes(`huyen-${dSlug}`)) {
+      if (raw.includes(`quan-${dSlug}`) || raw.includes(`huyen-${dSlug}`) || raw.includes(`tp-${dSlug}`) || raw.includes(dSlug)) {
         district = dInfo.name;
         if (!city) city = dInfo.city;
         break;
       }
     }
 
-    // D. Số phòng ngủ (PN)
+    // F. Số phòng ngủ (PN)
     let bedroom = 'all';
     const bedMatch = raw.match(/([1-9])\s*-?pn/);
     if (bedMatch) bedroom = bedMatch[1];
 
-    // E. Khoảng giá (Pricing Tier)
+    // G. Khoảng giá (Pricing Tier)
     let priceRange = 'all';
-    const priceMatch = raw.match(/tu-([0-9]+)-ty-den-([0-9]+)-ty/);
-    if (priceMatch) {
-      const maxVal = parseInt(priceMatch[2], 10);
+    let priceLabel = '';
+    const priceBetweenMatch = raw.match(/(?:gia-)?(?:tu-)?([0-9.]+)(?:-ty)?-den-([0-9.]+)-ty/);
+    const priceUnderMatch = raw.match(/(?:gia-)?duoi-([0-9.]+)-ty/);
+    const priceOverMatch = raw.match(/(?:gia-)?tren-([0-9.]+)-ty/);
+
+    if (priceBetweenMatch) {
+      const minVal = parseFloat(priceBetweenMatch[1]);
+      const maxVal = parseFloat(priceBetweenMatch[2]);
+      priceLabel = `giá từ ${minVal} đến ${maxVal} tỷ`;
       if (maxVal <= 2) priceRange = 'under-2b';
       else if (maxVal <= 5) priceRange = '2b-5b';
       else if (maxVal <= 10) priceRange = '5b-10b';
       else if (maxVal <= 30) priceRange = '10b-30b';
       else priceRange = 'over-30b';
-    } else if (raw.includes('gia-re') || raw.includes('duoi-2-ty')) {
+    } else if (priceUnderMatch) {
+      const maxVal = parseFloat(priceUnderMatch[1]);
+      priceLabel = `giá dưới ${maxVal} tỷ`;
+      priceRange = maxVal <= 2 ? 'under-2b' : '2b-5b';
+    } else if (priceOverMatch) {
+      const minVal = parseFloat(priceOverMatch[1]);
+      priceLabel = `giá trên ${minVal} tỷ`;
+      priceRange = minVal >= 30 ? 'over-30b' : '10b-30b';
+    } else if (raw.includes('gia-re')) {
       priceRange = 'under-2b';
+      priceLabel = 'giá rẻ';
     }
 
-    // F. Diện tích (Area Range)
+    // H. Diện tích (Area Range)
     let areaRange = 'all';
-    const areaMatch = raw.match(/tu-([0-9]+)-m2-den-([0-9]+)-m2/);
-    if (areaMatch) {
-      const maxArea = parseInt(areaMatch[2], 10);
+    let areaLabel = '';
+    const areaBetweenMatch = raw.match(/(?:dien-tich-)?(?:tu-)?([0-9.]+)(?:-den|-)([0-9.]+)-m2/);
+    const areaUnderMatch = raw.match(/(?:dien-tich-)?duoi-([0-9.]+)-m2/);
+    const areaOverMatch = raw.match(/(?:dien-tich-)?tren-([0-9.]+)-m2/);
+
+    if (areaBetweenMatch) {
+      const minArea = parseFloat(areaBetweenMatch[1]);
+      const maxArea = parseFloat(areaBetweenMatch[2]);
+      areaLabel = `diện tích ${minArea} - ${maxArea} m²`;
       if (maxArea <= 50) areaRange = 'under-50';
       else if (maxArea <= 100) areaRange = '50-100';
       else if (maxArea <= 200) areaRange = '100-200';
       else areaRange = 'over-200';
+    } else if (areaUnderMatch) {
+      const maxArea = parseFloat(areaUnderMatch[1]);
+      areaLabel = `diện tích dưới ${maxArea} m²`;
+      areaRange = 'under-50';
+    } else if (areaOverMatch) {
+      const minArea = parseFloat(areaOverMatch[1]);
+      areaLabel = `diện tích trên ${minArea} m²`;
+      areaRange = 'over-200';
     }
 
-    // G. Tiện ích & Từ khóa đặc biệt
-    let keyword = '';
-    if (raw.includes('full-noi-that')) {
-      keyword = 'full nội thất';
-    } else if (raw.includes('co-ban-cong') || raw.includes('ban-cong')) {
-      keyword = 'ban công';
-    } else if (raw.includes('so-do') || raw.includes('so-hong')) {
-      keyword = 'sổ đỏ';
-    } else if (raw.includes('celadon-city')) {
-      keyword = 'Celadon City';
-    } else if (raw.includes('goldmark-city')) {
-      keyword = 'Goldmark City';
-    } else if (raw.includes('vinhomes')) {
-      keyword = 'Vinhomes';
-    } else if (raw.includes('duong-')) {
-      const streetMatch = raw.match(/duong-([a-z0-9-]+?)(?:-(?:quan|phuong|ha-noi|tp-hcm|ho-chi-minh|$))/);
-      if (streetMatch) {
-        keyword = streetMatch[1].replace(/-/g, ' ');
-      }
+    // I. Tiện ích & Từ khóa đặc biệt
+    let keyword = project || (ward ? ward.replace('Phường ', '') : '');
+    if (!keyword) {
+      if (raw.includes('full-noi-that')) keyword = 'full nội thất';
+      else if (raw.includes('co-ban-cong') || raw.includes('ban-cong')) keyword = 'ban công';
+      else if (raw.includes('so-do') || raw.includes('so-hong')) keyword = 'sổ đỏ';
     }
 
-    // H. Phường
-    let ward = '';
-    const wardMatch = raw.match(/phuong-([a-z0-9-]+?)(?:-(?:quan|ha-noi|tp-hcm|ho-chi-minh|$))/);
-    if (wardMatch) {
-      ward = 'Phường ' + wardMatch[1].replace(/-/g, ' ');
-    }
-
-    // Sinh Title SEO chuẩn tiếng Việt có dấu
+    // J. Sinh Title SEO chuẩn tiếng Việt có dấu
     let typeName = '';
     if (propertyType && propertyType !== 'all' && BATDONGSAN_TAXONOMY[demand]?.types[propertyType]) {
       typeName = BATDONGSAN_TAXONOMY[demand].types[propertyType].name;
@@ -308,20 +505,23 @@ export const parseTaxonomyUrl = (urlPath) => {
     }
 
     let title = typeName;
-    if (ward && district) {
-      title = `${typeName} tại ${ward}, ${district}`;
+    if (project) {
+      title += ` tại Dự án ${project}`;
+      if (district) title += `, ${district}`;
+      if (city) title += `, ${city}`;
+    } else if (ward && district) {
+      title += ` tại ${ward}, ${district}`;
       if (city) title += `, ${city}`;
     } else if (district) {
-      title = `${typeName} tại ${district}`;
+      title += ` tại ${district}`;
       if (city) title += `, ${city}`;
     } else if (city) {
-      title = `${typeName} tại ${city}`;
-    } else {
-      title = raw
-        .replace(/-/g, ' ')
-        .replace(/^(ban|cho thue)\s+/i, (m) => m.charAt(0).toUpperCase() + m.slice(1).toLowerCase());
-      title = title.charAt(0).toUpperCase() + title.slice(1);
+      title += ` tại ${city}`;
     }
+
+    if (priceLabel) title += ` ${priceLabel}`;
+    if (areaLabel) title += ` ${areaLabel}`;
+    if (bedroom !== 'all') title += ` ${bedroom} phòng ngủ`;
 
     return {
       isTaxonomy: true,
@@ -331,6 +531,7 @@ export const parseTaxonomyUrl = (urlPath) => {
       city,
       district,
       ward,
+      project,
       bedroom,
       priceRange,
       areaRange,
@@ -399,42 +600,21 @@ export const parsePropertyUrl = (urlPath) => {
 
 /**
  * Tạo URL danh mục chuẩn Batdongsan theo Nhu cầu, Loại hình, Tỉnh/Thành & Quận/Huyện
+ * Tích hợp trực tiếp với bộ quy tắc buildSeoUrl chuẩn Technical SEO
  * Hỗ trợ các trường hợp Breadcrumb & Faceted Navigation:
  * - Cấp Loại hình: /ban-nha-rieng-nha-pho (hoặc /ban-can-ho-chung-cu, /cho-thue-can-ho-chung-cu)
  * - Cấp Tỉnh/Thành: /ban-nha-rieng-ha-noi
  * - Cấp Quận/Huyện: /ban-nha-rieng-quan-ba-dinh
  */
 export const getCategoryPermalink = (demand = 'sale', propertyType = null, cityName = null, districtName = null) => {
-  const group = BATDONGSAN_TAXONOMY[demand] || BATDONGSAN_TAXONOMY.sale;
-  
-  // Base type slug chuẩn (ví dụ /ban-nha-rieng, /ban-can-ho-chung-cu, hoặc base /nha-dat-ban)
-  const baseTypeSlug = (propertyType && group.types[propertyType])
-    ? group.types[propertyType].slug
-    : group.base;
-
-  // 1. Nếu có Quận/Huyện: Kết hợp Loại hình + Quận/Huyện (Ví dụ: /ban-nha-rieng-quan-ba-dinh)
-  if (districtName && districtName.trim()) {
-    const rawDistrictSlug = toVietnameseSlug(districtName.trim());
-    return `${baseTypeSlug}-${rawDistrictSlug}`;
-  }
-
-  // 2. Nếu có Tỉnh/Thành phố (không có Quận/Huyện): Kết hợp Loại hình + Tỉnh/Thành phố (Ví dụ: /ban-nha-rieng-ha-noi)
-  if (cityName && cityName.trim()) {
-    const citySlug = CITY_SLUGS[cityName.trim()] || toVietnameseSlug(cityName.trim());
-    return `${baseTypeSlug}-${citySlug}`;
-  }
-
-  // 3. Nếu chỉ có Loại hình BĐS (Ví dụ: Bán nhà riêng, nhà phố -> /ban-nha-rieng-nha-pho)
-  if (propertyType && group.types[propertyType]) {
-    if (propertyType === 'house') {
-      return demand === 'sale' ? '/ban-nha-rieng-nha-pho' : '/cho-thue-nha-rieng-nha-pho';
-    }
-    return group.types[propertyType].slug;
-  }
-
-  // 4. Mặc định trả về Base nhóm nhu cầu: /nha-dat-ban hoặc /nha-dat-cho-thue
-  return group.base;
+  return buildSeoUrl({
+    demand,
+    propertyType,
+    city: cityName,
+    district: districtName
+  });
 };
+
 
 /**
  * Xây dựng URL Faceted Taxonomy & Navigation chuẩn hóa

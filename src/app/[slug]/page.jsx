@@ -23,11 +23,24 @@ export function buildPropertyMetadata(matchedProperty) {
 }
 
 export function buildTaxonomyMetadata(taxonomyInfo) {
+  const canonicalUrl = `https://datbiendanang.vn${taxonomyInfo.canonicalUrl || ''}`;
+  const title = `${taxonomyInfo.title} | BDS Real Estate`;
+  const description = `Danh sách tin đăng ${taxonomyInfo.title} giá tốt, chính chủ, sổ hồng pháp lý rõ ràng, cập nhật liên tục 24/7.`;
   return {
-    title: taxonomyInfo.title,
-    description: `Danh sách tin đăng ${taxonomyInfo.title} giá tốt, chính chủ, cập nhật liên tục 24/7.`
+    title,
+    description,
+    alternates: {
+      canonical: canonicalUrl
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      type: 'website'
+    }
   };
 }
+
 
 export async function generateMetadata({ params }) {
   const { slug } = (await params) || {};
