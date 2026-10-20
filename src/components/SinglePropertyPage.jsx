@@ -1327,36 +1327,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             </div>
           )}
 
-          {/* E. SIMILAR PROPERTIES RECOMMENDATION */}
-          {singleConfig?.features?.showSimilarProperties !== false && similarProperties.length > 0 && (
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                  <span className="w-2 h-5 bg-rose-600 rounded-full"></span>
-                  Bất Động Sản Tương Tự Cùng Phân Khúc
-                </h3>
-                <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
-                  {similarProperties.length} sản phẩm
-                </span>
-              </div>
-
-              <div className={`grid gap-4 ${
-                similarLimit === 1
-                  ? 'grid-cols-1'
-                  : similarLimit === 2
-                  ? 'grid-cols-1 sm:grid-cols-2'
-                  : similarLimit === 3
-                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-                  : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
-              }`}>
-                {similarProperties.map(sim => (
-                  <ListingCard key={sim.id} property={sim} viewMode="grid" />
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* F. THÔNG BÁO VỀ NỘI DUNG VÀ MIỄN TRỪ TRÁCH NHIỆM CHUẨN BATDONGSAN (CẤU HÌNH TRONG ADMIN) */}
+          {/* E. THÔNG BÁO VỀ NỘI DUNG VÀ MIỄN TRỪ TRÁCH NHIỆM CHUẨN BATDONGSAN (CẤU HÌNH TRONG ADMIN) */}
           {singleConfig?.disclaimer?.enabled !== false && (() => {
             const discCfg = singleConfig?.disclaimer || {};
             const bgClass = discCfg.bgStyle === 'amber' ? 'bg-amber-50/90 border-amber-200/90 text-amber-900'
@@ -1760,7 +1731,43 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
         </div>
       </div>
 
-      {/* 4. FULLSCREEN LIGHTBOX MODAL */}
+      {/* 4. BẤT ĐỘNG SẢN TƯƠNG TỰ CÙNG PHÂN KHÚC (FULL WIDTH CONTAINER) */}
+      {singleConfig?.features?.showSimilarProperties !== false && similarProperties.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 mb-8">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+              <div>
+                <h3 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2.5">
+                  <span className="w-2.5 h-6 bg-rose-600 rounded-full"></span>
+                  <span>Bất Động Sản Tương Tự Cùng Phân Khúc</span>
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                  Khám phá các bất động sản tương đồng về phân khúc hoặc khu vực {property.district ? `tại ${property.district}, ` : ''}{property.city}
+                </p>
+              </div>
+              <span className="self-start sm:self-center text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-3.5 py-1.5 rounded-full">
+                {similarProperties.length} bất động sản gợi ý
+              </span>
+            </div>
+
+            <div className={`grid gap-6 ${
+              similarLimit === 1
+                ? 'grid-cols-1 max-w-md mx-auto'
+                : similarLimit === 2
+                ? 'grid-cols-1 sm:grid-cols-2 max-w-3xl mx-auto'
+                : similarLimit === 3
+                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+            }`}>
+              {similarProperties.map(sim => (
+                <ListingCard key={sim.id} property={sim} viewMode="grid" />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 5. FULLSCREEN LIGHTBOX MODAL */}
       {isLightboxOpen && (
         <div className="fixed inset-0 z-50 bg-black/95 flex flex-col justify-between p-4 animate-in fade-in duration-200">
           <div className="flex items-center justify-between text-white pb-3 border-b border-white/10">
