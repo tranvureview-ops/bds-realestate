@@ -5,7 +5,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { DEFAULT_SINGLE_CONFIG } from '../data/mockData';
 
 export default function AdminSingleConfigManager() {
-  const { singleConfig, updateSingleConfig, resetSingleConfig, showToast, systemConfig } = useRealEstate();
+  const { singleConfig, updateSingleConfig, resetSingleConfig, showToast, systemConfig, updateSystemConfig } = useRealEstate();
 
   // Local state for editing form
   const [formData, setFormData] = useState(singleConfig || DEFAULT_SINGLE_CONFIG);
@@ -63,6 +63,12 @@ export default function AdminSingleConfigManager() {
   const handleSave = (e) => {
     if (e) e.preventDefault();
     updateSingleConfig(formData);
+    if (updateSystemConfig && systemConfig && formData.features?.similarPropertiesLimit) {
+      updateSystemConfig({
+        ...systemConfig,
+        similarPropertiesLimit: Number(formData.features.similarPropertiesLimit)
+      });
+    }
   };
 
   const handleReset = () => {
@@ -396,7 +402,7 @@ export default function AdminSingleConfigManager() {
                 { key: 'showPrintButton', label: 'Nút In Bản Tin / Xuất Brochure Giấy', desc: 'In tờ rơi khổ A4 chứa mã QR và hotline kiểm định', icon: 'fa-print' },
                 { key: 'showShareButton', label: 'Nút Chia Sẻ Mạng Xã Hội & Copy Link', desc: 'Chia sẻ nhanh qua Zalo, Facebook, Tin nhắn SMS', icon: 'fa-share-nodes' },
                 { key: 'showRelatedKeywords', label: 'Khối Từ Khóa Tìm Kiếm & Hashtag SEO', desc: 'Gợi ý các cụm từ khóa khu vực để tăng thứ hạng SEO', icon: 'fa-tags' },
-                { key: 'showSimilarProperties', label: 'Khối Bất Động Sản Tương Tự', desc: 'Hiển thị 3 bất động sản cùng phân khúc hoặc quận', icon: 'fa-layer-group' },
+                { key: 'showSimilarProperties', label: 'Khối Bất Động Sản Tương Tự', desc: `Hiển thị ${formData.features?.similarPropertiesLimit || 4} bất động sản cùng phân khúc hoặc khu vực`, icon: 'fa-layer-group' },
                 { key: 'showInteractiveMap', label: 'Bản Đồ Vệ Tinh & Tiện Ích Xung Quanh', desc: 'Bản đồ vị trí, bệnh viện, trường học, siêu thị lân cận', icon: 'fa-map-location-dot' },
                 { key: 'showAuthorCard', label: 'Thẻ Thông Tin Môi Giới / Chủ Nhà', desc: 'Avatar, hotline, số Zalo và đánh giá uy tín người bán', icon: 'fa-address-card' },
                 { key: 'showAdministrativeMergerAlert', label: 'Cảnh Báo Đối Chiếu ĐVHC Sáp Nhập Mới', desc: 'Hiển thị đối chiếu Địa chỉ mới vs Địa chỉ cũ (2024-2025)', icon: 'fa-map-pin' }
@@ -430,6 +436,72 @@ export default function AdminSingleConfigManager() {
                 );
               })}
             </div>
+
+            {/* Cấu hình Số lượng hiển thị Khối Bất Động Sản Tương Tự */}
+            {formData.features?.showSimilarProperties !== false && (
+              <div className="p-4 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <div className="font-bold text-white text-xs flex items-center gap-2">
+                      <i className="fa-solid fa-layer-group text-rose-500"></i>
+                      <span>Số lượng BĐS tương tự hiển thị (Trang chi tiết):</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-950 text-rose-300 border border-rose-800">
+                        {formData.features?.similarPropertiesLimit || 4} sản phẩm
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                      Quy định số lượng tin bất động sản cùng phân khúc hoặc khu vực gợi ý cho khách hàng ở chân trang chi tiết. Mặc định là 4 sản phẩm.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <select
+                      value={formData.features?.similarPropertiesLimit || 4}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        features: {
+                          ...prev.features,
+                          similarPropertiesLimit: Number(e.target.value)
+                        }
+                      }))}
+                      className="p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-bold text-xs outline-none focus:border-rose-500"
+                    >
+                      <option value={2}>2 sản phẩm</option>
+                      <option value={3}>3 sản phẩm</option>
+                      <option value={4}>4 sản phẩm (Mặc định)</option>
+                      <option value={6}>6 sản phẩm</option>
+                      <option value={8}>8 sản phẩm</option>
+                      <option value={12}>12 sản phẩm</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Preset quick buttons */}
+                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase">Chọn nhanh:</span>
+                  {[2, 3, 4, 6, 8, 12].map(val => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => setFormData(prev => ({
+                        ...prev,
+                        features: {
+                          ...prev.features,
+                          similarPropertiesLimit: val
+                        }
+                      }))}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
+                        (formData.features?.similarPropertiesLimit || 4) === val
+                          ? 'bg-rose-600 text-white shadow-sm'
+                          : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                      }`}
+                    >
+                      {val} sản phẩm
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

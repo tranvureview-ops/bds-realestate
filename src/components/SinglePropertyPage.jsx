@@ -152,10 +152,23 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   const monthlyInterest = loanAmount * (loanInterest / 100 / 12);
   const firstMonthPayment = monthlyPrincipal + monthlyInterest;
 
-  // Similar properties (same city or same property type)
-  const similarProperties = properties
-    .filter(p => p.id !== property.id && (p.city === property.city || p.propertyType === property.propertyType))
-    .slice(0, 3);
+  // Similar properties limit (default 4, configurable via Admin)
+  const similarLimit = Number(
+    singleConfig?.features?.similarPropertiesLimit || 
+    singleConfig?.similarPropertiesLimit || 
+    systemConfig?.similarPropertiesLimit || 
+    4
+  );
+
+  // Similar properties (prioritize same city or same property type)
+  const matchingProperties = properties.filter(
+    p => p.id !== property.id && (p.city === property.city || p.propertyType === property.propertyType)
+  );
+  // Fallback if not enough matching properties to satisfy similarLimit, backfill from other active properties
+  const otherProperties = properties.filter(
+    p => p.id !== property.id && !matchingProperties.some(mp => mp.id === p.id)
+  );
+  const similarProperties = [...matchingProperties, ...otherProperties].slice(0, similarLimit);
 
   const handleAppointmentSubmit = async (e) => {
     e.preventDefault();
@@ -1175,131 +1188,6 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             );
           })()}
 
-          {/* B3. THÔNG BÁO VỀ NỘI DUNG VÀ MIỄN TRỪ TRÁCH NHIỆM CHUẨN BATDONGSAN (CẤU HÌNH TRONG ADMIN) */}
-          {singleConfig?.disclaimer?.enabled !== false && (() => {
-            const discCfg = singleConfig?.disclaimer || {};
-            const bgClass = discCfg.bgStyle === 'amber' ? 'bg-amber-50/90 border-amber-200/90 text-amber-900'
-              : discCfg.bgStyle === 'blue' ? 'bg-blue-50/90 border-blue-200/90 text-blue-900'
-              : discCfg.bgStyle === 'white' ? 'bg-white border-2 border-slate-200 text-slate-900'
-              : 'bg-slate-100/90 border-slate-200/90 text-slate-800';
-            
-            const badgeClass = discCfg.badgeColor === 'rose' ? 'bg-rose-500/10 text-rose-600 border border-rose-500/30'
-              : discCfg.badgeColor === 'blue' ? 'bg-blue-500/10 text-blue-600 border border-blue-500/30'
-              : discCfg.badgeColor === 'emerald' ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/30'
-              : discCfg.badgeColor === 'slate' ? 'bg-slate-800 text-white'
-              : 'bg-amber-500/10 text-amber-600 border border-amber-500/30';
-
-            const hotlineDisplay = (discCfg.hotline && discCfg.hotline !== '1900 1881') ? discCfg.hotline : (systemConfig?.hotline || '0898 246 607');
-            const hotlineClean = hotlineDisplay.replace(/\s+/g, '');
-            const platformName = (discCfg.platformName && discCfg.platformName !== 'Batdongsan.com.vn') ? discCfg.platformName : (systemConfig?.brandShortName || 'Đất Biển Đà Nẵng');
-
-            return (
-              <div className={`rounded-3xl p-6 sm:p-7 border shadow-sm space-y-3.5 transition-all ${bgClass}`}>
-                <div className="flex items-center justify-between flex-wrap gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold ${badgeClass}`}>
-                      <i className={discCfg.icon || 'fa-solid fa-shield-halved'}></i>
-                    </span>
-                    <h4 className="text-xs font-black uppercase tracking-wider text-slate-800">
-                      {discCfg.title || 'Thông Báo Về Nội Dung & Miễn Trừ Trách Nhiệm'}
-                    </h4>
-                  </div>
-
-                  {discCfg.showReportButton !== false && (
-                    <button
-                      type="button"
-                      onClick={() => setIsReportModalOpen(true)}
-                      className="px-3 py-1.5 bg-white border border-rose-200 hover:border-rose-400 text-rose-600 hover:text-rose-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer"
-                    >
-                      <i className="fa-solid fa-flag text-[11px]"></i>
-                      <span>{discCfg.reportButtonText || 'Báo cáo tin này'}</span>
-                    </button>
-                  )}
-                </div>
-
-                <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed text-justify">
-                  Quý vị đang xem nội dung tin rao <strong className="text-slate-900 font-bold">"{property.title}"</strong> - Mã tin <span className="font-mono font-bold text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-200">{property.id}</span>. Nội dung tin đăng này do Người đăng tin cung cấp và chịu trách nhiệm về tính chính xác, đầy đủ và hợp pháp của thông tin. Với tư cách là Nền tảng thương mại điện tử trung gian, <strong>{platformName}</strong> thực hiện rà soát, kiểm duyệt trên cơ sở các thông tin được cung cấp. Quý vị vui lòng chủ động kiểm tra, thẩm định thông tin pháp lý và thực tế trước khi giao dịch. Nếu phát hiện nội dung không chính xác hoặc vi phạm, xin vui lòng thông báo qua{' '}
-                  <a href={`tel:${hotlineClean}`} className="text-red-600 font-bold hover:underline inline-flex items-center gap-0.5">
-                    Hotline {hotlineDisplay}
-                  </a>{' '}
-                  hoặc công cụ{' '}
-                  <button
-                    type="button"
-                    onClick={() => setIsReportModalOpen(true)}
-                    className="inline-flex items-center gap-1 font-bold text-red-600 hover:text-red-700 underline decoration-red-400 underline-offset-2 cursor-pointer"
-                  >
-                    <i className="fa-solid fa-triangle-exclamation text-xs"></i>
-                    Báo cáo vi phạm
-                  </button>{' '}
-                  để chúng tôi tiếp nhận và xử lý theo quy định.
-                </p>
-
-                {discCfg.showAuditChecklist !== false && (
-                  <div className="flex flex-wrap items-center gap-3 pt-2.5 border-t border-slate-200/80 text-xs">
-                    {(discCfg.auditItems || ['Đã kiểm duyệt sơ bộ', 'Tuân thủ quy chế sàn TMĐT', 'Mã tin được bảo hộ dữ liệu']).map((item, idx) => (
-                      <React.Fragment key={idx}>
-                        {idx > 0 && <span className="text-slate-300">•</span>}
-                        <span className="text-slate-500 font-medium flex items-center gap-1">
-                          <i className="fa-regular fa-circle-check text-emerald-600"></i>
-                          {item}
-                        </span>
-                      </React.Fragment>
-                    ))}
-                    <span className="text-slate-300">•</span>
-                    <button
-                      onClick={() => window.print()}
-                      className="text-slate-600 hover:text-slate-900 font-semibold flex items-center gap-1 transition cursor-pointer"
-                    >
-                      <i className="fa-solid fa-print text-indigo-500 text-xs"></i>
-                      In bản tin này
-                    </button>
-                    <span className="text-slate-300">•</span>
-                    <button
-                      onClick={() => setIsShareModalOpen(true)}
-                      className="text-slate-600 hover:text-slate-900 font-semibold flex items-center gap-1 transition cursor-pointer"
-                    >
-                      <i className="fa-solid fa-share-nodes text-emerald-500 text-xs"></i>
-                      Chia sẻ
-                    </button>
-                  </div>
-                )}
-              </div>
-            );
-          })()}
-
-          {/* B4. TÌM KIẾM THEO TỪ KHÓA LIÊN QUAN & HASHTAG BĐS */}
-          {singleConfig?.features?.showRelatedKeywords !== false && (
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                    <span className="w-2 h-5 bg-indigo-600 rounded-full"></span>
-                    Tìm Kiếm Theo Từ Khóa & Cụm Từ Liên Quan
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    Khám phá các bất động sản tương tự trong khu vực {property.district}, {property.city}
-                  </p>
-                </div>
-              </div>
-
-              {/* Danh sách các cụm từ khóa sinh theo công thức SEO */}
-              <div className="flex flex-wrap gap-2.5">
-                {seoFormulaKeywords.map((kw, idx) => (
-                    <Link
-                      key={idx}
-                      to={kw.url}
-                      className="group px-3.5 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 hover:border-indigo-400 rounded-2xl text-xs font-semibold text-slate-800 hover:text-indigo-700 transition flex items-center gap-2 shadow-xs hover:shadow-sm"
-                    >
-                      <i className="fa-solid fa-magnifying-glass text-[11px] text-slate-400 group-hover:text-indigo-600 transition"></i>
-                      <span>{kw.text}</span>
-                      <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-300 group-hover:text-indigo-500 transition opacity-0 group-hover:opacity-100"></i>
-                    </Link>
-                  ))}
-                </div>
-
-            </div>
-          )}
-
           {/* C. SATELLITE GIS MAP & NEARBY FACILITIES */}
           {singleConfig?.features?.showInteractiveMap !== false && (
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
@@ -1440,16 +1328,153 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
           )}
 
           {/* E. SIMILAR PROPERTIES RECOMMENDATION */}
-          {singleConfig?.features?.showSimilarProperties !== false && (
+          {singleConfig?.features?.showSimilarProperties !== false && similarProperties.length > 0 && (
             <div className="space-y-4">
-              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                <span className="w-2 h-5 bg-rose-600 rounded-full"></span>
-                Bất Động Sản Tương Tự Cùng Phân Khúc
-              </h3>
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                  <span className="w-2 h-5 bg-rose-600 rounded-full"></span>
+                  Bất Động Sản Tương Tự Cùng Phân Khúc
+                </h3>
+                <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                  {similarProperties.length} sản phẩm
+                </span>
+              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className={`grid gap-4 ${
+                similarLimit === 1
+                  ? 'grid-cols-1'
+                  : similarLimit === 2
+                  ? 'grid-cols-1 sm:grid-cols-2'
+                  : similarLimit === 3
+                  ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                  : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+              }`}>
                 {similarProperties.map(sim => (
                   <ListingCard key={sim.id} property={sim} viewMode="grid" />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* F. THÔNG BÁO VỀ NỘI DUNG VÀ MIỄN TRỪ TRÁCH NHIỆM CHUẨN BATDONGSAN (CẤU HÌNH TRONG ADMIN) */}
+          {singleConfig?.disclaimer?.enabled !== false && (() => {
+            const discCfg = singleConfig?.disclaimer || {};
+            const bgClass = discCfg.bgStyle === 'amber' ? 'bg-amber-50/90 border-amber-200/90 text-amber-900'
+              : discCfg.bgStyle === 'blue' ? 'bg-blue-50/90 border-blue-200/90 text-blue-900'
+              : discCfg.bgStyle === 'white' ? 'bg-white border-2 border-slate-200 text-slate-900'
+              : 'bg-slate-100/90 border-slate-200/90 text-slate-800';
+            
+            const badgeClass = discCfg.badgeColor === 'rose' ? 'bg-rose-500/10 text-rose-600 border border-rose-500/30'
+              : discCfg.badgeColor === 'blue' ? 'bg-blue-500/10 text-blue-600 border border-blue-500/30'
+              : discCfg.badgeColor === 'emerald' ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/30'
+              : discCfg.badgeColor === 'slate' ? 'bg-slate-800 text-white'
+              : 'bg-amber-500/10 text-amber-600 border border-amber-500/30';
+
+            const hotlineDisplay = (discCfg.hotline && discCfg.hotline !== '1900 1881') ? discCfg.hotline : (systemConfig?.hotline || '0898 246 607');
+            const hotlineClean = hotlineDisplay.replace(/\s+/g, '');
+            const platformName = (discCfg.platformName && discCfg.platformName !== 'Batdongsan.com.vn') ? discCfg.platformName : (systemConfig?.brandShortName || 'Đất Biển Đà Nẵng');
+
+            return (
+              <div className={`rounded-3xl p-6 sm:p-7 border shadow-sm space-y-3.5 transition-all ${bgClass}`}>
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold ${badgeClass}`}>
+                      <i className={discCfg.icon || 'fa-solid fa-shield-halved'}></i>
+                    </span>
+                    <h4 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                      {discCfg.title || 'Thông Báo Về Nội Dung & Miễn Trừ Trách Nhiệm'}
+                    </h4>
+                  </div>
+
+                  {discCfg.showReportButton !== false && (
+                    <button
+                      type="button"
+                      onClick={() => setIsReportModalOpen(true)}
+                      className="px-3 py-1.5 bg-white border border-rose-200 hover:border-rose-400 text-rose-600 hover:text-rose-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                    >
+                      <i className="fa-solid fa-flag text-[11px]"></i>
+                      <span>{discCfg.reportButtonText || 'Báo cáo tin này'}</span>
+                    </button>
+                  )}
+                </div>
+
+                <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed text-justify">
+                  Quý vị đang xem nội dung tin rao <strong className="text-slate-900 font-bold">"{property.title}"</strong> - Mã tin <span className="font-mono font-bold text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-200">{property.id}</span>. Nội dung tin đăng này do Người đăng tin cung cấp và chịu trách nhiệm về tính chính xác, đầy đủ và hợp pháp của thông tin. Với tư cách là Nền tảng thương mại điện tử trung gian, <strong>{platformName}</strong> thực hiện rà soát, kiểm duyệt trên cơ sở các thông tin được cung cấp. Quý vị vui lòng chủ động kiểm tra, thẩm định thông tin pháp lý và thực tế trước khi giao dịch. Nếu phát hiện nội dung không chính xác hoặc vi phạm, xin vui lòng thông báo qua{' '}
+                  <a href={`tel:${hotlineClean}`} className="text-red-600 font-bold hover:underline inline-flex items-center gap-0.5">
+                    Hotline {hotlineDisplay}
+                  </a>{' '}
+                  hoặc công cụ{' '}
+                  <button
+                    type="button"
+                    onClick={() => setIsReportModalOpen(true)}
+                    className="inline-flex items-center gap-1 font-bold text-red-600 hover:text-red-700 underline decoration-red-400 underline-offset-2 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-triangle-exclamation text-xs"></i>
+                    Báo cáo vi phạm
+                  </button>{' '}
+                  để chúng tôi tiếp nhận và xử lý theo quy định.
+                </p>
+
+                {discCfg.showAuditChecklist !== false && (
+                  <div className="flex flex-wrap items-center gap-3 pt-2.5 border-t border-slate-200/80 text-xs">
+                    {(discCfg.auditItems || ['Đã kiểm duyệt sơ bộ', 'Tuân thủ quy chế sàn TMĐT', 'Mã tin được bảo hộ dữ liệu']).map((item, idx) => (
+                      <React.Fragment key={idx}>
+                        {idx > 0 && <span className="text-slate-300">•</span>}
+                        <span className="text-slate-500 font-medium flex items-center gap-1">
+                          <i className="fa-regular fa-circle-check text-emerald-600"></i>
+                          {item}
+                        </span>
+                      </React.Fragment>
+                    ))}
+                    <span className="text-slate-300">•</span>
+                    <button
+                      onClick={() => window.print()}
+                      className="text-slate-600 hover:text-slate-900 font-semibold flex items-center gap-1 transition cursor-pointer"
+                    >
+                      <i className="fa-solid fa-print text-indigo-500 text-xs"></i>
+                      In bản tin này
+                    </button>
+                    <span className="text-slate-300">•</span>
+                    <button
+                      onClick={() => setIsShareModalOpen(true)}
+                      className="text-slate-600 hover:text-slate-900 font-semibold flex items-center gap-1 transition cursor-pointer"
+                    >
+                      <i className="fa-solid fa-share-nodes text-emerald-500 text-xs"></i>
+                      Chia sẻ
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* G. TÌM KIẾM THEO TỪ KHÓA LIÊN QUAN & HASHTAG BĐS */}
+          {singleConfig?.features?.showRelatedKeywords !== false && (
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                    <span className="w-2 h-5 bg-indigo-600 rounded-full"></span>
+                    Tìm Kiếm Theo Từ Khóa & Cụm Từ Liên Quan
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Khám phá các bất động sản tương tự trong khu vực {property.district}, {property.city}
+                  </p>
+                </div>
+              </div>
+
+              {/* Danh sách các cụm từ khóa sinh theo công thức SEO */}
+              <div className="flex flex-wrap gap-2.5">
+                {seoFormulaKeywords.map((kw, idx) => (
+                  <Link
+                    key={idx}
+                    to={kw.url}
+                    className="group px-3.5 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 hover:border-indigo-400 rounded-2xl text-xs font-semibold text-slate-800 hover:text-indigo-700 transition flex items-center gap-2 shadow-xs hover:shadow-sm"
+                  >
+                    <i className="fa-solid fa-magnifying-glass text-[11px] text-slate-400 group-hover:text-indigo-600 transition"></i>
+                    <span>{kw.text}</span>
+                    <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-300 group-hover:text-indigo-500 transition opacity-0 group-hover:opacity-100"></i>
+                  </Link>
                 ))}
               </div>
             </div>

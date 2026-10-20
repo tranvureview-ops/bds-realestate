@@ -2437,9 +2437,10 @@ export const DEFAULT_SYSTEM_CONFIG = {
   maxRegistrationsPerIpPerDay: 3, // Anti-cheat: Giới hạn 1 địa chỉ IP / thiết bị chỉ nhận thưởng tối đa 3 tài khoản / ngày
   enableWelcomeBonus: true, // Bật/Tắt chương trình quà tặng chào mừng thành viên mới
 
-  // Cấu hình Phân Trang Danh Mục & Số lượng tin Trang Chủ
+  // Cấu hình Phân Trang Danh Mục & Số lượng tin Trang Chủ & Trang Chi Tiết
   categoryPageSize: 12, // Số lượng BĐS trên mỗi trang phân trang tại các danh mục (Nhà đất bán, Cho thuê, Taxonomy)
-  homePageSize: 18 // Số lượng BĐS hiển thị trên Trang Chủ
+  homePageSize: 18, // Số lượng BĐS hiển thị trên Trang Chủ
+  similarPropertiesLimit: 4 // Số lượng BĐS tương tự hiển thị trên Trang Chi Tiết (Mặc định 4 sản phẩm)
 };
 
 // Cấu hình Trang Chi Tiết Bất Động Sản (Single Property Page Settings)
@@ -2471,6 +2472,7 @@ export const DEFAULT_SINGLE_CONFIG = {
     showShareButton: true,
     showRelatedKeywords: true,
     showSimilarProperties: true,
+    similarPropertiesLimit: 4, // Số lượng BĐS tương tự hiển thị (mặc định 4 sản phẩm)
     showInteractiveMap: true,
     showAuthorCard: true,
     showVipBadge: true,
