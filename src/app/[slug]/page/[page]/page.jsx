@@ -46,6 +46,13 @@ export function renderTaxonomyPage(taxonomyInfo, page = 1) {
 
 export default async function PaginatedTaxonomyPage({ params }) {
   const { slug, page } = (await params) || {};
+
+  // Chuyển hướng 301 chuẩn SEO cho các alias hoặc lỗi chính tả cũ (như biethu -> biet-thu)
+  if (slug && slug.includes('biethu')) {
+    const cleanSlug = slug.replace(/biethu/g, 'biet-thu');
+    permanentRedirect(`/${cleanSlug}/page/${page}/`);
+  }
+
   const pageNum = parseInt(page, 10);
   const currentPath = `/${slug || ''}`;
 
@@ -69,12 +76,18 @@ export default async function PaginatedTaxonomyPage({ params }) {
   const serverProps = await fetchServerProperties();
   const allProps = (serverProps && serverProps.length > 0) ? serverProps : INITIAL_PROPERTIES;
   
-  // Lọc sơ bộ theo danh mục để tính đúng totalPages
+  // Lọc chuẩn xác theo danh mục và bộ lọc clean slug để tính đúng totalPages
   const categoryFilters = {
     demand: taxonomyInfo.demand || 'sale',
     propertyType: taxonomyInfo.propertyType || 'all',
     city: taxonomyInfo.city || '',
-    district: taxonomyInfo.district || ''
+    district: taxonomyInfo.district || '',
+    ward: taxonomyInfo.ward || '',
+    project: taxonomyInfo.project || '',
+    priceRange: taxonomyInfo.priceRange || 'all',
+    minPrice: taxonomyInfo.minPrice,
+    maxPrice: taxonomyInfo.maxPrice,
+    areaRange: taxonomyInfo.areaRange || 'all'
   };
   const matchedProps = filterProperties(allProps, categoryFilters);
   const pageSize = DEFAULT_SYSTEM_CONFIG.categoryPageSize || 12;

@@ -70,6 +70,18 @@ export function renderTaxonomyPage(taxonomyInfo, page = 1) {
 export default async function Page({ params, searchParams }) {
   const { slug } = (await params) || {};
   const sp = (await searchParams) || {};
+
+  // Chuyển hướng 301 chuẩn SEO cho các alias hoặc lỗi chính tả cũ (như biethu -> biet-thu)
+  if (slug && slug.includes('biethu')) {
+    const cleanSlug = slug.replace(/biethu/g, 'biet-thu');
+    const queryParams = new URLSearchParams();
+    for (const [k, v] of Object.entries(sp)) {
+      if (v) queryParams.set(k, String(v));
+    }
+    const qs = queryParams.toString();
+    permanentRedirect(qs ? `/${cleanSlug}/?${qs}` : `/${cleanSlug}/`);
+  }
+
   const currentPath = `/${slug || ''}`;
 
   const taxonomyInfo = parseTaxonomyUrl(currentPath);

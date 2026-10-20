@@ -96,11 +96,11 @@ export const BATDONGSAN_TAXONOMY = {
     title: 'Nhà Đất Bán Toàn Quốc',
     types: {
       apartment: { slug: '/ban-can-ho-chung-cu', name: 'Bán căn hộ chung cư' },
-      'mini-apartment': { slug: '/ban-chung-cu-mini-can-ho-dich-vu', name: 'Bán chung cư mini, căn hộ dịch vụ' },
+      'mini-apartment': { slug: '/ban-chung-cu-mini', name: 'Bán chung cư mini, căn hộ dịch vụ' },
       house: { slug: '/ban-nha-rieng', name: 'Bán nhà riêng' },
-      villa: { slug: '/ban-nha-biethu-lien-ke', name: 'Bán nhà biệt thự, liền kề' },
+      villa: { slug: '/ban-nha-biet-thu-lien-ke', name: 'Bán nhà biệt thự, liền kề' },
       'street-house': { slug: '/ban-nha-mat-pho', name: 'Bán nhà mặt phố' },
-      shophouse: { slug: '/ban-shophouse-nha-pho-thuong-mai', name: 'Bán shophouse' },
+      shophouse: { slug: '/ban-shophouse', name: 'Bán shophouse' },
       'project-land': { slug: '/ban-dat-nen-du-an', name: 'Bán đất nền dự án' },
       land: { slug: '/ban-dat', name: 'Bán đất' },
       'farm-resort': { slug: '/ban-trang-trai-khu-nghi-duong', name: 'Bán trang trại, khu nghỉ dưỡng' },
@@ -115,11 +115,11 @@ export const BATDONGSAN_TAXONOMY = {
     title: 'Cho Thuê Nhà Đất Toàn Quốc',
     types: {
       apartment: { slug: '/cho-thue-can-ho-chung-cu', name: 'Cho thuê căn hộ chung cư' },
-      'mini-apartment': { slug: '/cho-thue-chung-cu-mini-can-ho-dich-vu', name: 'Cho thuê chung cư mini, căn hộ dịch vụ' },
+      'mini-apartment': { slug: '/cho-thue-chung-cu-mini', name: 'Cho thuê chung cư mini, căn hộ dịch vụ' },
       house: { slug: '/cho-thue-nha-rieng', name: 'Cho thuê nhà riêng' },
-      villa: { slug: '/cho-thue-nha-biethu-lien-ke', name: 'Cho thuê nhà biệt thự, liền kề' },
+      villa: { slug: '/cho-thue-nha-biet-thu-lien-ke', name: 'Cho thuê nhà biệt thự, liền kề' },
       'street-house': { slug: '/cho-thue-nha-mat-pho', name: 'Cho thuê nhà mặt phố' },
-      shophouse: { slug: '/cho-thue-shophouse-nha-pho-thuong-mai', name: 'Cho thuê shophouse' },
+      shophouse: { slug: '/cho-thue-shophouse', name: 'Cho thuê shophouse' },
       'project-land': { slug: '/cho-thue-dat-nen-du-an', name: 'Cho thuê đất nền dự án' },
       land: { slug: '/cho-thue-dat', name: 'Cho thuê đất' },
       'farm-resort': { slug: '/cho-thue-trang-trai-khu-nghi-duong', name: 'Cho thuê trang trại, khu nghỉ dưỡng' },
@@ -225,9 +225,9 @@ export const slugToTitleCase = (slug) => {
  *        -> "/ban-can-ho-chung-cu-celadon-city-tu-80-m2-den-100-m2"
  */
 export const buildKeywordCleanSlug = (text) => {
-  if (!text) return '/nha-dat-ban';
+  if (!text) return '/nha-dat-ban/';
   const clean = toVietnameseSlug(text);
-  return clean ? `/${clean}` : '/nha-dat-ban';
+  return clean ? `/${clean}/` : '/nha-dat-ban/';
 };
 
 /**
@@ -372,6 +372,11 @@ export const buildSeoUrl = ({
     }
   }
 
+  // Luôn đảm bảo đường dẫn danh mục chuẩn SEO có trailing slash
+  if (!fullCleanPath.endsWith('/')) {
+    fullCleanPath += '/';
+  }
+
   const qs = queryParams.toString();
   return qs ? `${fullCleanPath}?${qs}` : fullCleanPath;
 };
@@ -470,7 +475,18 @@ export const parseTaxonomyUrl = (urlPath) => {
           (typeKey === 'house' && clean === '/cho-thue-nha-rieng-nha-pho' && demand === 'rent') ||
           (typeKey === 'villa' && clean === '/ban-nha-biet-thu-lien-ke' && demand === 'sale') ||
           (typeKey === 'villa' && clean === '/cho-thue-nha-biet-thu-lien-ke' && demand === 'rent') ||
+          (typeKey === 'villa' && clean === '/ban-nha-biethu-lien-ke' && demand === 'sale') ||
+          (typeKey === 'villa' && clean === '/cho-thue-nha-biethu-lien-ke' && demand === 'rent') ||
+          (typeKey === 'villa' && clean === '/ban-biet-thu' && demand === 'sale') ||
+          (typeKey === 'villa' && clean === '/cho-thue-biet-thu' && demand === 'rent') ||
           (typeKey === 'shophouse' && clean === '/ban-shophouse' && demand === 'sale') ||
+          (typeKey === 'shophouse' && clean === '/ban-shophouse-nha-pho-thuong-mai' && demand === 'sale') ||
+          (typeKey === 'shophouse' && clean === '/cho-thue-shophouse' && demand === 'rent') ||
+          (typeKey === 'shophouse' && clean === '/cho-thue-shophouse-nha-pho-thuong-mai' && demand === 'rent') ||
+          (typeKey === 'mini-apartment' && clean === '/ban-chung-cu-mini' && demand === 'sale') ||
+          (typeKey === 'mini-apartment' && clean === '/ban-chung-cu-mini-can-ho-dich-vu' && demand === 'sale') ||
+          (typeKey === 'mini-apartment' && clean === '/cho-thue-chung-cu-mini' && demand === 'rent') ||
+          (typeKey === 'mini-apartment' && clean === '/cho-thue-chung-cu-mini-can-ho-dich-vu' && demand === 'rent') ||
           (typeKey === 'warehouse' && clean === '/cho-thue-kho-nha-xuong-dat' && demand === 'rent')) {
         return buildResult({
           isTaxonomy: true,
@@ -503,8 +519,9 @@ export const parseTaxonomyUrl = (urlPath) => {
     const raw = clean.slice(1); // bỏ dấu /
 
     // A. Demand
-    const isRent = raw.startsWith('cho-thue-') || raw.startsWith('nha-dat-cho-thue');
+    const isRent = raw.startsWith('cho-thue-') || raw.startsWith('nha-dat-cho-thue') || raw.startsWith('cho-thue-nha-dat');
     const demand = isRent ? 'rent' : 'sale';
+    const isGeneralNhaDat = raw.startsWith('nha-dat-') || raw.startsWith('ban-nha-dat') || raw.startsWith('cho-thue-nha-dat');
 
     // B. PropertyType (Nhận diện chính xác 12 danh mục chuẩn SEO)
     let propertyType = 'all';
@@ -512,7 +529,8 @@ export const parseTaxonomyUrl = (urlPath) => {
     if (raw.includes('chung-cu-mini-can-ho-dich-vu')) { propertyType = 'mini-apartment'; matchedTypeSlug = 'chung-cu-mini-can-ho-dich-vu'; }
     else if (raw.includes('chung-cu-mini')) { propertyType = 'mini-apartment'; matchedTypeSlug = 'chung-cu-mini'; }
     else if (raw.includes('can-ho-chung-cu')) { propertyType = 'apartment'; matchedTypeSlug = 'can-ho-chung-cu'; }
-    else if (raw.includes('chung-cu')) { propertyType = 'apartment'; matchedTypeSlug = 'chung-cu'; }
+    else if (raw.includes('can-ho') || raw.includes('chung-cu')) { propertyType = 'apartment'; matchedTypeSlug = raw.includes('can-ho') ? 'can-ho' : 'chung-cu'; }
+    else if (raw.includes('nha-biet-thu-lien-ke')) { propertyType = 'villa'; matchedTypeSlug = 'nha-biet-thu-lien-ke'; }
     else if (raw.includes('nha-biethu-lien-ke')) { propertyType = 'villa'; matchedTypeSlug = 'nha-biethu-lien-ke'; }
     else if (raw.includes('nha-biet-thu')) { propertyType = 'villa'; matchedTypeSlug = 'nha-biet-thu'; }
     else if (raw.includes('biet-thu')) { propertyType = 'villa'; matchedTypeSlug = 'biet-thu'; }
@@ -528,11 +546,29 @@ export const parseTaxonomyUrl = (urlPath) => {
     else if (raw.includes('bat-dong-san-khac')) { propertyType = 'other'; matchedTypeSlug = 'bat-dong-san-khac'; }
     else if (raw.includes('mat-bang-van-phong')) { propertyType = 'office'; matchedTypeSlug = 'mat-bang-van-phong'; }
     else if (raw.includes('van-phong')) { propertyType = 'office'; matchedTypeSlug = 'van-phong'; }
-    else if (raw.includes('nha-rieng')) { propertyType = 'house'; matchedTypeSlug = 'nha-rieng'; }
-    else if (raw.includes('-dat-') || raw.endsWith('-dat') || raw.startsWith('ban-dat') || raw.startsWith('cho-thue-dat')) { propertyType = 'land'; matchedTypeSlug = 'dat'; }
+    else if (
+      raw.includes('nha-rieng') ||
+      ((raw.startsWith('ban-nha-') || raw.startsWith('cho-thue-nha-')) &&
+       !isGeneralNhaDat &&
+       !raw.includes('biet-thu') &&
+       !raw.includes('biethu') &&
+       !raw.includes('mat-pho') &&
+       !raw.includes('pho-thuong-mai') &&
+       !raw.includes('nha-xuong'))
+    ) {
+      propertyType = 'house';
+      matchedTypeSlug = raw.includes('nha-rieng') ? 'nha-rieng' : 'nha';
+    }
+    else if (
+      !isGeneralNhaDat &&
+      (raw.includes('-dat-') || raw.endsWith('-dat') || raw.startsWith('ban-dat') || raw.startsWith('cho-thue-dat'))
+    ) {
+      propertyType = 'land';
+      matchedTypeSlug = 'dat';
+    }
 
     // Loại bỏ demand prefix và propertyType prefix để thu được remainder thuần túy
-    let remainder = raw.replace(/^(?:ban|cho-thue|nha-dat-ban|nha-dat-cho-thue|nha-dat)-?/, '');
+    let remainder = raw.replace(/^(?:ban|cho-thue|nha-dat-ban|nha-dat-cho-thue|ban-nha-dat|cho-thue-nha-dat|nha-dat)-?/, '');
     if (matchedTypeSlug && remainder.startsWith(matchedTypeSlug)) {
       remainder = remainder.slice(matchedTypeSlug.length).replace(/^-/, '');
     }
@@ -566,7 +602,7 @@ export const parseTaxonomyUrl = (urlPath) => {
 
     // Đối chiếu các quận huyện Đà Nẵng
     for (const [dSlug, dInfo] of Object.entries(DISTRICT_MAP)) {
-      if (raw.includes(`quan-${dSlug}`) || raw.includes(`huyen-${dSlug}`) || raw.includes(`tp-${dSlug}`) || raw.includes(dSlug)) {
+      if (raw.includes(`quan-${dSlug}`) || raw.includes(`huyen-${dSlug}`) || raw.includes(`tp-${dSlug}`) || raw.includes(`-${dSlug}-`) || raw.endsWith(`-${dSlug}`) || raw.includes(dSlug)) {
         district = dInfo.name;
         city = dInfo.city || 'Đà Nẵng';
         break;
@@ -1114,6 +1150,15 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, year = 2026, page = 
   const isPaginated = actualPage > 1;
   const pageStr = isPaginated ? ` - Trang ${actualPage}` : '';
   const pageDescStr = isPaginated ? ` (Trang ${actualPage})` : '';
+
+  // Ưu tiên tiêu đề chuẩn xác nếu là faceted clean slug URL (có mức giá, dự án, diện tích, đường phố...)
+  if (taxonomyInfo.isFacetedCleanSlug && taxonomyInfo.title) {
+    const baseTitle = `${taxonomyInfo.title}${pageStr}`;
+    return {
+      title: `${baseTitle} | Bất Động Sản Đà Nẵng`,
+      description: `${taxonomyInfo.title} mới nhất [${year}]${pageDescStr}, vị trí đẹp, hình ảnh thực tế, thông tin xác thực, pháp lý minh bạch.`
+    };
+  }
 
   const hasSpecificLocation = Boolean(taxonomyInfo.district || taxonomyInfo.city);
   let titleLoc = taxonomyInfo.district 

@@ -1662,7 +1662,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
                   <div className="font-extrabold text-slate-800 flex items-center gap-1.5 text-[11px] uppercase tracking-wide">
                     <i className="fa-solid fa-location-dot text-emerald-600"></i>
-                    <span>Quận / Huyện tại {property.city}</span>
+                    <span>Quận / Huyện tại {property.city || 'Đà Nẵng'}</span>
                   </div>
                   <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
                     {neighboringDistricts.map((nd, idx) => (
@@ -1689,7 +1689,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
                 <div className="font-extrabold text-slate-800 flex items-center gap-1.5 text-[11px] uppercase tracking-wide">
                   <i className="fa-solid fa-building text-blue-600"></i>
-                  <span>Loại hình tại {property.district}</span>
+                  <span>Loại hình tại {property.district || property.city || 'khu vực'}</span>
                 </div>
                 <div className="space-y-1.5">
                   {propertyTypesInDistrict.map((pt, idx) => (
@@ -1718,7 +1718,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 space-y-2">
                 <div className="font-extrabold text-slate-800 flex items-center gap-1.5 text-[11px] uppercase tracking-wide">
                   <i className="fa-solid fa-tag text-rose-600"></i>
-                  <span>Mức giá tại {property.district}</span>
+                  <span>Mức giá tại {property.district || property.city || 'khu vực'}</span>
                 </div>
                 <div className="space-y-1.5">
                   {priceRangesInDistrict.map((pr, idx) => (
