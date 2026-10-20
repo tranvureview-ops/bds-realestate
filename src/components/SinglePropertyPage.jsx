@@ -5,7 +5,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { Link } from '../router/RouterContext';
 import { VIP_PACKAGES } from '../data/mockData';
 import dynamic from 'next/dynamic';
-import { getCategoryPermalink, toVietnameseSlug, buildFacetedUrl, buildKeywordCleanSlug, CITY_SLUGS, BATDONGSAN_TAXONOMY } from '../utils/permalink';
+import { getCategoryPermalink, toVietnameseSlug, buildFacetedUrl, buildKeywordCleanSlug, buildSeoUrl, CITY_SLUGS, BATDONGSAN_TAXONOMY } from '../utils/permalink';
 const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
   ssr: false,
   loading: () => (
@@ -587,10 +587,11 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     name: d.name,
     count: properties.filter(p => 
       p.status === 'active' && 
+      p.demand === property.demand && 
       p.city === property.city && 
       p.district?.toLowerCase().includes(d.name.toLowerCase().replace(/^(quận|huyện|thị xã|tp\.)\s+/i, ''))
     ).length,
-    url: buildFacetedUrl({ demand: property.demand, city: property.city, district: d.name })
+    url: buildSeoUrl({ demand: property.demand, city: property.city, district: d.name })
   }));
 
   // Điều hướng đa diện theo Loại Hình tại cùng Quận/Huyện
@@ -605,19 +606,26 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   ].map(t => ({
     ...t,
     count: properties.filter(p => p.status === 'active' && p.demand === property.demand && p.district === property.district && p.propertyType === t.key).length,
-    url: buildFacetedUrl({ demand: property.demand, propertyType: t.key, city: property.city, district: property.district })
+    url: buildSeoUrl({ demand: property.demand, propertyType: t.key, city: property.city, district: property.district })
   }));
 
-  // Điều hướng đa diện theo Khoảng Giá tại Quận/Huyện
-  const priceRangesInDistrict = [
+  // Điều hướng đa diện theo Khoảng Giá tại Quận/Huyện (Phân biệt mua bán và cho thuê)
+  const isRent = property.demand === 'rent';
+  const priceRangesInDistrict = (isRent ? [
+    { key: 'under-5m', label: 'Dưới 5 triệu' },
+    { key: '5m-10m', label: 'Từ 5 - 10 triệu' },
+    { key: '10m-20m', label: 'Từ 10 - 20 triệu' },
+    { key: '20m-40m', label: 'Từ 20 - 40 triệu' },
+    { key: 'over-40m', label: 'Trên 40 triệu' }
+  ] : [
     { key: 'under-2b', label: 'Dưới 2 tỷ' },
     { key: '2b-5b', label: 'Từ 2 - 5 tỷ' },
     { key: '5b-10b', label: 'Từ 5 - 10 tỷ' },
     { key: '10b-30b', label: 'Từ 10 - 30 tỷ' },
     { key: 'over-30b', label: 'Trên 30 tỷ' }
-  ].map(pr => ({
+  ]).map(pr => ({
     ...pr,
-    url: buildFacetedUrl({ demand: property.demand, city: property.city, district: property.district, priceRange: pr.key })
+    url: buildSeoUrl({ demand: property.demand, city: property.city, district: property.district, priceRange: pr.key })
   }));
 
   return (
@@ -1719,7 +1727,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                       to={pr.url}
                       className="flex items-center justify-between p-1.5 rounded-lg hover:bg-white text-slate-600 hover:text-rose-700 transition"
                     >
-                      <span className="truncate">{demandText} nhà {pr.label}</span>
+                      <span className="truncate">{demandText} nhà đất {pr.label}</span>
                       <i className="fa-solid fa-arrow-right text-[9px] text-slate-300"></i>
                     </Link>
                   ))}

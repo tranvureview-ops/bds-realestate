@@ -312,12 +312,29 @@ export const buildSeoUrl = ({
     else if (priceRange === '5b-10b') priceCleanSlug = '-gia-tu-5-den-10-ty';
     else if (priceRange === '10b-30b') priceCleanSlug = '-gia-tu-10-den-30-ty';
     else if (priceRange === 'over-30b') priceCleanSlug = '-gia-tren-30-ty';
+    else if (priceRange === 'under-5m') priceCleanSlug = '-gia-duoi-5-trieu';
+    else if (priceRange === '5m-10m') priceCleanSlug = '-gia-tu-5-den-10-trieu';
+    else if (priceRange === '10m-20m') priceCleanSlug = '-gia-tu-10-den-20-trieu';
+    else if (priceRange === '20m-40m') priceCleanSlug = '-gia-tu-20-den-40-trieu';
+    else if (priceRange === 'over-40m') priceCleanSlug = '-gia-tren-40-trieu';
     else if (priceRange.startsWith('gia-') || priceRange.startsWith('tu-')) {
       priceCleanSlug = `-${toVietnameseSlug(priceRange)}`;
     } else {
-      const dynMatch = priceRange.match(/^([0-9.]+)[bB]-([0-9.]+)[bB]$/);
-      if (dynMatch) {
-        priceCleanSlug = `-gia-tu-${dynMatch[1]}-den-${dynMatch[2]}-ty`;
+      const dynBetweenMatch = priceRange.match(/^([0-9.]+)([bm])-([0-9.]+)([bm])$/i);
+      const dynUnderMatch = priceRange.match(/^under-([0-9.]+)([bm])$/i);
+      const dynOverMatch = priceRange.match(/^over-([0-9.]+)([bm])$/i);
+      if (dynBetweenMatch) {
+        const u1 = dynBetweenMatch[2].toLowerCase() === 'm' ? 'trieu' : 'ty';
+        const u2 = dynBetweenMatch[4].toLowerCase() === 'm' ? 'trieu' : 'ty';
+        priceCleanSlug = u1 === u2 
+          ? `-gia-tu-${dynBetweenMatch[1]}-den-${dynBetweenMatch[3]}-${u2}`
+          : `-gia-tu-${dynBetweenMatch[1]}-${u1}-den-${dynBetweenMatch[3]}-${u2}`;
+      } else if (dynUnderMatch) {
+        const u = dynUnderMatch[2].toLowerCase() === 'm' ? 'trieu' : 'ty';
+        priceCleanSlug = `-gia-duoi-${dynUnderMatch[1]}-${u}`;
+      } else if (dynOverMatch) {
+        const u = dynOverMatch[2].toLowerCase() === 'm' ? 'trieu' : 'ty';
+        priceCleanSlug = `-gia-tren-${dynOverMatch[1]}-${u}`;
       } else {
         priceCleanSlug = `-gia-${toVietnameseSlug(priceRange)}`;
       }
@@ -897,37 +914,29 @@ export const buildFacetedUrl = ({
   propertyType = null,
   city = null,
   district = null,
+  ward = null,
+  project = null,
   keyword = null,
   priceRange = null,
   areaRange = null,
+  bedroom = null,
   onlyVerified = false
 } = {}) => {
-  const baseCategory = getCategoryPermalink(demand, propertyType, city);
-  const params = new URLSearchParams();
-
-  if (district && district.trim()) {
-    params.set('district', district.trim());
-  }
-  if (keyword && keyword.trim()) {
-    params.set('keyword', keyword.trim());
-  }
-  if (priceRange && priceRange !== 'all') {
-    params.set('priceRange', priceRange);
-  }
-  if (areaRange && areaRange !== 'all') {
-    params.set('areaRange', areaRange);
-  }
-  if (onlyVerified) {
-    params.set('onlyVerified', 'true');
-  }
-
-  // Nếu city không có trong CITY_SLUGS thì đưa vào query parameter
-  if (city && !CITY_SLUGS[city]) {
-    params.set('city', city.trim());
-  }
-
-  const queryString = params.toString();
-  return queryString ? `${baseCategory}?${queryString}` : baseCategory;
+  return buildSeoUrl({
+    demand,
+    propertyType,
+    city,
+    district,
+    ward,
+    project,
+    priceRange,
+    areaRange,
+    bedroom,
+    extraParams: {
+      ...(keyword ? { keyword } : {}),
+      ...(onlyVerified ? { onlyVerified: 'true' } : {})
+    }
+  });
 };
 
 /**
