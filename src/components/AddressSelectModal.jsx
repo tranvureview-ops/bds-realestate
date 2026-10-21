@@ -27,11 +27,11 @@ export default function AddressSelectModal({
   const [isNewAddressMode, setIsNewAddressMode] = useState(initialData.isNewAddressMode || false);
   const [selectedAddressType, setSelectedAddressType] = useState('new'); // 'new' | 'old'
 
-  // Form states
-  const [selectedCity, setSelectedCity] = useState(initialData.city || 'Đà Nẵng');
-  const [selectedDistrict, setSelectedDistrict] = useState(initialData.district || 'Quận Hải Châu');
-  const [selectedWard, setSelectedWard] = useState(initialData.ward || 'Phường Thạch Thang');
-  const [selectedStreet, setSelectedStreet] = useState(initialData.street || 'Bạch Đằng');
+  // Form states (Khởi tạo rỗng, không gán dữ liệu mẫu mặc định)
+  const [selectedCity, setSelectedCity] = useState(initialData.city || '');
+  const [selectedDistrict, setSelectedDistrict] = useState(initialData.district || '');
+  const [selectedWard, setSelectedWard] = useState(initialData.ward || '');
+  const [selectedStreet, setSelectedStreet] = useState(initialData.street || '');
   const [detailedAddress, setDetailedAddress] = useState(initialData.detailedAddress || '');
   const [selectedProject, setSelectedProject] = useState(initialData.project || '');
 
@@ -125,37 +125,26 @@ export default function AddressSelectModal({
     ];
   }, [projectList]);
 
-  // Xử lý đổi Tỉnh/Thành
+  // Xử lý đổi Tỉnh/Thành -> Reset các cấp bên dưới
   const handleCityChange = (cityName) => {
     setSelectedCity(cityName);
-    const districts = getDistrictsOfProvince(cityName);
-    const firstDist = districts[0]?.name || '';
-    setSelectedDistrict(firstDist);
-
-    const wards = getWardsOfDistrict(cityName, firstDist);
-    setSelectedWard(wards[0] || '');
-
-    const streets = getStreetsOfDistrict(cityName, firstDist);
-    setSelectedStreet(streets[0] || '');
+    setSelectedDistrict('');
+    setSelectedWard('');
+    setSelectedStreet('');
     setCustomStreetInput('');
     setIsCustomStreet(false);
-
     setSelectedProject('');
     setCustomProjectInput('');
     setIsCustomProject(false);
   };
 
-  // Xử lý đổi Quận/Huyện
+  // Xử lý đổi Quận/Huyện -> Reset các cấp bên dưới
   const handleDistrictChange = (districtName) => {
     setSelectedDistrict(districtName);
-    const wards = getWardsOfDistrict(selectedCity, districtName);
-    setSelectedWard(wards[0] || '');
-
-    const streets = getStreetsOfDistrict(selectedCity, districtName);
-    setSelectedStreet(streets[0] || '');
+    setSelectedWard('');
+    setSelectedStreet('');
     setCustomStreetInput('');
     setIsCustomStreet(false);
-
     setSelectedProject('');
     setCustomProjectInput('');
     setIsCustomProject(false);
