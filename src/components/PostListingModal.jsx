@@ -1148,8 +1148,8 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                               }}
                               className={`p-3.5 sm:p-4 rounded-2xl border-2 transition cursor-pointer flex items-center justify-between gap-3 ${
                                 formData.selectedAddressType === 'new'
-                                  ? 'bg-white border-red-600 shadow-md ring-2 ring-red-500/20'
-                                  : 'bg-white border-red-500 hover:border-red-600 hover:shadow-xs'
+                                  ? 'bg-white border-slate-800 shadow-xs'
+                                  : 'bg-white border-red-500 hover:border-red-600 shadow-xs ring-2 ring-red-500/10'
                               }`}
                             >
                               <div className="space-y-1 min-w-0">
@@ -1173,10 +1173,10 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
 
                               <div className="shrink-0 pl-2">
                                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${
-                                  formData.selectedAddressType === 'new' ? 'border-red-600' : 'border-red-400'
+                                  formData.selectedAddressType === 'new' ? 'border-slate-900' : 'border-red-500'
                                 }`}>
                                   {formData.selectedAddressType === 'new' && (
-                                    <div className="w-2.5 h-2.5 rounded-full bg-red-600"></div>
+                                    <div className="w-2.5 h-2.5 rounded-full bg-slate-900"></div>
                                   )}
                                 </div>
                               </div>
