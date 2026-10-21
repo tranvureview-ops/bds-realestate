@@ -1593,6 +1593,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       paymentMethod: paymentMethodLabel,
       paidAmount: finalCost,
       paymentOrderId: formData.orderId || null,
+      google_place_id: formData.google_place_id || formData.googlePlaceId || null,
+      newAddress: formData.newAddress || null,
       isGuest: isGuest,
       author: authorObj
     };

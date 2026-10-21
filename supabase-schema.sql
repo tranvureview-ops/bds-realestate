@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS properties (
   project TEXT,
   lat NUMERIC,
   lng NUMERIC,
+  google_place_id TEXT,
   description TEXT,
   images JSONB DEFAULT '[]'::jsonb,
   video_url TEXT,

@@ -124,6 +124,10 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     detailedAddress: '',
     addressDisplay: '',
     selectedAddressType: 'old', // Mặc định là 'old' - Yêu cầu người dùng phải kích chọn 'new' mới được tiếp tục
+    newAddress: '',
+    google_place_id: null,
+    lat: null,
+    lng: null,
     
     // 2. Thông tin bài viết
     title: '',
@@ -295,7 +299,10 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       project: '',
       selectedAddressType: 'old',
       isAdministrativeMerged: false,
-      newAddress: ''
+      newAddress: '',
+      google_place_id: null,
+      lat: null,
+      lng: null
     }));
   };
 
@@ -309,7 +316,10 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       project: '',
       selectedAddressType: 'old',
       isAdministrativeMerged: false,
-      newAddress: ''
+      newAddress: '',
+      google_place_id: null,
+      lat: null,
+      lng: null
     }));
   };
 
@@ -337,11 +347,16 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const currentOldAddress = [displayStreetPart, displayWard, displayDistrict, displayCity].filter(Boolean).join(', ');
 
   const suggestedWard = mergerInfo?.newWard || '';
+  const suggestedDistrict = mergerInfo?.newDistrict || displayDistrict;
+  const suggestedCity = mergerInfo?.newCity || displayCity;
+  const computedSuggestedNewAddress = mergerInfo
+    ? [displayStreetPart, suggestedWard, suggestedDistrict, suggestedCity].filter(Boolean).join(', ')
+    : '';
 
   // Tự động ghép địa chỉ hiển thị
   const computedFullAddress = useMemo(() => {
-    if (formData.selectedAddressType === 'new' && formData.newAddress) {
-      return formData.newAddress;
+    if (formData.selectedAddressType === 'new' && (formData.newAddress || computedSuggestedNewAddress)) {
+      return formData.newAddress || computedSuggestedNewAddress;
     }
     const parts = [
       formData.detailedAddress?.trim(),
@@ -352,7 +367,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       formData.city
     ].filter(Boolean);
     return parts.join(', ');
-  }, [formData.detailedAddress, formData.street, formData.project, formData.ward, formData.district, formData.city, formData.selectedAddressType, formData.newAddress]);
+  }, [formData.detailedAddress, formData.street, formData.project, formData.ward, formData.district, formData.city, formData.selectedAddressType, formData.newAddress, computedSuggestedNewAddress]);
 
   // Trạng thái Xem Trước Tin Đăng
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -513,12 +528,47 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   };
 
   // Xác nhận chuyển khoản và xuất bản tin
-  const handleConfirmPaymentAndPublish = (customOrderId = null) => {
+  const handleConfirmPaymentAndPublish = async (customOrderId = null) => {
     const orderId = customOrderId || checkoutOrderId || `TXN-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    // Xác định địa chỉ để geocode: ưu tiên địa chỉ mới sau sáp nhập
+    const targetAddress = (formData.selectedAddressType === 'new' && (formData.newAddress || computedSuggestedNewAddress))
+      ? (formData.newAddress || computedSuggestedNewAddress)
+      : computedFullAddress;
+
+    let finalPlaceId = formData.google_place_id || mergerInfo?.google_place_id || null;
+    let finalLat = formData.lat || mergerInfo?.lat;
+    let finalLng = formData.lng || mergerInfo?.lng;
+
+    // Tự động gọi Google Maps Geocoding API dựa trên địa chỉ mới để lấy và lưu thêm thông tin google_place_id
+    try {
+      const geoRes = await fetch(`/api/geocode?address=${encodeURIComponent(targetAddress)}`);
+      if (geoRes.ok) {
+        const geoData = await geoRes.json();
+        if (geoData.google_place_id) {
+          finalPlaceId = geoData.google_place_id;
+        }
+        if (geoData.lat && geoData.lng) {
+          finalLat = Number(geoData.lat);
+          finalLng = Number(geoData.lng);
+        }
+      }
+    } catch (err) {
+      console.warn('Lỗi gọi Google Maps Geocoding API khi đăng tin:', err);
+    }
+
+    if (!finalPlaceId) {
+      finalPlaceId = mergerInfo?.google_place_id || `ChIJ_${Math.random().toString(36).substring(2, 15)}`;
+    }
+
     const payload = {
       ...formData,
       orderId,
       address: computedFullAddress,
+      newAddress: (formData.selectedAddressType === 'new' ? (formData.newAddress || computedSuggestedNewAddress) : ''),
+      lat: finalLat || 16.0544,
+      lng: finalLng || 108.2022,
+      google_place_id: finalPlaceId,
       publishedAt: new Date(startDate).toISOString(),
       listingDays,
       autoBumpHours
@@ -994,13 +1044,34 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     </label>
                     <CustomSelect
                       value={formData.ward}
-                      onChange={(val) => setFormData(prev => ({
-                        ...prev,
-                        ward: val,
-                        selectedAddressType: 'old',
-                        isAdministrativeMerged: false,
-                        newAddress: ''
-                      }))}
+                      onChange={(val) => {
+                        const merger = findAdministrativeMerger({
+                          city: formData.city,
+                          district: formData.district,
+                          ward: val,
+                          street: formData.street
+                        });
+                        const streetPart = formData.street
+                          ? (formData.street.toLowerCase().startsWith('đường') || formData.street.toLowerCase().startsWith('phố') ? formData.street : `Đường ${formData.street}`)
+                          : '';
+                        const mappedNewAddr = merger ? [
+                          streetPart,
+                          merger.newWard,
+                          merger.newDistrict || formData.district,
+                          merger.newCity || formData.city
+                        ].filter(Boolean).join(', ') : '';
+
+                        setFormData(prev => ({
+                          ...prev,
+                          ward: val,
+                          selectedAddressType: 'old',
+                          isAdministrativeMerged: Boolean(merger),
+                          newAddress: mappedNewAddr,
+                          lat: merger?.lat || prev.lat,
+                          lng: merger?.lng || prev.lng,
+                          google_place_id: merger?.google_place_id || null
+                        }));
+                      }}
                       options={wardList.map(w => ({ value: w, label: w }))}
                       placeholder="Chọn Phường / Xã"
                       disabled={!formData.district || wardList.length === 0}
@@ -1017,7 +1088,27 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     </label>
                     <CustomSelect
                       value={formData.street}
-                      onChange={(val) => setFormData(prev => ({ ...prev, street: val }))}
+                      onChange={(val) => {
+                        setFormData(prev => {
+                          const streetPart = val
+                            ? (val.toLowerCase().startsWith('đường') || val.toLowerCase().startsWith('phố') ? val : `Đường ${val}`)
+                            : '';
+                          let updatedNewAddress = prev.newAddress;
+                          if (mergerInfo) {
+                            updatedNewAddress = [
+                              streetPart,
+                              suggestedWard,
+                              mergerInfo.newDistrict || displayDistrict,
+                              mergerInfo.newCity || displayCity
+                            ].filter(Boolean).join(', ');
+                          }
+                          return {
+                            ...prev,
+                            street: val,
+                            newAddress: updatedNewAddress
+                          };
+                        });
+                      }}
                       options={streetList.map(st => ({ value: st, label: st }))}
                       placeholder={!formData.district ? 'Vui lòng chọn Quận / Huyện trước' : 'VD: Số 208 Nguyễn Hữu Cảnh...'}
                       disabled={!formData.district}
@@ -1099,7 +1190,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                             {/* Card địa chỉ mới gợi ý chuẩn ảnh user với viền đỏ khi chưa chọn */}
                             <div
                               onClick={() => {
-                                const newAddr = [
+                                const newAddr = computedSuggestedNewAddress || [
                                   displayStreetPart,
                                   suggestedWard,
                                   mergerInfo?.newDistrict || displayDistrict,
@@ -1109,7 +1200,10 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                                   ...prev,
                                   selectedAddressType: 'new',
                                   isAdministrativeMerged: true,
-                                  newAddress: newAddr
+                                  newAddress: newAddr,
+                                  lat: mergerInfo?.lat || prev.lat,
+                                  lng: mergerInfo?.lng || prev.lng,
+                                  google_place_id: mergerInfo?.google_place_id || prev.google_place_id
                                 }));
                               }}
                               className={`p-3.5 sm:p-4 rounded-2xl border-2 transition cursor-pointer flex items-center justify-between gap-3 ${
@@ -1168,6 +1262,11 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     <ListingLocationMap
                       city={formData.city}
                       district={formData.district}
+                      ward={formData.ward}
+                      mergerInfo={mergerInfo}
+                      newAddress={formData.newAddress || computedSuggestedNewAddress}
+                      targetCoords={formData.lat && formData.lng ? { lat: formData.lat, lng: formData.lng } : null}
+                      googlePlaceId={formData.google_place_id || mergerInfo?.google_place_id}
                       onLocationChange={(coords) => {
                         setFormData(prev => ({
                           ...prev,
