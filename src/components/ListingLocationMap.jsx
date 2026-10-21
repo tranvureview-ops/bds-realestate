@@ -3,14 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 
 const CITY_COORDS = {
-  'Đà Nẵng': { lat: 16.0544, lng: 108.2022, zoom: 14 },
-  'Hà Nội': { lat: 21.0285, lng: 105.8542, zoom: 14 },
-  'TP. Hồ Chí Minh': { lat: 10.7769, lng: 106.7009, zoom: 14 },
-  'Hải Phòng': { lat: 20.8449, lng: 106.6881, zoom: 14 },
-  'Cần Thơ': { lat: 10.0452, lng: 105.7469, zoom: 14 },
-  'Khánh Hòa': { lat: 12.2388, lng: 109.1967, zoom: 14 },
-  'Bình Dương': { lat: 10.9804, lng: 106.6519, zoom: 14 },
-  'Đồng Nai': { lat: 10.9574, lng: 106.8427, zoom: 14 }
+  'Đà Nẵng': { lat: 16.0544, lng: 108.2022, zoom: 14 }
 };
 
 const DISTRICT_COORDS = {
