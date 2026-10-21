@@ -483,71 +483,43 @@ export default function AddressSelectModal({
           {mergerSuggestion && (
             <div className="pt-2 pb-1 space-y-3 animate-in fade-in duration-200">
               
-              {/* 1. ĐỊA CHỈ CŨ */}
-              <div 
-                onClick={() => setSelectedAddressType('old')}
-                className={`p-3 rounded-2xl border transition cursor-pointer flex items-start justify-between gap-3 ${
-                  selectedAddressType === 'old' 
-                    ? 'bg-slate-50 border-slate-700 shadow-xs' 
-                    : 'bg-white border-slate-200 hover:border-slate-300'
-                }`}
-                title="Bấm để giữ Địa chỉ cũ"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[11px] shadow-xs shrink-0">
-                      <i className="fa-solid fa-location-dot"></i>
-                    </span>
-                    <span className="text-xs sm:text-sm font-black text-slate-900">
-                      Địa chỉ cũ
-                    </span>
-                  </div>
-                  <div className="text-xs text-slate-700 pl-7 leading-relaxed font-medium">
-                    {mergerSuggestion.oldAddress}
-                  </div>
+              {/* 1. ĐỊA CHỈ CŨ - Chuẩn ảnh gốc Batdongsan: text không đóng khung */}
+              <div>
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
+                  <i className="fa-solid fa-location-dot text-slate-900 text-sm"></i>
+                  <span>Địa chỉ cũ</span>
                 </div>
-
-                <div className="pt-1 shrink-0">
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${
-                    selectedAddressType === 'old' ? 'border-slate-900' : 'border-slate-300'
-                  }`}>
-                    {selectedAddressType === 'old' && (
-                      <div className="w-2.5 h-2.5 rounded-full bg-slate-900"></div>
-                    )}
-                  </div>
+                <div className="text-xs text-slate-800 pl-5 pt-1 font-medium leading-relaxed">
+                  {mergerSuggestion.oldAddress}
                 </div>
               </div>
 
               {/* Mũi tên chuyển giao ↓ */}
-              <div className="pl-4 text-slate-400">
-                <i className="fa-solid fa-arrow-down text-base"></i>
+              <div className="pl-5 text-slate-300">
+                <i className="fa-solid fa-arrow-down text-sm"></i>
               </div>
 
-              {/* 2. ĐỊA CHỈ MỚI */}
-              <div className="space-y-1.5">
-                <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center text-[11px] shadow-xs shrink-0">
-                    <i className="fa-solid fa-location-dot"></i>
-                  </span>
-                  <span className="text-xs sm:text-sm font-black text-red-600">
-                    Địa chỉ mới
-                  </span>
+              {/* 2. ĐỊA CHỈ MỚI - Card đỏ nhạt chuẩn ảnh gốc */}
+              <div>
+                <div className="flex items-center gap-2 text-xs font-bold text-red-600 mb-1.5">
+                  <i className="fa-solid fa-location-dot text-red-600 text-sm"></i>
+                  <span>Địa chỉ mới</span>
                 </div>
 
-                {/* Box Địa chỉ do hệ thống gợi ý - Viền đỏ khi người dùng chưa kích chọn */}
+                {/* Box Địa chỉ do hệ thống gợi ý - Chuẩn ảnh gốc */}
                 <div
                   onClick={() => setSelectedAddressType('new')}
-                  className={`p-3.5 sm:p-4 rounded-2xl border-2 transition cursor-pointer flex items-center justify-between gap-3 ${
+                  className={`p-3.5 rounded-xl border transition cursor-pointer flex items-center justify-between gap-3 ${
                     selectedAddressType === 'new'
-                      ? 'bg-white border-slate-800 shadow-xs'
-                      : 'bg-white border-red-500 hover:border-red-600 shadow-xs ring-2 ring-red-500/10'
+                      ? 'bg-[#fff5f5] border-red-500 shadow-sm'
+                      : 'bg-[#fff5f5] border-rose-300 hover:border-red-400'
                   }`}
                 >
-                  <div className="space-y-1 min-w-0">
+                  <div className="space-y-0.5 min-w-0">
                     <div className="text-[11px] font-medium text-slate-500">
                       {mergerSuggestion.suggestionLabel || 'Địa chỉ do hệ thống gợi ý'}
                     </div>
-                    <div className="text-xs sm:text-sm text-slate-900 leading-relaxed">
+                    <div className="text-xs sm:text-sm text-slate-900 leading-snug">
                       {effectiveStreet ? `Đường ${effectiveStreet.replace(/^(đường|phố)\s+/i, '')}, ` : ''}
                       <strong className="font-extrabold text-slate-950">
                         {mergerSuggestion.highlightText || mergerSuggestion.newWard}
@@ -555,25 +527,25 @@ export default function AddressSelectModal({
                       {mergerSuggestion.newDistrict ? `, ${mergerSuggestion.newDistrict}` : ''}
                       {`, ${mergerSuggestion.newCity}`}
                     </div>
+                    {mergerSuggestion.resolution && (
+                      <div className="text-[10px] text-slate-500 pt-0.5">
+                        Căn cứ: {mergerSuggestion.resolution}
+                      </div>
+                    )}
                   </div>
 
                   <div className="shrink-0 pl-2">
                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${
-                      selectedAddressType === 'new' ? 'border-slate-900' : 'border-red-500'
+                      selectedAddressType === 'new'
+                        ? 'border-red-600 bg-red-600'
+                        : 'border-slate-500 bg-white'
                     }`}>
                       {selectedAddressType === 'new' && (
-                        <div className="w-2.5 h-2.5 rounded-full bg-slate-900"></div>
+                        <div className="w-2 h-2 rounded-full bg-white"></div>
                       )}
                     </div>
                   </div>
                 </div>
-
-                {mergerSuggestion.resolution && (
-                  <div className="text-[10px] text-slate-500 pl-2 flex items-center gap-1.5 pt-0.5">
-                    <i className="fa-solid fa-circle-info text-amber-500"></i>
-                    <span>Căn cứ: {mergerSuggestion.resolution}</span>
-                  </div>
-                )}
               </div>
 
             </div>
