@@ -7,7 +7,6 @@ import { LOCATIONS, PROPERTY_TYPES, VIP_PACKAGES, MEMBERSHIP_PACKAGES } from '..
 import BatdongsanListingSelector, { BATDONGSAN_RATES } from './BatdongsanListingSelector';
 import CustomSelect from './CustomSelect';
 import ListingCard from './ListingCard';
-import AddressSelectModal from './AddressSelectModal';
 import { findAdministrativeMerger } from '../data/vietnamAdministrativeData';
 
 // Hàm phát âm thanh thành công khi Webhook/Polling khớp thanh toán (Web Audio API)
@@ -116,11 +115,12 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     demand: 'sale', // 'sale' (Cần bán), 'rent' (Cho thuê)
     propertyType: 'apartment',
     propertyTypeName: 'Căn hộ chung cư',
-    city: 'Đà Nẵng',
-    district: 'Quận Hải Châu',
-    ward: 'Phường Thạch Thang',
-    street: 'Bạch Đằng',
-    project: 'The Filmore Đà Nẵng (Bạch Đằng)',
+    city: '',
+    district: '',
+    ward: '',
+    street: '',
+    project: '',
+    detailedAddress: '',
     addressDisplay: '',
     
     // 2. Thông tin bài viết
@@ -195,16 +195,13 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     };
   }, [setPreselectedListingType]);
 
-  // Address Modal State (Hộp thoại Chọn Địa Chỉ chuẩn Batdongsan.com.vn)
-  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
-
   // Locations lookup (63 Tỉnh/Thành phố chuẩn Batdongsan)
-  const currentCityObj = LOCATIONS.find(l => l.name === formData.city) || LOCATIONS[0];
+  const currentCityObj = formData.city ? LOCATIONS.find(l => l.name === formData.city) : null;
   const districtList = currentCityObj?.districts || [];
-  const currentDistrictObj = districtList.find(d => d.name === formData.district) || districtList[0];
-  const wardList = currentDistrictObj?.wards || ['Phường 1', 'Phường 2', 'Trung tâm'];
-  const streetList = currentDistrictObj?.streets?.length ? currentDistrictObj.streets : ['Trần Duy Hưng', 'Nguyễn Huệ', 'Lê Lợi', 'Quang Trung'];
-  const projectList = currentDistrictObj?.projects?.length ? currentDistrictObj.projects : (MOCK_PROJECTS[formData.city] || []);
+  const currentDistrictObj = formData.district ? districtList.find(d => d.name === formData.district) : null;
+  const wardList = currentDistrictObj?.wards || [];
+  const streetList = currentDistrictObj?.streets?.length ? currentDistrictObj.streets : [];
+  const projectList = currentDistrictObj?.projects?.length ? currentDistrictObj.projects : (formData.city ? (MOCK_PROJECTS[formData.city] || []) : []);
 
   // Selected package details
   const defaultPkg = VIP_PACKAGES.find(p => p.id === 'normal') || VIP_PACKAGES[VIP_PACKAGES.length - 1];
@@ -287,46 +284,25 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
 
   // Đổi thành phố -> tự động reset quận, phường, đường, dự án
   const handleCityChange = (cityName) => {
-    const cityObj = LOCATIONS.find(l => l.name === cityName) || LOCATIONS[0];
-    const firstDistrict = cityObj?.districts?.[0] || { name: '', wards: [], streets: [], projects: [] };
     setFormData(prev => ({
       ...prev,
       city: cityName,
-      district: firstDistrict.name,
-      ward: firstDistrict.wards?.[0] || 'Phường 1',
-      street: firstDistrict.streets?.[0] || 'Trần Duy Hưng',
-      project: firstDistrict.projects?.[0] || ''
+      district: '',
+      ward: '',
+      street: '',
+      project: ''
     }));
   };
 
   // Đổi quận -> tự động reset phường, đường, dự án
   const handleDistrictChange = (districtName) => {
-    const distObj = districtList.find(d => d.name === districtName);
     setFormData(prev => ({
       ...prev,
       district: districtName,
-      ward: distObj?.wards?.[0] || 'Phường 1',
-      street: distObj?.streets?.[0] || prev.street,
-      project: distObj?.projects?.[0] || ''
+      ward: '',
+      street: '',
+      project: ''
     }));
-  };
-
-  // Callback xác nhận từ hộp thoại Chọn Địa Chỉ (Chuẩn Batdongsan.com.vn)
-  const handleAddressModalConfirm = (addressData) => {
-    setFormData(prev => ({
-      ...prev,
-      city: addressData.city,
-      district: addressData.district,
-      ward: addressData.ward,
-      street: addressData.street,
-      detailedAddress: addressData.detailedAddress,
-      project: addressData.project,
-      oldAddress: addressData.oldAddress,
-      newAddress: addressData.newAddress,
-      isAdministrativeMerged: addressData.isAdministrativeMerged,
-      selectedAddressType: addressData.selectedAddressType
-    }));
-    showToast(`Đã cập nhật địa chỉ: ${addressData.fullAddress}`, 'success');
   };
 
   // Tra cứu tự động gợi ý sáp nhập đơn vị hành chính
@@ -421,14 +397,14 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       category: formData.demand || formData.category || 'sale',
       status: 'active',
       location: {
-        province: formData.city || 'Đà Nẵng',
-        district: formData.district || 'Quận Hải Châu',
-        ward: formData.ward || 'Phường Thạch Thang',
-        street: formData.street || 'Bạch Đằng',
+        province: formData.city || '',
+        district: formData.district || '',
+        ward: formData.ward || '',
+        street: formData.street || '',
         project: formData.project || '',
-        fullAddress: computedFullAddress || `${formData.street || 'Bạch Đằng'}, ${formData.ward || 'Phường Thạch Thang'}, ${formData.district || 'Quận Hải Châu'}, ${formData.city || 'Đà Nẵng'}`
+        fullAddress: computedFullAddress || 'Chưa cập nhật địa chỉ'
       },
-      address: computedFullAddress || `${formData.street || 'Bạch Đằng'}, ${formData.ward || 'Phường Thạch Thang'}, ${formData.district || 'Quận Hải Châu'}, ${formData.city || 'Đà Nẵng'}`,
+      address: computedFullAddress || 'Chưa cập nhật địa chỉ',
       images: images,
       vr360Tour: formData.vr360Tour || null,
       hasVR360: Boolean(formData.vr360Tour),
@@ -448,7 +424,19 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   // Validation chuyển bước
   const handleNext = () => {
     if (step === 1) {
-      if (!formData.street.trim()) {
+      if (!formData.city) {
+        showToast('Vui lòng chọn Tỉnh / Thành phố', 'warning');
+        return;
+      }
+      if (!formData.district) {
+        showToast('Vui lòng chọn Quận / Huyện', 'warning');
+        return;
+      }
+      if (!formData.ward) {
+        showToast('Vui lòng chọn Phường / Xã', 'warning');
+        return;
+      }
+      if (!formData.street || !formData.street.trim()) {
         showToast('Vui lòng nhập Tên đường / Số nhà hoặc Địa chỉ cụ thể', 'warning');
         return;
       }
@@ -602,6 +590,21 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     e.preventDefault();
 
     // 1. Kiểm tra thông tin Bước 1
+    if (!formData.city) {
+      setStep(1);
+      showToast('Vui lòng chọn Tỉnh / Thành phố tại Bước 1!', 'warning');
+      return;
+    }
+    if (!formData.district) {
+      setStep(1);
+      showToast('Vui lòng chọn Quận / Huyện tại Bước 1!', 'warning');
+      return;
+    }
+    if (!formData.ward) {
+      setStep(1);
+      showToast('Vui lòng chọn Phường / Xã tại Bước 1!', 'warning');
+      return;
+    }
     if (!formData.street || !formData.street.trim()) {
       setStep(1);
       showToast('Vui lòng nhập Tên đường / Số nhà hoặc Địa chỉ cụ thể tại Bước 1!', 'warning');
@@ -910,73 +913,108 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                 </div>
               </div>
 
-              {/* Vị trí địa lý & Chọn địa chỉ chuẩn Batdongsan.com.vn */}
+              {/* Vị trí địa lý */}
               <div className="p-4 sm:p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-3.5">
                 <div className="flex items-center justify-between">
                   <div className="font-bold text-xs text-slate-800 uppercase flex items-center gap-2">
                     <i className="fa-solid fa-map-location-dot text-red-600 text-sm"></i>
                     <span>3. Địa Chỉ Bất Động Sản (Địa giới hành chính) <span className="text-red-500">*</span></span>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setIsAddressModalOpen(true)}
-                    className="px-3.5 py-1.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white font-bold text-xs rounded-xl shadow-sm transition flex items-center gap-1.5"
-                  >
-                    <i className="fa-solid fa-pen-to-square text-[11px]"></i>
-                    <span>{formData.city ? 'Đổi địa chỉ' : 'Chọn địa chỉ'}</span>
-                  </button>
                 </div>
 
-                {/* Card hiển thị địa chỉ trực quan - Click để mở popup Chọn địa chỉ chuẩn Batdongsan */}
-                <div
-                  onClick={() => setIsAddressModalOpen(true)}
-                  className="p-3.5 bg-white rounded-xl border border-slate-200 hover:border-red-400 cursor-pointer transition shadow-xs group flex items-start gap-3"
-                  title="Nhấn để mở hộp thoại Chọn Địa Chỉ chuẩn Batdongsan"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-red-600 group-hover:text-white transition">
-                    <i className="fa-solid fa-location-dot text-sm"></i>
+                {/* Các trường tra cứu nhanh trực tiếp trên form */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                      Tỉnh / Thành phố <span className="text-red-500">*</span>
+                    </label>
+                    <CustomSelect
+                      value={formData.city}
+                      onChange={(val) => handleCityChange(val)}
+                      options={LOCATIONS.map(l => ({ value: l.name, label: l.name, sublabel: l.region }))}
+                      placeholder="Chọn Tỉnh / Thành phố"
+                      showSearch={true}
+                      searchPlaceholder="Tìm tỉnh/thành (63 tỉnh toàn quốc)..."
+                    />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wide flex items-center gap-2">
-                      <span>Địa chỉ hiển thị trên tin đăng:</span>
-                      <span className="text-red-600 font-normal lowercase">(bấm để đổi)</span>
-                    </div>
-                    <div className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-red-600 transition mt-0.5 leading-snug">
-                      {computedFullAddress || 'Chưa thiết lập địa chỉ - Bấm để chọn địa chỉ'}
-                    </div>
-                    <div className="flex flex-wrap items-center gap-1.5 mt-2">
-                      {formData.city && (
-                        <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-bold">
-                          {formData.city}
-                        </span>
-                      )}
-                      {formData.district && (
-                        <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-bold">
-                          {formData.district}
-                        </span>
-                      )}
-                      {formData.ward && (
-                        <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-bold">
-                          {formData.ward}
-                        </span>
-                      )}
-                      {formData.street && (
-                        <span className="px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 text-[10px] font-bold">
-                          Đường {formData.street.replace(/^(đường|phố)\s+/i, '')}
-                        </span>
-                      )}
-                      {formData.project && (
-                        <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold">
-                          ★ {formData.project}
-                        </span>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                      Quận / Huyện <span className="text-red-500">*</span>
+                    </label>
+                    <CustomSelect
+                      value={formData.district}
+                      onChange={(val) => handleDistrictChange(val)}
+                      options={districtList.map(d => ({ value: d.name, label: d.name }))}
+                      placeholder="Chọn Quận / Huyện"
+                      disabled={!formData.city || districtList.length === 0}
+                      showSearch={true}
+                      searchPlaceholder="Tìm quận huyện..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                      Phường / Xã <span className="text-red-500">*</span>
+                    </label>
+                    <CustomSelect
+                      value={formData.ward}
+                      onChange={(val) => setFormData(prev => ({ ...prev, ward: val }))}
+                      options={wardList.map(w => ({ value: w, label: w }))}
+                      placeholder="Chọn Phường / Xã"
+                      disabled={!formData.district || wardList.length === 0}
+                      showSearch={true}
+                      searchPlaceholder="Tìm phường xã..."
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                      Đường / Phố & Số nhà <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        list="street-suggestions"
+                        placeholder="VD: Số 208 Nguyễn Hữu Cảnh..."
+                        value={formData.street}
+                        onChange={(e) => setFormData(prev => ({ ...prev, street: e.target.value }))}
+                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-red-500"
+                      />
+                      {streetList.length > 0 && (
+                        <datalist id="street-suggestions">
+                          {streetList.map((st, idx) => (
+                            <option key={idx} value={st} />
+                          ))}
+                        </datalist>
                       )}
                     </div>
                   </div>
-                  <span className="text-xs text-slate-400 group-hover:text-red-600 font-bold shrink-0 self-center flex items-center gap-1">
-                    <span>Sửa</span>
-                    <i className="fa-solid fa-chevron-right text-[10px]"></i>
-                  </span>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                      Dự án / Khu đô thị (Nếu thuộc dự án)
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        list="project-suggestions"
+                        placeholder="Chọn hoặc nhập tên dự án..."
+                        value={formData.project}
+                        onChange={(e) => setFormData(prev => ({ ...prev, project: e.target.value }))}
+                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-red-500"
+                      />
+                      {projectList.length > 0 && (
+                        <datalist id="project-suggestions">
+                          {projectList.map((proj, idx) => (
+                            <option key={idx} value={proj} />
+                          ))}
+                        </datalist>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 {/* ======================================================== */}
@@ -1092,97 +1130,6 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     </div>
                   </div>
                 )}
-
-                {/* Các trường tra cứu nhanh trực tiếp trên form */}
-                <div className="pt-2 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
-                      Tỉnh / Thành phố <span className="text-red-500">*</span>
-                    </label>
-                    <CustomSelect
-                      value={formData.city}
-                      onChange={(val) => handleCityChange(val)}
-                      options={LOCATIONS.map(l => ({ value: l.name, label: l.name, sublabel: l.region }))}
-                      placeholder="Chọn Tỉnh / Thành phố"
-                      showSearch={true}
-                      searchPlaceholder="Tìm tỉnh/thành (63 tỉnh toàn quốc)..."
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
-                      Quận / Huyện <span className="text-red-500">*</span>
-                    </label>
-                    <CustomSelect
-                      value={formData.district}
-                      onChange={(val) => handleDistrictChange(val)}
-                      options={districtList.map(d => ({ value: d.name, label: d.name }))}
-                      placeholder="Chọn Quận / Huyện"
-                      disabled={!formData.city || districtList.length === 0}
-                      showSearch={true}
-                      searchPlaceholder="Tìm quận huyện..."
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
-                      Phường / Xã <span className="text-red-500">*</span>
-                    </label>
-                    <CustomSelect
-                      value={formData.ward}
-                      onChange={(val) => setFormData(prev => ({ ...prev, ward: val }))}
-                      options={wardList.map(w => ({ value: w, label: w }))}
-                      placeholder="Chọn Phường / Xã"
-                      disabled={!formData.district || wardList.length === 0}
-                      showSearch={true}
-                      searchPlaceholder="Tìm phường xã..."
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
-                      Đường / Phố & Số nhà <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        list="street-suggestions"
-                        placeholder="VD: Số 208 Nguyễn Hữu Cảnh..."
-                        value={formData.street}
-                        onChange={(e) => setFormData(prev => ({ ...prev, street: e.target.value }))}
-                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-red-500"
-                      />
-                      <datalist id="street-suggestions">
-                        {streetList.map((st, idx) => (
-                          <option key={idx} value={st} />
-                        ))}
-                      </datalist>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
-                      Dự án / Khu đô thị (Nếu thuộc dự án)
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        list="project-suggestions"
-                        placeholder="Chọn hoặc nhập tên dự án..."
-                        value={formData.project}
-                        onChange={(e) => setFormData(prev => ({ ...prev, project: e.target.value }))}
-                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-red-500"
-                      />
-                      <datalist id="project-suggestions">
-                        {projectList.map((proj, idx) => (
-                          <option key={idx} value={proj} />
-                        ))}
-                      </datalist>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           )}
@@ -3028,21 +2975,6 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
             </div>
           </div>
         )}
-
-        {/* Hộp thoại Chọn Địa Chỉ (Chuẩn Batdongsan.com.vn) */}
-        <AddressSelectModal
-          isOpen={isAddressModalOpen}
-          onClose={() => setIsAddressModalOpen(false)}
-          initialData={{
-            city: formData.city,
-            district: formData.district,
-            ward: formData.ward,
-            street: formData.street,
-            detailedAddress: formData.detailedAddress || '',
-            project: formData.project || ''
-          }}
-          onConfirm={handleAddressModalConfirm}
-        />
       </div>
     );
 
