@@ -852,7 +852,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   // 'post-listing', 'mortgage-calc', 'compare', 'pricing-vip', 'wallet-deposit', 'listing-detail'
   const [selectedPropertyDetail, setSelectedPropertyDetail] = useState(INITIAL_PROPERTIES[0]);
   const [selectedPropertyForVip, setSelectedPropertyForVip] = useState(null);
-  const [preselectedListingType, setPreselectedListingType] = useState('vip-gold');
+  const [preselectedListingType, setPreselectedListingType] = useState('normal');
 
   // Đồng bộ cookie session cho SSR
   useEffect(() => {

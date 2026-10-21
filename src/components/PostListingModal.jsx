@@ -92,7 +92,7 @@ function formatPriceToVietnameseText(num) {
 }
 
 export default function PostListingModal({ onClose, isEmbedded = false }) {
-  const { currentUser, addProperty, showToast, preselectedListingType, paymentConfig, navigateToProperty } = useRealEstate();
+  const { currentUser, addProperty, showToast, preselectedListingType, setPreselectedListingType, paymentConfig, navigateToProperty } = useRealEstate();
   const { navigate } = useRouter();
 
   const isGuest = !currentUser || currentUser.role === 'guest' || currentUser.id === 'guest';
@@ -161,15 +161,39 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     contactAddress: (!isGuest && currentUser?.address) ? currentUser.address : 'TP. Đà Nẵng'
   });
 
-  // Listing Type & Billing state
-  const [selectedVipId, setSelectedVipId] = useState(preselectedListingType || 'vip-gold');
+  // Voucher discount calculation
+  const hasNormalVoucher = (currentUser?.vouchers?.normalPublish || 0) > 0;
+  const hasVipVoucher = (currentUser?.vouchers?.vipPublish || 0) > 0;
+
+  // Listing Type & Billing state - Luôn mặc định là Tin Thường ('normal')
+  const defaultListingType = preselectedListingType || 'normal';
+  const [selectedVipId, setSelectedVipId] = useState(defaultListingType);
   const [listingDays, setListingDays] = useState(15);
   const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
   const [scheduleTime, setScheduleTime] = useState('now');
   const [autoBumpHours, setAutoBumpHours] = useState(['08:00', '19:30']); // Đẩy tin khung giờ vàng
   // Nếu chưa đăng nhập (khách vãng lai), mặc định là VietQR Ngân Hàng
   const [paymentMethod, setPaymentMethod] = useState(!isGuest ? 'wallet' : 'vietqr');
-  const [appliedVoucher, setAppliedVoucher] = useState(null); // 'normalPublish' | 'vipPublish' | null
+  const [appliedVoucher, setAppliedVoucher] = useState(defaultListingType === 'normal' && hasNormalVoucher ? 'normalPublish' : null);
+
+  // Đồng bộ loại tin nếu có preselectedListingType thay đổi từ bên ngoài (hoặc mặc định 'normal')
+  useEffect(() => {
+    if (preselectedListingType) {
+      setSelectedVipId(preselectedListingType);
+      if (preselectedListingType === 'normal' && hasNormalVoucher) {
+        setAppliedVoucher('normalPublish');
+      }
+    }
+  }, [preselectedListingType, hasNormalVoucher]);
+
+  // Luôn reset loại tin đã chọn trước về 'normal' khi đóng/thoát modal đăng tin
+  useEffect(() => {
+    return () => {
+      if (setPreselectedListingType) {
+        setPreselectedListingType('normal');
+      }
+    };
+  }, [setPreselectedListingType]);
 
   // Address Modal State (Hộp thoại Chọn Địa Chỉ chuẩn Batdongsan.com.vn)
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
@@ -183,15 +207,12 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const projectList = currentDistrictObj?.projects?.length ? currentDistrictObj.projects : (MOCK_PROJECTS[formData.city] || []);
 
   // Selected package details
-  const selectedPkg = VIP_PACKAGES.find(p => p.id === selectedVipId) || VIP_PACKAGES[1];
+  const defaultPkg = VIP_PACKAGES.find(p => p.id === 'normal') || VIP_PACKAGES[VIP_PACKAGES.length - 1];
+  const selectedPkg = VIP_PACKAGES.find(p => p.id === selectedVipId) || defaultPkg;
   const bdsConfig = BATDONGSAN_RATES[selectedVipId] || BATDONGSAN_RATES['normal'];
   const dailyRate = bdsConfig.rates[listingDays] || bdsConfig.rates[15];
   const autoBumpFee = autoBumpHours.length * 5000 * Math.min(listingDays, 3);
   const totalCost = (dailyRate * listingDays) + autoBumpFee;
-
-  // Voucher discount calculation
-  const hasNormalVoucher = (currentUser?.vouchers?.normalPublish || 0) > 0;
-  const hasVipVoucher = (currentUser?.vouchers?.vipPublish || 0) > 0;
 
   // Smart selection handler with auto voucher recommendation
   const handleSelectPackage = (pkgId) => {
@@ -487,6 +508,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
 
     const newProp = addProperty(payload, selectedVipId, listingDays, paymentMethod, appliedVoucher);
     if (newProp) {
+      if (setPreselectedListingType) setPreselectedListingType('normal');
       setIsCheckoutModalOpen(false);
       setPublishedProperty(newProp);
     }
