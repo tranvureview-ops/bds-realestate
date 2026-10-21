@@ -506,13 +506,13 @@ export default function AddressSelectModal({
                   <span>Địa chỉ mới</span>
                 </div>
 
-                {/* Box Địa chỉ do hệ thống gợi ý - Chuẩn ảnh gốc */}
+                {/* Box Địa chỉ do hệ thống gợi ý - Viền đỏ khi chưa chọn */}
                 <div
                   onClick={() => setSelectedAddressType('new')}
-                  className={`p-3.5 rounded-xl border transition cursor-pointer flex items-center justify-between gap-3 ${
+                  className={`p-3.5 sm:p-4 rounded-2xl border-2 transition cursor-pointer flex items-center justify-between gap-3 ${
                     selectedAddressType === 'new'
-                      ? 'bg-[#fff5f5] border-red-500 shadow-sm'
-                      : 'bg-[#fff5f5] border-rose-300 hover:border-red-400'
+                      ? 'bg-white border-slate-800 shadow-xs'
+                      : 'bg-white border-red-500 hover:border-red-600 shadow-xs ring-2 ring-red-500/10'
                   }`}
                 >
                   <div className="space-y-0.5 min-w-0">
@@ -536,12 +536,10 @@ export default function AddressSelectModal({
 
                   <div className="shrink-0 pl-2">
                     <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${
-                      selectedAddressType === 'new'
-                        ? 'border-red-600 bg-red-600'
-                        : 'border-slate-500 bg-white'
+                      selectedAddressType === 'new' ? 'border-slate-900' : 'border-red-500'
                     }`}>
                       {selectedAddressType === 'new' && (
-                        <div className="w-2 h-2 rounded-full bg-white"></div>
+                        <div className="w-2.5 h-2.5 rounded-full bg-slate-900"></div>
                       )}
                     </div>
                   </div>

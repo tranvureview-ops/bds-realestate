@@ -467,7 +467,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
         return;
       }
       if (mergerInfo && formData.selectedAddressType !== 'new') {
-        showToast('Vui lòng kích chọn vào địa chỉ mới do hệ thống gợi ý mới được tiếp tục!', 'warning');
+        // Chặn chuyển bước nếu chưa chọn địa chỉ mới, không hiển thị thông báo toast theo yêu cầu
         return;
       }
     }
@@ -642,7 +642,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     }
     if (mergerInfo && formData.selectedAddressType !== 'new') {
       setStep(1);
-      showToast('Vui lòng kích chọn vào địa chỉ mới do hệ thống gợi ý tại Bước 1!', 'warning');
+      // Chặn đăng tin nếu chưa chọn địa chỉ mới, không hiển thị thông báo toast theo yêu cầu
       return;
     }
 
@@ -1096,7 +1096,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                               <span>Địa chỉ mới</span>
                             </div>
 
-                            {/* Card đỏ nhạt chọn địa chỉ mới gợi ý chuẩn ảnh gốc */}
+                            {/* Card địa chỉ mới gợi ý chuẩn ảnh user với viền đỏ khi chưa chọn */}
                             <div
                               onClick={() => {
                                 const newAddr = [
@@ -1107,21 +1107,18 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                                 ].filter(Boolean).join(', ');
                                 setFormData(prev => ({
                                   ...prev,
-                                  selectedAddressType: prev.selectedAddressType === 'new' ? 'old' : 'new',
-                                  isAdministrativeMerged: prev.selectedAddressType !== 'new',
-                                  newAddress: prev.selectedAddressType !== 'new' ? newAddr : ''
+                                  selectedAddressType: 'new',
+                                  isAdministrativeMerged: true,
+                                  newAddress: newAddr
                                 }));
-                                if (formData.selectedAddressType !== 'new') {
-                                  showToast(`Đã kích chọn địa chỉ mới: ${suggestedWard}`, 'success');
-                                }
                               }}
-                              className={`p-3.5 rounded-xl border transition cursor-pointer flex items-center justify-between gap-3 ${
+                              className={`p-3.5 sm:p-4 rounded-2xl border-2 transition cursor-pointer flex items-center justify-between gap-3 ${
                                 formData.selectedAddressType === 'new'
-                                  ? 'bg-[#fff5f5] border-red-500 shadow-sm'
-                                  : 'bg-[#fff5f5] border-rose-300 hover:border-red-400'
+                                  ? 'bg-white border-slate-800 shadow-xs'
+                                  : 'bg-white border-red-500 hover:border-red-600 shadow-xs ring-2 ring-red-500/10'
                               }`}
                             >
-                              <div className="space-y-0.5 min-w-0">
+                              <div className="space-y-1 min-w-0">
                                 <div className="text-[11px] font-medium text-slate-500">
                                   Địa chỉ do hệ thống gợi ý
                                 </div>
@@ -1142,12 +1139,10 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
 
                               <div className="shrink-0 pl-2">
                                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${
-                                  formData.selectedAddressType === 'new'
-                                    ? 'border-red-600 bg-red-600'
-                                    : 'border-slate-500 bg-white'
+                                  formData.selectedAddressType === 'new' ? 'border-slate-900' : 'border-red-500'
                                 }`}>
                                   {formData.selectedAddressType === 'new' && (
-                                    <div className="w-2 h-2 rounded-full bg-white"></div>
+                                    <div className="w-2.5 h-2.5 rounded-full bg-slate-900"></div>
                                   )}
                                 </div>
                               </div>
