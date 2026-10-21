@@ -974,46 +974,28 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     <label className="block text-[11px] font-bold text-slate-600 mb-1">
                       Đường / Phố & Số nhà <span className="text-red-500">*</span>
                     </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        list="street-suggestions"
-                        placeholder="VD: Số 208 Nguyễn Hữu Cảnh..."
-                        value={formData.street}
-                        onChange={(e) => setFormData(prev => ({ ...prev, street: e.target.value }))}
-                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-red-500"
-                      />
-                      {streetList.length > 0 && (
-                        <datalist id="street-suggestions">
-                          {streetList.map((st, idx) => (
-                            <option key={idx} value={st} />
-                          ))}
-                        </datalist>
-                      )}
-                    </div>
+                    <CustomSelect
+                      value={formData.street}
+                      onChange={(val) => setFormData(prev => ({ ...prev, street: val }))}
+                      options={streetList.map(st => ({ value: st, label: st }))}
+                      placeholder={!formData.district ? 'Vui lòng chọn Quận / Huyện trước' : 'VD: Số 208 Nguyễn Hữu Cảnh...'}
+                      disabled={!formData.district}
+                      allowCustomInput={true}
+                    />
                   </div>
 
                   <div>
                     <label className="block text-[11px] font-bold text-slate-600 mb-1">
                       Dự án / Khu đô thị (Nếu thuộc dự án)
                     </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        list="project-suggestions"
-                        placeholder="Chọn hoặc nhập tên dự án..."
-                        value={formData.project}
-                        onChange={(e) => setFormData(prev => ({ ...prev, project: e.target.value }))}
-                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-red-500"
-                      />
-                      {projectList.length > 0 && (
-                        <datalist id="project-suggestions">
-                          {projectList.map((proj, idx) => (
-                            <option key={idx} value={proj} />
-                          ))}
-                        </datalist>
-                      )}
-                    </div>
+                    <CustomSelect
+                      value={formData.project}
+                      onChange={(val) => setFormData(prev => ({ ...prev, project: val }))}
+                      options={projectList.map(proj => ({ value: proj, label: proj }))}
+                      placeholder={!formData.city ? 'Vui lòng chọn Tỉnh / Thành trước' : 'Chọn hoặc nhập tên dự án...'}
+                      disabled={!formData.city}
+                      allowCustomInput={true}
+                    />
                   </div>
                 </div>
 
