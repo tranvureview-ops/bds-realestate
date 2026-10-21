@@ -123,6 +123,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     project: '',
     detailedAddress: '',
     addressDisplay: '',
+    selectedAddressType: 'old', // Mặc định là 'old' - Yêu cầu người dùng phải kích chọn 'new' mới được tiếp tục
     
     // 2. Thông tin bài viết
     title: '',
@@ -452,6 +453,10 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
         showToast('Vui lòng nhập Tên đường / Số nhà hoặc Địa chỉ cụ thể', 'warning');
         return;
       }
+      if (formData.selectedAddressType !== 'new') {
+        showToast('Vui lòng kích chọn vào địa chỉ mới do hệ thống gợi ý mới được tiếp tục!', 'warning');
+        return;
+      }
     }
     if (step === 2) {
       if (!formData.title || formData.title.length < 30) {
@@ -620,6 +625,11 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     if (!formData.street || !formData.street.trim()) {
       setStep(1);
       showToast('Vui lòng nhập Tên đường / Số nhà hoặc Địa chỉ cụ thể tại Bước 1!', 'warning');
+      return;
+    }
+    if (formData.selectedAddressType !== 'new') {
+      setStep(1);
+      showToast('Vui lòng kích chọn vào địa chỉ mới do hệ thống gợi ý tại Bước 1!', 'warning');
       return;
     }
 
@@ -1037,46 +1047,78 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     </div>
                   </div>
 
-                  {/* 3. Khối so sánh Địa chỉ cũ & Địa chỉ mới */}
-                  <div className="space-y-3">
-                    {/* Địa chỉ cũ */}
-                    <div>
-                      <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
-                        <i className="fa-solid fa-location-dot text-slate-900 text-sm"></i>
-                        <span>Địa chỉ cũ</span>
+                  {/* 3. Khối so sánh Địa chỉ cũ & Địa chỉ mới (Chuẩn ảnh user) */}
+                  <div className="p-4 bg-amber-50/40 rounded-2xl border border-amber-200/80 space-y-3">
+                    {/* Card 1: Địa chỉ cũ */}
+                    <div
+                      onClick={() => setFormData(prev => ({ ...prev, selectedAddressType: 'old' }))}
+                      className={`p-3.5 rounded-2xl border transition cursor-pointer flex items-center justify-between gap-3 ${
+                        formData.selectedAddressType === 'old'
+                          ? 'bg-white border-slate-800 shadow-xs'
+                          : 'bg-white/80 border-slate-200 hover:border-slate-300'
+                      }`}
+                      title="Bấm để chọn Địa chỉ cũ"
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] shadow-xs shrink-0">
+                            <i className="fa-solid fa-location-dot"></i>
+                          </span>
+                          <span className="text-xs sm:text-sm font-black text-slate-900">
+                            Địa chỉ cũ
+                          </span>
+                        </div>
+                        <div className="text-xs text-slate-700 pl-7 leading-relaxed font-medium">
+                          {currentOldAddress}
+                        </div>
                       </div>
-                      <div className="text-xs text-slate-800 pl-5 pt-1 font-medium leading-relaxed">
-                        {currentOldAddress}
+
+                      <div className="shrink-0 pl-2">
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${
+                          formData.selectedAddressType === 'old' ? 'border-slate-900' : 'border-slate-300'
+                        }`}>
+                          {formData.selectedAddressType === 'old' && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-slate-900"></div>
+                          )}
+                        </div>
                       </div>
                     </div>
 
                     {/* Mũi tên chuyển giao ↓ */}
-                    <div className="pl-5 text-slate-300">
+                    <div className="pl-6 text-slate-400">
                       <i className="fa-solid fa-arrow-down text-sm"></i>
                     </div>
 
-                    {/* Địa chỉ mới */}
-                    <div>
-                      <div className="flex items-center gap-2 text-xs font-bold text-slate-900 mb-1.5">
-                        <i className="fa-solid fa-location-dot text-red-600 text-sm"></i>
-                        <span>Địa chỉ mới</span>
+                    {/* Card 2: Địa chỉ mới */}
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] shadow-xs shrink-0">
+                          <i className="fa-solid fa-location-dot"></i>
+                        </span>
+                        <span className="text-xs sm:text-sm font-black text-red-600">
+                          Địa chỉ mới
+                        </span>
+                        {/* Đã xóa bỏ huy hiệu "Khuyên dùng sau sáp nhập" theo yêu cầu 1 */}
                       </div>
 
-                      {/* Card đỏ nhạt chọn địa chỉ mới gợi ý chuẩn Batdongsan */}
+                      {/* Box Địa chỉ do hệ thống gợi ý */}
                       <div
                         onClick={() => {
                           setFormData(prev => ({
                             ...prev,
-                            selectedAddressType: prev.selectedAddressType === 'new' ? 'old' : 'new'
+                            selectedAddressType: 'new',
+                            isAdministrativeMerged: true,
+                            newAddress: `${displayStreetPart ? `${displayStreetPart}, ` : ''}${suggestedWard}, ${displayDistrict ? `${displayDistrict}, ` : ''}${displayCity}`
                           }));
+                          showToast(`Đã kích chọn địa chỉ mới: ${suggestedWard}`, 'success');
                         }}
-                        className={`p-3.5 rounded-xl border transition cursor-pointer flex items-center justify-between gap-3 ${
+                        className={`p-3.5 sm:p-4 rounded-2xl border transition cursor-pointer flex items-center justify-between gap-3 ${
                           formData.selectedAddressType === 'new'
-                            ? 'bg-[#fff5f5] border-red-500 shadow-sm'
-                            : 'bg-[#fff5f5] border-rose-300 hover:border-red-400'
+                            ? 'bg-white border-red-500 shadow-md ring-1 ring-red-500/20'
+                            : 'bg-white border-slate-300 hover:border-red-300'
                         }`}
                       >
-                        <div className="space-y-0.5 min-w-0">
+                        <div className="space-y-1 min-w-0">
                           <div className="text-[11px] font-medium text-slate-500">
                             Địa chỉ do hệ thống gợi ý
                           </div>
@@ -1085,32 +1127,42 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                             <strong className="font-extrabold text-slate-950">
                               {suggestedWard}
                             </strong>
+                            {displayDistrict ? `, ${displayDistrict}` : ''}
                             {`, ${displayCity}`}
                           </div>
+                          {mergerInfo?.resolution && (
+                            <div className="text-[10px] text-slate-500 pt-0.5">
+                              Căn cứ: {mergerInfo.resolution}
+                            </div>
+                          )}
                         </div>
 
                         <div className="shrink-0 pl-2">
                           <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${
-                            formData.selectedAddressType === 'new'
-                              ? 'border-red-600 bg-red-600'
-                              : 'border-slate-500 bg-white'
+                            formData.selectedAddressType === 'new' ? 'border-red-600' : 'border-slate-300'
                           }`}>
                             {formData.selectedAddressType === 'new' && (
-                              <div className="w-2 h-2 rounded-full bg-white"></div>
+                              <div className="w-2.5 h-2.5 rounded-full bg-red-600"></div>
                             )}
                           </div>
                         </div>
                       </div>
 
-                      {/* Text cảnh báo đỏ khi chưa chọn */}
-                      {formData.selectedAddressType !== 'new' && (
-                        <div className="text-[11px] text-red-600 font-medium mt-1.5">
-                          Vui lòng chọn địa chỉ
+                      {/* Text cảnh báo đỏ khi chưa kích chọn địa chỉ mới */}
+                      {formData.selectedAddressType !== 'new' ? (
+                        <div className="text-[11px] text-red-600 font-bold mt-1.5 flex items-center gap-1.5">
+                          <i className="fa-solid fa-circle-exclamation text-xs"></i>
+                          <span>Vui lòng kích chọn vào địa chỉ mới do hệ thống gợi ý để tiếp tục</span>
+                        </div>
+                      ) : (
+                        <div className="text-[11px] text-emerald-600 font-bold mt-1.5 flex items-center gap-1.5">
+                          <i className="fa-solid fa-circle-check text-xs"></i>
+                          <span>Đã chọn địa chỉ mới do hệ thống gợi ý (Hợp lệ để tiếp tục)</span>
                         </div>
                       )}
 
                       {/* Link báo cáo góp ý cờ đen */}
-                      <div className="flex items-center gap-2 mt-2.5 text-xs text-slate-800">
+                      <div className="flex items-center gap-2 mt-2 pt-1 text-xs text-slate-800">
                         <i className="fa-solid fa-flag text-slate-900 text-xs shrink-0"></i>
                         <button
                           type="button"

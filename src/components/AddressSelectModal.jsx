@@ -543,9 +543,6 @@ export default function AddressSelectModal({
                   <span className="text-xs sm:text-sm font-black text-red-600">
                     Địa chỉ mới
                   </span>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700 ml-auto">
-                    Khuyên dùng sau sáp nhập
-                  </span>
                 </div>
 
                 {/* Box Địa chỉ do hệ thống gợi ý - Chuẩn y hệt ảnh người dùng */}
