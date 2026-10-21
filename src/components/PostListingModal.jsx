@@ -7,6 +7,7 @@ import { LOCATIONS, PROPERTY_TYPES, VIP_PACKAGES, MEMBERSHIP_PACKAGES } from '..
 import BatdongsanListingSelector, { BATDONGSAN_RATES } from './BatdongsanListingSelector';
 import CustomSelect from './CustomSelect';
 import ListingCard from './ListingCard';
+import ListingLocationMap from './ListingLocationMap';
 import { findAdministrativeMerger } from '../data/vietnamAdministrativeData';
 
 // Hàm phát âm thanh thành công khi Webhook/Polling khớp thanh toán (Web Audio API)
@@ -314,6 +315,17 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       street: formData.street
     });
   }, [formData.city, formData.district, formData.ward, formData.street]);
+
+  // Chuẩn bị chuỗi địa chỉ hiển thị đối chiếu cũ/mới chuẩn ảnh user
+  const displayStreetPart = formData.street
+    ? (formData.street.toLowerCase().startsWith('đường') || formData.street.toLowerCase().startsWith('phố') ? formData.street : `Đường ${formData.street}`)
+    : 'Đường Đinh Tiên Hoàng';
+  const displayWard = formData.ward || 'Phường Bình Thuận';
+  const displayDistrict = formData.district || 'Quận Hải Châu';
+  const displayCity = formData.city || 'Đà Nẵng';
+  const currentOldAddress = [displayStreetPart, displayWard, displayDistrict, displayCity].filter(Boolean).join(', ');
+
+  const suggestedWard = mergerInfo?.newWard || 'Phường Hòa Cường';
 
   // Tự động ghép địa chỉ hiển thị
   const computedFullAddress = useMemo(() => {
@@ -1000,118 +1012,130 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                 </div>
 
                 {/* ======================================================== */}
-                {/* KHỐI ĐỐI CHIẾU ĐỊA CHỈ MỚI SÁP NHẬP ĐƠN VỊ HÀNH CHÍNH      */}
-                {/* Chuẩn giao diện Batdongsan.com.vn                         */}
+                {/* CẤU TRÚC ĐỊA CHỈ HIỂN THỊ TRÊN TIN ĐĂNG & BẢN ĐỒ        */}
+                {/* Chuẩn giao diện Batdongsan.com.vn theo ảnh yêu cầu       */}
                 {/* ======================================================== */}
-                {mergerInfo && (
-                  <div className="p-3.5 bg-amber-50/70 rounded-2xl border border-amber-200/90 space-y-3 animate-in fade-in duration-200">
-                    
-                    {/* 1. ĐỊA CHỈ CŨ */}
-                    <div 
-                      onClick={() => setFormData(prev => ({ ...prev, selectedAddressType: 'old' }))}
-                      className={`p-3 rounded-xl border transition cursor-pointer flex items-start justify-between gap-3 ${
-                        formData.selectedAddressType === 'old' 
-                          ? 'bg-white border-slate-700 shadow-xs' 
-                          : 'bg-white/80 border-slate-200 hover:border-slate-300'
-                      }`}
-                      title="Bấm để giữ Địa chỉ cũ"
-                    >
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] shadow-xs shrink-0">
-                            <i className="fa-solid fa-location-dot"></i>
-                          </span>
-                          <span className="text-xs font-black text-slate-900">
-                            Địa chỉ cũ
-                          </span>
-                        </div>
-                        <div className="text-xs text-slate-700 pl-7 leading-relaxed font-medium">
-                          {mergerInfo.oldAddress}
-                        </div>
-                      </div>
+                <div className="pt-4 border-t border-slate-200 space-y-4">
+                  {/* 1. Tiêu đề hiển thị */}
+                  <div className="font-bold text-xs sm:text-sm text-slate-900 flex items-center gap-1">
+                    <span>Địa chỉ hiển thị trên tin đăng</span>
+                    <span className="text-red-500">*</span>
+                  </div>
 
-                      <div className="pt-0.5 shrink-0">
-                        <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition ${
-                          formData.selectedAddressType === 'old' ? 'border-slate-900' : 'border-slate-300'
-                        }`}>
-                          {formData.selectedAddressType === 'old' && (
-                            <div className="w-2 h-2 rounded-full bg-slate-900"></div>
-                          )}
-                        </div>
+                  {/* 2. Banner xanh thông báo địa chỉ mới */}
+                  <div className="p-3 sm:p-3.5 bg-[#ecfbf3] rounded-2xl border border-emerald-200/80 flex items-start gap-3">
+                    <div className="w-5 h-5 rounded-full bg-emerald-700 text-white flex items-center justify-center shrink-0 mt-0.5 text-[10px] shadow-xs">
+                      <i className="fa-solid fa-check"></i>
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-emerald-950">
+                        Thêm hiển thị cho địa chỉ mới
+                      </div>
+                      <div className="text-[11px] text-emerald-800/90 mt-0.5 leading-relaxed font-normal">
+                        Tin hiển thị ở 2 trang kết quả tìm kiếm (địa chỉ mới và cũ), giúp tiếp cận nhiều người tìm nhà hơn
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 3. Khối so sánh Địa chỉ cũ & Địa chỉ mới */}
+                  <div className="space-y-3">
+                    {/* Địa chỉ cũ */}
+                    <div>
+                      <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
+                        <i className="fa-solid fa-location-dot text-slate-900 text-sm"></i>
+                        <span>Địa chỉ cũ</span>
+                      </div>
+                      <div className="text-xs text-slate-800 pl-5 pt-1 font-medium leading-relaxed">
+                        {currentOldAddress}
                       </div>
                     </div>
 
                     {/* Mũi tên chuyển giao ↓ */}
-                    <div className="pl-4 text-slate-400">
+                    <div className="pl-5 text-slate-300">
                       <i className="fa-solid fa-arrow-down text-sm"></i>
                     </div>
 
-                    {/* 2. ĐỊA CHỈ MỚI (HỆ THỐNG GỢI Ý - Chuẩn ảnh user) */}
-                    <div className="space-y-1.5">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-5 h-5 rounded-full bg-red-600 text-white flex items-center justify-center text-[10px] shadow-xs shrink-0">
-                          <i className="fa-solid fa-location-dot"></i>
-                        </span>
-                        <span className="text-xs font-black text-red-600">
-                          Địa chỉ mới
-                        </span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-700 ml-auto">
-                          Khuyên dùng sau sáp nhập
-                        </span>
+                    {/* Địa chỉ mới */}
+                    <div>
+                      <div className="flex items-center gap-2 text-xs font-bold text-slate-900 mb-1.5">
+                        <i className="fa-solid fa-location-dot text-red-600 text-sm"></i>
+                        <span>Địa chỉ mới</span>
                       </div>
 
+                      {/* Card đỏ nhạt chọn địa chỉ mới gợi ý chuẩn Batdongsan */}
                       <div
                         onClick={() => {
                           setFormData(prev => ({
                             ...prev,
-                            ward: mergerInfo.newWard,
-                            district: mergerInfo.newDistrict || prev.district,
-                            city: mergerInfo.newCity || prev.city,
-                            selectedAddressType: 'new',
-                            isAdministrativeMerged: true,
-                            newAddress: mergerInfo.newAddress,
-                            oldAddress: mergerInfo.oldAddress
+                            selectedAddressType: prev.selectedAddressType === 'new' ? 'old' : 'new'
                           }));
-                          showToast(`Đã áp dụng địa chỉ mới: ${mergerInfo.newAddress}`, 'success');
                         }}
-                        className={`p-3.5 rounded-2xl border transition cursor-pointer flex items-center justify-between gap-3 ${
-                          formData.selectedAddressType !== 'old'
-                            ? 'bg-white border-red-500 shadow-md ring-1 ring-red-500/20'
-                            : 'bg-white border-slate-300 hover:border-red-300'
+                        className={`p-3.5 rounded-xl border transition cursor-pointer flex items-center justify-between gap-3 ${
+                          formData.selectedAddressType === 'new'
+                            ? 'bg-[#fff5f5] border-red-500 shadow-sm'
+                            : 'bg-[#fff5f5] border-rose-300 hover:border-red-400'
                         }`}
                       >
                         <div className="space-y-0.5 min-w-0">
                           <div className="text-[11px] font-medium text-slate-500">
-                            {mergerInfo.suggestionLabel || 'Địa chỉ do hệ thống gợi ý'}
+                            Địa chỉ do hệ thống gợi ý
                           </div>
                           <div className="text-xs sm:text-sm text-slate-900 leading-snug">
-                            {formData.street ? `Đường ${formData.street.replace(/^(đường|phố)\s+/i, '')}, ` : ''}
+                            {displayStreetPart ? `${displayStreetPart}, ` : ''}
                             <strong className="font-extrabold text-slate-950">
-                              {mergerInfo.highlightText || mergerInfo.newWard}
+                              {suggestedWard}
                             </strong>
-                            {mergerInfo.newDistrict ? `, ${mergerInfo.newDistrict}` : ''}
-                            {`, ${mergerInfo.newCity}`}
+                            {`, ${displayCity}`}
                           </div>
-                          {mergerInfo.resolution && (
-                            <div className="text-[10px] text-slate-500 pt-0.5">
-                              Căn cứ: {mergerInfo.resolution}
-                            </div>
-                          )}
                         </div>
 
                         <div className="shrink-0 pl-2">
                           <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${
-                            formData.selectedAddressType !== 'old' ? 'border-red-600' : 'border-slate-300'
+                            formData.selectedAddressType === 'new'
+                              ? 'border-red-600 bg-red-600'
+                              : 'border-slate-500 bg-white'
                           }`}>
-                            {formData.selectedAddressType !== 'old' && (
-                              <div className="w-2.5 h-2.5 rounded-full bg-red-600"></div>
+                            {formData.selectedAddressType === 'new' && (
+                              <div className="w-2 h-2 rounded-full bg-white"></div>
                             )}
                           </div>
                         </div>
                       </div>
+
+                      {/* Text cảnh báo đỏ khi chưa chọn */}
+                      {formData.selectedAddressType !== 'new' && (
+                        <div className="text-[11px] text-red-600 font-medium mt-1.5">
+                          Vui lòng chọn địa chỉ
+                        </div>
+                      )}
+
+                      {/* Link báo cáo góp ý cờ đen */}
+                      <div className="flex items-center gap-2 mt-2.5 text-xs text-slate-800">
+                        <i className="fa-solid fa-flag text-slate-900 text-xs shrink-0"></i>
+                        <button
+                          type="button"
+                          onClick={() => showToast('Cảm ơn đóng góp của bạn! Hệ thống sẽ cập nhật dữ liệu hành chính.', 'info')}
+                          className="underline hover:text-red-600 transition font-medium text-left cursor-pointer"
+                        >
+                          Không tìm thấy địa chỉ phù hợp? Cho chúng tôi biết địa chỉ của bạn
+                        </button>
+                      </div>
                     </div>
                   </div>
-                )}
+
+                  {/* 4. Chọn vị trí trên bản đồ chuẩn Batdongsan */}
+                  <ListingLocationMap
+                    city={formData.city}
+                    district={formData.district}
+                    onLocationChange={(coords) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        lat: coords.lat,
+                        lng: coords.lng
+                      }));
+                    }}
+                  />
+                </div>
               </div>
             </div>
           )}

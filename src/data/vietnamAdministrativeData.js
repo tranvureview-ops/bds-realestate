@@ -408,10 +408,11 @@ export const VIETNAM_ADMINISTRATIVE_MERGERS = [
     city: 'Đà Nẵng',
     district: 'Quận Hải Châu',
     oldWard: 'Phường Bình Thuận',
-    newWard: 'Phường Bình Thuận - Hòa Thuận',
-    newDistrict: 'Quận Hải Châu',
+    newWard: 'Phường Hòa Cường',
+    newDistrict: '',
     newCity: 'Đà Nẵng',
-    resolution: 'Sáp nhập Phường Bình Thuận và Hòa Thuận Đông'
+    sampleStreets: ['Đinh Tiên Hoàng', 'Trưng Nữ Vương', 'Hoàng Diệu'],
+    resolution: 'Nghị quyết của UBTV Quốc hội về việc sắp xếp các đơn vị hành chính TP. Đà Nẵng'
   }
 ];
 
