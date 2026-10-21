@@ -1047,15 +1047,15 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                 {/* ======================================================== */}
                 {hasSelectedFullLocation && (
                   <div className="pt-4 border-t border-slate-200 space-y-4 animate-in fade-in duration-200">
-                    {/* 1. Tiêu đề hiển thị */}
-                    <div className="font-bold text-xs sm:text-sm text-slate-900 flex items-center gap-1">
-                      <span>Địa chỉ hiển thị trên tin đăng</span>
-                      <span className="text-red-500">*</span>
-                    </div>
+                    {/* Chỉ hiển thị cấu trúc Địa chỉ cũ / Địa chỉ mới khi phường có sáp nhập thực tế */}
+                    {mergerInfo && (
+                      <div className="space-y-4">
+                        {/* 1. Tiêu đề hiển thị */}
+                        <div className="font-bold text-xs sm:text-sm text-slate-900 flex items-center gap-1">
+                          <span>Địa chỉ hiển thị trên tin đăng</span>
+                          <span className="text-red-500">*</span>
+                        </div>
 
-                    {/* Nếu có sáp nhập địa giới: Hiển thị banner & khối đối chiếu cũ/mới */}
-                    {mergerInfo ? (
-                      <>
                         {/* 2. Banner xanh thông báo địa chỉ mới */}
                         <div className="p-3 sm:p-3.5 bg-[#ecfbf3] rounded-2xl border border-emerald-200/80 flex items-start gap-3">
                           <div className="w-5 h-5 rounded-full bg-emerald-700 text-white flex items-center justify-center shrink-0 mt-0.5 text-[10px] shadow-xs">
@@ -1161,27 +1161,6 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                             </div>
                           </div>
                         </div>
-                      </>
-                    ) : (
-                      /* Trường hợp địa chỉ hợp lệ chuẩn hóa (không thuộc diện sáp nhập) */
-                      <div className="p-3.5 bg-white rounded-2xl border border-slate-200 flex items-center justify-between gap-3 shadow-xs">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-2">
-                            <span className="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px] shadow-xs shrink-0">
-                              <i className="fa-solid fa-location-dot"></i>
-                            </span>
-                            <span className="text-xs sm:text-sm font-black text-slate-900">
-                              Địa chỉ hiển thị
-                            </span>
-                          </div>
-                          <div className="text-xs text-slate-700 pl-7 leading-relaxed font-medium">
-                            {currentOldAddress}
-                          </div>
-                        </div>
-                        <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/80 shrink-0 flex items-center gap-1">
-                          <i className="fa-solid fa-circle-check"></i>
-                          <span>Hợp lệ</span>
-                        </span>
                       </div>
                     )}
 
