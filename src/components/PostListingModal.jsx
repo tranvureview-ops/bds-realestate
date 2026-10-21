@@ -1146,10 +1146,10 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                                 }));
                                 showToast(`Đã kích chọn địa chỉ mới: ${suggestedWard}`, 'success');
                               }}
-                              className={`p-3.5 sm:p-4 rounded-2xl border transition cursor-pointer flex items-center justify-between gap-3 ${
+                              className={`p-3.5 sm:p-4 rounded-2xl border-2 transition cursor-pointer flex items-center justify-between gap-3 ${
                                 formData.selectedAddressType === 'new'
-                                  ? 'bg-white border-red-500 shadow-md ring-1 ring-red-500/20'
-                                  : 'bg-white border-slate-300 hover:border-red-300'
+                                  ? 'bg-white border-red-600 shadow-md ring-2 ring-red-500/20'
+                                  : 'bg-white border-red-500 hover:border-red-600 hover:shadow-xs'
                               }`}
                             >
                               <div className="space-y-1 min-w-0">
@@ -1173,7 +1173,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
 
                               <div className="shrink-0 pl-2">
                                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${
-                                  formData.selectedAddressType === 'new' ? 'border-red-600' : 'border-slate-300'
+                                  formData.selectedAddressType === 'new' ? 'border-red-600' : 'border-red-400'
                                 }`}>
                                   {formData.selectedAddressType === 'new' && (
                                     <div className="w-2.5 h-2.5 rounded-full bg-red-600"></div>
@@ -1181,19 +1181,6 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                                 </div>
                               </div>
                             </div>
-
-                            {/* Text cảnh báo đỏ khi chưa kích chọn địa chỉ mới */}
-                            {formData.selectedAddressType !== 'new' ? (
-                              <div className="text-[11px] text-red-600 font-bold mt-1.5 flex items-center gap-1.5">
-                                <i className="fa-solid fa-circle-exclamation text-xs"></i>
-                                <span>Vui lòng kích chọn vào địa chỉ mới do hệ thống gợi ý để tiếp tục</span>
-                              </div>
-                            ) : (
-                              <div className="text-[11px] text-emerald-600 font-bold mt-1.5 flex items-center gap-1.5">
-                                <i className="fa-solid fa-circle-check text-xs"></i>
-                                <span>Đã chọn địa chỉ mới do hệ thống gợi ý (Hợp lệ để tiếp tục)</span>
-                              </div>
-                            )}
 
                             {/* Link báo cáo góp ý cờ đen */}
                             <div className="flex items-center gap-2 mt-2 pt-1 text-xs text-slate-800">
