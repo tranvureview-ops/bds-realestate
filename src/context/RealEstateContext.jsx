@@ -1791,6 +1791,12 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       return false;
     }
 
+    // Chặn đăng ký gói khác nếu gói hiện tại vẫn còn hạn sử dụng
+    if (isMembershipActive(currentUser) && currentUser.membership?.packageId !== pkg.id) {
+      showToast(`Bạn đang sử dụng "${currentUser.membership.packageName}" còn hạn đến ${new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN')}. Không thể đăng ký gói khác khi gói hiện tại chưa hết hạn!`, 'warning');
+      return false;
+    }
+
     const cycle = pkg.billingCycles.find(c => c.months === billingMonths) || pkg.billingCycles[0];
     const totalPrice = cycle.price;
 

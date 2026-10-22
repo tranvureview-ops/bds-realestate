@@ -32,6 +32,12 @@ export default function MembershipPage() {
       return;
     }
 
+    // Chặn đăng ký gói khác nếu gói hiện tại còn hạn
+    if (isMemberActive && currentUser.membership?.packageId !== pkg.id) {
+      showToast(`Bạn đang sử dụng "${currentUser.membership.packageName}" còn hạn đến ${new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN')}. Không thể đăng ký gói khác khi gói hiện tại chưa hết hạn!`, 'warning');
+      return;
+    }
+
     const cycle = pkg.billingCycles?.find(c => c.months === selectedCycle) || pkg.billingCycles?.[0] || { months: 1, price: pkg.monthlyPrice || 500000 };
     if ((currentUser.walletBalance || 0) < cycle.price) {
       showToast(`Số dư ví (${(currentUser.walletBalance || 0).toLocaleString('vi-VN')} đ) không đủ ${cycle.price.toLocaleString('vi-VN')} đ để ${currentUser.membership?.packageId === pkg.id ? 'gia hạn' : 'đăng ký'} ${pkg.name}. Vui lòng nạp thêm tiền!`, 'warning');
@@ -248,6 +254,7 @@ export default function MembershipPage() {
           {(membershipPackages || []).map((pkg) => {
             const cycle = pkg.billingCycles.find(c => c.months === selectedCycle) || pkg.billingCycles[0];
             const isCurrent = currentUser?.membership?.packageId === pkg.id;
+            const isOtherPackageLocked = isMemberActive && !isCurrent;
 
             return (
               <div
@@ -364,8 +371,11 @@ export default function MembershipPage() {
                 <div className="mt-8 pt-4 border-t border-slate-100">
                   <button
                     onClick={() => handleSubscribe(pkg)}
+                    disabled={isOtherPackageLocked}
                     className={`w-full py-3.5 px-4 rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg transition flex items-center justify-center gap-2 ${
-                      isCurrent && isMemberActive
+                      isOtherPackageLocked
+                        ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed shadow-none'
+                        : isCurrent && isMemberActive
                         ? 'bg-slate-800 text-white hover:bg-slate-700'
                         : isCurrent && isMemberExpired
                         ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30 ring-2 ring-emerald-400'
@@ -374,9 +384,22 @@ export default function MembershipPage() {
                         : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/25'
                     }`}
                   >
-                    <i className="fa-solid fa-crown text-sm"></i>
-                    <span>{isCurrent ? (isMemberExpired ? 'Gia Hạn Lại Gói Này' : 'Gia Hạn Gói Này') : `Đăng Ký ${pkg.shortName}`}</span>
+                    <i className={isOtherPackageLocked ? "fa-solid fa-lock text-sm" : "fa-solid fa-crown text-sm"}></i>
+                    <span>
+                      {isOtherPackageLocked
+                        ? `Đang Dùng ${currentUser?.membership?.shortName || currentUser?.membership?.packageName}`
+                        : isCurrent
+                        ? (isMemberExpired ? 'Gia Hạn Lại Gói Này' : 'Gia Hạn Gói Này')
+                        : `Đăng Ký ${pkg.shortName}`}
+                    </span>
                   </button>
+
+                  {isOtherPackageLocked && (
+                    <div className="text-[10px] text-amber-700/90 text-center mt-2 font-medium flex items-center justify-center gap-1">
+                      <i className="fa-solid fa-circle-exclamation text-[9px] text-amber-600"></i>
+                      <span>Cần chờ gói hiện tại hết hạn để đổi sang gói này</span>
+                    </div>
+                  )}
                 </div>
               </div>
             );
