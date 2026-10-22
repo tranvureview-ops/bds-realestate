@@ -148,12 +148,22 @@ export default function UserDashboard() {
               <i className="fa-solid fa-crown"></i>
             </div>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Gói Hội Viên</span>
                 {currentUser?.membership ? (
-                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${currentUser.membership.badgeColor || 'bg-amber-400 text-slate-950'}`}>
-                    {currentUser.membership.packageName}
-                  </span>
+                  <>
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${currentUser.membership.badgeColor || 'bg-amber-400 text-slate-950'}`}>
+                      {currentUser.membership.packageName}
+                    </span>
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                      currentUser.membership.isAutoRenew !== false 
+                        ? 'bg-emerald-950/90 text-emerald-300 border border-emerald-700/60' 
+                        : 'bg-slate-800 text-slate-400 border border-slate-700'
+                    }`}>
+                      <i className="fa-solid fa-arrows-rotate text-[8px]"></i>
+                      <span>{currentUser.membership.isAutoRenew !== false ? 'Tự động gia hạn: BẬT' : 'Tự động gia hạn: TẮT'}</span>
+                    </span>
+                  </>
                 ) : (
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-400">
                     Chưa đăng ký
@@ -162,7 +172,10 @@ export default function UserDashboard() {
               </div>
               <div className="text-xs text-slate-300 mt-0.5">
                 {currentUser?.membership ? (
-                  <span>Hạn dùng gói: <b className="text-amber-300 font-mono">{new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN')}</b> • Voucher cấp mới định kỳ 30 ngày</span>
+                  <span>
+                    Hạn dùng gói: <b className="text-amber-300 font-mono">{new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN')}</b>
+                    {currentUser.membership.durationDays ? ` (${currentUser.membership.durationDays} ngày)` : ''} • Voucher cấp mới định kỳ 30 ngày
+                  </span>
                 ) : (
                   <span>Đăng ký Gói Hội Viên để nhận kho voucher giảm 35k đăng tin và 10k đẩy tin, tiết kiệm tới 39%!</span>
                 )}

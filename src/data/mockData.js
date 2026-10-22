@@ -146,9 +146,9 @@ export const MEMBERSHIP_PACKAGES = [
     monthlyPrice: 467000, // 467.000 đ / tháng
     savePercent: 31,
     billingCycles: [
-      { months: 1, label: '1 tháng', price: 467000, discount: 0 },
-      { months: 3, label: '3 tháng', price: 1330000, discount: 5, note: 'Tiết kiệm thêm 5%' },
-      { months: 6, label: '6 tháng', price: 2520000, discount: 10, note: 'Tiết kiệm thêm 10%' }
+      { months: 1, label: '1 tháng', duration_days: 30, price: 467000, discount: 0 },
+      { months: 3, label: '3 tháng', duration_days: 90, price: 1330000, discount: 5, note: 'Tiết kiệm thêm 5%' },
+      { months: 6, label: '6 tháng', duration_days: 180, price: 2520000, discount: 10, note: 'Tiết kiệm thêm 10%' }
     ],
     vouchersPerCycle: {
       normalPublishVouchers: 15, // 15 voucher giảm 35.000 đ/lần Đăng Tin Thường
@@ -177,9 +177,9 @@ export const MEMBERSHIP_PACKAGES = [
     monthlyPrice: 1267000, // 1.267.000 đ / tháng
     savePercent: 33,
     billingCycles: [
-      { months: 1, label: '1 tháng', price: 1267000, discount: 0 },
-      { months: 3, label: '3 tháng', price: 3610000, discount: 5, note: 'Tiết kiệm thêm 5%' },
-      { months: 6, label: '6 tháng', price: 6840000, discount: 10, note: 'Tiết kiệm thêm 10%' }
+      { months: 1, label: '1 tháng', duration_days: 30, price: 1267000, discount: 0 },
+      { months: 3, label: '3 tháng', duration_days: 90, price: 3610000, discount: 5, note: 'Tiết kiệm thêm 5%' },
+      { months: 6, label: '6 tháng', duration_days: 180, price: 6840000, discount: 10, note: 'Tiết kiệm thêm 10%' }
     ],
     vouchersPerCycle: {
       normalPublishVouchers: 30, // 30 voucher giảm 35.000 đ/lần Đăng Tin Thường
@@ -210,9 +210,9 @@ export const MEMBERSHIP_PACKAGES = [
     monthlyPrice: 2200000, // 2.200.000 đ / tháng
     savePercent: 39,
     billingCycles: [
-      { months: 1, label: '1 tháng', price: 2200000, discount: 0 },
-      { months: 3, label: '3 tháng', price: 6270000, discount: 5, note: 'Tiết kiệm thêm 5%' },
-      { months: 6, label: '6 tháng', price: 11880000, discount: 10, note: 'Tiết kiệm thêm 10%' }
+      { months: 1, label: '1 tháng', duration_days: 30, price: 2200000, discount: 0 },
+      { months: 3, label: '3 tháng', duration_days: 90, price: 6270000, discount: 5, note: 'Tiết kiệm thêm 5%' },
+      { months: 6, label: '6 tháng', duration_days: 180, price: 11880000, discount: 10, note: 'Tiết kiệm thêm 10%' }
     ],
     vouchersPerCycle: {
       normalPublishVouchers: 50, // 50 voucher giảm 35.000 đ/lần Đăng Tin Thường
@@ -2083,10 +2083,13 @@ export const MOCK_USERS = [
     membership: {
       packageId: 'member-standard',
       packageName: 'Hội Viên Tiêu Chuẩn',
+      shortName: 'GÓI TIÊU CHUẨN',
       billingMonths: 3,
+      durationDays: 90,
       subscribedAt: '2026-10-01T00:00:00Z',
       expiresAt: '2027-01-01T00:00:00Z',
       status: 'active',
+      isAutoRenew: true,
       badge: 'HỘI VIÊN TIÊU CHUẨN ★',
       badgeColor: 'bg-amber-500 text-slate-950 font-black'
     },
@@ -2110,10 +2113,13 @@ export const MOCK_USERS = [
     membership: {
       packageId: 'member-premium',
       packageName: 'Hội Viên Cao Cấp VIP',
+      shortName: 'GÓI CAO CẤP',
       billingMonths: 12,
+      durationDays: 365,
       subscribedAt: '2026-01-01T00:00:00Z',
       expiresAt: '2030-01-01T00:00:00Z',
       status: 'active',
+      isAutoRenew: true,
       badge: 'HỘI VIÊN CAO CẤP',
       badgeColor: 'bg-purple-600 text-white font-black'
     },

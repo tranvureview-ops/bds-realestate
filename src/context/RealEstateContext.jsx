@@ -1631,8 +1631,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       return false;
     }
 
+    const durationDays = customDays || cycle.duration_days || cycle.durationDays || (billingMonths * 30);
     const newBalance = currentUser.walletBalance - totalPrice;
-    const expiresDate = new Date(Date.now() + billingMonths * 30 * 24 * 60 * 60 * 1000).toISOString();
+    const expiresDate = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000).toISOString();
 
     const normalPubCount = pkg.vouchersPerCycle.normalPublishVouchers;
     const normalBumpCount = pkg.vouchersPerCycle.normalBumpVouchers;
@@ -1646,9 +1647,11 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         packageName: pkg.name,
         shortName: pkg.shortName,
         billingMonths,
+        durationDays,
         subscribedAt: new Date().toISOString(),
         expiresAt: expiresDate,
         status: 'active',
+        isAutoRenew: true, // Trạng thái tự động gia hạn (Auto-renew)
         badge: pkg.badge,
         badgeColor: pkg.badgeColor
       },
@@ -1660,7 +1663,12 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     };
 
     setCurrentUser(updatedUser);
-    setUsersList(prev => prev.map(u => u.id === currentUser.id ? updatedUser : u));
+    const nextList = usersList.map(u => u.id === currentUser.id ? updatedUser : u);
+    setUsersList(nextList);
+
+    // Đồng bộ lập tức lên Supabase Cloud Database (profiles & system_settings)
+    upsertSupabaseProfile(updatedUser).catch(console.warn);
+    persistSettingToSupabase('bds_users_list', nextList).catch(console.warn);
 
     // Record Transaction
     const newTxn = {
@@ -2147,6 +2155,30 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     await upsertSupabaseProfile(updatedTarget);
     await persistSettingToSupabase('bds_users_list', nextList);
     showToast(`Đã cập nhật thông tin người dùng "${updatedTarget.name || userId}" thành công!`, 'success');
+    return { success: true, user: updatedTarget };
+  };
+
+  // Admin Assign & Sync User Membership
+  const assignUserMembership = async (userId, membershipData, voucherData = null) => {
+    const target = usersList.find(u => u.id === userId);
+    if (!target) return { success: false, error: 'Không tìm thấy người dùng' };
+
+    const updatedTarget = {
+      ...target,
+      membership: membershipData,
+      vouchers: voucherData !== null ? voucherData : target.vouchers,
+      updatedAt: new Date().toISOString()
+    };
+    const nextList = usersList.map(u => u.id === userId ? updatedTarget : u);
+    setUsersList(nextList);
+
+    if (currentUser?.id === userId) {
+      setCurrentUser(prev => ({ ...prev, ...updatedTarget }));
+    }
+
+    await upsertSupabaseProfile(updatedTarget);
+    await persistSettingToSupabase('bds_users_list', nextList);
+    showToast(`Đã đồng bộ gói hội viên cho "${updatedTarget.name || userId}" thành công!`, 'success');
     return { success: true, user: updatedTarget };
   };
 
@@ -3080,6 +3112,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         adjustUserBalance,
         toggleUserVerification,
         updateUser,
+        assignUserMembership,
         moveUserToTrash,
         restoreUserFromTrash,
         permanentDeleteUser,

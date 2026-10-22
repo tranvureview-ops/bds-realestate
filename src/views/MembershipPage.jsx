@@ -442,7 +442,19 @@ export default function MembershipPage() {
             <div className="p-4 bg-slate-50 rounded-2xl space-y-2 text-xs">
               <div className="flex justify-between">
                 <span className="text-slate-500">Kỳ hạn đăng ký:</span>
-                <span className="font-bold text-slate-900">{confirmingPackage.cycle.months} tháng</span>
+                <span className="font-bold text-slate-900">{confirmingPackage.cycle.label || `${confirmingPackage.cycle.months} tháng`}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Thời hạn sử dụng:</span>
+                <span className="font-bold text-teal-700 font-mono">
+                  {confirmingPackage.cycle.duration_days || (confirmingPackage.cycle.months * 30)} ngày
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-500">Hạn dùng dự kiến:</span>
+                <span className="font-bold text-amber-600 font-mono">
+                  {new Date(Date.now() + (confirmingPackage.cycle.duration_days || confirmingPackage.cycle.months * 30) * 86400000).toLocaleDateString('vi-VN')}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-500">Tổng thanh toán:</span>

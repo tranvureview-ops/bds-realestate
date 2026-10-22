@@ -57,9 +57,9 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
     monthlyPrice: 500000,
     savePercent: 30,
     billingCycles: [
-      { months: 1, label: '1 tháng', price: 500000, discount: 0 },
-      { months: 3, label: '3 tháng', price: 1425000, discount: 5, note: 'Tiết kiệm thêm 5%' },
-      { months: 6, label: '6 tháng', price: 2700000, discount: 10, note: 'Tiết kiệm thêm 10%' }
+      { months: 1, label: '1 tháng', duration_days: 30, price: 500000, discount: 0 },
+      { months: 3, label: '3 tháng', duration_days: 90, price: 1425000, discount: 5, note: 'Tiết kiệm thêm 5%' },
+      { months: 6, label: '6 tháng', duration_days: 180, price: 2700000, discount: 10, note: 'Tiết kiệm thêm 10%' }
     ],
     vouchersPerCycle: {
       normalPublishVouchers: 20,
@@ -123,18 +123,75 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
     }));
   };
 
-  // Billing cycle price/discount change handler
+  // Billing cycle price/discount/duration change handler
   const handleBillingCycleChange = (index, field, value) => {
     setEditingPkg(prev => {
       const updated = [...prev.billingCycles];
       if (updated[index]) {
-        updated[index] = {
-          ...updated[index],
-          [field]: field === 'note' ? value : Number(value)
-        };
+        const numVal = Number(value);
+        if (field === 'duration_days' || field === 'durationDays') {
+          updated[index] = {
+            ...updated[index],
+            duration_days: numVal,
+            durationDays: numVal
+          };
+        } else if (field === 'note' || field === 'label') {
+          updated[index] = {
+            ...updated[index],
+            [field]: value
+          };
+        } else {
+          updated[index] = {
+            ...updated[index],
+            [field]: numVal
+          };
+        }
       }
       return { ...prev, billingCycles: updated };
     });
+  };
+
+  // Add a new custom billing cycle (e.g. 12 months / 365 days)
+  const handleAddCustomCycle = () => {
+    if (!editingPkg) return;
+    const currentCycles = editingPkg.billingCycles || [];
+    const lastCycle = currentCycles[currentCycles.length - 1] || { months: 6, price: 2000000 };
+    const newMonths = lastCycle.months === 6 ? 12 : lastCycle.months + 3;
+    const newDays = newMonths === 12 ? 365 : newMonths * 30;
+    const newDiscount = Math.min(25, (lastCycle.discount || 10) + 5);
+    const monthlyPrice = Number(editingPkg.monthlyPrice) || 500000;
+    const basePrice = monthlyPrice * newMonths;
+    const calculatedPrice = Math.round(basePrice * (1 - newDiscount / 100));
+
+    const newCycle = {
+      months: newMonths,
+      duration_days: newDays,
+      durationDays: newDays,
+      label: `${newMonths} tháng`,
+      price: calculatedPrice,
+      discount: newDiscount,
+      note: `Tiết kiệm siêu hời -${newDiscount}%`
+    };
+
+    setEditingPkg(prev => ({
+      ...prev,
+      billingCycles: [...currentCycles, newCycle]
+    }));
+    showToast(`Đã thêm chu kỳ ${newMonths} tháng (${newDays} ngày)!`, 'success');
+  };
+
+  // Remove a billing cycle
+  const handleDeleteCycle = (idx) => {
+    if (!editingPkg) return;
+    if ((editingPkg.billingCycles || []).length <= 1) {
+      showToast('Gói phải duy trì tối thiểu 1 chu kỳ thanh toán!', 'warning');
+      return;
+    }
+    setEditingPkg(prev => ({
+      ...prev,
+      billingCycles: prev.billingCycles.filter((_, i) => i !== idx)
+    }));
+    showToast('Đã xóa chu kỳ thanh toán!', 'info');
   };
 
   // Auto calculate 3 & 6 months billing cycles based on monthlyPrice
@@ -443,7 +500,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                   <div className="mt-3 pt-2.5 border-t border-slate-800/80 space-y-1 text-[11px]">
                     {(pkg.billingCycles || []).map(c => (
                       <div key={c.months} className="flex justify-between items-center text-slate-300">
-                        <span className="text-slate-400">Chu kỳ {c.label}:</span>
+                        <span className="text-slate-400">Chu kỳ {c.label} ({c.duration_days || (c.months * 30)} ngày):</span>
                         <span className="font-mono font-bold text-slate-200">
                           {Number(c.price || 0).toLocaleString('vi-VN')} đ
                           {c.discount > 0 && (
@@ -824,27 +881,64 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
 
                       {/* Detailed Billing Cycles list */}
                       <div className="space-y-3">
-                        <div className="font-bold text-slate-300 text-xs flex items-center gap-1.5">
-                          <i className="fa-solid fa-calendar-days text-teal-400"></i>
-                          <span>Chi Tiết Giá Các Chu Kỳ Thanh Toán (1 Tháng, 3 Tháng, 6 Tháng):</span>
+                        <div className="flex items-center justify-between">
+                          <div className="font-bold text-slate-300 text-xs flex items-center gap-1.5">
+                            <i className="fa-solid fa-calendar-days text-teal-400"></i>
+                            <span>Chi Tiết Giá & Thời Hạn Ngày Dùng (duration_days) Từng Chu Kỳ:</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleAddCustomCycle}
+                            className="px-2.5 py-1 rounded-lg bg-teal-600/20 hover:bg-teal-600/40 text-teal-300 border border-teal-500/30 text-[11px] font-bold flex items-center gap-1 transition shadow-xs"
+                          >
+                            <i className="fa-solid fa-plus text-[10px]"></i>
+                            <span>Thêm Chu Kỳ Mới</span>
+                          </button>
                         </div>
 
                         {(editingPkg.billingCycles || []).map((cycle, idx) => (
-                          <div key={cycle.months} className="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
+                          <div key={cycle.months || idx} className="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
                             <div className="flex items-center justify-between">
                               <span className="font-bold text-white text-xs flex items-center gap-2">
                                 <span className="w-5 h-5 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center text-[10px] font-mono">
                                   {idx + 1}
                                 </span>
                                 <span>Kỳ Hạn: <strong>{cycle.label}</strong> ({cycle.months} tháng)</span>
+                                <span className="px-2 py-0.5 rounded-full bg-teal-950 text-teal-300 border border-teal-800 text-[10px] font-mono font-bold">
+                                  ⏱ {cycle.duration_days ?? (cycle.durationDays || cycle.months * 30)} ngày dùng
+                                </span>
                               </span>
 
-                              <span className="text-[11px] font-mono text-emerald-400 font-bold">
-                                Chiết khấu: {cycle.discount || 0}%
-                              </span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-[11px] font-mono text-emerald-400 font-bold">
+                                  Chiết khấu: {cycle.discount || 0}%
+                                </span>
+                                {(editingPkg.billingCycles || []).length > 1 && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteCycle(idx)}
+                                    className="w-5 h-5 rounded-lg bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/40 flex items-center justify-center text-[10px] transition"
+                                    title="Xóa chu kỳ này"
+                                  >
+                                    <i className="fa-solid fa-xmark"></i>
+                                  </button>
+                                )}
+                              </div>
                             </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                            <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 pt-1">
+                              <div>
+                                <label className="block text-[10px] text-teal-400 font-bold mb-0.5">Thời Hạn Dùng (Ngày):</label>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  value={cycle.duration_days ?? (cycle.durationDays || cycle.months * 30)}
+                                  onChange={(e) => handleBillingCycleChange(idx, 'duration_days', e.target.value)}
+                                  className="w-full p-2 bg-slate-950 border border-teal-700/60 rounded-lg text-teal-300 font-mono text-xs font-bold outline-none focus:border-teal-400 shadow-inner"
+                                  placeholder="Ví dụ: 30, 90, 365"
+                                />
+                              </div>
+
                               <div>
                                 <label className="block text-[10px] text-slate-400 mb-0.5">Tổng Tiền Thu (VNĐ):</label>
                                 <input

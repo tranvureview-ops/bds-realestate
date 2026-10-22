@@ -99,6 +99,7 @@ export default function AdminBackendPage() {
     PRESET_LOGOS,
     membershipPackages,
     updateMembershipPackage,
+    assignUserMembership,
     paymentConfig,
     updatePaymentConfig,
     resetPaymentConfig,
@@ -496,6 +497,25 @@ export default function AdminBackendPage() {
     walletBalance: 0,
     bonusWalletBalance: 0,
     isVerified: false
+  });
+
+  // Membership Assignment Modal State for User
+  const [membershipModalUser, setMembershipModalUser] = useState(null);
+  const [membershipForm, setMembershipForm] = useState({
+    hasMembership: true,
+    packageId: 'member-basic',
+    packageName: '',
+    shortName: '',
+    durationDays: 30,
+    subscribedAt: '',
+    expiresAt: '',
+    isAutoRenew: true,
+    status: 'active',
+    badge: '',
+    badgeColor: '',
+    normalPublishVouchers: 15,
+    normalBumpVouchers: 15,
+    vipPublishVouchers: 0
   });
 
   // Confirm delete modal state
@@ -1482,6 +1502,125 @@ export default function AdminBackendPage() {
       }
     } catch (err) {
       showToast(err.message || 'Lỗi khi lưu người dùng', 'error');
+    }
+  };
+
+  // Open Membership Assignment Modal for User
+  const handleOpenMembershipModal = (user) => {
+    setMembershipModalUser(user);
+    const m = user.membership;
+    const v = user.vouchers || {};
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const defaultDays = m?.durationDays || 30;
+    const defaultExpires = m?.expiresAt
+      ? new Date(m.expiresAt).toISOString().split('T')[0]
+      : new Date(Date.now() + defaultDays * 86400000).toISOString().split('T')[0];
+
+    const currentPkgId = m?.packageId || (membershipPackages[0]?.id || 'member-basic');
+    const matchedPkg = membershipPackages.find(p => p.id === currentPkgId) || membershipPackages[0];
+
+    setMembershipForm({
+      hasMembership: !!m,
+      packageId: m ? m.packageId : (matchedPkg?.id || 'member-basic'),
+      packageName: m ? (m.packageName || matchedPkg?.name) : (matchedPkg?.name || 'Gói Hội Viên'),
+      shortName: m ? (m.shortName || matchedPkg?.shortName) : (matchedPkg?.shortName || ''),
+      durationDays: defaultDays,
+      subscribedAt: m?.subscribedAt ? new Date(m.subscribedAt).toISOString().split('T')[0] : todayStr,
+      expiresAt: defaultExpires,
+      isAutoRenew: m ? (m.isAutoRenew !== false) : true,
+      status: m?.status || 'active',
+      badge: m?.badge || matchedPkg?.badge || '',
+      badgeColor: m?.badgeColor || matchedPkg?.badgeColor || 'bg-amber-500 text-slate-950 font-black',
+      normalPublishVouchers: v.normalPublish !== undefined ? v.normalPublish : (matchedPkg?.vouchersPerCycle?.normalPublishVouchers || 15),
+      normalBumpVouchers: v.normalBump !== undefined ? v.normalBump : (matchedPkg?.vouchersPerCycle?.normalBumpVouchers || 15),
+      vipPublishVouchers: v.vipPublish !== undefined ? v.vipPublish : (matchedPkg?.vouchersPerCycle?.vipVouchers || 0)
+    });
+  };
+
+  const handleSelectPackageInModal = (pkgId) => {
+    if (pkgId === 'none') {
+      setMembershipForm(prev => ({
+        ...prev,
+        hasMembership: false,
+        packageId: 'none'
+      }));
+      return;
+    }
+    const matched = membershipPackages.find(p => p.id === pkgId);
+    if (!matched) return;
+
+    const cycle = matched.billingCycles?.[0] || { duration_days: 30, months: 1 };
+    const days = cycle.duration_days || (cycle.months * 30) || 30;
+    const start = membershipForm.subscribedAt ? new Date(membershipForm.subscribedAt) : new Date();
+    const newExpires = new Date(start.getTime() + days * 86400000).toISOString().split('T')[0];
+
+    setMembershipForm(prev => ({
+      ...prev,
+      hasMembership: true,
+      packageId: matched.id,
+      packageName: matched.name,
+      shortName: matched.shortName,
+      durationDays: days,
+      expiresAt: newExpires,
+      badge: matched.badge,
+      badgeColor: matched.badgeColor,
+      normalPublishVouchers: matched.vouchersPerCycle?.normalPublishVouchers || 0,
+      normalBumpVouchers: matched.vouchersPerCycle?.normalBumpVouchers || 0,
+      vipPublishVouchers: matched.vouchersPerCycle?.vipVouchers || 0
+    }));
+  };
+
+  const handleQuickAddDays = (daysToAdd) => {
+    setMembershipForm(prev => {
+      const baseDate = prev.expiresAt ? new Date(prev.expiresAt) : new Date();
+      const newDate = new Date(baseDate.getTime() + daysToAdd * 86400000);
+      const newExpires = newDate.toISOString().split('T')[0];
+      const newDuration = (Number(prev.durationDays) || 0) + daysToAdd;
+      return {
+        ...prev,
+        expiresAt: newExpires,
+        durationDays: newDuration
+      };
+    });
+  };
+
+  const handleSaveMembershipModal = async (e) => {
+    if (e) e.preventDefault();
+    if (!membershipModalUser) return;
+
+    try {
+      let finalMembership = null;
+      let finalVouchers = membershipModalUser.vouchers || { normalPublish: 0, normalBump: 0, vipPublish: 0 };
+
+      if (membershipForm.hasMembership && membershipForm.packageId !== 'none') {
+        finalMembership = {
+          packageId: membershipForm.packageId,
+          packageName: membershipForm.packageName,
+          shortName: membershipForm.shortName,
+          durationDays: Number(membershipForm.durationDays) || 30,
+          subscribedAt: new Date(membershipForm.subscribedAt).toISOString(),
+          expiresAt: new Date(membershipForm.expiresAt).toISOString(),
+          status: membershipForm.status || 'active',
+          isAutoRenew: Boolean(membershipForm.isAutoRenew),
+          badge: membershipForm.badge,
+          badgeColor: membershipForm.badgeColor
+        };
+        finalVouchers = {
+          normalPublish: Number(membershipForm.normalPublishVouchers) || 0,
+          normalBump: Number(membershipForm.normalBumpVouchers) || 0,
+          vipPublish: Number(membershipForm.vipPublishVouchers) || 0
+        };
+      }
+
+      const res = await assignUserMembership(membershipModalUser.id, finalMembership, finalVouchers);
+      if (res?.success || res === true) {
+        setMembershipModalUser(null);
+      } else {
+        showToast(res?.error || 'Không thể lưu gói hội viên', 'error');
+      }
+    } catch (err) {
+      showToast(err.message || 'Lỗi khi lưu gói hội viên', 'error');
     }
   };
 
@@ -3997,6 +4136,7 @@ export default function AdminBackendPage() {
                           <th className="p-3">SĐT</th>
                           <th className="p-3">Vai trò</th>
                           <th className="p-3 text-center">Trạng thái</th>
+                          <th className="p-3 text-center">👑 Gói Hội Viên</th>
                           <th className="p-3 text-right">Ví Chính (VND)</th>
                           <th className="p-3 text-right">Ví KM (VND)</th>
                           <th className="p-3 text-center">Tích Xanh</th>
@@ -4060,6 +4200,35 @@ export default function AdminBackendPage() {
                                   </span>
                                 )}
                               </td>
+
+                              {/* Cột Gói Hội Viên */}
+                              <td className="p-3 text-center">
+                                {u.membership ? (
+                                  <div className="space-y-1 inline-flex flex-col items-center">
+                                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase shadow-xs ${u.membership.badgeColor || 'bg-amber-500 text-slate-950'}`}>
+                                      {u.membership.packageName || u.membership.shortName || 'HỘI VIÊN'}
+                                    </span>
+                                    <div className="text-[10px] text-slate-400 font-mono">
+                                      Hạn: <span className="text-amber-300 font-bold">{new Date(u.membership.expiresAt).toLocaleDateString('vi-VN')}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${
+                                        u.membership.isAutoRenew !== false 
+                                          ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' 
+                                          : 'bg-slate-800 text-slate-400 border border-slate-700'
+                                      }`}>
+                                        <i className="fa-solid fa-arrows-rotate text-[8px] mr-0.5"></i>
+                                        {u.membership.isAutoRenew !== false ? 'Auto-renew' : 'Tắt gia hạn'}
+                                      </span>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-900 text-slate-500 border border-slate-800">
+                                    Chưa có gói
+                                  </span>
+                                )}
+                              </td>
+
                               <td className="p-3 text-right font-black text-emerald-400 font-mono">
                                 {mainBal.toLocaleString('vi-VN')} đ
                               </td>
@@ -4108,6 +4277,16 @@ export default function AdminBackendPage() {
                                       </button>
                                     </>
                                   )}
+
+                                  {/* Nút Quản Lý Gói Hội Viên */}
+                                  <button
+                                    onClick={() => handleOpenMembershipModal(u)}
+                                    className="px-2 py-1 bg-amber-500/20 hover:bg-amber-500/40 text-amber-300 rounded-lg text-[10px] font-bold flex items-center gap-1 transition border border-amber-600/40 shadow-xs"
+                                    title="Quản lý gói hội viên, ngày hết hạn và voucher"
+                                  >
+                                    <i className="fa-solid fa-crown text-[9px] text-amber-400"></i>
+                                    <span>Gói HV</span>
+                                  </button>
 
                                   {/* Nút Sửa người dùng */}
                                   <button
@@ -8718,6 +8897,434 @@ export default function AdminBackendPage() {
                 >
                   <i className="fa-solid fa-floppy-disk"></i>
                   <span>Lưu Thay Đổi</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: QUẢN LÝ & ĐỒNG BỘ GÓI HỘI VIÊN CHO USER */}
+      {membershipModalUser && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
+          <div className="bg-slate-950 border border-slate-800 rounded-3xl max-w-2xl w-full max-h-[92vh] overflow-hidden flex flex-col shadow-2xl">
+            {/* Modal Header */}
+            <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/60 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <img
+                    src={membershipModalUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'}
+                    alt=""
+                    className="w-11 h-11 rounded-2xl object-cover border border-amber-500/40 shadow-sm"
+                  />
+                  <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center text-[10px] font-black shadow">
+                    <i className="fa-solid fa-crown text-[9px]"></i>
+                  </span>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm sm:text-base font-black text-white">Quản Lý Gói Hội Viên</h3>
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                      CMS Admin
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-400 flex items-center gap-2">
+                    <span className="font-bold text-slate-300">{membershipModalUser.name}</span>
+                    <span>•</span>
+                    <span className="font-mono text-slate-400">{membershipModalUser.email}</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setMembershipModalUser(null)}
+                className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition"
+              >
+                <i className="fa-solid fa-xmark text-xs"></i>
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <form onSubmit={handleSaveMembershipModal} className="p-4 sm:p-6 space-y-5 overflow-y-auto flex-1 text-xs">
+              
+              {/* SECTION 1: CHỌN GÓI HỘI VIÊN */}
+              <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <i className="fa-solid fa-layer-group text-amber-400"></i>
+                    <span>Gói Hội Viên Được Cấp:</span>
+                  </label>
+                  {membershipForm.hasMembership && membershipForm.packageId !== 'none' && (
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${membershipForm.badgeColor || 'bg-amber-500 text-slate-950'}`}>
+                      {membershipForm.packageName}
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleSelectPackageInModal('none')}
+                    className={`p-3 rounded-xl border text-left transition flex items-center justify-between ${
+                      !membershipForm.hasMembership || membershipForm.packageId === 'none'
+                        ? 'bg-rose-950/40 border-rose-500/50 text-white shadow-xs'
+                        : 'bg-slate-950/60 border-slate-800 text-slate-400 hover:border-slate-700'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-bold text-xs text-rose-300">Không có gói / Hủy gói</div>
+                      <div className="text-[10px] text-slate-500">Chuyển về tài khoản thường</div>
+                    </div>
+                    {(!membershipForm.hasMembership || membershipForm.packageId === 'none') && (
+                      <i className="fa-solid fa-circle-check text-rose-400 text-sm"></i>
+                    )}
+                  </button>
+
+                  {(membershipPackages || []).map(pkg => {
+                    const isSelected = membershipForm.hasMembership && membershipForm.packageId === pkg.id;
+                    return (
+                      <button
+                        key={pkg.id}
+                        type="button"
+                        onClick={() => handleSelectPackageInModal(pkg.id)}
+                        className={`p-3 rounded-xl border text-left transition flex items-center justify-between ${
+                          isSelected
+                            ? 'bg-amber-500/10 border-amber-500 text-white shadow-md ring-1 ring-amber-500/20'
+                            : 'bg-slate-950/60 border-slate-800 text-slate-300 hover:border-slate-700'
+                        }`}
+                      >
+                        <div>
+                          <div className="font-black text-xs text-white flex items-center gap-1.5">
+                            <span>{pkg.name}</span>
+                            <span className={`px-1.5 py-0.2 rounded text-[8px] font-bold ${pkg.badgeColor}`}>
+                              {pkg.shortName}
+                            </span>
+                          </div>
+                          <div className="text-[10px] text-slate-400 mt-0.5 font-mono">
+                            {Number(pkg.monthlyPrice || 0).toLocaleString('vi-VN')} đ/tháng
+                          </div>
+                        </div>
+                        {isSelected && (
+                          <i className="fa-solid fa-circle-check text-amber-400 text-sm"></i>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {membershipForm.hasMembership && membershipForm.packageId !== 'none' && (
+                <>
+                  {/* SECTION 2: THỜI HẠN SỬ DỤNG (duration_days) & NGÀY ĐĂNG KÝ / HẾT HẠN */}
+                  <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3.5">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                        <i className="fa-solid fa-calendar-days text-teal-400"></i>
+                        <span>Thời Hạn Ngày Dùng (duration_days) & Chu Kỳ Kích Hoạt:</span>
+                      </div>
+                      <span className="text-[11px] font-mono text-teal-300 font-black">
+                        ⏱ {membershipForm.durationDays} ngày
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      {/* Số ngày dùng durationDays */}
+                      <div>
+                        <label className="block text-[11px] text-teal-400 font-bold mb-1">
+                          Số Ngày Sử Dụng (duration_days):
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          value={membershipForm.durationDays || 30}
+                          onChange={(e) => {
+                            const days = Number(e.target.value);
+                            const start = membershipForm.subscribedAt ? new Date(membershipForm.subscribedAt) : new Date();
+                            const newExp = new Date(start.getTime() + days * 86400000).toISOString().split('T')[0];
+                            setMembershipForm(prev => ({
+                              ...prev,
+                              durationDays: days,
+                              expiresAt: newExp
+                            }));
+                          }}
+                          className="w-full p-2.5 bg-slate-950 border border-teal-700/60 rounded-xl text-teal-300 font-mono text-xs font-bold outline-none focus:border-teal-400 shadow-inner"
+                        />
+                      </div>
+
+                      {/* Ngày đăng ký / Kích hoạt */}
+                      <div>
+                        <label className="block text-[11px] text-slate-400 font-bold mb-1">
+                          Ngày Đăng Ký (subscribedAt):
+                        </label>
+                        <input
+                          type="date"
+                          value={membershipForm.subscribedAt}
+                          onChange={(e) => {
+                            const newStart = e.target.value;
+                            const days = Number(membershipForm.durationDays) || 30;
+                            const newExp = newStart ? new Date(new Date(newStart).getTime() + days * 86400000).toISOString().split('T')[0] : membershipForm.expiresAt;
+                            setMembershipForm(prev => ({
+                              ...prev,
+                              subscribedAt: newStart,
+                              expiresAt: newExp
+                            }));
+                          }}
+                          className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono text-xs outline-none focus:border-amber-500"
+                        />
+                      </div>
+
+                      {/* Ngày hết hạn expiresAt */}
+                      <div>
+                        <label className="block text-[11px] text-amber-400 font-bold mb-1">
+                          Ngày Hết Hạn (expiresAt):
+                        </label>
+                        <input
+                          type="date"
+                          value={membershipForm.expiresAt}
+                          onChange={(e) => {
+                            const newExp = e.target.value;
+                            if (newExp && membershipForm.subscribedAt) {
+                              const diffDays = Math.max(1, Math.round((new Date(newExp).getTime() - new Date(membershipForm.subscribedAt).getTime()) / 86400000));
+                              setMembershipForm(prev => ({
+                                ...prev,
+                                expiresAt: newExp,
+                                durationDays: diffDays
+                              }));
+                            } else {
+                              setMembershipForm(prev => ({ ...prev, expiresAt: newExp }));
+                            }
+                          }}
+                          className="w-full p-2.5 bg-slate-950 border border-amber-600/60 rounded-xl text-amber-300 font-mono text-xs font-bold outline-none focus:border-amber-400"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Quick-add buttons for expiry date */}
+                    <div className="pt-1 flex flex-wrap items-center gap-1.5">
+                      <span className="text-[10px] text-slate-400 font-bold mr-1">Cộng nhanh hạn dùng:</span>
+                      <button
+                        type="button"
+                        onClick={() => handleQuickAddDays(30)}
+                        className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[10px] font-bold transition"
+                      >
+                        +30 ngày
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleQuickAddDays(90)}
+                        className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[10px] font-bold transition"
+                      >
+                        +90 ngày (3 tháng)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleQuickAddDays(180)}
+                        className="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-[10px] font-bold transition"
+                      >
+                        +180 ngày (6 tháng)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleQuickAddDays(365)}
+                        className="px-2.5 py-1 rounded-lg bg-teal-950/80 hover:bg-teal-900 text-teal-300 border border-teal-700/60 text-[10px] font-bold transition"
+                      >
+                        +365 ngày (1 năm)
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMembershipForm(prev => ({
+                            ...prev,
+                            expiresAt: '2030-01-01',
+                            durationDays: Math.round((new Date('2030-01-01').getTime() - new Date(prev.subscribedAt || Date.now()).getTime()) / 86400000)
+                          }));
+                        }}
+                        className="px-2.5 py-1 rounded-lg bg-purple-950/80 hover:bg-purple-900 text-purple-300 border border-purple-700/60 text-[10px] font-bold transition"
+                      >
+                        VIP Đặc Biệt (2030)
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* SECTION 3: TỰ ĐỘNG GIA HẠN (AUTO-RENEW) & TRẠNG THÁI GÓI */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    {/* Auto-renew Switch */}
+                    <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-start justify-between gap-3">
+                      <div>
+                        <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                          <i className="fa-solid fa-arrows-rotate text-emerald-400"></i>
+                          <span>Tự Động Gia Hạn (Auto-renew):</span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 mt-1">
+                          {membershipForm.isAutoRenew
+                            ? 'BẬT: Khi đến hạn, hệ thống tự động trừ tiền ví chính để duy trì gói và cấp mới kho voucher.'
+                            : 'TẮT: Gói sẽ tự động hết hạn khi tới ngày expiresAt và không tự động trừ tiền ví.'}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setMembershipForm(prev => ({ ...prev, isAutoRenew: !prev.isAutoRenew }))}
+                        className={`w-12 h-6 rounded-full transition-colors relative shrink-0 p-0.5 mt-0.5 ${
+                          membershipForm.isAutoRenew ? 'bg-emerald-600' : 'bg-slate-700'
+                        }`}
+                      >
+                        <span
+                          className={`w-5 h-5 rounded-full bg-white block transition-transform shadow ${
+                            membershipForm.isAutoRenew ? 'translate-x-6' : 'translate-x-0'
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    {/* Status dropdown */}
+                    <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1.5">
+                      <label className="block text-xs font-bold text-white flex items-center gap-1.5">
+                        <i className="fa-solid fa-shield-halved text-cyan-400"></i>
+                        <span>Trạng Thái Gói:</span>
+                      </label>
+                      <select
+                        value={membershipForm.status}
+                        onChange={(e) => setMembershipForm(prev => ({ ...prev, status: e.target.value }))}
+                        className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-bold outline-none focus:border-amber-500"
+                      >
+                        <option value="active">🟢 Đang hoạt động (active)</option>
+                        <option value="expired">🔴 Đã hết hạn (expired)</option>
+                        <option value="canceled">⚪ Đã hủy / Tạm ngưng (canceled)</option>
+                      </select>
+                      <div className="text-[10px] text-slate-400">
+                        Kiểm soát quyền sử dụng tính năng và hiển thị huy hiệu của thành viên
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SECTION 4: KHO VOUCHER CẤP CHO USER */}
+                  <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                        <i className="fa-solid fa-ticket text-emerald-400"></i>
+                        <span>Số Dư Kho Voucher Của Người Dùng:</span>
+                      </div>
+                      <span className="text-[10px] text-slate-400">
+                        Điều chỉnh số lượng voucher hiện có trong ví tài khoản
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                        <label className="block text-[10px] text-slate-400 font-bold uppercase">
+                          Voucher Tin Thường (-35k):
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={membershipForm.normalPublishVouchers}
+                          onChange={(e) => setMembershipForm(prev => ({ ...prev, normalPublishVouchers: e.target.value }))}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-emerald-400 font-mono text-sm font-black outline-none focus:border-emerald-500"
+                        />
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                        <label className="block text-[10px] text-slate-400 font-bold uppercase">
+                          Voucher Đẩy Tin (-10k):
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={membershipForm.normalBumpVouchers}
+                          onChange={(e) => setMembershipForm(prev => ({ ...prev, normalBumpVouchers: e.target.value }))}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-amber-400 font-mono text-sm font-black outline-none focus:border-amber-500"
+                        />
+                      </div>
+
+                      <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                        <label className="block text-[10px] text-slate-400 font-bold uppercase">
+                          Voucher Tin VIP (-400k):
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={membershipForm.vipPublishVouchers}
+                          onChange={(e) => setMembershipForm(prev => ({ ...prev, vipPublishVouchers: e.target.value }))}
+                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-rose-400 font-mono text-sm font-black outline-none focus:border-rose-500"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* SECTION 5: LIVE PREVIEW BANNER TRÊN USER DASHBOARD */}
+                  <div className="space-y-1.5">
+                    <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <i className="fa-solid fa-eye text-blue-400"></i>
+                      <span>Xem Trước Banner Hiển Thị Trên Client (UserDashboard):</span>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 rounded-2xl p-4 text-white border border-slate-800 shadow-md">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 text-slate-950 flex items-center justify-center text-lg font-black shadow shrink-0">
+                            <i className="fa-solid fa-crown"></i>
+                          </div>
+                          <div>
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span className="text-[10px] text-slate-400 font-bold uppercase">Gói Hội Viên</span>
+                              <span className={`px-2 py-0.2 rounded-full text-[9px] font-black uppercase ${membershipForm.badgeColor}`}>
+                                {membershipForm.packageName}
+                              </span>
+                              <span className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-bold ${
+                                membershipForm.isAutoRenew
+                                  ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                                  : 'bg-slate-800 text-slate-400 border border-slate-700'
+                              }`}>
+                                <i className="fa-solid fa-arrows-rotate text-[7px]"></i>
+                                <span>{membershipForm.isAutoRenew ? 'Tự động gia hạn: BẬT' : 'Tự động gia hạn: TẮT'}</span>
+                              </span>
+                            </div>
+                            <div className="text-[11px] text-slate-300 mt-0.5">
+                              <span>
+                                Hạn dùng gói: <b className="text-amber-300 font-mono">{membershipForm.expiresAt ? new Date(membershipForm.expiresAt).toLocaleDateString('vi-VN') : '—'}</b>
+                                {membershipForm.durationDays ? ` (${membershipForm.durationDays} ngày)` : ''} • Voucher cấp mới định kỳ 30 ngày
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2 bg-slate-950/80 p-1.5 rounded-xl border border-slate-800 text-xs shrink-0 self-start sm:self-auto">
+                          <div className="px-2 py-0.5 text-center border-r border-slate-800">
+                            <div className="text-[8px] text-slate-400 font-bold uppercase">Thường (-35k)</div>
+                            <div className="text-xs font-black text-emerald-400 font-mono">{membershipForm.normalPublishVouchers || 0}</div>
+                          </div>
+                          <div className="px-2 py-0.5 text-center border-r border-slate-800">
+                            <div className="text-[8px] text-slate-400 font-bold uppercase">Đẩy (-10k)</div>
+                            <div className="text-xs font-black text-amber-400 font-mono">{membershipForm.normalBumpVouchers || 0}</div>
+                          </div>
+                          <div className="px-2 py-0.5 text-center">
+                            <div className="text-[8px] text-slate-400 font-bold uppercase">VIP (-400k)</div>
+                            <div className="text-xs font-black text-red-400 font-mono">{membershipForm.vipPublishVouchers || 0}</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* FOOTER ACTIONS */}
+              <div className="pt-2 border-t border-slate-800 flex items-center justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setMembershipModalUser(null)}
+                  className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl transition text-xs"
+                >
+                  Hủy Bỏ
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-xl transition shadow-lg shadow-amber-500/20 text-xs flex items-center gap-1.5"
+                >
+                  <i className="fa-solid fa-floppy-disk"></i>
+                  <span>Lưu & Đồng Bộ Ngay</span>
                 </button>
               </div>
             </form>
