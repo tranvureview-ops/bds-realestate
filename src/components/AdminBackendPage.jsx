@@ -501,6 +501,8 @@ export default function AdminBackendPage() {
 
   // Membership Assignment Modal State for User
   const [membershipModalUser, setMembershipModalUser] = useState(null);
+  const [membershipStartDateInput, setMembershipStartDateInput] = useState('');
+  const [membershipEndDateInput, setMembershipEndDateInput] = useState('');
   const [membershipForm, setMembershipForm] = useState({
     hasMembership: true,
     packageId: 'member-basic',
@@ -1525,6 +1527,33 @@ export default function AdminBackendPage() {
     return `${year}-${month}-${day}`;
   };
 
+  // Chuyển 'YYYY-MM-DD' sang 'DD/MM/YYYY' (chuẩn VN)
+  const formatYMDtoDMY = (ymdStr) => {
+    if (!ymdStr) return '';
+    const parts = String(ymdStr).split('T')[0].split('-');
+    if (parts.length === 3) {
+      const [year, month, day] = parts;
+      return `${day.padStart(2, '0')}/${month.padStart(2, '0')}/${year}`;
+    }
+    return ymdStr;
+  };
+
+  // Chuyển 'DD/MM/YYYY' (hoặc DD-MM-YYYY) sang 'YYYY-MM-DD'
+  const parseDMYtoYMD = (dmyStr) => {
+    if (!dmyStr) return null;
+    const cleaned = String(dmyStr).trim().replace(/[-.]/g, '/');
+    const parts = cleaned.split('/');
+    if (parts.length === 3) {
+      const day = Number(parts[0]);
+      const month = Number(parts[1]);
+      const year = Number(parts[2]);
+      if (!isNaN(day) && !isNaN(month) && !isNaN(year) && year >= 1970 && year <= 2100 && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+        return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      }
+    }
+    return null;
+  };
+
   const calcDaysBetween = (startStr, endStr) => {
     if (!startStr || !endStr) return 30;
     const s = parseDateToUTC(startStr);
@@ -1599,6 +1628,9 @@ export default function AdminBackendPage() {
       normalBumpVouchers: v.normalBump !== undefined ? v.normalBump : (matchedPkg?.vouchersPerCycle?.normalBumpVouchers || 15),
       vipPublishVouchers: v.vipPublish !== undefined ? v.vipPublish : (matchedPkg?.vouchersPerCycle?.vipVouchers || 0)
     });
+
+    setMembershipStartDateInput(formatYMDtoDMY(startStr));
+    setMembershipEndDateInput(formatYMDtoDMY(expiresStr));
   };
 
   const handleSelectPackageInModal = (pkgId) => {
@@ -1632,6 +1664,9 @@ export default function AdminBackendPage() {
       normalBumpVouchers: matched.vouchersPerCycle?.normalBumpVouchers || 0,
       vipPublishVouchers: matched.vouchersPerCycle?.vipVouchers || 0
     }));
+
+    setMembershipStartDateInput(formatYMDtoDMY(start));
+    setMembershipEndDateInput(formatYMDtoDMY(newExpires));
   };
 
   const handleQuickAddDays = (daysToAdd) => {
@@ -1639,12 +1674,82 @@ export default function AdminBackendPage() {
       const newDuration = (Number(prev.durationDays) || 0) + daysToAdd;
       const start = prev.subscribedAt || formatDateToYMD(new Date());
       const newExpires = calcEndDate(start, newDuration);
+      setMembershipEndDateInput(formatYMDtoDMY(newExpires));
       return {
         ...prev,
         expiresAt: newExpires,
         durationDays: newDuration
       };
     });
+  };
+
+  // Người dùng gõ Ngày Đăng Ký chuẩn DD/MM/YYYY
+  const handleStartDateTextChange = (textVal) => {
+    setMembershipStartDateInput(textVal);
+    const ymd = parseDMYtoYMD(textVal);
+    if (ymd) {
+      const days = Number(membershipForm.durationDays) || 30;
+      const newExp = calcEndDate(ymd, days);
+      setMembershipForm(prev => ({
+        ...prev,
+        subscribedAt: ymd,
+        expiresAt: newExp
+      }));
+      setMembershipEndDateInput(formatYMDtoDMY(newExp));
+    }
+  };
+
+  // Người dùng gõ Ngày Hết Hạn chuẩn DD/MM/YYYY
+  const handleEndDateTextChange = (textVal) => {
+    setMembershipEndDateInput(textVal);
+    const expYmd = parseDMYtoYMD(textVal);
+    if (expYmd && membershipForm.subscribedAt) {
+      const diffDays = calcDaysBetween(membershipForm.subscribedAt, expYmd);
+      setMembershipForm(prev => ({
+        ...prev,
+        expiresAt: expYmd,
+        durationDays: diffDays
+      }));
+    }
+  };
+
+  // Thay đổi Số Ngày Sử Dụng (duration_days)
+  const handleDurationDaysChange = (daysVal) => {
+    const days = Math.max(1, Number(daysVal) || 1);
+    const start = membershipForm.subscribedAt || formatDateToYMD(new Date());
+    const newExp = calcEndDate(start, days);
+    setMembershipForm(prev => ({
+      ...prev,
+      durationDays: days,
+      expiresAt: newExp
+    }));
+    setMembershipEndDateInput(formatYMDtoDMY(newExp));
+  };
+
+  // Chọn từ icon lịch Ngày Đăng Ký
+  const handleStartDatePickerChange = (pickerVal) => {
+    if (!pickerVal) return;
+    const days = Number(membershipForm.durationDays) || 30;
+    const newExp = calcEndDate(pickerVal, days);
+    setMembershipForm(prev => ({
+      ...prev,
+      subscribedAt: pickerVal,
+      expiresAt: newExp
+    }));
+    setMembershipStartDateInput(formatYMDtoDMY(pickerVal));
+    setMembershipEndDateInput(formatYMDtoDMY(newExp));
+  };
+
+  // Chọn từ icon lịch Ngày Hết Hạn
+  const handleEndDatePickerChange = (pickerVal) => {
+    if (!pickerVal) return;
+    const diffDays = calcDaysBetween(membershipForm.subscribedAt, pickerVal);
+    setMembershipForm(prev => ({
+      ...prev,
+      expiresAt: pickerVal,
+      durationDays: diffDays
+    }));
+    setMembershipEndDateInput(formatYMDtoDMY(pickerVal));
   };
 
   const handleSaveMembershipModal = async (e) => {
@@ -9100,44 +9205,38 @@ export default function AdminBackendPage() {
                           type="number"
                           min="1"
                           value={membershipForm.durationDays || 30}
-                          onChange={(e) => {
-                            const days = Math.max(1, Number(e.target.value) || 1);
-                            const start = membershipForm.subscribedAt || formatDateToYMD(new Date());
-                            const newExp = calcEndDate(start, days);
-                            setMembershipForm(prev => ({
-                              ...prev,
-                              durationDays: days,
-                              expiresAt: newExp
-                            }));
-                          }}
+                          onChange={(e) => handleDurationDaysChange(e.target.value)}
                           className="w-full p-2.5 bg-slate-950 border border-teal-700/60 rounded-xl text-teal-300 font-mono text-xs font-bold outline-none focus:border-teal-400 shadow-inner"
                         />
                         <div className="text-[10px] text-teal-400 mt-1 flex items-center gap-1">
                           <i className="fa-solid fa-arrows-rotate text-[9px]"></i>
-                          <span>Tự động tính ngày hết hạn</span>
+                          <span>Tự động tính ngày hết hạn theo ngày</span>
                         </div>
                       </div>
 
-                      {/* Ngày đăng ký / Kích hoạt */}
+                      {/* Ngày đăng ký / Kích hoạt (DD/MM/YYYY) */}
                       <div>
                         <label className="block text-[11px] text-slate-400 font-bold mb-1">
-                          Ngày Đăng Ký (subscribedAt):
+                          Ngày Đăng Ký (Ngày/Tháng/Năm):
                         </label>
-                        <input
-                          type="date"
-                          value={membershipForm.subscribedAt}
-                          onChange={(e) => {
-                            const newStart = e.target.value;
-                            const days = Number(membershipForm.durationDays) || 30;
-                            const newExp = newStart ? calcEndDate(newStart, days) : membershipForm.expiresAt;
-                            setMembershipForm(prev => ({
-                              ...prev,
-                              subscribedAt: newStart,
-                              expiresAt: newExp
-                            }));
-                          }}
-                          className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono text-xs outline-none focus:border-amber-500"
-                        />
+                        <div className="relative">
+                          <input
+                            type="text"
+                            placeholder="DD/MM/YYYY (ví dụ: 12/09/2026)"
+                            value={membershipStartDateInput}
+                            onChange={(e) => handleStartDateTextChange(e.target.value)}
+                            className="w-full p-2.5 pr-9 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono text-xs outline-none focus:border-amber-500"
+                          />
+                          <label className="absolute right-2.5 top-2.5 text-slate-400 hover:text-amber-400 cursor-pointer" title="Chọn từ lịch">
+                            <i className="fa-regular fa-calendar text-xs"></i>
+                            <input
+                              type="date"
+                              value={membershipForm.subscribedAt}
+                              onChange={(e) => handleStartDatePickerChange(e.target.value)}
+                              className="sr-only"
+                            />
+                          </label>
+                        </div>
                         {membershipForm.subscribedAt && (
                           <div className="text-[10px] text-slate-400 mt-1 flex items-center gap-1 font-sans">
                             <i className="fa-regular fa-calendar-check text-emerald-400"></i>
@@ -9146,29 +9245,29 @@ export default function AdminBackendPage() {
                         )}
                       </div>
 
-                      {/* Ngày hết hạn expiresAt */}
+                      {/* Ngày hết hạn expiresAt (DD/MM/YYYY) */}
                       <div>
                         <label className="block text-[11px] text-amber-400 font-bold mb-1">
-                          Ngày Hết Hạn (expiresAt):
+                          Ngày Hết Hạn (Ngày/Tháng/Năm):
                         </label>
-                        <input
-                          type="date"
-                          value={membershipForm.expiresAt}
-                          onChange={(e) => {
-                            const newExp = e.target.value;
-                            if (newExp && membershipForm.subscribedAt) {
-                              const diffDays = calcDaysBetween(membershipForm.subscribedAt, newExp);
-                              setMembershipForm(prev => ({
-                                ...prev,
-                                expiresAt: newExp,
-                                durationDays: diffDays
-                              }));
-                            } else {
-                              setMembershipForm(prev => ({ ...prev, expiresAt: newExp }));
-                            }
-                          }}
-                          className="w-full p-2.5 bg-slate-950 border border-amber-600/60 rounded-xl text-amber-300 font-mono text-xs font-bold outline-none focus:border-amber-400"
-                        />
+                        <div className="relative">
+                          <input
+                            type="text"
+                            placeholder="DD/MM/YYYY (ví dụ: 12/10/2026)"
+                            value={membershipEndDateInput}
+                            onChange={(e) => handleEndDateTextChange(e.target.value)}
+                            className="w-full p-2.5 pr-9 bg-slate-950 border border-amber-600/60 rounded-xl text-amber-300 font-mono text-xs font-bold outline-none focus:border-amber-400 shadow-inner"
+                          />
+                          <label className="absolute right-2.5 top-2.5 text-amber-400 hover:text-amber-300 cursor-pointer" title="Chọn từ lịch">
+                            <i className="fa-regular fa-calendar text-xs"></i>
+                            <input
+                              type="date"
+                              value={membershipForm.expiresAt}
+                              onChange={(e) => handleEndDatePickerChange(e.target.value)}
+                              className="sr-only"
+                            />
+                          </label>
+                        </div>
                         {membershipForm.expiresAt && (
                           <div className="text-[10px] text-amber-300/80 mt-1 flex items-center gap-1 font-sans">
                             <i className="fa-regular fa-clock text-amber-400"></i>
@@ -9219,6 +9318,7 @@ export default function AdminBackendPage() {
                             expiresAt: '2030-01-01',
                             durationDays: diff
                           }));
+                          setMembershipEndDateInput('01/01/2030');
                         }}
                         className="px-2.5 py-1 rounded-lg bg-purple-950/80 hover:bg-purple-900 text-purple-300 border border-purple-700/60 text-[10px] font-bold transition"
                       >
