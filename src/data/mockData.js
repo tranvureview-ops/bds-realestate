@@ -343,7 +343,7 @@ export const INITIAL_PROPERTIES = [
       "title": "Giám Đốc Kinh Doanh BĐS Cao Cấp",
       "phone": "0908 123 456",
       "zalo": "0908123456",
-      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
       "isVerified": true,
       "rating": 4.9,
       "reviewCount": 38
@@ -506,7 +506,7 @@ export const INITIAL_PROPERTIES = [
       "title": "Giám Đốc Kinh Doanh BĐS",
       "phone": "0908 123 456",
       "zalo": "0908123456",
-      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
       "isVerified": true,
       "rating": 4.9,
       "reviewCount": 38
@@ -731,7 +731,7 @@ export const INITIAL_PROPERTIES = [
       "title": "Môi Giới Cho Thuê Nhà Biển Đà Nẵng",
       "phone": "0908 123 456",
       "zalo": "0908123456",
-      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
       "isVerified": true,
       "rating": 4.9,
       "reviewCount": 38
@@ -945,7 +945,7 @@ export const INITIAL_PROPERTIES = [
       "title": "Giám Đốc Kinh Doanh BĐS Đà Nẵng",
       "phone": "0908 123 456",
       "zalo": "0908123456",
-      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
       "isVerified": true,
       "rating": 4.9,
       "reviewCount": 38
@@ -1105,7 +1105,7 @@ export const INITIAL_PROPERTIES = [
       "title": "Hội Viên Tiêu Chuẩn",
       "phone": "0908 123 456",
       "zalo": "0908123456",
-      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
+      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
       "isVerified": true,
       "rating": 5,
       "reviewCount": 1,
@@ -1158,7 +1158,7 @@ export const INITIAL_PROPERTIES = [
       "title": "Hội Viên Tiêu Chuẩn",
       "phone": "0908 123 456",
       "zalo": "0908123456",
-      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
+      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
       "isVerified": true,
       "rating": 5,
       "reviewCount": 1,
@@ -1292,7 +1292,7 @@ export const INITIAL_PROPERTIES = [
       "title": "Chuyên Gia Căn Hộ Dịch Vụ Dòng Tiền",
       "phone": "0908 123 456",
       "zalo": "0908123456",
-      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
       "isVerified": true,
       "rating": 4.9,
       "reviewCount": 38
@@ -1517,7 +1517,7 @@ export const INITIAL_PROPERTIES = [
       "title": "Môi Giới Cho Thuê BĐS Nghỉ Dưỡng",
       "phone": "0908 123 456",
       "zalo": "0908123456",
-      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
       "isVerified": true,
       "rating": 4.9,
       "reviewCount": 38
@@ -1738,7 +1738,7 @@ export const INITIAL_PROPERTIES = [
       "title": "Chuyên Bất Động Sản Công Nghiệp & Kho Bãi",
       "phone": "0908 123 456",
       "zalo": "0908123456",
-      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
       "isVerified": true,
       "rating": 4.9,
       "reviewCount": 38
@@ -2033,7 +2033,7 @@ export const INITIAL_PROPERTIES = [
       "title": "Chuyên Mua Bán Khách Sạn Đà Nẵng",
       "phone": "0908 123 456",
       "zalo": "0908123456",
-      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
       "isVerified": true,
       "rating": 4.9,
       "reviewCount": 38
@@ -2059,7 +2059,7 @@ export const MOCK_USERS = [
     roleName: 'Khách hàng cá nhân',
     walletBalance: 850000, // 850,000 VND
     phone: '0912 345 678',
-    avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
+    avatar: 'https://plus.unsplash.com/premium_photo-1661688791119-418b28a3ca60?auto=format&fit=crop&w=256&h=256&q=80',
     membership: null,
     vouchers: {
       normalPublish: 0,
@@ -2077,7 +2077,7 @@ export const MOCK_USERS = [
     roleName: 'Môi Giới',
     walletBalance: 4250000, // 4,250,000 VND
     phone: '0908 123 456',
-    avatar: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80',
+    avatar: 'https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80',
     isVerified: true,
     activeListingsCount: 12,
     membership: {
@@ -2109,7 +2109,7 @@ export const MOCK_USERS = [
     roleName: 'Tổng Quản Trị Viên (CMS Admin)',
     walletBalance: 99999999,
     phone: '0898 246 607',
-    avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80',
+    avatar: 'https://plus.unsplash.com/premium_photo-1682095969640-cade58e5c561?auto=format&fit=crop&w=256&h=256&q=80',
     membership: {
       packageId: 'member-premium',
       packageName: 'Hội Viên Cao Cấp VIP',

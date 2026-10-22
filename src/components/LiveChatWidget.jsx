@@ -88,7 +88,7 @@ export default function LiveChatWidget() {
             <div className="flex items-center gap-2.5">
               <div className="relative">
                 <img
-                  src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=100&q=80"
+                  src="https://plus.unsplash.com/premium_photo-1661688791119-418b28a3ca60?auto=format&fit=crop&w=256&h=256&q=80"
                   alt="Agent"
                   className="w-10 h-10 rounded-full object-cover border border-emerald-400"
                 />

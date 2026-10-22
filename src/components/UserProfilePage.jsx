@@ -96,7 +96,7 @@ export default function UserProfilePage() {
     primaryArea: currentUser.primaryArea || 'TP. Đà Nẵng',
     company: currentUser.company || 'Đất Biển Đà Nẵng Partner',
     address: currentUser.address || 'Góc Võ Nguyên Giáp & Phạm Văn Đồng, P. Phước Mỹ, Q. Sơn Trà, TP. Đà Nẵng',
-    avatar: currentUser.avatar || 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80'
+    avatar: currentUser.avatar || 'https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80'
   });
 
   // KYC state
@@ -119,14 +119,16 @@ export default function UserProfilePage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Avatar choices
+  // Avatar choices chuẩn gương mặt Châu Á / Việt Nam chuyên nghiệp
   const AVATAR_PRESETS = [
-    'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80',
-    'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80',
-    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80',
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80',
-    'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=256&q=80',
-    'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=256&q=80'
+    'https://plus.unsplash.com/premium_photo-1661688791119-418b28a3ca60?auto=format&fit=crop&w=256&h=256&q=80',
+    'https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80',
+    'https://plus.unsplash.com/premium_photo-1667511082983-5069fed50a68?auto=format&fit=crop&w=256&h=256&q=80',
+    'https://plus.unsplash.com/premium_photo-1682095969640-cade58e5c561?auto=format&fit=crop&w=256&h=256&q=80',
+    'https://plus.unsplash.com/premium_photo-1661769588455-951d015fdad5?auto=format&fit=crop&w=256&h=256&q=80',
+    'https://plus.unsplash.com/premium_photo-1682095972828-0ecc964e6639?auto=format&fit=crop&w=256&h=256&q=80',
+    'https://plus.unsplash.com/premium_photo-1682094864613-3b4a576c95a3?auto=format&fit=crop&w=256&h=256&q=80',
+    'https://plus.unsplash.com/premium_photo-1661774991416-ee14a1bc0d30?auto=format&fit=crop&w=256&h=256&q=80'
   ];
 
   // Upload Avatar state & handler
