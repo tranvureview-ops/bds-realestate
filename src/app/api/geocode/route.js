@@ -44,7 +44,7 @@ const DANANG_MERGERS_MAP = [
   { match: ['an khê', 'thanh khê tây'], newWard: 'Phường An Khê - Thanh Khê Tây', newDistrict: 'Quận Thanh Khê', lat: 16.0610, lng: 108.1750, placeId: 'ChIJh8vQ_f0WQjER5qK2iE59_xZ' },
   { match: ['hòa minh', 'hòa khánh bắc', 'hòa khánh nam'], newWard: 'Phường Hòa Khánh', newDistrict: 'Quận Liên Chiểu', lat: 16.0680, lng: 108.1510, placeId: 'ChIJX9YgQ_QWQjERgLpZ2o944Qc' },
   { match: ['hòa hiệp bắc', 'hòa hiệp nam'], newWard: 'Phường Hòa Hiệp', newDistrict: 'Quận Liên Chiểu', lat: 16.1150, lng: 108.1250, placeId: 'ChIJj7QYFf4VQjERw7vR2a944Qc' },
-  { match: ['an hải bắc', 'an hải đông'], newWard: 'Phường An Hải', newDistrict: 'Quận Sơn Trà', lat: 16.0685, lng: 108.2390, placeId: 'ChIJu_e9cR0XQjERw1z3hC59_qQ' }
+  { match: ['an hải bắc', 'an hải đông', 'an hải tây'], newWard: 'Phường An Hải', newDistrict: 'Quận Sơn Trà', lat: 16.0685, lng: 108.2390, placeId: 'ChIJu_e9cR0XQjERw1z3hC59_qQ' }
 ];
 
 // Helper tạo deterministic Place ID format khi chưa có Google Maps Key

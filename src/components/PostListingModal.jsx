@@ -1157,6 +1157,10 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                       disabled={!formData.district}
                       allowCustomInput={true}
                     />
+                    <div className="text-[10px] text-slate-500 mt-1 flex items-center gap-1">
+                      <i className="fa-regular fa-lightbulb text-amber-500"></i>
+                      <span>Gợi ý: Bạn có thể chọn tên đường có sẵn hoặc gõ trực tiếp tên đường &amp; số nhà bất kỳ nếu chưa có trong danh sách.</span>
+                    </div>
                   </div>
 
                   <div>

@@ -2489,7 +2489,20 @@
     "notifyReporterOnResolution": true
   },
   "bds_verification_tokens": [],
-  "bds_cached_geocodes": {},
+  "bds_cached_geocodes": {
+    "084b6f705e3b89e2ef9bf6b0b64e566f": {
+      "address_hash": "084b6f705e3b89e2ef9bf6b0b64e566f",
+      "raw_address": "Số 45 Mai Hắc Đế, Phường An Hải Tây, Quận Sơn Trà, Đà Nẵng",
+      "clean_address": "Đường Số 45 Mai Hắc Đế, Phường An Hải, Quận Sơn Trà, Đà Nẵng",
+      "new_ward": "Phường An Hải",
+      "new_district": "Quận Sơn Trà",
+      "lat": 16.0685,
+      "lng": 108.239,
+      "place_id": "ChIJu_e9cR0XQjERw1z3hC59_qQ",
+      "is_merged": true,
+      "created_at": "2026-10-22T01:39:16.076Z"
+    }
+  },
   "bds_system_settings": {
     "google_maps_api_key": ""
   }

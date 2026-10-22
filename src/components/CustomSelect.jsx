@@ -232,15 +232,42 @@ export default function CustomSelect({
 
           {/* Danh sách các tùy chọn */}
           <div className="max-h-56 overflow-y-auto space-y-0.5" style={{ scrollbarWidth: 'thin' }}>
-            {filteredOptions.length === 0 ? (
-              <div className="py-3 px-2 text-center text-xs text-slate-400 font-medium">
-                {allowCustomInput ? (
-                  <span>
-                    Chưa có gợi ý có sẵn.<br/>
-                    <span className="text-[11px] text-slate-500 font-bold mt-1 inline-block">
-                      Dùng giá trị vừa nhập: <strong className="text-slate-800">&ldquo;{value}&rdquo;</strong>
-                    </span>
+            {/* Mục ưu tiên: Cho phép chọn giá trị người dùng vừa gõ (Nếu chưa có trong danh mục) */}
+            {allowCustomInput && (value || searchTerm)?.trim() && (
+              <div
+                onClick={() => handleSelect((value || searchTerm).trim())}
+                className="flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl text-xs font-bold bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200 cursor-pointer transition mb-1 shadow-xs"
+              >
+                <div className="flex items-center gap-2 truncate">
+                  <i className="fa-solid fa-plus-circle text-blue-600 text-sm shrink-0"></i>
+                  <span className="truncate">
+                    Dùng tên đường bạn nhập: <strong className="text-blue-950 underline">&ldquo;{(value || searchTerm).trim()}&rdquo;</strong>
                   </span>
+                </div>
+                <span className="text-[10px] bg-blue-200/80 text-blue-900 font-bold px-2 py-0.5 rounded-md shrink-0">
+                  Chọn mục này ↵
+                </span>
+              </div>
+            )}
+
+            {filteredOptions.length === 0 ? (
+              <div className="py-2 px-2 text-center text-xs text-slate-400 font-medium">
+                {allowCustomInput ? (
+                  <div
+                    onClick={() => handleSelect((value || searchTerm || '').trim())}
+                    className="p-3 bg-slate-50 hover:bg-blue-50 border border-dashed border-slate-300 hover:border-blue-400 rounded-xl cursor-pointer transition text-left"
+                  >
+                    <div className="font-bold text-slate-800 flex items-center gap-1.5">
+                      <i className="fa-solid fa-map-pin text-blue-600 text-sm"></i>
+                      <span>Tên đường này chưa có trong danh mục gợi ý</span>
+                    </div>
+                    <div className="text-[11px] text-blue-700 font-semibold mt-1">
+                      Bấm vào đây để sử dụng: <strong className="underline text-blue-950">&ldquo;{(value || searchTerm || '').trim()}&rdquo;</strong>
+                    </div>
+                    <div className="text-[10px] text-slate-400 mt-1">
+                      (Google Maps Geocoding sẽ tự động định vị vị trí con đường này)
+                    </div>
+                  </div>
                 ) : (
                   'Không tìm thấy kết quả phù hợp'
                 )}
