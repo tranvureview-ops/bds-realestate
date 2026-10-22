@@ -2282,6 +2282,52 @@ export const INITIAL_NAV_MENU = [
   }
 ];
 
+// Cấu hình Kênh Mạng Xã Hội Mặc Định (Facebook, Zalo, YouTube, TikTok, Telegram, Instagram)
+export const DEFAULT_SOCIAL_LINKS = {
+  facebook: {
+    enabled: true,
+    url: 'https://facebook.com/datbiendanang',
+    label: 'Facebook',
+    icon: 'fa-brands fa-facebook-f',
+    hoverColor: 'hover:text-blue-400 hover:border-blue-500/50'
+  },
+  zalo: {
+    enabled: true,
+    url: 'https://zalo.me/0904084888',
+    label: 'Zalo',
+    icon: 'fa-solid fa-comment-dots',
+    hoverColor: 'hover:text-sky-400 hover:border-sky-500/50'
+  },
+  youtube: {
+    enabled: true,
+    url: 'https://youtube.com/@datbiendanang',
+    label: 'YouTube',
+    icon: 'fa-brands fa-youtube',
+    hoverColor: 'hover:text-red-500 hover:border-red-500/50'
+  },
+  tiktok: {
+    enabled: true,
+    url: 'https://tiktok.com/@datbiendanang',
+    label: 'TikTok',
+    icon: 'fa-brands fa-tiktok',
+    hoverColor: 'hover:text-pink-400 hover:border-pink-500/50'
+  },
+  telegram: {
+    enabled: false,
+    url: 'https://t.me/datbiendanang',
+    label: 'Telegram',
+    icon: 'fa-brands fa-telegram',
+    hoverColor: 'hover:text-cyan-400 hover:border-cyan-500/50'
+  },
+  instagram: {
+    enabled: false,
+    url: 'https://instagram.com/datbiendanang',
+    label: 'Instagram',
+    icon: 'fa-brands fa-instagram',
+    hoverColor: 'hover:text-fuchsia-400 hover:border-fuchsia-500/50'
+  }
+};
+
 // Cấu hình Header, Logo & Độ Rộng Menu (Header & Logo Settings)
 export const DEFAULT_HEADER_CONFIG = {
   logoType: 'text', // 'text' | 'image'
@@ -2296,6 +2342,7 @@ export const DEFAULT_HEADER_CONFIG = {
   logoAlt: 'Đất Biển Đà Nẵng Logo',
   showTaglineWithImage: false,
   containerWidth: 'boxed', // 'boxed' (max-w-7xl) | 'wide' (max-w-screen-2xl) | 'full' (w-full 100%)
+  socialLinks: DEFAULT_SOCIAL_LINKS
 };
 
 export const PRESET_LOGOS = [
@@ -2446,7 +2493,10 @@ export const DEFAULT_SYSTEM_CONFIG = {
   // Cấu hình Phân Trang Danh Mục & Số lượng tin Trang Chủ & Trang Chi Tiết
   categoryPageSize: 12, // Số lượng BĐS trên mỗi trang phân trang tại các danh mục (Nhà đất bán, Cho thuê, Taxonomy)
   homePageSize: 18, // Số lượng BĐS hiển thị trên Trang Chủ
-  similarPropertiesLimit: 4 // Số lượng BĐS tương tự hiển thị trên Trang Chi Tiết (Mặc định 4 sản phẩm)
+  similarPropertiesLimit: 4, // Số lượng BĐS tương tự hiển thị trên Trang Chi Tiết (Mặc định 4 sản phẩm)
+
+  // Mạng xã hội toàn hệ thống
+  socialLinks: DEFAULT_SOCIAL_LINKS
 };
 
 // Cấu hình Trang Chi Tiết Bất Động Sản (Single Property Page Settings)

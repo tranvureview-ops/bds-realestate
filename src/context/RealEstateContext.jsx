@@ -42,6 +42,7 @@ import {
   MOCK_TRANSACTIONS,
   INITIAL_NAV_MENU,
   DEFAULT_HEADER_CONFIG,
+  DEFAULT_SOCIAL_LINKS,
   PRESET_LOGOS,
   DEFAULT_PAYMENT_CONFIG,
   DEFAULT_APPROVAL_TIERS,
@@ -362,7 +363,16 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // 9. Header, Logo & Menu Width Configuration State
   const [headerConfig, setHeaderConfig] = useState(() => {
-    return { ...DEFAULT_HEADER_CONFIG, ...(initialData?.bds_header_config || {}) };
+    const raw = initialData?.bds_header_config || {};
+    return {
+      ...DEFAULT_HEADER_CONFIG,
+      ...raw,
+      socialLinks: {
+        ...DEFAULT_SOCIAL_LINKS,
+        ...(DEFAULT_HEADER_CONFIG.socialLinks || {}),
+        ...(raw.socialLinks || {})
+      }
+    };
   });
 
   // 10. Payment Methods Configuration State (Backend Admin Config)
@@ -388,7 +398,16 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // 11. Cài Đặt Vận Hành Hệ Thống Sàn BĐS (Platform Operating Settings State)
   const [systemConfig, setSystemConfig] = useState(() => {
-    return initialData?.bds_system_config || DEFAULT_SYSTEM_CONFIG;
+    const raw = initialData?.bds_system_config || {};
+    return {
+      ...DEFAULT_SYSTEM_CONFIG,
+      ...raw,
+      socialLinks: {
+        ...DEFAULT_SOCIAL_LINKS,
+        ...(DEFAULT_SYSTEM_CONFIG.socialLinks || {}),
+        ...(raw.socialLinks || {})
+      }
+    };
   });
 
   // 11b. Cấu hình Trang Chi Tiết Bất Động Sản (Single Property Page Config)
@@ -3509,6 +3528,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         updateHeaderConfig,
         resetHeaderConfig,
         PRESET_LOGOS,
+        DEFAULT_SOCIAL_LINKS,
         paymentConfig,
         updatePaymentConfig,
         resetPaymentConfig,

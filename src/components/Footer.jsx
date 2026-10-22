@@ -5,7 +5,16 @@ import { Link } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 
 export default function Footer() {
-  const { systemConfig, currentUser } = useRealEstate();
+  const { systemConfig, headerConfig, currentUser } = useRealEstate();
+
+  // Danh sách mạng xã hội đã bật
+  const socialConfig = headerConfig?.socialLinks || systemConfig?.socialLinks || {};
+  const activeSocialList = Object.entries(socialConfig)
+    .filter(([_, item]) => item && item.enabled && item.url)
+    .map(([key, item]) => ({
+      key,
+      ...item
+    }));
 
   return (
     <footer className="bg-slate-900 text-slate-300 pt-12 pb-8 border-t border-slate-800">
@@ -77,6 +86,34 @@ export default function Footer() {
                 <span>Trụ sở chính: {systemConfig?.address || 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng'}</span>
               </div>
             </div>
+
+            {/* Social Media Links in Footer */}
+            {activeSocialList.length > 0 && (
+              <div className="pt-2">
+                <div className="text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                  <i className="fa-solid fa-share-nodes text-emerald-400"></i>
+                  <span>Kết nối với chúng tôi:</span>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  {activeSocialList.map(item => (
+                    <a
+                      key={item.key}
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-slate-300 hover:text-white flex items-center justify-center transition shadow-xs hover:border-emerald-500/50 hover:scale-105"
+                      title={item.label || item.key}
+                    >
+                      {item.key === 'zalo' ? (
+                        <span className="font-black text-[11px] text-sky-400 leading-none">Z</span>
+                      ) : (
+                        <i className={`${item.icon} text-xs`}></i>
+                      )}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Quick links */}

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
-import { DEFAULT_HEADER_CONFIG } from '../data/mockData';
+import { DEFAULT_HEADER_CONFIG, DEFAULT_SOCIAL_LINKS } from '../data/mockData';
 
 export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
   const {
@@ -28,6 +28,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
     logoAlt: headerConfig?.logoAlt || 'Đất Biển Đà Nẵng Logo',
     showTaglineWithImage: headerConfig?.showTaglineWithImage || false,
     containerWidth: headerConfig?.containerWidth || 'boxed',
+    socialLinks: headerConfig?.socialLinks || DEFAULT_SOCIAL_LINKS
   }));
 
   // Sync when headerConfig changes
@@ -35,12 +36,89 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
     if (headerConfig && Object.keys(headerConfig).length > 0) {
       setLogoFormData(prev => ({
         ...prev,
-        ...headerConfig
+        ...headerConfig,
+        socialLinks: {
+          ...DEFAULT_SOCIAL_LINKS,
+          ...(headerConfig.socialLinks || {})
+        }
       }));
     }
   }, [headerConfig]);
 
   const [isSavingHeader, setIsSavingHeader] = useState(false);
+
+  // Xử lý bật/tắt từng mạng xã hội
+  const handleToggleSocial = (key) => {
+    setLogoFormData(prev => {
+      const currentLinks = prev.socialLinks || DEFAULT_SOCIAL_LINKS;
+      return {
+        ...prev,
+        socialLinks: {
+          ...currentLinks,
+          [key]: {
+            ...(currentLinks[key] || DEFAULT_SOCIAL_LINKS[key] || {}),
+            enabled: !currentLinks[key]?.enabled
+          }
+        }
+      };
+    });
+  };
+
+  // Cập nhật URL mạng xã hội
+  const handleUpdateSocialUrl = (key, url) => {
+    setLogoFormData(prev => {
+      const currentLinks = prev.socialLinks || DEFAULT_SOCIAL_LINKS;
+      return {
+        ...prev,
+        socialLinks: {
+          ...currentLinks,
+          [key]: {
+            ...(currentLinks[key] || DEFAULT_SOCIAL_LINKS[key] || {}),
+            url
+          }
+        }
+      };
+    });
+  };
+
+  // Cập nhật Nhãn mạng xã hội
+  const handleUpdateSocialLabel = (key, label) => {
+    setLogoFormData(prev => {
+      const currentLinks = prev.socialLinks || DEFAULT_SOCIAL_LINKS;
+      return {
+        ...prev,
+        socialLinks: {
+          ...currentLinks,
+          [key]: {
+            ...(currentLinks[key] || DEFAULT_SOCIAL_LINKS[key] || {}),
+            label
+          }
+        }
+      };
+    });
+  };
+
+  // Bật / Tắt tất cả
+  const handleToggleAllSocial = (status) => {
+    setLogoFormData(prev => {
+      const currentLinks = prev.socialLinks || DEFAULT_SOCIAL_LINKS;
+      const updated = {};
+      Object.keys(currentLinks).forEach(k => {
+        updated[k] = { ...currentLinks[k], enabled: status };
+      });
+      return { ...prev, socialLinks: updated };
+    });
+    showToast(status ? 'Đã bật tất cả các kênh mạng xã hội!' : 'Đã tắt tất cả các kênh mạng xã hội!', 'info');
+  };
+
+  // Khôi phục link mạng xã hội mặc định
+  const handleResetSocialLinks = () => {
+    setLogoFormData(prev => ({
+      ...prev,
+      socialLinks: DEFAULT_SOCIAL_LINKS
+    }));
+    showToast('Đã khôi phục danh sách mạng xã hội về mặc định!', 'info');
+  };
 
   const handleResetHeaderSettings = async () => {
     if (window.confirm('Bạn có chắc chắn muốn khôi phục toàn bộ cấu hình Header & Độ rộng về mặc định ban đầu?')) {
@@ -549,6 +627,141 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
         </div>
       </div>
 
+      {/* 3. Cấu hình Kênh Mạng Xã Hội Website (Social Media Links - TopBar & Footer) */}
+      <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800/80 gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-8 h-8 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20 flex items-center justify-center text-sm">
+                <i className="fa-solid fa-share-nodes"></i>
+              </span>
+              <h3 className="text-sm font-black text-white uppercase tracking-wider">
+                3. Kênh Mạng Xã Hội Website (TopBar, Footer & Mobile Menu)
+              </h3>
+            </div>
+            <p className="text-xs text-slate-400 mt-1">
+              Bật/tắt và gắn link các kênh mạng xã hội (Facebook, Zalo, YouTube, TikTok, Telegram, Instagram). Tự động hiển thị trên thanh tiện ích TopBar, chân trang Footer và ngăn kéo Menu Mobile.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => handleToggleAllSocial(true)}
+              className="px-2.5 py-1.5 rounded-lg bg-emerald-950/80 hover:bg-emerald-900 text-emerald-400 font-bold text-[11px] border border-emerald-800/60 transition cursor-pointer"
+            >
+              <i className="fa-solid fa-check mr-1"></i> Bật Tất Cả
+            </button>
+            <button
+              type="button"
+              onClick={() => handleToggleAllSocial(false)}
+              className="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 font-bold text-[11px] border border-slate-700/60 transition cursor-pointer"
+            >
+              <i className="fa-solid fa-xmark mr-1"></i> Tắt Tất Cả
+            </button>
+            <button
+              type="button"
+              onClick={handleResetSocialLinks}
+              className="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-[11px] border border-slate-700/60 transition cursor-pointer"
+              title="Khôi phục link mặc định"
+            >
+              <i className="fa-solid fa-rotate-left mr-1"></i> Mặc Định
+            </button>
+          </div>
+        </div>
+
+        {/* Social Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Object.entries(logoFormData.socialLinks || DEFAULT_SOCIAL_LINKS).map(([key, item]) => {
+            const isEnabled = item?.enabled ?? false;
+            return (
+              <div
+                key={key}
+                className={`p-4 rounded-2xl border transition-all duration-200 flex flex-col justify-between gap-3 ${
+                  isEnabled
+                    ? 'bg-slate-900/90 border-slate-700 shadow-sm'
+                    : 'bg-slate-950/60 border-slate-800/80 opacity-75'
+                }`}
+              >
+                {/* Channel Header & Switch */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2.5">
+                    <span className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-black ${
+                      key === 'facebook' ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30' :
+                      key === 'zalo' ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30 font-sans' :
+                      key === 'youtube' ? 'bg-red-600/20 text-red-400 border border-red-500/30' :
+                      key === 'tiktok' ? 'bg-pink-600/20 text-pink-400 border border-pink-500/30' :
+                      key === 'telegram' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' :
+                      'bg-fuchsia-600/20 text-fuchsia-400 border border-fuchsia-500/30'
+                    }`}>
+                      {key === 'zalo' ? 'Z' : <i className={item?.icon || 'fa-solid fa-share'}></i>}
+                    </span>
+                    <div>
+                      <div className="font-bold text-xs text-white capitalize">{item?.label || key}</div>
+                      <span className={`text-[9px] font-semibold px-1.5 py-0.2 rounded-full inline-block ${
+                        isEnabled ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' : 'bg-slate-800 text-slate-500'
+                      }`}>
+                        {isEnabled ? 'Đang Hiển Thị' : 'Đã Tắt'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Toggle Button */}
+                  <button
+                    type="button"
+                    onClick={() => handleToggleSocial(key)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-hidden cursor-pointer ${
+                      isEnabled ? 'bg-emerald-500' : 'bg-slate-700'
+                    }`}
+                    title={isEnabled ? 'Bấm để tắt kênh này' : 'Bấm để bật kênh này'}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        isEnabled ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* URL Input */}
+                <div className="space-y-1">
+                  <label className="text-[10px] text-slate-400 font-bold block">
+                    Đường dẫn (URL):
+                  </label>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="url"
+                      value={item?.url || ''}
+                      onChange={(e) => handleUpdateSocialUrl(key, e.target.value)}
+                      placeholder={
+                        key === 'facebook' ? 'https://facebook.com/ten-fanpage' :
+                        key === 'zalo' ? 'https://zalo.me/0904084888' :
+                        key === 'youtube' ? 'https://youtube.com/@kenh-bds' :
+                        key === 'tiktok' ? 'https://tiktok.com/@kenh-tiktok' :
+                        key === 'telegram' ? 'https://t.me/kenh-telegram' :
+                        'https://instagram.com/kenh-instagram'
+                      }
+                      className="flex-1 p-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs outline-none focus:border-emerald-500 font-mono"
+                    />
+                    {item?.url && (
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-2.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 text-xs transition shrink-0"
+                        title="Mở kiểm tra đường dẫn"
+                      >
+                        <i className="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Interactive Live Preview Header Bar */}
       <div className="bg-slate-950 p-5 rounded-3xl border border-slate-800 space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
@@ -567,7 +780,46 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
         </div>
 
         {/* Mock browser window */}
-        <div className="bg-slate-900 p-2 sm:p-4 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl">
+        <div className="bg-slate-900 p-2 sm:p-4 rounded-2xl border border-slate-800 overflow-hidden shadow-2xl space-y-2">
+          {/* TopBar in Preview */}
+          <div className={`mx-auto bg-slate-950 text-slate-300 rounded-xl px-3 py-1.5 border border-slate-800 transition-all duration-300 flex items-center justify-between gap-2 ${
+            logoFormData.containerWidth === 'full' 
+              ? 'w-full' 
+              : logoFormData.containerWidth === 'wide' 
+              ? 'max-w-[1536px] w-full' 
+              : 'max-w-7xl w-full'
+          }`}>
+            <div className="flex items-center gap-2 min-w-0 text-[10px]">
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold truncate">
+                🟢 Sàn BĐS {logoFormData.brandName || 'ĐẤT BIỂN'} {logoFormData.brandHighlight || 'ĐÀ NẴNG'}
+              </span>
+              <span className="text-slate-600 hidden sm:inline">|</span>
+              <span className="hidden sm:inline text-slate-400">Hotline 24/7: <strong className="text-white">0904 084 888</strong></span>
+            </div>
+
+            <div className="flex items-center gap-2 text-[10px] shrink-0 text-slate-400">
+              <span className="hidden md:inline">🕒 Giờ làm việc: <strong className="text-slate-200">8:00 - 21:00</strong></span>
+              {Object.entries(logoFormData.socialLinks || DEFAULT_SOCIAL_LINKS).some(([_, i]) => i && i.enabled && i.url) && (
+                <>
+                  <span className="text-slate-700 select-none">|</span>
+                  <div className="flex items-center gap-1">
+                    <span className="hidden lg:inline text-[9px] text-slate-400 font-medium">Mạng XH:</span>
+                    {Object.entries(logoFormData.socialLinks || DEFAULT_SOCIAL_LINKS)
+                      .filter(([_, i]) => i && i.enabled && i.url)
+                      .map(([k, i]) => (
+                        <span
+                          key={k}
+                          className="w-4 h-4 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center text-[8px] border border-slate-700"
+                          title={i.label || k}
+                        >
+                          {k === 'zalo' ? <span className="font-black text-sky-400 text-[7px]">Z</span> : <i className={i.icon}></i>}
+                        </span>
+                      ))}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
           <div className={`mx-auto bg-white text-slate-800 rounded-xl p-3 shadow-md border border-slate-200 transition-all duration-300 flex items-center justify-between gap-4 overflow-x-auto ${
             logoFormData.containerWidth === 'full' 
               ? 'w-full' 

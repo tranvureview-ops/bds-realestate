@@ -6629,6 +6629,53 @@ export default function AdminBackendPage() {
                     </div>
                   </div>
 
+                  {/* Nhóm: Kênh Mạng Xã Hội Website */}
+                  <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800/80 gap-2">
+                      <div className="flex items-center gap-2">
+                        <i className="fa-solid fa-share-nodes text-blue-400 text-sm"></i>
+                        <h4 className="text-xs font-black uppercase tracking-wider text-white">
+                          Kênh Mạng Xã Hội Website (TopBar, Footer & Menu Mobile)
+                        </h4>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleSelectSettingsSubTab('header')}
+                        className="text-[10px] text-emerald-400 bg-emerald-950/60 hover:bg-emerald-900 border border-emerald-800/60 px-3 py-1 rounded-full font-bold flex items-center gap-1 transition self-start sm:self-auto cursor-pointer"
+                      >
+                        <i className="fa-solid fa-sliders"></i>
+                        <span>Tùy Chỉnh Kênh Mạng Xã Hội (Tab Header)</span>
+                        <i className="fa-solid fa-arrow-right text-[9px]"></i>
+                      </button>
+                    </div>
+
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      Các kênh mạng xã hội chính thức (Facebook, Zalo, YouTube, TikTok, Telegram, Instagram) giúp kết nối khách hàng với sàn. Hiển thị tự động trên thanh TopBar góc trên bên phải, chân trang Footer và ngăn kéo Menu Mobile.
+                    </p>
+
+                    {/* Preview danh sách các kênh đang bật */}
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                      {Object.entries(headerConfig?.socialLinks || formSystemConfig?.socialLinks || {}).map(([key, item]) => (
+                        <div
+                          key={key}
+                          className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-2 ${
+                            item?.enabled && item?.url
+                              ? 'bg-slate-900 border-slate-700 text-white'
+                              : 'bg-slate-950 border-slate-800/80 text-slate-500'
+                          }`}
+                        >
+                          <span className={`w-2 h-2 rounded-full ${item?.enabled && item?.url ? 'bg-emerald-400 animate-pulse' : 'bg-slate-600'}`}></span>
+                          <span className="capitalize">{item?.label || key}</span>
+                          {item?.enabled && item?.url ? (
+                            <span className="text-[10px] text-emerald-400 font-mono">Bật</span>
+                          ) : (
+                            <span className="text-[10px] text-slate-500 font-mono">Tắt</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
                   {/* Nhóm 3: Cài Đặt Phông Chữ Toàn Sàn (Font Family & Typography) */}
                   <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-5">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800/80 gap-2">

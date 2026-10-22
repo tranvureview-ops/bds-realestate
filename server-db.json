@@ -1850,7 +1850,51 @@
     "logoImageUrl": "",
     "brandHighlight": "ĐÀ NẴNG",
     "containerWidth": "boxed",
-    "showTaglineWithImage": false
+    "showTaglineWithImage": false,
+    "socialLinks": {
+      "facebook": {
+        "enabled": true,
+        "url": "https://facebook.com/datbiendanang",
+        "label": "Facebook",
+        "icon": "fa-brands fa-facebook-f",
+        "hoverColor": "hover:text-blue-400 hover:border-blue-500/50"
+      },
+      "zalo": {
+        "enabled": true,
+        "url": "https://zalo.me/0904084888",
+        "label": "Zalo",
+        "icon": "fa-solid fa-comment-dots",
+        "hoverColor": "hover:text-sky-400 hover:border-sky-500/50"
+      },
+      "youtube": {
+        "enabled": true,
+        "url": "https://youtube.com/@datbiendanang",
+        "label": "YouTube",
+        "icon": "fa-brands fa-youtube",
+        "hoverColor": "hover:text-red-500 hover:border-red-500/50"
+      },
+      "tiktok": {
+        "enabled": true,
+        "url": "https://tiktok.com/@datbiendanang",
+        "label": "TikTok",
+        "icon": "fa-brands fa-tiktok",
+        "hoverColor": "hover:text-pink-400 hover:border-pink-500/50"
+      },
+      "telegram": {
+        "enabled": false,
+        "url": "https://t.me/datbiendanang",
+        "label": "Telegram",
+        "icon": "fa-brands fa-telegram",
+        "hoverColor": "hover:text-cyan-400 hover:border-cyan-500/50"
+      },
+      "instagram": {
+        "enabled": false,
+        "url": "https://instagram.com/datbiendanang",
+        "label": "Instagram",
+        "icon": "fa-brands fa-instagram",
+        "hoverColor": "hover:text-fuchsia-400 hover:border-fuchsia-500/50"
+      }
+    }
   },
   "bds_system_config": {
     "zalo": "0904 084 888",
@@ -1868,7 +1912,51 @@
     "trashRetentionDays": 30,
     "expiredCleanupAction": "archive_light",
     "expiredRetentionDays": 45,
-    "fontFamily": "Roboto"
+    "fontFamily": "Roboto",
+    "socialLinks": {
+      "facebook": {
+        "enabled": true,
+        "url": "https://facebook.com/datbiendanang",
+        "label": "Facebook",
+        "icon": "fa-brands fa-facebook-f",
+        "hoverColor": "hover:text-blue-400 hover:border-blue-500/50"
+      },
+      "zalo": {
+        "enabled": true,
+        "url": "https://zalo.me/0904084888",
+        "label": "Zalo",
+        "icon": "fa-solid fa-comment-dots",
+        "hoverColor": "hover:text-sky-400 hover:border-sky-500/50"
+      },
+      "youtube": {
+        "enabled": true,
+        "url": "https://youtube.com/@datbiendanang",
+        "label": "YouTube",
+        "icon": "fa-brands fa-youtube",
+        "hoverColor": "hover:text-red-500 hover:border-red-500/50"
+      },
+      "tiktok": {
+        "enabled": true,
+        "url": "https://tiktok.com/@datbiendanang",
+        "label": "TikTok",
+        "icon": "fa-brands fa-tiktok",
+        "hoverColor": "hover:text-pink-400 hover:border-pink-500/50"
+      },
+      "telegram": {
+        "enabled": false,
+        "url": "https://t.me/datbiendanang",
+        "label": "Telegram",
+        "icon": "fa-brands fa-telegram",
+        "hoverColor": "hover:text-cyan-400 hover:border-cyan-500/50"
+      },
+      "instagram": {
+        "enabled": false,
+        "url": "https://instagram.com/datbiendanang",
+        "label": "Instagram",
+        "icon": "fa-brands fa-instagram",
+        "hoverColor": "hover:text-fuchsia-400 hover:border-fuchsia-500/50"
+      }
+    }
   },
   "bds_payment_config": {
     "momo": {

@@ -39,6 +39,19 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
     isVerified: authorUser?.isVerified ?? property.author?.isVerified ?? false
   };
 
+  // Format phone display with spaces: 0898256607 -> 0898 256 607
+  const formatPhoneDisplay = (p) => {
+    if (!p) return '';
+    const clean = String(p).replace(/\s+/g, '');
+    if (clean.length === 10) {
+      return clean.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
+    }
+    if (clean.length === 11) {
+      return clean.replace(/(\d{4})(\d{3})(\d{4})/, '$1 $2 $3');
+    }
+    return p;
+  };
+
   const isFav = favorites.includes(property.id);
   const isCompared = compareList.some(item => item.id === property.id);
 
@@ -258,12 +271,14 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
                 className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm transition shrink-0 whitespace-nowrap ${
                   isDiamond 
                     ? 'bg-red-600 hover:bg-red-700 text-white' 
-                    : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                    : isGold
+                      ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                      : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                 }`}
-                title={`Gọi ngay: ${safeAuthor.phone}`}
+                title={`Gọi ngay: ${formatPhoneDisplay(safeAuthor.phone)}`}
               >
                 <i className="fa-solid fa-phone text-[11px] shrink-0"></i>
-                <span className="hidden sm:inline whitespace-nowrap">{safeAuthor.phone}</span>
+                <span className="hidden sm:inline whitespace-nowrap">{formatPhoneDisplay(safeAuthor.phone)}</span>
                 <span className="sm:hidden whitespace-nowrap">Gọi</span>
               </a>
 

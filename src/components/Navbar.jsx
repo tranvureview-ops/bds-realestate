@@ -117,6 +117,17 @@ export default function Navbar() {
     setMobileExpanded(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
+  // Danh sách mạng xã hội đã kích hoạt (đồng bộ từ headerConfig hoặc systemConfig)
+  const activeSocialList = useMemo(() => {
+    const socialConfig = headerConfig?.socialLinks || systemConfig?.socialLinks || {};
+    return Object.entries(socialConfig)
+      .filter(([_, item]) => item && item.enabled && item.url)
+      .map(([key, item]) => ({
+        key,
+        ...item
+      }));
+  }, [headerConfig?.socialLinks, systemConfig?.socialLinks]);
+
   return (
     <header className="relative w-full z-30 bg-white border-b border-slate-200/80 shadow-xs">
       {/* 1. TOP UTILITY BAR (Hotline, Demo Switcher, Reset) */}
@@ -144,13 +155,39 @@ export default function Navbar() {
             </span>
           </div>
 
-          {/* Right: Giờ làm việc */}
+          {/* Right: Giờ làm việc & Mạng xã hội */}
           <div suppressHydrationWarning className="flex items-center gap-2 sm:gap-3 text-slate-400 text-[11px] shrink-0">
             <span className="inline-flex items-center gap-1.5">
               <i className="fa-regular fa-clock text-emerald-400 text-[10px]"></i>
               <span className="hidden sm:inline">Giờ làm việc:</span>
               <span className="text-slate-300 font-medium">8:00 - 21:00</span>
             </span>
+
+            {/* Social Media Channels */}
+            {activeSocialList.length > 0 && (
+              <>
+                <span className="text-slate-700 hidden sm:inline select-none">|</span>
+                <div className="flex items-center gap-1 sm:gap-1.5">
+                  <span className="hidden lg:inline text-slate-400 text-[10px] font-medium mr-0.5">Mạng xã hội:</span>
+                  {activeSocialList.map(item => (
+                    <a
+                      key={item.key}
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:scale-110 border border-slate-700/80 flex items-center justify-center transition shadow-xs ${item.hoverColor || 'hover:text-white'}`}
+                      title={item.label || item.key}
+                    >
+                      {item.key === 'zalo' ? (
+                        <span className="font-black text-[9px] text-sky-400 leading-none">Z</span>
+                      ) : (
+                        <i className={`${item.icon} text-[10px]`}></i>
+                      )}
+                    </a>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -771,6 +808,31 @@ export default function Navbar() {
                 <i className="fa-solid fa-phone text-emerald-600"></i>
                 <span>Hotline: {systemConfig?.hotline || '0904 084 888'}</span>
               </a>
+
+              {/* Mobile Social Media Links */}
+              {activeSocialList.length > 0 && (
+                <div className="pt-2 flex flex-col items-center justify-center gap-1.5">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Mạng xã hội kết nối:</span>
+                  <div className="flex items-center gap-2">
+                    {activeSocialList.map(item => (
+                      <a
+                        key={item.key}
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-700 hover:text-emerald-600 hover:border-emerald-500 flex items-center justify-center transition shadow-xs text-xs"
+                        title={item.label || item.key}
+                      >
+                        {item.key === 'zalo' ? (
+                          <span className="font-black text-[11px] text-sky-600 leading-none">Z</span>
+                        ) : (
+                          <i className={`${item.icon} text-xs`}></i>
+                        )}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
