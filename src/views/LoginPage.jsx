@@ -40,6 +40,10 @@ export default function LoginPage() {
 
   const handlePostLoginRedirect = (user) => {
     if (!user) return;
+    if (systemConfig?.maintenanceMode === true && user.role !== 'admin' && user.email !== 'tranvu.review@gmail.com') {
+      showToast('Hệ thống đang bật chế độ bảo trì kỹ thuật! Chỉ Quản Trị Viên mới có quyền truy cập.', 'warning');
+      return;
+    }
     if (redirectUrl) {
       if (redirectUrl.startsWith('/admin') && user.role !== 'admin') {
         showToast('Tài khoản của bạn không có đặc quyền Quản Trị Viên (Admin)!', 'warning');
@@ -147,6 +151,19 @@ export default function LoginPage() {
               <div className="mt-2 text-[11px] bg-white/80 p-2 rounded-xl border border-rose-200 font-mono text-rose-950">
                 Email: <strong>tranvu.review@gmail.com</strong><br />
                 Mật khẩu: <strong>123456</strong>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Maintenance Notice */}
+        {systemConfig?.maintenanceMode === true && !isAdminRedirect && (
+          <div className="p-3.5 bg-amber-50 border border-amber-300 rounded-2xl flex items-start gap-3 text-amber-950 text-xs animate-in fade-in">
+            <i className="fa-solid fa-screwdriver-wrench text-amber-600 text-base mt-0.5 shrink-0"></i>
+            <div>
+              <div className="font-bold text-amber-950">Hệ thống đang bật chế độ bảo trì</div>
+              <div className="text-[11px] text-amber-800 mt-0.5 leading-relaxed">
+                Chỉ tài khoản <strong>Quản Trị Viên (Admin)</strong> mới có quyền đăng nhập để quản trị và cấu hình hệ thống trong thời gian bảo trì.
               </div>
             </div>
           </div>

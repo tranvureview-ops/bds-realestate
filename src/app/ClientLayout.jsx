@@ -58,9 +58,11 @@ function AppContent({ children }) {
   // Check Maintenance Mode
   const isMaintenance = systemConfig?.maintenanceMode === true;
   const isAdmin = currentUser?.role === 'admin' || currentUser?.email === 'tranvu.review@gmail.com' || currentUser?.email === 'admin@gmail.com';
+  // Luôn cho phép truy cập trang đăng nhập để Quản trị viên có thể xác thực và tắt/bật bảo trì
+  const isAuthRoute = pathname.startsWith('/dang-nhap') || pathname.startsWith('/api/auth');
 
-  // If Maintenance Mode is active AND visitor is NOT an admin: show Maintenance Screen
-  if (isMaintenance && !isAdmin) {
+  // If Maintenance Mode is active AND visitor is NOT an admin AND not on auth route: show Maintenance Screen
+  if (isMaintenance && !isAdmin && !isAuthRoute) {
     return (
       <>
         <ToastNotification />

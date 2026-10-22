@@ -127,7 +127,7 @@ export default function MaintenanceScreen() {
           </button>
 
           <Link
-            to="/admin"
+            to="/dang-nhap?redirect=/admin"
             className="px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white font-semibold text-sm border border-slate-800 transition flex items-center gap-2"
           >
             <i className="fa-solid fa-shield-halved text-rose-400"></i>
@@ -148,7 +148,7 @@ export default function MaintenanceScreen() {
           © {new Date().getFullYear()} {brandName}. Tất cả các quyền được bảo lưu.
         </div>
         <div className="flex items-center gap-4">
-          <Link to="/admin" className="hover:text-slate-300 transition underline underline-offset-4">
+          <Link to="/dang-nhap?redirect=/admin" className="hover:text-slate-300 transition underline underline-offset-4">
             Cổng Đăng Nhập Quản Trị Viên (CMS Portal)
           </Link>
         </div>
