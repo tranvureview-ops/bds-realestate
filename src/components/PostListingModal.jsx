@@ -8,6 +8,7 @@ import BatdongsanListingSelector, { BATDONGSAN_RATES } from './BatdongsanListing
 import CustomSelect from './CustomSelect';
 import ListingCard from './ListingCard';
 import ListingLocationMap from './ListingLocationMap';
+import { findDanangMerger } from '../data/vietnamAdministrativeData';
 
 // Hàm phát âm thanh thành công khi Webhook/Polling khớp thanh toán (Web Audio API)
 function playPaymentSuccessSound() {
@@ -369,14 +370,12 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       return;
     }
 
+    // Nếu người dùng đang gõ tên đường thì debounce 300ms, nếu chỉ chọn dropdown thì đồng bộ nhanh trong 50ms
+    const isTypingStreet = Boolean(formData.street && formData.street.length > 2);
+    const delay = isTypingStreet ? 300 : 50;
+
     const timer = setTimeout(async () => {
       setIsGeocodingLoading(true);
-      const queryAddress = [
-        formData.street,
-        formData.ward,
-        formData.district,
-        formData.city
-      ].filter(Boolean).join(', ');
 
       try {
         const res = await fetch('/api/geocode', {
@@ -394,17 +393,15 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
           if (data.success) {
             setGoogleGeocodeInfo(data);
             setFormData(prev => {
-              const shouldAutoSelectNew = data.isMerged && Boolean(data.newWard);
               const computedNewAddr = data.formatted_address || [prev.street, data.newWard, data.newDistrict, data.newCity].filter(Boolean).join(', ');
               return {
                 ...prev,
                 lat: data.lat || prev.lat,
                 lng: data.lng || prev.lng,
                 google_place_id: data.google_place_id || prev.google_place_id,
-                ...(shouldAutoSelectNew ? {
-                  selectedAddressType: 'new',
+                ...(data.isMerged && data.newWard ? {
                   isAdministrativeMerged: true,
-                  newAddress: computedNewAddr
+                  newAddress: prev.newAddress || computedNewAddr
                 } : {})
               };
             });
@@ -415,25 +412,46 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       } finally {
         setIsGeocodingLoading(false);
       }
-    }, 400);
+    }, delay);
 
     return () => clearTimeout(timer);
   }, [formData.city, formData.district, formData.ward, formData.street]);
 
-  // Nhận diện sáp nhập đơn vị hành chính trực tiếp từ Google Maps Geocoding API
+  // Nhận diện sáp nhập đơn vị hành chính: TỨC THÌ 0ms qua từ điển nội bộ & đồng bộ làm giàu qua Google Maps API
+  // Giúp khối 'Địa chỉ hiển thị trên tin đăng' xuất hiện đồng bộ tức thì cùng lúc với bản đồ Map
   const mergerInfo = useMemo(() => {
-    if (!googleGeocodeInfo?.isMerged || !googleGeocodeInfo?.newWard) return null;
-    return {
-      hasMerger: true,
-      oldWard: formData.ward,
-      newWard: googleGeocodeInfo.newWard,
-      newDistrict: googleGeocodeInfo.newDistrict || formData.district,
-      newCity: googleGeocodeInfo.newCity || formData.city,
-      lat: googleGeocodeInfo.lat,
-      lng: googleGeocodeInfo.lng,
-      google_place_id: googleGeocodeInfo.google_place_id,
-      resolution: 'Đơn vị hành chính mới đã cập nhật trên bản đồ Google Maps'
-    };
+    // 1. Phân giải tức thì (0ms) từ từ điển sáp nhập Đà Nẵng
+    const localMerger = findDanangMerger(formData.ward);
+
+    if (googleGeocodeInfo?.isMerged && googleGeocodeInfo?.newWard) {
+      return {
+        hasMerger: true,
+        oldWard: formData.ward,
+        newWard: googleGeocodeInfo.newWard,
+        newDistrict: googleGeocodeInfo.newDistrict || localMerger?.newDistrict || formData.district,
+        newCity: googleGeocodeInfo.newCity || formData.city,
+        lat: googleGeocodeInfo.lat || localMerger?.lat,
+        lng: googleGeocodeInfo.lng || localMerger?.lng,
+        google_place_id: googleGeocodeInfo.google_place_id || localMerger?.placeId,
+        resolution: 'Đơn vị hành chính mới đã cập nhật trên bản đồ Google Maps'
+      };
+    }
+
+    if (localMerger) {
+      return {
+        hasMerger: true,
+        oldWard: formData.ward,
+        newWard: localMerger.newWard,
+        newDistrict: localMerger.newDistrict || formData.district,
+        newCity: formData.city || 'Đà Nẵng',
+        lat: localMerger.lat,
+        lng: localMerger.lng,
+        google_place_id: localMerger.placeId,
+        resolution: 'Đơn vị hành chính mới đã cập nhật trên bản đồ Google Maps'
+      };
+    }
+
+    return null;
   }, [googleGeocodeInfo, formData.ward, formData.district, formData.city]);
 
   // Kiểm tra người dùng đã chọn xong 3 trường bắt buộc: Tỉnh/Thành phố *, Quận/Huyện *, Phường/Xã *
@@ -1161,13 +1179,19 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     </label>
                     <CustomSelect
                       value={formData.ward}
-                      onChange={(val) => setFormData(prev => ({
-                        ...prev,
-                        ward: val,
-                        selectedAddressType: 'old',
-                        isAdministrativeMerged: false,
-                        newAddress: ''
-                      }))}
+                      onChange={(val) => {
+                        const localMerger = findDanangMerger(val);
+                        setFormData(prev => ({
+                          ...prev,
+                          ward: val,
+                          selectedAddressType: 'old',
+                          isAdministrativeMerged: Boolean(localMerger),
+                          newAddress: localMerger ? [prev.street, localMerger.newWard, localMerger.newDistrict || prev.district, prev.city].filter(Boolean).join(', ') : '',
+                          lat: localMerger?.lat || prev.lat,
+                          lng: localMerger?.lng || prev.lng,
+                          google_place_id: localMerger?.placeId || prev.google_place_id
+                        }));
+                      }}
                       options={wardList.map(w => ({ value: w, label: w }))}
                       placeholder="Chọn Phường / Xã"
                       disabled={!formData.district || wardList.length === 0}
