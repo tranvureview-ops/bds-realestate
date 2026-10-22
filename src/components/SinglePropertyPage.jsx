@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link } from '../router/RouterContext';
 import { VIP_PACKAGES } from '../data/mockData';
@@ -123,6 +123,68 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     street: property.street || property.address
   });
 
+  // 1. Chuẩn hóa địa chỉ cũ / địa chỉ chưa cập nhật (chống trùng lặp từ)
+  const displayOldAddress = useMemo(() => {
+    if (property.oldAddress) return property.oldAddress;
+    
+    const rawAddr = (property.address || '').trim();
+    const district = (property.district || '').trim();
+    const city = (property.city || '').trim();
+
+    // Tách các thành phần bằng dấu phẩy
+    const parts = rawAddr.split(',').map(s => s.trim()).filter(Boolean);
+    
+    if (district && !parts.some(p => p.toLowerCase() === district.toLowerCase())) {
+      parts.push(district);
+    }
+    if (city && !parts.some(p => p.toLowerCase() === city.toLowerCase())) {
+      parts.push(city);
+    }
+
+    // Loại bỏ hoàn toàn các phần tử trùng lặp (ví dụ: "Quận Ngũ Hành Sơn, Đà Nẵng, Quận Ngũ Hành Sơn, Đà Nẵng")
+    const uniqueParts = [];
+    for (const part of parts) {
+      if (!uniqueParts.some(u => u.toLowerCase() === part.toLowerCase())) {
+        uniqueParts.push(part);
+      }
+    }
+    return uniqueParts.join(', ');
+  }, [property.oldAddress, property.address, property.district, property.city]);
+
+  // 2. Chuẩn hóa địa chỉ mới (theo đơn vị hành chính mới / mô hình chính quyền đô thị tinh gọn bỏ cấp quận)
+  const displayNewAddress = useMemo(() => {
+    if (property.newAddress) return property.newAddress;
+    
+    if (mergerData?.newAddress) {
+      return mergerData.newAddress;
+    }
+
+    let streetPart = property.street?.trim() || '';
+    if (streetPart && !streetPart.toLowerCase().startsWith('đường') && !streetPart.toLowerCase().startsWith('phố')) {
+      streetPart = `Đường ${streetPart}`;
+    }
+
+    if (!streetPart && property.address) {
+      const parts = property.address.split(',').map(s => s.trim()).filter(Boolean);
+      if (parts.length > 0) {
+        streetPart = parts[0];
+      }
+    }
+
+    const wardPart = mergerData?.newWard || property.ward || '';
+    const cityPart = property.city || 'Đà Nẵng';
+
+    // Địa chỉ mới tại Đà Nẵng theo mô hình chính quyền đô thị mới (đã bỏ cấp quận)
+    const newParts = [streetPart, wardPart, cityPart].filter(Boolean);
+    const uniqueNewParts = [];
+    for (const part of newParts) {
+      if (!uniqueNewParts.some(u => u.toLowerCase() === part.toLowerCase())) {
+        uniqueNewParts.push(part);
+      }
+    }
+    return uniqueNewParts.join(', ');
+  }, [property.newAddress, property.street, property.address, property.ward, property.city, mergerData]);
+
   // Bảo vệ an toàn tuyệt đối chống lỗi thiếu ảnh hoặc thiếu thông tin tác giả/khách vãng lai
   const safeImages = Array.isArray(property.images) && property.images.length > 0
     ? property.images
@@ -185,7 +247,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     const appointmentPayload = {
       propertyId: property.id,
       propertyTitle: property.title,
-      propertyAddress: property.address || `${property.district}, ${property.city}`,
+      propertyAddress: displayOldAddress || property.address || `${property.district}, ${property.city}`,
       propertyPrice: property.priceDisplay,
       propertyPermalink: typeof window !== 'undefined' ? window.location.pathname : '',
       propertyCover: property.images?.[0] || '',
@@ -944,10 +1006,30 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 {property.title}
               </h1>
 
-              {/* Address */}
-              <div className="text-xs sm:text-sm text-slate-500 flex items-center gap-2 mt-2">
-                <i className="fa-solid fa-location-dot text-emerald-600 text-base shrink-0"></i>
-                <span className="font-semibold text-slate-700">{property.address}, {property.district}, {property.city}</span>
+              {/* Address Information (Địa chỉ chưa cập nhật & Địa chỉ mới ở dưới) */}
+              <div className="mt-2.5 space-y-1.5 text-xs sm:text-sm">
+                {/* 1. Dòng trên: Địa chỉ chưa cập nhật */}
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-slate-600">
+                  <div className="inline-flex items-center gap-1.5 shrink-0 text-slate-500 font-semibold">
+                    <i className="fa-solid fa-location-dot text-slate-400 text-sm"></i>
+                    <span>Địa chỉ chưa cập nhật:</span>
+                  </div>
+                  <span className="font-medium text-slate-700">{displayOldAddress}</span>
+                </div>
+
+                {/* 2. Dòng dưới: Địa chỉ mới */}
+                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-slate-900">
+                  <div className="inline-flex items-center gap-1.5 shrink-0 text-emerald-700 font-bold">
+                    <i className="fa-solid fa-location-dot text-emerald-600 text-sm"></i>
+                    <span>Địa chỉ mới:</span>
+                  </div>
+                  <span className="font-extrabold text-slate-950">{displayNewAddress}</span>
+                  {mergerData && (
+                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-red-600 text-white shadow-xs ml-0.5">
+                      Mới sáp nhập
+                    </span>
+                  )}
+                </div>
               </div>
 
               {/* Administrative Merger Info Notice (Địa giới hành chính sau sáp nhập) */}
@@ -970,7 +1052,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                         <span>Địa chỉ mới (Hiện hành):</span>
                       </div>
                       <div className="font-extrabold text-slate-900 leading-snug">
-                        {mergerData.newAddress || property.newAddress || property.address}
+                        {displayNewAddress}
                       </div>
                     </div>
 
@@ -980,7 +1062,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                         <span>Địa chỉ cũ (Theo sổ đỏ/hồng):</span>
                       </div>
                       <div className="font-semibold text-slate-700 leading-snug">
-                        {mergerData.oldAddress || property.oldAddress || `${property.address}, ${property.district}, ${property.city}`}
+                        {displayOldAddress}
                       </div>
                     </div>
                   </div>
@@ -1874,7 +1956,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   {property.priceDisplay} • {property.area} m²
                 </div>
                 <div className="text-[10px] text-slate-500 truncate mt-0.5">
-                  {property.address}, {property.district}
+                  {displayOldAddress}
                 </div>
               </div>
             </div>
@@ -2143,7 +2225,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80 text-xs">
                     <div className="font-bold text-slate-800 line-clamp-1">{property.title}</div>
                     <div className="text-slate-500 text-[11px] mt-0.5">
-                      {property.priceDisplay} • {property.address}, {property.district}, {property.city}
+                      {property.priceDisplay} • {displayOldAddress}
                     </div>
                   </div>
 
