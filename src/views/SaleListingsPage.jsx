@@ -135,9 +135,9 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 
   }, [properties, filters]);
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="pb-12">
       {/* Header Banner & Breadcrumbs */}
-      <div className="bg-slate-900 text-white py-10 px-4 sm:px-8">
+      <div className="bg-slate-900 text-white py-7 sm:py-8 px-4 sm:px-8 border-b border-slate-800">
         <div className="max-w-7xl mx-auto space-y-3">
           {/* Breadcrumbs */}
           <div className="flex items-center gap-2 text-xs text-slate-400">
@@ -174,6 +174,7 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 
         enablePagination={true}
         initialPage={initialPage}
         basePath={taxonomyInfo?.basePath || (taxonomyInfo?.demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban')}
+        className="pt-4 sm:pt-5 pb-8"
       />
     </div>
   );

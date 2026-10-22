@@ -45,7 +45,8 @@ export default function ListingGrid({
   title,
   subtitle,
   initialPage = 1,
-  basePath = ''
+  basePath = '',
+  className = ''
 }) {
   const { systemConfig } = useRealEstate();
   const gridContainerRef = useRef(null);
@@ -185,7 +186,7 @@ export default function ListingGrid({
   };
 
   return (
-    <div ref={gridContainerRef} className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${isHomePage ? 'pt-2 pb-3' : 'py-8'}`}>
+    <div ref={gridContainerRef} className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className ? className : (isHomePage ? 'pt-2 pb-3' : 'pt-4 sm:pt-6 pb-8')}`}>
       {/* View Controls & Sorting Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div>
