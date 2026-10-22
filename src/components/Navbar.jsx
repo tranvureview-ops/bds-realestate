@@ -33,10 +33,8 @@ const formatSubMenuTitle = (parentItem, subItem) => {
 export default function Navbar() {
   const { 
     currentUser, 
-    switchUserRole, 
     favorites, 
     compareList, 
-    resetToMockData,
     logoutUser,
     navMenuItems,
     headerConfig,
@@ -56,13 +54,11 @@ export default function Navbar() {
 
   // Dropdown states
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [mobileExpanded, setMobileExpanded] = useState({});
 
   const userMenuRef = useRef(null);
-  const roleDropdownRef = useRef(null);
   const isGuest = !currentUser || currentUser.role === 'guest';
 
   // Chuẩn hóa chiều rộng container đồng nhất với toàn bộ trang:
@@ -92,9 +88,6 @@ export default function Navbar() {
     function handleClickOutside(event) {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setUserMenuOpen(false);
-      }
-      if (roleDropdownRef.current && !roleDropdownRef.current.contains(event.target)) {
-        setRoleDropdownOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -151,87 +144,13 @@ export default function Navbar() {
             </span>
           </div>
 
-          {/* Right: Demo Role Switcher & Reset Button */}
-          <div suppressHydrationWarning className="flex items-center gap-1.5 sm:gap-3 shrink-0">
-            {/* Quick Demo Role Switcher */}
-            <div className="relative" ref={roleDropdownRef}>
-              <button
-                type="button"
-                suppressHydrationWarning
-                onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-                className="inline-flex items-center gap-1 sm:gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg border border-slate-700 text-[10px] sm:text-[11px] font-medium transition max-w-[140px] sm:max-w-none sm:min-w-[150px] justify-between"
-                title="Chuyển đổi tài khoản demo nhanh"
-              >
-                <div className="flex items-center gap-1 truncate">
-                  <i className="fa-solid fa-user-gear text-amber-400 text-[10px] sm:text-[11px] shrink-0"></i>
-                  <span suppressHydrationWarning className="hidden md:inline text-slate-400">Tài khoản:</span>
-                  <strong suppressHydrationWarning className="text-amber-400 font-semibold truncate text-[10px] sm:text-[11px]">
-                    {cleanUserName(currentUser?.name)}
-                  </strong>
-                  <span suppressHydrationWarning className="hidden lg:inline text-slate-400 text-[10px]">
-                    ({currentUser?.role === 'admin' ? 'Admin' : currentUser?.role === 'broker' ? 'Môi Giới' : currentUser?.role === 'user' ? 'Khách mua' : 'Chưa đăng nhập'})
-                  </span>
-                </div>
-                <i className={`fa-solid fa-chevron-down text-[8px] sm:text-[9px] text-slate-400 transition-transform shrink-0 ${roleDropdownOpen ? 'rotate-180' : ''}`}></i>
-              </button>
-
-              {roleDropdownOpen && (
-                <div 
-                  className="absolute right-0 mt-1 w-64 bg-white rounded-xl shadow-2xl border border-slate-200 py-1.5 text-slate-800 z-50 text-xs animate-in fade-in slide-in-from-top-1 duration-150"
-                  onClick={() => setRoleDropdownOpen(false)}
-                >
-                  <div className="px-3 py-1.5 border-b border-slate-100 font-bold text-slate-400 text-[10px] uppercase tracking-wider">
-                    Chuyển tài khoản demo:
-                  </div>
-                  <button 
-                    onClick={() => switchUserRole('broker')}
-                    className={`w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center justify-between transition ${currentUser.role === 'broker' ? 'bg-amber-50 text-amber-800 font-semibold' : ''}`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <i className="fa-solid fa-crown text-amber-500 w-4 text-center"></i>
-                      <span>Môi Giới (Nguyễn Văn Tuấn)</span>
-                    </span>
-                    {currentUser.role === 'broker' && <i className="fa-solid fa-check text-amber-600"></i>}
-                  </button>
-                  <button 
-                    onClick={() => switchUserRole('user')}
-                    className={`w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center justify-between transition ${currentUser.role === 'user' ? 'bg-blue-50 text-blue-800 font-semibold' : ''}`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <i className="fa-solid fa-user text-blue-500 w-4 text-center"></i>
-                      <span>Khách mua (Trần Thị Mai)</span>
-                    </span>
-                    {currentUser.role === 'user' && <i className="fa-solid fa-check text-blue-600"></i>}
-                  </button>
-                  <button 
-                    onClick={() => {
-                      if (currentUser.role === 'admin') {
-                        navigate('/admin');
-                      } else {
-                        navigate('/dang-nhap?redirect=/admin');
-                      }
-                    }}
-                    className={`w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center justify-between transition ${currentUser.role === 'admin' ? 'bg-red-50 text-red-800 font-semibold' : ''}`}
-                  >
-                    <span className="flex items-center gap-2">
-                      <i className="fa-solid fa-shield-halved text-red-500 w-4 text-center"></i>
-                      <span>Admin Quản trị {currentUser.role !== 'admin' && <span className="text-[10px] text-red-600 font-medium">(Đăng nhập)</span>}</span>
-                    </span>
-                    {currentUser.role === 'admin' && <i className="fa-solid fa-check text-red-600"></i>}
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Reset Demo Data Button (Ẩn trên màn hình siêu nhỏ để không tràn hàng) */}
-            <button
-              onClick={resetToMockData}
-              className="hidden sm:inline-flex text-slate-400 hover:text-white transition items-center gap-1 text-[11px] px-2 py-1 rounded hover:bg-slate-800 shrink-0"
-              title="Khôi phục dữ liệu mẫu ban đầu"
-            >
-              <i className="fa-solid fa-rotate-left text-[10px]"></i>
-              <span>Khôi phục mẫu</span>
-            </button>
+          {/* Right: Giờ làm việc */}
+          <div suppressHydrationWarning className="flex items-center gap-2 sm:gap-3 text-slate-400 text-[11px] shrink-0">
+            <span className="inline-flex items-center gap-1.5">
+              <i className="fa-regular fa-clock text-emerald-400 text-[10px]"></i>
+              <span className="hidden sm:inline">Giờ làm việc:</span>
+              <span className="text-slate-300 font-medium">8:00 - 21:00</span>
+            </span>
           </div>
         </div>
       </div>
