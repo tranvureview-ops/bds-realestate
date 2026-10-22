@@ -98,12 +98,14 @@ export default function HomePage() {
       </section>
 
       {/* Core Listings Grid & Interactive Map */}
-      <ListingGrid 
-        properties={properties} 
-        filters={filters} 
-        setFilters={setFilters}
-        isHomePage={true}
-      />
+      <div className="!mt-2 sm:!mt-3">
+        <ListingGrid 
+          properties={properties} 
+          filters={filters} 
+          setFilters={setFilters}
+          isHomePage={true}
+        />
+      </div>
 
       {/* VIP Package Showcase Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-8 !mt-1">
