@@ -152,26 +152,16 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
             )}
           </div>
 
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-2">
-                <span>{taxonomyInfo?.title || 'Cho Thuê Bất Động Sản Toàn Quốc'}</span>
-                <span className="text-xs px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 font-bold">
-                  {rentCount} BĐS cho thuê
-                </span>
-              </h1>
-              <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
-                {categorySeo.description}
-              </p>
-            </div>
-
-            <Link
-              to="/dang-tin"
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-xs sm:text-sm shadow-lg hover:shadow-xl transition flex items-center gap-2 shrink-0 self-start md:self-auto"
-            >
-              <i className="fa-solid fa-plus-circle"></i>
-              <span>Đăng Tin Cho Thuê</span>
-            </Link>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-2">
+              <span>{taxonomyInfo?.title || 'Cho Thuê Bất Động Sản Toàn Quốc'}</span>
+              <span className="text-xs px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 font-bold">
+                {rentCount} BĐS cho thuê
+              </span>
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
+              {categorySeo.description}
+            </p>
           </div>
         </div>
       </div>
