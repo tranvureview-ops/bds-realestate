@@ -1367,7 +1367,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     <ListingLocationMap
                       city={formData.city}
                       district={mergerInfo?.newDistrict || formData.district}
-                      targetCoords={formData.lat && formData.lng ? { lat: formData.lat, lng: formData.lng } : null}
+                      targetCoords={formData.lat && formData.lng ? { lat: Number(formData.lat), lng: Number(formData.lng) } : null}
                       formattedAddress={
                         formData.selectedAddressType === 'new' && (formData.newAddress || computedSuggestedNewAddress)
                           ? (formData.newAddress || computedSuggestedNewAddress)
@@ -1376,11 +1376,16 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                       googlePlaceId={formData.google_place_id || googleGeocodeInfo?.google_place_id}
                       isGeocoding={isGeocodingLoading}
                       onLocationChange={(coords) => {
-                        setFormData(prev => ({
-                          ...prev,
-                          lat: coords.lat,
-                          lng: coords.lng
-                        }));
+                        setFormData(prev => {
+                          const dLat = Math.abs(Number(prev.lat || 0) - Number(coords.lat));
+                          const dLng = Math.abs(Number(prev.lng || 0) - Number(coords.lng));
+                          if (dLat < 0.00005 && dLng < 0.00005) return prev;
+                          return {
+                            ...prev,
+                            lat: coords.lat,
+                            lng: coords.lng
+                          };
+                        });
                       }}
                     />
                   </div>

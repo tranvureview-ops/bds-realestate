@@ -41,6 +41,7 @@ export default function ListingLocationMap({
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const tileLayerRef = useRef(null);
+  const isUserInteractingRef = useRef(false);
   const [isMapReady, setIsMapReady] = useState(false);
   const [coords, setCoords] = useState({ lat: 16.0544, lng: 108.2022 });
   const [mapType, setMapType] = useState('roadmap'); // 'roadmap' hoặc 'satellite'
@@ -99,13 +100,30 @@ export default function ListingLocationMap({
 
         window.L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-        // Lắng nghe di chuyển bản đồ -> cập nhật tọa độ tâm ghim
+        // 1. Khi đang kéo (drag) hoặc zoom: Chỉ cập nhật badge tọa độ hiển thị cục bộ (siêu mượt, không re-render cha)
         map.on('move', () => {
           const c = map.getCenter();
           setCoords({ lat: c.lat, lng: c.lng });
-          if (onLocationChange) {
+        });
+
+        // 2. Đánh dấu người dùng đang trực tiếp thao tác chuột / ngón tay
+        map.on('dragstart zoomstart', () => {
+          isUserInteractingRef.current = true;
+        });
+
+        // 3. Khi người dùng kết thúc kéo thả hoặc zoom: Mới cập nhật tọa độ về form cha
+        map.on('moveend', () => {
+          const c = map.getCenter();
+          setCoords({ lat: c.lat, lng: c.lng });
+
+          if (isUserInteractingRef.current && onLocationChange) {
             onLocationChange({ lat: c.lat, lng: c.lng });
           }
+
+          // Giữ cờ tương tác thêm 400ms để chặn setView ngược lại từ targetCoords
+          setTimeout(() => {
+            isUserInteractingRef.current = false;
+          }, 400);
         });
 
         mapInstanceRef.current = map;
@@ -137,14 +155,29 @@ export default function ListingLocationMap({
     }
   }, [mapType]);
 
-  // Tự động di chuyển góc nhìn (PanTo) khi Google Maps Geocoding trả về tọa độ mới
+  // Tự động di chuyển góc nhìn (PanTo) khi Google Maps Geocoding trả về tọa độ mới từ dropdown/API
   useEffect(() => {
-    if (mapInstanceRef.current && isMapReady) {
-      const center = getTargetCenter();
-      mapInstanceRef.current.setView([center.lat, center.lng], center.zoom || 16, { animate: true });
-      setCoords({ lat: center.lat, lng: center.lng });
-    }
-  }, [targetCoords, district, getTargetCenter, isMapReady]);
+    if (!mapInstanceRef.current || !isMapReady) return;
+
+    // Nếu người dùng đang tự tay kéo/zoom bản đồ thì tuyệt đối KHÔNG can thiệp
+    if (isUserInteractingRef.current) return;
+
+    const map = mapInstanceRef.current;
+    const center = getTargetCenter();
+    const currentCenter = map.getCenter();
+
+    // Kiểm tra khoảng cách: Nếu khoảng cách thay đổi rất nhỏ (< 0.0001 ~ 10m) thì không gọi setView lại
+    const dLat = Math.abs(currentCenter.lat - center.lat);
+    const dLng = Math.abs(currentCenter.lng - center.lng);
+    if (dLat < 0.0001 && dLng < 0.0001) return;
+
+    // Giữ nguyên mức zoom người dùng đang chọn nếu hợp lệ, tránh ép zoom lại
+    const currentZoom = map.getZoom();
+    const zoomToUse = currentZoom > 13 ? currentZoom : (center.zoom || 16);
+
+    map.setView([center.lat, center.lng], zoomToUse, { animate: true });
+    setCoords({ lat: center.lat, lng: center.lng });
+  }, [targetCoords?.lat, targetCoords?.lng, district, getTargetCenter, isMapReady]);
 
   // Hàm Đặt lại vị trí ban đầu
   const handleReset = () => {
