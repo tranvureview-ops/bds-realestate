@@ -5,7 +5,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { Link } from '../router/RouterContext';
 import { VIP_PACKAGES } from '../data/mockData';
 import dynamic from 'next/dynamic';
-import { getCategoryPermalink, toVietnameseSlug, buildFacetedUrl, buildKeywordCleanSlug, buildSeoUrl, CITY_SLUGS, BATDONGSAN_TAXONOMY } from '../utils/permalink';
+import { getCategoryPermalink, toVietnameseSlug, buildFacetedUrl, buildKeywordCleanSlug, buildSeoUrl, CITY_SLUGS, BATDONGSAN_TAXONOMY, formatSentenceCase } from '../utils/permalink';
 const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
   ssr: false,
   loading: () => (
@@ -789,7 +789,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               </>
             )}
             <span className="text-slate-300">/</span>
-            <span className="text-slate-900 font-bold truncate max-w-[200px] sm:max-w-xs">{property.title}</span>
+            <span className="text-slate-900 font-bold truncate max-w-[200px] sm:max-w-xs property-title-sentence">{formatSentenceCase(property.title)}</span>
           </nav>
 
           {/* Top Quick Action Buttons */}
@@ -1057,8 +1057,8 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               </div>
 
               {/* Title */}
-              <h1 className={`text-xl sm:text-2xl lg:text-3xl font-black leading-snug tracking-tight ${vipPkg.titleClass}`}>
-                {property.title}
+              <h1 className={`text-xl sm:text-2xl lg:text-3xl font-black leading-snug tracking-tight property-title-sentence ${vipPkg.titleClass}`}>
+                {formatSentenceCase(property.title)}
               </h1>
 
               {/* Address (Chuẩn giao diện Batdongsan.com.vn) */}

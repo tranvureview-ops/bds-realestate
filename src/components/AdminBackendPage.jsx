@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import { useRealEstate } from '../context/RealEstateContext';
 import { DEFAULT_APPROVAL_TIERS, DEFAULT_HEADER_CONFIG, PROPERTY_TYPES } from '../data/mockData';
 import { Link } from '../router/RouterContext';
-import { getPropertyPermalink } from '../utils/permalink';
+import { getPropertyPermalink, formatSentenceCase } from '../utils/permalink';
 import { REPORT_REASONS } from '../utils/emailService';
 import AdminReportsManager from './AdminReportsManager';
 import AdminSingleConfigManager from './AdminSingleConfigManager';
@@ -3894,9 +3894,9 @@ export default function AdminBackendPage() {
                                     to={getPropertyPermalink(p)}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="font-bold text-white hover:text-emerald-400 cursor-pointer line-clamp-2 block transition text-xs leading-snug"
+                                    className="font-bold text-white hover:text-emerald-400 cursor-pointer line-clamp-2 block transition text-xs leading-snug property-title-sentence"
                                   >
-                                    {p.title}
+                                    {formatSentenceCase(p.title)}
                                   </Link>
                                 </div>
                               </div>

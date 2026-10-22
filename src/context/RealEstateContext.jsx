@@ -51,7 +51,7 @@ import {
   DEFAULT_EMAIL_CONFIG,
   DEFAULT_EMAIL_TEMPLATES
 } from '../data/mockData';
-import { getPropertyPermalink, parsePropertyUrl, toVietnameseSlug } from '../utils/permalink';
+import { getPropertyPermalink, parsePropertyUrl, toVietnameseSlug, formatSentenceCase } from '../utils/permalink';
 import { normalizePhone } from '../utils/authValidation';
 import {
   getEmailLogs,
@@ -117,8 +117,12 @@ export const normalizePropertyExpiration = (p) => {
     status = 'expired';
   }
 
+  // Chuẩn hóa tiêu đề: Chữ cái đầu tiên in hoa, các chữ sau in thường (Sentence Case)
+  const title = p.title ? formatSentenceCase(p.title) : p.title;
+
   return {
     ...p,
+    title,
     listingDays,
     expiresAt,
     status,

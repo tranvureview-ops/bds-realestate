@@ -28,6 +28,19 @@ export const toVietnameseSlug = (str) => {
   return slug;
 };
 
+/**
+ * Chuẩn hóa tiêu đề: Chữ cái đầu tiên in hoa, các chữ sau in thường (Sentence Case)
+ * Ví dụ: "BÁN BIỆT THỰ VEN SÔNG..." -> "Bán biệt thự ven sông..."
+ * @param {string} str Chuỗi tiêu đề cần chuẩn hóa
+ * @returns {string} Chuỗi sau chuẩn hóa
+ */
+export const formatSentenceCase = (str) => {
+  if (!str || typeof str !== 'string') return '';
+  const trimmed = str.trim();
+  if (!trimmed) return '';
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
+};
+
 // Cấu hình Base Domain chuẩn SEO
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://bds-realestate.vercel.app';
 
@@ -1024,7 +1037,7 @@ export const generatePropertyJsonLd = (property, siteUrl = 'https://datbiendanan
           {
             '@type': 'ListItem',
             'position': (property.city ? 1 : 0) + (property.district ? 1 : 0) + 3,
-            'name': property.title,
+            'name': formatSentenceCase(property.title),
             'item': fullUrl
           }
         ]
@@ -1033,8 +1046,8 @@ export const generatePropertyJsonLd = (property, siteUrl = 'https://datbiendanan
       {
         '@type': ['RealEstateListing', residenceType],
         '@id': fullUrl,
-        'name': property.title,
-        'description': property.description?.slice(0, 300) || property.title,
+        'name': formatSentenceCase(property.title),
+        'description': property.description?.slice(0, 300) || formatSentenceCase(property.title),
         'url': fullUrl,
         'image': property.images || [],
         'datePosted': property.publishedAt || new Date().toISOString(),

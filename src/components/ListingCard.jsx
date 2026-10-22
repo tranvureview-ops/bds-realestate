@@ -4,7 +4,7 @@ import React from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link, useRouter } from '../router/RouterContext';
 import { VIP_PACKAGES } from '../data/mockData';
-import { getPropertyPermalink } from '../utils/permalink';
+import { getPropertyPermalink, formatSentenceCase } from '../utils/permalink';
 import { normalizePhone } from '../utils/authValidation';
 
 export default function ListingCard({ property, viewMode = 'grid' }) {
@@ -179,9 +179,9 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
           <h3 className="mb-2">
             <Link 
               to={getPropertyPermalink(property)}
-              className={`line-clamp-2 hover:underline transition block ${vipPkg.titleClass}`}
+              className={`line-clamp-2 hover:underline transition block property-title-sentence ${vipPkg.titleClass}`}
             >
-              {property.title}
+              {formatSentenceCase(property.title)}
             </Link>
           </h3>
 

@@ -2,7 +2,7 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import PropertyDetailPage from '../../views/PropertyDetailPage';
 import SaleListingsPage from '../../views/SaleListingsPage';
 import RentListingsPage from '../../views/RentListingsPage';
-import { parsePropertyUrl, parseTaxonomyUrl, getPropertyPermalink, generateCategoryMetadata, SITE_URL } from '../../utils/permalink';
+import { parsePropertyUrl, parseTaxonomyUrl, getPropertyPermalink, generateCategoryMetadata, SITE_URL, formatSentenceCase } from '../../utils/permalink';
 import { INITIAL_PROPERTIES } from '../../data/mockData';
 import { fetchServerProperties, findProperty } from '../../services/propertyService';
 
@@ -10,13 +10,14 @@ export function buildPropertyMetadata(matchedProperty) {
   const canonicalPermalink = getPropertyPermalink(matchedProperty);
   const domain = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '');
   const canonicalFullUrl = `${domain}${canonicalPermalink}`;
+  const formattedTitle = formatSentenceCase(matchedProperty.title);
   return {
-    title: matchedProperty.title,
-    description: matchedProperty.description?.slice(0, 160) || matchedProperty.title,
+    title: formattedTitle,
+    description: matchedProperty.description?.slice(0, 160) || formattedTitle,
     alternates: { canonical: canonicalFullUrl },
     openGraph: {
-      title: matchedProperty.title,
-      description: matchedProperty.description?.slice(0, 160) || matchedProperty.title,
+      title: formattedTitle,
+      description: matchedProperty.description?.slice(0, 160) || formattedTitle,
       url: canonicalFullUrl,
       images: matchedProperty.images?.length > 0 ? [{ url: matchedProperty.images[0] }] : []
     }

@@ -95,7 +95,7 @@ export default function CompareModal({ onClose }) {
                           onClose();
                           openPropertyDetail(prop);
                         }}
-                        className="text-xs font-bold text-slate-900 line-clamp-2 hover:underline cursor-pointer"
+                        className="text-xs font-bold text-slate-900 line-clamp-2 hover:underline cursor-pointer property-title-sentence"
                       >
                         {prop.title}
                       </h4>

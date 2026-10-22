@@ -96,6 +96,26 @@ button, input, select, textarea, optgroup, option, label {
   color: white;
 }
 
+/* ==========================================================================
+   Chuẩn hóa tiêu đề Bất động sản (Sentence Case):
+   Chữ cái đầu tiên in hoa, các chữ sau in thường
+   Ví dụ: "BÁN BIỆT THỰ..." -> "Bán biệt thự..."
+   ========================================================================== */
+.property-title-sentence,
+.property-title-case,
+.title-sentence-case,
+.property-card-title {
+  display: block;
+  text-transform: lowercase !important;
+}
+
+.property-title-sentence::first-letter,
+.property-title-case::first-letter,
+.title-sentence-case::first-letter,
+.property-card-title::first-letter {
+  text-transform: uppercase !important;
+}
+
 /* Shimmer & VIP borders */
 .vip-diamond-border {
   position: relative;

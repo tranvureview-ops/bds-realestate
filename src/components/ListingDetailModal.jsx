@@ -5,6 +5,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import dynamic from 'next/dynamic';
 import { VIP_PACKAGES } from '../data/mockData';
 import { normalizePhone } from '../utils/authValidation';
+import { formatSentenceCase } from '../utils/permalink';
 const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
   ssr: false,
   loading: () => (
@@ -293,8 +294,8 @@ export default function ListingDetailModal({ property, onClose }) {
             <div className="lg:col-span-8 space-y-6">
               {/* Title & Price Header */}
               <div>
-                <h1 className={`text-xl sm:text-2xl font-black leading-snug mb-3 ${vipPkg.titleClass}`}>
-                  {property.title}
+                <h1 className={`text-xl sm:text-2xl font-black leading-snug mb-3 property-title-sentence ${vipPkg.titleClass}`}>
+                  {formatSentenceCase(property.title)}
                 </h1>
 
                 <div className="flex flex-wrap items-baseline gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">

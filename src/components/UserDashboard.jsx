@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter, Link } from '../router/RouterContext';
 import { VIP_PACKAGES } from '../data/mockData';
-import { getPropertyPermalink } from '../utils/permalink';
+import { getPropertyPermalink, formatSentenceCase } from '../utils/permalink';
 
 export default function UserDashboard() {
   const { 
@@ -452,12 +452,12 @@ export default function UserDashboard() {
                           </span>
                         </div>
 
-                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1">
+                        <h4 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 property-title-sentence">
                           <Link 
                             to={getPropertyPermalink(prop)}
                             className="hover:underline hover:text-emerald-600 transition"
                           >
-                            {prop.title}
+                            {formatSentenceCase(prop.title)}
                           </Link>
                         </h4>
 
