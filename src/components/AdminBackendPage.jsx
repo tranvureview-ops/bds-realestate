@@ -14,6 +14,7 @@ import AdminHeaderConfigManager from './AdminHeaderConfigManager';
 import AdminMenuConfigManager from './AdminMenuConfigManager';
 import AdminAppointmentsManager from './AdminAppointmentsManager';
 import AdminTwoFactorScreen from './AdminTwoFactorScreen';
+import AdminTelegramChatManager from './AdminTelegramChatManager';
 import MaintenanceScreen from './MaintenanceScreen';
 import { AVAILABLE_FONTS, getFontConfig, applyFontToDom } from '../utils/fontConfig';
 import { formatPhoneNumber } from '../utils/authValidation';
@@ -34,6 +35,7 @@ export const VALID_ADMIN_TABS = [
   'payments',
   'single-config',
   'email-config',
+  'telegram',
   'settings'
 ];
 
@@ -43,6 +45,7 @@ export const getSettingsSubTabFromHash = () => {
   if (fullHash === 'header' || fullHash === 'settings/header' || fullHash.startsWith('settings/header') || fullHash.includes('tab=header')) return 'header';
   if (fullHash === 'menu' || fullHash === 'settings/menu' || fullHash.startsWith('settings/menu') || fullHash.includes('tab=menu')) return 'menu';
   if (fullHash === 'email-config' || fullHash === 'email' || fullHash === 'settings/email' || fullHash.startsWith('settings/email') || fullHash.includes('tab=email')) return 'email';
+  if (fullHash === 'telegram' || fullHash === 'telegram-config' || fullHash === 'settings/telegram' || fullHash.startsWith('settings/telegram') || fullHash.includes('tab=telegram')) return 'telegram';
   return 'system';
 };
 
@@ -2478,6 +2481,22 @@ export default function AdminBackendPage() {
                     </div>
                     {settingsSubTab === 'email' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSelectSettingsSubTab('telegram')}
+                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between text-left transition ${
+                      settingsSubTab === 'telegram'
+                        ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <i className="fa-brands fa-telegram text-[11px] w-4 text-center text-sky-400"></i>
+                      <span>5. Live Chat Telegram</span>
+                    </div>
+                    {settingsSubTab === 'telegram' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
+                  </button>
                 </div>
               )}
             </div>
@@ -2502,6 +2521,17 @@ export default function AdminBackendPage() {
             >
               <i className="fa-solid fa-file-contract text-sm w-5 text-center text-rose-400"></i>
               <span>Cấu Hình Single</span>
+            </a>
+
+            <a
+              href="#telegram"
+              onClick={handleNavClick('telegram')}
+              className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
+                activeMenu === 'telegram' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              <i className="fa-brands fa-telegram text-sm w-5 text-center text-sky-400"></i>
+              <span>Live Chat Telegram</span>
             </a>
           </nav>
         </div>
@@ -2589,6 +2619,7 @@ export default function AdminBackendPage() {
               {activeMenu === 'payments' && '💳 Cấu Hình Cổng Thanh Toán'}
               {activeMenu === 'single-config' && '📄 Cấu Hình Trang Chi Tiết BĐS'}
               {activeMenu === 'email-config' && '✉️ Email Setting'}
+              {activeMenu === 'telegram' && '💬 Live Chat Telegram (2 Chiều)'}
               {activeMenu === 'settings' && (
                 settingsSubTab === 'header'
                   ? '🎨 Cài Đặt Website › Header'
@@ -2596,6 +2627,8 @@ export default function AdminBackendPage() {
                   ? '🧭 Cài Đặt Website › Menu'
                   : settingsSubTab === 'email'
                   ? '✉️ Cài Đặt Website › Email'
+                  : settingsSubTab === 'telegram'
+                  ? '💬 Cài Đặt Website › Live Chat Telegram'
                   : '⚙️ Cài Đặt Website › Hệ Thống'
               )}
             </h2>
@@ -6360,17 +6393,17 @@ export default function AdminBackendPage() {
                           Trung Tâm Cài Đặt Website
                         </h2>
                         <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
-                          {settingsSubTab === 'system' ? '⚙️ Hệ Thống' : settingsSubTab === 'header' ? '🎨 Header' : settingsSubTab === 'menu' ? '🧭 Menu' : '✉️ Email Setting'}
+                          {settingsSubTab === 'system' ? '⚙️ Hệ Thống' : settingsSubTab === 'header' ? '🎨 Header' : settingsSubTab === 'menu' ? '🧭 Menu' : settingsSubTab === 'email' ? '✉️ Email Setting' : '💬 Live Chat Telegram'}
                         </span>
                       </div>
                       <p className="text-xs text-slate-400">
-                        Quản lý toàn diện nhận diện thương hiệu, giao diện Header, danh mục menu, Email Setting và vận hành hệ thống.
+                        Quản lý toàn diện nhận diện thương hiệu, giao diện Header, danh mục menu, Email Setting, Live Chat Telegram và vận hành hệ thống.
                       </p>
                     </div>
                   </div>
 
-                  {/* Right: 4 Segmented Options Switcher */}
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-1.5 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 shrink-0">
+                  {/* Right: 5 Segmented Options Switcher */}
+                  <div className="grid grid-cols-2 lg:grid-cols-5 gap-1.5 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 shrink-0">
                     {/* Option 1: System */}
                     <button
                       type="button"
@@ -6439,6 +6472,25 @@ export default function AdminBackendPage() {
                         <div className="leading-tight">4. Email Setting</div>
                         <div className="text-[10px] font-normal opacity-80 hidden sm:block">
                           SMTP & 5 Mẫu Thư
+                        </div>
+                      </div>
+                    </button>
+
+                    {/* Option 5: Live Chat Telegram */}
+                    <button
+                      type="button"
+                      onClick={() => handleSelectSettingsSubTab('telegram')}
+                      className={`px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2.5 cursor-pointer ${
+                        settingsSubTab === 'telegram'
+                          ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-900/40 ring-1 ring-emerald-400/50'
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                      }`}
+                    >
+                      <i className="fa-brands fa-telegram text-sm text-sky-400"></i>
+                      <div className="text-left">
+                        <div className="leading-tight">5. Live Chat Telegram</div>
+                        <div className="text-[10px] font-normal opacity-80 hidden sm:block">
+                          Bot, Webhook & Lead
                         </div>
                       </div>
                     </button>
@@ -7712,6 +7764,11 @@ export default function AdminBackendPage() {
               {settingsSubTab === 'email' && (
                 <AdminEmailConfigManager onNavigateToEmails={() => setActiveMenu('emails')} />
               )}
+
+              {/* TAB 5: TELEGRAM LIVE CHAT */}
+              {settingsSubTab === 'telegram' && (
+                <AdminTelegramChatManager />
+              )}
             </div>
           )}
 
@@ -7747,6 +7804,13 @@ export default function AdminBackendPage() {
              ========================================= */}
           {activeMenu === 'email-config' && (
             <AdminEmailConfigManager onNavigateToEmails={() => setActiveMenu('emails')} />
+          )}
+
+          {/* =========================================
+              PHÂN HỆ: QUẢN LÝ LIVE CHAT TELEGRAM 2 CHIỀU
+             ========================================= */}
+          {activeMenu === 'telegram' && (
+            <AdminTelegramChatManager />
           )}
 
         </main>

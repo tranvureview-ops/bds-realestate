@@ -2669,3 +2669,27 @@ export const DEFAULT_EMAIL_CONFIG = {
   templates: DEFAULT_EMAIL_TEMPLATES
 };
 
+// Cấu hình Hệ Thống Live Chat Telegram 2 Chiều (Two-Way Telegram Live Chat)
+export const DEFAULT_TELEGRAM_CONFIG = {
+  enabled: true,
+  botToken: '', // Token bot từ @BotFather (lưu trữ mã hóa AES-256)
+  chatId: '', // ID nhóm / kênh Telegram nhận tin nhắn tư vấn
+  botUsername: 'DatBienDaNangBot',
+  welcomeMessage: 'Xin chào quý khách! Tôi là trợ lý tư vấn Đất Biển Đà Nẵng. Quý khách đang quan tâm đến dự án nào cần hỗ trợ thông tin nhanh?',
+  agentName: 'Nguyễn Văn Tuấn',
+  agentAvatar: '/avatars/ai-preset-1.jpg',
+  agentTitle: 'Chuyên Viên Tư Vấn Đất Biển Đà Nẵng',
+  notifyNewLead: true, // Tự động thông báo Lead mới khi khách điền Form
+  quickQuestions: [
+    'Bất động sản này còn không?',
+    'Giá có thương lượng thêm không?',
+    'Cho tôi hẹn lịch xem nhà vào T7 này',
+    'Gửi tôi pháp lý sổ đỏ/hồng'
+  ],
+  realtimeProvider: 'sse', // 'sse' (Tự động không cần cài đặt) | 'pusher'
+  pusherAppId: '',
+  pusherKey: '',
+  pusherSecret: '',
+  pusherCluster: 'ap1'
+};
+
