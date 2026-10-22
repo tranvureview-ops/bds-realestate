@@ -823,7 +823,7 @@ export const INITIAL_PROPERTIES = [
     "title": "BÁN ĐẤT THỔ CƯ 80M2 TẠI LIÊN CHIỂU ĐÀ NẴNG GẦN LÀNG ĐẠI HỌC BÁCH KHOA ĐÀ NẴNG",
     "slug": "ban-dat-tho-cu-80m2-lien-chieu-da-nang",
     "vipPackageId": "normal",
-    "status": "active",
+    "status": "expired",
     "demand": "sale",
     "propertyType": "land",
     "propertyTypeName": "Đất",
@@ -882,11 +882,11 @@ export const INITIAL_PROPERTIES = [
       "rating": 4.5,
       "reviewCount": 8
     },
-    "publishedAt": "2026-10-09T08:00:00Z",
+    "publishedAt": "2026-09-20T08:00:00Z",
     "viewsCount": 780,
     "callsCount": 14,
     "listingDays": 15,
-    "expiresAt": "2026-11-20T13:30:00.668Z",
+    "expiresAt": "2026-10-05T08:00:00Z",
     "autoRenew": false,
     "queuePriority": "standard_fifo"
   },

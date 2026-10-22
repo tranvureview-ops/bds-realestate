@@ -51,6 +51,14 @@ export default function PropertyDetailPage({ initialProperty = null, slug = '', 
     }
   }
 
+  // Đồng bộ với bản ghi mới nhất từ Context (nếu Client Context đã cập nhật trạng thái/gia hạn/hết hạn)
+  if (targetProperty && properties && properties.length > 0) {
+    const liveProp = properties.find(p => p.id === targetProperty.id);
+    if (liveProp) {
+      targetProperty = { ...targetProperty, ...liveProp };
+    }
+  }
+
   // Tiêu chí 5: Fallback qua selectedPropertyDetail từ Context nếu trùng ID hoặc URL
   if (!targetProperty && selectedPropertyDetail) {
     if (parsed.normalizedBdsId && selectedPropertyDetail.id?.toUpperCase() === parsed.normalizedBdsId.toUpperCase()) {
