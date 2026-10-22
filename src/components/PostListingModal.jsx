@@ -1270,9 +1270,9 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         </div>
 
                         {/* 3. Khối so sánh Địa chỉ cũ & Địa chỉ mới (Chuẩn y hệt ảnh gốc Batdongsan) */}
-                        <div className="p-4 bg-amber-50/40 rounded-2xl border border-amber-200/80 space-y-3">
+                        <div className="p-3 sm:p-3.5 bg-amber-50/40 rounded-2xl border border-amber-200/80 space-y-1.5">
                           {/* 1. Địa chỉ cũ - Chỉ hiển thị thông tin đối chiếu (không có radio chọn) */}
-                          <div className="p-3 bg-white/80 rounded-xl border border-amber-200/80 flex items-start gap-2.5">
+                          <div className="p-2.5 sm:p-3 bg-white/80 rounded-xl border border-amber-200/80 flex items-start gap-2.5 shadow-2xs">
                             <i className="fa-solid fa-location-dot text-slate-700 text-sm mt-0.5 shrink-0"></i>
                             <div className="min-w-0 flex-1">
                               <div className="text-xs font-bold text-slate-900">Địa chỉ cũ</div>
@@ -1282,15 +1282,15 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                             </div>
                           </div>
 
-                          {/* Mũi tên chuyển giao ↓ */}
-                          <div className="pl-4 text-slate-400">
-                            <i className="fa-solid fa-arrow-down text-sm"></i>
+                          {/* Mũi tên chuyển giao ↓ (Tối giản khoảng cách, gọn gàng và tinh tế) */}
+                          <div className="pl-3.5 text-slate-400 flex items-center h-3 -my-0.5">
+                            <i className="fa-solid fa-arrow-down text-[10px]"></i>
                           </div>
 
                           {/* 2. Địa chỉ mới - Chỉ yêu cầu người dùng chọn mục này */}
-                          <div>
+                          <div className="pt-0.5">
                             <div className="flex items-center justify-between mb-1.5">
-                              <div className="flex items-center gap-2 text-xs font-bold text-red-600">
+                              <div className="flex items-center gap-1.5 text-xs font-bold text-red-600">
                                 <i className="fa-solid fa-location-dot text-red-600 text-sm"></i>
                                 <span>Địa chỉ mới</span>
                               </div>
