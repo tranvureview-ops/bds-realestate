@@ -92,10 +92,26 @@ function formatPriceToVietnameseText(num) {
 }
 
 export default function PostListingModal({ onClose, isEmbedded = false }) {
-  const { currentUser, properties, addProperty, showToast, preselectedListingType, setPreselectedListingType, paymentConfig, navigateToProperty } = useRealEstate();
+  const { 
+    currentUser, 
+    properties, 
+    addProperty, 
+    showToast, 
+    preselectedListingType, 
+    setPreselectedListingType, 
+    paymentConfig, 
+    navigateToProperty,
+    isMembershipActive 
+  } = useRealEstate();
   const { navigate } = useRouter();
 
   const isGuest = !currentUser || currentUser.role === 'guest' || currentUser.id === 'guest';
+  const isMemberActive = isMembershipActive ? isMembershipActive(currentUser) : Boolean(
+    currentUser?.membership && 
+    currentUser.membership.status === 'active' && 
+    (!currentUser.membership.expiresAt || new Date(currentUser.membership.expiresAt).getTime() > Date.now())
+  );
+  const isMemberExpired = Boolean(currentUser?.membership && !isMemberActive);
 
   const [step, setStep] = useState(1); // 1: Vị trí, 2: Bài viết & Kỹ thuật, 3: Hình ảnh & VR, 4: Loại Tin & Lịch đăng
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
@@ -949,40 +965,64 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
 
       {/* Persistent Membership & Voucher Status Banner */}
       {currentUser?.membership ? (
-        <div className="bg-gradient-to-r from-slate-950 via-amber-950/90 to-slate-900 text-white px-5 py-3 border-b border-amber-500/30 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className={`px-5 py-3 border-b flex flex-wrap items-center justify-between gap-3 text-xs ${
+          isMemberExpired
+            ? 'bg-gradient-to-r from-slate-950 via-rose-950/90 to-slate-900 border-rose-500/40 text-white'
+            : 'bg-gradient-to-r from-slate-950 via-amber-950/90 to-slate-900 border-amber-500/30 text-white'
+        }`}>
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950 flex items-center justify-center font-black shadow-md">
-              <i className="fa-solid fa-crown text-sm"></i>
+            <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-black shadow-md ${
+              isMemberExpired
+                ? 'bg-rose-600 text-white'
+                : 'bg-gradient-to-br from-amber-400 to-amber-600 text-slate-950'
+            }`}>
+              <i className={isMemberExpired ? "fa-solid fa-triangle-exclamation text-sm" : "fa-solid fa-crown text-sm"}></i>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-black text-amber-300 uppercase tracking-wide">
+                <span className={`font-black uppercase tracking-wide ${isMemberExpired ? 'text-rose-300' : 'text-amber-300'}`}>
                   {currentUser.membership.packageName}
                 </span>
-                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[10px] border border-emerald-500/30">
-                  Đang kích hoạt
-                </span>
+                {isMemberActive ? (
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[10px] border border-emerald-500/30">
+                    Đang kích hoạt
+                  </span>
+                ) : (
+                  <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-bold text-[10px] border border-rose-500/40">
+                    Đã hết hạn
+                  </span>
+                )}
               </div>
               <div className="text-[11px] text-slate-300">
-                Ưu đãi Voucher 30 ngày • Tiết kiệm tới 39% chi phí
+                {isMemberActive ? (
+                  <span>Ưu đãi Voucher 30 ngày • Tiết kiệm tới 39% chi phí</span>
+                ) : (
+                  <span className="text-rose-300">
+                    Hết hạn ngày: {new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN')} • Toàn bộ voucher đã hết hiệu lực
+                  </span>
+                )}
               </div>
             </div>
           </div>
 
           <div className="flex items-center flex-wrap gap-2 text-[11px]">
             <div className="bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-xl border border-white/10 flex items-center gap-2 backdrop-blur-sm">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className={`w-2 h-2 rounded-full ${isMemberActive ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`}></span>
               <span className="text-slate-300">Voucher Đăng Tin Thường:</span>
-              <span className="font-black text-emerald-400 text-xs">{currentUser.vouchers?.normalPublish || 0} lượt</span>
+              <span className={`font-black text-xs ${isMemberActive ? 'text-emerald-400' : 'text-slate-400 font-mono'}`}>
+                {isMemberActive ? (currentUser.vouchers?.normalPublish || 0) : 0} lượt
+              </span>
             </div>
 
             <div className="bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-xl border border-white/10 flex items-center gap-2 backdrop-blur-sm">
-              <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+              <span className={`w-2 h-2 rounded-full ${isMemberActive ? 'bg-amber-400' : 'bg-slate-500'}`}></span>
               <span className="text-slate-300">Voucher Đẩy Tin:</span>
-              <span className="font-black text-amber-300 text-xs">{currentUser.vouchers?.normalBump || 0} lượt</span>
+              <span className={`font-black text-xs ${isMemberActive ? 'text-amber-300' : 'text-slate-400 font-mono'}`}>
+                {isMemberActive ? (currentUser.vouchers?.normalBump || 0) : 0} lượt
+              </span>
             </div>
 
-            {(currentUser.vouchers?.vipPublish || 0) > 0 && (
+            {isMemberActive && (currentUser.vouchers?.vipPublish || 0) > 0 && (
               <div className="bg-white/10 hover:bg-white/15 px-3 py-1.5 rounded-xl border border-amber-500/30 flex items-center gap-2 backdrop-blur-sm">
                 <span className="w-2 h-2 rounded-full bg-rose-400"></span>
                 <span className="text-amber-200">Voucher Tin VIP:</span>
@@ -994,9 +1034,13 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
               href="/goi-hoi-vien"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-2.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold transition text-[11px] shadow-sm ml-1 flex items-center gap-1"
+              className={`px-3 py-1.5 rounded-xl font-bold transition text-[11px] shadow-sm ml-1 flex items-center gap-1 ${
+                isMemberExpired
+                  ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 animate-pulse'
+                  : 'bg-amber-500 hover:bg-amber-400 text-slate-950'
+              }`}
             >
-              <span>Xem gói</span>
+              <span>{isMemberExpired ? 'Gia hạn gói' : 'Xem gói'}</span>
               <i className="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
             </a>
           </div>
@@ -1936,21 +1980,29 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
               </div>
 
               {/* 3. Phân Hệ Voucher Hội Viên Môi Giới (Batdongsan Voucher Box) */}
-              <div className="p-4 bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 rounded-2xl space-y-3">
+              <div className={`p-4 border rounded-2xl space-y-3 ${
+                isMemberExpired
+                  ? 'bg-rose-50/60 border-rose-200'
+                  : 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200'
+              }`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <span className="w-8 h-8 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center text-sm font-black shadow-sm">
-                      <i className="fa-solid fa-ticket"></i>
+                    <span className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-black shadow-sm ${
+                      isMemberExpired ? 'bg-rose-500 text-white' : 'bg-amber-500 text-slate-950'
+                    }`}>
+                      <i className={isMemberExpired ? "fa-solid fa-triangle-exclamation" : "fa-solid fa-ticket"}></i>
                     </span>
                     <div>
                       <div className="text-xs font-black text-slate-900 uppercase">
                         Áp Dụng Voucher Gói Hội Viên
                       </div>
-                      <div className="text-[11px] text-slate-600">
-                        {currentUser?.membership ? (
-                          <span>Gói đang kích hoạt: <b className="text-amber-800">{currentUser.membership.packageName}</b></span>
+                      <div className="text-[11px]">
+                        {isMemberActive ? (
+                          <span className="text-slate-600">Gói đang kích hoạt: <b className="text-amber-800">{currentUser.membership.packageName}</b> (Hạn đến: {new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN')})</span>
+                        ) : isMemberExpired ? (
+                          <span className="text-rose-700 font-bold">Gói đã hết hạn: {currentUser.membership.packageName} (Hết hạn {new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN')})</span>
                         ) : (
-                          <span>Chưa kích hoạt Gói Hội Viên</span>
+                          <span className="text-slate-600">Chưa kích hoạt Gói Hội Viên</span>
                         )}
                       </div>
                     </div>
@@ -1967,7 +2019,23 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   </a>
                 </div>
 
-                {currentUser?.membership ? (
+                {isMemberExpired ? (
+                  <div className="p-3 bg-white/80 rounded-xl border border-rose-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    <div className="text-rose-700">
+                      <div className="font-bold">Kho Voucher của bạn đã hết hiệu lực theo quy chế sàn.</div>
+                      <div className="text-[11px] text-rose-600">Vui lòng gia hạn gói để nhận lại bộ Voucher đăng tin và đẩy tin miễn phí.</div>
+                    </div>
+                    <a
+                      href="/goi-hoi-vien"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-sm shrink-0 flex items-center justify-center gap-1.5"
+                    >
+                      <i className="fa-solid fa-arrows-rotate text-[10px]"></i>
+                      <span>Gia Hạn Ngay</span>
+                    </a>
+                  </div>
+                ) : isMemberActive ? (
                   <div className="space-y-2.5">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                       {/* Voucher Tin Thường (-35k) */}

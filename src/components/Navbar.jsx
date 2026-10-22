@@ -40,8 +40,16 @@ export default function Navbar() {
     logoutUser,
     navMenuItems,
     headerConfig,
-    systemConfig
+    systemConfig,
+    isMembershipActive
   } = useRealEstate();
+
+  const isMemberActive = isMembershipActive ? isMembershipActive(currentUser) : Boolean(
+    currentUser?.membership && 
+    currentUser.membership.status === 'active' && 
+    (!currentUser.membership.expiresAt || new Date(currentUser.membership.expiresAt).getTime() > Date.now())
+  );
+  const isMemberExpired = Boolean(currentUser?.membership && !isMemberActive);
 
   const { currentPath, pathname: routerPathname, navigate } = useRouter();
   const currentRoute = routerPathname || currentPath || '/';
@@ -552,9 +560,13 @@ export default function Navbar() {
                             <i className="fa-solid fa-crown text-amber-500 w-4 text-center"></i>
                             <span>Gói hội viên</span>
                           </div>
-                          {currentUser?.membership ? (
+                          {isMemberActive ? (
                             <span className="text-[9px] bg-amber-400 text-slate-950 font-black px-1.5 py-0.5 rounded-full">
                               {currentUser.membership.packageName}
+                            </span>
+                          ) : isMemberExpired ? (
+                            <span className="text-[9px] bg-rose-500 text-white font-black px-1.5 py-0.5 rounded-full">
+                              Đã hết hạn
                             </span>
                           ) : (
                             <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-full">
