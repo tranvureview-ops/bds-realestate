@@ -365,8 +365,16 @@ export const DANANG_MERGERS_MAP = [
   { match: ['an hải bắc', 'an hải đông', 'an hải tây'], newWard: 'Phường An Hải', newDistrict: 'Quận Sơn Trà', lat: 16.0685, lng: 108.2390, placeId: 'ChIJu_e9cR0XQjERw1z3hC59_qQ' }
 ];
 
-export function findDanangMerger(wardName) {
-  if (!wardName) return null;
+export function findDanangMerger(input) {
+  if (!input) return null;
+  let wardName = '';
+  if (typeof input === 'string') {
+    wardName = input;
+  } else if (typeof input === 'object') {
+    wardName = input.ward || input.address || input.street || '';
+  }
+  if (!wardName || typeof wardName !== 'string') return null;
+
   const clean = wardName.toLowerCase().replace(/^(phường|xã|thị trấn)\s+/i, '').trim();
   const found = DANANG_MERGERS_MAP.find(m => m.match.some(w => clean.includes(w) || w.includes(clean)));
   return found || null;
@@ -374,6 +382,47 @@ export function findDanangMerger(wardName) {
 
 export const VIETNAM_ADMINISTRATIVE_MERGERS = [];
 
-export function findAdministrativeMerger(wardName) {
-  return findDanangMerger(wardName);
+export function findAdministrativeMerger(input) {
+  if (!input) return null;
+
+  let wardName = '';
+  let cityName = 'Đà Nẵng';
+  let districtName = '';
+  let streetName = '';
+
+  if (typeof input === 'string') {
+    wardName = input;
+  } else if (typeof input === 'object') {
+    wardName = input.ward || input.address || '';
+    cityName = input.city || 'Đà Nẵng';
+    districtName = input.district || '';
+    streetName = input.street || '';
+  }
+
+  const found = findDanangMerger(wardName || input);
+  if (!found) return null;
+
+  const newWard = found.newWard;
+  const newDistrict = found.newDistrict || districtName;
+  const newCity = cityName || 'Thành phố Đà Nẵng';
+  const oldWard = typeof wardName === 'string' ? wardName : '';
+
+  const oldAddressParts = [streetName, oldWard, districtName, cityName].filter(Boolean);
+  const newAddressParts = [streetName, newWard, newDistrict, newCity].filter(Boolean);
+
+  return {
+    ...found,
+    hasMerger: true,
+    newWard,
+    newDistrict,
+    newCity,
+    oldWard,
+    oldDistrict: districtName,
+    oldCity: cityName,
+    oldAddress: oldAddressParts.join(', '),
+    newAddress: newAddressParts.join(', '),
+    resolution: 'Nghị quyết của UBTV Quốc hội về việc sắp xếp đơn vị hành chính cấp xã giai đoạn 2023 - 2025',
+    suggestionLabel: 'Sáp nhập đơn vị hành chính mới',
+    highlightText: newWard
+  };
 }
