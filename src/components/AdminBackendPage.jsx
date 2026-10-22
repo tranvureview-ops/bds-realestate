@@ -482,6 +482,7 @@ export default function AdminBackendPage() {
   const [userRoleFilter, setUserRoleFilter] = useState('all'); // 'all', 'admin', 'broker', 'user'
   const [userStatusFilter, setUserStatusFilter] = useState('all'); // 'all', 'active', 'pending', 'locked'
   const [userVerifiedFilter, setUserVerifiedFilter] = useState('all'); // 'all', 'verified', 'unverified'
+  const [userListingsFilter, setUserListingsFilter] = useState('all'); // 'all', 'has_listings', 'no_listings'
   const [userCurrentPage, setUserCurrentPage] = useState(1);
   const [userItemsPerPage, setUserItemsPerPage] = useState(10); // 5, 10, 20, 50
 
@@ -871,6 +872,33 @@ export default function AdminBackendPage() {
     return Array.from(map.values());
   }, [properties]);
 
+  // Đếm số lượng tin đăng thực tế của từng tài khoản thành viên (đồng bộ theo ID, Email hoặc SĐT)
+  const userListingsMap = useMemo(() => {
+    const map = new Map();
+    const cleanPhone = (phone) => (phone || '').replace(/\D/g, '');
+
+    (properties || []).forEach(p => {
+      const pAuthorId = p.author?.id ? String(p.author.id) : (p.userId ? String(p.userId) : null);
+      const pEmail = (p.author?.email || p.contactEmail || '').toLowerCase().trim();
+      const pPhone = cleanPhone(p.author?.phone || p.contactPhone);
+
+      (usersList || []).forEach(u => {
+        const uId = String(u.id);
+        const uEmail = (u.email || '').toLowerCase().trim();
+        const uPhone = cleanPhone(u.phone);
+
+        const isMatch = (pAuthorId && pAuthorId === uId) ||
+                        (uEmail && pEmail && uEmail === pEmail) ||
+                        (uPhone && pPhone && uPhone.length >= 9 && pPhone.length >= 9 && uPhone === pPhone);
+
+        if (isMatch) {
+          map.set(uId, (map.get(uId) || 0) + 1);
+        }
+      });
+    });
+    return map;
+  }, [properties, usersList]);
+
   // 1. Phân loại thành viên hoạt động và thành viên trong thùng rác
   const activeMembers = useMemo(() => {
     return (usersList || []).filter(u => !u.isDeleted && u.status !== 'trash');
@@ -898,9 +926,14 @@ export default function AdminBackendPage() {
         if (userVerifiedFilter === 'verified' && !isVer) return false;
         if (userVerifiedFilter === 'unverified' && isVer) return false;
       }
+      if (userListingsFilter !== 'all') {
+        const count = userListingsMap.get(String(u.id)) ?? (u.activeListingsCount || u.listingsCount || 0);
+        if (userListingsFilter === 'has_listings' && count <= 0) return false;
+        if (userListingsFilter === 'no_listings' && count > 0) return false;
+      }
       return true;
     });
-  }, [activeMembers, userSearch, userRoleFilter, userStatusFilter, userVerifiedFilter]);
+  }, [activeMembers, userSearch, userRoleFilter, userStatusFilter, userVerifiedFilter, userListingsFilter, userListingsMap]);
 
   // 3. Lọc danh sách thùng rác
   const filteredTrashUsers = useMemo(() => {
@@ -4263,17 +4296,30 @@ export default function AdminBackendPage() {
                         <option value="verified">Đã cấp tích xanh</option>
                         <option value="unverified">Chưa cấp tích xanh</option>
                       </select>
+
+                      {/* Lọc Số Tin Đăng */}
+                      <select
+                        value={userListingsFilter}
+                        onChange={(e) => { setUserListingsFilter(e.target.value); setUserCurrentPage(1); }}
+                        className="px-3 py-1.5 bg-slate-900 border border-slate-800 rounded-xl text-xs font-semibold text-slate-300 focus:outline-none focus:border-blue-500 cursor-pointer"
+                        title="Lọc thành viên theo số lượng tin đăng"
+                      >
+                        <option value="all">Tất cả tin đăng</option>
+                        <option value="has_listings">Có tin đăng (&gt; 0)</option>
+                        <option value="no_listings">Chưa có tin (0 tin)</option>
+                      </select>
                     </>
                   )}
 
                   {/* Nút đặt lại bộ lọc */}
-                  {(userSearch || userRoleFilter !== 'all' || userStatusFilter !== 'all' || userVerifiedFilter !== 'all') && (
+                  {(userSearch || userRoleFilter !== 'all' || userStatusFilter !== 'all' || userVerifiedFilter !== 'all' || userListingsFilter !== 'all') && (
                     <button
                       onClick={() => {
                         setUserSearch('');
                         setUserRoleFilter('all');
                         setUserStatusFilter('all');
                         setUserVerifiedFilter('all');
+                        setUserListingsFilter('all');
                         setUserCurrentPage(1);
                       }}
                       className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition flex items-center gap-1"
@@ -4320,6 +4366,7 @@ export default function AdminBackendPage() {
                           <th className="p-3">Vai trò</th>
                           <th className="p-3 text-center">Trạng thái</th>
                           <th className="p-3 text-center">👑 Gói Hội Viên</th>
+                          <th className="p-3 text-center">Số Tin Đăng</th>
                           <th className="p-3 text-right">Ví Chính (VND)</th>
                           <th className="p-3 text-right">Ví KM (VND)</th>
                           <th className="p-3 text-center">Tích Xanh</th>
@@ -4410,6 +4457,35 @@ export default function AdminBackendPage() {
                                     Chưa có gói
                                   </span>
                                 )}
+                              </td>
+
+                              {/* Cột Số Tin Đăng */}
+                              <td className="p-3 text-center">
+                                {(() => {
+                                  const count = userListingsMap.get(String(u.id)) ?? (u.activeListingsCount || u.listingsCount || 0);
+                                  if (count > 0) {
+                                    return (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setActiveMenu('properties');
+                                          setPropertyAuthorFilter('all');
+                                          setPropertySearchTerm(u.phone ? u.phone.replace(/\s+/g, '') : u.name);
+                                        }}
+                                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-950/80 hover:bg-blue-900 text-blue-300 hover:text-blue-100 border border-blue-800/80 font-bold font-mono text-[11px] transition cursor-pointer group shadow-xs"
+                                        title={`Bấm để xem ${count} tin đăng của ${u.name} trong mục Quản lý tin`}
+                                      >
+                                        <i className="fa-solid fa-newspaper text-[10px] text-blue-400 group-hover:scale-110 transition-transform"></i>
+                                        <span>{count} tin</span>
+                                      </button>
+                                    );
+                                  }
+                                  return (
+                                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900 text-slate-500 border border-slate-800 font-mono text-[10px]">
+                                      0 tin
+                                    </span>
+                                  );
+                                })()}
                               </td>
 
                               <td className="p-3 text-right font-black text-emerald-400 font-mono">
@@ -4616,6 +4692,7 @@ export default function AdminBackendPage() {
                             <th className="p-3">Thành Viên</th>
                             <th className="p-3">Email & SĐT</th>
                             <th className="p-3">Vai Trò Trước Đó</th>
+                            <th className="p-3 text-center">Số Tin Đăng</th>
                             <th className="p-3 text-right">Ví Chính / Ví KM</th>
                             <th className="p-3 text-center">Thời Gian Xóa</th>
                             <th className="p-3 text-right">Hành Động Khôi Phục / Xóa</th>
@@ -4647,6 +4724,24 @@ export default function AdminBackendPage() {
                                   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-900 text-slate-400 border border-slate-800">
                                     {(u.role === 'broker' || u.roleName?.includes('Môi giới') || u.roleName?.includes('Môi Giới')) ? 'Môi Giới' : (u.roleName || (u.role === 'admin' ? 'Quản Trị Viên' : 'Khách Hàng'))}
                                   </span>
+                                </td>
+                                <td className="p-3 text-center">
+                                  {(() => {
+                                    const count = userListingsMap.get(String(u.id)) ?? (u.activeListingsCount || u.listingsCount || 0);
+                                    if (count > 0) {
+                                      return (
+                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900 text-slate-300 border border-slate-700 font-mono text-[10px] font-bold">
+                                          <i className="fa-solid fa-newspaper text-[9px] text-slate-400"></i>
+                                          <span>{count} tin</span>
+                                        </span>
+                                      );
+                                    }
+                                    return (
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-900 text-slate-600 border border-slate-800 font-mono text-[10px]">
+                                        0 tin
+                                      </span>
+                                    );
+                                  })()}
                                 </td>
                                 <td className="p-3 text-right font-mono">
                                   <div className="text-slate-400 font-bold">{mainBal.toLocaleString('vi-VN')} đ</div>
@@ -8933,7 +9028,14 @@ export default function AdminBackendPage() {
                 />
                 <div>
                   <h3 className="text-sm font-black text-white">Chỉnh Sửa Người Dùng</h3>
-                  <div className="text-[10px] text-slate-400 font-mono">ID: {editingUser.id}</div>
+                  <div className="text-[10px] text-slate-400 font-mono flex items-center gap-2">
+                    <span>ID: {editingUser.id}</span>
+                    <span>•</span>
+                    <span className="text-blue-400 font-bold">
+                      <i className="fa-solid fa-newspaper mr-1 text-[9px]"></i>
+                      {userListingsMap.get(String(editingUser.id)) ?? (editingUser.activeListingsCount || editingUser.listingsCount || 0)} tin đăng
+                    </span>
+                  </div>
                 </div>
               </div>
               <button
