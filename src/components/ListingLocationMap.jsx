@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 
 // Tọa độ trung tâm mặc định TP. Đà Nẵng
-const DEFAULT_CENTER = { lat: 16.0544, lng: 108.2022, zoom: 14 };
+const DEFAULT_CENTER = { lat: 16.0544, lng: 108.2022, zoom: 15 };
 
 const DISTRICT_COORDS = {
   'Quận Hải Châu': { lat: 16.0594, lng: 108.2208 },
@@ -13,6 +13,20 @@ const DISTRICT_COORDS = {
   'Quận Cẩm Lệ': { lat: 16.0150, lng: 108.1980 },
   'Quận Liên Chiểu': { lat: 16.0782, lng: 108.1488 },
   'Huyện Hòa Vang': { lat: 15.9892, lng: 108.1189 }
+};
+
+// Các lớp hiển thị của Google Maps
+const GOOGLE_MAP_LAYERS = {
+  roadmap: {
+    name: 'Bản đồ',
+    icon: 'fa-regular fa-map',
+    url: 'https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}'
+  },
+  satellite: {
+    name: 'Vệ tinh',
+    icon: 'fa-solid fa-satellite',
+    url: 'https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}'
+  }
 };
 
 export default function ListingLocationMap({
@@ -26,8 +40,10 @@ export default function ListingLocationMap({
 }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
+  const tileLayerRef = useRef(null);
   const [isMapReady, setIsMapReady] = useState(false);
   const [coords, setCoords] = useState({ lat: 16.0544, lng: 108.2022 });
+  const [mapType, setMapType] = useState('roadmap'); // 'roadmap' hoặc 'satellite'
 
   // Xác định tọa độ tâm: Ưu tiên tọa độ từ Google Maps Geocoding -> Quận -> Thành phố
   const getTargetCenter = useCallback(() => {
@@ -40,7 +56,7 @@ export default function ListingLocationMap({
     return DEFAULT_CENTER;
   }, [district, targetCoords]);
 
-  // Khởi tạo bản đồ Leaflet OpenStreetMap
+  // Khởi tạo bản đồ với Google Maps Tile Layer
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -68,13 +84,18 @@ export default function ListingLocationMap({
           center: [center.lat, center.lng],
           zoom: center.zoom || 15,
           zoomControl: false,
-          scrollWheelZoom: false,
+          scrollWheelZoom: true,
           attributionControl: false
         });
 
-        window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          maxZoom: 19
+        // Layer Google Maps chuẩn (Roadmap hoặc Vệ tinh Hybrid)
+        const currentUrl = GOOGLE_MAP_LAYERS[mapType]?.url || GOOGLE_MAP_LAYERS.roadmap.url;
+        const tileLayer = window.L.tileLayer(currentUrl, {
+          maxZoom: 20,
+          subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
         }).addTo(map);
+
+        tileLayerRef.current = tileLayer;
 
         window.L.control.zoom({ position: 'bottomright' }).addTo(map);
 
@@ -91,7 +112,7 @@ export default function ListingLocationMap({
         setIsMapReady(true);
         setCoords({ lat: center.lat, lng: center.lng });
       } catch (err) {
-        console.warn('Map initialization retry...', err);
+        console.warn('Google Map initialization retry...', err);
       }
     };
 
@@ -108,6 +129,13 @@ export default function ListingLocationMap({
       }
     };
   }, [getTargetCenter, onLocationChange]);
+
+  // Đổi kiểu hiển thị bản đồ (Bản đồ đường Google Maps / Vệ tinh Google)
+  useEffect(() => {
+    if (tileLayerRef.current && GOOGLE_MAP_LAYERS[mapType]) {
+      tileLayerRef.current.setUrl(GOOGLE_MAP_LAYERS[mapType].url);
+    }
+  }, [mapType]);
 
   // Tự động di chuyển góc nhìn (PanTo) khi Google Maps Geocoding trả về tọa độ mới
   useEffect(() => {
@@ -141,7 +169,7 @@ export default function ListingLocationMap({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="font-bold text-xs sm:text-sm text-slate-900 flex items-center gap-1.5">
           <i className="fa-solid fa-map-location-dot text-red-600"></i>
-          <span>Vị trí trên bản đồ Google Maps</span>
+          <span>Vị trí trên Google Maps</span>
           {isGeocoding && (
             <span className="text-[11px] font-normal text-slate-400 flex items-center gap-1">
               <i className="fa-solid fa-spinner fa-spin text-red-500"></i> Đang định vị...
@@ -191,21 +219,62 @@ export default function ListingLocationMap({
         Kéo bản đồ để đổi vị trí ghim (hoặc click vào địa chỉ mới gợi ý để định vị chuẩn xác)
       </div>
 
-      {/* Khung Bản đồ với ghim tâm tương tác */}
-      <div className="relative w-full h-52 sm:h-64 rounded-2xl overflow-hidden border border-slate-300 shadow-inner bg-slate-100 mt-2">
+      {/* Khung Bản đồ Google Maps với ghim tâm tương tác */}
+      <div className="relative w-full h-56 sm:h-72 rounded-2xl overflow-hidden border border-slate-300 shadow-inner bg-slate-100 mt-2">
         <div ref={mapContainerRef} className="w-full h-full z-0" />
 
-        {/* Ghim trung tâm cố định (Map Center Pin Marker) */}
+        {/* Nút chuyển đổi kiểu bản đồ Google Maps (Bản đồ / Vệ tinh) */}
+        <div className="absolute top-2.5 left-2.5 z-10 flex bg-white/95 backdrop-blur-sm rounded-lg shadow-md border border-slate-200 overflow-hidden text-xs">
+          <button
+            type="button"
+            onClick={() => setMapType('roadmap')}
+            className={`px-2.5 py-1 font-medium transition flex items-center gap-1 ${
+              mapType === 'roadmap'
+                ? 'bg-blue-600 text-white font-semibold'
+                : 'text-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            <i className="fa-regular fa-map text-[11px]"></i>
+            <span>Bản đồ</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMapType('satellite')}
+            className={`px-2.5 py-1 font-medium transition flex items-center gap-1 border-l border-slate-200 ${
+              mapType === 'satellite'
+                ? 'bg-blue-600 text-white font-semibold'
+                : 'text-slate-700 hover:bg-slate-100'
+            }`}
+          >
+            <i className="fa-solid fa-satellite text-[11px]"></i>
+            <span>Vệ tinh</span>
+          </button>
+        </div>
+
+        {/* Ghim trung tâm cố định (Google Maps Marker Pin) */}
         <div className="absolute inset-0 pointer-events-none flex flex-col items-center justify-center z-10 -translate-y-4">
-          <div className="relative flex flex-col items-center">
-            <i className="fa-solid fa-location-dot text-red-600 text-3xl drop-shadow-[0_4px_6px_rgba(0,0,0,0.3)] filter"></i>
+          <div className="relative flex flex-col items-center animate-bounce-subtle">
+            <i className="fa-solid fa-location-dot text-red-600 text-3xl drop-shadow-[0_4px_6px_rgba(0,0,0,0.35)] filter"></i>
             <div className="w-2.5 h-1 bg-black/40 rounded-full blur-[1px] -mt-1"></div>
           </div>
         </div>
 
-        {/* Badge tọa độ thu nhỏ ở góc trái dưới */}
-        <div className="absolute bottom-2 left-2 z-10 bg-white/90 backdrop-blur-xs px-2 py-0.5 rounded-lg border border-slate-200 text-[10px] font-mono text-slate-600 shadow-xs pointer-events-none">
-          {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}
+        {/* Logo Google Maps chính thống ở góc dưới trái */}
+        <div className="absolute bottom-2 left-2 z-10 flex items-center gap-2">
+          <div className="bg-white/90 backdrop-blur-xs px-2 py-0.5 rounded-md shadow-xs border border-slate-200/80 flex items-center gap-1 select-none pointer-events-none">
+            <span className="text-[11px] font-bold tracking-tight">
+              <span className="text-[#4285F4]">G</span>
+              <span className="text-[#EA4335]">o</span>
+              <span className="text-[#FBBC05]">o</span>
+              <span className="text-[#4285F4]">g</span>
+              <span className="text-[#34A853]">l</span>
+              <span className="text-[#EA4335]">e</span>
+            </span>
+          </div>
+          {/* Badge tọa độ thu nhỏ */}
+          <div className="bg-white/90 backdrop-blur-xs px-2 py-0.5 rounded-md border border-slate-200 text-[10px] font-mono text-slate-600 shadow-xs pointer-events-none">
+            {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}
+          </div>
         </div>
       </div>
     </div>

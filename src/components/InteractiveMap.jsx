@@ -28,17 +28,19 @@ export default function InteractiveMap({ properties, activePropertyId = null, he
         mapInstanceRef.current = null;
       }
 
-      // Default center (Vietnam center or first property)
-      const firstProp = properties.find(p => p.lat && p.lng) || { lat: 10.7951, lng: 106.7219 };
+      // Default center: TP. Đà Nẵng
+      const firstProp = properties.find(p => p.lat && p.lng) || { lat: 16.0544, lng: 108.2022 };
       const map = window.L.map(mapContainerRef.current, {
         center: [firstProp.lat, firstProp.lng],
-        zoom: 12,
+        zoom: 13,
         scrollWheelZoom: true
       });
 
-      // OpenStreetMap standard tile layer
-      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors | Đất Biển Đà Nẵng GIS'
+      // Google Maps Roadmap tile layer
+      window.L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+        attribution: 'Dữ liệu bản đồ &copy; Google Maps'
       }).addTo(map);
 
       mapInstanceRef.current = map;
