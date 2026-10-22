@@ -32,9 +32,6 @@ export default function LoginPage() {
 
     if (red) {
       setRedirectUrl(red);
-      if (red === '/admin' || red.startsWith('/admin')) {
-        setIdentifier('tranvu.review@gmail.com');
-      }
     }
   }, [searchParams]);
 
@@ -138,23 +135,6 @@ export default function LoginPage() {
               : 'Truy cập để quản lý tin đăng, nạp tiền ví và nâng cấp gói VIP'}
           </p>
         </div>
-
-        {/* Security Notification if redirected from /admin */}
-        {isAdminRedirect && (
-          <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-start gap-3 text-rose-900 text-xs animate-in fade-in">
-            <i className="fa-solid fa-triangle-exclamation text-rose-600 text-base mt-0.5 shrink-0"></i>
-            <div>
-              <div className="font-bold text-rose-950">Yêu cầu quyền Quản Trị Viên</div>
-              <div className="text-[11px] text-rose-800 mt-0.5 leading-relaxed">
-                Khu vực <strong>/admin</strong> chỉ dành riêng cho tài khoản có vai trò <strong>Admin</strong>. Vui lòng đăng nhập bằng tài khoản Quản trị để tiếp tục.
-              </div>
-              <div className="mt-2 text-[11px] bg-white/80 p-2 rounded-xl border border-rose-200 font-mono text-rose-950">
-                Email: <strong>tranvu.review@gmail.com</strong><br />
-                Mật khẩu: <strong>123456</strong>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Maintenance Notice */}
         {systemConfig?.maintenanceMode === true && !isAdminRedirect && (
