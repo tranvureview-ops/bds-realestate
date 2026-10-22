@@ -20,9 +20,15 @@ export default function MembershipPage() {
   const isCurrentMember = !!currentUser?.membership;
 
   const handleSubscribe = (pkg) => {
-    const cycle = pkg.billingCycles.find(c => c.months === selectedCycle) || pkg.billingCycles[0];
-    if (currentUser.walletBalance < cycle.price) {
-      showToast(`Số dư ví (${currentUser.walletBalance.toLocaleString('vi-VN')} đ) không đủ ${cycle.price.toLocaleString('vi-VN')} đ. Vui lòng nạp thêm tiền!`, 'warning');
+    if (!currentUser || currentUser.id === 'guest' || !currentUser.email) {
+      showToast('Vui lòng đăng nhập tài khoản để đăng ký hoặc gia hạn Gói Hội Viên!', 'warning');
+      setActiveModal('auth');
+      return;
+    }
+
+    const cycle = pkg.billingCycles?.find(c => c.months === selectedCycle) || pkg.billingCycles?.[0] || { months: 1, price: pkg.monthlyPrice || 500000 };
+    if ((currentUser.walletBalance || 0) < cycle.price) {
+      showToast(`Số dư ví (${(currentUser.walletBalance || 0).toLocaleString('vi-VN')} đ) không đủ ${cycle.price.toLocaleString('vi-VN')} đ để ${currentUser.membership?.packageId === pkg.id ? 'gia hạn' : 'đăng ký'} ${pkg.name}. Vui lòng nạp thêm tiền!`, 'warning');
       setActiveModal('wallet-deposit');
       return;
     }
@@ -31,7 +37,12 @@ export default function MembershipPage() {
 
   const handleConfirmSubscribe = () => {
     if (!confirmingPackage) return;
-    const success = subscribeMembership(confirmingPackage.pkg.id, confirmingPackage.cycle.months);
+    const days = confirmingPackage.cycle.duration_days || (confirmingPackage.cycle.months * 30);
+    const success = subscribeMembership(
+      confirmingPackage.pkg.id, 
+      confirmingPackage.cycle.months,
+      days
+    );
     if (success) {
       setConfirmingPackage(null);
     }
@@ -436,77 +447,94 @@ export default function MembershipPage() {
       </div>
 
       {/* Confirmation Modal */}
-      {confirmingPackage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-100">
-            <div className="flex items-center gap-3 border-b pb-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg font-black shrink-0">
-                <i className="fa-solid fa-crown text-amber-500"></i>
-              </div>
-              <div>
-                <h4 className="font-black text-slate-900 text-base">Xác Nhận Đăng Ký Hội Viên</h4>
-                <div className="text-xs text-slate-500">{confirmingPackage.pkg.name}</div>
-              </div>
-            </div>
+      {confirmingPackage && (() => {
+        const isRenew = currentUser?.membership?.packageId === confirmingPackage.pkg.id;
+        const days = confirmingPackage.cycle.duration_days || (confirmingPackage.cycle.months * 30);
+        const baseTime = (isRenew && currentUser?.membership?.expiresAt && new Date(currentUser.membership.expiresAt).getTime() > Date.now())
+          ? new Date(currentUser.membership.expiresAt).getTime()
+          : Date.now();
+        const projectedExpiry = new Date(baseTime + days * 86400000);
 
-            <div className="p-4 bg-slate-50 rounded-2xl space-y-2 text-xs">
-              <div className="flex justify-between">
-                <span className="text-slate-500">Kỳ hạn đăng ký:</span>
-                <span className="font-bold text-slate-900">{confirmingPackage.cycle.label || `${confirmingPackage.cycle.months} tháng`}</span>
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-100">
+              <div className="flex items-center gap-3 border-b pb-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg font-black shrink-0">
+                  <i className="fa-solid fa-crown text-amber-500"></i>
+                </div>
+                <div>
+                  <h4 className="font-black text-slate-900 text-base">
+                    {isRenew ? 'Xác Nhận Gia Hạn Hội Viên' : 'Xác Nhận Đăng Ký Hội Viên'}
+                  </h4>
+                  <div className="text-xs text-slate-500">{confirmingPackage.pkg.name}</div>
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Thời hạn sử dụng:</span>
-                <span className="font-bold text-teal-700 font-mono">
-                  {confirmingPackage.cycle.duration_days || (confirmingPackage.cycle.months * 30)} ngày
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Hạn dùng dự kiến:</span>
-                <span className="font-bold text-amber-600 font-mono">
-                  {new Date(Date.now() + (confirmingPackage.cycle.duration_days || confirmingPackage.cycle.months * 30) * 86400000).toLocaleDateString('vi-VN')}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Tổng thanh toán:</span>
-                <span className="font-black text-emerald-600 text-base">
-                  {confirmingPackage.cycle.price.toLocaleString('vi-VN')} đ
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-slate-500">Số dư ví hiện tại:</span>
-                <span className="font-mono text-slate-700">
-                  {currentUser.walletBalance?.toLocaleString('vi-VN')} đ
-                </span>
-              </div>
-              <div className="border-t pt-2 space-y-1 text-[11px] text-slate-600">
-                <div className="font-bold text-slate-700">Kho Voucher sẽ nhận:</div>
-                <div>✓ {confirmingPackage.pkg.vouchersPerCycle.normalPublishVouchers} voucher giảm 35.000 đ đăng tin thường</div>
-                <div>✓ {confirmingPackage.pkg.vouchersPerCycle.normalBumpVouchers} voucher giảm 10.000 đ đẩy tin thường</div>
-                {confirmingPackage.pkg.vouchersPerCycle.vipVouchers > 0 && (
-                  <div>✓ {confirmingPackage.pkg.vouchersPerCycle.vipVouchers} voucher giảm 400.000 đ tin VIP</div>
-                )}
-              </div>
-            </div>
 
-            <div className="flex items-center gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setConfirmingPackage(null)}
-                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-bold text-xs"
-              >
-                Hủy Bỏ
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmSubscribe}
-                className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-lg shadow-emerald-600/30"
-              >
-                Xác Nhận & Trừ Ví
-              </button>
+              <div className="p-4 bg-slate-50 rounded-2xl space-y-2 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Hình thức:</span>
+                  <span className={`font-bold px-2 py-0.5 rounded-full text-[10px] ${isRenew ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}`}>
+                    {isRenew ? 'Gia hạn gói đang dùng' : 'Đăng ký mới'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Kỳ hạn đăng ký:</span>
+                  <span className="font-bold text-slate-900">{confirmingPackage.cycle.label || `${confirmingPackage.cycle.months} tháng`}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Thời hạn sử dụng:</span>
+                  <span className="font-bold text-teal-700 font-mono">
+                    {days} ngày
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Hạn dùng sau khi {isRenew ? 'gia hạn' : 'đăng ký'}:</span>
+                  <span className="font-bold text-amber-600 font-mono">
+                    {projectedExpiry.toLocaleDateString('vi-VN')} {isRenew ? '(Cộng nối tiếp)' : ''}
+                  </span>
+                </div>
+                <div className="flex justify-between border-t pt-2">
+                  <span className="text-slate-500">Tổng thanh toán:</span>
+                  <span className="font-black text-emerald-600 text-base">
+                    {confirmingPackage.cycle.price.toLocaleString('vi-VN')} đ
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Số dư ví hiện tại:</span>
+                  <span className="font-mono text-slate-700">
+                    {(currentUser?.walletBalance || 0).toLocaleString('vi-VN')} đ
+                  </span>
+                </div>
+                <div className="border-t pt-2 space-y-1 text-[11px] text-slate-600">
+                  <div className="font-bold text-slate-700">Kho Voucher sẽ nhận:</div>
+                  <div>✓ {confirmingPackage.pkg.vouchersPerCycle.normalPublishVouchers} voucher giảm 35.000 đ đăng tin thường</div>
+                  <div>✓ {confirmingPackage.pkg.vouchersPerCycle.normalBumpVouchers} voucher giảm 10.000 đ đẩy tin thường</div>
+                  {confirmingPackage.pkg.vouchersPerCycle.vipVouchers > 0 && (
+                    <div>✓ {confirmingPackage.pkg.vouchersPerCycle.vipVouchers} voucher giảm 400.000 đ tin VIP</div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setConfirmingPackage(null)}
+                  className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-100 font-bold text-xs transition"
+                >
+                  Hủy Bỏ
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmSubscribe}
+                  className="flex-1 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs shadow-lg shadow-emerald-600/30 transition"
+                >
+                  {isRenew ? 'Xác Nhận Gia Hạn Ngay' : 'Xác Nhận & Trừ Ví'}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }

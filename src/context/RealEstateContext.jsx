@@ -1614,8 +1614,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return newProp;
   };
 
-  // Đăng ký Gói Hội Viên (Membership Packages)
-  const subscribeMembership = (packageId, billingMonths = 1) => {
+  // Đăng ký hoặc Gia Hạn Gói Hội Viên (Membership Packages)
+  const subscribeMembership = (packageId, billingMonths = 1, customDays = null) => {
+    if (!currentUser || currentUser.id === 'guest' || !currentUser.email) {
+      showToast('Vui lòng đăng nhập tài khoản để thực hiện giao dịch!', 'warning');
+      setActiveModal('auth');
+      return false;
+    }
+
     const pkg = membershipPackages.find(p => p.id === packageId);
     if (!pkg) {
       showToast('Gói hội viên không tồn tại!', 'error');
@@ -1626,14 +1632,21 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const totalPrice = cycle.price;
 
     if (currentUser.walletBalance < totalPrice) {
-      showToast(`Số dư ví không đủ ${totalPrice.toLocaleString('vi-VN')} đ để đăng ký ${pkg.name}. Vui lòng nạp thêm!`, 'error');
+      showToast(`Số dư ví (${currentUser.walletBalance.toLocaleString('vi-VN')} đ) không đủ ${totalPrice.toLocaleString('vi-VN')} đ để ${currentUser.membership?.packageId === pkg.id ? 'gia hạn' : 'đăng ký'} ${pkg.name}. Vui lòng nạp thêm tiền!`, 'warning');
       setActiveModal('wallet-deposit');
       return false;
     }
 
     const durationDays = customDays || cycle.duration_days || cycle.durationDays || (billingMonths * 30);
     const newBalance = currentUser.walletBalance - totalPrice;
-    const expiresDate = new Date(Date.now() + durationDays * 24 * 60 * 60 * 1000).toISOString();
+
+    // Kiểm tra xem là Đăng ký mới hay Gia hạn gói đang dùng
+    const isRenew = currentUser.membership && currentUser.membership.packageId === pkg.id;
+    const baseTime = (isRenew && currentUser.membership.expiresAt && new Date(currentUser.membership.expiresAt).getTime() > Date.now())
+      ? new Date(currentUser.membership.expiresAt).getTime()
+      : Date.now();
+
+    const expiresDate = new Date(baseTime + durationDays * 24 * 60 * 60 * 1000).toISOString();
 
     const normalPubCount = pkg.vouchersPerCycle.normalPublishVouchers;
     const normalBumpCount = pkg.vouchersPerCycle.normalBumpVouchers;
@@ -1647,8 +1660,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         packageName: pkg.name,
         shortName: pkg.shortName,
         billingMonths,
-        durationDays,
-        subscribedAt: new Date().toISOString(),
+        durationDays: (isRenew && currentUser.membership.durationDays ? currentUser.membership.durationDays + durationDays : durationDays),
+        subscribedAt: isRenew ? (currentUser.membership.subscribedAt || new Date().toISOString()) : new Date().toISOString(),
         expiresAt: expiresDate,
         status: 'active',
         isAutoRenew: false, // Mặc định tắt tự động gia hạn (Auto-renew: OFF)
@@ -1676,7 +1689,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       userId: currentUser.id,
       userName: currentUser.name,
       type: 'purchase_membership',
-      title: `Đăng ký ${pkg.name} (${billingMonths} tháng) - Nhận kho voucher 30 ngày`,
+      title: `${isRenew ? 'Gia hạn' : 'Đăng ký'} ${pkg.name} (${billingMonths} tháng • ${durationDays} ngày) - Nhận kho voucher 30 ngày`,
       amount: -totalPrice,
       balanceAfter: newBalance,
       status: 'success',
@@ -1685,7 +1698,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     };
     setTransactions([newTxn, ...transactions]);
 
-    showToast(`Đăng ký thành công ${pkg.name}! Đã cộng ${normalPubCount} voucher đăng tin và ${normalBumpCount} voucher đẩy tin.`, 'success');
+    showToast(`${isRenew ? 'Gia hạn thành công' : 'Đăng ký thành công'} ${pkg.name}! Đã cộng ${normalPubCount} voucher đăng tin và ${normalBumpCount} voucher đẩy tin. Hạn dùng đến: ${new Date(expiresDate).toLocaleDateString('vi-VN')}`, 'success');
     return true;
   };
 
