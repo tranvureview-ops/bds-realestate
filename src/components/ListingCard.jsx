@@ -5,6 +5,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { Link, useRouter } from '../router/RouterContext';
 import { VIP_PACKAGES } from '../data/mockData';
 import { getPropertyPermalink } from '../utils/permalink';
+import { normalizePhone } from '../utils/authValidation';
 
 export default function ListingCard({ property, viewMode = 'grid' }) {
   const { navigate } = useRouter();
@@ -13,7 +14,8 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
     toggleFavorite, 
     compareList, 
     toggleCompare, 
-    openPropertyDetail 
+    openPropertyDetail,
+    usersList
   } = useRealEstate();
 
   if (!property) return null;
@@ -22,13 +24,19 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
     ? property.images
     : ['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80'];
 
+  // Tra cứu tác giả mới nhất từ usersList để đảm bảo tên & avatar luôn cập nhật đồng bộ 100%
+  const authorUser = property.author?.id 
+    ? usersList?.find(u => String(u.id) === String(property.author.id))
+    : (property.author?.phone ? usersList?.find(u => normalizePhone(u.phone) === normalizePhone(property.author.phone)) : null);
+
   const safeAuthor = {
-    name: property.author?.name || property.contactName || 'Người đăng tin',
-    phone: property.author?.phone || property.contactPhone || '0908 123 456',
-    zalo: property.author?.zalo || String(property.author?.phone || property.contactPhone || '0908123456').replace(/\s+/g, ''),
-    avatar: property.author?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
-    title: property.author?.title || (property.isGuest ? 'Khách vãng lai' : 'Chính chủ'),
-    isVerified: property.author?.isVerified || false
+    id: authorUser?.id || property.author?.id || null,
+    name: authorUser?.name || property.author?.name || property.contactName || 'Người đăng tin',
+    phone: authorUser?.phone || property.author?.phone || property.contactPhone || '0908 123 456',
+    zalo: (authorUser?.phone || property.author?.zalo || property.author?.phone || property.contactPhone || '0908123456').replace(/\s+/g, ''),
+    avatar: authorUser?.avatar || property.author?.avatar || 'https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80',
+    title: authorUser?.roleName || authorUser?.membership?.packageName || property.author?.title || (property.isGuest ? 'Khách vãng lai' : 'Chính chủ'),
+    isVerified: authorUser?.isVerified ?? property.author?.isVerified ?? false
   };
 
   const isFav = favorites.includes(property.id);

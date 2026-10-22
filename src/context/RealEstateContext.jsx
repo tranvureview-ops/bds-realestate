@@ -52,6 +52,7 @@ import {
   DEFAULT_EMAIL_TEMPLATES
 } from '../data/mockData';
 import { getPropertyPermalink, parsePropertyUrl, toVietnameseSlug } from '../utils/permalink';
+import { normalizePhone } from '../utils/authValidation';
 import {
   getEmailLogs,
   dispatchEmail,
@@ -1386,13 +1387,13 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     if (!target && roleKey === 'admin') {
       target = MOCK_USERS.find(u => u.role === 'admin') || {
         id: 'admin-01',
-        name: 'Trần Ban Quản Trị',
+        name: 'Trần Vũ RB',
         email: 'tranvu.review@gmail.com',
         role: 'admin',
         roleName: 'Tổng Quản Trị Viên (CMS Admin)',
         walletBalance: 99999999,
         phone: '0898 246 607',
-        avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80'
+        avatar: 'https://plus.unsplash.com/premium_photo-1682095969640-cade58e5c561?auto=format&fit=crop&w=256&h=256&q=80'
       };
       setUsersList(prev => [...prev, target]);
     }
@@ -2766,26 +2767,54 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   const updateUserProfile = (profileData) => {
     const updated = { ...currentUser, ...profileData };
     setCurrentUser(updated);
-    setUsersList(prev => prev.map(u => u.id === currentUser.id ? updated : u));
 
-    // Update author info across properties
-    setProperties(prev => prev.map(p => {
-      if (p.author && p.author.id === currentUser.id) {
+    const nextUsers = usersList.map(u => String(u.id) === String(currentUser.id) ? updated : u);
+    setUsersList(nextUsers);
+
+    // Cập nhật thông tin tác giả cho tất cả bài đăng thuộc quyền sở hữu của người dùng (khớp theo id, email hoặc SĐT)
+    const nextProperties = properties.map(p => {
+      const isOwner = Boolean(
+        (p.author?.id && currentUser.id && String(p.author.id) === String(currentUser.id)) ||
+        (p.author?.email && currentUser.email && p.author.email.toLowerCase() === currentUser.email.toLowerCase()) ||
+        (p.author?.phone && currentUser.phone && normalizePhone(p.author.phone) === normalizePhone(currentUser.phone))
+      );
+      if (isOwner) {
         return {
           ...p,
+          contactName: updated.name,
+          contactPhone: updated.phone,
           author: {
             ...p.author,
             name: updated.name,
             phone: updated.phone,
-            zalo: updated.phone?.replace(/\s+/g, ''),
+            zalo: updated.phone ? normalizePhone(updated.phone) : p.author?.zalo,
             avatar: updated.avatar
           }
         };
       }
       return p;
-    }));
+    });
+    setProperties(nextProperties);
 
+    // Đồng bộ lập tức lên Supabase Cloud
     upsertSupabaseProfile(updated).catch(console.warn);
+    persistSettingToSupabase('bds_users_list', nextUsers).catch(console.warn);
+    persistSettingToSupabase('bds_properties', nextProperties).catch(console.warn);
+
+    // Đồng bộ lập tức xuống server-db.json qua API route
+    try {
+      fetch('/api/db-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          bds_users_list: nextUsers,
+          bds_properties: nextProperties
+        })
+      }).catch(console.warn);
+    } catch (e) {
+      console.warn('Lỗi db-sync:', e);
+    }
+
     showToast('Cập nhật hồ sơ thông tin cá nhân thành công!', 'success');
   };
 

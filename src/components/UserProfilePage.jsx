@@ -99,6 +99,23 @@ export default function UserProfilePage() {
     avatar: currentUser.avatar || 'https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80'
   });
 
+  // Tự động đồng bộ form với currentUser khi hydration hoặc đổi tài khoản
+  React.useEffect(() => {
+    if (currentUser && currentUser.id !== 'guest') {
+      setFormData(prev => ({
+        ...prev,
+        name: currentUser.name || prev.name || '',
+        phone: currentUser.phone || prev.phone || '',
+        email: currentUser.email || prev.email || '',
+        avatar: currentUser.avatar || prev.avatar || '',
+        bio: currentUser.bio || prev.bio || '',
+        primaryArea: currentUser.primaryArea || prev.primaryArea || '',
+        company: currentUser.company || prev.company || '',
+        address: currentUser.address || prev.address || ''
+      }));
+    }
+  }, [currentUser?.id, currentUser?.name, currentUser?.avatar, currentUser?.phone, currentUser?.email]);
+
   // KYC state
   const [kycForm, setKycForm] = useState({
     idCardNumber: currentUser.idCardNumber || '079090001234',

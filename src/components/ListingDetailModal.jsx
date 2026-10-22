@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import dynamic from 'next/dynamic';
 import { VIP_PACKAGES } from '../data/mockData';
+import { normalizePhone } from '../utils/authValidation';
 const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
   ssr: false,
   loading: () => (
@@ -20,7 +21,8 @@ export default function ListingDetailModal({ property, onClose }) {
     compareList, 
     toggleCompare, 
     setActiveModal, 
-    showToast 
+    showToast,
+    usersList
   } = useRealEstate();
 
   const [activeMediaTab, setActiveMediaTab] = useState('photos'); // 'photos', 'vr360', 'video', 'map'
@@ -30,6 +32,23 @@ export default function ListingDetailModal({ property, onClose }) {
   const [messageSent, setMessageSent] = useState(false);
 
   if (!property) return null;
+
+  // Tra cứu tác giả mới nhất từ usersList để đảm bảo tên & avatar luôn cập nhật theo hồ sơ
+  const authorUser = property?.author?.id 
+    ? usersList?.find(u => String(u.id) === String(property.author.id))
+    : (property?.author?.phone ? usersList?.find(u => normalizePhone(u.phone) === normalizePhone(property.author.phone)) : null);
+
+  const safeAuthor = {
+    id: authorUser?.id || property?.author?.id || null,
+    name: authorUser?.name || property?.author?.name || property?.contactName || 'Người đăng tin',
+    phone: authorUser?.phone || property?.author?.phone || property?.contactPhone || '0908 123 456',
+    zalo: (authorUser?.phone || property?.author?.zalo || property?.author?.phone || property?.contactPhone || '0908123456').replace(/\s+/g, ''),
+    avatar: authorUser?.avatar || property?.author?.avatar || 'https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80',
+    title: authorUser?.roleName || authorUser?.membership?.packageName || property?.author?.title || (property?.isGuest ? 'Khách vãng lai' : 'Chính chủ'),
+    isVerified: authorUser?.isVerified ?? property?.author?.isVerified ?? false,
+    rating: property?.author?.rating || '5.0',
+    reviewCount: property?.author?.reviewCount || 1
+  };
 
   const isFav = favorites.includes(property.id);
   const isCompared = compareList.some(item => item.id === property.id);
@@ -41,7 +60,7 @@ export default function ListingDetailModal({ property, onClose }) {
     e.preventDefault();
     if (!contactMessage.trim()) return;
     setMessageSent(true);
-    showToast(`Đã gửi tin nhắn đến môi giới ${property.author.name}! Họ sẽ phản hồi sớm nhất qua SĐT hoặc Zalo.`, 'success');
+    showToast(`Đã gửi tin nhắn đến môi giới ${safeAuthor.name}! Họ sẽ phản hồi sớm nhất qua SĐT hoặc Zalo.`, 'success');
     setContactMessage('');
     setTimeout(() => setMessageSent(false), 5000);
   };
@@ -388,11 +407,11 @@ export default function ListingDetailModal({ property, onClose }) {
                 <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
                   <div className="relative">
                     <img
-                      src={property.author.avatar}
-                      alt={property.author.name}
+                      src={safeAuthor.avatar}
+                      alt={safeAuthor.name}
                       className="w-14 h-14 rounded-full object-cover border-2 border-emerald-500 shadow-md"
                     />
-                    {property.author.isVerified && (
+                    {safeAuthor.isVerified && (
                       <span className="absolute -bottom-1 -right-1 bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow" title="Môi giới đã xác thực">
                         <i className="fa-solid fa-check"></i>
                       </span>
@@ -404,15 +423,15 @@ export default function ListingDetailModal({ property, onClose }) {
                       Người đăng tin
                     </div>
                     <h4 className="text-base font-extrabold text-slate-900">
-                      {property.author.name}
+                      {safeAuthor.name}
                     </h4>
                     <p className="text-xs text-slate-500">
-                      {property.author.title}
+                      {safeAuthor.title}
                     </p>
                     <div className="flex items-center gap-1 text-amber-500 text-xs mt-1">
                       <i className="fa-solid fa-star"></i>
-                      <span className="font-bold text-slate-800">{property.author.rating}</span>
-                      <span className="text-slate-400">({property.author.reviewCount} đánh giá)</span>
+                      <span className="font-bold text-slate-800">{safeAuthor.rating}</span>
+                      <span className="text-slate-400">({safeAuthor.reviewCount} đánh giá)</span>
                     </div>
                   </div>
                 </div>
@@ -420,15 +439,15 @@ export default function ListingDetailModal({ property, onClose }) {
                 {/* Direct Call & Zalo Action Buttons */}
                 <div className="py-4 space-y-2.5">
                   <a
-                    href={`tel:${property.author.phone.replace(/\s+/g, '')}`}
+                    href={`tel:${safeAuthor.phone.replace(/\s+/g, '')}`}
                     className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-black text-sm rounded-xl shadow-lg transition flex items-center justify-center gap-2 group"
                   >
                     <i className="fa-solid fa-phone-volume group-hover:animate-bounce"></i>
-                    <span>Gọi Ngay: {property.author.phone}</span>
+                    <span>Gọi Ngay: {safeAuthor.phone}</span>
                   </a>
 
                   <a
-                    href={`https://zalo.me/${property.author.zalo}`}
+                    href={`https://zalo.me/${safeAuthor.zalo}`}
                     target="_blank"
                     rel="noreferrer"
                     className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow transition flex items-center justify-center gap-2"
@@ -447,7 +466,7 @@ export default function ListingDetailModal({ property, onClose }) {
                     rows="3"
                     value={contactMessage}
                     onChange={(e) => setContactMessage(e.target.value)}
-                    placeholder={`Chào anh/chị ${property.author.name}, tôi quan tâm đến BĐS ${property.id}. Vui lòng liên hệ lại...`}
+                    placeholder={`Chào anh/chị ${safeAuthor.name}, tôi quan tâm đến BĐS ${property.id}. Vui lòng liên hệ lại...`}
                     className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none mb-2"
                   ></textarea>
 

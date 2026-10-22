@@ -736,11 +736,11 @@
       "hasVR360": false,
       "author": {
         "id": "admin-01",
-        "name": "Trần Ban Quản Trị (Admin)",
+        "name": "Trần Vũ RB",
         "title": "Hội Viên Cao Cấp VIP",
         "phone": "0898 246 607",
         "zalo": "0898246607",
-        "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80",
+        "avatar": "https://plus.unsplash.com/premium_photo-1682095969640-cade58e5c561?auto=format&fit=crop&w=256&h=256&q=80",
         "isVerified": false,
         "rating": 5,
         "reviewCount": 1,
@@ -750,7 +750,8 @@
       "listingDays": 15,
       "expiresAt": "2026-10-30T12:04:10.754Z",
       "autoRenew": false,
-      "queuePriority": "priority_gold"
+      "queuePriority": "priority_gold",
+      "contactName": "Trần Vũ RB"
     },
     {
       "id": "BDS-011",
@@ -789,11 +790,11 @@
       "hasVR360": false,
       "author": {
         "id": "admin-01",
-        "name": "Trần Ban Quản Trị (Admin)",
+        "name": "Trần Vũ RB",
         "title": "Hội Viên Cao Cấp VIP",
         "phone": "0898 246 607",
         "zalo": "0898246607",
-        "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80",
+        "avatar": "https://plus.unsplash.com/premium_photo-1682095969640-cade58e5c561?auto=format&fit=crop&w=256&h=256&q=80",
         "isVerified": false,
         "rating": 5,
         "reviewCount": 1,
@@ -803,7 +804,8 @@
       "listingDays": 15,
       "expiresAt": "2026-10-30T14:49:09.983Z",
       "autoRenew": false,
-      "queuePriority": "priority_silver"
+      "queuePriority": "priority_silver",
+      "contactName": "Trần Vũ RB"
     },
     {
       "id": "BDS-012",
@@ -948,11 +950,11 @@
       "hasVR360": false,
       "author": {
         "id": "admin-01",
-        "name": "Trần Ban Quản Trị (Admin)",
+        "name": "Trần Vũ RB",
         "title": "Hội Viên Cao Cấp VIP",
         "phone": "0898 246 607",
         "zalo": "0898246607",
-        "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80",
+        "avatar": "https://plus.unsplash.com/premium_photo-1682095969640-cade58e5c561?auto=format&fit=crop&w=256&h=256&q=80",
         "isVerified": false,
         "rating": 5,
         "reviewCount": 1,
@@ -962,7 +964,8 @@
       "listingDays": 15,
       "expiresAt": "2026-10-30T14:57:50.043Z",
       "autoRenew": false,
-      "queuePriority": "priority_gold"
+      "queuePriority": "priority_gold",
+      "contactName": "Trần Vũ RB"
     },
     {
       "id": "BDS-015",
@@ -1791,13 +1794,13 @@
   "bds_users_list": [
     {
       "id": "admin-01",
-      "name": "Trần Ban Quản Trị",
+      "name": "Trần Vũ RB",
       "email": "tranvu.review@gmail.com",
       "role": "admin",
       "roleName": "Tổng Quản Trị Viên (CMS Admin)",
       "walletBalance": 99999999,
       "phone": "0898 246 607",
-      "avatar": "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80",
+      "avatar": "https://plus.unsplash.com/premium_photo-1682095969640-cade58e5c561?auto=format&fit=crop&w=256&h=256&q=80",
       "membership": null,
       "vouchers": null,
       "isVerified": true,
