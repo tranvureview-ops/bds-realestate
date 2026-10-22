@@ -34,7 +34,7 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
     name: authorUser?.name || property.author?.name || property.contactName || 'Người đăng tin',
     phone: authorUser?.phone || property.author?.phone || property.contactPhone || '0908 123 456',
     zalo: (authorUser?.phone || property.author?.zalo || property.author?.phone || property.contactPhone || '0908123456').replace(/\s+/g, ''),
-    avatar: authorUser?.avatar || property.author?.avatar || 'https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80',
+    avatar: authorUser?.avatar || property.author?.avatar || '/avatars/ai-preset-2.jpg',
     title: authorUser?.roleName || authorUser?.membership?.packageName || property.author?.title || (property.isGuest ? 'Khách vãng lai' : 'Chính chủ'),
     isVerified: authorUser?.isVerified ?? property.author?.isVerified ?? false
   };

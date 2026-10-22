@@ -2059,7 +2059,7 @@ export const MOCK_USERS = [
     roleName: 'Khách hàng cá nhân',
     walletBalance: 850000, // 850,000 VND
     phone: '0912 345 678',
-    avatar: 'https://plus.unsplash.com/premium_photo-1661688791119-418b28a3ca60?auto=format&fit=crop&w=256&h=256&q=80',
+    avatar: '/avatars/ai-preset-1.jpg',
     membership: null,
     vouchers: {
       normalPublish: 0,
@@ -2077,7 +2077,7 @@ export const MOCK_USERS = [
     roleName: 'Môi Giới',
     walletBalance: 4250000, // 4,250,000 VND
     phone: '0908 123 456',
-    avatar: 'https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80',
+    avatar: '/avatars/ai-preset-2.jpg',
     isVerified: true,
     activeListingsCount: 12,
     membership: {
@@ -2109,7 +2109,7 @@ export const MOCK_USERS = [
     roleName: 'Tổng Quản Trị Viên (CMS Admin)',
     walletBalance: 99999999,
     phone: '0898 246 607',
-    avatar: 'https://plus.unsplash.com/premium_photo-1682095969640-cade58e5c561?auto=format&fit=crop&w=256&h=256&q=80',
+    avatar: '/avatars/ai-preset-4.jpg',
     membership: {
       packageId: 'member-premium',
       packageName: 'Hội Viên Cao Cấp VIP',

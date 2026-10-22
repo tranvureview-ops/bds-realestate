@@ -1393,7 +1393,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         roleName: 'Tổng Quản Trị Viên (CMS Admin)',
         walletBalance: 99999999,
         phone: '0898 246 607',
-        avatar: 'https://plus.unsplash.com/premium_photo-1682095969640-cade58e5c561?auto=format&fit=crop&w=256&h=256&q=80'
+        avatar: '/avatars/ai-preset-4.jpg'
       };
       setUsersList(prev => [...prev, target]);
     }

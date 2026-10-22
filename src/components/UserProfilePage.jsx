@@ -96,7 +96,7 @@ export default function UserProfilePage() {
     primaryArea: currentUser.primaryArea || 'TP. Đà Nẵng',
     company: currentUser.company || 'Đất Biển Đà Nẵng Partner',
     address: currentUser.address || 'Góc Võ Nguyên Giáp & Phạm Văn Đồng, P. Phước Mỹ, Q. Sơn Trà, TP. Đà Nẵng',
-    avatar: currentUser.avatar || 'https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80'
+    avatar: currentUser.avatar || '/avatars/ai-preset-2.jpg'
   });
 
   // Tự động đồng bộ form với currentUser khi hydration hoặc đổi tài khoản
@@ -136,16 +136,16 @@ export default function UserProfilePage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Avatar choices chuẩn gương mặt Châu Á / Việt Nam chuyên nghiệp
+  // Avatar choices chuẩn gương mặt Châu Á / Việt Nam với gắn nhãn chữ AI
   const AVATAR_PRESETS = [
-    'https://plus.unsplash.com/premium_photo-1661688791119-418b28a3ca60?auto=format&fit=crop&w=256&h=256&q=80',
-    'https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80',
-    'https://plus.unsplash.com/premium_photo-1667511082983-5069fed50a68?auto=format&fit=crop&w=256&h=256&q=80',
-    'https://plus.unsplash.com/premium_photo-1682095969640-cade58e5c561?auto=format&fit=crop&w=256&h=256&q=80',
-    'https://plus.unsplash.com/premium_photo-1661769588455-951d015fdad5?auto=format&fit=crop&w=256&h=256&q=80',
-    'https://plus.unsplash.com/premium_photo-1682095972828-0ecc964e6639?auto=format&fit=crop&w=256&h=256&q=80',
-    'https://plus.unsplash.com/premium_photo-1682094864613-3b4a576c95a3?auto=format&fit=crop&w=256&h=256&q=80',
-    'https://plus.unsplash.com/premium_photo-1661774991416-ee14a1bc0d30?auto=format&fit=crop&w=256&h=256&q=80'
+    '/avatars/ai-preset-1.jpg',
+    '/avatars/ai-preset-2.jpg',
+    '/avatars/ai-preset-3.jpg',
+    '/avatars/ai-preset-4.jpg',
+    '/avatars/ai-preset-5.jpg',
+    '/avatars/ai-preset-6.jpg',
+    '/avatars/ai-preset-7.jpg',
+    '/avatars/ai-preset-8.jpg'
   ];
 
   // Upload Avatar state & handler
@@ -647,9 +647,16 @@ export default function UserProfilePage() {
                   </div>
                 </div>
 
-                {/* Avatar mẫu gợi ý */}
+                {/* Avatar mẫu gợi ý có gắn chữ AI */}
                 <div className="pt-2 border-t border-slate-200/60">
-                  <div className="text-[10px] text-slate-400 font-bold uppercase mb-1.5">Hoặc chọn nhanh mẫu có sẵn:</div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-[10px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                      <span>Hoặc chọn nhanh avatar mẫu AI:</span>
+                    </div>
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200/80">
+                      8 mẫu AI
+                    </span>
+                  </div>
                   <div className="flex flex-wrap items-center gap-2">
                     {AVATAR_PRESETS.map((presetUrl, idx) => (
                       <button
@@ -658,14 +665,17 @@ export default function UserProfilePage() {
                         onClick={() => {
                           setFormData(prev => ({ ...prev, avatar: presetUrl }));
                           updateUserProfile({ avatar: presetUrl });
-                          showToast('Đã chọn avatar mẫu!', 'success');
+                          showToast('Đã chọn avatar AI mẫu!', 'success');
                         }}
-                        className={`w-10 h-10 rounded-xl overflow-hidden border-2 transition cursor-pointer hover:scale-105 ${
+                        className={`relative w-11 h-11 rounded-xl overflow-hidden border-2 transition cursor-pointer hover:scale-105 group shadow-xs ${
                           formData.avatar === presetUrl ? 'border-emerald-600 ring-2 ring-emerald-500/30' : 'border-slate-200 hover:border-slate-300'
                         }`}
-                        title={`Chọn avatar mẫu ${idx + 1}`}
+                        title={`Chọn avatar AI mẫu ${idx + 1}`}
                       >
-                        <img src={presetUrl} alt={`Avatar preset ${idx + 1}`} className="w-full h-full object-cover" />
+                        <img src={presetUrl} alt={`Avatar preset AI ${idx + 1}`} className="w-full h-full object-cover" />
+                        <span className="absolute bottom-0.5 right-0.5 px-1 py-px bg-slate-900/90 backdrop-blur-[2px] text-[7.5px] font-black text-emerald-400 rounded leading-none border border-emerald-500/40 shadow-xs pointer-events-none">
+                          AI
+                        </span>
                       </button>
                     ))}
                   </div>
