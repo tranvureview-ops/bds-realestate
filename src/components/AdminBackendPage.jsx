@@ -6905,14 +6905,24 @@ export default function AdminBackendPage() {
                           className="w-4 h-4 text-cyan-500 rounded border-slate-700 bg-slate-800 focus:ring-cyan-500 mt-0.5 shrink-0"
                         />
                         <div>
-                          <div className="font-bold text-white flex items-center gap-2">
+                          <div className="font-bold text-white flex items-center gap-2 flex-wrap">
                             <span>Tự động quét & dọn dẹp dữ liệu bài viết quá hạn định kỳ</span>
                             <span className="px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-300 text-[10px] font-bold border border-emerald-800">
                               Khuyên dùng
                             </span>
+                            {formSystemConfig.autoCleanupEnabled !== false ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-800">
+                                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping"></span>
+                                Đang tự động quét ngầm
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-900 text-slate-400 border border-slate-700">
+                                Đã tạm dừng
+                              </span>
+                            )}
                           </div>
                           <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                            Khi bật, hệ thống định kỳ rà soát các bài viết đã hết hạn hiển thị mà không được gia hạn quá số ngày quy định để tối ưu hóa bộ nhớ database.
+                            Khi bật, hệ thống tự động chạy ngầm định kỳ rà soát các bài viết đã hết hạn hiển thị mà không được gia hạn quá số ngày quy định để tối ưu hóa bộ nhớ database.
                           </p>
                         </div>
                       </label>

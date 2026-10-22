@@ -1166,6 +1166,28 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return () => clearInterval(expireTimer);
   }, [vipPackages, usersList, currentUser]);
 
+  // Bộ xử lý tự động quét & dọn dẹp Database ngầm khi bật autoCleanupEnabled
+  useEffect(() => {
+    if (!isHydrated) return;
+    if (systemConfig?.autoCleanupEnabled === false) return;
+
+    const runAutoCleanupCheck = () => {
+      const lastCheck = typeof window !== 'undefined' ? localStorage.getItem('bds_last_auto_cleanup') : null;
+      const now = Date.now();
+      // Quét ngầm tối đa 1 lần mỗi 30 phút để tối ưu hiệu năng
+      if (!lastCheck || (now - Number(lastCheck)) > 30 * 60 * 1000) {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('bds_last_auto_cleanup', String(now));
+        }
+        runDatabaseCleanup(systemConfig, true);
+      }
+    };
+
+    runAutoCleanupCheck();
+    const cleanupInterval = setInterval(runAutoCleanupCheck, 60 * 1000);
+    return () => clearInterval(cleanupInterval);
+  }, [isHydrated, systemConfig?.autoCleanupEnabled, systemConfig?.expiredRetentionDays, systemConfig?.expiredCleanupAction]);
+
   // Kiểm tra gói hội viên có còn hiệu lực không (Active & Chưa hết hạn)
   const isMembershipActive = (user = currentUser) => {
     if (!user || user.id === 'guest') return false;
@@ -2189,7 +2211,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   };
 
   // Chạy quy trình quét dọn dẹp và tối ưu hóa database
-  const runDatabaseCleanup = (customConfig = null) => {
+  const runDatabaseCleanup = (customConfig = null, isSilent = false) => {
     const cfg = customConfig || systemConfig || DEFAULT_SYSTEM_CONFIG;
     const retentionDays = Number(cfg.expiredRetentionDays) || 45;
     const action = cfg.expiredCleanupAction || 'archive_light';
@@ -2199,6 +2221,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     let archivedCount = 0;
     let deletedCount = 0;
     let trashCleanedCount = 0;
+    let nextList = [];
 
     setProperties(prev => {
       const next = [];
@@ -2247,16 +2270,34 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
         next.push(p);
       }
+      nextList = next;
       return next;
     });
 
     const totalProcessed = archivedCount + deletedCount + trashCleanedCount;
     const estFreedKb = (archivedCount * 25) + (deletedCount * 80) + (trashCleanedCount * 80);
+
+    // Đồng bộ lập tức ra Server & Supabase nếu có bài viết được nén hoặc dọn dẹp
+    if (totalProcessed > 0 && nextList.length > 0) {
+      persistSettingToSupabase('bds_properties', nextList).catch(console.warn);
+      try {
+        fetch('/api/db-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bds_properties: nextList })
+        }).catch(console.warn);
+      } catch (e) {
+        console.warn('Lỗi db-sync khi dọn dẹp:', e);
+      }
+    }
+
     const msg = totalProcessed > 0
       ? `Dọn dẹp DB hoàn tất: Đã nén nhẹ ${archivedCount} tin, xóa ${deletedCount + trashCleanedCount} tin quá hạn ${retentionDays} ngày. Giải phóng ~${estFreedKb} KB!`
       : `Hệ thống đã được kiểm tra: Không có bài viết nào hết hạn quá ${retentionDays} ngày cần xử lý!`;
 
-    showToast(msg, totalProcessed > 0 ? 'success' : 'info');
+    if (!isSilent) {
+      showToast(msg, totalProcessed > 0 ? 'success' : 'info');
+    }
     return { archivedCount, deletedCount, trashCleanedCount, estFreedKb, message: msg };
   };
 
