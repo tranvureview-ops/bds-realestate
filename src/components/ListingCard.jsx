@@ -165,7 +165,7 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
           <div className="flex items-baseline justify-between gap-2 mb-1.5">
             <div className="flex items-baseline gap-1.5">
               <span className={`text-xl font-extrabold ${isDiamond ? 'text-red-600' : isGold ? 'text-amber-600' : 'text-emerald-700'}`}>
-                {property.priceDisplay}
+                {property.priceDisplay ? property.priceDisplay.replace(/Tỷ/g, 'tỷ') : ''}
               </span>
               <span className="text-xs text-slate-400 font-medium">
                 ({property.pricePerM2})

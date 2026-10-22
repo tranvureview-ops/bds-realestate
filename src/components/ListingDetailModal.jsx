@@ -302,7 +302,7 @@ export default function ListingDetailModal({ property, onClose }) {
                   <div>
                     <div className="text-[11px] font-bold text-slate-400 uppercase">Mức giá niêm yết</div>
                     <div className={`text-2xl sm:text-3xl font-black ${isDiamond ? 'text-red-600' : 'text-emerald-700'}`}>
-                      {property.priceDisplay}
+                      {property.priceDisplay ? property.priceDisplay.replace(/Tỷ/g, 'tỷ') : ''}
                     </div>
                   </div>
 

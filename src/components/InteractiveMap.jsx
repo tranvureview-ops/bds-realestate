@@ -55,6 +55,7 @@ export default function InteractiveMap({ properties, activePropertyId = null, he
         const isDiamond = prop.vipPackageId === 'vip-diamond';
         const isGold = prop.vipPackageId === 'vip-gold';
         const pinColor = isDiamond ? '#ef4444' : isGold ? '#f59e0b' : '#3b82f6';
+        const markerPrice = (prop.priceDisplay || '').replace(/Tỷ/g, 'tỷ').replace(/Triệu/g, 'triệu');
 
         // Custom HTML Marker Icon with balanced pill padding & optical alignment
         const customIcon = window.L.divIcon({
@@ -63,25 +64,25 @@ export default function InteractiveMap({ properties, activePropertyId = null, he
             <div style="
               background-color: ${pinColor};
               color: #ffffff;
-              padding: 5px 14px 5px 10px;
+              padding: 3.5px 10px 3.5px 8px;
               border-radius: 9999px;
-              font-size: 11.5px;
-              font-weight: 800;
+              font-size: 10px;
+              font-weight: 700;
               font-family: inherit;
-              box-shadow: 0 4px 12px rgba(0,0,0,0.28), 0 1px 3px rgba(0,0,0,0.15);
-              border: 2px solid #ffffff;
+              box-shadow: 0 3px 10px rgba(0,0,0,0.25), 0 1px 3px rgba(0,0,0,0.12);
+              border: 1.5px solid #ffffff;
               white-space: nowrap;
               display: inline-flex;
               align-items: center;
               justify-content: center;
-              gap: 5px;
+              gap: 4px;
               cursor: pointer;
               transform: translate(-50%, -100%);
               user-select: none;
               line-height: 1;
             ">
-              <span style="display: inline-flex; align-items: center; justify-content: center; font-size: 11px; line-height: 1; flex-shrink: 0;">${isDiamond ? '💎' : '📍'}</span>
-              <span style="display: inline-block; line-height: 1; letter-spacing: 0.15px; padding-top: 1px;">${prop.priceDisplay}</span>
+              <span style="display: inline-flex; align-items: center; justify-content: center; font-size: 9px; line-height: 1; flex-shrink: 0;">${isDiamond ? '💎' : '📍'}</span>
+              <span style="display: inline-block; line-height: 1; letter-spacing: 0.1px; padding-top: 0.5px;">${markerPrice}</span>
             </div>
           `,
           iconSize: null,
@@ -97,7 +98,7 @@ export default function InteractiveMap({ properties, activePropertyId = null, he
               <img src="${prop.images[0]}" style="width: 100%; height: 110px; object-fit: cover; border-radius: 8px; margin-bottom: 6px;" />
               <div style="font-size: 11px; color: #ef4444; font-weight: bold; text-transform: uppercase;">${prop.vipPackageId === 'vip-diamond' ? 'VIP KIM CƯƠNG' : 'BẤT ĐỘNG SẢN'}</div>
               <div style="font-size: 13px; font-weight: bold; color: #0f172a; margin-bottom: 4px; line-height: 1.2; max-height: 32px; overflow: hidden;">${prop.title}</div>
-              <div style="font-size: 14px; font-weight: 800; color: #047857; margin-bottom: 4px;">${prop.priceDisplay} • ${prop.area}m²</div>
+              <div style="font-size: 13px; font-weight: 800; color: #047857; margin-bottom: 4px;">${markerPrice} • ${prop.area}m²</div>
               <div style="font-size: 11px; color: #64748b;">${prop.district}, ${prop.city}</div>
             </div>
           `;

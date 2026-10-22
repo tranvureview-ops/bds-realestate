@@ -1082,7 +1082,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               <div>
                 <div className="text-xs text-slate-400 font-bold uppercase tracking-wider">Mức giá niêm yết</div>
                 <div className="text-3xl sm:text-4xl font-black text-amber-400 mt-0.5">
-                  {property.priceDisplay}
+                  {property.priceDisplay ? property.priceDisplay.replace(/Tỷ/g, 'tỷ') : ''}
                 </div>
                 <div className="text-xs text-slate-300 mt-1">
                   Đơn giá: <strong className="text-white">{property.pricePerM2}</strong>
