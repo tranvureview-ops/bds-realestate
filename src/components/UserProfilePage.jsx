@@ -136,16 +136,18 @@ export default function UserProfilePage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Avatar choices chuẩn gương mặt Châu Á / Việt Nam với gắn nhãn chữ AI
+  // 2 hình mẫu avatar AI: 1 Nam, 1 Nữ theo yêu cầu
   const AVATAR_PRESETS = [
-    '/avatars/ai-preset-1.jpg',
-    '/avatars/ai-preset-2.jpg',
-    '/avatars/ai-preset-3.jpg',
-    '/avatars/ai-preset-4.jpg',
-    '/avatars/ai-preset-5.jpg',
-    '/avatars/ai-preset-6.jpg',
-    '/avatars/ai-preset-7.jpg',
-    '/avatars/ai-preset-8.jpg'
+    {
+      url: '/avatars/ai-preset-2.jpg',
+      label: 'Mẫu Nam',
+      tag: 'Nam'
+    },
+    {
+      url: '/avatars/ai-preset-1.jpg',
+      label: 'Mẫu Nữ',
+      tag: 'Nữ'
+    }
   ];
 
   // Upload Avatar state & handler
@@ -654,30 +656,47 @@ export default function UserProfilePage() {
                       <span>Hoặc chọn nhanh avatar mẫu AI:</span>
                     </div>
                     <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200/80">
-                      8 mẫu AI
+                      2 mẫu AI (1 Nam • 1 Nữ)
                     </span>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    {AVATAR_PRESETS.map((presetUrl, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => {
-                          setFormData(prev => ({ ...prev, avatar: presetUrl }));
-                          updateUserProfile({ avatar: presetUrl });
-                          showToast('Đã chọn avatar AI mẫu!', 'success');
-                        }}
-                        className={`relative w-11 h-11 rounded-xl overflow-hidden border-2 transition cursor-pointer hover:scale-105 group shadow-xs ${
-                          formData.avatar === presetUrl ? 'border-emerald-600 ring-2 ring-emerald-500/30' : 'border-slate-200 hover:border-slate-300'
-                        }`}
-                        title={`Chọn avatar AI mẫu ${idx + 1}`}
-                      >
-                        <img src={presetUrl} alt={`Avatar preset AI ${idx + 1}`} className="w-full h-full object-cover" />
-                        <span className="absolute bottom-0.5 right-0.5 px-1 py-px bg-slate-900/90 backdrop-blur-[2px] text-[7.5px] font-black text-emerald-400 rounded leading-none border border-emerald-500/40 shadow-xs pointer-events-none">
-                          AI
-                        </span>
-                      </button>
-                    ))}
+                  <div className="flex flex-wrap items-center gap-3">
+                    {AVATAR_PRESETS.map((preset, idx) => {
+                      const presetUrl = preset.url;
+                      const isSelected = formData.avatar === presetUrl;
+                      return (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, avatar: presetUrl }));
+                            updateUserProfile({ avatar: presetUrl });
+                            showToast(`Đã chọn avatar AI (${preset.label})!`, 'success');
+                          }}
+                          className={`relative flex items-center gap-2.5 px-3 py-2 rounded-2xl border-2 transition cursor-pointer hover:scale-102 group shadow-xs ${
+                            isSelected ? 'border-emerald-600 bg-emerald-50/60 ring-2 ring-emerald-500/30' : 'border-slate-200 bg-white hover:border-slate-300'
+                          }`}
+                          title={`Chọn avatar AI: ${preset.label}`}
+                        >
+                          <div className="relative w-11 h-11 rounded-xl overflow-hidden shrink-0 border border-slate-200">
+                            <img src={presetUrl} alt={`Avatar preset AI ${preset.label}`} className="w-full h-full object-cover" />
+                            <span className="absolute bottom-0.5 right-0.5 px-1 py-px bg-slate-900/90 backdrop-blur-[2px] text-[7.5px] font-black text-emerald-400 rounded leading-none border border-emerald-500/40 pointer-events-none">
+                              AI
+                            </span>
+                          </div>
+                          <div className="text-left pr-1">
+                            <div className="flex items-center gap-1.5">
+                              <span className="text-xs font-black text-slate-800">{preset.label}</span>
+                              <span className={`text-[9px] font-bold px-1 py-0.2 rounded ${preset.tag === 'Nam' ? 'bg-blue-50 text-blue-700 border border-blue-200' : 'bg-rose-50 text-rose-700 border border-rose-200'}`}>
+                                {preset.tag}
+                              </span>
+                            </div>
+                            <span className="text-[10px] text-slate-400 font-medium block mt-0.5">
+                              {isSelected ? '✓ Đang sử dụng' : 'Bấm để áp dụng'}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
