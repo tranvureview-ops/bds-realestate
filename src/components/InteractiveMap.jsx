@@ -56,32 +56,36 @@ export default function InteractiveMap({ properties, activePropertyId = null, he
         const isGold = prop.vipPackageId === 'vip-gold';
         const pinColor = isDiamond ? '#ef4444' : isGold ? '#f59e0b' : '#3b82f6';
 
-        // Custom HTML Marker Icon
+        // Custom HTML Marker Icon with balanced pill padding & optical alignment
         const customIcon = window.L.divIcon({
           className: 'custom-leaflet-marker',
           html: `
             <div style="
               background-color: ${pinColor};
-              color: white;
-              padding: 4px 8px;
-              border-radius: 12px;
-              font-size: 11px;
-              font-weight: bold;
-              box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-              border: 2px solid white;
+              color: #ffffff;
+              padding: 5px 14px 5px 10px;
+              border-radius: 9999px;
+              font-size: 11.5px;
+              font-weight: 800;
+              font-family: inherit;
+              box-shadow: 0 4px 12px rgba(0,0,0,0.28), 0 1px 3px rgba(0,0,0,0.15);
+              border: 2px solid #ffffff;
               white-space: nowrap;
-              display: flex;
+              display: inline-flex;
               align-items: center;
-              gap: 4px;
+              justify-content: center;
+              gap: 5px;
               cursor: pointer;
               transform: translate(-50%, -100%);
+              user-select: none;
+              line-height: 1;
             ">
-              <span>${isDiamond ? '💎' : '📍'}</span>
-              <span>${prop.priceDisplay}</span>
+              <span style="display: inline-flex; align-items: center; justify-content: center; font-size: 11px; line-height: 1; flex-shrink: 0;">${isDiamond ? '💎' : '📍'}</span>
+              <span style="display: inline-block; line-height: 1; letter-spacing: 0.15px; padding-top: 1px;">${prop.priceDisplay}</span>
             </div>
           `,
-          iconSize: [60, 30],
-          iconAnchor: [30, 30]
+          iconSize: null,
+          iconAnchor: [0, 0]
         });
 
         if (typeof prop.lat === 'number' && !isNaN(prop.lat) && typeof prop.lng === 'number' && !isNaN(prop.lng)) {

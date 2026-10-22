@@ -290,3 +290,9 @@ select.bg-slate-800 option {
     display: none !important;
   }
 }
+
+/* Leaflet Custom Marker Clean Reset: remove default divIcon background and border */
+.custom-leaflet-marker {
+  background: transparent !important;
+  border: none !important;
+}
