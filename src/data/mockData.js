@@ -182,17 +182,17 @@ export const MEMBERSHIP_PACKAGES = [
       { months: 6, label: '6 tháng', duration_days: 180, price: 6840000, discount: 10, note: 'Tiết kiệm thêm 10%' }
     ],
     vouchersPerCycle: {
-      normalPublishVouchers: 30, // 30 voucher giảm 35.000 đ/lần Đăng Tin Thường
-      normalPublishDiscount: 35000,
+      normalPublishVouchers: 20, // 20 voucher giảm 38.000 đ/lần Đăng Tin Thường
+      normalPublishDiscount: 38000,
       vipVouchers: 1,            // 1 voucher giảm 400.000 đ cho Tin VIP
       vipDiscount: 400000,
-      normalBumpVouchers: 30,    // 30 voucher giảm 10.000 đ/lần Đẩy Tin Thường
-      normalBumpDiscount: 10000
+      normalBumpVouchers: 20,    // 20 voucher giảm 15.000 đ/lần Đẩy Tin Thường
+      normalBumpDiscount: 15000
     },
     features: [
-      '30 voucher giảm 35.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)',
+      '20 voucher giảm 38.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)',
       '1 voucher giảm 400.000 đ áp dụng cho Tin VIP (mỗi chu kỳ 30 ngày)',
-      '30 voucher giảm 10.000 đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)',
+      '20 voucher giảm 15.000 đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)',
       'Tiện ích Hẹn giờ đăng tin tự động theo khung giờ vàng',
       'Ưu tiên Xuất bản & Duyệt tin nhanh',
       'Báo cáo hiệu suất lượt xem & khách gọi chi tiết',

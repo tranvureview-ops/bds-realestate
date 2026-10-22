@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter } from '../router/RouterContext';
+import { getResolvedFeatures } from '../utils/membershipHelper';
 
 export default function MembershipPage() {
   const { 
@@ -323,26 +324,30 @@ export default function MembershipPage() {
                       <div className="p-2.5 rounded-xl bg-emerald-50/80 border border-emerald-100 flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
                           <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black">
-                            {pkg.vouchersPerCycle.normalPublishVouchers}
+                            {pkg.vouchersPerCycle?.normalPublishVouchers || 0}
                           </span>
                           <span className="font-bold text-emerald-950">Voucher Đăng Tin Thường</span>
                         </div>
-                        <span className="text-emerald-700 font-black text-[11px]">-35.000 đ/lần</span>
+                        <span className="text-emerald-700 font-black text-[11px]">
+                          -{Number(pkg.vouchersPerCycle?.normalPublishDiscount || 35000).toLocaleString('vi-VN')} đ/lần
+                        </span>
                       </div>
 
                       {/* Đẩy tin thường voucher */}
                       <div className="p-2.5 rounded-xl bg-blue-50/80 border border-blue-100 flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
                           <span className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center text-[10px] font-black">
-                            {pkg.vouchersPerCycle.normalBumpVouchers}
+                            {pkg.vouchersPerCycle?.normalBumpVouchers || 0}
                           </span>
                           <span className="font-bold text-blue-950">Voucher Đẩy Tin Thường</span>
                         </div>
-                        <span className="text-blue-700 font-black text-[11px]">-10.000 đ/lần</span>
+                        <span className="text-blue-700 font-black text-[11px]">
+                          -{Number(pkg.vouchersPerCycle?.normalBumpDiscount || 10000).toLocaleString('vi-VN')} đ/lần
+                        </span>
                       </div>
 
                       {/* Tin VIP voucher */}
-                      {pkg.vouchersPerCycle.vipVouchers > 0 ? (
+                      {(pkg.vouchersPerCycle?.vipVouchers || 0) > 0 ? (
                         <div className="p-2.5 rounded-xl bg-amber-50/80 border border-amber-200 flex items-center justify-between text-xs">
                           <div className="flex items-center gap-2">
                             <span className="w-6 h-6 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center text-[10px] font-black">
@@ -350,7 +355,9 @@ export default function MembershipPage() {
                             </span>
                             <span className="font-bold text-amber-950">Voucher Giảm Tin VIP</span>
                           </div>
-                          <span className="text-amber-800 font-black text-[11px]">-400.000 đ/tin</span>
+                          <span className="text-amber-800 font-black text-[11px]">
+                            -{Number(pkg.vouchersPerCycle?.vipDiscount || 400000).toLocaleString('vi-VN')} đ/tin
+                          </span>
                         </div>
                       ) : (
                         <div className="p-2 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs text-slate-400">
@@ -366,7 +373,7 @@ export default function MembershipPage() {
                     <div className="font-bold text-slate-800 text-[11px] uppercase tracking-wider mb-2">
                       Tiện ích & Quyền lợi đi kèm:
                     </div>
-                    {pkg.features.map((feat, idx) => (
+                    {getResolvedFeatures(pkg).map((feat, idx) => (
                       <div key={idx} className="flex items-start gap-2">
                         <i className="fa-solid fa-circle-check text-emerald-500 mt-0.5 text-xs shrink-0"></i>
                         <span className="leading-snug">{feat}</span>
@@ -430,59 +437,94 @@ export default function MembershipPage() {
               <thead className="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
                 <tr>
                   <th className="p-4 w-1/3">Tiêu Chí & Tiện Ích</th>
-                  <th className="p-4 text-center">Gói Cơ Bản</th>
-                  <th className="p-4 text-center bg-amber-50/50 text-amber-900">Gói Tiêu Chuẩn ★</th>
-                  <th className="p-4 text-center">Gói Cao Cấp</th>
+                  {(membershipPackages || []).map(p => (
+                    <th key={p.id} className={`p-4 text-center ${p.recommended ? 'bg-amber-50/50 text-amber-900 font-black' : ''}`}>
+                      {p.name} {p.recommended ? '★' : ''}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 <tr>
                   <td className="p-4 font-bold text-slate-800">Mức giá đăng ký hàng tháng</td>
-                  <td className="p-4 text-center font-bold text-slate-700">467.000 đ/tháng</td>
-                  <td className="p-4 text-center font-black text-amber-700 bg-amber-50/30">1.267.000 đ/tháng</td>
-                  <td className="p-4 text-center font-bold text-purple-700">2.200.000 đ/tháng</td>
+                  {(membershipPackages || []).map(p => (
+                    <td key={p.id} className={`p-4 text-center font-bold ${p.recommended ? 'text-amber-700 bg-amber-50/30 font-black' : 'text-slate-700'}`}>
+                      {Number(p.monthlyPrice || 0).toLocaleString('vi-VN')} đ/tháng
+                    </td>
+                  ))}
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-slate-800">Tỷ lệ tiết kiệm so với mua lẻ</td>
-                  <td className="p-4 text-center font-semibold text-emerald-600">31%</td>
-                  <td className="p-4 text-center font-bold text-emerald-600 bg-amber-50/30">33%</td>
-                  <td className="p-4 text-center font-black text-emerald-600">39% Tối đa</td>
+                  {(membershipPackages || []).map(p => (
+                    <td key={p.id} className={`p-4 text-center font-bold text-emerald-600 ${p.recommended ? 'bg-amber-50/30' : ''}`}>
+                      {p.savePercent || 0}%
+                    </td>
+                  ))}
                 </tr>
                 <tr>
-                  <td className="p-4 font-bold text-slate-800">Voucher giảm 35.000đ Đăng Tin Thường</td>
-                  <td className="p-4 text-center font-black text-emerald-600 text-sm">15 lượt/tháng</td>
-                  <td className="p-4 text-center font-black text-emerald-600 text-sm bg-amber-50/30">30 lượt/tháng</td>
-                  <td className="p-4 text-center font-black text-emerald-600 text-sm">50 lượt/tháng</td>
+                  <td className="p-4 font-bold text-slate-800">Voucher Đăng Tin Thường (30 ngày)</td>
+                  {(membershipPackages || []).map(p => (
+                    <td key={p.id} className={`p-4 text-center font-black text-emerald-600 text-sm ${p.recommended ? 'bg-amber-50/30' : ''}`}>
+                      {p.vouchersPerCycle?.normalPublishVouchers || 0} lượt/tháng
+                      <div className="text-[10px] text-slate-400 font-normal">(-{Number(p.vouchersPerCycle?.normalPublishDiscount || 35000).toLocaleString('vi-VN')} đ/lần)</div>
+                    </td>
+                  ))}
                 </tr>
                 <tr>
-                  <td className="p-4 font-bold text-slate-800">Voucher giảm 10.000đ Đẩy Tin Thường</td>
-                  <td className="p-4 text-center font-black text-blue-600 text-sm">15 lượt/tháng</td>
-                  <td className="p-4 text-center font-black text-blue-600 text-sm bg-amber-50/30">30 lượt/tháng</td>
-                  <td className="p-4 text-center font-black text-blue-600 text-sm">50 lượt/tháng</td>
+                  <td className="p-4 font-bold text-slate-800">Voucher Đẩy Tin Thường (30 ngày)</td>
+                  {(membershipPackages || []).map(p => (
+                    <td key={p.id} className={`p-4 text-center font-black text-blue-600 text-sm ${p.recommended ? 'bg-amber-50/30' : ''}`}>
+                      {p.vouchersPerCycle?.normalBumpVouchers || 0} lượt/tháng
+                      <div className="text-[10px] text-slate-400 font-normal">(-{Number(p.vouchersPerCycle?.normalBumpDiscount || 10000).toLocaleString('vi-VN')} đ/lần)</div>
+                    </td>
+                  ))}
                 </tr>
                 <tr>
-                  <td className="p-4 font-bold text-slate-800">Voucher giảm 400.000đ cho Tin VIP</td>
-                  <td className="p-4 text-center text-slate-400">—</td>
-                  <td className="p-4 text-center font-black text-amber-600 text-sm bg-amber-50/30">1 voucher/tháng</td>
-                  <td className="p-4 text-center font-black text-amber-600 text-sm">3 voucher/tháng</td>
+                  <td className="p-4 font-bold text-slate-800">Voucher Giảm Tin VIP (30 ngày)</td>
+                  {(membershipPackages || []).map(p => (
+                    <td key={p.id} className={`p-4 text-center ${(p.vouchersPerCycle?.vipVouchers || 0) > 0 ? 'font-black text-amber-600 text-sm' : 'text-slate-400'} ${p.recommended ? 'bg-amber-50/30' : ''}`}>
+                      {(p.vouchersPerCycle?.vipVouchers || 0) > 0 ? (
+                        <>
+                          {p.vouchersPerCycle.vipVouchers} voucher/tháng
+                          <div className="text-[10px] text-slate-400 font-normal">(-{Number(p.vouchersPerCycle?.vipDiscount || 400000).toLocaleString('vi-VN')} đ/tin)</div>
+                        </>
+                      ) : '—'}
+                    </td>
+                  ))}
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-slate-800">Hẹn giờ đăng tin tự động khung giờ vàng</td>
-                  <td className="p-4 text-center text-slate-400">—</td>
-                  <td className="p-4 text-center font-bold text-emerald-600 bg-amber-50/30">✓ Có hỗ trợ</td>
-                  <td className="p-4 text-center font-bold text-emerald-600">✓ Có hỗ trợ</td>
+                  {(membershipPackages || []).map(p => {
+                    const hasFeature = (p.features || []).some(f => /hẹn giờ/i.test(f));
+                    return (
+                      <td key={p.id} className={`p-4 text-center font-bold ${hasFeature ? 'text-emerald-600' : 'text-slate-400'} ${p.recommended ? 'bg-amber-50/30' : ''}`}>
+                        {hasFeature ? '✓ Có hỗ trợ' : '—'}
+                      </td>
+                    );
+                  })}
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-slate-800">Ưu tiên xuất bản & duyệt tin sớm</td>
-                  <td className="p-4 text-center text-slate-400">—</td>
-                  <td className="p-4 text-center font-bold text-emerald-600 bg-amber-50/30">✓ Có hỗ trợ</td>
-                  <td className="p-4 text-center font-bold text-emerald-600">✓ Ưu tiên cao nhất</td>
+                  {(membershipPackages || []).map((p, idx) => {
+                    const hasFeature = (p.features || []).some(f => /ưu tiên|duyệt tin/i.test(f));
+                    const isHighest = idx === (membershipPackages || []).length - 1;
+                    return (
+                      <td key={p.id} className={`p-4 text-center font-bold ${hasFeature ? 'text-emerald-600' : 'text-slate-400'} ${p.recommended ? 'bg-amber-50/30' : ''}`}>
+                        {hasFeature ? (isHighest ? '✓ Ưu tiên cao nhất' : '✓ Có hỗ trợ') : '—'}
+                      </td>
+                    );
+                  })}
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-slate-800">Báo cáo hiệu suất lượt xem & tương tác</td>
-                  <td className="p-4 text-center text-slate-500">Cơ bản</td>
-                  <td className="p-4 text-center font-bold text-slate-800 bg-amber-50/30">Chi tiết</td>
-                  <td className="p-4 text-center font-black text-purple-700">Chuyên sâu & Thị trường</td>
+                  {(membershipPackages || []).map((p, idx) => {
+                    const reportLabel = idx === 0 ? 'Cơ bản' : idx === 1 ? 'Chi tiết' : 'Chuyên sâu & Thị trường';
+                    return (
+                      <td key={p.id} className={`p-4 text-center font-bold ${idx === 2 ? 'text-purple-700 font-black' : idx === 1 ? 'text-slate-800' : 'text-slate-500'} ${p.recommended ? 'bg-amber-50/30' : ''}`}>
+                        {reportLabel}
+                      </td>
+                    );
+                  })}
                 </tr>
               </tbody>
             </table>
@@ -582,10 +624,10 @@ export default function MembershipPage() {
                 </div>
                 <div className="border-t pt-2 space-y-1 text-[11px] text-slate-600">
                   <div className="font-bold text-slate-700">Kho Voucher sẽ nhận:</div>
-                  <div>✓ {confirmingPackage.pkg.vouchersPerCycle.normalPublishVouchers} voucher giảm 35.000 đ đăng tin thường</div>
-                  <div>✓ {confirmingPackage.pkg.vouchersPerCycle.normalBumpVouchers} voucher giảm 10.000 đ đẩy tin thường</div>
-                  {confirmingPackage.pkg.vouchersPerCycle.vipVouchers > 0 && (
-                    <div>✓ {confirmingPackage.pkg.vouchersPerCycle.vipVouchers} voucher giảm 400.000 đ tin VIP</div>
+                  <div>✓ {confirmingPackage.pkg.vouchersPerCycle?.normalPublishVouchers || 0} voucher giảm {Number(confirmingPackage.pkg.vouchersPerCycle?.normalPublishDiscount || 35000).toLocaleString('vi-VN')} đ đăng tin thường</div>
+                  <div>✓ {confirmingPackage.pkg.vouchersPerCycle?.normalBumpVouchers || 0} voucher giảm {Number(confirmingPackage.pkg.vouchersPerCycle?.normalBumpDiscount || 10000).toLocaleString('vi-VN')} đ đẩy tin thường</div>
+                  {(confirmingPackage.pkg.vouchersPerCycle?.vipVouchers || 0) > 0 && (
+                    <div>✓ {confirmingPackage.pkg.vouchersPerCycle.vipVouchers} voucher giảm {Number(confirmingPackage.pkg.vouchersPerCycle?.vipDiscount || 400000).toLocaleString('vi-VN')} đ tin VIP</div>
                   )}
                 </div>
               </div>

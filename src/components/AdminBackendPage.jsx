@@ -9519,46 +9519,57 @@ export default function AdminBackendPage() {
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                        <label className="block text-[10px] text-slate-400 font-bold uppercase">
-                          Voucher Tin Thường (-35k):
-                        </label>
-                        <input
-                          type="number"
-                          min="0"
-                          value={membershipForm.normalPublishVouchers}
-                          onChange={(e) => setMembershipForm(prev => ({ ...prev, normalPublishVouchers: e.target.value }))}
-                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-emerald-400 font-mono text-sm font-black outline-none focus:border-emerald-500"
-                        />
-                      </div>
+                    {(() => {
+                      const curAdminPkg = (membershipPackages || []).find(p => p.id === membershipForm.packageId);
+                      const pubDiscK = Math.round((curAdminPkg?.vouchersPerCycle?.normalPublishDiscount || 35000) / 1000);
+                      const bumpDiscK = Math.round((curAdminPkg?.vouchersPerCycle?.normalBumpDiscount || 10000) / 1000);
+                      const vipDiscK = Math.round((curAdminPkg?.vouchersPerCycle?.vipDiscount || 400000) / 1000);
 
-                      <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                        <label className="block text-[10px] text-slate-400 font-bold uppercase">
-                          Voucher Đẩy Tin (-10k):
-                        </label>
-                        <input
-                          type="number"
-                          min="0"
-                          value={membershipForm.normalBumpVouchers}
-                          onChange={(e) => setMembershipForm(prev => ({ ...prev, normalBumpVouchers: e.target.value }))}
-                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-amber-400 font-mono text-sm font-black outline-none focus:border-amber-500"
-                        />
-                      </div>
+                      return (
+                        <>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                              <label className="block text-[10px] text-slate-400 font-bold uppercase">
+                                Voucher Tin Thường (-{pubDiscK}k):
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                value={membershipForm.normalPublishVouchers}
+                                onChange={(e) => setMembershipForm(prev => ({ ...prev, normalPublishVouchers: e.target.value }))}
+                                className="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-emerald-400 font-mono text-sm font-black outline-none focus:border-emerald-500"
+                              />
+                            </div>
 
-                      <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
-                        <label className="block text-[10px] text-slate-400 font-bold uppercase">
-                          Voucher Tin VIP (-400k):
-                        </label>
-                        <input
-                          type="number"
-                          min="0"
-                          value={membershipForm.vipPublishVouchers}
-                          onChange={(e) => setMembershipForm(prev => ({ ...prev, vipPublishVouchers: e.target.value }))}
-                          className="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-rose-400 font-mono text-sm font-black outline-none focus:border-rose-500"
-                        />
-                      </div>
-                    </div>
+                            <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                              <label className="block text-[10px] text-slate-400 font-bold uppercase">
+                                Voucher Đẩy Tin (-{bumpDiscK}k):
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                value={membershipForm.normalBumpVouchers}
+                                onChange={(e) => setMembershipForm(prev => ({ ...prev, normalBumpVouchers: e.target.value }))}
+                                className="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-amber-400 font-mono text-sm font-black outline-none focus:border-amber-500"
+                              />
+                            </div>
+
+                            <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
+                              <label className="block text-[10px] text-slate-400 font-bold uppercase">
+                                Voucher Tin VIP (-{vipDiscK}k):
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                value={membershipForm.vipPublishVouchers}
+                                onChange={(e) => setMembershipForm(prev => ({ ...prev, vipPublishVouchers: e.target.value }))}
+                                className="w-full p-2 bg-slate-900 border border-slate-700 rounded-lg text-rose-400 font-mono text-sm font-black outline-none focus:border-rose-500"
+                              />
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })()}
                   </div>
 
                   {/* SECTION 5: LIVE PREVIEW BANNER TRÊN USER DASHBOARD */}
@@ -9598,20 +9609,29 @@ export default function AdminBackendPage() {
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 bg-slate-950/80 p-1.5 rounded-xl border border-slate-800 text-xs shrink-0 self-start sm:self-auto">
-                          <div className="px-2 py-0.5 text-center border-r border-slate-800">
-                            <div className="text-[8px] text-slate-400 font-bold uppercase">Thường (-35k)</div>
-                            <div className="text-xs font-black text-emerald-400 font-mono">{membershipForm.normalPublishVouchers || 0}</div>
-                          </div>
-                          <div className="px-2 py-0.5 text-center border-r border-slate-800">
-                            <div className="text-[8px] text-slate-400 font-bold uppercase">Đẩy (-10k)</div>
-                            <div className="text-xs font-black text-amber-400 font-mono">{membershipForm.normalBumpVouchers || 0}</div>
-                          </div>
-                          <div className="px-2 py-0.5 text-center">
-                            <div className="text-[8px] text-slate-400 font-bold uppercase">VIP (-400k)</div>
-                            <div className="text-xs font-black text-red-400 font-mono">{membershipForm.vipPublishVouchers || 0}</div>
-                          </div>
-                        </div>
+                        {(() => {
+                          const curAdminPkg = (membershipPackages || []).find(p => p.id === membershipForm.packageId);
+                          const pubDiscK = Math.round((curAdminPkg?.vouchersPerCycle?.normalPublishDiscount || 35000) / 1000);
+                          const bumpDiscK = Math.round((curAdminPkg?.vouchersPerCycle?.normalBumpDiscount || 10000) / 1000);
+                          const vipDiscK = Math.round((curAdminPkg?.vouchersPerCycle?.vipDiscount || 400000) / 1000);
+
+                          return (
+                            <div className="flex items-center gap-2 bg-slate-950/80 p-1.5 rounded-xl border border-slate-800 text-xs shrink-0 self-start sm:self-auto">
+                              <div className="px-2 py-0.5 text-center border-r border-slate-800">
+                                <div className="text-[8px] text-slate-400 font-bold uppercase">Thường (-{pubDiscK}k)</div>
+                                <div className="text-xs font-black text-emerald-400 font-mono">{membershipForm.normalPublishVouchers || 0}</div>
+                              </div>
+                              <div className="px-2 py-0.5 text-center border-r border-slate-800">
+                                <div className="text-[8px] text-slate-400 font-bold uppercase">Đẩy (-{bumpDiscK}k)</div>
+                                <div className="text-xs font-black text-amber-400 font-mono">{membershipForm.normalBumpVouchers || 0}</div>
+                              </div>
+                              <div className="px-2 py-0.5 text-center">
+                                <div className="text-[8px] text-slate-400 font-bold uppercase">VIP (-{vipDiscK}k)</div>
+                                <div className="text-xs font-black text-red-400 font-mono">{membershipForm.vipPublishVouchers || 0}</div>
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>

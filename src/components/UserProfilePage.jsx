@@ -980,7 +980,9 @@ export default function UserProfilePage() {
                       <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
                         <div>
                           <div className="text-[11px] text-slate-500 font-medium">Voucher Đăng Tin Thường</div>
-                          <div className="text-[10px] text-slate-400">Giảm 35.000 đ/tin về 0 đ</div>
+                          <div className="text-[10px] text-slate-400">
+                            Giảm {Number(currentPkg?.vouchersPerCycle?.normalPublishDiscount || 35000).toLocaleString('vi-VN')} đ/tin về 0 đ
+                          </div>
                         </div>
                         <div className="text-xl font-black text-emerald-700">
                           {currentUser.vouchers?.normalPublish || 0}
@@ -990,7 +992,9 @@ export default function UserProfilePage() {
                       <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
                         <div>
                           <div className="text-[11px] text-slate-500 font-medium">Voucher Đẩy Tin Làm Mới</div>
-                          <div className="text-[10px] text-slate-400">Giảm 10.000 đ/lần về 0 đ</div>
+                          <div className="text-[10px] text-slate-400">
+                            Giảm {Number(currentPkg?.vouchersPerCycle?.normalBumpDiscount || 10000).toLocaleString('vi-VN')} đ/lần về 0 đ
+                          </div>
                         </div>
                         <div className="text-xl font-black text-blue-700">
                           {currentUser.vouchers?.normalBump || 0}
@@ -1000,7 +1004,9 @@ export default function UserProfilePage() {
                       <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
                         <div>
                           <div className="text-[11px] text-slate-500 font-medium">Voucher Đăng Tin VIP</div>
-                          <div className="text-[10px] text-slate-400">Giảm 400.000 đ/tin</div>
+                          <div className="text-[10px] text-slate-400">
+                            Giảm {Number(currentPkg?.vouchersPerCycle?.vipDiscount || 400000).toLocaleString('vi-VN')} đ/tin
+                          </div>
                         </div>
                         <div className="text-xl font-black text-amber-600">
                           {currentUser.vouchers?.vipPublish || 0}

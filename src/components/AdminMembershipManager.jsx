@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { MEMBERSHIP_PACKAGES } from '../data/mockData';
+import { syncFeaturesWithVouchers, getResolvedFeatures } from '../utils/membershipHelper';
 
 // Preset color options for package badges
 const BADGE_COLOR_PRESETS = [
@@ -114,13 +115,18 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
   // Voucher quota change handler
   const handleVoucherQuotaChange = (field, value) => {
     const num = Math.max(0, parseInt(value, 10) || 0);
-    setEditingPkg(prev => ({
-      ...prev,
-      vouchersPerCycle: {
+    setEditingPkg(prev => {
+      const updatedVouchers = {
         ...prev.vouchersPerCycle,
         [field]: num
-      }
-    }));
+      };
+      const updatedFeatures = syncFeaturesWithVouchers(prev.features, updatedVouchers);
+      return {
+        ...prev,
+        vouchersPerCycle: updatedVouchers,
+        features: updatedFeatures
+      };
+    });
   };
 
   // Billing cycle price/discount/duration change handler
@@ -277,10 +283,16 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
       return;
     }
 
+    const syncedFeatures = syncFeaturesWithVouchers(editingPkg.features, editingPkg.vouchersPerCycle);
+    const finalPkg = {
+      ...editingPkg,
+      features: syncedFeatures
+    };
+
     if (isCreatingNew) {
-      addMembershipPackage(editingPkg);
+      addMembershipPackage(finalPkg);
     } else {
-      updateMembershipPackage(editingPkg.id, editingPkg);
+      updateMembershipPackage(finalPkg.id, finalPkg);
     }
     handleCloseModal();
   };
@@ -558,15 +570,15 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                   </div>
 
                   <div className="space-y-1 text-xs text-slate-300 max-h-36 overflow-y-auto pr-1">
-                    {(pkg.features || []).slice(0, 4).map((feat, idx) => (
+                    {getResolvedFeatures(pkg).slice(0, 4).map((feat, idx) => (
                       <div key={idx} className="flex items-start gap-1.5 text-[11px]">
                         <i className="fa-solid fa-circle-check text-emerald-400 mt-0.5 text-[10px] shrink-0"></i>
                         <span className="leading-tight text-slate-300">{feat}</span>
                       </div>
                     ))}
-                    {(pkg.features || []).length > 4 && (
+                    {getResolvedFeatures(pkg).length > 4 && (
                       <div className="text-[10px] text-amber-400/90 font-bold pl-3.5 pt-0.5">
-                        + {(pkg.features || []).length - 4} đặc quyền khác...
+                        + {getResolvedFeatures(pkg).length - 4} đặc quyền khác...
                       </div>
                     )}
                   </div>
@@ -1356,7 +1368,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                           <div className="font-bold text-slate-800 text-[11px] uppercase tracking-wider mb-1">
                             Quyền lợi đi kèm:
                           </div>
-                          {(editingPkg.features || []).map((feat, idx) => (
+                          {getResolvedFeatures(editingPkg).map((feat, idx) => (
                             <div key={idx} className="flex items-start gap-1.5 text-[11px] text-slate-600">
                               <i className="fa-solid fa-circle-check text-emerald-500 mt-0.5 text-[10px] shrink-0"></i>
                               <span className="leading-tight">{feat}</span>

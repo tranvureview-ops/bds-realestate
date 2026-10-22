@@ -2260,9 +2260,9 @@
       "name": "Gói Hội Viên Tiêu Chuẩn",
       "badge": "BÁN CHẠY NHẤT ★",
       "features": [
-        "30 voucher giảm 35.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)",
+        "20 voucher giảm 38.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)",
         "1 voucher giảm 400.000 đ áp dụng cho Tin VIP (mỗi chu kỳ 30 ngày)",
-        "30 voucher giảm 10.000 đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)",
+        "20 voucher giảm 15.000 đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)",
         "Tiện ích Hẹn giờ đăng tin tự động theo khung giờ vàng",
         "Ưu tiên Xuất bản & Duyệt tin nhanh",
         "Báo cáo hiệu suất lượt xem & khách gọi chi tiết",
@@ -2299,10 +2299,10 @@
       "vouchersPerCycle": {
         "vipDiscount": 400000,
         "vipVouchers": 1,
-        "normalBumpDiscount": 10000,
-        "normalBumpVouchers": 30,
-        "normalPublishDiscount": 35000,
-        "normalPublishVouchers": 30
+        "normalBumpDiscount": 15000,
+        "normalBumpVouchers": 20,
+        "normalPublishDiscount": 38000,
+        "normalPublishVouchers": 20
       }
     },
     {
