@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import dynamic from 'next/dynamic';
 import { VIP_PACKAGES } from '../data/mockData';
-import { normalizePhone } from '../utils/authValidation';
+import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 import { formatSentenceCase } from '../utils/permalink';
 const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
   ssr: false,
@@ -43,7 +43,7 @@ export default function ListingDetailModal({ property, onClose }) {
   const safeAuthor = {
     id: authorUser?.id || property?.author?.id || null,
     name: authorUser?.name || property?.author?.name || property?.contactName || 'Người đăng tin',
-    phone: authorUser?.phone || property?.author?.phone || property?.contactPhone || '0908 123 456',
+    phone: formatPhoneNumber(authorUser?.phone || property?.author?.phone || property?.contactPhone || '0908 123 456'),
     zalo: (authorUser?.phone || property?.author?.zalo || property?.author?.phone || property?.contactPhone || '0908123456').replace(/\s+/g, ''),
     avatar: authorUser?.avatar || property?.author?.avatar || '/avatars/ai-preset-2.jpg',
     title: authorUser?.roleName || authorUser?.membership?.packageName || property?.author?.title || (property?.isGuest ? 'Khách vãng lai' : 'Chính chủ'),

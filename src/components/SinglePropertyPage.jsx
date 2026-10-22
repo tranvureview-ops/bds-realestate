@@ -17,7 +17,7 @@ const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
 import ListingCard from './ListingCard';
 import CustomSelect from './CustomSelect';
 import { findAdministrativeMerger, VIETNAM_ADMINISTRATIVE_DATA } from '../data/vietnamAdministrativeData';
-import { validatePhoneNumber, normalizePhone } from '../utils/authValidation';
+import { validatePhoneNumber, normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 
 export default function SinglePropertyPage({ propertyOverride = null }) {
   const { 
@@ -227,7 +227,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   const safeAuthor = {
     id: authorUser?.id || property.author?.id || null,
     name: authorUser?.name || property.author?.name || property.contactName || 'Người đăng tin',
-    phone: authorUser?.phone || property.author?.phone || property.contactPhone || '0908 123 456',
+    phone: formatPhoneNumber(authorUser?.phone || property.author?.phone || property.contactPhone || '0908 123 456'),
     zalo: (authorUser?.phone || property.author?.zalo || property.author?.phone || property.contactPhone || '0908123456').replace(/\s+/g, ''),
     avatar: authorUser?.avatar || property.author?.avatar || '/avatars/ai-preset-2.jpg',
     title: authorUser?.roleName || authorUser?.membership?.packageName || property.author?.title || (property.isGuest ? 'Khách vãng lai' : 'Chính chủ đăng tin'),

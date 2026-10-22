@@ -9,6 +9,7 @@ import CustomSelect from './CustomSelect';
 import ListingCard from './ListingCard';
 import ListingLocationMap from './ListingLocationMap';
 import { findDanangMerger } from '../data/vietnamAdministrativeData';
+import { formatPhoneNumber, normalizePhone } from '../utils/authValidation';
 
 // Hàm phát âm thanh thành công khi Webhook/Polling khớp thanh toán (Web Audio API)
 function playPaymentSuccessSound() {
@@ -178,7 +179,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     
     // 5. Liên hệ người đăng (Khách vãng lai hoặc Thành viên)
     contactName: (!isGuest && currentUser?.name) ? currentUser.name : 'Nguyễn Văn Tuấn',
-    contactPhone: (!isGuest && currentUser?.phone) ? currentUser.phone : '0908 123 456',
+    contactPhone: (!isGuest && currentUser?.phone) ? formatPhoneNumber(currentUser.phone) : '0908 123 456',
     contactEmail: (!isGuest && currentUser?.email) ? currentUser.email : 'khach.bds@datbiendanang.vn',
     contactAddress: (!isGuest && currentUser?.address) ? currentUser.address : 'TP. Đà Nẵng'
   });
@@ -513,15 +514,15 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   // Tạo đối tượng BĐS hoàn chỉnh để xem trước giao diện thực tế
   const previewProperty = useMemo(() => {
     const isGuestUser = !currentUser || currentUser.role === 'guest' || currentUser.id === 'guest';
-    const contactPhone = String(formData.contactPhone || currentUser?.phone || '0908 123 456').trim();
+    const contactPhone = formatPhoneNumber(String(formData.contactPhone || currentUser?.phone || '0908 123 456').trim());
     const contactName = String(formData.contactName || (!isGuestUser && currentUser?.name) || 'Người đăng tin').trim();
 
     const safeAuthor = (!isGuestUser && currentUser) ? {
       id: currentUser.id,
       name: currentUser.name || contactName,
       title: currentUser.membership ? `${currentUser.membership.packageName}` : (currentUser.role === 'broker' ? 'Môi Giới' : 'Chính chủ'),
-      phone: currentUser.phone || contactPhone,
-      zalo: String(currentUser.phone || contactPhone).replace(/\s+/g, ''),
+      phone: formatPhoneNumber(currentUser.phone || contactPhone),
+      zalo: normalizePhone(currentUser.phone || contactPhone),
       avatar: currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
       isVerified: currentUser.isVerified || false,
       rating: 5.0,
@@ -533,7 +534,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       name: contactName,
       title: 'Khách vãng lai (Chưa đăng nhập)',
       phone: contactPhone,
-      zalo: contactPhone.replace(/\s+/g, ''),
+      zalo: normalizePhone(contactPhone),
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
       isVerified: false,
       rating: 5.0,
@@ -1907,7 +1908,13 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         type="text"
                         value={formData.contactPhone}
                         onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
-                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-bold"
+                        onBlur={(e) => {
+                          if (e.target.value) {
+                            setFormData(prev => ({ ...prev, contactPhone: formatPhoneNumber(e.target.value) }));
+                          }
+                        }}
+                        placeholder="Ví dụ: 0898 256 607"
+                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-bold font-mono"
                       />
                     </div>
                     <div>

@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
-import { normalizePhone } from '../utils/authValidation';
+import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 
 export default function AdminAppointmentsManager() {
   const {
@@ -235,7 +235,7 @@ export default function AdminAppointmentsManager() {
                       <td className="py-4 px-4 align-top">
                         <div className="font-bold text-slate-900">{appt.customerName || 'Khách hàng'}</div>
                         <div className="font-mono font-bold text-emerald-700 text-xs mt-0.5">
-                          {custPhone}
+                          {formatPhoneNumber(custPhone)}
                         </div>
                         {appt.customerNote && (
                           <div className="text-[10.5px] text-slate-500 italic mt-1 max-w-[200px]">
@@ -269,7 +269,7 @@ export default function AdminAppointmentsManager() {
                         <div className="font-bold text-slate-800">{appt.brokerName || '—'}</div>
                         {appt.brokerPhone && (
                           <div className="text-[11px] font-mono text-slate-500 mt-0.5">
-                            📞 {appt.brokerPhone}
+                            📞 {formatPhoneNumber(appt.brokerPhone)}
                           </div>
                         )}
                         {appt.brokerEmail && (

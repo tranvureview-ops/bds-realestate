@@ -5,7 +5,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { Link, useRouter } from '../router/RouterContext';
 import { VIP_PACKAGES } from '../data/mockData';
 import { getPropertyPermalink, formatSentenceCase } from '../utils/permalink';
-import { normalizePhone } from '../utils/authValidation';
+import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 
 export default function ListingCard({ property, viewMode = 'grid' }) {
   const { navigate } = useRouter();
@@ -29,27 +29,17 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
     ? usersList?.find(u => String(u.id) === String(property.author.id))
     : (property.author?.phone ? usersList?.find(u => normalizePhone(u.phone) === normalizePhone(property.author.phone)) : null);
 
+  const rawAuthorPhone = authorUser?.phone || property.author?.phone || property.contactPhone || '0908 123 456';
+  const displayAuthorPhone = formatPhoneNumber(rawAuthorPhone);
+
   const safeAuthor = {
     id: authorUser?.id || property.author?.id || null,
     name: authorUser?.name || property.author?.name || property.contactName || 'Người đăng tin',
-    phone: authorUser?.phone || property.author?.phone || property.contactPhone || '0908 123 456',
+    phone: displayAuthorPhone,
     zalo: (authorUser?.phone || property.author?.zalo || property.author?.phone || property.contactPhone || '0908123456').replace(/\s+/g, ''),
     avatar: authorUser?.avatar || property.author?.avatar || '/avatars/ai-preset-2.jpg',
     title: authorUser?.roleName || authorUser?.membership?.packageName || property.author?.title || (property.isGuest ? 'Khách vãng lai' : 'Chính chủ'),
     isVerified: authorUser?.isVerified ?? property.author?.isVerified ?? false
-  };
-
-  // Format phone display with spaces: 0898256607 -> 0898 256 607
-  const formatPhoneDisplay = (p) => {
-    if (!p) return '';
-    const clean = String(p).replace(/\s+/g, '');
-    if (clean.length === 10) {
-      return clean.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
-    }
-    if (clean.length === 11) {
-      return clean.replace(/(\d{4})(\d{3})(\d{4})/, '$1 $2 $3');
-    }
-    return p;
   };
 
   const isFav = favorites.includes(property.id);
@@ -275,10 +265,10 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
                       ? 'bg-amber-600 hover:bg-amber-700 text-white'
                       : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                 }`}
-                title={`Gọi ngay: ${formatPhoneDisplay(safeAuthor.phone)}`}
+                title={`Gọi ngay: ${safeAuthor.phone}`}
               >
                 <i className="fa-solid fa-phone text-[11px] shrink-0"></i>
-                <span className="hidden sm:inline whitespace-nowrap">{formatPhoneDisplay(safeAuthor.phone)}</span>
+                <span className="hidden sm:inline whitespace-nowrap">{safeAuthor.phone}</span>
                 <span className="sm:hidden whitespace-nowrap">Gọi</span>
               </a>
 

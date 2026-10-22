@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { hashPassword, validateRegistrationInput, checkUserDuplication } from '../../../../services/authService';
-import { normalizePhone } from '../../../../utils/authValidation';
+import { normalizePhone, formatPhoneNumber } from '../../../../utils/authValidation';
 import { getCampaignSettings, checkIpRegistrationLimit, generateVerificationTokenRecord } from '../../../../services/bonusCampaignService';
 import { saveNewUser, saveVerificationToken, getFullSystemDatabase } from '../../../../services/serverDbService';
 import { resolveServerOrigin, sendWelcomeVerificationEmail } from '../../../../services/mailerService';
@@ -22,7 +22,7 @@ export function extractClientIp(request) {
  * @returns {Object} Bản ghi người dùng
  */
 export function buildPendingUserRecord(input, clientIp) {
-  const cleanPhone = normalizePhone(input.phone);
+  const cleanPhone = formatPhoneNumber(input.phone);
   const cleanEmail = (input.email || '').trim().toLowerCase();
   const selectedRole = input?.role === 'broker' ? 'broker' : 'user';
   const roleName = selectedRole === 'broker' ? 'Môi Giới' : 'Khách hàng';

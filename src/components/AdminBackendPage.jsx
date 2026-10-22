@@ -16,6 +16,7 @@ import AdminAppointmentsManager from './AdminAppointmentsManager';
 import AdminTwoFactorScreen from './AdminTwoFactorScreen';
 import MaintenanceScreen from './MaintenanceScreen';
 import { AVAILABLE_FONTS, getFontConfig, applyFontToDom } from '../utils/fontConfig';
+import { formatPhoneNumber } from '../utils/authValidation';
 
 export const VALID_ADMIN_TABS = [
   'dashboard',
@@ -4391,7 +4392,7 @@ export default function AdminBackendPage() {
                                 </div>
                               </td>
                               <td className="p-3 text-slate-400 font-mono text-[11px]">{u.email}</td>
-                              <td className="p-3 font-mono text-slate-300">{u.phone || '—'}</td>
+                              <td className="p-3 font-mono text-slate-300">{formatPhoneNumber(u.phone) || '—'}</td>
                               <td className="p-3">
                                 <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                                   u.role === 'admin' ? 'bg-red-950 text-red-400 border border-red-800' :
@@ -4614,7 +4615,7 @@ export default function AdminBackendPage() {
                                 </span>
                               </div>
                             </td>
-                            <td className="p-3 font-mono font-bold text-emerald-400">{g.phone}</td>
+                            <td className="p-3 font-mono font-bold text-emerald-400">{formatPhoneNumber(g.phone)}</td>
                             <td className="p-3 text-slate-400">{g.email}</td>
                             <td className="p-3 text-center">
                               <span className="px-2.5 py-0.5 rounded-full bg-slate-800 text-white font-bold text-xs">
@@ -9127,8 +9128,13 @@ export default function AdminBackendPage() {
                     type="text"
                     value={editUserForm.phone}
                     onChange={(e) => setEditUserForm({ ...editUserForm, phone: e.target.value })}
+                    onBlur={(e) => {
+                      if (e.target.value) {
+                        setEditUserForm(prev => ({ ...prev, phone: formatPhoneNumber(e.target.value) }));
+                      }
+                    }}
                     className="w-full p-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white font-mono focus:outline-none focus:border-blue-500"
-                    placeholder="0905 xxx xxx"
+                    placeholder="Ví dụ: 0898 256 607"
                   />
                 </div>
               </div>

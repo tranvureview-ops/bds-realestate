@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
-import { normalizePhone } from '../utils/authValidation';
+import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 import { Link, useRouter } from '../router/RouterContext';
 
 // Helper nén và cắt ảnh đại diện thành hình vuông 1:1 chất lượng cao
@@ -200,7 +200,12 @@ export default function UserProfilePage() {
 
   const handleProfileSubmit = (e) => {
     e.preventDefault();
-    updateUserProfile(formData);
+    const formattedData = {
+      ...formData,
+      phone: formatPhoneNumber(formData.phone)
+    };
+    setFormData(formattedData);
+    updateUserProfile(formattedData);
   };
 
   const handleSaveNotificationSettings = (e) => {
@@ -358,7 +363,7 @@ export default function UserProfilePage() {
               <p className="text-xs text-slate-500 mt-1 flex flex-wrap items-center gap-3">
                 <span><i className="fa-solid fa-envelope mr-1 text-slate-400"></i> {currentUser.email}</span>
                 <span>•</span>
-                <span><i className="fa-solid fa-phone mr-1 text-slate-400"></i> {currentUser.phone}</span>
+                <span><i className="fa-solid fa-phone mr-1 text-slate-400"></i> {formatPhoneNumber(currentUser.phone)}</span>
                 <span>•</span>
                 <span><i className="fa-solid fa-location-dot mr-1 text-slate-400"></i> {formData.primaryArea}</span>
               </p>
@@ -719,9 +724,16 @@ export default function UserProfilePage() {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                    onBlur={(e) => {
+                      if (e.target.value) {
+                        setFormData(prev => ({ ...prev, phone: formatPhoneNumber(e.target.value) }));
+                      }
+                    }}
+                    placeholder="Ví dụ: 0898 256 607"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 font-mono"
                     required
                   />
+                  <p className="text-[10px] text-slate-500 mt-1">Tự động định dạng chuẩn phong cách Việt Nam (ví dụ: 0898 256 607)</p>
                 </div>
               </div>
 
@@ -1377,7 +1389,7 @@ export default function UserProfilePage() {
                     <div>
                       <div className="font-bold text-slate-800 text-sm">Thông báo qua Tin Nhắn SMS</div>
                       <div className="text-[11px] text-slate-500 leading-relaxed">
-                        Gửi tin nhắn SMS Brandname về số điện thoại <strong>{currentUser.phone || 'chính của bạn'}</strong> thông báo mã hẹn và số liên hệ của khách.
+                        Gửi tin nhắn SMS Brandname về số điện thoại <strong>{formatPhoneNumber(currentUser.phone) || 'chính của bạn'}</strong> thông báo mã hẹn và số liên hệ của khách.
                       </div>
                     </div>
                   </div>
@@ -1581,7 +1593,7 @@ export default function UserProfilePage() {
                                 {isCustomer ? appt.brokerName : appt.customerName}
                               </div>
                               <div className="text-xs font-mono font-bold text-emerald-700">
-                                📞 {isCustomer ? (appt.brokerPhone || 'Chưa có SĐT') : appt.customerPhone}
+                                📞 {isCustomer ? (formatPhoneNumber(appt.brokerPhone) || 'Chưa có SĐT') : formatPhoneNumber(appt.customerPhone)}
                               </div>
                               {appt.customerNote && (
                                 <div className="text-[11px] text-slate-600 italic mt-1">

@@ -23,6 +23,34 @@ export function normalizePhone(rawPhone) {
 }
 
 /**
+ * Định dạng số điện thoại hiển thị chuẩn phong cách Việt Nam
+ * Tự động phân tách nhóm số thẩm mỹ, rõ ràng (4 - 3 - 3):
+ * Ví dụ: "0898256607" -> "0898 256 607"
+ * Ví dụ: "0904084888" -> "0904 084 888"
+ * Ví dụ: "0912888999" -> "0912 888 999"
+ * Hỗ trợ cả 10 số (0xxx xxx xxx) và 11 số (0xxx xxx xxxx)
+ * @param {string|number} rawPhone Số điện thoại thô
+ * @returns {string} Số điện thoại đã định dạng có khoảng trắng đẹp mắt
+ */
+export function formatPhoneNumber(rawPhone) {
+  if (!rawPhone) return '';
+  const cleaned = rawPhone.toString().trim().replace(/[\s\.\-\(\)]/g, '');
+  let norm = cleaned;
+  if (norm.startsWith('+84')) norm = '0' + norm.slice(3);
+  else if (norm.startsWith('84') && norm.length >= 11) norm = '0' + norm.slice(2);
+
+  // 10 chữ số (chuẩn di động VN): 4 - 3 - 3 (ví dụ: 0898 256 607 hoặc 0912 888 999)
+  if (/^0\d{9}$/.test(norm)) {
+    return norm.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3');
+  }
+  // 11 chữ số (bàn/cũ): 4 - 3 - 4 (ví dụ: 0236 123 4567)
+  if (/^0\d{10}$/.test(norm)) {
+    return norm.replace(/(\d{4})(\d{3})(\d{4})/, '$1 $2 $3');
+  }
+  return rawPhone.toString().trim();
+}
+
+/**
  * Kiểm tra tính hợp lệ của số điện thoại di động Việt Nam
  * Quy chuẩn: 10 chữ số, bắt đầu bằng 03, 05, 07, 08 hoặc 09
  * @param {string} rawPhone Số điện thoại

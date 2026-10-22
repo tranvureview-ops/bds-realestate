@@ -53,7 +53,7 @@ import {
   DEFAULT_EMAIL_TEMPLATES
 } from '../data/mockData';
 import { getPropertyPermalink, parsePropertyUrl, toVietnameseSlug, formatSentenceCase } from '../utils/permalink';
-import { normalizePhone } from '../utils/authValidation';
+import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 import {
   getEmailLogs,
   dispatchEmail,
@@ -288,7 +288,17 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const raw = (initialData?.bds_properties && Array.isArray(initialData.bds_properties) && initialData.bds_properties.length > 0)
       ? initialData.bds_properties
       : INITIAL_PROPERTIES;
-    return raw.filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng')).map(normalizePropertyExpiration);
+    return raw.filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng')).map(p => {
+      const norm = normalizePropertyExpiration(p);
+      return {
+        ...norm,
+        contactPhone: norm.contactPhone ? formatPhoneNumber(norm.contactPhone) : norm.contactPhone,
+        author: norm.author ? {
+          ...norm.author,
+          phone: norm.author.phone ? formatPhoneNumber(norm.author.phone) : norm.author.phone
+        } : norm.author
+      };
+    });
   });
 
   // 2. Favorites List
@@ -302,15 +312,22 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     if (initialUser && (initialUser.status === 'trash' || initialUser.isDeleted || initialUser.status === 'locked')) {
       return DEFAULT_GUEST_USER;
     }
-    return initialUser || DEFAULT_GUEST_USER;
+    const user = initialUser || DEFAULT_GUEST_USER;
+    return {
+      ...user,
+      phone: user.phone ? formatPhoneNumber(user.phone) : user.phone
+    };
   });
 
   // 5. All Users (for CMS Admin Management)
   const [usersList, setUsersList] = useState(() => {
-    if (initialData?.bds_users_list && Array.isArray(initialData.bds_users_list) && initialData.bds_users_list.length > 0) {
-      return initialData.bds_users_list;
-    }
-    return MOCK_USERS;
+    const list = (initialData?.bds_users_list && Array.isArray(initialData.bds_users_list) && initialData.bds_users_list.length > 0)
+      ? initialData.bds_users_list
+      : MOCK_USERS;
+    return list.map(u => ({
+      ...u,
+      phone: u.phone ? formatPhoneNumber(u.phone) : u.phone
+    }));
   });
 
   // 6. Listing Types / VIP Packages Configuration (editable by Admin)
@@ -1723,15 +1740,15 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       ? 'Voucher Hội Viên' 
       : (methodLabels[paymentMethod] || 'Trực tuyến');
 
-    const contactPhone = String(formData.contactPhone || currentUser?.phone || '0901234567').trim();
+    const contactPhone = formatPhoneNumber(String(formData.contactPhone || currentUser?.phone || '0901234567').trim());
     const contactName = String(formData.contactName || (!isGuest && currentUser?.name) || 'Khách vãng lai').trim();
 
     const authorObj = (!isGuest && currentUser) ? {
       id: currentUser.id,
       name: currentUser.name || contactName,
       title: currentUser.membership ? `${currentUser.membership.packageName}` : (currentUser.role === 'broker' ? 'Môi Giới' : 'Chính chủ'),
-      phone: currentUser.phone || contactPhone,
-      zalo: String(currentUser.phone || contactPhone).replace(/\s+/g, ''),
+      phone: formatPhoneNumber(currentUser.phone || contactPhone),
+      zalo: normalizePhone(currentUser.phone || contactPhone),
       avatar: currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
       isVerified: currentUser.isVerified || false,
       rating: 5.0,
@@ -1743,7 +1760,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       name: contactName,
       title: 'Khách vãng lai (Chưa đăng nhập)',
       phone: contactPhone,
-      zalo: contactPhone.replace(/\s+/g, ''),
+      zalo: normalizePhone(contactPhone),
       avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&q=80',
       isVerified: false,
       rating: 5.0,
@@ -2507,7 +2524,11 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const target = usersList.find(u => u.id === userId);
     if (!target) return { success: false, error: 'Không tìm thấy người dùng' };
 
-    const updatedTarget = { ...target, ...updatedFields, updatedAt: new Date().toISOString() };
+    const formattedFields = {
+      ...updatedFields,
+      ...(updatedFields.phone ? { phone: formatPhoneNumber(updatedFields.phone) } : {})
+    };
+    const updatedTarget = { ...target, ...formattedFields, updatedAt: new Date().toISOString() };
     const nextList = usersList.map(u => u.id === userId ? updatedTarget : u);
     setUsersList(nextList);
 
@@ -2515,8 +2536,33 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       setCurrentUser(prev => ({ ...prev, ...updatedTarget }));
     }
 
+    // Cập nhật đồng bộ các tin đăng của người dùng này
+    const nextProperties = properties.map(p => {
+      const isOwner = Boolean(
+        (p.author?.id && String(p.author.id) === String(userId)) ||
+        (p.author?.email && target.email && p.author.email.toLowerCase() === target.email.toLowerCase()) ||
+        (p.author?.phone && target.phone && normalizePhone(p.author.phone) === normalizePhone(target.phone))
+      );
+      if (isOwner) {
+        return {
+          ...p,
+          contactName: updatedTarget.name || p.contactName,
+          contactPhone: updatedTarget.phone || p.contactPhone,
+          author: {
+            ...p.author,
+            name: updatedTarget.name || p.author?.name,
+            phone: updatedTarget.phone || p.author?.phone,
+            zalo: updatedTarget.phone ? normalizePhone(updatedTarget.phone) : p.author?.zalo
+          }
+        };
+      }
+      return p;
+    });
+    setProperties(nextProperties);
+
     await upsertSupabaseProfile(updatedTarget);
     await persistSettingToSupabase('bds_users_list', nextList);
+    await persistSettingToSupabase('bds_properties', nextProperties);
     showToast(`Đã cập nhật thông tin người dùng "${updatedTarget.name || userId}" thành công!`, 'success');
     return { success: true, user: updatedTarget };
   };
@@ -2829,7 +2875,11 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // Update User Profile
   const updateUserProfile = (profileData) => {
-    const updated = { ...currentUser, ...profileData };
+    const formattedData = {
+      ...profileData,
+      ...(profileData.phone ? { phone: formatPhoneNumber(profileData.phone) } : {})
+    };
+    const updated = { ...currentUser, ...formattedData };
     setCurrentUser(updated);
 
     const nextUsers = usersList.map(u => String(u.id) === String(currentUser.id) ? updated : u);
