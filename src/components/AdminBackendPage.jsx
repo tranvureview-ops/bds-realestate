@@ -1761,6 +1761,9 @@ export default function AdminBackendPage() {
       let finalVouchers = membershipModalUser.vouchers || { normalPublish: 0, normalBump: 0, vipPublish: 0 };
 
       if (membershipForm.hasMembership && membershipForm.packageId !== 'none') {
+        const isExp = membershipForm.status === 'expired' || 
+          (membershipForm.expiresAt && new Date(membershipForm.expiresAt).getTime() <= Date.now());
+
         finalMembership = {
           packageId: membershipForm.packageId,
           packageName: membershipForm.packageName,
@@ -1768,15 +1771,28 @@ export default function AdminBackendPage() {
           durationDays: Number(membershipForm.durationDays) || 30,
           subscribedAt: new Date(membershipForm.subscribedAt).toISOString(),
           expiresAt: new Date(membershipForm.expiresAt).toISOString(),
-          status: membershipForm.status || 'active',
+          status: isExp ? 'expired' : (membershipForm.status || 'active'),
           isAutoRenew: Boolean(membershipForm.isAutoRenew),
           badge: membershipForm.badge,
           badgeColor: membershipForm.badgeColor
         };
-        finalVouchers = {
+
+        // Phương án 1: Nếu gói hết hạn, thu hồi toàn bộ voucher về 0
+        finalVouchers = isExp ? {
+          normalPublish: 0,
+          normalBump: 0,
+          vipPublish: 0
+        } : {
           normalPublish: Number(membershipForm.normalPublishVouchers) || 0,
           normalBump: Number(membershipForm.normalBumpVouchers) || 0,
           vipPublish: Number(membershipForm.vipPublishVouchers) || 0
+        };
+      } else {
+        // Hủy gói / không có gói
+        finalVouchers = {
+          normalPublish: 0,
+          normalBump: 0,
+          vipPublish: 0
         };
       }
 
@@ -9366,15 +9382,26 @@ export default function AdminBackendPage() {
                       </label>
                       <select
                         value={membershipForm.status}
-                        onChange={(e) => setMembershipForm(prev => ({ ...prev, status: e.target.value }))}
+                        onChange={(e) => {
+                          const newStatus = e.target.value;
+                          setMembershipForm(prev => {
+                            const updated = { ...prev, status: newStatus };
+                            if (newStatus === 'expired') {
+                              updated.normalPublishVouchers = 0;
+                              updated.normalBumpVouchers = 0;
+                              updated.vipPublishVouchers = 0;
+                            }
+                            return updated;
+                          });
+                        }}
                         className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-bold outline-none focus:border-amber-500"
                       >
                         <option value="active">🟢 Đang hoạt động (active)</option>
-                        <option value="expired">🔴 Đã hết hạn (expired)</option>
+                        <option value="expired">🔴 Đã hết hạn (expired) - Thu hồi voucher</option>
                         <option value="canceled">⚪ Đã hủy / Tạm ngưng (canceled)</option>
                       </select>
                       <div className="text-[10px] text-slate-400">
-                        Kiểm soát quyền sử dụng tính năng và hiển thị huy hiệu của thành viên
+                        Theo quy chế: Khi chọn Đã hết hạn, voucher của gói sẽ tự động thu hồi về 0.
                       </div>
                     </div>
                   </div>

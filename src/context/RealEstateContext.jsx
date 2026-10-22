@@ -1165,6 +1165,157 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return () => clearInterval(expireTimer);
   }, [vipPackages, usersList, currentUser]);
 
+  // Kiểm tra gói hội viên có còn hiệu lực không (Active & Chưa hết hạn)
+  const isMembershipActive = (user = currentUser) => {
+    if (!user || user.id === 'guest') return false;
+    if (!user.membership || !user.membership.packageId || user.membership.packageId === 'none') return false;
+    if (user.membership.status === 'expired') return false;
+    if (user.membership.expiresAt && new Date(user.membership.expiresAt).getTime() <= Date.now()) return false;
+    return true;
+  };
+
+  // Background Membership Expiration & Voucher Revocation Processor (Phương án 1 - Chuẩn Batdongsan)
+  useEffect(() => {
+    const processMembershipExpirations = () => {
+      const now = Date.now();
+
+      setUsersList(prevUsers => {
+        let usersChanged = false;
+        const updatedUsers = prevUsers.map(user => {
+          if (!user || !user.membership || !user.membership.packageId || user.membership.packageId === 'none') {
+            return user;
+          }
+
+          const expTime = user.membership.expiresAt ? new Date(user.membership.expiresAt).getTime() : 0;
+          const isExpired = user.membership.status === 'expired' || (expTime > 0 && now >= expTime);
+
+          if (isExpired) {
+            const hasVouchers = (user.vouchers?.normalPublish || 0) > 0 || 
+                                (user.vouchers?.normalBump || 0) > 0 || 
+                                (user.vouchers?.vipPublish || 0) > 0;
+            const needsStatusUpdate = user.membership.status !== 'expired';
+
+            // Nếu chưa được đánh dấu expired hoặc vẫn còn voucher chưa thu hồi
+            if (needsStatusUpdate || hasVouchers) {
+              // 1. Kiểm tra nếu BẬT tự động gia hạn (isAutoRenew)
+              if (user.membership.isAutoRenew && !user.isGuest) {
+                const pkg = (membershipPackages || []).find(p => p.id === user.membership.packageId);
+                const billingMonths = user.membership.billingMonths || 1;
+                const cycle = pkg?.billingCycles?.find(c => c.months === billingMonths) || pkg?.billingCycles?.[0];
+                const cost = cycle?.price || pkg?.monthlyPrice || 0;
+
+                if (pkg && cost > 0 && (user.walletBalance || 0) >= cost) {
+                  usersChanged = true;
+                  const newBal = (user.walletBalance || 0) - cost;
+                  const durationDays = cycle?.duration_days || cycle?.durationDays || (billingMonths * 30);
+                  const newExpires = new Date(now + durationDays * 86400 * 1000).toISOString();
+
+                  const newTxn = {
+                    id: `TXN-${Math.floor(1000 + Math.random() * 9000)}`,
+                    userId: user.id,
+                    userName: user.name,
+                    type: 'auto_renew_membership',
+                    title: `Tự động gia hạn ${pkg.name} (${billingMonths} tháng) - Cấp mới kho voucher 30 ngày`,
+                    amount: -cost,
+                    balanceAfter: newBal,
+                    status: 'success',
+                    createdAt: new Date().toISOString(),
+                    paymentMethod: 'Ví tài khoản'
+                  };
+                  setTransactions(txns => [newTxn, ...txns]);
+
+                  const updatedUser = {
+                    ...user,
+                    walletBalance: newBal,
+                    membership: {
+                      ...user.membership,
+                      status: 'active',
+                      expiresAt: newExpires,
+                      durationDays,
+                      lastRenewedAt: new Date().toISOString()
+                    },
+                    vouchers: {
+                      normalPublish: pkg.vouchersPerCycle?.normalPublishVouchers || 0,
+                      normalBump: pkg.vouchersPerCycle?.normalBumpVouchers || 0,
+                      vipPublish: pkg.vouchersPerCycle?.vipVouchers || 0
+                    }
+                  };
+
+                  upsertSupabaseProfile(updatedUser);
+                  return updatedUser;
+                }
+              }
+
+              // 2. Không tự động gia hạn hoặc không đủ tiền ví: Chuyển sang 'expired' & THU HỒI TOÀN BỘ VOUCHER VỀ 0
+              usersChanged = true;
+              const updatedUser = {
+                ...user,
+                membership: {
+                  ...user.membership,
+                  status: 'expired',
+                  expiredAt: user.membership.expiredAt || new Date().toISOString()
+                },
+                vouchers: {
+                  normalPublish: 0,
+                  normalBump: 0,
+                  vipPublish: 0
+                }
+              };
+
+              upsertSupabaseProfile(updatedUser);
+              return updatedUser;
+            }
+          }
+          return user;
+        });
+
+        if (usersChanged) {
+          persistSettingToSupabase('bds_users_list', updatedUsers);
+        }
+        return usersChanged ? updatedUsers : prevUsers;
+      });
+
+      // Đồng bộ currentUser nếu đang đăng nhập
+      setCurrentUser(curr => {
+        if (!curr || curr.id === 'guest' || !curr.membership || !curr.membership.packageId || curr.membership.packageId === 'none') {
+          return curr;
+        }
+        const expTime = curr.membership.expiresAt ? new Date(curr.membership.expiresAt).getTime() : 0;
+        const isExpired = curr.membership.status === 'expired' || (expTime > 0 && now >= expTime);
+
+        if (isExpired) {
+          const hasVouchers = (curr.vouchers?.normalPublish || 0) > 0 || 
+                              (curr.vouchers?.normalBump || 0) > 0 || 
+                              (curr.vouchers?.vipPublish || 0) > 0;
+          const needsStatusUpdate = curr.membership.status !== 'expired';
+
+          if (needsStatusUpdate || hasVouchers) {
+            if (!curr.membership.isAutoRenew) {
+              return {
+                ...curr,
+                membership: {
+                  ...curr.membership,
+                  status: 'expired',
+                  expiredAt: curr.membership.expiredAt || new Date().toISOString()
+                },
+                vouchers: {
+                  normalPublish: 0,
+                  normalBump: 0,
+                  vipPublish: 0
+                }
+              };
+            }
+          }
+        }
+        return curr;
+      });
+    };
+
+    processMembershipExpirations();
+    const membershipTimer = setInterval(processMembershipExpirations, 5000);
+    return () => clearInterval(membershipTimer);
+  }, [membershipPackages]);
+
   // Switch role helper
   const switchUserRole = (roleKey) => {
     let target = usersList.find(u => u.role === roleKey);
@@ -1256,14 +1407,21 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   const bumpListing = (propertyId, useVoucher = false) => {
     const property = properties.find(p => p.id === propertyId);
     const isVipDiamond = property?.vipPackageId === 'vip-diamond';
-    const hasBumpVoucher = (currentUser.vouchers?.normalBump || 0) > 0;
+    const isMemberActive = isMembershipActive(currentUser);
+    const hasBumpVoucher = isMemberActive && (currentUser.vouchers?.normalBump || 0) > 0;
 
     let finalPrice = BUMP_SERVICE_PRICE;
     let usedVoucher = false;
 
-    if (useVoucher && hasBumpVoucher) {
-      finalPrice = 0;
-      usedVoucher = true;
+    if (useVoucher) {
+      if (!isMemberActive) {
+        showToast('Gói hội viên của bạn đã hết hạn hoặc không khả dụng. Toàn bộ voucher đi kèm đã hết hiệu lực theo quy chế sàn!', 'warning');
+        return false;
+      }
+      if (hasBumpVoucher) {
+        finalPrice = 0;
+        usedVoucher = true;
+      }
     }
 
     if (finalPrice > 0 && currentUser.walletBalance < finalPrice) {
@@ -1387,10 +1545,15 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     let usedVoucherType = null;
 
     if (!isGuest && currentUser) {
-      if (appliedVoucher === 'normalPublish' && (currentUser.vouchers?.normalPublish || 0) > 0) {
+      const isMemberActive = isMembershipActive(currentUser);
+      if (appliedVoucher && !isMemberActive) {
+        showToast('Gói hội viên của bạn đã hết hạn hoặc không khả dụng. Toàn bộ voucher đi kèm đã hết hiệu lực theo quy chế sàn!', 'warning');
+        return null;
+      }
+      if (isMemberActive && appliedVoucher === 'normalPublish' && (currentUser.vouchers?.normalPublish || 0) > 0) {
         discountAmount = Math.min(totalCost, 35000);
         usedVoucherType = 'normalPublish';
-      } else if (appliedVoucher === 'vipPublish' && (currentUser.vouchers?.vipPublish || 0) > 0 && vipPackageId !== 'normal') {
+      } else if (isMemberActive && appliedVoucher === 'vipPublish' && (currentUser.vouchers?.vipPublish || 0) > 0 && vipPackageId !== 'normal') {
         discountAmount = Math.min(totalCost, 400000);
         usedVoucherType = 'vipPublish';
       }
@@ -3156,6 +3319,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         VIETNAM_BANKS,
         membershipPackages,
         subscribeMembership,
+        isMembershipActive,
         updateMembershipPackage,
         addMembershipPackage,
         deleteMembershipPackage,

@@ -9,6 +9,7 @@ export default function MembershipPage() {
     currentUser, 
     membershipPackages, 
     subscribeMembership, 
+    isMembershipActive,
     showToast,
     setActiveModal 
   } = useRealEstate();
@@ -17,7 +18,12 @@ export default function MembershipPage() {
   const [selectedCycle, setSelectedCycle] = useState(1); // 1, 3, or 6 months
   const [confirmingPackage, setConfirmingPackage] = useState(null);
 
-  const isCurrentMember = !!currentUser?.membership;
+  const isMemberActive = isMembershipActive ? isMembershipActive(currentUser) : Boolean(
+    currentUser?.membership && 
+    currentUser.membership.status === 'active' && 
+    (!currentUser.membership.expiresAt || new Date(currentUser.membership.expiresAt).getTime() > Date.now())
+  );
+  const isMemberExpired = Boolean(currentUser?.membership && !isMemberActive);
 
   const handleSubscribe = (pkg) => {
     if (!currentUser || currentUser.id === 'guest' || !currentUser.email) {
@@ -75,7 +81,11 @@ export default function MembershipPage() {
 
         {/* Current User Membership & Voucher Status Box */}
         {currentUser && (
-          <div className="bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl border border-slate-800">
+          <div className={`rounded-3xl p-6 sm:p-8 text-white shadow-xl border ${
+            isMemberExpired
+              ? 'bg-gradient-to-r from-rose-950/90 via-slate-900 to-rose-950/70 border-rose-800/80'
+              : 'bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 border-slate-800'
+          }`}>
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
               
               {/* User info & membership badge */}
@@ -88,9 +98,13 @@ export default function MembershipPage() {
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="text-lg font-black text-white">{currentUser.name}</h3>
-                    {isCurrentMember ? (
+                    {isMemberActive ? (
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${currentUser.membership.badgeColor || 'bg-amber-400 text-slate-950'}`}>
                         <i className="fa-solid fa-crown mr-1"></i> {currentUser.membership.packageName}
+                      </span>
+                    ) : isMemberExpired ? (
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-rose-500/20 text-rose-300 border border-rose-500/40">
+                        <i className="fa-solid fa-triangle-exclamation mr-1"></i> GÓI ĐÃ HẾT HẠN ({currentUser.membership.packageName})
                       </span>
                     ) : (
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700">
@@ -100,7 +114,7 @@ export default function MembershipPage() {
                   </div>
                   <div className="text-xs text-slate-400 mt-1 flex flex-wrap items-center gap-3">
                     <span>Số dư ví: <b className="text-emerald-400 font-mono text-sm">{currentUser.walletBalance?.toLocaleString('vi-VN')} đ</b></span>
-                    {isCurrentMember && (
+                    {isMemberActive && (
                       <>
                         <span>Hạn dùng: <b className="text-amber-300 font-mono">{new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN')}</b></span>
                         <span className={`inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[10px] font-bold ${
@@ -113,43 +127,65 @@ export default function MembershipPage() {
                         </span>
                       </>
                     )}
+                    {isMemberExpired && (
+                      <span className="text-rose-300 font-medium">
+                        Hết hạn ngày: <b className="text-white font-mono">{new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN')}</b> • Toàn bộ voucher đã hết hiệu lực theo quy chế sàn.
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* Vouchers balance pills */}
-              <div className="flex flex-wrap items-center gap-3 bg-slate-950/80 p-3.5 rounded-2xl border border-slate-800">
+              <div className={`flex flex-wrap items-center gap-3 p-3.5 rounded-2xl border ${
+                isMemberExpired
+                  ? 'bg-rose-950/40 border-rose-800/60'
+                  : 'bg-slate-950/80 border-slate-800'
+              }`}>
                 <div className="text-center px-3 py-1">
                   <div className="text-[10px] text-slate-400 font-bold uppercase">Voucher Tin Thường</div>
-                  <div className="text-lg font-black text-emerald-400 mt-0.5">
-                    {currentUser.vouchers?.normalPublish || 0} <span className="text-xs text-slate-500 font-normal">lượt (-35k)</span>
+                  <div className={`text-lg font-black mt-0.5 ${isMemberExpired ? 'text-rose-400 font-mono' : 'text-emerald-400'}`}>
+                    {isMemberExpired ? 0 : (currentUser.vouchers?.normalPublish || 0)} <span className="text-xs text-slate-500 font-normal">{isMemberExpired ? '(hết hạn)' : 'lượt (-35k)'}</span>
                   </div>
                 </div>
                 <div className="w-px h-8 bg-slate-800 hidden sm:block"></div>
                 <div className="text-center px-3 py-1">
                   <div className="text-[10px] text-slate-400 font-bold uppercase">Voucher Đẩy Tin</div>
-                  <div className="text-lg font-black text-blue-400 mt-0.5">
-                    {currentUser.vouchers?.normalBump || 0} <span className="text-xs text-slate-500 font-normal">lượt (-10k)</span>
+                  <div className={`text-lg font-black mt-0.5 ${isMemberExpired ? 'text-rose-400 font-mono' : 'text-blue-400'}`}>
+                    {isMemberExpired ? 0 : (currentUser.vouchers?.normalBump || 0)} <span className="text-xs text-slate-500 font-normal">{isMemberExpired ? '(hết hạn)' : 'lượt (-10k)'}</span>
                   </div>
                 </div>
                 <div className="w-px h-8 bg-slate-800 hidden sm:block"></div>
                 <div className="text-center px-3 py-1">
                   <div className="text-[10px] text-slate-400 font-bold uppercase">Voucher Tin VIP</div>
-                  <div className="text-lg font-black text-amber-400 mt-0.5">
-                    {currentUser.vouchers?.vipPublish || 0} <span className="text-xs text-slate-500 font-normal">voucher (-400k)</span>
+                  <div className={`text-lg font-black mt-0.5 ${isMemberExpired ? 'text-rose-400 font-mono' : 'text-amber-400'}`}>
+                    {isMemberExpired ? 0 : (currentUser.vouchers?.vipPublish || 0)} <span className="text-xs text-slate-500 font-normal">{isMemberExpired ? '(hết hạn)' : 'voucher (-400k)'}</span>
                   </div>
                 </div>
               </div>
 
               {/* Quick actions */}
               <div className="flex items-center gap-2 shrink-0">
-                <button
-                  onClick={() => navigate('/dang-tin')}
-                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs shadow-lg transition flex items-center gap-1.5"
-                >
-                  <i className="fa-solid fa-plus-circle"></i>
-                  <span>Dùng Voucher Đăng Tin</span>
-                </button>
+                {isMemberActive ? (
+                  <button
+                    onClick={() => navigate('/dang-tin')}
+                    className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs shadow-lg transition flex items-center gap-1.5"
+                  >
+                    <i className="fa-solid fa-plus-circle"></i>
+                    <span>Dùng Voucher Đăng Tin</span>
+                  </button>
+                ) : isMemberExpired ? (
+                  <button
+                    onClick={() => {
+                      const el = document.getElementById('pricing-grid');
+                      if (el) el.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs shadow-lg transition flex items-center gap-1.5 animate-pulse"
+                  >
+                    <i className="fa-solid fa-arrows-rotate"></i>
+                    <span>Gia Hạn Gói Ngay</span>
+                  </button>
+                ) : null}
                 <button
                   onClick={() => setActiveModal('wallet-deposit')}
                   className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 font-bold text-xs border border-slate-700 transition"
@@ -208,7 +244,7 @@ export default function MembershipPage() {
         </div>
 
         {/* 3 Main Membership Packages Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
+        <div id="pricing-grid" className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
           {(membershipPackages || []).map((pkg) => {
             const cycle = pkg.billingCycles.find(c => c.months === selectedCycle) || pkg.billingCycles[0];
             const isCurrent = currentUser?.membership?.packageId === pkg.id;
@@ -329,15 +365,17 @@ export default function MembershipPage() {
                   <button
                     onClick={() => handleSubscribe(pkg)}
                     className={`w-full py-3.5 px-4 rounded-2xl font-black text-xs uppercase tracking-wider shadow-lg transition flex items-center justify-center gap-2 ${
-                      isCurrent
+                      isCurrent && isMemberActive
                         ? 'bg-slate-800 text-white hover:bg-slate-700'
+                        : isCurrent && isMemberExpired
+                        ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/30 ring-2 ring-emerald-400'
                         : pkg.recommended
                         ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-amber-500/25'
                         : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-600/25'
                     }`}
                   >
                     <i className="fa-solid fa-crown text-sm"></i>
-                    <span>{isCurrent ? 'Gia Hạn Gói Này' : `Đăng Ký ${pkg.shortName}`}</span>
+                    <span>{isCurrent ? (isMemberExpired ? 'Gia Hạn Lại Gói Này' : 'Gia Hạn Gói Này') : `Đăng Ký ${pkg.shortName}`}</span>
                   </button>
                 </div>
               </div>

@@ -22,6 +22,7 @@ export default function UserDashboard() {
     showToast,
     renewProperty,
     getPropertyExpirationInfo,
+    isMembershipActive,
     vipPackages: contextVipPackages
   } = useRealEstate();
 
@@ -37,6 +38,12 @@ export default function UserDashboard() {
   const activeVipPackages = (contextVipPackages && contextVipPackages.length > 0) ? contextVipPackages : VIP_PACKAGES;
 
   const isGuest = !currentUser || currentUser.role === 'guest' || currentUser.id === 'guest';
+  const isMemberActive = isMembershipActive ? isMembershipActive(currentUser) : Boolean(
+    currentUser?.membership && 
+    currentUser.membership.status === 'active' && 
+    (!currentUser.membership.expiresAt || new Date(currentUser.membership.expiresAt).getTime() > Date.now())
+  );
+  const isMemberExpired = Boolean(currentUser?.membership && !isMemberActive);
 
   // Listings authored by currentUser (or all listings if demo admin/broker)
   const myListings = properties.filter(p => {
@@ -141,16 +148,24 @@ export default function UserDashboard() {
       </div>
 
       {/* Membership & Vouchers Status Banner */}
-      <div className="bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 rounded-3xl p-5 sm:p-6 text-white shadow-xl border border-slate-800">
+      <div className={`rounded-3xl p-5 sm:p-6 text-white shadow-xl border ${
+        isMemberExpired
+          ? 'bg-gradient-to-r from-rose-950/90 via-slate-900 to-rose-950/70 border-rose-800/80'
+          : 'bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 border-slate-800'
+      }`}>
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-500 text-slate-950 flex items-center justify-center text-xl font-black shadow-lg shrink-0">
-              <i className="fa-solid fa-crown"></i>
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-black shadow-lg shrink-0 ${
+              isMemberExpired
+                ? 'bg-rose-500 text-white'
+                : 'bg-gradient-to-tr from-amber-500 to-orange-500 text-slate-950'
+            }`}>
+              <i className={isMemberExpired ? "fa-solid fa-triangle-exclamation" : "fa-solid fa-crown"}></i>
             </div>
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Gói Hội Viên</span>
-                {currentUser?.membership ? (
+                {isMemberActive ? (
                   <>
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${currentUser.membership.badgeColor || 'bg-amber-400 text-slate-950'}`}>
                       {currentUser.membership.packageName}
@@ -164,27 +179,40 @@ export default function UserDashboard() {
                       <span>{currentUser.membership.isAutoRenew === true ? 'Tự động gia hạn: BẬT' : 'Tự động gia hạn: TẮT'}</span>
                     </span>
                   </>
+                ) : isMemberExpired ? (
+                  <>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase bg-rose-500/20 text-rose-300 border border-rose-500/40">
+                      Gói đã hết hạn ({currentUser.membership.packageName})
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-950 text-rose-400 border border-rose-800">
+                      Voucher đã hết hiệu lực
+                    </span>
+                  </>
                 ) : (
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-400">
                     Chưa đăng ký
                   </span>
                 )}
               </div>
-              <div className="text-xs text-slate-300 mt-0.5">
-                {currentUser?.membership ? (
-                  <span>
+              <div className="text-xs mt-0.5">
+                {isMemberActive ? (
+                  <span className="text-slate-300">
                     Hạn dùng gói: <b className="text-amber-300 font-mono">{new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN')}</b>
                     {currentUser.membership.durationDays ? ` (${currentUser.membership.durationDays} ngày)` : ''} • Voucher cấp mới định kỳ 30 ngày
                   </span>
+                ) : isMemberExpired ? (
+                  <span className="text-rose-300">
+                    Đã hết hạn vào ngày: <b className="text-white font-mono">{new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN')}</b> • Toàn bộ voucher chưa dùng đã hết hạn theo quy chế sàn.
+                  </span>
                 ) : (
-                  <span>Đăng ký Gói Hội Viên để nhận kho voucher giảm 35k đăng tin và 10k đẩy tin, tiết kiệm tới 39%!</span>
+                  <span className="text-slate-300">Đăng ký Gói Hội Viên để nhận kho voucher giảm 35k đăng tin và 10k đẩy tin, tiết kiệm tới 39%!</span>
                 )}
               </div>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            {currentUser?.membership ? (
+            {isMemberActive ? (
               <div className="flex items-center gap-2 bg-slate-950/80 p-2 rounded-xl border border-slate-800 text-xs">
                 <div className="px-2.5 py-1 text-center border-r border-slate-800">
                   <div className="text-[10px] text-slate-400 font-bold uppercase">Tin Thường (-35k)</div>
@@ -199,13 +227,32 @@ export default function UserDashboard() {
                   <div className="text-sm font-black text-red-400 font-mono">{currentUser.vouchers?.vipPublish || 0}</div>
                 </div>
               </div>
+            ) : isMemberExpired ? (
+              <div className="flex items-center gap-2 bg-rose-950/60 p-2 rounded-xl border border-rose-800/60 text-xs">
+                <div className="px-2.5 py-1 text-center border-r border-rose-900/60">
+                  <div className="text-[10px] text-rose-400 font-bold uppercase">Tin Thường</div>
+                  <div className="text-sm font-black text-rose-300 font-mono">0</div>
+                </div>
+                <div className="px-2.5 py-1 text-center border-r border-rose-900/60">
+                  <div className="text-[10px] text-rose-400 font-bold uppercase">Đẩy Tin</div>
+                  <div className="text-sm font-black text-rose-300 font-mono">0</div>
+                </div>
+                <div className="px-2.5 py-1 text-center">
+                  <div className="text-[10px] text-rose-400 font-bold uppercase">Tin VIP</div>
+                  <div className="text-sm font-black text-rose-300 font-mono">0</div>
+                </div>
+              </div>
             ) : null}
 
             <Link
               to="/goi-hoi-vien"
-              className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs transition shadow-md flex items-center gap-1.5 shrink-0"
+              className={`px-4 py-2 font-black rounded-xl text-xs transition shadow-md flex items-center gap-1.5 shrink-0 ${
+                isMemberExpired
+                  ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-emerald-500/20 animate-pulse'
+                  : 'bg-amber-500 hover:bg-amber-400 text-slate-950'
+              }`}
             >
-              <span>{currentUser?.membership ? 'Quản Lý Gói Hội Viên' : 'Đăng Ký Gói Hội Viên'}</span>
+              <span>{isMemberExpired ? 'Gia Hạn Gói Ngay' : currentUser?.membership ? 'Quản Lý Gói Hội Viên' : 'Đăng Ký Gói Hội Viên'}</span>
               <i className="fa-solid fa-arrow-right text-[10px]"></i>
             </Link>
           </div>
