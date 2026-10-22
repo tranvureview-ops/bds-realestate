@@ -156,12 +156,12 @@ export default function UserDashboard() {
                       {currentUser.membership.packageName}
                     </span>
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                      currentUser.membership.isAutoRenew !== false 
+                      currentUser.membership.isAutoRenew === true 
                         ? 'bg-emerald-950/90 text-emerald-300 border border-emerald-700/60' 
                         : 'bg-slate-800 text-slate-400 border border-slate-700'
                     }`}>
                       <i className="fa-solid fa-arrows-rotate text-[8px]"></i>
-                      <span>{currentUser.membership.isAutoRenew !== false ? 'Tự động gia hạn: BẬT' : 'Tự động gia hạn: TẮT'}</span>
+                      <span>{currentUser.membership.isAutoRenew === true ? 'Tự động gia hạn: BẬT' : 'Tự động gia hạn: TẮT'}</span>
                     </span>
                   </>
                 ) : (

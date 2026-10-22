@@ -90,7 +90,17 @@ export default function MembershipPage() {
                   <div className="text-xs text-slate-400 mt-1 flex flex-wrap items-center gap-3">
                     <span>Số dư ví: <b className="text-emerald-400 font-mono text-sm">{currentUser.walletBalance?.toLocaleString('vi-VN')} đ</b></span>
                     {isCurrentMember && (
-                      <span>Hạn dùng: <b className="text-amber-300 font-mono">{new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN')}</b></span>
+                      <>
+                        <span>Hạn dùng: <b className="text-amber-300 font-mono">{new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN')}</b></span>
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[10px] font-bold ${
+                          currentUser.membership.isAutoRenew === true 
+                            ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' 
+                            : 'bg-slate-800 text-slate-400 border border-slate-700'
+                        }`}>
+                          <i className="fa-solid fa-arrows-rotate text-[8px]"></i>
+                          <span>{currentUser.membership.isAutoRenew === true ? 'Tự động gia hạn: BẬT' : 'Tự động gia hạn: TẮT'}</span>
+                        </span>
+                      </>
                     )}
                   </div>
                 </div>

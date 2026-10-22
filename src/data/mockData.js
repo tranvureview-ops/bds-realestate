@@ -2089,7 +2089,7 @@ export const MOCK_USERS = [
       subscribedAt: '2026-10-01T00:00:00Z',
       expiresAt: '2027-01-01T00:00:00Z',
       status: 'active',
-      isAutoRenew: true,
+      isAutoRenew: false,
       badge: 'HỘI VIÊN TIÊU CHUẨN ★',
       badgeColor: 'bg-amber-500 text-slate-950 font-black'
     },
@@ -2119,7 +2119,7 @@ export const MOCK_USERS = [
       subscribedAt: '2026-01-01T00:00:00Z',
       expiresAt: '2030-01-01T00:00:00Z',
       status: 'active',
-      isAutoRenew: true,
+      isAutoRenew: false,
       badge: 'HỘI VIÊN CAO CẤP',
       badgeColor: 'bg-purple-600 text-white font-black'
     },

@@ -509,7 +509,7 @@ export default function AdminBackendPage() {
     durationDays: 30,
     subscribedAt: '',
     expiresAt: '',
-    isAutoRenew: true,
+    isAutoRenew: false,
     status: 'active',
     badge: '',
     badgeColor: '',
@@ -1591,7 +1591,7 @@ export default function AdminBackendPage() {
       durationDays: durationDays,
       subscribedAt: startStr,
       expiresAt: expiresStr,
-      isAutoRenew: m ? (m.isAutoRenew !== false) : true,
+      isAutoRenew: Boolean(m?.isAutoRenew),
       status: m?.status || 'active',
       badge: m?.badge || matchedPkg?.badge || '',
       badgeColor: m?.badgeColor || matchedPkg?.badgeColor || 'bg-amber-500 text-slate-950 font-black',
@@ -4275,12 +4275,12 @@ export default function AdminBackendPage() {
                                     </div>
                                     <div className="flex items-center gap-1">
                                       <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${
-                                        u.membership.isAutoRenew !== false 
+                                        u.membership.isAutoRenew === true 
                                           ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' 
                                           : 'bg-slate-800 text-slate-400 border border-slate-700'
                                       }`}>
                                         <i className="fa-solid fa-arrows-rotate text-[8px] mr-0.5"></i>
-                                        {u.membership.isAutoRenew !== false ? 'Auto-renew' : 'Tắt gia hạn'}
+                                        {u.membership.isAutoRenew === true ? 'Auto-renew' : 'Tắt gia hạn'}
                                       </span>
                                     </div>
                                   </div>

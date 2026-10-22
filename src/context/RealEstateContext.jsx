@@ -1651,7 +1651,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         subscribedAt: new Date().toISOString(),
         expiresAt: expiresDate,
         status: 'active',
-        isAutoRenew: true, // Trạng thái tự động gia hạn (Auto-renew)
+        isAutoRenew: false, // Mặc định tắt tự động gia hạn (Auto-renew: OFF)
         badge: pkg.badge,
         badgeColor: pkg.badgeColor
       },
