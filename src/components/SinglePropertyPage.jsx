@@ -185,6 +185,34 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     return uniqueNewParts.join(', ');
   }, [property.newAddress, property.street, property.address, property.ward, property.city, mergerData]);
 
+  // 3. Chuỗi địa chỉ mới trong ngoặc đơn theo chuẩn Batdongsan.com.vn: (Xã/Phường, Tỉnh/TP mới)
+  const newAddressNotice = useMemo(() => {
+    // 1. Nếu có thông tin sáp nhập đơn vị hành chính
+    if (mergerData?.newWard) {
+      const city = mergerData.newCity || property.city || 'Đà Nẵng';
+      return `${mergerData.newWard}, ${city}`.replace(/\s*mới\s*$/i, '').trim();
+    }
+
+    // 2. Nếu tin đăng có newAddress riêng biệt
+    if (property.newAddress) {
+      const rawNew = property.newAddress.replace(/^\(|\)$/g, '').replace(/\s*mới\s*$/i, '').trim();
+      const parts = rawNew.split(',').map(s => s.trim()).filter(Boolean);
+      if (parts.length >= 2) {
+        return parts.slice(-2).join(', ');
+      }
+      return rawNew;
+    }
+
+    // 3. Chuẩn hóa theo mô hình chính quyền đô thị mới tại Đà Nẵng (bỏ cấp quận)
+    const ward = property.ward || '';
+    const city = property.city || 'Đà Nẵng';
+    if (ward && city) {
+      return `${ward}, ${city}`;
+    }
+
+    return '';
+  }, [mergerData, property.newAddress, property.ward, property.city]);
+
   // Bảo vệ an toàn tuyệt đối chống lỗi thiếu ảnh hoặc thiếu thông tin tác giả/khách vãng lai
   const safeImages = Array.isArray(property.images) && property.images.length > 0
     ? property.images
@@ -1006,75 +1034,20 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 {property.title}
               </h1>
 
-              {/* Address Information (Địa chỉ chưa cập nhật & Địa chỉ mới ở dưới) */}
-              <div className="mt-2.5 space-y-1.5 text-xs sm:text-sm">
-                {/* 1. Dòng trên: Địa chỉ chưa cập nhật */}
-                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-slate-600">
-                  <div className="inline-flex items-center gap-1.5 shrink-0 text-slate-500 font-semibold">
-                    <i className="fa-solid fa-location-dot text-slate-400 text-sm"></i>
-                    <span>Địa chỉ chưa cập nhật:</span>
+              {/* Address (Chuẩn giao diện Batdongsan.com.vn) */}
+              <div className="flex items-start gap-2.5 text-xs sm:text-sm mt-3 pt-1 text-slate-800">
+                <i className="fa-solid fa-location-dot text-slate-800 text-sm mt-0.5 shrink-0"></i>
+                <div className="space-y-0.5 leading-snug">
+                  <div className="font-semibold text-slate-900">
+                    {displayOldAddress}
                   </div>
-                  <span className="font-medium text-slate-700">{displayOldAddress}</span>
-                </div>
-
-                {/* 2. Dòng dưới: Địa chỉ mới */}
-                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-slate-900">
-                  <div className="inline-flex items-center gap-1.5 shrink-0 text-emerald-700 font-bold">
-                    <i className="fa-solid fa-location-dot text-emerald-600 text-sm"></i>
-                    <span>Địa chỉ mới:</span>
-                  </div>
-                  <span className="font-extrabold text-slate-950">{displayNewAddress}</span>
-                  {mergerData && (
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-red-600 text-white shadow-xs ml-0.5">
-                      Mới sáp nhập
-                    </span>
+                  {newAddressNotice && (
+                    <div className="text-slate-600 text-xs font-normal">
+                      ({newAddressNotice} mới)
+                    </div>
                   )}
                 </div>
               </div>
-
-              {/* Administrative Merger Info Notice (Địa giới hành chính sau sáp nhập) */}
-              {singleConfig?.features?.showAdministrativeMergerAlert !== false && mergerData && (
-                <div className="mt-3 p-3.5 bg-gradient-to-r from-red-50/90 via-amber-50/90 to-orange-50/90 rounded-2xl border border-red-200/90 text-xs space-y-2 animate-in fade-in duration-200">
-                  <div className="flex items-center justify-between">
-                    <span className="font-black text-red-700 flex items-center gap-1.5 text-xs">
-                      <i className="fa-solid fa-map-pin text-red-600"></i>
-                      <span>Đơn Vị Hành Chính Mới Sau Sáp Nhập (Cập Nhật 2024 - 2025)</span>
-                    </span>
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-red-600 text-white shadow-xs">
-                      Mới Sáp Nhập
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-[11px]">
-                    <div className="p-2.5 bg-white/95 rounded-xl border border-red-200 shadow-xs">
-                      <div className="text-[10px] font-bold text-red-600 uppercase flex items-center gap-1 mb-0.5">
-                        <i className="fa-solid fa-circle-check text-red-600"></i>
-                        <span>Địa chỉ mới (Hiện hành):</span>
-                      </div>
-                      <div className="font-extrabold text-slate-900 leading-snug">
-                        {displayNewAddress}
-                      </div>
-                    </div>
-
-                    <div className="p-2.5 bg-white/80 rounded-xl border border-slate-200/80">
-                      <div className="text-[10px] font-bold text-slate-500 uppercase flex items-center gap-1 mb-0.5">
-                        <i className="fa-regular fa-clock text-slate-400"></i>
-                        <span>Địa chỉ cũ (Theo sổ đỏ/hồng):</span>
-                      </div>
-                      <div className="font-semibold text-slate-700 leading-snug">
-                        {displayOldAddress}
-                      </div>
-                    </div>
-                  </div>
-
-                  {mergerData.resolution && (
-                    <div className="text-[10px] text-slate-500 flex items-center gap-1 pl-1">
-                      <i className="fa-solid fa-scale-balanced text-amber-600"></i>
-                      <span>Căn cứ pháp lý: {mergerData.resolution}</span>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
 
             {/* Price Banner */}
