@@ -1505,17 +1505,80 @@ export default function AdminBackendPage() {
     }
   };
 
+  // Date Helpers for Membership Modal
+  const parseDateToUTC = (dateStr) => {
+    if (!dateStr) return new Date();
+    const parts = String(dateStr).split('T')[0].split('-');
+    if (parts.length === 3) {
+      return new Date(Date.UTC(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2])));
+    }
+    return new Date(dateStr);
+  };
+
+  const formatDateToYMD = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
+    const year = d.getUTCFullYear();
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  const calcDaysBetween = (startStr, endStr) => {
+    if (!startStr || !endStr) return 30;
+    const s = parseDateToUTC(startStr);
+    const e = parseDateToUTC(endStr);
+    const diff = e.getTime() - s.getTime();
+    return Math.max(1, Math.round(diff / (1000 * 60 * 60 * 24)));
+  };
+
+  const calcEndDate = (startStr, days) => {
+    if (!startStr) return '';
+    const s = parseDateToUTC(startStr);
+    s.setUTCDate(s.getUTCDate() + Number(days));
+    return formatDateToYMD(s);
+  };
+
+  const formatVietnameseDate = (dateStr) => {
+    if (!dateStr) return '';
+    try {
+      const parts = String(dateStr).split('T')[0].split('-');
+      if (parts.length === 3) {
+        const d = new Date(Number(parts[0]), Number(parts[1]) - 1, Number(parts[2]));
+        return d.toLocaleDateString('vi-VN', {
+          weekday: 'short',
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+      }
+      return new Date(dateStr).toLocaleDateString('vi-VN');
+    } catch {
+      return dateStr;
+    }
+  };
+
   // Open Membership Assignment Modal for User
   const handleOpenMembershipModal = (user) => {
     setMembershipModalUser(user);
     const m = user.membership;
     const v = user.vouchers || {};
 
-    const todayStr = new Date().toISOString().split('T')[0];
-    const defaultDays = m?.durationDays || 30;
-    const defaultExpires = m?.expiresAt
-      ? new Date(m.expiresAt).toISOString().split('T')[0]
-      : new Date(Date.now() + defaultDays * 86400000).toISOString().split('T')[0];
+    const todayStr = formatDateToYMD(new Date());
+    const startStr = m?.subscribedAt ? formatDateToYMD(m.subscribedAt) : todayStr;
+
+    // Tính toán đồng bộ chính xác số ngày sử dụng và ngày hết hạn
+    let durationDays = 30;
+    let expiresStr = '';
+
+    if (m?.expiresAt && m?.subscribedAt) {
+      expiresStr = formatDateToYMD(m.expiresAt);
+      durationDays = m.durationDays || calcDaysBetween(startStr, expiresStr);
+    } else {
+      durationDays = m?.durationDays || 30;
+      expiresStr = calcEndDate(startStr, durationDays);
+    }
 
     const currentPkgId = m?.packageId || (membershipPackages[0]?.id || 'member-basic');
     const matchedPkg = membershipPackages.find(p => p.id === currentPkgId) || membershipPackages[0];
@@ -1525,9 +1588,9 @@ export default function AdminBackendPage() {
       packageId: m ? m.packageId : (matchedPkg?.id || 'member-basic'),
       packageName: m ? (m.packageName || matchedPkg?.name) : (matchedPkg?.name || 'Gói Hội Viên'),
       shortName: m ? (m.shortName || matchedPkg?.shortName) : (matchedPkg?.shortName || ''),
-      durationDays: defaultDays,
-      subscribedAt: m?.subscribedAt ? new Date(m.subscribedAt).toISOString().split('T')[0] : todayStr,
-      expiresAt: defaultExpires,
+      durationDays: durationDays,
+      subscribedAt: startStr,
+      expiresAt: expiresStr,
       isAutoRenew: m ? (m.isAutoRenew !== false) : true,
       status: m?.status || 'active',
       badge: m?.badge || matchedPkg?.badge || '',
@@ -1552,8 +1615,8 @@ export default function AdminBackendPage() {
 
     const cycle = matched.billingCycles?.[0] || { duration_days: 30, months: 1 };
     const days = cycle.duration_days || (cycle.months * 30) || 30;
-    const start = membershipForm.subscribedAt ? new Date(membershipForm.subscribedAt) : new Date();
-    const newExpires = new Date(start.getTime() + days * 86400000).toISOString().split('T')[0];
+    const start = membershipForm.subscribedAt || formatDateToYMD(new Date());
+    const newExpires = calcEndDate(start, days);
 
     setMembershipForm(prev => ({
       ...prev,
@@ -1573,10 +1636,9 @@ export default function AdminBackendPage() {
 
   const handleQuickAddDays = (daysToAdd) => {
     setMembershipForm(prev => {
-      const baseDate = prev.expiresAt ? new Date(prev.expiresAt) : new Date();
-      const newDate = new Date(baseDate.getTime() + daysToAdd * 86400000);
-      const newExpires = newDate.toISOString().split('T')[0];
       const newDuration = (Number(prev.durationDays) || 0) + daysToAdd;
+      const start = prev.subscribedAt || formatDateToYMD(new Date());
+      const newExpires = calcEndDate(start, newDuration);
       return {
         ...prev,
         expiresAt: newExpires,
@@ -9039,9 +9101,9 @@ export default function AdminBackendPage() {
                           min="1"
                           value={membershipForm.durationDays || 30}
                           onChange={(e) => {
-                            const days = Number(e.target.value);
-                            const start = membershipForm.subscribedAt ? new Date(membershipForm.subscribedAt) : new Date();
-                            const newExp = new Date(start.getTime() + days * 86400000).toISOString().split('T')[0];
+                            const days = Math.max(1, Number(e.target.value) || 1);
+                            const start = membershipForm.subscribedAt || formatDateToYMD(new Date());
+                            const newExp = calcEndDate(start, days);
                             setMembershipForm(prev => ({
                               ...prev,
                               durationDays: days,
@@ -9050,6 +9112,10 @@ export default function AdminBackendPage() {
                           }}
                           className="w-full p-2.5 bg-slate-950 border border-teal-700/60 rounded-xl text-teal-300 font-mono text-xs font-bold outline-none focus:border-teal-400 shadow-inner"
                         />
+                        <div className="text-[10px] text-teal-400 mt-1 flex items-center gap-1">
+                          <i className="fa-solid fa-arrows-rotate text-[9px]"></i>
+                          <span>Tự động tính ngày hết hạn</span>
+                        </div>
                       </div>
 
                       {/* Ngày đăng ký / Kích hoạt */}
@@ -9063,7 +9129,7 @@ export default function AdminBackendPage() {
                           onChange={(e) => {
                             const newStart = e.target.value;
                             const days = Number(membershipForm.durationDays) || 30;
-                            const newExp = newStart ? new Date(new Date(newStart).getTime() + days * 86400000).toISOString().split('T')[0] : membershipForm.expiresAt;
+                            const newExp = newStart ? calcEndDate(newStart, days) : membershipForm.expiresAt;
                             setMembershipForm(prev => ({
                               ...prev,
                               subscribedAt: newStart,
@@ -9072,6 +9138,12 @@ export default function AdminBackendPage() {
                           }}
                           className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono text-xs outline-none focus:border-amber-500"
                         />
+                        {membershipForm.subscribedAt && (
+                          <div className="text-[10px] text-slate-400 mt-1 flex items-center gap-1 font-sans">
+                            <i className="fa-regular fa-calendar-check text-emerald-400"></i>
+                            <span>Lịch VN: <b className="text-slate-200">{formatVietnameseDate(membershipForm.subscribedAt)}</b></span>
+                          </div>
+                        )}
                       </div>
 
                       {/* Ngày hết hạn expiresAt */}
@@ -9085,7 +9157,7 @@ export default function AdminBackendPage() {
                           onChange={(e) => {
                             const newExp = e.target.value;
                             if (newExp && membershipForm.subscribedAt) {
-                              const diffDays = Math.max(1, Math.round((new Date(newExp).getTime() - new Date(membershipForm.subscribedAt).getTime()) / 86400000));
+                              const diffDays = calcDaysBetween(membershipForm.subscribedAt, newExp);
                               setMembershipForm(prev => ({
                                 ...prev,
                                 expiresAt: newExp,
@@ -9097,6 +9169,12 @@ export default function AdminBackendPage() {
                           }}
                           className="w-full p-2.5 bg-slate-950 border border-amber-600/60 rounded-xl text-amber-300 font-mono text-xs font-bold outline-none focus:border-amber-400"
                         />
+                        {membershipForm.expiresAt && (
+                          <div className="text-[10px] text-amber-300/80 mt-1 flex items-center gap-1 font-sans">
+                            <i className="fa-regular fa-clock text-amber-400"></i>
+                            <span>Lịch VN: <b className="text-amber-200">{formatVietnameseDate(membershipForm.expiresAt)}</b></span>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -9134,10 +9212,12 @@ export default function AdminBackendPage() {
                       <button
                         type="button"
                         onClick={() => {
+                          const start = membershipForm.subscribedAt || formatDateToYMD(new Date());
+                          const diff = calcDaysBetween(start, '2030-01-01');
                           setMembershipForm(prev => ({
                             ...prev,
                             expiresAt: '2030-01-01',
-                            durationDays: Math.round((new Date('2030-01-01').getTime() - new Date(prev.subscribedAt || Date.now()).getTime()) / 86400000)
+                            durationDays: diff
                           }));
                         }}
                         className="px-2.5 py-1 rounded-lg bg-purple-950/80 hover:bg-purple-900 text-purple-300 border border-purple-700/60 text-[10px] font-bold transition"
