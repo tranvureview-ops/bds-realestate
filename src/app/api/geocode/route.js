@@ -200,7 +200,8 @@ async function processGeocoding({ tinhThanh = '', quanHuyen = '', phuongXa = '',
       const formattedStreet = rawStreet && !rawStreet.toLowerCase().startsWith('đường') && !rawStreet.toLowerCase().startsWith('phố')
         ? `Đường ${rawStreet}`
         : rawStreet;
-      resolvedFormattedAddress = [formattedStreet, newWardName, newDistrictName, newCityName].filter(Boolean).join(', ');
+      // Địa chỉ mới tại Đà Nẵng đã bỏ cấp quận theo mô hình chính quyền đô thị mới
+      resolvedFormattedAddress = [formattedStreet, newWardName, newCityName].filter(Boolean).join(', ');
     }
 
     const fallbackPlaceId = matchedMerger?.placeId || generateDeterministicPlaceId(rawAddress || `${resolvedLat},${resolvedLng}`);

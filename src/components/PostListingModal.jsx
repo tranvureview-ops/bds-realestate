@@ -393,7 +393,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
           if (data.success) {
             setGoogleGeocodeInfo(data);
             setFormData(prev => {
-              const computedNewAddr = data.formatted_address || [prev.street, data.newWard, data.newDistrict, data.newCity].filter(Boolean).join(', ');
+              const computedNewAddr = [prev.street, data.newWard, data.newCity].filter(Boolean).join(', ');
               return {
                 ...prev,
                 lat: data.lat || prev.lat,
@@ -467,10 +467,10 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const currentOldAddress = [displayStreetPart, displayWard, displayDistrict, displayCity].filter(Boolean).join(', ');
 
   const suggestedWard = mergerInfo?.newWard || '';
-  const suggestedDistrict = mergerInfo?.newDistrict || displayDistrict;
   const suggestedCity = mergerInfo?.newCity || displayCity;
+  // Địa chỉ mới tại Đà Nẵng đã bỏ cấp quận theo mô hình chính quyền đô thị mới
   const computedSuggestedNewAddress = mergerInfo
-    ? [displayStreetPart, suggestedWard, suggestedDistrict, suggestedCity].filter(Boolean).join(', ')
+    ? [displayStreetPart, suggestedWard, suggestedCity].filter(Boolean).join(', ')
     : '';
 
   // Tự động ghép địa chỉ hiển thị
@@ -1186,7 +1186,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                           ward: val,
                           selectedAddressType: '',
                           isAdministrativeMerged: Boolean(localMerger),
-                          newAddress: localMerger ? [prev.street, localMerger.newWard, localMerger.newDistrict || prev.district, prev.city].filter(Boolean).join(', ') : '',
+                          newAddress: localMerger ? [prev.street, localMerger.newWard, prev.city].filter(Boolean).join(', ') : '',
                           lat: localMerger?.lat || prev.lat,
                           lng: localMerger?.lng || prev.lng,
                           google_place_id: localMerger?.placeId || prev.google_place_id
@@ -1302,13 +1302,12 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                               )}
                             </div>
 
-                            {/* Card địa chỉ mới gợi ý chuẩn ảnh user với viền đỏ khi chưa chọn */}
+                            {/* Card địa chỉ mới gợi ý chuẩn ảnh user với viền đỏ khi chưa chọn (Đã bỏ cấp quận) */}
                             <div
                               onClick={() => {
                                 const newAddr = computedSuggestedNewAddress || [
                                   displayStreetPart,
                                   suggestedWard,
-                                  mergerInfo?.newDistrict || displayDistrict,
                                   mergerInfo?.newCity || displayCity
                                 ].filter(Boolean).join(', ');
                                 setFormData(prev => ({
@@ -1329,14 +1328,13 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                             >
                               <div className="space-y-1 min-w-0">
                                 <div className="text-[11px] font-medium text-slate-500">
-                                  Địa chỉ do Google Maps cập nhật sau sáp nhập
+                                  Địa chỉ mới theo đề án tinh gọn (đã bỏ cấp quận)
                                 </div>
                                 <div className="text-xs sm:text-sm text-slate-900 leading-snug">
                                   {displayStreetPart ? `${displayStreetPart}, ` : ''}
                                   <strong className="font-extrabold text-slate-950">
                                     {suggestedWard}
                                   </strong>
-                                  {(mergerInfo?.newDistrict || displayDistrict) ? `, ${mergerInfo?.newDistrict || displayDistrict}` : ''}
                                   {`, ${mergerInfo?.newCity || displayCity}`}
                                 </div>
                                 <div className="text-[10px] text-emerald-700 font-medium pt-0.5 flex items-center gap-1">
