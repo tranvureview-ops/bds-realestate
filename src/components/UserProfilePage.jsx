@@ -1,9 +1,38 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { normalizePhone } from '../utils/authValidation';
 import { Link, useRouter } from '../router/RouterContext';
+
+// Helper nén và cắt ảnh đại diện thành hình vuông 1:1 chất lượng cao
+const resizeImageToAvatar = (file, maxWidth = 400, maxHeight = 400, quality = 0.88) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        const width = img.width;
+        const height = img.height;
+        const size = Math.min(width, height);
+        const startX = (width - size) / 2;
+        const startY = (height - size) / 2;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.min(maxWidth, size);
+        canvas.height = Math.min(maxHeight, size);
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, startX, startY, size, size, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+};
 
 export default function UserProfilePage() {
   const { 
@@ -99,6 +128,39 @@ export default function UserProfilePage() {
     'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=256&q=80',
     'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=256&q=80'
   ];
+
+  // Upload Avatar state & handler
+  const fileInputRef = useRef(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
+  const handleAvatarFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showToast('Vui lòng chọn tệp hình ảnh hợp lệ (JPG, PNG, WEBP)!', 'warning');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('Kích thước ảnh tối đa là 10MB!', 'warning');
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    try {
+      const optimizedDataUrl = await resizeImageToAvatar(file, 400, 400, 0.88);
+      setFormData(prev => ({ ...prev, avatar: optimizedDataUrl }));
+      updateUserProfile({ avatar: optimizedDataUrl });
+      showToast('Cập nhật ảnh đại diện thành công!', 'success');
+    } catch (err) {
+      console.error('Avatar upload failed:', err);
+      showToast('Không thể xử lý hình ảnh, vui lòng thử lại với ảnh khác!', 'error');
+    } finally {
+      setIsUploadingAvatar(false);
+      e.target.value = '';
+    }
+  };
 
   // User's active listings
   const myListings = properties.filter(p => p.author && p.author.id === currentUser.id);
@@ -223,23 +285,32 @@ export default function UserProfilePage() {
           {/* Avatar & User Details */}
           <div className="flex items-center gap-5">
             <div className="relative group">
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/*"
+                onChange={handleAvatarFileUpload}
+                className="hidden"
+              />
               <img
                 src={formData.avatar}
                 alt={currentUser.name}
-                className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl object-cover border-4 border-emerald-500 shadow-lg"
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl object-cover border-4 border-emerald-500 shadow-lg cursor-pointer transition hover:opacity-95"
+                onClick={() => fileInputRef.current?.click()}
+                title="Bấm để tải ảnh đại diện từ máy tính / điện thoại"
               />
               <button
                 type="button"
-                onClick={() => {
-                  const nextIndex = (AVATAR_PRESETS.indexOf(formData.avatar) + 1) % AVATAR_PRESETS.length;
-                  const nextAvatar = AVATAR_PRESETS[nextIndex];
-                  setFormData({ ...formData, avatar: nextAvatar });
-                  updateUserProfile({ avatar: nextAvatar });
-                }}
-                className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-slate-900 hover:bg-slate-800 text-white flex items-center justify-center text-xs shadow-md border-2 border-white transition"
-                title="Bấm để đổi avatar"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploadingAvatar}
+                className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full bg-slate-900 hover:bg-emerald-600 text-white flex items-center justify-center text-xs shadow-md border-2 border-white transition cursor-pointer"
+                title="Bấm để tải ảnh đại diện từ thiết bị"
               >
-                <i className="fa-solid fa-camera"></i>
+                {isUploadingAvatar ? (
+                  <i className="fa-solid fa-spinner fa-spin text-[10px]"></i>
+                ) : (
+                  <i className="fa-solid fa-camera"></i>
+                )}
               </button>
             </div>
 
@@ -517,6 +588,69 @@ export default function UserProfilePage() {
               <div className="border-b border-slate-100 pb-3">
                 <h3 className="text-base font-black text-slate-900">Thông Tin Hồ Sơ & Liên Hệ</h3>
                 <p className="text-slate-500 text-[11px] mt-0.5">Thông tin này sẽ hiển thị trên tất cả bài đăng của bạn để khách hàng tiện liên hệ</p>
+              </div>
+
+              {/* Khối Cập Nhật Ảnh Đại Diện Trực Quan */}
+              <div className="p-4 bg-slate-50/80 rounded-2xl border border-slate-200/90 space-y-3">
+                <label className="block text-slate-700 font-bold uppercase text-[11px]">Ảnh đại diện tài khoản:</label>
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="relative group">
+                    <img
+                      src={formData.avatar}
+                      alt={currentUser.name}
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-emerald-500 shadow-sm shrink-0"
+                    />
+                    {isUploadingAvatar && (
+                      <div className="absolute inset-0 bg-black/40 rounded-2xl flex items-center justify-center text-white text-xs">
+                        <i className="fa-solid fa-spinner fa-spin"></i>
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-1.5 flex-1 min-w-[200px]">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={isUploadingAvatar}
+                        className="px-3.5 py-2 bg-slate-900 hover:bg-emerald-600 text-white rounded-xl font-bold text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                      >
+                        {isUploadingAvatar ? (
+                          <i className="fa-solid fa-spinner fa-spin text-xs"></i>
+                        ) : (
+                          <i className="fa-solid fa-cloud-arrow-up text-emerald-400"></i>
+                        )}
+                        <span>{isUploadingAvatar ? 'Đang xử lý ảnh...' : 'Tải Ảnh Mới Từ Thiết Bị'}</span>
+                      </button>
+                    </div>
+                    <div className="text-[10.5px] text-slate-500 leading-relaxed">
+                      Hỗ trợ JPG, PNG, WEBP (Tối đa 10MB). Ảnh được tự động cắt vuông chuẩn 1:1 và nén tối ưu hiển thị nhanh.
+                    </div>
+                  </div>
+                </div>
+
+                {/* Avatar mẫu gợi ý */}
+                <div className="pt-2 border-t border-slate-200/60">
+                  <div className="text-[10px] text-slate-400 font-bold uppercase mb-1.5">Hoặc chọn nhanh mẫu có sẵn:</div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {AVATAR_PRESETS.map((presetUrl, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          setFormData(prev => ({ ...prev, avatar: presetUrl }));
+                          updateUserProfile({ avatar: presetUrl });
+                          showToast('Đã chọn avatar mẫu!', 'success');
+                        }}
+                        className={`w-10 h-10 rounded-xl overflow-hidden border-2 transition cursor-pointer hover:scale-105 ${
+                          formData.avatar === presetUrl ? 'border-emerald-600 ring-2 ring-emerald-500/30' : 'border-slate-200 hover:border-slate-300'
+                        }`}
+                        title={`Chọn avatar mẫu ${idx + 1}`}
+                      >
+                        <img src={presetUrl} alt={`Avatar preset ${idx + 1}`} className="w-full h-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
