@@ -106,8 +106,8 @@ export default function HomePage() {
       />
 
       {/* VIP Package Showcase Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 -mt-4">
-        <VipPackageShowcase className="!pt-1 !pb-6 bg-transparent" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 !mt-1">
+        <VipPackageShowcase className="pt-2 pb-6 bg-transparent" />
       </div>
     </div>
   );

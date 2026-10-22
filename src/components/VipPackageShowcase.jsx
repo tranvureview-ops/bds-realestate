@@ -34,7 +34,7 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
   };
 
   return (
-    <div className={`py-6 sm:py-8 px-4 sm:px-6 lg:px-8 ${className}`}>
+    <div className={`px-4 sm:px-6 lg:px-8 ${className ? className : 'py-6 sm:py-8'}`}>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-8">

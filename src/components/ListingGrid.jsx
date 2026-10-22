@@ -185,7 +185,7 @@ export default function ListingGrid({
   };
 
   return (
-    <div ref={gridContainerRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div ref={gridContainerRef} className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${isHomePage ? 'pt-8 pb-3' : 'py-8'}`}>
       {/* View Controls & Sorting Bar */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
         <div>
@@ -314,7 +314,7 @@ export default function ListingGrid({
 
       {/* Trang Chủ: Nút xem tất cả BĐS nếu còn tin chưa hiển thị */}
       {isHomePage && sortedProperties.length > homeLimit && (
-        <div className="mt-5 mb-0 text-center">
+        <div className="mt-4 mb-0 text-center">
           <Link 
             to={filters?.demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban'}
             className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-white border border-slate-300 hover:border-emerald-500 hover:bg-emerald-50 text-slate-800 hover:text-emerald-700 font-bold text-xs sm:text-sm shadow-xs transition group cursor-pointer"
