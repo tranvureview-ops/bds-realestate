@@ -29,7 +29,8 @@ const KNOWN_STREET_COORDS = [
   { match: 'cách mạng tháng 8', lat: 16.0250, lng: 108.2050 },
   { match: 'nguyễn hữu thọ', lat: 16.0350, lng: 108.2080 },
   { match: 'lê đại hành', lat: 16.0200, lng: 108.1980 },
-  { match: 'nguyễn phước lan', lat: 16.0100, lng: 108.2150 }
+  { match: 'nguyễn phước lan', lat: 16.0100, lng: 108.2150 },
+  { match: 'tố hữu', lat: 16.03596, lng: 108.21815 }
 ];
 
 const DANANG_MERGERS_MAP = [

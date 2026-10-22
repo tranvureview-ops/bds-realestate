@@ -49,7 +49,10 @@ export const VIETNAM_ADMINISTRATIVE_DATA = [
           'Hoàng Văn Thụ',
           'Trưng Nữ Vương',
           'Tiểu La',
-          'Núi Thành'
+          'Núi Thành',
+          'Tố Hữu',
+          '30 Tháng 4',
+          'Xô Viết Nghệ Tĩnh'
         ],
         projects: [
           'The Filmore Đà Nẵng (Bạch Đằng)',
