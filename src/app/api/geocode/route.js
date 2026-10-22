@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { parseGoogleNewAddress } from '../../../utils/googleMapsParser';
+import { getSystemSetting, getCachedGeocode, saveCachedGeocode } from '../../../lib/serverSettings';
 
-// In-memory Cache giúp tiết kiệm 90% chi phí và hạn ngạch Google Maps API
-const geocodeCache = new Map();
-
-// Bảng tọa độ các tuyến đường trọng điểm Đà Nẵng (Fallback khi chưa cấu hình Key trên Vercel)
+// =======================================================================
+// BẢNG TỌA ĐỘ VÀ SÁP NHẬP ĐÀ NẴNG (DỰ PHÒNG KHI CHƯA NHẬP KEY TRONG ADMIN)
+// =======================================================================
 const KNOWN_STREET_COORDS = [
   { match: 'bạch đằng', lat: 16.0680, lng: 108.2245 },
   { match: 'trần phú', lat: 16.0670, lng: 108.2220 },
@@ -32,7 +32,6 @@ const KNOWN_STREET_COORDS = [
   { match: 'nguyễn phước lan', lat: 16.0100, lng: 108.2150 }
 ];
 
-// Bảng sáp nhập hành chính Đà Nẵng (Fallback khi chưa có Google Maps Key trên Vercel)
 const DANANG_MERGERS_MAP = [
   { match: ['hải châu 1', 'hải châu 2'], newWard: 'Phường Hải Châu', newDistrict: 'Quận Hải Châu', lat: 16.0748, lng: 108.2240, placeId: 'ChIJb_e9cR0XQjERw1z3hC59_qQ' },
   { match: ['phước ninh', 'nam dương'], newWard: 'Phường Nam Phước', newDistrict: 'Quận Hải Châu', lat: 16.0612, lng: 108.2201, placeId: 'ChIJ7w00YBoXQjERdJ47iQk-c28' },
@@ -48,13 +47,242 @@ const DANANG_MERGERS_MAP = [
   { match: ['an hải bắc', 'an hải đông'], newWard: 'Phường An Hải', newDistrict: 'Quận Sơn Trà', lat: 16.0685, lng: 108.2390, placeId: 'ChIJu_e9cR0XQjERw1z3hC59_qQ' }
 ];
 
-// Helper tạo deterministic Place ID format
+// Helper tạo deterministic Place ID format khi chưa có Google Maps Key
 function generateDeterministicPlaceId(text) {
   if (!text) return 'ChIJ' + crypto.randomBytes(12).toString('base64url');
   const hash = crypto.createHash('sha256').update(text.trim().toLowerCase()).digest('base64url');
   return `ChIJ_${hash.substring(0, 22)}`;
 }
 
+/**
+ * HÀM XỬ LÝ GEOCODING CHÍNH (XỬ LÝ SERVER-SIDE BẢO MẬT VÀ CACHING MD5)
+ */
+async function processGeocoding({ tinhThanh = '', quanHuyen = '', phuongXa = '', duongSoNha = '', address = '', oldWard = '', lat = null, lng = null }) {
+  try {
+    // -------------------------------------------------------------
+    // BƯỚC 1: Ghép chuỗi địa chỉ thô (raw_address) & Tạo mã băm MD5 32 ký tự
+    // -------------------------------------------------------------
+    const targetOldWard = phuongXa || oldWard || '';
+    const assembledRaw = [duongSoNha, phuongXa, quanHuyen, tinhThanh].filter(Boolean).join(', ');
+    const rawAddress = assembledRaw || address || (lat && lng ? `${lat},${lng}` : 'Đà Nẵng, Việt Nam');
+
+    // Chuyển về chữ thường, bỏ dấu cách thừa để băm MD5 chuẩn xác
+    const normalizedRaw = rawAddress.toLowerCase().replace(/\s+/g, ' ').trim();
+    const addressHash = crypto.createHash('md5').update(normalizedRaw).digest('hex');
+
+    // -------------------------------------------------------------
+    // BƯỚC 2: Kiểm tra Bộ nhớ đệm Geocoding (Cache MD5) trong Database
+    // -------------------------------------------------------------
+    const cachedRecord = await getCachedGeocode(addressHash);
+    if (cachedRecord) {
+      return {
+        success: true,
+        source: 'database_md5_cache',
+        from_cache: true,
+        address_hash: addressHash,
+        google_place_id: cachedRecord.place_id,
+        lat: Number(cachedRecord.lat),
+        lng: Number(cachedRecord.lng),
+        clean_address: cachedRecord.clean_address,
+        formatted_address: cachedRecord.clean_address,
+        newWard: cachedRecord.new_ward || targetOldWard,
+        newDistrict: cachedRecord.new_district || quanHuyen,
+        newCity: tinhThanh || 'Đà Nẵng',
+        isMerged: Boolean(cachedRecord.is_merged)
+      };
+    }
+
+    // -------------------------------------------------------------
+    // BƯỚC 3: Truy vấn cấu hình Google Maps API Key từ Database (system_settings)
+    // -------------------------------------------------------------
+    const apiKey = await getSystemSetting('google_maps_api_key');
+
+    // -------------------------------------------------------------
+    // BƯỚC 4: Nếu có API Key -> Gọi Google Maps Geocoding API chính thức
+    // -------------------------------------------------------------
+    if (apiKey && apiKey !== 'your-google-maps-api-key') {
+      try {
+        let googleUrl = '';
+        if (lat && lng) {
+          googleUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&language=vi&region=vn&key=${apiKey}`;
+        } else {
+          googleUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(rawAddress.trim())}&language=vi&region=vn&key=${apiKey}`;
+        }
+
+        const res = await fetch(googleUrl, { cache: 'no-store' });
+        if (res.ok) {
+          const googleData = await res.json();
+          if (googleData.status === 'OK' && googleData.results && googleData.results.length > 0) {
+            const firstResult = googleData.results[0];
+            const parsed = parseGoogleNewAddress(firstResult, targetOldWard);
+
+            const cleanAddress = parsed.formatted_address || rawAddress;
+            const newWard = parsed.newWard || targetOldWard;
+            const newDistrict = parsed.newDistrict || quanHuyen;
+            const isMerged = Boolean(parsed.isMerged);
+
+            // BƯỚC 5: Lưu vào bảng cached_geocodes để tái sử dụng lâu dài (Chi phí $0 các lần sau)
+            await saveCachedGeocode({
+              address_hash: addressHash,
+              raw_address: rawAddress,
+              clean_address: cleanAddress,
+              new_ward: newWard,
+              new_district: newDistrict,
+              lat: parsed.lat,
+              lng: parsed.lng,
+              place_id: parsed.google_place_id,
+              is_merged: isMerged
+            });
+
+            return {
+              success: true,
+              source: 'google_maps_api',
+              from_cache: false,
+              address_hash: addressHash,
+              google_place_id: parsed.google_place_id,
+              lat: parsed.lat,
+              lng: parsed.lng,
+              clean_address: cleanAddress,
+              formatted_address: cleanAddress,
+              newWard: newWard,
+              newDistrict: newDistrict,
+              newCity: parsed.newCity || tinhThanh || 'Đà Nẵng',
+              streetPart: parsed.streetPart || duongSoNha,
+              isMerged: isMerged
+            };
+          }
+        }
+      } catch (apiErr) {
+        console.warn('Lỗi gọi Google Maps Geocoding API:', apiErr?.message);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // BƯỚC 5: Fallback thông minh Đà Nẵng khi chưa cấu hình Key hoặc lỗi mạng
+    // (Đảm bảo trải nghiệm đăng tin không bao giờ bị đơ hay gián đoạn)
+    // -------------------------------------------------------------
+    let resolvedLat = lat ? Number(lat) : null;
+    let resolvedLng = lng ? Number(lng) : null;
+
+    let matchedStreet = null;
+    if (!resolvedLat && normalizedRaw) {
+      matchedStreet = KNOWN_STREET_COORDS.find(s => normalizedRaw.includes(s.match));
+      if (matchedStreet) {
+        resolvedLat = matchedStreet.lat;
+        resolvedLng = matchedStreet.lng;
+      }
+    }
+
+    const cleanWardName = targetOldWard.toLowerCase().replace(/^(phường|xã)\s+/i, '').trim();
+    const matchedMerger = DANANG_MERGERS_MAP.find(m => 
+      m.match.some(w => cleanWardName.includes(w) || w.includes(cleanWardName) || normalizedRaw.includes(w))
+    );
+
+    if (matchedMerger) {
+      if (!resolvedLat) {
+        resolvedLat = matchedMerger.lat;
+        resolvedLng = matchedMerger.lng;
+      }
+    } else if (!resolvedLat) {
+      resolvedLat = 16.0544;
+      resolvedLng = 108.2022;
+    }
+
+    const newWardName = matchedMerger?.newWard || targetOldWard;
+    const newDistrictName = matchedMerger?.newDistrict || quanHuyen || 'Quận Hải Châu';
+    const newCityName = tinhThanh || 'Đà Nẵng';
+
+    let resolvedFormattedAddress = rawAddress;
+    if (matchedMerger) {
+      const rawStreet = duongSoNha || (rawAddress.split(',')[0] || '').trim();
+      const formattedStreet = rawStreet && !rawStreet.toLowerCase().startsWith('đường') && !rawStreet.toLowerCase().startsWith('phố')
+        ? `Đường ${rawStreet}`
+        : rawStreet;
+      resolvedFormattedAddress = [formattedStreet, newWardName, newDistrictName, newCityName].filter(Boolean).join(', ');
+    }
+
+    const fallbackPlaceId = matchedMerger?.placeId || generateDeterministicPlaceId(rawAddress || `${resolvedLat},${resolvedLng}`);
+
+    // Lưu vào cached_geocodes để phản hồi tức thì các lần sau
+    await saveCachedGeocode({
+      address_hash: addressHash,
+      raw_address: rawAddress,
+      clean_address: resolvedFormattedAddress,
+      new_ward: newWardName,
+      new_district: newDistrictName,
+      lat: resolvedLat,
+      lng: resolvedLng,
+      place_id: fallbackPlaceId,
+      is_merged: Boolean(matchedMerger)
+    });
+
+    return {
+      success: true,
+      source: matchedMerger ? 'danang_administrative_merger' : 'fallback_google_format',
+      from_cache: false,
+      address_hash: addressHash,
+      google_place_id: fallbackPlaceId,
+      lat: resolvedLat,
+      lng: resolvedLng,
+      clean_address: resolvedFormattedAddress,
+      formatted_address: resolvedFormattedAddress,
+      newWard: newWardName,
+      newDistrict: newDistrictName,
+      newCity: newCityName,
+      streetPart: duongSoNha || (matchedStreet ? matchedStreet.match : ''),
+      isMerged: Boolean(matchedMerger)
+    };
+  } catch (err) {
+    console.error('Lỗi nghiêm trọng trong processGeocoding:', err);
+    return {
+      success: false,
+      error: 'Không thể xử lý định vị địa chỉ do lỗi máy chủ'
+    };
+  }
+}
+
+/**
+ * METHOD: POST - Nhận dữ liệu JSON từ dropdown client gửi lên
+ * Body: { tinhThanh, quanHuyen, phuongXa, duongSoNha }
+ */
+export async function POST(request) {
+  try {
+    let body = {};
+    try {
+      body = await request.json();
+    } catch {
+      const text = await request.text();
+      body = text ? JSON.parse(text) : {};
+    }
+
+    const result = await processGeocoding({
+      tinhThanh: body?.tinhThanh || body?.city || '',
+      quanHuyen: body?.quanHuyen || body?.district || '',
+      phuongXa: body?.phuongXa || body?.ward || body?.oldWard || '',
+      duongSoNha: body?.duongSoNha || body?.street || '',
+      address: body?.address || '',
+      oldWard: body?.oldWard || '',
+      lat: body?.lat || null,
+      lng: body?.lng || null
+    });
+
+    if (!result.success && result.error) {
+      return NextResponse.json(result, { status: 500 });
+    }
+
+    return NextResponse.json(result);
+  } catch (err) {
+    console.error('Lỗi POST geocode:', err);
+    return NextResponse.json(
+      { success: false, error: 'Dữ liệu JSON không hợp lệ: ' + (err?.message || '') },
+      { status: 400 }
+    );
+  }
+}
+
+/**
+ * METHOD: GET - Tương thích ngược với các hàm gọi qua URL query params
+ */
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const address = searchParams.get('address');
@@ -62,7 +290,6 @@ export async function GET(request) {
   const lng = searchParams.get('lng');
   const oldWard = searchParams.get('oldWard') || '';
 
-  // 1. Kiểm tra tham số
   if (!address && (!lat || !lng)) {
     return NextResponse.json(
       { success: false, error: 'Cần cung cấp tham số address hoặc cặp lat, lng' },
@@ -70,140 +297,12 @@ export async function GET(request) {
     );
   }
 
-  // 2. Kiểm tra Cache trước khi gọi Google Maps
-  const cleanAddr = (address || '').trim().toLowerCase();
-  const cacheKey = lat && lng 
-    ? `coords_${Number(lat).toFixed(5)}_${Number(lng).toFixed(5)}`
-    : `addr_${cleanAddr}_${oldWard.toLowerCase()}`;
+  const result = await processGeocoding({
+    address,
+    oldWard,
+    lat,
+    lng
+  });
 
-  if (geocodeCache.has(cacheKey)) {
-    const cached = geocodeCache.get(cacheKey);
-    return NextResponse.json({ ...cached, fromCache: true });
-  }
-
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-
-  // 3. Nếu có Google Maps API Key: Gọi Google Maps Geocoding API chính thức
-  if (apiKey && apiKey !== 'your-google-maps-api-key') {
-    try {
-      let googleUrl = '';
-      if (lat && lng) {
-        googleUrl = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&language=vi&region=vn&key=${apiKey}`;
-      } else {
-        googleUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address.trim())}&language=vi&region=vn&key=${apiKey}`;
-      }
-
-      const res = await fetch(googleUrl, { cache: 'no-store' });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.status === 'OK' && Array.isArray(data.results) && data.results.length > 0) {
-          const firstResult = data.results[0];
-          const parsed = parseGoogleNewAddress(firstResult, oldWard);
-
-          const responseData = {
-            success: true,
-            source: 'google_maps_api',
-            google_place_id: parsed.google_place_id,
-            lat: parsed.lat,
-            lng: parsed.lng,
-            formatted_address: parsed.formatted_address,
-            newWard: parsed.newWard,
-            newDistrict: parsed.newDistrict,
-            newCity: parsed.newCity,
-            streetPart: parsed.streetPart,
-            isMerged: parsed.isMerged,
-            raw: firstResult
-          };
-
-          if (geocodeCache.size > 500) {
-            const firstKey = geocodeCache.keys().next().value;
-            geocodeCache.delete(firstKey);
-          }
-          geocodeCache.set(cacheKey, responseData);
-
-          return NextResponse.json(responseData);
-        }
-      }
-    } catch (apiError) {
-      console.warn('Lỗi gọi Google Maps Geocoding API:', apiError?.message);
-    }
-  }
-
-  // 4. Fallback thông minh: Tự động trỏ ghim chính xác theo đường & nhận diện sáp nhập Đà Nẵng
-  // (Đảm bảo website trên Vercel hoạt động hoàn hảo ngay cả khi chưa gắn API Key trên Vercel)
-  let resolvedLat = lat ? Number(lat) : null;
-  let resolvedLng = lng ? Number(lng) : null;
-
-  // 4.1. Tìm tọa độ đường phố
-  let matchedStreet = null;
-  if (!resolvedLat && cleanAddr) {
-    matchedStreet = KNOWN_STREET_COORDS.find(s => cleanAddr.includes(s.match));
-    if (matchedStreet) {
-      resolvedLat = matchedStreet.lat;
-      resolvedLng = matchedStreet.lng;
-    }
-  }
-
-  // 4.2. Tìm thông tin sáp nhập đơn vị hành chính
-  const cleanWardName = oldWard.toLowerCase().replace(/^(phường|xã)\s+/i, '').trim();
-  const matchedMerger = DANANG_MERGERS_MAP.find(m => 
-    m.match.some(w => cleanWardName.includes(w) || w.includes(cleanWardName) || cleanAddr.includes(w))
-  );
-
-  if (matchedMerger) {
-    if (!resolvedLat) {
-      resolvedLat = matchedMerger.lat;
-      resolvedLng = matchedMerger.lng;
-    }
-  } else if (!resolvedLat) {
-    resolvedLat = 16.0544;
-    resolvedLng = 108.2022;
-  }
-
-  const newWardName = matchedMerger?.newWard || oldWard;
-  const newDistrictName = matchedMerger?.newDistrict || 'Quận Hải Châu';
-  const newCityName = 'Đà Nẵng';
-
-  // Khi có sáp nhập: Tự động cập nhật formatted_address sang tên phường mới chuẩn xác
-  let resolvedFormattedAddress = address || 'Đà Nẵng, Việt Nam';
-  if (matchedMerger) {
-    const rawStreet = (address || '').split(',')[0]?.trim() || '';
-    const formattedStreet = rawStreet && !rawStreet.toLowerCase().startsWith('đường') && !rawStreet.toLowerCase().startsWith('phố')
-      ? `Đường ${rawStreet}`
-      : rawStreet;
-    resolvedFormattedAddress = [formattedStreet, newWardName, newDistrictName, newCityName].filter(Boolean).join(', ');
-  }
-
-  const fallbackPlaceId = matchedMerger?.placeId || generateDeterministicPlaceId(address || `${resolvedLat},${resolvedLng}`);
-
-  const fallbackData = {
-    success: true,
-    source: matchedMerger ? 'danang_administrative_merger' : 'fallback_google_format',
-    google_place_id: fallbackPlaceId,
-    lat: resolvedLat,
-    lng: resolvedLng,
-    formatted_address: resolvedFormattedAddress,
-    newWard: newWardName,
-    newDistrict: newDistrictName,
-    newCity: newCityName,
-    streetPart: matchedStreet ? (address.split(',')[0] || '').trim() : '',
-    isMerged: Boolean(matchedMerger)
-  };
-
-  return NextResponse.json(fallbackData);
-}
-
-export async function POST(request) {
-  try {
-    const body = await request.json();
-    const address = body?.address;
-    const oldWard = body?.oldWard || '';
-    if (!address) {
-      return NextResponse.json({ success: false, error: 'Thiếu trường address' }, { status: 400 });
-    }
-    const fakeReq = new Request(`http://localhost/api/geocode?address=${encodeURIComponent(address)}&oldWard=${encodeURIComponent(oldWard)}`);
-    return GET(fakeReq);
-  } catch {
-    return NextResponse.json({ success: false, error: 'Dữ liệu JSON không hợp lệ' }, { status: 400 });
-  }
+  return NextResponse.json(result);
 }

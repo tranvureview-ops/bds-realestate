@@ -13,6 +13,29 @@ CREATE TABLE IF NOT EXISTS platform_settings (
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
+-- 2.1. TẠO BẢNG CẤU HÌNH HỆ THỐNG BẢO MẬT (SYSTEM SETTINGS - GOOGLE MAPS API KEY, v.v.)
+CREATE TABLE IF NOT EXISTS system_settings (
+  setting_key VARCHAR(100) PRIMARY KEY,
+  setting_value TEXT NOT NULL,
+  description TEXT,
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- 2.2. TẠO BẢNG BỘ NHỚ ĐỆM GEOCODING MD5 (CACHED GEOCODES - TIẾT KIỆM 99% CHI PHÍ GOOGLE MAPS)
+CREATE TABLE IF NOT EXISTS cached_geocodes (
+  address_hash VARCHAR(32) PRIMARY KEY,
+  raw_address TEXT NOT NULL,
+  clean_address TEXT NOT NULL,
+  new_ward VARCHAR(100),
+  new_district VARCHAR(100),
+  lat DECIMAL(10,8) NOT NULL,
+  lng DECIMAL(11,8) NOT NULL,
+  place_id VARCHAR(255),
+  is_merged BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS idx_cached_geocodes_hash ON cached_geocodes(address_hash);
+
 -- 3. TẠO BẢNG BẤT ĐỘNG SẢN (PROPERTIES)
 CREATE TABLE IF NOT EXISTS properties (
   id TEXT PRIMARY KEY,

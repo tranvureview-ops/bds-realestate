@@ -339,6 +339,134 @@ export default function AdminBackendPage() {
     }
   }, [systemConfig]);
 
+  // Google Maps Platform API & Geocoding MD5 Cache Management States
+  const [mapsApiKey, setMapsApiKey] = useState('');
+  const [isMapsKeyConfigured, setIsMapsKeyConfigured] = useState(false);
+  const [maskedMapsKey, setMaskedMapsKey] = useState('');
+  const [cachedGeocodeCount, setCachedGeocodeCount] = useState(0);
+  const [estimatedSavingsUsd, setEstimatedSavingsUsd] = useState('0.00');
+  const [showMapsKeyInput, setShowMapsKeyInput] = useState(false);
+  const [isSavingMapsKey, setIsSavingMapsKey] = useState(false);
+  const [isTestingMapsKey, setIsTestingMapsKey] = useState(false);
+  const [isClearingMapsCache, setIsClearingMapsCache] = useState(false);
+  const [mapsTestResult, setMapsTestResult] = useState(null);
+
+  // Tải cấu hình Google Maps API & thống kê Cache từ API Server-side
+  const fetchMapsSettings = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/settings');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          setIsMapsKeyConfigured(json.data.isConfigured);
+          setMaskedMapsKey(json.data.maskedKey || '');
+          setMapsApiKey(json.data.rawKey || '');
+          setCachedGeocodeCount(json.data.cachedCount || 0);
+          setEstimatedSavingsUsd(json.data.estimatedSavingsUsd || '0.00');
+        }
+      }
+    } catch (_) {}
+  }, []);
+
+  useEffect(() => {
+    fetchMapsSettings();
+  }, [fetchMapsSettings]);
+
+  // Handler lưu Google Maps API Key vào bảng system_settings
+  const handleSaveMapsApiKey = async () => {
+    setIsSavingMapsKey(true);
+    setMapsTestResult(null);
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mapsApiKey })
+      });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message || 'Đã lưu Google Maps API Key thành công!', 'success');
+        setIsMapsKeyConfigured(data.isConfigured);
+        setMaskedMapsKey(data.maskedKey);
+        fetchMapsSettings();
+      } else {
+        showToast(data.error || 'Lỗi khi lưu API Key', 'error');
+      }
+    } catch (err) {
+      showToast('Lỗi kết nối máy chủ khi lưu API Key', 'error');
+    } finally {
+      setIsSavingMapsKey(false);
+    }
+  };
+
+  // Handler kiểm tra kết nối Google Maps API Key (Test Key thực tế)
+  const handleTestMapsApiKey = async () => {
+    setIsTestingMapsKey(true);
+    setMapsTestResult(null);
+    try {
+      const testRes = await fetch('/api/geocode', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tinhThanh: 'Đà Nẵng',
+          quanHuyen: 'Quận Hải Châu',
+          phuongXa: 'Phường Hải Châu 1',
+          duongSoNha: 'Bạch Đằng'
+        })
+      });
+      const testData = await testRes.json();
+      if (testData.success) {
+        setMapsTestResult({
+          status: 'success',
+          message: `Kết nối thành công! Đã định vị: ${testData.clean_address || testData.formatted_address}`,
+          lat: testData.lat,
+          lng: testData.lng,
+          place_id: testData.google_place_id,
+          source: testData.source,
+          from_cache: testData.from_cache
+        });
+        showToast('Kết nối Google Maps Geocoding API thành công!', 'success');
+        fetchMapsSettings();
+      } else {
+        setMapsTestResult({
+          status: 'error',
+          message: testData.error || 'Không thể định vị địa chỉ thử nghiệm'
+        });
+        showToast('Kiểm tra thất bại: ' + (testData.error || 'Vui lòng kiểm tra lại Key'), 'error');
+      }
+    } catch (err) {
+      setMapsTestResult({
+        status: 'error',
+        message: 'Lỗi mạng khi kết nối đến API Geocoding'
+      });
+      showToast('Lỗi kết nối kiểm tra API Key', 'error');
+    } finally {
+      setIsTestingMapsKey(false);
+    }
+  };
+
+  // Handler xóa sạch bộ nhớ đệm Geocoding (Làm mới Cache MD5)
+  const handleClearMapsCache = async () => {
+    if (!window.confirm('Bạn có chắc chắn muốn xóa toàn bộ bộ nhớ đệm Geocoding? Các lần đăng tin tiếp theo sẽ gọi lại Google Maps để lấy dữ liệu mới.')) {
+      return;
+    }
+    setIsClearingMapsCache(true);
+    try {
+      const res = await fetch('/api/admin/settings', { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        showToast(data.message || 'Đã làm mới bộ nhớ đệm Geocoding!', 'success');
+        setCachedGeocodeCount(0);
+        setEstimatedSavingsUsd('0.00');
+      } else {
+        showToast(data.error || 'Không thể xóa bộ nhớ đệm', 'error');
+      }
+    } catch (err) {
+      showToast('Lỗi mạng khi xóa bộ nhớ đệm', 'error');
+    } finally {
+      setIsClearingMapsCache(false);
+    }
+  };
+
   // Subfilters
   const [moderationTab, setModerationTab] = useState('pending'); // 'pending', 'active', 'rejected'
   const [pendingQueueFilter, setPendingQueueFilter] = useState('all'); // 'all', 'gold', 'silver', 'normal'
@@ -6784,6 +6912,166 @@ export default function AdminBackendPage() {
                               {val} tin
                             </button>
                           ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Nhóm 8: Cấu Hình Google Maps Platform & Bộ Nhớ Đệm Geocoding (Cache MD5) */}
+                  <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800/80 gap-2">
+                      <div className="flex items-center gap-2">
+                        <i className="fa-solid fa-map-location-dot text-emerald-400 text-sm"></i>
+                        <h4 className="text-xs font-black uppercase tracking-wider text-white">
+                          8. Cấu Hình Google Maps API & Bộ Nhớ Đệm Geocoding (Cache MD5)
+                        </h4>
+                      </div>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-950 text-blue-300 border border-blue-800 flex items-center gap-1 self-start sm:self-auto">
+                        <i className="fa-solid fa-shield-halved text-[9px]"></i>
+                        Bảo Mật Database (Tiết Kiệm 99% Chi Phí)
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-slate-400 leading-relaxed">
+                      Khóa API được lưu trữ bảo mật trực tiếp trong Database (<code className="text-emerald-400 font-mono">system_settings</code>) và chỉ được gọi ở Server-side.
+                      Bộ nhớ đệm băm MD5 32 ký tự (<code className="text-emerald-400 font-mono">cached_geocodes</code>) giúp tái sử dụng kết quả định vị vĩnh viễn với chi phí 0đ cho các lần đăng tin sau.
+                    </p>
+
+                    {/* Trạng thái kết nối Google Maps */}
+                    <div className={`p-3.5 rounded-2xl border flex items-center justify-between gap-3 text-xs ${
+                      isMapsKeyConfigured
+                        ? 'bg-emerald-950/30 border-emerald-800/60 text-emerald-300'
+                        : 'bg-amber-950/30 border-amber-800/60 text-amber-300'
+                    }`}>
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <i className={`fa-solid ${isMapsKeyConfigured ? 'fa-circle-check text-emerald-400 text-base' : 'fa-triangle-exclamation text-amber-400 text-base'} shrink-0`}></i>
+                        <div className="truncate">
+                          <strong className="block text-white font-bold">
+                            {isMapsKeyConfigured ? 'Google Maps API Đang Hoạt Động' : 'Chưa Cấu Hình Google Maps API Key'}
+                          </strong>
+                          <span className="text-[11px] opacity-80">
+                            {isMapsKeyConfigured
+                              ? `Đã liên kết khóa: ${maskedMapsKey}`
+                              : 'Hệ thống đang sử dụng dữ liệu định vị dự phòng của Đà Nẵng. Nhập Key bên dưới để kích hoạt bản đồ toàn cầu.'}
+                          </span>
+                        </div>
+                      </div>
+                      <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-wider shrink-0 ${
+                        isMapsKeyConfigured ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                      }`}>
+                        {isMapsKeyConfigured ? 'Online' : 'Fallback'}
+                      </span>
+                    </div>
+
+                    {/* Ô Nhập Google Maps API Key */}
+                    <div className="space-y-2">
+                      <label className="block text-slate-300 font-bold text-xs">
+                        Google Maps Platform API Key (Geocoding API):
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showMapsKeyInput ? 'text' : 'password'}
+                          value={mapsApiKey}
+                          onChange={(e) => setMapsApiKey(e.target.value)}
+                          placeholder="AIzaSy..."
+                          className="w-full p-3 pr-24 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono text-xs outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowMapsKeyInput(prev => !prev)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs px-2 py-1 rounded transition"
+                          title={showMapsKeyInput ? 'Ẩn khóa' : 'Hiện khóa'}
+                        >
+                          <i className={`fa-solid ${showMapsKeyInput ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-slate-500">
+                        * Khóa này chỉ sử dụng tại máy chủ Server-side. Client không bao giờ thấy chuỗi key này.
+                      </p>
+                    </div>
+
+                    {/* Hàng Nút Hành Động: Lưu Key & Test Key */}
+                    <div className="flex flex-wrap items-center gap-3 pt-1">
+                      <button
+                        type="button"
+                        disabled={isSavingMapsKey}
+                        onClick={handleSaveMapsApiKey}
+                        className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-60 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-900/30 transition flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <i className={isSavingMapsKey ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-floppy-disk'}></i>
+                        <span>{isSavingMapsKey ? 'Đang lưu...' : 'Lưu API Key Vào Database'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={isTestingMapsKey}
+                        onClick={handleTestMapsApiKey}
+                        className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-blue-400 hover:text-blue-300 font-bold text-xs rounded-xl border border-blue-900/60 transition flex items-center gap-1.5 cursor-pointer"
+                        title="Gửi request kiểm tra khả năng định vị thực tế của Key"
+                      >
+                        <i className={isTestingMapsKey ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-bolt'}></i>
+                        <span>{isTestingMapsKey ? 'Đang kiểm tra...' : 'Kiểm Tra Kết Nối (Test Key)'}</span>
+                      </button>
+                    </div>
+
+                    {/* Hiển thị kết quả Test nếu có */}
+                    {mapsTestResult && (
+                      <div className={`p-3 rounded-xl border text-xs flex items-start gap-2.5 transition animate-fadeIn ${
+                        mapsTestResult.status === 'success'
+                          ? 'bg-blue-950/40 border-blue-800/80 text-blue-200'
+                          : 'bg-rose-950/40 border-rose-800/80 text-rose-200'
+                      }`}>
+                        <i className={`fa-solid ${mapsTestResult.status === 'success' ? 'fa-circle-check text-blue-400' : 'fa-circle-xmark text-rose-400'} text-sm mt-0.5 shrink-0`}></i>
+                        <div className="space-y-1 min-w-0">
+                          <div className="font-bold">{mapsTestResult.message}</div>
+                          {mapsTestResult.lat && mapsTestResult.lng && (
+                            <div className="text-[11px] font-mono opacity-80">
+                              Tọa độ: {mapsTestResult.lat}, {mapsTestResult.lng} | Nguồn: {mapsTestResult.source} {mapsTestResult.from_cache ? '(Cache MD5)' : ''}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Bảng thống kê Bộ Nhớ Đệm Geocoding (Cache MD5) */}
+                    <div className="pt-3 border-t border-slate-800/80">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                          <i className="fa-solid fa-server text-emerald-400"></i>
+                          <span>Thống Kê Bộ Nhớ Đệm Geocoding (Bảng cached_geocodes)</span>
+                        </div>
+                        <button
+                          type="button"
+                          disabled={isClearingMapsCache || cachedGeocodeCount === 0}
+                          onClick={handleClearMapsCache}
+                          className="text-[11px] text-slate-400 hover:text-rose-400 disabled:opacity-40 underline font-medium transition cursor-pointer flex items-center gap-1"
+                          title="Xóa cache để buộc hệ thống truy vấn lại Google Maps cho các tin mới"
+                        >
+                          <i className={isClearingMapsCache ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-trash-can'}></i>
+                          <span>Làm mới Cache</span>
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                          <div className="text-[10px] text-slate-400 font-bold uppercase">Địa chỉ đã Cache:</div>
+                          <div className="text-lg font-black text-white mt-0.5">
+                            {cachedGeocodeCount} <span className="text-[11px] font-normal text-slate-400">bản ghi</span>
+                          </div>
+                        </div>
+
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                          <div className="text-[10px] text-slate-400 font-bold uppercase">Ước tính tiết kiệm:</div>
+                          <div className="text-lg font-black text-emerald-400 mt-0.5">
+                            ${estimatedSavingsUsd} <span className="text-[11px] font-normal text-slate-400">USD</span>
+                          </div>
+                        </div>
+
+                        <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                          <div className="text-[10px] text-slate-400 font-bold uppercase">Thuật toán băm:</div>
+                          <div className="text-sm font-black text-blue-400 mt-1 font-mono">
+                            MD5 32-bit (Khóa chính)
+                          </div>
                         </div>
                       </div>
                     </div>

@@ -2488,5 +2488,9 @@
     "notifyAdminOnVipPurchase": true,
     "notifyReporterOnResolution": true
   },
-  "bds_verification_tokens": []
+  "bds_verification_tokens": [],
+  "bds_cached_geocodes": {},
+  "bds_system_settings": {
+    "google_maps_api_key": ""
+  }
 }

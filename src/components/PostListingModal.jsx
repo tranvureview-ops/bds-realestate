@@ -343,7 +343,16 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       ].filter(Boolean).join(', ');
 
       try {
-        const res = await fetch(`/api/geocode?address=${encodeURIComponent(queryAddress)}&oldWard=${encodeURIComponent(formData.ward)}`);
+        const res = await fetch('/api/geocode', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tinhThanh: formData.city,
+            quanHuyen: formData.district,
+            phuongXa: formData.ward,
+            duongSoNha: formData.street
+          })
+        });
         if (res.ok) {
           const data = await res.json();
           if (data.success) {
@@ -600,7 +609,17 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     // Tự động gọi Google Maps Geocoding API dựa trên địa chỉ mới để lấy và lưu thêm thông tin google_place_id
     if (!finalPlaceId) {
       try {
-        const geoRes = await fetch(`/api/geocode?address=${encodeURIComponent(targetAddress)}&oldWard=${encodeURIComponent(formData.ward)}`);
+        const geoRes = await fetch('/api/geocode', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            address: targetAddress,
+            tinhThanh: formData.city,
+            quanHuyen: formData.district,
+            phuongXa: formData.ward,
+            duongSoNha: formData.street
+          })
+        });
         if (geoRes.ok) {
           const geoData = await geoRes.json();
           if (geoData.google_place_id) {
