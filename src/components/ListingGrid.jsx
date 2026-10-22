@@ -314,10 +314,10 @@ export default function ListingGrid({
 
       {/* Trang Chủ: Nút xem tất cả BĐS nếu còn tin chưa hiển thị */}
       {isHomePage && sortedProperties.length > homeLimit && (
-        <div className="mt-10 text-center">
+        <div className="mt-5 mb-0 text-center">
           <Link 
             to={filters?.demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban'}
-            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-2xl bg-white border border-slate-300 hover:border-emerald-500 hover:bg-emerald-50 text-slate-800 hover:text-emerald-700 font-bold text-sm shadow-sm transition group cursor-pointer"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-white border border-slate-300 hover:border-emerald-500 hover:bg-emerald-50 text-slate-800 hover:text-emerald-700 font-bold text-xs sm:text-sm shadow-xs transition group cursor-pointer"
           >
             <span>Xem tất cả {sortedProperties.length} bất động sản</span>
             <i className="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition text-emerald-600"></i>

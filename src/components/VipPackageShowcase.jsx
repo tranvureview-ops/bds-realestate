@@ -5,7 +5,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter, Link } from '../router/RouterContext';
 import { VIP_PACKAGES, BUMP_SERVICE_PRICE } from '../data/mockData';
 
-export default function VipPackageShowcase({ onClose = null }) {
+export default function VipPackageShowcase({ onClose = null, className = '' }) {
   const { 
     currentUser, 
     selectedPropertyForVip, 
@@ -34,10 +34,10 @@ export default function VipPackageShowcase({ onClose = null }) {
   };
 
   return (
-    <div className="bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
+    <div className={`py-6 sm:py-8 px-4 sm:px-6 lg:px-8 ${className}`}>
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10">
+        <div className="text-center max-w-3xl mx-auto mb-8">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200 text-xs font-bold uppercase tracking-wider mb-2">
             <i className="fa-solid fa-crown text-amber-500"></i>
             Hệ Thống Phân Loại Tin Đăng & Biểu Phí
