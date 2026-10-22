@@ -33,10 +33,12 @@ export default function ListingLocationMap({
   city,
   district,
   targetCoords,
+  defaultCoords,
   formattedAddress,
   googlePlaceId,
   isGeocoding = false,
-  onLocationChange
+  onLocationChange,
+  onReset
 }) {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
@@ -45,17 +47,26 @@ export default function ListingLocationMap({
   const [isMapReady, setIsMapReady] = useState(false);
   const [coords, setCoords] = useState({ lat: 16.0544, lng: 108.2022 });
   const [mapType, setMapType] = useState('roadmap'); // 'roadmap' hoặc 'satellite'
+  const [isResetting, setIsResetting] = useState(false);
 
-  // Xác định tọa độ tâm: Ưu tiên tọa độ từ Google Maps Geocoding -> Quận -> Thành phố
-  const getTargetCenter = useCallback(() => {
-    if (targetCoords?.lat && targetCoords?.lng) {
-      return { lat: Number(targetCoords.lat), lng: Number(targetCoords.lng), zoom: 16 };
+  // Tọa độ gốc ban đầu chuẩn của địa chỉ (từ Geocoding / Merger / Quận / Thành phố)
+  const getOriginalAddressCenter = useCallback(() => {
+    if (defaultCoords?.lat && defaultCoords?.lng) {
+      return { lat: Number(defaultCoords.lat), lng: Number(defaultCoords.lng), zoom: defaultCoords.zoom || 16 };
     }
     if (district && DISTRICT_COORDS[district]) {
       return { ...DISTRICT_COORDS[district], zoom: 15 };
     }
     return DEFAULT_CENTER;
-  }, [district, targetCoords]);
+  }, [defaultCoords, district]);
+
+  // Xác định tọa độ tâm: Ưu tiên tọa độ targetCoords nếu có, nếu không thì lấy tọa độ gốc
+  const getTargetCenter = useCallback(() => {
+    if (targetCoords?.lat && targetCoords?.lng) {
+      return { lat: Number(targetCoords.lat), lng: Number(targetCoords.lng), zoom: 16 };
+    }
+    return getOriginalAddressCenter();
+  }, [targetCoords, getOriginalAddressCenter]);
 
   // Khởi tạo bản đồ với Google Maps Tile Layer
   useEffect(() => {
@@ -179,16 +190,45 @@ export default function ListingLocationMap({
     setCoords({ lat: center.lat, lng: center.lng });
   }, [targetCoords?.lat, targetCoords?.lng, district, getTargetCenter, isMapReady]);
 
-  // Hàm Đặt lại vị trí ban đầu
-  const handleReset = () => {
-    if (mapInstanceRef.current) {
-      const center = getTargetCenter();
-      mapInstanceRef.current.setView([center.lat, center.lng], center.zoom || 15, { animate: true });
-      setCoords({ lat: center.lat, lng: center.lng });
-      if (onLocationChange) {
-        onLocationChange({ lat: center.lat, lng: center.lng });
-      }
+  // Hàm Đặt lại vị trí ban đầu của địa chỉ chuẩn
+  const handleReset = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
     }
+
+    if (!mapInstanceRef.current) return;
+
+    // Hủy cờ người dùng đang tương tác
+    isUserInteractingRef.current = false;
+
+    // Lấy tọa độ gốc chuẩn của địa chỉ (từ Geocoding / Merger / Quận / Thành phố)
+    const originalCenter = getOriginalAddressCenter();
+    const map = mapInstanceRef.current;
+
+    // Đưa tâm bản đồ và mức zoom quay về vị trí ban đầu với hiệu ứng mượt mà
+    if (typeof map.flyTo === 'function') {
+      map.flyTo([originalCenter.lat, originalCenter.lng], originalCenter.zoom || 16, { duration: 0.6 });
+    } else {
+      map.setView([originalCenter.lat, originalCenter.lng], originalCenter.zoom || 16, { animate: true });
+    }
+
+    setCoords({ lat: originalCenter.lat, lng: originalCenter.lng });
+
+    // Cập nhật lại form cha về tọa độ gốc chuẩn
+    if (onLocationChange) {
+      onLocationChange({ lat: originalCenter.lat, lng: originalCenter.lng });
+    }
+
+    if (onReset) {
+      onReset({ lat: originalCenter.lat, lng: originalCenter.lng });
+    }
+
+    // Hiệu ứng phản hồi trên nút Đặt lại
+    setIsResetting(true);
+    setTimeout(() => {
+      setIsResetting(false);
+    }, 1200);
   };
 
   // URL mở trực tiếp trên Google Maps (Chuẩn Universal Search URL tương thích 100% web & app di động)
@@ -233,9 +273,15 @@ export default function ListingLocationMap({
           <button
             type="button"
             onClick={handleReset}
-            className="text-xs text-slate-800 hover:text-red-600 underline font-medium cursor-pointer transition"
+            className={`text-xs flex items-center gap-1 font-semibold cursor-pointer transition-all px-2.5 py-1 rounded-lg ${
+              isResetting
+                ? 'bg-emerald-100 text-emerald-800 ring-1 ring-emerald-400 scale-105'
+                : 'text-slate-700 hover:text-red-600 hover:bg-slate-100 underline decoration-slate-400'
+            }`}
+            title="Đặt lại bản đồ về vị trí tâm địa chỉ ban đầu"
           >
-            Đặt lại
+            <i className={`fa-solid ${isResetting ? 'fa-check text-emerald-600' : 'fa-rotate-right text-[10px]'} transition-transform`}></i>
+            <span>{isResetting ? 'Đã đặt lại' : 'Đặt lại'}</span>
           </button>
         </div>
       </div>

@@ -1392,6 +1392,13 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                       city={formData.city}
                       district={mergerInfo?.newDistrict || formData.district}
                       targetCoords={formData.lat && formData.lng ? { lat: Number(formData.lat), lng: Number(formData.lng) } : null}
+                      defaultCoords={
+                        mergerInfo?.lat && mergerInfo?.lng
+                          ? { lat: Number(mergerInfo.lat), lng: Number(mergerInfo.lng), zoom: 16 }
+                          : (googleGeocodeInfo?.lat && googleGeocodeInfo?.lng
+                              ? { lat: Number(googleGeocodeInfo.lat), lng: Number(googleGeocodeInfo.lng), zoom: 16 }
+                              : null)
+                      }
                       formattedAddress={
                         formData.selectedAddressType === 'new' && (formData.newAddress || computedSuggestedNewAddress)
                           ? (formData.newAddress || computedSuggestedNewAddress)
@@ -1410,6 +1417,9 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                             lng: coords.lng
                           };
                         });
+                      }}
+                      onReset={() => {
+                        showToast('Đã đặt lại vị trí bản đồ về tâm địa chỉ ban đầu', 'info');
                       }}
                     />
                   </div>
