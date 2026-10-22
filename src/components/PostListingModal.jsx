@@ -91,7 +91,7 @@ function formatPriceToVietnameseText(num) {
 }
 
 export default function PostListingModal({ onClose, isEmbedded = false }) {
-  const { currentUser, addProperty, showToast, preselectedListingType, setPreselectedListingType, paymentConfig, navigateToProperty } = useRealEstate();
+  const { currentUser, properties, addProperty, showToast, preselectedListingType, setPreselectedListingType, paymentConfig, navigateToProperty } = useRealEstate();
   const { navigate } = useRouter();
 
   const isGuest = !currentUser || currentUser.role === 'guest' || currentUser.id === 'guest';
@@ -205,7 +205,43 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const districtList = currentCityObj?.districts || [];
   const currentDistrictObj = formData.district ? districtList.find(d => d.name === formData.district) : null;
   const wardList = currentDistrictObj?.wards || [];
-  const streetList = currentDistrictObj?.streets?.length ? currentDistrictObj.streets : [];
+  
+  // Danh sách đường thông minh: Gộp danh mục mặc định + tự động học các con đường người dùng đã từng nhập
+  const streetList = useMemo(() => {
+    const baseStreets = currentDistrictObj?.streets || [];
+    if (!formData.district) return baseStreets;
+
+    const set = new Set();
+    const result = [];
+
+    // 1. Thêm các tuyến đường mặc định
+    baseStreets.forEach(st => {
+      const clean = st.trim();
+      const lower = clean.toLowerCase();
+      if (!set.has(lower)) {
+        set.add(lower);
+        result.push(clean);
+      }
+    });
+
+    // 2. Tự động gom thêm các con đường người dùng đã từng nhập/đăng tin tại quận này
+    if (Array.isArray(properties)) {
+      properties.forEach(p => {
+        if (p.district === formData.district && p.street && typeof p.street === 'string') {
+          const raw = p.street.replace(/^(đường|phố|số\s+\d+[\w\/]*\s+)\s*/i, '').trim();
+          const clean = raw.split(',')[0].trim();
+          const lower = clean.toLowerCase();
+          if (clean && clean.length > 1 && !set.has(lower)) {
+            set.add(lower);
+            result.push(clean);
+          }
+        }
+      });
+    }
+
+    return result;
+  }, [currentDistrictObj, formData.district, properties]);
+
   const projectList = currentDistrictObj?.projects?.length ? currentDistrictObj.projects : (formData.city ? (MOCK_PROJECTS[formData.city] || []) : []);
 
   // Selected package details

@@ -82,13 +82,21 @@ export const VIETNAM_ADMINISTRATIVE_DATA = [
           'Trần Hưng Đạo',
           'Nguyễn Văn Thoại',
           'Võ Văn Kiệt',
+          'Mai Hắc Đế',
+          'Hà Thị Thân',
+          'Nguyễn Thiện Kế',
+          'Cao Bá Quát',
+          'Bùi Thị Xuân',
+          'Lê Hữu Trác',
+          'Nguyễn Công Trứ',
           'Hồ Nghinh',
           'Hà Bổng',
           'Dương Đình Nghệ',
           'Vương Thừa Vũ',
           'Lê Đức Thọ',
           'Chu Huy Mân',
-          'Lê Văn Duyệt'
+          'Lê Văn Duyệt',
+          'Trần Bạch Đằng'
         ],
         projects: [
           'Sun Cosmo Residence Đà Nẵng',
