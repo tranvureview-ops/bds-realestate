@@ -1942,6 +1942,51 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return true;
   };
 
+  // Bật / Tắt Tự động gia hạn gói hội viên khi hết hạn (Auto-Renew Membership)
+  const toggleMembershipAutoRenew = async (targetUserId = null, explicitValue = undefined) => {
+    const targetId = targetUserId || currentUser?.id;
+    if (!targetId || targetId === 'guest') {
+      showToast('Vui lòng đăng nhập để thực hiện tính năng này!', 'warning');
+      return false;
+    }
+
+    const targetUser = usersList.find(u => u.id === targetId) || (targetId === currentUser?.id ? currentUser : null);
+    if (!targetUser) return false;
+
+    if (!targetUser.membership || !targetUser.membership.packageId || targetUser.membership.packageId === 'none') {
+      showToast('Bạn chưa đăng ký gói hội viên nào để bật tự động gia hạn!', 'warning');
+      return false;
+    }
+
+    const currentAutoRenew = Boolean(targetUser.membership.isAutoRenew);
+    const newAutoRenew = explicitValue !== undefined ? Boolean(explicitValue) : !currentAutoRenew;
+
+    const updatedUser = {
+      ...targetUser,
+      membership: {
+        ...targetUser.membership,
+        isAutoRenew: newAutoRenew
+      }
+    };
+
+    if (currentUser?.id === targetId) {
+      setCurrentUser(updatedUser);
+    }
+    const nextList = usersList.map(u => u.id === targetId ? updatedUser : u);
+    setUsersList(nextList);
+
+    await upsertSupabaseProfile(updatedUser).catch(console.warn);
+    await persistSettingToSupabase('bds_users_list', nextList).catch(console.warn);
+
+    showToast(
+      newAutoRenew
+        ? 'Đã BẬT tự động gia hạn! Khi gói hết hạn, hệ thống sẽ tự động trừ ví để tiếp tục gia hạn quyền lợi.'
+        : 'Đã TẮT tự động gia hạn gói hội viên.',
+      'success'
+    );
+    return true;
+  };
+
   const updateMembershipPackage = async (id, updatedFields) => {
     let updatedList;
     setMembershipPackages(prev => {
@@ -3397,6 +3442,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         membershipPackages,
         subscribeMembership,
         isMembershipActive,
+        toggleMembershipAutoRenew,
         updateMembershipPackage,
         addMembershipPackage,
         deleteMembershipPackage,

@@ -18,13 +18,35 @@ export default function UserProfilePage() {
     appointmentsList,
     updateAppointmentStatus,
     deleteAppointment,
-    navigateToProperty
+    navigateToProperty,
+    membershipPackages,
+    toggleMembershipAutoRenew,
+    isMembershipActive
   } = useRealEstate();
 
   const { navigate } = useRouter();
 
-  const [activeTab, setActiveTab] = useState('info'); // 'info', 'kyc', 'security', 'notifications', 'appointments'
+  const [activeTab, setActiveTab] = useState('info'); // 'info', 'membership', 'kyc', 'security', 'notifications', 'appointments'
   const [appointmentFilter, setAppointmentFilter] = useState('all'); // 'all', 'pending', 'confirmed', 'completed', 'cancelled'
+
+  // Trạng thái gói hội viên & tự động gia hạn
+  const memberActive = isMembershipActive ? isMembershipActive(currentUser) : Boolean(
+    currentUser?.membership && 
+    currentUser.membership.status === 'active' && 
+    (!currentUser.membership.expiresAt || new Date(currentUser.membership.expiresAt).getTime() > Date.now())
+  );
+  const memberExpired = Boolean(currentUser?.membership?.packageId && currentUser.membership.packageId !== 'none' && !memberActive);
+  const hasMembership = Boolean(currentUser?.membership?.packageId && currentUser.membership.packageId !== 'none');
+  const isAutoRenew = Boolean(currentUser?.membership?.isAutoRenew);
+
+  const currentPkg = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
+  const billingMonths = currentUser?.membership?.billingMonths || 1;
+  const cycleInfo = currentPkg?.billingCycles?.find(c => c.months === billingMonths) || currentPkg?.billingCycles?.[0];
+  const renewalCost = cycleInfo?.price || currentPkg?.monthlyPrice || 0;
+  const isWalletSufficient = (currentUser?.walletBalance || 0) >= renewalCost;
+
+  const expiresAtTime = currentUser?.membership?.expiresAt ? new Date(currentUser.membership.expiresAt).getTime() : 0;
+  const daysDiff = expiresAtTime ? Math.ceil((expiresAtTime - Date.now()) / (1000 * 60 * 60 * 24)) : 0;
 
   // Notification toggles state (Email, Zalo, SMS, In-App)
   const [notificationSettings, setNotificationSettings] = useState(() => ({
@@ -264,30 +286,93 @@ export default function UserProfilePage() {
             </div>
           </div>
 
-          {/* Wallet Balance & Deposit Action */}
-          <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200 flex items-center justify-between sm:justify-start gap-4 w-full md:w-auto">
-            <div>
-              <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">Số dư ví tài khoản</div>
-              <div className="text-2xl font-black text-emerald-700 mt-0.5">
-                {currentUser.walletBalance.toLocaleString('vi-VN')} đ
+          {/* Top Actions: Wallet Balance & Membership Auto-Renew Overview */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+            {/* Wallet Balance & Deposit Action */}
+            <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200 flex items-center justify-between sm:justify-start gap-4">
+              <div>
+                <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">Số dư ví tài khoản</div>
+                <div className="text-xl sm:text-2xl font-black text-emerald-700 mt-0.5">
+                  {currentUser.walletBalance.toLocaleString('vi-VN')} đ
+                </div>
+                <div className="text-[10px] text-emerald-600 flex items-center gap-1.5">
+                  <span>Ví KM: <strong className="font-mono">{(Number(currentUser.bonusWalletBalance) || 0).toLocaleString('vi-VN')} đ</strong></span>
+                  {currentUser.bonusExpiresAt && Number(currentUser.bonusWalletBalance) > 0 && (
+                    <span className="text-[9px] text-amber-600 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
+                      Hạn: {new Date(currentUser.bonusExpiresAt).toLocaleDateString('vi-VN')}
+                    </span>
+                  )}
+                </div>
               </div>
-              <div className="text-[10px] text-emerald-600 flex items-center gap-1.5">
-                <span>Ví khuyến mãi: <strong className="font-mono">{(Number(currentUser.bonusWalletBalance) || 0).toLocaleString('vi-VN')} đ</strong></span>
-                {currentUser.bonusExpiresAt && Number(currentUser.bonusWalletBalance) > 0 && (
-                  <span className="text-[9px] text-amber-600 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
-                    Hạn: {new Date(currentUser.bonusExpiresAt).toLocaleDateString('vi-VN')}
-                  </span>
-                )}
-              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveModal('wallet-deposit')}
+                className="px-3.5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5 shrink-0 cursor-pointer"
+              >
+                <i className="fa-solid fa-plus-circle"></i>
+                <span>Nạp Tiền</span>
+              </button>
             </div>
 
-            <button
-              onClick={() => setActiveModal('wallet-deposit')}
-              className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5"
-            >
-              <i className="fa-solid fa-plus-circle"></i>
-              <span>Nạp Tiền</span>
-            </button>
+            {/* Membership & Auto-Renew Quick Card */}
+            <div className={`p-4 rounded-2xl border flex items-center justify-between sm:justify-start gap-3.5 ${
+              memberActive 
+                ? 'bg-gradient-to-r from-amber-50/90 via-orange-50/60 to-amber-50/90 border-amber-200/90' 
+                : memberExpired
+                ? 'bg-gradient-to-r from-rose-50 to-orange-50 border-rose-200'
+                : 'bg-slate-50 border-slate-200'
+            }`}>
+              <div>
+                <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                  <i className="fa-solid fa-crown text-amber-500"></i>
+                  <span>Gói Hội Viên</span>
+                  {memberActive && (
+                    <span className="px-1.5 py-0.2 bg-emerald-600 text-white rounded text-[9px] font-bold">Active</span>
+                  )}
+                  {memberExpired && (
+                    <span className="px-1.5 py-0.2 bg-rose-600 text-white rounded text-[9px] font-bold">Hết hạn</span>
+                  )}
+                </div>
+                <div className="text-sm font-black text-slate-900 mt-0.5 truncate max-w-[170px]">
+                  {currentUser.membership?.packageName || 'Chưa đăng ký'}
+                </div>
+                <div className="text-[10px] mt-0.5 flex items-center gap-1.5">
+                  {hasMembership ? (
+                    <>
+                      <span className={daysDiff > 0 ? 'text-slate-600' : 'text-rose-600 font-bold'}>
+                        {daysDiff > 0 ? `Còn ${daysDiff} ngày` : 'Đã hết hạn'}
+                      </span>
+                      <span>•</span>
+                      <button
+                        type="button"
+                        onClick={() => toggleMembershipAutoRenew()}
+                        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-bold cursor-pointer transition ${
+                          isAutoRenew 
+                            ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' 
+                            : 'bg-slate-200/80 text-slate-600 hover:bg-slate-300'
+                        }`}
+                        title="Click để bật/tắt tự động gia hạn"
+                      >
+                        <i className={`fa-solid fa-arrows-rotate text-[8px] ${isAutoRenew ? 'animate-spin' : ''}`}></i>
+                        <span>Tự gia hạn: {isAutoRenew ? 'BẬT' : 'TẮT'}</span>
+                      </button>
+                    </>
+                  ) : (
+                    <span className="text-slate-500">Tiết kiệm 39% chi phí</span>
+                  )}
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setActiveTab('membership')}
+                className="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition shadow-sm shrink-0 cursor-pointer"
+                title="Quản lý gói hội viên & tự động gia hạn"
+              >
+                <span>Cài Đặt</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -305,6 +390,38 @@ export default function UserProfilePage() {
           >
             <i className="fa-solid fa-id-card text-sm w-5 text-center"></i>
             <span>Hồ Sơ & Thông Tin Liên Hệ</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('membership')}
+            className={`w-full p-3 rounded-2xl transition flex items-center justify-between text-left ${
+              activeTab === 'membership' ? 'bg-emerald-600 text-white shadow' : 'text-slate-600 hover:bg-slate-50'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <i className="fa-solid fa-crown text-sm w-5 text-center text-amber-500"></i>
+              <span>Gói Hội Viên & Gia Hạn</span>
+            </div>
+            {memberActive ? (
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                activeTab === 'membership' ? 'bg-white text-emerald-800' : isAutoRenew ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+              }`}>
+                {isAutoRenew ? 'Auto-renew: BẬT' : 'Đang dùng'}
+              </span>
+            ) : memberExpired ? (
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                activeTab === 'membership' ? 'bg-white text-rose-700' : 'bg-rose-100 text-rose-700'
+              }`}>
+                Hết hạn
+              </span>
+            ) : (
+              <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                activeTab === 'membership' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+              }`}>
+                Mới
+              </span>
+            )}
           </button>
 
           <button
@@ -490,6 +607,280 @@ export default function UserProfilePage() {
                 <span>Lưu Thay Đổi Hồ Sơ</span>
               </button>
             </form>
+          )}
+
+          {/* TAB: GÓI HỘI VIÊN & TỰ ĐỘNG GIA HẠN */}
+          {activeTab === 'membership' && (
+            <div className="space-y-6 text-xs animate-in fade-in duration-200">
+              <div className="border-b border-slate-100 pb-3 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+                    <i className="fa-solid fa-crown text-amber-500"></i>
+                    <span>Quản Lý Gói Hội Viên & Tự Động Gia Hạn</span>
+                  </h3>
+                  <p className="text-slate-500 text-[11px] mt-0.5">
+                    Quản lý chu kỳ sử dụng, kho voucher định kỳ 30 ngày và thiết lập tự động trừ ví để duy trì quyền lợi
+                  </p>
+                </div>
+
+                <Link
+                  to="/goi-hoi-vien"
+                  className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+                >
+                  <i className="fa-solid fa-table-list text-[11px] text-amber-400"></i>
+                  <span>Bảng Quyền Lợi Gói ↗</span>
+                </Link>
+              </div>
+
+              {/* KHỐI 1: TÍNH NĂNG TỰ ĐỘNG GIA HẠN KHI HẾT HẠN (YÊU CẦU CHÍNH) */}
+              <div className={`p-5 rounded-3xl border transition-all duration-200 shadow-sm ${
+                isAutoRenew 
+                  ? 'bg-gradient-to-br from-emerald-50/90 via-teal-50/60 to-white border-emerald-300' 
+                  : 'bg-gradient-to-br from-slate-50/90 via-amber-50/40 to-white border-slate-200'
+              }`}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1 max-w-lg">
+                    <div className="flex items-center gap-2">
+                      <span className={`w-2.5 h-2.5 rounded-full ${isAutoRenew ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`}></span>
+                      <h4 className="font-extrabold text-sm sm:text-base text-slate-900 flex items-center gap-1.5">
+                        <span>Tự Động Gia Hạn Khi Gói Hết Hạn</span>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          isAutoRenew ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'
+                        }`}>
+                          {isAutoRenew ? 'ĐANG BẬT' : 'ĐANG TẮT'}
+                        </span>
+                      </h4>
+                    </div>
+                    <p className="text-slate-600 text-xs leading-relaxed">
+                      Khi đến ngày hết hạn gói hội viên, hệ thống sẽ tự động trừ số tiền chu kỳ tiếp theo từ số dư ví tài khoản để gia hạn và cấp mới trọn bộ voucher 30 ngày. Quyền lợi hội viên của bạn sẽ được duy trì liên tục mà không lo bị gián đoạn.
+                    </p>
+                  </div>
+
+                  {/* Toggle Switch Component */}
+                  <div className="flex flex-col items-start sm:items-end gap-1 shrink-0">
+                    <label className="relative inline-flex items-center cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={isAutoRenew}
+                        onChange={() => toggleMembershipAutoRenew()}
+                        disabled={!hasMembership}
+                        className="sr-only peer"
+                      />
+                      <div className={`w-14 h-8 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-6 peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-600 ${!hasMembership ? 'opacity-50 cursor-not-allowed' : ''}`}></div>
+                      <span className="ml-3 text-xs font-bold text-slate-800 hidden sm:inline">
+                        {isAutoRenew ? 'Bật (ON)' : 'Tắt (OFF)'}
+                      </span>
+                    </label>
+                    <span className="text-[10px] text-slate-400">
+                      {hasMembership ? 'Nhấn để chuyển đổi' : 'Cần đăng ký gói để bật'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Hướng Dẫn & Thông Báo Dự Báo Số Dư Ví */}
+                {hasMembership && (
+                  <div className="mt-4 pt-4 border-t border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div className="p-3 bg-white/90 rounded-2xl border border-slate-200/90 space-y-1">
+                      <div className="text-[11px] font-bold text-slate-500 uppercase flex items-center justify-between">
+                        <span>Chi phí gia hạn chu kỳ tới:</span>
+                        <span className="text-slate-800 font-extrabold">{billingMonths} tháng</span>
+                      </div>
+                      <div className="text-base font-black text-emerald-700">
+                        {renewalCost.toLocaleString('vi-VN')} đ
+                      </div>
+                      <div className="text-[10.5px] text-slate-500">
+                        Gói hiện tại: <strong>{currentUser.membership?.packageName}</strong>
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-white/90 rounded-2xl border border-slate-200/90 space-y-1">
+                      <div className="text-[11px] font-bold text-slate-500 uppercase flex items-center justify-between">
+                        <span>Số dư ví khả dụng:</span>
+                        <button
+                          type="button"
+                          onClick={() => setActiveModal('wallet-deposit')}
+                          className="text-emerald-700 hover:underline font-bold text-[10px] flex items-center gap-0.5 cursor-pointer"
+                        >
+                          <i className="fa-solid fa-plus-circle text-[9px]"></i> Nạp ví
+                        </button>
+                      </div>
+                      <div className="text-base font-black text-slate-900">
+                        {currentUser.walletBalance.toLocaleString('vi-VN')} đ
+                      </div>
+                      <div className="text-[10.5px]">
+                        {isWalletSufficient ? (
+                          <span className="text-emerald-700 font-bold flex items-center gap-1">
+                            <i className="fa-solid fa-circle-check"></i> Đủ tiền tự động gia hạn
+                          </span>
+                        ) : (
+                          <span className="text-amber-700 font-bold flex items-center gap-1">
+                            <i className="fa-solid fa-triangle-exclamation"></i> Cần nạp thêm {(renewalCost - currentUser.walletBalance).toLocaleString('vi-VN')} đ
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* KHỐI 2: CHI TIẾT GÓI HỘI VIÊN & KHO VOUCHER */}
+              {hasMembership ? (
+                <div className="bg-white rounded-3xl border border-slate-200 p-5 space-y-5">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-10 h-10 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg font-black shrink-0">
+                        <i className="fa-solid fa-gem"></i>
+                      </div>
+                      <div>
+                        <div className="text-sm font-black text-slate-900">
+                          {currentUser.membership?.packageName}
+                        </div>
+                        <div className="text-[11px] text-slate-500">
+                          Mã gói: <span className="font-mono">{currentUser.membership?.packageId}</span> • Chu kỳ: <span className="font-bold text-slate-700">{billingMonths} tháng</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className={`px-3 py-1 rounded-full text-xs font-black uppercase ${
+                        memberActive 
+                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' 
+                          : 'bg-rose-100 text-rose-800 border border-rose-200'
+                      }`}>
+                        {memberActive ? 'Đang Hoạt Động' : 'Đã Hết Hạn'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Thông tin chu kỳ ngày */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                    <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200">
+                      <div className="text-[10px] text-slate-400 font-bold uppercase">Ngày đăng ký</div>
+                      <div className="font-bold text-slate-800 mt-1">
+                        {currentUser.membership?.subscribedAt ? new Date(currentUser.membership.subscribedAt).toLocaleDateString('vi-VN') : '—'}
+                      </div>
+                    </div>
+
+                    <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200">
+                      <div className="text-[10px] text-slate-400 font-bold uppercase">Ngày hết hạn chu kỳ</div>
+                      <div className="font-bold text-slate-800 mt-1">
+                        {currentUser.membership?.expiresAt ? new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN') : '—'}
+                      </div>
+                    </div>
+
+                    <div className={`p-3 rounded-2xl border ${
+                      daysDiff > 5 ? 'bg-emerald-50/80 border-emerald-200 text-emerald-900' :
+                      daysDiff > 0 ? 'bg-amber-50/80 border-amber-200 text-amber-900' :
+                      'bg-rose-50/80 border-rose-200 text-rose-900'
+                    }`}>
+                      <div className="text-[10px] font-bold uppercase opacity-80">Thời gian còn lại</div>
+                      <div className="font-black text-sm mt-0.5">
+                        {daysDiff > 0 ? `${daysDiff} ngày nữa` : 'Đã hết thời hạn'}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Kho voucher chu kỳ 30 ngày */}
+                  <div className="space-y-2 pt-2">
+                    <div className="font-bold text-slate-800 flex items-center justify-between">
+                      <span className="flex items-center gap-1.5">
+                        <i className="fa-solid fa-ticket text-emerald-600"></i>
+                        <span>Kho Voucher Chu Kỳ 30 Ngày (Đang Khả Dụng)</span>
+                      </span>
+                      {currentUser.membership?.nextVoucherRefreshAt && (
+                        <span className="text-[11px] text-slate-500 font-normal">
+                          Lần cấp tiếp theo: <strong className="text-slate-700">{new Date(currentUser.membership.nextVoucherRefreshAt).toLocaleDateString('vi-VN')}</strong>
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
+                        <div>
+                          <div className="text-[11px] text-slate-500 font-medium">Voucher Đăng Tin Thường</div>
+                          <div className="text-[10px] text-slate-400">Giảm 35.000 đ/tin về 0 đ</div>
+                        </div>
+                        <div className="text-xl font-black text-emerald-700">
+                          {currentUser.vouchers?.normalPublish || 0}
+                        </div>
+                      </div>
+
+                      <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
+                        <div>
+                          <div className="text-[11px] text-slate-500 font-medium">Voucher Đẩy Tin Làm Mới</div>
+                          <div className="text-[10px] text-slate-400">Giảm 10.000 đ/lần về 0 đ</div>
+                        </div>
+                        <div className="text-xl font-black text-blue-700">
+                          {currentUser.vouchers?.normalBump || 0}
+                        </div>
+                      </div>
+
+                      <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
+                        <div>
+                          <div className="text-[11px] text-slate-500 font-medium">Voucher Đăng Tin VIP</div>
+                          <div className="text-[10px] text-slate-400">Giảm 400.000 đ/tin</div>
+                        </div>
+                        <div className="text-xl font-black text-amber-600">
+                          {currentUser.vouchers?.vipPublish || 0}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Hành động: Gia hạn thủ công hoặc đổi gói */}
+                  <div className="pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+                    <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
+                      <i className="fa-regular fa-lightbulb text-amber-500"></i>
+                      <span>Bạn có thể chủ động gia hạn trước khi hết hạn hoặc nâng cấp gói bất kỳ lúc nào.</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setActiveModal('wallet-deposit')}
+                        className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold text-xs transition cursor-pointer"
+                      >
+                        Nạp Ví Thêm
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => navigate('/goi-hoi-vien')}
+                        className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white rounded-xl font-bold text-xs shadow transition cursor-pointer flex items-center gap-1.5"
+                      >
+                        <i className="fa-solid fa-arrows-rotate"></i>
+                        <span>Gia Hạn / Đổi Gói</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                /* Chưa đăng ký gói */
+                <div className="p-8 rounded-3xl bg-gradient-to-br from-amber-50 via-white to-emerald-50 border border-amber-200 text-center space-y-4">
+                  <div className="w-16 h-16 rounded-3xl bg-amber-500 text-white flex items-center justify-center text-3xl mx-auto shadow-md shadow-amber-500/20">
+                    <i className="fa-solid fa-crown"></i>
+                  </div>
+                  <div className="max-w-md mx-auto space-y-1">
+                    <h4 className="text-lg font-black text-slate-900">
+                      Nâng Tầm Môi Giới Với Gói Hội Viên
+                    </h4>
+                    <p className="text-xs text-slate-600 leading-relaxed">
+                      Tiết kiệm tới <strong>39% chi phí</strong>, nhận kho voucher đăng tin & đẩy tin định kỳ 30 ngày, tự động đẩy tin khung giờ vàng và tính năng tự động gia hạn tiện lợi.
+                    </p>
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      type="button"
+                      onClick={() => navigate('/goi-hoi-vien')}
+                      className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-xs uppercase tracking-wider shadow-lg shadow-amber-500/25 transition cursor-pointer inline-flex items-center gap-2"
+                    >
+                      <i className="fa-solid fa-crown"></i>
+                      <span>Xem Bảng Gói & Đăng Ký Ngay</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
 
           {/* TAB 2: XÁC THỰC KYC & TÍCH XANH */}
