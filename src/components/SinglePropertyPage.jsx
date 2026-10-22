@@ -236,6 +236,26 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     reviewCount: property.author?.reviewCount || 1
   };
 
+  // Đếm tổng số tin đăng thực tế của tác giả này trên sàn
+  const authorListingsCount = useMemo(() => {
+    if (!properties || !Array.isArray(properties)) return 1;
+    const authorId = safeAuthor.id ? String(safeAuthor.id) : null;
+    const authorPhone = normalizePhone(safeAuthor.phone);
+    const authorName = safeAuthor.name?.trim().toLowerCase();
+
+    const count = properties.filter(p => {
+      const pAuthorId = p.author?.id ? String(p.author.id) : (p.userId ? String(p.userId) : null);
+      const pPhone = normalizePhone(p.author?.phone || p.contactPhone);
+      const pName = (p.author?.name || p.contactName || '').trim().toLowerCase();
+
+      return (authorId && pAuthorId && authorId === pAuthorId) ||
+             (authorPhone && pPhone && authorPhone.length >= 9 && authorPhone === pPhone) ||
+             (authorName && pName && authorName === pName);
+    }).length;
+
+    return count > 0 ? count : (authorUser?.activeListingsCount ?? (authorUser?.listingsCount ?? 1));
+  }, [properties, safeAuthor.id, safeAuthor.phone, safeAuthor.name, authorUser]);
+
   const defaultPkg = VIP_PACKAGES.find(p => p.id === 'normal') || VIP_PACKAGES[VIP_PACKAGES.length - 1];
   const vipPkg = VIP_PACKAGES.find(p => p.id === property.vipPackageId) || defaultPkg;
   const isDiamond = property.vipPackageId === 'vip-diamond';
@@ -1559,7 +1579,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                       <div className="flex items-center gap-1 text-amber-500 text-xs mt-1">
                         <i className="fa-solid fa-star"></i>
                         <span className="font-bold text-slate-800">{safeAuthor.rating || '4.9'}</span>
-                        <span className="text-slate-400">({safeAuthor.reviewCount || 28} giao dịch)</span>
+                        <span className="text-slate-400">({authorListingsCount} tin đăng)</span>
                       </div>
                     </div>
                   </div>
