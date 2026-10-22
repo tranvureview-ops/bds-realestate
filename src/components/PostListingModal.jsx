@@ -348,12 +348,21 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
           const data = await res.json();
           if (data.success) {
             setGoogleGeocodeInfo(data);
-            setFormData(prev => ({
-              ...prev,
-              lat: data.lat || prev.lat,
-              lng: data.lng || prev.lng,
-              google_place_id: data.google_place_id || prev.google_place_id
-            }));
+            setFormData(prev => {
+              const shouldAutoSelectNew = data.isMerged && Boolean(data.newWard);
+              const computedNewAddr = data.formatted_address || [prev.street, data.newWard, data.newDistrict, data.newCity].filter(Boolean).join(', ');
+              return {
+                ...prev,
+                lat: data.lat || prev.lat,
+                lng: data.lng || prev.lng,
+                google_place_id: data.google_place_id || prev.google_place_id,
+                ...(shouldAutoSelectNew ? {
+                  selectedAddressType: 'new',
+                  isAdministrativeMerged: true,
+                  newAddress: computedNewAddr
+                } : {})
+              };
+            });
           }
         }
       } catch (err) {
@@ -611,11 +620,14 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       finalPlaceId = googleGeocodeInfo?.google_place_id || mergerInfo?.google_place_id || `ChIJ_${Math.random().toString(36).substring(2, 15)}`;
     }
 
+    const isNewAddrSelected = formData.selectedAddressType === 'new';
     const payload = {
       ...formData,
+      ward: isNewAddrSelected && mergerInfo?.newWard ? mergerInfo.newWard : formData.ward,
+      district: isNewAddrSelected && mergerInfo?.newDistrict ? mergerInfo.newDistrict : formData.district,
       orderId,
       address: computedFullAddress,
-      newAddress: (formData.selectedAddressType === 'new' ? (formData.newAddress || computedSuggestedNewAddress) : ''),
+      newAddress: (isNewAddrSelected ? (formData.newAddress || computedSuggestedNewAddress) : ''),
       lat: finalLat || 16.0544,
       lng: finalLng || 108.2022,
       google_place_id: finalPlaceId,
@@ -1176,14 +1188,37 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
 
                         {/* 3. Khối so sánh Địa chỉ cũ & Địa chỉ mới (Chuẩn y hệt ảnh gốc Batdongsan) */}
                         <div className="p-4 bg-amber-50/40 rounded-2xl border border-amber-200/80 space-y-3">
-                          {/* 1. Địa chỉ cũ - Chuẩn ảnh gốc: dạng text không đóng khung */}
-                          <div>
-                            <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
-                              <i className="fa-solid fa-location-dot text-slate-900 text-sm"></i>
-                              <span>Địa chỉ cũ</span>
+                          {/* 1. Địa chỉ cũ - Có thể click để chọn lại nếu muốn */}
+                          <div
+                            onClick={() => {
+                              setFormData(prev => ({
+                                ...prev,
+                                selectedAddressType: 'old'
+                              }));
+                            }}
+                            className={`p-2.5 rounded-xl border transition cursor-pointer flex items-center justify-between gap-3 ${
+                              formData.selectedAddressType === 'old'
+                                ? 'bg-white border-slate-800 shadow-xs'
+                                : 'border-transparent hover:bg-white/50'
+                            }`}
+                          >
+                            <div>
+                              <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
+                                <i className="fa-solid fa-location-dot text-slate-900 text-sm"></i>
+                                <span>Địa chỉ cũ</span>
+                              </div>
+                              <div className="text-xs text-slate-800 pl-5 pt-1 font-medium leading-relaxed">
+                                {currentOldAddress}
+                              </div>
                             </div>
-                            <div className="text-xs text-slate-800 pl-5 pt-1 font-medium leading-relaxed">
-                              {currentOldAddress}
+                            <div className="shrink-0 pr-1">
+                              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition ${
+                                formData.selectedAddressType === 'old' ? 'border-slate-900' : 'border-slate-300'
+                              }`}>
+                                {formData.selectedAddressType === 'old' && (
+                                  <div className="w-2.5 h-2.5 rounded-full bg-slate-900"></div>
+                                )}
+                              </div>
                             </div>
                           </div>
 
@@ -1272,9 +1307,13 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     {/* 4. Chọn vị trí trên bản đồ chuẩn Batdongsan */}
                     <ListingLocationMap
                       city={formData.city}
-                      district={formData.district}
+                      district={mergerInfo?.newDistrict || formData.district}
                       targetCoords={formData.lat && formData.lng ? { lat: formData.lat, lng: formData.lng } : null}
-                      formattedAddress={googleGeocodeInfo?.formatted_address || ''}
+                      formattedAddress={
+                        formData.selectedAddressType === 'new' && (formData.newAddress || computedSuggestedNewAddress)
+                          ? (formData.newAddress || computedSuggestedNewAddress)
+                          : (googleGeocodeInfo?.formatted_address || currentOldAddress)
+                      }
                       googlePlaceId={formData.google_place_id || googleGeocodeInfo?.google_place_id}
                       isGeocoding={isGeocodingLoading}
                       onLocationChange={(coords) => {

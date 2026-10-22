@@ -158,10 +158,18 @@ export default function ListingLocationMap({
     }
   };
 
+  // URL mở trực tiếp trên Google Maps (Chuẩn Universal Search URL tương thích 100% web & app di động)
   const effectivePlaceId = googlePlaceId || null;
-  const googleMapsUrl = effectivePlaceId
-    ? `https://www.google.com/maps/place/?q=place_id:${encodeURIComponent(effectivePlaceId)}`
-    : `https://www.google.com/maps/search/?api=1&query=${coords.lat},${coords.lng}`;
+  const targetQuery = formattedAddress
+    ? encodeURIComponent(formattedAddress)
+    : `${coords.lat},${coords.lng}`;
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${targetQuery}`;
+
+  const handleOpenGoogleMaps = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    window.open(googleMapsUrl, '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <div className="space-y-2 pt-4 border-t border-slate-200">
@@ -179,9 +187,10 @@ export default function ListingLocationMap({
         <div className="flex items-center gap-3">
           <a
             href={googleMapsUrl}
+            onClick={handleOpenGoogleMaps}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-blue-700 hover:text-blue-800 flex items-center gap-1 font-semibold transition hover:underline"
+            className="text-xs text-blue-700 hover:text-blue-800 flex items-center gap-1 font-semibold transition hover:underline cursor-pointer"
             title="Mở tọa độ chính xác trên Google Maps"
           >
             <i className="fa-brands fa-google text-[11px] text-red-500"></i>

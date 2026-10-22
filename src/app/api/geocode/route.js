@@ -135,8 +135,9 @@ export async function GET(request) {
   let resolvedLng = lng ? Number(lng) : null;
 
   // 4.1. Tìm tọa độ đường phố
+  let matchedStreet = null;
   if (!resolvedLat && cleanAddr) {
-    const matchedStreet = KNOWN_STREET_COORDS.find(s => cleanAddr.includes(s.match));
+    matchedStreet = KNOWN_STREET_COORDS.find(s => cleanAddr.includes(s.match));
     if (matchedStreet) {
       resolvedLat = matchedStreet.lat;
       resolvedLng = matchedStreet.lng;
@@ -159,6 +160,20 @@ export async function GET(request) {
     resolvedLng = 108.2022;
   }
 
+  const newWardName = matchedMerger?.newWard || oldWard;
+  const newDistrictName = matchedMerger?.newDistrict || 'Quận Hải Châu';
+  const newCityName = 'Đà Nẵng';
+
+  // Khi có sáp nhập: Tự động cập nhật formatted_address sang tên phường mới chuẩn xác
+  let resolvedFormattedAddress = address || 'Đà Nẵng, Việt Nam';
+  if (matchedMerger) {
+    const rawStreet = (address || '').split(',')[0]?.trim() || '';
+    const formattedStreet = rawStreet && !rawStreet.toLowerCase().startsWith('đường') && !rawStreet.toLowerCase().startsWith('phố')
+      ? `Đường ${rawStreet}`
+      : rawStreet;
+    resolvedFormattedAddress = [formattedStreet, newWardName, newDistrictName, newCityName].filter(Boolean).join(', ');
+  }
+
   const fallbackPlaceId = matchedMerger?.placeId || generateDeterministicPlaceId(address || `${resolvedLat},${resolvedLng}`);
 
   const fallbackData = {
@@ -167,11 +182,11 @@ export async function GET(request) {
     google_place_id: fallbackPlaceId,
     lat: resolvedLat,
     lng: resolvedLng,
-    formatted_address: address || 'Đà Nẵng, Việt Nam',
-    newWard: matchedMerger?.newWard || oldWard,
-    newDistrict: matchedMerger?.newDistrict || 'Quận Hải Châu',
-    newCity: 'Đà Nẵng',
-    streetPart: '',
+    formatted_address: resolvedFormattedAddress,
+    newWard: newWardName,
+    newDistrict: newDistrictName,
+    newCity: newCityName,
+    streetPart: matchedStreet ? (address.split(',')[0] || '').trim() : '',
     isMerged: Boolean(matchedMerger)
   };
 
