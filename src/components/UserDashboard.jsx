@@ -199,6 +199,11 @@ export default function UserDashboard() {
                   <span className="text-slate-300">
                     Hạn dùng gói: <b className="text-amber-300 font-mono">{new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN')}</b>
                     {currentUser.membership.durationDays ? ` (${currentUser.membership.durationDays} ngày)` : ''} • Voucher cấp mới định kỳ 30 ngày
+                    {currentUser.membership.nextVoucherRefreshAt && new Date(currentUser.membership.nextVoucherRefreshAt).getTime() < new Date(currentUser.membership.expiresAt).getTime() && (
+                      <span className="text-teal-300 ml-1.5 font-medium">
+                        • Đợt cấp mới tiếp theo: <b className="text-teal-200 font-mono">{new Date(currentUser.membership.nextVoucherRefreshAt).toLocaleDateString('vi-VN')}</b>
+                      </span>
+                    )}
                   </span>
                 ) : isMemberExpired ? (
                   <span className="text-rose-300">

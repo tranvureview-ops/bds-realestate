@@ -1265,6 +1265,40 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
               upsertSupabaseProfile(updatedUser);
               return updatedUser;
             }
+          } else if (user.membership.status === 'active') {
+            // Chu kỳ cấp mới voucher định kỳ mỗi 30 ngày (Hình thức 1 - Chuẩn Batdongsan)
+            const nextRefreshTime = user.membership.nextVoucherRefreshAt 
+              ? new Date(user.membership.nextVoucherRefreshAt).getTime()
+              : 0;
+
+            if (nextRefreshTime > 0 && now >= nextRefreshTime && now < expTime) {
+              usersChanged = true;
+              const pkg = (membershipPackages || []).find(p => p.id === user.membership.packageId);
+              const normalPub = pkg?.vouchersPerCycle?.normalPublishVouchers || 0;
+              const normalBump = pkg?.vouchersPerCycle?.normalBumpVouchers || 0;
+              const vipPub = pkg?.vouchersPerCycle?.vipVouchers || 0;
+
+              const nextNextRefresh = new Date(Math.min(now + 30 * 86400 * 1000, expTime)).toISOString();
+
+              const updatedUser = {
+                ...user,
+                membership: {
+                  ...user.membership,
+                  lastVoucherRefreshedAt: new Date().toISOString(),
+                  nextVoucherRefreshAt: nextNextRefresh,
+                  currentCycleIndex: (user.membership.currentCycleIndex || 1) + 1
+                },
+                // Reset kho voucher cũ và cấp mới cho chu kỳ 30 ngày tiếp theo (Hình thức 1)
+                vouchers: {
+                  normalPublish: normalPub,
+                  normalBump: normalBump,
+                  vipPublish: vipPub
+                }
+              };
+
+              upsertSupabaseProfile(updatedUser);
+              return updatedUser;
+            }
           }
           return user;
         });
@@ -1305,6 +1339,36 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
                 }
               };
             }
+          }
+        } else if (curr.membership.status === 'active') {
+          // Chu kỳ cấp mới voucher 30 ngày (Hình thức 1) cho currentUser
+          const nextRefreshTime = curr.membership.nextVoucherRefreshAt 
+            ? new Date(curr.membership.nextVoucherRefreshAt).getTime()
+            : 0;
+
+          if (nextRefreshTime > 0 && now >= nextRefreshTime && now < expTime) {
+            const pkg = (membershipPackages || []).find(p => p.id === curr.membership.packageId);
+            const normalPub = pkg?.vouchersPerCycle?.normalPublishVouchers || 0;
+            const normalBump = pkg?.vouchersPerCycle?.normalBumpVouchers || 0;
+            const vipPub = pkg?.vouchersPerCycle?.vipVouchers || 0;
+            const nextNextRefresh = new Date(Math.min(now + 30 * 86400 * 1000, expTime)).toISOString();
+
+            showToast(`Kho voucher định kỳ 30 ngày của ${curr.membership.packageName} đã được cấp mới thành công!`, 'success');
+
+            return {
+              ...curr,
+              membership: {
+                ...curr.membership,
+                lastVoucherRefreshedAt: new Date().toISOString(),
+                nextVoucherRefreshAt: nextNextRefresh,
+                currentCycleIndex: (curr.membership.currentCycleIndex || 1) + 1
+              },
+              vouchers: {
+                normalPublish: normalPub,
+                normalBump: normalBump,
+                vipPublish: vipPub
+              }
+            };
           }
         }
         return curr;
@@ -1821,6 +1885,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const normalBumpCount = pkg.vouchersPerCycle.normalBumpVouchers;
     const vipCount = pkg.vouchersPerCycle.vipVouchers || 0;
 
+    // Chu kỳ cấp voucher 30 ngày định kỳ (Hình thức 1 - Chuẩn Batdongsan)
+    const nextRefreshDate = new Date(Math.min(Date.now() + 30 * 24 * 60 * 60 * 1000, new Date(expiresDate).getTime())).toISOString();
+
     const updatedUser = {
       ...currentUser,
       walletBalance: newBalance,
@@ -1835,12 +1902,16 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         status: 'active',
         isAutoRenew: false, // Mặc định tắt tự động gia hạn (Auto-renew: OFF)
         badge: pkg.badge,
-        badgeColor: pkg.badgeColor
+        badgeColor: pkg.badgeColor,
+        lastVoucherRefreshedAt: new Date().toISOString(),
+        nextVoucherRefreshAt: nextRefreshDate,
+        voucherCycleMonths: billingMonths,
+        currentCycleIndex: isRenew ? (currentUser.membership.currentCycleIndex || 1) : 1
       },
       vouchers: {
-        normalPublish: (currentUser.vouchers?.normalPublish || 0) + normalPubCount,
-        normalBump: (currentUser.vouchers?.normalBump || 0) + normalBumpCount,
-        vipPublish: (currentUser.vouchers?.vipPublish || 0) + vipCount
+        normalPublish: normalPubCount,
+        normalBump: normalBumpCount,
+        vipPublish: vipCount
       }
     };
 

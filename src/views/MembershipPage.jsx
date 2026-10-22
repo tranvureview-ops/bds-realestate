@@ -123,6 +123,11 @@ export default function MembershipPage() {
                     {isMemberActive && (
                       <>
                         <span>Hạn dùng: <b className="text-amber-300 font-mono">{new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN')}</b></span>
+                        {currentUser.membership.nextVoucherRefreshAt && new Date(currentUser.membership.nextVoucherRefreshAt).getTime() < new Date(currentUser.membership.expiresAt).getTime() && (
+                          <span className="text-teal-300">
+                            • Đợt cấp mới voucher tiếp theo: <b className="text-teal-200 font-mono">{new Date(currentUser.membership.nextVoucherRefreshAt).toLocaleDateString('vi-VN')}</b>
+                          </span>
+                        )}
                         <span className={`inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[10px] font-bold ${
                           currentUser.membership.isAutoRenew === true 
                             ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' 
@@ -492,8 +497,8 @@ export default function MembershipPage() {
               <p>Ngay khi bạn đăng ký gói hội viên thành công, toàn bộ số lượng voucher tương ứng sẽ được cộng tự động vào kho voucher cá nhân của bạn. Khi đăng tin hoặc đẩy tin, hệ thống sẽ tự động gợi ý bạn áp dụng voucher để giảm trừ chi phí về 0 đ.</p>
             </div>
             <div className="p-4 bg-white rounded-2xl border border-slate-200 space-y-1.5">
-              <div className="font-bold text-slate-900">2. Quyền lợi có được cộng dồn không?</div>
-              <p>Quyền lợi voucher được cấp mới định kỳ 30 ngày một lần theo chu kỳ đăng ký. Các voucher không sử dụng hết trong chu kỳ 30 ngày sẽ không được bảo lưu cộng dồn sang chu kỳ tiếp theo theo chính sách tiêu chuẩn của Batdongsan.</p>
+              <div className="font-bold text-slate-900">2. Mua gói 3 tháng, 6 tháng thì voucher được cấp thế nào?</div>
+              <p>Theo chuẩn quy chế Batdongsan (Hình thức 1), quyền lợi voucher được cấp mới định kỳ mỗi 30 ngày một lần. Khách hàng mua gói 3 tháng sẽ nhận 3 đợt cấp voucher, gói 6 tháng nhận 6 đợt. Mỗi 30 ngày, hệ thống sẽ tự động cấp mới bộ voucher tương ứng để bạn sử dụng cho tháng tiếp theo.</p>
             </div>
             <div className="p-4 bg-white rounded-2xl border border-slate-200 space-y-1.5">
               <div className="font-bold text-slate-900">3. Tin VIP Kim Cương có ưu đãi gì đặc biệt?</div>
@@ -501,7 +506,7 @@ export default function MembershipPage() {
             </div>
             <div className="p-4 bg-white rounded-2xl border border-slate-200 space-y-1.5">
               <div className="font-bold text-slate-900">4. Tôi có thể đổi sang gói khác khi đang dùng không?</div>
-              <p>Bạn hoàn toàn có thể nâng cấp lên Gói Tiêu Chuẩn hoặc Gói Cao Cấp bất cứ lúc nào. Kho voucher của gói mới sẽ được kích hoạt tức thì sau khi thanh toán.</p>
+              <p>Để đảm bảo quyền lợi và sự đồng bộ của kho voucher, khi gói hội viên hiện tại đang còn hạn sử dụng, bạn sẽ không thể đăng ký gói khác mà chỉ có thể gia hạn gói đang dùng. Bạn có thể đổi sang gói mới sau khi gói cũ hết hạn sử dụng.</p>
             </div>
           </div>
         </div>
@@ -546,6 +551,12 @@ export default function MembershipPage() {
                   <span className="text-slate-500">Thời hạn sử dụng:</span>
                   <span className="font-bold text-teal-700 font-mono">
                     {days} ngày
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Chu kỳ cấp Voucher:</span>
+                  <span className="font-bold text-emerald-700">
+                    Cấp mới mỗi 30 ngày ({confirmingPackage.cycle.months} đợt)
                   </span>
                 </div>
                 <div className="flex justify-between">
