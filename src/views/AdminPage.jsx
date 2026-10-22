@@ -52,23 +52,40 @@ export function CountdownNotice({ countdown }) {
 }
 
 export function ForbiddenActions({ countdown, onLogin, onHome }) {
+  const loginUrl = typeof window !== 'undefined' ? getAdminRedirectPath() : '/dang-nhap?redirect=/admin';
   return (
     <div className="space-y-2.5">
       <CountdownNotice countdown={countdown} />
-      <button
-        onClick={onLogin}
-        className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 text-white font-bold text-xs shadow-lg shadow-red-600/30 transition flex items-center justify-center gap-2 cursor-pointer"
+      <a
+        href={loginUrl}
+        onClick={(e) => {
+          e.preventDefault();
+          if (onLogin) {
+            onLogin();
+          } else if (typeof window !== 'undefined') {
+            window.location.href = loginUrl;
+          }
+        }}
+        className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 text-white font-bold text-xs shadow-lg shadow-red-600/30 transition flex items-center justify-center gap-2 cursor-pointer no-underline"
       >
         <i className="fa-solid fa-right-to-bracket" />
         <span>Đến Trang Đăng Nhập Admin</span>
-      </button>
-      <button
-        onClick={onHome}
-        className="w-full py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition border border-slate-700 flex items-center justify-center gap-2 cursor-pointer"
+      </a>
+      <a
+        href="/"
+        onClick={(e) => {
+          e.preventDefault();
+          if (onHome) {
+            onHome();
+          } else if (typeof window !== 'undefined') {
+            window.location.href = '/';
+          }
+        }}
+        className="w-full py-2 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium text-xs transition border border-slate-700 flex items-center justify-center gap-2 cursor-pointer no-underline"
       >
         <i className="fa-solid fa-house" />
         <span>Quay Về Trang Chủ</span>
-      </button>
+      </a>
     </div>
   );
 }
@@ -109,20 +126,37 @@ export default function AdminPage() {
     return false;
   });
 
+  const handleGoToLogin = () => {
+    const target = getAdminRedirectPath();
+    if (typeof window !== 'undefined') {
+      window.location.href = target;
+    } else {
+      navigate(target);
+    }
+  };
+
+  const handleGoHome = () => {
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    } else {
+      navigate('/');
+    }
+  };
+
   useEffect(() => {
     if (!isHydrated || currentUser?.role === 'admin') return;
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          navigate(getAdminRedirectPath());
-          return 0;
-        }
-        return prev - 1;
-      });
+
+    if (countdown <= 0) {
+      handleGoToLogin();
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown((prev) => prev - 1);
     }, 1000);
-    return () => clearInterval(timer);
-  }, [isHydrated, currentUser?.role, navigate]);
+
+    return () => clearTimeout(timer);
+  }, [countdown, isHydrated, currentUser?.role]);
 
   if (!isHydrated) return <LoadingScreen />;
   if (!isAdmin) {
@@ -130,8 +164,8 @@ export default function AdminPage() {
       <ForbiddenScreen
         currentUser={currentUser}
         countdown={countdown}
-        onLogin={() => navigate(getAdminRedirectPath())}
-        onHome={() => navigate('/')}
+        onLogin={handleGoToLogin}
+        onHome={handleGoHome}
       />
     );
   }

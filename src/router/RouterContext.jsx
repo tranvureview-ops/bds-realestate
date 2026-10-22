@@ -9,14 +9,16 @@ const RouterContext = createContext(null);
 function RouterProviderWrapper({ children }) {
   const nextRouter = useNextRouter();
   const pathname = usePathname() || '/';
-  const [, startTransition] = useTransition();
-
   const navigate = (to) => {
     let target = to;
     if (!target.startsWith('/')) target = '/' + target;
-    startTransition(() => {
+    try {
       nextRouter.push(target);
-    });
+    } catch {
+      if (typeof window !== 'undefined') {
+        window.location.href = target;
+      }
+    }
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }

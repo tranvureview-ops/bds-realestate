@@ -46,12 +46,20 @@ export default function LoginPage() {
         navigate('/');
         return;
       }
-      navigate(redirectUrl);
+      if (typeof window !== 'undefined') {
+        window.location.href = redirectUrl;
+      } else {
+        navigate(redirectUrl);
+      }
       return;
     }
 
     if (user.role === 'admin') {
-      navigate('/admin');
+      if (typeof window !== 'undefined') {
+        window.location.href = '/admin';
+      } else {
+        navigate('/admin');
+      }
     } else {
       navigate('/');
     }
