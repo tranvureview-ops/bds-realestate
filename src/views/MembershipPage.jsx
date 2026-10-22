@@ -18,6 +18,9 @@ export default function MembershipPage() {
   const [selectedCycle, setSelectedCycle] = useState(1); // 1, 3, or 6 months
   const [confirmingPackage, setConfirmingPackage] = useState(null);
 
+  const isGuest = !currentUser || currentUser.role === 'guest' || currentUser.id === 'guest';
+  const isLoggedIn = !isGuest;
+
   const isMemberActive = isMembershipActive ? isMembershipActive(currentUser) : Boolean(
     currentUser?.membership && 
     currentUser.membership.status === 'active' && 
@@ -26,7 +29,7 @@ export default function MembershipPage() {
   const isMemberExpired = Boolean(currentUser?.membership && !isMemberActive);
 
   const handleSubscribe = (pkg) => {
-    if (!currentUser || currentUser.id === 'guest' || !currentUser.email) {
+    if (isGuest || !currentUser?.email) {
       showToast('Vui lòng đăng nhập tài khoản để đăng ký hoặc gia hạn Gói Hội Viên!', 'warning');
       setActiveModal('auth');
       return;
@@ -85,8 +88,8 @@ export default function MembershipPage() {
           </p>
         </div>
 
-        {/* Current User Membership & Voucher Status Box */}
-        {currentUser && (
+        {/* Current User Membership & Voucher Status Box (Chỉ hiển thị khi đã đăng nhập) */}
+        {isLoggedIn && (
           <div className={`rounded-3xl p-6 sm:p-8 text-white shadow-xl border ${
             isMemberExpired
               ? 'bg-gradient-to-r from-rose-950/90 via-slate-900 to-rose-950/70 border-rose-800/80'
