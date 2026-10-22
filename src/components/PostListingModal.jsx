@@ -2007,16 +2007,6 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                       </div>
                     </div>
                   </div>
-
-                  <a
-                    href="/goi-hoi-vien"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs font-bold text-amber-800 hover:text-amber-900 underline flex items-center gap-1"
-                  >
-                    <span>Xem bảng quyền lợi hội viên</span>
-                    <i className="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                  </a>
                 </div>
 
                 {isMemberExpired ? (
