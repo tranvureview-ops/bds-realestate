@@ -81,6 +81,7 @@ export default function LiveChatWidget() {
 
   const messagesEndRef = useRef(null);
   const lastTimestampRef = useRef(Date.now() - 3600000); // 1 giờ trước
+  const isSendingRef = useRef(false);
 
   // Câu hỏi gợi ý nhanh
   const quickQuestions = useMemo(() => [
@@ -169,39 +170,47 @@ export default function LiveChatWidget() {
       fetch(`/api/chat/messages?sessionId=${encodeURIComponent(sessionId)}`)
         .then(res => res.json())
         .then(data => {
-          if (data.success && Array.isArray(data.messages)) {
-            setMessages(prev => {
-              // Kiểm tra xem có tin nhắn mới nào từ agent không
-              const existingIds = new Set(prev.map(m => m.id));
-              const newAgentMsgs = data.messages.filter(m => m.sender === 'agent' && !existingIds.has(m.id));
+          if (!data.success || !Array.isArray(data.messages)) return;
 
-              // Nếu có tin nhắn mới từ agent
-              if (newAgentMsgs.length > 0) {
-                // Nếu khung chat đang đóng thì tăng số thông báo
-                if (!isOpen) {
-                  setUnreadCount(c => c + newAgentMsgs.length);
-                }
+          setMessages(prev => {
+            // Kiểm tra xem có tin nhắn mới nào từ agent không
+            const prevIds = new Set(prev.map(m => m.id));
+            const newAgentMsgs = data.messages.filter(m => m.sender === 'agent' && !prevIds.has(m.id));
 
-                // Phát âm thanh ping nhẹ khi có phản hồi từ nhân viên
-                try {
-                  const audio = new Audio('/sounds/notification.mp3');
-                  audio.play().catch(() => {});
-                } catch (_) {}
+            // Nếu có tin nhắn mới từ agent
+            if (newAgentMsgs.length > 0) {
+              // Nếu khung chat đang đóng thì tăng số thông báo
+              if (!isOpen) {
+                setUnreadCount(c => c + newAgentMsgs.length);
               }
 
-              // Giữ lại các tin nhắn tạm (tempMsg) chưa được server xác nhận
-              const tempMsgs = prev.filter(m => m.id?.startsWith('temp_'));
-              const confirmedTexts = new Set(data.messages.map(m => m.text));
-              const remainingTemps = tempMsgs.filter(t => !confirmedTexts.has(t.text));
+              // Phát âm thanh ping nhẹ khi có phản hồi từ nhân viên
+              try {
+                const audio = new Audio('/sounds/notification.mp3');
+                audio.play().catch(() => {});
+              } catch (_) {}
+            }
 
-              // Nếu số lượng tin nhắn không đổi và không có tin mới
-              if (prev.length === data.messages.length && newAgentMsgs.length === 0 && remainingTemps.length === 0) {
-                return prev;
-              }
+            // Lọc các tin tạm đang chờ xác nhận từ server
+            const pendingTemps = prev.filter(m => m.id?.startsWith('temp_'));
+            const serverTexts = new Set(data.messages.map(m => m.text));
+            const serverIds = new Set(data.messages.map(m => m.id));
 
-              return [...data.messages, ...remainingTemps];
-            });
-          }
+            // Chỉ giữ tin tạm nếu server chưa có ID này và chưa có nội dung text này
+            const remainingTemps = pendingTemps.filter(t => !serverIds.has(t.id) && !serverTexts.has(t.text));
+
+            const unifiedList = [...data.messages, ...remainingTemps];
+
+            // Tránh re-render nếu mảng không đổi
+            if (
+              prev.length === unifiedList.length &&
+              prev.every((m, idx) => m.id === unifiedList[idx].id && m.text === unifiedList[idx].text)
+            ) {
+              return prev;
+            }
+
+            return unifiedList;
+          });
         })
         .catch(() => {});
     }, 2500);
@@ -228,6 +237,12 @@ export default function LiveChatWidget() {
     }
 
     setIsSubmittingForm(true);
+
+    // Sinh sessionId mới tinh cho phiên này để cách ly hoàn toàn với các phiên cũ
+    const freshSessionId = `chat_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    localStorage.setItem(STORAGE_SESSION_KEY, freshSessionId);
+    setSessionId(freshSessionId);
+
     const newCustomer = {
       name: trimmedName,
       phone: formattedPhone,
@@ -252,7 +267,7 @@ export default function LiveChatWidget() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          sessionId,
+          sessionId: freshSessionId,
           customer: newCustomer,
           propertyContext: propContext
         })
@@ -269,6 +284,32 @@ export default function LiveChatWidget() {
     }
   };
 
+  // Bắt đầu một phiên tư vấn mới (Xóa sạch session cũ để test hoặc chuyển khách)
+  const handleResetChat = () => {
+    if (typeof window !== 'undefined') {
+      const confirmReset = window.confirm('Bạn có muốn bắt đầu một phiên chat tư vấn mới không?');
+      if (!confirmReset) return;
+
+      localStorage.removeItem(STORAGE_SESSION_KEY);
+      localStorage.removeItem(STORAGE_LEAD_KEY);
+      const freshSessionId = `chat_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+      localStorage.setItem(STORAGE_SESSION_KEY, freshSessionId);
+      setSessionId(freshSessionId);
+      setCustomerInfo(null);
+      setLeadFormData({ name: '', phone: '', email: '' });
+      setMessages([
+        {
+          id: 'msg_welcome',
+          sender: 'agent',
+          text: 'Xin chào quý khách! Tôi là trợ lý tư vấn. Quý khách đang quan tâm đến bất động sản nào cần hỗ trợ nhanh?',
+          time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' }),
+          timestamp: Date.now()
+        }
+      ]);
+      setHasStartedChat(false);
+    }
+  };
+
   // Xử lý đóng / Hủy khung chat
   const handleCancelChat = () => {
     setIsOpen(false);
@@ -278,17 +319,22 @@ export default function LiveChatWidget() {
   // Xử lý gửi tin nhắn từ Web lên Telegram
   const handleSendMessage = async (textToSend = null) => {
     const text = (textToSend || inputValue).trim();
-    if (!text || isSending) return;
+    if (!text || isSendingRef.current) return;
 
-    if (!textToSend) setInputValue('');
+    isSendingRef.current = true;
     setIsSending(true);
+    if (!textToSend) setInputValue('');
 
-    const now = new Date();
+    const tempId = `temp_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
     const tempMsg = {
-      id: `temp_${Date.now()}`,
+      id: tempId,
       sender: 'user',
       text: text,
-      time: now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+      time: new Date().toLocaleTimeString('vi-VN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'Asia/Ho_Chi_Minh'
+      }),
       timestamp: Date.now()
     };
 
@@ -323,10 +369,13 @@ export default function LiveChatWidget() {
       const data = await res.json();
       if (data.success && data.message) {
         lastTimestampRef.current = data.message.timestamp || Date.now();
+        // Thay thế ngay lập tức tin tạm tempMsg bằng tin nhắn server trả về
+        setMessages(prev => prev.map(m => (m.id === tempId ? data.message : m)));
       }
     } catch (err) {
       console.error('Lỗi gửi tin nhắn:', err);
     } finally {
+      isSendingRef.current = false;
       setIsSending(false);
     }
   };
@@ -390,13 +439,23 @@ export default function LiveChatWidget() {
               </div>
             </div>
 
-            <button
-              onClick={handleCancelChat}
-              className="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-xs transition cursor-pointer shrink-0"
-              title="Thu nhỏ khung chat"
-            >
-              <i className="fa-solid fa-minus"></i>
-            </button>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={handleResetChat}
+                className="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-xs transition cursor-pointer"
+                title="Bắt đầu phiên tư vấn mới"
+              >
+                <i className="fa-solid fa-rotate-right"></i>
+              </button>
+              <button
+                onClick={handleCancelChat}
+                className="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-xs transition cursor-pointer"
+                title="Thu nhỏ khung chat"
+              >
+                <i className="fa-solid fa-minus"></i>
+              </button>
+            </div>
           </div>
 
           {/* NỘI DUNG 1: FORM THU THẬP THÔNG TIN (Dành cho khách chưa đăng nhập và chưa để lại thông tin) */}
@@ -578,9 +637,11 @@ export default function LiveChatWidget() {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
-                      handleSendMessage();
+                      if (!isSending && inputValue.trim()) {
+                        handleSendMessage();
+                      }
                     }
                   }}
                   className="flex-1 px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none text-slate-900 font-medium"

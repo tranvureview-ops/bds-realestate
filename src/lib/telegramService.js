@@ -166,6 +166,31 @@ export async function saveTelegramConfig(newConfig) {
 // =======================================================================
 
 /**
+ * Định dạng thời gian chuẩn Việt Nam (GMT+7) cho cả Client & Vercel Serverless
+ */
+export function formatVnTime(date = new Date()) {
+  return new Date(date).toLocaleTimeString('vi-VN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    timeZone: 'Asia/Ho_Chi_Minh'
+  });
+}
+
+export function formatVnDateTime(date = new Date()) {
+  const d = new Date(date);
+  const time = d.toLocaleTimeString('vi-VN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZone: 'Asia/Ho_Chi_Minh'
+  });
+  const day = d.toLocaleDateString('vi-VN', {
+    timeZone: 'Asia/Ho_Chi_Minh'
+  });
+  return `${time} ngày ${day}`;
+}
+
+/**
  * Lấy toàn bộ sessions từ Supabase / in-memory / local
  */
 export async function getChatSessions() {
@@ -222,6 +247,7 @@ export async function saveChatSessions(sessions) {
  * Tra cứu sessionId từ telegramMsgId
  */
 export async function resolveSessionIdFromMsgMap(telegramMsgId) {
+  if (!telegramMsgId) return null;
   const idStr = String(telegramMsgId);
   if (memoryMsgMap.has(idStr)) {
     return memoryMsgMap.get(idStr);
@@ -252,21 +278,47 @@ export async function resolveSessionIdFromMsgMap(telegramMsgId) {
 
 /**
  * Ghi ánh xạ telegramMsgId -> sessionId
+ * Luôn merge với dữ liệu Supabase hiện có để không làm mất ánh xạ của các Lambda/phiên khác
  */
 export async function saveTelegramMsgMapping(telegramMsgId, sessionId) {
+  if (!telegramMsgId || !sessionId) return;
   const idStr = String(telegramMsgId);
   memoryMsgMap.set(idStr, sessionId);
-  const currentObj = Object.fromEntries(memoryMsgMap);
 
   if (isSupabaseConfigured() && supabase) {
     try {
+      // 1. Đọc dữ liệu hiện tại từ Supabase để hợp nhất (tránh ghi đè xóa sạch của Lambda khác)
+      const { data } = await supabase
+        .from('platform_settings')
+        .select('value')
+        .eq('key', 'bds_chat_message_map')
+        .maybeSingle();
+
+      const mergedMap = (data?.value && typeof data.value === 'object') ? { ...data.value } : {};
+      
+      // Đồng bộ các ánh xạ trong memory
+      for (const [k, v] of memoryMsgMap.entries()) {
+        mergedMap[k] = v;
+      }
+      mergedMap[idStr] = sessionId;
+
+      // Giới hạn 500 ID gần nhất
+      const keys = Object.keys(mergedMap);
+      if (keys.length > 500) {
+        keys.slice(0, keys.length - 500).forEach(k => delete mergedMap[k]);
+      }
+
       await supabase
         .from('platform_settings')
         .upsert({
           key: 'bds_chat_message_map',
-          value: currentObj,
+          value: mergedMap,
           updated_at: new Date().toISOString()
         }, { onConflict: 'key' });
+
+      for (const [k, v] of Object.entries(mergedMap)) {
+        memoryMsgMap.set(k, v);
+      }
     } catch (e) {
       console.warn('Lỗi lưu bds_chat_message_map lên Supabase:', e.message);
     }
@@ -440,7 +492,7 @@ export async function registerNewLeadChat({ sessionId, customer, propertyContext
         id: 'msg_welcome',
         sender: 'agent',
         text: config.welcomeMessage,
-        time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+        time: formatVnTime(),
         timestamp: Date.now()
       }
     ]
@@ -456,6 +508,8 @@ export async function registerNewLeadChat({ sessionId, customer, propertyContext
       propText = `<b>${propertyContext.title || 'Bất động sản'}</b>\n   💰 Giá: <b>${propertyContext.priceDisplay || 'Thương lượng'}</b> (Mã: <code>${propertyContext.id || 'N/A'}</code>)`;
     }
 
+    const cleanTag = sessionId.startsWith('chat_') ? `#${sessionId}` : `#chat_${sessionId}`;
+
     const leadMsg = `
 🔔 <b>KHÁCH HÀNG MỚI BẮT ĐẦU LIVE CHAT</b>
 ────────────────────────
@@ -463,13 +517,17 @@ export async function registerNewLeadChat({ sessionId, customer, propertyContext
 📞 <b>Số điện thoại:</b> <a href="tel:${(customer?.phone || '').replace(/\s+/g, '')}">${customer?.phone || 'Chưa có'}</a>
 💬 <b>Zalo:</b> <a href="https://zalo.me/${(customer?.phone || '').replace(/\s+/g, '')}">Chat Zalo ngay</a>
 ${customer?.email ? `✉️ <b>Email:</b> ${customer.email}\n` : ''}🏠 <b>Đang xem:</b> ${propText}
-🆔 <b>Mã phiên:</b> <code>#chat_${sessionId}</code>
-🕒 <b>Thời gian:</b> ${new Date().toLocaleTimeString('vi-VN')} ngày ${new Date().toLocaleDateString('vi-VN')}
+🆔 <b>Mã phiên:</b> <code>${cleanTag}</code>
+🕒 <b>Thời gian:</b> ${formatVnDateTime()}
 ────────────────────────
-👉 <i>Khách hàng vừa mở khung chat và sẵn sàng nhận tư vấn từ chuyên viên.</i>
+👉 <i>Khách hàng vừa mở khung chat và sẵn sàng nhận tư vấn từ chuyên viên. Bấm Reply để chat trực tiếp!</i>
 `.trim();
 
-    sendRawTelegramMessage(config.botToken, config.chatId, leadMsg).catch(console.warn);
+    const sendRes = await sendRawTelegramMessage(config.botToken, config.chatId, leadMsg);
+    if (sendRes.success && sendRes.result?.message_id) {
+      const leadMsgId = String(sendRes.result.message_id);
+      await saveTelegramMsgMapping(leadMsgId, sessionId);
+    }
   }
 
   return { success: true, session: sessionData };
@@ -501,7 +559,7 @@ export async function sendCustomerMessageToTelegram({ sessionId, customer, prope
     id: `msg_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
     sender: 'user',
     text: messageText,
-    time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+    time: formatVnTime(),
     timestamp: Date.now()
   };
 
@@ -516,10 +574,12 @@ export async function sendCustomerMessageToTelegram({ sessionId, customer, prope
     propHeader = `\n🏠 <b>Đang hỏi về:</b> ${propertyContext.title} (<b>${propertyContext.priceDisplay || ''}</b>)`;
   }
 
+  const cleanTag = sessionId.startsWith('chat_') ? `#${sessionId}` : `#chat_${sessionId}`;
+
   const telegramText = `
 💬 <b>TIN NHẮN TỪ KHÁCH HÀNG</b>
 👤 <b>Khách:</b> ${session.customer?.name || 'Khách vãng lai'} | 📞 <b>SĐT:</b> <a href="tel:${(session.customer?.phone || '').replace(/\s+/g, '')}">${session.customer?.phone || 'Chưa có'}</a>${propHeader}
-🆔 <b>Mã phiên:</b> <code>#chat_${sessionId}</code>
+🆔 <b>Mã phiên:</b> <code>${cleanTag}</code>
 ────────────────────────
 📝 <b>Nội dung:</b>
 <i>"${messageText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}"</i>
@@ -563,11 +623,21 @@ export async function handleTelegramWebhookUpdate(update) {
   // 1. Tìm sessionId từ bản đồ ánh xạ telegramMsgId -> sessionId
   let sessionId = await resolveSessionIdFromMsgMap(replyMsgId);
 
-  // 2. Fallback: Nếu không tìm thấy trong map, trích xuất từ mã #chat_xxxx trong văn bản gốc
+  // 2. Fallback: Nếu không tìm thấy trong map, trích xuất từ hashtag trong văn bản gốc
   if (!sessionId && replyTo.text) {
-    const match = replyTo.text.match(/#chat_([a-zA-Z0-9_\-]+)/);
+    const match = replyTo.text.match(/#(?:chat_)?(chat_[a-zA-Z0-9_\-]+)/i)
+               || replyTo.text.match(/#chat_([a-zA-Z0-9_\-]+)/i)
+               || replyTo.text.match(/#(chat_[0-9]+_[a-zA-Z0-9]+)/i);
     if (match && match[1]) {
-      sessionId = match[1];
+      const candidate = match[1];
+      const allSessions = await getChatSessions();
+      if (allSessions[candidate]) {
+        sessionId = candidate;
+      } else if (allSessions[`chat_${candidate}`]) {
+        sessionId = `chat_${candidate}`;
+      } else {
+        sessionId = candidate;
+      }
     }
   }
 
@@ -594,7 +664,7 @@ export async function handleTelegramWebhookUpdate(update) {
     sender: 'agent',
     text: staffReplyText,
     staffName: staffName,
-    time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+    time: formatVnTime(),
     timestamp: Date.now()
   };
 
