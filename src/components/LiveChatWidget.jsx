@@ -604,11 +604,6 @@ export default function LiveChatWidget() {
                               : 'bg-white text-slate-800 rounded-bl-xs border border-slate-200/90 shadow-xs'
                           }`}
                         >
-                          {!isUser && msg.staffName && (
-                            <div className="text-[10px] font-bold text-emerald-700 mb-0.5">
-                              {msg.staffName}
-                            </div>
-                          )}
                           <div className="whitespace-pre-wrap">{msg.text}</div>
                         </div>
                       </div>
