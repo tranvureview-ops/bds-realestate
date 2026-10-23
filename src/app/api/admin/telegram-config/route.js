@@ -69,12 +69,12 @@ export async function POST(req) {
 
     // 3. Lưu cấu hình Telegram Bot & Tự động gán Webhook
     if (action === 'save' || !action) {
-      const { config } = body;
-      if (!config) {
+      const configToSave = body.config || body;
+      if (!configToSave || typeof configToSave !== 'object') {
         return NextResponse.json({ success: false, error: 'Thiếu dữ liệu cấu hình' }, { status: 400 });
       }
 
-      await saveTelegramConfig(config);
+      await saveTelegramConfig(configToSave);
       const updatedMasked = await getTelegramConfig(true);
 
       // Tự động kích hoạt Webhook luôn khi lưu nếu đang ở domain HTTPS (Vercel)

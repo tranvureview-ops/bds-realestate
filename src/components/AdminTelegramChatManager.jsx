@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { DEFAULT_TELEGRAM_CONFIG } from '../data/mockData';
 
@@ -28,6 +28,59 @@ export default function AdminTelegramChatManager() {
   const [webhookInfo, setWebhookInfo] = useState(null);
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
+
+  const avatarFileInputRef = useRef(null);
+
+  // Xử lý tải ảnh đại diện từ máy tính (nén Canvas HTML5 chuẩn 400x400 nhẹ ~30KB)
+  const handleAvatarFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showToast('Vui lòng chọn định dạng file ảnh hợp lệ (PNG, JPG, WEBP)!', 'warning');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('Dung lượng ảnh tối đa 10MB!', 'warning');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const maxSide = 400;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxSide) {
+            height = Math.round((height * maxSide) / width);
+            width = maxSide;
+          }
+        } else {
+          if (height > maxSide) {
+            width = Math.round((width * maxSide) / height);
+            height = maxSide;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.88);
+        setConfig(prev => ({ ...prev, agentAvatar: compressedDataUrl }));
+        showToast('Đã tải ảnh đại diện lên! Nhớ bấm "Lưu Thay Đổi Cấu Hình" để áp dụng.', 'success');
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
 
   // Tải cấu hình từ API
   const fetchConfig = async () => {
@@ -396,53 +449,121 @@ export default function AdminTelegramChatManager() {
               </h4>
             </div>
 
-            {/* Avatar Selection */}
-            <div>
-              <label className="block text-slate-300 font-bold mb-2 text-xs">
-                Ảnh đại diện chuyên viên (Avatar):
+            {/* Avatar Selection & Upload */}
+            <div className="space-y-3.5">
+              <label className="block text-slate-300 font-bold text-xs">
+                Ảnh đại diện chuyên viên (Avatar hiển thị trên khung chat):
               </label>
-              <div className="flex flex-wrap items-center gap-3">
-                <label className={`flex items-center gap-2 p-2 rounded-xl border cursor-pointer transition ${
-                  config.agentAvatar === '/avatars/ai-preset-1.jpg' || !config.agentAvatar
-                    ? 'bg-emerald-950/60 border-emerald-500 text-white'
-                    : 'bg-slate-900 border-slate-700 text-slate-400 hover:text-white'
-                }`}>
-                  <input
-                    type="radio"
-                    name="agentAvatar"
-                    checked={config.agentAvatar === '/avatars/ai-preset-1.jpg' || !config.agentAvatar}
-                    onChange={() => setConfig(prev => ({ ...prev, agentAvatar: '/avatars/ai-preset-1.jpg' }))}
-                    className="hidden"
-                  />
-                  <img src="/avatars/ai-preset-1.jpg" alt="Preset 1" className="w-8 h-8 rounded-full object-cover border border-emerald-400" />
-                  <span className="text-xs font-semibold">Mẫu Nữ (Preset 1)</span>
-                </label>
 
-                <label className={`flex items-center gap-2 p-2 rounded-xl border cursor-pointer transition ${
-                  config.agentAvatar === '/avatars/ai-preset-2.jpg'
-                    ? 'bg-emerald-950/60 border-emerald-500 text-white'
-                    : 'bg-slate-900 border-slate-700 text-slate-400 hover:text-white'
-                }`}>
-                  <input
-                    type="radio"
-                    name="agentAvatar"
-                    checked={config.agentAvatar === '/avatars/ai-preset-2.jpg'}
-                    onChange={() => setConfig(prev => ({ ...prev, agentAvatar: '/avatars/ai-preset-2.jpg' }))}
-                    className="hidden"
+              {/* Box Avatar hiện tại + Nút Tải lên từ máy tính */}
+              <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 flex flex-col sm:flex-row items-center gap-4">
+                <div className="relative shrink-0">
+                  <img
+                    src={config.agentAvatar || '/avatars/ai-preset-1.jpg'}
+                    alt="Agent Avatar Preview"
+                    className="w-16 h-16 rounded-full object-cover border-2 border-emerald-500 shadow-md shadow-emerald-950/50"
                   />
-                  <img src="/avatars/ai-preset-2.jpg" alt="Preset 2" className="w-8 h-8 rounded-full object-cover border border-emerald-400" />
-                  <span className="text-xs font-semibold">Mẫu Nam (Preset 2)</span>
-                </label>
+                  <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-400 border-2 border-slate-900 rounded-full animate-pulse"></span>
+                </div>
+
+                <div className="flex-1 space-y-2 text-center sm:text-left">
+                  <div className="text-xs font-bold text-white flex items-center justify-center sm:justify-start gap-1.5">
+                    <span>Ảnh đang sử dụng:</span>
+                    <span className="text-emerald-400 font-normal truncate max-w-[200px] text-[11px]">
+                      {config.agentAvatar?.startsWith('data:') ? 'Ảnh tải lên từ máy tính' : (config.agentAvatar || 'Mẫu Mặc Định')}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                    {/* Input file ẩn */}
+                    <input
+                      type="file"
+                      ref={avatarFileInputRef}
+                      accept="image/*"
+                      onChange={handleAvatarFileUpload}
+                      className="hidden"
+                    />
+                    
+                    {/* Nút bấm chọn ảnh từ máy */}
+                    <button
+                      type="button"
+                      onClick={() => avatarFileInputRef.current?.click()}
+                      className="px-3.5 py-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer"
+                      title="Chọn tệp ảnh từ máy tính hoặc điện thoại"
+                    >
+                      <i className="fa-solid fa-cloud-arrow-up"></i>
+                      <span>Tải ảnh từ máy tính</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setConfig(prev => ({ ...prev, agentAvatar: '/avatars/ai-preset-1.jpg' }));
+                        showToast('Đã chọn lại ảnh mẫu nữ mặc định!', 'info');
+                      }}
+                      className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-xs rounded-xl transition flex items-center gap-1 cursor-pointer"
+                      title="Khôi phục ảnh mẫu mặc định"
+                    >
+                      <i className="fa-solid fa-rotate-left"></i>
+                      <span>Khôi phục mẫu</span>
+                    </button>
+                  </div>
+
+                  <p className="text-[10.5px] text-slate-400 leading-relaxed">
+                    Hỗ trợ file PNG, JPG, WEBP. Hệ thống tự động nén tròn chuẩn 400x400 để ảnh sắc nét và tải nhanh tức thì.
+                  </p>
+                </div>
               </div>
 
-              {/* Custom Image URL */}
-              <div className="mt-2.5">
+              {/* Thư viện mẫu có sẵn (Preset Gallery) */}
+              <div>
+                <span className="block text-[11px] font-bold text-slate-400 mb-2">
+                  Hoặc chọn nhanh từ thư viện mẫu chuyên viên:
+                </span>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {[
+                    { label: 'Mẫu Nữ 1 (Thanh lịch)', url: '/avatars/ai-preset-1.jpg' },
+                    { label: 'Mẫu Nữ 2 (Công sở)', url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80' },
+                    { label: 'Mẫu Nữ 3 (Thân thiện)', url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80' },
+                    { label: 'Mẫu Nam 1 (Trẻ trung)', url: '/avatars/ai-preset-2.jpg' },
+                    { label: 'Mẫu Nam 2 (Chuyên nghiệp)', url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80' },
+                    { label: 'Logo Sàn BĐS', url: '/images/logo.png' }
+                  ].map((preset, idx) => {
+                    const isSelected = config.agentAvatar === preset.url || (!config.agentAvatar && idx === 0);
+                    return (
+                      <button
+                        key={preset.url}
+                        type="button"
+                        onClick={() => setConfig(prev => ({ ...prev, agentAvatar: preset.url }))}
+                        className={`p-2 rounded-xl border flex items-center gap-2 transition cursor-pointer text-left ${
+                          isSelected
+                            ? 'bg-emerald-950/70 border-emerald-500 text-white shadow-xs ring-1 ring-emerald-500'
+                            : 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                        }`}
+                      >
+                        <img
+                          src={preset.url}
+                          alt={preset.label}
+                          className="w-7 h-7 rounded-full object-cover shrink-0 border border-slate-700"
+                        />
+                        <span className="text-[11px] font-medium truncate">{preset.label}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Direct URL input */}
+              <div>
+                <label className="block text-[11px] font-bold text-slate-400 mb-1">
+                  Hoặc dán đường dẫn link ảnh (URL):
+                </label>
                 <input
                   type="text"
-                  value={config.agentAvatar || ''}
+                  value={config.agentAvatar?.startsWith('data:') ? '' : (config.agentAvatar || '')}
                   onChange={(e) => setConfig(prev => ({ ...prev, agentAvatar: e.target.value }))}
-                  placeholder="Hoặc dán đường dẫn link ảnh đại diện: https://..."
-                  className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-mono outline-none focus:border-emerald-500"
+                  placeholder={config.agentAvatar?.startsWith('data:') ? '[Đang sử dụng ảnh tùy chỉnh đã tải lên từ máy tính]' : 'Ví dụ: https://domain.com/hinh-anh.jpg'}
+                  className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-mono outline-none focus:border-emerald-500"
                 />
               </div>
             </div>
