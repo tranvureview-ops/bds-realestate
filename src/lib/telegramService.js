@@ -508,8 +508,6 @@ export async function registerNewLeadChat({ sessionId, customer, propertyContext
       propText = `<b>${propertyContext.title || 'Bất động sản'}</b>\n   💰 Giá: <b>${propertyContext.priceDisplay || 'Thương lượng'}</b> (Mã: <code>${propertyContext.id || 'N/A'}</code>)`;
     }
 
-    const cleanTag = sessionId.startsWith('chat_') ? `#${sessionId}` : `#chat_${sessionId}`;
-
     const leadMsg = `
 🔔 <b>KHÁCH HÀNG MỚI BẮT ĐẦU LIVE CHAT</b>
 ────────────────────────
@@ -517,10 +515,9 @@ export async function registerNewLeadChat({ sessionId, customer, propertyContext
 📞 <b>Số điện thoại:</b> <a href="tel:${(customer?.phone || '').replace(/\s+/g, '')}">${customer?.phone || 'Chưa có'}</a>
 💬 <b>Zalo:</b> <a href="https://zalo.me/${(customer?.phone || '').replace(/\s+/g, '')}">Chat Zalo ngay</a>
 ${customer?.email ? `✉️ <b>Email:</b> ${customer.email}\n` : ''}🏠 <b>Đang xem:</b> ${propText}
-🆔 <b>Mã phiên:</b> <code>${cleanTag}</code>
 🕒 <b>Thời gian:</b> ${formatVnDateTime()}
 ────────────────────────
-👉 <i>Khách hàng vừa mở khung chat và sẵn sàng nhận tư vấn từ chuyên viên. Bấm Reply để chat trực tiếp!</i>
+👉 <i>Bấm Reply tin nhắn này để chat trực tiếp với khách!</i><a href="https://chat.bds/#chat_${sessionId}">&#8203;</a>
 `.trim();
 
     const sendRes = await sendRawTelegramMessage(config.botToken, config.chatId, leadMsg);
@@ -535,6 +532,7 @@ ${customer?.email ? `✉️ <b>Email:</b> ${customer.email}\n` : ''}🏠 <b>Đan
 
 /**
  * Khách gửi tin nhắn từ Web lên Telegram (Chiều đi)
+ * Định dạng tinh gọn, loại bỏ dòng "Đang hỏi về" và "Mã phiên" để dễ thao tác trên điện thoại
  */
 export async function sendCustomerMessageToTelegram({ sessionId, customer, propertyContext, messageText }) {
   const config = await getTelegramConfig(false);
@@ -568,23 +566,15 @@ export async function sendCustomerMessageToTelegram({ sessionId, customer, prope
   sessions[sessionId] = session;
   await saveChatSessions(sessions);
 
-  // 2. Định dạng thông điệp gửi lên nhóm Telegram
-  let propHeader = '';
-  if (propertyContext?.title) {
-    propHeader = `\n🏠 <b>Đang hỏi về:</b> ${propertyContext.title} (<b>${propertyContext.priceDisplay || ''}</b>)`;
-  }
-
-  const cleanTag = sessionId.startsWith('chat_') ? `#${sessionId}` : `#chat_${sessionId}`;
+  // 2. Định dạng thông điệp gửi lên nhóm Telegram siêu tinh gọn, dễ đọc, dễ thao tác
+  const custName = session.customer?.name || 'Khách hàng';
+  const custPhone = session.customer?.phone 
+    ? ` | <a href="tel:${session.customer.phone.replace(/\s+/g, '')}">${session.customer.phone}</a>` 
+    : '';
 
   const telegramText = `
-💬 <b>TIN NHẮN TỪ KHÁCH HÀNG</b>
-👤 <b>Khách:</b> ${session.customer?.name || 'Khách vãng lai'} | 📞 <b>SĐT:</b> <a href="tel:${(session.customer?.phone || '').replace(/\s+/g, '')}">${session.customer?.phone || 'Chưa có'}</a>${propHeader}
-🆔 <b>Mã phiên:</b> <code>${cleanTag}</code>
-────────────────────────
-📝 <b>Nội dung:</b>
-<i>"${messageText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}"</i>
-────────────────────────
-👉 <b>HƯỚNG DẪN:</b> Nhân viên chỉ cần bấm <b>REPLY (TRẢ LỜI)</b> tin nhắn này trên Telegram để chat trực tiếp với khách!
+💬 <b>${custName}</b>${custPhone}:
+<i>"${messageText.replace(/</g, '&lt;').replace(/>/g, '&gt;')}"</i><a href="https://chat.bds/#chat_${sessionId}">&#8203;</a>
 `.trim();
 
   // 3. Gửi lên Telegram
@@ -623,7 +613,20 @@ export async function handleTelegramWebhookUpdate(update) {
   // 1. Tìm sessionId từ bản đồ ánh xạ telegramMsgId -> sessionId
   let sessionId = await resolveSessionIdFromMsgMap(replyMsgId);
 
-  // 2. Fallback: Nếu không tìm thấy trong map, trích xuất từ hashtag trong văn bản gốc
+  // 2. Fallback 1: Trích xuất từ link entity ẩn trong tin nhắn
+  if (!sessionId && Array.isArray(replyTo.entities)) {
+    for (const ent of replyTo.entities) {
+      if (ent.type === 'text_link' && ent.url) {
+        const match = ent.url.match(/#chat_([a-zA-Z0-9_\-]+)/);
+        if (match && match[1]) {
+          sessionId = match[1];
+          break;
+        }
+      }
+    }
+  }
+
+  // 3. Fallback 2: Trích xuất từ hashtag trong văn bản gốc nếu có
   if (!sessionId && replyTo.text) {
     const match = replyTo.text.match(/#(?:chat_)?(chat_[a-zA-Z0-9_\-]+)/i)
                || replyTo.text.match(/#chat_([a-zA-Z0-9_\-]+)/i)
