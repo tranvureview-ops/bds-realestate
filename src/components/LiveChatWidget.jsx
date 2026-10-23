@@ -115,20 +115,47 @@ export default function LiveChatWidget() {
     }
   }, [isUserLoggedIn, currentUser, customerInfo]);
 
-  // Lấy lịch sử tin nhắn ban đầu từ server khi mở chat
+  // Lấy cấu hình chuyên viên tư vấn & lịch sử tin nhắn từ server
   useEffect(() => {
-    if (!sessionId || !hasStartedChat) return;
+    if (!sessionId) return;
 
     fetch(`/api/chat/messages?sessionId=${encodeURIComponent(sessionId)}`)
       .then(res => res.json())
       .then(data => {
-        if (data.success && Array.isArray(data.messages) && data.messages.length > 0) {
-          setMessages(data.messages);
-          const maxTs = Math.max(...data.messages.map(m => m.timestamp || 0), 0);
-          if (maxTs > 0) lastTimestampRef.current = maxTs;
-        }
+        if (!data.success) return;
+
+        // Cập nhật thông tin nhân viên theo cấu hình Admin mới nhất
         if (data.agentInfo) {
-          setAgentInfo(data.agentInfo);
+          setAgentInfo(prev => ({
+            ...prev,
+            ...data.agentInfo
+          }));
+        }
+
+        const activeWelcome = data.welcomeMessage || 'Xin chào quý khách! Tôi là trợ lý tư vấn. Quý khách đang quan tâm đến bất động sản nào cần hỗ trợ nhanh?';
+
+        // Cập nhật tin nhắn trong phiên
+        if (Array.isArray(data.messages) && data.messages.length > 0) {
+          // Luôn đồng bộ lời chào mừng mới nhất vào bong bóng tin nhắn đầu tiên nếu là lời chào
+          const updated = data.messages.map((m, idx) => {
+            if (idx === 0 && (m.id === 'welcome' || m.id === 'msg_welcome' || m.sender === 'agent')) {
+              return { ...m, text: activeWelcome };
+            }
+            return m;
+          });
+          setMessages(updated);
+          const maxTs = Math.max(...updated.map(m => m.timestamp || 0), 0);
+          if (maxTs > 0) lastTimestampRef.current = maxTs;
+        } else {
+          setMessages([
+            {
+              id: 'msg_welcome',
+              sender: 'agent',
+              text: activeWelcome,
+              time: 'Vừa xong',
+              timestamp: Date.now()
+            }
+          ]);
         }
       })
       .catch(console.warn);
@@ -340,12 +367,17 @@ export default function LiveChatWidget() {
               </div>
               <div className="truncate">
                 <h4 className="text-xs font-bold leading-tight truncate flex items-center gap-1.5">
-                  <span>{agentInfo.name || 'Nguyễn Văn Tuấn'}</span>
+                  <span>{agentInfo.name || 'Chuyên Viên Tư Vấn'}</span>
                   <i className="fa-solid fa-circle-check text-blue-400 text-[10px]" title="Chuyên viên chính thức sàn BĐS"></i>
                 </h4>
-                <div className="text-[10px] text-emerald-400 flex items-center gap-1 mt-0.5">
+                {agentInfo.title && (
+                  <div className="text-[10px] text-slate-300 font-medium truncate mt-0.5">
+                    {agentInfo.title}
+                  </div>
+                )}
+                <div className="text-[9.5px] text-emerald-400 flex items-center gap-1 mt-0.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                  <span>Đang trực tuyến • Phản hồi trong 1 phút</span>
+                  <span>Đang trực tuyến • Phản hồi tức thì</span>
                 </div>
               </div>
             </div>
@@ -358,26 +390,6 @@ export default function LiveChatWidget() {
               <i className="fa-solid fa-minus"></i>
             </button>
           </div>
-
-          {/* Context BĐS đang xem (nếu có) */}
-          {selectedPropertyDetail && (
-            <div className="bg-emerald-50/90 border-b border-emerald-100 px-3 py-2 flex items-center gap-2.5 text-xs">
-              <img
-                src={selectedPropertyDetail.images?.[0] || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80'}
-                alt=""
-                className="w-9 h-9 rounded-lg object-cover shrink-0 border border-emerald-200"
-              />
-              <div className="truncate flex-1">
-                <div className="text-[10px] font-bold text-slate-900 truncate">
-                  Đang hỏi về: {selectedPropertyDetail.title}
-                </div>
-                <div className="text-[11px] text-emerald-700 font-extrabold flex items-center gap-1">
-                  <span>{selectedPropertyDetail.priceDisplay?.replace(/Tỷ/g, 'tỷ') || selectedPropertyDetail.priceDisplay}</span>
-                  {selectedPropertyDetail.area && <span className="text-[10px] text-slate-500 font-normal">• {selectedPropertyDetail.area} m²</span>}
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* NỘI DUNG 1: FORM THU THẬP THÔNG TIN (Dành cho khách chưa đăng nhập và chưa để lại thông tin) */}
           {!hasStartedChat ? (
@@ -548,20 +560,6 @@ export default function LiveChatWidget() {
                   </div>
                 )}
                 <div ref={messagesEndRef} />
-              </div>
-
-              {/* Quick Suggestion Chips */}
-              <div className="px-2.5 py-1.5 border-t border-slate-100 bg-white flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-                {quickQuestions.map((q, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleSendMessage(q)}
-                    className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[10.5px] font-medium rounded-full whitespace-nowrap transition cursor-pointer shrink-0"
-                  >
-                    {q}
-                  </button>
-                ))}
               </div>
 
               {/* Input Footer */}

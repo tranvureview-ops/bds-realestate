@@ -369,12 +369,63 @@ export default function AdminTelegramChatManager() {
           </div>
 
           {/* Nhóm 3: Cấu hình Nhân Viên Tư Vấn Trực Tuyến */}
-          <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4">
+          <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-5">
             <div className="flex items-center gap-2 pb-3 border-b border-slate-800">
               <i className="fa-solid fa-headset text-amber-400 text-sm"></i>
               <h4 className="text-xs font-black uppercase tracking-wider text-white">
                 3. Tùy Chỉnh Nhân Viên Tư Vấn Hiển Thị Trên Khung Chat
               </h4>
+            </div>
+
+            {/* Avatar Selection */}
+            <div>
+              <label className="block text-slate-300 font-bold mb-2 text-xs">
+                Ảnh đại diện chuyên viên (Avatar):
+              </label>
+              <div className="flex flex-wrap items-center gap-3">
+                <label className={`flex items-center gap-2 p-2 rounded-xl border cursor-pointer transition ${
+                  config.agentAvatar === '/avatars/ai-preset-1.jpg' || !config.agentAvatar
+                    ? 'bg-emerald-950/60 border-emerald-500 text-white'
+                    : 'bg-slate-900 border-slate-700 text-slate-400 hover:text-white'
+                }`}>
+                  <input
+                    type="radio"
+                    name="agentAvatar"
+                    checked={config.agentAvatar === '/avatars/ai-preset-1.jpg' || !config.agentAvatar}
+                    onChange={() => setConfig(prev => ({ ...prev, agentAvatar: '/avatars/ai-preset-1.jpg' }))}
+                    className="hidden"
+                  />
+                  <img src="/avatars/ai-preset-1.jpg" alt="Preset 1" className="w-8 h-8 rounded-full object-cover border border-emerald-400" />
+                  <span className="text-xs font-semibold">Mẫu Nữ (Preset 1)</span>
+                </label>
+
+                <label className={`flex items-center gap-2 p-2 rounded-xl border cursor-pointer transition ${
+                  config.agentAvatar === '/avatars/ai-preset-2.jpg'
+                    ? 'bg-emerald-950/60 border-emerald-500 text-white'
+                    : 'bg-slate-900 border-slate-700 text-slate-400 hover:text-white'
+                }`}>
+                  <input
+                    type="radio"
+                    name="agentAvatar"
+                    checked={config.agentAvatar === '/avatars/ai-preset-2.jpg'}
+                    onChange={() => setConfig(prev => ({ ...prev, agentAvatar: '/avatars/ai-preset-2.jpg' }))}
+                    className="hidden"
+                  />
+                  <img src="/avatars/ai-preset-2.jpg" alt="Preset 2" className="w-8 h-8 rounded-full object-cover border border-emerald-400" />
+                  <span className="text-xs font-semibold">Mẫu Nam (Preset 2)</span>
+                </label>
+              </div>
+
+              {/* Custom Image URL */}
+              <div className="mt-2.5">
+                <input
+                  type="text"
+                  value={config.agentAvatar || ''}
+                  onChange={(e) => setConfig(prev => ({ ...prev, agentAvatar: e.target.value }))}
+                  placeholder="Hoặc dán đường dẫn link ảnh đại diện: https://..."
+                  className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs font-mono outline-none focus:border-emerald-500"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
@@ -386,8 +437,8 @@ export default function AdminTelegramChatManager() {
                   type="text"
                   value={config.agentName || ''}
                   onChange={(e) => setConfig(prev => ({ ...prev, agentName: e.target.value }))}
-                  placeholder="Ví dụ: Nguyễn Văn Tuấn"
-                  className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-emerald-500"
+                  placeholder="Ví dụ: Nguyễn Huyền"
+                  className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-emerald-500"
                 />
               </div>
 
@@ -400,7 +451,7 @@ export default function AdminTelegramChatManager() {
                   value={config.agentTitle || ''}
                   onChange={(e) => setConfig(prev => ({ ...prev, agentTitle: e.target.value }))}
                   placeholder="Ví dụ: Chuyên Viên Tư Vấn Đất Biển Đà Nẵng"
-                  className="w-full p-2 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-emerald-500"
+                  className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-emerald-500"
                 />
               </div>
 
@@ -412,8 +463,57 @@ export default function AdminTelegramChatManager() {
                   rows={2}
                   value={config.welcomeMessage || ''}
                   onChange={(e) => setConfig(prev => ({ ...prev, welcomeMessage: e.target.value }))}
+                  placeholder="Ví dụ: Xin chào quý khách! Tôi có thể hỗ trợ gì cho quý khách?"
                   className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-emerald-500 text-xs"
                 />
+              </div>
+            </div>
+
+            {/* LIVE PREVIEW BOX TRỰC QUAN */}
+            <div className="p-3.5 bg-slate-900 rounded-2xl border border-slate-800 space-y-2">
+              <div className="text-[11px] font-bold text-slate-400 flex items-center gap-1.5 uppercase tracking-wider">
+                <i className="fa-regular fa-eye text-emerald-400"></i>
+                <span>Xem trước giao diện trên khung chat website:</span>
+              </div>
+              <div className="w-full max-w-sm mx-auto bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-lg">
+                <div className="p-3 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border-b border-slate-800 flex items-center gap-2.5">
+                  <div className="relative shrink-0">
+                    <img
+                      src={config.agentAvatar || '/avatars/ai-preset-1.jpg'}
+                      alt=""
+                      className="w-9 h-9 rounded-full object-cover border-2 border-emerald-500"
+                    />
+                    <span className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-400 rounded-full border border-slate-900"></span>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs font-bold text-white flex items-center gap-1">
+                      <span>{config.agentName || 'Chuyên Viên Tư Vấn'}</span>
+                      <i className="fa-solid fa-circle-check text-blue-400 text-[9px]"></i>
+                    </div>
+                    {config.agentTitle && (
+                      <div className="text-[10px] text-slate-300 font-medium truncate">
+                        {config.agentTitle}
+                      </div>
+                    )}
+                    <div className="text-[9px] text-emerald-400 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+                      <span>Đang trực tuyến • Phản hồi tức thì</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-3 bg-slate-900/60">
+                  <div className="flex items-start gap-1.5 max-w-[90%]">
+                    <img
+                      src={config.agentAvatar || '/avatars/ai-preset-1.jpg'}
+                      alt=""
+                      className="w-5 h-5 rounded-full object-cover border border-slate-700 shrink-0 mt-0.5"
+                    />
+                    <div className="bg-white text-slate-800 p-2.5 rounded-2xl rounded-bl-xs text-xs shadow-xs leading-relaxed">
+                      {config.welcomeMessage || 'Xin chào quý khách! Tôi là trợ lý tư vấn. Quý khách đang quan tâm đến bất động sản nào cần hỗ trợ nhanh?'}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
