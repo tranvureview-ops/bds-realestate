@@ -109,12 +109,12 @@ export async function saveTelegramConfig(newConfig) {
 
   // Xử lý token: nếu người dùng gửi chuỗi bị mask (chứa ••••), giữ nguyên token cũ
   let tokenToSave = current.botToken;
-  if (newConfig.botToken && !newConfig.botToken.includes('••••')) {
+  if (newConfig.botToken !== undefined && !newConfig.botToken.includes('••••')) {
     tokenToSave = newConfig.botToken.trim();
   }
 
   let pusherSecretToSave = current.pusherSecret;
-  if (newConfig.pusherSecret && !newConfig.pusherSecret.includes('••••')) {
+  if (newConfig.pusherSecret !== undefined && !newConfig.pusherSecret.includes('••••')) {
     pusherSecretToSave = newConfig.pusherSecret.trim();
   }
 
