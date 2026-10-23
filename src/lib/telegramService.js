@@ -650,15 +650,10 @@ export async function handleTelegramWebhookUpdate(update) {
     return { success: false, reason: `Phiên chat ${sessionId} đã hết hạn hoặc không tồn tại` };
   }
 
-  const staffName = message.from?.first_name 
-    ? `${message.from.first_name}${message.from.last_name ? ' ' + message.from.last_name : ''}`
-    : 'Chuyên Viên Tư Vấn';
-
   const agentMsg = {
     id: `msg_agent_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
     sender: 'agent',
     text: staffReplyText,
-    staffName: staffName,
     time: formatVnTime(),
     timestamp: Date.now()
   };
@@ -740,8 +735,18 @@ export async function getSessionMessages(sessionId, sinceTimestamp = 0) {
   const session = sessions[sessionId];
   if (!session || !Array.isArray(session.messages)) return [];
 
-  if (!sinceTimestamp) return session.messages;
-  return session.messages.filter(m => (m.timestamp || 0) > Number(sinceTimestamp));
+  const rawList = !sinceTimestamp 
+    ? session.messages 
+    : session.messages.filter(m => (m.timestamp || 0) > Number(sinceTimestamp));
+
+  // Loại bỏ hoàn toàn staffName nếu có để không hiển thị nickname Telegram trên giao diện chat
+  return rawList.map(m => {
+    if (m.staffName) {
+      const { staffName, ...rest } = m;
+      return rest;
+    }
+    return m;
+  });
 }
 
 /**
