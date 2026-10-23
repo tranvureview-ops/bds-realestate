@@ -503,21 +503,13 @@ export async function registerNewLeadChat({ sessionId, customer, propertyContext
 
   // Bắn thông báo Lead mới về Telegram nếu được bật
   if (config.notifyNewLead) {
-    let propText = 'Khách truy cập chung trên toàn sàn';
-    if (propertyContext) {
-      propText = `<b>${propertyContext.title || 'Bất động sản'}</b>\n   💰 Giá: <b>${propertyContext.priceDisplay || 'Thương lượng'}</b> (Mã: <code>${propertyContext.id || 'N/A'}</code>)`;
-    }
-
+    const cleanPhone = (customer?.phone || '').replace(/\s+/g, '');
     const leadMsg = `
 🔔 <b>KHÁCH HÀNG MỚI BẮT ĐẦU LIVE CHAT</b>
 ────────────────────────
 👤 <b>Họ tên:</b> ${customer?.name || 'Khách vãng lai'}
-📞 <b>Số điện thoại:</b> <a href="tel:${(customer?.phone || '').replace(/\s+/g, '')}">${customer?.phone || 'Chưa có'}</a>
-💬 <b>Zalo:</b> <a href="https://zalo.me/${(customer?.phone || '').replace(/\s+/g, '')}">Chat Zalo ngay</a>
-${customer?.email ? `✉️ <b>Email:</b> ${customer.email}\n` : ''}🏠 <b>Đang xem:</b> ${propText}
-🕒 <b>Thời gian:</b> ${formatVnDateTime()}
-────────────────────────
-👉 <i>Bấm Reply tin nhắn này để chat trực tiếp với khách!</i><a href="https://chat.bds/#chat_${sessionId}">&#8203;</a>
+📞 <b>Số điện thoại:</b> <a href="tel:${cleanPhone}">${customer?.phone || 'Chưa có'}</a>
+💬 <b>Zalo:</b> <a href="https://zalo.me/${cleanPhone}">Chat Zalo ngay</a>${customer?.email ? `\n✉️ <b>Email:</b> ${customer.email}` : ''}<a href="https://chat.bds/#chat_${sessionId}">&#8203;</a>
 `.trim();
 
     const sendRes = await sendRawTelegramMessage(config.botToken, config.chatId, leadMsg);
