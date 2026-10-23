@@ -22,17 +22,17 @@ const memoryGeocodeCache = new Map();
 export async function getSystemSetting(key) {
   if (!key) return null;
 
-  // 1. Ưu tiên tra cứu Supabase Cloud (Bảng system_settings)
+  // 1. Ưu tiên tra cứu Supabase Cloud (Bảng platform_settings)
   if (isSupabaseConfigured() && supabase) {
     try {
       const { data, error } = await supabase
-        .from('system_settings')
-        .select('setting_value')
-        .eq('setting_key', key)
+        .from('platform_settings')
+        .select('value')
+        .eq('key', key)
         .maybeSingle();
 
-      if (!error && data?.setting_value) {
-        return data.setting_value;
+      if (!error && data?.value !== undefined && data?.value !== null) {
+        return data.value;
       }
     } catch (_) {}
   }
@@ -64,23 +64,22 @@ export async function saveSystemSetting(key, value, description = '') {
 
   let savedCloud = false;
 
-  // 1. Lưu lên Supabase Cloud
+  // 1. Lưu lên Supabase Cloud (Bảng platform_settings)
   if (isSupabaseConfigured() && supabase) {
     try {
       const { error } = await supabase
-        .from('system_settings')
+        .from('platform_settings')
         .upsert({
-          setting_key: key,
-          setting_value: value,
-          description: description || 'Cấu hình quản trị website',
+          key,
+          value,
           updated_at: new Date().toISOString()
-        }, { onConflict: 'setting_key' });
+        }, { onConflict: 'key' });
 
       if (!error) {
         savedCloud = true;
       }
     } catch (err) {
-      console.warn('Lỗi lưu system_settings lên Supabase:', err?.message);
+      console.warn('Lỗi lưu platform_settings lên Supabase:', err?.message);
     }
   }
 

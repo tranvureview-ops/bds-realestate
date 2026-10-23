@@ -14,7 +14,7 @@ import {
 export async function GET(req) {
   try {
     const config = await getTelegramConfig(true); // Trả về dạng mask token
-    const sessions = getAllChatSessions(30);
+    const sessions = await getAllChatSessions(30);
 
     // Tính toán Webhook URL dựa trên host request
     const host = req.headers.get('host') || 'localhost:3000';
@@ -48,8 +48,8 @@ export async function POST(req) {
 
     // 2. Kích hoạt Webhook với Telegram
     if (action === 'set-webhook') {
-      const { webhookUrl, secretToken } = body;
-      const result = await setTelegramWebhook(webhookUrl, secretToken);
+      const { webhookUrl, secretToken, botToken } = body;
+      const result = await setTelegramWebhook(webhookUrl, secretToken, botToken);
       return NextResponse.json(result);
     }
 

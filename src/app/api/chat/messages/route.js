@@ -15,7 +15,7 @@ export async function GET(req) {
       return NextResponse.json({ success: false, error: 'Thiếu mã định danh phiên (sessionId)' }, { status: 400 });
     }
 
-    const messages = getSessionMessages(sessionId, Number(since));
+    const messages = await getSessionMessages(sessionId, Number(since));
     const config = await getTelegramConfig(true);
 
     return NextResponse.json({

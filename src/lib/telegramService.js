@@ -9,15 +9,17 @@ import { supabase, isSupabaseConfigured } from './supabase';
  * telegramService.js
  * Trung tâm điều phối hệ thống Live Chat Telegram 2 Chiều
  * Hỗ trợ 10+ người dùng đồng thời, định tuyến chính xác qua Session ID & Telegram Message ID Mapping
+ * Tương thích 100% với Vercel Serverless (Supabase Cloud Database platform_settings)
  */
 
 const DB_PATH = path.resolve(process.cwd(), 'server-db.json');
 
-// Bộ nhớ đệm tin nhắn Telegram Message ID -> Session ID (Tốc độ phản hồi tức thì)
-const inMemoryMsgMap = new Map();
+// Bộ nhớ đệm in-memory cho tốc độ phản hồi mili-giây
+let memoryChatSessions = null;
+const memoryMsgMap = new Map();
 
 /**
- * Đọc toàn bộ DB từ server-db.json
+ * Đọc toàn bộ DB từ server-db.json (Dành cho môi trường Local)
  */
 function readServerDb() {
   try {
@@ -25,43 +27,55 @@ function readServerDb() {
       return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
     }
   } catch (e) {
-    console.error('Lỗi đọc server-db.json trong telegramService:', e);
+    // Chế độ im lặng trên Vercel
   }
   return {};
 }
 
 /**
- * Ghi dữ liệu an toàn vào server-db.json
+ * Ghi dữ liệu an toàn vào server-db.json (nếu có quyền ghi)
  */
 function writeServerDb(data) {
   try {
     fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2), 'utf8');
     return true;
   } catch (e) {
-    console.error('Lỗi ghi server-db.json trong telegramService:', e);
+    // Trên Vercel môi trường read-only, bỏ qua lỗi filesystem
     return false;
   }
 }
+
+// =======================================================================
+// 1. QUẢN LÝ CẤU HÌNH TELEGRAM BOT (SUPABASE platform_settings)
+// =======================================================================
 
 /**
  * Lấy cấu hình Telegram Bot (Tự động giải mã token AES-256)
  */
 export async function getTelegramConfig(maskForAdmin = false) {
-  const db = readServerDb();
-  let rawConfig = db.bds_telegram_config || DEFAULT_TELEGRAM_CONFIG;
+  let rawConfig = null;
 
-  // Tra cứu Supabase nếu có
+  // 1. Ưu tiên tra cứu Supabase Cloud (bảng platform_settings)
   if (isSupabaseConfigured() && supabase) {
     try {
-      const { data } = await supabase
-        .from('system_settings')
-        .select('setting_value')
-        .eq('setting_key', 'bds_telegram_config')
+      const { data, error } = await supabase
+        .from('platform_settings')
+        .select('value')
+        .eq('key', 'bds_telegram_config')
         .maybeSingle();
-      if (data?.setting_value) {
-        rawConfig = { ...DEFAULT_TELEGRAM_CONFIG, ...data.setting_value };
+
+      if (!error && data?.value && typeof data.value === 'object') {
+        rawConfig = { ...DEFAULT_TELEGRAM_CONFIG, ...data.value };
       }
-    } catch (_) {}
+    } catch (e) {
+      console.warn('Lỗi đọc bds_telegram_config từ Supabase:', e.message);
+    }
+  }
+
+  // 2. Fallback sang server-db.json nếu Supabase chưa có
+  if (!rawConfig) {
+    const db = readServerDb();
+    rawConfig = db.bds_telegram_config || DEFAULT_TELEGRAM_CONFIG;
   }
 
   const merged = { ...DEFAULT_TELEGRAM_CONFIG, ...rawConfig };
@@ -115,29 +129,160 @@ export async function saveTelegramConfig(newConfig) {
     updatedAt: new Date().toISOString()
   };
 
-  // 1. Lưu vào server-db.json
-  const db = readServerDb();
-  db.bds_telegram_config = toPersist;
-  writeServerDb(db);
-
-  // 2. Lưu lên Supabase nếu có
+  // 1. Lưu lên Supabase Cloud (Bảng platform_settings) - Hoạt động 100% trên Vercel
+  let savedCloud = false;
   if (isSupabaseConfigured() && supabase) {
     try {
-      await supabase
-        .from('system_settings')
+      const { error } = await supabase
+        .from('platform_settings')
         .upsert({
-          setting_key: 'bds_telegram_config',
-          setting_value: toPersist,
-          description: 'Cấu hình Live Chat Telegram 2 Chiều',
+          key: 'bds_telegram_config',
+          value: toPersist,
           updated_at: new Date().toISOString()
-        }, { onConflict: 'setting_key' });
+        }, { onConflict: 'key' });
+
+      if (!error) {
+        savedCloud = true;
+      } else {
+        console.warn('Lỗi Supabase khi lưu bds_telegram_config:', error.message);
+      }
     } catch (e) {
-      console.warn('Lỗi lưu bds_telegram_config lên Supabase:', e.message);
+      console.warn('Lỗi kết nối Supabase khi lưu config:', e.message);
     }
   }
 
-  return { success: true };
+  // 2. Ghi bản sao vào server-db.json nếu được phép (Local dev)
+  try {
+    const db = readServerDb();
+    db.bds_telegram_config = toPersist;
+    writeServerDb(db);
+  } catch (_) {}
+
+  return { success: true, savedCloud };
 }
+
+// =======================================================================
+// 2. QUẢN LÝ PHIÊN CHAT & ÁNH XẠ TIN NHẮN (SESSIONS & MESSAGE MAP)
+// =======================================================================
+
+/**
+ * Lấy toàn bộ sessions từ Supabase / in-memory / local
+ */
+export async function getChatSessions() {
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('platform_settings')
+        .select('value')
+        .eq('key', 'bds_chat_sessions')
+        .maybeSingle();
+
+      if (!error && data?.value && typeof data.value === 'object') {
+        memoryChatSessions = data.value;
+        return memoryChatSessions;
+      }
+    } catch (_) {}
+  }
+
+  if (memoryChatSessions) return memoryChatSessions;
+
+  const db = readServerDb();
+  memoryChatSessions = db.bds_chat_sessions || {};
+  return memoryChatSessions;
+}
+
+/**
+ * Lưu toàn bộ sessions lên Supabase & local
+ */
+export async function saveChatSessions(sessions) {
+  memoryChatSessions = sessions;
+
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      await supabase
+        .from('platform_settings')
+        .upsert({
+          key: 'bds_chat_sessions',
+          value: sessions,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'key' });
+    } catch (e) {
+      console.warn('Lỗi lưu bds_chat_sessions lên Supabase:', e.message);
+    }
+  }
+
+  try {
+    const db = readServerDb();
+    db.bds_chat_sessions = sessions;
+    writeServerDb(db);
+  } catch (_) {}
+}
+
+/**
+ * Tra cứu sessionId từ telegramMsgId
+ */
+export async function resolveSessionIdFromMsgMap(telegramMsgId) {
+  const idStr = String(telegramMsgId);
+  if (memoryMsgMap.has(idStr)) {
+    return memoryMsgMap.get(idStr);
+  }
+
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('platform_settings')
+        .select('value')
+        .eq('key', 'bds_chat_message_map')
+        .maybeSingle();
+
+      if (!error && data?.value && typeof data.value === 'object') {
+        for (const [k, v] of Object.entries(data.value)) {
+          memoryMsgMap.set(String(k), v);
+        }
+        if (memoryMsgMap.has(idStr)) {
+          return memoryMsgMap.get(idStr);
+        }
+      }
+    } catch (_) {}
+  }
+
+  const db = readServerDb();
+  return db.bds_chat_message_map?.[idStr] || null;
+}
+
+/**
+ * Ghi ánh xạ telegramMsgId -> sessionId
+ */
+export async function saveTelegramMsgMapping(telegramMsgId, sessionId) {
+  const idStr = String(telegramMsgId);
+  memoryMsgMap.set(idStr, sessionId);
+  const currentObj = Object.fromEntries(memoryMsgMap);
+
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      await supabase
+        .from('platform_settings')
+        .upsert({
+          key: 'bds_chat_message_map',
+          value: currentObj,
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'key' });
+    } catch (e) {
+      console.warn('Lỗi lưu bds_chat_message_map lên Supabase:', e.message);
+    }
+  }
+
+  try {
+    const db = readServerDb();
+    if (!db.bds_chat_message_map) db.bds_chat_message_map = {};
+    db.bds_chat_message_map[idStr] = sessionId;
+    writeServerDb(db);
+  } catch (_) {}
+}
+
+// =======================================================================
+// 3. TƯƠNG TÁC VỚI TELEGRAM BOT API (GỬI TIN, TEST, WEBHOOK)
+// =======================================================================
 
 /**
  * Gửi tin nhắn thô lên Telegram qua Bot API
@@ -227,14 +372,16 @@ export async function testTelegramConnection(botTokenInput = null, chatIdInput =
 /**
  * Đăng ký Webhook tự động với Telegram
  */
-export async function setTelegramWebhook(webhookUrl, secretToken = null) {
+export async function setTelegramWebhook(webhookUrl, secretToken = null, botTokenInput = null) {
   const config = await getTelegramConfig(false);
-  if (!config.botToken) {
+  const token = botTokenInput && !botTokenInput.includes('••••') ? botTokenInput.trim() : config.botToken;
+
+  if (!token) {
     return { success: false, error: 'Chưa cấu hình Telegram Bot Token!' };
   }
 
   try {
-    const url = `https://api.telegram.org/bot${config.botToken}/setWebhook`;
+    const url = `https://api.telegram.org/bot${token}/setWebhook`;
     const payload = {
       url: webhookUrl,
       allowed_updates: ['message', 'edited_message'],
@@ -261,6 +408,10 @@ export async function setTelegramWebhook(webhookUrl, secretToken = null) {
   }
 }
 
+// =======================================================================
+// 4. LUỒNG XỬ LÝ CHAT 2 CHIỀU (OUTBOUND WEB -> TG & INBOUND TG -> WEB)
+// =======================================================================
+
 /**
  * Xử lý Khách Hàng mới bắt đầu phiên chat (Bắn Lead thông báo lên Telegram)
  */
@@ -271,17 +422,15 @@ export async function registerNewLeadChat({ sessionId, customer, propertyContext
   }
 
   // Khởi tạo hoặc cập nhật session trong DB
-  const db = readServerDb();
-  if (!db.bds_chat_sessions) db.bds_chat_sessions = {};
-
-  const existing = db.bds_chat_sessions[sessionId] || {};
+  const sessions = await getChatSessions();
+  const existing = sessions[sessionId] || {};
   const sessionData = {
     ...existing,
     sessionId,
     customer: {
-      name: customer.name || 'Khách vãng lai',
-      phone: customer.phone || 'Chưa cung cấp',
-      email: customer.email || ''
+      name: customer?.name || 'Khách vãng lai',
+      phone: customer?.phone || 'Chưa cung cấp',
+      email: customer?.email || ''
     },
     propertyContext: propertyContext || null,
     createdAt: existing.createdAt || new Date().toISOString(),
@@ -297,8 +446,8 @@ export async function registerNewLeadChat({ sessionId, customer, propertyContext
     ]
   };
 
-  db.bds_chat_sessions[sessionId] = sessionData;
-  writeServerDb(db);
+  sessions[sessionId] = sessionData;
+  await saveChatSessions(sessions);
 
   // Bắn thông báo Lead mới về Telegram nếu được bật
   if (config.notifyNewLead) {
@@ -310,10 +459,10 @@ export async function registerNewLeadChat({ sessionId, customer, propertyContext
     const leadMsg = `
 🔔 <b>KHÁCH HÀNG MỚI BẮT ĐẦU LIVE CHAT</b>
 ────────────────────────
-👤 <b>Họ tên:</b> ${customer.name || 'Khách vãng lai'}
-📞 <b>Số điện thoại:</b> <a href="tel:${(customer.phone || '').replace(/\s+/g, '')}">${customer.phone || 'Chưa có'}</a>
-💬 <b>Zalo:</b> <a href="https://zalo.me/${(customer.phone || '').replace(/\s+/g, '')}">Chat Zalo ngay</a>
-${customer.email ? `✉️ <b>Email:</b> ${customer.email}\n` : ''}🏠 <b>Đang xem:</b> ${propText}
+👤 <b>Họ tên:</b> ${customer?.name || 'Khách vãng lai'}
+📞 <b>Số điện thoại:</b> <a href="tel:${(customer?.phone || '').replace(/\s+/g, '')}">${customer?.phone || 'Chưa có'}</a>
+💬 <b>Zalo:</b> <a href="https://zalo.me/${(customer?.phone || '').replace(/\s+/g, '')}">Chat Zalo ngay</a>
+${customer?.email ? `✉️ <b>Email:</b> ${customer.email}\n` : ''}🏠 <b>Đang xem:</b> ${propText}
 🆔 <b>Mã phiên:</b> <code>#chat_${sessionId}</code>
 🕒 <b>Thời gian:</b> ${new Date().toLocaleTimeString('vi-VN')} ngày ${new Date().toLocaleDateString('vi-VN')}
 ────────────────────────
@@ -336,11 +485,8 @@ export async function sendCustomerMessageToTelegram({ sessionId, customer, prope
   }
 
   // 1. Lưu tin nhắn vào session DB
-  const db = readServerDb();
-  if (!db.bds_chat_sessions) db.bds_chat_sessions = {};
-  if (!db.bds_chat_message_map) db.bds_chat_message_map = {};
-
-  let session = db.bds_chat_sessions[sessionId];
+  const sessions = await getChatSessions();
+  let session = sessions[sessionId];
   if (!session) {
     session = {
       sessionId,
@@ -359,9 +505,10 @@ export async function sendCustomerMessageToTelegram({ sessionId, customer, prope
     timestamp: Date.now()
   };
 
-  session.messages.push(newMsg);
+  session.messages = [...(session.messages || []), newMsg];
   session.updatedAt = new Date().toISOString();
-  db.bds_chat_sessions[sessionId] = session;
+  sessions[sessionId] = session;
+  await saveChatSessions(sessions);
 
   // 2. Định dạng thông điệp gửi lên nhóm Telegram
   let propHeader = '';
@@ -384,13 +531,9 @@ export async function sendCustomerMessageToTelegram({ sessionId, customer, prope
   const sendRes = await sendRawTelegramMessage(config.botToken, config.chatId, telegramText);
   if (sendRes.success && sendRes.result?.message_id) {
     const telegramMsgId = String(sendRes.result.message_id);
-
-    // Lưu ánh xạ hai chiều: telegramMsgId -> sessionId
-    db.bds_chat_message_map[telegramMsgId] = sessionId;
-    inMemoryMsgMap.set(telegramMsgId, sessionId);
+    await saveTelegramMsgMapping(telegramMsgId, sessionId);
   }
 
-  writeServerDb(db);
   return { success: true, message: newMsg };
 }
 
@@ -418,8 +561,7 @@ export async function handleTelegramWebhookUpdate(update) {
   }
 
   // 1. Tìm sessionId từ bản đồ ánh xạ telegramMsgId -> sessionId
-  const db = readServerDb();
-  let sessionId = inMemoryMsgMap.get(replyMsgId) || db.bds_chat_message_map?.[replyMsgId];
+  let sessionId = await resolveSessionIdFromMsgMap(replyMsgId);
 
   // 2. Fallback: Nếu không tìm thấy trong map, trích xuất từ mã #chat_xxxx trong văn bản gốc
   if (!sessionId && replyTo.text) {
@@ -437,8 +579,8 @@ export async function handleTelegramWebhookUpdate(update) {
   }
 
   // 3. Lưu phản hồi của nhân viên vào phiên chat của khách hàng
-  if (!db.bds_chat_sessions) db.bds_chat_sessions = {};
-  const session = db.bds_chat_sessions[sessionId];
+  const sessions = await getChatSessions();
+  const session = sessions[sessionId];
   if (!session) {
     return { success: false, reason: `Phiên chat ${sessionId} đã hết hạn hoặc không tồn tại` };
   }
@@ -456,16 +598,14 @@ export async function handleTelegramWebhookUpdate(update) {
     timestamp: Date.now()
   };
 
-  session.messages.push(agentMsg);
+  session.messages = [...(session.messages || []), agentMsg];
   session.updatedAt = new Date().toISOString();
-  db.bds_chat_sessions[sessionId] = session;
+  sessions[sessionId] = session;
+  await saveChatSessions(sessions);
 
   // Lưu lại ID của tin nhắn trả lời này vào map để nhân viên có thể tiếp tục reply chuỗi hội thoại
   const currentMsgId = String(message.message_id);
-  db.bds_chat_message_map[currentMsgId] = sessionId;
-  inMemoryMsgMap.set(currentMsgId, sessionId);
-
-  writeServerDb(db);
+  await saveTelegramMsgMapping(currentMsgId, sessionId);
 
   // 4. Bắn Realtime qua Pusher REST API (nếu được cấu hình key) - Không cần thư viện ngoài
   const config = await getTelegramConfig(false);
@@ -529,10 +669,10 @@ async function triggerPusherEventNative(config, channel, eventName, data) {
 /**
  * Lấy lịch sử tin nhắn của một phiên chat
  */
-export function getSessionMessages(sessionId, sinceTimestamp = 0) {
+export async function getSessionMessages(sessionId, sinceTimestamp = 0) {
   if (!sessionId) return [];
-  const db = readServerDb();
-  const session = db.bds_chat_sessions?.[sessionId];
+  const sessions = await getChatSessions();
+  const session = sessions[sessionId];
   if (!session || !Array.isArray(session.messages)) return [];
 
   if (!sinceTimestamp) return session.messages;
@@ -542,10 +682,10 @@ export function getSessionMessages(sessionId, sinceTimestamp = 0) {
 /**
  * Lấy toàn bộ danh sách phiên chat (Dành cho trang quản trị Admin)
  */
-export function getAllChatSessions(limit = 50) {
-  const db = readServerDb();
-  const sessions = Object.values(db.bds_chat_sessions || {});
-  return sessions
+export async function getAllChatSessions(limit = 50) {
+  const sessions = await getChatSessions();
+  const list = Object.values(sessions || {});
+  return list
     .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())
     .slice(0, limit);
 }

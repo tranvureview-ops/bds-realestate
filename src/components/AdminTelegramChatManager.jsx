@@ -53,7 +53,7 @@ export default function AdminTelegramChatManager() {
 
   // Lưu cấu hình
   const handleSave = async (e) => {
-    if (e) e.preventDefault();
+    if (e?.preventDefault) e.preventDefault();
     try {
       setIsSaving(true);
       const res = await fetch('/api/admin/telegram-config', {
@@ -68,12 +68,15 @@ export default function AdminTelegramChatManager() {
       const data = await res.json();
       if (data.success) {
         showToast(data.message || 'Đã lưu cấu hình Live Chat Telegram thành công!', 'success');
-        if (data.config) setConfig(data.config);
+        if (data.config) {
+          setConfig(data.config);
+        }
       } else {
         showToast(data.error || 'Lỗi khi lưu cấu hình!', 'error');
       }
     } catch (err) {
-      showToast('Lỗi kết nối máy chủ!', 'error');
+      console.error('Lỗi lưu cấu hình Telegram:', err);
+      showToast('Lỗi kết nối máy chủ khi lưu!', 'error');
     } finally {
       setIsSaving(false);
     }
@@ -120,7 +123,8 @@ export default function AdminTelegramChatManager() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'set-webhook',
-          webhookUrl: suggestedWebhookUrl
+          webhookUrl: suggestedWebhookUrl,
+          botToken: config.botToken
         })
       });
 
@@ -192,7 +196,7 @@ export default function AdminTelegramChatManager() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Left Column (2 Cols): Core Telegram Settings */}
-        <div className="lg:col-span-2 space-y-6">
+        <form onSubmit={handleSave} className="lg:col-span-2 space-y-6">
 
           {/* Nhóm 1: Kết nối Telegram Bot */}
           <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4">
@@ -413,7 +417,36 @@ export default function AdminTelegramChatManager() {
               </div>
             </div>
           </div>
-        </div>
+
+          {/* Nút Lưu Cài Đặt Dưới Cùng */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <i className="fa-solid fa-cloud-arrow-up text-emerald-400"></i>
+              <span>Dữ liệu cấu hình tự động đồng bộ lên Database đám mây (Mã hóa AES-256)</span>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                disabled={isTesting}
+                onClick={handleTestConnection}
+                className="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-sky-400 hover:text-sky-300 font-bold text-xs border border-slate-800 transition flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                <i className={`fa-solid ${isTesting ? 'fa-spinner fa-spin' : 'fa-paper-plane'}`}></i>
+                <span>{isTesting ? 'Đang gửi...' : 'Test Kết Nối'}</span>
+              </button>
+
+              <button
+                type="submit"
+                disabled={isSaving}
+                className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-black text-xs rounded-xl shadow-lg shadow-emerald-900/40 transition flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <i className={`fa-solid ${isSaving ? 'fa-spinner fa-spin' : 'fa-floppy-disk'}`}></i>
+                <span>{isSaving ? 'Đang lưu hệ thống...' : 'Lưu Thay Đổi Cấu Hình'}</span>
+              </button>
+            </div>
+          </div>
+        </form>
 
         {/* Right Column (1 Col): Sessions List & Lead Management */}
         <div className="space-y-6">
