@@ -25,6 +25,7 @@ export default function AdminTelegramChatManager() {
 
   const [config, setConfig] = useState(DEFAULT_TELEGRAM_CONFIG);
   const [suggestedWebhookUrl, setSuggestedWebhookUrl] = useState('');
+  const [webhookInfo, setWebhookInfo] = useState(null);
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
 
@@ -37,6 +38,7 @@ export default function AdminTelegramChatManager() {
       if (data.success) {
         setConfig(data.config || DEFAULT_TELEGRAM_CONFIG);
         if (data.suggestedWebhookUrl) setSuggestedWebhookUrl(data.suggestedWebhookUrl);
+        if (data.webhookInfo) setWebhookInfo(data.webhookInfo);
         if (Array.isArray(data.sessions)) setSessions(data.sessions);
       }
     } catch (err) {
@@ -314,11 +316,28 @@ export default function AdminTelegramChatManager() {
 
           {/* Nhóm 2: Webhook 2 Chiều */}
           <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4">
-            <div className="flex items-center gap-2 pb-3 border-b border-slate-800">
-              <i className="fa-solid fa-arrows-split-up-and-left text-emerald-400 text-sm"></i>
-              <h4 className="text-xs font-black uppercase tracking-wider text-white">
-                2. Cơ Chế 2 Chiều (Webhook Nhận Trả Lời Từ Telegram Về Web)
-              </h4>
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800 gap-2">
+              <div className="flex items-center gap-2">
+                <i className="fa-solid fa-arrows-split-up-and-left text-emerald-400 text-sm"></i>
+                <h4 className="text-xs font-black uppercase tracking-wider text-white">
+                  2. Cơ Chế 2 Chiều (Webhook Nhận Trả Lời Từ Telegram Về Web)
+                </h4>
+              </div>
+
+              {/* Webhook Status Badge */}
+              <div className="flex items-center gap-1.5 text-[11px] font-bold">
+                {webhookInfo?.url ? (
+                  <span className="px-2.5 py-1 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Webhook Đang Hoạt Động</span>
+                  </span>
+                ) : (
+                  <span className="px-2.5 py-1 rounded-full bg-amber-950 text-amber-400 border border-amber-800 flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                    <span>Chưa Gán Webhook</span>
+                  </span>
+                )}
+              </div>
             </div>
 
             <div className="space-y-3 text-xs leading-relaxed text-slate-300">

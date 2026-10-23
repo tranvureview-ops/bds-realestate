@@ -21,10 +21,24 @@ export async function GET(req) {
     const proto = req.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
     const webhookUrl = `${proto}://${host}/api/chat/telegram-webhook`;
 
+    // Lấy thông tin webhook thực tế từ Telegram nếu đã có botToken
+    let webhookInfo = null;
+    try {
+      const rawConfig = await getTelegramConfig(false);
+      if (rawConfig.botToken) {
+        const whRes = await fetch(`https://api.telegram.org/bot${rawConfig.botToken}/getWebhookInfo`);
+        const whData = await whRes.json();
+        if (whData.ok) {
+          webhookInfo = whData.result;
+        }
+      }
+    } catch (_) {}
+
     return NextResponse.json({
       success: true,
       config,
       suggestedWebhookUrl: webhookUrl,
+      webhookInfo,
       sessionsCount: sessions.length,
       sessions
     });
@@ -53,7 +67,7 @@ export async function POST(req) {
       return NextResponse.json(result);
     }
 
-    // 3. Lưu cấu hình Telegram Bot
+    // 3. Lưu cấu hình Telegram Bot & Tự động gán Webhook
     if (action === 'save' || !action) {
       const { config } = body;
       if (!config) {
@@ -63,10 +77,29 @@ export async function POST(req) {
       await saveTelegramConfig(config);
       const updatedMasked = await getTelegramConfig(true);
 
+      // Tự động kích hoạt Webhook luôn khi lưu nếu đang ở domain HTTPS (Vercel)
+      let webhookAutoResult = null;
+      try {
+        const host = req.headers.get('host') || 'localhost:3000';
+        const proto = req.headers.get('x-forwarded-proto') || (host.includes('localhost') ? 'http' : 'https');
+        const webhookUrl = `${proto}://${host}/api/chat/telegram-webhook`;
+        if (webhookUrl.startsWith('https://')) {
+          const rawConfig = await getTelegramConfig(false);
+          if (rawConfig.botToken) {
+            webhookAutoResult = await setTelegramWebhook(webhookUrl, null, rawConfig.botToken);
+          }
+        }
+      } catch (whErr) {
+        console.warn('Lỗi tự động gán webhook khi lưu:', whErr.message);
+      }
+
       return NextResponse.json({
         success: true,
-        message: 'Đã lưu cấu hình Live Chat Telegram thành công (Token được mã hóa an toàn AES-256)!',
-        config: updatedMasked
+        message: webhookAutoResult?.success
+          ? 'Đã lưu cấu hình và tự động kích hoạt Webhook 2 chiều thành công!'
+          : 'Đã lưu cấu hình Live Chat Telegram thành công (Token được mã hóa an toàn AES-256)!',
+        config: updatedMasked,
+        webhookAutoResult
       });
     }
 

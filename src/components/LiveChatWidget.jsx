@@ -166,32 +166,40 @@ export default function LiveChatWidget() {
     if (!hasStartedChat || !sessionId) return;
 
     const interval = setInterval(() => {
-      fetch(`/api/chat/messages?sessionId=${encodeURIComponent(sessionId)}&since=${lastTimestampRef.current}`)
+      fetch(`/api/chat/messages?sessionId=${encodeURIComponent(sessionId)}`)
         .then(res => res.json())
         .then(data => {
-          if (data.success && Array.isArray(data.messages) && data.messages.length > 0) {
-            // Lọc các tin nhắn mới từ agent mà client chưa có
+          if (data.success && Array.isArray(data.messages)) {
             setMessages(prev => {
+              // Kiểm tra xem có tin nhắn mới nào từ agent không
               const existingIds = new Set(prev.map(m => m.id));
-              const newMsgs = data.messages.filter(m => !existingIds.has(m.id));
-              if (newMsgs.length === 0) return prev;
+              const newAgentMsgs = data.messages.filter(m => m.sender === 'agent' && !existingIds.has(m.id));
 
-              // Cập nhật timestamp lớn nhất
-              const maxTs = Math.max(...newMsgs.map(m => m.timestamp || 0));
-              if (maxTs > lastTimestampRef.current) lastTimestampRef.current = maxTs;
+              // Nếu có tin nhắn mới từ agent
+              if (newAgentMsgs.length > 0) {
+                // Nếu khung chat đang đóng thì tăng số thông báo
+                if (!isOpen) {
+                  setUnreadCount(c => c + newAgentMsgs.length);
+                }
 
-              // Nếu khung chat đang đóng thì tăng số thông báo
-              if (!isOpen) {
-                setUnreadCount(c => c + newMsgs.length);
+                // Phát âm thanh ping nhẹ khi có phản hồi từ nhân viên
+                try {
+                  const audio = new Audio('/sounds/notification.mp3');
+                  audio.play().catch(() => {});
+                } catch (_) {}
               }
 
-              // Phát âm thanh ping nhẹ khi có phản hồi từ nhân viên
-              try {
-                const audio = new Audio('/sounds/notification.mp3');
-                audio.play().catch(() => {});
-              } catch (_) {}
+              // Giữ lại các tin nhắn tạm (tempMsg) chưa được server xác nhận
+              const tempMsgs = prev.filter(m => m.id?.startsWith('temp_'));
+              const confirmedTexts = new Set(data.messages.map(m => m.text));
+              const remainingTemps = tempMsgs.filter(t => !confirmedTexts.has(t.text));
 
-              return [...prev, ...newMsgs];
+              // Nếu số lượng tin nhắn không đổi và không có tin mới
+              if (prev.length === data.messages.length && newAgentMsgs.length === 0 && remainingTemps.length === 0) {
+                return prev;
+              }
+
+              return [...data.messages, ...remainingTemps];
             });
           }
         })
