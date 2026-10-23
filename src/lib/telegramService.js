@@ -750,6 +750,169 @@ export async function getSessionMessages(sessionId, sinceTimestamp = 0) {
 }
 
 /**
+ * Xóa toàn bộ mapping tin nhắn liên quan tới sessionId khi kết thúc phiên
+ */
+export async function deleteSessionMsgMappings(sessionId) {
+  if (!sessionId) return;
+
+  // Xóa trong memory map
+  for (const [msgId, sId] of memoryMsgMap.entries()) {
+    if (sId === sessionId) {
+      memoryMsgMap.delete(msgId);
+    }
+  }
+
+  // Xóa trên Supabase Cloud platform_settings
+  if (isSupabaseConfigured() && supabase) {
+    try {
+      const { data } = await supabase
+        .from('platform_settings')
+        .select('value')
+        .eq('key', 'bds_chat_message_map')
+        .maybeSingle();
+
+      if (data?.value && typeof data.value === 'object') {
+        const map = { ...data.value };
+        let modified = false;
+        for (const [k, v] of Object.entries(map)) {
+          if (v === sessionId) {
+            delete map[k];
+            modified = true;
+          }
+        }
+        if (modified) {
+          await supabase
+            .from('platform_settings')
+            .upsert({
+              key: 'bds_chat_message_map',
+              value: map,
+              updated_at: new Date().toISOString()
+            }, { onConflict: 'key' });
+        }
+      }
+    } catch (e) {
+      console.warn('Lỗi xóa bds_chat_message_map:', e.message);
+    }
+  }
+
+  // Xóa local
+  try {
+    const db = readServerDb();
+    if (db.bds_chat_message_map) {
+      for (const [k, v] of Object.entries(db.bds_chat_message_map)) {
+        if (v === sessionId) delete db.bds_chat_message_map[k];
+      }
+      writeServerDb(db);
+    }
+  } catch (_) {}
+}
+
+/**
+ * Kiểm tra và xử lý phiên chat hết hạn (Timeout 10 phút sau câu trả lời của tư vấn viên)
+ * Nếu khách không phản hồi sau 10 phút: thông báo kết thúc phiên lên Telegram và xóa toàn bộ dữ liệu phiên
+ */
+export async function checkAndProcessSessionTimeout(sessionId) {
+  if (!sessionId) return { isEnded: false };
+  const sessions = await getChatSessions();
+  const session = sessions[sessionId];
+
+  if (!session || !Array.isArray(session.messages) || session.messages.length === 0) {
+    return { isEnded: false };
+  }
+
+  const hasUserMsg = session.messages.some(m => m.sender === 'user');
+  const lastMsg = session.messages[session.messages.length - 1];
+
+  // Điều kiện kiểm tra:
+  // 1. Khách hàng đã gửi ít nhất 1 tin nhắn
+  // 2. Tư vấn viên đã phản hồi lại (tin nhắn cuối cùng là từ agent)
+  // 3. Đã quá 10 phút (600,000 ms) kể từ câu trả lời của tư vấn viên mà khách không gửi thêm tin nào
+  if (hasUserMsg && lastMsg && lastMsg.sender === 'agent') {
+    const elapsedMs = Date.now() - (lastMsg.timestamp || 0);
+    const TIMEOUT_MS = 10 * 60 * 1000; // 10 phút
+
+    if (elapsedMs >= TIMEOUT_MS) {
+      // 1. Gửi thông báo kết thúc phiên chat lên nhóm Telegram
+      const config = await getTelegramConfig(false);
+      if (config.enabled && config.botToken && config.chatId) {
+        const custName = session.customer?.name || 'Khách hàng';
+        const cleanPhone = (session.customer?.phone || '').replace(/\s+/g, '');
+        const telMsg = `
+⏱️ <b>PHIÊN TƯ VẤN ĐÃ KẾT THÚC (QUÁ 10 PHÚT)</b>
+────────────────────────
+👤 <b>Khách:</b> ${custName} | 📞 <a href="tel:${cleanPhone}">${session.customer?.phone || 'Chưa SĐT'}</a>
+<i>Phiên chat đã tự động kết thúc và xóa toàn bộ dữ liệu do khách hàng không phản hồi sau 10 phút kể từ câu trả lời của tư vấn viên.</i>
+`.trim();
+        sendRawTelegramMessage(config.botToken, config.chatId, telMsg).catch(console.warn);
+      }
+
+      // 2. Xóa toàn bộ dữ liệu của phiên chat đó khỏi Database
+      delete sessions[sessionId];
+      await saveChatSessions(sessions);
+      await deleteSessionMsgMappings(sessionId);
+
+      return {
+        isEnded: true,
+        reason: 'timeout',
+        message: 'Phiên tư vấn đã tự động kết thúc do quý khách không phản hồi sau 10 phút. Toàn bộ dữ liệu của phiên chat đã được tự động xóa.'
+      };
+    }
+  }
+
+  return { isEnded: false };
+}
+
+/**
+ * Quét dọn tự động toàn bộ các phiên chat quá hạn 10 phút (Dành cho Cron Job / Periodic Sweep)
+ */
+export async function cleanupAllExpiredChatSessions() {
+  const sessions = await getChatSessions();
+  const config = await getTelegramConfig(false);
+  const now = Date.now();
+  const TIMEOUT_MS = 10 * 60 * 1000; // 10 phút
+  let hasChanges = false;
+  const expiredSessionIds = [];
+
+  for (const [sId, s] of Object.entries(sessions || {})) {
+    if (!Array.isArray(s.messages) || s.messages.length === 0) continue;
+    const hasUserMsg = s.messages.some(m => m.sender === 'user');
+    const lastMsg = s.messages[s.messages.length - 1];
+
+    if (hasUserMsg && lastMsg && lastMsg.sender === 'agent') {
+      const elapsed = now - (lastMsg.timestamp || 0);
+      if (elapsed >= TIMEOUT_MS) {
+        expiredSessionIds.push(sId);
+
+        // Bắn thông báo Telegram
+        if (config.enabled && config.botToken && config.chatId) {
+          const custName = s.customer?.name || 'Khách hàng';
+          const cleanPhone = (s.customer?.phone || '').replace(/\s+/g, '');
+          const msg = `
+⏱️ <b>PHIÊN TƯ VẤN ĐÃ KẾT THÚC (QUÁ 10 PHÚT)</b>
+────────────────────────
+👤 <b>Khách:</b> ${custName} | 📞 <a href="tel:${cleanPhone}">${s.customer?.phone || 'Chưa SĐT'}</a>
+<i>Phiên chat đã tự động kết thúc và xóa toàn bộ dữ liệu do khách hàng không phản hồi sau 10 phút kể từ câu trả lời của tư vấn viên.</i>
+`.trim();
+          sendRawTelegramMessage(config.botToken, config.chatId, msg).catch(console.warn);
+        }
+
+        delete sessions[sId];
+        hasChanges = true;
+      }
+    }
+  }
+
+  if (hasChanges) {
+    await saveChatSessions(sessions);
+    for (const id of expiredSessionIds) {
+      await deleteSessionMsgMappings(id);
+    }
+  }
+
+  return { cleanedCount: expiredSessionIds.length, expiredSessionIds };
+}
+
+/**
  * Lấy toàn bộ danh sách phiên chat (Dành cho trang quản trị Admin)
  */
 export async function getAllChatSessions(limit = 50) {

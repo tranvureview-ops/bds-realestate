@@ -72,6 +72,10 @@ export default function LiveChatWidget() {
   const [isStaffTyping, setIsStaffTyping] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // Trạng thái phiên chat kết thúc do quá hạn 10 phút không tương tác
+  const [isSessionEnded, setIsSessionEnded] = useState(false);
+  const [sessionEndNotice, setSessionEndNotice] = useState('');
+
   // Thông tin nhân viên tư vấn
   const [agentInfo, setAgentInfo] = useState({
     name: 'Nguyễn Văn Tuấn',
@@ -104,17 +108,27 @@ export default function LiveChatWidget() {
 
   // Kiểm tra nếu đã đăng nhập hoặc đã có thông tin khách trong LocalStorage thì cho vào thẳng khung chat
   useEffect(() => {
-    if (isUserLoggedIn) {
+    if (isUserLoggedIn && currentUser) {
       setHasStartedChat(true);
-      setCustomerInfo({
-        name: currentUser.name || 'Thành viên',
-        phone: currentUser.phone || '',
-        email: currentUser.email || ''
+      setCustomerInfo(prev => {
+        if (
+          prev &&
+          prev.name === (currentUser.name || 'Thành viên') &&
+          prev.phone === (currentUser.phone || '') &&
+          prev.email === (currentUser.email || '')
+        ) {
+          return prev;
+        }
+        return {
+          name: currentUser.name || 'Thành viên',
+          phone: currentUser.phone || '',
+          email: currentUser.email || ''
+        };
       });
     } else if (customerInfo && customerInfo.phone) {
       setHasStartedChat(true);
     }
-  }, [isUserLoggedIn, currentUser, customerInfo]);
+  }, [isUserLoggedIn, currentUser?.name, currentUser?.phone, currentUser?.email]);
 
   // Lấy cấu hình chuyên viên tư vấn & lịch sử tin nhắn từ server
   useEffect(() => {
@@ -124,6 +138,16 @@ export default function LiveChatWidget() {
       .then(res => res.json())
       .then(data => {
         if (!data.success) return;
+
+        // Nếu phiên chat đã bị kết thúc và xóa dữ liệu do quá hạn 10 phút
+        if (data.sessionEnded) {
+          setIsSessionEnded(true);
+          setSessionEndNotice(data.timeoutMessage || 'Phiên tư vấn đã kết thúc do không nhận được phản hồi sau 10 phút. Toàn bộ dữ liệu của phiên chat đã được tự động xóa.');
+          localStorage.removeItem(STORAGE_SESSION_KEY);
+          localStorage.removeItem(STORAGE_LEAD_KEY);
+          setMessages([]);
+          return;
+        }
 
         // Cập nhật thông tin nhân viên theo cấu hình Admin mới nhất
         if (data.agentInfo) {
@@ -164,53 +188,65 @@ export default function LiveChatWidget() {
 
   // Realtime Polling: Kiểm tra tin nhắn trả lời từ nhân viên (Telegram Webhook) mỗi 2.5 giây khi chat đang mở
   useEffect(() => {
-    if (!hasStartedChat || !sessionId) return;
+    if (!hasStartedChat || !sessionId || isSessionEnded) return;
 
     const interval = setInterval(() => {
       fetch(`/api/chat/messages?sessionId=${encodeURIComponent(sessionId)}`)
         .then(res => res.json())
         .then(data => {
-          if (!data.success || !Array.isArray(data.messages)) return;
+          if (!data.success) return;
 
-          setMessages(prev => {
-            // Kiểm tra xem có tin nhắn mới nào từ agent không
-            const prevIds = new Set(prev.map(m => m.id));
-            const newAgentMsgs = data.messages.filter(m => m.sender === 'agent' && !prevIds.has(m.id));
+          // Nếu server thông báo phiên chat đã kết thúc do quá hạn 10 phút không phản hồi
+          if (data.sessionEnded) {
+            setIsSessionEnded(true);
+            setSessionEndNotice(data.timeoutMessage || 'Phiên tư vấn đã kết thúc do không nhận được phản hồi sau 10 phút. Toàn bộ dữ liệu của phiên chat đã được tự động xóa.');
+            localStorage.removeItem(STORAGE_SESSION_KEY);
+            localStorage.removeItem(STORAGE_LEAD_KEY);
+            setMessages([]);
+            return;
+          }
 
-            // Nếu có tin nhắn mới từ agent
-            if (newAgentMsgs.length > 0) {
-              // Nếu khung chat đang đóng thì tăng số thông báo
-              if (!isOpen) {
-                setUnreadCount(c => c + newAgentMsgs.length);
+          if (Array.isArray(data.messages)) {
+            setMessages(prev => {
+              // Kiểm tra xem có tin nhắn mới nào từ agent không
+              const prevIds = new Set(prev.map(m => m.id));
+              const newAgentMsgs = data.messages.filter(m => m.sender === 'agent' && !prevIds.has(m.id));
+
+              // Nếu có tin nhắn mới từ agent
+              if (newAgentMsgs.length > 0) {
+                // Nếu khung chat đang đóng thì tăng số thông báo
+                if (!isOpen) {
+                  setUnreadCount(c => c + newAgentMsgs.length);
+                }
+
+                // Phát âm thanh ping nhẹ khi có phản hồi từ nhân viên
+                try {
+                  const audio = new Audio('/sounds/notification.mp3');
+                  audio.play().catch(() => {});
+                } catch (_) {}
               }
 
-              // Phát âm thanh ping nhẹ khi có phản hồi từ nhân viên
-              try {
-                const audio = new Audio('/sounds/notification.mp3');
-                audio.play().catch(() => {});
-              } catch (_) {}
-            }
+              // Lọc các tin tạm đang chờ xác nhận từ server
+              const pendingTemps = prev.filter(m => m.id?.startsWith('temp_'));
+              const serverTexts = new Set(data.messages.map(m => m.text));
+              const serverIds = new Set(data.messages.map(m => m.id));
 
-            // Lọc các tin tạm đang chờ xác nhận từ server
-            const pendingTemps = prev.filter(m => m.id?.startsWith('temp_'));
-            const serverTexts = new Set(data.messages.map(m => m.text));
-            const serverIds = new Set(data.messages.map(m => m.id));
+              // Chỉ giữ tin tạm nếu server chưa có ID này và chưa có nội dung text này
+              const remainingTemps = pendingTemps.filter(t => !serverIds.has(t.id) && !serverTexts.has(t.text));
 
-            // Chỉ giữ tin tạm nếu server chưa có ID này và chưa có nội dung text này
-            const remainingTemps = pendingTemps.filter(t => !serverIds.has(t.id) && !serverTexts.has(t.text));
+              const unifiedList = [...data.messages, ...remainingTemps];
 
-            const unifiedList = [...data.messages, ...remainingTemps];
+              // Tránh re-render nếu mảng không đổi
+              if (
+                prev.length === unifiedList.length &&
+                prev.every((m, idx) => m.id === unifiedList[idx].id && m.text === unifiedList[idx].text)
+              ) {
+                return prev;
+              }
 
-            // Tránh re-render nếu mảng không đổi
-            if (
-              prev.length === unifiedList.length &&
-              prev.every((m, idx) => m.id === unifiedList[idx].id && m.text === unifiedList[idx].text)
-            ) {
-              return prev;
-            }
-
-            return unifiedList;
-          });
+              return unifiedList;
+            });
+          }
         })
         .catch(() => {});
     }, 2500);
@@ -295,6 +331,8 @@ export default function LiveChatWidget() {
       const freshSessionId = `chat_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
       localStorage.setItem(STORAGE_SESSION_KEY, freshSessionId);
       setSessionId(freshSessionId);
+      setIsSessionEnded(false);
+      setSessionEndNotice('');
       setCustomerInfo(null);
       setLeadFormData({ name: '', phone: '', email: '' });
       setMessages([
@@ -307,6 +345,65 @@ export default function LiveChatWidget() {
         }
       ]);
       setHasStartedChat(false);
+    }
+  };
+
+  // Kiểm tra thời gian 10 phút sau phản hồi cuối cùng của tư vấn viên
+  useEffect(() => {
+    if (!hasStartedChat || isSessionEnded) return;
+
+    const checkTimeoutTimer = setInterval(() => {
+      const hasUserMsg = messages.some(m => m.sender === 'user');
+      const lastMsg = messages[messages.length - 1];
+
+      // Điều kiện: khách đã từng nhắn, tin nhắn cuối cùng là từ agent
+      if (hasUserMsg && lastMsg && lastMsg.sender === 'agent') {
+        const elapsed = Date.now() - (lastMsg.timestamp || 0);
+        if (elapsed >= 10 * 60 * 1000) {
+          // Đã quá 10 phút: kích hoạt kiểm tra và xóa phiên trên server
+          fetch(`/api/chat/messages?sessionId=${encodeURIComponent(sessionId)}`)
+            .then(res => res.json())
+            .then(data => {
+              if (data.sessionEnded) {
+                setIsSessionEnded(true);
+                setSessionEndNotice(data.timeoutMessage || 'Phiên tư vấn đã kết thúc do không nhận được phản hồi sau 10 phút. Toàn bộ dữ liệu của phiên chat đã được tự động xóa.');
+                localStorage.removeItem(STORAGE_SESSION_KEY);
+                localStorage.removeItem(STORAGE_LEAD_KEY);
+                setMessages([]);
+              }
+            })
+            .catch(() => {});
+        }
+      }
+    }, 10000); // Quét kiểm tra mỗi 10 giây
+
+    return () => clearInterval(checkTimeoutTimer);
+  }, [hasStartedChat, isSessionEnded, messages, sessionId]);
+
+  // Bắt đầu phiên tư vấn mới sau khi phiên cũ đã kết thúc do quá hạn 10 phút
+  const handleStartNewSessionAfterEnd = () => {
+    localStorage.removeItem(STORAGE_SESSION_KEY);
+    localStorage.removeItem(STORAGE_LEAD_KEY);
+    const freshSessionId = `chat_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    localStorage.setItem(STORAGE_SESSION_KEY, freshSessionId);
+    setSessionId(freshSessionId);
+    setIsSessionEnded(false);
+    setSessionEndNotice('');
+    setCustomerInfo(null);
+    setLeadFormData({ name: '', phone: '', email: '' });
+    setMessages([
+      {
+        id: 'msg_welcome',
+        sender: 'agent',
+        text: agentInfo.welcomeMessage || 'Xin chào quý khách! Tôi là trợ lý tư vấn. Quý khách đang quan tâm đến bất động sản nào cần hỗ trợ nhanh?',
+        time: 'Vừa xong',
+        timestamp: Date.now()
+      }
+    ]);
+    if (!isUserLoggedIn) {
+      setHasStartedChat(false);
+    } else {
+      setHasStartedChat(true);
     }
   };
 
@@ -621,36 +718,78 @@ export default function LiveChatWidget() {
                     <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
                   </div>
                 )}
+                {/* Thông báo kết thúc phiên khi quá 10 phút sau câu trả lời của chuyên viên */}
+                {isSessionEnded && (
+                  <div className="p-4 bg-amber-50 border border-amber-200/90 rounded-2xl text-amber-900 text-xs space-y-2.5 text-center animate-in fade-in duration-300 shadow-sm">
+                    <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-base shadow-xs">
+                      <i className="fa-solid fa-hourglass-end"></i>
+                    </div>
+                    <div>
+                      <div className="font-black text-xs text-amber-950 uppercase tracking-wide">
+                        Phiên Tư Vấn Đã Kết Thúc
+                      </div>
+                      <p className="text-[11px] text-amber-800 leading-relaxed mt-1">
+                        {sessionEndNotice || 'Do không nhận được phản hồi sau 10 phút kể từ câu trả lời của tư vấn viên, phiên chat đã tự động kết thúc và dữ liệu đã được xóa.'}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleStartNewSessionAfterEnd}
+                      className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl shadow-xs transition inline-flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <i className="fa-solid fa-rotate-right"></i>
+                      <span>Bắt đầu cuộc trò chuyện mới</span>
+                    </button>
+                  </div>
+                )}
+
                 <div ref={messagesEndRef} />
               </div>
 
               {/* Input Footer */}
-              <div className="p-2.5 border-t border-slate-200 bg-white flex items-center gap-2">
-                <input
-                  type="text"
-                  placeholder="Nhập nội dung cần tư vấn..."
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      if (!isSending && inputValue.trim()) {
-                        handleSendMessage();
+              {isSessionEnded ? (
+                <div className="p-3 border-t border-slate-200 bg-slate-100 flex items-center justify-between gap-2 text-xs">
+                  <span className="text-slate-500 text-[11px] italic font-medium flex items-center gap-1.5">
+                    <i className="fa-regular fa-clock text-amber-600"></i>
+                    <span>Phiên chat đã kết thúc sau 10 phút</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleStartNewSessionAfterEnd}
+                    className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-rotate-right"></i>
+                    <span>Chat mới</span>
+                  </button>
+                </div>
+              ) : (
+                <div className="p-2.5 border-t border-slate-200 bg-white flex items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="Nhập nội dung cần tư vấn..."
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        if (!isSending && inputValue.trim()) {
+                          handleSendMessage();
+                        }
                       }
-                    }
-                  }}
-                  className="flex-1 px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none text-slate-900 font-medium"
-                />
-                <button
-                  type="button"
-                  disabled={isSending || !inputValue.trim()}
-                  onClick={() => handleSendMessage()}
-                  className="w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white flex items-center justify-center text-xs transition shadow-sm cursor-pointer shrink-0"
-                  title="Gửi tin nhắn"
-                >
-                  <i className={`fa-solid ${isSending ? 'fa-spinner fa-spin' : 'fa-paper-plane'}`}></i>
-                </button>
-              </div>
+                    }}
+                    className="flex-1 px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none text-slate-900 font-medium"
+                  />
+                  <button
+                    type="button"
+                    disabled={isSending || !inputValue.trim()}
+                    onClick={() => handleSendMessage()}
+                    className="w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white flex items-center justify-center text-xs transition shadow-sm cursor-pointer shrink-0"
+                    title="Gửi tin nhắn"
+                  >
+                    <i className={`fa-solid ${isSending ? 'fa-spinner fa-spin' : 'fa-paper-plane'}`}></i>
+                  </button>
+                </div>
+              )}
             </>
           )}
 

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import dynamic from 'next/dynamic';
 import { VIP_PACKAGES } from '../data/mockData';
@@ -33,8 +33,6 @@ export default function ListingDetailModal({ property, onClose }) {
   const [contactMessage, setContactMessage] = useState('');
   const [messageSent, setMessageSent] = useState(false);
 
-  if (!property) return null;
-
   // Tra cứu tác giả mới nhất từ usersList để đảm bảo tên & avatar luôn cập nhật theo hồ sơ
   const authorUser = property?.author?.id 
     ? usersList?.find(u => String(u.id) === String(property.author.id))
@@ -54,7 +52,7 @@ export default function ListingDetailModal({ property, onClose }) {
 
   // Đếm tổng số tin đăng thực tế của tác giả này trên sàn
   const authorListingsCount = useMemo(() => {
-    if (!properties || !Array.isArray(properties)) return 1;
+    if (!property || !properties || !Array.isArray(properties)) return 1;
     const authorId = safeAuthor.id ? String(safeAuthor.id) : null;
     const authorPhone = normalizePhone(safeAuthor.phone);
     const authorName = safeAuthor.name?.trim().toLowerCase();
@@ -70,7 +68,9 @@ export default function ListingDetailModal({ property, onClose }) {
     }).length;
 
     return count > 0 ? count : (authorUser?.activeListingsCount ?? (authorUser?.listingsCount ?? 1));
-  }, [properties, safeAuthor.id, safeAuthor.phone, safeAuthor.name, authorUser]);
+  }, [property, properties, safeAuthor.id, safeAuthor.phone, safeAuthor.name, authorUser]);
+
+  if (!property) return null;
 
   const isFav = favorites.includes(property.id);
   const isCompared = compareList.some(item => item.id === property.id);

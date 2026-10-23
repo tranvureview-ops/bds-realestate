@@ -67,7 +67,7 @@ export async function getQrCodeUrl(otpAuthUrl, size = 240) {
         light: '#ffffff'
       }
     });
-  } catch (err) {
+  } catch {
     // Fallback dịch vụ dự phòng nếu lỗi
     return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&margin=10&data=${encodeURIComponent(otpAuthUrl)}`;
   }

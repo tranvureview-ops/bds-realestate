@@ -109,23 +109,22 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     }
   }, [isReportModalOpen, isShareModalOpen]);
 
-  if (!property) return null;
-
   // Tra cứu tự động thông tin sáp nhập đơn vị hành chính nếu có
-  const mergerData = property.isAdministrativeMerged ? {
+  const mergerData = property?.isAdministrativeMerged ? {
     hasMerger: true,
     newAddress: property.newAddress || property.address,
     oldAddress: property.oldAddress || '',
     resolution: property.administrativeResolution || 'Nghị quyết của UBTV Quốc hội về việc sắp xếp các đơn vị hành chính'
-  } : findAdministrativeMerger({
+  } : (property ? findAdministrativeMerger({
     city: property.city,
     district: property.district,
     ward: property.ward || property.address,
     street: property.street || property.address
-  });
+  }) : null);
 
   // 1. Chuẩn hóa địa chỉ cũ / địa chỉ chưa cập nhật (chống trùng lặp từ)
   const displayOldAddress = useMemo(() => {
+    if (!property) return '';
     if (property.oldAddress) return property.oldAddress;
     
     const rawAddr = (property.address || '').trim();
@@ -150,10 +149,11 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
       }
     }
     return uniqueParts.join(', ');
-  }, [property.oldAddress, property.address, property.district, property.city]);
+  }, [property?.oldAddress, property?.address, property?.district, property?.city]);
 
   // 2. Chuẩn hóa địa chỉ mới (theo đơn vị hành chính mới / mô hình chính quyền đô thị tinh gọn bỏ cấp quận)
   const displayNewAddress = useMemo(() => {
+    if (!property) return '';
     if (property.newAddress) return property.newAddress;
     
     if (mergerData?.newAddress) {
@@ -184,10 +184,11 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
       }
     }
     return uniqueNewParts.join(', ');
-  }, [property.newAddress, property.street, property.address, property.ward, property.city, mergerData]);
+  }, [property?.newAddress, property?.street, property?.address, property?.ward, property?.city, mergerData]);
 
   // 3. Chuỗi địa chỉ mới trong ngoặc đơn theo chuẩn Batdongsan.com.vn: (Xã/Phường, Tỉnh/TP mới)
   const newAddressNotice = useMemo(() => {
+    if (!property) return '';
     // 1. Nếu có thông tin sáp nhập đơn vị hành chính
     if (mergerData?.newWard) {
       const city = mergerData.newCity || property.city || 'Đà Nẵng';
@@ -212,28 +213,28 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     }
 
     return '';
-  }, [mergerData, property.newAddress, property.ward, property.city]);
+  }, [mergerData, property?.newAddress, property?.ward, property?.city]);
 
   // Bảo vệ an toàn tuyệt đối chống lỗi thiếu ảnh hoặc thiếu thông tin tác giả/khách vãng lai
-  const safeImages = Array.isArray(property.images) && property.images.length > 0
+  const safeImages = Array.isArray(property?.images) && property.images.length > 0
     ? property.images
     : ['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80'];
 
   // Tra cứu tác giả mới nhất từ usersList để đảm bảo tên & avatar luôn cập nhật theo hồ sơ người dùng
-  const authorUser = property.author?.id 
+  const authorUser = property?.author?.id 
     ? usersList?.find(u => String(u.id) === String(property.author.id))
-    : (property.author?.phone ? usersList?.find(u => normalizePhone(u.phone) === normalizePhone(property.author.phone)) : null);
+    : (property?.author?.phone ? usersList?.find(u => normalizePhone(u.phone) === normalizePhone(property.author.phone)) : null);
 
   const safeAuthor = {
-    id: authorUser?.id || property.author?.id || null,
-    name: authorUser?.name || property.author?.name || property.contactName || 'Người đăng tin',
-    phone: formatPhoneNumber(authorUser?.phone || property.author?.phone || property.contactPhone || '0908 123 456'),
-    zalo: (authorUser?.phone || property.author?.zalo || property.author?.phone || property.contactPhone || '0908123456').replace(/\s+/g, ''),
-    avatar: authorUser?.avatar || property.author?.avatar || '/avatars/ai-preset-2.jpg',
-    title: authorUser?.roleName || authorUser?.membership?.packageName || property.author?.title || (property.isGuest ? 'Khách vãng lai' : 'Chính chủ đăng tin'),
-    isVerified: authorUser?.isVerified ?? property.author?.isVerified ?? false,
-    rating: property.author?.rating || '5.0',
-    reviewCount: property.author?.reviewCount || 1
+    id: authorUser?.id || property?.author?.id || null,
+    name: authorUser?.name || property?.author?.name || property?.contactName || 'Người đăng tin',
+    phone: formatPhoneNumber(authorUser?.phone || property?.author?.phone || property?.contactPhone || '0908 123 456'),
+    zalo: (authorUser?.phone || property?.author?.zalo || property?.author?.phone || property?.contactPhone || '0908123456').replace(/\s+/g, ''),
+    avatar: authorUser?.avatar || property?.author?.avatar || '/avatars/ai-preset-2.jpg',
+    title: authorUser?.roleName || authorUser?.membership?.packageName || property?.author?.title || (property?.isGuest ? 'Khách vãng lai' : 'Chính chủ đăng tin'),
+    isVerified: authorUser?.isVerified ?? property?.author?.isVerified ?? false,
+    rating: property?.author?.rating || '5.0',
+    reviewCount: property?.author?.reviewCount || 1
   };
 
   // Đếm tổng số tin đăng thực tế của tác giả này trên sàn
@@ -255,6 +256,8 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
     return count > 0 ? count : (authorUser?.activeListingsCount ?? (authorUser?.listingsCount ?? 1));
   }, [properties, safeAuthor.id, safeAuthor.phone, safeAuthor.name, authorUser]);
+
+  if (!property) return null;
 
   const defaultPkg = VIP_PACKAGES.find(p => p.id === 'normal') || VIP_PACKAGES[VIP_PACKAGES.length - 1];
   const vipPkg = VIP_PACKAGES.find(p => p.id === property.vipPackageId) || defaultPkg;

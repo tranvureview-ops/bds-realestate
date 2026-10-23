@@ -6,8 +6,6 @@
 
 import { getPropertyPermalink } from './permalink';
 
-const STORAGE_KEY_EMAIL_LOGS = 'bds_email_logs';
-
 /**
  * Danh mục lý do vi phạm tiếng Việt chuẩn hóa
  */
@@ -110,7 +108,7 @@ export const dispatchEmail = async ({
       } else {
         realDeliveryStatus = 'failed';
       }
-    } catch (e) {
+    } catch (_e) {
       realDeliveryStatus = 'delivered'; // Fallback to simulated delivered if offline
     }
   }
@@ -410,7 +408,7 @@ export function generateReporterConfirmationEmailHtml({ report, property, custom
 /**
  * 3. Mẫu Email Gửi Chủ Tin Rao (Yêu cầu giải trình hoặc thông báo hạ tin)
  */
-export function generateAuthorWarningEmailHtml({ property, report, actionType, adminNote, customConfig = null }) {
+export function generateAuthorWarningEmailHtml({ property, report: _report, actionType, adminNote, customConfig = null }) {
   const activeConfig = customConfig || getActiveEmailConfig();
   const tpl = activeConfig?.templates?.author_warning || {};
   const isDelisted = actionType === 'delisted';
@@ -745,7 +743,6 @@ export function generateWelcomeVerificationEmailHtml({
     currentTime: new Date().toLocaleString('vi-VN')
   };
 
-  const theme = THEME_STYLES[tpl.headerTheme || 'emerald'] || THEME_STYLES.emerald;
   const badgeText = renderEmailTemplateString(tpl.headerBadge || 'Kích Hoạt Tài Khoản Mới', vars);
   const titleText = renderEmailTemplateString(tpl.headerTitle || 'Chào Mừng Thành Viên Mới', vars);
   const greetingText = renderEmailTemplateString(tpl.greeting || 'Kính gửi {{userName}},', vars);

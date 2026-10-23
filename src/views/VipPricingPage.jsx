@@ -712,8 +712,8 @@ export default function VipPricingPage() {
                 </div>
               </div>
               <Link
-                to="/quan-ly-tin"
-                className="px-5 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl transition shadow-md"
+                to={(!currentUser || currentUser.role === 'guest' || currentUser.id === 'guest') ? '/dang-nhap?redirect=/quan-ly-tin' : '/quan-ly-tin'}
+                className="px-5 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl transition shadow-md cursor-pointer"
               >
                 Vào Quản Lý Đẩy Tin ➔
               </Link>

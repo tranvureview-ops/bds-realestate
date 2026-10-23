@@ -56,7 +56,7 @@ export default async function sitemap() {
   let properties = [];
   try {
     properties = await fetchServerProperties();
-  } catch (e) {
+  } catch (_e) {
     properties = INITIAL_PROPERTIES;
   }
   if (!properties || properties.length === 0) {

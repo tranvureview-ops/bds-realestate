@@ -13,7 +13,7 @@
  */
 export function normalizePhone(rawPhone) {
   if (!rawPhone) return '';
-  let cleaned = rawPhone.toString().trim().replace(/[\s\.\-\(\)]/g, '');
+  let cleaned = rawPhone.toString().trim().replace(/[\s.()-]/g, '');
   if (cleaned.startsWith('+84')) {
     cleaned = '0' + cleaned.slice(3);
   } else if (cleaned.startsWith('84') && cleaned.length >= 11) {
@@ -34,7 +34,7 @@ export function normalizePhone(rawPhone) {
  */
 export function formatPhoneNumber(rawPhone) {
   if (!rawPhone) return '';
-  const cleaned = rawPhone.toString().trim().replace(/[\s\.\-\(\)]/g, '');
+  const cleaned = rawPhone.toString().trim().replace(/[\s.()-]/g, '');
   let norm = cleaned;
   if (norm.startsWith('+84')) norm = '0' + norm.slice(3);
   else if (norm.startsWith('84') && norm.length >= 11) norm = '0' + norm.slice(2);
@@ -66,9 +66,6 @@ export function validatePhoneNumber(rawPhone) {
   }
 
   const normalized = normalizePhone(rawPhone);
-
-  // Đầu số di động tiêu chuẩn tại Việt Nam (10 số, bắt đầu bằng 03, 05, 07, 08, 09)
-  const vnMobilePattern = /^0(3[2-9]|5[25689]|7[06-9]|8[1-9]|9[0-9])\d{7}$/;
   const generalVnMobilePattern = /^0[35789]\d{8}$/;
 
   if (!generalVnMobilePattern.test(normalized)) {

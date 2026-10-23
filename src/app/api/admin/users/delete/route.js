@@ -49,7 +49,7 @@ export async function POST(request) {
             .from('platform_settings')
             .upsert({ key: 'bds_users_list', value: cleaned, updated_at: new Date().toISOString() });
         }
-      } catch (setErr) {
+      } catch {
         // ignore
       }
     }
@@ -63,7 +63,7 @@ export async function POST(request) {
           fs.writeFileSync(DB_FILE, JSON.stringify(currentDb, null, 2), 'utf-8');
         }
       }
-    } catch (fsErr) {
+    } catch {
       // ignore
     }
 

@@ -26,6 +26,8 @@ export default function UserDashboard() {
     vipPackages: contextVipPackages
   } = useRealEstate();
 
+  const { navigate } = useRouter();
+
   const [activeTab, setActiveTab] = useState('listings'); // 'listings', 'wallet', 'transactions', 'trash'
   const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'active', 'expiring_soon', 'expired', 'pending'
 
@@ -557,9 +559,9 @@ export default function UserDashboard() {
                       <button
                         onClick={() => {
                           setSelectedPropertyForVip(prop);
-                          setActiveModal('pricing-vip');
+                          navigate('/bang-gia-vip');
                         }}
-                        className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1"
+                        className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1 cursor-pointer"
                       >
                         <i className="fa-solid fa-crown"></i>
                         <span>Nâng VIP</span>

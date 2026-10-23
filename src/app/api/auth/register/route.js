@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { hashPassword, validateRegistrationInput, checkUserDuplication } from '../../../../services/authService';
-import { normalizePhone, formatPhoneNumber } from '../../../../utils/authValidation';
+import { formatPhoneNumber } from '../../../../utils/authValidation';
 import { getCampaignSettings, checkIpRegistrationLimit, generateVerificationTokenRecord } from '../../../../services/bonusCampaignService';
 import { saveNewUser, saveVerificationToken, getFullSystemDatabase } from '../../../../services/serverDbService';
 import { resolveServerOrigin, sendWelcomeVerificationEmail } from '../../../../services/mailerService';

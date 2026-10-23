@@ -32,7 +32,7 @@ export async function GET(req) {
           webhookInfo = whData.result;
         }
       }
-    } catch (_) {}
+    } catch {}
 
     return NextResponse.json({
       success: true,

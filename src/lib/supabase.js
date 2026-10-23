@@ -314,7 +314,7 @@ export async function upsertSupabaseProfile(user) {
 
     // Nếu bảng profiles chưa có các cột password / status / is_deleted, thử lại bằng payload cơ bản
     if (error && (error.code === 'PGRST204' || String(error.message).includes('password'))) {
-      const { password, password_hash, status, is_deleted, deleted_at, ...basePayload } = fullPayload;
+      const { password: _p, password_hash: _ph, status: _st, is_deleted: _id, deleted_at: _da, ...basePayload } = fullPayload;
       const res = await supabase.from('profiles').upsert(basePayload, { onConflict: 'id' });
       error = res.error;
     }

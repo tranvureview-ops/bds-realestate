@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { updateAppointmentById, deleteAppointmentById, getAllAppointments } from '../../../../services/serverDbService';
+import { updateAppointmentById, deleteAppointmentById } from '../../../../services/serverDbService';
 
 /**
  * PATCH /api/appointments/[id]

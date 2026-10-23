@@ -6,6 +6,7 @@ import { useRouter, Link } from '../router/RouterContext';
 import { VIP_PACKAGES, BUMP_SERVICE_PRICE } from '../data/mockData';
 
 export default function VipPackageShowcase({ onClose = null, className = '' }) {
+  const { navigate } = useRouter();
   const { 
     currentUser, 
     selectedPropertyForVip, 
@@ -14,6 +15,8 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
     setActiveModal, 
     setSelectedPropertyForVip 
   } = useRealEstate();
+
+  const isGuest = !currentUser || currentUser.role === 'guest' || currentUser.id === 'guest';
 
   const handleSelectPackage = (pkgId) => {
     if (selectedPropertyForVip) {
@@ -194,15 +197,17 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
                 {BUMP_SERVICE_PRICE.toLocaleString('vi-VN')} đ <span className="text-xs text-slate-300 font-normal">/ lần đẩy</span>
               </div>
             </div>
-            <button
+            <Link
+              to={isGuest ? '/dang-nhap?redirect=/quan-ly-tin' : '/quan-ly-tin'}
               onClick={() => {
+                if (onClose) onClose();
                 setActiveModal(null);
-                // switch to dashboard
               }}
-              className="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold text-xs sm:text-sm rounded-xl transition shadow-md"
+              className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold text-xs sm:text-sm rounded-xl transition shadow-md shrink-0 cursor-pointer text-center inline-flex items-center justify-center gap-1.5"
             >
-              Vào Quản Lý Để Đẩy Tin
-            </button>
+              <span>Vào Quản Lý Để Đẩy Tin</span>
+              <i className="fa-solid fa-arrow-right text-xs"></i>
+            </Link>
           </div>
         </div>
 

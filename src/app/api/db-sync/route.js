@@ -51,7 +51,7 @@ export async function POST(request) {
             if (r.key && r.value) existingSettings[r.key] = r.value;
           });
         }
-      } catch (err) {}
+      } catch {}
     }
 
     // Nếu không có từ Supabase, fallback đọc từ file server-db.json
@@ -59,7 +59,7 @@ export async function POST(request) {
       try {
         const local = JSON.parse(fs.readFileSync(DB_FILE, 'utf-8') || '{}');
         existingSettings = local;
-      } catch (err) {}
+      } catch {}
     }
 
     const mergedPayload = { ...payload };
@@ -101,7 +101,7 @@ export async function POST(request) {
       if (fs.existsSync(DB_FILE)) {
         try {
           currentDb = JSON.parse(fs.readFileSync(DB_FILE, 'utf-8') || '{}');
-        } catch (err) {}
+        } catch {}
       }
       const mergedDb = { ...currentDb, ...mergedPayload };
       fs.writeFileSync(DB_FILE, JSON.stringify(mergedDb, null, 2), 'utf-8');

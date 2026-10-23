@@ -115,11 +115,22 @@ export const useRouter = () => {
 
 export const Link = ({ to, href, children, className = '', activeClassName = '', title = '', onClick, ...props }) => {
   const router = useRouter();
-  const target = to || href || '/';
-  const targetPath = target.startsWith('/') ? target : '/' + target;
+  const rawTarget = to || href || '/';
+  const target = typeof rawTarget === 'string' ? rawTarget : String(rawTarget || '/');
+
+  // Kiểm tra nếu là URL bên ngoài (http, https, tel, mailto) hoặc liên kết neo (hash #)
+  const isExternal = target.startsWith('http://') || 
+                     target.startsWith('https://') || 
+                     target.startsWith('tel:') || 
+                     target.startsWith('mailto:');
+  const isHash = target.startsWith('#');
+
+  const targetPath = (isExternal || isHash) ? target : (target.startsWith('/') ? target : '/' + target);
   const currentPath = router?.pathname || router?.currentPath || '/';
 
-  const isActive = currentPath === targetPath || (targetPath !== '/' && currentPath.startsWith(targetPath));
+  const isActive = !isExternal && !isHash && (
+    currentPath === targetPath || (targetPath !== '/' && currentPath.startsWith(targetPath))
+  );
   const combinedClass = `${className} ${isActive ? activeClassName : ''}`.trim();
 
   const handleClick = (e) => {
@@ -129,6 +140,22 @@ export const Link = ({ to, href, children, className = '', activeClassName = '',
     }
     if (onClick) onClick(e);
   };
+
+  if (isExternal) {
+    return (
+      <a
+        href={targetPath}
+        onClick={handleClick}
+        className={combinedClass}
+        title={title}
+        target={props.target || '_blank'}
+        rel={props.rel || 'noopener noreferrer'}
+        {...props}
+      >
+        {children}
+      </a>
+    );
+  }
 
   return (
     <NextLink
