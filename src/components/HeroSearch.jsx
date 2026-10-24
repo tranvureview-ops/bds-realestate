@@ -120,10 +120,14 @@ export default function HeroSearch({ filters, setFilters, totalResults }) {
                 value={filters.city}
                 onChange={handleCityChange}
                 options={[
-                  { value: '', label: 'TP. Đà Nẵng (Tất cả)' },
-                  ...LOCATIONS.map(loc => ({ value: loc.name, label: loc.name, sublabel: 'Trung tâm BĐS Đà Nẵng' }))
+                  { value: '', label: 'Tất cả Tỉnh / Thành' },
+                  ...LOCATIONS.map(loc => ({
+                    value: loc.name,
+                    label: loc.name,
+                    sublabel: loc.name === 'Đà Nẵng' ? 'Trung tâm BĐS Đà Nẵng' : 'Bất Động Sản Quảng Nam'
+                  }))
                 ]}
-                placeholder="TP. Đà Nẵng (Tất cả)"
+                placeholder="Tất cả Tỉnh / Thành"
                 showSearch={true}
                 searchPlaceholder="Tìm kiếm..."
                 icon={<i className="fa-solid fa-location-dot text-slate-400 text-xs"></i>}

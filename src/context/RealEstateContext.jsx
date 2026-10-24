@@ -288,7 +288,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const raw = (initialData?.bds_properties && Array.isArray(initialData.bds_properties) && initialData.bds_properties.length > 0)
       ? initialData.bds_properties
       : INITIAL_PROPERTIES;
-    return raw.filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng')).map(p => {
+    return raw.filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng') || p.city === 'Quảng Nam' || p.city.includes('Quảng Nam')).map(p => {
       const norm = normalizePropertyExpiration(p);
       return {
         ...norm,
@@ -909,8 +909,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       const db = await fetchFullSupabaseDb();
       if (db) {
         if (Array.isArray(db.bds_properties) && db.bds_properties.length > 0) {
-          const danangProps = db.bds_properties.filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng'));
-          setProperties(danangProps.map(normalizePropertyExpiration));
+          const validProps = db.bds_properties.filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng') || p.city === 'Quảng Nam' || p.city.includes('Quảng Nam'));
+          setProperties(validProps.map(normalizePropertyExpiration));
         }
         if (Array.isArray(db.bds_users_list) && db.bds_users_list.length > 0) {
           setUsersList(db.bds_users_list);

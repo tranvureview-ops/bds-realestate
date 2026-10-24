@@ -46,7 +46,7 @@ async function getInitialDb() {
         const cloudData = await fetchFullSupabaseDb();
         if (cloudData && (cloudData.bds_properties?.length > 0 || cloudData.bds_header_config)) {
           if (Array.isArray(cloudData.bds_properties)) {
-            cloudData.bds_properties = cloudData.bds_properties.filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng'));
+            cloudData.bds_properties = cloudData.bds_properties.filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng') || p.city === 'Quảng Nam' || p.city.includes('Quảng Nam'));
           }
           return cloudData;
         }
@@ -59,7 +59,7 @@ async function getInitialDb() {
       const content = fs.readFileSync(dbFile, 'utf8');
       const parsed = JSON.parse(content || '{}');
       if (Array.isArray(parsed.bds_properties)) {
-        parsed.bds_properties = parsed.bds_properties.filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng'));
+        parsed.bds_properties = parsed.bds_properties.filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng') || p.city === 'Quảng Nam' || p.city.includes('Quảng Nam'));
       }
       return parsed;
     }
