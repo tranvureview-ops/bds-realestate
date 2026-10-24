@@ -2237,7 +2237,7 @@ export default function AdminBackendPage() {
 
           {/* Navigation Menu Links */}
           <nav className="px-3 space-y-1 text-xs font-bold">
-            <a
+            <Link
               href="#dashboard"
               onClick={handleNavClick('dashboard')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
@@ -2246,9 +2246,9 @@ export default function AdminBackendPage() {
             >
               <i className="fa-solid fa-chart-line text-sm w-5 text-center"></i>
               <span>Dashboard Tổng Quan</span>
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="#moderation"
               onClick={handleNavClick('moderation')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between text-left ${
@@ -2264,9 +2264,9 @@ export default function AdminBackendPage() {
                   {pendingProps.length}
                 </span>
               )}
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="#appointments"
               onClick={handleNavClick('appointments')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between text-left ${
@@ -2286,9 +2286,9 @@ export default function AdminBackendPage() {
                   {(appointmentsList || []).length}
                 </span>
               )}
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="#reports"
               onClick={handleNavClick('reports')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between text-left ${
@@ -2308,9 +2308,9 @@ export default function AdminBackendPage() {
                   {(listingReports || []).length}
                 </span>
               )}
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="#emails"
               onClick={handleNavClick('emails')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between text-left ${
@@ -2324,9 +2324,9 @@ export default function AdminBackendPage() {
               <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-[10px] text-blue-300 font-bold border border-slate-700">
                 {(emailLogs || []).length}
               </span>
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="#properties"
               onClick={handleNavClick('properties')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
@@ -2335,9 +2335,9 @@ export default function AdminBackendPage() {
             >
               <i className="fa-solid fa-city text-sm w-5 text-center"></i>
               <span>Quản Lý Bất Động Sản</span>
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="#users"
               onClick={handleNavClick('users')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
@@ -2346,9 +2346,9 @@ export default function AdminBackendPage() {
             >
               <i className="fa-solid fa-users-gear text-sm w-5 text-center"></i>
               <span>Người Dùng & Phân Quyền</span>
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="#finance"
               onClick={handleNavClick('finance')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
@@ -2357,9 +2357,9 @@ export default function AdminBackendPage() {
             >
               <i className="fa-solid fa-money-bill-trend-up text-sm w-5 text-center"></i>
               <span>Doanh Thu & Giao Dịch</span>
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="#pricing"
               onClick={handleNavClick('pricing')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between text-left ${
@@ -2373,9 +2373,9 @@ export default function AdminBackendPage() {
               <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-[10px] text-slate-300 font-bold">
                 4 cấp
               </span>
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="#membership"
               onClick={handleNavClick('membership')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between text-left ${
@@ -2389,11 +2389,11 @@ export default function AdminBackendPage() {
               <span className="px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold border border-amber-500/30">
                 {(membershipPackages || []).length} gói
               </span>
-            </a>
+            </Link>
 
             {/* Nhóm Cài Đặt Website & Giao Diện */}
             <div className="pt-2">
-              <a
+              <Link
                 href="#settings"
                 onClick={(e) => {
                   e.preventDefault();
@@ -2413,7 +2413,7 @@ export default function AdminBackendPage() {
                   </span>
                   <i className={`fa-solid fa-chevron-${activeMenu === 'settings' ? 'down' : 'right'} text-[10px] opacity-70`}></i>
                 </div>
-              </a>
+              </Link>
 
               {/* Sub-items under Cài Đặt Website */}
               {activeMenu === 'settings' && (
@@ -2501,7 +2501,7 @@ export default function AdminBackendPage() {
               )}
             </div>
 
-            <a
+            <Link
               href="#payments"
               onClick={handleNavClick('payments')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
@@ -2510,9 +2510,9 @@ export default function AdminBackendPage() {
             >
               <i className="fa-solid fa-credit-card text-sm w-5 text-center"></i>
               <span>Cấu Hình Thanh Toán</span>
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="#single-config"
               onClick={handleNavClick('single-config')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
@@ -2521,9 +2521,9 @@ export default function AdminBackendPage() {
             >
               <i className="fa-solid fa-file-contract text-sm w-5 text-center text-rose-400"></i>
               <span>Cấu Hình Single</span>
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="#telegram"
               onClick={handleNavClick('telegram')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
@@ -2532,13 +2532,13 @@ export default function AdminBackendPage() {
             >
               <i className="fa-brands fa-telegram text-sm w-5 text-center text-sky-400"></i>
               <span>Live Chat Telegram</span>
-            </a>
+            </Link>
           </nav>
         </div>
 
         {/* Bottom Sidebar Action: Back to Home Page & Migration */}
         <div className="p-4 border-t border-slate-800 space-y-2">
-          <a
+          <Link
             href="/"
             target="_blank"
             rel="noopener noreferrer"
@@ -2548,7 +2548,7 @@ export default function AdminBackendPage() {
             <i className="fa-solid fa-house text-emerald-400"></i>
             <span>Xem Trang Chủ Sàn BĐS</span>
             <i className="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-500"></i>
-          </a>
+          </Link>
 
           {/* Export / Import Config across computers */}
           <div className="grid grid-cols-2 gap-1.5 pt-1">
@@ -2654,7 +2654,7 @@ export default function AdminBackendPage() {
             </div>
 
             {/* Quick Link: View Public Site */}
-            <a
+            <Link
               href="/"
               target="_blank"
               rel="noopener noreferrer"
@@ -2664,7 +2664,7 @@ export default function AdminBackendPage() {
               <i className="fa-solid fa-globe text-emerald-400"></i>
               <span className="hidden sm:inline">Xem Sàn</span>
               <i className="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-500 hidden sm:inline-block"></i>
-            </a>
+            </Link>
 
             {/* Quick Button: Quản lý 2FA Google Authenticator (Hiển thị Bật / Tắt) */}
             <button

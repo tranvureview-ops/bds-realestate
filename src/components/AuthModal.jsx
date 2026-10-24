@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useRealEstate } from '../context/RealEstateContext';
 import { validateFullRegistration, validatePhoneNumber, validateEmailAddress } from '../utils/authValidation';
 import PasswordSecurityChecker from './PasswordSecurityChecker';
@@ -588,13 +589,13 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
                 </div>
 
                 {forgotResult.resetUrl && (
-                  <a
+                  <Link
                     href={forgotResult.resetUrl}
                     className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold text-xs uppercase tracking-wider hover:from-red-700 transition shadow cursor-pointer text-center"
                   >
                     <i className="fa-solid fa-key" />
                     <span>👉 Đổi Mật Khẩu Ngay (Thử Nghiệm Nhanh)</span>
-                  </a>
+                  </Link>
                 )}
 
                 <button

@@ -45,17 +45,17 @@ export default function Footer() {
                 <i className="fa-solid fa-phone text-emerald-400"></i>
                 <span>
                   Hotline 24/7:{' '}
-                  <a
+                  <Link
                     href={`tel:${(systemConfig?.hotline || '0898 246 607').replace(/\s+/g, '')}`}
                     className="text-white hover:text-emerald-400 font-bold font-mono transition"
                     title="Gọi Hotline CSKH"
                   >
                     {systemConfig?.hotline || '0898 246 607'}
-                  </a>
+                  </Link>
                   {systemConfig?.zalo && (
                     <span className="text-slate-400 text-[11px] ml-1.5">
                       (Zalo:{' '}
-                      <a
+                      <Link
                         href={`https://zalo.me/${systemConfig.zalo.replace(/\s+/g, '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -63,7 +63,7 @@ export default function Footer() {
                         title="Chat Zalo 24/7"
                       >
                         {systemConfig.zalo}
-                      </a>)
+                      </Link>)
                     </span>
                   )}
                 </span>
@@ -72,13 +72,13 @@ export default function Footer() {
                 <i className="fa-solid fa-envelope text-emerald-400"></i>
                 <span>
                   Email:{' '}
-                  <a
+                  <Link
                     href={`mailto:${systemConfig?.email || 'cskh@datbiendanang.vn'}`}
                     className="text-white hover:text-emerald-400 font-bold transition"
                     title="Gửi email phản ánh / CSKH"
                   >
                     {systemConfig?.email || 'cskh@datbiendanang.vn'}
-                  </a>
+                  </Link>
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -96,7 +96,7 @@ export default function Footer() {
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   {activeSocialList.map(item => (
-                    <a
+                    <Link
                       key={item.key}
                       href={item.url}
                       target="_blank"
@@ -109,7 +109,7 @@ export default function Footer() {
                       ) : (
                         <i className={`${item.icon} text-xs`}></i>
                       )}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </div>

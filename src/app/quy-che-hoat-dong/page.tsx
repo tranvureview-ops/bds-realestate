@@ -164,48 +164,48 @@ export default function OperatingRegulationPage() {
                 </div>
 
                 <nav className="mt-4 space-y-1.5 text-xs">
-                  <a
+                  <Link
                     href="#nguyen-tac-chung"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-red-600"
                   >
                     <span>1. Nguyên tắc chung & định nghĩa</span>
                     <span className="text-[10px] text-slate-400 font-mono">01</span>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="#quyen-nghia-vu-thanh-vien"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-red-600"
                   >
                     <span>2. Quyền & nghĩa vụ thành viên</span>
                     <span className="text-[10px] text-slate-400 font-mono">02</span>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="#quyen-nghia-vu-ban-quan-tri"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-red-600"
                   >
                     <span>3. Quyền & trách nhiệm Ban quản trị</span>
                     <span className="text-[10px] text-slate-400 font-mono">03</span>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="#cac-hanh-vi-bi-cam"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-red-600"
                   >
                     <span>4. Các hành vi nghiêm cấm</span>
                     <span className="text-[10px] text-slate-400 font-mono">04</span>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="#quy-dinh-tin-dang"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-red-600"
                   >
                     <span>5. Quy định về tin đăng BĐS</span>
                     <span className="text-[10px] text-slate-400 font-mono">05</span>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="#che-tai-xu-ly"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-red-600"
                   >
                     <span>6. Chế tài xử lý vi phạm</span>
                     <span className="text-[10px] text-slate-400 font-mono">06</span>
-                  </a>
+                  </Link>
                 </nav>
 
                 <div className="mt-6 rounded-xl bg-slate-50 p-3.5 border border-slate-100 text-[11px] leading-relaxed text-slate-600">

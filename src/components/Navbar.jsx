@@ -143,7 +143,7 @@ export default function Navbar() {
             <span suppressHydrationWarning className="hidden md:inline-flex items-center gap-1.5 text-slate-400 shrink-0">
               <span className="text-slate-600">|</span>
               <span>Hotline 24/7:</span>
-              <a
+              <Link
                 suppressHydrationWarning
                 href={`tel:${(systemConfig?.hotline || '0904 084 888').replace(/\s+/g, '')}`}
                 className="text-white hover:text-emerald-400 font-bold font-mono transition inline-flex items-center gap-1"
@@ -151,7 +151,7 @@ export default function Navbar() {
               >
                 <i className="fa-solid fa-phone text-[10px] text-emerald-400"></i>
                 <span suppressHydrationWarning>{systemConfig?.hotline || '0904 084 888'}</span>
-              </a>
+              </Link>
             </span>
           </div>
 
@@ -170,7 +170,7 @@ export default function Navbar() {
                 <div className="flex items-center gap-1 sm:gap-1.5">
                   <span className="hidden lg:inline text-slate-400 text-[10px] font-medium mr-0.5">Mạng xã hội:</span>
                   {activeSocialList.map(item => (
-                    <a
+                    <Link
                       key={item.key}
                       href={item.url}
                       target="_blank"
@@ -183,7 +183,7 @@ export default function Navbar() {
                       ) : (
                         <i className={`${item.icon} text-[10px]`}></i>
                       )}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </>
@@ -801,13 +801,13 @@ export default function Navbar() {
                 <span>Đăng Tin Bất Động Sản</span>
               </Link>
 
-              <a
+              <Link
                 href={`tel:${(systemConfig?.hotline || '0904 084 888').replace(/\s+/g, '')}`}
                 className="w-full py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 font-bold text-xs flex items-center justify-center gap-2 hover:bg-slate-100"
               >
                 <i className="fa-solid fa-phone text-emerald-600"></i>
                 <span>Hotline: {systemConfig?.hotline || '0904 084 888'}</span>
-              </a>
+              </Link>
 
               {/* Mobile Social Media Links */}
               {activeSocialList.length > 0 && (
@@ -815,7 +815,7 @@ export default function Navbar() {
                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Mạng xã hội kết nối:</span>
                   <div className="flex items-center gap-2">
                     {activeSocialList.map(item => (
-                      <a
+                      <Link
                         key={item.key}
                         href={item.url}
                         target="_blank"
@@ -828,7 +828,7 @@ export default function Navbar() {
                         ) : (
                           <i className={`${item.icon} text-xs`}></i>
                         )}
-                      </a>
+                      </Link>
                     ))}
                   </div>
                 </div>

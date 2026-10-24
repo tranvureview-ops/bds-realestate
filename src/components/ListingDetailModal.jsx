@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import Link from 'next/link';
 import { useRealEstate } from '../context/RealEstateContext';
 import dynamic from 'next/dynamic';
 import { VIP_PACKAGES } from '../data/mockData';
@@ -460,15 +461,15 @@ export default function ListingDetailModal({ property, onClose }) {
 
                 {/* Direct Call & Zalo Action Buttons */}
                 <div className="py-4 space-y-2.5">
-                  <a
+                  <Link
                     href={`tel:${safeAuthor.phone.replace(/\s+/g, '')}`}
                     className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-black text-sm rounded-xl shadow-lg transition flex items-center justify-center gap-2 group"
                   >
                     <i className="fa-solid fa-phone-volume group-hover:animate-bounce"></i>
                     <span>Gọi Ngay: {safeAuthor.phone}</span>
-                  </a>
+                  </Link>
 
-                  <a
+                  <Link
                     href={`https://zalo.me/${safeAuthor.zalo}`}
                     target="_blank"
                     rel="noreferrer"
@@ -476,7 +477,7 @@ export default function ListingDetailModal({ property, onClose }) {
                   >
                     <i className="fa-solid fa-comment-dots"></i>
                     <span>Chat Trực Tiếp Qua Zalo</span>
-                  </a>
+                  </Link>
                 </div>
 
                 {/* Fast Message Form */}

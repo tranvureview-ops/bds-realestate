@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import Link from 'next/link';
 import { useRealEstate } from '../context/RealEstateContext';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 
@@ -243,15 +244,15 @@ export default function AdminAppointmentsManager() {
                           </div>
                         )}
                         <div className="flex items-center gap-1.5 mt-2">
-                          <a
+                          <Link
                             href={`tel:${custPhone}`}
                             className="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-lg text-[10px] font-bold border border-rose-200 transition flex items-center gap-1"
                             title="Gọi điện trực tiếp"
                           >
                             <i className="fa-solid fa-phone text-[9px]"></i>
                             <span>Gọi</span>
-                          </a>
-                          <a
+                          </Link>
+                          <Link
                             href={`https://zalo.me/${normPhone}`}
                             target="_blank"
                             rel="noreferrer"
@@ -260,7 +261,7 @@ export default function AdminAppointmentsManager() {
                           >
                             <i className="fa-solid fa-comment-dots text-[9px]"></i>
                             <span>Zalo</span>
-                          </a>
+                          </Link>
                         </div>
                       </td>
 

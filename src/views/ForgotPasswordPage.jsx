@@ -73,13 +73,13 @@ export default function ForgotPasswordPage() {
 
           {sentResult.resetUrl && (
             <div className="pt-1">
-              <a
+              <Link
                 href={sentResult.resetUrl}
                 className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-white font-black text-xs uppercase tracking-wider hover:from-red-700 hover:to-rose-700 transition shadow-md cursor-pointer"
               >
                 <i className="fa-solid fa-key" />
                 <span>👉 Đổi Mật Khẩu Ngay (Thử Nghiệm Nhanh)</span>
-              </a>
+              </Link>
             </div>
           )}
 

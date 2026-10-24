@@ -255,7 +255,7 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
 
             {/* Direct Call / Zalo Buttons */}
             <div className="flex items-center gap-1.5 shrink-0">
-              <a
+              <Link
                 href={`tel:${safeAuthor.phone.replace(/\s+/g, '')}`}
                 onClick={(e) => e.stopPropagation()}
                 className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm transition shrink-0 whitespace-nowrap ${
@@ -270,9 +270,9 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
                 <i className="fa-solid fa-phone text-[11px] shrink-0"></i>
                 <span className="hidden sm:inline whitespace-nowrap">{safeAuthor.phone}</span>
                 <span className="sm:hidden whitespace-nowrap">Gọi</span>
-              </a>
+              </Link>
 
-              <a
+              <Link
                 href={`https://zalo.me/${safeAuthor.zalo}`}
                 target="_blank"
                 rel="noreferrer"
@@ -281,7 +281,7 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
                 title="Chat Zalo ngay"
               >
                 <span>Zalo</span>
-              </a>
+              </Link>
             </div>
           </div>
 

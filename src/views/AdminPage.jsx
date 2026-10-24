@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import AdminBackendPage from '../components/AdminBackendPage';
 import AdminTwoFactorScreen from '../components/AdminTwoFactorScreen';
 import { useRealEstate } from '../context/RealEstateContext';
-import { useRouter } from '../router/RouterContext';
+import { useRouter, Link } from '../router/RouterContext';
 
 export function getAdminRedirectPath() {
   if (typeof window === 'undefined') return '/dang-nhap?redirect=/admin';
@@ -56,7 +56,7 @@ export function ForbiddenActions({ countdown, onLogin, onHome }) {
   return (
     <div className="space-y-2.5">
       <CountdownNotice countdown={countdown} />
-      <a
+      <Link
         href={loginUrl}
         onClick={(e) => {
           e.preventDefault();
@@ -70,8 +70,8 @@ export function ForbiddenActions({ countdown, onLogin, onHome }) {
       >
         <i className="fa-solid fa-right-to-bracket" />
         <span>Đến Trang Đăng Nhập Admin</span>
-      </a>
-      <a
+      </Link>
+      <Link
         href="/"
         onClick={(e) => {
           e.preventDefault();
@@ -85,7 +85,7 @@ export function ForbiddenActions({ countdown, onLogin, onHome }) {
       >
         <i className="fa-solid fa-house" />
         <span>Quay Về Trang Chủ</span>
-      </a>
+      </Link>
     </div>
   );
 }

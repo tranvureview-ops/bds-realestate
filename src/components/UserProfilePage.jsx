@@ -1605,16 +1605,16 @@ export default function UserProfilePage() {
                             {/* Contact Action Buttons */}
                             <div className="flex flex-wrap items-center gap-2">
                               {/* Call Action */}
-                              <a
+                              <Link
                                 href={`tel:${isCustomer ? appt.brokerPhone : appt.customerPhone}`}
                                 className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-bold text-[11px] transition flex items-center gap-1.5"
                               >
                                 <i className="fa-solid fa-phone"></i>
                                 <span>Gọi Ngay</span>
-                              </a>
+                              </Link>
 
                               {/* Zalo Action */}
-                              <a
+                              <Link
                                 href={`https://zalo.me/${normalizePhone(isCustomer ? appt.brokerPhone : appt.customerPhone)}`}
                                 target="_blank"
                                 rel="noreferrer"
@@ -1622,7 +1622,7 @@ export default function UserProfilePage() {
                               >
                                 <i className="fa-solid fa-comment-dots"></i>
                                 <span>Chat Zalo</span>
-                              </a>
+                              </Link>
                             </div>
                           </div>
 

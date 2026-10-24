@@ -3,6 +3,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter } from '../router/RouterContext';
+import Link from 'next/link';
 import { LOCATIONS, PROPERTY_TYPES, VIP_PACKAGES, MEMBERSHIP_PACKAGES } from '../data/mockData';
 import BatdongsanListingSelector, { BATDONGSAN_RATES } from './BatdongsanListingSelector';
 import CustomSelect from './CustomSelect';
@@ -1031,7 +1032,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
               </div>
             )}
 
-            <a
+            <Link
               href="/goi-hoi-vien"
               target="_blank"
               rel="noopener noreferrer"
@@ -1043,7 +1044,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
             >
               <span>{isMemberExpired ? 'Gia hạn gói' : 'Xem gói'}</span>
               <i className="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-            </a>
+            </Link>
           </div>
         </div>
       ) : (
@@ -1056,7 +1057,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
               <b className="text-amber-900">Ưu đãi Gói Hội Viên:</b> Tiết kiệm tới <b>39%</b> chi phí & nhận tới <b>50 Voucher đăng tin 0 đ</b> mỗi tháng!
             </div>
           </div>
-          <a
+          <Link
             href="/goi-hoi-vien"
             target="_blank"
             rel="noopener noreferrer"
@@ -1064,7 +1065,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
           >
             <span>Đăng Ký Gói Hội Viên</span>
             <i className="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-          </a>
+          </Link>
         </div>
       )}
 
@@ -2022,7 +2023,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                       <div className="font-bold">Kho Voucher của bạn đã hết hiệu lực theo quy chế sàn.</div>
                       <div className="text-[11px] text-rose-600">Vui lòng gia hạn gói để nhận lại bộ Voucher đăng tin và đẩy tin miễn phí.</div>
                     </div>
-                    <a
+                    <Link
                       href="/goi-hoi-vien"
                       target="_blank"
                       rel="noopener noreferrer"
@@ -2030,7 +2031,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     >
                       <i className="fa-solid fa-arrows-rotate text-[10px]"></i>
                       <span>Gia Hạn Ngay</span>
-                    </a>
+                    </Link>
                   </div>
                 ) : isMemberActive ? (
                   <div className="space-y-2.5">
@@ -2150,7 +2151,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         Nhận ngay 15 - 50 voucher giảm 35.000đ đăng tin (0 đ) + voucher đẩy tin 10.000đ mỗi chu kỳ 30 ngày.
                       </div>
                     </div>
-                    <a
+                    <Link
                       href="/goi-hoi-vien"
                       target="_blank"
                       rel="noopener noreferrer"
@@ -2158,7 +2159,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     >
                       <span>Đăng Ký Gói Hội Viên</span>
                       <i className="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                    </a>
+                    </Link>
                   </div>
                 )}
               </div>

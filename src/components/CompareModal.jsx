@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { useRealEstate } from '../context/RealEstateContext';
 
 export default function CompareModal({ onClose }) {
@@ -217,13 +218,13 @@ export default function CompareModal({ onClose }) {
                 </td>
                 {compareList.map(prop => (
                   <td key={prop.id} className="p-3">
-                    <a
+                    <Link
                       href={`tel:${prop.author.phone.replace(/\s+/g, '')}`}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-xs shadow-sm transition whitespace-nowrap shrink-0"
                     >
                       <i className="fa-solid fa-phone"></i>
                       <span>{prop.author.phone}</span>
-                    </a>
+                    </Link>
                   </td>
                 ))}
               </tr>

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { useRealEstate } from '../context/RealEstateContext';
 import { DEFAULT_EMAIL_CONFIG, DEFAULT_EMAIL_TEMPLATES } from '../data/mockData';
 import { renderEmailTemplateString, renderCustomEmailPreview, THEME_STYLES } from '../utils/emailService';
@@ -716,8 +717,8 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                           <span>3 Bước Lấy App Password Cho Gmail / Google Workspace:</span>
                         </div>
                         <ol className="list-decimal pl-5 space-y-1 text-slate-400">
-                          <li>Truy cập <a href="https://myaccount.google.com/security" target="_blank" rel="noreferrer" className="text-teal-400 underline">Tài khoản Google &gt; Bảo mật</a> và đảm bảo đã bật <strong>Xác minh 2 bước</strong>.</li>
-                          <li>Tìm mục <strong>Mật khẩu ứng dụng (App Passwords)</strong> hoặc truy cập <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noreferrer" className="text-teal-400 underline">google.com/apppasswords</a>.</li>
+                          <li>Truy cập <Link href="https://myaccount.google.com/security" target="_blank" rel="noreferrer" className="text-teal-400 underline">Tài khoản Google &gt; Bảo mật</Link> và đảm bảo đã bật <strong>Xác minh 2 bước</strong>.</li>
+                          <li>Tìm mục <strong>Mật khẩu ứng dụng (App Passwords)</strong> hoặc truy cập <Link href="https://myaccount.google.com/apppasswords" target="_blank" rel="noreferrer" className="text-teal-400 underline">google.com/apppasswords</Link>.</li>
                           <li>Đặt tên ứng dụng là "Đất Biển Đà Nẵng Website" rồi bấm Tạo. Sao chép chuỗi 16 ký tự (ví dụ: <code className="bg-slate-800 px-1 py-0.5 rounded text-amber-300 font-mono">vmsd xkzp ljwr gqae</code>) dán vào ô Mật khẩu SMTP ở trên.</li>
                         </ol>
                       </div>

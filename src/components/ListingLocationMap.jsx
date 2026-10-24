@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import Link from 'next/link';
 
 // Tọa độ trung tâm mặc định TP. Đà Nẵng
 const DEFAULT_CENTER = { lat: 16.0544, lng: 108.2022, zoom: 15 };
@@ -258,7 +259,7 @@ export default function ListingLocationMap({
           )}
         </div>
         <div className="flex items-center gap-3">
-          <a
+          <Link
             href={googleMapsUrl}
             onClick={handleOpenGoogleMaps}
             target="_blank"
@@ -269,7 +270,7 @@ export default function ListingLocationMap({
             <i className="fa-brands fa-google text-[11px] text-red-500"></i>
             <span>Xem trên Google Maps</span>
             <i className="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-          </a>
+          </Link>
           <button
             type="button"
             onClick={handleReset}

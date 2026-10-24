@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
+import Link from 'next/link';
 import { useRealEstate } from '../context/RealEstateContext';
 import { REPORT_REASONS } from '../utils/emailService';
 import { getPropertyPermalink } from '../utils/permalink';
@@ -667,7 +668,7 @@ export default function AdminReportsManager({
                                 #{report.propertyId}
                               </span>
                               <div className="min-w-0">
-                                <a
+                                <Link
                                   href={permalink}
                                   target="_blank"
                                   rel="noopener noreferrer"
@@ -676,7 +677,7 @@ export default function AdminReportsManager({
                                 >
                                   <span>{report.propertyTitle || targetProp?.title || 'Tin đăng'}</span>
                                   <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-500"></i>
-                                </a>
+                                </Link>
                                 <div className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">
                                   {targetProp ? `${targetProp.priceDisplay || 'Thỏa thuận'} • ${[targetProp.district, targetProp.city].filter(Boolean).join(', ') || 'Đang cập nhật'}` : 'Không rõ vị trí'}
                                 </div>

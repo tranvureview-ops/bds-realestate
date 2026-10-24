@@ -163,61 +163,61 @@ export default function LegalPolicyPage() {
                 </div>
 
                 <nav className="mt-4 space-y-1.5 text-xs">
-                  <a
+                  <Link
                     href="#quy-che-hoat-dong"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-red-600"
                   >
                     <span>I. Quy chế hoạt động sàn TMĐT</span>
                     <span className="text-[10px] text-slate-400 font-mono">01</span>
-                  </a>
+                  </Link>
                   <div className="pl-4 space-y-1 border-l-2 border-slate-100 ml-2">
-                    <a href="#quyen-nghia-vu-thanh-vien" className="block py-1 text-slate-500 hover:text-red-600 transition">
+                    <Link href="#quyen-nghia-vu-thanh-vien" className="block py-1 text-slate-500 hover:text-red-600 transition">
                       1. Quyền & nghĩa vụ thành viên
-                    </a>
-                    <a href="#cac-hanh-vi-bi-cam" className="block py-1 text-slate-500 hover:text-red-600 transition">
+                    </Link>
+                    <Link href="#cac-hanh-vi-bi-cam" className="block py-1 text-slate-500 hover:text-red-600 transition">
                       2. Các hành vi nghiêm cấm
-                    </a>
-                    <a href="#che-tai-xu-ly" className="block py-1 text-slate-500 hover:text-red-600 transition">
+                    </Link>
+                    <Link href="#che-tai-xu-ly" className="block py-1 text-slate-500 hover:text-red-600 transition">
                       3. Chế tài xử lý vi phạm
-                    </a>
+                    </Link>
                   </div>
 
-                  <a
+                  <Link
                     href="#chinh-sach-bao-mat"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-red-600 mt-2"
                   >
                     <span>II. Chính sách bảo mật dữ liệu</span>
                     <span className="text-[10px] text-slate-400 font-mono">02</span>
-                  </a>
+                  </Link>
                   <div className="pl-4 space-y-1 border-l-2 border-slate-100 ml-2">
-                    <a href="#muc-dich-thu-thap" className="block py-1 text-slate-500 hover:text-red-600 transition">
+                    <Link href="#muc-dich-thu-thap" className="block py-1 text-slate-500 hover:text-red-600 transition">
                       1. Mục đích thu thập dữ liệu
-                    </a>
-                    <a href="#cam-ket-khong-chia-se" className="block py-1 text-slate-500 hover:text-red-600 transition">
+                    </Link>
+                    <Link href="#cam-ket-khong-chia-se" className="block py-1 text-slate-500 hover:text-red-600 transition">
                       2. Cam kết không chia sẻ bên thứ ba
-                    </a>
-                    <a href="#quyen-chu-the-du-lieu" className="block py-1 text-slate-500 hover:text-red-600 transition">
+                    </Link>
+                    <Link href="#quyen-chu-the-du-lieu" className="block py-1 text-slate-500 hover:text-red-600 transition">
                       3. Quyền hạn của người dùng
-                    </a>
+                    </Link>
                   </div>
 
-                  <a
+                  <Link
                     href="#giai-quyet-khieu-nai"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-red-600 mt-2"
                   >
                     <span>III. Giải quyết tranh chấp, khiếu nại</span>
                     <span className="text-[10px] text-slate-400 font-mono">03</span>
-                  </a>
+                  </Link>
                   <div className="pl-4 space-y-1 border-l-2 border-slate-100 ml-2">
-                    <a href="#quy-trinh-3-buoc" className="block py-1 text-slate-500 hover:text-red-600 transition">
+                    <Link href="#quy-trinh-3-buoc" className="block py-1 text-slate-500 hover:text-red-600 transition">
                       1. Quy trình xử lý khiếu nại 3 bước
-                    </a>
-                    <a href="#thoi-gian-giai-quyet" className="block py-1 text-slate-500 hover:text-red-600 transition">
+                    </Link>
+                    <Link href="#thoi-gian-giai-quyet" className="block py-1 text-slate-500 hover:text-red-600 transition">
                       2. Thời gian phản hồi cam kết
-                    </a>
-                    <a href="#thong-tin-lien-he" className="block py-1 text-slate-500 hover:text-red-600 transition">
+                    </Link>
+                    <Link href="#thong-tin-lien-he" className="block py-1 text-slate-500 hover:text-red-600 transition">
                       3. Đầu mối tiếp nhận phản ánh
-                    </a>
+                    </Link>
                   </div>
                 </nav>
 

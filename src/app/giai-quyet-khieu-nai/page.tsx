@@ -164,48 +164,48 @@ export default function DisputeResolutionPage() {
                 </div>
 
                 <nav className="mt-4 space-y-1.5 text-xs">
-                  <a
+                  <Link
                     href="#nguyen-tac-giai-quyet"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-blue-600"
                   >
                     <span>1. Nguyên tắc giải quyết tranh chấp</span>
                     <span className="text-[10px] text-slate-400 font-mono">01</span>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="#quy-trinh-3-buoc"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-blue-600"
                   >
                     <span>2. Quy trình xử lý 3 bước</span>
                     <span className="text-[10px] text-slate-400 font-mono">02</span>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="#thoi-gian-cam-ket"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-blue-600"
                   >
                     <span>3. Thời hiệu & thời gian cam kết</span>
                     <span className="text-[10px] text-slate-400 font-mono">03</span>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="#trach-nhiem-cac-ben"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-blue-600"
                   >
                     <span>4. Trách nhiệm của các bên</span>
                     <span className="text-[10px] text-slate-400 font-mono">04</span>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="#bien-phap-che-tai"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-blue-600"
                   >
                     <span>5. Biện pháp xử lý đối tượng vi phạm</span>
                     <span className="text-[10px] text-slate-400 font-mono">05</span>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="#thong-tin-dau-moi"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-blue-600"
                   >
                     <span>6. Đầu mối liên hệ tiếp nhận</span>
                     <span className="text-[10px] text-slate-400 font-mono">06</span>
-                  </a>
+                  </Link>
                 </nav>
 
                 <div className="mt-6 rounded-xl bg-blue-50/70 p-3.5 border border-blue-100 text-[11px] leading-relaxed text-blue-900">

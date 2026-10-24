@@ -25,7 +25,7 @@ export default function PostListingPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <a
+            <Link
               href="/goi-hoi-vien"
               target="_blank"
               rel="noopener noreferrer"
@@ -34,7 +34,7 @@ export default function PostListingPage() {
               <i className="fa-solid fa-crown text-amber-600"></i>
               <span>Gói Hội Viên</span>
               <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-amber-700 ml-0.5"></i>
-            </a>
+            </Link>
             <Link
               to="/bang-gia-vip"
               className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold border border-slate-200 transition flex items-center gap-1.5"
@@ -160,14 +160,14 @@ export default function PostListingPage() {
                 <div className="font-bold text-slate-900">Hỗ Trợ Đăng Tin VIP 24/7</div>
                 <div className="text-[11px] text-slate-500">Tư vấn chọn gói & nạp tiền ví</div>
               </div>
-              <a
+              <Link
                 href={`tel:${(systemConfig?.hotline || '0898 246 607').replace(/\s+/g, '')}`}
                 className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition flex items-center gap-1.5 shadow"
                 title="Gọi Hotline hỗ trợ đăng tin"
               >
                 <i className="fa-solid fa-phone text-xs"></i>
                 <span>{systemConfig?.hotline || '0898 246 607'}</span>
-              </a>
+              </Link>
             </div>
           </div>
         </div>

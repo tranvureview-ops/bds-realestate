@@ -77,7 +77,7 @@ export default function MaintenanceScreen() {
         {/* Contact Support Boxes */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full mt-8 max-w-2xl text-left">
           {/* Hotline */}
-          <a 
+          <Link 
             href={`tel:${hotline.replace(/\s+/g, '')}`} 
             className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-emerald-500/50 transition group flex flex-col justify-between"
           >
@@ -86,10 +86,10 @@ export default function MaintenanceScreen() {
               <i className="fa-solid fa-phone text-emerald-400 group-hover:scale-110 transition"></i>
             </div>
             <div className="text-sm font-bold text-white font-mono group-hover:text-emerald-400 transition">{hotline}</div>
-          </a>
+          </Link>
 
           {/* Zalo */}
-          <a 
+          <Link 
             href={`https://zalo.me/${zalo.replace(/\s+/g, '')}`} 
             target="_blank" 
             rel="noopener noreferrer" 
@@ -100,10 +100,10 @@ export default function MaintenanceScreen() {
               <i className="fa-solid fa-comment-dots text-blue-400 group-hover:scale-110 transition"></i>
             </div>
             <div className="text-sm font-bold text-white font-mono group-hover:text-blue-400 transition">{zalo}</div>
-          </a>
+          </Link>
 
           {/* Email */}
-          <a 
+          <Link 
             href={`mailto:${email}`} 
             className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-amber-500/50 transition group flex flex-col justify-between truncate"
           >
@@ -112,7 +112,7 @@ export default function MaintenanceScreen() {
               <i className="fa-solid fa-envelope text-amber-400 group-hover:scale-110 transition"></i>
             </div>
             <div className="text-xs font-bold text-white truncate group-hover:text-amber-400 transition font-mono">{email}</div>
-          </a>
+          </Link>
         </div>
 
         {/* Action Buttons */}

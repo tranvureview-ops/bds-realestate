@@ -1464,9 +1464,9 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
                 <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed text-justify">
                   Quý vị đang xem nội dung tin rao <strong className="text-slate-900 font-bold">"{property.title}"</strong> - Mã tin <span className="font-mono font-bold text-slate-900 bg-white px-1.5 py-0.5 rounded border border-slate-200">{property.id}</span>. Nội dung tin đăng này do Người đăng tin cung cấp và chịu trách nhiệm về tính chính xác, đầy đủ và hợp pháp của thông tin. Với tư cách là Nền tảng thương mại điện tử trung gian, <strong>{platformName}</strong> thực hiện rà soát, kiểm duyệt trên cơ sở các thông tin được cung cấp. Quý vị vui lòng chủ động kiểm tra, thẩm định thông tin pháp lý và thực tế trước khi giao dịch. Nếu phát hiện nội dung không chính xác hoặc vi phạm, xin vui lòng thông báo qua{' '}
-                  <a href={`tel:${hotlineClean}`} className="text-red-600 font-bold hover:underline inline-flex items-center gap-0.5">
+                  <Link href={`tel:${hotlineClean}`} className="text-red-600 font-bold hover:underline inline-flex items-center gap-0.5">
                     Hotline {hotlineDisplay}
-                  </a>{' '}
+                  </Link>{' '}
                   hoặc công cụ{' '}
                   <button
                     type="button"
@@ -1589,15 +1589,15 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
                   {/* Direct Calling Hotline Button */}
                   <div className="space-y-2">
-                    <a
+                    <Link
                       href={`tel:${safeAuthor.phone.replace(/\s+/g, '')}`}
                       className="w-full py-3.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-black text-sm rounded-2xl shadow-xl transition flex items-center justify-center gap-2 group"
                     >
                       <i className="fa-solid fa-phone-volume group-hover:animate-bounce text-base"></i>
                       <span>GỌI NGAY: {safeAuthor.phone}</span>
-                    </a>
+                    </Link>
 
-                    <a
+                    <Link
                       href={`https://zalo.me/${safeAuthor.zalo}`}
                       target="_blank"
                       rel="noreferrer"
@@ -1605,7 +1605,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                     >
                       <i className="fa-solid fa-comment-dots"></i>
                       <span>Chat Trực Tiếp Qua Zalo</span>
-                    </a>
+                    </Link>
                   </div>
                 </>
               )}
@@ -1685,7 +1685,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                       </p>
                       <div className="pt-1 flex flex-col sm:flex-row gap-2">
                         {safeAuthor.phone && (
-                          <a
+                          <Link
                             href={`https://zalo.me/${normalizePhone(safeAuthor.phone)}`}
                             target="_blank"
                             rel="noreferrer"
@@ -1693,7 +1693,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                           >
                             <i className="fa-solid fa-comment-dots"></i>
                             <span>Chat Zalo Môi Giới</span>
-                          </a>
+                          </Link>
                         )}
                         <button
                           type="button"
@@ -2416,15 +2416,15 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
-          <a
+          <Link
             href={`tel:${safeAuthor.phone.replace(/\s+/g, '')}`}
             className="px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-emerald-600/30 active:scale-95 transition whitespace-nowrap"
           >
             <i className="fa-solid fa-phone text-xs animate-pulse"></i>
             <span>Gọi Ngay</span>
-          </a>
+          </Link>
 
-          <a
+          <Link
             href={`https://zalo.me/${safeAuthor.zalo}`}
             target="_blank"
             rel="noreferrer"
@@ -2432,7 +2432,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
           >
             <i className="fa-solid fa-comment-dots text-xs"></i>
             <span>Zalo</span>
-          </a>
+          </Link>
 
           <button
             type="button"

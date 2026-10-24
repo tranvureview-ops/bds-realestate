@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { useRealEstate } from '../context/RealEstateContext';
 import { DEFAULT_HEADER_CONFIG, DEFAULT_SOCIAL_LINKS } from '../data/mockData';
 
@@ -744,7 +745,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
                       className="flex-1 p-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs outline-none focus:border-emerald-500 font-mono"
                     />
                     {item?.url && (
-                      <a
+                      <Link
                         href={item.url}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -752,7 +753,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
                         title="Mở kiểm tra đường dẫn"
                       >
                         <i className="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                      </a>
+                      </Link>
                     )}
                   </div>
                 </div>

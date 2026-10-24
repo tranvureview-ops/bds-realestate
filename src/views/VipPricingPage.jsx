@@ -875,16 +875,16 @@ export default function VipPricingPage() {
           </div>
 
           <div className="flex items-center gap-3 shrink-0 flex-wrap">
-            <a
+            <Link
               href={`tel:${(systemConfig?.hotline || '0898 246 607').replace(/\s+/g, '')}`}
               className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition flex items-center gap-2 shadow-lg"
               title="Gọi ngay Hotline tư vấn VIP"
             >
               <i className="fa-solid fa-phone"></i>
               <span>Hotline: {systemConfig?.hotline || '0898 246 607'}</span>
-            </a>
+            </Link>
             {systemConfig?.zalo && (
-              <a
+              <Link
                 href={`https://zalo.me/${systemConfig.zalo.replace(/\s+/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -893,7 +893,7 @@ export default function VipPricingPage() {
               >
                 <i className="fa-solid fa-comment-dots"></i>
                 <span>Zalo: {systemConfig.zalo}</span>
-              </a>
+              </Link>
             )}
           </div>
         </div>

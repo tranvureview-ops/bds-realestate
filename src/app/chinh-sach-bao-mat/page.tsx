@@ -164,55 +164,55 @@ export default function PrivacyPolicyPage() {
                 </div>
 
                 <nav className="mt-4 space-y-1.5 text-xs">
-                  <a
+                  <Link
                     href="#muc-dich-thu-thap"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-emerald-600"
                   >
                     <span>1. Mục đích thu thập thông tin</span>
                     <span className="text-[10px] text-slate-400 font-mono">01</span>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="#pham-vi-su-dung"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-emerald-600"
                   >
                     <span>2. Phạm vi sử dụng thông tin</span>
                     <span className="text-[10px] text-slate-400 font-mono">02</span>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="#thoi-gian-luu-tru"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-emerald-600"
                   >
                     <span>3. Thời gian lưu trữ dữ liệu</span>
                     <span className="text-[10px] text-slate-400 font-mono">03</span>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="#cam-ket-khong-chia-se"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-emerald-600"
                   >
                     <span>4. Cam kết không chia sẻ bên thứ ba</span>
                     <span className="text-[10px] text-slate-400 font-mono">04</span>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="#bien-phap-an-toan"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-emerald-600"
                   >
                     <span>5. Công nghệ bảo mật & mã hóa</span>
                     <span className="text-[10px] text-slate-400 font-mono">05</span>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="#quyen-chu-the-du-lieu"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-emerald-600"
                   >
                     <span>6. Quyền của chủ thể dữ liệu</span>
                     <span className="text-[10px] text-slate-400 font-mono">06</span>
-                  </a>
-                  <a
+                  </Link>
+                  <Link
                     href="#dau-moi-lien-he"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-emerald-600"
                   >
                     <span>7. Đầu mối phụ trách an toàn dữ liệu</span>
                     <span className="text-[10px] text-slate-400 font-mono">07</span>
-                  </a>
+                  </Link>
                 </nav>
 
                 <div className="mt-6 rounded-xl bg-emerald-50/70 p-3.5 border border-emerald-100 text-[11px] leading-relaxed text-emerald-900">
