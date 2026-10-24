@@ -163,6 +163,7 @@ export const Link = ({ to, href, children, className = '', activeClassName = '',
       onClick={handleClick}
       className={combinedClass}
       title={title}
+      prefetch={props.prefetch ?? false}
       {...props}
     >
       {children}

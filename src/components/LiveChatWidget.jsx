@@ -188,7 +188,7 @@ export default function LiveChatWidget() {
 
   // Realtime Polling: Kiểm tra tin nhắn trả lời từ nhân viên (Telegram Webhook) mỗi 2.5 giây khi chat đang mở
   useEffect(() => {
-    if (!hasStartedChat || !sessionId || isSessionEnded) return;
+    if (!isOpen || !hasStartedChat || !sessionId || isSessionEnded) return;
 
     const interval = setInterval(() => {
       fetch(`/api/chat/messages?sessionId=${encodeURIComponent(sessionId)}`)
@@ -252,7 +252,7 @@ export default function LiveChatWidget() {
     }, 2500);
 
     return () => clearInterval(interval);
-  }, [hasStartedChat, sessionId, isOpen]);
+  }, [hasStartedChat, sessionId, isOpen, isSessionEnded]);
 
   // Xử lý gửi Form thu thập thông tin khách hàng
   const handleStartChatSubmit = async (e) => {

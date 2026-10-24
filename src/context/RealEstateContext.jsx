@@ -1040,54 +1040,26 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   // 3. Supabase Realtime Subscription (Lắng nghe tức thì khi có thay đổi trên Database Supabase)
   useEffect(() => {
     if (!isSupabaseConfigured() || !supabase) return;
+    let debounceTimer = null;
+    const debouncedFetch = () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        fetchLatestDataFromSupabase(true);
+      }, 1500);
+    };
+
     const channel = supabase
       .channel('realestate-realtime-live-sync')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, () => {
-        fetchLatestDataFromSupabase(true);
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'properties' }, () => {
-        fetchLatestDataFromSupabase(true);
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'platform_settings' }, () => {
-        fetchLatestDataFromSupabase(true);
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, debouncedFetch)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'properties' }, debouncedFetch)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'platform_settings' }, debouncedFetch)
       .subscribe();
 
     return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
       supabase.removeChannel(channel);
     };
   }, [fetchLatestDataFromSupabase]);
-
-  // Ghi nhận thay đổi xuống Server Disk định kỳ để các trình duyệt khác cùng đọc được
-  useEffect(() => {
-    if (!isHydrated) return;
-    const timer = setTimeout(() => {
-      const payload = {
-        bds_properties: properties,
-        bds_users_list: usersList,
-        bds_payment_config: paymentConfig,
-        bds_header_config: headerConfig,
-        bds_system_config: systemConfig,
-        bds_nav_menu: navMenuItems,
-        bds_transactions: transactions,
-        bds_vip_packages: vipPackages,
-        bds_membership_packages: membershipPackages,
-        bds_reported_listings: listingReports,
-        bds_single_config: singleConfig,
-        bds_email_config: emailConfig,
-        bds_email_logs: emailLogs,
-        bds_appointments: appointmentsList,
-        bds_notifications: inAppNotifications
-      };
-      fetch('/api/db-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }).catch(() => {});
-    }, 600);
-
-    return () => clearTimeout(timer);
-  }, [isHydrated, properties, usersList, paymentConfig, headerConfig, systemConfig, navMenuItems, transactions, vipPackages, membershipPackages, listingReports, singleConfig, emailConfig, emailLogs, appointmentsList, inAppNotifications]);
 
   // Background Auto-Approval Processor for Countdown Queues (VIP Vàng 15 phút, VIP Bạc 30 phút)
   useEffect(() => {
