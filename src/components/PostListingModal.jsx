@@ -116,7 +116,8 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   );
   const isMemberExpired = Boolean(currentUser?.membership && !isMemberActive);
   const memberPackageObj = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
-  const normalPublishVoucherDiscount = memberPackageObj?.vouchersPerCycle?.normalPublishDiscount || 35000;
+  const normalPublishVoucherDiscount = memberPackageObj?.vouchersPerCycle?.normalPublishDiscount || (membershipPackages?.[0]?.vouchersPerCycle?.normalPublishDiscount ?? 35000);
+  const vipVoucherDiscount = memberPackageObj?.vouchersPerCycle?.vipDiscount || (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount || 400000;
 
   const [step, setStep] = useState(1); // 1: Vị trí, 2: Bài viết & Kỹ thuật, 3: Hình ảnh & VR, 4: Loại Tin & Lịch đăng
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
@@ -296,13 +297,13 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
 
   const voucherDiscount = useMemo(() => {
     if (appliedVoucher === 'normalPublish' && hasNormalVoucher) {
-      return Math.min(totalCost, 35000);
+      return Math.min(totalCost, normalPublishVoucherDiscount);
     }
     if (appliedVoucher === 'vipPublish' && hasVipVoucher && selectedVipId !== 'normal') {
-      return Math.min(totalCost, 400000);
+      return Math.min(totalCost, vipVoucherDiscount);
     }
     return 0;
-  }, [appliedVoucher, hasNormalVoucher, hasVipVoucher, totalCost, selectedVipId]);
+  }, [appliedVoucher, hasNormalVoucher, hasVipVoucher, totalCost, selectedVipId, normalPublishVoucherDiscount, vipVoucherDiscount]);
   const finalCost = Math.max(0, totalCost - voucherDiscount);
 
   // Tính toán và định dạng giá
@@ -2081,16 +2082,16 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         </div>
                       </button>
 
-                      {/* Voucher Tin VIP (-400k) */}
+                      {/* Voucher Tin VIP */}
                       <button
                         type="button"
                         onClick={() => {
                           if (!hasVipVoucher) {
-                            showToast('Gói hội viên của bạn chưa có Voucher Giảm 400.000 đ cho Tin VIP!', 'warning');
+                            showToast(`Gói hội viên của bạn chưa có Voucher Giảm ${vipVoucherDiscount.toLocaleString('vi-VN')} đ cho Tin VIP!`, 'warning');
                             return;
                           }
                           if (selectedVipId === 'normal') {
-                            showToast('Voucher 400k chỉ áp dụng cho các Loại Tin VIP (Kim Cương, Vàng, Bạc)!', 'warning');
+                            showToast(`Voucher Tin VIP chỉ áp dụng cho các Loại Tin VIP (Kim Cương, Vàng, Bạc)!`, 'warning');
                             return;
                           }
                           setAppliedVoucher(appliedVoucher === 'vipPublish' ? null : 'vipPublish');
@@ -2106,7 +2107,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         <div>
                           <div className="font-bold flex items-center gap-1.5">
                             <i className="fa-solid fa-crown text-xs"></i>
-                            <span>Voucher Tin VIP (-400.000 đ)</span>
+                            <span>Voucher Tin VIP (-{vipVoucherDiscount.toLocaleString('vi-VN')} đ)</span>
                           </div>
                           <div className={`text-[10px] mt-0.5 ${appliedVoucher === 'vipPublish' ? 'text-slate-900' : 'text-slate-500'}`}>
                             Khả dụng: <b>{currentUser.vouchers?.vipPublish || 0}</b> voucher

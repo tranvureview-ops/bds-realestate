@@ -29,6 +29,23 @@ export default function MembershipPage() {
   );
   const isMemberExpired = Boolean(currentUser?.membership && !isMemberActive);
 
+  // Lấy đơn giá giảm trừ voucher từ gói đang dùng hoặc cấu hình chung 3 gói
+  const activePackage = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId) || membershipPackages?.[0];
+  const commonPublishDiscount = activePackage?.vouchersPerCycle?.normalPublishDiscount ?? 35000;
+  const commonBumpDiscount = activePackage?.vouchersPerCycle?.normalBumpDiscount ?? 10000;
+  const commonVipDiscount = (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount 
+    ?? (activePackage?.vouchersPerCycle?.vipDiscount || 400000);
+
+  const formatDiscountK = (val) => {
+    const num = Number(val) || 0;
+    if (num <= 0) return '';
+    if (num >= 1000) {
+      const k = num / 1000;
+      return Number.isInteger(k) ? `${k}k` : `${k.toFixed(1)}k`;
+    }
+    return `${num}đ`;
+  };
+
   const handleSubscribe = (pkg) => {
     if (isGuest || !currentUser?.email) {
       showToast('Vui lòng đăng nhập tài khoản để đăng ký hoặc gia hạn Gói Hội Viên!', 'warning');
@@ -160,21 +177,21 @@ export default function MembershipPage() {
                 <div className="text-center px-3 py-1">
                   <div className="text-[10px] text-slate-400 font-bold uppercase">Voucher Tin Thường</div>
                   <div className={`text-lg font-black mt-0.5 ${isMemberExpired ? 'text-rose-400 font-mono' : 'text-emerald-400'}`}>
-                    {isMemberExpired ? 0 : (currentUser.vouchers?.normalPublish || 0)} <span className="text-xs text-slate-500 font-normal">{isMemberExpired ? '(hết hạn)' : 'lượt (-35k)'}</span>
+                    {isMemberExpired ? 0 : (currentUser.vouchers?.normalPublish || 0)} <span className="text-xs text-slate-500 font-normal">{isMemberExpired ? '(hết hạn)' : `lượt (-${formatDiscountK(commonPublishDiscount)})`}</span>
                   </div>
                 </div>
                 <div className="w-px h-8 bg-slate-800 hidden sm:block"></div>
                 <div className="text-center px-3 py-1">
                   <div className="text-[10px] text-slate-400 font-bold uppercase">Voucher Đẩy Tin</div>
                   <div className={`text-lg font-black mt-0.5 ${isMemberExpired ? 'text-rose-400 font-mono' : 'text-blue-400'}`}>
-                    {isMemberExpired ? 0 : (currentUser.vouchers?.normalBump || 0)} <span className="text-xs text-slate-500 font-normal">{isMemberExpired ? '(hết hạn)' : 'lượt (-10k)'}</span>
+                    {isMemberExpired ? 0 : (currentUser.vouchers?.normalBump || 0)} <span className="text-xs text-slate-500 font-normal">{isMemberExpired ? '(hết hạn)' : `lượt (-${formatDiscountK(commonBumpDiscount)})`}</span>
                   </div>
                 </div>
                 <div className="w-px h-8 bg-slate-800 hidden sm:block"></div>
                 <div className="text-center px-3 py-1">
                   <div className="text-[10px] text-slate-400 font-bold uppercase">Voucher Tin VIP</div>
                   <div className={`text-lg font-black mt-0.5 ${isMemberExpired ? 'text-rose-400 font-mono' : 'text-amber-400'}`}>
-                    {isMemberExpired ? 0 : (currentUser.vouchers?.vipPublish || 0)} <span className="text-xs text-slate-500 font-normal">{isMemberExpired ? '(hết hạn)' : 'voucher (-400k)'}</span>
+                    {isMemberExpired ? 0 : (currentUser.vouchers?.vipPublish || 0)} <span className="text-xs text-slate-500 font-normal">{isMemberExpired ? '(hết hạn)' : `voucher (-${formatDiscountK(commonVipDiscount)})`}</span>
                   </div>
                 </div>
               </div>

@@ -23,7 +23,9 @@ export default function UserDashboard() {
     renewProperty,
     getPropertyExpirationInfo,
     isMembershipActive,
-    vipPackages: contextVipPackages
+    vipPackages: contextVipPackages,
+    membershipPackages = [],
+    BUMP_SERVICE_PRICE
   } = useRealEstate();
 
   const { navigate } = useRouter();
@@ -46,6 +48,23 @@ export default function UserDashboard() {
     (!currentUser.membership.expiresAt || new Date(currentUser.membership.expiresAt).getTime() > Date.now())
   );
   const isMemberExpired = Boolean(currentUser?.membership && !isMemberActive);
+
+  // Lấy đơn giá giảm trừ voucher từ gói đang dùng hoặc cấu hình chung 3 gói
+  const activePackage = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId) || membershipPackages?.[0];
+  const commonPublishDiscount = activePackage?.vouchersPerCycle?.normalPublishDiscount ?? 35000;
+  const commonBumpDiscount = activePackage?.vouchersPerCycle?.normalBumpDiscount ?? 10000;
+  const commonVipDiscount = (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount 
+    ?? (activePackage?.vouchersPerCycle?.vipDiscount || 400000);
+
+  const formatDiscountK = (val) => {
+    const num = Number(val) || 0;
+    if (num <= 0) return '';
+    if (num >= 1000) {
+      const k = num / 1000;
+      return Number.isInteger(k) ? `${k}k` : `${k.toFixed(1)}k`;
+    }
+    return `${num}đ`;
+  };
 
   // Listings authored by currentUser (or all listings if demo admin/broker)
   const myListings = properties.filter(p => {
@@ -212,7 +231,7 @@ export default function UserDashboard() {
                     Đã hết hạn vào ngày: <b className="text-white font-mono">{new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN')}</b> • Toàn bộ voucher chưa dùng đã hết hạn theo quy chế sàn.
                   </span>
                 ) : (
-                  <span className="text-slate-300">Đăng ký Gói Hội Viên để nhận kho voucher giảm 35k đăng tin và 10k đẩy tin, tiết kiệm tới 39%!</span>
+                  <span className="text-slate-300">Đăng ký Gói Hội Viên để nhận kho voucher giảm {formatDiscountK(commonPublishDiscount)} đăng tin và {formatDiscountK(commonBumpDiscount)} đẩy tin, tiết kiệm chi phí tối đa!</span>
                 )}
               </div>
             </div>
@@ -222,15 +241,15 @@ export default function UserDashboard() {
             {isMemberActive ? (
               <div className="flex items-center gap-2 bg-slate-950/80 p-2 rounded-xl border border-slate-800 text-xs">
                 <div className="px-2.5 py-1 text-center border-r border-slate-800">
-                  <div className="text-[10px] text-slate-400 font-bold uppercase">Tin Thường (-35k)</div>
+                  <div className="text-[10px] text-slate-400 font-bold uppercase">Tin Thường (-{formatDiscountK(commonPublishDiscount)})</div>
                   <div className="text-sm font-black text-emerald-400 font-mono">{currentUser.vouchers?.normalPublish || 0}</div>
                 </div>
                 <div className="px-2.5 py-1 text-center border-r border-slate-800">
-                  <div className="text-[10px] text-slate-400 font-bold uppercase">Đẩy Tin (-10k)</div>
+                  <div className="text-[10px] text-slate-400 font-bold uppercase">Đẩy Tin (-{formatDiscountK(commonBumpDiscount)})</div>
                   <div className="text-sm font-black text-amber-400 font-mono">{currentUser.vouchers?.normalBump || 0}</div>
                 </div>
                 <div className="px-2.5 py-1 text-center">
-                  <div className="text-[10px] text-slate-400 font-bold uppercase">Tin VIP (-400k)</div>
+                  <div className="text-[10px] text-slate-400 font-bold uppercase">Tin VIP (-{formatDiscountK(commonVipDiscount)})</div>
                   <div className="text-sm font-black text-red-400 font-mono">{currentUser.vouchers?.vipPublish || 0}</div>
                 </div>
               </div>
@@ -541,10 +560,10 @@ export default function UserDashboard() {
                                   ? 'bg-emerald-600 hover:bg-emerald-700 text-white' 
                                   : 'bg-amber-500 hover:bg-amber-600 text-slate-900'
                               }`}
-                              title={hasBumpVoucher ? 'Đẩy tin dùng Voucher (0 đ)' : 'Đẩy tin lên đầu trang (Phí 10.000 đ)'}
+                              title={hasBumpVoucher ? 'Đẩy tin dùng Voucher (0 đ)' : `Đẩy tin lên đầu trang (Phí ${(BUMP_SERVICE_PRICE || 10000).toLocaleString('vi-VN')} đ)`}
                             >
                               <i className="fa-solid fa-arrow-up"></i>
-                              <span>{hasBumpVoucher ? 'Đẩy tin (0đ • Voucher)' : 'Đẩy tin (10k)'}</span>
+                              <span>{hasBumpVoucher ? 'Đẩy tin (0đ • Voucher)' : `Đẩy tin (${formatDiscountK(BUMP_SERVICE_PRICE || 10000)})`}</span>
                             </button>
                             {isDiamond && (
                               <span className="hidden sm:inline-block text-[9px] px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-bold border border-red-200" title="VIP Kim Cương: Tự động đẩy MIỄN PHÍ luôn tin thường liên kết">
