@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useRef } from 'react';
 import CustomSelect from './CustomSelect';
+import { useRealEstate } from '../context/RealEstateContext';
 
 /**
  * BatdongsanListingSelector: Component chuẩn hóa giao diện chọn Loại Tin Đăng 
@@ -22,9 +23,9 @@ export const BATDONGSAN_RATES = {
     approvalIcon: 'fa-solid fa-bolt',
     approvalColor: 'text-red-600 bg-red-50 border-red-200',
     rates: {
-      15: 449740, // Base
-      30: 337300, // -25%
-      60: 314820  // -30% (Chính xác theo ảnh Batdongsan: 314.820 đ/ngày)
+      15: 79000,  // Base
+      30: 59250,  // -25%
+      60: 55300   // -30%
     }
   },
   'vip-gold': {
@@ -39,9 +40,9 @@ export const BATDONGSAN_RATES = {
     approvalIcon: 'fa-solid fa-clock-rotate-left',
     approvalColor: 'text-amber-700 bg-amber-50 border-amber-200',
     rates: {
-      15: 159960,
-      30: 119970, // -25%
-      60: 111970  // -30% (Chính xác theo ảnh Batdongsan: 111.970 đ/ngày)
+      15: 29000,
+      30: 21750,  // -25%
+      60: 20300   // -30%
     }
   },
   'vip-silver': {
@@ -56,9 +57,9 @@ export const BATDONGSAN_RATES = {
     approvalIcon: 'fa-solid fa-clock-rotate-left',
     approvalColor: 'text-teal-700 bg-teal-50 border-teal-200',
     rates: {
-      15: 82490,
-      30: 61870,  // -25%
-      60: 57740   // -30% (Chính xác theo ảnh Batdongsan: 57.740 đ/ngày)
+      15: 9000,
+      30: 6750,   // -25%
+      60: 6300    // -30%
     }
   },
   'normal': {
@@ -71,12 +72,42 @@ export const BATDONGSAN_RATES = {
     approvalIcon: 'fa-solid fa-clock-rotate-left',
     approvalColor: 'text-slate-600 bg-slate-100 border-slate-200',
     rates: {
-      15: 3320,   // Base (Chính xác theo ảnh: 3.320 đ/ngày)
-      30: 2500,   // -25% (Chính xác theo ảnh: 2.500 đ/ngày)
-      60: 2330    // -30% (Chính xác theo ảnh: 2.330 đ/ngày)
+      15: 3320,   // Base
+      30: 2490,   // -25%
+      60: 2324    // -30%
     }
   }
 };
+
+/**
+ * Tính toán bảng tỷ giá hiển thị động theo cấu hình giá Admin từ vipPackages
+ */
+export function getEffectiveBdsRates(customVipPackages) {
+  const result = { ...BATDONGSAN_RATES };
+  if (!customVipPackages || !Array.isArray(customVipPackages) || customVipPackages.length === 0) {
+    return result;
+  }
+  customVipPackages.forEach(pkg => {
+    if (!pkg || !pkg.id) return;
+    const defaultMeta = BATDONGSAN_RATES[pkg.id] || {};
+    const price15 = Number(pkg.pricePerDay) || Number(pkg.rates?.[15]) || defaultMeta.rates?.[15] || 3320;
+    const price30 = Number(pkg.rates?.[30]) || Math.round(price15 * 0.75);
+    const price60 = Number(pkg.rates?.[60]) || Math.round(price15 * 0.70);
+
+    result[pkg.id] = {
+      ...defaultMeta,
+      id: pkg.id,
+      name: pkg.name || defaultMeta.name,
+      shortName: pkg.shortName || defaultMeta.shortName,
+      rates: {
+        15: price15,
+        30: price30,
+        60: price60
+      }
+    };
+  });
+  return result;
+}
 
 // Component vẽ Icon dải tầng chuẩn của Batdongsan.com.vn
 export function ListingTypeIcon({ type }) {
@@ -131,8 +162,13 @@ export default function BatdongsanListingSelector({
   appliedVoucher = null,
   showFullSummary = true,
   onApplyAction = null,
-  applyActionText = 'Tiếp Tục Đăng Tin'
+  applyActionText = 'Tiếp Tục Đăng Tin',
+  customVipPackages = null
 }) {
+  const realEstateContext = useRealEstate();
+  const effectivePackages = customVipPackages || realEstateContext?.vipPackages;
+  const ratesConfig = useMemo(() => getEffectiveBdsRates(effectivePackages), [effectivePackages]);
+
   const [internalStartDate, setInternalStartDate] = useState(startDate);
   const dateInputRef = useRef(null);
 
@@ -159,7 +195,7 @@ export default function BatdongsanListingSelector({
   }[selectedType] || 'left-[87.5%]';
 
   // Dữ liệu gói hiện tại
-  const currentConfig = BATDONGSAN_RATES[selectedType] || BATDONGSAN_RATES['normal'];
+  const currentConfig = ratesConfig[selectedType] || ratesConfig['normal'];
   const baseRate = currentConfig.rates[15];
   const currentDailyRate = currentConfig.rates[selectedDays] || currentConfig.rates[15];
   const grossCost = currentDailyRate * selectedDays;
@@ -171,7 +207,7 @@ export default function BatdongsanListingSelector({
           1. HÀNG 4 THẺ LOẠI TIN ĐĂNG (CHUẨN ẢNH BATDONGSAN.COM.VN)
          ======================================================== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 items-stretch">
-        {Object.values(BATDONGSAN_RATES).map((item) => {
+        {Object.values(ratesConfig).map((item) => {
           const isSelected = selectedType === item.id;
           // Giá hiển thị trên card thay đổi tương ứng theo số ngày đang chọn
           const cardDailyRate = item.rates[selectedDays] || item.rates[15];

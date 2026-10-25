@@ -5,7 +5,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter } from '../router/RouterContext';
 import Link from 'next/link';
 import { LOCATIONS, PROPERTY_TYPES, VIP_PACKAGES, MEMBERSHIP_PACKAGES } from '../data/mockData';
-import BatdongsanListingSelector, { BATDONGSAN_RATES } from './BatdongsanListingSelector';
+import BatdongsanListingSelector, { BATDONGSAN_RATES, getEffectiveBdsRates } from './BatdongsanListingSelector';
 import CustomSelect from './CustomSelect';
 import ListingCard from './ListingCard';
 import ListingLocationMap from './ListingLocationMap';
@@ -104,7 +104,8 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     paymentConfig, 
     navigateToProperty,
     isMembershipActive,
-    membershipPackages
+    membershipPackages,
+    vipPackages
   } = useRealEstate();
   const { navigate } = useRouter();
 
@@ -268,9 +269,11 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const projectList = currentDistrictObj?.projects?.length ? currentDistrictObj.projects : (formData.city ? (MOCK_PROJECTS[formData.city] || []) : []);
 
   // Selected package details
-  const defaultPkg = VIP_PACKAGES.find(p => p.id === 'normal') || VIP_PACKAGES[VIP_PACKAGES.length - 1];
-  const selectedPkg = VIP_PACKAGES.find(p => p.id === selectedVipId) || defaultPkg;
-  const bdsConfig = BATDONGSAN_RATES[selectedVipId] || BATDONGSAN_RATES['normal'];
+  const activeVipPackages = (vipPackages && vipPackages.length > 0) ? vipPackages : VIP_PACKAGES;
+  const defaultPkg = activeVipPackages.find(p => p.id === 'normal') || activeVipPackages[activeVipPackages.length - 1];
+  const selectedPkg = activeVipPackages.find(p => p.id === selectedVipId) || defaultPkg;
+  const ratesConfig = useMemo(() => getEffectiveBdsRates(activeVipPackages), [activeVipPackages]);
+  const bdsConfig = ratesConfig[selectedVipId] || ratesConfig['normal'];
   const dailyRate = bdsConfig.rates[listingDays] || bdsConfig.rates[15];
   const autoBumpFee = autoBumpHours.length * 5000 * Math.min(listingDays, 3);
   const totalCost = (dailyRate * listingDays) + autoBumpFee;
@@ -552,8 +555,8 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       ? formData.images
       : ['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80'];
 
-    const defaultPkg = VIP_PACKAGES.find(p => p.id === 'normal') || VIP_PACKAGES[VIP_PACKAGES.length - 1];
-    const currentVipPkg = VIP_PACKAGES.find(p => p.id === selectedVipId) || defaultPkg;
+    const defaultPkg = activeVipPackages.find(p => p.id === 'normal') || activeVipPackages[activeVipPackages.length - 1];
+    const currentVipPkg = activeVipPackages.find(p => p.id === selectedVipId) || defaultPkg;
 
     const typeObj = PROPERTY_TYPES?.find(t => t.id === formData.type);
     const typeName = typeObj?.name || (formData.type === 'apartment' ? 'Căn hộ chung cư' : formData.type === 'house' ? 'Nhà riêng / Nhà phố' : 'Bất động sản');
@@ -1956,6 +1959,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   voucherDiscount={voucherDiscount}
                   appliedVoucher={appliedVoucher}
                   showFullSummary={false}
+                  customVipPackages={activeVipPackages}
                 />
               </div>
 

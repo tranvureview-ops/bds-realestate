@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 import { VIP_PACKAGES as MOCK_VIP, MEMBERSHIP_PACKAGES, BUMP_SERVICE_PRICE } from '../data/mockData';
-import BatdongsanListingSelector, { BATDONGSAN_RATES, ListingTypeIcon } from '../components/BatdongsanListingSelector';
+import BatdongsanListingSelector, { BATDONGSAN_RATES, getEffectiveBdsRates, ListingTypeIcon } from '../components/BatdongsanListingSelector';
 
 export default function VipPricingPage() {
   const { navigate } = useRouter();
@@ -25,6 +25,7 @@ export default function VipPricingPage() {
   const currentBumpPrice = bumpServicePrice ?? contextBumpPrice ?? BUMP_SERVICE_PRICE ?? 10000;
 
   const vipPackages = contextVipPackages || MOCK_VIP;
+  const ratesConfig = useMemo(() => getEffectiveBdsRates(vipPackages), [vipPackages]);
 
   // 1. Batdongsan UI Selector State (Khớp 100% ảnh chụp Batdongsan.com.vn)
   const [selectedListingType, setSelectedListingType] = useState('normal'); // Mặc định 'normal' như ảnh
@@ -283,8 +284,9 @@ export default function VipPricingPage() {
             onScheduleTimeChange={setScheduleTime}
             voucherDiscount={(currentUser?.vouchers?.normalPublish || 0) > 0 ? (selectedListingType === 'normal' ? 35000 : 400000) : 0}
             showFullSummary={true}
+            customVipPackages={vipPackages}
             onApplyAction={handleApplyListingChoice}
-            applyActionText={selectedPropertyForVip ? `Áp Dụng Nâng Hạng Cho Tin: ${selectedPropertyForVip.id}` : `Đăng Tin Ngay Với ${BATDONGSAN_RATES[selectedListingType]?.name || 'Loại Này'}`}
+            applyActionText={selectedPropertyForVip ? `Áp Dụng Nâng Hạng Cho Tin: ${selectedPropertyForVip.id}` : `Đăng Tin Ngay Với ${ratesConfig[selectedListingType]?.name || 'Loại Này'}`}
           />
         </div>
 
@@ -311,7 +313,7 @@ export default function VipPricingPage() {
               const isSilver = pkg.id === 'vip-silver';
               const isNormal = pkg.id === 'normal';
 
-              const activeRates = BATDONGSAN_RATES[pkg.id] || BATDONGSAN_RATES['normal'];
+              const activeRates = ratesConfig[pkg.id] || ratesConfig['normal'];
               const currentDailyRate = activeRates.rates[selectedDuration] || activeRates.rates[15];
               const base15Rate = activeRates.rates[15];
               const discountInfo = DURATION_DISCOUNTS[selectedDuration] || DURATION_DISCOUNTS[15];

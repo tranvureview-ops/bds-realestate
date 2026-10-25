@@ -84,6 +84,7 @@ export default function AdminBackendPage() {
     emptyUserTrash,
     refetchData,
     updateVipPackagePrice, 
+    updateAllVipPackagePrices,
     bumpServicePrice,
     updateBumpServicePrice,
     navigateToProperty, 
@@ -5622,13 +5623,38 @@ export default function AdminBackendPage() {
                   </p>
                 </div>
 
-                <button
-                  onClick={() => setActiveMenu('membership')}
-                  className="px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold hover:bg-amber-500/30 transition flex items-center gap-1.5 self-start sm:self-auto"
-                >
-                  <i className="fa-solid fa-crown text-amber-400"></i>
-                  <span>Sang Gói Hội Viên ➔</span>
-                </button>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    onClick={async () => {
+                      const pricesMap = {};
+                      (vipPackages || []).forEach(p => {
+                        const inputEl = document.getElementById(`price-${p.id}`);
+                        if (inputEl && inputEl.value) {
+                          pricesMap[p.id] = inputEl.value;
+                        }
+                      });
+                      const bumpEl = document.getElementById('price-bump-service');
+                      if (bumpEl && bumpEl.value) {
+                        await updateBumpServicePrice(bumpEl.value);
+                      }
+                      if (updateAllVipPackagePrices && Object.keys(pricesMap).length > 0) {
+                        await updateAllVipPackagePrices(pricesMap);
+                      }
+                    }}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-black shadow-lg shadow-red-600/20 transition flex items-center gap-2 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-floppy-disk"></i>
+                    <span>Lưu Toàn Bộ Bảng Giá</span>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveMenu('membership')}
+                    className="px-3.5 py-2 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/30 text-xs font-bold hover:bg-amber-500/30 transition flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
+                  >
+                    <i className="fa-solid fa-crown text-amber-400"></i>
+                    <span>Sang Gói Hội Viên ➔</span>
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -5663,8 +5689,9 @@ export default function AdminBackendPage() {
                         <input
                           type="number"
                           defaultValue={pkg.pricePerDay}
+                          key={`price-${pkg.id}-${pkg.pricePerDay}`}
                           id={`price-${pkg.id}`}
-                          className="w-28 px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-xs font-bold text-right text-emerald-400"
+                          className="w-28 px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-xs font-bold text-right text-emerald-400 focus:border-emerald-500 focus:outline-none"
                         />
                         <span className="text-xs text-slate-400">đ/ngày</span>
                         <button
@@ -5672,7 +5699,7 @@ export default function AdminBackendPage() {
                             const val = document.getElementById(`price-${pkg.id}`)?.value;
                             if (val) updateVipPackagePrice(pkg.id, val);
                           }}
-                          className="px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition"
+                          className="px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition cursor-pointer"
                         >
                           Lưu
                         </button>

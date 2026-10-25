@@ -15,9 +15,11 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
     setActiveModal, 
     setSelectedPropertyForVip,
     bumpServicePrice,
-    BUMP_SERVICE_PRICE: contextBumpPrice
+    BUMP_SERVICE_PRICE: contextBumpPrice,
+    vipPackages: contextVipPackages
   } = useRealEstate();
 
+  const activeVipPackages = (contextVipPackages && contextVipPackages.length > 0) ? contextVipPackages : VIP_PACKAGES;
   const currentBumpPrice = bumpServicePrice ?? contextBumpPrice ?? BUMP_SERVICE_PRICE ?? 10000;
 
   const isGuest = !currentUser || currentUser.role === 'guest' || currentUser.id === 'guest';
@@ -64,7 +66,7 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
 
         {/* Pricing Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-stretch mb-10">
-          {VIP_PACKAGES.map((pkg) => {
+          {activeVipPackages.map((pkg) => {
             const isDiamond = pkg.id === 'vip-diamond';
             const isGold = pkg.id === 'vip-gold';
             const isSilver = pkg.id === 'vip-silver';

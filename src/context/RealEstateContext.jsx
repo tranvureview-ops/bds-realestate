@@ -2698,13 +2698,63 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const priceNum = parseInt(newPrice, 10);
     if (!priceNum || priceNum <= 0) return;
 
+    const rate15 = priceNum;
+    const rate30 = Math.round(priceNum * 0.75);
+    const rate60 = Math.round(priceNum * 0.70);
+
     let updatedPackages;
     setVipPackages(prev => {
-      updatedPackages = prev.map(p => p.id === pkgId ? { ...p, pricePerDay: priceNum } : p);
+      updatedPackages = prev.map(p => {
+        if (p.id === pkgId) {
+          return {
+            ...p,
+            pricePerDay: priceNum,
+            rates: {
+              ...(p.rates || {}),
+              15: rate15,
+              30: rate30,
+              60: rate60
+            }
+          };
+        }
+        return p;
+      });
       return updatedPackages;
     });
     await persistSettingToSupabase('bds_vip_packages', updatedPackages);
     showToast(`Đã cập nhật giá gói ${pkgId} thành ${priceNum.toLocaleString('vi-VN')} đ/ngày`, 'success');
+  };
+
+  // Admin Update All VIP Package Prices at once
+  const updateAllVipPackagePrices = async (pricesMap = {}) => {
+    let updatedPackages;
+    setVipPackages(prev => {
+      updatedPackages = prev.map(p => {
+        if (pricesMap[p.id] !== undefined) {
+          const priceNum = Math.max(0, parseInt(pricesMap[p.id], 10) || 0);
+          if (priceNum > 0) {
+            const rate15 = priceNum;
+            const rate30 = Math.round(priceNum * 0.75);
+            const rate60 = Math.round(priceNum * 0.70);
+            return {
+              ...p,
+              pricePerDay: priceNum,
+              rates: {
+                ...(p.rates || {}),
+                15: rate15,
+                30: rate30,
+                60: rate60
+              }
+            };
+          }
+        }
+        return p;
+      });
+      return updatedPackages;
+    });
+    await persistSettingToSupabase('bds_vip_packages', updatedPackages);
+    showToast('Đã lưu và đồng bộ toàn bộ bảng giá tin đăng thành công!', 'success');
+    return updatedPackages;
   };
 
   // Admin Update Bump Service Price (Đơn giá Đẩy Tin toàn sàn)
@@ -3605,6 +3655,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         permanentDeleteUser,
         emptyUserTrash,
         updateVipPackagePrice,
+        updateAllVipPackagePrices,
         resetToMockData,
         openPropertyDetail,
         loginUser,

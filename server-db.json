@@ -2152,9 +2152,9 @@
       "name": "VIP Kim Cương",
       "level": 1,
       "rates": {
-        "15": 449740,
-        "30": 337300,
-        "60": 314820
+        "15": 79000,
+        "30": 59250,
+        "60": 55300
       },
       "minDays": 15,
       "tagText": "lượt liên hệ so với tin thường",
@@ -2174,7 +2174,7 @@
       "badgeColor": "badge-diamond",
       "titleClass": "text-red-600 font-extrabold text-lg tracking-wide",
       "borderColor": "border-red-500 shadow-red-200",
-      "pricePerDay": 449740,
+      "pricePerDay": 79000,
       "recommended": true,
       "approvalType": "instant",
       "approvalBadge": "Duyệt tức thì (0s)",
@@ -2189,9 +2189,9 @@
       "name": "VIP Vàng",
       "level": 2,
       "rates": {
-        "15": 159960,
-        "30": 119970,
-        "60": 111970
+        "15": 29000,
+        "30": 21750,
+        "60": 20300
       },
       "minDays": 15,
       "tagText": "lượt liên hệ so với tin thường",
@@ -2210,7 +2210,7 @@
       "badgeColor": "badge-gold",
       "titleClass": "text-amber-600 font-bold text-base",
       "borderColor": "border-amber-400 shadow-amber-100",
-      "pricePerDay": 159960,
+      "pricePerDay": 29000,
       "recommended": false,
       "approvalType": "priority",
       "approvalBadge": "Ưu tiên sớm (15 phút)",
@@ -2225,9 +2225,9 @@
       "name": "VIP Bạc",
       "level": 3,
       "rates": {
-        "15": 82490,
-        "30": 61870,
-        "60": 57740
+        "15": 9000,
+        "30": 6750,
+        "60": 6300
       },
       "minDays": 15,
       "tagText": "lượt liên hệ so với tin thường",
@@ -2245,7 +2245,7 @@
       "badgeColor": "badge-silver",
       "titleClass": "text-blue-700 font-bold text-base",
       "borderColor": "border-blue-400",
-      "pricePerDay": 82490,
+      "pricePerDay": 9000,
       "recommended": false,
       "approvalType": "priority",
       "approvalBadge": "Ưu tiên sớm (30 phút)",
@@ -2261,8 +2261,8 @@
       "level": 4,
       "rates": {
         "15": 3320,
-        "30": 2500,
-        "60": 2330
+        "30": 2490,
+        "60": 2324
       },
       "minDays": 15,
       "tagText": null,
