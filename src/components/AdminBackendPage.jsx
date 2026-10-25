@@ -3199,7 +3199,7 @@ export default function AdminBackendPage() {
                         pendingQueueFilter === 'gold' ? 'bg-amber-500 text-slate-950 font-black shadow' : 'text-amber-400 hover:text-white'
                       }`}
                     >
-                      <span>🥇 VIP Vàng (15p)</span>
+                      <span>🥇 VIP Vàng</span>
                       <span className="opacity-80">({goldPending.length})</span>
                     </button>
                     <button
@@ -3209,7 +3209,7 @@ export default function AdminBackendPage() {
                         pendingQueueFilter === 'silver' ? 'bg-blue-600 text-white font-black shadow' : 'text-blue-400 hover:text-white'
                       }`}
                     >
-                      <span>🥈 VIP Bạc (30p)</span>
+                      <span>🥈 VIP Bạc</span>
                       <span className="opacity-80">({silverPending.length})</span>
                     </button>
                     <button
@@ -3219,7 +3219,7 @@ export default function AdminBackendPage() {
                         pendingQueueFilter === 'normal' ? 'bg-slate-700 text-white font-black shadow' : 'text-slate-400 hover:text-white'
                       }`}
                     >
-                      <span>📋 Tin Thường FIFO (1 Giờ)</span>
+                      <span>📋 Tin Thường (5-15p)</span>
                       <span className="opacity-80">({normalPending.length})</span>
                     </button>
                   </div>
@@ -3299,17 +3299,17 @@ export default function AdminBackendPage() {
                                     <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-red-950 text-red-300 border border-red-800 flex items-center gap-1">
                                       <i className="fa-solid fa-bolt text-[9px]"></i> ⚡ Duyệt Tức Thì (Active Ngay)
                                     </span>
-                                  ) : isGold && prop.autoApproved ? (
+                                  ) : isGold ? (
                                     <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-950 text-amber-300 border border-amber-800 flex items-center gap-1">
-                                      <i className="fa-solid fa-clock text-[9px]"></i> ⏱ Kích Hoạt Tự Động (VIP Vàng 15p)
+                                      <i className="fa-solid fa-bolt text-[9px]"></i> ⚡ Duyệt Tức Thì (VIP Vàng)
                                     </span>
-                                  ) : isSilver && prop.autoApproved ? (
-                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-950 text-blue-300 border border-blue-800 flex items-center gap-1">
-                                      <i className="fa-solid fa-clock text-[9px]"></i> ⏱ Kích Hoạt Tự Động (VIP Bạc 30p)
+                                  ) : isSilver ? (
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-teal-950 text-teal-300 border border-teal-800 flex items-center gap-1">
+                                      <i className="fa-solid fa-bolt text-[9px]"></i> ⚡ Duyệt Tức Thì (VIP Bạc)
                                     </span>
                                   ) : prop.autoApproved ? (
                                     <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-slate-800 text-emerald-300 border border-slate-700 flex items-center gap-1">
-                                      <i className="fa-solid fa-clock text-[9px]"></i> ⏱ Tự Động Xuất Bản (FIFO 1 Tiếng)
+                                      <i className="fa-solid fa-clock text-[9px]"></i> ⏱ Tự Động Kích Hoạt (5 - 15 phút)
                                     </span>
                                   ) : (
                                     <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800 flex items-center gap-1">
@@ -5731,10 +5731,22 @@ export default function AdminBackendPage() {
                                   30: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-30`)?.value, 10) || 0),
                                   60: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-60`)?.value, 10) || 0)
                                 };
+                                const minApproval = Math.max(1, parseInt(document.getElementById('input-normal-approval-min')?.value, 10) || 5);
+                                const maxApproval = Math.max(minApproval, parseInt(document.getElementById('input-normal-approval-max')?.value, 10) || 15);
                                 extra = {
                                   dailyFreeLimit: limitEl ? (parseInt(limitEl.value, 10) || 0) : 5,
                                   allowedDurations: allowedDurations.length > 0 ? allowedDurations : [60],
-                                  rates: customRates
+                                  rates: customRates,
+                                  approvalMode: 'random',
+                                  approvalMinMinutes: minApproval,
+                                  approvalMaxMinutes: maxApproval,
+                                  approvalBadge: `Duyệt tự động (${minApproval} - ${maxApproval} phút)`
+                                };
+                              } else {
+                                extra = {
+                                  approvalMode: 'instant',
+                                  delayMinutes: 0,
+                                  approvalBadge: 'Duyệt tức thì (0s)'
                                 };
                               }
                               updateVipPackagePrice(pkg.id, val, extra);
@@ -5746,6 +5758,25 @@ export default function AdminBackendPage() {
                         </button>
                       </div>
                     </div>
+
+                    {pkg.id !== 'normal' && (
+                      <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
+                        <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                          <i className="fa-solid fa-bolt text-amber-400"></i>
+                          <span>Cơ chế kiểm duyệt:</span>
+                        </div>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-black border flex items-center gap-1 ${
+                          pkg.id === 'vip-diamond' 
+                            ? 'bg-red-500/20 text-red-300 border-red-500/30' 
+                            : pkg.id === 'vip-gold' 
+                            ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' 
+                            : 'bg-teal-500/20 text-teal-300 border-teal-500/30'
+                        }`}>
+                          <i className="fa-solid fa-bolt text-[9px]"></i>
+                          <span>Duyệt tức thì (0s)</span>
+                        </span>
+                      </div>
+                    )}
 
                     {pkg.id === 'normal' && (
                       <>
@@ -5780,6 +5811,39 @@ export default function AdminBackendPage() {
                                 Lưu
                               </button>
                             )}
+                          </div>
+                        </div>
+
+                        {/* Thời gian duyệt tự động Tin Thường (Random) */}
+                        <div className="pt-2 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                          <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                            <i className="fa-solid fa-dice text-emerald-400"></i>
+                            <span>Duyệt tự động (Random phút):</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                            <span className="text-[10px] text-slate-400">Từ</span>
+                            <input
+                              type="number"
+                              min="1"
+                              max="120"
+                              defaultValue={pkg.approvalMinMinutes ?? paymentConfig?.approvalTiers?.['normal']?.delayMinMinutes ?? 5}
+                              key={`normal-min-${pkg.approvalMinMinutes ?? paymentConfig?.approvalTiers?.['normal']?.delayMinMinutes ?? 5}`}
+                              id="input-normal-approval-min"
+                              className="w-14 px-2 py-1 bg-slate-950 border border-slate-700 rounded-lg text-xs font-bold text-center text-emerald-400 focus:border-emerald-500 focus:outline-none"
+                              title="Thời gian duyệt tối thiểu (phút)"
+                            />
+                            <span className="text-[10px] text-slate-400">đến</span>
+                            <input
+                              type="number"
+                              min="1"
+                              max="180"
+                              defaultValue={pkg.approvalMaxMinutes ?? paymentConfig?.approvalTiers?.['normal']?.delayMaxMinutes ?? 15}
+                              key={`normal-max-${pkg.approvalMaxMinutes ?? paymentConfig?.approvalTiers?.['normal']?.delayMaxMinutes ?? 15}`}
+                              id="input-normal-approval-max"
+                              className="w-14 px-2 py-1 bg-slate-950 border border-slate-700 rounded-lg text-xs font-bold text-center text-emerald-400 focus:border-emerald-500 focus:outline-none"
+                              title="Thời gian duyệt tối đa (phút)"
+                            />
+                            <span className="text-[11px] text-slate-400">phút</span>
                           </div>
                         </div>
 
@@ -6370,119 +6434,274 @@ export default function AdminBackendPage() {
 
                       {/* 2. VIP VÀNG */}
                       <div className="p-4 bg-slate-900/90 rounded-2xl border border-amber-800/50 space-y-2.5">
-                        <div className="flex items-center justify-between gap-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           <div className="flex items-center gap-2">
                             <span className="px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black uppercase">
                               VIP VÀNG ★★★★
                             </span>
-                            <span className="font-bold text-white text-xs">Ưu Tiên Sớm (15 Phút Tự Động Duyệt)</span>
+                            <span className="font-bold text-white text-xs">
+                              {(formPaymentConfig?.approvalTiers?.['vip-gold']?.mode ?? 'instant') === 'instant' ? '⚡ Duyệt Tức Thì Tự Động (0s)' : '⏱ Hẹn Giờ Duyệt Tự Động'}
+                            </span>
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[11px] text-slate-400">Thời gian duyệt:</span>
-                            <input
-                              type="number"
-                              min="1"
-                              max="120"
-                              value={formPaymentConfig?.approvalTiers?.['vip-gold']?.delayMinutes ?? 15}
+                          <div className="flex items-center gap-2">
+                            <select
+                              value={formPaymentConfig?.approvalTiers?.['vip-gold']?.mode ?? 'instant'}
                               onChange={(e) => {
-                                const val = Math.max(1, parseInt(e.target.value) || 15);
+                                const newMode = e.target.value;
                                 setFormPaymentConfig(prev => ({
                                   ...prev,
                                   approvalTiers: {
                                     ...(prev.approvalTiers || DEFAULT_APPROVAL_TIERS),
                                     'vip-gold': {
                                       ...(prev.approvalTiers?.['vip-gold'] || DEFAULT_APPROVAL_TIERS['vip-gold']),
-                                      delayMinutes: val
+                                      mode: newMode,
+                                      delayMinutes: newMode === 'instant' ? 0 : (prev.approvalTiers?.['vip-gold']?.delayMinutes || 15),
+                                      badgeText: newMode === 'instant' ? 'Duyệt tức thì (0s)' : `Ưu tiên sớm (${prev.approvalTiers?.['vip-gold']?.delayMinutes || 15}p)`
                                     }
                                   }
                                 }));
                               }}
-                              className="w-14 p-1 text-center bg-slate-950 border border-amber-600/50 rounded-lg text-amber-300 font-mono font-bold text-xs"
-                            />
-                            <span className="text-amber-400 font-bold text-[11px]">phút</span>
+                              className="px-2.5 py-1 bg-slate-950 border border-amber-600/60 rounded-lg text-amber-300 font-bold text-xs focus:outline-none"
+                            >
+                              <option value="instant">⚡ Duyệt Tức Thì (0s) - Khuyến nghị</option>
+                              <option value="countdown">⏱ Hẹn giờ duyệt (Đếm ngược)</option>
+                            </select>
+
+                            {(formPaymentConfig?.approvalTiers?.['vip-gold']?.mode ?? 'instant') === 'countdown' && (
+                              <div className="flex items-center gap-1.5">
+                                <input
+                                  type="number"
+                                  min="1"
+                                  max="120"
+                                  value={formPaymentConfig?.approvalTiers?.['vip-gold']?.delayMinutes ?? 15}
+                                  onChange={(e) => {
+                                    const val = Math.max(1, parseInt(e.target.value) || 15);
+                                    setFormPaymentConfig(prev => ({
+                                      ...prev,
+                                      approvalTiers: {
+                                        ...(prev.approvalTiers || DEFAULT_APPROVAL_TIERS),
+                                        'vip-gold': {
+                                          ...(prev.approvalTiers?.['vip-gold'] || DEFAULT_APPROVAL_TIERS['vip-gold']),
+                                          delayMinutes: val,
+                                          badgeText: `Ưu tiên sớm (${val}p)`
+                                        }
+                                      }
+                                    }));
+                                  }}
+                                  className="w-14 p-1 text-center bg-slate-950 border border-amber-600/50 rounded-lg text-amber-300 font-mono font-bold text-xs"
+                                />
+                                <span className="text-amber-400 font-bold text-[11px]">phút</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                         <p className="text-[11px] text-slate-400 leading-relaxed">
-                          Tin được xếp vào <strong>Hàng Đợi Ưu Tiên Cấp Tốc</strong> với đồng hồ đếm ngược 15 phút. Admin có thể duyệt sớm bất kỳ lúc nào, hoặc nếu hết 15 phút hệ thống sẽ <strong>tự động chuyển trạng thái Active</strong>.
+                          {(formPaymentConfig?.approvalTiers?.['vip-gold']?.mode ?? 'instant') === 'instant'
+                            ? 'Tin VIP Vàng được duyệt và kích hoạt trạng thái Active ngay lập tức khi thanh toán, hiển thị Top 2 trang chủ.'
+                            : 'Tin được xếp vào Hàng Đợi Ưu Tiên với đồng hồ đếm ngược. Sau số phút quy định hệ thống sẽ tự động kích hoạt.'}
                         </p>
                       </div>
 
                       {/* 3. VIP BẠC */}
                       <div className="p-4 bg-slate-900/90 rounded-2xl border border-blue-800/50 space-y-2.5">
-                        <div className="flex items-center justify-between gap-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           <div className="flex items-center gap-2">
                             <span className="px-2 py-0.5 rounded-full bg-blue-600 text-white text-[10px] font-black uppercase">
                               VIP BẠC ★★★
                             </span>
-                            <span className="font-bold text-white text-xs">Ưu Tiên Sớm (30 Phút Tự Động Duyệt)</span>
+                            <span className="font-bold text-white text-xs">
+                              {(formPaymentConfig?.approvalTiers?.['vip-silver']?.mode ?? 'instant') === 'instant' ? '⚡ Duyệt Tức Thì Tự Động (0s)' : '⏱ Hẹn Giờ Duyệt Tự Động'}
+                            </span>
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[11px] text-slate-400">Thời gian duyệt:</span>
-                            <input
-                              type="number"
-                              min="1"
-                              max="180"
-                              value={formPaymentConfig?.approvalTiers?.['vip-silver']?.delayMinutes ?? 30}
+                          <div className="flex items-center gap-2">
+                            <select
+                              value={formPaymentConfig?.approvalTiers?.['vip-silver']?.mode ?? 'instant'}
                               onChange={(e) => {
-                                const val = Math.max(1, parseInt(e.target.value) || 30);
+                                const newMode = e.target.value;
                                 setFormPaymentConfig(prev => ({
                                   ...prev,
                                   approvalTiers: {
                                     ...(prev.approvalTiers || DEFAULT_APPROVAL_TIERS),
                                     'vip-silver': {
                                       ...(prev.approvalTiers?.['vip-silver'] || DEFAULT_APPROVAL_TIERS['vip-silver']),
-                                      delayMinutes: val
+                                      mode: newMode,
+                                      delayMinutes: newMode === 'instant' ? 0 : (prev.approvalTiers?.['vip-silver']?.delayMinutes || 30),
+                                      badgeText: newMode === 'instant' ? 'Duyệt tức thì (0s)' : `Ưu tiên sớm (${prev.approvalTiers?.['vip-silver']?.delayMinutes || 30}p)`
                                     }
                                   }
                                 }));
                               }}
-                              className="w-14 p-1 text-center bg-slate-950 border border-blue-600/50 rounded-lg text-blue-300 font-mono font-bold text-xs"
-                            />
-                            <span className="text-blue-400 font-bold text-[11px]">phút</span>
+                              className="px-2.5 py-1 bg-slate-950 border border-blue-600/60 rounded-lg text-blue-300 font-bold text-xs focus:outline-none"
+                            >
+                              <option value="instant">⚡ Duyệt Tức Thì (0s) - Khuyến nghị</option>
+                              <option value="countdown">⏱ Hẹn giờ duyệt (Đếm ngược)</option>
+                            </select>
+
+                            {(formPaymentConfig?.approvalTiers?.['vip-silver']?.mode ?? 'instant') === 'countdown' && (
+                              <div className="flex items-center gap-1.5">
+                                <input
+                                  type="number"
+                                  min="1"
+                                  max="180"
+                                  value={formPaymentConfig?.approvalTiers?.['vip-silver']?.delayMinutes ?? 30}
+                                  onChange={(e) => {
+                                    const val = Math.max(1, parseInt(e.target.value) || 30);
+                                    setFormPaymentConfig(prev => ({
+                                      ...prev,
+                                      approvalTiers: {
+                                        ...(prev.approvalTiers || DEFAULT_APPROVAL_TIERS),
+                                        'vip-silver': {
+                                          ...(prev.approvalTiers?.['vip-silver'] || DEFAULT_APPROVAL_TIERS['vip-silver']),
+                                          delayMinutes: val,
+                                          badgeText: `Ưu tiên sớm (${val}p)`
+                                        }
+                                      }
+                                    }));
+                                  }}
+                                  className="w-14 p-1 text-center bg-slate-950 border border-blue-600/50 rounded-lg text-blue-300 font-mono font-bold text-xs"
+                                />
+                                <span className="text-blue-400 font-bold text-[11px]">phút</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                         <p className="text-[11px] text-slate-400 leading-relaxed">
-                          Tin VIP Bạc được ưu tiên xử lý trước toàn bộ Tin Thường. Tự động kích hoạt hiển thị sau 30 phút nếu ban quản trị chưa duyệt thủ công.
+                          {(formPaymentConfig?.approvalTiers?.['vip-silver']?.mode ?? 'instant') === 'instant'
+                            ? 'Tin VIP Bạc được duyệt và kích hoạt trạng thái Active ngay lập tức khi thanh toán, hiển thị trên toàn bộ Tin Thường.'
+                            : 'Tin VIP Bạc được ưu tiên xử lý trước toàn bộ Tin Thường, tự động duyệt sau số phút đã chọn.'}
                         </p>
                       </div>
 
                       {/* 4. TIN THƯỜNG */}
-                      <div className="p-4 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-2">
+                      <div className="p-4 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-2.5">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           <div className="flex items-center gap-2">
                             <span className="px-2 py-0.5 rounded-full bg-slate-700 text-slate-200 text-[10px] font-black uppercase">
                               TIN THƯỜNG (TIÊU CHUẨN)
                             </span>
-                            <span className="font-bold text-white text-xs">Hàng Đợi Tiêu Chuẩn FIFO (Tự Động Xuất Bản 1 Tiếng)</span>
+                            <span className="font-bold text-white text-xs">
+                              {(formPaymentConfig?.approvalTiers?.['normal']?.mode ?? 'random') === 'random' 
+                                ? '🎲 Duyệt Tự Động Ngẫu Nhiên (Random)' 
+                                : (formPaymentConfig?.approvalTiers?.['normal']?.mode === 'instant' ? '⚡ Duyệt Tức Thì (0s)' : '⏱ Hẹn Giờ Cố Định')}
+                            </span>
                           </div>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[11px] text-slate-400">Tự động xuất bản sau:</span>
-                            <input
-                              type="number"
-                              min="1"
-                              max="1440"
-                              value={formPaymentConfig?.approvalTiers?.['normal']?.delayMinutes ?? 60}
+
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <select
+                              value={formPaymentConfig?.approvalTiers?.['normal']?.mode ?? 'random'}
                               onChange={(e) => {
-                                const val = Math.max(1, parseInt(e.target.value) || 60);
-                                setFormPaymentConfig(prev => ({
-                                  ...prev,
-                                  approvalTiers: {
-                                    ...(prev.approvalTiers || DEFAULT_APPROVAL_TIERS),
-                                    'normal': {
-                                      ...(prev.approvalTiers?.['normal'] || DEFAULT_APPROVAL_TIERS['normal']),
-                                      mode: 'countdown',
-                                      delayMinutes: val
+                                const newMode = e.target.value;
+                                setFormPaymentConfig(prev => {
+                                  const min = prev.approvalTiers?.['normal']?.delayMinMinutes ?? 5;
+                                  const max = prev.approvalTiers?.['normal']?.delayMaxMinutes ?? 15;
+                                  const delay = prev.approvalTiers?.['normal']?.delayMinutes ?? 10;
+                                  return {
+                                    ...prev,
+                                    approvalTiers: {
+                                      ...(prev.approvalTiers || DEFAULT_APPROVAL_TIERS),
+                                      'normal': {
+                                        ...(prev.approvalTiers?.['normal'] || DEFAULT_APPROVAL_TIERS['normal']),
+                                        mode: newMode,
+                                        badgeText: newMode === 'random' 
+                                          ? `Duyệt tự động (${min} - ${max} phút)` 
+                                          : (newMode === 'instant' ? 'Duyệt tức thì (0s)' : `Tự động duyệt (${delay} phút)`)
+                                      }
                                     }
-                                  }
-                                }));
+                                  };
+                                });
                               }}
-                              className="w-16 p-1 text-center bg-slate-950 border border-slate-600 rounded-lg text-emerald-400 font-mono font-bold text-xs"
-                            />
-                            <span className="text-slate-400 font-bold text-[11px]">phút (1 tiếng)</span>
+                              className="px-2.5 py-1 bg-slate-950 border border-slate-700 rounded-lg text-emerald-400 font-bold text-xs focus:outline-none"
+                            >
+                              <option value="random">🎲 Random ngẫu nhiên (5 - 15 phút) - Khuyến nghị</option>
+                              <option value="countdown">⏱ Hẹn giờ cố định (phút)</option>
+                              <option value="instant">⚡ Duyệt tức thì (0s)</option>
+                            </select>
+
+                            {(formPaymentConfig?.approvalTiers?.['normal']?.mode ?? 'random') === 'random' && (
+                              <div className="flex items-center gap-1.5 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-700">
+                                <span className="text-[11px] text-slate-400">Từ</span>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  max="120"
+                                  value={formPaymentConfig?.approvalTiers?.['normal']?.delayMinMinutes ?? 5}
+                                  onChange={(e) => {
+                                    const val = Math.max(1, parseInt(e.target.value, 10) || 5);
+                                    setFormPaymentConfig(prev => {
+                                      const max = Math.max(val, prev.approvalTiers?.['normal']?.delayMaxMinutes ?? 15);
+                                      return {
+                                        ...prev,
+                                        approvalTiers: {
+                                          ...(prev.approvalTiers || DEFAULT_APPROVAL_TIERS),
+                                          'normal': {
+                                            ...(prev.approvalTiers?.['normal'] || DEFAULT_APPROVAL_TIERS['normal']),
+                                            delayMinMinutes: val,
+                                            delayMaxMinutes: max,
+                                            badgeText: `Duyệt tự động (${val} - ${max} phút)`
+                                          }
+                                        }
+                                      };
+                                    });
+                                  }}
+                                  className="w-12 p-0.5 text-center bg-slate-900 border border-slate-700 rounded text-emerald-400 font-mono font-bold text-xs"
+                                />
+                                <span className="text-[11px] text-slate-400">đến</span>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  max="240"
+                                  value={formPaymentConfig?.approvalTiers?.['normal']?.delayMaxMinutes ?? 15}
+                                  onChange={(e) => {
+                                    const min = formPaymentConfig?.approvalTiers?.['normal']?.delayMinMinutes ?? 5;
+                                    const val = Math.max(min, parseInt(e.target.value, 10) || 15);
+                                    setFormPaymentConfig(prev => ({
+                                      ...prev,
+                                      approvalTiers: {
+                                        ...(prev.approvalTiers || DEFAULT_APPROVAL_TIERS),
+                                        'normal': {
+                                          ...(prev.approvalTiers?.['normal'] || DEFAULT_APPROVAL_TIERS['normal']),
+                                          delayMaxMinutes: val,
+                                          badgeText: `Duyệt tự động (${min} - ${val} phút)`
+                                        }
+                                      }
+                                    }));
+                                  }}
+                                  className="w-12 p-0.5 text-center bg-slate-900 border border-slate-700 rounded text-emerald-400 font-mono font-bold text-xs"
+                                />
+                                <span className="text-emerald-400 font-bold text-[11px]">phút</span>
+                              </div>
+                            )}
+
+                            {(formPaymentConfig?.approvalTiers?.['normal']?.mode ?? 'random') === 'countdown' && (
+                              <div className="flex items-center gap-1.5">
+                                <input
+                                  type="number"
+                                  min="1"
+                                  max="1440"
+                                  value={formPaymentConfig?.approvalTiers?.['normal']?.delayMinutes ?? 10}
+                                  onChange={(e) => {
+                                    const val = Math.max(1, parseInt(e.target.value, 10) || 10);
+                                    setFormPaymentConfig(prev => ({
+                                      ...prev,
+                                      approvalTiers: {
+                                        ...(prev.approvalTiers || DEFAULT_APPROVAL_TIERS),
+                                        'normal': {
+                                          ...(prev.approvalTiers?.['normal'] || DEFAULT_APPROVAL_TIERS['normal']),
+                                          delayMinutes: val,
+                                          badgeText: `Tự động duyệt (${val} phút)`
+                                        }
+                                      }
+                                    }));
+                                  }}
+                                  className="w-16 p-1 text-center bg-slate-950 border border-slate-600 rounded-lg text-emerald-400 font-mono font-bold text-xs"
+                                />
+                                <span className="text-slate-400 font-bold text-[11px]">phút</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                         <p className="text-[11px] text-slate-400 leading-relaxed">
-                          Tin Thường sau khi thanh toán được đưa vào <strong>Hàng Đợi Tiêu Chuẩn FIFO</strong>. Ban quản trị có thể duyệt sớm theo thứ tự tiếp nhận, hoặc hệ thống <strong>tự động xuất bản trong vòng 1 tiếng (60 phút)</strong> để đảm bảo quyền lợi hiển thị cho người đăng.
+                          Tin Thường sau khi gửi được đưa vào hàng đợi kiểm duyệt. Hệ thống sẽ <strong>tự động lấy ngẫu nhiên trong khoảng {formPaymentConfig?.approvalTiers?.['normal']?.delayMinMinutes ?? 5} đến {formPaymentConfig?.approvalTiers?.['normal']?.delayMaxMinutes ?? 15} phút</strong> để kích hoạt trạng thái Active, tạo cảm giác kiểm duyệt chuyên nghiệp và phân tán bài tự nhiên.
                         </p>
                       </div>
                     </div>

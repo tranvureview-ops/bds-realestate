@@ -36,8 +36,8 @@ export const BATDONGSAN_RATES = {
     tagText: 'lượt liên hệ so với tin thường',
     tagBg: 'bg-amber-50 text-amber-900 border-amber-200',
     tagBadgeBg: 'bg-amber-600 text-white',
-    approvalBadge: 'Ưu tiên sớm (15p)',
-    approvalIcon: 'fa-solid fa-clock-rotate-left',
+    approvalBadge: 'Duyệt tức thì (0s)',
+    approvalIcon: 'fa-solid fa-bolt',
     approvalColor: 'text-amber-700 bg-amber-50 border-amber-200',
     rates: {
       15: 29000,
@@ -53,8 +53,8 @@ export const BATDONGSAN_RATES = {
     tagText: 'lượt liên hệ so với tin thường',
     tagBg: 'bg-teal-50 text-teal-900 border-teal-200',
     tagBadgeBg: 'bg-teal-700 text-white',
-    approvalBadge: 'Ưu tiên sớm (30p)',
-    approvalIcon: 'fa-solid fa-clock-rotate-left',
+    approvalBadge: 'Duyệt tức thì (0s)',
+    approvalIcon: 'fa-solid fa-bolt',
     approvalColor: 'text-teal-700 bg-teal-50 border-teal-200',
     rates: {
       15: 9000,
@@ -68,7 +68,7 @@ export const BATDONGSAN_RATES = {
     positionDesc: 'Hiển thị dưới cùng',
     multiplierText: null,
     tagText: null,
-    approvalBadge: 'Hàng đợi FIFO (Tự động 1 tiếng)',
+    approvalBadge: 'Duyệt tự động (5 - 15 phút)',
     approvalIcon: 'fa-solid fa-clock-rotate-left',
     approvalColor: 'text-slate-600 bg-slate-100 border-slate-200',
     rates: {
@@ -80,13 +80,15 @@ export const BATDONGSAN_RATES = {
 };
 
 /**
- * Tính toán bảng tỷ giá hiển thị động theo cấu hình giá Admin từ vipPackages
+ * Tính toán bảng tỷ giá hiển thị động theo cấu hình giá Admin từ vipPackages và paymentConfig
  */
-export function getEffectiveBdsRates(customVipPackages) {
+export function getEffectiveBdsRates(customVipPackages, paymentConfig = null) {
   const result = { ...BATDONGSAN_RATES };
   if (!customVipPackages || !Array.isArray(customVipPackages) || customVipPackages.length === 0) {
     return result;
   }
+  const approvalTiers = paymentConfig?.approvalTiers;
+
   customVipPackages.forEach(pkg => {
     if (!pkg || !pkg.id) return;
     const defaultMeta = BATDONGSAN_RATES[pkg.id] || {
@@ -111,12 +113,38 @@ export function getEffectiveBdsRates(customVipPackages) {
       ? Math.max(0, Number(rawRate60))
       : ((price15 === 0) ? 0 : Math.round(price15 * 0.70));
 
+    // Dynamic approval badge resolution
+    const tier = approvalTiers?.[pkg.id];
+    let approvalBadge = pkg.approvalBadge || defaultMeta.approvalBadge;
+    let approvalIcon = pkg.approvalIcon || defaultMeta.approvalIcon;
+    let approvalColor = pkg.approvalColor || defaultMeta.approvalColor;
+
+    if (tier) {
+      if (tier.mode === 'instant') {
+        approvalBadge = 'Duyệt tức thì (0s)';
+        approvalIcon = 'fa-solid fa-bolt';
+      } else if (tier.mode === 'random') {
+        const min = tier.delayMinMinutes ?? 5;
+        const max = tier.delayMaxMinutes ?? 15;
+        approvalBadge = `Duyệt tự động (${min} - ${max} phút)`;
+        approvalIcon = 'fa-solid fa-clock-rotate-left';
+      } else if (tier.mode === 'countdown' && tier.delayMinutes > 0) {
+        approvalBadge = `Tự động duyệt (${tier.delayMinutes} phút)`;
+        approvalIcon = 'fa-solid fa-clock-rotate-left';
+      }
+    } else if (pkg.approvalBadge) {
+      approvalBadge = pkg.approvalBadge;
+    }
+
     result[pkg.id] = {
       ...defaultMeta,
       id: pkg.id,
       name: pkg.name || defaultMeta.name,
       shortName: pkg.shortName || defaultMeta.shortName,
       allowedDurations: Array.isArray(pkg.allowedDurations) ? pkg.allowedDurations : defaultMeta.allowedDurations,
+      approvalBadge,
+      approvalIcon,
+      approvalColor,
       rates: {
         15: price15,
         30: price30,
@@ -190,7 +218,8 @@ export default function BatdongsanListingSelector({
 }) {
   const realEstateContext = useRealEstate();
   const effectivePackages = customVipPackages || realEstateContext?.vipPackages;
-  const ratesConfig = useMemo(() => getEffectiveBdsRates(effectivePackages), [effectivePackages]);
+  const paymentConfig = realEstateContext?.paymentConfig;
+  const ratesConfig = useMemo(() => getEffectiveBdsRates(effectivePackages, paymentConfig), [effectivePackages, paymentConfig]);
 
   const todayStr = useMemo(() => getTodayString(), []);
   const initialStartDate = startDate || todayStr;

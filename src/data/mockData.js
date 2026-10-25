@@ -48,13 +48,13 @@ export const LISTING_TYPES = [
     borderColor: 'border-amber-400 shadow-amber-100',
     titleClass: 'text-amber-600 font-bold text-base',
     tagClass: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold',
-    approvalType: 'priority',
-    approvalTimeMinutes: 15,
-    approvalBadge: 'Ưu tiên sớm (15 phút)',
-    approvalLabel: 'Ưu tiên sớm (15 phút tự động kích hoạt)',
+    approvalType: 'instant',
+    approvalTimeMinutes: 0,
+    approvalBadge: 'Duyệt tức thì (0s)',
+    approvalLabel: 'Duyệt Tức Thì tự động (Active ngay)',
     features: [
       'Vị trí ưu tiên: Hiển thị ngay dưới VIP Kim Cương',
-      '(*) Ưu tiên sớm (15 phút): Tự động phê duyệt sau 15 phút nếu Admin chưa duyệt trước',
+      '(*) Duyệt Tức Thì tự động: Kích hoạt hiển thị (Active ngay) lập tức khi thanh toán',
       '(**) Không hiển thị quảng cáo: Không xuất hiện banner quảng cáo ở trang chi tiết',
       'Khung viền ánh vàng sang trọng, tiêu đề Chữ In Hoa màu Cam Vàng',
       'Tỷ lệ tiếp cận gấp 15 lần tin thường',
@@ -80,13 +80,13 @@ export const LISTING_TYPES = [
     borderColor: 'border-blue-400',
     titleClass: 'text-blue-700 font-bold text-base',
     tagClass: 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold',
-    approvalType: 'priority',
-    approvalTimeMinutes: 30,
-    approvalBadge: 'Ưu tiên sớm (30 phút)',
-    approvalLabel: 'Ưu tiên sớm (30 phút tự động kích hoạt)',
+    approvalType: 'instant',
+    approvalTimeMinutes: 0,
+    approvalBadge: 'Duyệt tức thì (0s)',
+    approvalLabel: 'Duyệt Tức Thì tự động (Active ngay)',
     features: [
       'Vị trí nổi bật: Hiển thị trên toàn bộ Tin Thường (dưới VIP Vàng)',
-      '(*) Ưu tiên sớm (30 phút): Tự động duyệt sau 30 phút, ưu tiên trước tin thường',
+      '(*) Duyệt Tức Thì tự động: Kích hoạt hiển thị (Active ngay) lập tức khi thanh toán',
       'Gắn huy hiệu VIP Bạc tin cậy, tiêu đề màu xanh đậm hiện đại',
       'Tỷ lệ tiếp cận gấp 8 lần tin thường',
       'Hiển thị đầy đủ thông tin môi giới và thông số BĐS'
@@ -115,13 +115,15 @@ export const LISTING_TYPES = [
     borderColor: 'border-slate-200',
     titleClass: 'text-slate-800 font-medium hover:text-blue-600',
     tagClass: 'bg-slate-500 text-white',
-    approvalType: 'countdown_fifo',
-    approvalTimeMinutes: 60,
-    approvalBadge: 'Hàng đợi FIFO (Tự động 1 tiếng)',
-    approvalLabel: 'Hàng đợi tiêu chuẩn FIFO (Tự động xuất bản trong 1 tiếng)',
+    approvalType: 'random_fifo',
+    approvalTimeMinutes: 10,
+    approvalMinMinutes: 5,
+    approvalMaxMinutes: 15,
+    approvalBadge: 'Duyệt tự động (5 - 15 phút)',
+    approvalLabel: 'Duyệt tự động ngẫu nhiên (5 - 15 phút)',
     features: [
       'Vị trí hiển thị: Nằm sau tất cả các phân hạng Tin VIP (Hiển thị dưới cùng)',
-      '(*) Hàng đợi tiêu chuẩn FIFO: Tự động xuất bản trong 1 tiếng (hoặc BQT duyệt sớm)',
+      '(*) Duyệt tự động ngẫu nhiên: Kích hoạt sau 5 - 15 phút (hoặc BQT duyệt sớm)',
       'Phí đăng tin tiêu chuẩn: 35.000 đ/lần (Hội viên áp dụng Voucher giảm 35.000 đ còn 0 đ)',
       'Phí đẩy tin làm mới: 10.000 đ/lần (Hội viên áp dụng Voucher giảm 10.000 đ còn 0 đ)',
       'Đầy đủ thông tin liên hệ, hình ảnh và vị trí bản đồ BĐS',
@@ -2381,42 +2383,44 @@ export const VIETNAM_BANKS = [
 // Quy Chế Thanh Toán Trước - Phê Duyệt Tự Động Theo Cấp Độ Tin Đăng
 export const DEFAULT_APPROVAL_TIERS = {
   'vip-diamond': {
-    mode: 'instant', // 'instant' | 'countdown' | 'manual'
+    mode: 'instant', // 'instant' | 'countdown' | 'random' | 'manual'
     delayMinutes: 0,
     title: 'VIP Kim Cương',
     shortName: 'VIP KIM CƯƠNG',
     description: 'Duyệt Tức Thì tự động (Active ngay lập tức khi thanh toán thành công)',
-    badgeText: 'Duyệt Tức Thì (0s)',
+    badgeText: 'Duyệt tức thì (0s)',
     badgeColor: 'bg-red-600 text-white',
     rank: 1
   },
   'vip-gold': {
-    mode: 'countdown',
-    delayMinutes: 15, // 15 phút
+    mode: 'instant',
+    delayMinutes: 0,
     title: 'VIP Vàng',
     shortName: 'VIP VÀNG',
-    description: 'Ưu tiên sớm: Tự động phê duyệt sau 15 phút nếu Admin chưa duyệt trước',
-    badgeText: 'Ưu tiên sớm (15 phút)',
+    description: 'Duyệt Tức Thì tự động (Active ngay lập tức khi thanh toán thành công)',
+    badgeText: 'Duyệt tức thì (0s)',
     badgeColor: 'bg-amber-500 text-slate-950 font-bold',
     rank: 2
   },
   'vip-silver': {
-    mode: 'countdown',
-    delayMinutes: 30, // 30 phút
+    mode: 'instant',
+    delayMinutes: 0,
     title: 'VIP Bạc',
     shortName: 'VIP BẠC',
-    description: 'Ưu tiên sớm: Tự động phê duyệt sau 30 phút (trước tin thường)',
-    badgeText: 'Ưu tiên sớm (30 phút)',
-    badgeColor: 'bg-blue-600 text-white font-bold',
+    description: 'Duyệt Tức Thì tự động (Active ngay lập tức khi thanh toán thành công)',
+    badgeText: 'Duyệt tức thì (0s)',
+    badgeColor: 'bg-teal-600 text-white font-bold',
     rank: 3
   },
   'normal': {
-    mode: 'countdown', // FIFO tự động xuất bản trong 1 tiếng (60 phút)
-    delayMinutes: 60,
+    mode: 'random', // 'random' | 'countdown' | 'instant'
+    delayMinMinutes: 5,
+    delayMaxMinutes: 15,
+    delayMinutes: 10,
     title: 'Tin Thường',
     shortName: 'TIN THƯỜNG',
-    description: 'Hàng đợi tiêu chuẩn FIFO - Tự động xuất bản trong 1 tiếng (hoặc BQT duyệt sớm)',
-    badgeText: 'Hàng đợi FIFO (Tự động 1 tiếng)',
+    description: 'Hàng đợi duyệt tự động ngẫu nhiên trong khoảng 5 - 15 phút (hoặc Admin duyệt sớm)',
+    badgeText: 'Duyệt tự động (5 - 15 phút)',
     badgeColor: 'bg-slate-700 text-slate-200',
     rank: 4
   }

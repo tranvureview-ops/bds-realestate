@@ -18,6 +18,7 @@ export default function VipPricingPage() {
     setActiveModal,
     showToast,
     systemConfig,
+    paymentConfig,
     bumpServicePrice,
     BUMP_SERVICE_PRICE: contextBumpPrice
   } = useRealEstate();
@@ -25,7 +26,7 @@ export default function VipPricingPage() {
   const currentBumpPrice = bumpServicePrice ?? contextBumpPrice ?? BUMP_SERVICE_PRICE ?? 10000;
 
   const vipPackages = contextVipPackages || MOCK_VIP;
-  const ratesConfig = useMemo(() => getEffectiveBdsRates(vipPackages), [vipPackages]);
+  const ratesConfig = useMemo(() => getEffectiveBdsRates(vipPackages, paymentConfig), [vipPackages, paymentConfig]);
 
   // 1. Batdongsan UI Selector State (Khớp 100% ảnh chụp Batdongsan.com.vn)
   const [selectedListingType, setSelectedListingType] = useState('normal'); // Mặc định 'normal' như ảnh
@@ -100,7 +101,7 @@ export default function VipPricingPage() {
     },
     {
       q: 'Tin đăng có được duyệt ngay không sau khi thanh toán?',
-      a: 'Tin VIP Kim Cương được áp dụng cơ chế "Duyệt Tức Thì" (Active tự động ngay sau khi hoàn tất). Các loại tin VIP Vàng, VIP Bạc được ưu tiên duyệt nhanh trong vòng 15 - 30 phút. Tin thường sẽ được kiểm duyệt trong khung giờ làm việc theo quy chuẩn sàn.'
+      a: 'Tất cả các gói tin VIP (VIP Kim Cương, VIP Vàng, VIP Bạc) đều được áp dụng cơ chế "Duyệt Tức Thì (0s)" tự động kích hoạt hiển thị ngay sau khi thanh toán thành công. Riêng Tin Thường sẽ được hệ thống tự động kiểm duyệt và xuất bản ngẫu nhiên trong khoảng 5 - 15 phút.'
     }
   ];
 
@@ -630,16 +631,16 @@ export default function VipPricingPage() {
                     Tốc độ kiểm duyệt & Xuất bản
                   </td>
                   <td className="py-3 px-3 text-center font-black text-red-600 bg-red-50/30 border-x border-red-100">
-                    Duyệt Tức Thì (Active ngay)
+                    Duyệt Tức Thì (0s)
                   </td>
-                  <td className="py-3 px-3 text-center font-semibold text-amber-800 bg-amber-50/30 border-r border-amber-100">
-                    Ưu tiên sớm (15 phút)
+                  <td className="py-3 px-3 text-center font-black text-amber-700 bg-amber-50/30 border-r border-amber-100">
+                    Duyệt Tức Thì (0s)
                   </td>
-                  <td className="py-3 px-3 text-center text-slate-700 bg-blue-50/30 border-r border-blue-100">
-                    Ưu tiên sớm
+                  <td className="py-3 px-3 text-center font-black text-teal-700 bg-blue-50/30 border-r border-blue-100">
+                    Duyệt Tức Thì (0s)
                   </td>
-                  <td className="py-3 px-3 text-center text-slate-500 bg-slate-50/30">
-                    Hàng đợi tiêu chuẩn
+                  <td className="py-3 px-3 text-center text-slate-700 font-medium bg-slate-50/30">
+                    Tự động 5 - 15 phút
                   </td>
                 </tr>
 

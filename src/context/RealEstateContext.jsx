@@ -1840,10 +1840,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
     // =========================================================================
     // Cơ Chế Thanh Toán Trước - Phê Duyệt Tự Động Theo Cấp Độ Tin Đăng:
-    // 1. VIP Kim Cương ('vip-diamond'): Duyệt Tức Thì tự động (Active ngay)
-    // 2. VIP Vàng ('vip-gold'): Ưu tiên sớm (15 phút) -> Tự động duyệt sau 15p
-    // 3. VIP Bạc ('vip-silver'): Ưu tiên sớm (30 phút) -> Tự động duyệt sau 30p
-    // 4. Tin Thường ('normal'): Hàng đợi tiêu chuẩn theo thứ tự (FIFO)
+    // 1. VIP Kim Cương, VIP Vàng, VIP Bạc: Duyệt Tức Thì tự động (0s - Active ngay)
+    // 2. Tin Thường ('normal'): Duyệt Tự Động ngẫu nhiên (5 - 15 phút)
     // =========================================================================
     const tierConfig = paymentConfig?.approvalTiers?.[vipPackageId] || DEFAULT_APPROVAL_TIERS[vipPackageId] || DEFAULT_APPROVAL_TIERS['normal'];
     const isAdmin = currentUser?.role === 'admin';
@@ -1855,50 +1853,49 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     let approvalType = 'standard_fifo';
     let approvalNote = '';
 
+    const isVipTier = ['vip-diamond', 'vip-gold', 'vip-silver'].includes(vipPackageId);
+
     if (isAdmin) {
       initialStatus = 'active';
       approvalType = 'admin_instant';
       approvalNote = 'Quản trị viên xuất bản trực tiếp';
-    } else if (vipPackageId === 'vip-diamond') {
-      // 1. VIP Kim Cương: Duyệt Tức Thì tự động (Active ngay)
-      if (systemConfig?.autoApproveDiamond !== false && paymentConfig?.autoApproveVip !== false && tierConfig?.mode !== 'manual') {
-        initialStatus = 'active';
-        approvalType = 'instant';
-        approvalNote = 'Đặc quyền VIP Kim Cương: Duyệt Tức Thì tự động (Active ngay)';
-      } else {
-        initialStatus = 'pending';
-        queuePriority = 'priority_diamond';
-        queueRank = 1;
-        approvalType = 'manual_priority';
-        approvalNote = 'VIP Kim Cương: Chờ Admin phê duyệt';
-      }
-    } else if (vipPackageId === 'vip-gold') {
-      // 2. VIP Vàng: Ưu tiên sớm (15 phút)
+    } else if (isVipTier && tierConfig?.mode !== 'countdown' && tierConfig?.mode !== 'manual') {
+      // 1. Cả 3 gói VIP (Kim Cương, Vàng, Bạc): Duyệt Tức Thì tự động (Active ngay)
+      initialStatus = 'active';
+      approvalType = 'instant';
+      approvalNote = `Đặc quyền ${pkg.name}: Duyệt Tức Thì tự động (Active ngay 0s)`;
+    } else if (isVipTier && tierConfig?.mode === 'countdown') {
+      // Tùy chỉnh Admin: Hẹn giờ duyệt cho VIP
       const delayMin = Number(tierConfig?.delayMinutes ?? 15);
       initialStatus = 'pending';
       approvalType = 'priority_countdown';
-      queuePriority = 'priority_gold';
-      queueRank = 2;
+      queuePriority = `priority_${vipPackageId.replace('vip-', '')}`;
+      queueRank = vipPackageId === 'vip-gold' ? 2 : 3;
       autoApproveAt = new Date(Date.now() + delayMin * 60 * 1000).toISOString();
-      approvalNote = `VIP Vàng: Ưu tiên sớm (Tự động duyệt sau ${delayMin} phút)`;
-    } else if (vipPackageId === 'vip-silver') {
-      // 3. VIP Bạc: Ưu tiên sớm (30 phút)
-      const delayMin = Number(tierConfig?.delayMinutes ?? 30);
-      initialStatus = 'pending';
-      approvalType = 'priority_countdown';
-      queuePriority = 'priority_silver';
-      queueRank = 3;
-      autoApproveAt = new Date(Date.now() + delayMin * 60 * 1000).toISOString();
-      approvalNote = `VIP Bạc: Ưu tiên sớm (Tự động duyệt sau ${delayMin} phút)`;
+      approvalNote = `${pkg.name}: Ưu tiên sớm (Tự động duyệt sau ${delayMin} phút)`;
+    } else if (vipPackageId === 'normal' && tierConfig?.mode === 'instant') {
+      // Tin Thường nếu admin bật Duyệt tức thì
+      initialStatus = 'active';
+      approvalType = 'instant';
+      approvalNote = 'Tin Thường: Duyệt Tức Thì tự động theo cấu hình Admin';
     } else {
-      // 4. Tin Thường: Hàng đợi tiêu chuẩn theo thứ tự (FIFO) - Tự động xuất bản trong 1 tiếng (60 phút)
-      const delayMin = Number(tierConfig?.delayMinutes ?? 60);
+      // 2. Tin Thường: Duyệt tự động ngẫu nhiên 5 - 15 phút (hoặc theo cấu hình Admin)
+      let delayMin = 10;
+      if (tierConfig?.mode === 'countdown' && tierConfig?.delayMinutes > 0) {
+        delayMin = Number(tierConfig.delayMinutes);
+        approvalNote = `Tin Thường: Hàng đợi duyệt tự động cố định (${delayMin} phút)`;
+      } else {
+        const min = Math.max(1, Number(tierConfig?.delayMinMinutes) || 5);
+        const max = Math.max(min, Number(tierConfig?.delayMaxMinutes) || 15);
+        delayMin = Math.floor(Math.random() * (max - min + 1)) + min;
+        approvalNote = `Tin Thường: Hàng đợi duyệt tự động ngẫu nhiên ${min} - ${max} phút (Lần này: ~${delayMin} phút)`;
+      }
+
       initialStatus = 'pending';
-      approvalType = 'standard_fifo_countdown';
+      approvalType = 'random_countdown';
       queuePriority = 'standard_fifo';
       queueRank = 4;
       autoApproveAt = new Date(Date.now() + delayMin * 60 * 1000).toISOString();
-      approvalNote = `Tin Thường: Hàng đợi tiêu chuẩn FIFO (Tự động xuất bản sau ${delayMin} phút / 1 tiếng)`;
     }
 
     const numDays = Number(days) || Number(formData.listingDays) || 15;
@@ -1940,13 +1937,17 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     upsertSupabaseProperty(newProp).catch(console.warn);
 
     if (initialStatus === 'active') {
-      showToast(`⚡ Thanh toán thành công! Tin VIP Kim Cương (${newProp.id}) được Duyệt Tức Thì và đang hiển thị ngay trên website.`, 'success');
-    } else if (vipPackageId === 'vip-gold') {
-      showToast(`🥇 Thanh toán thành công! Tin VIP Vàng (${newProp.id}) vào Hàng Đợi Ưu Tiên Sớm (Tự động duyệt sau 15 phút).`, 'success');
-    } else if (vipPackageId === 'vip-silver') {
-      showToast(`🥈 Thanh toán thành công! Tin VIP Bạc (${newProp.id}) vào Hàng Đợi Ưu Tiên Sớm (Tự động duyệt sau 30 phút).`, 'success');
+      if (vipPackageId === 'vip-diamond') {
+        showToast(`⚡ Thanh toán thành công! Tin VIP Kim Cương (${newProp.id}) được Duyệt Tức Thì và đang hiển thị ngay trên website.`, 'success');
+      } else if (vipPackageId === 'vip-gold') {
+        showToast(`🥇 Thanh toán thành công! Tin VIP Vàng (${newProp.id}) được Duyệt Tức Thì và đang hiển thị ngay trên website.`, 'success');
+      } else if (vipPackageId === 'vip-silver') {
+        showToast(`🥈 Thanh toán thành công! Tin VIP Bạc (${newProp.id}) được Duyệt Tức Thì và đang hiển thị ngay trên website.`, 'success');
+      } else {
+        showToast(`⚡ Xuất bản thành công! Tin (${newProp.id}) đang hiển thị trực tiếp trên sàn.`, 'success');
+      }
     } else {
-      showToast(`📋 Thanh toán thành công! Tin ${pkg.name} (${newProp.id}) đã vào Hàng Đợi Tiêu Chuẩn FIFO (Tự động xuất bản trong 1 tiếng).`, 'info');
+      showToast(`📋 Đăng tin thành công! Tin ${pkg?.name || 'Tin Thường'} (${newProp.id}) đang trong hàng đợi phê duyệt (Tự động kích hoạt sau ít phút).`, 'info');
     }
     return newProp;
   };
@@ -2784,6 +2785,40 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       setSystemConfig(prev => {
         const nextCfg = { ...prev, dailyFreeListingLimit: limitNum };
         persistSettingToSupabase('bds_system_config', nextCfg);
+        return nextCfg;
+      });
+    }
+    if (extraData.approvalMode !== undefined || extraData.approvalMinMinutes !== undefined || extraData.approvalMaxMinutes !== undefined || extraData.delayMinutes !== undefined) {
+      setPaymentConfig(prev => {
+        const currentTiers = prev?.approvalTiers || DEFAULT_APPROVAL_TIERS;
+        const currentPkgTier = currentTiers[pkgId] || DEFAULT_APPROVAL_TIERS[pkgId] || {};
+        const mode = extraData.approvalMode || currentPkgTier.mode || (pkgId === 'normal' ? 'random' : 'instant');
+        const delayMinMinutes = extraData.approvalMinMinutes !== undefined ? Number(extraData.approvalMinMinutes) : (currentPkgTier.delayMinMinutes ?? 5);
+        const delayMaxMinutes = extraData.approvalMaxMinutes !== undefined ? Number(extraData.approvalMaxMinutes) : (currentPkgTier.delayMaxMinutes ?? 15);
+        const delayMinutes = extraData.delayMinutes !== undefined ? Number(extraData.delayMinutes) : (currentPkgTier.delayMinutes ?? 10);
+        
+        let badgeText = 'Duyệt tức thì (0s)';
+        if (mode === 'random') {
+          badgeText = `Duyệt tự động (${delayMinMinutes} - ${delayMaxMinutes} phút)`;
+        } else if (mode === 'countdown') {
+          badgeText = `Tự động duyệt (${delayMinutes} phút)`;
+        }
+
+        const nextCfg = {
+          ...prev,
+          approvalTiers: {
+            ...currentTiers,
+            [pkgId]: {
+              ...currentPkgTier,
+              mode,
+              delayMinutes,
+              delayMinMinutes,
+              delayMaxMinutes,
+              badgeText
+            }
+          }
+        };
+        persistSettingToSupabase('bds_payment_config', nextCfg);
         return nextCfg;
       });
     }
