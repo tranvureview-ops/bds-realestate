@@ -304,9 +304,6 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       if (appliedVoucher === 'normalPublish') {
         setAppliedVoucher(null);
       }
-      if (hasVipVoucher && appliedVoucher !== 'vipPublish') {
-        showToast(`Bạn có ${currentUser.vouchers?.vipPublish} Voucher Tin VIP (-400.000 đ). Nhấn Áp dụng để tiết kiệm ngay!`, 'info');
-      }
     }
   };
 
@@ -1975,9 +1972,24 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   <span className="text-[11px] text-slate-500 font-medium">Bảng giá niêm yết theo ngày</span>
                 </div>
 
+                <BatdongsanListingSelector
+                  selectedType={selectedVipId}
+                  onSelectType={handleSelectPackage}
+                  selectedDays={listingDays}
+                  onSelectDays={setListingDays}
+                  startDate={startDate}
+                  onStartDateChange={setStartDate}
+                  scheduleTime={scheduleTime}
+                  onScheduleTimeChange={setScheduleTime}
+                  voucherDiscount={voucherDiscount}
+                  appliedVoucher={appliedVoucher}
+                  showFullSummary={false}
+                  customVipPackages={activeVipPackages}
+                />
+
                 {/* Banner Thông Tin Hạn Mức Đăng Tin Miễn Phí Trong Ngày */}
                 {selectedVipId === 'normal' && (
-                  <div className={`p-3.5 rounded-2xl border flex items-center justify-between text-xs transition ${
+                  <div className={`p-3.5 rounded-2xl border flex items-center justify-between text-xs transition-colors ${
                     !dailyQuotaInfo.allowed 
                       ? 'bg-rose-50 border-rose-200 text-rose-800' 
                       : 'bg-emerald-50/80 border-emerald-200 text-emerald-900'
@@ -2017,21 +2029,6 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     </span>
                   </div>
                 )}
-
-                <BatdongsanListingSelector
-                  selectedType={selectedVipId}
-                  onSelectType={handleSelectPackage}
-                  selectedDays={listingDays}
-                  onSelectDays={setListingDays}
-                  startDate={startDate}
-                  onStartDateChange={setStartDate}
-                  scheduleTime={scheduleTime}
-                  onScheduleTimeChange={setScheduleTime}
-                  voucherDiscount={voucherDiscount}
-                  appliedVoucher={appliedVoucher}
-                  showFullSummary={false}
-                  customVipPackages={activeVipPackages}
-                />
               </div>
 
               {/* Dịch vụ đẩy tin khung giờ vàng tự động */}

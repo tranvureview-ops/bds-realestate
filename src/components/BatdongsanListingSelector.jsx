@@ -330,10 +330,10 @@ export default function BatdongsanListingSelector({
                   }
                 }
               }}
-              className={`p-5 rounded-2xl flex flex-col justify-between cursor-pointer transition-all duration-150 relative bg-white ${
+              className={`p-5 rounded-2xl flex flex-col justify-between cursor-pointer border-2 transition-colors duration-150 relative bg-white ${
                 isSelected
-                  ? 'border-2 border-slate-900 shadow-md ring-1 ring-slate-900/10'
-                  : 'border border-slate-200 hover:border-slate-300 hover:shadow-sm'
+                  ? 'border-slate-900 shadow-md ring-1 ring-slate-900/10'
+                  : 'border-slate-200 hover:border-slate-300 hover:shadow-sm'
               }`}
             >
               <div>
@@ -390,7 +390,7 @@ export default function BatdongsanListingSelector({
       <div className="relative bg-[#f4f5f7] p-4 sm:p-5 rounded-2xl border border-slate-200/80 space-y-3">
         {/* Mũi tên tam giác chỉ lên thẻ được chọn */}
         <div
-          className={`absolute -top-2 w-4 h-4 bg-[#f4f5f7] transform rotate-45 border-l border-t border-slate-200/80 hidden lg:block -translate-x-1/2 transition-all duration-300 ${arrowPositionClass}`}
+          className={`absolute -top-2 w-4 h-4 bg-[#f4f5f7] transform rotate-45 border-l border-t border-slate-200/80 hidden lg:block -translate-x-1/2 transition-[left] duration-150 ease-out ${arrowPositionClass}`}
         ></div>
 
         {/* Tiêu đề khuyến mãi / Thời hạn */}
@@ -485,10 +485,10 @@ export default function BatdongsanListingSelector({
                   key={days}
                   type="button"
                   onClick={() => onSelectDays && onSelectDays(days)}
-                  className={`relative p-2 sm:p-2.5 rounded-xl text-center transition cursor-pointer flex flex-col items-center justify-center ${
+                  className={`relative p-2 sm:p-2.5 rounded-xl text-center border-2 transition-colors duration-150 cursor-pointer flex flex-col items-center justify-center ${
                     isSelected
-                      ? 'bg-white border-2 border-slate-900 shadow-sm ring-1 ring-slate-900/10'
-                      : 'bg-white/90 hover:bg-white border border-slate-200 hover:border-slate-300'
+                      ? 'bg-white border-slate-900 shadow-sm ring-1 ring-slate-900/10'
+                      : 'bg-white/90 hover:bg-white border-slate-200 hover:border-slate-300'
                   }`}
                 >
                   {days === 7 && (
