@@ -7286,27 +7286,6 @@ export default function AdminBackendPage() {
                     </div>
 
                     <div className="space-y-3 text-xs">
-                      {/* Phê duyệt tự động tập trung */}
-                      <div className="p-3.5 bg-slate-900/60 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div className="flex items-center gap-2.5">
-                          <i className="fa-solid fa-bolt text-amber-400 text-sm shrink-0"></i>
-                          <div>
-                            <div className="font-bold text-white text-xs">Phê duyệt tự động toàn diện:</div>
-                            <div className="text-[11px] text-slate-400 mt-0.5">
-                              VIP Kim Cương, Vàng, Bạc duyệt tức thì (0s). Tin Thường duyệt tự động ngẫu nhiên 5 - 15 phút.
-                            </div>
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setSettingsSubTab('payment')}
-                          className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 text-[11px] font-bold border border-slate-700 transition shrink-0 flex items-center gap-1.5 self-end sm:self-auto cursor-pointer"
-                        >
-                          <span>Cấu hình chi tiết</span>
-                          <i className="fa-solid fa-arrow-right text-[10px]"></i>
-                        </button>
-                      </div>
-
                       {/* Toggle AI Moderation */}
                       <label className="flex items-start gap-3 p-3.5 bg-slate-900/80 hover:bg-slate-900 rounded-2xl border border-slate-800 cursor-pointer transition">
                         <input
