@@ -275,7 +275,12 @@ export default function VipPricingPage() {
 
           <BatdongsanListingSelector
             selectedType={selectedListingType}
-            onSelectType={(type) => setSelectedListingType(type)}
+            onSelectType={(type) => {
+              setSelectedListingType(type);
+              if (type === 'normal') {
+                setSelectedDuration(60);
+              }
+            }}
             selectedDays={selectedDuration}
             onSelectDays={(days) => setSelectedDuration(days)}
             startDate={startDate}

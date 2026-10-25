@@ -208,6 +208,15 @@ export default function BatdongsanListingSelector({
     'normal': 'left-[87.5%]'
   }[selectedType] || 'left-[87.5%]';
 
+  const isNormal = selectedType === 'normal';
+
+  // Khi chọn Tin Thường, tự động mặc định chọn 60 ngày
+  useEffect(() => {
+    if (isNormal && selectedDays !== 60 && onSelectDays) {
+      onSelectDays(60);
+    }
+  }, [isNormal, selectedDays, onSelectDays]);
+
   // Dữ liệu gói hiện tại
   const currentConfig = ratesConfig[selectedType] || ratesConfig['normal'];
   const baseRate = currentConfig.rates[15];
@@ -223,13 +232,19 @@ export default function BatdongsanListingSelector({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 items-stretch">
         {Object.values(ratesConfig).map((item) => {
           const isSelected = selectedType === item.id;
-          // Giá hiển thị trên card thay đổi tương ứng theo số ngày đang chọn
-          const cardDailyRate = item.rates[selectedDays] || item.rates[15];
+          // Giá hiển thị trên card: Tin Thường hiển thị theo 60 ngày (0 đ / Miễn phí)
+          const daysForCard = item.id === 'normal' ? 60 : (selectedDays || 15);
+          const cardDailyRate = item.rates[daysForCard] || item.rates[15];
 
           return (
             <div
               key={item.id}
-              onClick={() => onSelectType && onSelectType(item.id)}
+              onClick={() => {
+                if (onSelectType) onSelectType(item.id);
+                if (item.id === 'normal' && onSelectDays) {
+                  onSelectDays(60);
+                }
+              }}
               className={`p-5 rounded-2xl flex flex-col justify-between cursor-pointer transition-all duration-150 relative bg-white ${
                 isSelected
                   ? 'border-2 border-slate-900 shadow-md ring-1 ring-slate-900/10'
@@ -293,99 +308,118 @@ export default function BatdongsanListingSelector({
           className={`absolute -top-2 w-4 h-4 bg-[#f4f5f7] transform rotate-45 border-l border-t border-slate-200/80 hidden lg:block -translate-x-1/2 transition-all duration-300 ${arrowPositionClass}`}
         ></div>
 
-        {/* Tiêu đề khuyến mãi */}
+        {/* Tiêu đề khuyến mãi / Thời hạn */}
         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-          <span className="text-sm">🔥</span>
-          <span>Tiết kiệm hơn khi đăng tin từ 30 ngày!</span>
+          {isNormal ? (
+            <>
+              <span className="text-sm">🎁</span>
+              <span>Thời hạn đăng tin mặc định: 60 ngày (Miễn phí 100%)</span>
+            </>
+          ) : (
+            <>
+              <span className="text-sm">🔥</span>
+              <span>Tiết kiệm hơn khi đăng tin từ 30 ngày!</span>
+            </>
+          )}
         </div>
 
         {/* 3 Lựa chọn số ngày: 15 ngày, 30 ngày, 60 ngày */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {/* Lựa chọn 1: 15 ngày */}
-          <div
-            onClick={() => onSelectDays && onSelectDays(15)}
-            className={`p-4 rounded-2xl cursor-pointer transition flex items-center justify-between bg-white ${
-              selectedDays === 15
-                ? 'border-2 border-slate-900 shadow-sm'
-                : 'border border-slate-200 hover:border-slate-300'
-            }`}
-          >
-            <div>
-              <div className="font-bold text-sm text-slate-900">15 ngày</div>
-              <div className="text-xs text-slate-600 mt-1 font-semibold">
-                {currentConfig.rates[15] === 0 ? (
-                  <span className="text-emerald-600 font-bold">Miễn phí</span>
-                ) : (
-                  `${currentConfig.rates[15].toLocaleString('vi-VN')} đ/ngày`
-                )}
+        <div className={`grid gap-3 ${isNormal ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-3'}`}>
+          {/* Lựa chọn 1: 15 ngày (Ẩn khi chọn Tin Thường; sẵn sàng mở lại khi tính phí tin thường) */}
+          {!isNormal && (
+            <div
+              onClick={() => onSelectDays && onSelectDays(15)}
+              className={`p-4 rounded-2xl cursor-pointer transition flex items-center justify-between bg-white ${
+                selectedDays === 15
+                  ? 'border-2 border-slate-900 shadow-sm'
+                  : 'border border-slate-200 hover:border-slate-300'
+              }`}
+            >
+              <div>
+                <div className="font-bold text-sm text-slate-900">15 ngày</div>
+                <div className="text-xs text-slate-600 mt-1 font-semibold">
+                  {currentConfig.rates[15] === 0 ? (
+                    <span className="text-emerald-600 font-bold">Miễn phí</span>
+                  ) : (
+                    `${currentConfig.rates[15].toLocaleString('vi-VN')} đ/ngày`
+                  )}
+                </div>
+              </div>
+              {/* Custom Radio Icon */}
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
+                selectedDays === 15 ? 'border-2 border-slate-900' : 'border border-slate-300'
+              }`}>
+                {selectedDays === 15 && <div className="w-2.5 h-2.5 rounded-full bg-slate-900"></div>}
               </div>
             </div>
-            {/* Custom Radio Icon */}
-            <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
-              selectedDays === 15 ? 'border-2 border-slate-900' : 'border border-slate-300'
-            }`}>
-              {selectedDays === 15 && <div className="w-2.5 h-2.5 rounded-full bg-slate-900"></div>}
-            </div>
-          </div>
+          )}
 
-          {/* Lựa chọn 2: 30 ngày (-25%) */}
-          <div
-            onClick={() => onSelectDays && onSelectDays(30)}
-            className={`p-4 rounded-2xl cursor-pointer transition flex items-center justify-between bg-white ${
-              selectedDays === 30
-                ? 'border-2 border-slate-900 shadow-sm'
-                : 'border border-slate-200 hover:border-slate-300'
-            }`}
-          >
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-bold text-sm text-slate-900">30 ngày</span>
-                <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-100 px-1.5 py-0.5 rounded-md">
-                  Tiết kiệm 25%
-                </span>
+          {/* Lựa chọn 2: 30 ngày (-25%) (Ẩn khi chọn Tin Thường; sẵn sàng mở lại khi tính phí tin thường) */}
+          {!isNormal && (
+            <div
+              onClick={() => onSelectDays && onSelectDays(30)}
+              className={`p-4 rounded-2xl cursor-pointer transition flex items-center justify-between bg-white ${
+                selectedDays === 30
+                  ? 'border-2 border-slate-900 shadow-sm'
+                  : 'border border-slate-200 hover:border-slate-300'
+              }`}
+            >
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-sm text-slate-900">30 ngày</span>
+                  <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-100 px-1.5 py-0.5 rounded-md">
+                    Tiết kiệm 25%
+                  </span>
+                </div>
+                <div className="text-xs text-slate-600 mt-1 font-semibold flex items-center gap-1.5">
+                  {currentConfig.rates[30] === 0 ? (
+                    <span className="text-emerald-600 font-bold">Miễn phí</span>
+                  ) : (
+                    <>
+                      <span>{currentConfig.rates[30].toLocaleString('vi-VN')} đ/ngày</span>
+                      {baseRate > 0 && (
+                        <span className="line-through text-slate-400 font-normal text-[11px]">
+                          {baseRate.toLocaleString('vi-VN')} đ/ngày
+                        </span>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
-              <div className="text-xs text-slate-600 mt-1 font-semibold flex items-center gap-1.5">
-                {currentConfig.rates[30] === 0 ? (
-                  <span className="text-emerald-600 font-bold">Miễn phí</span>
-                ) : (
-                  <>
-                    <span>{currentConfig.rates[30].toLocaleString('vi-VN')} đ/ngày</span>
-                    {baseRate > 0 && (
-                      <span className="line-through text-slate-400 font-normal text-[11px]">
-                        {baseRate.toLocaleString('vi-VN')} đ/ngày
-                      </span>
-                    )}
-                  </>
-                )}
+              {/* Custom Radio Icon */}
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
+                selectedDays === 30 ? 'border-2 border-slate-900' : 'border border-slate-300'
+              }`}>
+                {selectedDays === 30 && <div className="w-2.5 h-2.5 rounded-full bg-slate-900"></div>}
               </div>
             </div>
-            {/* Custom Radio Icon */}
-            <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
-              selectedDays === 30 ? 'border-2 border-slate-900' : 'border border-slate-300'
-            }`}>
-              {selectedDays === 30 && <div className="w-2.5 h-2.5 rounded-full bg-slate-900"></div>}
-            </div>
-          </div>
+          )}
 
-          {/* Lựa chọn 3: 60 ngày (-30%) */}
+          {/* Lựa chọn 3: 60 ngày */}
           <div
             onClick={() => onSelectDays && onSelectDays(60)}
             className={`p-4 rounded-2xl cursor-pointer transition flex items-center justify-between bg-white ${
               selectedDays === 60
-                ? 'border-2 border-slate-900 shadow-sm'
+                ? 'border-2 border-slate-900 shadow-sm ring-1 ring-slate-900/10'
                 : 'border border-slate-200 hover:border-slate-300'
-            }`}
+            } ${isNormal ? 'sm:col-span-1' : ''}`}
           >
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="font-bold text-sm text-slate-900">60 ngày</span>
-                <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-100 px-1.5 py-0.5 rounded-md">
-                  Tiết kiệm 30%
-                </span>
+                {isNormal ? (
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-md">
+                    Mặc định miễn phí
+                  </span>
+                ) : (
+                  <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-100 px-1.5 py-0.5 rounded-md">
+                    Tiết kiệm 30%
+                  </span>
+                )}
               </div>
               <div className="text-xs text-slate-600 mt-1 font-semibold flex items-center gap-1.5">
                 {currentConfig.rates[60] === 0 ? (
-                  <span className="text-emerald-600 font-bold">Miễn phí</span>
+                  <span className="text-emerald-600 font-bold">Miễn phí 100%</span>
                 ) : (
                   <>
                     <span>{currentConfig.rates[60].toLocaleString('vi-VN')} đ/ngày</span>

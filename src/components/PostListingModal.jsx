@@ -199,7 +199,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   // Listing Type & Billing state - Luôn mặc định là Tin Thường ('normal')
   const defaultListingType = preselectedListingType || 'normal';
   const [selectedVipId, setSelectedVipId] = useState(defaultListingType);
-  const [listingDays, setListingDays] = useState(15);
+  const [listingDays, setListingDays] = useState(defaultListingType === 'normal' ? 60 : 15);
   const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
   const [scheduleTime, setScheduleTime] = useState('now');
   const [autoBumpHours, setAutoBumpHours] = useState(['08:00', '19:30']); // Đẩy tin khung giờ vàng
@@ -211,9 +211,15 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   useEffect(() => {
     if (preselectedListingType) {
       setSelectedVipId(preselectedListingType);
-      if (preselectedListingType === 'normal' && hasNormalVoucher) {
-        setAppliedVoucher('normalPublish');
+      if (preselectedListingType === 'normal') {
+        setListingDays(60);
+        if (hasNormalVoucher) {
+          setAppliedVoucher('normalPublish');
+        }
       }
+    } else {
+      setSelectedVipId('normal');
+      setListingDays(60);
     }
   }, [preselectedListingType, hasNormalVoucher]);
 
@@ -284,6 +290,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const handleSelectPackage = (pkgId) => {
     setSelectedVipId(pkgId);
     if (pkgId === 'normal') {
+      setListingDays(60); // Mặc định hiển thị 60 ngày cho Tin Thường
       if (hasNormalVoucher) {
         setAppliedVoucher('normalPublish');
         showToast('Đã tự động áp dụng Voucher Hội Viên (-35.000 đ): Đăng Tin Thường chỉ 0 đ!', 'success');
