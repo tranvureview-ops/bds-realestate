@@ -7286,26 +7286,26 @@ export default function AdminBackendPage() {
                     </div>
 
                     <div className="space-y-3 text-xs">
-                      {/* Toggle Auto approve VIP Diamond */}
-                      <label className="flex items-start gap-3 p-3.5 bg-slate-900/80 hover:bg-slate-900 rounded-2xl border border-slate-800 cursor-pointer transition">
-                        <input
-                          type="checkbox"
-                          checked={formSystemConfig.autoApproveDiamond !== false}
-                          onChange={(e) => setFormSystemConfig(prev => ({ ...prev, autoApproveDiamond: e.target.checked }))}
-                          className="w-4 h-4 text-emerald-500 rounded border-slate-700 bg-slate-800 focus:ring-emerald-500 mt-0.5 shrink-0"
-                        />
-                        <div>
-                          <div className="font-bold text-white flex items-center gap-2">
-                            <span>Tự động kích hoạt VIP Kim Cương (Duyệt Tức Thì)</span>
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-red-950 text-red-300 border border-red-800">
-                              VIP 1
-                            </span>
+                      {/* Phê duyệt tự động tập trung */}
+                      <div className="p-3.5 bg-slate-900/60 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5">
+                          <i className="fa-solid fa-bolt text-amber-400 text-sm shrink-0"></i>
+                          <div>
+                            <div className="font-bold text-white text-xs">Phê duyệt tự động toàn diện:</div>
+                            <div className="text-[11px] text-slate-400 mt-0.5">
+                              VIP Kim Cương, Vàng, Bạc duyệt tức thì (0s). Tin Thường duyệt tự động ngẫu nhiên 5 - 15 phút.
+                            </div>
                           </div>
-                          <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                            Khi bật, tin mua gói VIP Kim Cương sẽ được hiển thị ngay lập tức (Active ngay) trên website mà không cần Admin duyệt thủ công.
-                          </p>
                         </div>
-                      </label>
+                        <button
+                          type="button"
+                          onClick={() => setSettingsSubTab('payment')}
+                          className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 text-[11px] font-bold border border-slate-700 transition shrink-0 flex items-center gap-1.5 self-end sm:self-auto cursor-pointer"
+                        >
+                          <span>Cấu hình chi tiết</span>
+                          <i className="fa-solid fa-arrow-right text-[10px]"></i>
+                        </button>
+                      </div>
 
                       {/* Toggle AI Moderation */}
                       <label className="flex items-start gap-3 p-3.5 bg-slate-900/80 hover:bg-slate-900 rounded-2xl border border-slate-800 cursor-pointer transition">
@@ -8124,9 +8124,9 @@ export default function AdminBackendPage() {
                     {/* Status Overview Card */}
                     <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-[11px] space-y-1.5 text-slate-400">
                       <div className="flex items-center justify-between">
-                        <span>Duyệt VIP Kim Cương:</span>
-                        <span className={`font-bold ${formSystemConfig.autoApproveDiamond !== false ? 'text-emerald-400' : 'text-amber-400'}`}>
-                          {formSystemConfig.autoApproveDiamond !== false ? 'Tự động duyệt ngay' : 'Admin duyệt thủ công'}
+                        <span>Duyệt bài tự động:</span>
+                        <span className="font-bold text-emerald-400">
+                          VIP (Tức thì 0s) • Thường (5-15p)
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
