@@ -503,6 +503,20 @@ export default function UserDashboard() {
                             </span>
                           )}
 
+                          {prop.downgradedFromVip && !isItemExpired && (
+                            <span className="text-[10px] font-bold text-teal-700 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                              <i className="fa-solid fa-gift text-teal-600"></i>
+                              <span>+60 ngày Tin Thường (Hạ từ {prop.downgradedFromVip === 'vip-diamond' ? 'VIP Kim Cương' : prop.downgradedFromVip === 'vip-gold' ? 'VIP Vàng' : 'VIP Bạc'})</span>
+                            </span>
+                          )}
+
+                          {['vip-diamond', 'vip-gold', 'vip-silver'].includes(prop.vipPackageId) && !isItemExpired && (
+                            <span className="text-[10px] text-emerald-700 bg-emerald-50 border border-emerald-200/70 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                              <i className="fa-solid fa-gift text-emerald-600"></i>
+                              <span>Hết VIP sẽ chuyển Tin Thường +60 ngày</span>
+                            </span>
+                          )}
+
                           {prop.updatedAt && (
                             <span className="flex items-center gap-1 text-amber-700">
                               <i className="fa-regular fa-pen-to-square"></i>

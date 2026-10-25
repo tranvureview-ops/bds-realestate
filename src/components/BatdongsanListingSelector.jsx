@@ -268,6 +268,23 @@ export default function BatdongsanListingSelector({
     }
   }, [startDate, internalStartDate, todayStr, selectedDays, isNormal]);
 
+  // Tính ngày kết thúc Tin Thường sau khi được cộng thêm 60 ngày (+60 ngày từ ngày hết VIP)
+  const bonusNormalEndDateFormatted = useMemo(() => {
+    try {
+      if (isNormal) return '';
+      const base = startDate || internalStartDate || todayStr;
+      const d = new Date(base);
+      if (isNaN(d.getTime())) return '';
+      d.setDate(d.getDate() + (selectedDays || 7) + 60);
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
+    } catch {
+      return '';
+    }
+  }, [startDate, internalStartDate, todayStr, selectedDays, isNormal]);
+
   // Vị trí mũi tên tam giác trỏ xuống từ Card được chọn
   const arrowPositionClass = {
     'vip-diamond': 'left-[12.5%]',
@@ -471,49 +488,62 @@ export default function BatdongsanListingSelector({
           )
         ) : (
           /* VIP (Kim Cương, Vàng, Bạc): 5 mốc tối giản, gọn 5, 7, 10, 15, 30 ngày (loại bỏ 60 ngày, mặc định 7 ngày) */
-          <div className="grid grid-cols-5 gap-1.5 sm:gap-2.5">
-            {[5, 7, 10, 15, 30].map((days) => {
-              const isSelected = selectedDays === days;
-              const rate = currentConfig?.rates?.[days] ?? (
-                days === 30
-                  ? Math.round((currentConfig?.rates?.[15] ?? currentConfig?.pricePerDay ?? 0) * 0.75)
-                  : (currentConfig?.rates?.[15] ?? currentConfig?.pricePerDay ?? 0)
-              );
+          <div className="space-y-2.5">
+            <div className="grid grid-cols-5 gap-1.5 sm:gap-2.5">
+              {[5, 7, 10, 15, 30].map((days) => {
+                const isSelected = selectedDays === days;
+                const rate = currentConfig?.rates?.[days] ?? (
+                  days === 30
+                    ? Math.round((currentConfig?.rates?.[15] ?? currentConfig?.pricePerDay ?? 0) * 0.75)
+                    : (currentConfig?.rates?.[15] ?? currentConfig?.pricePerDay ?? 0)
+                );
 
-              return (
-                <button
-                  key={days}
-                  type="button"
-                  onClick={() => onSelectDays && onSelectDays(days)}
-                  className={`relative p-2 sm:p-2.5 rounded-xl text-center border-2 transition-colors duration-150 cursor-pointer flex flex-col items-center justify-center ${
-                    isSelected
-                      ? 'bg-white border-slate-900 shadow-sm ring-1 ring-slate-900/10'
-                      : 'bg-white/90 hover:bg-white border-slate-200 hover:border-slate-300'
-                  }`}
-                >
-                  {days === 7 && (
-                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-amber-800 bg-amber-100 border border-amber-200/60 px-1.5 py-0.2 rounded-full whitespace-nowrap shadow-xs scale-90 sm:scale-100">
-                      Mặc định
-                    </span>
-                  )}
-                  {days === 30 && (
-                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-red-600 bg-red-100 border border-red-200/60 px-1.5 py-0.2 rounded-full whitespace-nowrap shadow-xs scale-90 sm:scale-100">
-                      -25%
-                    </span>
-                  )}
-                  <div className={`font-bold text-xs sm:text-sm ${isSelected ? 'text-slate-950 font-black' : 'text-slate-800'}`}>
-                    {days} ngày
-                  </div>
-                  <div className="text-[10px] sm:text-[11px] text-slate-500 font-semibold mt-0.5 whitespace-nowrap">
-                    {rate === 0 ? (
-                      <span className="text-emerald-600 font-bold">Miễn phí</span>
-                    ) : (
-                      `${rate.toLocaleString('vi-VN')} đ/ng`
+                return (
+                  <button
+                    key={days}
+                    type="button"
+                    onClick={() => onSelectDays && onSelectDays(days)}
+                    className={`relative p-2 sm:p-2.5 rounded-xl text-center border-2 transition-colors duration-150 cursor-pointer flex flex-col items-center justify-center ${
+                      isSelected
+                        ? 'bg-white border-slate-900 shadow-sm ring-1 ring-slate-900/10'
+                        : 'bg-white/90 hover:bg-white border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    {days === 7 && (
+                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-amber-800 bg-amber-100 border border-amber-200/60 px-1.5 py-0.2 rounded-full whitespace-nowrap shadow-xs scale-90 sm:scale-100">
+                        Mặc định
+                      </span>
                     )}
-                  </div>
-                </button>
-              );
-            })}
+                    {days === 30 && (
+                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-red-600 bg-red-100 border border-red-200/60 px-1.5 py-0.2 rounded-full whitespace-nowrap shadow-xs scale-90 sm:scale-100">
+                        -25%
+                      </span>
+                    )}
+                    <div className={`font-bold text-xs sm:text-sm ${isSelected ? 'text-slate-950 font-black' : 'text-slate-800'}`}>
+                      {days} ngày
+                    </div>
+                    <div className="text-[10px] sm:text-[11px] text-slate-500 font-semibold mt-0.5 whitespace-nowrap">
+                      {rate === 0 ? (
+                        <span className="text-emerald-600 font-bold">Miễn phí</span>
+                      ) : (
+                        `${rate.toLocaleString('vi-VN')} đ/ng`
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Đặc quyền VIP: Tự động hạ thành Tin Thường + 60 ngày */}
+            <div className="p-2.5 sm:p-3 bg-gradient-to-r from-amber-50/90 via-emerald-50/90 to-teal-50/90 border border-emerald-200/80 rounded-xl flex items-start sm:items-center gap-2.5 text-xs text-slate-800 shadow-xs">
+              <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
+                <i className="fa-solid fa-gift text-sm"></i>
+              </div>
+              <div className="flex-1 leading-snug">
+                <span className="font-extrabold text-emerald-800">Đặc quyền VIP độc quyền: </span>
+                <span>Sau khi hết hạn <b className="font-bold text-slate-900">{selectedDays || 7} ngày VIP</b>, bài đăng sẽ <b className="text-amber-800 font-bold">tự động hạ thành Tin Thường</b> và được <b className="text-emerald-700 font-bold">cộng thêm 60 ngày</b> hiển thị miễn phí (Tổng thời gian hiển thị: <b className="text-slate-950 font-black">{(selectedDays || 7) + 60} ngày</b>).</span>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -563,7 +593,15 @@ export default function BatdongsanListingSelector({
             />
           </div>
           <div className="text-[11px] text-slate-500 font-medium">
-            Kết thúc ngày {endDateFormatted}
+            {isNormal ? (
+              <span>Kết thúc ngày <b className="text-slate-800 font-semibold">{endDateFormatted}</b></span>
+            ) : (
+              <span className="flex flex-wrap items-center gap-1.5 leading-snug">
+                <span>Hết VIP: <b className="text-amber-800 font-bold">{endDateFormatted}</b></span>
+                <span className="text-slate-400 font-bold">➜</span>
+                <span className="text-emerald-700 font-semibold">Tự động chuyển Tin Thường đến <b className="font-bold text-emerald-800">{bonusNormalEndDateFormatted}</b> (+60 ngày)</span>
+              </span>
+            )}
           </div>
         </div>
 
@@ -609,6 +647,9 @@ export default function BatdongsanListingSelector({
           <div>
             <div className="text-slate-500">
               Phân loại: <strong className="text-slate-900">{currentConfig?.name || 'Tin đăng'}</strong> • Thời hạn: <strong className="text-slate-900">{selectedDays} ngày</strong>
+              {!isNormal && (
+                <span className="text-emerald-700 font-bold ml-1.5">(+60 ngày Tin Thường miễn phí sau khi hết VIP)</span>
+              )}
             </div>
             <div className="text-base font-black text-slate-900 mt-0.5">
               Tổng thanh toán: <span className="text-red-600">{finalCost === 0 ? '0 đ (Miễn phí)' : `${finalCost.toLocaleString('vi-VN')} đ`}</span>

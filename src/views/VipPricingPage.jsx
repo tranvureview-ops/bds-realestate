@@ -107,6 +107,10 @@ export default function VipPricingPage() {
     {
       q: 'Tin đăng có được duyệt ngay không sau khi thanh toán?',
       a: 'Tất cả các gói tin VIP (VIP Kim Cương, VIP Vàng, VIP Bạc) đều được áp dụng cơ chế "Duyệt Tức Thì (0s)" tự động kích hoạt hiển thị ngay sau khi thanh toán thành công. Riêng Tin Thường sẽ được hệ thống tự động kiểm duyệt và xuất bản ngẫu nhiên trong khoảng 5 - 15 phút.'
+    },
+    {
+      q: 'Khi hết thời hạn VIP (Kim Cương, Vàng, Bạc), tin đăng sẽ thế nào?',
+      a: 'Tất cả các tin VIP khi hết thời hạn mốc ngày đã chọn (5, 7, 10, 15, 30 ngày) sẽ không bị gỡ xuống hay chuyển sang hết hạn ngay, mà hệ thống sẽ TỰ ĐỘNG HẠ THÀNH TIN THƯỜNG và ĐƯỢC CỘNG THÊM 60 NGÀY hiển thị miễn phí tính từ ngày hết hạn VIP! Nhờ vậy, tin đăng của bạn luôn duy trì sự hiện diện bền bỉ trên sàn.'
     }
   ];
 
@@ -425,7 +429,7 @@ export default function VipPricingPage() {
                     </div>
 
                     {/* Key Perks Highlight */}
-                    {isDiamond && (
+                    {isDiamond ? (
                       <div className="p-3 bg-red-50 border border-red-200/80 rounded-2xl mb-3 space-y-1 text-xs">
                         <div className="font-extrabold text-red-900 flex items-center gap-1.5">
                           <i className="fa-solid fa-gift text-red-600"></i>
@@ -435,10 +439,17 @@ export default function VipPricingPage() {
                           <div>• <b>TẶNG KÈM 1 Tin Thường</b> song hành</div>
                           <div>• <b>Đẩy tin kép MIỄN PHÍ</b> cả 2 tin</div>
                           <div>• <b>Duyệt bài TỨC THÌ (Active ngay)</b></div>
-                          <div>• Không hiển thị quảng cáo đối thủ</div>
+                          <div>• <b>Hết hạn VIP:</b> Hạ Tin Thường + 60 ngày miễn phí</div>
                         </div>
                       </div>
-                    )}
+                    ) : (isGold || isSilver) ? (
+                      <div className="p-2.5 bg-emerald-50/80 border border-emerald-200/80 rounded-2xl mb-3 text-xs flex items-center gap-2">
+                        <i className="fa-solid fa-gift text-emerald-600 text-sm shrink-0"></i>
+                        <span className="text-[11px] text-emerald-950 font-semibold leading-tight">
+                          <b>Đặc quyền:</b> Hết hạn VIP tự động hạ thành Tin Thường & <b>cộng thêm 60 ngày</b> miễn phí!
+                        </span>
+                      </div>
+                    ) : null}
 
                     {/* Feature Checklist */}
                     <ul className="space-y-2.5 py-3 border-t border-slate-100 text-xs text-slate-600">

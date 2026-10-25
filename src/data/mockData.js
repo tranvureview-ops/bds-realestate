@@ -23,8 +23,9 @@ export const LISTING_TYPES = [
     features: [
       'Vị trí số 1: Luôn đứng đầu tiên trên Trang Chủ & Kết Quả Tìm Kiếm',
       '(*) Duyệt Tức Thì tự động: Kích hoạt hiển thị (Active ngay) lập tức khi thanh toán',
-      '(**) Không hiển thị quảng cáo: Trang chi tiết không xuất hiện banner quảng cáo của bên thứ 3',
-      '(***) Nhân đôi hiển thị: Tặng kèm 1 Tin Thường hiển thị đồng thời ở kết quả tìm kiếm',
+      '(**) Hết hạn VIP tự động hạ thành Tin Thường & cộng thêm 60 ngày hiển thị miễn phí',
+      '(***) Không hiển thị quảng cáo: Trang chi tiết không xuất hiện banner quảng cáo của bên thứ 3',
+      '(****) Nhân đôi hiển thị: Tặng kèm 1 Tin Thường hiển thị đồng thời ở kết quả tìm kiếm',
       'Đẩy tin VIP Kim Cương được đẩy MIỄN PHÍ luôn Tin Thường kèm theo',
       'Thẻ hiển thị cực đại (Hero Card), hiệu ứng viền phát sáng',
       'Tỷ lệ tiếp cận khách hàng cao gấp 30 lần tin thường'
@@ -57,7 +58,8 @@ export const LISTING_TYPES = [
     features: [
       'Vị trí ưu tiên: Hiển thị ngay dưới VIP Kim Cương',
       '(*) Duyệt Tức Thì tự động: Kích hoạt hiển thị (Active ngay) lập tức khi thanh toán',
-      '(**) Không hiển thị quảng cáo: Không xuất hiện banner quảng cáo ở trang chi tiết',
+      '(**) Hết hạn VIP tự động hạ thành Tin Thường & cộng thêm 60 ngày hiển thị miễn phí',
+      '(***) Không hiển thị quảng cáo: Không xuất hiện banner quảng cáo ở trang chi tiết',
       'Khung viền ánh vàng sang trọng, tiêu đề Chữ In Hoa màu Cam Vàng',
       'Tỷ lệ tiếp cận gấp 15 lần tin thường',
       'Hiển thị số điện thoại to & nút Gọi/Zalo 1-chạm nổi bật'
@@ -90,6 +92,7 @@ export const LISTING_TYPES = [
     features: [
       'Vị trí nổi bật: Hiển thị trên toàn bộ Tin Thường (dưới VIP Vàng)',
       '(*) Duyệt Tức Thì tự động: Kích hoạt hiển thị (Active ngay) lập tức khi thanh toán',
+      '(**) Hết hạn VIP tự động hạ thành Tin Thường & cộng thêm 60 ngày hiển thị miễn phí',
       'Gắn huy hiệu VIP Bạc tin cậy, tiêu đề màu xanh đậm hiện đại',
       'Tỷ lệ tiếp cận gấp 8 lần tin thường',
       'Hiển thị đầy đủ thông tin môi giới và thông số BĐS'

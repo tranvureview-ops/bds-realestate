@@ -74,9 +74,14 @@ export const createVietnameseSlug = toVietnameseSlug;
 export const normalizePropertyExpiration = (p) => {
   if (!p) return p;
   const now = Date.now();
-  const listingDays = Number(p.listingDays) || (p.vipPackageId === 'vip-diamond' ? 30 : 15);
+  let listingDays = Number(p.listingDays) || (p.vipPackageId === 'vip-diamond' ? 30 : 15);
   let expiresAt = p.expiresAt;
   let status = p.status || 'active';
+  let vipPackageId = p.vipPackageId === 'vip-bronze' ? 'vip-silver' : (p.vipPackageId || 'normal');
+  let downgradedFromVip = p.downgradedFromVip || null;
+  let vipExpiredAt = p.vipExpiredAt || null;
+  let isFeatured = p.isFeatured;
+  let hasDualListing = p.hasDualListing;
 
   // Thiết lập dữ liệu mẫu minh họa cho các trạng thái Batdongsan.com.vn
   if (p.id === 'BDS-008') {
@@ -100,12 +105,12 @@ export const normalizePropertyExpiration = (p) => {
 
   // Hàng đợi tiêu chuẩn FIFO / Countdown tự động xuất bản
   let autoApproveAt = p.autoApproveAt;
-  let queuePriority = p.queuePriority || (p.vipPackageId === 'vip-diamond' ? 'priority_diamond' : (p.vipPackageId === 'vip-gold' ? 'priority_gold' : (p.vipPackageId === 'vip-silver' ? 'priority_silver' : 'standard_fifo')));
+  let queuePriority = p.queuePriority || (vipPackageId === 'vip-diamond' ? 'priority_diamond' : (vipPackageId === 'vip-gold' ? 'priority_gold' : (vipPackageId === 'vip-silver' ? 'priority_silver' : 'standard_fifo')));
   if (status === 'pending') {
     if (!autoApproveAt) {
-      if (p.vipPackageId === 'vip-gold') {
+      if (vipPackageId === 'vip-gold') {
         autoApproveAt = new Date(now + 12 * 60 * 1000).toISOString();
-      } else if (p.vipPackageId === 'vip-silver') {
+      } else if (vipPackageId === 'vip-silver') {
         autoApproveAt = new Date(now + 24 * 60 * 1000).toISOString();
       } else {
         // Hàng đợi tiêu chuẩn FIFO: Tự động xuất bản trong 1 tiếng (còn 48 phút với bài mẫu)
@@ -114,8 +119,30 @@ export const normalizePropertyExpiration = (p) => {
     }
   }
 
-  // Tự động chuyển status sang expired nếu đã quá ngày hết hạn và không nằm trong thùng rác
-  if (status === 'active' && expiresAt && new Date(expiresAt).getTime() <= now && !p.isDeleted && status !== 'trash') {
+  // QUY TẮC ĐẶC QUYỀN VIP: Khi hết thời hạn VIP (VIP Kim Cương, VIP Vàng, VIP Bạc) thì tự động hạ thành Tin Thường và cộng thêm 60 ngày từ ngày hết VIP
+  if (status === 'active' && expiresAt && ['vip-diamond', 'vip-gold', 'vip-silver'].includes(vipPackageId)) {
+    const vipExpTime = new Date(expiresAt).getTime();
+    if (vipExpTime <= now) {
+      const normalExpTime = vipExpTime + 60 * 86400 * 1000;
+      downgradedFromVip = vipPackageId;
+      vipExpiredAt = expiresAt;
+      vipPackageId = 'normal';
+      isFeatured = false;
+      hasDualListing = false;
+      listingDays = 60;
+      expiresAt = new Date(normalExpTime).toISOString();
+
+      if (now >= normalExpTime) {
+        // Quá cả thời hạn 60 ngày tin thường được tặng kèm
+        if (!p.isDeleted && status !== 'trash') {
+          status = 'expired';
+        }
+      } else {
+        status = 'active';
+      }
+    }
+  } else if (status === 'active' && expiresAt && new Date(expiresAt).getTime() <= now && !p.isDeleted && status !== 'trash') {
+    // Tự động chuyển status sang expired nếu đã quá ngày hết hạn đối với Tin Thường
     status = 'expired';
   }
 
@@ -130,8 +157,12 @@ export const normalizePropertyExpiration = (p) => {
     status,
     autoApproveAt,
     queuePriority,
-    autoRenew: p.autoRenew !== undefined ? Boolean(p.autoRenew) : (p.vipPackageId === 'vip-diamond'),
-    vipPackageId: p.vipPackageId === 'vip-bronze' ? 'vip-silver' : p.vipPackageId
+    autoRenew: p.autoRenew !== undefined ? Boolean(p.autoRenew) : (vipPackageId === 'vip-diamond'),
+    vipPackageId,
+    downgradedFromVip,
+    vipExpiredAt,
+    isFeatured,
+    hasDualListing
   };
 };
 
@@ -248,9 +279,27 @@ export const getPropertyExpirationInfo = (prop) => {
       isExpiringSoon: true,
       daysRemaining,
       hoursRemaining,
+      isDowngradedFromVip: Boolean(prop.downgradedFromVip),
+      originalVip: prop.downgradedFromVip,
       badgeText: `⚠️ Sắp hết hạn (${timeStr})`,
       badgeClass: 'bg-amber-950/90 text-amber-300 border border-amber-500 font-bold animate-pulse',
       countdownText: `Còn ${daysRemaining} ngày ${hoursRemaining}h`
+    };
+  }
+
+  // Nếu là tin thường được hạ từ VIP và được cộng 60 ngày:
+  if (prop.downgradedFromVip) {
+    const origVipName = prop.downgradedFromVip === 'vip-diamond' ? 'VIP Kim Cương' : prop.downgradedFromVip === 'vip-gold' ? 'VIP Vàng' : 'VIP Bạc';
+    return {
+      isExpired: false,
+      isExpiringSoon: false,
+      daysRemaining,
+      hoursRemaining,
+      isDowngradedFromVip: true,
+      originalVip: prop.downgradedFromVip,
+      badgeText: `● Tin Thường (+60n từ ${origVipName} - Còn ${daysRemaining} ngày)`,
+      badgeClass: 'bg-teal-950/80 text-teal-300 border border-teal-700',
+      countdownText: `Còn ${daysRemaining} ngày hiển thị Tin Thường (Tặng kèm 60 ngày sau ${origVipName})`
     };
   }
 
@@ -1241,7 +1290,33 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
                 }
               }
 
-              // Chuyển sang trạng thái hết hạn chuẩn Batdongsan
+              // QUY TẮC ĐẶC QUYỀN VIP:
+              // Nếu là gói VIP (VIP Kim Cương, VIP Vàng, VIP Bạc):
+              // Khi hết thời hạn VIP thì hạ thành Tin Thường và được cộng thêm 60 ngày từ ngày hết VIP!
+              if (['vip-diamond', 'vip-gold', 'vip-silver'].includes(prop.vipPackageId)) {
+                const vipExpTime = expTime; // Thời điểm mốc hết hạn VIP
+                const newNormalExpiresAt = new Date(vipExpTime + 60 * 86400 * 1000).toISOString();
+
+                if (currentUser && currentUser.id === prop.author?.id) {
+                  showToast(`ℹ️ Tin đăng ${prop.id} đã hoàn tất thời hạn VIP và được tự động chuyển thành Tin Thường + cộng thêm 60 ngày hiển thị miễn phí!`, 'info');
+                }
+
+                return {
+                  ...prop,
+                  vipPackageId: 'normal',
+                  downgradedFromVip: prop.vipPackageId,
+                  vipExpiredAt: prop.expiresAt,
+                  listingDays: 60,
+                  expiresAt: newNormalExpiresAt,
+                  status: 'active',
+                  isFeatured: false,
+                  hasDualListing: false,
+                  updatedAt: new Date().toISOString(),
+                  downgradedAt: new Date().toISOString()
+                };
+              }
+
+              // Chuyển sang trạng thái hết hạn chuẩn Batdongsan (cho Tin Thường hoặc tin đã hết 60 ngày cộng thêm)
               return {
                 ...prop,
                 status: 'expired',
@@ -1684,12 +1759,21 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     setCurrentUser(updatedUser);
     setUsersList(prev => prev.map(u => u.id === currentUser.id ? updatedUser : u));
 
+    const now = Date.now();
+    const newExpiresAt = new Date(now + days * 86400 * 1000).toISOString();
+
     setProperties(prev => prev.map(p => {
       if (p.id === propertyId) {
         return {
           ...p,
+          status: 'active',
           vipPackageId: newVipPackageId,
+          listingDays: days,
+          expiresAt: newExpiresAt,
+          downgradedFromVip: null,
+          vipExpiredAt: null,
           publishedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
           isFeatured: newVipPackageId === 'vip-diamond',
           hasDualListing: newVipPackageId === 'vip-diamond'
         };
@@ -2563,6 +2647,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       newExpiresAt = new Date(currentExp + days * 86400 * 1000).toISOString();
     }
 
+    const isRenewingVip = ['vip-diamond', 'vip-gold', 'vip-silver'].includes(vipId);
     setProperties(prev => prev.map(p => {
       if (p.id === propertyId) {
         return {
@@ -2571,6 +2656,10 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           vipPackageId: vipId,
           listingDays: days,
           expiresAt: newExpiresAt,
+          downgradedFromVip: isRenewingVip ? null : p.downgradedFromVip,
+          vipExpiredAt: isRenewingVip ? null : p.vipExpiredAt,
+          isFeatured: vipId === 'vip-diamond',
+          hasDualListing: vipId === 'vip-diamond',
           autoRenew: autoRenew !== undefined ? autoRenew : (p.autoRenew ?? false),
           updatedAt: new Date().toISOString(),
           lastRenewedAt: new Date().toISOString(),

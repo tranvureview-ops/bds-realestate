@@ -2862,7 +2862,14 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500">Gói hiển thị:</span>
-                    <strong className="text-amber-600 font-bold">{selectedPkg.name} ({listingDays} ngày)</strong>
+                    <div className="text-right">
+                      <strong className="text-amber-600 font-bold">{selectedPkg.name} ({listingDays} ngày)</strong>
+                      {selectedPkg.id !== 'normal' && (
+                        <div className="text-[10px] text-emerald-700 font-semibold mt-0.5">
+                          🎁 Hết hạn VIP tự động chuyển Tin Thường + 60 ngày
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-slate-500">Cơ chế phê duyệt:</span>
