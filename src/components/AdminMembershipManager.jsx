@@ -40,6 +40,11 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
     showToast
   } = useRealEstate();
 
+  // Đơn giá voucher chung toàn sàn (áp dụng cho cả 3 gói)
+  const commonPublishDiscount = membershipPackages[0]?.vouchersPerCycle?.normalPublishDiscount ?? 35000;
+  const commonBumpDiscount = membershipPackages[0]?.vouchersPerCycle?.normalBumpDiscount ?? 10000;
+  const commonVipDiscount = membershipPackages.find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount ?? 400000;
+
   // State for Edit/Create Modal
   const [editingPkg, setEditingPkg] = useState(null); // null when modal closed, pkg object when open
   const [isCreatingNew, setIsCreatingNew] = useState(false);
@@ -65,16 +70,16 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
     ],
     vouchersPerCycle: {
       normalPublishVouchers: 20,
-      normalPublishDiscount: 35000,
+      normalPublishDiscount: commonPublishDiscount,
       normalBumpVouchers: 20,
-      normalBumpDiscount: 10000,
+      normalBumpDiscount: commonBumpDiscount,
       vipVouchers: 1,
-      vipDiscount: 400000
+      vipDiscount: commonVipDiscount
     },
     features: [
-      '20 voucher giảm 35.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)',
-      '20 voucher giảm 10.000 đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)',
-      '1 voucher giảm 400.000 đ áp dụng cho Tin VIP (mỗi chu kỳ 30 ngày)',
+      `20 voucher giảm ${Number(commonPublishDiscount).toLocaleString('vi-VN')} đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)`,
+      `20 voucher giảm ${Number(commonBumpDiscount).toLocaleString('vi-VN')} đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)`,
+      `1 voucher giảm ${Number(commonVipDiscount).toLocaleString('vi-VN')} đ áp dụng cho Tin VIP (mỗi chu kỳ 30 ngày)`,
       'Ưu đãi voucher cấp mới định kỳ 30 ngày trong suốt thời hạn gói',
       'Báo cáo thống kê lượt tương tác cơ bản'
     ],
@@ -84,7 +89,15 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
   // Open Edit Modal
   const handleOpenEdit = (pkg) => {
     // Deep clone pkg to avoid mutating state directly
-    setEditingPkg(JSON.parse(JSON.stringify(pkg)));
+    const cloned = JSON.parse(JSON.stringify(pkg));
+    cloned.vouchersPerCycle = {
+      ...cloned.vouchersPerCycle,
+      normalPublishDiscount: commonPublishDiscount,
+      normalBumpDiscount: commonBumpDiscount,
+      vipDiscount: commonVipDiscount
+    };
+    cloned.features = syncFeaturesWithVouchers(cloned.features, cloned.vouchersPerCycle);
+    setEditingPkg(cloned);
     setIsCreatingNew(false);
     setModalActiveTab('general');
     setPreviewCycle(1);
@@ -113,12 +126,15 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
     }));
   };
 
-  // Voucher quota change handler
+  // Voucher quota change handler (chỉ cập nhật số lượng voucher, đơn giá luôn cố định theo giá chung toàn sàn)
   const handleVoucherQuotaChange = (field, value) => {
     const num = Math.max(0, parseInt(value, 10) || 0);
     setEditingPkg(prev => {
       const updatedVouchers = {
         ...prev.vouchersPerCycle,
+        normalPublishDiscount: commonPublishDiscount,
+        normalBumpDiscount: commonBumpDiscount,
+        vipDiscount: commonVipDiscount,
         [field]: num
       };
       const updatedFeatures = syncFeaturesWithVouchers(prev.features, updatedVouchers);
@@ -284,9 +300,16 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
       return;
     }
 
-    const syncedFeatures = syncFeaturesWithVouchers(editingPkg.features, editingPkg.vouchersPerCycle);
+    const syncedVouchers = {
+      ...editingPkg.vouchersPerCycle,
+      normalPublishDiscount: commonPublishDiscount,
+      normalBumpDiscount: commonBumpDiscount,
+      vipDiscount: commonVipDiscount
+    };
+    const syncedFeatures = syncFeaturesWithVouchers(editingPkg.features, syncedVouchers);
     const finalPkg = {
       ...editingPkg,
+      vouchersPerCycle: syncedVouchers,
       features: syncedFeatures
     };
 
@@ -1019,121 +1042,91 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                       </div>
 
                       {/* 1. Normal Publish Voucher */}
-                      <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                      <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2.5">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-black">
+                            <span className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-black">
                               <i className="fa-solid fa-file-lines"></i>
                             </span>
-                            <span className="font-bold text-white">Voucher Đăng Tin Thường:</span>
+                            <span className="font-bold text-white text-xs">Voucher Đăng Tin Thường:</span>
                           </div>
-                          <span className="text-[10px] text-emerald-400 font-mono font-bold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/40">
-                            Giảm {Number(editingPkg.vouchersPerCycle?.normalPublishDiscount || 35000).toLocaleString('vi-VN')} đ/tin
+                          <span className="text-[11px] text-emerald-400 font-mono font-bold bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-800/40">
+                            Giảm {Number(commonPublishDiscount).toLocaleString('vi-VN')} đ/tin
                           </span>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-slate-400 text-[11px] mb-1">Số Lượng Voucher / 30 Ngày:</label>
+                        <div>
+                          <label className="block text-slate-400 text-[11px] mb-1">Số Lượng Voucher Cấp Mỗi 30 Ngày:</label>
+                          <div className="relative">
                             <input
                               type="number"
                               min="0"
                               value={editingPkg.vouchersPerCycle?.normalPublishVouchers || 0}
                               onChange={(e) => handleVoucherQuotaChange('normalPublishVouchers', e.target.value)}
-                              className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-emerald-400 font-mono font-bold outline-none focus:border-teal-500"
+                              className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-emerald-400 font-mono font-bold outline-none focus:border-teal-500 text-sm"
+                              placeholder="15"
                             />
-                          </div>
-
-                          <div>
-                            <label className="block text-slate-400 text-[11px] mb-1">Mức Giảm Mỗi Lần Dùng (VNĐ) - Chung 3 Gói:</label>
-                            <input
-                              type="number"
-                              step="1000"
-                              min="0"
-                              value={editingPkg.vouchersPerCycle?.normalPublishDiscount || 35000}
-                              onChange={(e) => handleVoucherQuotaChange('normalPublishDiscount', e.target.value)}
-                              className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono font-bold outline-none focus:border-teal-500"
-                            />
+                            <span className="absolute right-3.5 top-2.5 text-xs text-slate-500 font-bold">Voucher</span>
                           </div>
                         </div>
                       </div>
 
                       {/* 2. Normal Bump Voucher */}
-                      <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                      <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2.5">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-black">
+                            <span className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-black">
                               <i className="fa-solid fa-arrow-up"></i>
                             </span>
-                            <span className="font-bold text-white">Voucher Đẩy Tin Thường (Bump Service):</span>
+                            <span className="font-bold text-white text-xs">Voucher Đẩy Tin Thường (Bump Service):</span>
                           </div>
-                          <span className="text-[10px] text-amber-400 font-mono font-bold bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/40">
-                            Giảm {Number(editingPkg.vouchersPerCycle?.normalBumpDiscount || 10000).toLocaleString('vi-VN')} đ/lượt
+                          <span className="text-[11px] text-amber-400 font-mono font-bold bg-amber-950/60 px-2.5 py-1 rounded-lg border border-amber-800/40">
+                            Giảm {Number(commonBumpDiscount).toLocaleString('vi-VN')} đ/lượt
                           </span>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-slate-400 text-[11px] mb-1">Số Lượng Voucher / 30 Ngày:</label>
+                        <div>
+                          <label className="block text-slate-400 text-[11px] mb-1">Số Lượng Voucher Cấp Mỗi 30 Ngày:</label>
+                          <div className="relative">
                             <input
                               type="number"
                               min="0"
                               value={editingPkg.vouchersPerCycle?.normalBumpVouchers || 0}
                               onChange={(e) => handleVoucherQuotaChange('normalBumpVouchers', e.target.value)}
-                              className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-amber-400 font-mono font-bold outline-none focus:border-teal-500"
+                              className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-amber-400 font-mono font-bold outline-none focus:border-teal-500 text-sm"
+                              placeholder="15"
                             />
-                          </div>
-
-                          <div>
-                            <label className="block text-slate-400 text-[11px] mb-1">Mức Giảm Mỗi Lần Dùng (VNĐ) - Chung 3 Gói:</label>
-                            <input
-                              type="number"
-                              step="1000"
-                              min="0"
-                              value={editingPkg.vouchersPerCycle?.normalBumpDiscount || 10000}
-                              onChange={(e) => handleVoucherQuotaChange('normalBumpDiscount', e.target.value)}
-                              className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono font-bold outline-none focus:border-teal-500"
-                            />
+                            <span className="absolute right-3.5 top-2.5 text-xs text-slate-500 font-bold">Voucher</span>
                           </div>
                         </div>
                       </div>
 
                       {/* 3. VIP Publish Voucher */}
-                      <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
+                      <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 space-y-2.5">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <span className="w-6 h-6 rounded-lg bg-rose-600 text-white flex items-center justify-center text-xs font-black">
+                            <span className="w-7 h-7 rounded-lg bg-rose-600 text-white flex items-center justify-center text-xs font-black">
                               <i className="fa-solid fa-gem"></i>
                             </span>
-                            <span className="font-bold text-white">Voucher Giảm Giá Tin VIP (Kim Cương / Vàng):</span>
+                            <span className="font-bold text-white text-xs">Voucher Giảm Giá Tin VIP (Kim Cương / Vàng):</span>
                           </div>
-                          <span className="text-[10px] text-rose-400 font-mono font-bold bg-rose-950/60 px-2 py-0.5 rounded border border-rose-800/40">
-                            Giảm {Number(editingPkg.vouchersPerCycle?.vipDiscount || 400000).toLocaleString('vi-VN')} đ/tin
+                          <span className="text-[11px] text-rose-400 font-mono font-bold bg-rose-950/60 px-2.5 py-1 rounded-lg border border-rose-800/40">
+                            Giảm {Number(commonVipDiscount).toLocaleString('vi-VN')} đ/tin
                           </span>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <div>
-                            <label className="block text-slate-400 text-[11px] mb-1">Số Lượng Voucher / 30 Ngày (0 = Không áp dụng):</label>
+                        <div>
+                          <label className="block text-slate-400 text-[11px] mb-1">Số Lượng Voucher Cấp Mỗi 30 Ngày (0 = Không áp dụng):</label>
+                          <div className="relative">
                             <input
                               type="number"
                               min="0"
                               value={editingPkg.vouchersPerCycle?.vipVouchers || 0}
                               onChange={(e) => handleVoucherQuotaChange('vipVouchers', e.target.value)}
-                              className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-red-400 font-mono font-bold outline-none focus:border-teal-500"
+                              className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-red-400 font-mono font-bold outline-none focus:border-teal-500 text-sm"
+                              placeholder="0"
                             />
-                          </div>
-
-                          <div>
-                            <label className="block text-slate-400 text-[11px] mb-1">Mức Giảm Mỗi Lần Dùng (VNĐ) - Chung 3 Gói:</label>
-                            <input
-                              type="number"
-                              step="10000"
-                              min="0"
-                              value={editingPkg.vouchersPerCycle?.vipDiscount || 400000}
-                              onChange={(e) => handleVoucherQuotaChange('vipDiscount', e.target.value)}
-                              className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-mono font-bold outline-none focus:border-teal-500"
-                            />
+                            <span className="absolute right-3.5 top-2.5 text-xs text-slate-500 font-bold">Voucher</span>
                           </div>
                         </div>
                       </div>
