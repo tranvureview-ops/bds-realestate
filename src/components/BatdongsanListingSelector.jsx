@@ -128,6 +128,7 @@ export function getEffectiveBdsRates(customVipPackages, paymentConfig = null) {
       : ((price15 === 0) ? 0 : Math.round(price15 * 0.70));
 
     // Approval badge resolution:
+    const tier = approvalTiers?.[pkg.id];
     // VIP Kim Cương, VIP Vàng, VIP Bạc: Luôn là Duyệt tức thì (0s)
     let approvalBadge = 'Duyệt tức thì (0s)';
     let approvalIcon = 'fa-solid fa-bolt';
