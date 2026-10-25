@@ -244,6 +244,65 @@ export default function BatdongsanListingSelector({
   const paymentConfig = realEstateContext?.paymentConfig;
   const ratesConfig = useMemo(() => getEffectiveBdsRates(effectivePackages, paymentConfig), [effectivePackages, paymentConfig]);
 
+  const currentUser = realEstateContext?.currentUser;
+  const systemConfig = realEstateContext?.systemConfig;
+  const isMembershipActive = realEstateContext?.isMembershipActive;
+  const showToast = realEstateContext?.showToast;
+
+  // Cấu hình tính năng Hẹn Giờ Đăng Tin (bật/tắt trong quản trị)
+  const enableScheduledPublishing = systemConfig?.enableScheduledPublishing !== false;
+  const requireMembershipForSchedule = systemConfig?.requireMembershipForSchedule !== false;
+
+  const isMemberActive = isMembershipActive ? isMembershipActive(currentUser) : false;
+  const userPkgId = currentUser?.membership?.packageId;
+  const hasEligibleMembership = isMemberActive && (userPkgId === 'member-standard' || userPkgId === 'member-premium');
+  const hasScheduleAccess = !requireMembershipForSchedule || currentUser?.role === 'admin' || hasEligibleMembership;
+
+  const handleLockedScheduleClick = useCallback(() => {
+    if (showToast) {
+      showToast('🔒 Tiện ích Hẹn Giờ Đăng Tin theo khung giờ vàng là đặc quyền độc quyền dành riêng cho Gói Hội Viên Tiêu Chuẩn và Gói Hội Viên Cao Cấp. Quý khách vui lòng nâng cấp gói hội viên!', 'warning');
+    }
+  }, [showToast]);
+
+  // Nếu người dùng không có quyền mà scheduleTime khác 'now', tự động đưa về 'now'
+  useEffect(() => {
+    if (!hasScheduleAccess && scheduleTime && scheduleTime !== 'now' && onScheduleTimeChange) {
+      onScheduleTimeChange('now');
+    }
+  }, [hasScheduleAccess, scheduleTime, onScheduleTimeChange]);
+
+  const scheduleOptions = useMemo(() => [
+    { value: 'now', label: '⚡ Đăng ngay bây giờ (Khuyến nghị)', disabled: false },
+    { 
+      value: '08:00', 
+      label: '🌅 Sáng 08:00 (Khung giờ vàng - Đón khách xem tin)', 
+      disabled: !hasScheduleAccess, 
+      badge: !hasScheduleAccess ? '🔒 Gói Tiêu Chuẩn & Cao Cấp' : 'Vàng',
+      onDisabledClick: handleLockedScheduleClick
+    },
+    { 
+      value: '11:30', 
+      label: '☀️ Trưa 11:30 (Cao điểm giờ nghỉ trưa tìm kiếm)', 
+      disabled: !hasScheduleAccess, 
+      badge: !hasScheduleAccess ? '🔒 Gói Tiêu Chuẩn & Cao Cấp' : 'Vàng',
+      onDisabledClick: handleLockedScheduleClick
+    },
+    { 
+      value: '14:00', 
+      label: '☕ Chiều 14:00 (Thời điểm khảo sát thực địa)', 
+      disabled: !hasScheduleAccess, 
+      badge: !hasScheduleAccess ? '🔒 Gói Tiêu Chuẩn & Cao Cấp' : 'Vàng',
+      onDisabledClick: handleLockedScheduleClick
+    },
+    { 
+      value: '19:30', 
+      label: '🌙 Tối 19:30 (Khung giờ vàng chốt cọc sau bữa tối)', 
+      disabled: !hasScheduleAccess, 
+      badge: !hasScheduleAccess ? '🔒 Gói Tiêu Chuẩn & Cao Cấp' : 'Vàng',
+      onDisabledClick: handleLockedScheduleClick
+    }
+  ], [hasScheduleAccess, handleLockedScheduleClick]);
+
   const isNormal = selectedType === 'normal';
   const currentConfig = ratesConfig?.[selectedType] || ratesConfig?.['normal'] || BATDONGSAN_RATES['normal'];
 
@@ -611,31 +670,65 @@ export default function BatdongsanListingSelector({
             <span className="flex items-center gap-1.5">
               <i className="fa-regular fa-clock text-amber-500"></i>
               <span>Hẹn giờ đăng tin</span>
+              {enableScheduledPublishing && requireMembershipForSchedule && (
+                hasEligibleMembership ? (
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded-full inline-flex items-center gap-1">
+                    <i className="fa-solid fa-crown text-emerald-600 text-[9px]"></i>
+                    <span>Hội Viên</span>
+                  </span>
+                ) : (
+                  <a
+                    href="/goi-hoi-vien"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[10px] font-bold text-amber-800 bg-amber-100/90 hover:bg-amber-200 border border-amber-300 px-2 py-0.5 rounded-full inline-flex items-center gap-1 transition shadow-xs"
+                    title="Đặc quyền riêng cho Gói Tiêu Chuẩn & Cao Cấp. Bấm để xem gói!"
+                  >
+                    <i className="fa-solid fa-lock text-amber-600 text-[9px]"></i>
+                    <span>Gói Tiêu Chuẩn & Cao Cấp</span>
+                  </a>
+                )
+              )}
             </span>
-            {scheduleTime && scheduleTime !== 'now' && (
+            {enableScheduledPublishing && scheduleTime && scheduleTime !== 'now' && (
               <span className="text-[10px] bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
                 <span>Lịch: {scheduleTime}</span>
               </span>
             )}
           </label>
-          <div className="relative">
-            <CustomSelect
-              value={scheduleTime}
-              onChange={(val) => onScheduleTimeChange && onScheduleTimeChange(val)}
-              options={[
-                { value: 'now', label: '⚡ Đăng ngay bây giờ (Khuyến nghị)' },
-                { value: '08:00', label: '🌅 Sáng 08:00 (Khung giờ vàng - Đón khách xem tin)' },
-                { value: '11:30', label: '☀️ Trưa 11:30 (Cao điểm giờ nghỉ trưa tìm kiếm)' },
-                { value: '14:00', label: '☕ Chiều 14:00 (Thời điểm khảo sát thực địa)' },
-                { value: '19:30', label: '🌙 Tối 19:30 (Khung giờ vàng chốt cọc sau bữa tối)' }
-              ]}
-              placeholder="Chọn khung giờ đăng tin"
-            />
-          </div>
-          <div className="text-[11px] text-slate-500 font-medium">
-            Tự động xuất bản đúng khung giờ có lượt tương tác cao nhất
-          </div>
+
+          {!enableScheduledPublishing ? (
+            <div className="p-3 bg-slate-100 rounded-xl border border-slate-200 text-xs text-slate-500 flex items-center gap-2">
+              <i className="fa-solid fa-circle-info text-slate-400 text-sm shrink-0"></i>
+              <span className="text-[11px] leading-tight">Tính năng Hẹn Giờ Đăng Tin đang tạm tắt bởi Ban Quản Trị. Bài viết sẽ xuất bản ngay sau khi duyệt.</span>
+            </div>
+          ) : (
+            <>
+              <div className="relative">
+                <CustomSelect
+                  value={scheduleTime}
+                  onChange={(val) => onScheduleTimeChange && onScheduleTimeChange(val)}
+                  options={scheduleOptions}
+                  placeholder="Chọn khung giờ đăng tin"
+                />
+              </div>
+              <div className="text-[11px] text-slate-500 font-medium flex items-center justify-between gap-2 flex-wrap">
+                <span>Tự động xuất bản đúng khung giờ có lượt tương tác cao nhất</span>
+                {!hasScheduleAccess && requireMembershipForSchedule && (
+                  <a
+                    href="/goi-hoi-vien"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-amber-700 hover:text-amber-800 font-bold underline text-[10px] inline-flex items-center gap-1"
+                  >
+                    <span>Nâng cấp gói hội viên</span>
+                    <i className="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                  </a>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </div>
 

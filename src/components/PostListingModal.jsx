@@ -748,7 +748,8 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       google_place_id: finalPlaceId,
       publishedAt: new Date(startDate).toISOString(),
       listingDays,
-      autoBumpHours
+      autoBumpHours,
+      scheduleTime: scheduleTime || 'now'
     };
 
     const newProp = addProperty(payload, selectedVipId, listingDays, paymentMethod, appliedVoucher);

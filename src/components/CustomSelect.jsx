@@ -35,7 +35,9 @@ export default function CustomSelect({
       label: opt.label || opt.name || String(opt.value),
       icon: opt.icon,
       badge: opt.badge,
-      sublabel: opt.sublabel
+      sublabel: opt.sublabel,
+      disabled: Boolean(opt.disabled),
+      onDisabledClick: opt.onDisabledClick
     };
   });
 
@@ -275,29 +277,45 @@ export default function CustomSelect({
             ) : (
               filteredOptions.map((opt) => {
                 const isSelected = String(opt.value) === String(value);
+                const isDisabled = Boolean(opt.disabled);
                 return (
                   <div
                     key={opt.value}
-                    onClick={() => handleSelect(opt.value)}
-                    className={`flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer transition select-none ${
-                      isSelected
-                        ? 'bg-red-50 text-red-600 font-bold'
-                        : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
+                    onClick={(e) => {
+                      if (isDisabled) {
+                        e.stopPropagation();
+                        if (opt.onDisabledClick) opt.onDisabledClick();
+                        return;
+                      }
+                      handleSelect(opt.value);
+                    }}
+                    className={`flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs font-semibold select-none transition ${
+                      isDisabled
+                        ? 'opacity-70 bg-slate-50/80 cursor-not-allowed text-slate-400 hover:bg-amber-50/60'
+                        : isSelected
+                        ? 'bg-red-50 text-red-600 font-bold cursor-pointer'
+                        : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900 cursor-pointer'
                     }`}
                   >
                     <span className="flex items-center gap-2 truncate">
                       {opt.icon && <span className="shrink-0">{opt.icon}</span>}
                       <span className="truncate">{opt.label}</span>
                       {opt.badge && (
-                        <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold shrink-0">
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold shrink-0 ${
+                          isDisabled
+                            ? 'bg-amber-100 text-amber-800 border border-amber-200'
+                            : 'bg-amber-100 text-amber-700'
+                        }`}>
                           {opt.badge}
                         </span>
                       )}
                     </span>
 
-                    {isSelected && (
+                    {isDisabled ? (
+                      <i className="fa-solid fa-lock text-amber-500 text-xs shrink-0"></i>
+                    ) : isSelected ? (
                       <i className="fa-solid fa-check text-red-600 text-xs shrink-0"></i>
-                    )}
+                    ) : null}
                   </div>
                 );
               })

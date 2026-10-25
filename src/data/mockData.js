@@ -2490,6 +2490,9 @@ export const DEFAULT_SYSTEM_CONFIG = {
   defaultListingDays: 15,
   dailyFreeListingLimit: 5, // Giới hạn đăng tin miễn phí / user / ngày (0 = không giới hạn)
   maintenanceMode: false,
+  // Cấu hình tính năng Hẹn Giờ Đăng Tin (Scheduled Publishing Settings)
+  enableScheduledPublishing: true, // Bật/Tắt tính năng Hẹn Giờ Đăng Tin trên toàn hệ thống
+  requireMembershipForSchedule: true, // Khi Bật: Chỉ Gói Hội Viên Tiêu Chuẩn & Cao Cấp mới được hẹn giờ đăng tin
   // Cấu hình vòng đời lưu trữ và tối ưu hóa Database khi tin hết hạn
   expiredRetentionDays: 45, // Sau 45 ngày hết hạn mà không gia hạn thì xử lý
   expiredCleanupAction: 'archive_light', // 'archive_light' (Chuyển sang dữ liệu siêu nhẹ tối ưu DB) | 'permanent_delete' (Xóa vĩnh viễn) | 'move_to_trash' (Chuyển vào thùng rác)

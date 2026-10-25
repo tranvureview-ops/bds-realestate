@@ -37,6 +37,8 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
     addMembershipPackage,
     deleteMembershipPackage,
     resetMembershipPackages,
+    systemConfig,
+    updateSystemConfig,
     showToast
   } = useRealEstate();
 
@@ -418,6 +420,57 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
 
       {/* ================= 1.5. CẤU HÌNH ĐƠN GIÁ CHUNG CHO 3 LOẠI VOUCHER HỘI VIÊN ================= */}
       <AdminCommonVoucherPricing />
+
+      {/* ================= CẤU HÌNH ĐẶC QUYỀN HẸN GIỜ ĐĂNG TIN ================= */}
+      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+        <div className="flex items-start sm:items-center gap-3">
+          <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+            <i className="fa-regular fa-clock text-base"></i>
+          </div>
+          <div>
+            <div className="text-xs font-black text-white flex items-center gap-2 flex-wrap">
+              <span>Đặc Quyền Tiện Ích: Hẹn Giờ Đăng Tin (Khung Giờ Vàng)</span>
+              {systemConfig?.requireMembershipForSchedule !== false ? (
+                <span className="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-2 py-0.5 rounded-full font-bold">
+                  ✓ Đang Khóa Độc Quyền cho Gói Tiêu Chuẩn & Cao Cấp
+                </span>
+              ) : (
+                <span className="text-[10px] bg-slate-800 text-slate-400 border border-slate-700 px-2 py-0.5 rounded-full font-bold">
+                  ○ Đang Mở Tự Do Cho Mọi Người Dùng
+                </span>
+              )}
+            </div>
+            <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+              Áp dụng tính năng Hẹn Giờ Đăng Tin như đặc quyền riêng biệt khi hội viên mua <b>Gói Hội Viên Tiêu Chuẩn</b> hoặc <b>Gói Hội Viên Cao Cấp</b>. Khách thường / Gói Cơ Bản sẽ được hướng dẫn nâng cấp gói.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2.5 shrink-0 self-end md:self-auto">
+          <button
+            type="button"
+            onClick={async () => {
+              const currentVal = systemConfig?.requireMembershipForSchedule !== false;
+              const nextVal = !currentVal;
+              await updateSystemConfig({ requireMembershipForSchedule: nextVal });
+              showToast(
+                nextVal 
+                  ? 'Đã BẬT: Hẹn giờ đăng tin hiện là đặc quyền chỉ dành riêng cho Gói Hội Viên Tiêu Chuẩn & Cao Cấp!' 
+                  : 'Đã TẮT: Cho phép tất cả người dùng sử dụng hẹn giờ đăng tin tự do.',
+                'success'
+              );
+            }}
+            className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2 shadow-sm cursor-pointer ${
+              systemConfig?.requireMembershipForSchedule !== false
+                ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+            }`}
+          >
+            <i className={`fa-solid ${systemConfig?.requireMembershipForSchedule !== false ? 'fa-lock' : 'fa-lock-open'}`}></i>
+            <span>{systemConfig?.requireMembershipForSchedule !== false ? 'Yêu Cầu Gói (BẬT)' : 'Mở Tự Do (TẮT)'}</span>
+          </button>
+        </div>
+      </div>
 
       {/* ================= 2. QUICK STATS SUMMARY ================= */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

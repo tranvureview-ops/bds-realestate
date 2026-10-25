@@ -7314,6 +7314,74 @@ export default function AdminBackendPage() {
                         </div>
                       </label>
 
+                      {/* Cấu Hình Tiện Ích Hẹn Giờ Đăng Tin (Scheduled Publishing) */}
+                      <div className="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-3">
+                        <div className="flex items-center justify-between gap-3 flex-wrap">
+                          <div className="font-bold text-white flex items-center gap-2">
+                            <i className="fa-regular fa-clock text-amber-400"></i>
+                            <span>Tiện ích Hẹn Giờ Đăng Tin (Khung Giờ Vàng)</span>
+                          </div>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-800">
+                            Đặc Quyền Hội Viên
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 leading-relaxed">
+                          Cho phép người đăng lựa chọn các khung giờ vàng (08:00, 11:30, 14:00, 19:30) để hệ thống tự động xuất bản bài viết đúng thời điểm tương tác cao nhất.
+                        </p>
+
+                        <div className="pt-2 border-t border-slate-800/80 space-y-2.5">
+                          {/* Toggle 1: Bật/Tắt tính năng Hẹn Giờ Đăng Tin */}
+                          <label className="flex items-start gap-3 p-3 bg-slate-950/70 hover:bg-slate-950 rounded-xl border border-slate-800 cursor-pointer transition">
+                            <input
+                              type="checkbox"
+                              checked={formSystemConfig.enableScheduledPublishing !== false}
+                              onChange={(e) => setFormSystemConfig(prev => ({ ...prev, enableScheduledPublishing: e.target.checked }))}
+                              className="w-4 h-4 text-amber-500 rounded border-slate-700 bg-slate-800 focus:ring-amber-500 mt-0.5 shrink-0"
+                            />
+                            <div>
+                              <div className="font-bold text-white flex items-center gap-2">
+                                <span>Bật chức năng Hẹn Giờ Đăng Tin trên toàn hệ thống</span>
+                                {formSystemConfig.enableScheduledPublishing !== false ? (
+                                  <span className="text-[10px] text-emerald-400 font-bold">● Đang bật</span>
+                                ) : (
+                                  <span className="text-[10px] text-slate-500 font-bold">○ Đã tắt</span>
+                                )}
+                              </div>
+                              <div className="text-[10px] text-slate-400 mt-0.5">
+                                Khi tắt, form đăng tin sẽ chỉ cho phép đăng ngay lập tức.
+                              </div>
+                            </div>
+                          </label>
+
+                          {/* Toggle 2: Yêu cầu mua Gói Hội Viên Tiêu Chuẩn hoặc Cao Cấp */}
+                          <label className="flex items-start gap-3 p-3 bg-slate-950/70 hover:bg-slate-950 rounded-xl border border-slate-800 cursor-pointer transition">
+                            <input
+                              type="checkbox"
+                              checked={formSystemConfig.requireMembershipForSchedule !== false}
+                              onChange={(e) => setFormSystemConfig(prev => ({ ...prev, requireMembershipForSchedule: e.target.checked }))}
+                              className="w-4 h-4 text-emerald-500 rounded border-slate-700 bg-slate-800 focus:ring-emerald-500 mt-0.5 shrink-0"
+                            />
+                            <div>
+                              <div className="font-bold text-white flex items-center gap-2 flex-wrap">
+                                <span>Chỉ mở khóa Hẹn Giờ cho Gói Hội Viên Tiêu Chuẩn & Gói Cao Cấp</span>
+                                {formSystemConfig.requireMembershipForSchedule !== false ? (
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 font-bold border border-emerald-800">
+                                    Đang khóa (Yêu cầu Hội viên)
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-bold border border-slate-700">
+                                    Mở tự do cho tất cả người dùng
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-[10px] text-slate-400 mt-1 leading-relaxed">
+                                <b>Khi BẬT (Khuyên dùng):</b> Khách vãng lai, người dùng thường và Gói Cơ Bản sẽ bị khóa các khung giờ hẹn và thấy nhãn nâng cấp gói. <b>Khi TẮT:</b> Bất kỳ ai cũng có thể hẹn giờ đăng tin miễn phí.
+                              </div>
+                            </div>
+                          </label>
+                        </div>
+                      </div>
+
                       {/* Default Listing Days */}
                       <div className="p-3.5 bg-slate-900/80 rounded-2xl border border-slate-800 flex items-center justify-between gap-3 flex-wrap">
                         <div>
