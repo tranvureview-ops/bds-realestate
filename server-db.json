@@ -2294,6 +2294,7 @@
       "approvalTimeMinutes": 60
     }
   ],
+  "bds_bump_service_price": 10000,
   "bds_membership_packages": [
     {
       "id": "member-basic",

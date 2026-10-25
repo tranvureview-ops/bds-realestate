@@ -84,6 +84,8 @@ export default function AdminBackendPage() {
     emptyUserTrash,
     refetchData,
     updateVipPackagePrice, 
+    bumpServicePrice,
+    updateBumpServicePrice,
     navigateToProperty, 
     setCurrentView, 
     showToast,
@@ -5681,19 +5683,42 @@ export default function AdminBackendPage() {
               </div>
 
               {/* Dịch vụ đẩy tin lẻ */}
-              <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-center justify-between">
+              <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-base">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-base shrink-0">
                     <i className="fa-solid fa-arrow-up-right-dots"></i>
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-white">Dịch Vụ Đẩy Tin (Làm Mới Tin Lên Đầu Trang)</div>
-                    <div className="text-[11px] text-slate-400">Cập nhật thời gian hiển thị lên đầu trang theo đúng cấp độ VIP</div>
+                    <div className="text-xs font-bold text-white flex items-center gap-2">
+                      <span>Dịch Vụ Đẩy Tin (Làm Mới Tin Lên Đầu Trang)</span>
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/40">
+                        Áp Dụng Toàn Sàn
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-0.5">
+                      Cập nhật thời gian hiển thị lên đầu trang theo đúng cấp độ VIP • Tặng voucher định kỳ khi mua Gói Hội Viên
+                    </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <span className="text-sm font-black text-amber-400 font-mono">10.000 đ/lần</span>
-                  <div className="text-[10px] text-slate-500">Được tặng voucher khi mua Gói Hội Viên</div>
+
+                <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                  <input
+                    type="number"
+                    defaultValue={bumpServicePrice || 10000}
+                    key={`bump-price-${bumpServicePrice}`}
+                    id="price-bump-service"
+                    className="w-28 px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-xs font-bold text-right text-amber-400 focus:border-amber-500 focus:outline-none"
+                  />
+                  <span className="text-xs text-slate-400">đ/lần</span>
+                  <button
+                    onClick={() => {
+                      const val = document.getElementById('price-bump-service')?.value;
+                      if (val) updateBumpServicePrice(val);
+                    }}
+                    className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition cursor-pointer shadow-md"
+                  >
+                    Lưu
+                  </button>
                 </div>
               </div>
             </div>

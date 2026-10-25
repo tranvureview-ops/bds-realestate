@@ -17,8 +17,12 @@ export default function VipPricingPage() {
     upgradeVip, 
     setActiveModal,
     showToast,
-    systemConfig
+    systemConfig,
+    bumpServicePrice,
+    BUMP_SERVICE_PRICE: contextBumpPrice
   } = useRealEstate();
+
+  const currentBumpPrice = bumpServicePrice ?? contextBumpPrice ?? BUMP_SERVICE_PRICE ?? 10000;
 
   const vipPackages = contextVipPackages || MOCK_VIP;
 
@@ -705,7 +709,7 @@ export default function VipPricingPage() {
               <div className="text-right">
                 <div className="text-xs text-slate-400">Chi phí tiêu chuẩn</div>
                 <div className="text-2xl font-black text-amber-400">
-                  {BUMP_SERVICE_PRICE.toLocaleString('vi-VN')} đ <span className="text-xs text-slate-400 font-normal">/ lần</span>
+                  {currentBumpPrice.toLocaleString('vi-VN')} đ <span className="text-xs text-slate-400 font-normal">/ lần</span>
                 </div>
                 <div className="text-[10px] text-emerald-400 font-semibold">
                   Hội viên dùng Voucher = 0 đ
@@ -792,7 +796,7 @@ export default function VipPricingPage() {
               </div>
               <ul className="space-y-1 text-slate-700 text-[11px]">
                 <li>• Đăng 30 tin thường: 30 x 35.000 đ = <b>1.050.000 đ</b></li>
-                <li>• Đẩy 30 lần tin thường: 30 x 10.000 đ = <b>300.000 đ</b></li>
+                <li>• Đẩy 30 lần tin thường: 30 x {currentBumpPrice.toLocaleString('vi-VN')} đ = <b>{(30 * currentBumpPrice).toLocaleString('vi-VN')} đ</b></li>
                 <li>• Đăng 1 tin VIP Kim Cương (7 ngày): <b>700.000 đ</b></li>
                 <li className="pt-2 border-t border-amber-600/20 font-black text-xs text-slate-900">
                   Tổng chi phí mua lẻ: 2.050.000 đ

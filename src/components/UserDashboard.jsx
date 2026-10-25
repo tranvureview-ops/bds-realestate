@@ -25,6 +25,7 @@ export default function UserDashboard() {
     isMembershipActive,
     vipPackages: contextVipPackages,
     membershipPackages = [],
+    bumpServicePrice,
     BUMP_SERVICE_PRICE
   } = useRealEstate();
 
@@ -560,10 +561,10 @@ export default function UserDashboard() {
                                   ? 'bg-emerald-600 hover:bg-emerald-700 text-white' 
                                   : 'bg-amber-500 hover:bg-amber-600 text-slate-900'
                               }`}
-                              title={hasBumpVoucher ? 'Đẩy tin dùng Voucher (0 đ)' : `Đẩy tin lên đầu trang (Phí ${(BUMP_SERVICE_PRICE || 10000).toLocaleString('vi-VN')} đ)`}
+                              title={hasBumpVoucher ? 'Đẩy tin dùng Voucher (0 đ)' : `Đẩy tin lên đầu trang (Phí ${(bumpServicePrice || BUMP_SERVICE_PRICE || 10000).toLocaleString('vi-VN')} đ)`}
                             >
                               <i className="fa-solid fa-arrow-up"></i>
-                              <span>{hasBumpVoucher ? 'Đẩy tin (0đ • Voucher)' : `Đẩy tin (${formatDiscountK(BUMP_SERVICE_PRICE || 10000)})`}</span>
+                              <span>{hasBumpVoucher ? 'Đẩy tin (0đ • Voucher)' : `Đẩy tin (${formatDiscountK(bumpServicePrice || BUMP_SERVICE_PRICE || 10000)})`}</span>
                             </button>
                             {isDiamond && (
                               <span className="hidden sm:inline-block text-[9px] px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-bold border border-red-200" title="VIP Kim Cương: Tự động đẩy MIỄN PHÍ luôn tin thường liên kết">

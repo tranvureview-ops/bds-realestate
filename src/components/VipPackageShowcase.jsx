@@ -13,8 +13,12 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
     setPreselectedListingType,
     upgradeVip, 
     setActiveModal, 
-    setSelectedPropertyForVip 
+    setSelectedPropertyForVip,
+    bumpServicePrice,
+    BUMP_SERVICE_PRICE: contextBumpPrice
   } = useRealEstate();
+
+  const currentBumpPrice = bumpServicePrice ?? contextBumpPrice ?? BUMP_SERVICE_PRICE ?? 10000;
 
   const isGuest = !currentUser || currentUser.role === 'guest' || currentUser.id === 'guest';
 
@@ -194,7 +198,7 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
             <div className="text-right">
               <div className="text-xs text-slate-400">Chi phí cực thấp</div>
               <div className="text-2xl font-black text-amber-400">
-                {BUMP_SERVICE_PRICE.toLocaleString('vi-VN')} đ <span className="text-xs text-slate-300 font-normal">/ lần đẩy</span>
+                {currentBumpPrice.toLocaleString('vi-VN')} đ <span className="text-xs text-slate-300 font-normal">/ lần đẩy</span>
               </div>
             </div>
             <Link

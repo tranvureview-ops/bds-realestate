@@ -345,6 +345,15 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       : MEMBERSHIP_PACKAGES;
   });
 
+  // 6c. Dịch Vụ Đẩy Tin (Làm Mới Tin Lên Đầu Trang) - Editable by Admin
+  const [bumpServicePrice, setBumpServicePrice] = useState(() => {
+    if (typeof initialData?.bds_bump_service_price === 'number') {
+      return initialData.bds_bump_service_price;
+    }
+    const normalPkg = (initialData?.bds_vip_packages || VIP_PACKAGES).find(p => p.id === 'normal');
+    return normalPkg?.bumpPrice || BUMP_SERVICE_PRICE || 10000;
+  });
+
   // 7. Transactions History
   const [transactions, setTransactions] = useState(() => {
     return (initialData?.bds_transactions && Array.isArray(initialData.bds_transactions))
@@ -960,6 +969,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         if (Array.isArray(db.bds_membership_packages)) {
           setMembershipPackages(db.bds_membership_packages);
         }
+        if (typeof db.bds_bump_service_price === 'number') {
+          setBumpServicePrice(db.bds_bump_service_price);
+        } else if (Array.isArray(db.bds_vip_packages)) {
+          const normalPkg = db.bds_vip_packages.find(p => p.id === 'normal');
+          if (typeof normalPkg?.bumpPrice === 'number') {
+            setBumpServicePrice(normalPkg.bumpPrice);
+          }
+        }
         if (db.bds_single_config) {
           setSingleConfig(prev => ({ ...prev, ...db.bds_single_config }));
         }
@@ -1000,6 +1017,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         'bds_users_list',
         'bds_properties',
         'bds_vip_packages',
+        'bds_bump_service_price',
         'bds_membership_packages',
         'bds_transactions',
         'bds_nav_menu',
@@ -1510,7 +1528,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const isMemberActive = isMembershipActive(currentUser);
     const hasBumpVoucher = isMemberActive && (currentUser.vouchers?.normalBump || 0) > 0;
 
-    let finalPrice = BUMP_SERVICE_PRICE;
+    let finalPrice = bumpServicePrice ?? BUMP_SERVICE_PRICE ?? 10000;
     let usedVoucher = false;
 
     if (useVoucher) {
@@ -1577,7 +1595,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     if (isVipDiamond) {
       showToast(`Đẩy tin VIP Kim Cương ${propertyId} thành công! Kèm đặc quyền: Đẩy MIỄN PHÍ luôn Tin Thường nhân đôi hiển thị!`, 'success');
     } else if (usedVoucher) {
-      showToast(`Đã dùng Voucher Hội viên giảm 10.000đ! Đẩy tin ${propertyId} thành công (0 đ).`, 'success');
+      showToast(`Đã dùng Voucher Hội viên! Đẩy tin ${propertyId} thành công (0 đ).`, 'success');
     } else {
       showToast(`Đẩy tin ${propertyId} thành công! Tin đã được đưa lên đầu trang.`, 'success');
     }
@@ -2689,6 +2707,27 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     showToast(`Đã cập nhật giá gói ${pkgId} thành ${priceNum.toLocaleString('vi-VN')} đ/ngày`, 'success');
   };
 
+  // Admin Update Bump Service Price (Đơn giá Đẩy Tin toàn sàn)
+  const updateBumpServicePrice = async (newPrice) => {
+    const priceNum = Math.max(0, parseInt(newPrice, 10) || 0);
+    setBumpServicePrice(priceNum);
+
+    // Đồng bộ vào gói normal trong vipPackages
+    let updatedPackages;
+    setVipPackages(prev => {
+      updatedPackages = prev.map(p => p.id === 'normal' ? { ...p, bumpPrice: priceNum } : p);
+      return updatedPackages;
+    });
+
+    await Promise.all([
+      persistSettingToSupabase('bds_bump_service_price', priceNum),
+      updatedPackages ? persistSettingToSupabase('bds_vip_packages', updatedPackages) : Promise.resolve()
+    ]);
+
+    showToast(`Đã cập nhật đơn giá dịch vụ Đẩy Tin thành ${priceNum.toLocaleString('vi-VN')} đ/lần!`, 'success');
+    return priceNum;
+  };
+
   // Reset to original seed data
   const resetToMockData = async () => {
     setProperties(INITIAL_PROPERTIES);
@@ -2697,6 +2736,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     setCurrentUser(MOCK_USERS[1]);
     setUsersList(MOCK_USERS);
     setVipPackages(VIP_PACKAGES);
+    setBumpServicePrice(BUMP_SERVICE_PRICE);
     setMembershipPackages(MEMBERSHIP_PACKAGES);
     setTransactions(MOCK_TRANSACTIONS);
     setNavMenuItems(INITIAL_NAV_MENU);
@@ -2708,6 +2748,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       bds_users_list: MOCK_USERS,
       bds_transactions: MOCK_TRANSACTIONS,
       bds_vip_packages: VIP_PACKAGES,
+      bds_bump_service_price: BUMP_SERVICE_PRICE,
       bds_membership_packages: MEMBERSHIP_PACKAGES,
       bds_nav_menu: INITIAL_NAV_MENU,
       bds_header_config: DEFAULT_HEADER_CONFIG,
@@ -3601,7 +3642,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         systemConfig,
         updateSystemConfig,
         resetSystemConfig,
-        BUMP_SERVICE_PRICE,
+        bumpServicePrice,
+        updateBumpServicePrice,
+        BUMP_SERVICE_PRICE: bumpServicePrice ?? BUMP_SERVICE_PRICE ?? 10000,
         NORMAL_PUBLISH_PRICE,
         listingReports,
         emailLogs,
