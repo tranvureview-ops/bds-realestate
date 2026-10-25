@@ -240,6 +240,9 @@ export default function BatdongsanListingSelector({
   const paymentConfig = realEstateContext?.paymentConfig;
   const ratesConfig = useMemo(() => getEffectiveBdsRates(effectivePackages, paymentConfig), [effectivePackages, paymentConfig]);
 
+  const isNormal = selectedType === 'normal';
+  const currentConfig = ratesConfig?.[selectedType] || ratesConfig?.['normal'] || BATDONGSAN_RATES['normal'];
+
   const todayStr = useMemo(() => getTodayString(), []);
   const initialStartDate = startDate || todayStr;
   const [internalStartDate, setInternalStartDate] = useState(initialStartDate);
@@ -268,11 +271,6 @@ export default function BatdongsanListingSelector({
     'vip-silver': 'left-[62.5%]',
     'normal': 'left-[87.5%]'
   }[selectedType] || 'left-[87.5%]';
-
-  const isNormal = selectedType === 'normal';
-
-  // Dữ liệu gói hiện tại
-  const currentConfig = ratesConfig?.[selectedType] || ratesConfig?.['normal'] || BATDONGSAN_RATES['normal'];
 
   // Lấy các mốc thời gian cho phép hiển thị của gói (VIP: 5, 7, 10, 15, 30 ngày - loại bỏ 60 ngày; Tin Thường: 60 ngày)
   const allowedDurations = useMemo(() => {
@@ -401,7 +399,7 @@ export default function BatdongsanListingSelector({
           ) : (
             <div className="flex items-center gap-1.5">
               <span className="text-sm">⚡</span>
-              <span>Thời hạn hiển thị ({currentConfig.name}):</span>
+              <span>Thời hạn hiển thị ({currentConfig?.name || 'Gói đã chọn'}):</span>
             </div>
           )}
           {!isNormal && (
@@ -606,7 +604,7 @@ export default function BatdongsanListingSelector({
         <div className="mt-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
           <div>
             <div className="text-slate-500">
-              Phân loại: <strong className="text-slate-900">{currentConfig.name}</strong> • Thời hạn: <strong className="text-slate-900">{selectedDays} ngày</strong>
+              Phân loại: <strong className="text-slate-900">{currentConfig?.name || 'Tin đăng'}</strong> • Thời hạn: <strong className="text-slate-900">{selectedDays} ngày</strong>
             </div>
             <div className="text-base font-black text-slate-900 mt-0.5">
               Tổng thanh toán: <span className="text-red-600">{finalCost === 0 ? '0 đ (Miễn phí)' : `${finalCost.toLocaleString('vi-VN')} đ`}</span>
