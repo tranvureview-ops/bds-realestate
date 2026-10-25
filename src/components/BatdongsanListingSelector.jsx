@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import CustomSelect from './CustomSelect';
 import { useRealEstate } from '../context/RealEstateContext';
 

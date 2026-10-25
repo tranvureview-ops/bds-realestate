@@ -319,7 +319,7 @@ export default function VipPricingPage() {
               </p>
             </div>
             <span className="text-xs font-bold text-slate-600 bg-slate-200/70 px-3 py-1 rounded-xl self-start sm:self-auto">
-              Chu kỳ {selectedDuration} ngày ({DURATION_DISCOUNTS[selectedDuration]?.badge})
+              Chu kỳ {selectedDuration} ngày ({DURATION_DISCOUNTS[selectedDuration]?.badge || `${selectedDuration} ngày`})
             </span>
           </div>
 
