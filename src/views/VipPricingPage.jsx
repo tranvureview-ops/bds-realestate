@@ -407,7 +407,7 @@ export default function VipPricingPage() {
                         </div>
                         {discountPercent > 0 ? (
                           <div className="text-[10px] text-emerald-600 font-bold mt-0.5">
-                            <span className="line-through text-slate-400 mr-1">{(base15Rate * selectedDuration).toLocaleString('vi-VN')} đ</span>
+                            <span className="line-through text-slate-400 mr-1">{(baseRate * selectedDuration).toLocaleString('vi-VN')} đ</span>
                             Tiết kiệm {discountPercent}%
                           </div>
                         ) : (
@@ -507,19 +507,19 @@ export default function VipPricingPage() {
                     <span className="px-2.5 py-0.5 rounded-full bg-red-600 text-white font-black text-[10px] uppercase">
                       VIP Kim Cương
                     </span>
-                    <div className="font-black text-red-700 text-xs mt-1">Từ {(ratesConfig?.['vip-diamond']?.rates?.[60] ?? 55300).toLocaleString('vi-VN')} đ/ngày</div>
+                    <div className="font-black text-red-700 text-xs mt-1">Từ {(ratesConfig?.['vip-diamond']?.rates?.[30] ?? 59250).toLocaleString('vi-VN')} đ/ngày</div>
                   </th>
                   <th className="py-4 px-3 text-center bg-amber-50/70 border-r border-amber-100">
                     <span className="px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[10px] uppercase">
                       VIP Vàng
                     </span>
-                    <div className="font-black text-amber-800 text-xs mt-1">Từ {(ratesConfig?.['vip-gold']?.rates?.[60] ?? 20300).toLocaleString('vi-VN')} đ/ngày</div>
+                    <div className="font-black text-amber-800 text-xs mt-1">Từ {(ratesConfig?.['vip-gold']?.rates?.[30] ?? 21750).toLocaleString('vi-VN')} đ/ngày</div>
                   </th>
                   <th className="py-4 px-3 text-center bg-blue-50/70 border-r border-blue-100">
                     <span className="px-2.5 py-0.5 rounded-full bg-teal-600 text-white font-bold text-[10px] uppercase">
                       VIP Bạc
                     </span>
-                    <div className="font-black text-teal-800 text-xs mt-1">Từ {(ratesConfig?.['vip-silver']?.rates?.[60] ?? 6300).toLocaleString('vi-VN')} đ/ngày</div>
+                    <div className="font-black text-teal-800 text-xs mt-1">Từ {(ratesConfig?.['vip-silver']?.rates?.[30] ?? 6750).toLocaleString('vi-VN')} đ/ngày</div>
                   </th>
                   <th className="py-4 px-3 text-center bg-slate-100/70">
                     <span className="px-2.5 py-0.5 rounded-full bg-slate-300 text-slate-700 font-bold text-[10px] uppercase">
