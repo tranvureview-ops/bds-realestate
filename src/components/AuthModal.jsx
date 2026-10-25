@@ -261,34 +261,6 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
               {isLoggingIn ? <i className="fa-solid fa-spinner animate-spin"></i> : <i className="fa-solid fa-arrow-right-to-bracket"></i>}
               <span>{isLoggingIn ? 'Đang Xác Thực...' : 'Đăng Nhập Ngay'}</span>
             </button>
-
-            {/* Social Logins */}
-            <div className="pt-3 border-t border-slate-100 text-center space-y-2.5">
-              <div className="text-[11px] text-slate-400">Hoặc tiếp tục bằng tài khoản liên kết:</div>
-              <div className="grid grid-cols-3 gap-2">
-                <button
-                  type="button"
-                  onClick={() => showToast('Tính năng đăng nhập Google đang được tích hợp.', 'info')}
-                  className="py-2 px-3 border border-slate-200 rounded-xl hover:bg-slate-50 font-bold text-[11px] flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <i className="fa-brands fa-google text-red-500"></i> Google
-                </button>
-                <button
-                  type="button"
-                  onClick={() => showToast('Tính năng đăng nhập Facebook đang được tích hợp.', 'info')}
-                  className="py-2 px-3 border border-slate-200 rounded-xl hover:bg-slate-50 font-bold text-[11px] flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <i className="fa-brands fa-facebook text-blue-600"></i> Facebook
-                </button>
-                <button
-                  type="button"
-                  onClick={() => showToast('Tính năng đăng nhập Zalo đang được tích hợp.', 'info')}
-                  className="py-2 px-3 border border-slate-200 rounded-xl hover:bg-slate-50 font-bold text-[11px] flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                  <i className="fa-solid fa-comment-dots text-blue-500"></i> Zalo
-                </button>
-              </div>
-            </div>
           </form>
         )}
 
