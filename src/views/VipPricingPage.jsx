@@ -379,12 +379,18 @@ export default function VipPricingPage() {
                         Đơn giá theo ngày ({selectedDuration} ngày)
                       </div>
                       <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-0.5">
-                        {currentDailyRate.toLocaleString('vi-VN')} <span className="text-xs font-normal text-slate-500">đ/ngày</span>
+                        {currentDailyRate === 0 ? (
+                          <span className="text-emerald-600 font-extrabold uppercase">Miễn Phí</span>
+                        ) : (
+                          <>
+                            {currentDailyRate.toLocaleString('vi-VN')} <span className="text-xs font-normal text-slate-500">đ/ngày</span>
+                          </>
+                        )}
                       </div>
 
                       <div className="mt-2 pt-2 border-t border-slate-200/60 text-xs">
                         <div className="text-slate-600 font-medium">
-                          Tổng {selectedDuration} ngày: <b className="text-slate-900">{grossPeriodPrice.toLocaleString('vi-VN')} đ</b>
+                          Tổng {selectedDuration} ngày: <b className="text-slate-900">{grossPeriodPrice === 0 ? '0 đ (Miễn phí)' : `${grossPeriodPrice.toLocaleString('vi-VN')} đ`}</b>
                         </div>
                         {discountPercent > 0 ? (
                           <div className="text-[10px] text-emerald-600 font-bold mt-0.5">
@@ -400,7 +406,7 @@ export default function VipPricingPage() {
 
                       {isNormal && (
                         <div className="text-[10px] font-bold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full inline-block mt-1">
-                          Áp dụng Voucher Hội viên = 0 đ
+                          {currentDailyRate === 0 ? 'Tin đăng miễn phí toàn sàn' : 'Áp dụng Voucher Hội viên = 0 đ'}
                         </div>
                       )}
                     </div>
@@ -488,25 +494,31 @@ export default function VipPricingPage() {
                     <span className="px-2.5 py-0.5 rounded-full bg-red-600 text-white font-black text-[10px] uppercase">
                       VIP Kim Cương
                     </span>
-                    <div className="font-black text-red-700 text-xs mt-1">Từ 314.820 đ/ngày</div>
+                    <div className="font-black text-red-700 text-xs mt-1">Từ {(ratesConfig['vip-diamond']?.rates[60] || 55300).toLocaleString('vi-VN')} đ/ngày</div>
                   </th>
                   <th className="py-4 px-3 text-center bg-amber-50/70 border-r border-amber-100">
                     <span className="px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[10px] uppercase">
                       VIP Vàng
                     </span>
-                    <div className="font-black text-amber-800 text-xs mt-1">Từ 111.970 đ/ngày</div>
+                    <div className="font-black text-amber-800 text-xs mt-1">Từ {(ratesConfig['vip-gold']?.rates[60] || 111970).toLocaleString('vi-VN')} đ/ngày</div>
                   </th>
                   <th className="py-4 px-3 text-center bg-blue-50/70 border-r border-blue-100">
                     <span className="px-2.5 py-0.5 rounded-full bg-teal-600 text-white font-bold text-[10px] uppercase">
                       VIP Bạc
                     </span>
-                    <div className="font-black text-teal-800 text-xs mt-1">Từ 57.740 đ/ngày</div>
+                    <div className="font-black text-teal-800 text-xs mt-1">Từ {(ratesConfig['vip-silver']?.rates[60] || 57740).toLocaleString('vi-VN')} đ/ngày</div>
                   </th>
                   <th className="py-4 px-3 text-center bg-slate-100/70">
                     <span className="px-2.5 py-0.5 rounded-full bg-slate-300 text-slate-700 font-bold text-[10px] uppercase">
                       Tin Thường
                     </span>
-                    <div className="font-bold text-slate-700 text-xs mt-1">Từ 2.330 đ/ngày</div>
+                    <div className="font-bold text-slate-700 text-xs mt-1">
+                      {ratesConfig['normal']?.rates[60] === 0 ? (
+                        <span className="text-emerald-700 font-black">Miễn phí</span>
+                      ) : (
+                        `Từ ${(ratesConfig['normal']?.rates[60] || 2324).toLocaleString('vi-VN')} đ/ngày`
+                      )}
+                    </div>
                   </th>
                 </tr>
               </thead>

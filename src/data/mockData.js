@@ -102,6 +102,7 @@ export const LISTING_TYPES = [
     name: 'Tin Thường',
     shortName: 'TIN THƯỜNG',
     pricePerDay: 3320,
+    dailyFreeLimit: 5,
     rates: { 15: 3320, 30: 2490, 60: 2324 },
     multiplierText: null,
     tagText: null,
@@ -2476,6 +2477,7 @@ export const DEFAULT_SYSTEM_CONFIG = {
   autoApproveDiamond: true,
   enableAiModeration: true,
   defaultListingDays: 15,
+  dailyFreeListingLimit: 5, // Giới hạn đăng tin miễn phí / user / ngày (0 = không giới hạn)
   maintenanceMode: false,
   // Cấu hình vòng đời lưu trữ và tối ưu hóa Database khi tin hết hạn
   expiredRetentionDays: 45, // Sau 45 ngày hết hạn mà không gia hạn thì xử lý

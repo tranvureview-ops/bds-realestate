@@ -85,6 +85,8 @@ export default function AdminBackendPage() {
     refetchData,
     updateVipPackagePrice, 
     updateAllVipPackagePrices,
+    dailyFreeListingLimit,
+    updateDailyFreeListingLimit,
     bumpServicePrice,
     updateBumpServicePrice,
     navigateToProperty, 
@@ -5629,16 +5631,20 @@ export default function AdminBackendPage() {
                       const pricesMap = {};
                       (vipPackages || []).forEach(p => {
                         const inputEl = document.getElementById(`price-${p.id}`);
-                        if (inputEl && inputEl.value) {
+                        if (inputEl && inputEl.value !== undefined && inputEl.value !== '') {
                           pricesMap[p.id] = inputEl.value;
                         }
                       });
                       const bumpEl = document.getElementById('price-bump-service');
-                      if (bumpEl && bumpEl.value) {
+                      if (bumpEl && bumpEl.value !== undefined && bumpEl.value !== '') {
                         await updateBumpServicePrice(bumpEl.value);
                       }
+                      const limitEl = document.getElementById('input-daily-free-limit');
+                      const extraConfig = (limitEl && limitEl.value !== undefined && limitEl.value !== '')
+                        ? { dailyFreeListingLimit: parseInt(limitEl.value, 10) || 0 }
+                        : {};
                       if (updateAllVipPackagePrices && Object.keys(pricesMap).length > 0) {
-                        await updateAllVipPackagePrices(pricesMap);
+                        await updateAllVipPackagePrices(pricesMap, extraConfig);
                       }
                     }}
                     className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-black shadow-lg shadow-red-600/20 transition flex items-center gap-2 cursor-pointer"
@@ -5666,6 +5672,11 @@ export default function AdminBackendPage() {
                           {pkg.shortName}
                         </span>
                         <span className="text-xs font-black text-white">{pkg.name}</span>
+                        {pkg.pricePerDay === 0 && (
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                            MIỄN PHÍ
+                          </span>
+                        )}
                       </div>
                       <span className="text-[11px] text-slate-400 font-mono">Cấp {pkg.level}</span>
                     </div>
@@ -5674,7 +5685,9 @@ export default function AdminBackendPage() {
                       {pkg.id === 'vip-diamond' ? (
                         <span className="text-red-400 font-bold">★ Đặc quyền: Tặng kèm 1 Tin Thường + Đẩy tin kèm MIỄN PHÍ</span>
                       ) : pkg.id === 'normal' ? (
-                        <span className="text-slate-300">Tin Thường đăng chuẩn 35k/7 ngày • Hỗ trợ Voucher Hội viên</span>
+                        <span className="text-slate-300">
+                          {pkg.pricePerDay === 0 ? 'Tin Thường đang miễn phí (0 đ) • Giới hạn đăng tin theo ngày' : 'Tin Thường đăng chuẩn • Hỗ trợ Voucher Hội viên'}
+                        </span>
                       ) : (
                         <span>{pkg.features?.[0]}</span>
                       )}
@@ -5688,6 +5701,7 @@ export default function AdminBackendPage() {
                       <div className="flex items-center gap-2">
                         <input
                           type="number"
+                          min="0"
                           defaultValue={pkg.pricePerDay}
                           key={`price-${pkg.id}-${pkg.pricePerDay}`}
                           id={`price-${pkg.id}`}
@@ -5697,7 +5711,13 @@ export default function AdminBackendPage() {
                         <button
                           onClick={() => {
                             const val = document.getElementById(`price-${pkg.id}`)?.value;
-                            if (val) updateVipPackagePrice(pkg.id, val);
+                            if (val !== undefined && val !== '') {
+                              const limitEl = document.getElementById('input-daily-free-limit');
+                              const extra = (pkg.id === 'normal' && limitEl) ? {
+                                dailyFreeLimit: parseInt(limitEl.value, 10) || 0
+                              } : {};
+                              updateVipPackagePrice(pkg.id, val, extra);
+                            }
                           }}
                           className="px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition cursor-pointer"
                         >
@@ -5705,6 +5725,42 @@ export default function AdminBackendPage() {
                         </button>
                       </div>
                     </div>
+
+                    {pkg.id === 'normal' && (
+                      <div className="pt-2 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                        <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                          <i className="fa-solid fa-clock-rotate-left text-amber-400"></i>
+                          <span>Giới hạn đăng miễn phí:</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                          <input
+                            type="number"
+                            min="0"
+                            defaultValue={dailyFreeListingLimit ?? pkg.dailyFreeLimit ?? 5}
+                            key={`limit-free-${dailyFreeListingLimit}`}
+                            id="input-daily-free-limit"
+                            className="w-20 px-2 py-1 bg-slate-950 border border-slate-700 rounded-lg text-xs font-bold text-center text-amber-400 focus:border-amber-500 focus:outline-none"
+                            title="Số lượng tin miễn phí tối đa mỗi user được đăng trong 1 ngày (0 = không giới hạn)"
+                          />
+                          <span className="text-[11px] text-slate-400 whitespace-nowrap">tin / ngày</span>
+                          {updateDailyFreeListingLimit && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const limit = document.getElementById('input-daily-free-limit')?.value;
+                                if (limit !== undefined && limit !== '') {
+                                  updateDailyFreeListingLimit(limit);
+                                }
+                              }}
+                              className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 rounded-lg text-[10px] font-bold transition cursor-pointer"
+                              title="Lưu riêng hạn mức ngày"
+                            >
+                              Lưu
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

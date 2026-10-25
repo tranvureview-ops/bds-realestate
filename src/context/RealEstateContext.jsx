@@ -1650,6 +1650,52 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return true;
   };
 
+  // Đếm số lượng tin đăng miễn phí/tin thường của user trong ngày hôm nay (00:00 -> hiện tại)
+  const getTodayFreeListingCount = (userOrPhone) => {
+    if (!userOrPhone) return 0;
+    const userId = typeof userOrPhone === 'string' ? userOrPhone : userOrPhone?.id;
+    const userPhone = typeof userOrPhone === 'object' ? userOrPhone?.phone : (String(userOrPhone).startsWith('0') ? String(userOrPhone) : null);
+    
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    return (properties || []).filter(p => {
+      const matchesUser = (userId && p.author?.id === userId) ||
+                          (userPhone && (p.author?.phone === userPhone || p.contactPhone === userPhone));
+      if (!matchesUser) return false;
+
+      // Đếm tin thường hoặc tin 0 đ đăng trong ngày hôm nay
+      const isFreeOrNormal = p.vipPackageId === 'normal' || p.paidAmount === 0;
+      if (!isFreeOrNormal) return false;
+
+      const pDate = new Date(p.submittedAt || p.publishedAt || p.createdAt);
+      return !isNaN(pDate.getTime()) && pDate >= startOfToday;
+    }).length;
+  };
+
+  // Kiểm tra hạn mức đăng tin miễn phí trong ngày của user
+  const checkDailyFreeListingQuota = (userOrPhone) => {
+    const limit = typeof systemConfig?.dailyFreeListingLimit === 'number'
+      ? systemConfig.dailyFreeListingLimit
+      : ((vipPackages.find(p => p.id === 'normal')?.dailyFreeLimit) ?? 5);
+
+    // limit <= 0 nghĩa là không giới hạn
+    if (limit <= 0) {
+      return { allowed: true, count: 0, limit: 0, remaining: 9999, unlimited: true };
+    }
+
+    // Admin không bị giới hạn
+    if (currentUser?.role === 'admin') {
+      return { allowed: true, count: 0, limit, remaining: limit, isAdmin: true, unlimited: false };
+    }
+
+    const count = getTodayFreeListingCount(userOrPhone || currentUser);
+    const remaining = Math.max(0, limit - count);
+    const allowed = count < limit;
+
+    return { allowed, count, limit, remaining, unlimited: false };
+  };
+
   // Add new Property from form (Hỗ trợ áp dụng Voucher Hội Viên, Khách Vãng Lai & Cổng Thanh Toán)
   const addProperty = (formData, vipPackageId, days, paymentMethod, appliedVoucher = null) => {
     const pkg = vipPackages.find(p => p.id === vipPackageId) || vipPackages[vipPackages.length - 1];
@@ -1678,6 +1724,16 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     }
 
     const finalCost = Math.max(0, totalCost - discountAmount);
+
+    // Kiểm tra giới hạn đăng tin miễn phí trong ngày (nếu là Tin Thường hoặc tin 0 đ)
+    const isFreeListing = (vipPackageId === 'normal' || currentDailyRate === 0) && finalCost === 0;
+    if (isFreeListing && currentUser?.role !== 'admin') {
+      const quota = checkDailyFreeListingQuota(currentUser || { phone: formData.contactPhone });
+      if (!quota.allowed) {
+        showToast(`Bạn đã đạt giới hạn đăng tin miễn phí trong ngày (tối đa ${quota.limit} tin/ngày). Vui lòng nâng cấp Tin VIP hoặc quay lại vào ngày mai!`, 'warning');
+        return null;
+      }
+    }
 
     if (paymentMethod === 'wallet' && finalCost > 0) {
       if (isGuest) {
@@ -2693,10 +2749,10 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return { success: true, count: trashUsers.length };
   };
 
-  // Admin Update VIP Package Price
-  const updateVipPackagePrice = async (pkgId, newPrice) => {
-    const priceNum = parseInt(newPrice, 10);
-    if (!priceNum || priceNum <= 0) return;
+  // Admin Update VIP Package Price (Hỗ trợ 0 đ cho Tin Thường & cấu hình giới hạn)
+  const updateVipPackagePrice = async (pkgId, newPrice, extraData = {}) => {
+    const parsed = parseInt(newPrice, 10);
+    const priceNum = isNaN(parsed) ? 0 : Math.max(0, parsed);
 
     const rate15 = priceNum;
     const rate30 = Math.round(priceNum * 0.75);
@@ -2714,7 +2770,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
               15: rate15,
               30: rate30,
               60: rate60
-            }
+            },
+            ...extraData
           };
         }
         return p;
@@ -2722,39 +2779,85 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       return updatedPackages;
     });
     await persistSettingToSupabase('bds_vip_packages', updatedPackages);
-    showToast(`Đã cập nhật giá gói ${pkgId} thành ${priceNum.toLocaleString('vi-VN')} đ/ngày`, 'success');
+    if (extraData.dailyFreeLimit !== undefined) {
+      const limitNum = Math.max(0, parseInt(extraData.dailyFreeLimit, 10) || 0);
+      setSystemConfig(prev => {
+        const nextCfg = { ...prev, dailyFreeListingLimit: limitNum };
+        persistSettingToSupabase('bds_system_config', nextCfg);
+        return nextCfg;
+      });
+    }
+    showToast(
+      priceNum === 0 
+        ? `Đã cập nhật gói ${pkgId} thành Miễn phí (0 đ/ngày)` 
+        : `Đã cập nhật giá gói ${pkgId} thành ${priceNum.toLocaleString('vi-VN')} đ/ngày`, 
+      'success'
+    );
   };
 
-  // Admin Update All VIP Package Prices at once
-  const updateAllVipPackagePrices = async (pricesMap = {}) => {
+  // Admin Update All VIP Package Prices at once (Hỗ trợ giá 0 đ & giới hạn tin miễn phí/ngày)
+  const updateAllVipPackagePrices = async (pricesMap = {}, extraConfig = {}) => {
     let updatedPackages;
     setVipPackages(prev => {
       updatedPackages = prev.map(p => {
         if (pricesMap[p.id] !== undefined) {
-          const priceNum = Math.max(0, parseInt(pricesMap[p.id], 10) || 0);
-          if (priceNum > 0) {
-            const rate15 = priceNum;
-            const rate30 = Math.round(priceNum * 0.75);
-            const rate60 = Math.round(priceNum * 0.70);
-            return {
-              ...p,
-              pricePerDay: priceNum,
-              rates: {
-                ...(p.rates || {}),
-                15: rate15,
-                30: rate30,
-                60: rate60
-              }
-            };
-          }
+          const rawVal = pricesMap[p.id];
+          const parsed = parseInt(rawVal, 10);
+          const priceNum = isNaN(parsed) ? 0 : Math.max(0, parsed);
+          const rate15 = priceNum;
+          const rate30 = Math.round(priceNum * 0.75);
+          const rate60 = Math.round(priceNum * 0.70);
+          const extra = (p.id === 'normal' && extraConfig.dailyFreeListingLimit !== undefined)
+            ? { dailyFreeLimit: Math.max(0, parseInt(extraConfig.dailyFreeListingLimit, 10) || 0) }
+            : {};
+          return {
+            ...p,
+            pricePerDay: priceNum,
+            rates: {
+              ...(p.rates || {}),
+              15: rate15,
+              30: rate30,
+              60: rate60
+            },
+            ...extra
+          };
         }
         return p;
       });
       return updatedPackages;
     });
     await persistSettingToSupabase('bds_vip_packages', updatedPackages);
+    if (extraConfig.dailyFreeListingLimit !== undefined) {
+      const limitNum = Math.max(0, parseInt(extraConfig.dailyFreeListingLimit, 10) || 0);
+      setSystemConfig(prev => {
+        const nextCfg = { ...prev, dailyFreeListingLimit: limitNum };
+        persistSettingToSupabase('bds_system_config', nextCfg);
+        return nextCfg;
+      });
+    }
     showToast('Đã lưu và đồng bộ toàn bộ bảng giá tin đăng thành công!', 'success');
     return updatedPackages;
+  };
+
+  // Admin Update Daily Free Listing Limit (Giới hạn số tin đăng miễn phí/ngày/user)
+  const updateDailyFreeListingLimit = async (limit) => {
+    const limitNum = Math.max(0, parseInt(limit, 10) || 0);
+    setSystemConfig(prev => {
+      const nextCfg = { ...prev, dailyFreeListingLimit: limitNum };
+      persistSettingToSupabase('bds_system_config', nextCfg);
+      return nextCfg;
+    });
+    setVipPackages(prev => {
+      const nextPkgs = prev.map(p => p.id === 'normal' ? { ...p, dailyFreeLimit: limitNum } : p);
+      persistSettingToSupabase('bds_vip_packages', nextPkgs);
+      return nextPkgs;
+    });
+    showToast(
+      limitNum === 0 
+        ? 'Đã đặt giới hạn tin miễn phí: Không giới hạn' 
+        : `Đã cập nhật giới hạn đăng tin miễn phí: ${limitNum} tin/ngày/user`, 
+      'success'
+    );
   };
 
   // Admin Update Bump Service Price (Đơn giá Đẩy Tin toàn sàn)
@@ -3693,6 +3796,12 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         systemConfig,
         updateSystemConfig,
         resetSystemConfig,
+        dailyFreeListingLimit: typeof systemConfig?.dailyFreeListingLimit === 'number'
+          ? systemConfig.dailyFreeListingLimit
+          : ((vipPackages.find(p => p.id === 'normal')?.dailyFreeLimit) ?? 5),
+        updateDailyFreeListingLimit,
+        getTodayFreeListingCount,
+        checkDailyFreeListingQuota,
         bumpServicePrice,
         updateBumpServicePrice,
         BUMP_SERVICE_PRICE: bumpServicePrice ?? BUMP_SERVICE_PRICE ?? 10000,

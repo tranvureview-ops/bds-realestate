@@ -90,9 +90,23 @@ export function getEffectiveBdsRates(customVipPackages) {
   customVipPackages.forEach(pkg => {
     if (!pkg || !pkg.id) return;
     const defaultMeta = BATDONGSAN_RATES[pkg.id] || {};
-    const price15 = Number(pkg.pricePerDay) || Number(pkg.rates?.[15]) || defaultMeta.rates?.[15] || 3320;
-    const price30 = Number(pkg.rates?.[30]) || Math.round(price15 * 0.75);
-    const price60 = Number(pkg.rates?.[60]) || Math.round(price15 * 0.70);
+    const price15 = (typeof pkg.pricePerDay === 'number' && !isNaN(pkg.pricePerDay))
+      ? Math.max(0, pkg.pricePerDay)
+      : (typeof pkg.rates?.[15] === 'number'
+          ? Math.max(0, pkg.rates[15])
+          : (defaultMeta.rates?.[15] ?? 3320));
+
+    const price30 = (price15 === 0)
+      ? 0
+      : (typeof pkg.rates?.[30] === 'number'
+          ? Math.max(0, pkg.rates[30])
+          : Math.round(price15 * 0.75));
+
+    const price60 = (price15 === 0)
+      ? 0
+      : (typeof pkg.rates?.[60] === 'number'
+          ? Math.max(0, pkg.rates[60])
+          : Math.round(price15 * 0.70));
 
     result[pkg.id] = {
       ...defaultMeta,
@@ -259,7 +273,11 @@ export default function BatdongsanListingSelector({
 
               {/* Đơn giá theo ngày */}
               <div className="pt-2 text-sm font-bold text-slate-900 tracking-tight">
-                {cardDailyRate.toLocaleString('vi-VN')} đ/ngày
+                {cardDailyRate === 0 ? (
+                  <span className="text-emerald-600 font-extrabold uppercase">Miễn phí</span>
+                ) : (
+                  `${cardDailyRate.toLocaleString('vi-VN')} đ/ngày`
+                )}
               </div>
             </div>
           );
@@ -295,7 +313,11 @@ export default function BatdongsanListingSelector({
             <div>
               <div className="font-bold text-sm text-slate-900">15 ngày</div>
               <div className="text-xs text-slate-600 mt-1 font-semibold">
-                {currentConfig.rates[15].toLocaleString('vi-VN')} đ/ngày
+                {currentConfig.rates[15] === 0 ? (
+                  <span className="text-emerald-600 font-bold">Miễn phí</span>
+                ) : (
+                  `${currentConfig.rates[15].toLocaleString('vi-VN')} đ/ngày`
+                )}
               </div>
             </div>
             {/* Custom Radio Icon */}
@@ -323,10 +345,18 @@ export default function BatdongsanListingSelector({
                 </span>
               </div>
               <div className="text-xs text-slate-600 mt-1 font-semibold flex items-center gap-1.5">
-                <span>{currentConfig.rates[30].toLocaleString('vi-VN')} đ/ngày</span>
-                <span className="line-through text-slate-400 font-normal text-[11px]">
-                  {baseRate.toLocaleString('vi-VN')} đ/ngày
-                </span>
+                {currentConfig.rates[30] === 0 ? (
+                  <span className="text-emerald-600 font-bold">Miễn phí</span>
+                ) : (
+                  <>
+                    <span>{currentConfig.rates[30].toLocaleString('vi-VN')} đ/ngày</span>
+                    {baseRate > 0 && (
+                      <span className="line-through text-slate-400 font-normal text-[11px]">
+                        {baseRate.toLocaleString('vi-VN')} đ/ngày
+                      </span>
+                    )}
+                  </>
+                )}
               </div>
             </div>
             {/* Custom Radio Icon */}
@@ -354,10 +384,18 @@ export default function BatdongsanListingSelector({
                 </span>
               </div>
               <div className="text-xs text-slate-600 mt-1 font-semibold flex items-center gap-1.5">
-                <span>{currentConfig.rates[60].toLocaleString('vi-VN')} đ/ngày</span>
-                <span className="line-through text-slate-400 font-normal text-[11px]">
-                  {baseRate.toLocaleString('vi-VN')} đ/ngày
-                </span>
+                {currentConfig.rates[60] === 0 ? (
+                  <span className="text-emerald-600 font-bold">Miễn phí</span>
+                ) : (
+                  <>
+                    <span>{currentConfig.rates[60].toLocaleString('vi-VN')} đ/ngày</span>
+                    {baseRate > 0 && (
+                      <span className="line-through text-slate-400 font-normal text-[11px]">
+                        {baseRate.toLocaleString('vi-VN')} đ/ngày
+                      </span>
+                    )}
+                  </>
+                )}
               </div>
             </div>
             {/* Custom Radio Icon */}
@@ -463,7 +501,7 @@ export default function BatdongsanListingSelector({
               Phân loại: <strong className="text-slate-900">{currentConfig.name}</strong> • Thời hạn: <strong className="text-slate-900">{selectedDays} ngày</strong>
             </div>
             <div className="text-base font-black text-slate-900 mt-0.5">
-              Tổng thanh toán: <span className="text-red-600">{finalCost.toLocaleString('vi-VN')} đ</span>
+              Tổng thanh toán: <span className="text-red-600">{finalCost === 0 ? '0 đ (Miễn phí)' : `${finalCost.toLocaleString('vi-VN')} đ`}</span>
               {voucherDiscount > 0 && (
                 <span className="text-xs font-normal text-emerald-600 ml-2">
                   (Đã giảm voucher -{voucherDiscount.toLocaleString('vi-VN')} đ)

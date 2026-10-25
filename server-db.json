@@ -1908,6 +1908,7 @@
     "autoApproveDiamond": true,
     "autoCleanupEnabled": true,
     "defaultListingDays": 15,
+    "dailyFreeListingLimit": 5,
     "enableAiModeration": true,
     "trashRetentionDays": 30,
     "expiredCleanupAction": "archive_light",

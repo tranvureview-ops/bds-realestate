@@ -116,14 +116,20 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
                   {/* Price */}
                   <div className="text-center py-3 bg-slate-50/70 rounded-xl my-2 border border-slate-100">
                     <div className="text-xl sm:text-2xl font-black text-slate-900">
-                      {pkg.pricePerDay.toLocaleString('vi-VN')} <span className="text-xs text-slate-500 font-normal">đ/ngày</span>
+                      {pkg.pricePerDay === 0 ? (
+                        <span className="text-emerald-600 font-extrabold uppercase">Miễn phí</span>
+                      ) : (
+                        <>
+                          {pkg.pricePerDay.toLocaleString('vi-VN')} <span className="text-xs text-slate-500 font-normal">đ/ngày</span>
+                        </>
+                      )}
                     </div>
                     <div className="text-[11px] text-slate-500 mt-0.5">
                       Đăng tối thiểu {pkg.minDays} ngày
                     </div>
                     {isNormal && (
                       <div className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-full inline-block mt-1">
-                        Hội viên dùng Voucher = 0 đ
+                        {pkg.pricePerDay === 0 ? 'Tin đăng miễn phí toàn sàn' : 'Hội viên dùng Voucher = 0 đ'}
                       </div>
                     )}
                   </div>

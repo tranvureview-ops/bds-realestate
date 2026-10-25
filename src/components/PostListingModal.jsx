@@ -105,7 +105,9 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     navigateToProperty,
     isMembershipActive,
     membershipPackages,
-    vipPackages
+    vipPackages,
+    checkDailyFreeListingQuota,
+    dailyFreeListingLimit
   } = useRealEstate();
   const { navigate } = useRouter();
 
@@ -308,6 +310,14 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     return 0;
   }, [appliedVoucher, hasNormalVoucher, hasVipVoucher, totalCost, selectedVipId, normalPublishVoucherDiscount, vipVoucherDiscount]);
   const finalCost = Math.max(0, totalCost - voucherDiscount);
+
+  // Kiểm tra hạn mức đăng tin miễn phí trong ngày (5 tin/ngày theo cấu hình admin)
+  const dailyQuotaInfo = useMemo(() => {
+    if (checkDailyFreeListingQuota) {
+      return checkDailyFreeListingQuota(currentUser || { phone: formData.contactPhone });
+    }
+    return { allowed: true, count: 0, limit: 5, remaining: 5, unlimited: false };
+  }, [checkDailyFreeListingQuota, currentUser, formData.contactPhone, properties]);
 
   // Tính toán và định dạng giá
   const updatePriceCalculations = (newPrice, newPriceType, currentArea) => {
@@ -887,6 +897,14 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     if (!formData.images || formData.images.length === 0) {
       setStep(3);
       showToast('Vui lòng tải lên tối thiểu 1 hình ảnh thật của bất động sản (Bước 3)!', 'warning');
+      return;
+    }
+
+    // 3b. Kiểm tra giới hạn đăng tin miễn phí trong ngày nếu chọn Tin Thường hoặc tin 0 đ
+    const isFreeSubmission = (selectedVipId === 'normal' || dailyRate === 0) && finalCost === 0;
+    if (isFreeSubmission && currentUser?.role !== 'admin' && !dailyQuotaInfo.allowed) {
+      setStep(4);
+      showToast(`Bạn đã đạt giới hạn đăng tin miễn phí trong ngày (tối đa ${dailyQuotaInfo.limit} tin/ngày). Vui lòng nâng cấp gói Tin VIP hoặc quay lại vào ngày mai!`, 'warning');
       return;
     }
 
@@ -1947,6 +1965,49 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   <span className="text-[11px] text-slate-500 font-medium">Bảng giá niêm yết theo ngày</span>
                 </div>
 
+                {/* Banner Thông Tin Hạn Mức Đăng Tin Miễn Phí Trong Ngày */}
+                {selectedVipId === 'normal' && (
+                  <div className={`p-3.5 rounded-2xl border flex items-center justify-between text-xs transition ${
+                    !dailyQuotaInfo.allowed 
+                      ? 'bg-rose-50 border-rose-200 text-rose-800' 
+                      : 'bg-emerald-50/80 border-emerald-200 text-emerald-900'
+                  }`}>
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm shrink-0 ${
+                        !dailyQuotaInfo.allowed ? 'bg-rose-500 text-white' : 'bg-emerald-600 text-white'
+                      }`}>
+                        <i className={`fa-solid ${!dailyQuotaInfo.allowed ? 'fa-ban' : 'fa-calendar-check'}`}></i>
+                      </div>
+                      <div>
+                        <div className="font-black text-xs uppercase flex items-center gap-1.5">
+                          <span>
+                            {dailyQuotaInfo.unlimited 
+                              ? 'Hạn mức đăng tin: Không giới hạn' 
+                              : `Hạn mức đăng tin miễn phí hôm nay: ${dailyQuotaInfo.count}/${dailyQuotaInfo.limit} tin`}
+                          </span>
+                          {dailyRate === 0 && (
+                            <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-200 text-emerald-800">
+                              MIỄN PHÍ 100%
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[11px] opacity-80 mt-0.5">
+                          {!dailyQuotaInfo.allowed 
+                            ? `Bạn đã đạt giới hạn tối đa ${dailyQuotaInfo.limit} tin/ngày. Nâng cấp Tin VIP để đăng ngay không giới hạn!` 
+                            : dailyQuotaInfo.unlimited 
+                            ? 'Bạn có thể thoải mái đăng tin miễn phí không giới hạn.' 
+                            : `Bạn còn lại ${dailyQuotaInfo.remaining} lượt đăng Tin Thường miễn phí trong ngày hôm nay.`}
+                        </div>
+                      </div>
+                    </div>
+                    <span className={`px-2.5 py-1 rounded-xl text-[10px] font-black uppercase shrink-0 ${
+                      !dailyQuotaInfo.allowed ? 'bg-rose-600 text-white' : 'bg-emerald-600 text-white'
+                    }`}>
+                      {!dailyQuotaInfo.allowed ? 'Hết lượt hôm nay' : dailyQuotaInfo.unlimited ? 'Vô hạn' : `Còn ${dailyQuotaInfo.remaining} tin`}
+                    </span>
+                  </div>
+                )}
+
                 <BatdongsanListingSelector
                   selectedType={selectedVipId}
                   onSelectType={handleSelectPackage}
@@ -2182,7 +2243,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         <span className="text-emerald-400 flex items-center gap-2">
                           <span>0 đ</span>
                           <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                            MIỄN PHÍ QUA VOUCHER
+                            {voucherDiscount > 0 ? 'MIỄN PHÍ QUA VOUCHER' : 'TIN ĐĂNG MIỄN PHÍ'}
                           </span>
                         </span>
                       ) : (
@@ -2322,10 +2383,19 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
               ) : (
                 <button
                   type="submit"
-                  className="px-7 py-3 bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-700 hover:to-rose-800 text-white rounded-xl text-sm font-black transition shadow-xl flex items-center gap-2"
+                  disabled={selectedVipId === 'normal' && !dailyQuotaInfo.allowed && currentUser?.role !== 'admin'}
+                  className={`px-7 py-3 rounded-xl text-sm font-black transition shadow-xl flex items-center gap-2 ${
+                    selectedVipId === 'normal' && !dailyQuotaInfo.allowed && currentUser?.role !== 'admin'
+                      ? 'bg-slate-400 text-slate-200 cursor-not-allowed opacity-70'
+                      : 'bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-700 hover:to-rose-800 text-white cursor-pointer'
+                  }`}
                 >
-                  <i className="fa-solid fa-check-circle text-base"></i>
-                  {finalCost === 0 ? 'Xác Nhận Xuất Bản Tin Miễn Phí (0 đ)' : `Xác Nhận Thanh Toán & Đăng Tin (${finalCost.toLocaleString('vi-VN')} đ)`}
+                  <i className={`fa-solid ${selectedVipId === 'normal' && !dailyQuotaInfo.allowed && currentUser?.role !== 'admin' ? 'fa-ban' : 'fa-check-circle'} text-base`}></i>
+                  {selectedVipId === 'normal' && !dailyQuotaInfo.allowed && currentUser?.role !== 'admin'
+                    ? `Đã Hết Hạn Mức ${dailyQuotaInfo.limit} Tin/Ngày (Chọn VIP)`
+                    : finalCost === 0 
+                    ? 'Xác Nhận Xuất Bản Tin Miễn Phí (0 đ)' 
+                    : `Xác Nhận Thanh Toán & Đăng Tin (${finalCost.toLocaleString('vi-VN')} đ)`}
                 </button>
               )}
             </div>
