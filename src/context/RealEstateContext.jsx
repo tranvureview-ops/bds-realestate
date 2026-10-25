@@ -333,9 +333,32 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // 6. Listing Types / VIP Packages Configuration (editable by Admin)
   const [vipPackages, setVipPackages] = useState(() => {
-    return (initialData?.bds_vip_packages && Array.isArray(initialData.bds_vip_packages) && initialData.bds_vip_packages.length >= 4)
+    const raw = (initialData?.bds_vip_packages && Array.isArray(initialData.bds_vip_packages) && initialData.bds_vip_packages.length >= 4)
       ? initialData.bds_vip_packages
       : VIP_PACKAGES;
+    return raw.map(pkg => {
+      if (pkg.id === 'normal') {
+        return {
+          ...pkg,
+          minDays: 60,
+          allowedDurations: Array.isArray(pkg.allowedDurations) && pkg.allowedDurations.length > 0 ? pkg.allowedDurations : [60]
+        };
+      }
+      const base = pkg.pricePerDay || pkg.rates?.[15] || 0;
+      return {
+        ...pkg,
+        minDays: 5,
+        allowedDurations: [5, 7, 10, 15, 30],
+        rates: {
+          5: pkg.rates?.[5] ?? base,
+          7: pkg.rates?.[7] ?? base,
+          10: pkg.rates?.[10] ?? base,
+          15: pkg.rates?.[15] ?? base,
+          30: pkg.rates?.[30] ?? Math.round(base * 0.75),
+          ...(pkg.rates || {})
+        }
+      };
+    });
   });
 
   // 6b. Membership Packages (Gói Hội Viên: Cơ bản, Tiêu chuẩn, Cao cấp)
@@ -2755,6 +2778,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const parsed = parseInt(newPrice, 10);
     const priceNum = isNaN(parsed) ? 0 : Math.max(0, parsed);
 
+    const rate5 = priceNum;
+    const rate7 = priceNum;
+    const rate10 = priceNum;
     const rate15 = priceNum;
     const rate30 = Math.round(priceNum * 0.75);
     const rate60 = Math.round(priceNum * 0.70);
@@ -2768,10 +2794,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
             pricePerDay: priceNum,
             rates: {
               ...(p.rates || {}),
+              5: rate5,
+              7: rate7,
+              10: rate10,
               15: rate15,
               30: rate30,
               60: rate60
             },
+            ...(pkgId !== 'normal' ? { allowedDurations: [5, 7, 10, 15, 30], minDays: 5 } : {}),
             ...extraData
           };
         }

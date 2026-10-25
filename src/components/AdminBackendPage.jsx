@@ -5705,7 +5705,7 @@ export default function AdminBackendPage() {
 
                     <div className="flex items-center justify-between pt-2 border-t border-slate-800">
                       <div className="text-[11px] text-slate-400">
-                        Tối thiểu: <b className="text-slate-200">{pkg.minDays} ngày</b>
+                        Tối thiểu: <b className="text-slate-200">{pkg.minDays || (pkg.id === 'normal' ? 60 : 5)} ngày</b>
                       </div>
 
                       <div className="flex items-center gap-2">
@@ -5746,7 +5746,9 @@ export default function AdminBackendPage() {
                                 extra = {
                                   approvalMode: 'instant',
                                   delayMinutes: 0,
-                                  approvalBadge: 'Duyệt tức thì (0s)'
+                                  approvalBadge: 'Duyệt tức thì (0s)',
+                                  allowedDurations: [5, 7, 10, 15, 30],
+                                  minDays: 5
                                 };
                               }
                               updateVipPackagePrice(pkg.id, val, extra);
@@ -5760,21 +5762,30 @@ export default function AdminBackendPage() {
                     </div>
 
                     {pkg.id !== 'normal' && (
-                      <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
-                        <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                          <i className="fa-solid fa-bolt text-amber-400"></i>
-                          <span>Cơ chế kiểm duyệt:</span>
+                      <div className="pt-2 border-t border-slate-800/80 space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                            <i className="fa-solid fa-bolt text-amber-400"></i>
+                            <span>Cơ chế kiểm duyệt:</span>
+                          </div>
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-black border flex items-center gap-1 ${
+                            pkg.id === 'vip-diamond' 
+                              ? 'bg-red-500/20 text-red-300 border-red-500/30' 
+                              : pkg.id === 'vip-gold' 
+                              ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' 
+                              : 'bg-teal-500/20 text-teal-300 border-teal-500/30'
+                          }`}>
+                            <i className="fa-solid fa-bolt text-[9px]"></i>
+                            <span>Duyệt tức thì (0s)</span>
+                          </span>
                         </div>
-                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-black border flex items-center gap-1 ${
-                          pkg.id === 'vip-diamond' 
-                            ? 'bg-red-500/20 text-red-300 border-red-500/30' 
-                            : pkg.id === 'vip-gold' 
-                            ? 'bg-amber-500/20 text-amber-300 border-amber-500/30' 
-                            : 'bg-teal-500/20 text-teal-300 border-teal-500/30'
-                        }`}>
-                          <i className="fa-solid fa-bolt text-[9px]"></i>
-                          <span>Duyệt tức thì (0s)</span>
-                        </span>
+                        <div className="flex items-center justify-between text-[11px] text-slate-400">
+                          <span className="flex items-center gap-1.5">
+                            <i className="fa-solid fa-calendar-days text-indigo-400 text-[10px]"></i>
+                            <span>Thời hạn hiển thị:</span>
+                          </span>
+                          <span className="font-bold text-slate-300">5, 7 (mặc định), 10, 15, 30 ngày</span>
+                        </div>
                       </div>
                     )}
 

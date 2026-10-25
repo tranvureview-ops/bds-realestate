@@ -34,11 +34,14 @@ export default function VipPricingPage() {
   const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
   const [scheduleTime, setScheduleTime] = useState('now');
 
-  // Chu kỳ thời hạn chuẩn Batdongsan.com.vn (15 ngày, 30 ngày -25%, 60 ngày -30%)
+  // Chu kỳ thời hạn chuẩn (5, 7, 10, 15, 30 ngày cho VIP; 60 ngày cho Tin Thường)
   const DURATION_DISCOUNTS = {
-    15: { label: '15 ngày', discountPercent: 0, badge: 'Đăng ký cơ bản' },
+    5: { label: '5 ngày', discountPercent: 0, badge: '5 ngày' },
+    7: { label: '7 ngày', discountPercent: 0, badge: 'Mặc định (7 ngày)' },
+    10: { label: '10 ngày', discountPercent: 0, badge: '10 ngày' },
+    15: { label: '15 ngày', discountPercent: 0, badge: '15 ngày' },
     30: { label: '30 ngày', discountPercent: 25, badge: 'Tiết kiệm 25%' },
-    60: { label: '60 ngày', discountPercent: 30, badge: 'Tiết kiệm 30%' }
+    60: { label: '60 ngày', discountPercent: 30, badge: 'Mặc định 60 ngày' }
   };
 
   // FAQ Accordion State
@@ -63,8 +66,10 @@ export default function VipPricingPage() {
   // Handle direct package click
   const handleSelectPackage = (pkgId) => {
     setSelectedListingType(pkgId);
+    const targetDuration = pkgId === 'normal' ? 60 : 7;
+    setSelectedDuration(targetDuration);
     if (selectedPropertyForVip) {
-      const success = upgradeVip(selectedPropertyForVip.id, pkgId, selectedDuration);
+      const success = upgradeVip(selectedPropertyForVip.id, pkgId, targetDuration);
       if (success) {
         setSelectedPropertyForVip(null);
         navigate('/quan-ly-tin');
@@ -280,6 +285,8 @@ export default function VipPricingPage() {
               setSelectedListingType(type);
               if (type === 'normal') {
                 setSelectedDuration(60);
+              } else {
+                setSelectedDuration(7);
               }
             }}
             selectedDays={selectedDuration}
@@ -320,9 +327,9 @@ export default function VipPricingPage() {
               const isNormal = pkg.id === 'normal';
 
               const activeRates = ratesConfig?.[pkg.id] || ratesConfig?.['normal'] || BATDONGSAN_RATES['normal'];
-              const currentDailyRate = activeRates?.rates?.[selectedDuration] ?? activeRates?.rates?.[15] ?? 0;
-              const base15Rate = activeRates?.rates?.[15] ?? 0;
-              const discountInfo = DURATION_DISCOUNTS[selectedDuration] || DURATION_DISCOUNTS[15] || { label: '15 ngày', discountPercent: 0, badge: 'Đăng ký cơ bản' };
+              const currentDailyRate = activeRates?.rates?.[selectedDuration] ?? activeRates?.rates?.[7] ?? activeRates?.rates?.[15] ?? 0;
+              const baseRate = activeRates?.rates?.[7] ?? activeRates?.rates?.[15] ?? 0;
+              const discountInfo = DURATION_DISCOUNTS[selectedDuration] || DURATION_DISCOUNTS[7] || { label: `${selectedDuration} ngày`, discountPercent: 0, badge: 'Đăng ký chuẩn' };
               const discountPercent = discountInfo.discountPercent;
               const grossPeriodPrice = currentDailyRate * selectedDuration;
 

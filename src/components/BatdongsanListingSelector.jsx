@@ -9,7 +9,7 @@ import { useRealEstate } from '../context/RealEstateContext';
  * và Thời Hạn Hiển Thị theo đúng 100% UI thực tế của Batdongsan.com.vn.
  */
 
-// Bảng đơn giá chuẩn Batdongsan.com.vn theo từng loại tin & thời hạn (15 ngày, 30 ngày, 60 ngày)
+// Bảng đơn giá chuẩn Batdongsan.com.vn theo từng loại tin & thời hạn (5, 7, 10, 15, 30 ngày cho VIP, 60 ngày cho Tin Thường)
 export const BATDONGSAN_RATES = {
   'vip-diamond': {
     id: 'vip-diamond',
@@ -22,10 +22,13 @@ export const BATDONGSAN_RATES = {
     approvalBadge: 'Duyệt tức thì (0s)',
     approvalIcon: 'fa-solid fa-bolt',
     approvalColor: 'text-red-600 bg-red-50 border-red-200',
+    allowedDurations: [5, 7, 10, 15, 30],
     rates: {
+      5: 79000,
+      7: 79000,
+      10: 79000,
       15: 79000,  // Base
-      30: 59250,  // -25%
-      60: 55300   // -30%
+      30: 59250   // -25%
     }
   },
   'vip-gold': {
@@ -39,10 +42,13 @@ export const BATDONGSAN_RATES = {
     approvalBadge: 'Duyệt tức thì (0s)',
     approvalIcon: 'fa-solid fa-bolt',
     approvalColor: 'text-amber-700 bg-amber-50 border-amber-200',
+    allowedDurations: [5, 7, 10, 15, 30],
     rates: {
+      5: 29000,
+      7: 29000,
+      10: 29000,
       15: 29000,
-      30: 21750,  // -25%
-      60: 20300   // -30%
+      30: 21750   // -25%
     }
   },
   'vip-silver': {
@@ -56,10 +62,13 @@ export const BATDONGSAN_RATES = {
     approvalBadge: 'Duyệt tức thì (0s)',
     approvalIcon: 'fa-solid fa-bolt',
     approvalColor: 'text-teal-700 bg-teal-50 border-teal-200',
+    allowedDurations: [5, 7, 10, 15, 30],
     rates: {
+      5: 9000,
+      7: 9000,
+      10: 9000,
       15: 9000,
-      30: 6750,   // -25%
-      60: 6300    // -30%
+      30: 6750    // -25%
     }
   },
   'normal': {
@@ -71,10 +80,11 @@ export const BATDONGSAN_RATES = {
     approvalBadge: 'Duyệt tự động (5 - 15 phút)',
     approvalIcon: 'fa-solid fa-clock-rotate-left',
     approvalColor: 'text-slate-600 bg-slate-100 border-slate-200',
+    allowedDurations: [60],
     rates: {
       15: 3320,   // Base
       30: 2490,   // -25%
-      60: 2324    // -30%
+      60: 0       // Miễn phí
     }
   }
 };
@@ -95,13 +105,17 @@ export function getEffectiveBdsRates(customVipPackages, paymentConfig = null) {
       id: pkg.id,
       name: pkg.name || 'Gói VIP',
       positionDesc: '',
-      rates: { 15: 10000, 30: 7500, 60: 7000 }
+      rates: { 5: 10000, 7: 10000, 10: 10000, 15: 10000, 30: 7500, 60: 0 }
     };
 
     const rawRate15 = pkg.rates?.[15] !== undefined ? pkg.rates[15] : pkg.pricePerDay;
     const price15 = (rawRate15 !== undefined && rawRate15 !== null && rawRate15 !== '' && !isNaN(Number(rawRate15)))
       ? Math.max(0, Number(rawRate15))
       : (defaultMeta.rates?.[15] ?? 3320);
+
+    const price5 = pkg.rates?.[5] !== undefined ? Math.max(0, Number(pkg.rates[5])) : price15;
+    const price7 = pkg.rates?.[7] !== undefined ? Math.max(0, Number(pkg.rates[7])) : price15;
+    const price10 = pkg.rates?.[10] !== undefined ? Math.max(0, Number(pkg.rates[10])) : price15;
 
     const rawRate30 = pkg.rates?.[30];
     const price30 = (rawRate30 !== undefined && rawRate30 !== null && rawRate30 !== '' && !isNaN(Number(rawRate30)))
@@ -141,11 +155,16 @@ export function getEffectiveBdsRates(customVipPackages, paymentConfig = null) {
       id: pkg.id,
       name: pkg.name || defaultMeta.name,
       shortName: pkg.shortName || defaultMeta.shortName,
-      allowedDurations: Array.isArray(pkg.allowedDurations) ? pkg.allowedDurations : defaultMeta.allowedDurations,
+      allowedDurations: pkg.id === 'normal'
+        ? (Array.isArray(pkg.allowedDurations) && pkg.allowedDurations.length > 0 ? pkg.allowedDurations : [60])
+        : [5, 7, 10, 15, 30],
       approvalBadge,
       approvalIcon,
       approvalColor,
       rates: {
+        5: price5,
+        7: price7,
+        10: price10,
         15: price15,
         30: price30,
         60: price60
@@ -232,7 +251,7 @@ export default function BatdongsanListingSelector({
       const base = startDate || internalStartDate || todayStr;
       const d = new Date(base);
       if (isNaN(d.getTime())) return '';
-      d.setDate(d.getDate() + (selectedDays || 15));
+      d.setDate(d.getDate() + (selectedDays || (isNormal ? 60 : 7)));
       const day = String(d.getDate()).padStart(2, '0');
       const month = String(d.getMonth() + 1).padStart(2, '0');
       const year = d.getFullYear();
@@ -240,7 +259,7 @@ export default function BatdongsanListingSelector({
     } catch {
       return '';
     }
-  }, [startDate, internalStartDate, todayStr, selectedDays]);
+  }, [startDate, internalStartDate, todayStr, selectedDays, isNormal]);
 
   // Vị trí mũi tên tam giác trỏ xuống từ Card được chọn
   const arrowPositionClass = {
@@ -255,25 +274,31 @@ export default function BatdongsanListingSelector({
   // Dữ liệu gói hiện tại
   const currentConfig = ratesConfig?.[selectedType] || ratesConfig?.['normal'] || BATDONGSAN_RATES['normal'];
 
-  // Lấy các mốc thời gian cho phép hiển thị của gói (Admin có thể bật/tắt trong trang quản trị)
+  // Lấy các mốc thời gian cho phép hiển thị của gói (VIP: 5, 7, 10, 15, 30 ngày - loại bỏ 60 ngày; Tin Thường: 60 ngày)
   const allowedDurations = useMemo(() => {
-    const raw = currentConfig?.allowedDurations;
-    if (Array.isArray(raw) && raw.length > 0) {
-      return raw;
+    if (isNormal) {
+      const raw = currentConfig?.allowedDurations;
+      if (Array.isArray(raw) && raw.length > 0) return raw;
+      return [60];
     }
-    return isNormal ? [60] : [15, 30, 60];
+    return [5, 7, 10, 15, 30];
   }, [currentConfig?.allowedDurations, isNormal]);
 
-  // Đảm bảo số ngày được chọn luôn nằm trong các mốc cho phép
+  // Đảm bảo số ngày được chọn luôn nằm trong các mốc cho phép và áp dụng đúng mặc định (7 ngày cho VIP, 60 ngày cho Tin Thường)
   useEffect(() => {
-    if (Array.isArray(allowedDurations) && allowedDurations.length > 0 && !allowedDurations.includes(selectedDays) && onSelectDays) {
-      const nextDay = allowedDurations.includes(60) ? 60 : allowedDurations[0];
-      if (nextDay) onSelectDays(nextDay);
+    if (Array.isArray(allowedDurations) && allowedDurations.length > 0 && onSelectDays) {
+      if (!allowedDurations.includes(selectedDays)) {
+        const defaultDay = isNormal ? 60 : 7;
+        const nextDay = allowedDurations.includes(defaultDay) ? defaultDay : allowedDurations[0];
+        if (nextDay && nextDay !== selectedDays) {
+          onSelectDays(nextDay);
+        }
+      }
     }
-  }, [allowedDurations, selectedDays, onSelectDays]);
+  }, [allowedDurations, selectedDays, onSelectDays, isNormal]);
 
-  const baseRate = currentConfig?.rates?.[15] ?? 0;
-  const currentDailyRate = currentConfig?.rates?.[selectedDays] ?? currentConfig?.rates?.[15] ?? 0;
+  const baseRate = currentConfig?.rates?.[7] ?? currentConfig?.rates?.[15] ?? currentConfig?.pricePerDay ?? 0;
+  const currentDailyRate = currentConfig?.rates?.[selectedDays] ?? currentConfig?.rates?.[7] ?? currentConfig?.pricePerDay ?? 0;
   const grossCost = currentDailyRate * selectedDays;
   const finalCost = Math.max(0, grossCost - voucherDiscount);
 
@@ -286,17 +311,21 @@ export default function BatdongsanListingSelector({
         {Object.values(ratesConfig || {}).map((item) => {
           if (!item || !item.id) return null;
           const isSelected = selectedType === item.id;
-          // Giá hiển thị trên card: Tin Thường hiển thị theo 60 ngày (0 đ / Miễn phí)
-          const daysForCard = item.id === 'normal' ? 60 : (selectedDays || 15);
-          const cardDailyRate = item?.rates?.[daysForCard] ?? item?.rates?.[15] ?? 0;
+          // Giá hiển thị trên card: Tin Thường hiển thị theo 60 ngày (0 đ / Miễn phí), VIP hiển thị theo selectedDays hoặc 7 ngày mặc định
+          const daysForCard = item.id === 'normal' ? 60 : (selectedDays || 7);
+          const cardDailyRate = item?.rates?.[daysForCard] ?? item?.rates?.[7] ?? item?.rates?.[15] ?? 0;
 
           return (
             <div
               key={item.id}
               onClick={() => {
                 if (onSelectType) onSelectType(item.id);
-                if (item.id === 'normal' && onSelectDays) {
-                  onSelectDays(60);
+                if (onSelectDays) {
+                  if (item.id === 'normal') {
+                    onSelectDays(60);
+                  } else {
+                    onSelectDays(7);
+                  }
                 }
               }}
               className={`p-5 rounded-2xl flex flex-col justify-between cursor-pointer transition-all duration-150 relative bg-white ${
@@ -356,146 +385,135 @@ export default function BatdongsanListingSelector({
       {/* ========================================================
           2. KHUNG CHỌN THỜI HẠN VỚI MŨI TÊN TRỎ VÀO THẺ ĐƯỢC CHỌN
          ======================================================== */}
-      <div className="relative bg-[#f4f5f7] p-5 sm:p-6 rounded-2xl border border-slate-200/80 space-y-4">
+      <div className="relative bg-[#f4f5f7] p-4 sm:p-5 rounded-2xl border border-slate-200/80 space-y-3">
         {/* Mũi tên tam giác chỉ lên thẻ được chọn */}
         <div
           className={`absolute -top-2 w-4 h-4 bg-[#f4f5f7] transform rotate-45 border-l border-t border-slate-200/80 hidden lg:block -translate-x-1/2 transition-all duration-300 ${arrowPositionClass}`}
         ></div>
 
         {/* Tiêu đề khuyến mãi / Thời hạn */}
-        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-          {isNormal && allowedDurations.length === 1 && allowedDurations[0] === 60 ? (
-            <>
+        <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+          {isNormal ? (
+            <div className="flex items-center gap-1.5">
               <span className="text-sm">🎁</span>
               <span>Thời hạn đăng tin mặc định: 60 ngày (Miễn phí 100%)</span>
-            </>
+            </div>
           ) : (
-            <>
-              <span className="text-sm">🔥</span>
-              <span>Tiết kiệm hơn khi đăng tin từ 30 ngày!</span>
-            </>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm">⚡</span>
+              <span>Thời hạn hiển thị ({currentConfig.name}):</span>
+            </div>
+          )}
+          {!isNormal && (
+            <span className="text-[11px] font-semibold text-slate-500 hidden sm:inline-block">
+              Đăng từ 30 ngày tiết kiệm 25%
+            </span>
           )}
         </div>
 
-        {/* Các Lựa chọn số ngày: 15 ngày, 30 ngày, 60 ngày */}
-        <div className={`grid gap-3 ${allowedDurations.length === 1 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-3'}`}>
-          {/* Lựa chọn 1: 15 ngày (Quản lý bật/tắt trong trang quản trị) */}
-          {allowedDurations.includes(15) && (
-            <div
-              onClick={() => onSelectDays && onSelectDays(15)}
-              className={`p-4 rounded-2xl cursor-pointer transition flex items-center justify-between bg-white ${
-                selectedDays === 15
-                  ? 'border-2 border-slate-900 shadow-sm ring-1 ring-slate-900/10'
-                  : 'border border-slate-200 hover:border-slate-300'
-              }`}
-            >
-              <div>
-                <div className="font-bold text-sm text-slate-900">15 ngày</div>
-                <div className="text-xs text-slate-600 mt-1 font-semibold">
-                  {currentConfig?.rates?.[15] === 0 ? (
-                    <span className="text-emerald-600 font-bold">Miễn phí</span>
-                  ) : (
-                    `${(currentConfig?.rates?.[15] ?? 0).toLocaleString('vi-VN')} đ/ngày`
-                  )}
-                </div>
-              </div>
-              {/* Custom Radio Icon */}
-              <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
-                selectedDays === 15 ? 'border-2 border-slate-900' : 'border border-slate-300'
-              }`}>
-                {selectedDays === 15 && <div className="w-2.5 h-2.5 rounded-full bg-slate-900"></div>}
-              </div>
-            </div>
-          )}
-
-          {/* Lựa chọn 2: 30 ngày (-25%) (Quản lý bật/tắt trong trang quản trị) */}
-          {allowedDurations.includes(30) && (
-            <div
-              onClick={() => onSelectDays && onSelectDays(30)}
-              className={`p-4 rounded-2xl cursor-pointer transition flex items-center justify-between bg-white ${
-                selectedDays === 30
-                  ? 'border-2 border-slate-900 shadow-sm ring-1 ring-slate-900/10'
-                  : 'border border-slate-200 hover:border-slate-300'
-              }`}
-            >
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-sm text-slate-900">30 ngày</span>
-                  <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-100 px-1.5 py-0.5 rounded-md">
-                    Tiết kiệm 25%
-                  </span>
-                </div>
-                <div className="text-xs text-slate-600 mt-1 font-semibold flex items-center gap-1.5">
-                  {currentConfig?.rates?.[30] === 0 ? (
-                    <span className="text-emerald-600 font-bold">Miễn phí</span>
-                  ) : (
-                    <>
-                      <span>{(currentConfig?.rates?.[30] ?? 0).toLocaleString('vi-VN')} đ/ngày</span>
-                      {baseRate > 0 && (
-                        <span className="line-through text-slate-400 font-normal text-[11px]">
-                          {baseRate.toLocaleString('vi-VN')} đ/ngày
-                        </span>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
-              {/* Custom Radio Icon */}
-              <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
-                selectedDays === 30 ? 'border-2 border-slate-900' : 'border border-slate-300'
-              }`}>
-                {selectedDays === 30 && <div className="w-2.5 h-2.5 rounded-full bg-slate-900"></div>}
-              </div>
-            </div>
-          )}
-
-          {/* Lựa chọn 3: 60 ngày (Quản lý bật/tắt trong trang quản trị) */}
-          {allowedDurations.includes(60) && (
+        {/* Khối lựa chọn thời hạn */}
+        {isNormal ? (
+          allowedDurations.length === 1 && allowedDurations[0] === 60 ? (
+            /* Tin Thường: Gọn gàng mốc 60 ngày */
             <div
               onClick={() => onSelectDays && onSelectDays(60)}
-              className={`p-4 rounded-2xl cursor-pointer transition flex items-center justify-between bg-white ${
-                selectedDays === 60
-                  ? 'border-2 border-slate-900 shadow-sm ring-1 ring-slate-900/10'
-                  : 'border border-slate-200 hover:border-slate-300'
-              }`}
+              className="p-3.5 bg-white rounded-2xl border-2 border-slate-900 shadow-sm flex items-center justify-between cursor-pointer transition hover:bg-slate-50/50"
             >
-              <div>
-                <div className="flex items-center gap-1.5">
-                  <span className="font-bold text-sm text-slate-900">60 ngày</span>
-                  {isNormal && currentConfig?.rates?.[60] === 0 ? (
-                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-md">
-                      Mặc định miễn phí
-                    </span>
-                  ) : (
-                    <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-100 px-1.5 py-0.5 rounded-md">
-                      Tiết kiệm 30%
-                    </span>
-                  )}
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                  <i className="fa-solid fa-gift text-base"></i>
                 </div>
-                <div className="text-xs text-slate-600 mt-1 font-semibold flex items-center gap-1.5">
-                  {currentConfig?.rates?.[60] === 0 ? (
-                    <span className="text-emerald-600 font-bold">Miễn phí 100%</span>
-                  ) : (
-                    <>
-                      <span>{(currentConfig?.rates?.[60] ?? 0).toLocaleString('vi-VN')} đ/ngày</span>
-                      {baseRate > 0 && (
-                        <span className="line-through text-slate-400 font-normal text-[11px]">
-                          {baseRate.toLocaleString('vi-VN')} đ/ngày
-                        </span>
-                      )}
-                    </>
-                  )}
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-sm text-slate-950">60 ngày</span>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                      Mặc định miễn phí 100%
+                    </span>
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-0.5">
+                    Tin đăng hiển thị tối đa trong 60 ngày trên toàn sàn
+                  </div>
                 </div>
               </div>
-              {/* Custom Radio Icon */}
-              <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
-                selectedDays === 60 ? 'border-2 border-slate-900' : 'border border-slate-300'
-              }`}>
-                {selectedDays === 60 && <div className="w-2.5 h-2.5 rounded-full bg-slate-900"></div>}
+              <div className="text-right shrink-0">
+                <div className="text-sm font-black text-emerald-600">0 đ</div>
+                <div className="text-[10px] text-slate-400">Miễn phí trọn kỳ</div>
               </div>
             </div>
-          )}
-        </div>
+          ) : (
+            <div className={`grid gap-2 ${allowedDurations.length <= 3 ? 'grid-cols-3' : 'grid-cols-5'}`}>
+              {allowedDurations.map((d) => {
+                const isSelected = selectedDays === d;
+                const rate = currentConfig?.rates?.[d] ?? 0;
+                return (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => onSelectDays && onSelectDays(d)}
+                    className={`p-2.5 rounded-xl text-center transition cursor-pointer flex flex-col items-center justify-center ${
+                      isSelected
+                        ? 'bg-white border-2 border-slate-900 shadow-sm ring-1 ring-slate-900/10'
+                        : 'bg-white/90 hover:bg-white border border-slate-200 hover:border-slate-300'
+                    }`}
+                  >
+                    <div className={`font-bold text-xs sm:text-sm ${isSelected ? 'text-slate-950 font-black' : 'text-slate-800'}`}>
+                      {d} ngày
+                    </div>
+                    <div className="text-[10px] sm:text-[11px] text-slate-500 font-semibold mt-0.5 whitespace-nowrap">
+                      {rate === 0 ? <span className="text-emerald-600 font-bold">Miễn phí</span> : `${rate.toLocaleString('vi-VN')} đ/ng`}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )
+        ) : (
+          /* VIP (Kim Cương, Vàng, Bạc): 5 mốc tối giản, gọn 5, 7, 10, 15, 30 ngày (loại bỏ 60 ngày, mặc định 7 ngày) */
+          <div className="grid grid-cols-5 gap-1.5 sm:gap-2.5">
+            {[5, 7, 10, 15, 30].map((days) => {
+              const isSelected = selectedDays === days;
+              const rate = currentConfig?.rates?.[days] ?? (
+                days === 30
+                  ? Math.round((currentConfig?.rates?.[15] ?? currentConfig?.pricePerDay ?? 0) * 0.75)
+                  : (currentConfig?.rates?.[15] ?? currentConfig?.pricePerDay ?? 0)
+              );
+
+              return (
+                <button
+                  key={days}
+                  type="button"
+                  onClick={() => onSelectDays && onSelectDays(days)}
+                  className={`relative p-2 sm:p-2.5 rounded-xl text-center transition cursor-pointer flex flex-col items-center justify-center ${
+                    isSelected
+                      ? 'bg-white border-2 border-slate-900 shadow-sm ring-1 ring-slate-900/10'
+                      : 'bg-white/90 hover:bg-white border border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  {days === 7 && (
+                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-amber-800 bg-amber-100 border border-amber-200/60 px-1.5 py-0.2 rounded-full whitespace-nowrap shadow-xs scale-90 sm:scale-100">
+                      Mặc định
+                    </span>
+                  )}
+                  {days === 30 && (
+                    <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-red-600 bg-red-100 border border-red-200/60 px-1.5 py-0.2 rounded-full whitespace-nowrap shadow-xs scale-90 sm:scale-100">
+                      -25%
+                    </span>
+                  )}
+                  <div className={`font-bold text-xs sm:text-sm ${isSelected ? 'text-slate-950 font-black' : 'text-slate-800'}`}>
+                    {days} ngày
+                  </div>
+                  <div className="text-[10px] sm:text-[11px] text-slate-500 font-semibold mt-0.5 whitespace-nowrap">
+                    {rate === 0 ? (
+                      <span className="text-emerald-600 font-bold">Miễn phí</span>
+                    ) : (
+                      `${rate.toLocaleString('vi-VN')} đ/ng`
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* ========================================================

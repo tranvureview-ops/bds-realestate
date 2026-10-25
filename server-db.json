@@ -2153,11 +2153,13 @@
       "name": "VIP Kim Cương",
       "level": 1,
       "rates": {
+        "5": 79000,
+        "7": 79000,
+        "10": 79000,
         "15": 79000,
-        "30": 59250,
-        "60": 55300
+        "30": 59250
       },
-      "minDays": 15,
+      "minDays": 5,
       "tagText": "lượt liên hệ so với tin thường",
       "features": [
         "Vị trí số 1: Luôn đứng đầu tiên trên Trang Chủ & Kết Quả Tìm Kiếm",
@@ -2183,18 +2185,27 @@
       "hasDualListing": true,
       "multiplierText": "x30",
       "hasPriorityQueue": true,
-      "approvalTimeMinutes": 0
+      "approvalTimeMinutes": 0,
+      "allowedDurations": [
+        5,
+        7,
+        10,
+        15,
+        30
+      ]
     },
     {
       "id": "vip-gold",
       "name": "VIP Vàng",
       "level": 2,
       "rates": {
+        "5": 29000,
+        "7": 29000,
+        "10": 29000,
         "15": 29000,
-        "30": 21750,
-        "60": 20300
+        "30": 21750
       },
-      "minDays": 15,
+      "minDays": 5,
       "tagText": "lượt liên hệ so với tin thường",
       "features": [
         "Vị trí ưu tiên: Hiển thị ngay dưới VIP Kim Cương",
@@ -2219,18 +2230,27 @@
       "hasDualListing": false,
       "multiplierText": "x15",
       "hasPriorityQueue": true,
-      "approvalTimeMinutes": 15
+      "approvalTimeMinutes": 15,
+      "allowedDurations": [
+        5,
+        7,
+        10,
+        15,
+        30
+      ]
     },
     {
       "id": "vip-silver",
       "name": "VIP Bạc",
       "level": 3,
       "rates": {
+        "5": 9000,
+        "7": 9000,
+        "10": 9000,
         "15": 9000,
-        "30": 6750,
-        "60": 6300
+        "30": 6750
       },
-      "minDays": 15,
+      "minDays": 5,
       "tagText": "lượt liên hệ so với tin thường",
       "features": [
         "Vị trí nổi bật: Hiển thị trên toàn bộ Tin Thường (dưới VIP Vàng)",
@@ -2254,19 +2274,28 @@
       "hasDualListing": false,
       "multiplierText": "x8",
       "hasPriorityQueue": true,
-      "approvalTimeMinutes": 30
+      "approvalTimeMinutes": 30,
+      "allowedDurations": [
+        5,
+        7,
+        10,
+        15,
+        30
+      ]
     },
     {
       "id": "normal",
-      "allowedDurations": [60],
+      "allowedDurations": [
+        60
+      ],
       "name": "Tin Thường",
       "level": 4,
       "rates": {
         "15": 3320,
         "30": 2490,
-        "60": 2324
+        "60": 0
       },
-      "minDays": 15,
+      "minDays": 60,
       "tagText": null,
       "features": [
         "Vị trí hiển thị: Nằm sau tất cả các phân hạng Tin VIP (Hiển thị dưới cùng)",

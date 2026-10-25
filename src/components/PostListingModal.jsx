@@ -199,7 +199,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   // Listing Type & Billing state - Luôn mặc định là Tin Thường ('normal')
   const defaultListingType = preselectedListingType || 'normal';
   const [selectedVipId, setSelectedVipId] = useState(defaultListingType);
-  const [listingDays, setListingDays] = useState(defaultListingType === 'normal' ? 60 : 15);
+  const [listingDays, setListingDays] = useState(defaultListingType === 'normal' ? 60 : 7);
   const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
   const [scheduleTime, setScheduleTime] = useState('now');
   const [autoBumpHours, setAutoBumpHours] = useState(['08:00', '19:30']); // Đẩy tin khung giờ vàng
@@ -207,7 +207,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const [paymentMethod, setPaymentMethod] = useState(!isGuest ? 'wallet' : 'vietqr');
   const [appliedVoucher, setAppliedVoucher] = useState(defaultListingType === 'normal' && hasNormalVoucher ? 'normalPublish' : null);
 
-  // Đồng bộ loại tin nếu có preselectedListingType thay đổi từ bên ngoài (hoặc mặc định 'normal')
+  // Đồng bộ loại tin nếu có preselectedListingType thay đổi từ bên ngoài (hoặc mặc định 'normal' 60 ngày, VIP 7 ngày)
   useEffect(() => {
     if (preselectedListingType) {
       setSelectedVipId(preselectedListingType);
@@ -216,6 +216,8 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
         if (hasNormalVoucher) {
           setAppliedVoucher('normalPublish');
         }
+      } else {
+        setListingDays(7);
       }
     } else {
       setSelectedVipId('normal');
@@ -298,6 +300,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
         setAppliedVoucher(null);
       }
     } else {
+      setListingDays(7); // Mặc định chọn 7 ngày cho VIP Kim Cương, Vàng, Bạc
       if (appliedVoucher === 'normalPublish') {
         setAppliedVoucher(null);
       }
