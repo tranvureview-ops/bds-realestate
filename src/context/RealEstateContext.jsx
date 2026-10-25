@@ -65,6 +65,7 @@ import {
   renderEmailTemplateString,
   REPORT_REASONS
 } from '../utils/emailService';
+import { syncFeaturesWithVouchers } from '../utils/membershipHelper';
 
 // Hàm tạo Slug Tiêu Đề chuẩn tiếng Việt không dấu (SEO-friendly)
 export const createVietnameseSlug = toVietnameseSlug;
@@ -2074,6 +2075,38 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     showToast('Đã khôi phục các gói hội viên về mặc định ban đầu!', 'info');
   };
 
+  // Cập nhật đơn giá chung cho 3 loại voucher và tự động đồng bộ sang tất cả các gói hội viên
+  const updateCommonVoucherPrices = async (newPrices) => {
+    const pubDiscount = Math.max(0, Number(newPrices.normalPublishDiscount) || 0);
+    const bumpDiscount = Math.max(0, Number(newPrices.normalBumpDiscount) || 0);
+    const vipDiscount = Math.max(0, Number(newPrices.vipDiscount) || 0);
+
+    let updatedList;
+    setMembershipPackages(prev => {
+      updatedList = prev.map(pkg => {
+        const updatedVouchers = {
+          ...pkg.vouchersPerCycle,
+          normalPublishDiscount: pubDiscount,
+          normalBumpDiscount: bumpDiscount,
+          vipDiscount: vipDiscount
+        };
+        const updatedFeatures = syncFeaturesWithVouchers(pkg.features, updatedVouchers);
+        return {
+          ...pkg,
+          vouchersPerCycle: updatedVouchers,
+          features: updatedFeatures
+        };
+      });
+      return updatedList;
+    });
+
+    if (updatedList) {
+      await persistSettingToSupabase('bds_membership_packages', updatedList);
+    }
+    showToast('Đã lưu & đồng bộ đơn giá chung 3 loại voucher thành công cho tất cả các gói hội viên!', 'success');
+    return updatedList;
+  };
+
   // Admin moderation: Approve
   const approveProperty = async (propertyId) => {
     const now = Date.now();
@@ -3563,6 +3596,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         addMembershipPackage,
         deleteMembershipPackage,
         resetMembershipPackages,
+        updateCommonVoucherPrices,
         importAllConfig,
         systemConfig,
         updateSystemConfig,

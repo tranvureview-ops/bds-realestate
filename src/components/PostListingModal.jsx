@@ -103,7 +103,8 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     setPreselectedListingType, 
     paymentConfig, 
     navigateToProperty,
-    isMembershipActive 
+    isMembershipActive,
+    membershipPackages
   } = useRealEstate();
   const { navigate } = useRouter();
 
@@ -114,6 +115,8 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     (!currentUser.membership.expiresAt || new Date(currentUser.membership.expiresAt).getTime() > Date.now())
   );
   const isMemberExpired = Boolean(currentUser?.membership && !isMemberActive);
+  const memberPackageObj = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
+  const normalPublishVoucherDiscount = memberPackageObj?.vouchersPerCycle?.normalPublishDiscount || 35000;
 
   const [step, setStep] = useState(1); // 1: Vị trí, 2: Bài viết & Kỹ thuật, 3: Hình ảnh & VR, 4: Loại Tin & Lịch đăng
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
@@ -2047,7 +2050,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                           if (selectedVipId !== 'normal') {
                             setSelectedVipId('normal');
                             setAppliedVoucher('normalPublish');
-                            showToast('Đã chuyển sang Tin Thường và áp dụng Voucher 35.000 đ (0 đ)!', 'success');
+                            showToast(`Đã chuyển sang Tin Thường và áp dụng Voucher ${normalPublishVoucherDiscount.toLocaleString('vi-VN')} đ (0 đ)!`, 'success');
                             return;
                           }
                           setAppliedVoucher(appliedVoucher === 'normalPublish' ? null : 'normalPublish');
@@ -2063,7 +2066,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         <div>
                           <div className="font-bold flex items-center gap-1.5">
                             <i className="fa-solid fa-tag text-xs"></i>
-                            <span>Voucher Đăng Tin Thường (-35.000 đ)</span>
+                            <span>Voucher Đăng Tin Thường (-{normalPublishVoucherDiscount.toLocaleString('vi-VN')} đ)</span>
                           </div>
                           <div className={`text-[10px] mt-0.5 ${appliedVoucher === 'normalPublish' ? 'text-emerald-100' : 'text-slate-500'}`}>
                             Khả dụng: <b>{currentUser.vouchers?.normalPublish || 0}</b> lượt

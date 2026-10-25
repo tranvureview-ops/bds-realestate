@@ -10,6 +10,7 @@ import AdminReportsManager from './AdminReportsManager';
 import AdminSingleConfigManager from './AdminSingleConfigManager';
 import AdminEmailConfigManager from './AdminEmailConfigManager';
 import AdminMembershipManager from './AdminMembershipManager';
+import AdminCommonVoucherPricing from './AdminCommonVoucherPricing';
 import AdminHeaderConfigManager from './AdminHeaderConfigManager';
 import AdminMenuConfigManager from './AdminMenuConfigManager';
 import AdminAppointmentsManager from './AdminAppointmentsManager';
@@ -5696,6 +5697,11 @@ export default function AdminBackendPage() {
                   <div className="text-[10px] text-slate-500">Được tặng voucher khi mua Gói Hội Viên</div>
                 </div>
               </div>
+
+              {/* =========================================
+                  CẤU HÌNH ĐƠN GIÁ CHUNG CHO 3 VOUCHER HỘI VIÊN
+                 ========================================= */}
+              <AdminCommonVoucherPricing />
             </div>
           )}
 

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { MEMBERSHIP_PACKAGES } from '../data/mockData';
 import { syncFeaturesWithVouchers, getResolvedFeatures } from '../utils/membershipHelper';
+import AdminCommonVoucherPricing from './AdminCommonVoucherPricing';
 
 // Preset color options for package badges
 const BADGE_COLOR_PRESETS = [
@@ -391,6 +392,9 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
           </button>
         </div>
       </div>
+
+      {/* ================= 1.5. CẤU HÌNH ĐƠN GIÁ CHUNG CHO 3 LOẠI VOUCHER HỘI VIÊN ================= */}
+      <AdminCommonVoucherPricing />
 
       {/* ================= 2. QUICK STATS SUMMARY ================= */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -996,9 +1000,14 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                     <div className="space-y-4 animate-in fade-in duration-150 text-xs">
                       <div className="p-3.5 bg-emerald-950/30 border border-emerald-500/30 rounded-2xl flex items-center justify-between">
                         <div>
-                          <div className="font-bold text-emerald-300">Kho Voucher Cấp Mỗi Chu Kỳ 30 Ngày</div>
+                          <div className="font-bold text-emerald-300 flex items-center gap-2">
+                            <span>Kho Voucher Cấp Mỗi Chu Kỳ 30 Ngày</span>
+                            <span className="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">
+                              Đơn giá chung: 3 Gói
+                            </span>
+                          </div>
                           <p className="text-[11px] text-slate-400 mt-0.5">
-                            Hệ thống tự động cộng kho voucher này vào ví người dùng ngay khi đăng ký thành công.
+                            Đơn giá giảm được cấu hình chung cho cả 3 gói. Tại đây bạn thiết lập số lượng voucher cấp phát cho gói này.
                           </p>
                         </div>
                         <div className="text-right shrink-0">
@@ -1011,11 +1020,16 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
 
                       {/* 1. Normal Publish Voucher */}
                       <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-black">
-                            <i className="fa-solid fa-file-lines"></i>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xs font-black">
+                              <i className="fa-solid fa-file-lines"></i>
+                            </span>
+                            <span className="font-bold text-white">Voucher Đăng Tin Thường:</span>
+                          </div>
+                          <span className="text-[10px] text-emerald-400 font-mono font-bold bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-800/40">
+                            Giảm {Number(editingPkg.vouchersPerCycle?.normalPublishDiscount || 35000).toLocaleString('vi-VN')} đ/tin
                           </span>
-                          <span className="font-bold text-white">Voucher Đăng Tin Thường:</span>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1031,7 +1045,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                           </div>
 
                           <div>
-                            <label className="block text-slate-400 text-[11px] mb-1">Mức Giảm Mỗi Lần Dùng (VNĐ):</label>
+                            <label className="block text-slate-400 text-[11px] mb-1">Mức Giảm Mỗi Lần Dùng (VNĐ) - Chung 3 Gói:</label>
                             <input
                               type="number"
                               step="1000"
@@ -1046,11 +1060,16 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
 
                       {/* 2. Normal Bump Voucher */}
                       <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-black">
-                            <i className="fa-solid fa-arrow-up"></i>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-black">
+                              <i className="fa-solid fa-arrow-up"></i>
+                            </span>
+                            <span className="font-bold text-white">Voucher Đẩy Tin Thường (Bump Service):</span>
+                          </div>
+                          <span className="text-[10px] text-amber-400 font-mono font-bold bg-amber-950/60 px-2 py-0.5 rounded border border-amber-800/40">
+                            Giảm {Number(editingPkg.vouchersPerCycle?.normalBumpDiscount || 10000).toLocaleString('vi-VN')} đ/lượt
                           </span>
-                          <span className="font-bold text-white">Voucher Đẩy Tin Thường (Bump Service):</span>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1066,7 +1085,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                           </div>
 
                           <div>
-                            <label className="block text-slate-400 text-[11px] mb-1">Mức Giảm Mỗi Lần Dùng (VNĐ):</label>
+                            <label className="block text-slate-400 text-[11px] mb-1">Mức Giảm Mỗi Lần Dùng (VNĐ) - Chung 3 Gói:</label>
                             <input
                               type="number"
                               step="1000"
@@ -1081,11 +1100,16 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
 
                       {/* 3. VIP Publish Voucher */}
                       <div className="p-3.5 rounded-2xl bg-slate-900 border border-slate-800 space-y-2">
-                        <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 rounded-lg bg-rose-600 text-white flex items-center justify-center text-xs font-black">
-                            <i className="fa-solid fa-gem"></i>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-lg bg-rose-600 text-white flex items-center justify-center text-xs font-black">
+                              <i className="fa-solid fa-gem"></i>
+                            </span>
+                            <span className="font-bold text-white">Voucher Giảm Giá Tin VIP (Kim Cương / Vàng):</span>
+                          </div>
+                          <span className="text-[10px] text-rose-400 font-mono font-bold bg-rose-950/60 px-2 py-0.5 rounded border border-rose-800/40">
+                            Giảm {Number(editingPkg.vouchersPerCycle?.vipDiscount || 400000).toLocaleString('vi-VN')} đ/tin
                           </span>
-                          <span className="font-bold text-white">Voucher Giảm Giá Tin VIP (Kim Cương / Vàng):</span>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1101,7 +1125,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                           </div>
 
                           <div>
-                            <label className="block text-slate-400 text-[11px] mb-1">Mức Giảm Mỗi Lần Dùng (VNĐ):</label>
+                            <label className="block text-slate-400 text-[11px] mb-1">Mức Giảm Mỗi Lần Dùng (VNĐ) - Chung 3 Gói:</label>
                             <input
                               type="number"
                               step="10000"
