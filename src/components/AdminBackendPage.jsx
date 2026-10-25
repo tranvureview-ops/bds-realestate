@@ -5640,9 +5640,19 @@ export default function AdminBackendPage() {
                         await updateBumpServicePrice(bumpEl.value);
                       }
                       const limitEl = document.getElementById('input-daily-free-limit');
-                      const extraConfig = (limitEl && limitEl.value !== undefined && limitEl.value !== '')
-                        ? { dailyFreeListingLimit: parseInt(limitEl.value, 10) || 0 }
-                        : {};
+                      const normalAllowed = [15, 30, 60].filter(d => document.getElementById(`duration-check-normal-${d}`)?.checked);
+                      const normalRates = {
+                        15: Math.max(0, parseInt(document.getElementById('rate-normal-15')?.value, 10) || 0),
+                        30: Math.max(0, parseInt(document.getElementById('rate-normal-30')?.value, 10) || 0),
+                        60: Math.max(0, parseInt(document.getElementById('rate-normal-60')?.value, 10) || 0)
+                      };
+                      const extraConfig = {
+                        dailyFreeListingLimit: (limitEl && limitEl.value !== undefined && limitEl.value !== '')
+                          ? (parseInt(limitEl.value, 10) || 0)
+                          : 5,
+                        normalAllowedDurations: normalAllowed.length > 0 ? normalAllowed : [60],
+                        normalCustomRates: normalRates
+                      };
                       if (updateAllVipPackagePrices && Object.keys(pricesMap).length > 0) {
                         await updateAllVipPackagePrices(pricesMap, extraConfig);
                       }
@@ -5713,9 +5723,20 @@ export default function AdminBackendPage() {
                             const val = document.getElementById(`price-${pkg.id}`)?.value;
                             if (val !== undefined && val !== '') {
                               const limitEl = document.getElementById('input-daily-free-limit');
-                              const extra = (pkg.id === 'normal' && limitEl) ? {
-                                dailyFreeLimit: parseInt(limitEl.value, 10) || 0
-                              } : {};
+                              let extra = {};
+                              if (pkg.id === 'normal') {
+                                const allowedDurations = [15, 30, 60].filter(d => document.getElementById(`duration-check-${pkg.id}-${d}`)?.checked);
+                                const customRates = {
+                                  15: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-15`)?.value, 10) || 0),
+                                  30: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-30`)?.value, 10) || 0),
+                                  60: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-60`)?.value, 10) || 0)
+                                };
+                                extra = {
+                                  dailyFreeLimit: limitEl ? (parseInt(limitEl.value, 10) || 0) : 5,
+                                  allowedDurations: allowedDurations.length > 0 ? allowedDurations : [60],
+                                  rates: customRates
+                                };
+                              }
                               updateVipPackagePrice(pkg.id, val, extra);
                             }
                           }}
@@ -5727,39 +5748,119 @@ export default function AdminBackendPage() {
                     </div>
 
                     {pkg.id === 'normal' && (
-                      <div className="pt-2 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-                        <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
-                          <i className="fa-solid fa-clock-rotate-left text-amber-400"></i>
-                          <span>Giới hạn đăng miễn phí:</span>
+                      <>
+                        <div className="pt-2 border-t border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                          <div className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                            <i className="fa-solid fa-clock-rotate-left text-amber-400"></i>
+                            <span>Giới hạn đăng miễn phí:</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                            <input
+                              type="number"
+                              min="0"
+                              defaultValue={dailyFreeListingLimit ?? pkg.dailyFreeLimit ?? 5}
+                              key={`limit-free-${dailyFreeListingLimit}`}
+                              id="input-daily-free-limit"
+                              className="w-20 px-2 py-1 bg-slate-950 border border-slate-700 rounded-lg text-xs font-bold text-center text-amber-400 focus:border-amber-500 focus:outline-none"
+                              title="Số lượng tin miễn phí tối đa mỗi user được đăng trong 1 ngày (0 = không giới hạn)"
+                            />
+                            <span className="text-[11px] text-slate-400 whitespace-nowrap">tin / ngày</span>
+                            {updateDailyFreeListingLimit && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const limit = document.getElementById('input-daily-free-limit')?.value;
+                                  if (limit !== undefined && limit !== '') {
+                                    updateDailyFreeListingLimit(limit);
+                                  }
+                                }}
+                                className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 rounded-lg text-[10px] font-bold transition cursor-pointer"
+                                title="Lưu riêng hạn mức ngày"
+                              >
+                                Lưu
+                              </button>
+                            )}
+                          </div>
                         </div>
-                        <div className="flex items-center gap-1.5 self-end sm:self-auto">
-                          <input
-                            type="number"
-                            min="0"
-                            defaultValue={dailyFreeListingLimit ?? pkg.dailyFreeLimit ?? 5}
-                            key={`limit-free-${dailyFreeListingLimit}`}
-                            id="input-daily-free-limit"
-                            className="w-20 px-2 py-1 bg-slate-950 border border-slate-700 rounded-lg text-xs font-bold text-center text-amber-400 focus:border-amber-500 focus:outline-none"
-                            title="Số lượng tin miễn phí tối đa mỗi user được đăng trong 1 ngày (0 = không giới hạn)"
-                          />
-                          <span className="text-[11px] text-slate-400 whitespace-nowrap">tin / ngày</span>
-                          {updateDailyFreeListingLimit && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const limit = document.getElementById('input-daily-free-limit')?.value;
-                                if (limit !== undefined && limit !== '') {
-                                  updateDailyFreeListingLimit(limit);
-                                }
-                              }}
-                              className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 rounded-lg text-[10px] font-bold transition cursor-pointer"
-                              title="Lưu riêng hạn mức ngày"
-                            >
-                              Lưu
-                            </button>
-                          )}
+
+                        {/* Quản lý các mốc thời gian Tin Thường */}
+                        <div className="pt-3 border-t border-slate-800/80 space-y-2.5">
+                          <div className="flex items-center justify-between">
+                            <div className="text-[11px] font-bold text-slate-300 flex items-center gap-1.5">
+                              <i className="fa-solid fa-calendar-days text-indigo-400"></i>
+                              <span>Quản Lý Các Mốc Thời Hạn (15, 30, 60 ngày):</span>
+                            </div>
+                            <span className="text-[10px] text-slate-400">Bật/tắt hiển thị ở Client</span>
+                          </div>
+
+                          <div className="space-y-2">
+                            {[
+                              { days: 15, label: 'Mốc 15 ngày', discountLabel: 'Đơn giá chuẩn', tag: '15 NGÀY' },
+                              { days: 30, label: 'Mốc 30 ngày', discountLabel: 'Tiết kiệm 25%', tag: '30 NGÀY' },
+                              { days: 60, label: 'Mốc 60 ngày', discountLabel: 'Tiết kiệm 30%', tag: '60 NGÀY (Khuyến nghị)' }
+                            ].map(m => {
+                              const activeDurations = Array.isArray(pkg.allowedDurations) && pkg.allowedDurations.length > 0
+                                ? pkg.allowedDurations
+                                : [60];
+                              const isChecked = activeDurations.includes(m.days);
+                              const rateVal = pkg.rates?.[m.days] !== undefined ? pkg.rates[m.days] : (
+                                m.days === 15 ? (pkg.pricePerDay || 0) :
+                                m.days === 30 ? Math.round((pkg.pricePerDay || 0) * 0.75) :
+                                Math.round((pkg.pricePerDay || 0) * 0.70)
+                              );
+                              const totalVal = rateVal * m.days;
+
+                              return (
+                                <div
+                                  key={m.days}
+                                  className={`p-2.5 rounded-xl border transition flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs ${
+                                    isChecked ? 'bg-slate-950/90 border-slate-700' : 'bg-slate-950/40 border-slate-800/60 opacity-75'
+                                  }`}
+                                >
+                                  <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                                    <input
+                                      type="checkbox"
+                                      id={`duration-check-${pkg.id}-${m.days}`}
+                                      defaultChecked={isChecked}
+                                      key={`duration-check-${pkg.id}-${m.days}-${isChecked}`}
+                                      className="w-4 h-4 rounded text-red-600 bg-slate-900 border-slate-700 focus:ring-red-500 cursor-pointer"
+                                    />
+                                    <div>
+                                      <div className="font-bold text-white flex items-center gap-2">
+                                        <span>{m.label}</span>
+                                        <span className={`text-[9px] px-1.5 py-0.2 rounded font-black ${
+                                          isChecked ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-slate-800 text-slate-400'
+                                        }`}>
+                                          {isChecked ? 'Đang bật ở Client' : 'Đang ẩn ở Client'}
+                                        </span>
+                                      </div>
+                                      <div className="text-[10px] text-slate-400 mt-0.5">
+                                        {m.discountLabel} • Tổng: <b className="text-slate-200">{totalVal === 0 ? '0 đ (Miễn phí)' : `${totalVal.toLocaleString('vi-VN')} đ`}</b>
+                                      </div>
+                                    </div>
+                                  </label>
+
+                                  <div className="flex items-center gap-1.5 self-end sm:self-auto">
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      id={`rate-${pkg.id}-${m.days}`}
+                                      defaultValue={rateVal}
+                                      key={`rate-${pkg.id}-${m.days}-${rateVal}`}
+                                      className="w-24 px-2 py-1 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-right text-emerald-400 focus:border-emerald-500 focus:outline-none"
+                                      title={`Đơn giá ngày của mốc ${m.days} ngày`}
+                                    />
+                                    <span className="text-[11px] text-slate-400">đ/ngày</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                          <div className="text-[10px] text-slate-400 italic">
+                            💡 Tích chọn mốc thời hạn để hiển thị ra Client (bỏ chọn để ẩn). Có thể chỉnh sửa đơn giá ngày riêng cho từng mốc để phục vụ tính phí sau này.
+                          </div>
                         </div>
-                      </div>
+                      </>
                     )}
                   </div>
                 ))}

@@ -103,6 +103,7 @@ export const LISTING_TYPES = [
     shortName: 'TIN THƯỜNG',
     pricePerDay: 3320,
     dailyFreeLimit: 5,
+    allowedDurations: [60],
     rates: { 15: 3320, 30: 2490, 60: 2324 },
     multiplierText: null,
     tagText: null,

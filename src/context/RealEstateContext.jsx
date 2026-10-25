@@ -2807,8 +2807,12 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           const rate15 = priceNum;
           const rate30 = Math.round(priceNum * 0.75);
           const rate60 = Math.round(priceNum * 0.70);
-          const extra = (p.id === 'normal' && extraConfig.dailyFreeListingLimit !== undefined)
-            ? { dailyFreeLimit: Math.max(0, parseInt(extraConfig.dailyFreeListingLimit, 10) || 0) }
+          const extra = (p.id === 'normal')
+            ? {
+                ...(extraConfig.dailyFreeListingLimit !== undefined ? { dailyFreeLimit: Math.max(0, parseInt(extraConfig.dailyFreeListingLimit, 10) || 0) } : {}),
+                ...(extraConfig.normalAllowedDurations ? { allowedDurations: extraConfig.normalAllowedDurations } : {}),
+                ...(extraConfig.normalCustomRates ? { rates: { ...(p.rates || {}), ...extraConfig.normalCustomRates } } : {})
+              }
             : {};
           return {
             ...p,

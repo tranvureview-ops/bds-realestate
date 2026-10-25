@@ -90,29 +90,26 @@ export function getEffectiveBdsRates(customVipPackages) {
   customVipPackages.forEach(pkg => {
     if (!pkg || !pkg.id) return;
     const defaultMeta = BATDONGSAN_RATES[pkg.id] || {};
-    const price15 = (typeof pkg.pricePerDay === 'number' && !isNaN(pkg.pricePerDay))
-      ? Math.max(0, pkg.pricePerDay)
-      : (typeof pkg.rates?.[15] === 'number'
-          ? Math.max(0, pkg.rates[15])
+    const price15 = (typeof pkg.rates?.[15] === 'number')
+      ? Math.max(0, pkg.rates[15])
+      : ((typeof pkg.pricePerDay === 'number' && !isNaN(pkg.pricePerDay))
+          ? Math.max(0, pkg.pricePerDay)
           : (defaultMeta.rates?.[15] ?? 3320));
 
-    const price30 = (price15 === 0)
-      ? 0
-      : (typeof pkg.rates?.[30] === 'number'
-          ? Math.max(0, pkg.rates[30])
-          : Math.round(price15 * 0.75));
+    const price30 = (typeof pkg.rates?.[30] === 'number')
+      ? Math.max(0, pkg.rates[30])
+      : ((price15 === 0) ? 0 : Math.round(price15 * 0.75));
 
-    const price60 = (price15 === 0)
-      ? 0
-      : (typeof pkg.rates?.[60] === 'number'
-          ? Math.max(0, pkg.rates[60])
-          : Math.round(price15 * 0.70));
+    const price60 = (typeof pkg.rates?.[60] === 'number')
+      ? Math.max(0, pkg.rates[60])
+      : ((price15 === 0) ? 0 : Math.round(price15 * 0.70));
 
     result[pkg.id] = {
       ...defaultMeta,
       id: pkg.id,
       name: pkg.name || defaultMeta.name,
       shortName: pkg.shortName || defaultMeta.shortName,
+      allowedDurations: pkg.allowedDurations,
       rates: {
         15: price15,
         30: price30,
@@ -210,15 +207,26 @@ export default function BatdongsanListingSelector({
 
   const isNormal = selectedType === 'normal';
 
-  // Khi chọn Tin Thường, tự động mặc định chọn 60 ngày
-  useEffect(() => {
-    if (isNormal && selectedDays !== 60 && onSelectDays) {
-      onSelectDays(60);
-    }
-  }, [isNormal, selectedDays, onSelectDays]);
-
   // Dữ liệu gói hiện tại
   const currentConfig = ratesConfig[selectedType] || ratesConfig['normal'];
+
+  // Lấy các mốc thời gian cho phép hiển thị của gói (Admin có thể bật/tắt trong trang quản trị)
+  const allowedDurations = useMemo(() => {
+    const raw = currentConfig?.allowedDurations;
+    if (Array.isArray(raw) && raw.length > 0) {
+      return raw;
+    }
+    return isNormal ? [60] : [15, 30, 60];
+  }, [currentConfig?.allowedDurations, isNormal]);
+
+  // Đảm bảo số ngày được chọn luôn nằm trong các mốc cho phép
+  useEffect(() => {
+    if (!allowedDurations.includes(selectedDays) && onSelectDays) {
+      const nextDay = allowedDurations.includes(60) ? 60 : allowedDurations[0];
+      if (nextDay) onSelectDays(nextDay);
+    }
+  }, [allowedDurations, selectedDays, onSelectDays]);
+
   const baseRate = currentConfig.rates[15];
   const currentDailyRate = currentConfig.rates[selectedDays] || currentConfig.rates[15];
   const grossCost = currentDailyRate * selectedDays;
@@ -310,7 +318,7 @@ export default function BatdongsanListingSelector({
 
         {/* Tiêu đề khuyến mãi / Thời hạn */}
         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
-          {isNormal ? (
+          {isNormal && allowedDurations.length === 1 && allowedDurations[0] === 60 ? (
             <>
               <span className="text-sm">🎁</span>
               <span>Thời hạn đăng tin mặc định: 60 ngày (Miễn phí 100%)</span>
@@ -323,15 +331,15 @@ export default function BatdongsanListingSelector({
           )}
         </div>
 
-        {/* 3 Lựa chọn số ngày: 15 ngày, 30 ngày, 60 ngày */}
-        <div className={`grid gap-3 ${isNormal ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-3'}`}>
-          {/* Lựa chọn 1: 15 ngày (Ẩn khi chọn Tin Thường; sẵn sàng mở lại khi tính phí tin thường) */}
-          {!isNormal && (
+        {/* Các Lựa chọn số ngày: 15 ngày, 30 ngày, 60 ngày */}
+        <div className={`grid gap-3 ${allowedDurations.length === 1 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-3'}`}>
+          {/* Lựa chọn 1: 15 ngày (Quản lý bật/tắt trong trang quản trị) */}
+          {allowedDurations.includes(15) && (
             <div
               onClick={() => onSelectDays && onSelectDays(15)}
               className={`p-4 rounded-2xl cursor-pointer transition flex items-center justify-between bg-white ${
                 selectedDays === 15
-                  ? 'border-2 border-slate-900 shadow-sm'
+                  ? 'border-2 border-slate-900 shadow-sm ring-1 ring-slate-900/10'
                   : 'border border-slate-200 hover:border-slate-300'
               }`}
             >
@@ -354,13 +362,13 @@ export default function BatdongsanListingSelector({
             </div>
           )}
 
-          {/* Lựa chọn 2: 30 ngày (-25%) (Ẩn khi chọn Tin Thường; sẵn sàng mở lại khi tính phí tin thường) */}
-          {!isNormal && (
+          {/* Lựa chọn 2: 30 ngày (-25%) (Quản lý bật/tắt trong trang quản trị) */}
+          {allowedDurations.includes(30) && (
             <div
               onClick={() => onSelectDays && onSelectDays(30)}
               className={`p-4 rounded-2xl cursor-pointer transition flex items-center justify-between bg-white ${
                 selectedDays === 30
-                  ? 'border-2 border-slate-900 shadow-sm'
+                  ? 'border-2 border-slate-900 shadow-sm ring-1 ring-slate-900/10'
                   : 'border border-slate-200 hover:border-slate-300'
               }`}
             >
@@ -395,50 +403,52 @@ export default function BatdongsanListingSelector({
             </div>
           )}
 
-          {/* Lựa chọn 3: 60 ngày */}
-          <div
-            onClick={() => onSelectDays && onSelectDays(60)}
-            className={`p-4 rounded-2xl cursor-pointer transition flex items-center justify-between bg-white ${
-              selectedDays === 60
-                ? 'border-2 border-slate-900 shadow-sm ring-1 ring-slate-900/10'
-                : 'border border-slate-200 hover:border-slate-300'
-            } ${isNormal ? 'sm:col-span-1' : ''}`}
-          >
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-bold text-sm text-slate-900">60 ngày</span>
-                {isNormal ? (
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-md">
-                    Mặc định miễn phí
-                  </span>
-                ) : (
-                  <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-100 px-1.5 py-0.5 rounded-md">
-                    Tiết kiệm 30%
-                  </span>
-                )}
+          {/* Lựa chọn 3: 60 ngày (Quản lý bật/tắt trong trang quản trị) */}
+          {allowedDurations.includes(60) && (
+            <div
+              onClick={() => onSelectDays && onSelectDays(60)}
+              className={`p-4 rounded-2xl cursor-pointer transition flex items-center justify-between bg-white ${
+                selectedDays === 60
+                  ? 'border-2 border-slate-900 shadow-sm ring-1 ring-slate-900/10'
+                  : 'border border-slate-200 hover:border-slate-300'
+              }`}
+            >
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-bold text-sm text-slate-900">60 ngày</span>
+                  {isNormal && currentConfig.rates[60] === 0 ? (
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-md">
+                      Mặc định miễn phí
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold text-red-600 bg-red-50 border border-red-100 px-1.5 py-0.5 rounded-md">
+                      Tiết kiệm 30%
+                    </span>
+                  )}
+                </div>
+                <div className="text-xs text-slate-600 mt-1 font-semibold flex items-center gap-1.5">
+                  {currentConfig.rates[60] === 0 ? (
+                    <span className="text-emerald-600 font-bold">Miễn phí 100%</span>
+                  ) : (
+                    <>
+                      <span>{currentConfig.rates[60].toLocaleString('vi-VN')} đ/ngày</span>
+                      {baseRate > 0 && (
+                        <span className="line-through text-slate-400 font-normal text-[11px]">
+                          {baseRate.toLocaleString('vi-VN')} đ/ngày
+                        </span>
+                      )}
+                    </>
+                  )}
+                </div>
               </div>
-              <div className="text-xs text-slate-600 mt-1 font-semibold flex items-center gap-1.5">
-                {currentConfig.rates[60] === 0 ? (
-                  <span className="text-emerald-600 font-bold">Miễn phí 100%</span>
-                ) : (
-                  <>
-                    <span>{currentConfig.rates[60].toLocaleString('vi-VN')} đ/ngày</span>
-                    {baseRate > 0 && (
-                      <span className="line-through text-slate-400 font-normal text-[11px]">
-                        {baseRate.toLocaleString('vi-VN')} đ/ngày
-                      </span>
-                    )}
-                  </>
-                )}
+              {/* Custom Radio Icon */}
+              <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
+                selectedDays === 60 ? 'border-2 border-slate-900' : 'border border-slate-300'
+              }`}>
+                {selectedDays === 60 && <div className="w-2.5 h-2.5 rounded-full bg-slate-900"></div>}
               </div>
             </div>
-            {/* Custom Radio Icon */}
-            <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
-              selectedDays === 60 ? 'border-2 border-slate-900' : 'border border-slate-300'
-            }`}>
-              {selectedDays === 60 && <div className="w-2.5 h-2.5 rounded-full bg-slate-900"></div>}
-            </div>
-          </div>
+          )}
         </div>
       </div>
 

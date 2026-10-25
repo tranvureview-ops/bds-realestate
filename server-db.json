@@ -2258,6 +2258,7 @@
     },
     {
       "id": "normal",
+      "allowedDurations": [60],
       "name": "Tin Thường",
       "level": 4,
       "rates": {
