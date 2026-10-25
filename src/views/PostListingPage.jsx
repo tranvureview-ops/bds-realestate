@@ -8,7 +8,9 @@ import PostListingModal from '../components/PostListingModal';
 
 export default function PostListingPage() {
   const { navigate } = useRouter();
-  const { currentUser, systemConfig } = useRealEstate();
+  const { currentUser, systemConfig, vipPackages } = useRealEstate();
+  const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
+  const isNormalFree = (normalPkg?.pricePerDay === 0) || (normalPkg?.rates?.[60] === 0);
 
   return (
     <div className="min-h-screen bg-slate-100 py-6 px-4 sm:px-6 lg:px-8">
@@ -119,10 +121,12 @@ export default function PostListingPage() {
                     <span className="px-2 py-0.5 rounded-full bg-slate-300 text-slate-700 font-bold text-[9px] uppercase">
                       Tin Thường
                     </span>
-                    <span className="font-black text-slate-600 text-[11px]">35.000 đ / 7 ngày</span>
+                    <span className={`font-black text-[11px] ${isNormalFree ? 'text-emerald-600' : 'text-slate-600'}`}>
+                      {isNormalFree ? 'Miễn phí (60 ngày)' : 'Tiết kiệm nhất'}
+                    </span>
                   </div>
                   <p className="text-[11px] text-slate-600">
-                    Kinh tế, áp dụng <b>Voucher Hội Viên chỉ 0 đ</b>.
+                    {isNormalFree ? 'Đăng tin tiếp cận khách hàng hoàn toàn miễn phí 100%.' : 'Kinh tế, áp dụng Voucher Hội Viên chỉ 0 đ.'}
                   </p>
                 </div>
               </div>

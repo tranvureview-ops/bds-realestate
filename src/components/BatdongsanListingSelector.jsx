@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import CustomSelect from './CustomSelect';
 import { useRealEstate } from '../context/RealEstateContext';
 
@@ -89,19 +89,26 @@ export function getEffectiveBdsRates(customVipPackages) {
   }
   customVipPackages.forEach(pkg => {
     if (!pkg || !pkg.id) return;
-    const defaultMeta = BATDONGSAN_RATES[pkg.id] || {};
-    const price15 = (typeof pkg.rates?.[15] === 'number')
-      ? Math.max(0, pkg.rates[15])
-      : ((typeof pkg.pricePerDay === 'number' && !isNaN(pkg.pricePerDay))
-          ? Math.max(0, pkg.pricePerDay)
-          : (defaultMeta.rates?.[15] ?? 3320));
+    const defaultMeta = BATDONGSAN_RATES[pkg.id] || {
+      id: pkg.id,
+      name: pkg.name || 'Gói VIP',
+      positionDesc: '',
+      rates: { 15: 10000, 30: 7500, 60: 7000 }
+    };
 
-    const price30 = (typeof pkg.rates?.[30] === 'number')
-      ? Math.max(0, pkg.rates[30])
+    const rawRate15 = pkg.rates?.[15] !== undefined ? pkg.rates[15] : pkg.pricePerDay;
+    const price15 = (rawRate15 !== undefined && rawRate15 !== null && rawRate15 !== '' && !isNaN(Number(rawRate15)))
+      ? Math.max(0, Number(rawRate15))
+      : (defaultMeta.rates?.[15] ?? 3320);
+
+    const rawRate30 = pkg.rates?.[30];
+    const price30 = (rawRate30 !== undefined && rawRate30 !== null && rawRate30 !== '' && !isNaN(Number(rawRate30)))
+      ? Math.max(0, Number(rawRate30))
       : ((price15 === 0) ? 0 : Math.round(price15 * 0.75));
 
-    const price60 = (typeof pkg.rates?.[60] === 'number')
-      ? Math.max(0, pkg.rates[60])
+    const rawRate60 = pkg.rates?.[60];
+    const price60 = (rawRate60 !== undefined && rawRate60 !== null && rawRate60 !== '' && !isNaN(Number(rawRate60)))
+      ? Math.max(0, Number(rawRate60))
       : ((price15 === 0) ? 0 : Math.round(price15 * 0.70));
 
     result[pkg.id] = {
@@ -109,7 +116,7 @@ export function getEffectiveBdsRates(customVipPackages) {
       id: pkg.id,
       name: pkg.name || defaultMeta.name,
       shortName: pkg.shortName || defaultMeta.shortName,
-      allowedDurations: pkg.allowedDurations,
+      allowedDurations: Array.isArray(pkg.allowedDurations) ? pkg.allowedDurations : defaultMeta.allowedDurations,
       rates: {
         15: price15,
         30: price30,
@@ -160,12 +167,17 @@ export function ListingTypeIcon({ type }) {
   );
 }
 
+function getTodayString() {
+  const d = new Date();
+  return d.toISOString().slice(0, 10);
+}
+
 export default function BatdongsanListingSelector({
   selectedType = 'normal',
   onSelectType,
-  selectedDays = 15,
+  selectedDays = 60,
   onSelectDays,
-  startDate = new Date().toISOString().slice(0, 10),
+  startDate,
   onStartDateChange,
   scheduleTime = 'now',
   onScheduleTimeChange,
@@ -180,13 +192,17 @@ export default function BatdongsanListingSelector({
   const effectivePackages = customVipPackages || realEstateContext?.vipPackages;
   const ratesConfig = useMemo(() => getEffectiveBdsRates(effectivePackages), [effectivePackages]);
 
-  const [internalStartDate, setInternalStartDate] = useState(startDate);
+  const todayStr = useMemo(() => getTodayString(), []);
+  const initialStartDate = startDate || todayStr;
+  const [internalStartDate, setInternalStartDate] = useState(initialStartDate);
   const dateInputRef = useRef(null);
 
   // Tính ngày kết thúc
   const endDateFormatted = useMemo(() => {
     try {
-      const d = new Date(startDate || internalStartDate || new Date());
+      const base = startDate || internalStartDate || todayStr;
+      const d = new Date(base);
+      if (isNaN(d.getTime())) return '';
       d.setDate(d.getDate() + (selectedDays || 15));
       const day = String(d.getDate()).padStart(2, '0');
       const month = String(d.getMonth() + 1).padStart(2, '0');
@@ -195,7 +211,7 @@ export default function BatdongsanListingSelector({
     } catch {
       return '';
     }
-  }, [startDate, internalStartDate, selectedDays]);
+  }, [startDate, internalStartDate, todayStr, selectedDays]);
 
   // Vị trí mũi tên tam giác trỏ xuống từ Card được chọn
   const arrowPositionClass = {
@@ -208,7 +224,7 @@ export default function BatdongsanListingSelector({
   const isNormal = selectedType === 'normal';
 
   // Dữ liệu gói hiện tại
-  const currentConfig = ratesConfig[selectedType] || ratesConfig['normal'];
+  const currentConfig = ratesConfig?.[selectedType] || ratesConfig?.['normal'] || BATDONGSAN_RATES['normal'];
 
   // Lấy các mốc thời gian cho phép hiển thị của gói (Admin có thể bật/tắt trong trang quản trị)
   const allowedDurations = useMemo(() => {
@@ -221,14 +237,14 @@ export default function BatdongsanListingSelector({
 
   // Đảm bảo số ngày được chọn luôn nằm trong các mốc cho phép
   useEffect(() => {
-    if (!allowedDurations.includes(selectedDays) && onSelectDays) {
+    if (Array.isArray(allowedDurations) && allowedDurations.length > 0 && !allowedDurations.includes(selectedDays) && onSelectDays) {
       const nextDay = allowedDurations.includes(60) ? 60 : allowedDurations[0];
       if (nextDay) onSelectDays(nextDay);
     }
   }, [allowedDurations, selectedDays, onSelectDays]);
 
-  const baseRate = currentConfig.rates[15];
-  const currentDailyRate = currentConfig.rates[selectedDays] || currentConfig.rates[15];
+  const baseRate = currentConfig?.rates?.[15] ?? 0;
+  const currentDailyRate = currentConfig?.rates?.[selectedDays] ?? currentConfig?.rates?.[15] ?? 0;
   const grossCost = currentDailyRate * selectedDays;
   const finalCost = Math.max(0, grossCost - voucherDiscount);
 
@@ -238,11 +254,12 @@ export default function BatdongsanListingSelector({
           1. HÀNG 4 THẺ LOẠI TIN ĐĂNG (CHUẨN ẢNH BATDONGSAN.COM.VN)
          ======================================================== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 items-stretch">
-        {Object.values(ratesConfig).map((item) => {
+        {Object.values(ratesConfig || {}).map((item) => {
+          if (!item || !item.id) return null;
           const isSelected = selectedType === item.id;
           // Giá hiển thị trên card: Tin Thường hiển thị theo 60 ngày (0 đ / Miễn phí)
           const daysForCard = item.id === 'normal' ? 60 : (selectedDays || 15);
-          const cardDailyRate = item.rates[daysForCard] || item.rates[15];
+          const cardDailyRate = item?.rates?.[daysForCard] ?? item?.rates?.[15] ?? 0;
 
           return (
             <div
@@ -346,10 +363,10 @@ export default function BatdongsanListingSelector({
               <div>
                 <div className="font-bold text-sm text-slate-900">15 ngày</div>
                 <div className="text-xs text-slate-600 mt-1 font-semibold">
-                  {currentConfig.rates[15] === 0 ? (
+                  {currentConfig?.rates?.[15] === 0 ? (
                     <span className="text-emerald-600 font-bold">Miễn phí</span>
                   ) : (
-                    `${currentConfig.rates[15].toLocaleString('vi-VN')} đ/ngày`
+                    `${(currentConfig?.rates?.[15] ?? 0).toLocaleString('vi-VN')} đ/ngày`
                   )}
                 </div>
               </div>
@@ -380,11 +397,11 @@ export default function BatdongsanListingSelector({
                   </span>
                 </div>
                 <div className="text-xs text-slate-600 mt-1 font-semibold flex items-center gap-1.5">
-                  {currentConfig.rates[30] === 0 ? (
+                  {currentConfig?.rates?.[30] === 0 ? (
                     <span className="text-emerald-600 font-bold">Miễn phí</span>
                   ) : (
                     <>
-                      <span>{currentConfig.rates[30].toLocaleString('vi-VN')} đ/ngày</span>
+                      <span>{(currentConfig?.rates?.[30] ?? 0).toLocaleString('vi-VN')} đ/ngày</span>
                       {baseRate > 0 && (
                         <span className="line-through text-slate-400 font-normal text-[11px]">
                           {baseRate.toLocaleString('vi-VN')} đ/ngày
@@ -416,7 +433,7 @@ export default function BatdongsanListingSelector({
               <div>
                 <div className="flex items-center gap-1.5">
                   <span className="font-bold text-sm text-slate-900">60 ngày</span>
-                  {isNormal && currentConfig.rates[60] === 0 ? (
+                  {isNormal && currentConfig?.rates?.[60] === 0 ? (
                     <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-md">
                       Mặc định miễn phí
                     </span>
@@ -427,11 +444,11 @@ export default function BatdongsanListingSelector({
                   )}
                 </div>
                 <div className="text-xs text-slate-600 mt-1 font-semibold flex items-center gap-1.5">
-                  {currentConfig.rates[60] === 0 ? (
+                  {currentConfig?.rates?.[60] === 0 ? (
                     <span className="text-emerald-600 font-bold">Miễn phí 100%</span>
                   ) : (
                     <>
-                      <span>{currentConfig.rates[60].toLocaleString('vi-VN')} đ/ngày</span>
+                      <span>{(currentConfig?.rates?.[60] ?? 0).toLocaleString('vi-VN')} đ/ngày</span>
                       {baseRate > 0 && (
                         <span className="line-through text-slate-400 font-normal text-[11px]">
                           {baseRate.toLocaleString('vi-VN')} đ/ngày

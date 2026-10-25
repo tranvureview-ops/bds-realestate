@@ -318,10 +318,10 @@ export default function VipPricingPage() {
               const isSilver = pkg.id === 'vip-silver';
               const isNormal = pkg.id === 'normal';
 
-              const activeRates = ratesConfig[pkg.id] || ratesConfig['normal'];
-              const currentDailyRate = activeRates.rates[selectedDuration] || activeRates.rates[15];
-              const base15Rate = activeRates.rates[15];
-              const discountInfo = DURATION_DISCOUNTS[selectedDuration] || DURATION_DISCOUNTS[15];
+              const activeRates = ratesConfig?.[pkg.id] || ratesConfig?.['normal'] || BATDONGSAN_RATES['normal'];
+              const currentDailyRate = activeRates?.rates?.[selectedDuration] ?? activeRates?.rates?.[15] ?? 0;
+              const base15Rate = activeRates?.rates?.[15] ?? 0;
+              const discountInfo = DURATION_DISCOUNTS[selectedDuration] || DURATION_DISCOUNTS[15] || { label: '15 ngày', discountPercent: 0, badge: 'Đăng ký cơ bản' };
               const discountPercent = discountInfo.discountPercent;
               const grossPeriodPrice = currentDailyRate * selectedDuration;
 
@@ -499,29 +499,29 @@ export default function VipPricingPage() {
                     <span className="px-2.5 py-0.5 rounded-full bg-red-600 text-white font-black text-[10px] uppercase">
                       VIP Kim Cương
                     </span>
-                    <div className="font-black text-red-700 text-xs mt-1">Từ {(ratesConfig['vip-diamond']?.rates[60] || 55300).toLocaleString('vi-VN')} đ/ngày</div>
+                    <div className="font-black text-red-700 text-xs mt-1">Từ {(ratesConfig?.['vip-diamond']?.rates?.[60] ?? 55300).toLocaleString('vi-VN')} đ/ngày</div>
                   </th>
                   <th className="py-4 px-3 text-center bg-amber-50/70 border-r border-amber-100">
                     <span className="px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-black text-[10px] uppercase">
                       VIP Vàng
                     </span>
-                    <div className="font-black text-amber-800 text-xs mt-1">Từ {(ratesConfig['vip-gold']?.rates[60] || 111970).toLocaleString('vi-VN')} đ/ngày</div>
+                    <div className="font-black text-amber-800 text-xs mt-1">Từ {(ratesConfig?.['vip-gold']?.rates?.[60] ?? 20300).toLocaleString('vi-VN')} đ/ngày</div>
                   </th>
                   <th className="py-4 px-3 text-center bg-blue-50/70 border-r border-blue-100">
                     <span className="px-2.5 py-0.5 rounded-full bg-teal-600 text-white font-bold text-[10px] uppercase">
                       VIP Bạc
                     </span>
-                    <div className="font-black text-teal-800 text-xs mt-1">Từ {(ratesConfig['vip-silver']?.rates[60] || 57740).toLocaleString('vi-VN')} đ/ngày</div>
+                    <div className="font-black text-teal-800 text-xs mt-1">Từ {(ratesConfig?.['vip-silver']?.rates?.[60] ?? 6300).toLocaleString('vi-VN')} đ/ngày</div>
                   </th>
                   <th className="py-4 px-3 text-center bg-slate-100/70">
                     <span className="px-2.5 py-0.5 rounded-full bg-slate-300 text-slate-700 font-bold text-[10px] uppercase">
                       Tin Thường
                     </span>
                     <div className="font-bold text-slate-700 text-xs mt-1">
-                      {ratesConfig['normal']?.rates[60] === 0 ? (
+                      {ratesConfig?.['normal']?.rates?.[60] === 0 ? (
                         <span className="text-emerald-700 font-black">Miễn phí</span>
                       ) : (
-                        `Từ ${(ratesConfig['normal']?.rates[60] || 2324).toLocaleString('vi-VN')} đ/ngày`
+                        `Từ ${(ratesConfig?.['normal']?.rates?.[60] ?? 2324).toLocaleString('vi-VN')} đ/ngày`
                       )}
                     </div>
                   </th>

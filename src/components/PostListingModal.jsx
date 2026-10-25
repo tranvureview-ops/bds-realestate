@@ -281,8 +281,8 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const defaultPkg = activeVipPackages.find(p => p.id === 'normal') || activeVipPackages[activeVipPackages.length - 1];
   const selectedPkg = activeVipPackages.find(p => p.id === selectedVipId) || defaultPkg;
   const ratesConfig = useMemo(() => getEffectiveBdsRates(activeVipPackages), [activeVipPackages]);
-  const bdsConfig = ratesConfig[selectedVipId] || ratesConfig['normal'];
-  const dailyRate = bdsConfig.rates[listingDays] || bdsConfig.rates[15];
+  const bdsConfig = ratesConfig?.[selectedVipId] || ratesConfig?.['normal'] || BATDONGSAN_RATES['normal'];
+  const dailyRate = bdsConfig?.rates?.[listingDays] ?? bdsConfig?.rates?.[15] ?? 0;
   const autoBumpFee = autoBumpHours.length * 5000 * Math.min(listingDays, 3);
   const totalCost = (dailyRate * listingDays) + autoBumpFee;
 
