@@ -127,27 +127,30 @@ export function getEffectiveBdsRates(customVipPackages, paymentConfig = null) {
       ? Math.max(0, Number(rawRate60))
       : ((price15 === 0) ? 0 : Math.round(price15 * 0.70));
 
-    // Dynamic approval badge resolution
-    const tier = approvalTiers?.[pkg.id];
-    let approvalBadge = pkg.approvalBadge || defaultMeta.approvalBadge;
-    let approvalIcon = pkg.approvalIcon || defaultMeta.approvalIcon;
-    let approvalColor = pkg.approvalColor || defaultMeta.approvalColor;
+    // Approval badge resolution:
+    // VIP Kim Cương, VIP Vàng, VIP Bạc: Luôn là Duyệt tức thì (0s)
+    let approvalBadge = 'Duyệt tức thì (0s)';
+    let approvalIcon = 'fa-solid fa-bolt';
+    let approvalColor = 'text-red-600 bg-red-50 border-red-200';
 
-    if (tier) {
-      if (tier.mode === 'instant') {
-        approvalBadge = 'Duyệt tức thì (0s)';
-        approvalIcon = 'fa-solid fa-bolt';
-      } else if (tier.mode === 'random') {
-        const min = tier.delayMinMinutes ?? 5;
-        const max = tier.delayMaxMinutes ?? 15;
-        approvalBadge = `Duyệt tự động (${min} - ${max} phút)`;
-        approvalIcon = 'fa-solid fa-clock-rotate-left';
-      } else if (tier.mode === 'countdown' && tier.delayMinutes > 0) {
-        approvalBadge = `Tự động duyệt (${tier.delayMinutes} phút)`;
-        approvalIcon = 'fa-solid fa-clock-rotate-left';
-      }
-    } else if (pkg.approvalBadge) {
-      approvalBadge = pkg.approvalBadge;
+    if (pkg.id === 'vip-diamond') {
+      approvalBadge = 'Duyệt tức thì (0s)';
+      approvalIcon = 'fa-solid fa-bolt';
+      approvalColor = 'text-red-600 bg-red-50 border-red-200';
+    } else if (pkg.id === 'vip-gold') {
+      approvalBadge = 'Duyệt tức thì (0s)';
+      approvalIcon = 'fa-solid fa-bolt';
+      approvalColor = 'text-amber-700 bg-amber-50 border-amber-200';
+    } else if (pkg.id === 'vip-silver') {
+      approvalBadge = 'Duyệt tức thì (0s)';
+      approvalIcon = 'fa-solid fa-bolt';
+      approvalColor = 'text-teal-700 bg-teal-50 border-teal-200';
+    } else if (pkg.id === 'normal') {
+      const min = tier?.delayMinMinutes ?? pkg?.approvalMinMinutes ?? 5;
+      const max = tier?.delayMaxMinutes ?? pkg?.approvalMaxMinutes ?? 15;
+      approvalBadge = `Duyệt tự động (${min} - ${max} phút)`;
+      approvalIcon = 'fa-solid fa-clock-rotate-left';
+      approvalColor = 'text-slate-600 bg-slate-100 border-slate-200';
     }
 
     result[pkg.id] = {

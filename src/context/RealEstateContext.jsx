@@ -341,7 +341,13 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         return {
           ...pkg,
           minDays: 60,
-          allowedDurations: Array.isArray(pkg.allowedDurations) && pkg.allowedDurations.length > 0 ? pkg.allowedDurations : [60]
+          allowedDurations: Array.isArray(pkg.allowedDurations) && pkg.allowedDurations.length > 0 ? pkg.allowedDurations : [60],
+          approvalType: 'random_fifo',
+          approvalTimeMinutes: 10,
+          approvalMinMinutes: 5,
+          approvalMaxMinutes: 15,
+          approvalBadge: 'Duyệt tự động (5 - 15 phút)',
+          approvalLabel: 'Duyệt tự động ngẫu nhiên (5 - 15 phút)'
         };
       }
       const base = pkg.pricePerDay || pkg.rates?.[15] || 0;
@@ -349,6 +355,10 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         ...pkg,
         minDays: 5,
         allowedDurations: [5, 7, 10, 15, 30],
+        approvalType: 'instant',
+        approvalTimeMinutes: 0,
+        approvalBadge: 'Duyệt tức thì (0s)',
+        approvalLabel: 'Duyệt Tức Thì tự động (Active ngay)',
         rates: {
           5: pkg.rates?.[5] ?? base,
           7: pkg.rates?.[7] ?? base,
@@ -427,7 +437,39 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // 10. Payment Methods Configuration State (Backend Admin Config)
   const [paymentConfig, setPaymentConfig] = useState(() => {
-    return initialData?.bds_payment_config || DEFAULT_PAYMENT_CONFIG;
+    const raw = initialData?.bds_payment_config || DEFAULT_PAYMENT_CONFIG;
+    const currentTiers = raw?.approvalTiers || {};
+    return {
+      ...raw,
+      approvalTiers: {
+        ...currentTiers,
+        'vip-diamond': {
+          ...(currentTiers['vip-diamond'] || {}),
+          mode: 'instant',
+          delayMinutes: 0,
+          badgeText: 'Duyệt tức thì (0s)'
+        },
+        'vip-gold': {
+          ...(currentTiers['vip-gold'] || {}),
+          mode: 'instant',
+          delayMinutes: 0,
+          badgeText: 'Duyệt tức thì (0s)'
+        },
+        'vip-silver': {
+          ...(currentTiers['vip-silver'] || {}),
+          mode: 'instant',
+          delayMinutes: 0,
+          badgeText: 'Duyệt tức thì (0s)'
+        },
+        'normal': {
+          ...(currentTiers['normal'] || {}),
+          mode: 'random',
+          delayMinMinutes: currentTiers['normal']?.delayMinMinutes ?? 5,
+          delayMaxMinutes: currentTiers['normal']?.delayMaxMinutes ?? 15,
+          badgeText: `Duyệt tự động (${currentTiers['normal']?.delayMinMinutes ?? 5} - ${currentTiers['normal']?.delayMaxMinutes ?? 15} phút)`
+        }
+      }
+    };
   });
 
   const updatePaymentConfig = async (newConfig) => {

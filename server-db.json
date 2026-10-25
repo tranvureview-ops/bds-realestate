@@ -1997,45 +1997,47 @@
       "requiresLogin": true
     },
     "approvalTiers": {
-      "normal": {
-        "mode": "countdown",
-        "rank": 4,
-        "title": "Tin Thường",
-        "badgeText": "Hàng đợi FIFO (Tự động 1 tiếng)",
-        "shortName": "TIN THƯỜNG",
-        "badgeColor": "bg-slate-700 text-slate-200",
-        "description": "Hàng đợi tiêu chuẩn FIFO - Tự động xuất bản trong 1 tiếng (hoặc BQT duyệt sớm)",
-        "delayMinutes": 60
-      },
-      "vip-gold": {
-        "mode": "countdown",
-        "rank": 2,
-        "title": "VIP Vàng",
-        "badgeText": "Ưu tiên sớm (15 phút)",
-        "shortName": "VIP VÀNG",
-        "badgeColor": "bg-amber-500 text-slate-950 font-bold",
-        "description": "Ưu tiên sớm: Tự động phê duyệt sau 15 phút nếu Admin chưa duyệt trước",
-        "delayMinutes": 15
-      },
-      "vip-silver": {
-        "mode": "countdown",
-        "rank": 3,
-        "title": "VIP Bạc",
-        "badgeText": "Ưu tiên sớm (30 phút)",
-        "shortName": "VIP BẠC",
-        "badgeColor": "bg-blue-600 text-white font-bold",
-        "description": "Ưu tiên sớm: Tự động phê duyệt sau 30 phút (trước tin thường)",
-        "delayMinutes": 30
-      },
       "vip-diamond": {
         "mode": "instant",
-        "rank": 1,
+        "delayMinutes": 0,
         "title": "VIP Kim Cương",
-        "badgeText": "Duyệt Tức Thì (0s)",
         "shortName": "VIP KIM CƯƠNG",
-        "badgeColor": "bg-red-600 text-white",
         "description": "Duyệt Tức Thì tự động (Active ngay lập tức khi thanh toán thành công)",
-        "delayMinutes": 0
+        "badgeText": "Duyệt tức thì (0s)",
+        "badgeColor": "bg-red-600 text-white",
+        "rank": 1
+      },
+      "vip-gold": {
+        "mode": "instant",
+        "delayMinutes": 0,
+        "title": "VIP Vàng",
+        "shortName": "VIP VÀNG",
+        "description": "Duyệt Tức Thì tự động (Active ngay lập tức khi thanh toán thành công)",
+        "badgeText": "Duyệt tức thì (0s)",
+        "badgeColor": "bg-amber-500 text-slate-950 font-bold",
+        "rank": 2
+      },
+      "vip-silver": {
+        "mode": "instant",
+        "delayMinutes": 0,
+        "title": "VIP Bạc",
+        "shortName": "VIP BẠC",
+        "description": "Duyệt Tức Thì tự động (Active ngay lập tức khi thanh toán thành công)",
+        "badgeText": "Duyệt tức thì (0s)",
+        "badgeColor": "bg-teal-600 text-white font-bold",
+        "rank": 3
+      },
+      "normal": {
+        "mode": "random",
+        "delayMinMinutes": 5,
+        "delayMaxMinutes": 15,
+        "delayMinutes": 10,
+        "title": "Tin Thường",
+        "shortName": "TIN THƯỜNG",
+        "description": "Hàng đợi duyệt tự động ngẫu nhiên trong khoảng 5 - 15 phút",
+        "badgeText": "Duyệt tự động (5 - 15 phút)",
+        "badgeColor": "bg-slate-700 text-slate-200",
+        "rank": 4
       }
     },
     "autoApproveVip": true,
@@ -2224,13 +2226,13 @@
       "borderColor": "border-amber-400 shadow-amber-100",
       "pricePerDay": 29000,
       "recommended": false,
-      "approvalType": "priority",
-      "approvalBadge": "Ưu tiên sớm (15 phút)",
-      "approvalLabel": "Ưu tiên sớm (15 phút tự động kích hoạt)",
+      "approvalType": "instant",
+      "approvalBadge": "Duyệt tức thì (0s)",
+      "approvalLabel": "Duyệt Tức Thì tự động (Active ngay)",
       "hasDualListing": false,
       "multiplierText": "x15",
       "hasPriorityQueue": true,
-      "approvalTimeMinutes": 15,
+      "approvalTimeMinutes": 0,
       "allowedDurations": [
         5,
         7,
@@ -2268,13 +2270,13 @@
       "borderColor": "border-blue-400",
       "pricePerDay": 9000,
       "recommended": false,
-      "approvalType": "priority",
-      "approvalBadge": "Ưu tiên sớm (30 phút)",
-      "approvalLabel": "Ưu tiên sớm (30 phút tự động kích hoạt)",
+      "approvalType": "instant",
+      "approvalBadge": "Duyệt tức thì (0s)",
+      "approvalLabel": "Duyệt Tức Thì tự động (Active ngay)",
       "hasDualListing": false,
       "multiplierText": "x8",
       "hasPriorityQueue": true,
-      "approvalTimeMinutes": 30,
+      "approvalTimeMinutes": 0,
       "allowedDurations": [
         5,
         7,
@@ -2315,14 +2317,16 @@
       "borderColor": "border-slate-200",
       "pricePerDay": 3320,
       "recommended": false,
-      "approvalType": "countdown_fifo",
+      "approvalType": "random_fifo",
       "publishPrice": 35000,
-      "approvalBadge": "Hàng đợi FIFO (Tự động 1 tiếng)",
-      "approvalLabel": "Hàng đợi tiêu chuẩn FIFO (Tự động xuất bản trong 1 tiếng)",
+      "approvalBadge": "Duyệt tự động (5 - 15 phút)",
+      "approvalLabel": "Duyệt tự động ngẫu nhiên (5 - 15 phút)",
       "hasDualListing": false,
       "multiplierText": null,
       "hasPriorityQueue": false,
-      "approvalTimeMinutes": 60
+      "approvalTimeMinutes": 10,
+      "approvalMinMinutes": 5,
+      "approvalMaxMinutes": 15
     }
   ],
   "bds_bump_service_price": 10000,
