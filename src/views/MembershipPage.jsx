@@ -512,7 +512,9 @@ export default function MembershipPage() {
                 <tr>
                   <td className="p-4 font-bold text-slate-800">Hẹn giờ đăng tin tự động khung giờ vàng</td>
                   {(membershipPackages || []).map(p => {
-                    const hasFeature = (p.features || []).some(f => /hẹn giờ/i.test(f));
+                    const hasFeature = typeof p.allowScheduledPublishing === 'boolean'
+                      ? p.allowScheduledPublishing
+                      : (p.features || []).some(f => /hẹn giờ/i.test(f));
                     return (
                       <td key={p.id} className={`p-4 text-center font-bold ${hasFeature ? 'text-emerald-600' : 'text-slate-400'} ${p.recommended ? 'bg-amber-50/30' : ''}`}>
                         {hasFeature ? '✓ Có hỗ trợ' : '—'}

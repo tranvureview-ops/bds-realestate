@@ -85,6 +85,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
       'Ưu đãi voucher cấp mới định kỳ 30 ngày trong suốt thời hạn gói',
       'Báo cáo thống kê lượt tương tác cơ bản'
     ],
+    allowScheduledPublishing: true,
     recommended: false
   });
 
@@ -92,6 +93,9 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
   const handleOpenEdit = (pkg) => {
     // Deep clone pkg to avoid mutating state directly
     const cloned = JSON.parse(JSON.stringify(pkg));
+    cloned.allowScheduledPublishing = typeof cloned.allowScheduledPublishing === 'boolean'
+      ? cloned.allowScheduledPublishing
+      : (cloned.id === 'member-basic' ? false : true);
     cloned.vouchersPerCycle = {
       ...cloned.vouchersPerCycle,
       normalPublishDiscount: commonPublishDiscount,
@@ -332,6 +336,19 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
     showToast(newRecommended ? `Đã đặt "${target.name}" làm gói nổi bật khuyên dùng!` : `Đã bỏ cờ khuyên dùng của "${target.name}".`, 'info');
   };
 
+  // Quick toggle Scheduled Publishing flag per package
+  const handleTogglePackageSchedule = (pkgId, isEnabled) => {
+    const target = membershipPackages.find(p => p.id === pkgId);
+    if (!target) return;
+    updateMembershipPackage(pkgId, { ...target, allowScheduledPublishing: isEnabled });
+    showToast(
+      isEnabled
+        ? `Đã BẬT tiện ích Hẹn giờ đăng tin cho "${target.name}"!`
+        : `Đã TẮT tiện ích Hẹn giờ đăng tin cho "${target.name}"!`,
+      'success'
+    );
+  };
+
   // Quick Clone Package
   const handleClonePackage = (pkg) => {
     const cloned = {
@@ -421,7 +438,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
       {/* ================= 1.5. CẤU HÌNH ĐƠN GIÁ CHUNG CHO 3 LOẠI VOUCHER HỘI VIÊN ================= */}
       <AdminCommonVoucherPricing />
 
-      {/* ================= CẤU HÌNH ĐẶC QUYỀN HẸN GIỜ ĐĂNG TIN ================= */}
+      {/* ================= TIỆN ÍCH HẸN GIỜ ĐĂNG TIN THEO TỪNG GÓI HỘI VIÊN ================= */}
       <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
         <div className="flex items-start sm:items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
@@ -429,46 +446,33 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
           </div>
           <div>
             <div className="text-xs font-black text-white flex items-center gap-2 flex-wrap">
-              <span>Đặc Quyền Tiện Ích: Hẹn Giờ Đăng Tin (Khung Giờ Vàng)</span>
-              {systemConfig?.requireMembershipForSchedule !== false ? (
-                <span className="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-2 py-0.5 rounded-full font-bold">
-                  ✓ Đang Khóa Độc Quyền cho Gói Tiêu Chuẩn & Cao Cấp
-                </span>
-              ) : (
-                <span className="text-[10px] bg-slate-800 text-slate-400 border border-slate-700 px-2 py-0.5 rounded-full font-bold">
-                  ○ Đang Mở Tự Do Cho Mọi Người Dùng
-                </span>
-              )}
+              <span>Tiện Ích: Hẹn Giờ Đăng Tin (Khung Giờ Vàng) Theo Từng Gói Hội Viên</span>
+              <span className="text-[10px] bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2.5 py-0.5 rounded-full font-bold">
+                Tùy chỉnh Bật / Tắt riêng từng gói
+              </span>
             </div>
             <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-              Áp dụng tính năng Hẹn Giờ Đăng Tin như đặc quyền riêng biệt khi hội viên mua <b>Gói Hội Viên Tiêu Chuẩn</b> hoặc <b>Gói Hội Viên Cao Cấp</b>. Khách thường / Gói Cơ Bản sẽ được hướng dẫn nâng cấp gói.
+              Bạn có thể <b>BẬT hoặc TẮT</b> chức năng hẹn giờ đăng tin độc lập trên từng thẻ gói bên dưới (hoặc trong cửa sổ chỉnh sửa gói). Người đăng sở hữu gói được BẬT sẽ được phép chọn các khung giờ vàng (08:00, 11:30, 14:00, 19:30).
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5 shrink-0 self-end md:self-auto">
-          <button
-            type="button"
-            onClick={async () => {
-              const currentVal = systemConfig?.requireMembershipForSchedule !== false;
-              const nextVal = !currentVal;
-              await updateSystemConfig({ requireMembershipForSchedule: nextVal });
-              showToast(
-                nextVal 
-                  ? 'Đã BẬT: Hẹn giờ đăng tin hiện là đặc quyền chỉ dành riêng cho Gói Hội Viên Tiêu Chuẩn & Cao Cấp!' 
-                  : 'Đã TẮT: Cho phép tất cả người dùng sử dụng hẹn giờ đăng tin tự do.',
-                'success'
-              );
-            }}
-            className={`px-4 py-2.5 rounded-xl font-bold text-xs transition flex items-center gap-2 shadow-sm cursor-pointer ${
-              systemConfig?.requireMembershipForSchedule !== false
-                ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
-                : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
-            }`}
-          >
-            <i className={`fa-solid ${systemConfig?.requireMembershipForSchedule !== false ? 'fa-lock' : 'fa-lock-open'}`}></i>
-            <span>{systemConfig?.requireMembershipForSchedule !== false ? 'Yêu Cầu Gói (BẬT)' : 'Mở Tự Do (TẮT)'}</span>
-          </button>
+        <div className="flex items-center gap-2 shrink-0 self-end md:self-auto text-xs bg-slate-950/80 p-3 rounded-xl border border-slate-800">
+          <span className="text-slate-400 text-[11px] font-bold">Gói đang được mở:</span>
+          <div className="flex flex-wrap gap-1.5">
+            {(membershipPackages || []).filter(p => p.allowScheduledPublishing).length > 0 ? (
+              (membershipPackages || []).filter(p => p.allowScheduledPublishing).map(p => (
+                <span key={p.id} className="px-2 py-0.5 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-bold flex items-center gap-1">
+                  <i className="fa-solid fa-check text-[9px]"></i>
+                  <span>{p.shortName || p.name}</span>
+                </span>
+              ))
+            ) : (
+              <span className="px-2 py-0.5 rounded-lg bg-rose-950 text-rose-300 border border-rose-800 text-[10px] font-bold">
+                Chưa bật cho gói nào
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
@@ -662,6 +666,51 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                       </div>
                     )}
                   </div>
+                </div>
+
+                {/* Per-package Scheduled Publishing Switch Toggle */}
+                <div className="mt-4 p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-3 shadow-inner">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                      pkg.allowScheduledPublishing 
+                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' 
+                        : 'bg-slate-800 text-slate-500 border border-slate-700'
+                    }`}>
+                      <i className="fa-regular fa-clock text-xs"></i>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold text-white flex items-center gap-1.5 flex-wrap">
+                        <span>Hẹn Giờ Đăng:</span>
+                        {pkg.allowScheduledPublishing ? (
+                          <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/80 border border-emerald-800/80 px-1.5 py-0.2 rounded-full">
+                            ● BẬT
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-slate-500 font-bold bg-slate-800 border border-slate-700 px-1.5 py-0.2 rounded-full">
+                            ○ TẮT
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[10px] text-slate-400 truncate">
+                        {pkg.allowScheduledPublishing ? 'Mở khóa khung giờ vàng' : 'Không có quyền hẹn giờ'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleTogglePackageSchedule(pkg.id, !pkg.allowScheduledPublishing)}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      pkg.allowScheduledPublishing ? 'bg-emerald-500' : 'bg-slate-700'
+                    }`}
+                    title={pkg.allowScheduledPublishing ? `Bấm để TẮT hẹn giờ cho ${pkg.name}` : `Bấm để BẬT hẹn giờ cho ${pkg.name}`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                        pkg.allowScheduledPublishing ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
                 </div>
               </div>
 
@@ -929,6 +978,34 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                           </div>
                           <p className="text-[11px] text-slate-400 mt-0.5">
                             Gói này sẽ được gắn dải banner ánh vàng nổi bật và hiệu ứng viền phát sáng thu hút khách hàng trên trang Hội viên.
+                          </p>
+                        </div>
+                      </label>
+
+                      {/* Scheduled Publishing Feature Toggle */}
+                      <label className="flex items-center gap-3 p-3.5 bg-slate-900/60 hover:bg-slate-900 rounded-2xl border border-slate-800 cursor-pointer transition">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(editingPkg.allowScheduledPublishing)}
+                          onChange={(e) => handleFieldChange('allowScheduledPublishing', e.target.checked)}
+                          className="w-4 h-4 text-emerald-500 rounded border-slate-700 bg-slate-800 focus:ring-emerald-400 shrink-0"
+                        />
+                        <div>
+                          <div className="font-bold text-white text-xs flex items-center gap-2">
+                            <i className="fa-regular fa-clock text-amber-400"></i>
+                            <span>Bật Tiện Ích "Hẹn Giờ Đăng Tin (Khung Giờ Vàng)" Cho Gói Này</span>
+                            {editingPkg.allowScheduledPublishing ? (
+                              <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
+                                ✓ Đang Bật
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400 border border-slate-700 font-bold">
+                                ○ Đang Tắt
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-slate-400 mt-0.5">
+                            Khi bật, người đăng có gói hội viên này sẽ được mở khóa các khung giờ hẹn đăng tự động (08:00, 11:30, 14:00, 19:30).
                           </p>
                         </div>
                       </label>

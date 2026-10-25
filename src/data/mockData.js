@@ -175,6 +175,7 @@ export const MEMBERSHIP_PACKAGES = [
       'Tiết kiệm 31% chi phí so với mua lẻ từng tin đăng',
       'Báo cáo thống kê lượt tương tác cơ bản'
     ],
+    allowScheduledPublishing: false,
     recommended: false
   },
   {
@@ -208,6 +209,7 @@ export const MEMBERSHIP_PACKAGES = [
       'Báo cáo hiệu suất lượt xem & khách gọi chi tiết',
       'Tiết kiệm 33% chi phí quảng cáo hàng tháng'
     ],
+    allowScheduledPublishing: true,
     recommended: true
   },
   {
@@ -242,6 +244,7 @@ export const MEMBERSHIP_PACKAGES = [
       'Chuyên viên CSKH hỗ trợ kỹ thuật và tối ưu tin đăng riêng 24/7',
       'Tiết kiệm tối đa 39% chi phí marketing'
     ],
+    allowScheduledPublishing: true,
     recommended: false
   }
 ];

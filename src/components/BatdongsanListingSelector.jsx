@@ -247,22 +247,36 @@ export default function BatdongsanListingSelector({
   const currentUser = realEstateContext?.currentUser;
   const systemConfig = realEstateContext?.systemConfig;
   const isMembershipActive = realEstateContext?.isMembershipActive;
+  const membershipPackages = realEstateContext?.membershipPackages || [];
   const showToast = realEstateContext?.showToast;
 
-  // Cấu hình tính năng Hẹn Giờ Đăng Tin (bật/tắt trong quản trị)
+  // Cấu hình tính năng Hẹn Giờ Đăng Tin (bật/tắt trong quản trị & phân quyền theo từng gói)
   const enableScheduledPublishing = systemConfig?.enableScheduledPublishing !== false;
-  const requireMembershipForSchedule = systemConfig?.requireMembershipForSchedule !== false;
+
+  // Lọc ra danh sách các gói hội viên được cấp quyền hẹn giờ đăng tin
+  const eligiblePackages = useMemo(() => {
+    return (membershipPackages || []).filter(p => Boolean(p.allowScheduledPublishing));
+  }, [membershipPackages]);
+
+  const eligiblePackagesText = useMemo(() => {
+    if (eligiblePackages.length === 0) return 'Gói Hội Viên được cấp quyền';
+    if (eligiblePackages.length <= 2) {
+      return eligiblePackages.map(p => p.shortName || p.name).join(' & ');
+    }
+    return eligiblePackages.map(p => p.shortName || p.name).join(', ');
+  }, [eligiblePackages]);
 
   const isMemberActive = isMembershipActive ? isMembershipActive(currentUser) : false;
   const userPkgId = currentUser?.membership?.packageId;
-  const hasEligibleMembership = isMemberActive && (userPkgId === 'member-standard' || userPkgId === 'member-premium');
-  const hasScheduleAccess = !requireMembershipForSchedule || currentUser?.role === 'admin' || hasEligibleMembership;
+  const activeUserPkg = (membershipPackages || []).find(p => p.id === userPkgId);
+  const hasEligibleMembership = isMemberActive && Boolean(activeUserPkg?.allowScheduledPublishing);
+  const hasScheduleAccess = currentUser?.role === 'admin' || hasEligibleMembership;
 
   const handleLockedScheduleClick = useCallback(() => {
     if (showToast) {
-      showToast('🔒 Tiện ích Hẹn Giờ Đăng Tin theo khung giờ vàng là đặc quyền độc quyền dành riêng cho Gói Hội Viên Tiêu Chuẩn và Gói Hội Viên Cao Cấp. Quý khách vui lòng nâng cấp gói hội viên!', 'warning');
+      showToast(`🔒 Tiện ích Hẹn Giờ Đăng Tin theo khung giờ vàng là đặc quyền độc quyền dành riêng cho ${eligiblePackagesText}. Quý khách vui lòng nâng cấp gói hội viên!`, 'warning');
     }
-  }, [showToast]);
+  }, [showToast, eligiblePackagesText]);
 
   // Nếu người dùng không có quyền mà scheduleTime khác 'now', tự động đưa về 'now'
   useEffect(() => {
@@ -277,31 +291,31 @@ export default function BatdongsanListingSelector({
       value: '08:00', 
       label: '🌅 Sáng 08:00 (Khung giờ vàng - Đón khách xem tin)', 
       disabled: !hasScheduleAccess, 
-      badge: !hasScheduleAccess ? '🔒 Gói Tiêu Chuẩn & Cao Cấp' : 'Vàng',
+      badge: !hasScheduleAccess ? `🔒 ${eligiblePackagesText}` : 'Vàng',
       onDisabledClick: handleLockedScheduleClick
     },
     { 
       value: '11:30', 
       label: '☀️ Trưa 11:30 (Cao điểm giờ nghỉ trưa tìm kiếm)', 
       disabled: !hasScheduleAccess, 
-      badge: !hasScheduleAccess ? '🔒 Gói Tiêu Chuẩn & Cao Cấp' : 'Vàng',
+      badge: !hasScheduleAccess ? `🔒 ${eligiblePackagesText}` : 'Vàng',
       onDisabledClick: handleLockedScheduleClick
     },
     { 
       value: '14:00', 
       label: '☕ Chiều 14:00 (Thời điểm khảo sát thực địa)', 
       disabled: !hasScheduleAccess, 
-      badge: !hasScheduleAccess ? '🔒 Gói Tiêu Chuẩn & Cao Cấp' : 'Vàng',
+      badge: !hasScheduleAccess ? `🔒 ${eligiblePackagesText}` : 'Vàng',
       onDisabledClick: handleLockedScheduleClick
     },
     { 
       value: '19:30', 
       label: '🌙 Tối 19:30 (Khung giờ vàng chốt cọc sau bữa tối)', 
       disabled: !hasScheduleAccess, 
-      badge: !hasScheduleAccess ? '🔒 Gói Tiêu Chuẩn & Cao Cấp' : 'Vàng',
+      badge: !hasScheduleAccess ? `🔒 ${eligiblePackagesText}` : 'Vàng',
       onDisabledClick: handleLockedScheduleClick
     }
-  ], [hasScheduleAccess, handleLockedScheduleClick]);
+  ], [hasScheduleAccess, eligiblePackagesText, handleLockedScheduleClick]);
 
   const isNormal = selectedType === 'normal';
   const currentConfig = ratesConfig?.[selectedType] || ratesConfig?.['normal'] || BATDONGSAN_RATES['normal'];
@@ -670,8 +684,8 @@ export default function BatdongsanListingSelector({
             <span className="flex items-center gap-1.5">
               <i className="fa-regular fa-clock text-amber-500"></i>
               <span>Hẹn giờ đăng tin</span>
-              {enableScheduledPublishing && requireMembershipForSchedule && (
-                hasEligibleMembership ? (
+              {enableScheduledPublishing && (
+                hasScheduleAccess ? (
                   <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded-full inline-flex items-center gap-1">
                     <i className="fa-solid fa-crown text-emerald-600 text-[9px]"></i>
                     <span>Hội Viên</span>
@@ -682,10 +696,10 @@ export default function BatdongsanListingSelector({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[10px] font-bold text-amber-800 bg-amber-100/90 hover:bg-amber-200 border border-amber-300 px-2 py-0.5 rounded-full inline-flex items-center gap-1 transition shadow-xs"
-                    title="Đặc quyền riêng cho Gói Tiêu Chuẩn & Cao Cấp. Bấm để xem gói!"
+                    title={`Đặc quyền dành riêng cho ${eligiblePackagesText}. Bấm để xem gói!`}
                   >
                     <i className="fa-solid fa-lock text-amber-600 text-[9px]"></i>
-                    <span>Gói Tiêu Chuẩn & Cao Cấp</span>
+                    <span>{eligiblePackagesText}</span>
                   </a>
                 )
               )}
@@ -715,7 +729,7 @@ export default function BatdongsanListingSelector({
               </div>
               <div className="text-[11px] text-slate-500 font-medium flex items-center justify-between gap-2 flex-wrap">
                 <span>Tự động xuất bản đúng khung giờ có lượt tương tác cao nhất</span>
-                {!hasScheduleAccess && requireMembershipForSchedule && (
+                {!hasScheduleAccess && (
                   <a
                     href="/goi-hoi-vien"
                     target="_blank"

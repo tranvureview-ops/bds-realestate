@@ -422,9 +422,15 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // 6b. Membership Packages (Gói Hội Viên: Cơ bản, Tiêu chuẩn, Cao cấp)
   const [membershipPackages, setMembershipPackages] = useState(() => {
-    return (initialData?.bds_membership_packages && Array.isArray(initialData.bds_membership_packages))
+    const rawPackages = (initialData?.bds_membership_packages && Array.isArray(initialData.bds_membership_packages))
       ? initialData.bds_membership_packages
       : MEMBERSHIP_PACKAGES;
+    return rawPackages.map(pkg => ({
+      ...pkg,
+      allowScheduledPublishing: typeof pkg.allowScheduledPublishing === 'boolean'
+        ? pkg.allowScheduledPublishing
+        : (pkg.id === 'member-basic' ? false : true)
+    }));
   });
 
   // 6c. Dịch Vụ Đẩy Tin (Làm Mới Tin Lên Đầu Trang) - Editable by Admin
@@ -1081,7 +1087,12 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           setVipPackages(db.bds_vip_packages);
         }
         if (Array.isArray(db.bds_membership_packages)) {
-          setMembershipPackages(db.bds_membership_packages);
+          setMembershipPackages(db.bds_membership_packages.map(pkg => ({
+            ...pkg,
+            allowScheduledPublishing: typeof pkg.allowScheduledPublishing === 'boolean'
+              ? pkg.allowScheduledPublishing
+              : (pkg.id === 'member-basic' ? false : true)
+          })));
         }
         if (typeof db.bds_bump_service_price === 'number') {
           setBumpServicePrice(db.bds_bump_service_price);
