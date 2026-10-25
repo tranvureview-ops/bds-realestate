@@ -124,9 +124,6 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
                         </>
                       )}
                     </div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">
-                      Đăng tối thiểu {pkg.minDays} ngày
-                    </div>
                     {isNormal && (
                       <div className="text-[9px] font-bold text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded-full inline-block mt-1">
                         {pkg.pricePerDay === 0 ? 'Tin đăng miễn phí toàn sàn' : 'Hội viên dùng Voucher = 0 đ'}

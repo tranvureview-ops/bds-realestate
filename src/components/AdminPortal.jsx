@@ -357,7 +357,7 @@ export default function AdminPortal() {
               <div key={pkg.id} className="p-4 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between">
                 <div>
                   <div className="text-xs font-bold text-slate-900">{pkg.name}</div>
-                  <div className="text-[11px] text-slate-500">Cấp độ {pkg.level} • Tối thiểu {pkg.minDays} ngày</div>
+                  <div className="text-[11px] text-slate-500">Cấp độ {pkg.level}</div>
                 </div>
                 <div className="flex items-center gap-2">
                   <input

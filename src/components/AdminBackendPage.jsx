@@ -5703,11 +5703,7 @@ export default function AdminBackendPage() {
                       )}
                     </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-slate-800">
-                      <div className="text-[11px] text-slate-400">
-                        Tối thiểu: <b className="text-slate-200">{pkg.minDays || (pkg.id === 'normal' ? 60 : 5)} ngày</b>
-                      </div>
-
+                    <div className="flex items-center justify-end pt-2 border-t border-slate-800">
                       <div className="flex items-center gap-2">
                         <input
                           type="number"
@@ -9153,7 +9149,6 @@ export default function AdminBackendPage() {
               <div>
                 <label className="block text-slate-300 font-bold mb-1.5 flex items-center justify-between">
                   <span>1. Chọn Chu Kỳ Gia Hạn Thêm:</span>
-                  <span className="text-emerald-400 font-normal">Tối thiểu 7 ngày</span>
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {[
