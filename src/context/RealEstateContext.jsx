@@ -2508,8 +2508,34 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         }
 
         // 2. Xử lý tin hết hạn không gia hạn quá retentionDays (ví dụ 45 ngày)
-        const expTime = p.expiresAt ? new Date(p.expiresAt).getTime() : 0;
-        const isExpired = p.status === 'expired' || (expTime > 0 && expTime <= now);
+        let expTime = p.expiresAt ? new Date(p.expiresAt).getTime() : 0;
+        let propStatus = p.status;
+        let propVip = p.vipPackageId;
+
+        // Đặc quyền VIP: Nếu tin VIP đang active mà đã qua thời hạn VIP thì hạ thành Tin Thường + 60 ngày
+        if (propStatus === 'active' && ['vip-diamond', 'vip-gold', 'vip-silver'].includes(propVip) && expTime > 0 && expTime <= now) {
+          const normalExpTime = expTime + 60 * 86400 * 1000;
+          if (now < normalExpTime) {
+            next.push({
+              ...p,
+              vipPackageId: 'normal',
+              downgradedFromVip: propVip,
+              vipExpiredAt: p.expiresAt,
+              listingDays: 60,
+              expiresAt: new Date(normalExpTime).toISOString(),
+              status: 'active',
+              isFeatured: false,
+              hasDualListing: false,
+              updatedAt: new Date().toISOString()
+            });
+            continue;
+          } else {
+            expTime = normalExpTime;
+            propStatus = 'expired';
+          }
+        }
+
+        const isExpired = propStatus === 'expired' || (expTime > 0 && expTime <= now);
 
         if (isExpired && expTime > 0 && !p.isArchived) {
           const daysSinceExpiry = Math.floor((now - expTime) / (1000 * 60 * 60 * 24));
