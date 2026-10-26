@@ -405,19 +405,15 @@ export default function BatdongsanListingSelector({
       {/* ========================================================
           1. HÀNG 4 THẺ LOẠI TIN ĐĂNG (CHUẨN ẢNH BATDONGSAN.COM.VN)
          ======================================================== */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 items-stretch">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-stretch">
         {Object.values(ratesConfig || {}).map((item) => {
           if (!item || !item.id) return null;
           const isSelected = selectedType === item.id;
           const isNormalItem = item.id === 'normal';
           const itemBaseDaily = item?.rates?.[7] ?? item?.rates?.[15] ?? item?.pricePerDay ?? 0;
-
-          // Khi thẻ đang được chọn, tính giá theo thời hạn thực tế người dùng đang chọn (selectedDays)
-          // Khi thẻ chưa được chọn, hiển thị đơn giá ngày niêm yết chuẩn
           const effectiveDailyRate = isSelected
             ? (item?.rates?.[selectedDays] ?? itemBaseDaily)
             : itemBaseDaily;
-          const effectiveTotalCost = effectiveDailyRate * (isSelected ? selectedDays : (isNormalItem ? 60 : 7));
 
           return (
             <div
@@ -432,10 +428,10 @@ export default function BatdongsanListingSelector({
                   }
                 }
               }}
-              className={`p-5 rounded-2xl flex flex-col justify-between cursor-pointer border-2 transition-colors duration-150 relative bg-white ${
+              className={`p-4 sm:p-4.5 rounded-2xl flex flex-col justify-between cursor-pointer border-2 transition-all duration-150 relative bg-white ${
                 isSelected
-                  ? 'border-slate-900 shadow-md ring-1 ring-slate-900/10'
-                  : 'border-slate-200 hover:border-slate-300 hover:shadow-sm'
+                  ? 'border-slate-900 shadow-sm ring-1 ring-slate-900/10'
+                  : 'border-slate-200/90 hover:border-slate-300 hover:shadow-2xs'
               }`}
             >
               <div>
@@ -445,10 +441,10 @@ export default function BatdongsanListingSelector({
                 </div>
 
                 {/* Tiêu đề & mô tả vị trí */}
-                <h3 className="text-base font-bold text-slate-900">
+                <h3 className="text-sm sm:text-base font-bold text-slate-900">
                   {item.name}
                 </h3>
-                <p className="text-xs text-slate-500 mt-0.5 font-normal">
+                <p className="text-[11px] text-slate-500 mt-0.5 font-normal">
                   {item.positionDesc}
                 </p>
 
@@ -473,30 +469,16 @@ export default function BatdongsanListingSelector({
                 )}
               </div>
 
-              {/* Đơn giá & Tổng tiền cập nhật tự động khi chọn ngày */}
-              <div className="pt-2 text-sm font-bold text-slate-900 tracking-tight">
+              {/* Đơn giá niêm yết theo ngày tinh giản */}
+              <div className="pt-2 text-sm font-bold tracking-tight">
                 {isNormalItem ? (
-                  <div>
-                    <span className="text-emerald-600 font-extrabold uppercase">Miễn phí</span>
-                    <div className="text-[10px] text-slate-400 font-medium">Mặc định 60 ngày</div>
-                  </div>
-                ) : isSelected ? (
-                  <div>
-                    <div className="text-xs sm:text-sm font-black text-slate-950">
-                      {effectiveDailyRate.toLocaleString('vi-VN')} đ/ngày
-                    </div>
-                    <div className="text-[11px] font-bold text-emerald-700 mt-0.5">
-                      = {effectiveTotalCost.toLocaleString('vi-VN')} đ <span className="font-normal text-slate-500">({selectedDays} ngày)</span>
-                    </div>
-                  </div>
+                  <span className="text-emerald-600 font-extrabold uppercase">Miễn phí</span>
                 ) : (
-                  <div>
-                    <div className="text-xs sm:text-sm font-bold text-slate-800">
-                      {itemBaseDaily.toLocaleString('vi-VN')} đ/ngày
-                    </div>
-                    <div className="text-[10px] text-slate-400 font-normal">
-                      Niêm yết chuẩn
-                    </div>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-sm sm:text-base font-black text-slate-900">
+                      {effectiveDailyRate.toLocaleString('vi-VN')} đ
+                    </span>
+                    <span className="text-[11px] text-slate-500 font-normal">/ngày</span>
                   </div>
                 )}
               </div>
@@ -508,23 +490,22 @@ export default function BatdongsanListingSelector({
       {/* ========================================================
           2. KHUNG CHỌN THỜI HẠN VỚI MŨI TÊN TRỎ VÀO THẺ ĐƯỢC CHỌN
          ======================================================== */}
-      <div className="relative bg-[#f4f5f7] p-4 sm:p-5 rounded-2xl border border-slate-200/80 space-y-3">
+      <div className="relative bg-slate-50/90 p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 space-y-2.5">
         {/* Mũi tên tam giác chỉ lên thẻ được chọn */}
         <div
-          className={`absolute -top-2 w-4 h-4 bg-[#f4f5f7] transform rotate-45 border-l border-t border-slate-200/80 hidden lg:block -translate-x-1/2 transition-[left] duration-150 ease-out ${arrowPositionClass}`}
+          className={`absolute -top-2 w-4 h-4 bg-slate-50/90 transform rotate-45 border-l border-t border-slate-200/90 hidden lg:block -translate-x-1/2 transition-[left] duration-150 ease-out ${arrowPositionClass}`}
         ></div>
 
-        {/* Tiêu đề khuyến mãi / Thời hạn */}
+        {/* Tiêu đề Thời hạn */}
         <div className="flex items-center justify-between text-xs font-bold text-slate-800">
           {isNormal ? (
             <div className="flex items-center gap-1.5">
-              <span className="text-sm">🎁</span>
-              <span>Thời hạn đăng tin mặc định: 60 ngày (Miễn phí 100%)</span>
+              <span>🎁 Thời hạn hiển thị:</span>
+              <span className="text-emerald-700 font-bold">60 ngày miễn phí</span>
             </div>
           ) : (
             <div className="flex items-center gap-1.5">
-              <span className="text-sm">⚡</span>
-              <span>Thời hạn hiển thị ({currentConfig?.name || 'Gói đã chọn'}):</span>
+              <span>⚡ Thời hạn hiển thị ({currentConfig?.name}):</span>
             </div>
           )}
           {!isNormal && (
@@ -536,64 +517,35 @@ export default function BatdongsanListingSelector({
 
         {/* Khối lựa chọn thời hạn */}
         {isNormal ? (
-          allowedDurations.length === 1 && allowedDurations[0] === 60 ? (
-            /* Tin Thường: Gọn gàng mốc 60 ngày */
-            <div
-              onClick={() => onSelectDays && onSelectDays(60)}
-              className="p-3.5 bg-white rounded-2xl border-2 border-slate-900 shadow-sm flex items-center justify-between cursor-pointer transition hover:bg-slate-50/50"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                  <i className="fa-solid fa-gift text-base"></i>
+          /* Tin Thường: Gọn gàng mốc 60 ngày */
+          <div
+            onClick={() => onSelectDays && onSelectDays(60)}
+            className="p-3 bg-white rounded-xl border-2 border-slate-900 shadow-2xs flex items-center justify-between cursor-pointer transition hover:bg-slate-50/50"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 text-sm">
+                <i className="fa-solid fa-gift"></i>
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-sm text-slate-950">60 ngày</span>
+                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                    Miễn phí 100%
+                  </span>
                 </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-sm text-slate-950">60 ngày</span>
-                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                      Mặc định miễn phí 100%
-                    </span>
-                  </div>
-                  <div className="text-[11px] text-slate-500 mt-0.5">
-                    Tin đăng hiển thị tối đa trong 60 ngày trên toàn sàn
-                  </div>
+                <div className="text-[11px] text-slate-500">
+                  Tin đăng hiển thị tối đa 60 ngày trên toàn sàn
                 </div>
               </div>
-              <div className="text-right shrink-0">
-                <div className="text-sm font-black text-emerald-600">0 đ</div>
-                <div className="text-[10px] text-slate-400">Miễn phí trọn kỳ</div>
-              </div>
             </div>
-          ) : (
-            <div className={`grid gap-2 ${allowedDurations.length <= 3 ? 'grid-cols-3' : 'grid-cols-5'}`}>
-              {allowedDurations.map((d) => {
-                const isSelected = selectedDays === d;
-                const rate = currentConfig?.rates?.[d] ?? 0;
-                return (
-                  <button
-                    key={d}
-                    type="button"
-                    onClick={() => onSelectDays && onSelectDays(d)}
-                    className={`p-2.5 rounded-xl text-center transition cursor-pointer flex flex-col items-center justify-center ${
-                      isSelected
-                        ? 'bg-white border-2 border-slate-900 shadow-sm ring-1 ring-slate-900/10'
-                        : 'bg-white/90 hover:bg-white border border-slate-200 hover:border-slate-300'
-                    }`}
-                  >
-                    <div className={`font-bold text-xs sm:text-sm ${isSelected ? 'text-slate-950 font-black' : 'text-slate-800'}`}>
-                      {d} ngày
-                    </div>
-                    <div className="text-[10px] sm:text-[11px] text-slate-500 font-semibold mt-0.5 whitespace-nowrap">
-                      {rate === 0 ? <span className="text-emerald-600 font-bold">Miễn phí</span> : `${rate.toLocaleString('vi-VN')} đ/ng`}
-                    </div>
-                  </button>
-                );
-              })}
+            <div className="text-right shrink-0">
+              <div className="text-sm font-black text-emerald-600">0 đ</div>
             </div>
-          )
+          </div>
         ) : (
-          /* VIP (Kim Cương, Vàng, Bạc): 5 mốc tối giản, gọn 5, 7, 10, 15, 30 ngày (loại bỏ 60 ngày, mặc định 7 ngày) */
+          /* VIP: 5 mốc tinh gọn (5, 7, 10, 15, 30 ngày) */
           <div className="space-y-2.5">
-            <div className="grid grid-cols-5 gap-1.5 sm:gap-2.5">
+            <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
               {[5, 7, 10, 15, 30].map((days) => {
                 const isSelected = selectedDays === days;
                 const rate = currentConfig?.rates?.[days] ?? (
@@ -608,71 +560,51 @@ export default function BatdongsanListingSelector({
                     key={days}
                     type="button"
                     onClick={() => onSelectDays && onSelectDays(days)}
-                    className={`relative p-2 sm:p-2.5 rounded-xl text-center border-2 transition-colors duration-150 cursor-pointer flex flex-col items-center justify-center ${
+                    className={`relative p-2 sm:p-2.5 rounded-xl text-center border-2 transition-all duration-150 cursor-pointer flex flex-col items-center justify-center ${
                       isSelected
                         ? 'bg-white border-slate-900 shadow-sm ring-1 ring-slate-900/10'
-                        : 'bg-white/90 hover:bg-white border-slate-200 hover:border-slate-300'
+                        : 'bg-white/80 hover:bg-white border-slate-200 hover:border-slate-300'
                     }`}
                   >
                     {days === 7 && (
-                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-amber-800 bg-amber-100 border border-amber-200/60 px-1.5 py-0.2 rounded-full whitespace-nowrap shadow-xs scale-90 sm:scale-100">
+                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-amber-800 bg-amber-100 border border-amber-200 px-1.5 py-0.2 rounded-full whitespace-nowrap shadow-2xs">
                         Mặc định
                       </span>
                     )}
                     {days === 30 && (
-                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-red-600 bg-red-100 border border-red-200/60 px-1.5 py-0.2 rounded-full whitespace-nowrap shadow-xs scale-90 sm:scale-100">
+                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-red-600 bg-red-100 border border-red-200 px-1.5 py-0.2 rounded-full whitespace-nowrap shadow-2xs">
                         -25%
                       </span>
                     )}
                     <div className={`font-bold text-xs sm:text-sm ${isSelected ? 'text-slate-950 font-black' : 'text-slate-800'}`}>
                       {days} ngày
                     </div>
-                    <div className={`text-xs font-black mt-0.5 whitespace-nowrap ${isSelected ? 'text-emerald-700' : 'text-slate-900'}`}>
+                    <div className={`text-xs sm:text-sm font-black mt-0.5 whitespace-nowrap ${isSelected ? 'text-emerald-700' : 'text-slate-900'}`}>
                       {totalForDuration.toLocaleString('vi-VN')} đ
-                    </div>
-                    <div className="text-[10px] text-slate-400 font-medium whitespace-nowrap">
-                      {rate.toLocaleString('vi-VN')} đ/ng
                     </div>
                   </button>
                 );
               })}
             </div>
 
-            {/* Thanh hiển thị chi phí dự toán cập nhật trực tiếp theo số ngày chọn */}
-            <div className="p-3 bg-white rounded-xl border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-2xs">
-              <div className="text-xs">
-                <span className="text-slate-500 font-medium">Chi phí đăng tin ({currentConfig?.name}):</span>
-                <div className="font-bold text-slate-900 text-xs sm:text-sm mt-0.5 flex items-center gap-1.5 flex-wrap">
-                  <span className="font-mono text-slate-800">{currentDailyRate.toLocaleString('vi-VN')} đ/ngày</span>
-                  <span className="text-slate-400">×</span>
-                  <span className="font-mono text-emerald-700 font-black">{selectedDays} ngày</span>
-                  <span className="text-slate-400">=</span>
-                  <span className="text-emerald-700 font-black">{grossCost.toLocaleString('vi-VN')} đ</span>
-                  {selectedDays === 30 && (
-                    <span className="px-1.5 py-0.2 rounded-full bg-red-100 text-red-600 text-[10px] font-bold border border-red-200">
-                      Tiết kiệm 25%
-                    </span>
-                  )}
-                </div>
+            {/* Dòng tóm tắt quyền lợi & tổng tiền tinh giản 1 dòng duy nhất */}
+            <div className="p-2.5 sm:p-3 bg-white rounded-xl border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs shadow-2xs">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-lg bg-emerald-100/80 text-emerald-700 flex items-center justify-center text-xs shrink-0">
+                  <i className="fa-solid fa-gift"></i>
+                </span>
+                <span className="text-slate-600">
+                  Tặng thêm <strong className="text-emerald-800 font-bold">60 ngày Tin Thường</strong> sau khi hết VIP (Tổng: <strong className="text-slate-900 font-bold">{selectedDays + 60} ngày</strong>)
+                </span>
               </div>
-              <div className="text-left sm:text-right shrink-0">
-                <div className="text-base sm:text-lg font-black text-emerald-700">
-                  {grossCost === 0 ? '0 đ' : `${grossCost.toLocaleString('vi-VN')} đ`}
-                </div>
-                <div className="text-[10px] text-slate-400 font-medium">
-                  Thời hạn {selectedDays} ngày VIP + 60 ngày Tin Thường
-                </div>
-              </div>
-            </div>
-
-            {/* Đặc quyền VIP: Tự động hạ thành Tin Thường + 60 ngày */}
-            <div className="p-2.5 sm:p-3 bg-gradient-to-r from-amber-50/90 via-emerald-50/90 to-teal-50/90 border border-emerald-200/80 rounded-xl flex items-start sm:items-center gap-2.5 text-xs text-slate-800 shadow-xs">
-              <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 shadow-xs">
-                <i className="fa-solid fa-gift text-sm"></i>
-              </div>
-              <div className="flex-1 leading-snug">
-                <span className="font-extrabold text-emerald-800">Đặc quyền VIP độc quyền: </span>
-                <span>Sau khi hết hạn <b className="font-bold text-slate-900">{selectedDays || 7} ngày VIP</b>, bài đăng sẽ <b className="text-amber-800 font-bold">tự động hạ thành Tin Thường</b> và được <b className="text-emerald-700 font-bold">cộng thêm 60 ngày</b> hiển thị miễn phí (Tổng thời gian hiển thị: <b className="text-slate-950 font-black">{(selectedDays || 7) + 60} ngày</b>).</span>
+              <div className="text-left sm:text-right shrink-0 flex items-baseline gap-1.5 sm:justify-end">
+                <span className="text-xs text-slate-500 font-medium">Tổng:</span>
+                <span className="text-sm sm:text-base font-black text-emerald-700">
+                  {grossCost.toLocaleString('vi-VN')} đ
+                </span>
+                <span className="text-[11px] text-slate-400 font-normal">
+                  ({currentDailyRate.toLocaleString('vi-VN')} đ/ng)
+                </span>
               </div>
             </div>
           </div>
@@ -728,9 +660,9 @@ export default function BatdongsanListingSelector({
               <span>Kết thúc ngày <b className="text-slate-800 font-semibold">{endDateFormatted}</b></span>
             ) : (
               <span className="flex flex-wrap items-center gap-1.5 leading-snug">
-                <span>Hết VIP: <b className="text-amber-800 font-bold">{endDateFormatted}</b></span>
-                <span className="text-slate-400 font-bold">➜</span>
-                <span className="text-emerald-700 font-semibold">Tự động chuyển Tin Thường đến <b className="font-bold text-emerald-800">{bonusNormalEndDateFormatted}</b> (+60 ngày)</span>
+                <span>Hết VIP: <b className="text-slate-800 font-semibold">{endDateFormatted}</b></span>
+                <span className="text-slate-300">•</span>
+                <span>Tin Thường đến: <b className="text-emerald-700 font-semibold">{bonusNormalEndDateFormatted}</b></span>
               </span>
             )}
           </div>
