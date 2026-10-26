@@ -1904,9 +1904,25 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const isGuest = !currentUser || currentUser.role === 'guest' || currentUser.id === 'guest';
     
     // Tỷ lệ giá theo chu kỳ ngày (chuẩn Batdongsan)
-    const activeRates = pkg.rates || { 15: pkg.pricePerDay || 5000, 30: Math.round((pkg.pricePerDay || 5000) * 0.75), 60: Math.round((pkg.pricePerDay || 5000) * 0.7) };
-    const currentDailyRate = activeRates[days] || activeRates[15] || pkg.pricePerDay || 5000;
-    let totalCost = currentDailyRate * days;
+    const baseDailyRate = Number(pkg.pricePerDay) || 0;
+    const activeRates = pkg.rates || {
+      5: baseDailyRate,
+      7: baseDailyRate,
+      10: baseDailyRate,
+      15: baseDailyRate,
+      30: Math.round(baseDailyRate * 0.75),
+      60: vipPackageId === 'normal' ? 0 : Math.round(baseDailyRate * 0.7)
+    };
+    const currentDailyRate = activeRates[days] ?? activeRates[15] ?? baseDailyRate;
+    const listingCost = currentDailyRate * days;
+
+    // Đẩy tin tự động khung giờ vàng (đồng bộ theo bumpServicePrice)
+    const currentBumpPrice = Number(bumpServicePrice) || Number(BUMP_SERVICE_PRICE) || 10000;
+    const autoBumpHours = Array.isArray(formData.autoBumpHours) ? formData.autoBumpHours : [];
+    const bumpDays = Math.min(Number(days) || 15, 3);
+    const autoBumpFee = autoBumpHours.length * currentBumpPrice * bumpDays;
+
+    let totalCost = listingCost + autoBumpFee;
     let discountAmount = 0;
     let usedVoucherType = null;
 
@@ -1917,10 +1933,10 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         return null;
       }
       if (isMemberActive && appliedVoucher === 'normalPublish' && (currentUser.vouchers?.normalPublish || 0) > 0) {
-        discountAmount = Math.min(totalCost, 35000);
+        discountAmount = Math.min(listingCost, 35000);
         usedVoucherType = 'normalPublish';
       } else if (isMemberActive && appliedVoucher === 'vipPublish' && (currentUser.vouchers?.vipPublish || 0) > 0 && vipPackageId !== 'normal') {
-        discountAmount = Math.min(totalCost, 400000);
+        discountAmount = Math.min(listingCost, 400000);
         usedVoucherType = 'vipPublish';
       }
     }
@@ -1928,7 +1944,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const finalCost = Math.max(0, totalCost - discountAmount);
 
     // Kiểm tra giới hạn đăng tin miễn phí trong ngày (nếu là Tin Thường hoặc tin 0 đ)
-    const isFreeListing = (vipPackageId === 'normal' || currentDailyRate === 0) && finalCost === 0;
+    const isFreeListing = (vipPackageId === 'normal' || currentDailyRate === 0) && autoBumpFee === 0 && finalCost === 0;
     if (isFreeListing && currentUser?.role !== 'admin') {
       const quota = checkDailyFreeListingQuota(currentUser || { phone: formData.contactPhone });
       if (!quota.allowed) {
@@ -2160,6 +2176,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       hasDualListing: vipPackageId === 'vip-diamond',
       paymentMethod: paymentMethodLabel,
       paidAmount: finalCost,
+      autoBumpHours: autoBumpHours,
+      autoBumpFee: autoBumpFee,
       paymentOrderId: formData.orderId || null,
       google_place_id: formData.google_place_id || formData.googlePlaceId || null,
       newAddress: formData.newAddress || null,
@@ -3169,21 +3187,30 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           const rawVal = pricesMap[p.id];
           const parsed = parseInt(rawVal, 10);
           const priceNum = isNaN(parsed) ? 0 : Math.max(0, parsed);
+          const rate5 = priceNum;
+          const rate7 = priceNum;
+          const rate10 = priceNum;
           const rate15 = priceNum;
           const rate30 = Math.round(priceNum * 0.75);
-          const rate60 = Math.round(priceNum * 0.70);
+          const rate60 = (p.id === 'normal') ? (extraConfig.normalCustomRates?.[60] ?? 0) : Math.round(priceNum * 0.70);
           const extra = (p.id === 'normal')
             ? {
                 ...(extraConfig.dailyFreeListingLimit !== undefined ? { dailyFreeLimit: Math.max(0, parseInt(extraConfig.dailyFreeListingLimit, 10) || 0) } : {}),
                 ...(extraConfig.normalAllowedDurations ? { allowedDurations: extraConfig.normalAllowedDurations } : {}),
-                ...(extraConfig.normalCustomRates ? { rates: { ...(p.rates || {}), ...extraConfig.normalCustomRates } } : {})
+                ...(extraConfig.normalCustomRates ? { rates: { ...(p.rates || {}), ...extraConfig.normalCustomRates, 15: rate15, 30: rate30, 60: rate60 } } : {})
               }
-            : {};
+            : {
+                allowedDurations: [5, 7, 10, 15, 30],
+                minDays: 5
+              };
           return {
             ...p,
             pricePerDay: priceNum,
             rates: {
               ...(p.rates || {}),
+              5: rate5,
+              7: rate7,
+              10: rate10,
               15: rate15,
               30: rate30,
               60: rate60

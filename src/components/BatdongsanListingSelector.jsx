@@ -108,24 +108,36 @@ export function getEffectiveBdsRates(customVipPackages, paymentConfig = null) {
       rates: { 5: 10000, 7: 10000, 10: 10000, 15: 10000, 30: 7500, 60: 0 }
     };
 
-    const rawRate15 = pkg.rates?.[15] !== undefined ? pkg.rates[15] : pkg.pricePerDay;
-    const price15 = (rawRate15 !== undefined && rawRate15 !== null && rawRate15 !== '' && !isNaN(Number(rawRate15)))
-      ? Math.max(0, Number(rawRate15))
-      : (defaultMeta.rates?.[15] ?? 3320);
+    const baseDaily = (pkg.pricePerDay !== undefined && pkg.pricePerDay !== null && !isNaN(Number(pkg.pricePerDay)))
+      ? Math.max(0, Number(pkg.pricePerDay))
+      : (pkg.rates?.[15] !== undefined ? Math.max(0, Number(pkg.rates[15])) : (defaultMeta.rates?.[15] ?? 3320));
 
-    const price5 = pkg.rates?.[5] !== undefined ? Math.max(0, Number(pkg.rates[5])) : price15;
-    const price7 = pkg.rates?.[7] !== undefined ? Math.max(0, Number(pkg.rates[7])) : price15;
-    const price10 = pkg.rates?.[10] !== undefined ? Math.max(0, Number(pkg.rates[10])) : price15;
+    // Với các gói VIP, giá cơ bản của 5, 7, 10, 15 ngày đồng bộ trực tiếp theo baseDaily (chuẩn Batdongsan)
+    const price15 = (pkg.rates?.[15] !== undefined && !isNaN(Number(pkg.rates[15])) && pkg.id === 'normal')
+      ? Math.max(0, Number(pkg.rates[15]))
+      : baseDaily;
+
+    const price5 = (pkg.rates?.[5] !== undefined && !isNaN(Number(pkg.rates[5])) && pkg.id === 'normal')
+      ? Math.max(0, Number(pkg.rates[5]))
+      : baseDaily;
+
+    const price7 = (pkg.rates?.[7] !== undefined && !isNaN(Number(pkg.rates[7])) && pkg.id === 'normal')
+      ? Math.max(0, Number(pkg.rates[7]))
+      : baseDaily;
+
+    const price10 = (pkg.rates?.[10] !== undefined && !isNaN(Number(pkg.rates[10])) && pkg.id === 'normal')
+      ? Math.max(0, Number(pkg.rates[10]))
+      : baseDaily;
 
     const rawRate30 = pkg.rates?.[30];
     const price30 = (rawRate30 !== undefined && rawRate30 !== null && rawRate30 !== '' && !isNaN(Number(rawRate30)))
       ? Math.max(0, Number(rawRate30))
-      : ((price15 === 0) ? 0 : Math.round(price15 * 0.75));
+      : ((baseDaily === 0) ? 0 : Math.round(baseDaily * 0.75));
 
     const rawRate60 = pkg.rates?.[60];
     const price60 = (rawRate60 !== undefined && rawRate60 !== null && rawRate60 !== '' && !isNaN(Number(rawRate60)))
       ? Math.max(0, Number(rawRate60))
-      : ((price15 === 0) ? 0 : Math.round(price15 * 0.70));
+      : ((pkg.id === 'normal') ? 0 : Math.round(baseDaily * 0.70));
 
     // Approval badge resolution:
     const tier = approvalTiers?.[pkg.id];
