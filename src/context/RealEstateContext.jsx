@@ -413,43 +413,58 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   });
 
   // 6. Listing Types / VIP Packages Configuration (editable by Admin)
+  const normalizeVipPackage = (pkg) => {
+    if (!pkg || !pkg.id) return pkg;
+    if (pkg.id === 'normal') {
+      const baseNormal = (pkg.pricePerDay !== undefined && pkg.pricePerDay !== null && !isNaN(Number(pkg.pricePerDay)))
+        ? Math.max(0, Number(pkg.pricePerDay))
+        : (pkg.rates?.[15] ?? 3320);
+      return {
+        ...pkg,
+        pricePerDay: baseNormal,
+        minDays: 60,
+        allowedDurations: Array.isArray(pkg.allowedDurations) && pkg.allowedDurations.length > 0 ? pkg.allowedDurations : [60],
+        approvalType: 'random_fifo',
+        approvalTimeMinutes: 10,
+        approvalMinMinutes: 5,
+        approvalMaxMinutes: 15,
+        approvalBadge: 'Duyệt tự động (5 - 15 phút)',
+        approvalLabel: 'Duyệt tự động ngẫu nhiên (5 - 15 phút)',
+        rates: {
+          15: baseNormal,
+          30: Math.round(baseNormal * 0.75),
+          60: 0
+        }
+      };
+    }
+    const base = (pkg.pricePerDay !== undefined && pkg.pricePerDay !== null && !isNaN(Number(pkg.pricePerDay)))
+      ? Math.max(0, Number(pkg.pricePerDay))
+      : (pkg.rates?.[7] ?? pkg.rates?.[15] ?? 0);
+    return {
+      ...pkg,
+      pricePerDay: base,
+      minDays: 5,
+      allowedDurations: [5, 7, 10, 15, 30],
+      approvalType: 'instant',
+      approvalTimeMinutes: 0,
+      approvalBadge: 'Duyệt tức thì (0s)',
+      approvalLabel: 'Duyệt Tức Thì tự động (Active ngay)',
+      rates: {
+        5: base,
+        7: base,
+        10: base,
+        15: base,
+        30: Math.round(base * 0.75),
+        60: Math.round(base * 0.70)
+      }
+    };
+  };
+
   const [vipPackages, setVipPackages] = useState(() => {
     const raw = (initialData?.bds_vip_packages && Array.isArray(initialData.bds_vip_packages) && initialData.bds_vip_packages.length >= 4)
       ? initialData.bds_vip_packages
       : VIP_PACKAGES;
-    return raw.map(pkg => {
-      if (pkg.id === 'normal') {
-        return {
-          ...pkg,
-          minDays: 60,
-          allowedDurations: Array.isArray(pkg.allowedDurations) && pkg.allowedDurations.length > 0 ? pkg.allowedDurations : [60],
-          approvalType: 'random_fifo',
-          approvalTimeMinutes: 10,
-          approvalMinMinutes: 5,
-          approvalMaxMinutes: 15,
-          approvalBadge: 'Duyệt tự động (5 - 15 phút)',
-          approvalLabel: 'Duyệt tự động ngẫu nhiên (5 - 15 phút)'
-        };
-      }
-      const base = pkg.pricePerDay || pkg.rates?.[15] || 0;
-      return {
-        ...pkg,
-        minDays: 5,
-        allowedDurations: [5, 7, 10, 15, 30],
-        approvalType: 'instant',
-        approvalTimeMinutes: 0,
-        approvalBadge: 'Duyệt tức thì (0s)',
-        approvalLabel: 'Duyệt Tức Thì tự động (Active ngay)',
-        rates: {
-          5: pkg.rates?.[5] ?? base,
-          7: pkg.rates?.[7] ?? base,
-          10: pkg.rates?.[10] ?? base,
-          15: pkg.rates?.[15] ?? base,
-          30: pkg.rates?.[30] ?? Math.round(base * 0.75),
-          ...(pkg.rates || {})
-        }
-      };
-    });
+    return raw.map(normalizeVipPackage);
   });
 
   // 6b. Membership Packages (Gói Hội Viên: Cơ bản, Tiêu chuẩn, Cao cấp)
@@ -1116,7 +1131,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         }
 
         if (Array.isArray(db.bds_vip_packages) && db.bds_vip_packages.length > 0) {
-          setVipPackages(db.bds_vip_packages);
+          setVipPackages(db.bds_vip_packages.map(normalizeVipPackage));
         }
         if (Array.isArray(db.bds_membership_packages)) {
           setMembershipPackages(db.bds_membership_packages.map(pkg => ({

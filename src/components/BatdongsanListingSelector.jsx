@@ -110,34 +110,27 @@ export function getEffectiveBdsRates(customVipPackages, paymentConfig = null) {
 
     const baseDaily = (pkg.pricePerDay !== undefined && pkg.pricePerDay !== null && !isNaN(Number(pkg.pricePerDay)))
       ? Math.max(0, Number(pkg.pricePerDay))
-      : (pkg.rates?.[15] !== undefined ? Math.max(0, Number(pkg.rates[15])) : (defaultMeta.rates?.[15] ?? 3320));
+      : (pkg.rates?.[7] !== undefined ? Math.max(0, Number(pkg.rates[7])) : (pkg.rates?.[15] !== undefined ? Math.max(0, Number(pkg.rates[15])) : (defaultMeta.rates?.[15] ?? 3320)));
 
-    // Với các gói VIP, giá cơ bản của 5, 7, 10, 15 ngày đồng bộ trực tiếp theo baseDaily (chuẩn Batdongsan)
-    const price15 = (pkg.rates?.[15] !== undefined && !isNaN(Number(pkg.rates[15])) && pkg.id === 'normal')
-      ? Math.max(0, Number(pkg.rates[15]))
-      : baseDaily;
+    let price5, price7, price10, price15, price30, price60;
 
-    const price5 = (pkg.rates?.[5] !== undefined && !isNaN(Number(pkg.rates[5])) && pkg.id === 'normal')
-      ? Math.max(0, Number(pkg.rates[5]))
-      : baseDaily;
-
-    const price7 = (pkg.rates?.[7] !== undefined && !isNaN(Number(pkg.rates[7])) && pkg.id === 'normal')
-      ? Math.max(0, Number(pkg.rates[7]))
-      : baseDaily;
-
-    const price10 = (pkg.rates?.[10] !== undefined && !isNaN(Number(pkg.rates[10])) && pkg.id === 'normal')
-      ? Math.max(0, Number(pkg.rates[10]))
-      : baseDaily;
-
-    const rawRate30 = pkg.rates?.[30];
-    const price30 = (rawRate30 !== undefined && rawRate30 !== null && rawRate30 !== '' && !isNaN(Number(rawRate30)))
-      ? Math.max(0, Number(rawRate30))
-      : ((baseDaily === 0) ? 0 : Math.round(baseDaily * 0.75));
-
-    const rawRate60 = pkg.rates?.[60];
-    const price60 = (rawRate60 !== undefined && rawRate60 !== null && rawRate60 !== '' && !isNaN(Number(rawRate60)))
-      ? Math.max(0, Number(rawRate60))
-      : ((pkg.id === 'normal') ? 0 : Math.round(baseDaily * 0.70));
+    if (pkg.id === 'normal') {
+      price5 = baseDaily;
+      price7 = baseDaily;
+      price10 = baseDaily;
+      price15 = (pkg.rates?.[15] !== undefined && !isNaN(Number(pkg.rates[15]))) ? Math.max(0, Number(pkg.rates[15])) : baseDaily;
+      price30 = (pkg.rates?.[30] !== undefined && !isNaN(Number(pkg.rates[30]))) ? Math.max(0, Number(pkg.rates[30])) : Math.round(baseDaily * 0.75);
+      price60 = 0; // Tin Thường luôn miễn phí 60 ngày
+    } else {
+      // Các gói VIP (Kim Cương, Vàng, Bạc):
+      // Đồng bộ trực tiếp theo baseDaily; 30 ngày tự động giảm 25% chuẩn sàn
+      price5 = baseDaily;
+      price7 = baseDaily;
+      price10 = baseDaily;
+      price15 = baseDaily;
+      price30 = Math.round(baseDaily * 0.75);
+      price60 = Math.round(baseDaily * 0.70);
+    }
 
     // Approval badge resolution:
     const tier = approvalTiers?.[pkg.id];
@@ -171,6 +164,7 @@ export function getEffectiveBdsRates(customVipPackages, paymentConfig = null) {
       id: pkg.id,
       name: pkg.name || defaultMeta.name,
       shortName: pkg.shortName || defaultMeta.shortName,
+      pricePerDay: baseDaily,
       allowedDurations: pkg.id === 'normal'
         ? (Array.isArray(pkg.allowedDurations) && pkg.allowedDurations.length > 0 ? pkg.allowedDurations : [60])
         : [5, 7, 10, 15, 30],
@@ -415,9 +409,15 @@ export default function BatdongsanListingSelector({
         {Object.values(ratesConfig || {}).map((item) => {
           if (!item || !item.id) return null;
           const isSelected = selectedType === item.id;
-          // Giá hiển thị trên card: Tin Thường hiển thị theo 60 ngày (0 đ / Miễn phí), VIP hiển thị theo selectedDays hoặc 7 ngày mặc định
-          const daysForCard = item.id === 'normal' ? 60 : (selectedDays || 7);
-          const cardDailyRate = item?.rates?.[daysForCard] ?? item?.rates?.[7] ?? item?.rates?.[15] ?? 0;
+          const isNormalItem = item.id === 'normal';
+          const itemBaseDaily = item?.rates?.[7] ?? item?.rates?.[15] ?? item?.pricePerDay ?? 0;
+
+          // Khi thẻ đang được chọn, tính giá theo thời hạn thực tế người dùng đang chọn (selectedDays)
+          // Khi thẻ chưa được chọn, hiển thị đơn giá ngày niêm yết chuẩn
+          const effectiveDailyRate = isSelected
+            ? (item?.rates?.[selectedDays] ?? itemBaseDaily)
+            : itemBaseDaily;
+          const effectiveTotalCost = effectiveDailyRate * (isSelected ? selectedDays : (isNormalItem ? 60 : 7));
 
           return (
             <div
@@ -473,12 +473,31 @@ export default function BatdongsanListingSelector({
                 )}
               </div>
 
-              {/* Đơn giá theo ngày */}
+              {/* Đơn giá & Tổng tiền cập nhật tự động khi chọn ngày */}
               <div className="pt-2 text-sm font-bold text-slate-900 tracking-tight">
-                {cardDailyRate === 0 ? (
-                  <span className="text-emerald-600 font-extrabold uppercase">Miễn phí</span>
+                {isNormalItem ? (
+                  <div>
+                    <span className="text-emerald-600 font-extrabold uppercase">Miễn phí</span>
+                    <div className="text-[10px] text-slate-400 font-medium">Mặc định 60 ngày</div>
+                  </div>
+                ) : isSelected ? (
+                  <div>
+                    <div className="text-xs sm:text-sm font-black text-slate-950">
+                      {effectiveDailyRate.toLocaleString('vi-VN')} đ/ngày
+                    </div>
+                    <div className="text-[11px] font-bold text-emerald-700 mt-0.5">
+                      = {effectiveTotalCost.toLocaleString('vi-VN')} đ <span className="font-normal text-slate-500">({selectedDays} ngày)</span>
+                    </div>
+                  </div>
                 ) : (
-                  `${cardDailyRate.toLocaleString('vi-VN')} đ/ngày`
+                  <div>
+                    <div className="text-xs sm:text-sm font-bold text-slate-800">
+                      {itemBaseDaily.toLocaleString('vi-VN')} đ/ngày
+                    </div>
+                    <div className="text-[10px] text-slate-400 font-normal">
+                      Niêm yết chuẩn
+                    </div>
+                  </div>
                 )}
               </div>
             </div>
@@ -582,6 +601,7 @@ export default function BatdongsanListingSelector({
                     ? Math.round((currentConfig?.rates?.[15] ?? currentConfig?.pricePerDay ?? 0) * 0.75)
                     : (currentConfig?.rates?.[15] ?? currentConfig?.pricePerDay ?? 0)
                 );
+                const totalForDuration = rate * days;
 
                 return (
                   <button
@@ -607,16 +627,42 @@ export default function BatdongsanListingSelector({
                     <div className={`font-bold text-xs sm:text-sm ${isSelected ? 'text-slate-950 font-black' : 'text-slate-800'}`}>
                       {days} ngày
                     </div>
-                    <div className="text-[10px] sm:text-[11px] text-slate-500 font-semibold mt-0.5 whitespace-nowrap">
-                      {rate === 0 ? (
-                        <span className="text-emerald-600 font-bold">Miễn phí</span>
-                      ) : (
-                        `${rate.toLocaleString('vi-VN')} đ/ng`
-                      )}
+                    <div className={`text-xs font-black mt-0.5 whitespace-nowrap ${isSelected ? 'text-emerald-700' : 'text-slate-900'}`}>
+                      {totalForDuration.toLocaleString('vi-VN')} đ
+                    </div>
+                    <div className="text-[10px] text-slate-400 font-medium whitespace-nowrap">
+                      {rate.toLocaleString('vi-VN')} đ/ng
                     </div>
                   </button>
                 );
               })}
+            </div>
+
+            {/* Thanh hiển thị chi phí dự toán cập nhật trực tiếp theo số ngày chọn */}
+            <div className="p-3 bg-white rounded-xl border border-slate-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-2xs">
+              <div className="text-xs">
+                <span className="text-slate-500 font-medium">Chi phí đăng tin ({currentConfig?.name}):</span>
+                <div className="font-bold text-slate-900 text-xs sm:text-sm mt-0.5 flex items-center gap-1.5 flex-wrap">
+                  <span className="font-mono text-slate-800">{currentDailyRate.toLocaleString('vi-VN')} đ/ngày</span>
+                  <span className="text-slate-400">×</span>
+                  <span className="font-mono text-emerald-700 font-black">{selectedDays} ngày</span>
+                  <span className="text-slate-400">=</span>
+                  <span className="text-emerald-700 font-black">{grossCost.toLocaleString('vi-VN')} đ</span>
+                  {selectedDays === 30 && (
+                    <span className="px-1.5 py-0.2 rounded-full bg-red-100 text-red-600 text-[10px] font-bold border border-red-200">
+                      Tiết kiệm 25%
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div className="text-left sm:text-right shrink-0">
+                <div className="text-base sm:text-lg font-black text-emerald-700">
+                  {grossCost === 0 ? '0 đ' : `${grossCost.toLocaleString('vi-VN')} đ`}
+                </div>
+                <div className="text-[10px] text-slate-400 font-medium">
+                  Thời hạn {selectedDays} ngày VIP + 60 ngày Tin Thường
+                </div>
+              </div>
             </div>
 
             {/* Đặc quyền VIP: Tự động hạ thành Tin Thường + 60 ngày */}
