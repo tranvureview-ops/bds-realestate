@@ -78,10 +78,24 @@ export const createVietnameseSlug = toVietnameseSlug;
  * @returns {string|null} Chuỗi ISO 8601 của mốc xuất bản
  */
 export const calculateScheduledPublishTimestamp = (startDateStr, scheduleTimeStr) => {
-  if (!scheduleTimeStr || scheduleTimeStr === 'now') return null;
-  const [hourStr, minuteStr] = scheduleTimeStr.split(':');
-  const targetHours = parseInt(hourStr, 10) || 8;
-  const targetMinutes = parseInt(minuteStr, 10) || 0;
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const isFutureDate = Boolean(startDateStr && startDateStr > todayStr);
+  const isSpecificTime = Boolean(scheduleTimeStr && scheduleTimeStr !== 'now');
+
+  if (!isSpecificTime && !isFutureDate) return null;
+
+  let targetHours = 8;
+  let targetMinutes = 0;
+
+  if (isSpecificTime) {
+    const [hourStr, minuteStr] = scheduleTimeStr.split(':');
+    targetHours = parseInt(hourStr, 10) || 8;
+    targetMinutes = parseInt(minuteStr, 10) || 0;
+  } else {
+    // Nếu chọn ngày tương lai nhưng để 'now', xuất bản vào đầu giờ làm việc (08:00) ngày hẹn
+    targetHours = 8;
+    targetMinutes = 0;
+  }
 
   let targetDate = new Date();
   if (startDateStr && /^\d{4}-\d{2}-\d{2}$/.test(startDateStr)) {
@@ -476,6 +490,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       ...pkg,
       allowScheduledPublishing: typeof pkg.allowScheduledPublishing === 'boolean'
         ? pkg.allowScheduledPublishing
+        : (pkg.id === 'member-basic' ? false : true),
+      allowFutureStartDate: typeof pkg.allowFutureStartDate === 'boolean'
+        ? pkg.allowFutureStartDate
         : (pkg.id === 'member-basic' ? false : true)
     }));
   });
@@ -1138,6 +1155,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
             ...pkg,
             allowScheduledPublishing: typeof pkg.allowScheduledPublishing === 'boolean'
               ? pkg.allowScheduledPublishing
+              : (pkg.id === 'member-basic' ? false : true),
+            allowFutureStartDate: typeof pkg.allowFutureStartDate === 'boolean'
+              ? pkg.allowFutureStartDate
               : (pkg.id === 'member-basic' ? false : true)
           })));
         }
@@ -2073,13 +2093,24 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
     // =========================================================================
     // Cơ Chế Thanh Toán Trước - Phê Duyệt Tự Động Theo Cấp Độ Tin Đăng:
-    // 1. Khung Giờ Vàng (Hẹn Giờ Đăng Tin): Đưa vào hàng đợi với mốc autoApproveAt chính xác
+    // 1. Khung Giờ Vàng (Hẹn Giờ Đăng Tin) / Ngày Bắt Đầu Tương Lai: Đưa vào hàng đợi với mốc autoApproveAt chính xác
     // 2. VIP Kim Cương, VIP Vàng, VIP Bạc: Duyệt Tức Thì tự động (0s - Active ngay)
     // 3. Tin Thường ('normal'): Duyệt Tự Động ngẫu nhiên (5 - 15 phút)
     // =========================================================================
-    const isScheduledPublish = Boolean(formData.scheduleTime && formData.scheduleTime !== 'now');
-    const tierConfig = paymentConfig?.approvalTiers?.[vipPackageId] || DEFAULT_APPROVAL_TIERS[vipPackageId] || DEFAULT_APPROVAL_TIERS['normal'];
+    const todayIsoStr = new Date().toISOString().slice(0, 10);
     const isAdmin = currentUser?.role === 'admin';
+    const isMemberActive = currentUser?.membership?.status === 'active' || (currentUser?.membership && !currentUser?.membership?.isExpired);
+    const activeUserPkg = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
+    const canUseFutureDate = isAdmin || (isMemberActive && Boolean(activeUserPkg?.allowFutureStartDate));
+
+    let sanitizedStartDate = formData.startDate || todayIsoStr;
+    if (!canUseFutureDate && sanitizedStartDate > todayIsoStr) {
+      sanitizedStartDate = todayIsoStr;
+    }
+
+    const isFutureStartDate = Boolean(sanitizedStartDate > todayIsoStr);
+    const isScheduledPublish = Boolean((formData.scheduleTime && formData.scheduleTime !== 'now') || isFutureStartDate);
+    const tierConfig = paymentConfig?.approvalTiers?.[vipPackageId] || DEFAULT_APPROVAL_TIERS[vipPackageId] || DEFAULT_APPROVAL_TIERS['normal'];
 
     let initialStatus = 'pending';
     let autoApproveAt = null;
@@ -2092,21 +2123,23 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const isVipTier = ['vip-diamond', 'vip-gold', 'vip-silver'].includes(vipPackageId);
 
     if (isScheduledPublish) {
-      // 1. Tính toán mốc thời gian Khung Giờ Vàng chính xác
-      scheduledPublishAt = calculateScheduledPublishTimestamp(formData.startDate, formData.scheduleTime);
+      // 1. Tính toán mốc thời gian Khung Giờ Vàng & Ngày Bắt Đầu tương lai chính xác
+      scheduledPublishAt = calculateScheduledPublishTimestamp(sanitizedStartDate, formData.scheduleTime);
       initialStatus = 'pending';
       autoApproveAt = scheduledPublishAt;
       queuePriority = 'scheduled_golden_hour';
       queueRank = 1;
       approvalType = 'scheduled_golden_hour';
-      const targetTimeFormatted = new Date(scheduledPublishAt).toLocaleString('vi-VN', {
+      const targetTimeFormatted = scheduledPublishAt ? new Date(scheduledPublishAt).toLocaleString('vi-VN', {
         hour: '2-digit',
         minute: '2-digit',
         day: '2-digit',
         month: '2-digit',
         year: 'numeric'
-      });
-      approvalNote = `Lịch hẹn Khung Giờ Vàng (${formData.scheduleTime}): Tự động xuất bản lúc ${targetTimeFormatted}`;
+      }) : '';
+      approvalNote = (formData.scheduleTime && formData.scheduleTime !== 'now')
+        ? `Lịch hẹn Khung Giờ Vàng (${formData.scheduleTime}) ngày ${sanitizedStartDate}: Tự động xuất bản lúc ${targetTimeFormatted}`
+        : `Lịch hẹn xuất bản ngày ${sanitizedStartDate}: Tự động xuất bản lúc ${targetTimeFormatted}`;
     } else if (isAdmin) {
       initialStatus = 'active';
       approvalType = 'admin_instant';
@@ -2180,7 +2213,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       scheduledPublishAt: scheduledPublishAt,
       isScheduledPublish: isScheduledPublish,
       scheduleTime: formData.scheduleTime || 'now',
-      startDate: formData.startDate || new Date(now).toISOString().slice(0, 10),
+      startDate: sanitizedStartDate,
       queuePriority: queuePriority,
       queueRank: queueRank,
       approvalType: approvalType,

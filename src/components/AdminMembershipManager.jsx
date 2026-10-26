@@ -86,6 +86,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
       'Báo cáo thống kê lượt tương tác cơ bản'
     ],
     allowScheduledPublishing: true,
+    allowFutureStartDate: true,
     recommended: false
   });
 
@@ -95,6 +96,9 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
     const cloned = JSON.parse(JSON.stringify(pkg));
     cloned.allowScheduledPublishing = typeof cloned.allowScheduledPublishing === 'boolean'
       ? cloned.allowScheduledPublishing
+      : (cloned.id === 'member-basic' ? false : true);
+    cloned.allowFutureStartDate = typeof cloned.allowFutureStartDate === 'boolean'
+      ? cloned.allowFutureStartDate
       : (cloned.id === 'member-basic' ? false : true);
     cloned.vouchersPerCycle = {
       ...cloned.vouchersPerCycle,
@@ -349,6 +353,19 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
     );
   };
 
+  // Quick toggle Future Start Date flag per package
+  const handleTogglePackageFutureStartDate = (pkgId, isEnabled) => {
+    const target = membershipPackages.find(p => p.id === pkgId);
+    if (!target) return;
+    updateMembershipPackage(pkgId, { ...target, allowFutureStartDate: isEnabled });
+    showToast(
+      isEnabled
+        ? `Đã BẬT quyền chọn Ngày bắt đầu tương lai cho "${target.name}"!`
+        : `Đã TẮT quyền chọn Ngày bắt đầu tương lai cho "${target.name}"!`,
+      'success'
+    );
+  };
+
   // Quick Clone Package
   const handleClonePackage = (pkg) => {
     const cloned = {
@@ -438,7 +455,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
       {/* ================= 1.5. CẤU HÌNH ĐƠN GIÁ CHUNG CHO 3 LOẠI VOUCHER HỘI VIÊN ================= */}
       <AdminCommonVoucherPricing />
 
-      {/* ================= TIỆN ÍCH HẸN GIỜ ĐĂNG TIN THEO TỪNG GÓI HỘI VIÊN ================= */}
+      {/* ================= TIỆN ÍCH HẸN GIỜ ĐĂNG TIN & NGÀY BẮT ĐẦU THEO TỪNG GÓI HỘI VIÊN ================= */}
       <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
         <div className="flex items-start sm:items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
@@ -446,32 +463,51 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
           </div>
           <div>
             <div className="text-xs font-black text-white flex items-center gap-2 flex-wrap">
-              <span>Tiện Ích: Hẹn Giờ Đăng Tin (Khung Giờ Vàng) Theo Từng Gói Hội Viên</span>
+              <span>Tiện Ích: Hẹn Giờ Đăng & Chọn Ngày Bắt Đầu Theo Từng Gói Hội Viên</span>
               <span className="text-[10px] bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2.5 py-0.5 rounded-full font-bold">
                 Tùy chỉnh Bật / Tắt riêng từng gói
               </span>
             </div>
             <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-              Bạn có thể <b>BẬT hoặc TẮT</b> chức năng hẹn giờ đăng tin độc lập trên từng thẻ gói bên dưới (hoặc trong cửa sổ chỉnh sửa gói). Người đăng sở hữu gói được BẬT sẽ được phép chọn các khung giờ vàng (08:00, 11:30, 14:00, 19:30).
+              Bạn có thể <b>BẬT hoặc TẮT</b> chức năng <b>Hẹn giờ đăng tin</b> và <b>Chọn ngày bắt đầu trong tương lai</b> độc lập cho 3 gói hội viên bên dưới. Gói bị tắt quyền ngày bắt đầu sẽ bắt buộc xuất bản ngay ngày hiện tại.
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 shrink-0 self-end md:self-auto text-xs bg-slate-950/80 p-3 rounded-xl border border-slate-800">
-          <span className="text-slate-400 text-[11px] font-bold">Gói đang được mở:</span>
-          <div className="flex flex-wrap gap-1.5">
-            {(membershipPackages || []).filter(p => p.allowScheduledPublishing).length > 0 ? (
-              (membershipPackages || []).filter(p => p.allowScheduledPublishing).map(p => (
-                <span key={p.id} className="px-2 py-0.5 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-bold flex items-center gap-1">
-                  <i className="fa-solid fa-check text-[9px]"></i>
-                  <span>{p.shortName || p.name}</span>
-                </span>
-              ))
-            ) : (
-              <span className="px-2 py-0.5 rounded-lg bg-rose-950 text-rose-300 border border-rose-800 text-[10px] font-bold">
-                Chưa bật cho gói nào
-              </span>
-            )}
+        <div className="flex flex-col gap-2 shrink-0 self-end md:self-auto text-xs bg-slate-950/80 p-3 rounded-xl border border-slate-800 min-w-[240px]">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-slate-400 text-[11px] font-bold flex items-center gap-1">
+              <i className="fa-regular fa-clock text-amber-400 text-[10px]"></i>
+              <span>Hẹn Giờ Vàng:</span>
+            </span>
+            <div className="flex flex-wrap gap-1">
+              {(membershipPackages || []).filter(p => p.allowScheduledPublishing).length > 0 ? (
+                (membershipPackages || []).filter(p => p.allowScheduledPublishing).map(p => (
+                  <span key={p.id} className="px-1.5 py-0.2 rounded-md bg-emerald-950 text-emerald-300 border border-emerald-800 text-[9px] font-bold">
+                    {p.shortName || p.name}
+                  </span>
+                ))
+              ) : (
+                <span className="text-[9px] text-rose-400 font-bold">Tất cả đều tắt</span>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center justify-between gap-2 border-t border-slate-800 pt-1.5">
+            <span className="text-slate-400 text-[11px] font-bold flex items-center gap-1">
+              <i className="fa-regular fa-calendar-days text-blue-400 text-[10px]"></i>
+              <span>Ngày Tương Lai:</span>
+            </span>
+            <div className="flex flex-wrap gap-1">
+              {(membershipPackages || []).filter(p => p.allowFutureStartDate).length > 0 ? (
+                (membershipPackages || []).filter(p => p.allowFutureStartDate).map(p => (
+                  <span key={p.id} className="px-1.5 py-0.2 rounded-md bg-blue-950 text-blue-300 border border-blue-800 text-[9px] font-bold">
+                    {p.shortName || p.name}
+                  </span>
+                ))
+              ) : (
+                <span className="text-[9px] text-rose-400 font-bold">Tất cả đều tắt</span>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -708,6 +744,51 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                     <span
                       className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
                         pkg.allowScheduledPublishing ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* Per-package Future Start Date Switch Toggle */}
+                <div className="mt-2.5 p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-3 shadow-inner">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                      pkg.allowFutureStartDate 
+                        ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' 
+                        : 'bg-slate-800 text-slate-500 border border-slate-700'
+                    }`}>
+                      <i className="fa-regular fa-calendar-days text-xs"></i>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold text-white flex items-center gap-1.5 flex-wrap">
+                        <span>Ngày Tương Lai:</span>
+                        {pkg.allowFutureStartDate ? (
+                          <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/80 border border-emerald-800/80 px-1.5 py-0.2 rounded-full">
+                            ● BẬT
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-slate-500 font-bold bg-slate-800 border border-slate-700 px-1.5 py-0.2 rounded-full">
+                            ○ TẮT
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[10px] text-slate-400 truncate">
+                        {pkg.allowFutureStartDate ? 'Mở khóa chọn ngày đăng tương lai' : 'Bắt buộc đăng ngày hiện tại'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleTogglePackageFutureStartDate(pkg.id, !pkg.allowFutureStartDate)}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      pkg.allowFutureStartDate ? 'bg-emerald-500' : 'bg-slate-700'
+                    }`}
+                    title={pkg.allowFutureStartDate ? `Bấm để TẮT chọn ngày tương lai cho ${pkg.name}` : `Bấm để BẬT chọn ngày tương lai cho ${pkg.name}`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                        pkg.allowFutureStartDate ? 'translate-x-5' : 'translate-x-0'
                       }`}
                     />
                   </button>
@@ -1006,6 +1087,34 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                           </div>
                           <p className="text-[11px] text-slate-400 mt-0.5">
                             Khi bật, người đăng có gói hội viên này sẽ được mở khóa các khung giờ hẹn đăng tự động (08:00, 11:30, 14:00, 19:30).
+                          </p>
+                        </div>
+                      </label>
+
+                      {/* Future Start Date Feature Toggle */}
+                      <label className="flex items-center gap-3 p-3.5 bg-slate-900/60 hover:bg-slate-900 rounded-2xl border border-slate-800 cursor-pointer transition">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(editingPkg.allowFutureStartDate)}
+                          onChange={(e) => handleFieldChange('allowFutureStartDate', e.target.checked)}
+                          className="w-4 h-4 text-blue-500 rounded border-slate-700 bg-slate-800 focus:ring-blue-400 shrink-0"
+                        />
+                        <div>
+                          <div className="font-bold text-white text-xs flex items-center gap-2">
+                            <i className="fa-regular fa-calendar-days text-blue-400"></i>
+                            <span>Bật Tiện Ích "Chọn Ngày Bắt Đầu Tương Lai" Cho Gói Này</span>
+                            {editingPkg.allowFutureStartDate ? (
+                              <span className="px-2 py-0.5 rounded text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
+                                ✓ Đang Bật
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400 border border-slate-700 font-bold">
+                                ○ Đang Tắt
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-slate-400 mt-0.5">
+                            Khi bật, người đăng có gói hội viên này được tự do chọn ngày bắt đầu đăng tin trong tương lai. Nếu tắt, bài viết bắt buộc phải xuất bản vào ngày hiện tại.
                           </p>
                         </div>
                       </label>

@@ -458,7 +458,7 @@ export default function UserDashboard() {
                             isScheduled ? (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200 flex items-center gap-1 shadow-sm">
                                 <i className="fa-solid fa-clock text-purple-600"></i>
-                                <span>⏰ Lịch hẹn: {prop.scheduleTime || 'Giờ vàng'} {prop.autoApproveAt ? `(Dự kiến: ${new Date(prop.autoApproveAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} ngày ${new Date(prop.autoApproveAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })})` : ''}</span>
+                                <span>⏰ Lịch hẹn: {(!prop.scheduleTime || prop.scheduleTime === 'now') ? 'Ngày hẹn' : prop.scheduleTime} {prop.autoApproveAt ? `(Dự kiến: ${new Date(prop.autoApproveAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} ngày ${new Date(prop.autoApproveAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })})` : ''}</span>
                               </span>
                             ) : (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 flex items-center gap-1">

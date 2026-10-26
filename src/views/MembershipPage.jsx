@@ -523,6 +523,19 @@ export default function MembershipPage() {
                   })}
                 </tr>
                 <tr>
+                  <td className="p-4 font-bold text-slate-800">Chọn ngày bắt đầu đăng tin trong tương lai</td>
+                  {(membershipPackages || []).map(p => {
+                    const hasFeature = typeof p.allowFutureStartDate === 'boolean'
+                      ? p.allowFutureStartDate
+                      : (p.id === 'member-basic' ? false : true);
+                    return (
+                      <td key={p.id} className={`p-4 text-center font-bold ${hasFeature ? 'text-emerald-600' : 'text-slate-400'} ${p.recommended ? 'bg-amber-50/30' : ''}`}>
+                        {hasFeature ? '✓ Tự do chọn ngày' : '— (Chỉ đăng hôm nay)'}
+                      </td>
+                    );
+                  })}
+                </tr>
+                <tr>
                   <td className="p-4 font-bold text-slate-800">Ưu tiên xuất bản & duyệt tin sớm</td>
                   {(membershipPackages || []).map((p, idx) => {
                     const hasFeature = (p.features || []).some(f => /ưu tiên|duyệt tin/i.test(f));

@@ -284,6 +284,32 @@ export default function BatdongsanListingSelector({
     }
   }, [showToast, eligiblePackagesText]);
 
+  // Lọc ra danh sách các gói hội viên được cấp quyền chọn ngày bắt đầu tương lai
+  const eligibleStartDatePackages = useMemo(() => {
+    return (membershipPackages || []).filter(p => Boolean(p.allowFutureStartDate));
+  }, [membershipPackages]);
+
+  const eligibleStartDatePackagesText = useMemo(() => {
+    if (eligibleStartDatePackages.length === 0) return 'Gói Hội Viên được cấp quyền';
+    if (eligibleStartDatePackages.length <= 2) {
+      return eligibleStartDatePackages.map(p => p.shortName || p.name).join(' & ');
+    }
+    return eligibleStartDatePackages.map(p => p.shortName || p.name).join(', ');
+  }, [eligibleStartDatePackages]);
+
+  const hasEligibleStartDateMembership = isMemberActive && Boolean(activeUserPkg?.allowFutureStartDate);
+  const hasStartDateAccess = currentUser?.role === 'admin' || hasEligibleStartDateMembership;
+
+  const handleLockedStartDateClick = useCallback((e) => {
+    if (e) {
+      if (typeof e.preventDefault === 'function') e.preventDefault();
+      if (typeof e.stopPropagation === 'function') e.stopPropagation();
+    }
+    if (showToast) {
+      showToast(`🔒 Tiện ích Chọn Ngày Bắt Đầu trong tương lai là đặc quyền dành riêng cho ${eligibleStartDatePackagesText}. Quý khách vui lòng nâng cấp gói hội viên!`, 'warning');
+    }
+  }, [showToast, eligibleStartDatePackagesText]);
+
   // Nếu người dùng không có quyền mà scheduleTime khác 'now', tự động đưa về 'now'
   useEffect(() => {
     if (!hasScheduleAccess && scheduleTime && scheduleTime !== 'now' && onScheduleTimeChange) {
@@ -327,9 +353,30 @@ export default function BatdongsanListingSelector({
   const currentConfig = ratesConfig?.[selectedType] || ratesConfig?.['normal'] || BATDONGSAN_RATES['normal'];
 
   const todayStr = useMemo(() => getTodayString(), []);
+  const todayFormatted = useMemo(() => {
+    try {
+      const [y, m, d] = todayStr.split('-');
+      return `${d}/${m}/${y}`;
+    } catch {
+      return todayStr;
+    }
+  }, [todayStr]);
+
   const initialStartDate = startDate || todayStr;
   const [internalStartDate, setInternalStartDate] = useState(initialStartDate);
   const dateInputRef = useRef(null);
+
+  // Nếu người dùng không có quyền chọn ngày tương lai, bắt buộc ngày bắt đầu luôn là ngày hiện tại
+  useEffect(() => {
+    if (!hasStartDateAccess) {
+      if (internalStartDate !== todayStr) {
+        setInternalStartDate(todayStr);
+      }
+      if (startDate && startDate !== todayStr && onStartDateChange) {
+        onStartDateChange(todayStr);
+      }
+    }
+  }, [hasStartDateAccess, todayStr, internalStartDate, startDate, onStartDateChange]);
 
   // Tính ngày kết thúc
   const endDateFormatted = useMemo(() => {
@@ -619,21 +666,47 @@ export default function BatdongsanListingSelector({
         <div className="space-y-1.5">
           <label 
             htmlFor="bds-start-date"
-            onClick={() => {
+            onClick={hasStartDateAccess ? () => {
               try {
                 dateInputRef.current?.showPicker();
               } catch (err) {}
-            }}
-            className="block text-xs font-bold text-slate-800 cursor-pointer"
+            } : handleLockedStartDateClick}
+            className="block text-xs font-bold text-slate-800 flex items-center justify-between cursor-pointer"
           >
-            Ngày bắt đầu
+            <span className="flex items-center gap-1.5">
+              <i className="fa-regular fa-calendar-days text-slate-600"></i>
+              <span>Ngày bắt đầu</span>
+              {hasStartDateAccess ? (
+                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded-full inline-flex items-center gap-1">
+                  <i className="fa-solid fa-crown text-emerald-600 text-[9px]"></i>
+                  <span>Hội Viên</span>
+                </span>
+              ) : (
+                <a
+                  href="/goi-hoi-vien"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-[10px] font-bold text-amber-800 bg-amber-100/90 hover:bg-amber-200 border border-amber-300 px-2 py-0.5 rounded-full inline-flex items-center gap-1 transition shadow-xs"
+                  title={`Đặc quyền chọn ngày tương lai dành riêng cho ${eligibleStartDatePackagesText}. Bấm để xem gói!`}
+                >
+                  <i className="fa-solid fa-lock text-amber-600 text-[9px]"></i>
+                  <span>{eligibleStartDatePackagesText}</span>
+                </a>
+              )}
+            </span>
+            {!hasStartDateAccess && (
+              <span className="text-[10px] text-slate-500 font-semibold">
+                Hôm nay ({todayFormatted})
+              </span>
+            )}
           </label>
           <div 
-            onClick={() => {
+            onClick={hasStartDateAccess ? () => {
               try {
                 dateInputRef.current?.showPicker();
               } catch (err) {}
-            }}
+            } : handleLockedStartDateClick}
             className="relative cursor-pointer"
           >
             <input
@@ -641,8 +714,14 @@ export default function BatdongsanListingSelector({
               id="bds-start-date"
               type="date"
               min={todayStr}
+              max={!hasStartDateAccess ? todayStr : undefined}
+              readOnly={!hasStartDateAccess}
               value={startDate || internalStartDate}
               onClick={(e) => {
+                if (!hasStartDateAccess) {
+                  handleLockedStartDateClick(e);
+                  return;
+                }
                 try {
                   if (typeof e.currentTarget.showPicker === 'function') {
                     e.currentTarget.showPicker();
@@ -650,21 +729,53 @@ export default function BatdongsanListingSelector({
                 } catch (err) {}
               }}
               onChange={(e) => {
+                if (!hasStartDateAccess) return;
                 setInternalStartDate(e.target.value);
                 if (onStartDateChange) onStartDateChange(e.target.value);
               }}
-              className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 cursor-pointer transition hover:border-slate-400"
+              className={`w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none transition ${
+                !hasStartDateAccess 
+                  ? 'bg-slate-50 text-slate-600 cursor-not-allowed hover:border-amber-300 pr-9' 
+                  : 'focus:ring-2 focus:ring-slate-900 cursor-pointer hover:border-slate-400'
+              }`}
             />
+            {!hasStartDateAccess && (
+              <div 
+                onClick={handleLockedStartDateClick}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-amber-600 pointer-events-none"
+                title="Đã khóa: Chỉ áp dụng ngày hiện tại"
+              >
+                <i className="fa-solid fa-lock text-xs"></i>
+              </div>
+            )}
           </div>
-          <div className="text-[11px] text-slate-500 font-medium">
-            {isNormal ? (
-              <span>Kết thúc ngày <b className="text-slate-800 font-semibold">{endDateFormatted}</b></span>
-            ) : (
-              <span className="flex flex-wrap items-center gap-1.5 leading-snug">
-                <span>Hết VIP: <b className="text-slate-800 font-semibold">{endDateFormatted}</b></span>
-                <span className="text-slate-300">•</span>
-                <span>Tin Thường đến: <b className="text-emerald-700 font-semibold">{bonusNormalEndDateFormatted}</b></span>
-              </span>
+          <div className="space-y-1">
+            <div className="text-[11px] text-slate-500 font-medium">
+              {isNormal ? (
+                <span>Kết thúc ngày <b className="text-slate-800 font-semibold">{endDateFormatted}</b></span>
+              ) : (
+                <span className="flex flex-wrap items-center gap-1.5 leading-snug">
+                  <span>Hết VIP: <b className="text-slate-800 font-semibold">{endDateFormatted}</b></span>
+                  <span className="text-slate-300">•</span>
+                  <span>Tin Thường đến: <b className="text-emerald-700 font-semibold">{bonusNormalEndDateFormatted}</b></span>
+                </span>
+              )}
+            </div>
+            {!hasStartDateAccess && (
+              <div className="text-[10px] text-amber-700 bg-amber-50/70 border border-amber-200/60 rounded-lg px-2.5 py-1.5 flex items-center justify-between gap-1.5">
+                <span className="flex items-center gap-1 truncate">
+                  <i className="fa-solid fa-lock text-[9px] text-amber-600 shrink-0"></i>
+                  <span className="truncate">Chỉ đăng ngày hôm nay. Chọn ngày tương lai:</span>
+                </span>
+                <a
+                  href="/goi-hoi-vien"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-amber-800 font-bold underline hover:text-amber-950 shrink-0 text-[10px]"
+                >
+                  Nâng cấp gói
+                </a>
+              </div>
             )}
           </div>
         </div>

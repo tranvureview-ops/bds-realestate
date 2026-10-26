@@ -176,6 +176,7 @@ export const MEMBERSHIP_PACKAGES = [
       'Báo cáo thống kê lượt tương tác cơ bản'
     ],
     allowScheduledPublishing: false,
+    allowFutureStartDate: false,
     recommended: false
   },
   {
@@ -210,6 +211,7 @@ export const MEMBERSHIP_PACKAGES = [
       'Tiết kiệm 33% chi phí quảng cáo hàng tháng'
     ],
     allowScheduledPublishing: true,
+    allowFutureStartDate: true,
     recommended: true
   },
   {
@@ -245,6 +247,7 @@ export const MEMBERSHIP_PACKAGES = [
       'Tiết kiệm tối đa 39% chi phí marketing'
     ],
     allowScheduledPublishing: true,
+    allowFutureStartDate: true,
     recommended: false
   }
 ];
