@@ -2819,7 +2819,9 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                           <div>
                             <div>Đã giảm trừ thành công: <b>-{voucherDiscount.toLocaleString('vi-VN')} đ</b></div>
                             <div className="text-[11px] text-emerald-700 font-normal">
-                              {appliedVoucher === 'normalPublish' ? 'Tin Thường được tài trợ 100% chi phí đăng tin.' : 'Giảm 400.000 đ trực tiếp vào chi phí đăng Loại Tin VIP.'}
+                              {appliedVoucher === 'normalPublish' 
+                                ? 'Tin Thường được tài trợ 100% chi phí đăng tin.' 
+                                : `Giảm ${(voucherDiscount || vipVoucherDiscount).toLocaleString('vi-VN')} đ trực tiếp vào chi phí đăng Loại Tin VIP.`}
                             </div>
                           </div>
                         </div>
@@ -2841,7 +2843,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         <span>Môi giới tiết kiệm tới {standardSavePercent}% chi phí với Gói Hội Viên</span>
                       </div>
                       <div className="text-slate-600 text-[11px] mt-0.5">
-                        Nhận ngay 15 - 50 voucher giảm 35.000đ đăng tin (0 đ) + voucher đẩy tin 10.000đ mỗi chu kỳ 30 ngày.
+                        Nhận ngay 15 - 50 voucher giảm {normalPublishVoucherDiscount.toLocaleString('vi-VN')}đ đăng tin (0 đ) + voucher đẩy tin {effectiveBumpPrice.toLocaleString('vi-VN')}đ mỗi chu kỳ 30 ngày.
                       </div>
                     </div>
                     <Link

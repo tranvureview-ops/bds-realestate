@@ -29,6 +29,14 @@ export default function VipPricingPage() {
     return getStandardPackageSavePercent(membershipPackages);
   }, [membershipPackages]);
 
+  const normalPublishVoucherDiscount = useMemo(() => {
+    return (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.normalPublishDiscount || 0) > 0)?.vouchersPerCycle?.normalPublishDiscount ?? 35000;
+  }, [membershipPackages]);
+
+  const vipVoucherDiscount = useMemo(() => {
+    return (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount ?? 400000;
+  }, [membershipPackages]);
+
   const currentBumpPrice = bumpServicePrice ?? contextBumpPrice ?? BUMP_SERVICE_PRICE ?? 10000;
 
   const vipPackages = contextVipPackages || MOCK_VIP;
@@ -96,7 +104,7 @@ export default function VipPricingPage() {
     },
     {
       q: 'Mối quan hệ giữa Gói Hội Viên Môi Giới và các Loại Tin Đăng là gì?',
-      a: 'Gói Hội Viên là hình thức thuê bao tài khoản môi giới định kỳ hàng tháng để nhận kho Voucher ưu đãi. Khi bạn đăng bất kỳ bài viết BĐS nào (chọn Loại Tin Thường hoặc Loại Tin VIP), bạn có thể áp dụng Voucher từ Gói Hội Viên của mình để được Miễn phí 100% tin thường (35k -> 0đ) hoặc Giảm 400.000 đ cho tin VIP.'
+      a: `Gói Hội Viên là hình thức thuê bao tài khoản môi giới định kỳ hàng tháng để nhận kho Voucher ưu đãi. Khi bạn đăng bất kỳ bài viết BĐS nào (chọn Loại Tin Thường hoặc Loại Tin VIP), bạn có thể áp dụng Voucher từ Gói Hội Viên của mình để được Miễn phí 100% tin thường hoặc Giảm ${vipVoucherDiscount.toLocaleString('vi-VN')} đ cho tin VIP.`
     },
     {
       q: 'Đặc quyền "Tặng kèm 1 Tin Thường song hành" của VIP Kim Cương hoạt động như thế nào?',
@@ -251,7 +259,7 @@ export default function VipPricingPage() {
               </h3>
               <p className="text-slate-600 leading-relaxed text-[11px]">
                 • <b>Bản chất:</b> Đây mới là <b>ĐĂNG KÝ GÓI</b> (thuê bao định kỳ chu kỳ 30 ngày).<br/>
-                • <b>Quyền lợi:</b> Nhận kho <b>Voucher 30 ngày</b>: đăng tin thường 0đ, voucher đẩy tin, và voucher giảm 400.000đ tin VIP.<br/>
+                • <b>Quyền lợi:</b> Nhận kho <b>Voucher 30 ngày</b>: đăng tin thường 0đ, voucher đẩy tin, và voucher giảm {vipVoucherDiscount.toLocaleString('vi-VN')}đ tin VIP.<br/>
                 • <b>Cách dùng:</b> Khi đăng bài ở mục 1, bạn dùng Voucher trong Gói Hội Viên này để thanh toán!
               </p>
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
@@ -305,7 +313,7 @@ export default function VipPricingPage() {
             onStartDateChange={setStartDate}
             scheduleTime={scheduleTime}
             onScheduleTimeChange={setScheduleTime}
-            voucherDiscount={(currentUser?.vouchers?.normalPublish || 0) > 0 ? (selectedListingType === 'normal' ? 35000 : 400000) : 0}
+            voucherDiscount={(currentUser?.vouchers?.normalPublish || 0) > 0 ? (selectedListingType === 'normal' ? normalPublishVoucherDiscount : vipVoucherDiscount) : 0}
             showFullSummary={true}
             customVipPackages={vipPackages}
             onApplyAction={handleApplyListingChoice}
@@ -712,16 +720,16 @@ export default function VipPricingPage() {
                     Áp dụng Voucher Hội Viên Môi Giới
                   </td>
                   <td className="py-3 px-3 text-center font-bold text-emerald-700 bg-red-50/30 border-x border-red-100">
-                    Giảm trừ 400.000 đ
+                    Giảm trừ {vipVoucherDiscount.toLocaleString('vi-VN')} đ
                   </td>
                   <td className="py-3 px-3 text-center font-bold text-emerald-700 bg-amber-50/30 border-r border-amber-100">
-                    Giảm trừ 400.000 đ
+                    Giảm trừ {vipVoucherDiscount.toLocaleString('vi-VN')} đ
                   </td>
                   <td className="py-3 px-3 text-center font-bold text-emerald-700 bg-blue-50/30 border-r border-blue-100">
-                    Giảm trừ 400.000 đ
+                    Giảm trừ {vipVoucherDiscount.toLocaleString('vi-VN')} đ
                   </td>
                   <td className="py-3 px-3 text-center font-black text-emerald-700 bg-emerald-100/60">
-                    Giảm 35.000 đ (Chỉ còn 0 đ)
+                    Giảm {normalPublishVoucherDiscount.toLocaleString('vi-VN')} đ (Chỉ còn 0 đ)
                   </td>
                 </tr>
               </tbody>
@@ -817,7 +825,7 @@ export default function VipPricingPage() {
                   Đăng Ký Gói Hội Viên — Tiết Kiệm Tới {standardSavePercent}% Chi Phí Đăng Tin
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-950 font-medium mt-1 max-w-xl">
-                  Nhận trọn bộ kho Voucher cấp mới định kỳ 30 ngày: voucher giảm 35.000đ đăng tin + voucher giảm 10.000đ đẩy tin + voucher 400.000đ tin VIP.
+                  Nhận trọn bộ kho Voucher cấp mới định kỳ 30 ngày: voucher giảm {normalPublishVoucherDiscount.toLocaleString('vi-VN')}đ đăng tin + voucher giảm {currentBumpPrice.toLocaleString('vi-VN')}đ đẩy tin + voucher {vipVoucherDiscount.toLocaleString('vi-VN')}đ tin VIP.
                 </p>
               </div>
             </div>
@@ -854,9 +862,9 @@ export default function VipPricingPage() {
                 <span className="bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">Tiết Kiệm {standardSavePercent}%</span>
               </div>
               <ul className="space-y-1 text-slate-300 text-[11px]">
-                <li>• Cấp 30 voucher giảm 35.000 đ đăng tin thường (<b>0 đ</b>)</li>
-                <li>• Cấp 30 voucher giảm 10.000 đ đẩy tin (<b>0 đ</b>)</li>
-                <li>• Tặng 1 voucher giảm 400.000 đ đăng tin VIP (<b>Giảm ngay 400k</b>)</li>
+                <li>• Cấp 30 voucher giảm {normalPublishVoucherDiscount.toLocaleString('vi-VN')} đ đăng tin thường (<b>0 đ</b>)</li>
+                <li>• Cấp 30 voucher giảm {currentBumpPrice.toLocaleString('vi-VN')} đ đẩy tin (<b>0 đ</b>)</li>
+                <li>• Tặng 1 voucher giảm {vipVoucherDiscount.toLocaleString('vi-VN')} đ đăng tin VIP (<b>Giảm ngay {vipVoucherDiscount >= 1000 ? `${vipVoucherDiscount / 1000}k` : `${vipVoucherDiscount}đ`}</b>)</li>
                 <li className="pt-2 border-t border-slate-800 font-black text-xs text-amber-300">
                   Chỉ còn 1.267.000 đ/tháng (Tiết kiệm gần 800.000 đ)
                 </li>

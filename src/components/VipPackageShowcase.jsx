@@ -25,6 +25,14 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
     return getStandardPackageSavePercent(membershipPackages);
   }, [membershipPackages]);
 
+  const vipVoucherDiscount = useMemo(() => {
+    return (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount ?? 400000;
+  }, [membershipPackages]);
+
+  const normalPublishVoucherDiscount = useMemo(() => {
+    return (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.normalPublishDiscount || 0) > 0)?.vouchersPerCycle?.normalPublishDiscount ?? 35000;
+  }, [membershipPackages]);
+
   const activeVipPackages = (contextVipPackages && contextVipPackages.length > 0) ? contextVipPackages : VIP_PACKAGES;
   const currentBumpPrice = bumpServicePrice ?? contextBumpPrice ?? BUMP_SERVICE_PRICE ?? 10000;
 
@@ -240,7 +248,7 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
                 Đăng Ký Gói Hội Viên — Tiết Kiệm Tới {standardSavePercent}%
               </h4>
               <p className="text-xs text-slate-900 font-medium mt-1 max-w-xl">
-                Nhận trọn bộ kho Voucher cấp mới định kỳ 30 ngày: voucher giảm 35.000đ đăng tin thường + voucher giảm 10.000đ đẩy tin + voucher 400.000đ tin VIP.
+                Nhận trọn bộ kho Voucher cấp mới định kỳ 30 ngày: voucher giảm {normalPublishVoucherDiscount.toLocaleString('vi-VN')}đ đăng tin thường + voucher giảm {currentBumpPrice.toLocaleString('vi-VN')}đ đẩy tin + voucher {vipVoucherDiscount.toLocaleString('vi-VN')}đ tin VIP.
               </p>
             </div>
           </div>

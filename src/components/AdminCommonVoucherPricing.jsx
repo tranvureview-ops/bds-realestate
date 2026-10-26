@@ -213,7 +213,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
           </div>
 
           <p className="text-[11px] text-slate-400 line-clamp-1">
-            Mức giảm trực tiếp khi đăng Tin VIP (chuẩn 400.000 đ)
+            Mức giảm trực tiếp khi đăng Tin VIP
           </p>
 
           <div className="relative pt-1">
