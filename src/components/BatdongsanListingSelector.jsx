@@ -490,10 +490,10 @@ export default function BatdongsanListingSelector({
       {/* ========================================================
           2. KHUNG CHỌN THỜI HẠN VỚI MŨI TÊN TRỎ VÀO THẺ ĐƯỢC CHỌN
          ======================================================== */}
-      <div className="relative bg-slate-50/90 p-3.5 sm:p-4 rounded-2xl border border-slate-200/90 space-y-2.5">
+      <div className="relative bg-[#f4f5f7] p-3.5 sm:p-4 rounded-2xl border border-slate-200/80 space-y-2.5">
         {/* Mũi tên tam giác chỉ lên thẻ được chọn */}
         <div
-          className={`absolute -top-2 w-4 h-4 bg-slate-50/90 transform rotate-45 border-l border-t border-slate-200/90 hidden lg:block -translate-x-1/2 transition-[left] duration-150 ease-out ${arrowPositionClass}`}
+          className={`absolute -top-2 w-4 h-4 bg-[#f4f5f7] transform rotate-45 border-l border-t border-slate-200/80 hidden lg:block -translate-x-1/2 transition-[left] duration-150 ease-out ${arrowPositionClass}`}
         ></div>
 
         {/* Tiêu đề Thời hạn */}
@@ -563,7 +563,7 @@ export default function BatdongsanListingSelector({
                     className={`relative p-2 sm:p-2.5 rounded-xl text-center border-2 transition-all duration-150 cursor-pointer flex flex-col items-center justify-center ${
                       isSelected
                         ? 'bg-white border-slate-900 shadow-sm ring-1 ring-slate-900/10'
-                        : 'bg-white/80 hover:bg-white border-slate-200 hover:border-slate-300'
+                        : 'bg-white/90 hover:bg-white border-slate-200 hover:border-slate-300'
                     }`}
                   >
                     {days === 7 && (
