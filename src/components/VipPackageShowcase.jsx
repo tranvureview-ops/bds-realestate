@@ -4,7 +4,7 @@ import React, { useMemo } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter, Link } from '../router/RouterContext';
 import { VIP_PACKAGES, BUMP_SERVICE_PRICE } from '../data/mockData';
-import { getStandardPackageSavePercent } from '../utils/membershipHelper';
+import { getStandardPackageSavePercent, getPremiumPackageSavePercent } from '../utils/membershipHelper';
 
 export default function VipPackageShowcase({ onClose = null, className = '' }) {
   const { navigate } = useRouter();
@@ -23,6 +23,10 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
 
   const standardSavePercent = useMemo(() => {
     return getStandardPackageSavePercent(membershipPackages);
+  }, [membershipPackages]);
+
+  const premiumSavePercent = useMemo(() => {
+    return getPremiumPackageSavePercent(membershipPackages);
   }, [membershipPackages]);
 
   const vipVoucherDiscount = useMemo(() => {
@@ -245,7 +249,7 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
                 Dành Riêng Cho Môi Giới Bất Động Sản
               </div>
               <h4 className="text-xl font-black text-slate-950">
-                Đăng Ký Gói Hội Viên — Tiết Kiệm Tới {standardSavePercent}%
+                Đăng Ký Gói Hội Viên — Tiết Kiệm Tới {premiumSavePercent}%
               </h4>
               <p className="text-xs text-slate-900 font-medium mt-1 max-w-xl">
                 Nhận trọn bộ kho Voucher cấp mới định kỳ 30 ngày: voucher giảm {normalPublishVoucherDiscount.toLocaleString('vi-VN')}đ đăng tin thường + voucher giảm {currentBumpPrice.toLocaleString('vi-VN')}đ đẩy tin + voucher {vipVoucherDiscount.toLocaleString('vi-VN')}đ tin VIP.

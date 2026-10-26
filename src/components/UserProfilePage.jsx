@@ -4,7 +4,7 @@ import React, { useState, useRef, useMemo } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 import { Link, useRouter } from '../router/RouterContext';
-import { isVoucherDiscountFree, getStandardPackageSavePercent } from '../utils/membershipHelper';
+import { isVoucherDiscountFree, getStandardPackageSavePercent, getPremiumPackageSavePercent } from '../utils/membershipHelper';
 
 // Helper nén và cắt ảnh đại diện thành hình vuông 1:1 chất lượng cao
 const resizeImageToAvatar = (file, maxWidth = 400, maxHeight = 400, quality = 0.88) => {
@@ -73,6 +73,7 @@ export default function UserProfilePage() {
 
   const currentPkg = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
   const standardSavePercent = useMemo(() => getStandardPackageSavePercent(membershipPackages), [membershipPackages]);
+  const premiumSavePercent = useMemo(() => getPremiumPackageSavePercent(membershipPackages), [membershipPackages]);
   const billingMonths = currentUser?.membership?.billingMonths || 1;
   const cycleInfo = currentPkg?.billingCycles?.find(c => c.months === billingMonths) || currentPkg?.billingCycles?.[0];
   const renewalCost = cycleInfo?.price || currentPkg?.monthlyPrice || 0;
@@ -460,7 +461,7 @@ export default function UserProfilePage() {
                       </button>
                     </>
                   ) : (
-                    <span className="text-slate-500">Tiết kiệm {standardSavePercent}% chi phí</span>
+                    <span className="text-slate-500">Tiết kiệm {premiumSavePercent}% chi phí</span>
                   )}
                 </div>
               </div>
@@ -1082,7 +1083,7 @@ export default function UserProfilePage() {
                       Nâng Tầm Môi Giới Với Gói Hội Viên
                     </h4>
                     <p className="text-xs text-slate-600 leading-relaxed">
-                      Tiết kiệm tới <strong>{standardSavePercent}% chi phí</strong>, nhận kho voucher đăng tin & đẩy tin định kỳ 30 ngày, tự động đẩy tin khung giờ vàng và tính năng tự động gia hạn tiện lợi.
+                      Tiết kiệm tới <strong>{premiumSavePercent}% chi phí</strong>, nhận kho voucher đăng tin & đẩy tin định kỳ 30 ngày, tự động đẩy tin khung giờ vàng và tính năng tự động gia hạn tiện lợi.
                     </p>
                   </div>
 

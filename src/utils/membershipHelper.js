@@ -257,4 +257,19 @@ export function getStandardPackageSavePercent(packages = []) {
   return Number(standardPkg?.savePercent) || 33;
 }
 
+/**
+ * Gets the save percentage of the Premium Package (Gói Cao Cấp),
+ * with fallback to the highest savePercent or 39%.
+ * 
+ * @param {Array} packages Array of membership packages
+ * @returns {number} Save percentage (e.g. 39)
+ */
+export function getPremiumPackageSavePercent(packages = []) {
+  if (!Array.isArray(packages) || packages.length === 0) return 39;
+  const premiumPkg = packages.find(p => p.id === 'member-premium') 
+    || packages.find(p => p.id?.includes('premium') || p.name?.toLowerCase().includes('cao cấp'))
+    || packages[packages.length - 1];
+  return Number(premiumPkg?.savePercent) || 39;
+}
+
 
