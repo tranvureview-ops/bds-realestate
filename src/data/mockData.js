@@ -2490,6 +2490,7 @@ export const DEFAULT_SYSTEM_CONFIG = {
   fontFamily: 'Roboto',
   autoApproveDiamond: true,
   enableAiModeration: true,
+  autoFilterPhoneInContent: true, // Tự động quét và loại bỏ số điện thoại khỏi Tiêu đề & Mô tả tin đăng
   defaultListingDays: 15,
   dailyFreeListingLimit: 5, // Giới hạn đăng tin miễn phí / user / ngày (0 = không giới hạn)
   maintenanceMode: false,

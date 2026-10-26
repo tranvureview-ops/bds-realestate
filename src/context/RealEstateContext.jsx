@@ -54,6 +54,7 @@ import {
 } from '../data/mockData';
 import { getPropertyPermalink, parsePropertyUrl, toVietnameseSlug, formatSentenceCase } from '../utils/permalink';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
+import { sanitizePhoneFromText } from '../utils/textSanitizer';
 import {
   getEmailLogs,
   dispatchEmail,
@@ -2064,10 +2065,19 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       ? new Date(now + numDays * 86400 * 1000).toISOString()
       : null;
 
+    const cleanedTitle = (systemConfig?.autoFilterPhoneInContent !== false && formData.title)
+      ? sanitizePhoneFromText(formData.title).text
+      : (formData.title || '').trim();
+    const cleanedDescription = (systemConfig?.autoFilterPhoneInContent !== false && formData.description)
+      ? sanitizePhoneFromText(formData.description).text
+      : (formData.description || '').trim();
+
     const newProp = {
       ...formData,
       id: `BDS-${String(properties.length + 1).padStart(3, '0')}`,
-      slug: (formData.title && createVietnameseSlug(formData.title)) || `bds-${Date.now().toString().slice(-4)}`,
+      title: cleanedTitle,
+      description: cleanedDescription,
+      slug: (cleanedTitle && createVietnameseSlug(cleanedTitle)) || `bds-${Date.now().toString().slice(-4)}`,
       vipPackageId: vipPackageId,
       status: initialStatus,
       publishedAt: new Date().toISOString(),
@@ -2609,13 +2619,22 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // Admin update property
   const updateProperty = (propertyId, partialData) => {
+    let sanitizedData = { ...partialData };
+    if (systemConfig?.autoFilterPhoneInContent !== false) {
+      if (sanitizedData.title) {
+        sanitizedData.title = sanitizePhoneFromText(sanitizedData.title).text;
+      }
+      if (sanitizedData.description) {
+        sanitizedData.description = sanitizePhoneFromText(sanitizedData.description).text;
+      }
+    }
     let updatedTarget = null;
     setProperties(prev => prev.map(p => {
       if (p.id === propertyId) {
         updatedTarget = { 
           ...p, 
-          ...partialData,
-          updatedAt: partialData.updatedAt || new Date().toISOString()
+          ...sanitizedData,
+          updatedAt: sanitizedData.updatedAt || new Date().toISOString()
         };
         return updatedTarget;
       }

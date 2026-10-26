@@ -7314,6 +7314,28 @@ export default function AdminBackendPage() {
                         </div>
                       </label>
 
+                      {/* Toggle Auto Filter Phone In Content */}
+                      <label className="flex items-start gap-3 p-3.5 bg-slate-900/80 hover:bg-slate-900 rounded-2xl border border-slate-800 cursor-pointer transition">
+                        <input
+                          type="checkbox"
+                          checked={formSystemConfig.autoFilterPhoneInContent !== false}
+                          onChange={(e) => setFormSystemConfig(prev => ({ ...prev, autoFilterPhoneInContent: e.target.checked }))}
+                          className="w-4 h-4 text-emerald-500 rounded border-slate-700 bg-slate-800 focus:ring-emerald-500 mt-0.5 shrink-0"
+                        />
+                        <div>
+                          <div className="font-bold text-white flex items-center gap-2">
+                            <i className="fa-solid fa-phone-slash text-amber-400"></i>
+                            <span>Tự động quét & loại bỏ số điện thoại trong Tiêu đề & Mô tả</span>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-950 text-emerald-300 border border-emerald-800">
+                              Chống Spam Phone
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                            Khi BẬT: Hệ thống tự động làm sạch số điện thoại và các tiền tố liên hệ (LH, Zalo, SĐT, Hotline...) khỏi Tiêu đề và Mô tả chi tiết khi người dùng nhập liệu hoặc đăng bài. Số điện thoại chỉ hiển thị đúng quy chuẩn ở khung thông tin người liên hệ.
+                          </p>
+                        </div>
+                      </label>
+
                       {/* Tiện Ích Hẹn Giờ Đăng Tin được quản lý riêng cho từng Gói Hội Viên */}
                       <div className="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 flex items-center justify-between gap-3 flex-wrap">
                         <div className="flex items-center gap-3">

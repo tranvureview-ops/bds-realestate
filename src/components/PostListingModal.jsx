@@ -11,6 +11,7 @@ import ListingCard from './ListingCard';
 import ListingLocationMap from './ListingLocationMap';
 import { findDanangMerger } from '../data/vietnamAdministrativeData';
 import { formatPhoneNumber, normalizePhone } from '../utils/authValidation';
+import { sanitizePhoneFromText, hasPhoneNumber } from '../utils/textSanitizer';
 
 // Hàm phát âm thanh thành công khi Webhook/Polling khớp thanh toán (Web Audio API)
 function playPaymentSuccessSound() {
@@ -102,6 +103,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     preselectedListingType, 
     setPreselectedListingType, 
     paymentConfig, 
+    systemConfig,
     navigateToProperty,
     isMembershipActive,
     membershipPackages,
@@ -364,6 +366,64 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       priceDisplay: pDisplay,
       pricePerM2: pPerM2
     }));
+  };
+
+  // Tự động quét và loại bỏ số điện thoại khỏi Tiêu đề khi blur hoặc paste
+  const handleTitleBlur = () => {
+    if (systemConfig?.autoFilterPhoneInContent !== false && formData.title) {
+      const res = sanitizePhoneFromText(formData.title);
+      if (res.hasPhone) {
+        setFormData(prev => ({ ...prev, title: res.text }));
+        showToast(`🛡️ Đã tự động lọc số điện thoại (${res.removedPhones.join(', ')}) khỏi Tiêu đề tin đăng!`, 'info');
+      }
+    }
+  };
+
+  const handleTitlePaste = (e) => {
+    if (systemConfig?.autoFilterPhoneInContent !== false) {
+      const pasted = e.clipboardData?.getData('text') || '';
+      if (pasted && hasPhoneNumber(pasted)) {
+        setTimeout(() => {
+          setFormData(prev => {
+            const res = sanitizePhoneFromText(prev.title);
+            if (res.hasPhone) {
+              showToast(`🛡️ Đã tự động lọc số điện thoại khỏi Tiêu đề tin đăng!`, 'info');
+              return { ...prev, title: res.text };
+            }
+            return prev;
+          });
+        }, 50);
+      }
+    }
+  };
+
+  // Tự động quét và loại bỏ số điện thoại khỏi Mô tả khi blur hoặc paste
+  const handleDescriptionBlur = () => {
+    if (systemConfig?.autoFilterPhoneInContent !== false && formData.description) {
+      const res = sanitizePhoneFromText(formData.description);
+      if (res.hasPhone) {
+        setFormData(prev => ({ ...prev, description: res.text }));
+        showToast(`🛡️ Đã tự động lọc số điện thoại (${res.removedPhones.join(', ')}) khỏi Mô tả chi tiết!`, 'info');
+      }
+    }
+  };
+
+  const handleDescriptionPaste = (e) => {
+    if (systemConfig?.autoFilterPhoneInContent !== false) {
+      const pasted = e.clipboardData?.getData('text') || '';
+      if (pasted && hasPhoneNumber(pasted)) {
+        setTimeout(() => {
+          setFormData(prev => {
+            const res = sanitizePhoneFromText(prev.description);
+            if (res.hasPhone) {
+              showToast(`🛡️ Đã tự động lọc số điện thoại khỏi Mô tả chi tiết!`, 'info');
+              return { ...prev, description: res.text };
+            }
+            return prev;
+          });
+        }, 50);
+      }
+    }
   };
 
   // Đổi thành phố -> tự động reset toàn bộ thông tin cấp dưới và trạng thái sáp nhập
@@ -649,6 +709,22 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       }
     }
     if (step === 2) {
+      // Tự động quét và loại bỏ số điện thoại khỏi Tiêu đề & Mô tả nếu được cấu hình
+      if (systemConfig?.autoFilterPhoneInContent !== false) {
+        let cleanTitle = formData.title || '';
+        let cleanDesc = formData.description || '';
+        const titleRes = sanitizePhoneFromText(cleanTitle);
+        const descRes = sanitizePhoneFromText(cleanDesc);
+        if (titleRes.hasPhone || descRes.hasPhone) {
+          cleanTitle = titleRes.text;
+          cleanDesc = descRes.text;
+          formData.title = cleanTitle;
+          formData.description = cleanDesc;
+          setFormData(prev => ({ ...prev, title: cleanTitle, description: cleanDesc }));
+          showToast('🛡️ Đã tự động lọc sạch số điện thoại khỏi Tiêu đề & Mô tả theo quy định sàn!', 'info');
+        }
+      }
+
       if (!formData.title || formData.title.length < 30) {
         showToast('Tiêu đề cần tối thiểu 30 ký tự để thu hút khách!', 'warning');
         return;
@@ -874,7 +950,17 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       return;
     }
 
-    // 2. Kiểm tra thông tin Bước 2
+    // 2. Tự động lọc sạch số điện thoại trong Tiêu đề & Mô tả nếu được cấu hình
+    if (systemConfig?.autoFilterPhoneInContent !== false) {
+      if (formData.title && hasPhoneNumber(formData.title)) {
+        formData.title = sanitizePhoneFromText(formData.title).text;
+      }
+      if (formData.description && hasPhoneNumber(formData.description)) {
+        formData.description = sanitizePhoneFromText(formData.description).text;
+      }
+    }
+
+    // Kiểm tra thông tin Bước 2
     if (!formData.title || formData.title.length < 30) {
       setStep(2);
       showToast('Tiêu đề cần tối thiểu 30 ký tự để đạt chuẩn sàn (Bước 2)!', 'warning');
@@ -1513,8 +1599,16 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   placeholder="VD: Bán căn hộ 2PN Vinhomes Central Park view sông Sài Gòn, sổ hồng sẵn..."
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                  onBlur={handleTitleBlur}
+                  onPaste={handleTitlePaste}
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-black text-slate-900 focus:ring-2 focus:ring-red-500"
                 />
+                {systemConfig?.autoFilterPhoneInContent !== false && (
+                  <div className="text-[10px] text-slate-400 mt-1 flex items-center gap-1.5">
+                    <i className="fa-solid fa-shield-halved text-emerald-600 text-[10px]"></i>
+                    <span>Tự động quét & lọc sạch số điện thoại khỏi tiêu đề để đảm bảo quy chuẩn hiển thị.</span>
+                  </div>
+                )}
                 <div className="flex flex-wrap items-center justify-between text-[11px] text-slate-500 mt-1">
                   <span>💡 Gợi ý: [Loại BĐS] + [Đặc điểm nổi bật/Vị trí] + [Pháp lý/Giá]</span>
                   <button
@@ -1567,8 +1661,16 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   placeholder="Mô tả kỹ kết cấu, diện tích, nội thất bàn giao, vị trí kết nối giao thông, tiện ích nội ngoại khu..."
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                  onBlur={handleDescriptionBlur}
+                  onPaste={handleDescriptionPaste}
                   className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs leading-relaxed text-slate-900 focus:ring-2 focus:ring-red-500"
                 ></textarea>
+                {systemConfig?.autoFilterPhoneInContent !== false && (
+                  <div className="text-[10px] text-slate-400 mt-1 flex items-center gap-1.5">
+                    <i className="fa-solid fa-shield-halved text-emerald-600 text-[10px]"></i>
+                    <span>Tự động quét & lọc sạch số điện thoại khỏi mô tả (SĐT hiển thị tại khung liên hệ riêng).</span>
+                  </div>
+                )}
               </div>
 
               {/* Định giá & Đơn vị tính */}
