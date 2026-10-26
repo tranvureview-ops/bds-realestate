@@ -110,7 +110,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
               </span>
               <div>
                 <span className="font-bold text-white text-xs block">Voucher Đăng Tin Thường</span>
-                <span className="text-[10px] text-slate-400">Đăng tin thường 30 ngày</span>
+                <span className="text-[10px] text-slate-400">Đăng tin thường 60 ngày</span>
               </div>
             </div>
             <span className="px-2 py-0.5 rounded-md bg-emerald-950/80 text-emerald-400 text-[10px] font-mono font-bold border border-emerald-800/60">
