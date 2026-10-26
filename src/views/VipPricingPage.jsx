@@ -29,6 +29,14 @@ export default function VipPricingPage() {
     return getStandardPackageSavePercent(membershipPackages);
   }, [membershipPackages]);
 
+  const standardPkg = useMemo(() => {
+    return (membershipPackages || []).find(p => p.id === 'member-standard') 
+      || (membershipPackages || []).find(p => p.recommended) 
+      || (membershipPackages || [])[1] 
+      || (membershipPackages || [])[0] 
+      || null;
+  }, [membershipPackages]);
+
   const normalPublishVoucherDiscount = useMemo(() => {
     return (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.normalPublishDiscount || 0) > 0)?.vouchersPerCycle?.normalPublishDiscount ?? 35000;
   }, [membershipPackages]);
@@ -41,6 +49,51 @@ export default function VipPricingPage() {
 
   const vipPackages = contextVipPackages || MOCK_VIP;
   const ratesConfig = useMemo(() => getEffectiveListingRates(vipPackages, paymentConfig), [vipPackages, paymentConfig]);
+
+  // Dynamic calculations for Membership Economic Calculation ("Bài Toán Kinh Tế Dành Cho Môi Giới")
+  const economicData = useMemo(() => {
+    const normalCount = Number(standardPkg?.vouchersPerCycle?.normalPublishVouchers) || 30;
+    const bumpCount = Number(standardPkg?.vouchersPerCycle?.normalBumpVouchers) || 30;
+    const vipCount = Number(standardPkg?.vouchersPerCycle?.vipVouchers) || 1;
+
+    const normalUnitPrice = Number((vipPackages || []).find(p => p.id === 'normal')?.publishPrice) 
+      || Number(standardPkg?.vouchersPerCycle?.normalPublishDiscount) 
+      || 35000;
+    const normalDiscount = Number(standardPkg?.vouchersPerCycle?.normalPublishDiscount) || normalUnitPrice;
+    const totalNormalRetail = normalCount * normalUnitPrice;
+
+    const bumpUnitPrice = currentBumpPrice;
+    const bumpDiscount = Math.min(Number(standardPkg?.vouchersPerCycle?.normalBumpDiscount) || bumpUnitPrice, bumpUnitPrice);
+    const totalBumpRetail = bumpCount * bumpUnitPrice;
+
+    const diamond7DaysPrice = ratesConfig?.['vip-diamond']?.rates?.[7] && ratesConfig?.['vip-diamond']?.rates?.[7] !== 79000
+      ? (ratesConfig['vip-diamond'].rates[7] * 7)
+      : 700000;
+    const vipDiscountVal = Number(standardPkg?.vouchersPerCycle?.vipDiscount) || vipVoucherDiscount || 400000;
+    const totalVipRetail = vipCount * diamond7DaysPrice;
+
+    const totalRetailCost = totalNormalRetail + totalBumpRetail + totalVipRetail;
+    const monthlyPrice = Number(standardPkg?.monthlyPrice) || 1267000;
+    const totalSavings = Math.max(0, totalRetailCost - monthlyPrice);
+
+    return {
+      normalCount,
+      normalUnitPrice,
+      normalDiscount,
+      totalNormalRetail,
+      bumpCount,
+      bumpUnitPrice,
+      bumpDiscount,
+      totalBumpRetail,
+      vipCount,
+      diamond7DaysPrice,
+      vipDiscountVal,
+      totalVipRetail,
+      totalRetailCost,
+      monthlyPrice,
+      totalSavings
+    };
+  }, [standardPkg, vipPackages, currentBumpPrice, ratesConfig, vipVoucherDiscount]);
 
   // 1. Listing Tier UI Selector State
   const [selectedListingType, setSelectedListingType] = useState('normal'); // Mặc định 'normal' như ảnh
@@ -825,7 +878,7 @@ export default function VipPricingPage() {
                   Đăng Ký Gói Hội Viên — Tiết Kiệm Tới {standardSavePercent}% Chi Phí Đăng Tin
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-950 font-medium mt-1 max-w-xl">
-                  Nhận trọn bộ kho Voucher cấp mới định kỳ 30 ngày: voucher giảm {normalPublishVoucherDiscount.toLocaleString('vi-VN')}đ đăng tin + voucher giảm {currentBumpPrice.toLocaleString('vi-VN')}đ đẩy tin + voucher {vipVoucherDiscount.toLocaleString('vi-VN')}đ tin VIP.
+                  Nhận trọn bộ kho Voucher cấp mới định kỳ 30 ngày: voucher giảm {economicData.normalDiscount.toLocaleString('vi-VN')}đ đăng tin + voucher giảm {economicData.bumpDiscount.toLocaleString('vi-VN')}đ đẩy tin + voucher {economicData.vipDiscountVal.toLocaleString('vi-VN')}đ tin VIP.
                 </p>
               </div>
             </div>
@@ -847,11 +900,13 @@ export default function VipPricingPage() {
                 <span className="text-red-600 text-xs font-bold">Không Ưu Đãi</span>
               </div>
               <ul className="space-y-1 text-slate-700 text-[11px]">
-                <li>• Đăng 30 tin thường: 30 x 35.000 đ = <b>1.050.000 đ</b></li>
-                <li>• Đẩy 30 lần tin thường: 30 x {currentBumpPrice.toLocaleString('vi-VN')} đ = <b>{(30 * currentBumpPrice).toLocaleString('vi-VN')} đ</b></li>
-                <li>• Đăng 1 tin VIP Kim Cương (7 ngày): <b>700.000 đ</b></li>
+                <li>• Đăng {economicData.normalCount} tin thường: {economicData.normalCount} x {economicData.normalUnitPrice.toLocaleString('vi-VN')} đ = <b>{economicData.totalNormalRetail.toLocaleString('vi-VN')} đ</b></li>
+                <li>• Đẩy {economicData.bumpCount} lần tin thường: {economicData.bumpCount} x {economicData.bumpUnitPrice.toLocaleString('vi-VN')} đ = <b>{economicData.totalBumpRetail.toLocaleString('vi-VN')} đ</b></li>
+                {economicData.vipCount > 0 && (
+                  <li>• Đăng {economicData.vipCount} tin VIP Kim Cương (7 ngày): <b>{economicData.totalVipRetail.toLocaleString('vi-VN')} đ</b></li>
+                )}
                 <li className="pt-2 border-t border-amber-600/20 font-black text-xs text-slate-900">
-                  Tổng chi phí mua lẻ: 2.050.000 đ
+                  Tổng chi phí mua lẻ: {economicData.totalRetailCost.toLocaleString('vi-VN')} đ
                 </li>
               </ul>
             </div>
@@ -862,11 +917,13 @@ export default function VipPricingPage() {
                 <span className="bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">Tiết Kiệm {standardSavePercent}%</span>
               </div>
               <ul className="space-y-1 text-slate-300 text-[11px]">
-                <li>• Cấp 30 voucher giảm {normalPublishVoucherDiscount.toLocaleString('vi-VN')} đ đăng tin thường (<b>0 đ</b>)</li>
-                <li>• Cấp 30 voucher giảm {currentBumpPrice.toLocaleString('vi-VN')} đ đẩy tin (<b>0 đ</b>)</li>
-                <li>• Tặng 1 voucher giảm {vipVoucherDiscount.toLocaleString('vi-VN')} đ đăng tin VIP (<b>Giảm ngay {vipVoucherDiscount >= 1000 ? `${vipVoucherDiscount / 1000}k` : `${vipVoucherDiscount}đ`}</b>)</li>
+                <li>• Cấp {economicData.normalCount} voucher giảm {economicData.normalDiscount.toLocaleString('vi-VN')} đ đăng tin thường (<b>{economicData.normalDiscount >= economicData.normalUnitPrice ? '0 đ' : `còn ${(economicData.normalUnitPrice - economicData.normalDiscount).toLocaleString('vi-VN')} đ`}</b>)</li>
+                <li>• Cấp {economicData.bumpCount} voucher giảm {economicData.bumpDiscount.toLocaleString('vi-VN')} đ đẩy tin (<b>{economicData.bumpDiscount >= economicData.bumpUnitPrice ? '0 đ' : `còn ${(economicData.bumpUnitPrice - economicData.bumpDiscount).toLocaleString('vi-VN')} đ`}</b>)</li>
+                {economicData.vipCount > 0 && (
+                  <li>• Tặng {economicData.vipCount} voucher giảm {economicData.vipDiscountVal.toLocaleString('vi-VN')} đ đăng tin VIP (<b>Giảm ngay {economicData.vipDiscountVal >= 1000 ? `${(economicData.vipDiscountVal / 1000).toLocaleString('vi-VN')}k` : `${economicData.vipDiscountVal.toLocaleString('vi-VN')}đ`}</b>)</li>
+                )}
                 <li className="pt-2 border-t border-slate-800 font-black text-xs text-amber-300">
-                  Chỉ còn 1.267.000 đ/tháng (Tiết kiệm gần 800.000 đ)
+                  Chỉ còn {economicData.monthlyPrice.toLocaleString('vi-VN')} đ/tháng (Tiết kiệm {economicData.totalSavings.toLocaleString('vi-VN')} đ)
                 </li>
               </ul>
             </div>
