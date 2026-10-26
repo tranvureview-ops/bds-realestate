@@ -228,10 +228,10 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     hasVR360: false,
     
     // 5. Liên hệ người đăng (Khách vãng lai hoặc Thành viên)
-    contactName: (!isGuest && currentUser?.name) ? currentUser.name : 'Nguyễn Văn Tuấn',
-    contactPhone: (!isGuest && currentUser?.phone) ? formatPhoneNumber(currentUser.phone) : '0908 123 456',
-    contactEmail: (!isGuest && currentUser?.email) ? currentUser.email : 'khach.bds@datbiendanang.vn',
-    contactAddress: (!isGuest && currentUser?.address) ? currentUser.address : 'TP. Đà Nẵng'
+    contactName: (!isGuest && currentUser?.name) ? currentUser.name : '',
+    contactPhone: (!isGuest && currentUser?.phone) ? formatPhoneNumber(currentUser.phone) : '',
+    contactEmail: (!isGuest && currentUser?.email) ? currentUser.email : '',
+    contactAddress: (!isGuest && currentUser?.address) ? currentUser.address : ''
   });
 
   // Voucher discount calculation
@@ -672,7 +672,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   // Tạo đối tượng BĐS hoàn chỉnh để xem trước giao diện thực tế
   const previewProperty = useMemo(() => {
     const isGuestUser = !currentUser || currentUser.role === 'guest' || currentUser.id === 'guest';
-    const contactPhone = formatPhoneNumber(String(formData.contactPhone || currentUser?.phone || '0908 123 456').trim());
+    const contactPhone = formatPhoneNumber(String(formData.contactPhone || currentUser?.phone || '').trim());
     const contactName = String(formData.contactName || (!isGuestUser && currentUser?.name) || 'Người đăng tin').trim();
 
     const safeAuthor = (!isGuestUser && currentUser) ? {
@@ -1075,6 +1075,20 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       setStep(4);
       showToast(`Bạn đã đạt giới hạn đăng tin miễn phí trong ngày (tối đa ${dailyQuotaInfo.limit} tin/ngày). Vui lòng nâng cấp gói Tin VIP hoặc quay lại vào ngày mai!`, 'warning');
       return;
+    }
+
+    // 3c. Kiểm tra thông tin người đăng (Nếu chưa đăng nhập)
+    if (isGuest) {
+      if (!formData.contactName || !formData.contactName.trim()) {
+        setStep(4);
+        showToast('Vui lòng nhập họ và tên liên hệ (Bước 4)!', 'warning');
+        return;
+      }
+      if (!formData.contactPhone || !formData.contactPhone.trim()) {
+        setStep(4);
+        showToast('Vui lòng nhập số điện thoại liên hệ (Bước 4)!', 'warning');
+        return;
+      }
     }
 
     // 4. Kiểm tra số dư ví nếu chọn thanh toán bằng Ví
@@ -2087,22 +2101,24 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     <span className="text-xs font-bold text-slate-800 uppercase block">
                       1. Thông Tin Người Đăng & Liên Hệ
                     </span>
-                    <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
-                      Khách Vãng Lai (Chưa đăng nhập)
-                    </span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                     <div>
-                      <label className="block text-[11px] font-bold text-slate-600 mb-1">Tên liên hệ</label>
+                      <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                        Tên liên hệ <span className="text-red-500">*</span>
+                      </label>
                       <input
                         type="text"
                         value={formData.contactName}
                         onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
-                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-bold"
+                        placeholder="Vui lòng nhập họ và tên..."
+                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-bold placeholder:font-normal placeholder:text-slate-400 focus:border-slate-800 focus:outline-none"
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-bold text-slate-600 mb-1">Số điện thoại liên hệ</label>
+                      <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                        Số điện thoại liên hệ <span className="text-red-500">*</span>
+                      </label>
                       <input
                         type="text"
                         value={formData.contactPhone}
@@ -2112,8 +2128,8 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                             setFormData(prev => ({ ...prev, contactPhone: formatPhoneNumber(e.target.value) }));
                           }
                         }}
-                        placeholder="Ví dụ: 0898 256 607"
-                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-bold font-mono"
+                        placeholder="Vui lòng nhập số điện thoại..."
+                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-bold font-mono placeholder:font-normal placeholder:text-slate-400 focus:border-slate-800 focus:outline-none"
                       />
                     </div>
                     <div>
@@ -2122,7 +2138,8 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         type="email"
                         value={formData.contactEmail}
                         onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
-                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-bold"
+                        placeholder="Vui lòng nhập email..."
+                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-bold placeholder:font-normal placeholder:text-slate-400 focus:border-slate-800 focus:outline-none"
                       />
                     </div>
                   </div>
