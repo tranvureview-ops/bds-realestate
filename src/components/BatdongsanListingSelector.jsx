@@ -766,24 +766,34 @@ export default function BatdongsanListingSelector({
                   placeholder="Chọn khung giờ đăng tin"
                 />
               </div>
-              <div className="text-[11px] text-slate-500 font-medium flex items-center justify-between gap-2 flex-wrap">
+              <div className="text-[11px] text-slate-500 font-medium">
                 <span>Tự động xuất bản đúng khung giờ có lượt tương tác cao nhất</span>
-                {!hasScheduleAccess && (
-                  <a
-                    href="/goi-hoi-vien"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-amber-700 hover:text-amber-800 font-bold underline text-[10px] inline-flex items-center gap-1"
-                  >
-                    <span>Nâng cấp gói hội viên</span>
-                    <i className="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-                  </a>
-                )}
               </div>
             </>
           )}
         </div>
       </div>
+
+      {/* Gộp thông báo đặc quyền Hội Viên gọn gàng cho Ngày Bắt Đầu & Hẹn Giờ Đăng */}
+      {(!hasStartDateAccess || !hasScheduleAccess) && (
+        <div className="mt-2.5 px-3.5 py-2 bg-amber-50/80 border border-amber-200/80 rounded-xl flex items-center justify-between gap-3 text-xs">
+          <div className="flex items-center gap-2 text-slate-700 min-w-0">
+            <i className="fa-solid fa-crown text-amber-500 text-xs shrink-0"></i>
+            <span className="text-[11px] truncate">
+              <b>Hẹn giờ đăng</b> & <b>Chọn ngày tương lai</b> là đặc quyền dành riêng cho <b>Hội Viên</b>
+            </span>
+          </div>
+          <a
+            href="/goi-hoi-vien"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[11px] font-bold text-amber-800 hover:text-amber-950 flex items-center gap-1 shrink-0 underline"
+          >
+            <span>Nâng cấp gói hội viên</span>
+            <i className="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+          </a>
+        </div>
+      )}
 
       {/* ========================================================
           4. HÓA ĐƠN TÓM TẮT DỰ TOÁN (Tùy chọn)
