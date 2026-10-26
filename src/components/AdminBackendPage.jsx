@@ -88,6 +88,8 @@ export default function AdminBackendPage() {
     updateAllVipPackagePrices,
     dailyFreeListingLimit,
     updateDailyFreeListingLimit,
+    discount30DaysPercent,
+    updateDiscount30DaysPercent,
     bumpServicePrice,
     updateBumpServicePrice,
     navigateToProperty, 
@@ -5660,6 +5662,7 @@ export default function AdminBackendPage() {
                         await updateBumpServicePrice(bumpEl.value);
                       }
                       const limitEl = document.getElementById('input-daily-free-limit');
+                      const discount30El = document.getElementById('input-discount-30days');
                       const normalAllowed = [15, 30, 60].filter(d => document.getElementById(`duration-check-normal-${d}`)?.checked);
                       const normalRates = {
                         15: Math.max(0, parseInt(document.getElementById('rate-normal-15')?.value, 10) || 0),
@@ -5670,6 +5673,9 @@ export default function AdminBackendPage() {
                         dailyFreeListingLimit: (limitEl && limitEl.value !== undefined && limitEl.value !== '')
                           ? (parseInt(limitEl.value, 10) || 0)
                           : 5,
+                        discount30DaysPercent: (discount30El && discount30El.value !== undefined && discount30El.value !== '')
+                          ? (parseInt(discount30El.value, 10) || 25)
+                          : 25,
                         normalAllowedDurations: normalAllowed.length > 0 ? normalAllowed : [60],
                         normalCustomRates: normalRates
                       };
@@ -5690,6 +5696,56 @@ export default function AdminBackendPage() {
                     <i className="fa-solid fa-crown text-amber-400"></i>
                     <span>Sang Gói Hội Viên ➔</span>
                   </button>
+                </div>
+              </div>
+
+              {/* Cấu hình Mức Tiết Kiệm Mốc 30 Ngày (Chiết khấu thời hạn VIP) */}
+              <div className="p-4 rounded-2xl bg-gradient-to-r from-red-950/40 via-slate-900 to-amber-950/30 border border-red-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center text-base shrink-0 border border-red-500/30">
+                    <i className="fa-solid fa-percent"></i>
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-white flex items-center gap-2">
+                      <span>Mức Tiết Kiệm Khi Đăng Tin Mốc 30 Ngày</span>
+                      <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-red-500/20 text-red-300 border border-red-500/40 uppercase">
+                        Áp Dụng Toàn Sàn
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-0.5">
+                      Tự động tính giảm giá cho khách chọn thời hạn 30 ngày (Hiển thị nhãn "Đăng từ 30 ngày tiết kiệm X%" và huy hiệu "-X%")
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs text-slate-400 font-bold">Tiết kiệm:</span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="90"
+                      defaultValue={discount30DaysPercent ?? systemConfig?.discount30DaysPercent ?? 25}
+                      key={`discount-30days-${discount30DaysPercent ?? systemConfig?.discount30DaysPercent}`}
+                      id="input-discount-30days"
+                      className="w-20 px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-xs font-black text-center text-red-400 focus:border-red-500 focus:outline-none"
+                    />
+                    <span className="text-xs text-slate-300 font-bold">%</span>
+                  </div>
+                  {updateDiscount30DaysPercent && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const val = document.getElementById('input-discount-30days')?.value;
+                        if (val !== undefined && val !== '') {
+                          updateDiscount30DaysPercent(val);
+                        }
+                      }}
+                      className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition cursor-pointer shadow-md"
+                    >
+                      Lưu
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -5801,6 +5857,15 @@ export default function AdminBackendPage() {
                             <span>Thời hạn hiển thị:</span>
                           </span>
                           <span className="font-bold text-slate-300">5, 7 (mặc định), 10, 15, 30 ngày</span>
+                        </div>
+                        <div className="flex items-center justify-between text-[11px] text-slate-400 pt-1 border-t border-slate-800/40">
+                          <span className="flex items-center gap-1.5">
+                            <i className="fa-solid fa-tags text-red-400 text-[10px]"></i>
+                            <span>Mốc 30 ngày (-{discount30DaysPercent ?? systemConfig?.discount30DaysPercent ?? 25}%):</span>
+                          </span>
+                          <span className="font-bold text-emerald-400">
+                            {Math.round((pkg.pricePerDay || 0) * (100 - (discount30DaysPercent ?? systemConfig?.discount30DaysPercent ?? 25)) / 100).toLocaleString('vi-VN')} đ/ngày • Tổng: {(Math.round((pkg.pricePerDay || 0) * (100 - (discount30DaysPercent ?? systemConfig?.discount30DaysPercent ?? 25)) / 100) * 30).toLocaleString('vi-VN')} đ
+                          </span>
                         </div>
                       </div>
                     )}

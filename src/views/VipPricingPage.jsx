@@ -52,7 +52,7 @@ export default function VipPricingPage() {
   const currentBumpPrice = bumpServicePrice ?? contextBumpPrice ?? BUMP_SERVICE_PRICE ?? 10000;
 
   const vipPackages = contextVipPackages || MOCK_VIP;
-  const ratesConfig = useMemo(() => getEffectiveListingRates(vipPackages, paymentConfig), [vipPackages, paymentConfig]);
+  const ratesConfig = useMemo(() => getEffectiveListingRates(vipPackages, paymentConfig, systemConfig), [vipPackages, paymentConfig, systemConfig]);
 
   // Dynamic calculations for Membership Economic Calculation ("Bài Toán Kinh Tế Dành Cho Môi Giới")
   const economicData = useMemo(() => {
@@ -106,12 +106,13 @@ export default function VipPricingPage() {
   const [scheduleTime, setScheduleTime] = useState('now');
 
   // Chu kỳ thời hạn chuẩn (5, 7, 10, 15, 30 ngày cho VIP; 60 ngày cho Tin Thường)
+  const discount30Val = Number(systemConfig?.discount30DaysPercent ?? 25);
   const DURATION_DISCOUNTS = {
     5: { label: '5 ngày', discountPercent: 0, badge: '5 ngày' },
     7: { label: '7 ngày', discountPercent: 0, badge: 'Mặc định (7 ngày)' },
     10: { label: '10 ngày', discountPercent: 0, badge: '10 ngày' },
     15: { label: '15 ngày', discountPercent: 0, badge: '15 ngày' },
-    30: { label: '30 ngày', discountPercent: 25, badge: 'Tiết kiệm 25%' },
+    30: { label: '30 ngày', discountPercent: discount30Val, badge: `Tiết kiệm ${discount30Val}%` },
     60: { label: '60 ngày', discountPercent: 30, badge: 'Mặc định 60 ngày' }
   };
 

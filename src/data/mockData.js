@@ -2496,6 +2496,7 @@ export const DEFAULT_SYSTEM_CONFIG = {
   autoFilterPhoneInContent: true, // Tự động quét và loại bỏ số điện thoại khỏi Tiêu đề & Mô tả tin đăng
   defaultListingDays: 15,
   dailyFreeListingLimit: 5, // Giới hạn đăng tin miễn phí / user / ngày (0 = không giới hạn)
+  discount30DaysPercent: 25, // % Tiết kiệm khi đăng tin mốc 30 ngày (mặc định 25%)
   maintenanceMode: false,
   // Cấu hình tính năng Hẹn Giờ Đăng Tin (Scheduled Publishing Settings)
   enableScheduledPublishing: true, // Bật/Tắt tính năng Hẹn Giờ Đăng Tin trên toàn hệ thống

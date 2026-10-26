@@ -3159,11 +3159,17 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const parsed = parseInt(newPrice, 10);
     const priceNum = isNaN(parsed) ? 0 : Math.max(0, parsed);
 
+    const discount30Percent = extraData.discount30DaysPercent !== undefined
+      ? Math.max(0, Math.min(100, parseInt(extraData.discount30DaysPercent, 10) || 0))
+      : (Number(systemConfig?.discount30DaysPercent) || 25);
+
     const rate5 = priceNum;
     const rate7 = priceNum;
     const rate10 = priceNum;
     const rate15 = priceNum;
-    const rate30 = Math.round(priceNum * 0.75);
+    const rate30 = extraData.rate30 !== undefined
+      ? Math.max(0, parseInt(extraData.rate30, 10) || 0)
+      : Math.round(priceNum * (100 - discount30Percent) / 100);
     const rate60 = Math.round(priceNum * 0.70);
 
     let updatedPackages;
@@ -3243,6 +3249,10 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // Admin Update All VIP Package Prices at once (Hỗ trợ giá 0 đ & giới hạn tin miễn phí/ngày)
   const updateAllVipPackagePrices = async (pricesMap = {}, extraConfig = {}) => {
+    const discount30Percent = extraConfig.discount30DaysPercent !== undefined
+      ? Math.max(0, Math.min(100, parseInt(extraConfig.discount30DaysPercent, 10) || 0))
+      : (Number(systemConfig?.discount30DaysPercent) || 25);
+
     let updatedPackages;
     setVipPackages(prev => {
       updatedPackages = prev.map(p => {
@@ -3254,7 +3264,11 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           const rate7 = priceNum;
           const rate10 = priceNum;
           const rate15 = priceNum;
-          const rate30 = Math.round(priceNum * 0.75);
+          const rate30 = (p.id === 'normal' && extraConfig.normalCustomRates?.[30] !== undefined)
+            ? extraConfig.normalCustomRates[30]
+            : (extraConfig.customRates30?.[p.id] !== undefined
+                ? Math.max(0, parseInt(extraConfig.customRates30[p.id], 10) || 0)
+                : Math.round(priceNum * (100 - discount30Percent) / 100));
           const rate60 = (p.id === 'normal') ? (extraConfig.normalCustomRates?.[60] ?? 0) : Math.round(priceNum * 0.70);
           const extra = (p.id === 'normal')
             ? {
@@ -3286,10 +3300,13 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       return updatedPackages;
     });
     await persistSettingToSupabase('bds_vip_packages', updatedPackages);
-    if (extraConfig.dailyFreeListingLimit !== undefined) {
-      const limitNum = Math.max(0, parseInt(extraConfig.dailyFreeListingLimit, 10) || 0);
+    if (extraConfig.dailyFreeListingLimit !== undefined || extraConfig.discount30DaysPercent !== undefined) {
       setSystemConfig(prev => {
-        const nextCfg = { ...prev, dailyFreeListingLimit: limitNum };
+        const nextCfg = { 
+          ...prev, 
+          ...(extraConfig.dailyFreeListingLimit !== undefined ? { dailyFreeLimit: Math.max(0, parseInt(extraConfig.dailyFreeListingLimit, 10) || 0) } : {}),
+          ...(extraConfig.discount30DaysPercent !== undefined ? { discount30DaysPercent: discount30Percent } : {})
+        };
         persistSettingToSupabase('bds_system_config', nextCfg);
         return nextCfg;
       });
@@ -3317,6 +3334,36 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         : `Đã cập nhật giới hạn đăng tin miễn phí: ${limitNum} tin/ngày/user`, 
       'success'
     );
+  };
+
+  // Admin Update 30-Day Listing Discount Percentage (Mức tiết kiệm mốc 30 ngày)
+  const updateDiscount30DaysPercent = async (percent) => {
+    const pNum = Math.max(0, Math.min(100, parseInt(percent, 10) || 0));
+    setSystemConfig(prev => {
+      const nextCfg = { ...prev, discount30DaysPercent: pNum };
+      persistSettingToSupabase('bds_system_config', nextCfg);
+      return nextCfg;
+    });
+
+    let nextPkgs;
+    setVipPackages(prev => {
+      nextPkgs = prev.map(p => {
+        if (p.id === 'normal') return p;
+        const baseDaily = Number(p.pricePerDay) || 0;
+        const rate30 = Math.round(baseDaily * (100 - pNum) / 100);
+        return {
+          ...p,
+          rates: {
+            ...(p.rates || {}),
+            30: rate30
+          }
+        };
+      });
+      persistSettingToSupabase('bds_vip_packages', nextPkgs);
+      return nextPkgs;
+    });
+
+    showToast(`Đã cập nhật mức tiết kiệm mốc 30 ngày thành ${pNum}%`, 'success');
   };
 
   // Admin Update Bump Service Price (Đơn giá Đẩy Tin toàn sàn)
@@ -4260,6 +4307,10 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           ? systemConfig.dailyFreeListingLimit
           : ((vipPackages.find(p => p.id === 'normal')?.dailyFreeLimit) ?? 5),
         updateDailyFreeListingLimit,
+        discount30DaysPercent: typeof systemConfig?.discount30DaysPercent === 'number'
+          ? systemConfig.discount30DaysPercent
+          : 25,
+        updateDiscount30DaysPercent,
         getTodayFreeListingCount,
         checkDailyFreeListingQuota,
         bumpServicePrice,

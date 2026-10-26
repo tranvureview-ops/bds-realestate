@@ -90,14 +90,16 @@ export const LISTING_RATES = {
 };
 
 /**
- * Tính toán bảng tỷ giá hiển thị động theo cấu hình giá Admin từ vipPackages và paymentConfig
+ * Tính toán bảng tỷ giá hiển thị động theo cấu hình giá Admin từ vipPackages, paymentConfig và systemConfig
  */
-export function getEffectiveListingRates(customVipPackages, paymentConfig = null) {
+export function getEffectiveListingRates(customVipPackages, paymentConfig = null, systemConfig = null) {
   const result = { ...LISTING_RATES };
   if (!customVipPackages || !Array.isArray(customVipPackages) || customVipPackages.length === 0) {
     return result;
   }
   const approvalTiers = paymentConfig?.approvalTiers;
+  const discount30Percent = Number(systemConfig?.discount30DaysPercent ?? paymentConfig?.discount30DaysPercent ?? 25);
+  const discount30Multiplier = (100 - discount30Percent) / 100;
 
   customVipPackages.forEach(pkg => {
     if (!pkg || !pkg.id) return;
@@ -119,17 +121,16 @@ export function getEffectiveListingRates(customVipPackages, paymentConfig = null
       price7 = baseDaily;
       price10 = baseDaily;
       price15 = (pkg.rates?.[15] !== undefined && !isNaN(Number(pkg.rates[15]))) ? Math.max(0, Number(pkg.rates[15])) : baseDaily;
-      price30 = (pkg.rates?.[30] !== undefined && !isNaN(Number(pkg.rates[30]))) ? Math.max(0, Number(pkg.rates[30])) : Math.round(baseDaily * 0.75);
+      price30 = (pkg.rates?.[30] !== undefined && !isNaN(Number(pkg.rates[30]))) ? Math.max(0, Number(pkg.rates[30])) : Math.round(baseDaily * discount30Multiplier);
       price60 = 0; // Tin Thường luôn miễn phí 60 ngày
     } else {
       // Các gói VIP (Kim Cương, Vàng, Bạc):
-      // Đồng bộ trực tiếp theo baseDaily; 30 ngày tự động giảm 25% chuẩn sàn
-      price5 = baseDaily;
-      price7 = baseDaily;
-      price10 = baseDaily;
-      price15 = baseDaily;
-      price30 = Math.round(baseDaily * 0.75);
-      price60 = Math.round(baseDaily * 0.70);
+      price5 = (pkg.rates?.[5] !== undefined && !isNaN(Number(pkg.rates[5]))) ? Math.max(0, Number(pkg.rates[5])) : baseDaily;
+      price7 = (pkg.rates?.[7] !== undefined && !isNaN(Number(pkg.rates[7]))) ? Math.max(0, Number(pkg.rates[7])) : baseDaily;
+      price10 = (pkg.rates?.[10] !== undefined && !isNaN(Number(pkg.rates[10]))) ? Math.max(0, Number(pkg.rates[10])) : baseDaily;
+      price15 = (pkg.rates?.[15] !== undefined && !isNaN(Number(pkg.rates[15]))) ? Math.max(0, Number(pkg.rates[15])) : baseDaily;
+      price30 = (pkg.rates?.[30] !== undefined && !isNaN(Number(pkg.rates[30]))) ? Math.max(0, Number(pkg.rates[30])) : Math.round(baseDaily * discount30Multiplier);
+      price60 = (pkg.rates?.[60] !== undefined && !isNaN(Number(pkg.rates[60]))) ? Math.max(0, Number(pkg.rates[60])) : Math.round(baseDaily * 0.70);
     }
 
     // Approval badge resolution:
@@ -183,6 +184,9 @@ export function getEffectiveListingRates(customVipPackages, paymentConfig = null
   });
   return result;
 }
+
+// Backward compatibility alias
+export const getEffectiveBdsRates = getEffectiveListingRates;
 
 // Component vẽ Icon dải tầng
 export function ListingTypeIcon({ type }) {
@@ -249,10 +253,10 @@ export default function ListingTierSelector({
   const realEstateContext = useRealEstate();
   const effectivePackages = customVipPackages || realEstateContext?.vipPackages;
   const paymentConfig = realEstateContext?.paymentConfig;
-  const ratesConfig = useMemo(() => getEffectiveBdsRates(effectivePackages, paymentConfig), [effectivePackages, paymentConfig]);
+  const systemConfig = realEstateContext?.systemConfig;
+  const ratesConfig = useMemo(() => getEffectiveListingRates(effectivePackages, paymentConfig, systemConfig), [effectivePackages, paymentConfig, systemConfig]);
 
   const currentUser = realEstateContext?.currentUser;
-  const systemConfig = realEstateContext?.systemConfig;
   const isMembershipActive = realEstateContext?.isMembershipActive;
   const membershipPackages = realEstateContext?.membershipPackages || [];
   const showToast = realEstateContext?.showToast;
@@ -352,6 +356,15 @@ export default function ListingTierSelector({
 
   const isNormal = selectedType === 'normal';
   const currentConfig = ratesConfig?.[selectedType] || ratesConfig?.['normal'] || LISTING_RATES['normal'];
+
+  // Mức tiết kiệm mốc 30 ngày (tính động theo giá mốc 30 ngày hoặc cấu hình admin)
+  const discount30Percent = useMemo(() => {
+    if (currentConfig?.rates?.[30] && currentConfig?.pricePerDay && currentConfig.pricePerDay > 0) {
+      const computed = Math.round(((currentConfig.pricePerDay - currentConfig.rates[30]) / currentConfig.pricePerDay) * 100);
+      if (computed > 0) return computed;
+    }
+    return Number(systemConfig?.discount30DaysPercent ?? paymentConfig?.discount30DaysPercent ?? 25);
+  }, [currentConfig, systemConfig, paymentConfig]);
 
   const todayStr = useMemo(() => getTodayString(), []);
   const todayFormatted = useMemo(() => {
@@ -558,7 +571,7 @@ export default function ListingTierSelector({
           )}
           {!isNormal && (
             <span className="text-[11px] font-semibold text-slate-500 hidden sm:inline-block">
-              Đăng từ 30 ngày tiết kiệm 25%
+              Đăng từ 30 ngày tiết kiệm {discount30Percent}%
             </span>
           )}
         </div>
@@ -603,7 +616,7 @@ export default function ListingTierSelector({
                 const isSelected = selectedDays === days;
                 const rate = currentConfig?.rates?.[days] ?? (
                   days === 30
-                    ? Math.round((currentConfig?.rates?.[15] ?? currentConfig?.pricePerDay ?? 0) * 0.75)
+                    ? Math.round((currentConfig?.rates?.[15] ?? currentConfig?.pricePerDay ?? 0) * (1 - discount30Percent / 100))
                     : (currentConfig?.rates?.[15] ?? currentConfig?.pricePerDay ?? 0)
                 );
                 const totalForDuration = rate * days;
@@ -626,7 +639,7 @@ export default function ListingTierSelector({
                     )}
                     {days === 30 && (
                       <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-red-600 bg-red-100 border border-red-200 px-1.5 py-0.2 rounded-full whitespace-nowrap shadow-2xs">
-                        -25%
+                        -{discount30Percent}%
                       </span>
                     )}
                     <div className={`font-bold text-xs sm:text-sm ${isSelected ? 'text-slate-950 font-black' : 'text-slate-800'}`}>
