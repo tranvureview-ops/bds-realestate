@@ -506,63 +506,6 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
       {/* ================= 1.5. CẤU HÌNH ĐƠN GIÁ CHUNG CHO 3 LOẠI VOUCHER HỘI VIÊN ================= */}
       <AdminCommonVoucherPricing />
 
-      {/* ================= TIỆN ÍCH HẸN GIỜ ĐĂNG TIN & NGÀY BẮT ĐẦU THEO TỪNG GÓI HỘI VIÊN ================= */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
-        <div className="flex items-start sm:items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
-            <i className="fa-regular fa-clock text-base"></i>
-          </div>
-          <div>
-            <div className="text-xs font-black text-white flex items-center gap-2 flex-wrap">
-              <span>Tiện Ích: Hẹn Giờ Đăng & Chọn Ngày Bắt Đầu Theo Từng Gói Hội Viên</span>
-              <span className="text-[10px] bg-amber-500/10 text-amber-300 border border-amber-500/30 px-2.5 py-0.5 rounded-full font-bold">
-                Tùy chỉnh Bật / Tắt riêng từng gói
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-              Bạn có thể <b>BẬT hoặc TẮT</b> chức năng <b>Hẹn giờ đăng tin</b> và <b>Chọn ngày bắt đầu trong tương lai</b> độc lập cho 3 gói hội viên bên dưới. Gói bị tắt quyền ngày bắt đầu sẽ bắt buộc xuất bản ngay ngày hiện tại.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-2 shrink-0 self-end md:self-auto text-xs bg-slate-950/80 p-3 rounded-xl border border-slate-800 min-w-[240px]">
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-slate-400 text-[11px] font-bold flex items-center gap-1">
-              <i className="fa-regular fa-clock text-amber-400 text-[10px]"></i>
-              <span>Hẹn Giờ Vàng:</span>
-            </span>
-            <div className="flex flex-wrap gap-1">
-              {(membershipPackages || []).filter(p => p.allowScheduledPublishing).length > 0 ? (
-                (membershipPackages || []).filter(p => p.allowScheduledPublishing).map(p => (
-                  <span key={p.id} className="px-1.5 py-0.2 rounded-md bg-emerald-950 text-emerald-300 border border-emerald-800 text-[9px] font-bold">
-                    {p.shortName || p.name}
-                  </span>
-                ))
-              ) : (
-                <span className="text-[9px] text-rose-400 font-bold">Tất cả đều tắt</span>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center justify-between gap-2 border-t border-slate-800 pt-1.5">
-            <span className="text-slate-400 text-[11px] font-bold flex items-center gap-1">
-              <i className="fa-regular fa-calendar-days text-blue-400 text-[10px]"></i>
-              <span>Ngày Tương Lai:</span>
-            </span>
-            <div className="flex flex-wrap gap-1">
-              {(membershipPackages || []).filter(p => p.allowFutureStartDate).length > 0 ? (
-                (membershipPackages || []).filter(p => p.allowFutureStartDate).map(p => (
-                  <span key={p.id} className="px-1.5 py-0.2 rounded-md bg-blue-950 text-blue-300 border border-blue-800 text-[9px] font-bold">
-                    {p.shortName || p.name}
-                  </span>
-                ))
-              ) : (
-                <span className="text-[9px] text-rose-400 font-bold">Tất cả đều tắt</span>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* ================= 2. QUICK STATS SUMMARY ================= */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800">
