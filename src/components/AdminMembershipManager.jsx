@@ -1273,6 +1273,11 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                                   onChange={(e) => handleBillingCycleChange(idx, 'price', e.target.value)}
                                   className="w-full p-2 bg-slate-950 border border-slate-700 rounded-lg text-white font-mono text-xs font-bold outline-none focus:border-amber-500"
                                 />
+                                {cycle.months > 1 && (
+                                  <span className="text-[10px] text-emerald-400 font-bold block mt-0.5 truncate">
+                                    ~{Math.round((cycle.price || 0) / cycle.months).toLocaleString('vi-VN')} đ/tháng
+                                  </span>
+                                )}
                               </div>
 
                               <div>
@@ -1610,9 +1615,20 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                             </span>
                             <span className="text-xs font-bold text-slate-500">đ / {previewCycle} tháng</span>
                           </div>
+
                           {previewCycle > 1 && (
-                            <div className="text-[11px] text-emerald-600 font-bold mt-1 flex items-center gap-1">
-                              <i className="fa-solid fa-tag"></i>
+                            <div className="text-xs font-medium text-slate-600 mt-1 flex items-center gap-1">
+                              <span>(tương đương</span>
+                              <strong className="text-emerald-700 font-black font-mono">
+                                ~{Math.round(Number(activeCycle.price || 0) / previewCycle).toLocaleString('vi-VN')} đ
+                              </strong>
+                              <span>/ tháng)</span>
+                            </div>
+                          )}
+
+                          {previewCycle > 1 && (
+                            <div className="text-[11px] text-emerald-600 font-bold mt-1.5 flex items-center gap-1">
+                              <i className="fa-solid fa-tag text-[10px]"></i>
                               <span>{activeCycle.note || `Tiết kiệm thêm khi đăng ký ${previewCycle} tháng`}</span>
                             </div>
                           )}

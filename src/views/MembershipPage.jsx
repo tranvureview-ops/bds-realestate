@@ -351,9 +351,20 @@ export default function MembershipPage() {
                       </span>
                       <span className="text-xs font-bold text-slate-500">đ / {selectedCycle} tháng</span>
                     </div>
+
                     {selectedCycle > 1 && (
-                      <div className="text-[11px] text-emerald-600 font-bold mt-1 flex items-center gap-1">
-                        <i className="fa-solid fa-tag"></i>
+                      <div className="text-xs font-medium text-slate-600 mt-1 flex items-center gap-1">
+                        <span>(tương đương</span>
+                        <strong className="text-emerald-700 font-black font-mono">
+                          ~{Math.round(cycle.price / selectedCycle).toLocaleString('vi-VN')} đ
+                        </strong>
+                        <span>/ tháng)</span>
+                      </div>
+                    )}
+
+                    {selectedCycle > 1 && (
+                      <div className="text-[11px] text-emerald-600 font-bold mt-1.5 flex items-center gap-1">
+                        <i className="fa-solid fa-tag text-[10px]"></i>
                         <span>{cycle.note || `Tiết kiệm thêm khi đăng ký ${selectedCycle} tháng`}</span>
                       </div>
                     )}
@@ -672,11 +683,18 @@ export default function MembershipPage() {
                     {projectedExpiry.toLocaleDateString('vi-VN')} {isRenew ? '(Cộng nối tiếp)' : ''}
                   </span>
                 </div>
-                <div className="flex justify-between border-t pt-2">
+                <div className="flex justify-between items-baseline border-t pt-2">
                   <span className="text-slate-500">Tổng thanh toán:</span>
-                  <span className="font-black text-emerald-600 text-base">
-                    {confirmingPackage.cycle.price.toLocaleString('vi-VN')} đ
-                  </span>
+                  <div className="text-right">
+                    <span className="font-black text-emerald-600 text-base">
+                      {confirmingPackage.cycle.price.toLocaleString('vi-VN')} đ
+                    </span>
+                    {confirmingPackage.cycle.months > 1 && (
+                      <div className="text-[11px] text-slate-500 font-medium">
+                        (tương đương ~{Math.round(confirmingPackage.cycle.price / confirmingPackage.cycle.months).toLocaleString('vi-VN')} đ / tháng)
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Số dư ví hiện tại:</span>
