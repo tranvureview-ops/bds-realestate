@@ -1,5 +1,5 @@
 /**
- * Module xử lý Permalink & Schema URL chuẩn hóa theo cấu trúc của website Batdongsan.com.vn
+ * Module xử lý Permalink & Schema URL chuẩn hóa SEO
  * 
  * 1. Permalink Tin Đăng Chi Tiết (Canonical Property URL):
  *    - Cấu trúc: /{slug-tieu-de}-pr{id} hoặc /{loai-giao-dich}-{loai-bds}-{vi-tri}-{slug}-pr{id}
@@ -102,8 +102,8 @@ export const buildPaginationUrl = (basePath, pageNumber, currentSearchParams = '
   return qs ? `${pagePath}?${qs}` : pagePath;
 };
 
-// Bảng ánh xạ danh mục loại hình BĐS chuẩn Batdongsan.com.vn & 12 danh mục chuẩn SEO
-export const BATDONGSAN_TAXONOMY = {
+// Bảng ánh xạ danh mục loại hình BĐS & 12 danh mục chuẩn SEO
+export const PROPERTY_TAXONOMY = {
   sale: {
     base: '/nha-dat-ban',
     title: 'Nhà Đất Bán Toàn Quốc',
@@ -273,7 +273,7 @@ export const buildSeoUrl = ({
   extraParams = {}
 } = {}) => {
   const isRent = demand === 'rent';
-  const group = BATDONGSAN_TAXONOMY[isRent ? 'rent' : 'sale'] || BATDONGSAN_TAXONOMY.sale;
+  const group = PROPERTY_TAXONOMY[isRent ? 'rent' : 'sale'] || PROPERTY_TAXONOMY.sale;
 
   // 1. Base slug theo loại hình
   let basePath = '';
@@ -395,7 +395,7 @@ export const buildSeoUrl = ({
 };
 
 /**
- * Phân tích URL danh mục (Taxonomy URL) theo chuẩn Batdongsan.com.vn & Clean Slug SEO URLs
+ * Phân tích URL danh mục (Taxonomy URL) & Clean Slug SEO URLs
  * Ví dụ:
  * - /ban-can-ho-chung-cu-da-nang -> { isTaxonomy: true, demand: 'sale', propertyType: 'apartment', city: 'Đà Nẵng', ... }
  * - /ban-can-ho-chung-cu-quan-hai-chau -> { isTaxonomy: true, demand: 'sale', propertyType: 'apartment', district: 'Quận Hải Châu', city: 'Đà Nẵng' }
@@ -452,7 +452,7 @@ export const parseTaxonomyUrl = (urlPath) => {
 
   // 1. Kiểm tra Base danh mục: /nha-dat-ban hoặc /nha-dat-cho-thue
   for (const demand of ['sale', 'rent']) {
-    const group = BATDONGSAN_TAXONOMY[demand];
+    const group = PROPERTY_TAXONOMY[demand];
     
     // Khớp chính xác base: /nha-dat-ban hoặc /nha-dat-cho-thue
     if (clean === group.base) {
@@ -752,8 +752,8 @@ export const parseTaxonomyUrl = (urlPath) => {
 
     // J. Sinh Title SEO chuẩn tiếng Việt có dấu
     let typeName = '';
-    if (propertyType && propertyType !== 'all' && BATDONGSAN_TAXONOMY[demand]?.types[propertyType]) {
-      typeName = BATDONGSAN_TAXONOMY[demand].types[propertyType].name;
+    if (propertyType && propertyType !== 'all' && PROPERTY_TAXONOMY[demand]?.types[propertyType]) {
+      typeName = PROPERTY_TAXONOMY[demand].types[propertyType].name;
     } else {
       typeName = demand === 'sale' ? 'Mua Bán Nhà Đất' : 'Cho Thuê Nhà Đất';
     }
@@ -883,7 +883,7 @@ export const formatAreaRangeText = (areaRange, label = '') => {
 };
 
 /**
- * Tạo URL Permalink bài đăng chi tiết chuẩn duy nhất Batdongsan.com.vn: /{slug-tieu-de}-pr{id}
+ * Tạo URL Permalink bài đăng chi tiết duy nhất: /{slug-tieu-de}-pr{id}
  * Ví dụ: BDS-012 -> /ban-can-ho-chung-cu-goldmark-city-136-ho-tung-mau-75m-2pn-35-ty-pr012
  */
 export const getPropertyPermalink = (property) => {
@@ -937,7 +937,7 @@ export const parsePropertyUrl = (urlPath) => {
 };
 
 /**
- * Tạo URL danh mục chuẩn Batdongsan theo Nhu cầu, Loại hình, Tỉnh/Thành & Quận/Huyện
+ * Tạo URL danh mục theo Nhu cầu, Loại hình, Tỉnh/Thành & Quận/Huyện
  * Tích hợp trực tiếp với bộ quy tắc buildSeoUrl chuẩn Technical SEO
  * Hỗ trợ các trường hợp Breadcrumb & Faceted Navigation:
  * - Cấp Loại hình: /ban-nha-rieng-nha-pho (hoặc /ban-can-ho-chung-cu, /cho-thue-can-ho-chung-cu)
@@ -1019,7 +1019,7 @@ export const generatePropertyJsonLd = (property, siteUrl = 'https://datbiendanan
           {
             '@type': 'ListItem',
             'position': 2,
-            'name': (property.propertyType && BATDONGSAN_TAXONOMY[property.demand]?.types[property.propertyType]?.name) || (property.demand === 'sale' ? 'Nhà đất bán' : 'Cho thuê nhà đất'),
+            'name': (property.propertyType && PROPERTY_TAXONOMY[property.demand]?.types[property.propertyType]?.name) || (property.demand === 'sale' ? 'Nhà đất bán' : 'Cho thuê nhà đất'),
             'item': `${siteUrl}${getCategoryPermalink(property.demand, property.propertyType)}`
           },
           ...(property.city ? [{

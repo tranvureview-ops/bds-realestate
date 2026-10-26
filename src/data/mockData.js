@@ -1,4 +1,4 @@
-// Bảng phân loại Tin Đăng theo chuẩn Batdongsan.com.vn (https://trogiup.batdongsan.com.vn/docs/tin-dang-bds)
+// Bảng phân loại Tin Đăng Bất Động Sản
 export const LISTING_TYPES = [
   {
     id: 'vip-diamond',
@@ -252,8 +252,8 @@ export const MEMBERSHIP_PACKAGES = [
   }
 ];
 
-export const BUMP_SERVICE_PRICE = 10000; // 10,000 VND / lần đẩy tin thường theo chuẩn Batdongsan
-export const NORMAL_PUBLISH_PRICE = 35000; // 35,000 VND / lần đăng tin thường theo chuẩn Batdongsan
+export const BUMP_SERVICE_PRICE = 10000; // 10,000 VND / lần đẩy tin thường
+export const NORMAL_PUBLISH_PRICE = 35000; // 35,000 VND / lần đăng tin thường
 
 export const PROPERTY_TYPES = [
   { id: 'apartment', slug: 'can-ho-chung-cu', name: 'Căn hộ chung cư', icon: 'fa-building' },
@@ -2086,7 +2086,7 @@ export const MOCK_USERS = [
   {
     id: 'broker-01',
     name: 'Nguyễn Văn Tuấn',
-    email: 'tuan.batdongsan@datbiendanang.vn',
+    email: 'tuan.datbien@datbiendanang.vn',
     password: '123456',
     passwordHash: '$2b$10$jgjsVvPtPeI7WDBTiFSj1eDC8xz6aYTszoychODv7PYe.94N0oTNi',
     role: 'broker',

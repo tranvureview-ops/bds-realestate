@@ -63,7 +63,7 @@ export default function PostListingPage() {
 
           {/* Right Column: Broker Sidebar & Real-time Insights */}
           <div className="lg:col-span-4 space-y-5">
-            {/* 1. So Sánh Hiệu Quả 4 Cấp Độ Tin Đăng (Batdongsan Benchmark) */}
+            {/* 1. So Sánh Hiệu Quả 4 Cấp Độ Tin Đăng */}
             <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div className="flex items-center gap-2">
@@ -132,7 +132,7 @@ export default function PostListingPage() {
               </div>
             </div>
 
-            {/* 3. Tiêu Chuẩn Kiểm Duyệt Batdongsan.com.vn */}
+            {/* 3. Tiêu Chuẩn Kiểm Duyệt Tin Đăng */}
             <div className="bg-emerald-50/70 border border-emerald-200 p-5 rounded-3xl space-y-3 text-xs">
               <div className="flex items-center gap-2 text-emerald-900 font-black text-sm">
                 <i className="fa-solid fa-shield-halved text-emerald-600"></i>

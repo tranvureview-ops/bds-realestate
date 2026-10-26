@@ -127,7 +127,7 @@ export const calculateScheduledPublishTimestamp = (startDateStr, scheduleTimeStr
   return targetDate.toISOString();
 };
 
-// Chuẩn hóa và tính toán vòng đời / thời hạn bài viết theo quy chuẩn Batdongsan.com.vn
+// Chuẩn hóa và tính toán vòng đời / thời hạn bài viết theo quy chuẩn
 export const normalizePropertyExpiration = (p) => {
   if (!p) return p;
   const now = Date.now();
@@ -140,7 +140,7 @@ export const normalizePropertyExpiration = (p) => {
   let isFeatured = p.isFeatured;
   let hasDualListing = p.hasDualListing;
 
-  // Thiết lập dữ liệu mẫu minh họa cho các trạng thái Batdongsan.com.vn
+  // Thiết lập dữ liệu mẫu minh họa cho các trạng thái bài đăng
   if (p.id === 'BDS-008') {
     status = 'expired';
     if (!expiresAt || new Date(expiresAt).getTime() > now) {
@@ -226,7 +226,7 @@ export const normalizePropertyExpiration = (p) => {
   };
 };
 
-// Hàm trích xuất thông tin hạn dùng theo chuẩn Batdongsan.com.vn
+// Hàm trích xuất thông tin hạn dùng của bài đăng
 export const getPropertyExpirationInfo = (prop) => {
   if (!prop) {
     return {
@@ -330,7 +330,7 @@ export const getPropertyExpirationInfo = (prop) => {
 
   const daysRemaining = Math.floor(diffMs / (1000 * 60 * 60 * 24));
   const hoursRemaining = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  const isExpiringSoon = daysRemaining < 3; // Cảnh báo sớm theo chuẩn Batdongsan: dưới 3 ngày
+  const isExpiringSoon = daysRemaining < 3; // Cảnh báo sớm: dưới 3 ngày
 
   if (isExpiringSoon) {
     const timeStr = daysRemaining > 0 ? `Còn ${daysRemaining} ngày ${hoursRemaining}h` : `Còn ${hoursRemaining} giờ`;
@@ -1339,7 +1339,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return () => clearInterval(autoApproveTimer);
   }, []);
 
-  // Background Listing Expiration & Auto-Renewal Processor (Chuẩn Batdongsan.com.vn)
+  // Background Listing Expiration & Auto-Renewal Processor
   useEffect(() => {
     const processExpirations = () => {
       const now = Date.now();
@@ -1372,7 +1372,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
                     userId: authorUser.id,
                     userName: authorUser.name,
                     type: 'auto_renew_vip',
-                    title: `Tự động gia hạn tin ${prop.id} (${days} ngày - chuẩn Batdongsan)`,
+                    title: `Tự động gia hạn tin ${prop.id} (${days} ngày)`,
                     amount: -cost,
                     balanceAfter: newBal,
                     status: 'success',
@@ -1418,7 +1418,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
                 };
               }
 
-              // Chuyển sang trạng thái hết hạn chuẩn Batdongsan (cho Tin Thường hoặc tin đã hết 60 ngày cộng thêm)
+              // Chuyển sang trạng thái hết hạn (cho Tin Thường hoặc tin đã hết 60 ngày cộng thêm)
               return {
                 ...prop,
                 status: 'expired',
@@ -1470,7 +1470,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return true;
   };
 
-  // Background Membership Expiration & Voucher Revocation Processor (Phương án 1 - Chuẩn Batdongsan)
+  // Background Membership Expiration & Voucher Revocation Processor (Phương án 1)
   useEffect(() => {
     const processMembershipExpirations = () => {
       const now = Date.now();
@@ -1562,7 +1562,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
               return updatedUser;
             }
           } else if (user.membership.status === 'active') {
-            // Chu kỳ cấp mới voucher định kỳ mỗi 30 ngày (Hình thức 1 - Chuẩn Batdongsan)
+            // Chu kỳ cấp mới voucher định kỳ mỗi 30 ngày (Hình thức 1)
             const nextRefreshTime = user.membership.nextVoucherRefreshAt 
               ? new Date(user.membership.nextVoucherRefreshAt).getTime()
               : 0;
@@ -1704,7 +1704,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     showToast(`Đã chuyển sang vai trò: ${target.roleName}`, 'info');
   };
 
-  // Navigate to Dedicated Single Property Page (bằng URL Permalink chuẩn Batdongsan: /{slug}-pr{id})
+  // Navigate to Dedicated Single Property Page (bằng URL Permalink: /{slug}-pr{id})
   const navigateToProperty = (property) => {
     setSelectedPropertyDetail(property);
     setCurrentView('property-detail');
@@ -1952,7 +1952,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const pkg = vipPackages.find(p => p.id === vipPackageId) || vipPackages[vipPackages.length - 1];
     const isGuest = !currentUser || currentUser.role === 'guest' || currentUser.id === 'guest';
     
-    // Tỷ lệ giá theo chu kỳ ngày (chuẩn Batdongsan)
+    // Tỷ lệ giá theo chu kỳ ngày
     const baseDailyRate = Number(pkg.pricePerDay) || 0;
     const activeRates = pkg.rates || {
       5: baseDailyRate,
@@ -2319,7 +2319,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const normalBumpCount = pkg.vouchersPerCycle.normalBumpVouchers;
     const vipCount = pkg.vouchersPerCycle.vipVouchers || 0;
 
-    // Chu kỳ cấp voucher 30 ngày định kỳ (Hình thức 1 - Chuẩn Batdongsan)
+    // Chu kỳ cấp voucher 30 ngày định kỳ (Hình thức 1)
     const nextRefreshDate = new Date(Math.min(Date.now() + 30 * 24 * 60 * 60 * 1000, new Date(expiresDate).getTime())).toISOString();
 
     const updatedUser = {
@@ -2840,7 +2840,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     showToast(`Đã cập nhật bài đăng ${propertyId}!`, 'success');
   };
 
-  // Gia hạn tin đăng theo chuẩn Batdongsan.com.vn (Renew / Extend Listing)
+  // Gia hạn tin đăng (Renew / Extend Listing)
   const renewProperty = ({ propertyId, extendDays = 15, newVipPackageId = null, autoRenew = undefined, isFreeAdmin = false }) => {
     const prop = properties.find(p => p.id === propertyId);
     if (!prop) {
@@ -2885,7 +2885,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       setTransactions(prev => [newTxn, ...prev]);
     }
 
-    // Tính thời gian hết hạn mới theo chuẩn Batdongsan:
+    // Tính thời gian hết hạn mới:
     // Nếu tin đã hết hạn: tính từ thời điểm gia hạn (now + days)
     // Nếu tin đang còn hạn: cộng nối tiếp vào hạn hiện tại (expiresAt_cũ + days)
     const now = Date.now();

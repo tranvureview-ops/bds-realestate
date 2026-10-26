@@ -14,8 +14,7 @@ import {
 import CustomSelect from './CustomSelect';
 
 /**
- * AddressSelectModal - Hộp thoại Chọn Địa Chỉ chuẩn Batdongsan.com.vn
- * (Tham khảo giao diện https://batdongsan.com.vn/nguoi-ban/dang-tin)
+ * AddressSelectModal - Hộp thoại Chọn Địa Chỉ Bất Động Sản
  */
 export default function AddressSelectModal({
   isOpen,
@@ -265,7 +264,7 @@ export default function AddressSelectModal({
         className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-200 text-left"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* ================= HEADER BAR (Chuẩn Batdongsan.com.vn) ================= */}
+        {/* ================= HEADER BAR ================= */}
         <div className="bg-slate-900 text-white px-6 py-4 flex items-center justify-between border-b border-slate-800">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-red-600/30 text-red-500 flex items-center justify-center text-sm font-bold border border-red-500/40">
@@ -478,12 +477,11 @@ export default function AddressSelectModal({
 
           {/* ======================================================== */}
           {/* KHỐI ĐỐI CHIẾU ĐỊA CHỈ MỚI SÁP NHẬP ĐƠN VỊ HÀNH CHÍNH      */}
-          {/* Chuẩn giao diện Batdongsan.com.vn                         */}
           {/* ======================================================== */}
           {mergerSuggestion && (
             <div className="pt-2 pb-1 space-y-3 animate-in fade-in duration-200">
               
-              {/* 1. ĐỊA CHỈ CŨ - Chuẩn ảnh gốc Batdongsan: text không đóng khung */}
+              {/* 1. ĐỊA CHỈ CŨ */}
               <div>
                 <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
                   <i className="fa-solid fa-location-dot text-slate-900 text-sm"></i>

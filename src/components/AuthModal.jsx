@@ -203,7 +203,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
                 <i className="fa-solid fa-user absolute left-3.5 top-3 text-slate-400 text-xs"></i>
                 <input
                   type="text"
-                  placeholder="VD: tuan.batdongsan@datbiendanang.vn hoặc 0898246607"
+                  placeholder="VD: tuan.datbien@datbiendanang.vn hoặc 0898246607"
                   value={loginIdentifier}
                   onChange={(e) => setLoginIdentifier(e.target.value)}
                   className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
@@ -411,7 +411,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
               </label>
               <input
                 type="email"
-                placeholder="VD: tuan.batdongsan@gmail.com"
+                placeholder="VD: tuan.datbien@gmail.com"
                 value={registerData.email}
                 onBlur={() => setEmailTouched(true)}
                 onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}

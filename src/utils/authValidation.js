@@ -114,7 +114,7 @@ export function validateEmailAddress(rawEmail) {
     return {
       isValid: false,
       email: cleaned,
-      message: 'Địa chỉ email không đúng định dạng chuẩn (ví dụ: contact@batdongsan.vn).'
+      message: 'Địa chỉ email không đúng định dạng chuẩn (ví dụ: contact@datbiendanang.vn).'
     };
   }
 

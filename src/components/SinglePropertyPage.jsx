@@ -5,7 +5,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { Link } from '../router/RouterContext';
 import { VIP_PACKAGES } from '../data/mockData';
 import dynamic from 'next/dynamic';
-import { getCategoryPermalink, toVietnameseSlug, buildFacetedUrl, buildKeywordCleanSlug, buildSeoUrl, CITY_SLUGS, BATDONGSAN_TAXONOMY, formatSentenceCase } from '../utils/permalink';
+import { getCategoryPermalink, toVietnameseSlug, buildFacetedUrl, buildKeywordCleanSlug, buildSeoUrl, CITY_SLUGS, PROPERTY_TAXONOMY, formatSentenceCase } from '../utils/permalink';
 const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
   ssr: false,
   loading: () => (
@@ -186,7 +186,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     return uniqueNewParts.join(', ');
   }, [property?.newAddress, property?.street, property?.address, property?.ward, property?.city, mergerData]);
 
-  // 3. Chuỗi địa chỉ mới trong ngoặc đơn theo chuẩn Batdongsan.com.vn: (Xã/Phường, Tỉnh/TP mới)
+  // 3. Chuỗi địa chỉ mới trong ngoặc đơn: (Xã/Phường, Tỉnh/TP mới)
   const newAddressNotice = useMemo(() => {
     if (!property) return '';
     // 1. Nếu có thông tin sáp nhập đơn vị hành chính
@@ -767,7 +767,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               to={getCategoryPermalink(property.demand, property.propertyType)} 
               className="hover:text-emerald-600 transition font-semibold"
             >
-              {(property.propertyType && BATDONGSAN_TAXONOMY[property.demand]?.types[property.propertyType]?.name) || (property.demand === 'sale' ? 'Bán nhà riêng, nhà phố' : 'Cho thuê nhà riêng, nhà phố')}
+              {(property.propertyType && PROPERTY_TAXONOMY[property.demand]?.types[property.propertyType]?.name) || (property.demand === 'sale' ? 'Bán nhà riêng, nhà phố' : 'Cho thuê nhà riêng, nhà phố')}
             </Link>
             {property.city && (
               <>
@@ -1064,7 +1064,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 {formatSentenceCase(property.title)}
               </h1>
 
-              {/* Address (Chuẩn giao diện Batdongsan.com.vn) */}
+              {/* Address */}
               <div className="flex items-start gap-2.5 text-xs sm:text-sm mt-3 pt-1 text-slate-800">
                 <i className="fa-solid fa-location-dot text-slate-800 text-sm mt-0.5 shrink-0"></i>
                 <div className="space-y-0.5 leading-snug">
@@ -1191,7 +1191,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             </div>
           </div>
 
-          {/* B2. ĐẶC ĐIỂM TIN ĐĂNG (CHUẨN BATDONGSAN.COM.VN) */}
+          {/* B2. ĐẶC ĐIỂM TIN ĐĂNG */}
           {(() => {
             const expInfo = getPropertyExpirationInfo ? getPropertyExpirationInfo(property) : null;
 
@@ -1420,7 +1420,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             </div>
           )}
 
-          {/* E. THÔNG BÁO VỀ NỘI DUNG VÀ MIỄN TRỪ TRÁCH NHIỆM CHUẨN BATDONGSAN (CẤU HÌNH TRONG ADMIN) */}
+          {/* E. THÔNG BÁO VỀ NỘI DUNG VÀ MIỄN TRỪ TRÁCH NHIỆM (CẤU HÌNH TRONG ADMIN) */}
           {singleConfig?.disclaimer?.enabled !== false && (() => {
             const discCfg = singleConfig?.disclaimer || {};
             const bgClass = discCfg.bgStyle === 'amber' ? 'bg-amber-50/90 border-amber-200/90 text-amber-900'
@@ -1436,7 +1436,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
             const hotlineDisplay = (discCfg.hotline && discCfg.hotline !== '1900 1881') ? discCfg.hotline : (systemConfig?.hotline || '0898 246 607');
             const hotlineClean = hotlineDisplay.replace(/\s+/g, '');
-            const platformName = (discCfg.platformName && discCfg.platformName !== 'Batdongsan.com.vn') ? discCfg.platformName : (systemConfig?.brandShortName || 'Đất Biển Đà Nẵng');
+            const platformName = discCfg.platformName || systemConfig?.brandShortName || 'Đất Biển Đà Nẵng';
 
             return (
               <div className={`rounded-3xl p-6 sm:p-7 border shadow-sm space-y-3.5 transition-all ${bgClass}`}>

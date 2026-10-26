@@ -1,6 +1,6 @@
 # BDS Landmark - Sàn Giao Dịch Bất Động Sản & Hệ Thống Đăng Tin VIP (ReactJS Đa Trang)
 
-Hệ thống website bất động sản thương mại điện tử chuyên nghiệp được xây dựng hoàn toàn bằng **ReactJS**, hoạt động theo **kiến trúc Website Đa Trang (Multi-Page Architecture)** với URL định tuyến chuẩn SEO (hỗ trợ nút Back/Forward, F5 và Bookmark), tích hợp **Hệ thống phân cấp tin đăng VIP (Gói dịch vụ tin VIP 4.0)**, **Biểu mẫu đăng tin chuẩn hóa Batdongsan.com.vn & AloNhaDat**, **Trang Single Sản Phẩm Chuyên Sâu**, **Trang Backend Quản Trị Viên (CMS Admin Desk)**, và các công cụ tiện ích tài chính hàng đầu.
+Hệ thống website bất động sản thương mại điện tử chuyên nghiệp được xây dựng hoàn toàn bằng **ReactJS**, hoạt động theo **kiến trúc Website Đa Trang (Multi-Page Architecture)** với URL định tuyến chuẩn SEO (hỗ trợ nút Back/Forward, F5 và Bookmark), tích hợp **Hệ thống phân cấp tin đăng VIP (Gói dịch vụ tin VIP 4.0)**, **Biểu mẫu đăng tin chuẩn hóa chuyên nghiệp**, **Trang Single Sản Phẩm Chuyên Sâu**, **Trang Backend Quản Trị Viên (CMS Admin Desk)**, và các công cụ tiện ích tài chính hàng đầu.
 
 ---
 
@@ -14,7 +14,7 @@ Hệ thống sử dụng **HashRouter** giúp hoạt động trơn tru 100% trê
 | **2** | **Nhà Đất Cần Bán** | `#/nha-dat-ban` | Chuyên trang mua bán căn hộ chung cư, nhà riêng, nhà mặt phố, biệt thự, đất nền phân lô pháp lý chuẩn. |
 | **3** | **Cho Thuê Nhà Đất** | `#/nha-dat-cho-thue` | Chuyên trang cho thuê phòng trọ, căn hộ dịch vụ, nhà nguyên căn, văn phòng và mặt bằng kinh doanh. |
 | **4** | **Trang Single Sản Phẩm** | `#/bat-dong-san/:id` | Chi tiết chuyên sâu: Lưới 5 ảnh Mosaic, VR 360°, bản đồ số Leaflet GIS, thông số kỹ thuật, tính lãi vay nhúng, thẻ liên hệ môi giới. |
-| **5** | **Đăng Tin BĐS Mới** | `#/dang-tin` | Biểu mẫu đăng tin độc lập chuẩn hóa 4 tầng của **Batdongsan.com.vn** & **AloNhaDat.vn**. |
+| **5** | **Đăng Tin BĐS Mới** | `#/dang-tin` | Biểu mẫu đăng tin độc lập chuẩn hóa 4 tầng chuyên nghiệp. |
 | **6** | **Bảng Giá Gói Tin VIP** | `#/bang-gia-vip` | Chi tiết so sánh đặc quyền 5 cấp độ tin đăng (VIP Kim Cương, Vàng, Bạc, Đồng, Thường) và tính năng đẩy tin tự động giờ vàng. |
 | **7** | **Công Cụ Tính Lãi Vay** | `#/tinh-lai-vay` | Máy tính tài chính ngân hàng tương tác: Kéo slider số tiền vay, thời hạn (1 - 35 năm), lãi suất, bảng chiết tính dư nợ giảm dần. |
 | **8** | **So Sánh Bất Động Sản** | `#/so-sanh` | So sánh trực diện đối đầu 2 - 4 căn nhà/đất cạnh nhau theo bảng ma trận thông số kỹ thuật, đơn giá m², hướng, pháp lý. |
@@ -28,18 +28,18 @@ Hệ thống sử dụng **HashRouter** giúp hoạt động trơn tru 100% trê
 
 ---
 
-## 📝 2. Cấu Trúc Đăng Tin Chuẩn Batdongsan.com.vn & AloNhaDat
+## 📝 2. Cấu Trúc Đăng Tin Chuẩn Hóa Chuyên Nghiệp
 
 Biểu mẫu đăng tin tại trang `#/dang-tin` được chuẩn hóa theo đúng quy trình 4 giai đoạn của các sàn thương mại điện tử BĐS hàng đầu:
 
-1. **Giai Đoạn 1: Nhu Cầu & Địa Giới Hành Chính 4 Cấp (Chuẩn Batdongsan)**
+1. **Giai Đoạn 1: Nhu Cầu & Địa Giới Hành Chính 4 Cấp**
    * Nhu cầu: *Bán nhà đất* hoặc *Cho thuê nhà đất*.
    * Loại hình BĐS: Căn hộ chung cư, Nhà riêng/nhà phố, Nhà mặt phố, Biệt thự liền kề, Đất nền dự án, Shophouse.
    * Vị trí 4 cấp: Tỉnh/Thành phố > Quận/Huyện > Phường/Xã > Tên đường / Số nhà.
    * Dự án / Khu đô thị: Chọn hoặc nhập tên dự án (Vinhomes, Goldmark City, Masterise, Eco Green...).
 
 2. **Giai Đoạn 2: Tiêu Đề Chuẩn SEO & Mô Tả Chi Tiết**
-   * Tiêu đề tuân thủ nghiêm ngặt quy định **30 đến 99 ký tự** của Batdongsan.com.vn kèm bộ đếm ký tự trực quan.
+   * Tiêu đề tuân thủ nghiêm ngặt quy định **30 đến 99 ký tự** kèm bộ đếm ký tự trực quan.
    * Mô tả mẫu chuyên nghiệp: Gợi ý sẵn cấu trúc diện tích, công năng, ban công, tiện ích nội ngoại khu và pháp lý sang tên.
 
 3. **Giai Đoạn 3: Thông Số Kỹ Thuật Bất Động Sản (Chuẩn AloNhaDat)**
@@ -97,15 +97,15 @@ Dự án được tối ưu hóa build hoàn tất chỉ trong ~350ms với 0 l�
 
 ---
 
-## 🔗 5. Cấu Trúc Permalink & Schema URL Chuẩn Batdongsan.com.vn
+## 🔗 5. Cấu Trúc Permalink & Schema URL Chuẩn SEO
 
-Hệ thống đã nâng cấp toàn diện hệ thống **Permalink & URL Taxonomy** và **Dữ liệu có cấu trúc Schema.org (JSON-LD)** theo đúng tiêu chuẩn kỹ thuật SEO của **Batdongsan.com.vn**:
+Hệ thống đã nâng cấp toàn diện hệ thống **Permalink & URL Taxonomy** và **Dữ liệu có cấu trúc Schema.org (JSON-LD)** theo đúng tiêu chuẩn kỹ thuật SEO:
 
 ### 1. Permalink Bài Đăng Chi Tiết (Canonical Property Detail URL)
 * **Quy tắc**: `/{slug-tieu-de-khong-dau}-pr{idSuffix}`
 * **Ý nghĩa thành phần**:
   * `slug-tieu-de-khong-dau`: Chuỗi tiếng Việt không dấu, loại bỏ ký tự đặc biệt, nối bằng gạch ngang `-`, chứa từ khóa đắt giá cho công cụ tìm kiếm.
-  * `-pr`: Tiền tố định danh chuẩn của Batdongsan (`pr` = Property / Product ID).
+  * `-pr`: Tiền tố định danh chuẩn (`pr` = Property / Product ID).
   * `{idSuffix}`: Mã số định danh độc nhất của tin trong cơ sở dữ liệu (ví dụ `006`, `001`).
 * **Ví dụ thực tế**:
   * Mã `BDS-006` (Nhà mặt phố Lê Thánh Tôn, Quận 1):  

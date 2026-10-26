@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 import { VIP_PACKAGES as MOCK_VIP, MEMBERSHIP_PACKAGES, BUMP_SERVICE_PRICE } from '../data/mockData';
-import BatdongsanListingSelector, { BATDONGSAN_RATES, getEffectiveBdsRates, ListingTypeIcon } from '../components/BatdongsanListingSelector';
+import ListingTierSelector, { LISTING_RATES, getEffectiveListingRates, ListingTypeIcon } from '../components/ListingTierSelector';
 import { getStandardPackageSavePercent } from '../utils/membershipHelper';
 
 export default function VipPricingPage() {
@@ -32,9 +32,9 @@ export default function VipPricingPage() {
   const currentBumpPrice = bumpServicePrice ?? contextBumpPrice ?? BUMP_SERVICE_PRICE ?? 10000;
 
   const vipPackages = contextVipPackages || MOCK_VIP;
-  const ratesConfig = useMemo(() => getEffectiveBdsRates(vipPackages, paymentConfig), [vipPackages, paymentConfig]);
+  const ratesConfig = useMemo(() => getEffectiveListingRates(vipPackages, paymentConfig), [vipPackages, paymentConfig]);
 
-  // 1. Batdongsan UI Selector State (Khớp 100% ảnh chụp Batdongsan.com.vn)
+  // 1. Listing Tier UI Selector State
   const [selectedListingType, setSelectedListingType] = useState('normal'); // Mặc định 'normal' như ảnh
   const [selectedDuration, setSelectedDuration] = useState(60);            // Mặc định 60 ngày như ảnh
   const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
@@ -53,7 +53,7 @@ export default function VipPricingPage() {
   // FAQ Accordion State
   const [openFaq, setOpenFaq] = useState(0);
 
-  // Handle action from BatdongsanListingSelector
+  // Handle action from ListingTierSelector
   const handleApplyListingChoice = () => {
     if (selectedPropertyForVip) {
       const success = upgradeVip(selectedPropertyForVip.id, selectedListingType, selectedDuration);
@@ -265,7 +265,7 @@ export default function VipPricingPage() {
           </div>
         </div>
 
-        {/* 2. BẢNG PHÂN LOẠI & DỰ TOÁN HIỂN THỊ CHUẨN 100% GIAO DIỆN BATDONGSAN.COM.VN */}
+        {/* 2. BẢNG PHÂN LOẠI & DỰ TOÁN HIỂN THỊ TRỰC QUAN */}
         <div className="bg-white p-6 sm:p-8 rounded-3xl border-2 border-slate-900/10 shadow-2xl space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
             <div className="space-y-1">
@@ -289,7 +289,7 @@ export default function VipPricingPage() {
             </div>
           </div>
 
-          <BatdongsanListingSelector
+          <ListingTierSelector
             selectedType={selectedListingType}
             onSelectType={(type) => {
               setSelectedListingType(type);
@@ -336,7 +336,7 @@ export default function VipPricingPage() {
               const isSilver = pkg.id === 'vip-silver';
               const isNormal = pkg.id === 'normal';
 
-              const activeRates = ratesConfig?.[pkg.id] || ratesConfig?.['normal'] || BATDONGSAN_RATES['normal'];
+              const activeRates = ratesConfig?.[pkg.id] || ratesConfig?.['normal'] || LISTING_RATES['normal'];
               const currentDailyRate = activeRates?.rates?.[selectedDuration] ?? activeRates?.rates?.[7] ?? activeRates?.rates?.[15] ?? 0;
               const baseRate = activeRates?.rates?.[7] ?? activeRates?.rates?.[15] ?? 0;
               const discountInfo = DURATION_DISCOUNTS[selectedDuration] || DURATION_DISCOUNTS[7] || { label: `${selectedDuration} ngày`, discountPercent: 0, badge: 'Đăng ký chuẩn' };

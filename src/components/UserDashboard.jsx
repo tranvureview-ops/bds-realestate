@@ -36,7 +36,7 @@ export default function UserDashboard() {
   const [activeTab, setActiveTab] = useState('listings'); // 'listings', 'wallet', 'transactions', 'trash'
   const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'active', 'expiring_soon', 'expired', 'pending'
 
-  // Renewal Modal State (Batdongsan standard)
+  // Renewal Modal State
   const [renewModalProp, setRenewModalProp] = useState(null);
   const [renewDays, setRenewDays] = useState(15);
   const [renewVipId, setRenewVipId] = useState('normal');
@@ -588,7 +588,7 @@ export default function UserDashboard() {
                         </button>
                       )}
 
-                      {/* Gia Hạn Tin (Batdongsan Renewal) */}
+                      {/* Gia Hạn Tin */}
                       <button
                         onClick={() => {
                           setRenewModalProp(prop);
@@ -876,7 +876,7 @@ export default function UserDashboard() {
         </div>
       )}
 
-      {/* MODAL GIA HẠN TIN ĐĂNG (BATDONGSAN STANDARD RENEWAL MODAL) */}
+      {/* MODAL GIA HẠN TIN ĐĂNG (RENEWAL MODAL) */}
       {renewModalProp && (
         <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-in fade-in">
           <div className="bg-white rounded-3xl max-w-lg w-full border border-slate-200 shadow-2xl overflow-hidden my-8">

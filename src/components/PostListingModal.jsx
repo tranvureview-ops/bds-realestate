@@ -5,7 +5,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter } from '../router/RouterContext';
 import Link from 'next/link';
 import { LOCATIONS, PROPERTY_TYPES, VIP_PACKAGES, MEMBERSHIP_PACKAGES } from '../data/mockData';
-import BatdongsanListingSelector, { BATDONGSAN_RATES, getEffectiveBdsRates } from './BatdongsanListingSelector';
+import ListingTierSelector, { LISTING_RATES, getEffectiveListingRates } from './ListingTierSelector';
 import CustomSelect from './CustomSelect';
 import ListingCard from './ListingCard';
 import ListingLocationMap from './ListingLocationMap';
@@ -91,7 +91,7 @@ const MOCK_PROJECTS = {
   ]
 };
 
-// Mẫu nội dung mô tả chuẩn SEO chuẩn Batdongsan.com.vn & AloNhaDat
+// Mẫu nội dung mô tả chuẩn SEO & AloNhaDat
 const DESCRIPTION_TEMPLATES = {
   apartment: `Chính chủ cần bán gấp căn hộ cao cấp view thoáng đẹp:
 - Diện tích thông thủy: 78m2, thiết kế tối ưu 2 phòng ngủ, 2 WC riêng biệt.
@@ -117,7 +117,7 @@ const DESCRIPTION_TEMPLATES = {
 - Giá thuê hợp lý, hợp đồng dài hạn, thanh toán linh hoạt theo kỳ 3 - 6 tháng.`
 };
 
-// Hàm chuyển đổi số tiền thành chữ Tiếng Việt chuẩn Batdongsan
+// Hàm chuyển đổi số tiền thành chữ Tiếng Việt
 function formatPriceToVietnameseText(num, isRent = false) {
   if (!num || num <= 0) return 'Thỏa thuận';
   let text = '';
@@ -137,7 +137,7 @@ function formatPriceToVietnameseText(num, isRent = false) {
   return isRent ? `${text}/tháng` : text;
 }
 
-// Hàm định dạng số tiền thành chữ tóm tắt chuẩn Batdongsan
+// Hàm định dạng số tiền thành chữ tóm tắt
 export function formatSummaryPrice(num, isRent = false, isPerM2 = false) {
   if (!num || num <= 0) return 'Thỏa thuận';
   let text = '';
@@ -272,7 +272,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const [autoDemoEnabled, setAutoDemoEnabled] = useState(true);
   const [isTriggeringWebhook, setIsTriggeringWebhook] = useState(false);
 
-  // Form State đầy đủ theo chuẩn Batdongsan.com.vn & AloNhaDat
+  // Form State đầy đủ theo chuẩn chuyên nghiệp & AloNhaDat
   const [formData, setFormData] = useState({
     // 1. Phân loại giao dịch & Vị trí địa lý
     demand: 'sale', // 'sale' (Cần bán), 'rent' (Cho thuê)
@@ -402,7 +402,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     };
   }, [setPreselectedListingType]);
 
-  // Locations lookup (63 Tỉnh/Thành phố chuẩn Batdongsan)
+  // Locations lookup (63 Tỉnh/Thành phố)
   const currentCityObj = formData.city ? LOCATIONS.find(l => l.name === formData.city) : null;
   const districtList = currentCityObj?.districts || [];
   const currentDistrictObj = formData.district ? districtList.find(d => d.name === formData.district) : null;
@@ -450,8 +450,8 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const activeVipPackages = (vipPackages && vipPackages.length > 0) ? vipPackages : VIP_PACKAGES;
   const defaultPkg = activeVipPackages.find(p => p.id === 'normal') || activeVipPackages[activeVipPackages.length - 1];
   const selectedPkg = activeVipPackages.find(p => p.id === selectedVipId) || defaultPkg;
-  const ratesConfig = useMemo(() => getEffectiveBdsRates(activeVipPackages, paymentConfig), [activeVipPackages, paymentConfig]);
-  const bdsConfig = ratesConfig?.[selectedVipId] || ratesConfig?.['normal'] || BATDONGSAN_RATES['normal'];
+  const ratesConfig = useMemo(() => getEffectiveListingRates(activeVipPackages, paymentConfig), [activeVipPackages, paymentConfig]);
+  const bdsConfig = ratesConfig?.[selectedVipId] || ratesConfig?.['normal'] || LISTING_RATES['normal'];
   const dailyRate = bdsConfig?.rates?.[listingDays] ?? bdsConfig?.rates?.[15] ?? bdsConfig?.pricePerDay ?? 0;
   const bumpDays = Math.max(1, Math.min(Number(autoBumpDays) || 1, listingDays || 1));
   const autoBumpFee = autoBumpHours.length * effectiveBumpPrice * bumpDays;
@@ -497,7 +497,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     return { allowed: true, count: 0, limit: 5, remaining: 5, unlimited: false };
   }, [checkDailyFreeListingQuota, currentUser, formData.contactPhone, properties]);
 
-  // Tính toán và định dạng giá chuẩn Batdongsan theo Nhu cầu (Bán / Thuê)
+  // Tính toán và định dạng giá theo Nhu cầu (Bán / Thuê)
   const updatePriceCalculations = (newPrice, newPriceType, currentArea, currentDemand = formData.demand) => {
     const isRentMode = currentDemand === 'rent';
     let pDisplay = '';
@@ -1271,7 +1271,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       }`}
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Header với Tiêu Chuẩn Batdongsan.com.vn & AloNhaDat */}
+      {/* Header với Tiêu Chuẩn Chuyên Nghiệp & AloNhaDat */}
       <div className="px-6 py-4 border-b border-slate-200 bg-slate-900 text-white flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center text-white text-base font-black shadow-lg">
@@ -1660,7 +1660,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                           </div>
                         </div>
 
-                        {/* 3. Khối so sánh Địa chỉ cũ & Địa chỉ mới (Chuẩn y hệt ảnh gốc Batdongsan) */}
+                        {/* 3. Khối so sánh Địa chỉ cũ & Địa chỉ mới */}
                         <div className="p-3 sm:p-3.5 bg-amber-50/40 rounded-2xl border border-amber-200/80 space-y-1.5">
                           {/* 1. Địa chỉ cũ - Chỉ hiển thị thông tin đối chiếu (không có radio chọn) */}
                           <div className="p-2.5 sm:p-3 bg-white/80 rounded-xl border border-amber-200/80 flex items-start gap-2.5 shadow-2xs">
@@ -1761,7 +1761,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                       </div>
                     )}
 
-                    {/* 4. Chọn vị trí trên bản đồ chuẩn Batdongsan */}
+                    {/* 4. Chọn vị trí trên bản đồ */}
                     <ListingLocationMap
                       city={formData.city}
                       district={mergerInfo?.newDistrict || formData.district}
@@ -1807,7 +1807,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
              ======================================================== */}
           {step === 2 && (
             <div className="space-y-4">
-              {/* Tiêu đề tin đăng chuẩn Batdongsan 30-99 ký tự */}
+              {/* Tiêu đề tin đăng 30-99 ký tự */}
               <div>
                 <div className="flex justify-between items-center mb-1">
                   <label className="text-xs font-bold text-slate-800 uppercase">
@@ -1930,7 +1930,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                 </div>
 
                 <div className="space-y-4">
-                  {/* Ô nhập mức giá & Gợi ý nhanh chuẩn Batdongsan */}
+                  {/* Ô nhập mức giá & Gợi ý nhanh */}
                   <div>
                     <div className="flex items-center justify-between mb-1.5">
                       <label className="block text-[11px] font-bold text-slate-700">
@@ -2063,7 +2063,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                 </div>
               </div>
 
-              {/* Thông số kỹ thuật chuyên sâu theo chuẩn AloNhaDat & Batdongsan */}
+              {/* Thông số kỹ thuật chuyên sâu theo chuẩn AloNhaDat */}
               <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
                 <span className="text-xs font-bold text-slate-800 uppercase block">
                   4. Đặc Điểm Bất Động Sản (Mặt tiền, Lộ giới, Hướng)
@@ -2359,7 +2359,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                 </div>
               )}
 
-              {/* 2. Lựa chọn Phân Loại Tin Đăng & Thời Hạn Chuẩn 100% Batdongsan.com.vn */}
+              {/* 2. Lựa chọn Phân Loại Tin Đăng & Thời Hạn */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-bold text-slate-800 uppercase">
@@ -2368,7 +2368,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   <span className="text-[11px] text-slate-500 font-medium">Bảng giá niêm yết theo ngày</span>
                 </div>
 
-                <BatdongsanListingSelector
+                <ListingTierSelector
                   selectedType={selectedVipId}
                   onSelectType={handleSelectPackage}
                   selectedDays={listingDays}
@@ -2680,7 +2680,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                 )}
               </div>
 
-              {/* 3. Phân Hệ Voucher Hội Viên Môi Giới (Batdongsan Voucher Box) */}
+              {/* 3. Phân Hệ Voucher Hội Viên Môi Giới */}
               <div className={`p-4 border rounded-2xl space-y-3 ${
                 isMemberExpired
                   ? 'bg-rose-50/60 border-rose-200'
@@ -3931,7 +3931,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                           </div>
                         )}
 
-                        {/* Batdongsan Disclaimer */}
+                        {/* Disclaimer */}
                         <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs text-slate-500 leading-relaxed">
                           <strong className="text-slate-700">Miễn trừ trách nhiệm:</strong> Thông tin tin rao do Người đăng tin cung cấp và chịu trách nhiệm về tính chính xác, đầy đủ và hợp pháp. Quý vị vui lòng chủ động kiểm tra, thẩm định thông tin pháp lý và thực tế trước khi giao dịch.
                         </div>

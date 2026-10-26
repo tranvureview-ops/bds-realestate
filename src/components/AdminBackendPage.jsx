@@ -576,7 +576,7 @@ export default function AdminBackendPage() {
   // Search keyword inside admin
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Property Management States (Search, Multi-Filter, Sorting, Expiration & Renewal - Chuẩn Batdongsan.com.vn)
+  // Property Management States (Search, Multi-Filter, Sorting, Expiration & Renewal)
   const [propertySearchTerm, setPropertySearchTerm] = useState('');
   const [propertyStatusFilter, setPropertyStatusFilter] = useState('all'); // 'all', 'active', 'expiring_soon', 'expired', 'pending', 'rejected'
   const [propertyDemandFilter, setPropertyDemandFilter] = useState('all'); // 'all', 'sale', 'rent'
@@ -585,7 +585,7 @@ export default function AdminBackendPage() {
   const [propertyVipFilter, setPropertyVipFilter] = useState('all'); // 'all', 'vip-diamond', 'vip-gold', 'vip-silver', 'normal'
   const [propertySortBy, setPropertySortBy] = useState('newest'); // 'newest', 'oldest', 'expiring_first', 'price_desc', 'price_asc'
 
-  // Renewal Modal State (Gia Hạn Tin Đăng - Batdongsan Renew)
+  // Renewal Modal State (Gia Hạn Tin Đăng)
   const [renewModalProp, setRenewModalProp] = useState(null);
   const [renewDays, setRenewDays] = useState(15);
   const [renewVipId, setRenewVipId] = useState('');
@@ -1271,7 +1271,7 @@ export default function AdminBackendPage() {
     return Array.from(set).sort();
   }, [properties]);
 
-  // Bộ lọc tìm kiếm & đa tiêu chí BĐS chuẩn Batdongsan.com.vn (Hỗ trợ Thùng rác)
+  // Bộ lọc tìm kiếm & đa tiêu chí BĐS (Hỗ trợ Thùng rác)
   const filteredPropertiesList = useMemo(() => {
     const now = Date.now();
     return properties
@@ -1314,7 +1314,7 @@ export default function AdminBackendPage() {
         if (propertyVipFilter === 'all') return true;
         return p.vipPackageId === propertyVipFilter;
       })
-      // 3. Trạng thái vòng đời Batdongsan.com.vn
+      // 3. Trạng thái vòng đời tin đăng
       .filter(p => {
         if (propertyStatusFilter === 'all' || propertyStatusFilter === 'trash') return true;
         const isPending = p.status === 'pending';
@@ -2051,7 +2051,7 @@ export default function AdminBackendPage() {
     setEditingProperty(null);
   };
 
-  // Quản lý Gia Hạn Tin Đăng (Batdongsan Renewal Handlers)
+  // Quản lý Gia Hạn Tin Đăng (Renewal Handlers)
   const handleOpenRenewModal = (prop) => {
     setRenewModalProp(prop);
     setRenewDays(prop.listingDays || 15);
@@ -3471,7 +3471,7 @@ export default function AdminBackendPage() {
           {activeMenu === 'properties' && (
             <div className="bg-slate-950 rounded-3xl border border-slate-800 overflow-hidden shadow-sm space-y-4">
               
-              {/* === TOOLBAR TÌM KIẾM & BỘ LỌC ĐA NĂNG CHUẨN BATDONGSAN.COM.VN === */}
+              {/* === TOOLBAR TÌM KIẾM & BỘ LỌC ĐA NĂNG BĐS === */}
               <div className="p-4 border-b border-slate-800 space-y-3.5 bg-slate-950/90">
                 {/* Hàng 1: Tiêu đề phân hệ, Nút đăng tin mới & Thanh tìm kiếm mở rộng */}
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
@@ -3483,7 +3483,7 @@ export default function AdminBackendPage() {
                       <span>Danh Sách Bất Động Sản Toàn Sàn ({properties.length})</span>
                     </h3>
                     <div className="text-[11px] text-slate-400">
-                      Quản lý đầy đủ danh mục, nhu cầu Mua bán / Cho thuê, thông số kỹ thuật, hạn hiển thị & tự động gia hạn chuẩn Batdongsan
+                      Quản lý đầy đủ danh mục, nhu cầu Mua bán / Cho thuê, thông số kỹ thuật, hạn hiển thị & tự động gia hạn
                     </div>
                   </div>
 
@@ -3521,7 +3521,7 @@ export default function AdminBackendPage() {
                   </div>
                 </div>
 
-                {/* Hàng 2: Tabs Lọc Trạng Thái Tin Đăng (Batdongsan Lifecycle Tabs) */}
+                {/* Hàng 2: Tabs Lọc Trạng Thái Tin Đăng (Lifecycle Tabs) */}
                 <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin text-xs">
                   <button
                     onClick={() => setPropertyStatusFilter('all')}
@@ -4077,7 +4077,7 @@ export default function AdminBackendPage() {
                               )}
                             </td>
 
-                            {/* Cột: Hạn Hiển Thị & Hết Hạn (Chuẩn Batdongsan.com.vn) */}
+                            {/* Cột: Hạn Hiển Thị & Hết Hạn */}
                             <td className="p-3 min-w-[170px]">
                               <div className="space-y-1">
                                 {p.expiresAt ? (
@@ -9159,7 +9159,7 @@ export default function AdminBackendPage() {
         </div>
       )}
 
-      {/* MODAL: GIA HẠN TIN ĐĂNG (BATDONGSAN RENEWAL MODAL) */}
+      {/* MODAL: GIA HẠN TIN ĐĂNG (RENEWAL MODAL) */}
       {renewModalProp && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
           <div className="bg-slate-950 border border-slate-800 rounded-3xl p-6 max-w-lg w-full space-y-4 my-8 shadow-2xl animate-in zoom-in-95 duration-150">

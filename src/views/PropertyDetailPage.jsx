@@ -11,7 +11,7 @@ export default function PropertyDetailPage({ initialProperty = null, slug = '', 
   const { properties, selectedPropertyDetail, setSelectedPropertyDetail, getPropertyExpirationInfo, currentUser } = useRealEstate();
   const { currentPath: routerPath, goBack } = useRouter();
 
-  // 1. Phân tích đường dẫn URL theo chuẩn Batdongsan.com.vn (*-pr{id})
+  // 1. Phân tích đường dẫn URL (*-pr{id})
   const effectivePath = propPath || (slug ? (slug.startsWith('/') ? slug : `/${slug}`) : '') || routerPath || '';
   const parsed = parsePropertyUrl(effectivePath);
 
@@ -200,7 +200,7 @@ export default function PropertyDetailPage({ initialProperty = null, slug = '', 
 
   return (
     <div>
-      {/* 1. Banner cảnh báo bài viết đã hết hạn theo chuẩn Batdongsan.com.vn */}
+      {/* 1. Banner cảnh báo bài viết đã hết hạn */}
       {isExpired && (
         <div className="bg-gradient-to-r from-rose-700 via-rose-600 to-rose-700 text-white px-4 py-3 shadow-md border-b border-rose-800">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs sm:text-sm">

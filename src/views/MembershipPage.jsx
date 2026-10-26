@@ -688,7 +688,7 @@ export default function MembershipPage() {
             </div>
             <div className="p-4 bg-white rounded-2xl border border-slate-200 space-y-1.5">
               <div className="font-bold text-slate-900">2. Mua gói 3 tháng, 6 tháng thì voucher được cấp thế nào?</div>
-              <p>Theo chuẩn quy chế Batdongsan (Hình thức 1), quyền lợi voucher được cấp mới định kỳ mỗi 30 ngày một lần. Khách hàng mua gói 3 tháng sẽ nhận 3 đợt cấp voucher, gói 6 tháng nhận 6 đợt. Mỗi 30 ngày, hệ thống sẽ tự động cấp mới bộ voucher tương ứng để bạn sử dụng cho tháng tiếp theo.</p>
+              <p>Theo quy chế hội viên (Hình thức 1), quyền lợi voucher được cấp mới định kỳ mỗi 30 ngày một lần. Khách hàng mua gói 3 tháng sẽ nhận 3 đợt cấp voucher, gói 6 tháng nhận 6 đợt. Mỗi 30 ngày, hệ thống sẽ tự động cấp mới bộ voucher tương ứng để bạn sử dụng cho tháng tiếp theo.</p>
             </div>
             <div className="p-4 bg-white rounded-2xl border border-slate-200 space-y-1.5">
               <div className="font-bold text-slate-900">3. Tin VIP Kim Cương có ưu đãi gì đặc biệt?</div>

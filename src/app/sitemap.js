@@ -1,4 +1,4 @@
-import { SITE_URL, BATDONGSAN_TAXONOMY, getPropertyPermalink } from '../utils/permalink';
+import { SITE_URL, PROPERTY_TAXONOMY, getPropertyPermalink } from '../utils/permalink';
 import { fetchServerProperties } from '../services/propertyService';
 import { INITIAL_PROPERTIES } from '../data/mockData';
 
@@ -7,7 +7,7 @@ import { INITIAL_PROPERTIES } from '../data/mockData';
  * Chỉ lập chỉ mục các URL gốc có giá trị SEO cao nhất:
  * 1. Trang chủ
  * 2. Danh mục chính (/nha-dat-ban, /nha-dat-cho-thue)
- * 3. 12 danh mục loại hình chuẩn Batdongsan.com.vn
+ * 3. 12 danh mục loại hình chuẩn SEO
  * 4. Các tin đăng bất động sản đang active (không đưa trang phân trang vào sitemap)
  */
 export default async function sitemap() {
@@ -39,7 +39,7 @@ export default async function sitemap() {
   // 2. 12 Danh mục loại hình bán & cho thuê
   const taxonomyRoutes = [];
   for (const demand of ['sale', 'rent']) {
-    const group = BATDONGSAN_TAXONOMY[demand];
+    const group = PROPERTY_TAXONOMY[demand];
     if (group?.types) {
       for (const typeInfo of Object.values(group.types)) {
         taxonomyRoutes.push({

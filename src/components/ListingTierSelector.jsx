@@ -5,12 +5,12 @@ import CustomSelect from './CustomSelect';
 import { useRealEstate } from '../context/RealEstateContext';
 
 /**
- * BatdongsanListingSelector: Component chuẩn hóa giao diện chọn Loại Tin Đăng 
- * và Thời Hạn Hiển Thị theo đúng 100% UI thực tế của Batdongsan.com.vn.
+ * ListingTierSelector: Component chuẩn hóa giao diện chọn Loại Tin Đăng 
+ * và Thời Hạn Hiển Thị.
  */
 
-// Bảng đơn giá chuẩn Batdongsan.com.vn theo từng loại tin & thời hạn (5, 7, 10, 15, 30 ngày cho VIP, 60 ngày cho Tin Thường)
-export const BATDONGSAN_RATES = {
+// Bảng đơn giá theo từng loại tin & thời hạn (5, 7, 10, 15, 30 ngày cho VIP, 60 ngày cho Tin Thường)
+export const LISTING_RATES = {
   'vip-diamond': {
     id: 'vip-diamond',
     name: 'VIP Kim Cương',
@@ -92,8 +92,8 @@ export const BATDONGSAN_RATES = {
 /**
  * Tính toán bảng tỷ giá hiển thị động theo cấu hình giá Admin từ vipPackages và paymentConfig
  */
-export function getEffectiveBdsRates(customVipPackages, paymentConfig = null) {
-  const result = { ...BATDONGSAN_RATES };
+export function getEffectiveListingRates(customVipPackages, paymentConfig = null) {
+  const result = { ...LISTING_RATES };
   if (!customVipPackages || !Array.isArray(customVipPackages) || customVipPackages.length === 0) {
     return result;
   }
@@ -101,7 +101,7 @@ export function getEffectiveBdsRates(customVipPackages, paymentConfig = null) {
 
   customVipPackages.forEach(pkg => {
     if (!pkg || !pkg.id) return;
-    const defaultMeta = BATDONGSAN_RATES[pkg.id] || {
+    const defaultMeta = LISTING_RATES[pkg.id] || {
       id: pkg.id,
       name: pkg.name || 'Gói VIP',
       positionDesc: '',
@@ -184,7 +184,7 @@ export function getEffectiveBdsRates(customVipPackages, paymentConfig = null) {
   return result;
 }
 
-// Component vẽ Icon dải tầng chuẩn của Batdongsan.com.vn
+// Component vẽ Icon dải tầng
 export function ListingTypeIcon({ type }) {
   if (type === 'vip-diamond') {
     return (
@@ -229,7 +229,7 @@ function getTodayString() {
   return d.toISOString().slice(0, 10);
 }
 
-export default function BatdongsanListingSelector({
+export default function ListingTierSelector({
   selectedType = 'normal',
   onSelectType,
   selectedDays = 60,
@@ -351,7 +351,7 @@ export default function BatdongsanListingSelector({
   ], [hasScheduleAccess, handleLockedScheduleClick]);
 
   const isNormal = selectedType === 'normal';
-  const currentConfig = ratesConfig?.[selectedType] || ratesConfig?.['normal'] || BATDONGSAN_RATES['normal'];
+  const currentConfig = ratesConfig?.[selectedType] || ratesConfig?.['normal'] || LISTING_RATES['normal'];
 
   const todayStr = useMemo(() => getTodayString(), []);
   const todayFormatted = useMemo(() => {
@@ -451,7 +451,7 @@ export default function BatdongsanListingSelector({
   return (
     <div className="space-y-4 font-sans text-slate-800">
       {/* ========================================================
-          1. HÀNG 4 THẺ LOẠI TIN ĐĂNG (CHUẨN ẢNH BATDONGSAN.COM.VN)
+          1. HÀNG 4 THẺ LOẠI TIN ĐĂNG
          ======================================================== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 items-stretch">
         {Object.values(ratesConfig || {}).map((item) => {
