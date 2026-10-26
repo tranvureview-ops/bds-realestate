@@ -3,7 +3,13 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter } from '../router/RouterContext';
-import { getResolvedFeatures, isVoucherDiscountFree, getAverageCycleDiscount, getPackageCycleDiscount } from '../utils/membershipHelper';
+import { 
+  getResolvedFeatures, 
+  isVoucherDiscountFree, 
+  getAverageCycleDiscount, 
+  getPackageCycleDiscount,
+  getStandardPackageSavePercent 
+} from '../utils/membershipHelper';
 
 export default function MembershipPage() {
   const { 
@@ -19,6 +25,11 @@ export default function MembershipPage() {
   } = useRealEstate();
 
   const pricingOptions = { vipPackages, bumpServicePrice };
+
+  // Tính phần trăm tiết kiệm của Gói Tiêu Chuẩn hiển thị ở phần giới thiệu
+  const standardSavePercent = useMemo(() => {
+    return getStandardPackageSavePercent(membershipPackages);
+  }, [membershipPackages]);
 
   // Tính phần trăm giảm giá trung bình của tất cả các gói cho chu kỳ 3 tháng và 6 tháng
   const avgDiscount3 = useMemo(() => {
@@ -145,7 +156,7 @@ export default function MembershipPage() {
             Gói Hội Viên Bất Động Sản
           </h1>
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-            Giải pháp tối ưu hóa chi phí quảng cáo và tiếp cận khách mua nhà toàn diện. Nhận kho <strong className="text-emerald-700">Voucher 30 ngày</strong> định kỳ giúp tiết kiệm tới <strong className="text-red-600">39%</strong> so với đăng tin và đẩy tin mua lẻ.
+            Giải pháp tối ưu hóa chi phí quảng cáo và tiếp cận khách mua nhà toàn diện. Nhận kho <strong className="text-emerald-700">Voucher 30 ngày</strong> định kỳ giúp tiết kiệm tới <strong className="text-red-600">{standardSavePercent}%</strong> so với đăng tin và đẩy tin mua lẻ.
           </p>
         </div>
 

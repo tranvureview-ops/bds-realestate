@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter, Link } from '../router/RouterContext';
+import { getStandardPackageSavePercent } from '../utils/membershipHelper';
 
 const cleanUserName = (name) => {
   if (!name) return 'Khách vãng lai';
@@ -39,8 +40,13 @@ export default function Navbar() {
     navMenuItems,
     headerConfig,
     systemConfig,
-    isMembershipActive
+    isMembershipActive,
+    membershipPackages
   } = useRealEstate();
+
+  const standardSavePercent = useMemo(() => {
+    return getStandardPackageSavePercent(membershipPackages);
+  }, [membershipPackages]);
 
   const isMemberActive = isMembershipActive ? isMembershipActive(currentUser) : Boolean(
     currentUser?.membership && 
@@ -526,7 +532,7 @@ export default function Navbar() {
                             </span>
                           ) : (
                             <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-full">
-                              Tiết kiệm 39%
+                              Tiết kiệm {standardSavePercent}%
                             </span>
                           )}
                         </Link>

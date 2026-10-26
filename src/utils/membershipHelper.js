@@ -241,3 +241,20 @@ export function getAverageCycleDiscount(packages = [], months = 3) {
   return Math.round(sum / discounts.length);
 }
 
+/**
+ * Gets the save percentage of the Standard Package (Gói Tiêu Chuẩn),
+ * with fallback to recommended package or 33%.
+ * 
+ * @param {Array} packages Array of membership packages
+ * @returns {number} Save percentage (e.g. 33)
+ */
+export function getStandardPackageSavePercent(packages = []) {
+  if (!Array.isArray(packages) || packages.length === 0) return 33;
+  const standardPkg = packages.find(p => p.id === 'member-standard') 
+    || packages.find(p => p.recommended) 
+    || packages[1] 
+    || packages[0];
+  return Number(standardPkg?.savePercent) || 33;
+}
+
+

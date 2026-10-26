@@ -5,6 +5,7 @@ import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 import { VIP_PACKAGES as MOCK_VIP, MEMBERSHIP_PACKAGES, BUMP_SERVICE_PRICE } from '../data/mockData';
 import BatdongsanListingSelector, { BATDONGSAN_RATES, getEffectiveBdsRates, ListingTypeIcon } from '../components/BatdongsanListingSelector';
+import { getStandardPackageSavePercent } from '../utils/membershipHelper';
 
 export default function VipPricingPage() {
   const { navigate } = useRouter();
@@ -20,8 +21,13 @@ export default function VipPricingPage() {
     systemConfig,
     paymentConfig,
     bumpServicePrice,
-    BUMP_SERVICE_PRICE: contextBumpPrice
+    BUMP_SERVICE_PRICE: contextBumpPrice,
+    membershipPackages
   } = useRealEstate();
+
+  const standardSavePercent = useMemo(() => {
+    return getStandardPackageSavePercent(membershipPackages);
+  }, [membershipPackages]);
 
   const currentBumpPrice = bumpServicePrice ?? contextBumpPrice ?? BUMP_SERVICE_PRICE ?? 10000;
 
@@ -161,7 +167,7 @@ export default function VipPricingPage() {
                 className="px-6 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-amber-400 hover:text-amber-300 font-black text-xs sm:text-sm border border-slate-700 transition flex items-center justify-center gap-2 shadow-sm"
               >
                 <i className="fa-solid fa-ticket text-amber-400"></i>
-                <span>Đăng Ký Gói Hội Viên (-39%)</span>
+                <span>Đăng Ký Gói Hội Viên (-{standardSavePercent}%)</span>
               </Link>
             </div>
           </div>
@@ -238,7 +244,7 @@ export default function VipPricingPage() {
                 <span className="px-2.5 py-1 rounded-full bg-amber-100 text-amber-900 font-black text-[10px] uppercase">
                   2. Gói Hội Viên (Thuê Bao)
                 </span>
-                <span className="font-bold text-emerald-700 text-[11px]">Tiết kiệm tới 39%</span>
+                <span className="font-bold text-emerald-700 text-[11px]">Tiết kiệm tới {standardSavePercent}%</span>
               </div>
               <h3 className="text-sm font-black text-slate-900">
                 Gói Cơ Bản, Gói Tiêu Chuẩn & Gói Cao Cấp
@@ -278,7 +284,7 @@ export default function VipPricingPage() {
               <span className="text-xs text-slate-500 font-medium">Bạn có Voucher Hội Viên?</span>
               <Link to="/goi-hoi-vien" className="px-3.5 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-900 font-bold border border-amber-300 rounded-xl text-xs transition flex items-center gap-1.5">
                 <i className="fa-solid fa-crown text-amber-600"></i>
-                <span>Xem Gói Hội Viên (-39%)</span>
+                <span>Xem Gói Hội Viên (-{standardSavePercent}%)</span>
               </Link>
             </div>
           </div>
@@ -808,7 +814,7 @@ export default function VipPricingPage() {
                   Bài Toán Kinh Tế Dành Cho Môi Giới
                 </div>
                 <h3 className="text-2xl sm:text-3xl font-black text-slate-950 leading-tight">
-                  Đăng Ký Gói Hội Viên — Tiết Kiệm Tới 39% Chi Phí Đăng Tin
+                  Đăng Ký Gói Hội Viên — Tiết Kiệm Tới {standardSavePercent}% Chi Phí Đăng Tin
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-950 font-medium mt-1 max-w-xl">
                   Nhận trọn bộ kho Voucher cấp mới định kỳ 30 ngày: voucher giảm 35.000đ đăng tin + voucher giảm 10.000đ đẩy tin + voucher 400.000đ tin VIP.
@@ -845,7 +851,7 @@ export default function VipPricingPage() {
             <div className="bg-slate-950 text-white p-5 rounded-2xl shadow-lg border border-slate-800 space-y-2">
               <div className="font-extrabold text-sm text-amber-400 flex items-center justify-between">
                 <span>Phương Án 2: Đăng Ký Gói Hội Viên Tiêu Chuẩn</span>
-                <span className="bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">Tiết Kiệm 39%</span>
+                <span className="bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">Tiết Kiệm {standardSavePercent}%</span>
               </div>
               <ul className="space-y-1 text-slate-300 text-[11px]">
                 <li>• Cấp 30 voucher giảm 35.000 đ đăng tin thường (<b>0 đ</b>)</li>

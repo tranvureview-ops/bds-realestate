@@ -12,7 +12,7 @@ import ListingLocationMap from './ListingLocationMap';
 import { findDanangMerger } from '../data/vietnamAdministrativeData';
 import { formatPhoneNumber, normalizePhone } from '../utils/authValidation';
 import { sanitizePhoneFromText, hasPhoneNumber } from '../utils/textSanitizer';
-import { isVoucherDiscountFree } from '../utils/membershipHelper';
+import { isVoucherDiscountFree, getStandardPackageSavePercent } from '../utils/membershipHelper';
 
 // Danh sách các khung giờ vàng đẩy tin tự động với mô tả chi tiết
 const BUMP_GOLDEN_HOURS_OPTIONS = [
@@ -246,6 +246,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const { navigate } = useRouter();
 
   const effectiveBumpPrice = Number(bumpServicePrice) || Number(contextBumpPrice) || 10000;
+  const standardSavePercent = useMemo(() => getStandardPackageSavePercent(membershipPackages), [membershipPackages]);
 
   const isGuest = !currentUser || currentUser.role === 'guest' || currentUser.id === 'guest';
   const isMemberActive = isMembershipActive ? isMembershipActive(currentUser) : Boolean(
@@ -1335,7 +1336,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
               </div>
               <div className="text-[11px] text-slate-300">
                 {isMemberActive ? (
-                  <span>Ưu đãi Voucher 30 ngày • Tiết kiệm tới 39% chi phí</span>
+                  <span>Ưu đãi Voucher 30 ngày • Tiết kiệm tới {standardSavePercent}% chi phí</span>
                 ) : (
                   <span className="text-rose-300">
                     Hết hạn ngày: {new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN')} • Toàn bộ voucher đã hết hiệu lực
@@ -1392,7 +1393,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
               <i className="fa-solid fa-fire text-amber-950"></i>
             </span>
             <div className="text-slate-800">
-              <b className="text-amber-900">Ưu đãi Gói Hội Viên:</b> Tiết kiệm tới <b>39%</b> chi phí & nhận tới <b>50 Voucher đăng tin 0 đ</b> mỗi tháng!
+              <b className="text-amber-900">Ưu đãi Gói Hội Viên:</b> Tiết kiệm tới <b>{standardSavePercent}%</b> chi phí & nhận tới <b>50 Voucher đăng tin 0 đ</b> mỗi tháng!
             </div>
           </div>
           <Link
@@ -2837,7 +2838,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     <div>
                       <div className="font-bold text-slate-900 flex items-center gap-1.5">
                         <i className="fa-solid fa-percent text-amber-600"></i>
-                        <span>Môi giới tiết kiệm tới 39% chi phí với Gói Hội Viên</span>
+                        <span>Môi giới tiết kiệm tới {standardSavePercent}% chi phí với Gói Hội Viên</span>
                       </div>
                       <div className="text-slate-600 text-[11px] mt-0.5">
                         Nhận ngay 15 - 50 voucher giảm 35.000đ đăng tin (0 đ) + voucher đẩy tin 10.000đ mỗi chu kỳ 30 ngày.
