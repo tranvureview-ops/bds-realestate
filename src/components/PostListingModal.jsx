@@ -2168,47 +2168,20 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   appliedVoucher={appliedVoucher}
                   showFullSummary={false}
                   customVipPackages={activeVipPackages}
+                  dailyQuotaInfo={dailyQuotaInfo}
                 />
 
-                {/* Banner Thông Tin Hạn Mức Đăng Tin Miễn Phí Trong Ngày */}
-                {selectedVipId === 'normal' && (
-                  <div className={`p-3.5 rounded-2xl border flex items-center justify-between text-xs transition-colors ${
-                    !dailyQuotaInfo.allowed 
-                      ? 'bg-rose-50 border-rose-200 text-rose-800' 
-                      : 'bg-emerald-50/80 border-emerald-200 text-emerald-900'
-                  }`}>
-                    <div className="flex items-center gap-2.5">
-                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm shrink-0 ${
-                        !dailyQuotaInfo.allowed ? 'bg-rose-500 text-white' : 'bg-emerald-600 text-white'
-                      }`}>
-                        <i className={`fa-solid ${!dailyQuotaInfo.allowed ? 'fa-ban' : 'fa-calendar-check'}`}></i>
-                      </div>
-                      <div>
-                        <div className="font-black text-xs uppercase flex items-center gap-1.5">
-                          <span>
-                            {dailyQuotaInfo.unlimited 
-                              ? 'Hạn mức đăng tin: Không giới hạn' 
-                              : `Hạn mức đăng tin miễn phí hôm nay: ${dailyQuotaInfo.count}/${dailyQuotaInfo.limit} tin`}
-                          </span>
-                          {dailyRate === 0 && (
-                            <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-200 text-emerald-800">
-                              MIỄN PHÍ 100%
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-[11px] opacity-80 mt-0.5">
-                          {!dailyQuotaInfo.allowed 
-                            ? `Bạn đã đạt giới hạn tối đa ${dailyQuotaInfo.limit} tin/ngày. Nâng cấp Tin VIP để đăng ngay không giới hạn!` 
-                            : dailyQuotaInfo.unlimited 
-                            ? 'Bạn có thể thoải mái đăng tin miễn phí không giới hạn.' 
-                            : `Bạn còn lại ${dailyQuotaInfo.remaining} lượt đăng Tin Thường miễn phí trong ngày hôm nay.`}
-                        </div>
-                      </div>
+                {/* Cảnh báo khi đã hết hạn mức đăng tin miễn phí trong ngày */}
+                {selectedVipId === 'normal' && !dailyQuotaInfo.allowed && (
+                  <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center justify-between text-xs animate-in fade-in">
+                    <div className="flex items-center gap-2">
+                      <i className="fa-solid fa-circle-exclamation text-rose-600 text-sm shrink-0"></i>
+                      <span>
+                        Bạn đã sử dụng hết <b>{dailyQuotaInfo.limit}/{dailyQuotaInfo.limit}</b> lượt đăng tin miễn phí hôm nay. Vui lòng chọn gói Tin VIP để tiếp tục đăng!
+                      </span>
                     </div>
-                    <span className={`px-2.5 py-1 rounded-xl text-[10px] font-black uppercase shrink-0 ${
-                      !dailyQuotaInfo.allowed ? 'bg-rose-600 text-white' : 'bg-emerald-600 text-white'
-                    }`}>
-                      {!dailyQuotaInfo.allowed ? 'Hết lượt hôm nay' : dailyQuotaInfo.unlimited ? 'Vô hạn' : `Còn ${dailyQuotaInfo.remaining} tin`}
+                    <span className="px-2.5 py-1 rounded-lg bg-rose-600 text-white text-[10px] font-bold shrink-0 uppercase">
+                      Hết lượt hôm nay
                     </span>
                   </div>
                 )}

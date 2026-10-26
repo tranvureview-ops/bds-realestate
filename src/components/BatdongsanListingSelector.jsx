@@ -243,7 +243,8 @@ export default function BatdongsanListingSelector({
   showFullSummary = true,
   onApplyAction = null,
   applyActionText = 'Tiếp Tục Đăng Tin',
-  customVipPackages = null
+  customVipPackages = null,
+  dailyQuotaInfo = null
 }) {
   const realEstateContext = useRealEstate();
   const effectivePackages = customVipPackages || realEstateContext?.vipPackages;
@@ -574,11 +575,16 @@ export default function BatdongsanListingSelector({
                 <i className="fa-solid fa-gift"></i>
               </div>
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-bold text-sm text-slate-950">60 ngày</span>
                   <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
                     Miễn phí 100%
                   </span>
+                  {dailyQuotaInfo && !dailyQuotaInfo.unlimited && (
+                    <span className="text-[10px] font-semibold text-slate-500">
+                      • Còn {dailyQuotaInfo.remaining}/{dailyQuotaInfo.limit} tin hôm nay
+                    </span>
+                  )}
                 </div>
                 <div className="text-[11px] text-slate-500">
                   Tin đăng hiển thị tối đa 60 ngày trên toàn sàn
