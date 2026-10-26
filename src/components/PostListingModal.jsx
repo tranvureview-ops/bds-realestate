@@ -339,6 +339,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
   const [scheduleTime, setScheduleTime] = useState('now');
   const [autoBumpHours, setAutoBumpHours] = useState([]); // Đẩy tin khung giờ vàng (mặc định rỗng)
+  const [autoBumpDays, setAutoBumpDays] = useState(1); // Mặc định 1 ngày khi chọn mốc hẹn giờ đẩy tin
   const [customHour, setCustomHour] = useState('09');
   const [customMinute, setCustomMinute] = useState('00');
   const [isBumpDropdownOpen, setIsBumpDropdownOpen] = useState(false);
@@ -451,7 +452,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const ratesConfig = useMemo(() => getEffectiveBdsRates(activeVipPackages, paymentConfig), [activeVipPackages, paymentConfig]);
   const bdsConfig = ratesConfig?.[selectedVipId] || ratesConfig?.['normal'] || BATDONGSAN_RATES['normal'];
   const dailyRate = bdsConfig?.rates?.[listingDays] ?? bdsConfig?.rates?.[15] ?? bdsConfig?.pricePerDay ?? 0;
-  const bumpDays = Math.min(listingDays, 3);
+  const bumpDays = Math.max(1, Math.min(Number(autoBumpDays) || 1, listingDays || 1));
   const autoBumpFee = autoBumpHours.length * effectiveBumpPrice * bumpDays;
   const listingCost = dailyRate * listingDays;
   const totalCost = listingCost + autoBumpFee;
@@ -1027,6 +1028,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       startDate: startDate,
       listingDays,
       autoBumpHours,
+      autoBumpDays: bumpDays,
       autoBumpFee,
       scheduleTime: scheduleTime || 'now'
     };
@@ -2420,7 +2422,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         +{autoBumpFee.toLocaleString('vi-VN')} đ
                       </span>
                       <span className="text-[10px] text-slate-500 ml-1.5 font-medium">
-                        ({autoBumpHours.length} mốc x {bumpDays} ngày đầu)
+                        ({autoBumpHours.length} mốc x {bumpDays} ngày{bumpDays > 1 ? ' đầu' : ''})
                       </span>
                     </div>
                   )}
@@ -2603,7 +2605,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                       <div className="p-2.5 bg-slate-100/80 border-t border-slate-200 flex items-center justify-between text-xs">
                         <span className="text-[11px] text-slate-600">
                           {autoBumpHours.length > 0
-                            ? `Đã chọn ${autoBumpHours.length} mốc • Tạm tính: +${autoBumpFee.toLocaleString('vi-VN')} đ`
+                            ? `Đã chọn ${autoBumpHours.length} mốc • Tạm tính: +${autoBumpFee.toLocaleString('vi-VN')} đ (${bumpDays} ngày)`
                             : 'Chưa chọn mốc thời gian nào'}
                         </span>
                         <button
@@ -2618,33 +2620,60 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   )}
                 </div>
 
-                {/* Selected Hours Quick Pills Display */}
+                {/* Selected Hours Quick Pills Display & Days Selector */}
                 {autoBumpHours.length > 0 && (
-                  <div className="pt-2 border-t border-slate-200/70 flex flex-wrap items-center justify-between gap-1.5 text-xs">
-                    <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-[11px] text-slate-500 font-medium">Lịch đẩy hàng ngày:</span>
-                      {autoBumpHours.map(hour => (
-                        <span
-                          key={hour}
-                          className="px-2 py-0.5 rounded-md bg-white border border-emerald-300 text-emerald-800 font-mono text-xs font-bold shadow-2xs inline-flex items-center gap-1"
-                        >
-                          <span>{hour}</span>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setAutoBumpHours(autoBumpHours.filter(h => h !== hour));
-                            }}
-                            className="text-slate-400 hover:text-rose-600 ml-0.5 cursor-pointer"
-                            title={`Xóa mốc ${hour}`}
+                  <div className="pt-2 border-t border-slate-200/70 space-y-2 text-xs">
+                    <div className="flex flex-wrap items-center justify-between gap-1.5">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-[11px] text-slate-500 font-medium">Lịch đẩy hàng ngày:</span>
+                        {autoBumpHours.map(hour => (
+                          <span
+                            key={hour}
+                            className="px-2 py-0.5 rounded-md bg-white border border-emerald-300 text-emerald-800 font-mono text-xs font-bold shadow-2xs inline-flex items-center gap-1"
                           >
-                            <i className="fa-solid fa-xmark text-[10px]"></i>
-                          </button>
-                        </span>
-                      ))}
+                            <span>{hour}</span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setAutoBumpHours(autoBumpHours.filter(h => h !== hour));
+                              }}
+                              className="text-slate-400 hover:text-rose-600 ml-0.5 cursor-pointer"
+                              title={`Xóa mốc ${hour}`}
+                            >
+                              <i className="fa-solid fa-xmark text-[10px]"></i>
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                      <div className="text-[11px] text-emerald-700 font-bold">
+                        +{autoBumpFee.toLocaleString('vi-VN')} đ ({autoBumpHours.length} lần/ngày x {bumpDays} ngày{bumpDays > 1 ? ' đầu' : ''})
+                      </div>
                     </div>
-                    <div className="text-[11px] text-emerald-700 font-bold">
-                      +{autoBumpFee.toLocaleString('vi-VN')} đ ({autoBumpHours.length} lần/ngày x {bumpDays} ngày đầu)
+
+                    {/* Bộ chọn số ngày đẩy tin tự động (Mặc định 1 ngày) */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2 border-t border-slate-200/60 bg-white/70 p-2 rounded-xl">
+                      <div className="flex items-center gap-1.5">
+                        <i className="fa-solid fa-calendar-days text-emerald-600 text-xs"></i>
+                        <span className="text-[11px] font-bold text-slate-700">Số ngày áp dụng đẩy tin:</span>
+                        <span className="text-[10px] text-emerald-600 font-semibold">(Mặc định 1 ngày)</span>
+                      </div>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {[1, 2, 3, 5, 7].filter(d => d <= listingDays).map(d => (
+                          <button
+                            key={d}
+                            type="button"
+                            onClick={() => setAutoBumpDays(d)}
+                            className={`px-2.5 py-0.5 rounded-lg text-[11px] font-bold transition cursor-pointer ${
+                              bumpDays === d
+                                ? 'bg-emerald-600 text-white shadow-xs'
+                                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200/60'
+                            }`}
+                          >
+                            {d} ngày {d === 1 && <span className="text-[9px] opacity-90 font-normal">(Mặc định)</span>}
+                          </button>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
@@ -2858,7 +2887,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     )}
                     {autoBumpHours.length > 0 && (
                       <div className="text-emerald-400">
-                        Đẩy tin tự động: {autoBumpHours.length} lần/ngày (+{autoBumpFee.toLocaleString('vi-VN')} đ)
+                        Đẩy tin tự động: {autoBumpHours.length} lần/ngày x {bumpDays} ngày (+{autoBumpFee.toLocaleString('vi-VN')} đ)
                       </div>
                     )}
                   </div>

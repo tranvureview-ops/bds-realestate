@@ -1968,7 +1968,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     // Đẩy tin tự động khung giờ vàng (đồng bộ theo bumpServicePrice)
     const currentBumpPrice = Number(bumpServicePrice) || Number(BUMP_SERVICE_PRICE) || 10000;
     const autoBumpHours = Array.isArray(formData.autoBumpHours) ? formData.autoBumpHours : [];
-    const bumpDays = Math.min(Number(days) || 15, 3);
+    const bumpDays = Math.max(1, Math.min(Number(formData.autoBumpDays) || 1, Number(days) || 1));
     const autoBumpFee = autoBumpHours.length * currentBumpPrice * bumpDays;
 
     let totalCost = listingCost + autoBumpFee;
@@ -2239,6 +2239,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       paymentMethod: paymentMethodLabel,
       paidAmount: finalCost,
       autoBumpHours: autoBumpHours,
+      autoBumpDays: bumpDays,
       autoBumpFee: autoBumpFee,
       paymentOrderId: formData.orderId || null,
       google_place_id: formData.google_place_id || formData.googlePlaceId || null,
