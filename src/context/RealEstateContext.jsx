@@ -71,6 +71,34 @@ import { syncFeaturesWithVouchers } from '../utils/membershipHelper';
 // Hàm tạo Slug Tiêu Đề chuẩn tiếng Việt không dấu (SEO-friendly)
 export const createVietnameseSlug = toVietnameseSlug;
 
+/**
+ * Helper tính toán mốc thời gian chính xác cho Khung Giờ Vàng (Hẹn Giờ Đăng Tin)
+ * @param {string} startDateStr Ngày bắt đầu định dạng YYYY-MM-DD
+ * @param {string} scheduleTimeStr Khung giờ hẹn định dạng HH:mm (VD: "08:00", "11:30", "14:00", "19:30")
+ * @returns {string|null} Chuỗi ISO 8601 của mốc xuất bản
+ */
+export const calculateScheduledPublishTimestamp = (startDateStr, scheduleTimeStr) => {
+  if (!scheduleTimeStr || scheduleTimeStr === 'now') return null;
+  const [hourStr, minuteStr] = scheduleTimeStr.split(':');
+  const targetHours = parseInt(hourStr, 10) || 8;
+  const targetMinutes = parseInt(minuteStr, 10) || 0;
+
+  let targetDate = new Date();
+  if (startDateStr && /^\d{4}-\d{2}-\d{2}$/.test(startDateStr)) {
+    const [y, m, d] = startDateStr.split('-').map(Number);
+    targetDate = new Date(y, m - 1, d, targetHours, targetMinutes, 0, 0);
+  } else {
+    targetDate.setHours(targetHours, targetMinutes, 0, 0);
+  }
+
+  // Nếu mốc thời gian đã trôi qua so với hiện tại, tự động dời sang khung giờ tương ứng của ngày kế tiếp
+  while (targetDate.getTime() <= Date.now()) {
+    targetDate.setDate(targetDate.getDate() + 1);
+  }
+
+  return targetDate.toISOString();
+};
+
 // Chuẩn hóa và tính toán vòng đời / thời hạn bài viết theo quy chuẩn Batdongsan.com.vn
 export const normalizePropertyExpiration = (p) => {
   if (!p) return p;
@@ -108,7 +136,10 @@ export const normalizePropertyExpiration = (p) => {
   let autoApproveAt = p.autoApproveAt;
   let queuePriority = p.queuePriority || (vipPackageId === 'vip-diamond' ? 'priority_diamond' : (vipPackageId === 'vip-gold' ? 'priority_gold' : (vipPackageId === 'vip-silver' ? 'priority_silver' : 'standard_fifo')));
   if (status === 'pending') {
-    if (!autoApproveAt) {
+    if (p.isScheduledPublish || p.scheduledPublishAt) {
+      autoApproveAt = p.scheduledPublishAt || p.autoApproveAt || calculateScheduledPublishTimestamp(p.startDate, p.scheduleTime);
+      queuePriority = 'scheduled_golden_hour';
+    } else if (!autoApproveAt) {
       if (vipPackageId === 'vip-gold') {
         autoApproveAt = new Date(now + 12 * 60 * 1000).toISOString();
       } else if (vipPackageId === 'vip-silver') {
@@ -1217,24 +1248,34 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
             const approveTime = new Date(prop.autoApproveAt).getTime();
             if (now >= approveTime) {
               hasChanges = true;
-              const tierName = prop.vipPackageId === 'vip-gold' 
-                ? 'VIP Vàng (Ưu tiên 15 phút)' 
-                : (prop.vipPackageId === 'vip-silver' 
-                    ? 'VIP Bạc (Ưu tiên 30 phút)' 
-                    : 'Tin Thường (Hàng đợi tiêu chuẩn FIFO 1 tiếng)');
+              const isScheduled = Boolean(prop.isScheduledPublish || prop.scheduledPublishAt || prop.approvalType === 'scheduled_golden_hour');
+              const tierName = prop.vipPackageId === 'vip-diamond'
+                ? 'VIP Kim Cương'
+                : (prop.vipPackageId === 'vip-gold' 
+                    ? 'VIP Vàng' 
+                    : (prop.vipPackageId === 'vip-silver' 
+                        ? 'VIP Bạc' 
+                        : 'Tin Thường'));
               const days = Number(prop.listingDays) || 15;
-              return {
+              const nowIso = new Date(now).toISOString();
+              const autoPublishNote = isScheduled
+                ? `Đã tự động xuất bản đúng Khung Giờ Vàng ${prop.scheduleTime || ''} (${new Date(now).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} - ${tierName})`
+                : (prop.approvalNote || `Tự động xuất bản theo Hàng đợi tiêu chuẩn FIFO (${tierName})`);
+
+              const updatedProp = {
                 ...prop,
                 status: 'active',
-                approvedAt: new Date().toISOString(),
-                publishedAt: prop.publishedAt || new Date().toISOString(),
-                expiresAt: (!prop.expiresAt || new Date(prop.expiresAt).getTime() <= now) 
-                  ? new Date(now + days * 86400 * 1000).toISOString() 
-                  : prop.expiresAt,
+                approvedAt: nowIso,
+                publishedAt: nowIso,
+                expiresAt: new Date(now + days * 86400 * 1000).toISOString(),
                 autoApproved: true,
-                approvalType: prop.approvalType || 'fifo_auto_published',
-                approvalNote: prop.approvalNote || `Tự động xuất bản theo Hàng đợi tiêu chuẩn FIFO (${tierName})`
+                isScheduledPublish: false,
+                approvalType: isScheduled ? 'scheduled_published' : (prop.approvalType || 'fifo_auto_published'),
+                approvalNote: autoPublishNote
               };
+
+              upsertSupabaseProperty(updatedProp).catch(console.warn);
+              return updatedProp;
             }
           }
           return prop;
@@ -2001,14 +2042,17 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
     // =========================================================================
     // Cơ Chế Thanh Toán Trước - Phê Duyệt Tự Động Theo Cấp Độ Tin Đăng:
-    // 1. VIP Kim Cương, VIP Vàng, VIP Bạc: Duyệt Tức Thì tự động (0s - Active ngay)
-    // 2. Tin Thường ('normal'): Duyệt Tự Động ngẫu nhiên (5 - 15 phút)
+    // 1. Khung Giờ Vàng (Hẹn Giờ Đăng Tin): Đưa vào hàng đợi với mốc autoApproveAt chính xác
+    // 2. VIP Kim Cương, VIP Vàng, VIP Bạc: Duyệt Tức Thì tự động (0s - Active ngay)
+    // 3. Tin Thường ('normal'): Duyệt Tự Động ngẫu nhiên (5 - 15 phút)
     // =========================================================================
+    const isScheduledPublish = Boolean(formData.scheduleTime && formData.scheduleTime !== 'now');
     const tierConfig = paymentConfig?.approvalTiers?.[vipPackageId] || DEFAULT_APPROVAL_TIERS[vipPackageId] || DEFAULT_APPROVAL_TIERS['normal'];
     const isAdmin = currentUser?.role === 'admin';
 
     let initialStatus = 'pending';
     let autoApproveAt = null;
+    let scheduledPublishAt = null;
     let queuePriority = 'standard_fifo';
     let queueRank = 4;
     let approvalType = 'standard_fifo';
@@ -2016,7 +2060,23 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
     const isVipTier = ['vip-diamond', 'vip-gold', 'vip-silver'].includes(vipPackageId);
 
-    if (isAdmin) {
+    if (isScheduledPublish) {
+      // 1. Tính toán mốc thời gian Khung Giờ Vàng chính xác
+      scheduledPublishAt = calculateScheduledPublishTimestamp(formData.startDate, formData.scheduleTime);
+      initialStatus = 'pending';
+      autoApproveAt = scheduledPublishAt;
+      queuePriority = 'scheduled_golden_hour';
+      queueRank = 1;
+      approvalType = 'scheduled_golden_hour';
+      const targetTimeFormatted = new Date(scheduledPublishAt).toLocaleString('vi-VN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+      approvalNote = `Lịch hẹn Khung Giờ Vàng (${formData.scheduleTime}): Tự động xuất bản lúc ${targetTimeFormatted}`;
+    } else if (isAdmin) {
       initialStatus = 'active';
       approvalType = 'admin_instant';
       approvalNote = 'Quản trị viên xuất bản trực tiếp';
@@ -2080,12 +2140,16 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       slug: (cleanedTitle && createVietnameseSlug(cleanedTitle)) || `bds-${Date.now().toString().slice(-4)}`,
       vipPackageId: vipPackageId,
       status: initialStatus,
-      publishedAt: new Date().toISOString(),
+      publishedAt: initialStatus === 'active' ? new Date().toISOString() : null,
       listingDays: numDays,
       expiresAt: expiresAt,
       autoRenew: formData.autoRenew !== undefined ? Boolean(formData.autoRenew) : (vipPackageId === 'vip-diamond'),
       submittedAt: new Date().toISOString(),
       autoApproveAt: autoApproveAt,
+      scheduledPublishAt: scheduledPublishAt,
+      isScheduledPublish: isScheduledPublish,
+      scheduleTime: formData.scheduleTime || 'now',
+      startDate: formData.startDate || new Date(now).toISOString().slice(0, 10),
       queuePriority: queuePriority,
       queueRank: queueRank,
       approvalType: approvalType,
@@ -2116,6 +2180,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       } else {
         showToast(`⚡ Xuất bản thành công! Tin (${newProp.id}) đang hiển thị trực tiếp trên sàn.`, 'success');
       }
+    } else if (isScheduledPublish) {
+      const scheduledTimeStr = new Date(scheduledPublishAt).toLocaleString('vi-VN', {
+        hour: '2-digit',
+        minute: '2-digit',
+        day: '2-digit',
+        month: '2-digit'
+      });
+      showToast(`⏰ Đã lên lịch thành công! Tin (${newProp.id}) sẽ tự động xuất bản đúng Khung Giờ Vàng lúc ${scheduledTimeStr}.`, 'success');
     } else {
       showToast(`📋 Đăng tin thành công! Tin ${pkg?.name || 'Tin Thường'} (${newProp.id}) đang trong hàng đợi phê duyệt (Tự động kích hoạt sau ít phút).`, 'info');
     }
@@ -2355,6 +2427,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   // Admin moderation: Approve
   const approveProperty = async (propertyId) => {
     const now = Date.now();
+    const nowIso = new Date(now).toISOString();
     let approvedTarget = null;
     setProperties(prev => prev.map(p => {
       if (p.id === propertyId) {
@@ -2362,12 +2435,13 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         approvedTarget = { 
           ...p, 
           status: 'active', 
-          approvedAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          publishedAt: p.publishedAt || new Date().toISOString(),
-          expiresAt: (!p.expiresAt || new Date(p.expiresAt).getTime() <= now) 
-            ? new Date(now + days * 86400 * 1000).toISOString() 
-            : p.expiresAt
+          approvedAt: nowIso,
+          updatedAt: nowIso,
+          publishedAt: nowIso,
+          expiresAt: new Date(now + days * 86400 * 1000).toISOString(),
+          isScheduledPublish: false,
+          scheduledPublishAt: null,
+          autoApproved: false
         };
         return approvedTarget;
       }
@@ -2378,6 +2452,45 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     }
     showToast(`Đã duyệt xuất bản tin ${propertyId}!`, 'success');
   };
+
+  // Người dùng hoặc Quản trị viên kích hoạt xuất bản ngay lập tức một tin đang chờ / đang hẹn giờ
+  const publishPropertyNow = useCallback(async (propertyId) => {
+    const nowMs = Date.now();
+    const nowIso = new Date(nowMs).toISOString();
+    let updatedTarget = null;
+
+    setProperties(prev => prev.map(p => {
+      if (p.id === propertyId || p._id === propertyId) {
+        const days = Number(p.listingDays) || 15;
+        updatedTarget = {
+          ...p,
+          status: 'active',
+          publishedAt: nowIso,
+          approvedAt: nowIso,
+          updatedAt: nowIso,
+          expiresAt: new Date(nowMs + days * 86400 * 1000).toISOString(),
+          isScheduledPublish: false,
+          scheduledPublishAt: null,
+          autoApproved: false,
+          approvalType: 'manual_instant_published',
+          approvalNote: `Người dùng đã chủ động Xuất Bản Ngay (${new Date(nowMs).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })})`
+        };
+        return updatedTarget;
+      }
+      return p;
+    }));
+
+    if (updatedTarget) {
+      try {
+        await upsertSupabaseProperty(updatedTarget);
+      } catch (err) {
+        console.warn('Lỗi đồng bộ Supabase khi xuất bản ngay:', err);
+      }
+      showToast(`⚡ Đã xuất bản tin ${propertyId} lên trang chủ thành công!`, 'success');
+      return updatedTarget;
+    }
+    return null;
+  }, [showToast]);
 
   // Admin moderation: Reject
   const rejectProperty = async (propertyId, reason = 'Vi phạm quy chế') => {
@@ -3994,6 +4107,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         upgradeVip,
         addProperty,
         approveProperty,
+        publishPropertyNow,
         rejectProperty,
         deleteProperty,
         moveToTrash,

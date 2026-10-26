@@ -49,9 +49,36 @@ export async function executeAutoDatabaseCleanup() {
   let archivedCount = 0;
   let deletedCount = 0;
   let trashCleanedCount = 0;
+  let publishedCount = 0;
 
   const nextProperties = [];
   for (const p of properties) {
+    // 0. Tự động xuất bản các tin hẹn giờ (Khung Giờ Vàng) hoặc tin chờ duyệt khi đến hạn
+    if (p.status === 'pending' && p.autoApproveAt) {
+      const approveTime = new Date(p.autoApproveAt).getTime();
+      if (now >= approveTime) {
+        const isScheduled = Boolean(p.isScheduledPublish || p.scheduledPublishAt || p.approvalType === 'scheduled_golden_hour');
+        const days = Number(p.listingDays) || 15;
+        const nowIso = new Date(now).toISOString();
+        const autoPublishNote = isScheduled
+          ? `Đã tự động xuất bản đúng Khung Giờ Vàng ${p.scheduleTime || ''} (${new Date(now).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })})`
+          : (p.approvalNote || 'Tự động xuất bản theo Hàng đợi');
+        nextProperties.push({
+          ...p,
+          status: 'active',
+          approvedAt: nowIso,
+          publishedAt: nowIso,
+          expiresAt: new Date(now + days * 86400 * 1000).toISOString(),
+          autoApproved: true,
+          isScheduledPublish: false,
+          approvalType: isScheduled ? 'scheduled_published' : (p.approvalType || 'fifo_auto_published'),
+          approvalNote: autoPublishNote
+        });
+        publishedCount++;
+        continue;
+      }
+    }
+
     // 1. Dọn dẹp tin trong Thùng rác quá trashRetentionDays (ví dụ 30 ngày)
     if (p.isDeleted || p.status === 'trash') {
       const delTime = p.deletedAt ? new Date(p.deletedAt).getTime() : now;
@@ -125,7 +152,7 @@ export async function executeAutoDatabaseCleanup() {
     nextProperties.push(p);
   }
 
-  const totalProcessed = archivedCount + deletedCount + trashCleanedCount;
+  const totalProcessed = archivedCount + deletedCount + trashCleanedCount + publishedCount;
   if (totalProcessed > 0) {
     await persistDatabaseSlice('bds_properties', nextProperties);
   }
@@ -137,11 +164,12 @@ export async function executeAutoDatabaseCleanup() {
     archivedCount,
     deletedCount,
     trashCleanedCount,
+    publishedCount,
     estFreedKb,
     retentionDays,
     action,
     message: totalProcessed > 0
-      ? `Đã hoàn tất tự động dọn dẹp: Nén ${archivedCount} tin, dọn ${deletedCount + trashCleanedCount} tin quá hạn ${retentionDays} ngày. Giải phóng ~${estFreedKb} KB.`
+      ? `Đã hoàn tất tự động xử lý: Tự động xuất bản ${publishedCount} tin, nén ${archivedCount} tin, dọn ${deletedCount + trashCleanedCount} tin quá hạn ${retentionDays} ngày. Giải phóng ~${estFreedKb} KB.`
       : `Hệ thống đã quét: Không có bài viết nào quá hạn ${retentionDays} ngày cần xử lý.`
   };
 }

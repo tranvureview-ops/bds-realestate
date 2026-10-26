@@ -823,6 +823,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       lng: finalLng || 108.2022,
       google_place_id: finalPlaceId,
       publishedAt: new Date(startDate).toISOString(),
+      startDate: startDate,
       listingDays,
       autoBumpHours,
       scheduleTime: scheduleTime || 'now'

@@ -21,6 +21,7 @@ export default function UserDashboard() {
     openPropertyDetail,
     showToast,
     renewProperty,
+    publishPropertyNow,
     getPropertyExpirationInfo,
     isMembershipActive,
     vipPackages: contextVipPackages,
@@ -409,6 +410,7 @@ export default function UserDashboard() {
                 const expInfo = getPropertyExpirationInfo ? getPropertyExpirationInfo(prop) : null;
                 const isItemExpired = Boolean(expInfo?.isExpired) || prop.status === 'expired';
                 const isItemExpiringSoon = Boolean(expInfo?.isExpiringSoon) && !isItemExpired && prop.status === 'active';
+                const isScheduled = Boolean(prop.isScheduledPublish || prop.scheduledPublishAt || prop.approvalType === 'scheduled_golden_hour');
 
                 return (
                   <div
@@ -453,10 +455,17 @@ export default function UserDashboard() {
                               ● Còn {expInfo?.daysRemaining || 15} ngày
                             </span>
                           ) : prop.status === 'pending' ? (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 flex items-center gap-1">
-                              <i className="fa-solid fa-clock-rotate-left text-amber-600 animate-spin text-[9px]"></i>
-                              <span>{expInfo?.badgeText || '⏳ Chờ duyệt (Hàng đợi FIFO)'}</span>
-                            </span>
+                            isScheduled ? (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200 flex items-center gap-1 shadow-sm">
+                                <i className="fa-solid fa-clock text-purple-600"></i>
+                                <span>⏰ Lịch hẹn: {prop.scheduleTime || 'Giờ vàng'} {prop.autoApproveAt ? `(Dự kiến: ${new Date(prop.autoApproveAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} ngày ${new Date(prop.autoApproveAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })})` : ''}</span>
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 flex items-center gap-1">
+                                <i className="fa-solid fa-clock-rotate-left text-amber-600 animate-spin text-[9px]"></i>
+                                <span>{expInfo?.badgeText || '⏳ Chờ duyệt (Hàng đợi FIFO)'}</span>
+                              </span>
+                            )
                           ) : (
                             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600">
                               Đã hạ
@@ -526,20 +535,52 @@ export default function UserDashboard() {
                         </div>
 
                         {prop.status === 'pending' && (
-                          <div className="mt-2 text-[11px] text-amber-800 bg-amber-50 border border-amber-200/80 px-2.5 py-1 rounded-xl flex items-center gap-1.5 w-fit">
-                            <i className="fa-solid fa-circle-info text-amber-600"></i>
-                            <span>
-                              {prop.vipPackageId === 'normal' || !prop.vipPackageId
-                                ? 'Tin đang trong Hàng Đợi Tiêu Chuẩn FIFO. Hệ thống sẽ tự động xuất bản trong vòng 1 tiếng (hoặc BQT duyệt sớm).'
-                                : 'Tin đang trong Hàng Đợi Ưu Tiên Sớm và sẽ tự động kích hoạt.'}
-                            </span>
-                          </div>
+                          isScheduled ? (
+                            <div className="mt-2 text-[11px] text-purple-900 bg-purple-50 border border-purple-200 px-3 py-1.5 rounded-xl flex items-center gap-2 w-fit flex-wrap">
+                              <i className="fa-solid fa-calendar-check text-purple-600 text-sm shrink-0"></i>
+                              <div>
+                                <span className="font-bold">⏰ Đã hẹn giờ đăng Khung Giờ Vàng ({prop.scheduleTime || 'Giờ vàng'}):</span>{' '}
+                                <span>
+                                  Dự kiến tự động xuất bản lên trang chủ lúc{' '}
+                                  <b className="font-mono text-purple-700">
+                                    {prop.autoApproveAt ? new Date(prop.autoApproveAt).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) : prop.scheduleTime}
+                                  </b>
+                                  . Thời hạn hiển thị ({prop.listingDays || 15} ngày) sẽ bắt đầu tính từ khi tin lên trang chủ.
+                                </span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="mt-2 text-[11px] text-amber-800 bg-amber-50 border border-amber-200/80 px-2.5 py-1 rounded-xl flex items-center gap-1.5 w-fit">
+                              <i className="fa-solid fa-circle-info text-amber-600"></i>
+                              <span>
+                                {prop.vipPackageId === 'normal' || !prop.vipPackageId
+                                  ? 'Tin đang trong Hàng Đợi Tiêu Chuẩn FIFO. Hệ thống sẽ tự động xuất bản trong vòng 1 tiếng (hoặc BQT duyệt sớm).'
+                                  : 'Tin đang trong Hàng Đợi Ưu Tiên Sớm và sẽ tự động kích hoạt.'}
+                              </span>
+                            </div>
+                          )
                         )}
                       </div>
                     </div>
 
                     {/* Action Buttons for this listing */}
                     <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end pt-3 md:pt-0 border-t md:border-t-0 border-slate-100">
+                      {/* Nút Xuất Bản Ngay nếu tin đang hẹn giờ Khung Giờ Vàng */}
+                      {prop.status === 'pending' && isScheduled && (
+                        <button
+                          onClick={async () => {
+                            if (window.confirm(`Bạn có muốn xuất bản tin "${prop.title}" lên trang chủ ngay lập tức mà không cần chờ đến ${prop.scheduleTime || 'giờ hẹn'} không?`)) {
+                              await publishPropertyNow(prop.id);
+                            }
+                          }}
+                          className="px-3 py-1.5 font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+                          title="Đưa tin lên trang chủ ngay lập tức mà không cần chờ đến khung giờ vàng đã hẹn"
+                        >
+                          <i className="fa-solid fa-bolt text-amber-300"></i>
+                          <span>Xuất Bản Ngay</span>
+                        </button>
+                      )}
+
                       {/* Gia Hạn Tin (Batdongsan Renewal) */}
                       <button
                         onClick={() => {

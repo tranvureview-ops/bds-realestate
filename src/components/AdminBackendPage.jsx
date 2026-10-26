@@ -547,12 +547,19 @@ export default function AdminBackendPage() {
     const diff = new Date(autoApproveAt).getTime() - Date.now();
     if (diff <= 0) return { expired: true, text: 'Đang kích hoạt tự động...' };
     const totalSec = Math.floor(diff / 1000);
-    const mins = Math.floor(totalSec / 60);
+    const hours = Math.floor(totalSec / 3600);
+    const mins = Math.floor((totalSec % 3600) / 60);
     const secs = totalSec % 60;
+    const text = hours > 0 
+      ? `${hours} giờ ${mins} phút ${String(secs).padStart(2, '0')}s`
+      : `${mins} phút ${String(secs).padStart(2, '0')}s`;
     return {
       expired: false,
-      text: `${mins} phút ${String(secs).padStart(2, '0')}s`,
-      totalSec
+      text,
+      totalSec,
+      hours,
+      mins,
+      secs
     };
   };
 
@@ -3249,6 +3256,7 @@ export default function AdminBackendPage() {
                     const isDiamond = prop.vipPackageId === 'vip-diamond';
                     const isGold = prop.vipPackageId === 'vip-gold';
                     const isSilver = prop.vipPackageId === 'vip-silver';
+                    const isScheduled = Boolean(prop.isScheduledPublish || prop.scheduledPublishAt || prop.approvalType === 'scheduled_golden_hour');
                     const isGuest = prop.isGuest || prop.author?.isGuest || String(prop.author?.id).startsWith('guest') || prop.author?.title?.includes('Khách');
                     const countdown = getRemainingCountdown(prop.autoApproveAt);
                     const normalIndex = normalPending.findIndex(p => p.id === prop.id);
@@ -3295,7 +3303,11 @@ export default function AdminBackendPage() {
                               {/* Source of approval in Active tab */}
                               {prop.status === 'active' && (
                                 <span className="ml-1">
-                                  {isDiamond ? (
+                                  {prop.approvalType === 'scheduled_published' ? (
+                                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-purple-950 text-purple-300 border border-purple-800 flex items-center gap-1">
+                                      <i className="fa-solid fa-clock text-[9px]"></i> ⏰ Đã Xuất Bản Đúng Khung Giờ Vàng ({prop.scheduleTime || 'Giờ Vàng'})
+                                    </span>
+                                  ) : isDiamond ? (
                                     <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-red-950 text-red-300 border border-red-800 flex items-center gap-1">
                                       <i className="fa-solid fa-bolt text-[9px]"></i> ⚡ Duyệt Tức Thì (Active Ngay)
                                     </span>
@@ -3338,7 +3350,18 @@ export default function AdminBackendPage() {
                             {/* Live Countdown Queue Notice in Pending Tab */}
                             {prop.status === 'pending' && (
                               <div className="mt-2">
-                                {isGold && (
+                                {isScheduled ? (
+                                  <div className="flex items-center gap-2 p-2 bg-purple-950/50 border border-purple-800/70 rounded-xl text-xs text-purple-200 w-fit flex-wrap">
+                                    <i className="fa-solid fa-clock text-purple-400 text-xs"></i>
+                                    <span>
+                                      <strong>Lịch Hẹn Giờ Khung Giờ Vàng ({prop.scheduleTime || 'Giờ Vàng'}):</strong> Còn{' '}
+                                      <strong className="text-purple-300 font-mono text-sm underline">
+                                        {countdown?.text || 'Đang chờ đến giờ'}
+                                      </strong>{' '}
+                                      sẽ tự động xuất bản (Dự kiến: {prop.autoApproveAt ? new Date(prop.autoApproveAt).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }) : ''}).
+                                    </span>
+                                  </div>
+                                ) : isGold ? (
                                   <div className="flex items-center gap-2 p-2 bg-amber-950/40 border border-amber-800/60 rounded-xl text-xs text-amber-300 w-fit">
                                     <i className="fa-solid fa-clock-rotate-left animate-spin text-amber-400 text-xs"></i>
                                     <span>
@@ -3349,9 +3372,7 @@ export default function AdminBackendPage() {
                                       sẽ tự động Kích Hoạt (Active).
                                     </span>
                                   </div>
-                                )}
-
-                                {isSilver && (
+                                ) : isSilver ? (
                                   <div className="flex items-center gap-2 p-2 bg-blue-950/40 border border-blue-800/60 rounded-xl text-xs text-blue-300 w-fit">
                                     <i className="fa-solid fa-clock-rotate-left animate-spin text-blue-400 text-xs"></i>
                                     <span>
@@ -3362,9 +3383,7 @@ export default function AdminBackendPage() {
                                       sẽ tự động Kích Hoạt (Active).
                                     </span>
                                   </div>
-                                )}
-
-                                {!isDiamond && !isGold && !isSilver && (
+                                ) : (
                                   <div className="flex items-center gap-2 p-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-300 w-fit flex-wrap">
                                     <div className="flex items-center gap-1.5">
                                       <i className="fa-solid fa-list-ol text-slate-400 text-xs"></i>
@@ -3414,7 +3433,7 @@ export default function AdminBackendPage() {
                               className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow flex items-center gap-1.5"
                             >
                               <i className="fa-solid fa-check"></i>
-                              <span>{isGold || isSilver ? 'Duyệt Ngay Bây Giờ' : 'Duyệt Xuất Bản'}</span>
+                              <span>{isScheduled ? '⚡ Xuất Bản Ngay' : (isGold || isSilver ? 'Duyệt Ngay Bây Giờ' : 'Duyệt Xuất Bản')}</span>
                             </button>
                           )}
 
