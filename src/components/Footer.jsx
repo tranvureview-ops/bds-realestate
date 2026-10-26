@@ -124,7 +124,7 @@ export default function Footer() {
             <ul className="space-y-2 text-xs text-slate-400">
               <li><Link to="/nha-dat-ban" className="hover:text-emerald-400 transition">Nhà Đất Cần Bán</Link></li>
               <li><Link to="/nha-dat-cho-thue" className="hover:text-emerald-400 transition">Cho Thuê Nhà Đất</Link></li>
-              <li><Link to="/bang-gia-vip" className="hover:text-emerald-400 transition">Bảng Giá Gói Tin VIP</Link></li>
+              <li><Link to="/bang-gia-tin-dang" className="hover:text-emerald-400 transition">Bảng Giá Tin Đăng</Link></li>
               <li><Link to="/dang-tin" className="hover:text-emerald-400 transition">Đăng Tin Hiệu Quả</Link></li>
               <li><Link to="/tinh-lai-vay" className="hover:text-emerald-400 transition">Công Cụ Tính Lãi Vay</Link></li>
             </ul>

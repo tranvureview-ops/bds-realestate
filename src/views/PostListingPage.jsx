@@ -38,11 +38,11 @@ export default function PostListingPage() {
               <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-amber-700 ml-0.5"></i>
             </Link>
             <Link
-              to="/bang-gia-vip"
+              to="/bang-gia-tin-dang"
               className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 font-bold border border-slate-200 transition flex items-center gap-1.5"
             >
               <i className="fa-solid fa-tags text-slate-500"></i>
-              <span>Bảng Giá Tin VIP</span>
+              <span>Bảng Giá Tin Đăng</span>
             </Link>
             <Link
               to="/quan-ly-tin"
@@ -70,7 +70,7 @@ export default function PostListingPage() {
                   <i className="fa-solid fa-chart-line text-red-600 text-sm"></i>
                   <h3 className="font-black text-sm text-slate-900 uppercase">Hiệu Quả 4 Cấp Độ Tin Đăng</h3>
                 </div>
-                <Link to="/bang-gia-vip" className="text-[11px] text-red-600 font-bold hover:underline">
+                <Link to="/bang-gia-tin-dang" className="text-[11px] text-red-600 font-bold hover:underline">
                   Xem chi tiết
                 </Link>
               </div>

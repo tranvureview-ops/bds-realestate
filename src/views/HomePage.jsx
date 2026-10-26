@@ -83,7 +83,7 @@ export default function HomePage() {
           </Link>
 
           <Link 
-            to="/bang-gia-vip"
+            to="/bang-gia-tin-dang"
             className="p-4 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-md hover:border-amber-500 transition flex items-center gap-3 group"
           >
             <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl group-hover:scale-110 transition">

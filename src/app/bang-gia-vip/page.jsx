@@ -1,10 +1,5 @@
-import VipPricingPage from '../../views/VipPricingPage';
-
-export const metadata = {
-  title: 'Bảng Giá Dịch Vụ Tin VIP',
-  description: 'Bảng giá niêm yết các gói tin VIP Kim Cương, VIP Vàng, VIP Bạc, VIP Đồng và dịch vụ đẩy tin tự động.',
-};
+import { redirect } from 'next/navigation';
 
 export default function Page() {
-  return <VipPricingPage />;
+  redirect('/bang-gia-tin-dang');
 }

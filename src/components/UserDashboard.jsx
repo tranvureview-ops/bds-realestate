@@ -641,7 +641,7 @@ export default function UserDashboard() {
                       <button
                         onClick={() => {
                           setSelectedPropertyForVip(prop);
-                          navigate('/bang-gia-vip');
+                          navigate('/bang-gia-tin-dang');
                         }}
                         className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1 cursor-pointer"
                       >

@@ -15,7 +15,7 @@ Hệ thống sử dụng **HashRouter** giúp hoạt động trơn tru 100% trê
 | **3** | **Cho Thuê Nhà Đất** | `#/nha-dat-cho-thue` | Chuyên trang cho thuê phòng trọ, căn hộ dịch vụ, nhà nguyên căn, văn phòng và mặt bằng kinh doanh. |
 | **4** | **Trang Single Sản Phẩm** | `#/bat-dong-san/:id` | Chi tiết chuyên sâu: Lưới 5 ảnh Mosaic, VR 360°, bản đồ số Leaflet GIS, thông số kỹ thuật, tính lãi vay nhúng, thẻ liên hệ môi giới. |
 | **5** | **Đăng Tin BĐS Mới** | `#/dang-tin` | Biểu mẫu đăng tin độc lập chuẩn hóa 4 tầng chuyên nghiệp. |
-| **6** | **Bảng Giá Gói Tin VIP** | `#/bang-gia-vip` | Chi tiết so sánh đặc quyền 5 cấp độ tin đăng (VIP Kim Cương, Vàng, Bạc, Đồng, Thường) và tính năng đẩy tin tự động giờ vàng. |
+| **6** | **Bảng Giá Tin Đăng** | `#/bang-gia-tin-dang` | Chi tiết so sánh đặc quyền 5 cấp độ tin đăng (VIP Kim Cương, Vàng, Bạc, Đồng, Thường) và tính năng đẩy tin tự động giờ vàng. |
 | **7** | **Công Cụ Tính Lãi Vay** | `#/tinh-lai-vay` | Máy tính tài chính ngân hàng tương tác: Kéo slider số tiền vay, thời hạn (1 - 35 năm), lãi suất, bảng chiết tính dư nợ giảm dần. |
 | **8** | **So Sánh Bất Động Sản** | `#/so-sanh` | So sánh trực diện đối đầu 2 - 4 căn nhà/đất cạnh nhau theo bảng ma trận thông số kỹ thuật, đơn giá m², hướng, pháp lý. |
 | **9** | **Tin Đã Lưu (Yêu Thích)** | `#/tin-da-luu` | Bộ sưu tập các bất động sản khách hàng đã đánh dấu quan tâm kèm thao tác xóa 1-chạm hoặc xem nhanh. |
@@ -75,7 +75,7 @@ Biểu mẫu đăng tin tại trang `#/dang-tin` được chuẩn hóa theo đú
 1. Truy cập thư mục `d:\skill\bds-realestate\`
 2. Nhấp đúp chuột vào file **`preview.html`** để mở trên trình duyệt (Chrome, Edge, Firefox, Cốc Cốc).
 3. Thử nghiệm điều hướng đa trang trực tiếp:
-   * Thanh URL tự động đồng bộ theo từng trang: `#/`, `#/nha-dat-ban`, `#/bat-dong-san/BDS-001`, `#/dang-tin`, `#/bang-gia-vip`, `#/tinh-lai-vay`, `#/so-sanh`, `#/tin-da-luu`, `#/quan-ly-tin`, `#/ho-so-ca-nhan`, `#/nap-tien`, `#/dang-nhap`, `#/dang-ky`, `#/admin`.
+   * Thanh URL tự động đồng bộ theo từng trang: `#/`, `#/nha-dat-ban`, `#/bat-dong-san/BDS-001`, `#/dang-tin`, `#/bang-gia-tin-dang`, `#/tinh-lai-vay`, `#/so-sanh`, `#/tin-da-luu`, `#/quan-ly-tin`, `#/ho-so-ca-nhan`, `#/nap-tien`, `#/dang-nhap`, `#/dang-ky`, `#/admin`.
    * Sử dụng được nút **Back/Forward** của trình duyệt mà không bị lỗi trang.
 
 ### Cách 2: Chạy Môi Trường Phát Triển Vite React

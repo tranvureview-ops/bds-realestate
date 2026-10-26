@@ -21,6 +21,15 @@ const nextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/bang-gia-vip',
+        destination: '/bang-gia-tin-dang',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
