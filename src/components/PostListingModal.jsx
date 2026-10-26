@@ -1603,12 +1603,6 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   onPaste={handleTitlePaste}
                   className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-black text-slate-900 focus:ring-2 focus:ring-red-500"
                 />
-                {systemConfig?.autoFilterPhoneInContent !== false && (
-                  <div className="text-[10px] text-slate-400 mt-1 flex items-center gap-1.5">
-                    <i className="fa-solid fa-shield-halved text-emerald-600 text-[10px]"></i>
-                    <span>Tự động quét & lọc sạch số điện thoại khỏi tiêu đề để đảm bảo quy chuẩn hiển thị.</span>
-                  </div>
-                )}
                 <div className="flex flex-wrap items-center justify-between text-[11px] text-slate-500 mt-1">
                   <span>💡 Gợi ý: [Loại BĐS] + [Đặc điểm nổi bật/Vị trí] + [Pháp lý/Giá]</span>
                   <button
@@ -1665,12 +1659,6 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   onPaste={handleDescriptionPaste}
                   className="w-full p-3 bg-slate-50 border border-slate-300 rounded-xl text-xs leading-relaxed text-slate-900 focus:ring-2 focus:ring-red-500"
                 ></textarea>
-                {systemConfig?.autoFilterPhoneInContent !== false && (
-                  <div className="text-[10px] text-slate-400 mt-1 flex items-center gap-1.5">
-                    <i className="fa-solid fa-shield-halved text-emerald-600 text-[10px]"></i>
-                    <span>Tự động quét & lọc sạch số điện thoại khỏi mô tả (SĐT hiển thị tại khung liên hệ riêng).</span>
-                  </div>
-                )}
               </div>
 
               {/* Định giá & Đơn vị tính */}
