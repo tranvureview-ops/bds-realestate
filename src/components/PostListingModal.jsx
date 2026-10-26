@@ -116,18 +116,111 @@ const DESCRIPTION_TEMPLATES = {
 - Giá thuê hợp lý, hợp đồng dài hạn, thanh toán linh hoạt theo kỳ 3 - 6 tháng.`
 };
 
-// Hàm chuyển đổi số tiền thành chữ Tiếng Việt
-function formatPriceToVietnameseText(num) {
+// Hàm chuyển đổi số tiền thành chữ Tiếng Việt chuẩn Batdongsan
+function formatPriceToVietnameseText(num, isRent = false) {
   if (!num || num <= 0) return 'Thỏa thuận';
+  let text = '';
   if (num >= 1000000000) {
     const ty = Math.floor(num / 1000000000);
     const trieu = Math.round((num % 1000000000) / 1000000);
-    return trieu > 0 ? `${ty} tỷ ${trieu} triệu` : `${ty} tỷ`;
+    text = trieu > 0 ? `${ty} tỷ ${trieu} triệu` : `${ty} tỷ`;
   } else if (num >= 1000000) {
     const trieu = Math.round(num / 1000000);
-    return `${trieu} triệu`;
+    text = `${trieu} triệu`;
+  } else if (num >= 1000) {
+    const nghin = +(num / 1000).toFixed(2);
+    text = `${nghin.toString().replace('.', ',')} nghìn`;
+  } else {
+    text = `${num.toLocaleString('vi-VN')} đ`;
   }
-  return `${num.toLocaleString('vi-VN')} đ`;
+  return isRent ? `${text}/tháng` : text;
+}
+
+// Hàm định dạng số tiền thành chữ tóm tắt chuẩn Batdongsan
+export function formatSummaryPrice(num, isRent = false, isPerM2 = false) {
+  if (!num || num <= 0) return 'Thỏa thuận';
+  let text = '';
+  if (num >= 1e9) {
+    const val = +(num / 1e9).toFixed(3);
+    text = `${val.toString().replace('.', ',')} tỷ`;
+  } else if (num >= 1e6) {
+    const val = +(num / 1e6).toFixed(3);
+    text = `${val.toString().replace('.', ',')} triệu`;
+  } else if (num >= 1e3) {
+    const val = +(num / 1e3).toFixed(2);
+    text = `${val.toString().replace('.', ',')} nghìn`;
+  } else {
+    text = `${num.toLocaleString('vi-VN')} đ`;
+  }
+
+  if (isPerM2) {
+    return isRent ? `${text}/m²/tháng` : `${text}/m²`;
+  }
+  return isRent ? `${text}/tháng` : text;
+}
+
+// Hàm sinh các mốc giá gợi ý chuẩn xác theo bội số 10 dựa trên chữ số người dùng đang nhập
+export function getPriceSuggestions(rawInput, isRent = false, isPerM2 = false) {
+  const digits = String(rawInput || '').replace(/\D/g, '');
+  if (!digits) return [];
+  const num = parseInt(digits, 10);
+  if (!num || num <= 0) return [];
+
+  let minVal = 10_000_000;
+  let maxVal = 500_000_000_000;
+
+  if (isPerM2) {
+    minVal = isRent ? 10_000 : 1_000_000;
+    maxVal = isRent ? 50_000_000 : 500_000_000;
+  } else if (isRent) {
+    minVal = 1_000_000;
+    maxVal = 10_000_000_000;
+  }
+
+  const candidates = [];
+  for (let p = -5; p <= 9; p++) {
+    const val = Math.round(num * Math.pow(10, p));
+    if (val >= minVal && val <= maxVal) {
+      if (!candidates.includes(val)) {
+        candidates.push(val);
+      }
+    }
+  }
+
+  candidates.sort((a, b) => a - b);
+  let selected = candidates;
+  if (candidates.length > 5) {
+    const idx = candidates.findIndex(c => c >= num);
+    const start = Math.max(0, Math.min(candidates.length - 5, (idx > 1 ? idx - 2 : 0)));
+    selected = candidates.slice(start, start + 5);
+  }
+
+  return selected.map(val => {
+    let label = '';
+    if (val >= 1e9) {
+      const v = +(val / 1e9).toFixed(3);
+      label = `${v.toString().replace('.', ',')} tỷ`;
+    } else if (val >= 1e6) {
+      const v = +(val / 1e6).toFixed(3);
+      label = `${v.toString().replace('.', ',')} triệu`;
+    } else if (val >= 1e3) {
+      const v = +(val / 1e3).toFixed(2);
+      label = `${v.toString().replace('.', ',')} nghìn`;
+    } else {
+      label = `${val.toLocaleString('vi-VN')} đ`;
+    }
+
+    if (isPerM2) {
+      label += isRent ? ' / m² / tháng' : ' / m²';
+    } else if (isRent) {
+      label += ' / tháng';
+    }
+
+    return {
+      value: val,
+      label
+    };
+  });
 }
 
 export default function PostListingModal({ onClose, isEmbedded = false }) {
@@ -401,8 +494,9 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     return { allowed: true, count: 0, limit: 5, remaining: 5, unlimited: false };
   }, [checkDailyFreeListingQuota, currentUser, formData.contactPhone, properties]);
 
-  // Tính toán và định dạng giá
-  const updatePriceCalculations = (newPrice, newPriceType, currentArea) => {
+  // Tính toán và định dạng giá chuẩn Batdongsan theo Nhu cầu (Bán / Thuê)
+  const updatePriceCalculations = (newPrice, newPriceType, currentArea, currentDemand = formData.demand) => {
+    const isRentMode = currentDemand === 'rent';
     let pDisplay = '';
     let pPerM2 = '';
 
@@ -415,18 +509,21 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
 
       if (newPrice !== '' && !isNaN(numPrice) && numPrice > 0) {
         if (newPriceType === 'm2') {
-          pPerM2 = `${(numPrice / 1000000).toFixed(1)} tr/m²`;
+          const perM2Text = (numPrice >= 1e6 ? (numPrice / 1e6).toFixed(1) + ' tr' : Math.round(numPrice / 1000) + 'k') + '/m²';
+          pPerM2 = isRentMode ? `${perM2Text}/tháng` : perM2Text;
           if (numArea > 0) {
             const totalPrice = numPrice * numArea;
-            pDisplay = formatPriceToVietnameseText(totalPrice);
+            pDisplay = formatPriceToVietnameseText(totalPrice, isRentMode);
           } else {
-            pDisplay = `${(numPrice / 1000000).toFixed(1)} tr/m²`;
+            pDisplay = pPerM2;
           }
         } else {
           // Total price
-          pDisplay = formatPriceToVietnameseText(numPrice);
+          pDisplay = formatPriceToVietnameseText(numPrice, isRentMode);
           if (numArea > 0) {
-            pPerM2 = `${(numPrice / numArea / 1000000).toFixed(1)} tr/m²`;
+            const m2Val = numPrice / numArea;
+            const perM2 = (m2Val >= 1e6 ? (m2Val / 1e6).toFixed(1) + ' tr' : Math.round(m2Val / 1000) + 'k') + '/m²';
+            pPerM2 = isRentMode ? `${perM2}/tháng` : perM2;
           }
         }
       }
@@ -434,11 +531,37 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
 
     setFormData(prev => ({
       ...prev,
+      demand: currentDemand,
       price: newPriceType === 'deal' ? '' : newPrice,
       priceType: newPriceType,
       priceDisplay: pDisplay,
       pricePerM2: pPerM2
     }));
+  };
+
+  const isRent = formData.demand === 'rent';
+  const isPerM2 = formData.priceType === 'm2';
+  const priceSuggestions = useMemo(() => {
+    if (formData.priceType === 'deal') return [];
+    return getPriceSuggestions(formData.price, isRent, isPerM2);
+  }, [formData.price, formData.priceType, isRent, isPerM2]);
+
+  const formatInputValue = (val) => {
+    if (val === undefined || val === null || val === '') return '';
+    const num = Number(val);
+    if (isNaN(num)) return String(val);
+    return num.toLocaleString('vi-VN');
+  };
+
+  const handlePriceInputChange = (e) => {
+    const rawVal = e.target.value;
+    const cleanDigits = rawVal.replace(/\D/g, '');
+    if (cleanDigits === '') {
+      updatePriceCalculations('', formData.priceType, formData.area, formData.demand);
+      return;
+    }
+    const num = parseInt(cleanDigits, 10);
+    updatePriceCalculations(num, formData.priceType, formData.area, formData.demand);
   };
 
   // Tự động quét và loại bỏ số điện thoại khỏi Tiêu đề khi blur hoặc paste
@@ -719,7 +842,11 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       priceDisplay: formData.priceDisplay || (formData.priceType === 'deal' ? 'Thỏa thuận' : ''),
       pricePerM2: formData.pricePerM2 || (formData.priceType === 'deal' ? 'Thỏa thuận' : ''),
       priceType: formData.priceType || 'total',
-      priceUnit: formData.priceType === 'deal' ? 'Thỏa thuận' : (formData.priceType === 'm2' ? 'tr/m²' : 'tỷ'),
+      priceUnit: formData.priceType === 'deal' 
+        ? 'Thỏa thuận' 
+        : (formData.priceType === 'm2' 
+            ? (formData.demand === 'rent' ? 'tr/m²/tháng' : 'tr/m²') 
+            : (formData.demand === 'rent' ? (Number(formData.price) >= 1e9 ? 'tỷ/tháng' : 'tr/tháng') : (Number(formData.price) >= 1e9 ? 'tỷ' : 'triệu'))),
       area: Number(formData.area) || 0,
       bedrooms: Number(formData.bedroom ?? formData.bedrooms) || 0,
       bathrooms: Number(formData.bathroom ?? formData.bathrooms) || 0,
@@ -1344,7 +1471,10 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, demand: 'sale' }))}
+                    onClick={() => {
+                      setFormData(prev => ({ ...prev, demand: 'sale' }));
+                      updatePriceCalculations(formData.price, formData.priceType, formData.area, 'sale');
+                    }}
                     className={`py-3 px-4 rounded-2xl border-2 text-xs font-bold flex items-center justify-center gap-2 transition ${formData.demand === 'sale' ? 'bg-emerald-50 border-emerald-600 text-emerald-800 shadow-sm ring-2 ring-emerald-500/20' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'}`}
                   >
                     <i className="fa-solid fa-tag text-emerald-600 text-base"></i>
@@ -1355,7 +1485,10 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, demand: 'rent' }))}
+                    onClick={() => {
+                      setFormData(prev => ({ ...prev, demand: 'rent' }));
+                      updatePriceCalculations(formData.price, formData.priceType, formData.area, 'rent');
+                    }}
                     className={`py-3 px-4 rounded-2xl border-2 text-xs font-bold flex items-center justify-center gap-2 transition ${formData.demand === 'rent' ? 'bg-blue-50 border-blue-600 text-blue-800 shadow-sm ring-2 ring-blue-500/20' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'}`}
                   >
                     <i className="fa-solid fa-key text-blue-600 text-base"></i>
@@ -1751,101 +1884,177 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
               </div>
 
               {/* Định giá & Đơn vị tính */}
-              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="text-xs font-bold text-slate-800 uppercase">
-                    3. Mức Giá & Diện Tích <span className="text-red-500">*</span>
+              <div className="p-4 sm:p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-200/60">
+                  <span className="text-xs font-bold text-slate-800 uppercase flex items-center gap-1.5">
+                    <i className="fa-solid fa-coins text-amber-500"></i>
+                    <span>3. Mức Giá & Diện Tích <span className="text-red-500">*</span></span>
                   </span>
                   {/* Radio chọn kiểu định giá */}
                   <div className="flex items-center gap-3 text-xs font-bold">
-                    <label className="flex items-center gap-1 cursor-pointer">
+                    <label className="flex items-center gap-1.5 cursor-pointer">
                       <input 
                         type="radio" 
                         name="price-type" 
                         checked={formData.priceType === 'total'} 
-                        onChange={() => updatePriceCalculations(formData.price, 'total', formData.area)} 
+                        onChange={() => updatePriceCalculations(formData.price, 'total', formData.area, formData.demand)} 
+                        className="text-red-600 focus:ring-red-500"
                       />
                       <span>Tổng tiền</span>
                     </label>
-                    <label className="flex items-center gap-1 cursor-pointer">
+                    <label className="flex items-center gap-1.5 cursor-pointer">
                       <input 
                         type="radio" 
                         name="price-type" 
                         checked={formData.priceType === 'm2'} 
-                        onChange={() => updatePriceCalculations(formData.price, 'm2', formData.area)} 
+                        onChange={() => updatePriceCalculations(formData.price, 'm2', formData.area, formData.demand)} 
+                        className="text-red-600 focus:ring-red-500"
                       />
                       <span>Theo m²</span>
                     </label>
-                    <label className="flex items-center gap-1 cursor-pointer">
+                    <label className="flex items-center gap-1.5 cursor-pointer">
                       <input 
                         type="radio" 
                         name="price-type" 
                         checked={formData.priceType === 'deal'} 
-                        onChange={() => updatePriceCalculations('', 'deal', formData.area)} 
+                        onChange={() => updatePriceCalculations('', 'deal', formData.area, formData.demand)} 
+                        className="text-red-600 focus:ring-red-500"
                       />
                       <span>Thỏa thuận</span>
                     </label>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="space-y-4">
+                  {/* Ô nhập mức giá & Gợi ý nhanh chuẩn Batdongsan */}
                   <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
-                      {formData.priceType === 'm2' ? 'Giá theo m² (VND/m²)' : 'Số tiền niêm yết (VND)'}
-                    </label>
-                    <input
-                      type="number"
-                      disabled={formData.priceType === 'deal'}
-                      step="1000000"
-                      placeholder={formData.priceType === 'deal' ? 'Giá thỏa thuận' : (formData.priceType === 'm2' ? 'VD: 45000000' : 'VD: 3500000000')}
-                      value={formData.priceType === 'deal' ? '' : (formData.price ?? '')}
-                      onChange={(e) => updatePriceCalculations(e.target.value === '' ? '' : Number(e.target.value), formData.priceType, formData.area)}
-                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-black text-slate-900 disabled:bg-slate-200"
-                    />
-                    {formData.priceDisplay ? (
-                      <div className="text-[11px] text-emerald-700 font-black mt-1 truncate">
-                        = {formData.priceDisplay} {formData.pricePerM2 ? `(${formData.pricePerM2})` : ''}
-                      </div>
-                    ) : (
-                      <div className="text-[11px] text-slate-400 font-medium mt-1 truncate">
-                        {formData.priceType === 'deal' ? '= Thỏa thuận' : 'Nhập giá để tự động quy đổi'}
+                    <div className="flex items-center justify-between mb-1.5">
+                      <label className="block text-[11px] font-bold text-slate-700">
+                        {formData.priceType === 'm2' 
+                          ? (formData.demand === 'rent' ? 'Giá thuê theo m² (VND/m²/tháng) *' : 'Giá theo m² (VND/m²) *') 
+                          : (formData.demand === 'rent' ? 'Số tiền niêm yết cho thuê (VND/tháng) *' : 'Số tiền niêm yết (VND) *')
+                        }
+                      </label>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${formData.demand === 'rent' ? 'bg-blue-100 text-blue-800' : 'bg-emerald-100 text-emerald-800'}`}>
+                        {formData.demand === 'rent' ? 'Nhu cầu: Cho thuê' : 'Nhu cầu: Cần bán'}
+                      </span>
+                    </div>
+
+                    <div className="relative">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        disabled={formData.priceType === 'deal'}
+                        placeholder={
+                          formData.priceType === 'deal' 
+                            ? 'Giá thỏa thuận trực tiếp khi liên hệ' 
+                            : (formData.demand === 'rent' 
+                                ? 'VD: 15.000.000 hoặc nhập 15' 
+                                : 'VD: 3.500.000.000 hoặc nhập 3500'
+                              )
+                        }
+                        value={formData.priceType === 'deal' ? '' : formatInputValue(formData.price)}
+                        onChange={handlePriceInputChange}
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-black text-slate-900 disabled:bg-slate-200 outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/10 transition pr-24 shadow-xs"
+                      />
+                      <span className="absolute right-3.5 top-2.5 text-xs font-bold text-slate-400 select-none">
+                        {formData.priceType === 'm2' 
+                          ? (formData.demand === 'rent' ? 'VND/m²/tháng' : 'VND/m²') 
+                          : (formData.demand === 'rent' ? 'VND/tháng' : 'VND')
+                        }
+                      </span>
+                    </div>
+
+                    {/* Gợi ý các mức giá (Suggestion Pills) */}
+                    {priceSuggestions.length > 0 && formData.priceType !== 'deal' && (
+                      <div className="mt-2.5 flex flex-wrap items-center gap-1.5 animate-in fade-in duration-150">
+                        {priceSuggestions.map((item) => {
+                          const isSelected = Number(formData.price) === item.value;
+                          return (
+                            <button
+                              key={item.value}
+                              type="button"
+                              onClick={() => {
+                                updatePriceCalculations(item.value, formData.priceType, formData.area, formData.demand);
+                              }}
+                              className={`px-3 py-1.5 rounded-full text-xs font-bold transition flex items-center gap-1.5 border shadow-2xs ${
+                                isSelected
+                                  ? 'bg-slate-900 text-white border-slate-900 ring-2 ring-slate-900/20'
+                                  : 'bg-white text-slate-800 border-slate-200 hover:border-slate-400 hover:bg-slate-50'
+                              }`}
+                            >
+                              <span>{item.label}</span>
+                              {isSelected && <i className="fa-solid fa-check text-[10px] text-emerald-400"></i>}
+                            </button>
+                          );
+                        })}
                       </div>
                     )}
+
+                    {/* Dòng chữ quy đổi tổng trị giá */}
+                    <div className="mt-2 text-xs">
+                      {formData.priceType === 'deal' ? (
+                        <span className="text-slate-500 font-medium">Giá thỏa thuận trực tiếp khi thương lượng</span>
+                      ) : formData.price && formData.price > 0 ? (
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-slate-700 font-medium">
+                            Tổng trị giá: <strong className="font-bold text-slate-900">{formatSummaryPrice(formData.price, formData.demand === 'rent', formData.priceType === 'm2')}</strong>
+                          </span>
+                          {formData.pricePerM2 && formData.area > 0 && formData.priceType !== 'm2' && (
+                            <span className="text-slate-500 font-normal">
+                              • Đơn giá m²: <b className="text-emerald-700 font-semibold">{formData.pricePerM2}</b>
+                            </span>
+                          )}
+                          {formData.priceType === 'm2' && formData.area > 0 && (
+                            <span className="text-slate-500 font-normal">
+                              • Tổng tiền trọn gói: <b className="text-emerald-700 font-semibold">{formData.priceDisplay}</b>
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-slate-400 font-normal text-[11px]">
+                          Nhập giá tiền để tự động gợi ý các mức giá chuẩn và quy đổi thành chữ
+                        </span>
+                      )}
+                    </div>
                   </div>
 
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
-                      Diện tích sử dụng (m²) <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      step="0.1"
-                      placeholder="VD: 75"
-                      value={formData.area ?? ''}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        const newArea = val === '' ? '' : Number(val);
-                        setFormData(prev => ({ ...prev, area: newArea }));
-                        updatePriceCalculations(formData.price, formData.priceType, newArea);
-                      }}
-                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-black text-slate-900"
-                    />
-                  </div>
+                  {/* Diện tích & Bàn giao nội thất */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-slate-200/60">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                        Diện tích sử dụng (m²) <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        placeholder="VD: 75"
+                        value={formData.area ?? ''}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          const newArea = val === '' ? '' : Number(val);
+                          setFormData(prev => ({ ...prev, area: newArea }));
+                          updatePriceCalculations(formData.price, formData.priceType, newArea, formData.demand);
+                        }}
+                        className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-black text-slate-900 outline-none focus:border-red-500"
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block text-[11px] font-bold text-slate-600 mb-1">
-                      Bàn giao nội thất
-                    </label>
-                    <CustomSelect
-                      value={formData.furniture || ''}
-                      onChange={(val) => setFormData(prev => ({ ...prev, furniture: val }))}
-                      options={[
-                        'Full nội thất cao cấp',
-                        'Nội thất cơ bản gắn tường',
-                        'Bàn giao thô (chưa hoàn thiện)'
-                      ]}
-                      placeholder="Chọn tình trạng nội thất"
-                    />
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                        Bàn giao nội thất
+                      </label>
+                      <CustomSelect
+                        value={formData.furniture || ''}
+                        onChange={(val) => setFormData(prev => ({ ...prev, furniture: val }))}
+                        options={[
+                          'Full nội thất cao cấp',
+                          'Nội thất cơ bản gắn tường',
+                          'Bàn giao thô (chưa hoàn thiện)'
+                        ]}
+                        placeholder="Chọn tình trạng nội thất"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
