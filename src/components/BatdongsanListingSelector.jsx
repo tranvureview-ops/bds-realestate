@@ -640,6 +640,7 @@ export default function BatdongsanListingSelector({
               ref={dateInputRef}
               id="bds-start-date"
               type="date"
+              min={todayStr}
               value={startDate || internalStartDate}
               onClick={(e) => {
                 try {
