@@ -466,32 +466,6 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {onNavigateToPricing && (
-            <button
-              type="button"
-              onClick={onNavigateToPricing}
-              className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 text-xs font-bold transition flex items-center gap-1.5"
-              title="Xem bảng giá tin đăng VIP"
-            >
-              <i className="fa-solid fa-tags text-slate-400"></i>
-              <span className="hidden sm:inline">Bảng Giá Tin Đăng</span>
-            </button>
-          )}
-
-          <button
-            type="button"
-            onClick={() => {
-              if (window.confirm('Khôi phục danh sách các gói hội viên về thiết lập mặc định ban đầu? Các thay đổi tùy chỉnh trước đó sẽ bị ghi đè.')) {
-                resetMembershipPackages();
-              }
-            }}
-            className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 text-xs font-bold transition flex items-center gap-1.5"
-            title="Khôi phục mặc định"
-          >
-            <i className="fa-solid fa-rotate-left"></i>
-            <span className="hidden sm:inline">Khôi Phục Mặc Định</span>
-          </button>
-
           <button
             type="button"
             onClick={handleOpenCreate}
