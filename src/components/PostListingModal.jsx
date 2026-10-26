@@ -245,6 +245,8 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const [startDate, setStartDate] = useState(new Date().toISOString().slice(0, 10));
   const [scheduleTime, setScheduleTime] = useState('now');
   const [autoBumpHours, setAutoBumpHours] = useState([]); // Đẩy tin khung giờ vàng (mặc định rỗng)
+  const [customHour, setCustomHour] = useState('09');
+  const [customMinute, setCustomMinute] = useState('00');
   const [isBumpDropdownOpen, setIsBumpDropdownOpen] = useState(false);
   const bumpDropdownRef = useRef(null);
 
@@ -262,6 +264,17 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isBumpDropdownOpen]);
+
+  // Thêm mốc giờ & phút tùy chỉnh
+  const handleAddCustomTime = () => {
+    const timeStr = `${String(customHour).padStart(2, '0')}:${String(customMinute).padStart(2, '0')}`;
+    if (autoBumpHours.includes(timeStr)) {
+      showToast(`Khung giờ ${timeStr} đã có trong danh sách!`, 'warning');
+      return;
+    }
+    setAutoBumpHours(prev => [...prev, timeStr].sort());
+    showToast(`Đã thêm mốc đẩy tin tự động lúc ${timeStr}!`, 'info');
+  };
   // Nếu chưa đăng nhập (khách vãng lai), mặc định là VietQR Ngân Hàng
   const [paymentMethod, setPaymentMethod] = useState(!isGuest ? 'wallet' : 'vietqr');
   const [appliedVoucher, setAppliedVoucher] = useState(defaultListingType === 'normal' && hasNormalVoucher ? 'normalPublish' : null);
@@ -2184,35 +2197,31 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                 )}
               </div>
 
-              {/* Dịch vụ đẩy tin khung giờ vàng tự động - Dropdown chọn cùng lúc nhiều mốc thời gian */}
+              {/* Dịch vụ đẩy tin tự động - Chọn khung giờ vàng & chọn giờ phút linh hoạt */}
               <div 
                 ref={bumpDropdownRef}
-                className="p-4 bg-gradient-to-r from-slate-50 to-slate-100/90 border border-slate-200 rounded-2xl relative space-y-3 shadow-xs"
+                className="p-3 sm:p-3.5 bg-slate-50 border border-slate-200/90 rounded-2xl relative space-y-2.5 shadow-2xs"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5 flex-wrap">
-                      <span className="w-5 h-5 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs">
-                        <i className="fa-solid fa-arrow-up-right-dots"></i>
-                      </span>
-                      <span>Đẩy tin tự động khung giờ vàng</span>
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        +{effectiveBumpPrice.toLocaleString('vi-VN')} đ/lần
-                      </span>
-                    </div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">
-                      Giúp bài viết luôn dẫn đầu trong giờ khách truy cập đông nhất (Đồng bộ biểu phí sàn)
-                    </div>
+                {/* Header tinh gọn: Tiêu đề + Giá + Tổng tạm tính */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="w-5 h-5 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs">
+                      <i className="fa-solid fa-arrow-up-right-dots"></i>
+                    </span>
+                    <span className="text-xs font-bold text-slate-900">Đẩy tin tự động</span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      +{effectiveBumpPrice.toLocaleString('vi-VN')} đ/lần
+                    </span>
                   </div>
 
                   {autoBumpHours.length > 0 && (
-                    <div className="text-left sm:text-right shrink-0 bg-white sm:bg-transparent p-2 sm:p-0 rounded-xl border sm:border-0 border-emerald-200">
-                      <div className="text-xs font-black text-emerald-700">
+                    <div className="text-left sm:text-right shrink-0">
+                      <span className="text-xs font-black text-emerald-700">
                         +{autoBumpFee.toLocaleString('vi-VN')} đ
-                      </div>
-                      <div className="text-[10px] text-slate-500">
-                        {autoBumpHours.length} khung giờ x {effectiveBumpPrice.toLocaleString('vi-VN')} đ x {bumpDays} ngày đầu
-                      </div>
+                      </span>
+                      <span className="text-[10px] text-slate-500 ml-1.5 font-medium">
+                        ({autoBumpHours.length} mốc x {bumpDays} ngày đầu)
+                      </span>
                     </div>
                   )}
                 </div>
@@ -2222,7 +2231,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   <button
                     type="button"
                     onClick={() => setIsBumpDropdownOpen(prev => !prev)}
-                    className={`w-full px-3.5 py-2.5 rounded-xl border text-left text-xs font-medium flex items-center justify-between gap-2 transition bg-white shadow-xs cursor-pointer ${
+                    className={`w-full px-3 py-2 rounded-xl border text-left text-xs font-medium flex items-center justify-between gap-2 transition bg-white shadow-2xs cursor-pointer ${
                       isBumpDropdownOpen
                         ? 'border-emerald-500 ring-2 ring-emerald-500/20'
                         : autoBumpHours.length > 0
@@ -2231,20 +2240,20 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     }`}
                   >
                     <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0">
-                      <i className={`fa-solid ${autoBumpHours.length > 0 ? 'fa-calendar-check text-emerald-600' : 'fa-clock text-slate-400'}`}></i>
+                      <i className={`fa-solid ${autoBumpHours.length > 0 ? 'fa-calendar-check text-emerald-600' : 'fa-clock text-slate-400'} text-xs`}></i>
                       {autoBumpHours.length === 0 ? (
-                        <span className="text-slate-400">Chọn các khung giờ vàng đẩy tin tự động... (Có thể chọn nhiều mốc)</span>
+                        <span className="text-slate-400 text-xs">Chọn khung giờ vàng hoặc chọn giờ & phút cụ thể...</span>
                       ) : (
                         <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="font-bold text-slate-900">
-                            Đã chọn {autoBumpHours.length} khung giờ:
+                          <span className="font-bold text-slate-800 text-xs">
+                            Đã chọn {autoBumpHours.length} mốc:
                           </span>
                           {autoBumpHours.map(h => (
                             <span 
                               key={h}
-                              className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-900 border border-emerald-200 font-mono font-bold text-[11px] inline-flex items-center gap-1"
+                              className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-900 border border-emerald-200 font-mono font-bold text-[11px]"
                             >
-                              <span>{h}</span>
+                              {h}
                             </span>
                           ))}
                         </div>
@@ -2252,11 +2261,11 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     </div>
                     <div className="flex items-center gap-1.5 shrink-0 text-slate-400">
                       {autoBumpHours.length > 0 && (
-                        <span className="px-1.5 py-0.5 rounded-full bg-emerald-600 text-white font-mono font-black text-[10px]">
+                        <span className="px-1.5 py-0.2 rounded-full bg-emerald-600 text-white font-mono font-bold text-[10px]">
                           {autoBumpHours.length}
                         </span>
                       )}
-                      <i className={`fa-solid fa-chevron-down text-xs transition-transform duration-200 ${isBumpDropdownOpen ? 'rotate-180 text-emerald-600' : ''}`}></i>
+                      <i className={`fa-solid fa-chevron-down text-[11px] transition-transform duration-200 ${isBumpDropdownOpen ? 'rotate-180 text-emerald-600' : ''}`}></i>
                     </div>
                   </button>
 
@@ -2266,15 +2275,18 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                       {/* Top Action Bar */}
                       <div className="p-2.5 bg-slate-50 border-b border-slate-100 flex items-center justify-between text-xs">
                         <span className="font-bold text-slate-700">
-                          Chọn cùng lúc nhiều mốc thời gian:
+                          Khung giờ vàng đề xuất:
                         </span>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1.5">
                           <button
                             type="button"
-                            onClick={() => setAutoBumpHours(['08:00', '11:30', '14:00', '19:30'])}
+                            onClick={() => {
+                              const golden = ['08:00', '11:30', '14:00', '19:30'];
+                              setAutoBumpHours(prev => Array.from(new Set([...prev, ...golden])).sort());
+                            }}
                             className="text-emerald-700 hover:text-emerald-800 font-bold text-[11px] px-2 py-0.5 rounded-lg hover:bg-emerald-50 transition cursor-pointer"
                           >
-                            ⚡ Chọn tất cả (4 mốc)
+                            ⚡ 4 Giờ vàng
                           </button>
                           {autoBumpHours.length > 0 && (
                             <button
@@ -2282,14 +2294,14 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                               onClick={() => setAutoBumpHours([])}
                               className="text-slate-500 hover:text-rose-600 font-bold text-[11px] px-2 py-0.5 rounded-lg hover:bg-rose-50 transition cursor-pointer"
                             >
-                              ✕ Bỏ chọn
+                              ✕ Xóa hết
                             </button>
                           )}
                         </div>
                       </div>
 
-                      {/* Options List */}
-                      <div className="p-2 space-y-1 max-h-64 overflow-y-auto">
+                      {/* Golden Hours Options Grid/List */}
+                      <div className="p-2 space-y-1 max-h-56 overflow-y-auto">
                         {BUMP_GOLDEN_HOURS_OPTIONS.map((opt) => {
                           const isChecked = autoBumpHours.includes(opt.time);
                           return (
@@ -2302,20 +2314,20 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                                   setAutoBumpHours([...autoBumpHours, opt.time].sort());
                                 }
                               }}
-                              className={`p-2.5 rounded-xl border flex items-center justify-between gap-3 cursor-pointer transition select-none ${
+                              className={`p-2 rounded-xl border flex items-center justify-between gap-2.5 cursor-pointer transition select-none ${
                                 isChecked
                                   ? 'bg-emerald-50/70 border-emerald-300 text-slate-900 shadow-2xs'
                                   : 'bg-white border-transparent hover:bg-slate-50 text-slate-700'
                               }`}
                             >
-                              <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-2.5">
                                 {/* Custom Checkbox */}
-                                <div className={`w-5 h-5 rounded-lg border flex items-center justify-center transition shrink-0 ${
+                                <div className={`w-4.5 h-4.5 rounded-md border flex items-center justify-center transition shrink-0 ${
                                   isChecked 
                                     ? 'bg-emerald-600 border-emerald-600 text-white' 
                                     : 'border-slate-300 bg-white'
                                 }`}>
-                                  {isChecked && <i className="fa-solid fa-check text-[10px]"></i>}
+                                  {isChecked && <i className="fa-solid fa-check text-[9px]"></i>}
                                 </div>
 
                                 <div className="flex items-center gap-2">
@@ -2338,24 +2350,66 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                                 <span className="font-bold text-xs text-emerald-700">
                                   +{effectiveBumpPrice.toLocaleString('vi-VN')} đ
                                 </span>
-                                <div className="text-[9px] text-slate-400">/lượt/ngày</div>
                               </div>
                             </div>
                           );
                         })}
                       </div>
 
+                      {/* Custom Specific Hour & Minute Picker */}
+                      <div className="p-2.5 bg-slate-50 border-t border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                          <i className="fa-regular fa-clock text-emerald-600"></i>
+                          <span>Chọn giờ & phút tùy chọn:</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          {/* Hour select */}
+                          <div className="flex items-center bg-white border border-slate-300 rounded-lg px-2 py-1 shadow-2xs">
+                            <select
+                              value={customHour}
+                              onChange={(e) => setCustomHour(e.target.value)}
+                              className="text-xs font-mono font-bold text-slate-800 bg-transparent focus:outline-none cursor-pointer"
+                            >
+                              {Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0')).map(h => (
+                                <option key={h} value={h}>{h} giờ</option>
+                              ))}
+                            </select>
+                            <span className="font-bold text-slate-400 mx-1">:</span>
+                            {/* Minute select */}
+                            <select
+                              value={customMinute}
+                              onChange={(e) => setCustomMinute(e.target.value)}
+                              className="text-xs font-mono font-bold text-slate-800 bg-transparent focus:outline-none cursor-pointer"
+                            >
+                              {Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0')).map(m => (
+                                <option key={m} value={m}>{m} phút</option>
+                              ))}
+                            </select>
+                          </div>
+
+                          {/* Add button */}
+                          <button
+                            type="button"
+                            onClick={handleAddCustomTime}
+                            className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer shrink-0 shadow-2xs"
+                          >
+                            <i className="fa-solid fa-plus text-[10px]"></i>
+                            <span>Thêm mốc</span>
+                          </button>
+                        </div>
+                      </div>
+
                       {/* Dropdown Footer */}
-                      <div className="p-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs">
+                      <div className="p-2.5 bg-slate-100/80 border-t border-slate-200 flex items-center justify-between text-xs">
                         <span className="text-[11px] text-slate-600">
                           {autoBumpHours.length > 0
-                            ? `Đã chọn ${autoBumpHours.length} khung giờ • Tạm tính: +${autoBumpFee.toLocaleString('vi-VN')} đ`
+                            ? `Đã chọn ${autoBumpHours.length} mốc • Tạm tính: +${autoBumpFee.toLocaleString('vi-VN')} đ`
                             : 'Chưa chọn mốc thời gian nào'}
                         </span>
                         <button
                           type="button"
                           onClick={() => setIsBumpDropdownOpen(false)}
-                          className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition cursor-pointer"
+                          className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition cursor-pointer"
                         >
                           Xác nhận
                         </button>
@@ -2366,13 +2420,13 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
 
                 {/* Selected Hours Quick Pills Display */}
                 {autoBumpHours.length > 0 && (
-                  <div className="pt-2 border-t border-slate-200/80 flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <div className="pt-2 border-t border-slate-200/70 flex flex-wrap items-center justify-between gap-1.5 text-xs">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="text-[11px] text-slate-500 font-medium">Lịch đẩy hàng ngày:</span>
                       {autoBumpHours.map(hour => (
                         <span
                           key={hour}
-                          className="px-2 py-0.5 rounded-lg bg-white border border-emerald-300 text-emerald-800 font-mono text-xs font-bold shadow-xs inline-flex items-center gap-1"
+                          className="px-2 py-0.5 rounded-md bg-white border border-emerald-300 text-emerald-800 font-mono text-xs font-bold shadow-2xs inline-flex items-center gap-1"
                         >
                           <span>{hour}</span>
                           <button
@@ -2382,7 +2436,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                               setAutoBumpHours(autoBumpHours.filter(h => h !== hour));
                             }}
                             className="text-slate-400 hover:text-rose-600 ml-0.5 cursor-pointer"
-                            title={`Bỏ khung giờ ${hour}`}
+                            title={`Xóa mốc ${hour}`}
                           >
                             <i className="fa-solid fa-xmark text-[10px]"></i>
                           </button>
@@ -2390,7 +2444,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                       ))}
                     </div>
                     <div className="text-[11px] text-emerald-700 font-bold">
-                      {autoBumpHours.length} lần/ngày x {effectiveBumpPrice.toLocaleString('vi-VN')} đ x {bumpDays} ngày đầu = +{autoBumpFee.toLocaleString('vi-VN')} đ
+                      +{autoBumpFee.toLocaleString('vi-VN')} đ ({autoBumpHours.length} lần/ngày x {bumpDays} ngày đầu)
                     </div>
                   </div>
                 )}
