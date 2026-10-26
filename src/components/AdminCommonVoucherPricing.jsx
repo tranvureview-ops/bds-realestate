@@ -135,7 +135,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
           </div>
         </div>
 
-        {/* 2. Voucher Đẩy Tin Thường */}
+        {/* 2. Voucher Đẩy Tin */}
         <div className="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 hover:border-amber-500/50 transition-all space-y-2 relative group">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -143,7 +143,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
                 <i className="fa-solid fa-arrow-up"></i>
               </span>
               <div>
-                <span className="font-bold text-white text-xs block">Voucher Đẩy Tin Thường</span>
+                <span className="font-bold text-white text-xs block">Voucher Đẩy Tin</span>
                 <span className="text-[10px] text-slate-400">Làm mới tin lên đầu trang</span>
               </div>
             </div>

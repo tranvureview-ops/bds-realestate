@@ -26,8 +26,8 @@ export function getResolvedFeatures(pkg) {
       return `${pubCount} voucher giảm ${pubDiscount} đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)`;
     }
     // Normal Bump Voucher line
-    if (/voucher.*đẩy tin thường/i.test(feat)) {
-      return `${bumpCount} voucher giảm ${bumpDiscount} đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)`;
+    if (/voucher.*đẩy tin( thường)?/i.test(feat)) {
+      return `${bumpCount} voucher giảm ${bumpDiscount} đ/lần Đẩy Tin (mỗi chu kỳ 30 ngày)`;
     }
     // VIP Voucher line
     if (/voucher.*tin vip/i.test(feat)) {
@@ -68,9 +68,9 @@ export function syncFeaturesWithVouchers(features = [], vouchers = {}) {
       hasPub = true;
       return `${pubCount} voucher giảm ${pubDiscount} đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)`;
     }
-    if (/voucher.*đẩy tin thường/i.test(feat)) {
+    if (/voucher.*đẩy tin( thường)?/i.test(feat)) {
       hasBump = true;
-      return `${bumpCount} voucher giảm ${bumpDiscount} đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)`;
+      return `${bumpCount} voucher giảm ${bumpDiscount} đ/lần Đẩy Tin (mỗi chu kỳ 30 ngày)`;
     }
     if (/voucher.*tin vip/i.test(feat)) {
       hasVip = true;
@@ -88,7 +88,7 @@ export function syncFeaturesWithVouchers(features = [], vouchers = {}) {
     additions.push(`${pubCount} voucher giảm ${pubDiscount} đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)`);
   }
   if (!hasBump && bumpCount > 0) {
-    additions.push(`${bumpCount} voucher giảm ${bumpDiscount} đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)`);
+    additions.push(`${bumpCount} voucher giảm ${bumpDiscount} đ/lần Đẩy Tin (mỗi chu kỳ 30 ngày)`);
   }
   if (!hasVip && vipCount > 0) {
     additions.push(`${vipCount} voucher giảm ${vipDiscount} đ áp dụng cho Tin VIP (mỗi chu kỳ 30 ngày)`);

@@ -849,7 +849,7 @@ export default function VipPricingPage() {
               </div>
               <ul className="space-y-1 text-slate-300 text-[11px]">
                 <li>• Cấp 30 voucher giảm 35.000 đ đăng tin thường (<b>0 đ</b>)</li>
-                <li>• Cấp 30 voucher giảm 10.000 đ đẩy tin thường (<b>0 đ</b>)</li>
+                <li>• Cấp 30 voucher giảm 10.000 đ đẩy tin (<b>0 đ</b>)</li>
                 <li>• Tặng 1 voucher giảm 400.000 đ đăng tin VIP (<b>Giảm ngay 400k</b>)</li>
                 <li className="pt-2 border-t border-slate-800 font-black text-xs text-amber-300">
                   Chỉ còn 1.267.000 đ/tháng (Tiết kiệm gần 800.000 đ)

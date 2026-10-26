@@ -80,7 +80,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
     },
     features: [
       `20 voucher giảm ${Number(commonPublishDiscount).toLocaleString('vi-VN')} đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)`,
-      `20 voucher giảm ${Number(commonBumpDiscount).toLocaleString('vi-VN')} đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)`,
+      `20 voucher giảm ${Number(commonBumpDiscount).toLocaleString('vi-VN')} đ/lần Đẩy Tin (mỗi chu kỳ 30 ngày)`,
       `1 voucher giảm ${Number(commonVipDiscount).toLocaleString('vi-VN')} đ áp dụng cho Tin VIP (mỗi chu kỳ 30 ngày)`,
       'Ưu đãi voucher cấp mới định kỳ 30 ngày trong suốt thời hạn gói',
       'Báo cáo thống kê lượt tương tác cơ bản'
@@ -712,7 +712,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                     </div>
 
                     <div className="flex items-center justify-between p-1.5 rounded-lg bg-slate-950/60 border border-slate-800/40">
-                      <span className="text-slate-300">• Voucher Đẩy Tin Thường:</span>
+                      <span className="text-slate-300">• Voucher Đẩy Tin:</span>
                       <span className="text-amber-400 font-mono font-bold">
                         {pkg.vouchersPerCycle?.normalBumpVouchers || 0} voucher (-{(pkg.vouchersPerCycle?.normalBumpDiscount || 10000) / 1000}k)
                       </span>
@@ -1369,7 +1369,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                             <span className="w-7 h-7 rounded-lg bg-blue-600 text-white flex items-center justify-center text-xs font-black">
                               <i className="fa-solid fa-arrow-up"></i>
                             </span>
-                            <span className="font-bold text-white text-xs">Voucher Đẩy Tin Thường (Bump Service):</span>
+                            <span className="font-bold text-white text-xs">Voucher Đẩy Tin (Bump Service):</span>
                           </div>
                           <span className="text-[11px] text-amber-400 font-mono font-bold bg-amber-950/60 px-2.5 py-1 rounded-lg border border-amber-800/40">
                             Giảm {Number(commonBumpDiscount).toLocaleString('vi-VN')} đ/lượt
@@ -1659,7 +1659,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                                 <span className="w-5 h-5 rounded-md bg-blue-600 text-white flex items-center justify-center text-[10px] font-black">
                                   {editingPkg.vouchersPerCycle?.normalBumpVouchers || 0}
                                 </span>
-                                <span className="font-bold text-blue-950 text-[11px]">Voucher Đẩy Tin Thường</span>
+                                <span className="font-bold text-blue-950 text-[11px]">Voucher Đẩy Tin</span>
                               </div>
                               <span className="text-blue-700 font-black text-[10px]">
                                 -{(editingPkg.vouchersPerCycle?.normalBumpDiscount || 10000).toLocaleString('vi-VN')} đ/lần

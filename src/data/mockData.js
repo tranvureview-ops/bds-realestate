@@ -163,14 +163,14 @@ export const MEMBERSHIP_PACKAGES = [
     vouchersPerCycle: {
       normalPublishVouchers: 15, // 15 voucher giảm 35.000 đ/lần Đăng Tin Thường
       normalPublishDiscount: 35000,
-      normalBumpVouchers: 15,    // 15 voucher giảm 10.000 đ/lần Đẩy Tin Thường
+      normalBumpVouchers: 15,    // 15 voucher giảm 10.000 đ/lần Đẩy Tin
       normalBumpDiscount: 10000,
       vipVouchers: 0,
       vipDiscount: 400000
     },
     features: [
       '15 voucher giảm 35.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)',
-      '15 voucher giảm 10.000 đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)',
+      '15 voucher giảm 10.000 đ/lần Đẩy Tin (mỗi chu kỳ 30 ngày)',
       'Ưu đãi voucher cấp mới định kỳ 30 ngày trong suốt thời hạn gói',
       'Tiết kiệm 31% chi phí so với mua lẻ từng tin đăng',
       'Báo cáo thống kê lượt tương tác cơ bản'
@@ -198,13 +198,13 @@ export const MEMBERSHIP_PACKAGES = [
       normalPublishDiscount: 35000,
       vipVouchers: 1,            // 1 voucher giảm 400.000 đ cho Tin VIP
       vipDiscount: 400000,
-      normalBumpVouchers: 20,    // 20 voucher giảm 10.000 đ/lần Đẩy Tin Thường
+      normalBumpVouchers: 20,    // 20 voucher giảm 10.000 đ/lần Đẩy Tin
       normalBumpDiscount: 10000
     },
     features: [
       '20 voucher giảm 35.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)',
       '1 voucher giảm 400.000 đ áp dụng cho Tin VIP (mỗi chu kỳ 30 ngày)',
-      '20 voucher giảm 10.000 đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)',
+      '20 voucher giảm 10.000 đ/lần Đẩy Tin (mỗi chu kỳ 30 ngày)',
       'Tiện ích Hẹn giờ đăng tin tự động theo khung giờ vàng',
       'Ưu tiên Xuất bản & Duyệt tin nhanh',
       'Báo cáo hiệu suất lượt xem & khách gọi chi tiết',
@@ -233,13 +233,13 @@ export const MEMBERSHIP_PACKAGES = [
       normalPublishDiscount: 35000,
       vipVouchers: 3,            // 3 voucher giảm 400.000 đ cho Tin VIP
       vipDiscount: 400000,
-      normalBumpVouchers: 50,    // 50 voucher giảm 10.000 đ/lần Đẩy Tin Thường
+      normalBumpVouchers: 50,    // 50 voucher giảm 10.000 đ/lần Đẩy Tin
       normalBumpDiscount: 10000
     },
     features: [
       '50 voucher giảm 35.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)',
       '3 voucher giảm 400.000 đ áp dụng cho Tin VIP (mỗi chu kỳ 30 ngày)',
-      '50 voucher giảm 10.000 đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)',
+      '50 voucher giảm 10.000 đ/lần Đẩy Tin (mỗi chu kỳ 30 ngày)',
       'Trọn bộ tiện ích: Hẹn giờ đăng tin & Tự động đẩy tin định kỳ',
       'Báo cáo phân tích chuyên sâu thị trường, dự án & đối thủ',
       'Huy hiệu "Hội Viên Doanh Nghiệp" nâng cao uy tín thương hiệu',

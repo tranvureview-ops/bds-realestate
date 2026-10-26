@@ -391,13 +391,13 @@ export default function MembershipPage() {
                         </span>
                       </div>
 
-                      {/* Đẩy tin thường voucher */}
+                      {/* Đẩy tin voucher */}
                       <div className="p-2.5 rounded-xl bg-blue-50/80 border border-blue-100 flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
                           <span className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center text-[10px] font-black">
                             {pkg.vouchersPerCycle?.normalBumpVouchers || 0}
                           </span>
-                          <span className="font-bold text-blue-950">Voucher Đẩy Tin Thường</span>
+                          <span className="font-bold text-blue-950">Voucher Đẩy Tin</span>
                         </div>
                         <span className="text-blue-700 font-black text-[11px]">
                           -{Number(pkg.vouchersPerCycle?.normalBumpDiscount || 10000).toLocaleString('vi-VN')} đ/lần
@@ -529,7 +529,7 @@ export default function MembershipPage() {
                   ))}
                 </tr>
                 <tr>
-                  <td className="p-4 font-bold text-slate-800">Voucher Đẩy Tin Thường (30 ngày)</td>
+                  <td className="p-4 font-bold text-slate-800">Voucher Đẩy Tin (30 ngày)</td>
                   {(membershipPackages || []).map(p => (
                     <td key={p.id} className={`p-4 text-center font-black text-blue-600 text-sm ${p.recommended ? 'bg-amber-50/30' : ''}`}>
                       {p.vouchersPerCycle?.normalBumpVouchers || 0} lượt/tháng
@@ -705,7 +705,7 @@ export default function MembershipPage() {
                 <div className="border-t pt-2 space-y-1 text-[11px] text-slate-600">
                   <div className="font-bold text-slate-700">Kho Voucher sẽ nhận:</div>
                   <div>✓ {confirmingPackage.pkg.vouchersPerCycle?.normalPublishVouchers || 0} voucher giảm {Number(confirmingPackage.pkg.vouchersPerCycle?.normalPublishDiscount || 35000).toLocaleString('vi-VN')} đ đăng tin thường</div>
-                  <div>✓ {confirmingPackage.pkg.vouchersPerCycle?.normalBumpVouchers || 0} voucher giảm {Number(confirmingPackage.pkg.vouchersPerCycle?.normalBumpDiscount || 10000).toLocaleString('vi-VN')} đ đẩy tin thường</div>
+                  <div>✓ {confirmingPackage.pkg.vouchersPerCycle?.normalBumpVouchers || 0} voucher giảm {Number(confirmingPackage.pkg.vouchersPerCycle?.normalBumpDiscount || 10000).toLocaleString('vi-VN')} đ đẩy tin</div>
                   {(confirmingPackage.pkg.vouchersPerCycle?.vipVouchers || 0) > 0 && (
                     <div>✓ {confirmingPackage.pkg.vouchersPerCycle.vipVouchers} voucher giảm {Number(confirmingPackage.pkg.vouchersPerCycle?.vipDiscount || 400000).toLocaleString('vi-VN')} đ tin VIP</div>
                   )}
