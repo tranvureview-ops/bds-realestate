@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter } from '../router/RouterContext';
-import { getResolvedFeatures, isVoucherDiscountFree } from '../utils/membershipHelper';
+import { getResolvedFeatures, isVoucherDiscountFree, getAverageCycleDiscount, getPackageCycleDiscount } from '../utils/membershipHelper';
 
 export default function MembershipPage() {
   const { 
@@ -19,6 +19,15 @@ export default function MembershipPage() {
   } = useRealEstate();
 
   const pricingOptions = { vipPackages, bumpServicePrice };
+
+  // Tính phần trăm giảm giá trung bình của tất cả các gói cho chu kỳ 3 tháng và 6 tháng
+  const avgDiscount3 = useMemo(() => {
+    return getAverageCycleDiscount(membershipPackages, 3);
+  }, [membershipPackages]);
+
+  const avgDiscount6 = useMemo(() => {
+    return getAverageCycleDiscount(membershipPackages, 6);
+  }, [membershipPackages]);
 
   const { navigate } = useRouter();
   const [selectedCycle, setSelectedCycle] = useState(1); // 1, 3, or 6 months
@@ -49,7 +58,7 @@ export default function MembershipPage() {
       price,
       label: rawCycle?.label || `${months} tháng`,
       duration_days: rawCycle?.duration_days || (months * 30),
-      note: rawCycle?.note || (months > 1 ? `Tiết kiệm thêm khi đăng ký ${months} tháng` : '')
+      note: rawCycle?.note || (months > 1 ? (getPackageCycleDiscount(pkg, months) > 0 ? `Tiết kiệm thêm ${getPackageCycleDiscount(pkg, months)}%` : `Tiết kiệm thêm khi đăng ký ${months} tháng`) : '')
     };
   };
 
@@ -289,9 +298,11 @@ export default function MembershipPage() {
               }`}
             >
               <span>3 Tháng</span>
-              <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-black uppercase ${selectedCycle === 3 ? 'bg-white text-emerald-700' : 'bg-emerald-100 text-emerald-800'}`}>
-                -5%
-              </span>
+              {avgDiscount3 > 0 && (
+                <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-black uppercase ${selectedCycle === 3 ? 'bg-white text-emerald-700' : 'bg-emerald-100 text-emerald-800'}`}>
+                  -{avgDiscount3}%
+                </span>
+              )}
             </button>
             <button
               onClick={() => setSelectedCycle(6)}
@@ -302,9 +313,11 @@ export default function MembershipPage() {
               }`}
             >
               <span>6 Tháng</span>
-              <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-black uppercase ${selectedCycle === 6 ? 'bg-white text-purple-700' : 'bg-purple-100 text-purple-800'}`}>
-                -10% Tối ưu
-              </span>
+              {avgDiscount6 > 0 && (
+                <span className={`text-[9px] px-1.5 py-0.2 rounded-full font-black uppercase ${selectedCycle === 6 ? 'bg-white text-purple-700' : 'bg-purple-100 text-purple-800'}`}>
+                  -{avgDiscount6}% Tối ưu
+                </span>
+              )}
             </button>
           </div>
         </div>

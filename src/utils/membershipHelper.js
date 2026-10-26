@@ -193,3 +193,51 @@ export function syncFeaturesWithVouchers(features = [], vouchers = {}, options =
 
   return [...additions, ...updated];
 }
+
+/**
+ * Calculates the discount percentage of a specific package for a given cycle (3 or 6 months).
+ * 
+ * @param {Object} pkg Membership package object
+ * @param {number} months 3 or 6
+ * @returns {number} Percentage discount (e.g. 10, 15, 20)
+ */
+export function getPackageCycleDiscount(pkg, months = 3) {
+  if (!pkg) return 0;
+  const rawCycle = (pkg.billingCycles || []).find(c => c.months === months);
+  // 1. Explicit discount field
+  if (rawCycle && typeof rawCycle.discount === 'number' && rawCycle.discount > 0) {
+    return rawCycle.discount;
+  }
+  // 2. Note field (e.g. "Tiết kiệm thêm 15%" -> 15)
+  if (rawCycle && typeof rawCycle.note === 'string') {
+    const match = rawCycle.note.match(/(\d+)%/);
+    if (match) return parseInt(match[1], 10);
+  }
+  // 3. Mathematical calculation based on monthlyPrice vs cycle.price
+  const monthlyPrice = Number(pkg.monthlyPrice) || (rawCycle?.months === 1 ? rawCycle.price : 0);
+  const cyclePrice = Number(rawCycle?.price) || 0;
+  if (monthlyPrice > 0 && cyclePrice > 0 && months > 1) {
+    const baseTotal = monthlyPrice * months;
+    if (baseTotal > cyclePrice) {
+      return Math.round(((baseTotal - cyclePrice) / baseTotal) * 100);
+    }
+  }
+  return months === 3 ? 5 : months === 6 ? 10 : 0;
+}
+
+/**
+ * Calculates the average discount percentage across all packages for a cycle (e.g. average of 3 packages for 3 months).
+ * 
+ * @param {Array} packages Array of membership packages
+ * @param {number} months 3 or 6
+ * @returns {number} Average percentage rounded to integer (e.g. 15 for 3 months)
+ */
+export function getAverageCycleDiscount(packages = [], months = 3) {
+  if (!Array.isArray(packages) || packages.length === 0) {
+    return months === 3 ? 5 : months === 6 ? 10 : 0;
+  }
+  const discounts = packages.map(p => getPackageCycleDiscount(p, months));
+  const sum = discounts.reduce((acc, v) => acc + v, 0);
+  return Math.round(sum / discounts.length);
+}
+
