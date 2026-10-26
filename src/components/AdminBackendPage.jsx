@@ -18,6 +18,7 @@ import AdminTelegramChatManager from './AdminTelegramChatManager';
 import MaintenanceScreen from './MaintenanceScreen';
 import { AVAILABLE_FONTS, getFontConfig, applyFontToDom } from '../utils/fontConfig';
 import { formatPhoneNumber } from '../utils/authValidation';
+import { isVoucherDiscountFree } from '../utils/membershipHelper';
 
 export const VALID_ADMIN_TABS = [
   'dashboard',
@@ -10121,8 +10122,12 @@ export default function AdminBackendPage() {
 
                     {(() => {
                       const curAdminPkg = (membershipPackages || []).find(p => p.id === membershipForm.packageId);
-                      const pubDiscK = Math.round((curAdminPkg?.vouchersPerCycle?.normalPublishDiscount || 35000) / 1000);
-                      const bumpDiscK = Math.round((curAdminPkg?.vouchersPerCycle?.normalBumpDiscount || 10000) / 1000);
+                      const pubDisc = curAdminPkg?.vouchersPerCycle?.normalPublishDiscount || 35000;
+                      const bumpDisc = curAdminPkg?.vouchersPerCycle?.normalBumpDiscount || 10000;
+                      const isPubFree = isVoucherDiscountFree('normalPublish', pubDisc, { vipPackages, bumpServicePrice });
+                      const isBumpFree = isVoucherDiscountFree('normalBump', bumpDisc, { vipPackages, bumpServicePrice });
+                      const pubDiscK = Math.round(pubDisc / 1000);
+                      const bumpDiscK = Math.round(bumpDisc / 1000);
                       const vipDiscK = Math.round((curAdminPkg?.vouchersPerCycle?.vipDiscount || 400000) / 1000);
 
                       return (
@@ -10130,7 +10135,7 @@ export default function AdminBackendPage() {
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
                               <label className="block text-[10px] text-slate-400 font-bold uppercase">
-                                Voucher Tin Thường (-{pubDiscK}k):
+                                Voucher Tin Thường {isPubFree ? '(Miễn Phí)' : `(-${pubDiscK}k)`}:
                               </label>
                               <input
                                 type="number"
@@ -10143,7 +10148,7 @@ export default function AdminBackendPage() {
 
                             <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1">
                               <label className="block text-[10px] text-slate-400 font-bold uppercase">
-                                Voucher Đẩy Tin (-{bumpDiscK}k):
+                                Voucher Đẩy Tin {isBumpFree ? '(Miễn Phí)' : `(-${bumpDiscK}k)`}:
                               </label>
                               <input
                                 type="number"
@@ -10211,18 +10216,22 @@ export default function AdminBackendPage() {
 
                         {(() => {
                           const curAdminPkg = (membershipPackages || []).find(p => p.id === membershipForm.packageId);
-                          const pubDiscK = Math.round((curAdminPkg?.vouchersPerCycle?.normalPublishDiscount || 35000) / 1000);
-                          const bumpDiscK = Math.round((curAdminPkg?.vouchersPerCycle?.normalBumpDiscount || 10000) / 1000);
+                          const pubDisc = curAdminPkg?.vouchersPerCycle?.normalPublishDiscount || 35000;
+                          const bumpDisc = curAdminPkg?.vouchersPerCycle?.normalBumpDiscount || 10000;
+                          const isPubFree = isVoucherDiscountFree('normalPublish', pubDisc, { vipPackages, bumpServicePrice });
+                          const isBumpFree = isVoucherDiscountFree('normalBump', bumpDisc, { vipPackages, bumpServicePrice });
+                          const pubDiscK = Math.round(pubDisc / 1000);
+                          const bumpDiscK = Math.round(bumpDisc / 1000);
                           const vipDiscK = Math.round((curAdminPkg?.vouchersPerCycle?.vipDiscount || 400000) / 1000);
 
                           return (
                             <div className="flex items-center gap-2 bg-slate-950/80 p-1.5 rounded-xl border border-slate-800 text-xs shrink-0 self-start sm:self-auto">
                               <div className="px-2 py-0.5 text-center border-r border-slate-800">
-                                <div className="text-[8px] text-slate-400 font-bold uppercase">Thường (-{pubDiscK}k)</div>
+                                <div className="text-[8px] text-slate-400 font-bold uppercase">Thường {isPubFree ? '(Miễn Phí)' : `(-${pubDiscK}k)`}</div>
                                 <div className="text-xs font-black text-emerald-400 font-mono">{membershipForm.normalPublishVouchers || 0}</div>
                               </div>
                               <div className="px-2 py-0.5 text-center border-r border-slate-800">
-                                <div className="text-[8px] text-slate-400 font-bold uppercase">Đẩy (-{bumpDiscK}k)</div>
+                                <div className="text-[8px] text-slate-400 font-bold uppercase">Đẩy {isBumpFree ? '(Miễn Phí)' : `(-${bumpDiscK}k)`}</div>
                                 <div className="text-xs font-black text-amber-400 font-mono">{membershipForm.normalBumpVouchers || 0}</div>
                               </div>
                               <div className="px-2 py-0.5 text-center">

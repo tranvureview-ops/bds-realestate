@@ -2,9 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
+import { isVoucherDiscountFree } from '../utils/membershipHelper';
 
 export default function AdminCommonVoucherPricing({ className = '' }) {
-  const { membershipPackages = [], updateCommonVoucherPrices } = useRealEstate();
+  const { 
+    membershipPackages = [], 
+    vipPackages = [], 
+    bumpServicePrice = 10000, 
+    updateCommonVoucherPrices 
+  } = useRealEstate();
 
   // Lấy đơn giá hiện tại từ danh sách gói
   const getInitialPrices = () => {
@@ -131,7 +137,14 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
 
           <div className="flex items-center justify-between text-[10px] pt-1 text-slate-500 border-t border-slate-800/60">
             <span>Đang cấu hình:</span>
-            <b className="text-emerald-400 font-mono text-xs">{Number(prices.normalPublishDiscount || 0).toLocaleString('vi-VN')} đ/lần</b>
+            <div className="flex items-center gap-1.5">
+              <b className="text-emerald-400 font-mono text-xs">{Number(prices.normalPublishDiscount || 0).toLocaleString('vi-VN')} đ/lần</b>
+              {isVoucherDiscountFree('normalPublish', prices.normalPublishDiscount, { vipPackages, bumpServicePrice }) && (
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 uppercase">
+                  Miễn Phí
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -171,7 +184,14 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
 
           <div className="flex items-center justify-between text-[10px] pt-1 text-slate-500 border-t border-slate-800/60">
             <span>Đang cấu hình:</span>
-            <b className="text-amber-400 font-mono text-xs">{Number(prices.normalBumpDiscount || 0).toLocaleString('vi-VN')} đ/lần</b>
+            <div className="flex items-center gap-1.5">
+              <b className="text-amber-400 font-mono text-xs">{Number(prices.normalBumpDiscount || 0).toLocaleString('vi-VN')} đ/lần</b>
+              {isVoucherDiscountFree('normalBump', prices.normalBumpDiscount, { vipPackages, bumpServicePrice }) && (
+                <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 uppercase">
+                  Miễn Phí
+                </span>
+              )}
+            </div>
           </div>
         </div>
 

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { MEMBERSHIP_PACKAGES } from '../data/mockData';
-import { syncFeaturesWithVouchers, getResolvedFeatures } from '../utils/membershipHelper';
+import { syncFeaturesWithVouchers, getResolvedFeatures, isVoucherDiscountFree } from '../utils/membershipHelper';
 import AdminCommonVoucherPricing from './AdminCommonVoucherPricing';
 
 // Preset color options for package badges
@@ -33,6 +33,8 @@ const SUGGESTED_FEATURES = [
 export default function AdminMembershipManager({ onNavigateToPricing = null }) {
   const {
     membershipPackages,
+    vipPackages,
+    bumpServicePrice,
     updateMembershipPackage,
     addMembershipPackage,
     deleteMembershipPackage,
@@ -41,6 +43,8 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
     updateSystemConfig,
     showToast
   } = useRealEstate();
+
+  const pricingOptions = { vipPackages, bumpServicePrice };
 
   // Đơn giá voucher chung toàn sàn (áp dụng cho cả 3 gói)
   const commonPublishDiscount = membershipPackages[0]?.vouchersPerCycle?.normalPublishDiscount ?? 35000;
@@ -106,7 +110,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
       normalBumpDiscount: commonBumpDiscount,
       vipDiscount: commonVipDiscount
     };
-    cloned.features = syncFeaturesWithVouchers(cloned.features, cloned.vouchersPerCycle);
+    cloned.features = syncFeaturesWithVouchers(cloned.features, cloned.vouchersPerCycle, pricingOptions);
     setEditingPkg(cloned);
     setIsCreatingNew(false);
     setModalActiveTab('general');
@@ -178,7 +182,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
         vipDiscount: commonVipDiscount,
         [field]: num
       };
-      const updatedFeatures = syncFeaturesWithVouchers(prev.features, updatedVouchers);
+      const updatedFeatures = syncFeaturesWithVouchers(prev.features, updatedVouchers, pricingOptions);
       return {
         ...prev,
         vouchersPerCycle: updatedVouchers,
@@ -353,7 +357,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
       normalBumpDiscount: commonBumpDiscount,
       vipDiscount: commonVipDiscount
     };
-    const syncedFeatures = syncFeaturesWithVouchers(editingPkg.features, syncedVouchers);
+    const syncedFeatures = syncFeaturesWithVouchers(editingPkg.features, syncedVouchers, pricingOptions);
     const finalMonthlyPrice = Math.max(0, Number(editingPkg.monthlyPrice) || 0);
     const syncedCycles = (editingPkg.billingCycles || []).map(c => {
       if (c.months === 1) {
@@ -706,15 +710,25 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                   <div className="space-y-1.5 text-[11px]">
                     <div className="flex items-center justify-between p-1.5 rounded-lg bg-slate-950/60 border border-slate-800/40">
                       <span className="text-slate-300">• Voucher Đăng Tin Thường:</span>
-                      <span className="text-emerald-400 font-mono font-bold">
-                        {pkg.vouchersPerCycle?.normalPublishVouchers || 0} voucher (-{(pkg.vouchersPerCycle?.normalPublishDiscount || 35000) / 1000}k)
+                      <span className="text-emerald-400 font-mono font-bold flex items-center gap-1.5">
+                        <span>{pkg.vouchersPerCycle?.normalPublishVouchers || 0} voucher</span>
+                        {isVoucherDiscountFree('normalPublish', pkg.vouchersPerCycle?.normalPublishDiscount ?? 35000, pricingOptions) ? (
+                          <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/30 uppercase">Miễn Phí</span>
+                        ) : (
+                          <span className="text-slate-400 text-[10px]">(-{Math.round((pkg.vouchersPerCycle?.normalPublishDiscount || 35000) / 1000)}k)</span>
+                        )}
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between p-1.5 rounded-lg bg-slate-950/60 border border-slate-800/40">
                       <span className="text-slate-300">• Voucher Đẩy Tin:</span>
-                      <span className="text-amber-400 font-mono font-bold">
-                        {pkg.vouchersPerCycle?.normalBumpVouchers || 0} voucher (-{(pkg.vouchersPerCycle?.normalBumpDiscount || 10000) / 1000}k)
+                      <span className="text-amber-400 font-mono font-bold flex items-center gap-1.5">
+                        <span>{pkg.vouchersPerCycle?.normalBumpVouchers || 0} voucher</span>
+                        {isVoucherDiscountFree('normalBump', pkg.vouchersPerCycle?.normalBumpDiscount ?? 10000, pricingOptions) ? (
+                          <span className="text-[10px] bg-blue-500/20 text-blue-300 px-1.5 py-0.5 rounded border border-blue-500/30 uppercase">Miễn Phí</span>
+                        ) : (
+                          <span className="text-slate-400 text-[10px]">(-{Math.round((pkg.vouchersPerCycle?.normalBumpDiscount || 10000) / 1000)}k)</span>
+                        )}
                       </span>
                     </div>
 
@@ -737,13 +751,13 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                   </div>
 
                   <div className="space-y-1 text-xs text-slate-300 max-h-36 overflow-y-auto pr-1">
-                    {getResolvedFeatures(pkg).slice(0, 4).map((feat, idx) => (
+                    {getResolvedFeatures(pkg, pricingOptions).slice(0, 4).map((feat, idx) => (
                       <div key={idx} className="flex items-start gap-1.5 text-[11px]">
                         <i className="fa-solid fa-circle-check text-emerald-400 mt-0.5 text-[10px] shrink-0"></i>
                         <span className="leading-tight text-slate-300">{feat}</span>
                       </div>
                     ))}
-                    {getResolvedFeatures(pkg).length > 4 && (
+                    {getResolvedFeatures(pkg, pricingOptions).length > 4 && (
                       <div className="text-[10px] text-amber-400/90 font-bold pl-3.5 pt-0.5">
                         + {getResolvedFeatures(pkg).length - 4} đặc quyền khác...
                       </div>
@@ -1341,8 +1355,11 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                             </span>
                             <span className="font-bold text-white text-xs">Voucher Đăng Tin Thường:</span>
                           </div>
-                          <span className="text-[11px] text-emerald-400 font-mono font-bold bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-800/40">
-                            Giảm {Number(commonPublishDiscount).toLocaleString('vi-VN')} đ/tin
+                          <span className="text-[11px] text-emerald-400 font-mono font-bold bg-emerald-950/60 px-2.5 py-1 rounded-lg border border-emerald-800/40 flex items-center gap-1.5">
+                            <span>Giảm {Number(commonPublishDiscount).toLocaleString('vi-VN')} đ/tin</span>
+                            {isVoucherDiscountFree('normalPublish', commonPublishDiscount, pricingOptions) && (
+                              <span className="text-[9px] bg-emerald-500/30 text-emerald-300 px-1.5 py-0.2 rounded font-black border border-emerald-500/40 uppercase">Miễn Phí</span>
+                            )}
                           </span>
                         </div>
 
@@ -1371,8 +1388,11 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                             </span>
                             <span className="font-bold text-white text-xs">Voucher Đẩy Tin (Bump Service):</span>
                           </div>
-                          <span className="text-[11px] text-amber-400 font-mono font-bold bg-amber-950/60 px-2.5 py-1 rounded-lg border border-amber-800/40">
-                            Giảm {Number(commonBumpDiscount).toLocaleString('vi-VN')} đ/lượt
+                          <span className="text-[11px] text-amber-400 font-mono font-bold bg-amber-950/60 px-2.5 py-1 rounded-lg border border-amber-800/40 flex items-center gap-1.5">
+                            <span>Giảm {Number(commonBumpDiscount).toLocaleString('vi-VN')} đ/lượt</span>
+                            {isVoucherDiscountFree('normalBump', commonBumpDiscount, pricingOptions) && (
+                              <span className="text-[9px] bg-emerald-500/30 text-emerald-300 px-1.5 py-0.2 rounded font-black border border-emerald-500/40 uppercase">Miễn Phí</span>
+                            )}
                           </span>
                         </div>
 
@@ -1642,29 +1662,53 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                           </div>
 
                           <div className="space-y-1.5">
-                            <div className="p-2 rounded-xl bg-emerald-50/80 border border-emerald-100 flex items-center justify-between text-xs">
-                              <div className="flex items-center gap-1.5">
-                                <span className="w-5 h-5 rounded-md bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black">
-                                  {editingPkg.vouchersPerCycle?.normalPublishVouchers || 0}
-                                </span>
-                                <span className="font-bold text-emerald-950 text-[11px]">Voucher Đăng Tin Thường</span>
-                              </div>
-                              <span className="text-emerald-700 font-black text-[10px]">
-                                -{(editingPkg.vouchersPerCycle?.normalPublishDiscount || 35000).toLocaleString('vi-VN')} đ/lần
-                              </span>
-                            </div>
+                            {(() => {
+                              const pubDisc = editingPkg.vouchersPerCycle?.normalPublishDiscount || 35000;
+                              const isPubFree = isVoucherDiscountFree('normalPublish', pubDisc, pricingOptions);
+                              return (
+                                <div className="p-2 rounded-xl bg-emerald-50/80 border border-emerald-100 flex items-center justify-between text-xs">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="w-5 h-5 rounded-md bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black">
+                                      {editingPkg.vouchersPerCycle?.normalPublishVouchers || 0}
+                                    </span>
+                                    <span className="font-bold text-emerald-950 text-[11px]">Voucher Đăng Tin Thường</span>
+                                  </div>
+                                  {isPubFree ? (
+                                    <span className="text-emerald-700 font-black text-[10px] bg-emerald-100 px-1.5 py-0.5 rounded uppercase">
+                                      Miễn Phí
+                                    </span>
+                                  ) : (
+                                    <span className="text-emerald-700 font-black text-[10px]">
+                                      -{Number(pubDisc).toLocaleString('vi-VN')} đ/lần
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })()}
 
-                            <div className="p-2 rounded-xl bg-blue-50/80 border border-blue-100 flex items-center justify-between text-xs">
-                              <div className="flex items-center gap-1.5">
-                                <span className="w-5 h-5 rounded-md bg-blue-600 text-white flex items-center justify-center text-[10px] font-black">
-                                  {editingPkg.vouchersPerCycle?.normalBumpVouchers || 0}
-                                </span>
-                                <span className="font-bold text-blue-950 text-[11px]">Voucher Đẩy Tin</span>
-                              </div>
-                              <span className="text-blue-700 font-black text-[10px]">
-                                -{(editingPkg.vouchersPerCycle?.normalBumpDiscount || 10000).toLocaleString('vi-VN')} đ/lần
-                              </span>
-                            </div>
+                            {(() => {
+                              const bumpDisc = editingPkg.vouchersPerCycle?.normalBumpDiscount || 10000;
+                              const isBumpFree = isVoucherDiscountFree('normalBump', bumpDisc, pricingOptions);
+                              return (
+                                <div className="p-2 rounded-xl bg-blue-50/80 border border-blue-100 flex items-center justify-between text-xs">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="w-5 h-5 rounded-md bg-blue-600 text-white flex items-center justify-center text-[10px] font-black">
+                                      {editingPkg.vouchersPerCycle?.normalBumpVouchers || 0}
+                                    </span>
+                                    <span className="font-bold text-blue-950 text-[11px]">Voucher Đẩy Tin</span>
+                                  </div>
+                                  {isBumpFree ? (
+                                    <span className="text-blue-700 font-black text-[10px] bg-blue-100 px-1.5 py-0.5 rounded uppercase">
+                                      Miễn Phí
+                                    </span>
+                                  ) : (
+                                    <span className="text-blue-700 font-black text-[10px]">
+                                      -{Number(bumpDisc).toLocaleString('vi-VN')} đ/lần
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })()}
 
                             {(editingPkg.vouchersPerCycle?.vipVouchers || 0) > 0 && (
                               <div className="p-2 rounded-xl bg-amber-50/80 border border-amber-200 flex items-center justify-between text-xs">
@@ -1687,7 +1731,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                           <div className="font-bold text-slate-800 text-[11px] uppercase tracking-wider mb-1">
                             Quyền lợi đi kèm:
                           </div>
-                          {getResolvedFeatures(editingPkg).map((feat, idx) => (
+                          {getResolvedFeatures(editingPkg, pricingOptions).map((feat, idx) => (
                             <div key={idx} className="flex items-start gap-1.5 text-[11px] text-slate-600">
                               <i className="fa-solid fa-circle-check text-emerald-500 mt-0.5 text-[10px] shrink-0"></i>
                               <span className="leading-tight">{feat}</span>

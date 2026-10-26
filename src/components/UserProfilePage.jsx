@@ -4,6 +4,7 @@ import React, { useState, useRef } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 import { Link, useRouter } from '../router/RouterContext';
+import { isVoucherDiscountFree } from '../utils/membershipHelper';
 
 // Helper nén và cắt ảnh đại diện thành hình vuông 1:1 chất lượng cao
 const resizeImageToAvatar = (file, maxWidth = 400, maxHeight = 400, quality = 0.88) => {
@@ -49,6 +50,8 @@ export default function UserProfilePage() {
     deleteAppointment,
     navigateToProperty,
     membershipPackages,
+    vipPackages,
+    bumpServicePrice,
     toggleMembershipAutoRenew,
     isMembershipActive
   } = useRealEstate();
@@ -988,43 +991,57 @@ export default function UserProfilePage() {
                       )}
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
-                        <div>
-                          <div className="text-[11px] text-slate-500 font-medium">Voucher Đăng Tin Thường</div>
-                          <div className="text-[10px] text-slate-400">
-                            Giảm {Number(currentPkg?.vouchersPerCycle?.normalPublishDiscount || 35000).toLocaleString('vi-VN')} đ/tin về 0 đ
-                          </div>
-                        </div>
-                        <div className="text-xl font-black text-emerald-700">
-                          {currentUser.vouchers?.normalPublish || 0}
-                        </div>
-                      </div>
+                    {(() => {
+                      const pubDisc = currentPkg?.vouchersPerCycle?.normalPublishDiscount || 35000;
+                      const bumpDisc = currentPkg?.vouchersPerCycle?.normalBumpDiscount || 10000;
+                      const pricingOptions = { vipPackages, bumpServicePrice };
+                      const isPubFree = isVoucherDiscountFree('normalPublish', pubDisc, pricingOptions);
+                      const isBumpFree = isVoucherDiscountFree('normalBump', bumpDisc, pricingOptions);
 
-                      <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
-                        <div>
-                          <div className="text-[11px] text-slate-500 font-medium">Voucher Đẩy Tin Làm Mới</div>
-                          <div className="text-[10px] text-slate-400">
-                            Giảm {Number(currentPkg?.vouchersPerCycle?.normalBumpDiscount || 10000).toLocaleString('vi-VN')} đ/lần về 0 đ
+                      return (
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
+                            <div>
+                              <div className="text-[11px] text-slate-500 font-medium">Voucher Đăng Tin Thường</div>
+                              <div className="text-[10px] text-slate-400">
+                                {isPubFree 
+                                  ? 'Đăng Tin Thường Miễn Phí (0 đ)' 
+                                  : `Giảm ${Number(pubDisc).toLocaleString('vi-VN')} đ/tin`}
+                              </div>
+                            </div>
+                            <div className="text-xl font-black text-emerald-700">
+                              {currentUser.vouchers?.normalPublish || 0}
+                            </div>
                           </div>
-                        </div>
-                        <div className="text-xl font-black text-blue-700">
-                          {currentUser.vouchers?.normalBump || 0}
-                        </div>
-                      </div>
 
-                      <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
-                        <div>
-                          <div className="text-[11px] text-slate-500 font-medium">Voucher Đăng Tin VIP</div>
-                          <div className="text-[10px] text-slate-400">
-                            Giảm {Number(currentPkg?.vouchersPerCycle?.vipDiscount || 400000).toLocaleString('vi-VN')} đ/tin
+                          <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
+                            <div>
+                              <div className="text-[11px] text-slate-500 font-medium">Voucher Đẩy Tin Làm Mới</div>
+                              <div className="text-[10px] text-slate-400">
+                                {isBumpFree 
+                                  ? 'Đẩy Tin Miễn Phí (0 đ)' 
+                                  : `Giảm ${Number(bumpDisc).toLocaleString('vi-VN')} đ/lần`}
+                              </div>
+                            </div>
+                            <div className="text-xl font-black text-blue-700">
+                              {currentUser.vouchers?.normalBump || 0}
+                            </div>
+                          </div>
+
+                          <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
+                            <div>
+                              <div className="text-[11px] text-slate-500 font-medium">Voucher Đăng Tin VIP</div>
+                              <div className="text-[10px] text-slate-400">
+                                Giảm {Number(currentPkg?.vouchersPerCycle?.vipDiscount || 400000).toLocaleString('vi-VN')} đ/tin
+                              </div>
+                            </div>
+                            <div className="text-xl font-black text-amber-600">
+                              {currentUser.vouchers?.vipPublish || 0}
+                            </div>
                           </div>
                         </div>
-                        <div className="text-xl font-black text-amber-600">
-                          {currentUser.vouchers?.vipPublish || 0}
-                        </div>
-                      </div>
-                    </div>
+                      );
+                    })()}
                   </div>
 
                   {/* Hành động: Gia hạn thủ công hoặc đổi gói */}

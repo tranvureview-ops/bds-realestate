@@ -3,18 +3,22 @@
 import React, { useState, useEffect } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter } from '../router/RouterContext';
-import { getResolvedFeatures } from '../utils/membershipHelper';
+import { getResolvedFeatures, isVoucherDiscountFree } from '../utils/membershipHelper';
 
 export default function MembershipPage() {
   const { 
     currentUser, 
     membershipPackages, 
+    vipPackages,
+    bumpServicePrice,
     subscribeMembership, 
     isMembershipActive,
     showToast,
     setActiveModal,
     refetchData 
   } = useRealEstate();
+
+  const pricingOptions = { vipPackages, bumpServicePrice };
 
   const { navigate } = useRouter();
   const [selectedCycle, setSelectedCycle] = useState(1); // 1, 3, or 6 months
@@ -207,14 +211,14 @@ export default function MembershipPage() {
                 <div className="text-center px-3 py-1">
                   <div className="text-[10px] text-slate-400 font-bold uppercase">Voucher Tin Thường</div>
                   <div className={`text-lg font-black mt-0.5 ${isMemberExpired ? 'text-rose-400 font-mono' : 'text-emerald-400'}`}>
-                    {isMemberExpired ? 0 : (currentUser.vouchers?.normalPublish || 0)} <span className="text-xs text-slate-500 font-normal">{isMemberExpired ? '(hết hạn)' : `lượt (-${formatDiscountK(commonPublishDiscount)})`}</span>
+                    {isMemberExpired ? 0 : (currentUser.vouchers?.normalPublish || 0)} <span className="text-xs text-slate-500 font-normal">{isMemberExpired ? '(hết hạn)' : (isVoucherDiscountFree('normalPublish', commonPublishDiscount, pricingOptions) ? 'lượt (Miễn Phí)' : `lượt (-${formatDiscountK(commonPublishDiscount)})`)}</span>
                   </div>
                 </div>
                 <div className="w-px h-8 bg-slate-800 hidden sm:block"></div>
                 <div className="text-center px-3 py-1">
                   <div className="text-[10px] text-slate-400 font-bold uppercase">Voucher Đẩy Tin</div>
                   <div className={`text-lg font-black mt-0.5 ${isMemberExpired ? 'text-rose-400 font-mono' : 'text-blue-400'}`}>
-                    {isMemberExpired ? 0 : (currentUser.vouchers?.normalBump || 0)} <span className="text-xs text-slate-500 font-normal">{isMemberExpired ? '(hết hạn)' : `lượt (-${formatDiscountK(commonBumpDiscount)})`}</span>
+                    {isMemberExpired ? 0 : (currentUser.vouchers?.normalBump || 0)} <span className="text-xs text-slate-500 font-normal">{isMemberExpired ? '(hết hạn)' : (isVoucherDiscountFree('normalBump', commonBumpDiscount, pricingOptions) ? 'lượt (Miễn Phí)' : `lượt (-${formatDiscountK(commonBumpDiscount)})`)}</span>
                   </div>
                 </div>
                 <div className="w-px h-8 bg-slate-800 hidden sm:block"></div>
@@ -379,30 +383,54 @@ export default function MembershipPage() {
 
                     <div className="space-y-2">
                       {/* Tin thường voucher */}
-                      <div className="p-2.5 rounded-xl bg-emerald-50/80 border border-emerald-100 flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black">
-                            {pkg.vouchersPerCycle?.normalPublishVouchers || 0}
-                          </span>
-                          <span className="font-bold text-emerald-950">Voucher Đăng Tin Thường</span>
-                        </div>
-                        <span className="text-emerald-700 font-black text-[11px]">
-                          -{Number(pkg.vouchersPerCycle?.normalPublishDiscount || 35000).toLocaleString('vi-VN')} đ/lần
-                        </span>
-                      </div>
+                      {(() => {
+                        const pubDisc = pkg.vouchersPerCycle?.normalPublishDiscount ?? 35000;
+                        const isPubFree = isVoucherDiscountFree('normalPublish', pubDisc, pricingOptions);
+                        return (
+                          <div className="p-2.5 rounded-xl bg-emerald-50/80 border border-emerald-100 flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-2">
+                              <span className="w-6 h-6 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-[10px] font-black">
+                                {pkg.vouchersPerCycle?.normalPublishVouchers || 0}
+                              </span>
+                              <span className="font-bold text-emerald-950">Voucher Đăng Tin Thường</span>
+                            </div>
+                            {isPubFree ? (
+                              <span className="text-emerald-700 font-black text-xs uppercase bg-emerald-100 px-2 py-0.5 rounded-md shadow-sm">
+                                Miễn Phí
+                              </span>
+                            ) : (
+                              <span className="text-emerald-700 font-black text-[11px]">
+                                -{Number(pubDisc).toLocaleString('vi-VN')} đ/lần
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
 
                       {/* Đẩy tin voucher */}
-                      <div className="p-2.5 rounded-xl bg-blue-50/80 border border-blue-100 flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center text-[10px] font-black">
-                            {pkg.vouchersPerCycle?.normalBumpVouchers || 0}
-                          </span>
-                          <span className="font-bold text-blue-950">Voucher Đẩy Tin</span>
-                        </div>
-                        <span className="text-blue-700 font-black text-[11px]">
-                          -{Number(pkg.vouchersPerCycle?.normalBumpDiscount || 10000).toLocaleString('vi-VN')} đ/lần
-                        </span>
-                      </div>
+                      {(() => {
+                        const bumpDisc = pkg.vouchersPerCycle?.normalBumpDiscount ?? 10000;
+                        const isBumpFree = isVoucherDiscountFree('normalBump', bumpDisc, pricingOptions);
+                        return (
+                          <div className="p-2.5 rounded-xl bg-blue-50/80 border border-blue-100 flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-2">
+                              <span className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center text-[10px] font-black">
+                                {pkg.vouchersPerCycle?.normalBumpVouchers || 0}
+                              </span>
+                              <span className="font-bold text-blue-950">Voucher Đẩy Tin</span>
+                            </div>
+                            {isBumpFree ? (
+                              <span className="text-blue-700 font-black text-xs uppercase bg-blue-100 px-2 py-0.5 rounded-md shadow-sm">
+                                Miễn Phí
+                              </span>
+                            ) : (
+                              <span className="text-blue-700 font-black text-[11px]">
+                                -{Number(bumpDisc).toLocaleString('vi-VN')} đ/lần
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })()}
 
                       {/* Tin VIP voucher */}
                       {(pkg.vouchersPerCycle?.vipVouchers || 0) > 0 ? (
@@ -431,7 +459,7 @@ export default function MembershipPage() {
                     <div className="font-bold text-slate-800 text-[11px] uppercase tracking-wider mb-2">
                       Tiện ích & Quyền lợi đi kèm:
                     </div>
-                    {getResolvedFeatures(pkg).map((feat, idx) => (
+                    {getResolvedFeatures(pkg, pricingOptions).map((feat, idx) => (
                       <div key={idx} className="flex items-start gap-2">
                         <i className="fa-solid fa-circle-check text-emerald-500 mt-0.5 text-xs shrink-0"></i>
                         <span className="leading-snug">{feat}</span>
@@ -521,21 +549,41 @@ export default function MembershipPage() {
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-slate-800">Voucher Đăng Tin Thường (30 ngày)</td>
-                  {(membershipPackages || []).map(p => (
-                    <td key={p.id} className={`p-4 text-center font-black text-emerald-600 text-sm ${p.recommended ? 'bg-amber-50/30' : ''}`}>
-                      {p.vouchersPerCycle?.normalPublishVouchers || 0} lượt/tháng
-                      <div className="text-[10px] text-slate-400 font-normal">(-{Number(p.vouchersPerCycle?.normalPublishDiscount || 35000).toLocaleString('vi-VN')} đ/lần)</div>
-                    </td>
-                  ))}
+                  {(membershipPackages || []).map(p => {
+                    const pubDisc = p.vouchersPerCycle?.normalPublishDiscount ?? 35000;
+                    const isPubFree = isVoucherDiscountFree('normalPublish', pubDisc, pricingOptions);
+                    return (
+                      <td key={p.id} className={`p-4 text-center font-black text-emerald-600 text-sm ${p.recommended ? 'bg-amber-50/30' : ''}`}>
+                        {p.vouchersPerCycle?.normalPublishVouchers || 0} lượt/tháng
+                        <div className="text-[10px] font-normal">
+                          {isPubFree ? (
+                            <span className="text-emerald-700 font-bold bg-emerald-100 px-1.5 py-0.5 rounded text-[9px] uppercase">Miễn Phí</span>
+                          ) : (
+                            <span className="text-slate-400">(-{Number(pubDisc).toLocaleString('vi-VN')} đ/lần)</span>
+                          )}
+                        </div>
+                      </td>
+                    );
+                  })}
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-slate-800">Voucher Đẩy Tin (30 ngày)</td>
-                  {(membershipPackages || []).map(p => (
-                    <td key={p.id} className={`p-4 text-center font-black text-blue-600 text-sm ${p.recommended ? 'bg-amber-50/30' : ''}`}>
-                      {p.vouchersPerCycle?.normalBumpVouchers || 0} lượt/tháng
-                      <div className="text-[10px] text-slate-400 font-normal">(-{Number(p.vouchersPerCycle?.normalBumpDiscount || 10000).toLocaleString('vi-VN')} đ/lần)</div>
-                    </td>
-                  ))}
+                  {(membershipPackages || []).map(p => {
+                    const bumpDisc = p.vouchersPerCycle?.normalBumpDiscount ?? 10000;
+                    const isBumpFree = isVoucherDiscountFree('normalBump', bumpDisc, pricingOptions);
+                    return (
+                      <td key={p.id} className={`p-4 text-center font-black text-blue-600 text-sm ${p.recommended ? 'bg-amber-50/30' : ''}`}>
+                        {p.vouchersPerCycle?.normalBumpVouchers || 0} lượt/tháng
+                        <div className="text-[10px] font-normal">
+                          {isBumpFree ? (
+                            <span className="text-blue-700 font-bold bg-blue-100 px-1.5 py-0.5 rounded text-[9px] uppercase">Miễn Phí</span>
+                          ) : (
+                            <span className="text-slate-400">(-{Number(bumpDisc).toLocaleString('vi-VN')} đ/lần)</span>
+                          )}
+                        </div>
+                      </td>
+                    );
+                  })}
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-slate-800">Voucher Giảm Tin VIP (30 ngày)</td>
@@ -704,8 +752,22 @@ export default function MembershipPage() {
                 </div>
                 <div className="border-t pt-2 space-y-1 text-[11px] text-slate-600">
                   <div className="font-bold text-slate-700">Kho Voucher sẽ nhận:</div>
-                  <div>✓ {confirmingPackage.pkg.vouchersPerCycle?.normalPublishVouchers || 0} voucher giảm {Number(confirmingPackage.pkg.vouchersPerCycle?.normalPublishDiscount || 35000).toLocaleString('vi-VN')} đ đăng tin thường</div>
-                  <div>✓ {confirmingPackage.pkg.vouchersPerCycle?.normalBumpVouchers || 0} voucher giảm {Number(confirmingPackage.pkg.vouchersPerCycle?.normalBumpDiscount || 10000).toLocaleString('vi-VN')} đ đẩy tin</div>
+                  {(() => {
+                    const pubDisc = confirmingPackage.pkg.vouchersPerCycle?.normalPublishDiscount ?? 35000;
+                    const bumpDisc = confirmingPackage.pkg.vouchersPerCycle?.normalBumpDiscount ?? 10000;
+                    const isPubFree = isVoucherDiscountFree('normalPublish', pubDisc, pricingOptions);
+                    const isBumpFree = isVoucherDiscountFree('normalBump', bumpDisc, pricingOptions);
+                    return (
+                      <>
+                        <div>
+                          ✓ {confirmingPackage.pkg.vouchersPerCycle?.normalPublishVouchers || 0} voucher {isPubFree ? 'Đăng tin thường Miễn Phí' : `giảm ${Number(pubDisc).toLocaleString('vi-VN')} đ đăng tin thường`}
+                        </div>
+                        <div>
+                          ✓ {confirmingPackage.pkg.vouchersPerCycle?.normalBumpVouchers || 0} voucher {isBumpFree ? 'Đẩy tin Miễn Phí' : `giảm ${Number(bumpDisc).toLocaleString('vi-VN')} đ đẩy tin`}
+                        </div>
+                      </>
+                    );
+                  })()}
                   {(confirmingPackage.pkg.vouchersPerCycle?.vipVouchers || 0) > 0 && (
                     <div>✓ {confirmingPackage.pkg.vouchersPerCycle.vipVouchers} voucher giảm {Number(confirmingPackage.pkg.vouchersPerCycle?.vipDiscount || 400000).toLocaleString('vi-VN')} đ tin VIP</div>
                   )}

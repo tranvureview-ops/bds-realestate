@@ -2487,7 +2487,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           normalBumpDiscount: bumpDiscount,
           vipDiscount: vipDiscount
         };
-        const updatedFeatures = syncFeaturesWithVouchers(pkg.features, updatedVouchers);
+        const updatedFeatures = syncFeaturesWithVouchers(pkg.features, updatedVouchers, { vipPackages, bumpServicePrice });
         return {
           ...pkg,
           vouchersPerCycle: updatedVouchers,

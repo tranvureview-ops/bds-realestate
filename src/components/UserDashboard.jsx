@@ -5,6 +5,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter, Link } from '../router/RouterContext';
 import { VIP_PACKAGES } from '../data/mockData';
 import { getPropertyPermalink, formatSentenceCase } from '../utils/permalink';
+import { isVoucherDiscountFree } from '../utils/membershipHelper';
 
 export default function UserDashboard() {
   const { 
@@ -57,6 +58,10 @@ export default function UserDashboard() {
   const commonBumpDiscount = activePackage?.vouchersPerCycle?.normalBumpDiscount ?? 10000;
   const commonVipDiscount = (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount 
     ?? (activePackage?.vouchersPerCycle?.vipDiscount || 400000);
+
+  const pricingOptions = { vipPackages: activeVipPackages, bumpServicePrice };
+  const isPubFree = isVoucherDiscountFree('normalPublish', commonPublishDiscount, pricingOptions);
+  const isBumpFree = isVoucherDiscountFree('normalBump', commonBumpDiscount, pricingOptions);
 
   const formatDiscountK = (val) => {
     const num = Number(val) || 0;
@@ -233,7 +238,9 @@ export default function UserDashboard() {
                     Đã hết hạn vào ngày: <b className="text-white font-mono">{new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN')}</b> • Toàn bộ voucher chưa dùng đã hết hạn theo quy chế sàn.
                   </span>
                 ) : (
-                  <span className="text-slate-300">Đăng ký Gói Hội Viên để nhận kho voucher giảm {formatDiscountK(commonPublishDiscount)} đăng tin và {formatDiscountK(commonBumpDiscount)} đẩy tin, tiết kiệm chi phí tối đa!</span>
+                  <span className="text-slate-300">
+                    Đăng ký Gói Hội Viên để nhận kho voucher {isPubFree ? 'Đăng tin Miễn Phí' : `giảm ${formatDiscountK(commonPublishDiscount)} đăng tin`} và {isBumpFree ? 'Đẩy tin Miễn Phí' : `giảm ${formatDiscountK(commonBumpDiscount)} đẩy tin`}, tiết kiệm chi phí tối đa!
+                  </span>
                 )}
               </div>
             </div>
@@ -243,11 +250,11 @@ export default function UserDashboard() {
             {isMemberActive ? (
               <div className="flex items-center gap-2 bg-slate-950/80 p-2 rounded-xl border border-slate-800 text-xs">
                 <div className="px-2.5 py-1 text-center border-r border-slate-800">
-                  <div className="text-[10px] text-slate-400 font-bold uppercase">Tin Thường (-{formatDiscountK(commonPublishDiscount)})</div>
+                  <div className="text-[10px] text-slate-400 font-bold uppercase">Tin Thường {isPubFree ? '(Miễn Phí)' : `(-${formatDiscountK(commonPublishDiscount)})`}</div>
                   <div className="text-sm font-black text-emerald-400 font-mono">{currentUser.vouchers?.normalPublish || 0}</div>
                 </div>
                 <div className="px-2.5 py-1 text-center border-r border-slate-800">
-                  <div className="text-[10px] text-slate-400 font-bold uppercase">Đẩy Tin (-{formatDiscountK(commonBumpDiscount)})</div>
+                  <div className="text-[10px] text-slate-400 font-bold uppercase">Đẩy Tin {isBumpFree ? '(Miễn Phí)' : `(-${formatDiscountK(commonBumpDiscount)})`}</div>
                   <div className="text-sm font-black text-amber-400 font-mono">{currentUser.vouchers?.normalBump || 0}</div>
                 </div>
                 <div className="px-2.5 py-1 text-center">

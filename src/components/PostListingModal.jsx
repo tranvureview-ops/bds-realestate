@@ -12,6 +12,7 @@ import ListingLocationMap from './ListingLocationMap';
 import { findDanangMerger } from '../data/vietnamAdministrativeData';
 import { formatPhoneNumber, normalizePhone } from '../utils/authValidation';
 import { sanitizePhoneFromText, hasPhoneNumber } from '../utils/textSanitizer';
+import { isVoucherDiscountFree } from '../utils/membershipHelper';
 
 // Danh sách các khung giờ vàng đẩy tin tự động với mô tả chi tiết
 const BUMP_GOLDEN_HOURS_OPTIONS = [
@@ -2725,7 +2726,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         <div>
                           <div className="font-bold flex items-center gap-1.5">
                             <i className="fa-solid fa-tag text-xs"></i>
-                            <span>Voucher Đăng Tin Thường (-{normalPublishVoucherDiscount.toLocaleString('vi-VN')} đ)</span>
+                            <span>Voucher Đăng Tin Thường {isVoucherDiscountFree('normalPublish', normalPublishVoucherDiscount, { vipPackages: activeVipPackages, bumpServicePrice }) ? '(Miễn Phí)' : `(-${normalPublishVoucherDiscount.toLocaleString('vi-VN')} đ)`}</span>
                           </div>
                           <div className={`text-[10px] mt-0.5 ${appliedVoucher === 'normalPublish' ? 'text-emerald-100' : 'text-slate-500'}`}>
                             Khả dụng: <b>{currentUser.vouchers?.normalPublish || 0}</b> lượt
