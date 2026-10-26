@@ -323,31 +323,31 @@ export default function BatdongsanListingSelector({
       value: '08:00', 
       label: '🌅 Sáng 08:00 (Khung giờ vàng - Đón khách xem tin)', 
       disabled: !hasScheduleAccess, 
-      badge: !hasScheduleAccess ? `🔒 ${eligiblePackagesText}` : 'Vàng',
+      badge: !hasScheduleAccess ? '🔒 Khóa' : 'Vàng',
       onDisabledClick: handleLockedScheduleClick
     },
     { 
       value: '11:30', 
       label: '☀️ Trưa 11:30 (Cao điểm giờ nghỉ trưa tìm kiếm)', 
       disabled: !hasScheduleAccess, 
-      badge: !hasScheduleAccess ? `🔒 ${eligiblePackagesText}` : 'Vàng',
+      badge: !hasScheduleAccess ? '🔒 Khóa' : 'Vàng',
       onDisabledClick: handleLockedScheduleClick
     },
     { 
       value: '14:00', 
       label: '☕ Chiều 14:00 (Thời điểm khảo sát thực địa)', 
       disabled: !hasScheduleAccess, 
-      badge: !hasScheduleAccess ? `🔒 ${eligiblePackagesText}` : 'Vàng',
+      badge: !hasScheduleAccess ? '🔒 Khóa' : 'Vàng',
       onDisabledClick: handleLockedScheduleClick
     },
     { 
       value: '19:30', 
       label: '🌙 Tối 19:30 (Khung giờ vàng chốt cọc sau bữa tối)', 
       disabled: !hasScheduleAccess, 
-      badge: !hasScheduleAccess ? `🔒 ${eligiblePackagesText}` : 'Vàng',
+      badge: !hasScheduleAccess ? '🔒 Khóa' : 'Vàng',
       onDisabledClick: handleLockedScheduleClick
     }
-  ], [hasScheduleAccess, eligiblePackagesText, handleLockedScheduleClick]);
+  ], [hasScheduleAccess, handleLockedScheduleClick]);
 
   const isNormal = selectedType === 'normal';
   const currentConfig = ratesConfig?.[selectedType] || ratesConfig?.['normal'] || BATDONGSAN_RATES['normal'];
@@ -671,35 +671,9 @@ export default function BatdongsanListingSelector({
                 dateInputRef.current?.showPicker();
               } catch (err) {}
             } : handleLockedStartDateClick}
-            className="block text-xs font-bold text-slate-800 flex items-center justify-between cursor-pointer"
+            className="block text-xs font-bold text-slate-800 cursor-pointer"
           >
-            <span className="flex items-center gap-1.5">
-              <i className="fa-regular fa-calendar-days text-slate-600"></i>
-              <span>Ngày bắt đầu</span>
-              {hasStartDateAccess ? (
-                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded-full inline-flex items-center gap-1">
-                  <i className="fa-solid fa-crown text-emerald-600 text-[9px]"></i>
-                  <span>Hội Viên</span>
-                </span>
-              ) : (
-                <a
-                  href="/goi-hoi-vien"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-[10px] font-bold text-amber-800 bg-amber-100/90 hover:bg-amber-200 border border-amber-300 px-2 py-0.5 rounded-full inline-flex items-center gap-1 transition shadow-xs"
-                  title={`Đặc quyền chọn ngày tương lai dành riêng cho ${eligibleStartDatePackagesText}. Bấm để xem gói!`}
-                >
-                  <i className="fa-solid fa-lock text-amber-600 text-[9px]"></i>
-                  <span>{eligibleStartDatePackagesText}</span>
-                </a>
-              )}
-            </span>
-            {!hasStartDateAccess && (
-              <span className="text-[10px] text-slate-500 font-semibold">
-                Hôm nay ({todayFormatted})
-              </span>
-            )}
+            Ngày bắt đầu
           </label>
           <div 
             onClick={hasStartDateAccess ? () => {
@@ -735,47 +709,29 @@ export default function BatdongsanListingSelector({
               }}
               className={`w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none transition ${
                 !hasStartDateAccess 
-                  ? 'bg-slate-50 text-slate-600 cursor-not-allowed hover:border-amber-300 pr-9' 
+                  ? 'bg-slate-50 text-slate-600 cursor-not-allowed hover:border-slate-400 pr-9' 
                   : 'focus:ring-2 focus:ring-slate-900 cursor-pointer hover:border-slate-400'
               }`}
             />
             {!hasStartDateAccess && (
               <div 
                 onClick={handleLockedStartDateClick}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-amber-600 pointer-events-none"
-                title="Đã khóa: Chỉ áp dụng ngày hiện tại"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                title="Đã khóa: Bắt buộc xuất bản ngày hiện tại"
               >
                 <i className="fa-solid fa-lock text-xs"></i>
               </div>
             )}
           </div>
-          <div className="space-y-1">
-            <div className="text-[11px] text-slate-500 font-medium">
-              {isNormal ? (
-                <span>Kết thúc ngày <b className="text-slate-800 font-semibold">{endDateFormatted}</b></span>
-              ) : (
-                <span className="flex flex-wrap items-center gap-1.5 leading-snug">
-                  <span>Hết VIP: <b className="text-slate-800 font-semibold">{endDateFormatted}</b></span>
-                  <span className="text-slate-300">•</span>
-                  <span>Tin Thường đến: <b className="text-emerald-700 font-semibold">{bonusNormalEndDateFormatted}</b></span>
-                </span>
-              )}
-            </div>
-            {!hasStartDateAccess && (
-              <div className="text-[10px] text-amber-700 bg-amber-50/70 border border-amber-200/60 rounded-lg px-2.5 py-1.5 flex items-center justify-between gap-1.5">
-                <span className="flex items-center gap-1 truncate">
-                  <i className="fa-solid fa-lock text-[9px] text-amber-600 shrink-0"></i>
-                  <span className="truncate">Chỉ đăng ngày hôm nay. Chọn ngày tương lai:</span>
-                </span>
-                <a
-                  href="/goi-hoi-vien"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-amber-800 font-bold underline hover:text-amber-950 shrink-0 text-[10px]"
-                >
-                  Nâng cấp gói
-                </a>
-              </div>
+          <div className="text-[11px] text-slate-500 font-medium">
+            {isNormal ? (
+              <span>Kết thúc ngày <b className="text-slate-800 font-semibold">{endDateFormatted}</b></span>
+            ) : (
+              <span className="flex flex-wrap items-center gap-1.5 leading-snug">
+                <span>Hết VIP: <b className="text-slate-800 font-semibold">{endDateFormatted}</b></span>
+                <span className="text-slate-300">•</span>
+                <span>Tin Thường đến: <b className="text-emerald-700 font-semibold">{bonusNormalEndDateFormatted}</b></span>
+              </span>
             )}
           </div>
         </div>
@@ -786,25 +742,6 @@ export default function BatdongsanListingSelector({
             <span className="flex items-center gap-1.5">
               <i className="fa-regular fa-clock text-amber-500"></i>
               <span>Hẹn giờ đăng tin</span>
-              {enableScheduledPublishing && (
-                hasScheduleAccess ? (
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.2 rounded-full inline-flex items-center gap-1">
-                    <i className="fa-solid fa-crown text-emerald-600 text-[9px]"></i>
-                    <span>Hội Viên</span>
-                  </span>
-                ) : (
-                  <a
-                    href="/goi-hoi-vien"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[10px] font-bold text-amber-800 bg-amber-100/90 hover:bg-amber-200 border border-amber-300 px-2 py-0.5 rounded-full inline-flex items-center gap-1 transition shadow-xs"
-                    title={`Đặc quyền dành riêng cho ${eligiblePackagesText}. Bấm để xem gói!`}
-                  >
-                    <i className="fa-solid fa-lock text-amber-600 text-[9px]"></i>
-                    <span>{eligiblePackagesText}</span>
-                  </a>
-                )
-              )}
             </span>
             {enableScheduledPublishing && scheduleTime && scheduleTime !== 'now' && (
               <span className="text-[10px] bg-amber-50 text-amber-700 border border-amber-200 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
