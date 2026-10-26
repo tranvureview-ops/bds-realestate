@@ -2336,8 +2336,8 @@
       "name": "Gói Hội Viên Cơ Bản",
       "badge": "TIẾT KIỆM 31%",
       "features": [
-        "15 voucher giảm 35.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)",
-        "15 voucher giảm 10.000 đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)",
+        "15 voucher giảm 30.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)",
+        "15 voucher giảm 200 đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)",
         "Ưu đãi voucher cấp mới định kỳ 30 ngày trong suốt thời hạn gói",
         "Tiết kiệm 31% chi phí so với mua lẻ từng tin đăng",
         "Báo cáo thống kê lượt tương tác cơ bản"
@@ -2346,47 +2346,52 @@
       "badgeColor": "bg-emerald-600 text-white",
       "recommended": false,
       "savePercent": 31,
-      "monthlyPrice": 467000,
+      "monthlyPrice": 299000,
       "billingCycles": [
         {
           "label": "1 tháng",
-          "price": 467000,
+          "price": 299000,
           "months": 1,
-          "discount": 0
+          "discount": 0,
+          "duration_days": 30
         },
         {
           "note": "Tiết kiệm thêm 5%",
           "label": "3 tháng",
-          "price": 1330000,
+          "price": 852150,
           "months": 3,
-          "discount": 5
+          "discount": 5,
+          "duration_days": 90
         },
         {
           "note": "Tiết kiệm thêm 10%",
           "label": "6 tháng",
-          "price": 2520000,
+          "price": 1614600,
           "months": 6,
-          "discount": 10
+          "discount": 10,
+          "duration_days": 180
         }
       ],
       "targetAudience": "Môi giới mới vào nghề hoặc có giỏ hàng nhỏ",
       "vouchersPerCycle": {
-        "vipDiscount": 0,
+        "vipDiscount": 300000,
         "vipVouchers": 0,
-        "normalBumpDiscount": 10000,
+        "normalBumpDiscount": 200,
         "normalBumpVouchers": 15,
-        "normalPublishDiscount": 35000,
+        "normalPublishDiscount": 30000,
         "normalPublishVouchers": 15
-      }
+      },
+      "allowScheduledPublishing": false,
+      "allowFutureStartDate": false
     },
     {
       "id": "member-standard",
       "name": "Gói Hội Viên Tiêu Chuẩn",
       "badge": "BÁN CHẠY NHẤT ★",
       "features": [
-        "20 voucher giảm 35.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)",
-        "1 voucher giảm 400.000 đ áp dụng cho Tin VIP (mỗi chu kỳ 30 ngày)",
-        "20 voucher giảm 10.000 đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)",
+        "20 voucher giảm 30.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)",
+        "1 voucher giảm 300.000 đ áp dụng cho Tin VIP (mỗi chu kỳ 30 ngày)",
+        "20 voucher giảm 200 đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)",
         "Tiện ích Hẹn giờ đăng tin tự động theo khung giờ vàng",
         "Ưu tiên Xuất bản & Duyệt tin nhanh",
         "Báo cáo hiệu suất lượt xem & khách gọi chi tiết",
@@ -2396,47 +2401,52 @@
       "badgeColor": "bg-amber-500 text-slate-950 font-black",
       "recommended": true,
       "savePercent": 33,
-      "monthlyPrice": 1267000,
+      "monthlyPrice": 599000,
       "billingCycles": [
         {
           "label": "1 tháng",
-          "price": 1267000,
+          "price": 599000,
           "months": 1,
-          "discount": 0
+          "discount": 0,
+          "duration_days": 30
         },
         {
           "note": "Tiết kiệm thêm 5%",
           "label": "3 tháng",
-          "price": 3610000,
+          "price": 1707150,
           "months": 3,
-          "discount": 5
+          "discount": 5,
+          "duration_days": 90
         },
         {
           "note": "Tiết kiệm thêm 10%",
           "label": "6 tháng",
-          "price": 6840000,
+          "price": 3234600,
           "months": 6,
-          "discount": 10
+          "discount": 10,
+          "duration_days": 180
         }
       ],
       "targetAudience": "Môi giới chuyên nghiệp, giỏ hàng từ ~10 BĐS",
       "vouchersPerCycle": {
-        "vipDiscount": 400000,
+        "vipDiscount": 300000,
         "vipVouchers": 1,
-        "normalBumpDiscount": 10000,
+        "normalBumpDiscount": 200,
         "normalBumpVouchers": 20,
-        "normalPublishDiscount": 35000,
+        "normalPublishDiscount": 30000,
         "normalPublishVouchers": 20
-      }
+      },
+      "allowScheduledPublishing": true,
+      "allowFutureStartDate": true
     },
     {
       "id": "member-premium",
       "name": "Gói Hội Viên Cao Cấp",
       "badge": "ĐẲNG CẤP VIP",
       "features": [
-        "50 voucher giảm 35.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)",
-        "3 voucher giảm 400.000 đ áp dụng cho Tin VIP (mỗi chu kỳ 30 ngày)",
-        "50 voucher giảm 10.000 đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)",
+        "50 voucher giảm 30.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)",
+        "3 voucher giảm 300.000 đ áp dụng cho Tin VIP (mỗi chu kỳ 30 ngày)",
+        "50 voucher giảm 200 đ/lần Đẩy Tin Thường (mỗi chu kỳ 30 ngày)",
         "Trọn bộ tiện ích: Hẹn giờ đăng tin & Tự động đẩy tin định kỳ",
         "Báo cáo phân tích chuyên sâu thị trường, dự án & đối thủ",
         "Huy hiệu \"Hội Viên Doanh Nghiệp\" nâng cao uy tín thương hiệu",
@@ -2447,38 +2457,43 @@
       "badgeColor": "bg-gradient-to-r from-red-600 to-purple-600 text-white font-black",
       "recommended": false,
       "savePercent": 39,
-      "monthlyPrice": 2200000,
+      "monthlyPrice": 1199000,
       "billingCycles": [
         {
           "label": "1 tháng",
-          "price": 2200000,
+          "price": 1199000,
           "months": 1,
-          "discount": 0
+          "discount": 0,
+          "duration_days": 30
         },
         {
           "note": "Tiết kiệm thêm 5%",
           "label": "3 tháng",
-          "price": 6270000,
+          "price": 3417150,
           "months": 3,
-          "discount": 5
+          "discount": 5,
+          "duration_days": 90
         },
         {
           "note": "Tiết kiệm thêm 10%",
           "label": "6 tháng",
-          "price": 11880000,
+          "price": 6474600,
           "months": 6,
-          "discount": 10
+          "discount": 10,
+          "duration_days": 180
         }
       ],
       "targetAudience": "Môi giới lớn, sàn BĐS, ngân sách tiếp thị mạnh",
       "vouchersPerCycle": {
-        "vipDiscount": 400000,
+        "vipDiscount": 300000,
         "vipVouchers": 3,
-        "normalBumpDiscount": 10000,
+        "normalBumpDiscount": 200,
         "normalBumpVouchers": 50,
-        "normalPublishDiscount": 35000,
+        "normalPublishDiscount": 30000,
         "normalPublishVouchers": 50
-      }
+      },
+      "allowScheduledPublishing": true,
+      "allowFutureStartDate": true
     }
   ],
   "bds_single_config": {

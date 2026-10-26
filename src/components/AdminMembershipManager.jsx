@@ -130,10 +130,41 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
 
   // Field change handler in editingPkg
   const handleFieldChange = (field, value) => {
-    setEditingPkg(prev => ({
-      ...prev,
-      [field]: value
-    }));
+    setEditingPkg(prev => {
+      if (!prev) return prev;
+      if (field === 'monthlyPrice') {
+        const newMonthly = Math.max(0, Number(value) || 0);
+        const currentCycles = (prev.billingCycles && prev.billingCycles.length > 0)
+          ? prev.billingCycles
+          : [
+              { label: '1 tháng', price: newMonthly, months: 1, discount: 0, duration_days: 30 },
+              { label: '3 tháng', price: Math.round(newMonthly * 3 * 0.95), months: 3, discount: 5, duration_days: 90, note: 'Tiết kiệm thêm 5%' },
+              { label: '6 tháng', price: Math.round(newMonthly * 6 * 0.90), months: 6, discount: 10, duration_days: 180, note: 'Tiết kiệm thêm 10%' }
+            ];
+
+        const updatedCycles = currentCycles.map(c => {
+          if (c.months === 1) {
+            return { ...c, price: newMonthly };
+          }
+          const discountPercent = c.discount ?? (c.months === 3 ? 5 : c.months === 6 ? 10 : 0);
+          return {
+            ...c,
+            price: Math.round(newMonthly * c.months * (1 - discountPercent / 100)),
+            discount: discountPercent
+          };
+        });
+
+        return {
+          ...prev,
+          monthlyPrice: newMonthly,
+          billingCycles: updatedCycles
+        };
+      }
+      return {
+        ...prev,
+        [field]: value
+      };
+    });
   };
 
   // Voucher quota change handler (chỉ cập nhật số lượng voucher, đơn giá luôn cố định theo giá chung toàn sàn)
@@ -159,7 +190,8 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
   // Billing cycle price/discount/duration change handler
   const handleBillingCycleChange = (index, field, value) => {
     setEditingPkg(prev => {
-      const updated = [...prev.billingCycles];
+      if (!prev) return prev;
+      const updated = [...(prev.billingCycles || [])];
       if (updated[index]) {
         const numVal = Number(value);
         if (field === 'duration_days' || field === 'durationDays') {
@@ -180,7 +212,12 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
           };
         }
       }
-      return { ...prev, billingCycles: updated };
+      let updatedMonthly = prev.monthlyPrice;
+      const targetCycle = updated[index];
+      if (targetCycle && targetCycle.months === 1 && field === 'price') {
+        updatedMonthly = Math.max(0, Number(value) || 0);
+      }
+      return { ...prev, billingCycles: updated, monthlyPrice: updatedMonthly };
     });
   };
 
@@ -317,8 +354,18 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
       vipDiscount: commonVipDiscount
     };
     const syncedFeatures = syncFeaturesWithVouchers(editingPkg.features, syncedVouchers);
+    const finalMonthlyPrice = Math.max(0, Number(editingPkg.monthlyPrice) || 0);
+    const syncedCycles = (editingPkg.billingCycles || []).map(c => {
+      if (c.months === 1) {
+        return { ...c, price: finalMonthlyPrice };
+      }
+      return c;
+    });
+
     const finalPkg = {
       ...editingPkg,
+      monthlyPrice: finalMonthlyPrice,
+      billingCycles: syncedCycles,
       vouchersPerCycle: syncedVouchers,
       features: syncedFeatures
     };

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter } from '../router/RouterContext';
 import { getResolvedFeatures } from '../utils/membershipHelper';
@@ -12,12 +12,42 @@ export default function MembershipPage() {
     subscribeMembership, 
     isMembershipActive,
     showToast,
-    setActiveModal 
+    setActiveModal,
+    refetchData 
   } = useRealEstate();
 
   const { navigate } = useRouter();
   const [selectedCycle, setSelectedCycle] = useState(1); // 1, 3, or 6 months
   const [confirmingPackage, setConfirmingPackage] = useState(null);
+
+  // Tự động kéo dữ liệu mới nhất từ Supabase Cloud khi vào trang để đảm bảo đồng bộ với Admin CMS
+  useEffect(() => {
+    if (typeof refetchData === 'function') {
+      refetchData(true);
+    }
+  }, [refetchData]);
+
+  // Helper lấy thông tin chu kỳ thanh toán chuẩn hóa và đồng bộ tuyệt đối với giá tháng Admin
+  const resolveCycle = (pkg, months) => {
+    const rawCycle = (pkg?.billingCycles || []).find(c => c.months === months) || pkg?.billingCycles?.[0];
+    const monthlyPrice = Number(pkg?.monthlyPrice) || (rawCycle?.months === 1 ? rawCycle.price : 500000);
+    
+    let price = rawCycle?.price;
+    if (months === 1) {
+      price = monthlyPrice;
+    } else if (!price || rawCycle?.months === 1) {
+      const discount = months === 3 ? 5 : months === 6 ? 10 : 0;
+      price = Math.round(monthlyPrice * months * (1 - discount / 100));
+    }
+
+    return {
+      months,
+      price,
+      label: rawCycle?.label || `${months} tháng`,
+      duration_days: rawCycle?.duration_days || (months * 30),
+      note: rawCycle?.note || (months > 1 ? `Tiết kiệm thêm khi đăng ký ${months} tháng` : '')
+    };
+  };
 
   const isGuest = !currentUser || currentUser.role === 'guest' || currentUser.id === 'guest';
   const isLoggedIn = !isGuest;
@@ -59,7 +89,7 @@ export default function MembershipPage() {
       return;
     }
 
-    const cycle = pkg.billingCycles?.find(c => c.months === selectedCycle) || pkg.billingCycles?.[0] || { months: 1, price: pkg.monthlyPrice || 500000 };
+    const cycle = resolveCycle(pkg, selectedCycle);
     if ((currentUser.walletBalance || 0) < cycle.price) {
       showToast(`Số dư ví (${(currentUser.walletBalance || 0).toLocaleString('vi-VN')} đ) không đủ ${cycle.price.toLocaleString('vi-VN')} đ để ${currentUser.membership?.packageId === pkg.id ? 'gia hạn' : 'đăng ký'} ${pkg.name}. Vui lòng nạp thêm tiền!`, 'warning');
       setActiveModal('wallet-deposit');
@@ -278,7 +308,7 @@ export default function MembershipPage() {
         {/* 3 Main Membership Packages Cards */}
         <div id="pricing-grid" className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
           {(membershipPackages || []).map((pkg) => {
-            const cycle = pkg.billingCycles.find(c => c.months === selectedCycle) || pkg.billingCycles[0];
+            const cycle = resolveCycle(pkg, selectedCycle);
             const isCurrent = currentUser?.membership?.packageId === pkg.id;
             const isOtherPackageLocked = isMemberActive && !isCurrent;
 

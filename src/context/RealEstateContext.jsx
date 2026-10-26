@@ -19,6 +19,13 @@ import {
 const persistSettingToSupabase = async (key, value) => {
   try {
     await upsertSupabaseSetting(key, value);
+    if (typeof window !== 'undefined') {
+      fetch('/api/db-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [key]: value })
+      }).catch(err => console.warn(`Lỗi db-sync khi lưu ${key}:`, err));
+    }
   } catch (err) {
     console.warn(`Lỗi lưu cấu hình ${key} lên Supabase:`, err);
   }
@@ -28,6 +35,13 @@ const persistSettingToSupabase = async (key, value) => {
 const removeSettingFromSupabase = async (key) => {
   try {
     await deleteSupabaseSetting(key);
+    if (typeof window !== 'undefined') {
+      fetch('/api/db-sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ [key]: null })
+      }).catch(err => console.warn(`Lỗi db-sync khi xóa ${key}:`, err));
+    }
   } catch (err) {
     console.warn(`Lỗi xóa cấu hình ${key} trên Supabase:`, err);
   }
