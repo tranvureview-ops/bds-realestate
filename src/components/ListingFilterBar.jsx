@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { PROPERTY_TYPES } from '../data/mockData';
 import { VIETNAM_ADMINISTRATIVE_DATA, DANANG_MERGERS_MAP } from '../data/vietnamAdministrativeData';
 import { removeAccents } from '../utils/propertyFilter';
@@ -378,8 +379,8 @@ export default function ListingFilterBar({
   ].filter(Boolean).length;
 
   return (
-    <div ref={containerRef} className={`max-w-7xl mx-auto px-3 sm:px-8 mt-3 sm:mt-5 relative z-30 ${className}`}>
-      <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs p-2.5 sm:p-4 relative z-30 overflow-visible">
+    <div ref={containerRef} className={`max-w-7xl mx-auto px-3 sm:px-8 mt-3 sm:mt-5 relative z-10 ${className}`}>
+      <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs p-2.5 sm:p-4 relative z-10 overflow-visible">
         {/* ROW 1: Search Input with Red "Tìm kiếm" button */}
         <form onSubmit={handleApplySearch} className="relative flex items-center border border-slate-200 hover:border-slate-300 focus-within:border-slate-400 focus-within:ring-2 focus-within:ring-slate-100 rounded-lg sm:rounded-xl bg-white transition p-1 sm:p-1.5">
           <i className="fa-solid fa-magnifying-glass text-slate-400 pl-2.5 sm:pl-3 pr-1.5 sm:pr-2 text-xs sm:text-sm"></i>
@@ -419,7 +420,7 @@ export default function ListingFilterBar({
         </form>
 
         {/* ROW 2: Horizontal Quick Filter Dropdowns & Toggles (Đầy đủ Khu vực, Loại BĐS, Giá, Diện tích) */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 mt-2 sm:mt-3 overflow-x-auto sm:overflow-visible no-scrollbar pb-1 sm:pb-0 sm:flex-wrap text-xs sm:text-sm relative z-30">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 mt-2 sm:mt-3 overflow-x-auto sm:overflow-visible no-scrollbar pb-1 sm:pb-0 sm:flex-wrap text-xs sm:text-sm relative z-10">
           {/* 1. Nút "Lọc" (Mở bộ lọc phong cách Batdongsan) */}
           <button
             type="button"
@@ -705,10 +706,10 @@ export default function ListingFilterBar({
       {/* ========================================================
           POPUP MODAL: BỘ LỌC TÌM KIẾM CHUẨN BATDONGSAN (ẢNH 1 & ẢNH 2)
          ======================================================== */}
-      {showAdvancedModal && (
+      {showAdvancedModal && typeof document !== 'undefined' && createPortal(
         <div
           onClick={() => setShowAdvancedModal(false)}
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
+          className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -1375,7 +1376,8 @@ export default function ListingFilterBar({
               </>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

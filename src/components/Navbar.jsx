@@ -135,7 +135,7 @@ export default function Navbar() {
   }, [headerConfig?.socialLinks, systemConfig?.socialLinks]);
 
   return (
-    <header className="relative w-full z-30 bg-white border-b border-slate-200/80 shadow-xs">
+    <header className="relative w-full z-40 bg-white border-b border-slate-200/80 shadow-xs">
       {/* 1. TOP UTILITY BAR (Hotline, Demo Switcher, Reset) */}
       <div className="bg-slate-900 text-slate-300 text-xs py-1.5 border-b border-slate-800">
         <div suppressHydrationWarning className={`${containerWidthClass} flex items-center justify-between gap-2 sm:gap-3`}>
