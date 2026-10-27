@@ -65,15 +65,6 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
     setHasChanges(true);
   };
 
-  const handleSyncFromPricingTable = () => {
-    setPrices({
-      normalPublishDiscount: normalPriceFromTable || 5000,
-      normalBumpDiscount: bumpPriceFromTable,
-      vipDiscount: Math.min(400000, diamondPriceFromTable)
-    });
-    setHasChanges(true);
-  };
-
   const handleSave = async (e) => {
     e?.preventDefault();
     setIsSaving(true);
@@ -110,19 +101,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
-          {hasChanges && (
-            <button
-              type="button"
-              onClick={handleSyncFromPricingTable}
-              className="px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-emerald-400 border border-slate-700 text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
-              title="Khôi phục lại đơn giá chuẩn theo Bảng Giá Tin Đăng"
-            >
-              <i className="fa-solid fa-rotate-left text-[11px] text-emerald-400"></i>
-              <span>Về Giá Bảng Tin Đăng</span>
-            </button>
-          )}
-
+        <div className="self-start sm:self-auto shrink-0">
           <button
             type="button"
             onClick={handleSave}
