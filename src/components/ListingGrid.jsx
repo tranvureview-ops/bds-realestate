@@ -195,7 +195,7 @@ export default function ListingGrid({
   return (
     <div ref={gridContainerRef} className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className ? className : (isHomePage ? 'pt-2 pb-3' : 'pt-4 sm:pt-6 pb-8')}`}>
       {/* View Controls & Sorting Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 pb-4 sm:pb-5 border-b border-slate-200">
+      <div className={`flex ${title || isHomePage ? 'flex-col sm:flex-row items-start sm:items-center' : 'flex-row items-center'} justify-between gap-2.5 sm:gap-4 pb-3 sm:pb-5 border-b border-slate-200`}>
         {title ? (
           <div>
             <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
@@ -217,7 +217,7 @@ export default function ListingGrid({
             </p>
           </div>
         ) : (
-          <div className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600">
+          <div className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600 shrink-0">
             <span>Hiện có</span>
             <span className="font-extrabold text-slate-900 text-sm sm:text-base">
               {totalItems.toLocaleString('vi-VN')}
@@ -227,14 +227,15 @@ export default function ListingGrid({
         )}
 
         {/* Sorting & View Mode Switches */}
-        <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+        <div className={`flex items-center gap-2 sm:gap-3 ${title || isHomePage ? 'w-full sm:w-auto justify-end' : 'shrink-0'}`}>
           {/* Sort Selection */}
-          <div className="flex items-center gap-2 text-xs min-w-[210px]">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-xs">
             <span className="text-slate-500 font-semibold hidden md:inline shrink-0">Sắp xếp:</span>
-            <div className="flex-1">
+            <div className="w-[140px] sm:w-[190px]">
               <CustomSelect
                 value={sortBy}
                 onChange={(val) => setSortBy(val)}
+                dropdownClassName="right-0 left-auto min-w-[180px]"
                 options={[
                   { value: 'vip', label: 'Mặc định' },
                   { value: 'newest', label: '🕒 Tin mới đăng nhất' },
@@ -246,8 +247,8 @@ export default function ListingGrid({
             </div>
           </div>
 
-          {/* View Mode Toggle Buttons */}
-          <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+          {/* View Mode Toggle Buttons (Ẩn trên mobile vì không tối ưu màn hình hẹp) */}
+          <div className="hidden sm:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0">
             <button
               onClick={() => setViewMode('grid')}
               className={`p-1.5 px-2.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${viewMode === 'grid' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
