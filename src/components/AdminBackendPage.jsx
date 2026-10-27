@@ -2395,7 +2395,7 @@ export default function AdminBackendPage() {
               }`}
             >
               <i className="fa-solid fa-users-gear text-sm w-5 text-center"></i>
-              <span>Người Dùng & Phân Quyền</span>
+              <span>Người Dùng</span>
             </Link>
 
             <Link
