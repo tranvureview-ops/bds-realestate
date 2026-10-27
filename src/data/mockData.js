@@ -276,6 +276,8 @@ export const LOCATIONS = VIETNAM_ADMINISTRATIVE_DATA;
 export const INITIAL_PROPERTIES = [
   {
     "id": "BDS-001",
+    "is_verified": true,
+    "isVerified": true,
     "title": "SIÊU DỰ ÁN PENTHOUSE DUPLEX WYNDHAM SOLEIL ĐÀ NẴNG VIEW TRỌN BIỂN MỸ KHÊ - FULL NỘI THẤT Ý",
     "slug": "penthouse-duplex-wyndham-soleil-da-nang-view-bien-my-khe",
     "vipPackageId": "vip-diamond",
@@ -373,6 +375,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-002",
+    "is_verified": true,
+    "isVerified": true,
     "title": "BIỆT THỰ ĐƠN LẬP MẶT BIỂN HYATT REGENCY ĐÀ NẴNG 450M2 HỒ BƠI RIÊNG SANG TRỌNG BẬC NHẤT ĐÀ THÀNH",
     "slug": "biet-thu-don-lap-mat-bien-hyatt-regency-da-nang-450m2",
     "vipPackageId": "vip-diamond",
@@ -459,6 +463,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-003",
+    "is_verified": false,
+    "isVerified": false,
     "title": "NHÀ MẶT PHỐ NGUYỄN VĂN LINH HẢI CHÂU 8 TẦNG THANG MÁY - DÒNG TIỀN CHO THUÊ 180 TRIỆU/THÁNG",
     "slug": "nha-mat-pho-nguyen-van-linh-hai-chau-8-tang-thang-may",
     "vipPackageId": "vip-gold",
@@ -535,6 +541,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-004",
+    "is_verified": true,
+    "isVerified": true,
     "title": "CĂN HỘ 3PN SUN PONTE RESIDENCE CẦU RỒNG VIEW SÔNG HÀN - SỔ HỒNG TRAO TAY GIÁ CỰC TỐT",
     "slug": "can-ho-3pn-sun-ponte-residence-cau-rong-view-song-han",
     "vipPackageId": "vip-gold",
@@ -619,6 +627,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-005",
+    "is_verified": true,
+    "isVerified": true,
     "title": "ĐẤT NỀN KHU ĐÔ THỊ SINH THÁI HÒA XUÂN ĐÀ NẴNG GẦN CẦU HÒA XUÂN SỔ ĐỎ CÔNG CHỨNG NGAY",
     "slug": "dat-nen-kdt-sinh-thai-hoa-xuan-da-nang",
     "vipPackageId": "vip-silver",
@@ -690,6 +700,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-006",
+    "is_verified": false,
+    "isVerified": false,
     "title": "CHO THUÊ NHÀ PHỐ NGUYÊN CĂN SƠN TRÀ PHẠM VĂN ĐỒNG TIỆN LÀM SPA, VĂN PHÒNG HOẶC HOMESTAY DU LỊCH",
     "slug": "cho-thue-nha-pho-nguyen-can-son-tra-pham-van-dong",
     "vipPackageId": "vip-silver",
@@ -760,6 +772,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-007",
+    "is_verified": true,
+    "isVerified": true,
     "title": "BÁN NHÀ RIÊNG KIỆT Ô TÔ HÙNG VƯƠNG THANH KHÊ 45M2 X 3 TẦNG GẦN CHỢ CỒN - SỔ HỒNG VUÔNG VẮN",
     "slug": "ban-nha-rieng-hung-vuong-thanh-khe-45m2",
     "vipPackageId": "vip-silver",
@@ -834,6 +848,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-008",
+    "is_verified": false,
+    "isVerified": false,
     "title": "BÁN ĐẤT THỔ CƯ 80M2 TẠI LIÊN CHIỂU ĐÀ NẴNG GẦN LÀNG ĐẠI HỌC BÁCH KHOA ĐÀ NẴNG",
     "slug": "ban-dat-tho-cu-80m2-lien-chieu-da-nang",
     "vipPackageId": "normal",
@@ -906,6 +922,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-009",
+    "is_verified": false,
+    "isVerified": false,
     "title": "CẦN BÁN GẤP CĂN SHOPHOUSE KHỐI ĐẾ CHUNG CƯ CẨM LỆ ĐÀ NẴNG ĐANG KINH DOANH CAFE HIGHLANDS",
     "slug": "ban-shophouse-cam-le-da-nang-dang-cho-thue-cafe",
     "vipPackageId": "normal",
@@ -974,6 +992,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-010",
+    "is_verified": true,
+    "isVerified": true,
     "title": "BÁN CĂN HỘ THE MONARCHY TRẦN HƯNG ĐẠO VEN SÔNG HÀN 75M² 2PN VIEW PHÁO HOA",
     "slug": "ban-can-ho-the-monarchy-tran-hung-dao-ven-song-han-75m-2pn",
     "vipPackageId": "vip-gold",
@@ -1027,6 +1047,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-011",
+    "is_verified": false,
+    "isVerified": false,
     "title": "BÁN CĂN HỘ FPT PLAZA 2 NGŨ HÀNH SƠN ĐÀ NẴNG 75M² 2PN GIÁ TỐT CÔNG CHỨNG NGAY",
     "slug": "ban-can-ho-fpt-plaza-2-ngu-hanh-son-da-nang-75m-2pn-gia-tot",
     "vipPackageId": "vip-silver",
@@ -1080,6 +1102,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-012",
+    "is_verified": false,
+    "isVerified": false,
     "title": "BÁN CĂN HỘ CAO CẤP BẠCH ĐẰNG COMPLEX SÔNG HÀN 75M² 2PN FULL NỘI THẤT HẢI CHÂU",
     "slug": "ban-can-ho-cao-cap-bach-dang-complex-song-han-75m-2pn-full-noi-that",
     "vipPackageId": "vip-gold",
@@ -1133,6 +1157,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-013",
+    "is_verified": true,
+    "isVerified": true,
     "title": "BÁN CĂN HỘ THE SANG RESIDENCE VÕ NGUYÊN GIÁP MỸ KHÊ 75M² 2PN VIEW BIỂN TUYỆT ĐẸP",
     "slug": "ban-can-ho-the-sang-residence-vo-nguyen-giap-my-khe-75m-2pn-view-bien",
     "vipPackageId": "normal",
@@ -1186,6 +1212,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-014",
+    "is_verified": false,
+    "isVerified": false,
     "title": "BÁN CĂN HỘ CHUNG CƯ THE FILMORE ĐÀ NẴNG (BẠCH ĐẰNG) 75M² 2PN 5.5 TỶ VIEW SÔNG HÀN",
     "slug": "ban-can-ho-chung-cu-the-filmore-da-nang-bach-dang-75m-2pn-55-ty",
     "vipPackageId": "vip-gold",
@@ -1239,6 +1267,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-015",
+    "is_verified": false,
+    "isVerified": false,
     "title": "BÁN TÒA CĂN HỘ DỊCH VỤ AN THƯỢNG NGŨ HÀNH SƠN 6 TẦNG 12 CĂN ĐANG FULL PHÒNG TÂY THUÊ 110TR/THÁNG",
     "slug": "ban-toa-can-ho-dich-vu-an-thuong-ngu-hanh-son-6-tang-12-can",
     "vipPackageId": "vip-diamond",
@@ -1321,6 +1351,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-016",
+    "is_verified": true,
+    "isVerified": true,
     "title": "CHO THUÊ CĂN HỘ STUDIO DỊCH VỤ FULL NỘI THẤT CAO CẤP GẦN BIỂN MỸ KHÊ SƠN TRÀ",
     "slug": "cho-thue-can-ho-studio-dich-vu-full-noi-that-bien-my-khe-son-tra",
     "vipPackageId": "vip-gold",
@@ -1392,6 +1424,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-017",
+    "is_verified": true,
+    "isVerified": true,
     "title": "BÁN CONDOTEL 5 SAO ARIA DANANG HOTEL & RESORT MẶT BIỂN TRƯỜNG SA CAM KẾT LỢI NHUẬN 10%/NĂM",
     "slug": "ban-condotel-5-sao-aria-danang-hotel-resort-mat-bien-truong-sa",
     "vipPackageId": "vip-diamond",
@@ -1474,6 +1508,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-018",
+    "is_verified": false,
+    "isVerified": false,
     "title": "CHO THUÊ CĂN CONDOTEL HÒA BÌNH GREEN ĐÀ NẴNG VIEW VỊNH ĐÀ NẴNG DÁT VÀNG ĐẦY ĐỦ TIỆN NGHI",
     "slug": "cho-thue-condotel-hoa-binh-green-da-nang-view-vinh",
     "vipPackageId": "vip-silver",
@@ -1546,6 +1582,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-019",
+    "is_verified": true,
+    "isVerified": true,
     "title": "BÁN KHU NGHỈ DƯỠNG TRANG TRẠI SINH THÁI VEN SUỐI HÒA VANG 2.500M2 CÓ SẴN NHÀ VƯỜN VIEW ĐỒI NÚI",
     "slug": "ban-khu-nghi-duong-trang-trai-sinh-thai-ven-suoi-hoa-vang-2500m2",
     "vipPackageId": "vip-gold",
@@ -1621,6 +1659,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-020",
+    "is_verified": false,
+    "isVerified": false,
     "title": "CHO THUÊ KHU NGHỈ DƯỠNG TRANG TRẠI SINH THÁI GLAMPING BÀ NÀ HÒA VANG ĐANG VẬN HÀNH DU LỊCH",
     "slug": "cho-thue-khu-nghi-duong-trang-trai-glamping-ba-na-hoa-vang",
     "vipPackageId": "vip-silver",
@@ -1692,6 +1732,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-021",
+    "is_verified": true,
+    "isVerified": true,
     "title": "BÁN KHO XƯỞNG TIÊU CHUẨN CÔNG NGHIỆP KCN HÒA KHÁNH LIÊN CHIỂU 1.200M2 XE CONTAINER VÀO TẬN CỬA",
     "slug": "ban-kho-xuong-tieu-chuan-kcn-hoa-khanh-lien-chieu-1200m2",
     "vipPackageId": "vip-gold",
@@ -1767,6 +1809,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-022",
+    "is_verified": false,
+    "isVerified": false,
     "title": "CHO THUÊ KHO CHỨA HÀNG 450M2 CẨM LỆ ĐÀ NẴNG GẦN CẦU ĐỎ XE TẢI NẶNG ĐỖ CỬA PCCC CHUẨN",
     "slug": "cho-thue-kho-chua-hang-450m2-cam-le-da-nang-gan-cau-do",
     "vipPackageId": "normal",
@@ -1837,6 +1881,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-023",
+    "is_verified": false,
+    "isVerified": false,
     "title": "BÁN BIỆT THỰ VEN SÔNG KHU ĐÔ THỊ SUN COSMO RESIDENCE ĐÀ NẴNG CẦU TRẦN THỊ LÝ ĐẲNG CẤP THƯỢNG LƯU",
     "slug": "ban-biet-thu-ven-song-sun-cosmo-residence-da-nang-cau-tran-thi-ly",
     "vipPackageId": "vip-diamond",
@@ -1919,6 +1965,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-024",
+    "is_verified": true,
+    "isVerified": true,
     "title": "BÁN SHOPHOUSE THƯƠNG MẠI 2 MẶT TIỀN ĐƯỜNG NGUYỄN PHƯỚC LAN KHU ĐÔ THỊ HÒA XUÂN SỔ ĐỎ CHÍNH CHỦ",
     "slug": "ban-shophouse-2-mat-tien-nguyen-phuoc-lan-hoa-xuan",
     "vipPackageId": "vip-gold",
@@ -1991,6 +2039,8 @@ export const INITIAL_PROPERTIES = [
   },
   {
     "id": "BDS-025",
+    "is_verified": false,
+    "isVerified": false,
     "title": "BÁN KHÁCH SẠN BOUTIQUE HOTEL 7 TẦNG MẶT PHỐ DU LỊCH HỒ NGHINH SƠN TRÀ 18 PHÒNG FULL NỘI THẤT",
     "slug": "ban-khach-san-boutique-hotel-7-tang-ho-nghinh-son-tra",
     "vipPackageId": "normal",

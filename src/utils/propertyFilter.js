@@ -191,7 +191,11 @@ export function filterProperties(properties = [], filters = {}) {
     if (filters.hasVR360 && !prop.hasVR360) return false;
 
     // 12. Tin chính chủ / Đã xác thực
-    if (filters.onlyVerified && (!prop.author || !prop.author.isVerified)) return false;
+    if (filters.onlyVerified) {
+      const isPropVerified = Boolean(prop.is_verified || prop.isVerified);
+      const isAuthorVerified = Boolean(prop.author?.isVerified || prop.author?.kycStatus === 'verified');
+      if (!isPropVerified && !isAuthorVerified) return false;
+    }
 
     // 13. Môi giới chuyên nghiệp: Chỉ hiển thị những tài khoản môi giới đã được xác nhận KYC
     if (filters.onlyProAgent) {

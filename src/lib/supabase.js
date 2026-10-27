@@ -42,6 +42,7 @@ export async function fetchSupabaseProperties() {
 
     // Chuyển đổi dữ liệu từ Supabase về đúng chuẩn object của ứng dụng
     return data.map(row => {
+      const isVer = Boolean(row.is_verified ?? row.raw_data?.is_verified ?? row.raw_data?.isVerified);
       if (row.raw_data && typeof row.raw_data === 'object') {
         return {
           ...row.raw_data,
@@ -52,7 +53,9 @@ export async function fetchSupabaseProperties() {
           vipPackageId: row.vip_package_id || row.raw_data.vipPackageId,
           expiresAt: row.expires_at || row.raw_data.expiresAt,
           publishedAt: row.published_at || row.raw_data.publishedAt,
-          isDeleted: Boolean(row.is_deleted)
+          isDeleted: Boolean(row.is_deleted),
+          is_verified: isVer,
+          isVerified: isVer
         };
       }
       return {
@@ -97,7 +100,9 @@ export async function fetchSupabaseProperties() {
         callsCount: Number(row.calls_count || 0),
         isFeatured: row.is_featured,
         autoRenew: row.auto_renew,
-        isDeleted: row.is_deleted
+        isDeleted: row.is_deleted,
+        is_verified: isVer,
+        isVerified: isVer
       };
     });
   } catch (err) {
@@ -155,7 +160,11 @@ export async function upsertSupabaseProperty(prop) {
       is_featured: Boolean(prop.isFeatured),
       auto_renew: Boolean(prop.autoRenew),
       is_deleted: Boolean(prop.isDeleted),
-      raw_data: prop,
+      raw_data: {
+        ...prop,
+        is_verified: Boolean(prop.is_verified ?? prop.isVerified),
+        isVerified: Boolean(prop.is_verified ?? prop.isVerified)
+      },
       updated_at: new Date().toISOString()
     };
 
@@ -673,7 +682,11 @@ export async function syncFullDbToSupabase(payload) {
         is_featured: Boolean(prop.isFeatured),
         auto_renew: Boolean(prop.autoRenew),
         is_deleted: Boolean(prop.isDeleted),
-        raw_data: prop,
+        raw_data: {
+          ...prop,
+          is_verified: Boolean(prop.is_verified ?? prop.isVerified),
+          isVerified: Boolean(prop.is_verified ?? prop.isVerified)
+        },
         updated_at: new Date().toISOString()
       }));
 

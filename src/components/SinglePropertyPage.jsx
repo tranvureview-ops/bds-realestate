@@ -37,7 +37,8 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     singleConfig,
     systemConfig,
     bookAppointment,
-    usersList
+    usersList,
+    verifyProperty
   } = useRealEstate();
 
   // Helper check xem người dùng hiện tại là khách vãng lai hay đã đăng nhập
@@ -910,10 +911,16 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition"></div>
-                <div className="absolute top-4 left-4 flex gap-2">
+                <div className="absolute top-4 left-4 flex flex-wrap gap-2">
                   <span className={`px-3 py-1 rounded-full text-xs font-black uppercase shadow-lg ${vipPkg.badgeColor}`}>
                     {vipPkg.shortName}
                   </span>
+                  {Boolean(property.is_verified || property.isVerified) && (
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-600 text-white shadow-lg flex items-center gap-1.5">
+                      <i className="fa-solid fa-circle-check"></i>
+                      <span>Tin xác thực</span>
+                    </span>
+                  )}
                   {property.hasVR360 && (
                     <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-600 text-white shadow-lg flex items-center gap-1.5">
                       <i className="fa-solid fa-vr-cardboard"></i> VR 360°
@@ -1054,6 +1061,15 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
                   {property.demand === 'sale' ? 'Đang Mở Bán' : 'Cho Thuê'}
                 </span>
+
+                {/* Tin đã xác thực: Badge màu xanh lục (Ẩn hoàn toàn khi chưa xác thực) */}
+                {Boolean(property.is_verified || property.isVerified) && (
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-600 text-white shadow-sm flex items-center gap-1">
+                    <i className="fa-solid fa-circle-check"></i>
+                    <span>Tin xác thực</span>
+                  </span>
+                )}
+
                 <span className="text-xs text-slate-400 font-mono">
                   Mã tin: <strong>{property.id}</strong>
                 </span>
@@ -1450,16 +1466,33 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                     </h4>
                   </div>
 
-                  {discCfg.showReportButton !== false && (
-                    <button
-                      type="button"
-                      onClick={() => setIsReportModalOpen(true)}
-                      className="px-3 py-1.5 bg-white border border-rose-200 hover:border-rose-400 text-rose-600 hover:text-rose-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer"
-                    >
-                      <i className="fa-solid fa-flag text-[11px]"></i>
-                      <span>{discCfg.reportButtonText || 'Báo cáo tin này'}</span>
-                    </button>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {/* Nút Xác thực tin ở phần hành động nếu tin chưa xác thực (Ẩn khi tin đã xác thực) */}
+                    {!Boolean(property.is_verified || property.isVerified) && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          await verifyProperty(property.id, true);
+                        }}
+                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                        title="Xác thực bài viết bất động sản này"
+                      >
+                        <i className="fa-solid fa-circle-check text-xs"></i>
+                        <span>Xác thực tin</span>
+                      </button>
+                    )}
+
+                    {discCfg.showReportButton !== false && (
+                      <button
+                        type="button"
+                        onClick={() => setIsReportModalOpen(true)}
+                        className="px-3 py-1.5 bg-white border border-rose-200 hover:border-rose-400 text-rose-600 hover:text-rose-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                      >
+                        <i className="fa-solid fa-flag text-[11px]"></i>
+                        <span>{discCfg.reportButtonText || 'Báo cáo tin này'}</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <p className="text-xs sm:text-[13px] text-slate-600 leading-relaxed text-justify">

@@ -25,7 +25,8 @@ export default function ListingDetailModal({ property, onClose }) {
     toggleCompare, 
     setActiveModal, 
     showToast,
-    usersList
+    usersList,
+    verifyProperty
   } = useRealEstate();
 
   const [activeMediaTab, setActiveMediaTab] = useState('photos'); // 'photos', 'vr360', 'video', 'map'
@@ -100,16 +101,38 @@ export default function ListingDetailModal({ property, onClose }) {
       >
         {/* Modal Top Header Bar */}
         <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-md px-6 py-3 border-b border-slate-200 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className={`px-2.5 py-0.5 rounded-full text-xs font-black uppercase ${vipPkg.badgeColor}`}>
               {vipPkg.shortName}
             </span>
+            {/* Tin đã xác thực: Badge màu xanh lục (Ẩn hoàn toàn khi chưa xác thực) */}
+            {Boolean(property.is_verified || property.isVerified) && (
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-600 text-white shadow-sm flex items-center gap-1">
+                <i className="fa-solid fa-circle-check"></i>
+                <span>Tin xác thực</span>
+              </span>
+            )}
             <span className="text-xs font-bold text-slate-500">
               Mã tin: <strong className="text-slate-800">{property.id}</strong>
             </span>
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Nút Xác thực tin ở phần hành động nếu tin chưa xác thực (Ẩn khi tin đã xác thực) */}
+            {!Boolean(property.is_verified || property.isVerified) && (
+              <button
+                type="button"
+                onClick={async () => {
+                  await verifyProperty(property.id, true);
+                }}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-sm"
+                title="Xác thực thông tin tin đăng này"
+              >
+                <i className="fa-solid fa-circle-check"></i>
+                <span>Xác thực tin</span>
+              </button>
+            )}
+
             {/* Compare */}
             <button
               onClick={() => toggleCompare(property)}

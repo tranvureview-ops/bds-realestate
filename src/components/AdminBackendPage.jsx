@@ -70,6 +70,7 @@ export default function AdminBackendPage() {
     logoutUser,
     approveProperty, 
     rejectProperty, 
+    verifyProperty,
     deleteProperty, 
     moveToTrash,
     restoreProperty,
@@ -3959,6 +3960,13 @@ export default function AdminBackendPage() {
                                         {p.project}
                                       </span>
                                     )}
+                                    {/* Tin đã xác thực: Badge màu xanh lục (Ẩn hoàn toàn khi chưa xác thực) */}
+                                    {Boolean(p.is_verified || p.isVerified) && (
+                                      <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 flex items-center gap-1 font-bold">
+                                        <i className="fa-solid fa-circle-check text-[9px] text-emerald-400"></i>
+                                        <span>Tin xác thực</span>
+                                      </span>
+                                    )}
                                   </div>
                                   <Link 
                                     to={getPropertyPermalink(p)}
@@ -4172,6 +4180,19 @@ export default function AdminBackendPage() {
                                 </div>
                               ) : (
                                 <div className="flex items-center justify-end gap-1.5">
+                                  {/* Nút Xác Thực Tin (Chỉ hiển thị khi tin CHƯA xác thực, ẩn khi ĐÃ xác thực) */}
+                                  {!Boolean(p.is_verified || p.isVerified) && (
+                                    <button
+                                      type="button"
+                                      onClick={() => verifyProperty(p.id, true)}
+                                      className="px-2 py-1 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-500/30 rounded-lg text-[10px] font-bold flex items-center gap-1 transition cursor-pointer"
+                                      title="Xác thực bài đăng này"
+                                    >
+                                      <i className="fa-solid fa-circle-check text-[9px]"></i>
+                                      <span>Xác thực tin</span>
+                                    </button>
+                                  )}
+
                                   {/* Nút Gia Hạn (Renew) */}
                                   <button
                                     type="button"

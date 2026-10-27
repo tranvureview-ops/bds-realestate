@@ -110,6 +110,14 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
             {property.demand === 'sale' ? 'BÁN' : 'CHO THUÊ'}
           </span>
 
+          {/* Tin đã xác thực: Badge màu xanh lục (Ẩn hoàn toàn khi chưa xác thực) */}
+          {Boolean(property.is_verified || property.isVerified) && (
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-600 text-white shadow-sm flex items-center gap-1">
+              <i className="fa-solid fa-circle-check"></i>
+              <span>Tin xác thực</span>
+            </span>
+          )}
+
           {/* VR 360 Badge */}
           {property.hasVR360 && (
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-600 text-white shadow-sm flex items-center gap-1 animate-pulse">

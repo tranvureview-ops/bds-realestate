@@ -223,7 +223,9 @@ export const normalizePropertyExpiration = (p) => {
     downgradedFromVip,
     vipExpiredAt,
     isFeatured,
-    hasDualListing
+    hasDualListing,
+    is_verified: Boolean(p.is_verified ?? p.isVerified),
+    isVerified: Boolean(p.is_verified ?? p.isVerified)
   };
 };
 
@@ -2300,6 +2302,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       google_place_id: formData.google_place_id || formData.googlePlaceId || null,
       newAddress: formData.newAddress || null,
       isGuest: isGuest,
+      is_verified: false,
+      isVerified: false,
       author: authorObj
     };
 
@@ -2627,6 +2631,50 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     }
     return null;
   }, [showToast]);
+
+  // Xác thực tin đăng bất động sản (Cấp / Hủy huy hiệu "Tin xác thực")
+  const verifyProperty = useCallback(async (propertyId, isVerified = true) => {
+    let updatedTarget = null;
+
+    setProperties(prev => prev.map(p => {
+      if (p.id === propertyId || p._id === propertyId) {
+        updatedTarget = {
+          ...p,
+          is_verified: Boolean(isVerified),
+          isVerified: Boolean(isVerified),
+          verifiedAt: isVerified ? new Date().toISOString() : null,
+          updatedAt: new Date().toISOString()
+        };
+        return updatedTarget;
+      }
+      return p;
+    }));
+
+    if (updatedTarget) {
+      try {
+        await upsertSupabaseProperty(updatedTarget);
+        if (typeof window !== 'undefined') {
+          fetch('/api/db-sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              bds_properties: properties.map(p => p.id === propertyId ? updatedTarget : p)
+            })
+          }).catch(err => console.warn('Lỗi db-sync khi xác thực tin:', err));
+        }
+      } catch (err) {
+        console.warn('Lỗi đồng bộ Supabase khi xác thực tin:', err);
+      }
+
+      if (isVerified) {
+        showToast(`✅ Đã xác thực tin "${updatedTarget.title || propertyId}" thành công! Huy hiệu "Tin xác thực" đã được kích hoạt.`, 'success');
+      } else {
+        showToast(`Đã hủy trạng thái xác thực của tin ${propertyId}.`, 'info');
+      }
+      return updatedTarget;
+    }
+    return null;
+  }, [properties, showToast]);
 
   // Admin moderation: Reject
   const rejectProperty = async (propertyId, reason = 'Vi phạm quy chế') => {
@@ -4355,6 +4403,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         addProperty,
         approveProperty,
         publishPropertyNow,
+        verifyProperty,
         rejectProperty,
         deleteProperty,
         moveToTrash,

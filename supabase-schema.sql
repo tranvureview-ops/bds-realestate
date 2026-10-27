@@ -80,11 +80,15 @@ CREATE TABLE IF NOT EXISTS properties (
   calls_count INTEGER DEFAULT 0,
   is_featured BOOLEAN DEFAULT false,
   auto_renew BOOLEAN DEFAULT false,
+  is_verified BOOLEAN DEFAULT false,
   is_deleted BOOLEAN DEFAULT false,
   raw_data JSONB,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
+
+-- Bổ sung cột is_verified cho bảng properties nếu bảng đã tồn tại
+ALTER TABLE properties ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT false;
 
 -- 4. TẠO BẢNG TÀI KHOẢN NGƯỜI DÙNG (PROFILES)
 CREATE TABLE IF NOT EXISTS profiles (

@@ -23,6 +23,7 @@ export default function UserDashboard() {
     showToast,
     renewProperty,
     publishPropertyNow,
+    verifyProperty,
     getPropertyExpirationInfo,
     isMembershipActive,
     vipPackages: contextVipPackages,
@@ -449,6 +450,14 @@ export default function UserDashboard() {
                           <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${pkg.badgeColor}`}>
                             {pkg.shortName}
                           </span>
+
+                          {/* Tin đã xác thực: Badge màu xanh lục (Ẩn hoàn toàn khi chưa xác thực) */}
+                          {Boolean(prop.is_verified || prop.isVerified) && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1 shadow-xs">
+                              <i className="fa-solid fa-circle-check text-emerald-600"></i>
+                              <span>Tin xác thực</span>
+                            </span>
+                          )}
                           
                           {/* Expiration Status Badge */}
                           {isItemExpired ? (
@@ -576,6 +585,21 @@ export default function UserDashboard() {
 
                     {/* Action Buttons for this listing */}
                     <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end pt-3 md:pt-0 border-t md:border-t-0 border-slate-100">
+                      {/* Nút Xác Thực Tin (Chỉ hiển thị khi tin CHƯA xác thực, ẩn khi ĐÃ xác thực) */}
+                      {!Boolean(prop.is_verified || prop.isVerified) && (
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            await verifyProperty(prop.id, true);
+                          }}
+                          className="px-3 py-1.5 font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
+                          title="Xác thực thông tin tin đăng này"
+                        >
+                          <i className="fa-solid fa-circle-check"></i>
+                          <span>Xác thực tin</span>
+                        </button>
+                      )}
+
                       {/* Nút Xuất Bản Ngay nếu tin đang hẹn giờ Khung Giờ Vàng */}
                       {prop.status === 'pending' && isScheduled && (
                         <button
