@@ -18,6 +18,8 @@ import ListingCard from './ListingCard';
 import CustomSelect from './CustomSelect';
 import { findAdministrativeMerger, VIETNAM_ADMINISTRATIVE_DATA } from '../data/vietnamAdministrativeData';
 import { validatePhoneNumber, normalizePhone, formatPhoneNumber } from '../utils/authValidation';
+import PropertyVerificationModal from './PropertyVerificationModal';
+import PropertyVerificationReviewModal from './PropertyVerificationReviewModal';
 
 export default function SinglePropertyPage({ propertyOverride = null }) {
   const { 
@@ -38,8 +40,13 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     systemConfig,
     bookAppointment,
     usersList,
-    verifyProperty
+    verifyProperty,
+    submitPropertyVerification
   } = useRealEstate();
+
+  // Modal nộp Sổ đỏ 2 mặt & xem hồ sơ
+  const [isVerifyModalOpen, setIsVerifyModalOpen] = useState(false);
+  const [isReviewDocModalOpen, setIsReviewDocModalOpen] = useState(false);
 
   // Helper check xem người dùng hiện tại là khách vãng lai hay đã đăng nhập
   const isGuest = !currentUser || currentUser.role === 'guest' || currentUser.id === 'guest';
@@ -1469,17 +1476,27 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   <div className="flex items-center gap-2">
                     {/* Nút Xác thực tin ở phần hành động nếu tin chưa xác thực (Ẩn khi tin đã xác thực) */}
                     {!Boolean(property.is_verified || property.isVerified) && (
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          await verifyProperty(property.id, true);
-                        }}
-                        className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer"
-                        title="Xác thực bài viết bất động sản này"
-                      >
-                        <i className="fa-solid fa-circle-check text-xs"></i>
-                        <span>Xác thực tin</span>
-                      </button>
+                      (property.verification_status === 'pending' || property.verificationStatus === 'pending') ? (
+                        <button
+                          type="button"
+                          onClick={() => setIsReviewDocModalOpen(true)}
+                          className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                          title="Hồ sơ Sổ đỏ 2 mặt đang chờ Ban quản trị duyệt. Bấm để xem lại."
+                        >
+                          <i className="fa-solid fa-file-shield text-xs text-amber-600"></i>
+                          <span>Đang duyệt sổ đỏ</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setIsVerifyModalOpen(true)}
+                          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer"
+                          title="Tải lên Sổ đỏ 2 mặt để yêu cầu Ban quản trị xác thực tin"
+                        >
+                          <i className="fa-solid fa-circle-check text-xs"></i>
+                          <span>Xác thực tin</span>
+                        </button>
+                      )
                     )}
 
                     {discCfg.showReportButton !== false && (
@@ -2482,6 +2499,29 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
           </button>
         </div>
       </aside>
+
+      {/* Modal nộp Sổ đỏ 2 mặt xác thực tin */}
+      {isVerifyModalOpen && (
+        <PropertyVerificationModal
+          isOpen={isVerifyModalOpen}
+          onClose={() => setIsVerifyModalOpen(false)}
+          property={property}
+          onSubmit={async (pId, data) => {
+            await submitPropertyVerification(pId, data);
+            setIsVerifyModalOpen(false);
+          }}
+        />
+      )}
+
+      {/* Modal xem hồ sơ Sổ đỏ 2 mặt đã gửi */}
+      {isReviewDocModalOpen && (
+        <PropertyVerificationReviewModal
+          isOpen={isReviewDocModalOpen}
+          onClose={() => setIsReviewDocModalOpen(false)}
+          property={property}
+          isAdmin={false}
+        />
+      )}
     </div>
   );
 }

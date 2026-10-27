@@ -465,6 +465,15 @@ export const INITIAL_PROPERTIES = [
     "id": "BDS-003",
     "is_verified": false,
     "isVerified": false,
+    "verification_status": "pending",
+    "verificationStatus": "pending",
+    "verificationDocuments": {
+      "frontImage": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80",
+      "backImage": "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=1200&q=80",
+      "certNumber": "CS-NVL-2026/8899",
+      "notes": "Sổ hồng chính chủ 8 tầng mặt phố Nguyễn Văn Linh Hải Châu, đã công chứng sao y bản chính.",
+      "submittedAt": "2026-10-28T04:30:00.000Z"
+    },
     "title": "NHÀ MẶT PHỐ NGUYỄN VĂN LINH HẢI CHÂU 8 TẦNG THANG MÁY - DÒNG TIỀN CHO THUÊ 180 TRIỆU/THÁNG",
     "slug": "nha-mat-pho-nguyen-van-linh-hai-chau-8-tang-thang-may",
     "vipPackageId": "vip-gold",

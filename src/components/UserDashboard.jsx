@@ -6,6 +6,8 @@ import { useRouter, Link } from '../router/RouterContext';
 import { VIP_PACKAGES } from '../data/mockData';
 import { getPropertyPermalink, formatSentenceCase } from '../utils/permalink';
 import { isVoucherDiscountFree } from '../utils/membershipHelper';
+import PropertyVerificationModal from './PropertyVerificationModal';
+import PropertyVerificationReviewModal from './PropertyVerificationReviewModal';
 
 export default function UserDashboard() {
   const { 
@@ -24,6 +26,7 @@ export default function UserDashboard() {
     renewProperty,
     publishPropertyNow,
     verifyProperty,
+    submitPropertyVerification,
     getPropertyExpirationInfo,
     isMembershipActive,
     vipPackages: contextVipPackages,
@@ -36,6 +39,10 @@ export default function UserDashboard() {
 
   const [activeTab, setActiveTab] = useState('listings'); // 'listings', 'wallet', 'transactions', 'trash'
   const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'active', 'expiring_soon', 'expired', 'pending'
+
+  // Verification Modal State
+  const [verifyingProperty, setVerifyingProperty] = useState(null);
+  const [reviewingDocProperty, setReviewingDocProperty] = useState(null);
 
   // Renewal Modal State
   const [renewModalProp, setRenewModalProp] = useState(null);
@@ -451,13 +458,26 @@ export default function UserDashboard() {
                             {pkg.shortName}
                           </span>
 
-                          {/* Tin đã xác thực: Badge màu xanh lục (Ẩn hoàn toàn khi chưa xác thực) */}
-                          {Boolean(prop.is_verified || prop.isVerified) && (
+                          {/* Trạng thái xác thực:
+                              - Tin đã xác thực: Badge màu xanh lục
+                              - Đang chờ duyệt sổ đỏ: Badge màu vàng cam
+                              - Chưa xác thực: KHÔNG hiển thị badge */}
+                          {Boolean(prop.is_verified || prop.isVerified) ? (
                             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1 shadow-xs">
                               <i className="fa-solid fa-circle-check text-emerald-600"></i>
                               <span>Tin xác thực</span>
                             </span>
-                          )}
+                          ) : (prop.verification_status === 'pending' || prop.verificationStatus === 'pending') ? (
+                            <button
+                              type="button"
+                              onClick={() => setReviewingDocProperty(prop)}
+                              className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1 shadow-xs hover:bg-amber-200 transition cursor-pointer"
+                              title="Hồ sơ Sổ đỏ 2 mặt đang chờ Ban quản trị duyệt. Bấm để xem lại."
+                            >
+                              <i className="fa-solid fa-file-shield text-amber-600"></i>
+                              <span>⏳ Chờ duyệt sổ đỏ</span>
+                            </button>
+                          ) : null}
                           
                           {/* Expiration Status Badge */}
                           {isItemExpired ? (
@@ -585,15 +605,23 @@ export default function UserDashboard() {
 
                     {/* Action Buttons for this listing */}
                     <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end pt-3 md:pt-0 border-t md:border-t-0 border-slate-100">
-                      {/* Nút Xác Thực Tin (Chỉ hiển thị khi tin CHƯA xác thực, ẩn khi ĐÃ xác thực) */}
-                      {!Boolean(prop.is_verified || prop.isVerified) && (
+                      {/* Nút Xác Thực Tin / Đang Duyệt Sổ Đỏ */}
+                      {Boolean(prop.is_verified || prop.isVerified) ? null : (prop.verification_status === 'pending' || prop.verificationStatus === 'pending') ? (
                         <button
                           type="button"
-                          onClick={async () => {
-                            await verifyProperty(prop.id, true);
-                          }}
+                          onClick={() => setReviewingDocProperty(prop)}
+                          className="px-3 py-1.5 font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 cursor-pointer"
+                          title="Xem lại hồ sơ Sổ đỏ 2 mặt đã gửi Ban quản trị"
+                        >
+                          <i className="fa-solid fa-file-shield text-amber-600"></i>
+                          <span>Đang duyệt sổ đỏ</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setVerifyingProperty(prop)}
                           className="px-3 py-1.5 font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
-                          title="Xác thực thông tin tin đăng này"
+                          title="Tải lên Sổ đỏ 2 mặt để yêu cầu Ban quản trị xác thực tin"
                         >
                           <i className="fa-solid fa-circle-check"></i>
                           <span>Xác thực tin</span>
@@ -1139,6 +1167,29 @@ export default function UserDashboard() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal nộp hồ sơ Sổ đỏ 2 mặt xác thực tin */}
+      {verifyingProperty && (
+        <PropertyVerificationModal
+          isOpen={Boolean(verifyingProperty)}
+          onClose={() => setVerifyingProperty(null)}
+          property={verifyingProperty}
+          onSubmit={async (pId, data) => {
+            await submitPropertyVerification(pId, data);
+            setVerifyingProperty(null);
+          }}
+        />
+      )}
+
+      {/* Modal xem hồ sơ Sổ đỏ 2 mặt đã gửi */}
+      {reviewingDocProperty && (
+        <PropertyVerificationReviewModal
+          isOpen={Boolean(reviewingDocProperty)}
+          onClose={() => setReviewingDocProperty(null)}
+          property={reviewingDocProperty}
+          isAdmin={false}
+        />
       )}
     </div>
   );

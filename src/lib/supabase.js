@@ -43,6 +43,8 @@ export async function fetchSupabaseProperties() {
     // Chuyển đổi dữ liệu từ Supabase về đúng chuẩn object của ứng dụng
     return data.map(row => {
       const isVer = Boolean(row.is_verified ?? row.raw_data?.is_verified ?? row.raw_data?.isVerified);
+      const vStatus = row.raw_data?.verification_status || row.raw_data?.verificationStatus || (isVer ? 'verified' : 'unverified');
+      const vDocs = row.raw_data?.verificationDocuments || row.raw_data?.verification_documents || null;
       if (row.raw_data && typeof row.raw_data === 'object') {
         return {
           ...row.raw_data,
@@ -55,7 +57,10 @@ export async function fetchSupabaseProperties() {
           publishedAt: row.published_at || row.raw_data.publishedAt,
           isDeleted: Boolean(row.is_deleted),
           is_verified: isVer,
-          isVerified: isVer
+          isVerified: isVer,
+          verification_status: vStatus,
+          verificationStatus: vStatus,
+          verificationDocuments: vDocs
         };
       }
       return {
@@ -102,7 +107,10 @@ export async function fetchSupabaseProperties() {
         autoRenew: row.auto_renew,
         isDeleted: row.is_deleted,
         is_verified: isVer,
-        isVerified: isVer
+        isVerified: isVer,
+        verification_status: vStatus,
+        verificationStatus: vStatus,
+        verificationDocuments: vDocs
       };
     });
   } catch (err) {
@@ -163,7 +171,10 @@ export async function upsertSupabaseProperty(prop) {
       raw_data: {
         ...prop,
         is_verified: Boolean(prop.is_verified ?? prop.isVerified),
-        isVerified: Boolean(prop.is_verified ?? prop.isVerified)
+        isVerified: Boolean(prop.is_verified ?? prop.isVerified),
+        verification_status: prop.verification_status || prop.verificationStatus || (Boolean(prop.is_verified ?? prop.isVerified) ? 'verified' : 'unverified'),
+        verificationStatus: prop.verification_status || prop.verificationStatus || (Boolean(prop.is_verified ?? prop.isVerified) ? 'verified' : 'unverified'),
+        verificationDocuments: prop.verificationDocuments || prop.verification_documents || null
       },
       updated_at: new Date().toISOString()
     };

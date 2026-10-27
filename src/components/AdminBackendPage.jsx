@@ -17,6 +17,7 @@ import AdminAppointmentsManager from './AdminAppointmentsManager';
 import AdminTwoFactorScreen from './AdminTwoFactorScreen';
 import AdminTelegramChatManager from './AdminTelegramChatManager';
 import MaintenanceScreen from './MaintenanceScreen';
+import PropertyVerificationReviewModal from './PropertyVerificationReviewModal';
 import { AVAILABLE_FONTS, getFontConfig, applyFontToDom } from '../utils/fontConfig';
 import { formatPhoneNumber } from '../utils/authValidation';
 import { isVoucherDiscountFree } from '../utils/membershipHelper';
@@ -603,6 +604,9 @@ export default function AdminBackendPage() {
   const [renewDays, setRenewDays] = useState(15);
   const [renewVipId, setRenewVipId] = useState('');
   const [renewAutoRenew, setRenewAutoRenew] = useState(false);
+
+  // Verification Review Modal State (Thẩm định Sổ đỏ 2 mặt)
+  const [reviewingVerificationProp, setReviewingVerificationProp] = useState(null);
 
   // Finance Ledger & Revenue States (Sổ cái giao dịch & Báo cáo doanh thu)
   const [financeSearch, setFinanceSearch] = useState('');
@@ -1212,6 +1216,7 @@ export default function AdminBackendPage() {
       expiringSoon: 0,
       expired: 0,
       pending: 0,
+      verification_pending: 0,
       rejected: 0,
       trash: 0,
       archived: 0
@@ -1224,6 +1229,10 @@ export default function AdminBackendPage() {
         return; // Không tính vào danh sách hoạt động
       }
       counts.all++;
+
+      if (p.verification_status === 'pending' || p.verificationStatus === 'pending') {
+        counts.verification_pending++;
+      }
 
       if (p.isArchived || p.status === 'archived') {
         counts.archived++;
@@ -1336,6 +1345,7 @@ export default function AdminBackendPage() {
         if (propertyStatusFilter === 'expiring_soon') return isExpiringSoon;
         if (propertyStatusFilter === 'expired') return isExp;
         if (propertyStatusFilter === 'pending') return isPending;
+        if (propertyStatusFilter === 'verification_pending') return (p.verification_status === 'pending' || p.verificationStatus === 'pending');
         if (propertyStatusFilter === 'rejected') return isRejected;
         return true;
       })
@@ -3610,6 +3620,21 @@ export default function AdminBackendPage() {
                   </button>
 
                   <button
+                    onClick={() => setPropertyStatusFilter('verification_pending')}
+                    className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 shrink-0 ${
+                      propertyStatusFilter === 'verification_pending'
+                        ? 'bg-amber-500 text-slate-950 font-black shadow ring-2 ring-amber-400/50'
+                        : 'bg-slate-900 text-amber-400 hover:text-white border border-slate-800'
+                    }`}
+                  >
+                    <i className="fa-solid fa-file-shield text-xs"></i>
+                    <span>Chờ Duyệt Sổ Đỏ</span>
+                    <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-950 text-amber-300 font-black border border-amber-800">
+                      {propertyStatusCounts.verification_pending || 0}
+                    </span>
+                  </button>
+
+                  <button
                     onClick={() => setPropertyStatusFilter('rejected')}
                     className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 shrink-0 ${
                       propertyStatusFilter === 'rejected'
@@ -3960,13 +3985,25 @@ export default function AdminBackendPage() {
                                         {p.project}
                                       </span>
                                     )}
-                                    {/* Tin đã xác thực: Badge màu xanh lục (Ẩn hoàn toàn khi chưa xác thực) */}
-                                    {Boolean(p.is_verified || p.isVerified) && (
+                                    {/* Trạng thái xác thực:
+                                        - Tin đã xác thực: Badge màu xanh lục
+                                        - Chờ duyệt sổ đỏ: Badge màu vàng cam */}
+                                    {Boolean(p.is_verified || p.isVerified) ? (
                                       <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 flex items-center gap-1 font-bold">
                                         <i className="fa-solid fa-circle-check text-[9px] text-emerald-400"></i>
                                         <span>Tin xác thực</span>
                                       </span>
-                                    )}
+                                    ) : (p.verification_status === 'pending' || p.verificationStatus === 'pending') ? (
+                                      <button
+                                        type="button"
+                                        onClick={() => setReviewingVerificationProp(p)}
+                                        className="px-1.5 py-0.5 rounded text-[10px] bg-amber-950 text-amber-300 border border-amber-800 flex items-center gap-1 font-bold hover:bg-amber-900 transition cursor-pointer"
+                                        title="Hồ sơ Sổ đỏ đang chờ duyệt. Bấm để thẩm định ngay."
+                                      >
+                                        <i className="fa-solid fa-file-shield text-[9px] text-amber-400"></i>
+                                        <span>⏳ Chờ duyệt sổ đỏ</span>
+                                      </button>
+                                    ) : null}
                                   </div>
                                   <Link 
                                     to={getPropertyPermalink(p)}
@@ -4180,13 +4217,23 @@ export default function AdminBackendPage() {
                                 </div>
                               ) : (
                                 <div className="flex items-center justify-end gap-1.5">
-                                  {/* Nút Xác Thực Tin (Chỉ hiển thị khi tin CHƯA xác thực, ẩn khi ĐÃ xác thực) */}
-                                  {!Boolean(p.is_verified || p.isVerified) && (
+                                  {/* Thẩm định Sổ đỏ (khi pending) hoặc Xác thực tin (khi chưa xác thực) */}
+                                  {Boolean(p.is_verified || p.isVerified) ? null : (p.verification_status === 'pending' || p.verificationStatus === 'pending') ? (
                                     <button
                                       type="button"
-                                      onClick={() => verifyProperty(p.id, true)}
+                                      onClick={() => setReviewingVerificationProp(p)}
+                                      className="px-2 py-1 bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-400/40 rounded-lg text-[10px] font-bold flex items-center gap-1 transition cursor-pointer shadow-sm animate-pulse"
+                                      title="Thẩm định hồ sơ Sổ đỏ 2 mặt đã gửi"
+                                    >
+                                      <i className="fa-solid fa-file-shield text-[9px] text-amber-400"></i>
+                                      <span>Thẩm Định Sổ Đỏ</span>
+                                    </button>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => setReviewingVerificationProp(p)}
                                       className="px-2 py-1 bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/30 border border-emerald-500/30 rounded-lg text-[10px] font-bold flex items-center gap-1 transition cursor-pointer"
-                                      title="Xác thực bài đăng này"
+                                      title="Xem hồ sơ / Duyệt xác thực tin đăng này"
                                     >
                                       <i className="fa-solid fa-circle-check text-[9px]"></i>
                                       <span>Xác thực tin</span>
@@ -10362,6 +10409,24 @@ export default function AdminBackendPage() {
             <MaintenanceScreen />
           </div>
         </div>
+      )}
+
+      {/* Modal Thẩm Định & Phê Duyệt Hồ Sơ Sổ Đỏ 2 Mặt */}
+      {reviewingVerificationProp && (
+        <PropertyVerificationReviewModal
+          isOpen={Boolean(reviewingVerificationProp)}
+          onClose={() => setReviewingVerificationProp(null)}
+          property={reviewingVerificationProp}
+          isAdmin={true}
+          onApprove={async (pId) => {
+            await verifyProperty(pId, true);
+            setReviewingVerificationProp(null);
+          }}
+          onReject={async (pId, reason) => {
+            await verifyProperty(pId, false, reason);
+            setReviewingVerificationProp(null);
+          }}
+        />
       )}
 
     </div>
