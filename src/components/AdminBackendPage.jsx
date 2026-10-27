@@ -72,6 +72,7 @@ export default function AdminBackendPage() {
     approveProperty, 
     rejectProperty, 
     verifyProperty,
+    randomizePropertiesAuthors,
     deleteProperty, 
     moveToTrash,
     restoreProperty,
@@ -856,6 +857,10 @@ export default function AdminBackendPage() {
   const pendingProps = useMemo(() => properties.filter(p => p.status === 'pending'), [properties]);
   const activeProps = useMemo(() => properties.filter(p => p.status === 'active'), [properties]);
   const rejectedProps = useMemo(() => properties.filter(p => p.status === 'rejected'), [properties]);
+  const verificationPendingProps = useMemo(() => {
+    return properties.filter(p => !p.isDeleted && p.status !== 'trash' && (p.verification_status === 'pending' || p.verificationStatus === 'pending'));
+  }, [properties]);
+  const verificationPendingCount = verificationPendingProps.length;
 
   // Hàng đợi kiểm duyệt phân loại theo cấp độ tin đăng
   const goldPending = useMemo(() => pendingProps.filter(p => p.vipPackageId === 'vip-gold'), [pendingProps]);
@@ -2289,11 +2294,19 @@ export default function AdminBackendPage() {
                 <i className="fa-solid fa-list-check text-sm w-5 text-center"></i>
                 <span>Kiểm Duyệt Tin Đăng</span>
               </div>
-              {pendingProps.length > 0 && (
-                <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black animate-pulse">
-                  {pendingProps.length}
-                </span>
-              )}
+              <div className="flex items-center gap-1.5">
+                {verificationPendingCount > 0 && (
+                  <span className="px-1.5 py-0.5 rounded-md bg-amber-500 text-slate-950 text-[10px] font-black flex items-center gap-1 shadow-sm" title={`${verificationPendingCount} hồ sơ Sổ đỏ cần thẩm định`}>
+                    <i className="fa-solid fa-file-shield text-[9px]"></i>
+                    <span>{verificationPendingCount}</span>
+                  </span>
+                )}
+                {pendingProps.length > 0 && (
+                  <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black animate-pulse">
+                    {pendingProps.length}
+                  </span>
+                )}
+              </div>
             </Link>
 
             <Link
@@ -2359,12 +2372,20 @@ export default function AdminBackendPage() {
             <Link
               href="#properties"
               onClick={handleNavClick('properties')}
-              className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
+              className={`w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between text-left ${
                 activeMenu === 'properties' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
               }`}
             >
-              <i className="fa-solid fa-city text-sm w-5 text-center"></i>
-              <span>Quản Lý Bất Động Sản</span>
+              <div className="flex items-center gap-3">
+                <i className="fa-solid fa-city text-sm w-5 text-center"></i>
+                <span>Quản Lý Bất Động Sản</span>
+              </div>
+              {verificationPendingCount > 0 ? (
+                <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black animate-pulse flex items-center gap-1 shadow-sm" title={`${verificationPendingCount} hồ sơ Sổ đỏ cần thẩm định`}>
+                  <i className="fa-solid fa-file-shield text-[9px]"></i>
+                  <span>{verificationPendingCount} Sổ đỏ</span>
+                </span>
+              ) : null}
             </Link>
 
             <Link
@@ -2729,25 +2750,34 @@ export default function AdminBackendPage() {
 
             {/* Trung Tâm Thông Báo Ban Quản Trị (Notification Center) */}
             <div className="relative" ref={notificationRef}>
-              <button
-                type="button"
-                onClick={() => setIsNotificationMenuOpen(!isNotificationMenuOpen)}
-                className={`relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition border ${
-                  isNotificationMenuOpen
-                    ? 'bg-rose-600 text-white border-rose-500 shadow-lg shadow-rose-600/30'
-                    : pendingReportsCount > 0
-                      ? 'bg-rose-950/60 text-rose-400 border-rose-800/80 hover:bg-rose-900/60'
-                      : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white hover:bg-slate-800'
-                }`}
-                title={`Trung tâm thông báo (${pendingReportsCount} báo cáo vi phạm cần xử lý)`}
-              >
-                <i className={`fa-solid fa-bell text-sm ${pendingReportsCount > 0 ? 'animate-bounce' : ''}`}></i>
-                {pendingReportsCount > 0 && (
-                  <span className="absolute -top-1.5 -right-1.5 px-1.5 min-w-[18px] h-[18px] rounded-full bg-rose-500 text-white font-black text-[10px] flex items-center justify-center border-2 border-slate-950 shadow-md animate-pulse">
-                    {pendingReportsCount}
-                  </span>
-                )}
-              </button>
+              {(() => {
+                const totalAlerts = pendingReportsCount + verificationPendingCount;
+                return (
+                  <button
+                    type="button"
+                    onClick={() => setIsNotificationMenuOpen(!isNotificationMenuOpen)}
+                    className={`relative w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition border ${
+                      isNotificationMenuOpen
+                        ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-lg shadow-amber-500/30'
+                        : totalAlerts > 0
+                          ? verificationPendingCount > 0
+                            ? 'bg-amber-950/70 text-amber-400 border-amber-500/80 hover:bg-amber-900/60 shadow-md shadow-amber-950/50'
+                            : 'bg-rose-950/60 text-rose-400 border-rose-800/80 hover:bg-rose-900/60'
+                          : 'bg-slate-900 text-slate-400 border-slate-800 hover:text-white hover:bg-slate-800'
+                    }`}
+                    title={`Trung tâm thông báo: ${verificationPendingCount} hồ sơ Sổ đỏ cần thẩm định, ${pendingReportsCount} vi phạm`}
+                  >
+                    <i className={`fa-solid fa-bell text-sm ${totalAlerts > 0 ? 'animate-bounce' : ''}`}></i>
+                    {totalAlerts > 0 && (
+                      <span className={`absolute -top-1.5 -right-1.5 px-1.5 min-w-[18px] h-[18px] rounded-full text-white font-black text-[10px] flex items-center justify-center border-2 border-slate-950 shadow-md ${
+                        verificationPendingCount > 0 ? 'bg-amber-500 text-slate-950 animate-pulse' : 'bg-rose-500 animate-pulse'
+                      }`}>
+                        {totalAlerts}
+                      </span>
+                    )}
+                  </button>
+                );
+              })()}
 
               {/* Notification Popover Dropdown */}
               {isNotificationMenuOpen && (
@@ -2755,20 +2785,29 @@ export default function AdminBackendPage() {
                   {/* Dropdown Header */}
                   <div className="p-3.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <i className="fa-solid fa-bell text-rose-400"></i>
+                      <i className="fa-solid fa-bell text-amber-400"></i>
                       <h4 className="font-black text-white text-xs uppercase tracking-wider">
                         Thông Báo Ban Quản Trị
                       </h4>
                     </div>
-                    {pendingReportsCount > 0 ? (
-                      <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-black text-[10px]">
-                        {pendingReportsCount} vi phạm mới
-                      </span>
-                    ) : (
-                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold text-[10px]">
-                        Tất cả đã xử lý
-                      </span>
-                    )}
+                    <div className="flex items-center gap-1.5">
+                      {verificationPendingCount > 0 && (
+                        <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-black text-[10px] flex items-center gap-1">
+                          <i className="fa-solid fa-file-shield text-[9px]"></i>
+                          <span>{verificationPendingCount} Sổ đỏ</span>
+                        </span>
+                      )}
+                      {pendingReportsCount > 0 && (
+                        <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30 font-black text-[10px]">
+                          {pendingReportsCount} vi phạm
+                        </span>
+                      )}
+                      {verificationPendingCount === 0 && pendingReportsCount === 0 && (
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold text-[10px]">
+                          Đã xử lý xong
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   {/* Filter Tabs inside Dropdown */}
@@ -2776,20 +2815,36 @@ export default function AdminBackendPage() {
                     <button
                       type="button"
                       onClick={() => setNotificationFilter('all')}
-                      className={`px-2.5 py-1 rounded-lg font-bold transition flex-1 text-center ${
+                      className={`px-2 py-1 rounded-lg font-bold transition flex-1 text-center ${
                         notificationFilter === 'all'
                           ? 'bg-slate-800 text-white shadow'
                           : 'text-slate-400 hover:text-white'
                       }`}
                     >
-                      Tất cả ({(listingReports || []).length + (emailLogs || []).length})
+                      Tất cả ({verificationPendingCount + (listingReports || []).length + (emailLogs || []).length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setNotificationFilter('verifications')}
+                      className={`px-2 py-1 rounded-lg font-bold transition flex-1 text-center flex items-center justify-center gap-1 ${
+                        notificationFilter === 'verifications'
+                          ? 'bg-amber-500 text-slate-950 shadow font-black'
+                          : 'text-amber-400 hover:text-white'
+                      }`}
+                    >
+                      <i className="fa-solid fa-file-shield text-[9px]"></i>
+                      <span>Sổ đỏ</span>
+                      {verificationPendingCount > 0 && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+                      )}
+                      <span>({verificationPendingCount})</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setNotificationFilter('reports')}
-                      className={`px-2.5 py-1 rounded-lg font-bold transition flex-1 text-center flex items-center justify-center gap-1 ${
+                      className={`px-2 py-1 rounded-lg font-bold transition flex-1 text-center flex items-center justify-center gap-1 ${
                         notificationFilter === 'reports'
-                          ? 'bg-rose-600 text-white shadow'
+                          ? 'bg-rose-600 text-white shadow font-black'
                           : 'text-rose-400 hover:text-white'
                       }`}
                     >
@@ -2802,9 +2857,9 @@ export default function AdminBackendPage() {
                     <button
                       type="button"
                       onClick={() => setNotificationFilter('emails')}
-                      className={`px-2.5 py-1 rounded-lg font-bold transition flex-1 text-center ${
+                      className={`px-2 py-1 rounded-lg font-bold transition flex-1 text-center ${
                         notificationFilter === 'emails'
-                          ? 'bg-blue-600 text-white shadow'
+                          ? 'bg-blue-600 text-white shadow font-black'
                           : 'text-blue-400 hover:text-white'
                       }`}
                     >
@@ -2814,6 +2869,47 @@ export default function AdminBackendPage() {
 
                   {/* Notification Items List */}
                   <div className="max-h-80 overflow-y-auto divide-y divide-slate-800/60 scrollbar-thin">
+                    {/* Render Sổ Đỏ Verification Requests */}
+                    {(notificationFilter === 'all' || notificationFilter === 'verifications') &&
+                      verificationPendingProps.map(prop => (
+                        <div
+                          key={`verif-${prop.id}`}
+                          className="p-3 transition hover:bg-slate-900/80 space-y-1.5 bg-amber-950/20 border-l-2 border-amber-500"
+                        >
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-black text-[10px] flex items-center gap-1 border border-amber-500/30">
+                              <i className="fa-solid fa-file-shield text-[9px] text-amber-400"></i>
+                              <span>Sổ Đỏ 2 Mặt • Tin #{prop.id}</span>
+                            </span>
+                            <span className="text-[10px] text-slate-400">
+                              {prop.verificationDocuments?.submittedAt ? new Date(prop.verificationDocuments.submittedAt).toLocaleDateString('vi-VN') : 'Vừa gửi'}
+                            </span>
+                          </div>
+
+                          <div className="text-white font-bold line-clamp-1 text-xs">
+                            {prop.title}
+                          </div>
+
+                          <div className="text-[11px] text-slate-300 flex items-center justify-between gap-2 pt-0.5">
+                            <div className="text-slate-400 text-[10px] truncate">
+                              Chính chủ: <span className="text-slate-200 font-bold">{prop.author?.name}</span> ({prop.author?.phone})
+                            </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setReviewingVerificationProp(prop);
+                                setIsNotificationMenuOpen(false);
+                              }}
+                              className="px-2.5 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-lg font-black text-[10px] shrink-0 flex items-center gap-1 transition shadow-sm cursor-pointer"
+                            >
+                              <i className="fa-solid fa-eye text-[9px]"></i>
+                              <span>Thẩm Định Ngay</span>
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    }
                     {/* Render Reports */}
                     {(notificationFilter === 'all' || notificationFilter === 'reports') &&
                       (listingReports || []).slice(0, 6).map(report => {
@@ -2902,7 +2998,7 @@ export default function AdminBackendPage() {
                       ))}
 
                     {/* Empty State */}
-                    {(listingReports || []).length === 0 && (emailLogs || []).length === 0 && (
+                    {verificationPendingCount === 0 && (listingReports || []).length === 0 && (emailLogs || []).length === 0 && (
                       <div className="p-6 text-center text-slate-500 space-y-1">
                         <i className="fa-regular fa-bell-slash text-2xl text-slate-600 mb-1"></i>
                         <p className="text-xs">Không có thông báo mới</p>
@@ -2975,6 +3071,44 @@ export default function AdminBackendPage() {
                   </div>
                 </div>
               )}
+              {/* Alert Banner: Hồ sơ Sổ đỏ cần thẩm định để cấp tích xanh */}
+              {verificationPendingCount > 0 && (
+                <div className="p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-950/90 via-slate-900 to-amber-950/90 border-2 border-amber-500/70 shadow-2xl shadow-amber-950/60 flex flex-col md:flex-row md:items-center justify-between gap-4 animate-in fade-in slide-in-from-top-2">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center text-xl shrink-0 animate-pulse">
+                      <i className="fa-solid fa-file-shield"></i>
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4 className="text-white font-black text-sm sm:text-base flex items-center gap-2">
+                          <span>Có {verificationPendingCount} hồ sơ Sổ đỏ 2 mặt đang chờ thẩm định!</span>
+                        </h4>
+                        <span className="px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider animate-bounce">
+                          Cấp Huy Hiệu Tin Xác Thực
+                        </span>
+                      </div>
+                      <p className="text-xs text-amber-200/90 leading-relaxed max-w-2xl">
+                        Người đăng vừa gửi ảnh chụp Giấy tờ pháp lý / Sổ đỏ 2 mặt để yêu cầu kiểm duyệt xác thực. Vui lòng thẩm định để cấp tích xanh và bảo vệ độ tin cậy của sàn.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveMenu('properties');
+                        setPropertyStatusFilter('verification_pending');
+                      }}
+                      className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 rounded-2xl text-xs font-black transition shadow-lg shadow-amber-950/50 flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <i className="fa-solid fa-magnifying-glass"></i>
+                      <span>Thẩm Định Sổ Đỏ Ngay ({verificationPendingCount})</span>
+                      <i className="fa-solid fa-arrow-right"></i>
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* 4 Core KPIs */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-slate-950 p-5 rounded-3xl border border-slate-800 shadow-sm relative overflow-hidden">
@@ -3208,6 +3342,21 @@ export default function AdminBackendPage() {
                     <i className="fa-solid fa-ban"></i>
                     Đã Từ Chối ({rejectedProps.length})
                   </button>
+
+                  <button
+                    onClick={() => setModerationTab('verification_pending')}
+                    className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+                      moderationTab === 'verification_pending'
+                        ? 'bg-amber-500 text-slate-950 font-black shadow-lg shadow-amber-500/20 ring-2 ring-amber-400'
+                        : 'text-amber-400 hover:text-white bg-slate-950 border border-amber-500/40'
+                    }`}
+                  >
+                    <i className="fa-solid fa-file-shield"></i>
+                    <span>Thẩm Định Sổ Đỏ ({verificationPendingCount})</span>
+                    {verificationPendingCount > 0 && (
+                      <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                    )}
+                  </button>
                 </div>
 
                 {/* Subfilter for Pending Queues */}
@@ -3259,7 +3408,13 @@ export default function AdminBackendPage() {
               {/* Moderation Listing Cards */}
               <div className="space-y-3">
                 {properties
-                  .filter(p => p.status === moderationTab)
+                  .filter(p => !p.isDeleted && p.status !== 'trash')
+                  .filter(p => {
+                    if (moderationTab === 'verification_pending') {
+                      return p.verification_status === 'pending' || p.verificationStatus === 'pending';
+                    }
+                    return p.status === moderationTab;
+                  })
                   .filter(p => {
                     if (moderationTab !== 'pending') return true;
                     if (pendingQueueFilter === 'gold') return p.vipPackageId === 'vip-gold';
@@ -3449,6 +3604,18 @@ export default function AdminBackendPage() {
                           >
                             <i className="fa-solid fa-eye mr-1"></i> Xem trước
                           </Link>
+
+                          {(prop.verification_status === 'pending' || prop.verificationStatus === 'pending') && (
+                            <button
+                              type="button"
+                              onClick={() => setReviewingVerificationProp(prop)}
+                              className="px-3.5 py-1.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer animate-pulse"
+                              title="Xem và thẩm định hồ sơ Sổ đỏ 2 mặt"
+                            >
+                              <i className="fa-solid fa-file-shield"></i>
+                              <span>Thẩm Định Sổ Đỏ</span>
+                            </button>
+                          )}
 
                           {prop.status !== 'active' && (
                             <button
@@ -3829,6 +3996,21 @@ export default function AdminBackendPage() {
                         <span>Đặt lại</span>
                       </button>
                     )}
+
+                    {/* Nút Phân Bổ Ngẫu Nhiên Toàn Bộ Bài Viết Cho Các User Hiện Có */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm('Bạn có chắc chắn muốn PHÂN BỔ NGẪU NHIÊN toàn bộ bài viết bất động sản cho các thành viên/user hiện có trong hệ thống không?')) {
+                          randomizePropertiesAuthors();
+                        }
+                      }}
+                      className="px-3 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer ml-auto"
+                      title="Gán ngẫu nhiên người đăng của tất cả bài viết cho các tài khoản thành viên hiện có"
+                    >
+                      <i className="fa-solid fa-dice text-amber-300"></i>
+                      <span>Phân Bổ User Ngẫu Nhiên</span>
+                    </button>
                   </div>
                 </div>
               </div>

@@ -276,8 +276,6 @@ export const LOCATIONS = VIETNAM_ADMINISTRATIVE_DATA;
 export const INITIAL_PROPERTIES = [
   {
     "id": "BDS-001",
-    "is_verified": true,
-    "isVerified": true,
     "title": "SIÊU DỰ ÁN PENTHOUSE DUPLEX WYNDHAM SOLEIL ĐÀ NẴNG VIEW TRỌN BIỂN MỸ KHÊ - FULL NỘI THẤT Ý",
     "slug": "penthouse-duplex-wyndham-soleil-da-nang-view-bien-my-khe",
     "vipPackageId": "vip-diamond",
@@ -307,6 +305,7 @@ export const INITIAL_PROPERTIES = [
     "project": "Wyndham Soleil Danang",
     "lat": 16.0684,
     "lng": 108.2467,
+    "google_place_id": "ChIJc_WvNf8WQjERwXz3hC59_qQ",
     "description": "Tuyệt phẩm căn hộ Penthouse Duplex áp mái Wyndham Soleil Danang - Biểu tượng kiến trúc mặt biển Đà Nẵng.\n- Thiết kế thông tầng trần cao 6.8m, kính Low-E tràn viền panorama 360 độ ngắm trọn biển Mỹ Khê và cầu Rồng lung linh pháo hoa.\n- Bố trí 4 phòng ngủ Master khép kín, phòng chiếu phim riêng, phòng gym mini, quầy bar rượu vang cao cấp.\n- Hệ thống SmartHome điều khiển giọng nói toàn diện.\n- Đặc quyền cư dân VIP: Hồ bơi vô cực trên không, bãi đỗ trực thăng, sảnh Lounge VIP đón tiếp riêng biệt.\n- Pháp lý: Sổ hồng sở hữu lâu dài, sẵn sàng công chứng sang tên trong ngày.",
     "images": [
       "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80",
@@ -354,15 +353,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-01",
-      "name": "Nguyễn Văn Tuấn",
-      "title": "Giám Đốc Kinh Doanh BĐS Cao Cấp",
-      "phone": "0908 123 456",
-      "zalo": "0908123456",
-      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
-      "isVerified": true,
-      "rating": 4.9,
-      "reviewCount": 38
+      "id": "broker-03",
+      "name": "Lê Hoàng Nam",
+      "title": "Chuyên Gia BĐS Cao Cấp",
+      "phone": "0905 678 910",
+      "zalo": "0905 678 910",
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80",
+      "isVerified": true
     },
     "publishedAt": "2026-10-15T13:04:54.496Z",
     "viewsCount": 6290,
@@ -371,12 +368,14 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 30,
     "expiresAt": "2026-11-13T08:30:00.000Z",
     "autoRenew": true,
-    "queuePriority": "priority_diamond"
+    "queuePriority": "priority_diamond",
+    "is_verified": true,
+    "isVerified": true,
+    "contactName": "Lê Hoàng Nam",
+    "contactPhone": "0905 678 910"
   },
   {
     "id": "BDS-002",
-    "is_verified": true,
-    "isVerified": true,
     "title": "BIỆT THỰ ĐƠN LẬP MẶT BIỂN HYATT REGENCY ĐÀ NẴNG 450M2 HỒ BƠI RIÊNG SANG TRỌNG BẬC NHẤT ĐÀ THÀNH",
     "slug": "biet-thu-don-lap-mat-bien-hyatt-regency-da-nang-450m2",
     "vipPackageId": "vip-diamond",
@@ -442,15 +441,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-02",
-      "name": "Trần Thị Thu Hà",
-      "title": "Chuyên Viên Tư Vấn BĐS Nghỉ Dưỡng Đà Nẵng",
-      "phone": "0912 888 999",
-      "zalo": "0912888999",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
-      "isVerified": true,
-      "rating": 5,
-      "reviewCount": 52
+      "id": "user-02",
+      "name": "Hoàng Anh Tuấn",
+      "title": "Chính chủ ký gửi",
+      "phone": "0988 776 655",
+      "zalo": "0988 776 655",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
+      "isVerified": false
     },
     "publishedAt": "2026-10-15T01:15:00Z",
     "viewsCount": 5120,
@@ -459,21 +456,14 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 30,
     "expiresAt": "2026-11-14T01:15:00.000Z",
     "autoRenew": true,
-    "queuePriority": "priority_diamond"
+    "queuePriority": "priority_diamond",
+    "is_verified": true,
+    "isVerified": true,
+    "contactName": "Hoàng Anh Tuấn",
+    "contactPhone": "0988 776 655"
   },
   {
     "id": "BDS-003",
-    "is_verified": false,
-    "isVerified": false,
-    "verification_status": "pending",
-    "verificationStatus": "pending",
-    "verificationDocuments": {
-      "frontImage": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80",
-      "backImage": "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=1200&q=80",
-      "certNumber": "CS-NVL-2026/8899",
-      "notes": "Sổ hồng chính chủ 8 tầng mặt phố Nguyễn Văn Linh Hải Châu, đã công chứng sao y bản chính.",
-      "submittedAt": "2026-10-28T04:30:00.000Z"
-    },
     "title": "NHÀ MẶT PHỐ NGUYỄN VĂN LINH HẢI CHÂU 8 TẦNG THANG MÁY - DÒNG TIỀN CHO THUÊ 180 TRIỆU/THÁNG",
     "slug": "nha-mat-pho-nguyen-van-linh-hai-chau-8-tang-thang-may",
     "vipPackageId": "vip-gold",
@@ -530,15 +520,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-01",
-      "name": "Nguyễn Văn Tuấn",
-      "title": "Giám Đốc Kinh Doanh BĐS",
-      "phone": "0908 123 456",
-      "zalo": "0908123456",
-      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
-      "isVerified": true,
-      "rating": 4.9,
-      "reviewCount": 38
+      "id": "broker-03",
+      "name": "Lê Hoàng Nam",
+      "title": "Chuyên Gia BĐS Cao Cấp",
+      "phone": "0905 678 910",
+      "zalo": "0905 678 910",
+      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80",
+      "isVerified": true
     },
     "publishedAt": "2026-10-15T13:03:41.203Z",
     "viewsCount": 2915,
@@ -546,12 +534,23 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 15,
     "expiresAt": "2026-10-30T10:00:00.000Z",
     "autoRenew": false,
-    "queuePriority": "priority_gold"
+    "queuePriority": "priority_gold",
+    "is_verified": false,
+    "isVerified": false,
+    "verification_status": "pending",
+    "verificationStatus": "pending",
+    "verificationDocuments": {
+      "frontImage": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80",
+      "backImage": "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=1200&q=80",
+      "certNumber": "CS-NVL-2026/8899",
+      "notes": "Sổ hồng chính chủ 8 tầng mặt phố Nguyễn Văn Linh Hải Châu, đã công chứng sao y bản chính.",
+      "submittedAt": "2026-10-28T04:30:00.000Z"
+    },
+    "contactName": "Lê Hoàng Nam",
+    "contactPhone": "0905 678 910"
   },
   {
     "id": "BDS-004",
-    "is_verified": true,
-    "isVerified": true,
     "title": "CĂN HỘ 3PN SUN PONTE RESIDENCE CẦU RỒNG VIEW SÔNG HÀN - SỔ HỒNG TRAO TAY GIÁ CỰC TỐT",
     "slug": "can-ho-3pn-sun-ponte-residence-cau-rong-view-song-han",
     "vipPackageId": "vip-gold",
@@ -616,15 +615,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-03",
-      "name": "Lê Hoàng Nam",
-      "title": "Môi Giới Chuyên Căn Hộ Sông Hàn Đà Nẵng",
-      "phone": "0938 555 777",
-      "zalo": "0938555777",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
-      "isVerified": true,
-      "rating": 4.8,
-      "reviewCount": 27
+      "id": "admin-01",
+      "name": "Trần Vũ RB",
+      "title": "Tổng Quản Trị Viên (CMS Admin)",
+      "phone": "0898 246 607",
+      "zalo": "0898 246 607",
+      "avatar": "/avatars/ai-preset-2.jpg",
+      "isVerified": true
     },
     "publishedAt": "2026-10-14T14:20:00Z",
     "viewsCount": 1980,
@@ -632,12 +629,14 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 15,
     "expiresAt": "2026-10-29T14:20:00.000Z",
     "autoRenew": false,
-    "queuePriority": "priority_gold"
+    "queuePriority": "priority_gold",
+    "is_verified": true,
+    "isVerified": true,
+    "contactName": "Trần Vũ RB",
+    "contactPhone": "0898 246 607"
   },
   {
     "id": "BDS-005",
-    "is_verified": true,
-    "isVerified": true,
     "title": "ĐẤT NỀN KHU ĐÔ THỊ SINH THÁI HÒA XUÂN ĐÀ NẴNG GẦN CẦU HÒA XUÂN SỔ ĐỎ CÔNG CHỨNG NGAY",
     "slug": "dat-nen-kdt-sinh-thai-hoa-xuan-da-nang",
     "vipPackageId": "vip-silver",
@@ -689,15 +688,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-04",
-      "name": "Võ Minh Quân",
-      "title": "Chuyên Viên Đất Nền Đà Nẵng",
-      "phone": "0905 678 999",
-      "zalo": "0905678999",
-      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80",
-      "isVerified": false,
-      "rating": 4.7,
-      "reviewCount": 15
+      "id": "broker-06",
+      "name": "Đoàn Thị Mai",
+      "title": "Chuyên Viên BĐS Nghỉ Dưỡng",
+      "phone": "0918 334 455",
+      "zalo": "0918 334 455",
+      "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=256&q=80",
+      "isVerified": true
     },
     "publishedAt": "2026-10-12T09:10:00Z",
     "viewsCount": 1420,
@@ -705,12 +702,14 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 15,
     "expiresAt": "2026-10-27T09:10:00.000Z",
     "autoRenew": false,
-    "queuePriority": "priority_silver"
+    "queuePriority": "priority_silver",
+    "is_verified": true,
+    "isVerified": true,
+    "contactName": "Đoàn Thị Mai",
+    "contactPhone": "0918 334 455"
   },
   {
     "id": "BDS-006",
-    "is_verified": false,
-    "isVerified": false,
     "title": "CHO THUÊ NHÀ PHỐ NGUYÊN CĂN SƠN TRÀ PHẠM VĂN ĐỒNG TIỆN LÀM SPA, VĂN PHÒNG HOẶC HOMESTAY DU LỊCH",
     "slug": "cho-thue-nha-pho-nguyen-can-son-tra-pham-van-dong",
     "vipPackageId": "vip-silver",
@@ -761,15 +760,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-01",
-      "name": "Nguyễn Văn Tuấn",
-      "title": "Môi Giới Cho Thuê Nhà Biển Đà Nẵng",
-      "phone": "0908 123 456",
-      "zalo": "0908123456",
-      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
-      "isVerified": true,
-      "rating": 4.9,
-      "reviewCount": 38
+      "id": "broker-02",
+      "name": "Trần Thị Thu Hà",
+      "title": "Chuyên Viên Tư Vấn Sun Group",
+      "phone": "0912 888 999",
+      "zalo": "0912 888 999",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "isVerified": true
     },
     "publishedAt": "2026-10-11T16:00:00Z",
     "viewsCount": 1650,
@@ -777,12 +774,14 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 15,
     "expiresAt": "2026-10-26T18:38:31.750Z",
     "autoRenew": false,
-    "queuePriority": "priority_silver"
+    "queuePriority": "priority_silver",
+    "is_verified": false,
+    "isVerified": false,
+    "contactName": "Trần Thị Thu Hà",
+    "contactPhone": "0912 888 999"
   },
   {
     "id": "BDS-007",
-    "is_verified": true,
-    "isVerified": true,
     "title": "BÁN NHÀ RIÊNG KIỆT Ô TÔ HÙNG VƯƠNG THANH KHÊ 45M2 X 3 TẦNG GẦN CHỢ CỒN - SỔ HỒNG VUÔNG VẮN",
     "slug": "ban-nha-rieng-hung-vuong-thanh-khe-45m2",
     "vipPackageId": "vip-silver",
@@ -837,15 +836,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-05",
-      "name": "Phạm Hải Đăng",
-      "title": "Môi Giới Nhà Phố Thanh Khê Đà Nẵng",
-      "phone": "0977 123 789",
-      "zalo": "0977123789",
-      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80",
-      "isVerified": true,
-      "rating": 4.6,
-      "reviewCount": 19
+      "id": "broker-01",
+      "name": "Nguyễn Văn Tuấn",
+      "title": "Giám Đốc Kinh Doanh BĐS",
+      "phone": "0908 123 456",
+      "zalo": "0908 123 456",
+      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+      "isVerified": true
     },
     "publishedAt": "2026-10-10T11:00:00Z",
     "viewsCount": 1100,
@@ -853,12 +850,14 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 15,
     "expiresAt": "2026-10-25T16:38:31.750Z",
     "autoRenew": false,
-    "queuePriority": "priority_silver"
+    "queuePriority": "priority_silver",
+    "is_verified": true,
+    "isVerified": true,
+    "contactName": "Nguyễn Văn Tuấn",
+    "contactPhone": "0908 123 456"
   },
   {
     "id": "BDS-008",
-    "is_verified": false,
-    "isVerified": false,
     "title": "BÁN ĐẤT THỔ CƯ 80M2 TẠI LIÊN CHIỂU ĐÀ NẴNG GẦN LÀNG ĐẠI HỌC BÁCH KHOA ĐÀ NẴNG",
     "slug": "ban-dat-tho-cu-80m2-lien-chieu-da-nang",
     "vipPackageId": "normal",
@@ -911,15 +910,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-06",
-      "name": "Đoàn Thị Mai",
-      "title": "Chính chủ đăng tin",
-      "phone": "0983 999 111",
-      "zalo": "0983999111",
-      "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&q=80",
-      "isVerified": false,
-      "rating": 4.5,
-      "reviewCount": 8
+      "id": "user-02",
+      "name": "Hoàng Anh Tuấn",
+      "title": "Chính chủ ký gửi",
+      "phone": "0988 776 655",
+      "zalo": "0988 776 655",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
+      "isVerified": false
     },
     "publishedAt": "2026-09-20T08:00:00Z",
     "viewsCount": 780,
@@ -927,12 +924,14 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 15,
     "expiresAt": "2026-10-05T08:00:00Z",
     "autoRenew": false,
-    "queuePriority": "standard_fifo"
+    "queuePriority": "standard_fifo",
+    "is_verified": false,
+    "isVerified": false,
+    "contactName": "Hoàng Anh Tuấn",
+    "contactPhone": "0988 776 655"
   },
   {
     "id": "BDS-009",
-    "is_verified": false,
-    "isVerified": false,
     "title": "CẦN BÁN GẤP CĂN SHOPHOUSE KHỐI ĐẾ CHUNG CƯ CẨM LỆ ĐÀ NẴNG ĐANG KINH DOANH CAFE HIGHLANDS",
     "slug": "ban-shophouse-cam-le-da-nang-dang-cho-thue-cafe",
     "vipPackageId": "normal",
@@ -981,15 +980,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-01",
-      "name": "Nguyễn Văn Tuấn",
-      "title": "Giám Đốc Kinh Doanh BĐS Đà Nẵng",
-      "phone": "0908 123 456",
-      "zalo": "0908123456",
-      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
-      "isVerified": true,
-      "rating": 4.9,
-      "reviewCount": 38
+      "id": "broker-05",
+      "name": "Phạm Hải Đăng",
+      "title": "Trưởng Phòng Kinh Doanh",
+      "phone": "0903 556 778",
+      "zalo": "0903 556 778",
+      "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=256&q=80",
+      "isVerified": true
     },
     "publishedAt": "2026-10-15T06:00:00Z",
     "viewsCount": 312,
@@ -997,12 +994,14 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 15,
     "expiresAt": "2026-10-30T14:28:32.641Z",
     "autoRenew": false,
-    "queuePriority": "standard_fifo"
+    "queuePriority": "standard_fifo",
+    "is_verified": false,
+    "isVerified": false,
+    "contactName": "Phạm Hải Đăng",
+    "contactPhone": "0903 556 778"
   },
   {
     "id": "BDS-010",
-    "is_verified": true,
-    "isVerified": true,
     "title": "BÁN CĂN HỘ THE MONARCHY TRẦN HƯNG ĐẠO VEN SÔNG HÀN 75M² 2PN VIEW PHÁO HOA",
     "slug": "ban-can-ho-the-monarchy-tran-hung-dao-ven-song-han-75m-2pn",
     "vipPackageId": "vip-gold",
@@ -1037,27 +1036,26 @@ export const INITIAL_PROPERTIES = [
     ],
     "hasVR360": false,
     "author": {
-      "id": "admin-01",
-      "name": "Trần Vũ RB",
-      "title": "Hội Viên Cao Cấp VIP",
-      "phone": "0898 246 607",
-      "zalo": "0898246607",
-      "avatar": "https://plus.unsplash.com/premium_photo-1682095969640-cade58e5c561?auto=format&fit=crop&w=256&h=256&q=80",
-      "isVerified": false,
-      "rating": 5,
-      "reviewCount": 1,
-      "authorType": "member"
+      "id": "broker-02",
+      "name": "Trần Thị Thu Hà",
+      "title": "Chuyên Viên Tư Vấn Sun Group",
+      "phone": "0912 888 999",
+      "zalo": "0912 888 999",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "isVerified": true
     },
     "publishedAt": "2026-10-15T12:04:10.754Z",
     "listingDays": 15,
     "expiresAt": "2026-10-30T12:04:10.754Z",
     "autoRenew": false,
-    "queuePriority": "priority_gold"
+    "queuePriority": "priority_gold",
+    "contactName": "Trần Thị Thu Hà",
+    "is_verified": true,
+    "isVerified": true,
+    "contactPhone": "0912 888 999"
   },
   {
     "id": "BDS-011",
-    "is_verified": false,
-    "isVerified": false,
     "title": "BÁN CĂN HỘ FPT PLAZA 2 NGŨ HÀNH SƠN ĐÀ NẴNG 75M² 2PN GIÁ TỐT CÔNG CHỨNG NGAY",
     "slug": "ban-can-ho-fpt-plaza-2-ngu-hanh-son-da-nang-75m-2pn-gia-tot",
     "vipPackageId": "vip-silver",
@@ -1092,27 +1090,26 @@ export const INITIAL_PROPERTIES = [
     ],
     "hasVR360": false,
     "author": {
-      "id": "admin-01",
-      "name": "Trần Vũ RB",
-      "title": "Hội Viên Cao Cấp VIP",
-      "phone": "0898 246 607",
-      "zalo": "0898246607",
-      "avatar": "https://plus.unsplash.com/premium_photo-1682095969640-cade58e5c561?auto=format&fit=crop&w=256&h=256&q=80",
-      "isVerified": false,
-      "rating": 5,
-      "reviewCount": 1,
-      "authorType": "member"
+      "id": "user-01",
+      "name": "Lê Minh Tâm",
+      "title": "Khách hàng cá nhân",
+      "phone": "0912 345 678",
+      "zalo": "0912 345 678",
+      "avatar": "/avatars/ai-preset-1.jpg",
+      "isVerified": true
     },
     "publishedAt": "2026-10-15T14:49:09.983Z",
     "listingDays": 15,
     "expiresAt": "2026-10-30T14:49:09.983Z",
     "autoRenew": false,
-    "queuePriority": "priority_silver"
+    "queuePriority": "priority_silver",
+    "contactName": "Lê Minh Tâm",
+    "is_verified": false,
+    "isVerified": false,
+    "contactPhone": "0912 345 678"
   },
   {
     "id": "BDS-012",
-    "is_verified": false,
-    "isVerified": false,
     "title": "BÁN CĂN HỘ CAO CẤP BẠCH ĐẰNG COMPLEX SÔNG HÀN 75M² 2PN FULL NỘI THẤT HẢI CHÂU",
     "slug": "ban-can-ho-cao-cap-bach-dang-complex-song-han-75m-2pn-full-noi-that",
     "vipPackageId": "vip-gold",
@@ -1147,27 +1144,26 @@ export const INITIAL_PROPERTIES = [
     ],
     "hasVR360": false,
     "author": {
-      "id": "broker-01",
-      "name": "Nguyễn Văn Tuấn",
-      "title": "Hội Viên Tiêu Chuẩn",
-      "phone": "0908 123 456",
-      "zalo": "0908123456",
-      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
-      "isVerified": true,
-      "rating": 5,
-      "reviewCount": 1,
-      "authorType": "member"
+      "id": "broker-02",
+      "name": "Trần Thị Thu Hà",
+      "title": "Chuyên Viên Tư Vấn Sun Group",
+      "phone": "0912 888 999",
+      "zalo": "0912 888 999",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "isVerified": true
     },
     "publishedAt": "2026-10-15T14:49:35.321Z",
     "listingDays": 15,
     "expiresAt": "2026-10-30T15:05:24.756Z",
     "autoRenew": false,
-    "queuePriority": "priority_gold"
+    "queuePriority": "priority_gold",
+    "is_verified": false,
+    "isVerified": false,
+    "contactName": "Trần Thị Thu Hà",
+    "contactPhone": "0912 888 999"
   },
   {
     "id": "BDS-013",
-    "is_verified": true,
-    "isVerified": true,
     "title": "BÁN CĂN HỘ THE SANG RESIDENCE VÕ NGUYÊN GIÁP MỸ KHÊ 75M² 2PN VIEW BIỂN TUYỆT ĐẸP",
     "slug": "ban-can-ho-the-sang-residence-vo-nguyen-giap-my-khe-75m-2pn-view-bien",
     "vipPackageId": "normal",
@@ -1202,27 +1198,26 @@ export const INITIAL_PROPERTIES = [
     ],
     "hasVR360": false,
     "author": {
-      "id": "broker-01",
-      "name": "Nguyễn Văn Tuấn",
-      "title": "Hội Viên Tiêu Chuẩn",
-      "phone": "0908 123 456",
-      "zalo": "0908123456",
-      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
-      "isVerified": true,
-      "rating": 5,
-      "reviewCount": 1,
-      "authorType": "member"
+      "id": "user-03",
+      "name": "Nguyễn Thảo My",
+      "title": "Nhà đầu tư cá nhân",
+      "phone": "0977 443 322",
+      "zalo": "0977 443 322",
+      "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=256&q=80",
+      "isVerified": true
     },
     "publishedAt": "2026-10-15T14:55:17.069Z",
     "listingDays": 15,
     "expiresAt": "2026-10-30T15:55:17.641Z",
     "autoRenew": false,
-    "queuePriority": "standard_fifo"
+    "queuePriority": "standard_fifo",
+    "is_verified": true,
+    "isVerified": true,
+    "contactName": "Nguyễn Thảo My",
+    "contactPhone": "0977 443 322"
   },
   {
     "id": "BDS-014",
-    "is_verified": false,
-    "isVerified": false,
     "title": "BÁN CĂN HỘ CHUNG CƯ THE FILMORE ĐÀ NẴNG (BẠCH ĐẰNG) 75M² 2PN 5.5 TỶ VIEW SÔNG HÀN",
     "slug": "ban-can-ho-chung-cu-the-filmore-da-nang-bach-dang-75m-2pn-55-ty",
     "vipPackageId": "vip-gold",
@@ -1257,27 +1252,26 @@ export const INITIAL_PROPERTIES = [
     ],
     "hasVR360": false,
     "author": {
-      "id": "admin-01",
-      "name": "Trần Vũ RB",
-      "title": "Hội Viên Cao Cấp VIP",
-      "phone": "0898 246 607",
-      "zalo": "0898246607",
-      "avatar": "https://plus.unsplash.com/premium_photo-1682095969640-cade58e5c561?auto=format&fit=crop&w=256&h=256&q=80",
-      "isVerified": false,
-      "rating": 5,
-      "reviewCount": 1,
-      "authorType": "member"
+      "id": "broker-02",
+      "name": "Trần Thị Thu Hà",
+      "title": "Chuyên Viên Tư Vấn Sun Group",
+      "phone": "0912 888 999",
+      "zalo": "0912 888 999",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "isVerified": true
     },
     "publishedAt": "2026-10-15T14:57:50.044Z",
     "listingDays": 15,
     "expiresAt": "2026-10-30T14:57:50.043Z",
     "autoRenew": false,
-    "queuePriority": "priority_gold"
+    "queuePriority": "priority_gold",
+    "contactName": "Trần Thị Thu Hà",
+    "is_verified": false,
+    "isVerified": false,
+    "contactPhone": "0912 888 999"
   },
   {
     "id": "BDS-015",
-    "is_verified": false,
-    "isVerified": false,
     "title": "BÁN TÒA CĂN HỘ DỊCH VỤ AN THƯỢNG NGŨ HÀNH SƠN 6 TẦNG 12 CĂN ĐANG FULL PHÒNG TÂY THUÊ 110TR/THÁNG",
     "slug": "ban-toa-can-ho-dich-vu-an-thuong-ngu-hanh-son-6-tang-12-can",
     "vipPackageId": "vip-diamond",
@@ -1340,15 +1334,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-01",
-      "name": "Nguyễn Văn Tuấn",
-      "title": "Chuyên Gia Căn Hộ Dịch Vụ Dòng Tiền",
-      "phone": "0908 123 456",
-      "zalo": "0908123456",
-      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
-      "isVerified": true,
-      "rating": 4.9,
-      "reviewCount": 38
+      "id": "user-01",
+      "name": "Lê Minh Tâm",
+      "title": "Khách hàng cá nhân",
+      "phone": "0912 345 678",
+      "zalo": "0912 345 678",
+      "avatar": "/avatars/ai-preset-1.jpg",
+      "isVerified": true
     },
     "publishedAt": "2026-10-15T15:00:00Z",
     "viewsCount": 3840,
@@ -1356,12 +1348,14 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 30,
     "expiresAt": "2026-11-15T15:00:00Z",
     "autoRenew": true,
-    "queuePriority": "priority_diamond"
+    "queuePriority": "priority_diamond",
+    "is_verified": false,
+    "isVerified": false,
+    "contactName": "Lê Minh Tâm",
+    "contactPhone": "0912 345 678"
   },
   {
     "id": "BDS-016",
-    "is_verified": true,
-    "isVerified": true,
     "title": "CHO THUÊ CĂN HỘ STUDIO DỊCH VỤ FULL NỘI THẤT CAO CẤP GẦN BIỂN MỸ KHÊ SƠN TRÀ",
     "slug": "cho-thue-can-ho-studio-dich-vu-full-noi-that-bien-my-khe-son-tra",
     "vipPackageId": "vip-gold",
@@ -1413,15 +1407,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-03",
-      "name": "Lê Hoàng Nam",
-      "title": "Chuyên Cho Thuê Căn Hộ Biển",
-      "phone": "0938 555 777",
-      "zalo": "0938555777",
+      "id": "user-02",
+      "name": "Hoàng Anh Tuấn",
+      "title": "Chính chủ ký gửi",
+      "phone": "0988 776 655",
+      "zalo": "0988 776 655",
       "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
-      "isVerified": true,
-      "rating": 4.8,
-      "reviewCount": 27
+      "isVerified": false
     },
     "publishedAt": "2026-10-15T09:30:00Z",
     "viewsCount": 1540,
@@ -1429,12 +1421,14 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 15,
     "expiresAt": "2026-10-30T09:30:00Z",
     "autoRenew": false,
-    "queuePriority": "priority_gold"
+    "queuePriority": "priority_gold",
+    "is_verified": true,
+    "isVerified": true,
+    "contactName": "Hoàng Anh Tuấn",
+    "contactPhone": "0988 776 655"
   },
   {
     "id": "BDS-017",
-    "is_verified": true,
-    "isVerified": true,
     "title": "BÁN CONDOTEL 5 SAO ARIA DANANG HOTEL & RESORT MẶT BIỂN TRƯỜNG SA CAM KẾT LỢI NHUẬN 10%/NĂM",
     "slug": "ban-condotel-5-sao-aria-danang-hotel-resort-mat-bien-truong-sa",
     "vipPackageId": "vip-diamond",
@@ -1497,15 +1491,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-02",
-      "name": "Trần Thị Thu Hà",
-      "title": "Chuyên Viên Tư Vấn BĐS Nghỉ Dưỡng Đà Nẵng",
-      "phone": "0912 888 999",
-      "zalo": "0912888999",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
-      "isVerified": true,
-      "rating": 5,
-      "reviewCount": 52
+      "id": "broker-01",
+      "name": "Nguyễn Văn Tuấn",
+      "title": "Giám Đốc Kinh Doanh BĐS",
+      "phone": "0908 123 456",
+      "zalo": "0908 123 456",
+      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+      "isVerified": true
     },
     "publishedAt": "2026-10-15T11:00:00Z",
     "viewsCount": 2890,
@@ -1513,12 +1505,14 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 30,
     "expiresAt": "2026-11-14T11:00:00Z",
     "autoRenew": true,
-    "queuePriority": "priority_diamond"
+    "queuePriority": "priority_diamond",
+    "is_verified": true,
+    "isVerified": true,
+    "contactName": "Nguyễn Văn Tuấn",
+    "contactPhone": "0908 123 456"
   },
   {
     "id": "BDS-018",
-    "is_verified": false,
-    "isVerified": false,
     "title": "CHO THUÊ CĂN CONDOTEL HÒA BÌNH GREEN ĐÀ NẴNG VIEW VỊNH ĐÀ NẴNG DÁT VÀNG ĐẦY ĐỦ TIỆN NGHI",
     "slug": "cho-thue-condotel-hoa-binh-green-da-nang-view-vinh",
     "vipPackageId": "vip-silver",
@@ -1571,15 +1565,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-01",
-      "name": "Nguyễn Văn Tuấn",
-      "title": "Môi Giới Cho Thuê BĐS Nghỉ Dưỡng",
-      "phone": "0908 123 456",
-      "zalo": "0908123456",
-      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
-      "isVerified": true,
-      "rating": 4.9,
-      "reviewCount": 38
+      "id": "user-01",
+      "name": "Lê Minh Tâm",
+      "title": "Khách hàng cá nhân",
+      "phone": "0912 345 678",
+      "zalo": "0912 345 678",
+      "avatar": "/avatars/ai-preset-1.jpg",
+      "isVerified": true
     },
     "publishedAt": "2026-10-14T08:00:00Z",
     "viewsCount": 1120,
@@ -1587,12 +1579,14 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 15,
     "expiresAt": "2026-10-29T08:00:00Z",
     "autoRenew": false,
-    "queuePriority": "priority_silver"
+    "queuePriority": "priority_silver",
+    "is_verified": false,
+    "isVerified": false,
+    "contactName": "Lê Minh Tâm",
+    "contactPhone": "0912 345 678"
   },
   {
     "id": "BDS-019",
-    "is_verified": true,
-    "isVerified": true,
     "title": "BÁN KHU NGHỈ DƯỠNG TRANG TRẠI SINH THÁI VEN SUỐI HÒA VANG 2.500M2 CÓ SẴN NHÀ VƯỜN VIEW ĐỒI NÚI",
     "slug": "ban-khu-nghi-duong-trang-trai-sinh-thai-ven-suoi-hoa-vang-2500m2",
     "vipPackageId": "vip-gold",
@@ -1648,15 +1642,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-04",
-      "name": "Võ Minh Quân",
-      "title": "Chuyên Gia Nhà Vườn Sinh Thái Hòa Vang",
-      "phone": "0905 678 999",
-      "zalo": "0905678999",
-      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80",
-      "isVerified": false,
-      "rating": 4.7,
-      "reviewCount": 15
+      "id": "user-03",
+      "name": "Nguyễn Thảo My",
+      "title": "Nhà đầu tư cá nhân",
+      "phone": "0977 443 322",
+      "zalo": "0977 443 322",
+      "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=256&q=80",
+      "isVerified": true
     },
     "publishedAt": "2026-10-15T07:00:00Z",
     "viewsCount": 2150,
@@ -1664,12 +1656,14 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 15,
     "expiresAt": "2026-10-30T07:00:00Z",
     "autoRenew": false,
-    "queuePriority": "priority_gold"
+    "queuePriority": "priority_gold",
+    "is_verified": true,
+    "isVerified": true,
+    "contactName": "Nguyễn Thảo My",
+    "contactPhone": "0977 443 322"
   },
   {
     "id": "BDS-020",
-    "is_verified": false,
-    "isVerified": false,
     "title": "CHO THUÊ KHU NGHỈ DƯỠNG TRANG TRẠI SINH THÁI GLAMPING BÀ NÀ HÒA VANG ĐANG VẬN HÀNH DU LỊCH",
     "slug": "cho-thue-khu-nghi-duong-trang-trai-glamping-ba-na-hoa-vang",
     "vipPackageId": "vip-silver",
@@ -1721,15 +1715,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-04",
-      "name": "Võ Minh Quân",
-      "title": "Chuyên Gia Nhà Vườn Sinh Thái Hòa Vang",
-      "phone": "0905 678 999",
-      "zalo": "0905678999",
-      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80",
-      "isVerified": false,
-      "rating": 4.7,
-      "reviewCount": 15
+      "id": "user-01",
+      "name": "Lê Minh Tâm",
+      "title": "Khách hàng cá nhân",
+      "phone": "0912 345 678",
+      "zalo": "0912 345 678",
+      "avatar": "/avatars/ai-preset-1.jpg",
+      "isVerified": true
     },
     "publishedAt": "2026-10-14T10:00:00Z",
     "viewsCount": 1680,
@@ -1737,12 +1729,14 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 15,
     "expiresAt": "2026-10-29T10:00:00Z",
     "autoRenew": false,
-    "queuePriority": "priority_silver"
+    "queuePriority": "priority_silver",
+    "is_verified": false,
+    "isVerified": false,
+    "contactName": "Lê Minh Tâm",
+    "contactPhone": "0912 345 678"
   },
   {
     "id": "BDS-021",
-    "is_verified": true,
-    "isVerified": true,
     "title": "BÁN KHO XƯỞNG TIÊU CHUẨN CÔNG NGHIỆP KCN HÒA KHÁNH LIÊN CHIỂU 1.200M2 XE CONTAINER VÀO TẬN CỬA",
     "slug": "ban-kho-xuong-tieu-chuan-kcn-hoa-khanh-lien-chieu-1200m2",
     "vipPackageId": "vip-gold",
@@ -1798,15 +1792,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-01",
-      "name": "Nguyễn Văn Tuấn",
-      "title": "Chuyên Bất Động Sản Công Nghiệp & Kho Bãi",
-      "phone": "0908 123 456",
-      "zalo": "0908123456",
-      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
-      "isVerified": true,
-      "rating": 4.9,
-      "reviewCount": 38
+      "id": "broker-05",
+      "name": "Phạm Hải Đăng",
+      "title": "Trưởng Phòng Kinh Doanh",
+      "phone": "0903 556 778",
+      "zalo": "0903 556 778",
+      "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=256&q=80",
+      "isVerified": true
     },
     "publishedAt": "2026-10-14T11:00:00Z",
     "viewsCount": 1890,
@@ -1814,12 +1806,14 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 15,
     "expiresAt": "2026-10-29T11:00:00Z",
     "autoRenew": false,
-    "queuePriority": "priority_gold"
+    "queuePriority": "priority_gold",
+    "is_verified": true,
+    "isVerified": true,
+    "contactName": "Phạm Hải Đăng",
+    "contactPhone": "0903 556 778"
   },
   {
     "id": "BDS-022",
-    "is_verified": false,
-    "isVerified": false,
     "title": "CHO THUÊ KHO CHỨA HÀNG 450M2 CẨM LỆ ĐÀ NẴNG GẦN CẦU ĐỎ XE TẢI NẶNG ĐỖ CỬA PCCC CHUẨN",
     "slug": "cho-thue-kho-chua-hang-450m2-cam-le-da-nang-gan-cau-do",
     "vipPackageId": "normal",
@@ -1870,15 +1864,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-06",
-      "name": "Đoàn Thị Mai",
-      "title": "Chính chủ đăng tin",
-      "phone": "0983 999 111",
-      "zalo": "0983999111",
-      "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=256&q=80",
-      "isVerified": false,
-      "rating": 4.5,
-      "reviewCount": 8
+      "id": "user-02",
+      "name": "Hoàng Anh Tuấn",
+      "title": "Chính chủ ký gửi",
+      "phone": "0988 776 655",
+      "zalo": "0988 776 655",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
+      "isVerified": false
     },
     "publishedAt": "2026-10-13T14:00:00Z",
     "viewsCount": 920,
@@ -1886,12 +1878,14 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 15,
     "expiresAt": "2026-10-28T14:00:00Z",
     "autoRenew": false,
-    "queuePriority": "standard_fifo"
+    "queuePriority": "standard_fifo",
+    "is_verified": false,
+    "isVerified": false,
+    "contactName": "Hoàng Anh Tuấn",
+    "contactPhone": "0988 776 655"
   },
   {
     "id": "BDS-023",
-    "is_verified": false,
-    "isVerified": false,
     "title": "BÁN BIỆT THỰ VEN SÔNG KHU ĐÔ THỊ SUN COSMO RESIDENCE ĐÀ NẴNG CẦU TRẦN THỊ LÝ ĐẲNG CẤP THƯỢNG LƯU",
     "slug": "ban-biet-thu-ven-song-sun-cosmo-residence-da-nang-cau-tran-thi-ly",
     "vipPackageId": "vip-diamond",
@@ -1954,15 +1948,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-02",
-      "name": "Trần Thị Thu Hà",
-      "title": "Chuyên Viên Tư Vấn Sun Group Đà Nẵng",
-      "phone": "0912 888 999",
-      "zalo": "0912888999",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
-      "isVerified": true,
-      "rating": 5,
-      "reviewCount": 52
+      "id": "broker-01",
+      "name": "Nguyễn Văn Tuấn",
+      "title": "Giám Đốc Kinh Doanh BĐS",
+      "phone": "0908 123 456",
+      "zalo": "0908 123 456",
+      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+      "isVerified": true
     },
     "publishedAt": "2026-10-15T16:00:00Z",
     "viewsCount": 4210,
@@ -1970,12 +1962,14 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 30,
     "expiresAt": "2026-11-14T16:00:00Z",
     "autoRenew": true,
-    "queuePriority": "priority_diamond"
+    "queuePriority": "priority_diamond",
+    "is_verified": false,
+    "isVerified": false,
+    "contactName": "Nguyễn Văn Tuấn",
+    "contactPhone": "0908 123 456"
   },
   {
     "id": "BDS-024",
-    "is_verified": true,
-    "isVerified": true,
     "title": "BÁN SHOPHOUSE THƯƠNG MẠI 2 MẶT TIỀN ĐƯỜNG NGUYỄN PHƯỚC LAN KHU ĐÔ THỊ HÒA XUÂN SỔ ĐỎ CHÍNH CHỦ",
     "slug": "ban-shophouse-2-mat-tien-nguyen-phuoc-lan-hoa-xuan",
     "vipPackageId": "vip-gold",
@@ -2028,15 +2022,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-04",
-      "name": "Võ Minh Quân",
-      "title": "Chuyên Viên BĐS Hòa Xuân Đà Nẵng",
-      "phone": "0905 678 999",
-      "zalo": "0905678999",
-      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80",
-      "isVerified": false,
-      "rating": 4.7,
-      "reviewCount": 15
+      "id": "broker-01",
+      "name": "Nguyễn Văn Tuấn",
+      "title": "Giám Đốc Kinh Doanh BĐS",
+      "phone": "0908 123 456",
+      "zalo": "0908 123 456",
+      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+      "isVerified": true
     },
     "publishedAt": "2026-10-15T13:00:00Z",
     "viewsCount": 2280,
@@ -2044,12 +2036,14 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 15,
     "expiresAt": "2026-10-30T13:00:00Z",
     "autoRenew": false,
-    "queuePriority": "priority_gold"
+    "queuePriority": "priority_gold",
+    "is_verified": true,
+    "isVerified": true,
+    "contactName": "Nguyễn Văn Tuấn",
+    "contactPhone": "0908 123 456"
   },
   {
     "id": "BDS-025",
-    "is_verified": false,
-    "isVerified": false,
     "title": "BÁN KHÁCH SẠN BOUTIQUE HOTEL 7 TẦNG MẶT PHỐ DU LỊCH HỒ NGHINH SƠN TRÀ 18 PHÒNG FULL NỘI THẤT",
     "slug": "ban-khach-san-boutique-hotel-7-tang-ho-nghinh-son-tra",
     "vipPackageId": "normal",
@@ -2101,15 +2095,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-01",
-      "name": "Nguyễn Văn Tuấn",
-      "title": "Chuyên Mua Bán Khách Sạn Đà Nẵng",
-      "phone": "0908 123 456",
-      "zalo": "0908123456",
-      "avatar": "https://plus.unsplash.com/premium_photo-1661688797823-36e97735223e?auto=format&fit=crop&w=256&h=256&q=80",
-      "isVerified": true,
-      "rating": 4.9,
-      "reviewCount": 38
+      "id": "user-01",
+      "name": "Lê Minh Tâm",
+      "title": "Khách hàng cá nhân",
+      "phone": "0912 345 678",
+      "zalo": "0912 345 678",
+      "avatar": "/avatars/ai-preset-1.jpg",
+      "isVerified": true
     },
     "publishedAt": "2026-10-15T14:00:00Z",
     "viewsCount": 1980,
@@ -2117,89 +2109,293 @@ export const INITIAL_PROPERTIES = [
     "listingDays": 15,
     "expiresAt": "2026-10-30T14:00:00Z",
     "autoRenew": false,
-    "queuePriority": "standard_fifo"
+    "queuePriority": "standard_fifo",
+    "is_verified": false,
+    "isVerified": false,
+    "contactName": "Lê Minh Tâm",
+    "contactPhone": "0912 345 678"
   }
 ];
 
 export const MOCK_USERS = [
   {
-    id: 'user-01',
-    name: 'Lê Minh Tâm',
-    email: 'minhtam.le@gmail.com',
-    password: '123456',
-    passwordHash: '$2b$10$jgjsVvPtPeI7WDBTiFSj1eDC8xz6aYTszoychODv7PYe.94N0oTNi',
-    role: 'user', // user, broker, admin
-    roleName: 'Khách hàng cá nhân',
-    walletBalance: 850000, // 850,000 VND
-    phone: '0912 345 678',
-    avatar: '/avatars/ai-preset-1.jpg',
-    membership: null,
-    vouchers: {
-      normalPublish: 0,
-      normalBump: 0,
-      vipPublish: 0
+    "id": "user-01",
+    "name": "Lê Minh Tâm",
+    "email": "minhtam.le@gmail.com",
+    "password": "123456",
+    "passwordHash": "\\.94N0oTNi",
+    "role": "user",
+    "roleName": "Khách hàng cá nhân",
+    "walletBalance": 850000,
+    "phone": "0912 345 678",
+    "avatar": "/avatars/ai-preset-1.jpg",
+    "isVerified": true,
+    "membership": null,
+    "vouchers": {
+      "normalPublish": 2,
+      "normalBump": 2,
+      "vipPublish": 0
     }
   },
   {
-    id: 'broker-01',
-    name: 'Nguyễn Văn Tuấn',
-    email: 'tuan.datbien@datbiendanang.vn',
-    password: '123456',
-    passwordHash: '$2b$10$jgjsVvPtPeI7WDBTiFSj1eDC8xz6aYTszoychODv7PYe.94N0oTNi',
-    role: 'broker',
-    roleName: 'Môi Giới',
-    walletBalance: 4250000, // 4,250,000 VND
-    phone: '0908 123 456',
-    avatar: '/avatars/ai-preset-2.jpg',
-    isVerified: true,
-    activeListingsCount: 12,
-    membership: {
-      packageId: 'member-standard',
-      packageName: 'Hội Viên Tiêu Chuẩn',
-      shortName: 'GÓI TIÊU CHUẨN',
-      billingMonths: 3,
-      durationDays: 90,
-      subscribedAt: '2026-10-01T00:00:00Z',
-      expiresAt: '2027-01-01T00:00:00Z',
-      status: 'active',
-      isAutoRenew: false,
-      badge: 'HỘI VIÊN TIÊU CHUẨN ★',
-      badgeColor: 'bg-amber-500 text-slate-950 font-black'
-    },
-    vouchers: {
-      normalPublish: 26, // Còn 26 voucher đăng tin thường (Miễn phí 0 đ)
-      normalBump: 28,    // Còn 28 voucher giảm 10.000 đ đẩy tin thường
-      vipPublish: 1      // Còn 1 voucher giảm 400.000 đ cho tin VIP
+    "id": "user-02",
+    "name": "Hoàng Anh Tuấn",
+    "email": "anhtuan.hoang@gmail.com",
+    "password": "123456",
+    "passwordHash": "\\.94N0oTNi",
+    "role": "user",
+    "roleName": "Chính chủ ký gửi",
+    "walletBalance": 1200000,
+    "phone": "0988 776 655",
+    "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
+    "isVerified": false,
+    "membership": null,
+    "vouchers": {
+      "normalPublish": 1,
+      "normalBump": 1,
+      "vipPublish": 0
     }
   },
   {
-    id: 'admin-01',
-    name: 'Trần Vũ RB',
-    email: 'tranvu.review@gmail.com',
-    password: '123456',
-    passwordHash: '$2b$10$jgjsVvPtPeI7WDBTiFSj1eDC8xz6aYTszoychODv7PYe.94N0oTNi',
-    role: 'admin',
-    roleName: 'Tổng Quản Trị Viên (CMS Admin)',
-    walletBalance: 99999999,
-    phone: '0898 246 607',
-    avatar: '/avatars/ai-preset-2.jpg',
-    membership: {
-      packageId: 'member-premium',
-      packageName: 'Hội Viên Cao Cấp VIP',
-      shortName: 'GÓI CAO CẤP',
-      billingMonths: 12,
-      durationDays: 365,
-      subscribedAt: '2026-01-01T00:00:00Z',
-      expiresAt: '2030-01-01T00:00:00Z',
-      status: 'active',
-      isAutoRenew: false,
-      badge: 'HỘI VIÊN CAO CẤP',
-      badgeColor: 'bg-purple-600 text-white font-black'
+    "id": "user-03",
+    "name": "Nguyễn Thảo My",
+    "email": "thaomy.nguyen@gmail.com",
+    "password": "123456",
+    "passwordHash": "\\.94N0oTNi",
+    "role": "user",
+    "roleName": "Nhà đầu tư cá nhân",
+    "walletBalance": 2500000,
+    "phone": "0977 443 322",
+    "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=256&q=80",
+    "isVerified": true,
+    "membership": null,
+    "vouchers": {
+      "normalPublish": 3,
+      "normalBump": 5,
+      "vipPublish": 1
+    }
+  },
+  {
+    "id": "broker-01",
+    "name": "Nguyễn Văn Tuấn",
+    "email": "tuan.datbien@datbiendanang.vn",
+    "password": "123456",
+    "passwordHash": "\\.94N0oTNi",
+    "role": "broker",
+    "roleName": "Giám Đốc Kinh Doanh BĐS",
+    "walletBalance": 4250000,
+    "phone": "0908 123 456",
+    "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+    "isVerified": true,
+    "activeListingsCount": 8,
+    "membership": {
+      "packageId": "member-standard",
+      "packageName": "Hội Viên Tiêu Chuẩn",
+      "shortName": "GÓI TIÊU CHUẨN",
+      "billingMonths": 3,
+      "durationDays": 90,
+      "subscribedAt": "2026-10-01T00:00:00Z",
+      "expiresAt": "2027-01-01T00:00:00Z",
+      "status": "active",
+      "isAutoRenew": false,
+      "badge": "HỘI VIÊN TIÊU CHUẨN ★",
+      "badgeColor": "bg-amber-500 text-slate-950 font-black"
     },
-    vouchers: {
-      normalPublish: 99,
-      normalBump: 99,
-      vipPublish: 99
+    "vouchers": {
+      "normalPublish": 26,
+      "normalBump": 28,
+      "vipPublish": 1
+    }
+  },
+  {
+    "id": "broker-02",
+    "name": "Trần Thị Thu Hà",
+    "email": "thuha.sun@gmail.com",
+    "password": "123456",
+    "passwordHash": "\\.94N0oTNi",
+    "role": "broker",
+    "roleName": "Chuyên Viên Tư Vấn Sun Group",
+    "walletBalance": 6800000,
+    "phone": "0912 888 999",
+    "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+    "isVerified": true,
+    "activeListingsCount": 6,
+    "membership": {
+      "packageId": "member-premium",
+      "packageName": "Hội Viên Cao Cấp VIP",
+      "shortName": "GÓI CAO CẤP",
+      "billingMonths": 6,
+      "durationDays": 180,
+      "subscribedAt": "2026-09-15T00:00:00Z",
+      "expiresAt": "2027-03-15T00:00:00Z",
+      "status": "active",
+      "isAutoRenew": true,
+      "badge": "HỘI VIÊN CAO CẤP",
+      "badgeColor": "bg-gradient-to-r from-red-600 to-purple-600 text-white font-black"
+    },
+    "vouchers": {
+      "normalPublish": 35,
+      "normalBump": 40,
+      "vipPublish": 2
+    }
+  },
+  {
+    "id": "broker-03",
+    "name": "Lê Hoàng Nam",
+    "email": "nam.bds@gmail.com",
+    "password": "123456",
+    "passwordHash": "\\.94N0oTNi",
+    "role": "broker",
+    "roleName": "Chuyên Gia BĐS Cao Cấp",
+    "walletBalance": 3100000,
+    "phone": "0905 678 910",
+    "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80",
+    "isVerified": true,
+    "activeListingsCount": 5,
+    "membership": {
+      "packageId": "member-standard",
+      "packageName": "Hội Viên Tiêu Chuẩn",
+      "shortName": "GÓI TIÊU CHUẨN",
+      "billingMonths": 1,
+      "durationDays": 30,
+      "subscribedAt": "2026-10-10T00:00:00Z",
+      "expiresAt": "2026-11-10T00:00:00Z",
+      "status": "active",
+      "isAutoRenew": false,
+      "badge": "HỘI VIÊN TIÊU CHUẨN ★",
+      "badgeColor": "bg-amber-500 text-slate-950 font-black"
+    },
+    "vouchers": {
+      "normalPublish": 12,
+      "normalBump": 15,
+      "vipPublish": 1
+    }
+  },
+  {
+    "id": "broker-04",
+    "name": "Võ Minh Quân",
+    "email": "quan.vominh@gmail.com",
+    "password": "123456",
+    "passwordHash": "\\.94N0oTNi",
+    "role": "broker",
+    "roleName": "Môi Giới Chuyên Nghiệp",
+    "walletBalance": 2950000,
+    "phone": "0935 112 233",
+    "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80",
+    "isVerified": true,
+    "activeListingsCount": 7,
+    "membership": {
+      "packageId": "member-basic",
+      "packageName": "Gói Hội Viên Cơ Bản",
+      "shortName": "GÓI CƠ BẢN",
+      "billingMonths": 3,
+      "durationDays": 90,
+      "subscribedAt": "2026-10-05T00:00:00Z",
+      "expiresAt": "2027-01-05T00:00:00Z",
+      "status": "active",
+      "isAutoRenew": false,
+      "badge": "HỘI VIÊN CƠ BẢN",
+      "badgeColor": "bg-emerald-600 text-white font-bold"
+    },
+    "vouchers": {
+      "normalPublish": 10,
+      "normalBump": 10,
+      "vipPublish": 0
+    }
+  },
+  {
+    "id": "broker-05",
+    "name": "Phạm Hải Đăng",
+    "email": "dang.haidang@gmail.com",
+    "password": "123456",
+    "passwordHash": "\\.94N0oTNi",
+    "role": "broker",
+    "roleName": "Trưởng Phòng Kinh Doanh",
+    "walletBalance": 5100000,
+    "phone": "0903 556 778",
+    "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=256&q=80",
+    "isVerified": true,
+    "activeListingsCount": 4,
+    "membership": {
+      "packageId": "member-standard",
+      "packageName": "Hội Viên Tiêu Chuẩn",
+      "shortName": "GÓI TIÊU CHUẨN",
+      "billingMonths": 6,
+      "durationDays": 180,
+      "subscribedAt": "2026-08-01T00:00:00Z",
+      "expiresAt": "2027-02-01T00:00:00Z",
+      "status": "active",
+      "isAutoRenew": true,
+      "badge": "HỘI VIÊN TIÊU CHUẨN ★",
+      "badgeColor": "bg-amber-500 text-slate-950 font-black"
+    },
+    "vouchers": {
+      "normalPublish": 18,
+      "normalBump": 22,
+      "vipPublish": 1
+    }
+  },
+  {
+    "id": "broker-06",
+    "name": "Đoàn Thị Mai",
+    "email": "mai.doan@gmail.com",
+    "password": "123456",
+    "passwordHash": "\\.94N0oTNi",
+    "role": "broker",
+    "roleName": "Chuyên Viên BĐS Nghỉ Dưỡng",
+    "walletBalance": 4600000,
+    "phone": "0918 334 455",
+    "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=256&q=80",
+    "isVerified": true,
+    "activeListingsCount": 5,
+    "membership": {
+      "packageId": "member-premium",
+      "packageName": "Hội Viên Cao Cấp VIP",
+      "shortName": "GÓI CAO CẤP",
+      "billingMonths": 3,
+      "durationDays": 90,
+      "subscribedAt": "2026-10-01T00:00:00Z",
+      "expiresAt": "2027-01-01T00:00:00Z",
+      "status": "active",
+      "isAutoRenew": false,
+      "badge": "HỘI VIÊN CAO CẤP",
+      "badgeColor": "bg-purple-600 text-white font-black"
+    },
+    "vouchers": {
+      "normalPublish": 45,
+      "normalBump": 45,
+      "vipPublish": 3
+    }
+  },
+  {
+    "id": "admin-01",
+    "name": "Trần Vũ RB",
+    "email": "tranvu.review@gmail.com",
+    "password": "123456",
+    "passwordHash": "\\.94N0oTNi",
+    "role": "admin",
+    "roleName": "Tổng Quản Trị Viên (CMS Admin)",
+    "walletBalance": 99999999,
+    "phone": "0898 246 607",
+    "avatar": "/avatars/ai-preset-2.jpg",
+    "isVerified": true,
+    "membership": {
+      "packageId": "member-premium",
+      "packageName": "Hội Viên Cao Cấp VIP",
+      "shortName": "GÓI CAO CẤP",
+      "billingMonths": 12,
+      "durationDays": 365,
+      "subscribedAt": "2026-01-01T00:00:00Z",
+      "expiresAt": "2030-01-01T00:00:00Z",
+      "status": "active",
+      "isAutoRenew": false,
+      "badge": "HỘI VIÊN CAO CẤP",
+      "badgeColor": "bg-purple-600 text-white font-black"
+    },
+    "vouchers": {
+      "normalPublish": 99,
+      "normalBump": 99,
+      "vipPublish": 99
     }
   }
 ];
