@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link, useRouter } from '../router/RouterContext';
 import ListingGrid from '../components/ListingGrid';
+import ListingFilterBar from '../components/ListingFilterBar';
 import { generateCategoryJsonLd, formatPriceRangeText, formatAreaRangeText, generateCategoryMetadata } from '../utils/permalink';
 import { filterProperties } from '../utils/propertyFilter';
 
@@ -140,7 +141,8 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 
     filters.priceRange !== 'all' || 
     filters.areaRange !== 'all' || 
     filters.bedroom !== 'all' || 
-    filters.onlyVerified
+    filters.onlyVerified ||
+    filters.onlyProAgent
   );
 
   const resetAllFacets = () => {
@@ -159,7 +161,8 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 
       bedroom: 'all',
       direction: 'all',
       hasVR360: false,
-      onlyVerified: false
+      onlyVerified: false,
+      onlyProAgent: false
     });
     navigate(taxonomyInfo?.canonicalUrl || '/nha-dat-ban');
   };
@@ -199,6 +202,14 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 
           </div>
         </div>
       </div>
+
+      {/* Batdongsan-Style Listing Filter Bar */}
+      <ListingFilterBar 
+        filters={filters} 
+        setFilters={setFilters} 
+        demand="sale" 
+        taxonomyInfo={taxonomyInfo} 
+      />
 
       {/* Active Faceted Filters Banner */}
       {hasActiveFacets && (
@@ -315,6 +326,19 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 
                   <button 
                     onClick={() => setFilters(prev => ({ ...prev, onlyVerified: false }))}
                     className="hover:text-teal-900 ml-0.5"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+
+              {filters.onlyProAgent && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-cyan-50 text-cyan-700 border border-cyan-200 rounded-full font-bold">
+                  <i className="fa-solid fa-award text-[10px]"></i>
+                  Môi giới chuyên nghiệp
+                  <button 
+                    onClick={() => setFilters(prev => ({ ...prev, onlyProAgent: false }))}
+                    className="hover:text-cyan-900 ml-0.5"
                   >
                     ×
                   </button>

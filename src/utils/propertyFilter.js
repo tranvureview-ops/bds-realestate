@@ -166,6 +166,21 @@ export function filterProperties(properties = [], filters = {}) {
     // 12. Tin chính chủ / Đã xác thực
     if (filters.onlyVerified && (!prop.author || !prop.author.isVerified)) return false;
 
+    // 13. Môi giới chuyên nghiệp (Pro Broker / Agent)
+    if (filters.onlyProAgent) {
+      const isPro = Boolean(
+        prop.author && (
+          prop.author.isVerified ||
+          (prop.author.rating && prop.author.rating >= 4.5) ||
+          prop.author.role === 'agent' ||
+          prop.author.role === 'broker' ||
+          (prop.author.title && prop.author.title.toLowerCase().includes('môi giới')) ||
+          (prop.vipPackageId && prop.vipPackageId !== 'normal')
+        )
+      );
+      if (!isPro) return false;
+    }
+
     return true;
   });
 }
