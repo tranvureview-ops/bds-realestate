@@ -110,16 +110,18 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto shrink-0">
-          <button
-            type="button"
-            onClick={handleSyncFromPricingTable}
-            className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 border border-slate-700 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-sm"
-            title="Tự động đồng bộ chuẩn 100% theo giá hiện hành trong Bảng Giá Tin Đăng"
-          >
-            <i className="fa-solid fa-arrows-rotate text-emerald-400"></i>
-            <span>Cập Nhật Theo Bảng Giá Tin Đăng</span>
-          </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto shrink-0">
+          {hasChanges && (
+            <button
+              type="button"
+              onClick={handleSyncFromPricingTable}
+              className="px-3 py-2 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-emerald-400 border border-slate-700 text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+              title="Khôi phục lại đơn giá chuẩn theo Bảng Giá Tin Đăng"
+            >
+              <i className="fa-solid fa-rotate-left text-[11px] text-emerald-400"></i>
+              <span>Về Giá Bảng Tin Đăng</span>
+            </button>
+          )}
 
           <button
             type="button"
@@ -127,8 +129,8 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
             disabled={isSaving}
             className={`px-5 py-2.5 rounded-xl font-black text-xs transition flex items-center gap-2 cursor-pointer shadow-lg ${
               hasChanges
-                ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-amber-500/20 ring-2 ring-amber-400/50 animate-pulse'
-                : 'bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700'
+                ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-amber-500/20 ring-2 ring-amber-400/50'
+                : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/30'
             }`}
           >
             {isSaving ? (
@@ -136,7 +138,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
             ) : (
               <i className="fa-solid fa-floppy-disk"></i>
             )}
-            <span>{isSaving ? 'Đang Đồng Bộ...' : (hasChanges ? 'Lưu & Áp Dụng Ngay' : 'Lưu Đơn Giá Chung')}</span>
+            <span>{isSaving ? 'Đang Lưu...' : (hasChanges ? 'Lưu & Áp Dụng Ngay' : 'Lưu Đơn Giá Voucher')}</span>
           </button>
         </div>
       </div>
