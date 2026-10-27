@@ -81,8 +81,7 @@ export default function ListingFilterBar({
     bedroom: filters?.bedroom || 'all',
     direction: filters?.direction || 'all',
     hasVR360: Boolean(filters?.hasVR360),
-    onlyVerified: Boolean(filters?.onlyVerified),
-    onlyProAgent: Boolean(filters?.onlyProAgent),
+    onlyVerified: Boolean(filters?.onlyVerified)
   });
 
   const containerRef = useRef(null);
@@ -123,8 +122,7 @@ export default function ListingFilterBar({
       bedroom: filters?.bedroom || 'all',
       direction: filters?.direction || 'all',
       hasVR360: Boolean(filters?.hasVR360),
-      onlyVerified: Boolean(filters?.onlyVerified),
-      onlyProAgent: Boolean(filters?.onlyProAgent),
+      onlyVerified: Boolean(filters?.onlyVerified)
     });
     setModalScreen('main');
     setShowAdvancedModal(true);
@@ -151,8 +149,7 @@ export default function ListingFilterBar({
         bedroom: draftFilters.bedroom,
         direction: draftFilters.direction,
         hasVR360: draftFilters.hasVR360,
-        onlyVerified: draftFilters.onlyVerified,
-        onlyProAgent: draftFilters.onlyProAgent
+        onlyVerified: draftFilters.onlyVerified
       }));
     }
     setShowAdvancedModal(false);
@@ -179,8 +176,7 @@ export default function ListingFilterBar({
       bedroom: 'all',
       direction: 'all',
       hasVR360: false,
-      onlyVerified: false,
-      onlyProAgent: false,
+      onlyVerified: false
     }));
   };
 
@@ -200,14 +196,6 @@ export default function ListingFilterBar({
     setFilters(prev => ({
       ...prev,
       onlyVerified: !prev.onlyVerified
-    }));
-  };
-
-  const handleToggleProAgent = () => {
-    if (!setFilters) return;
-    setFilters(prev => ({
-      ...prev,
-      onlyProAgent: !prev.onlyProAgent
     }));
   };
 
@@ -365,16 +353,15 @@ export default function ListingFilterBar({
     Boolean(filters.bedroom && filters.bedroom !== 'all'),
     Boolean(filters.direction && filters.direction !== 'all'),
     Boolean(filters.hasVR360),
-    Boolean(filters.onlyVerified),
-    Boolean(filters.onlyProAgent)
+    Boolean(filters.onlyVerified)
   ].filter(Boolean).length;
 
   return (
-    <div ref={containerRef} className={`max-w-7xl mx-auto px-4 sm:px-8 mt-4 sm:mt-5 ${className}`}>
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-3 sm:p-4">
+    <div ref={containerRef} className={`max-w-7xl mx-auto px-3 sm:px-8 mt-3 sm:mt-5 ${className}`}>
+      <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs p-2.5 sm:p-4">
         {/* ROW 1: Search Input with Red "Tìm kiếm" button */}
-        <form onSubmit={handleApplySearch} className="relative flex items-center border border-slate-200 hover:border-slate-300 focus-within:border-slate-400 focus-within:ring-2 focus-within:ring-slate-100 rounded-xl bg-white transition p-1 sm:p-1.5">
-          <i className="fa-solid fa-magnifying-glass text-slate-400 pl-3 pr-2 text-sm sm:text-base"></i>
+        <form onSubmit={handleApplySearch} className="relative flex items-center border border-slate-200 hover:border-slate-300 focus-within:border-slate-400 focus-within:ring-2 focus-within:ring-slate-100 rounded-lg sm:rounded-xl bg-white transition p-1 sm:p-1.5">
+          <i className="fa-solid fa-magnifying-glass text-slate-400 pl-2.5 sm:pl-3 pr-1.5 sm:pr-2 text-xs sm:text-sm"></i>
           
           <input
             type="text"
@@ -382,10 +369,10 @@ export default function ListingFilterBar({
             onChange={(e) => setKeywordInput(e.target.value)}
             placeholder={
               filters.propertyType && filters.propertyType !== 'all' 
-                ? `${getPropertyTypeLabel()} - Nhập từ khóa, dự án, vị trí...` 
-                : (demand === 'rent' ? 'Nhà riêng, căn hộ, mặt bằng cho thuê...' : 'Nhà riêng, căn hộ, biệt thự cần bán...')
+                ? `${getPropertyTypeLabel()} - Nhập từ khóa, vị trí...` 
+                : (demand === 'rent' ? 'Căn hộ, nhà riêng, mặt bằng...' : 'Nhà riêng, căn hộ, biệt thự...')
             }
-            className="flex-1 bg-transparent py-1.5 sm:py-2 px-1 text-slate-800 placeholder-slate-400 text-xs sm:text-sm focus:outline-none min-w-0"
+            className="flex-1 bg-transparent py-1 sm:py-2 px-1 text-slate-800 placeholder-slate-400 text-xs sm:text-sm focus:outline-none min-w-0"
           />
 
           {keywordInput && (
@@ -395,7 +382,7 @@ export default function ListingFilterBar({
                 setKeywordInput('');
                 if (setFilters) setFilters(prev => ({ ...prev, keyword: '' }));
               }}
-              className="text-slate-400 hover:text-slate-600 p-1.5 mr-1 transition cursor-pointer"
+              className="text-slate-400 hover:text-slate-600 p-1 mr-0.5 sm:mr-1 transition cursor-pointer"
               title="Xóa từ khóa"
             >
               <i className="fa-solid fa-xmark text-xs"></i>
@@ -404,19 +391,19 @@ export default function ListingFilterBar({
 
           <button
             type="submit"
-            className="px-5 sm:px-7 py-2 sm:py-2.5 rounded-lg bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold text-xs sm:text-sm shadow-xs transition flex items-center justify-center shrink-0 cursor-pointer"
+            className="px-3.5 sm:px-7 py-1.5 sm:py-2.5 rounded-md sm:rounded-lg bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold text-xs sm:text-sm shadow-xs transition flex items-center justify-center shrink-0 cursor-pointer"
           >
             Tìm kiếm
           </button>
         </form>
 
-        {/* ROW 2: Horizontal Quick Filter Dropdowns & Toggles */}
-        <div className="flex items-center gap-2 sm:gap-2.5 mt-3 flex-wrap text-xs sm:text-sm">
+        {/* ROW 2: Horizontal Quick Filter Dropdowns & Toggles (Tinh chỉnh gọn gàng trên mobile) */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 mt-2 sm:mt-3 overflow-x-auto no-scrollbar pb-1 sm:pb-0 sm:flex-wrap text-xs sm:text-sm">
           {/* 1. Nút "Lọc" (Mở bộ lọc phong cách Batdongsan) */}
           <button
             type="button"
             onClick={handleOpenAdvancedModal}
-            className={`border rounded-lg px-3 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs ${
+            className={`shrink-0 border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs ${
               advancedCount > 0
                 ? 'border-red-500 bg-red-50/60 text-red-700 font-bold'
                 : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
@@ -435,7 +422,7 @@ export default function ListingFilterBar({
           <button
             type="button"
             onClick={handleToggleVerified}
-            className={`border rounded-lg px-3 py-1.5 sm:py-2 font-semibold flex items-center gap-2 transition cursor-pointer shadow-2xs ${
+            className={`shrink-0 border rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 sm:gap-2 transition cursor-pointer shadow-2xs ${
               filters.onlyVerified
                 ? 'border-emerald-500 bg-emerald-50/60 text-emerald-800 font-bold'
                 : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
@@ -454,11 +441,11 @@ export default function ListingFilterBar({
           </button>
 
           {/* 3. Dropdown "Loại nhà đất ⌵" */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setOpenDropdown(prev => prev === 'type' ? null : 'type')}
-              className={`border rounded-lg px-3 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs ${
+              className={`border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs ${
                 filters.propertyType && filters.propertyType !== 'all'
                   ? 'border-red-500 bg-red-50/50 text-red-700 font-bold'
                   : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
@@ -508,11 +495,11 @@ export default function ListingFilterBar({
           </div>
 
           {/* 4. Dropdown "Khoảng giá ⌵" */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setOpenDropdown(prev => prev === 'price' ? null : 'price')}
-              className={`border rounded-lg px-3 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs ${
+              className={`border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs ${
                 filters.priceRange && filters.priceRange !== 'all'
                   ? 'border-red-500 bg-red-50/50 text-red-700 font-bold'
                   : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
@@ -548,11 +535,11 @@ export default function ListingFilterBar({
           </div>
 
           {/* 5. Dropdown "Diện tích ⌵" */}
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setOpenDropdown(prev => prev === 'area' ? null : 'area')}
-              className={`border rounded-lg px-3 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs ${
+              className={`border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs ${
                 filters.areaRange && filters.areaRange !== 'all'
                   ? 'border-red-500 bg-red-50/50 text-red-700 font-bold'
                   : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
@@ -586,28 +573,6 @@ export default function ListingFilterBar({
               </div>
             )}
           </div>
-
-          {/* 6. Switch "Môi giới chuyên nghiệp" */}
-          <button
-            type="button"
-            onClick={handleToggleProAgent}
-            className={`border rounded-lg px-3 py-1.5 sm:py-2 font-semibold flex items-center gap-2 transition cursor-pointer shadow-2xs ${
-              filters.onlyProAgent
-                ? 'border-cyan-500 bg-cyan-50/60 text-cyan-800 font-bold'
-                : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
-            }`}
-            title="Chỉ hiển thị bài đăng từ tài khoản môi giới đã được xác nhận KYC"
-          >
-            <i className="fa-solid fa-award text-cyan-600 text-xs sm:text-sm"></i>
-            <span>Môi giới chuyên nghiệp</span>
-            <div className={`relative inline-flex h-4 w-7 sm:h-5 sm:w-9 items-center rounded-full transition-colors ml-0.5 ${
-              filters.onlyProAgent ? 'bg-cyan-600' : 'bg-slate-300'
-            }`}>
-              <span className={`inline-block h-3 w-3 sm:h-3.5 sm:w-3.5 transform rounded-full bg-white shadow-xs transition-transform ${
-                filters.onlyProAgent ? 'translate-x-3.5 sm:translate-x-4.5' : 'translate-x-0.5'
-              }`} />
-            </div>
-          </button>
         </div>
       </div>
 
@@ -806,36 +771,6 @@ export default function ListingFilterBar({
                         >
                           <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-xs transition-transform ${
                             draftFilters.onlyVerified ? 'translate-x-6' : 'translate-x-1'
-                          }`} />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Card 2: Môi giới chuyên nghiệp */}
-                    <div className="p-3.5 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition space-y-2">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1.5 text-sm font-bold text-slate-900">
-                            <i className="fa-solid fa-award text-cyan-600 text-base"></i>
-                            <span>Môi giới chuyên nghiệp</span>
-                          </div>
-                          <div className="text-[11px] text-slate-500 leading-relaxed">
-                            <span className="font-semibold text-slate-700 block mb-0.5">Tài khoản môi giới được xác nhận KYC:</span>
-                            <div>• Cấp tích xanh xác thực danh tính chính chủ</div>
-                            <div>• Chuyên viên môi giới hoạt động uy tín trên sàn</div>
-                          </div>
-                        </div>
-
-                        {/* Switch */}
-                        <button
-                          type="button"
-                          onClick={() => setDraftFilters(prev => ({ ...prev, onlyProAgent: !prev.onlyProAgent }))}
-                          className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors cursor-pointer mt-1 ${
-                            draftFilters.onlyProAgent ? 'bg-cyan-600' : 'bg-slate-300'
-                          }`}
-                        >
-                          <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-xs transition-transform ${
-                            draftFilters.onlyProAgent ? 'translate-x-6' : 'translate-x-1'
                           }`} />
                         </button>
                       </div>
