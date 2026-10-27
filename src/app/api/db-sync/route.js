@@ -65,6 +65,7 @@ export async function POST(request) {
     const mergedPayload = { ...payload };
     const objectKeys = [
       'bds_header_config',
+      'bds_footer_config',
       'bds_system_config',
       'bds_payment_config',
       'bds_single_config',

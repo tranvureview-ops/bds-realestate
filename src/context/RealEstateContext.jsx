@@ -56,6 +56,7 @@ import {
   MOCK_TRANSACTIONS,
   INITIAL_NAV_MENU,
   DEFAULT_HEADER_CONFIG,
+  DEFAULT_FOOTER_CONFIG,
   DEFAULT_SOCIAL_LINKS,
   PRESET_LOGOS,
   DEFAULT_PAYMENT_CONFIG,
@@ -577,6 +578,15 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         ...(DEFAULT_HEADER_CONFIG.socialLinks || {}),
         ...(raw.socialLinks || {})
       }
+    };
+  });
+
+  // 9b. Footer Configuration State
+  const [footerConfig, setFooterConfig] = useState(() => {
+    const raw = initialData?.bds_footer_config || {};
+    return {
+      ...DEFAULT_FOOTER_CONFIG,
+      ...raw
     };
   });
 
@@ -1143,6 +1153,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         }
         if (db.bds_header_config) {
           setHeaderConfig(prev => ({ ...prev, ...db.bds_header_config }));
+        }
+        if (db.bds_footer_config) {
+          setFooterConfig(prev => ({ ...prev, ...db.bds_footer_config }));
         }
         if (db.bds_system_config) {
           setSystemConfig(prev => ({
@@ -3924,6 +3937,18 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     showToast('Đã khôi phục cấu hình Header & Logo về mặc định!', 'info');
   };
 
+  const updateFooterConfig = async (newConfig) => {
+    const toSave = {
+      ...DEFAULT_FOOTER_CONFIG,
+      ...(footerConfig || {}),
+      ...newConfig
+    };
+    setFooterConfig(toSave);
+    await persistSettingToSupabase('bds_footer_config', toSave);
+    showToast('Đã lưu cấu hình Footer thành công!', 'success');
+    return toSave;
+  };
+
   // 12. Sao lưu & Di chuyển Cấu Hình Hệ Thống Toàn Diện
   const importAllConfig = async (data) => {
     if (!data) return false;
@@ -4415,7 +4440,10 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         bookAppointment,
         updateAppointmentStatus,
         deleteAppointment,
-        markNotificationAsRead
+        markNotificationAsRead,
+        footerConfig,
+        updateFooterConfig,
+        DEFAULT_FOOTER_CONFIG
       }}
     >
       {children}

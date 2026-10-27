@@ -12,6 +12,7 @@ import AdminEmailConfigManager from './AdminEmailConfigManager';
 import AdminMembershipManager from './AdminMembershipManager';
 import AdminHeaderConfigManager from './AdminHeaderConfigManager';
 import AdminMenuConfigManager from './AdminMenuConfigManager';
+import AdminFooterConfigManager from './AdminFooterConfigManager';
 import AdminAppointmentsManager from './AdminAppointmentsManager';
 import AdminTwoFactorScreen from './AdminTwoFactorScreen';
 import AdminTelegramChatManager from './AdminTelegramChatManager';
@@ -33,6 +34,7 @@ export const VALID_ADMIN_TABS = [
   'membership',
   'header',
   'menu',
+  'footer',
   'payments',
   'single-config',
   'email-config',
@@ -45,6 +47,7 @@ export const getSettingsSubTabFromHash = () => {
   const fullHash = (window.location.hash || '').replace(/^#/, '').split('?')[0].trim().toLowerCase();
   if (fullHash === 'header' || fullHash === 'settings/header' || fullHash.startsWith('settings/header') || fullHash.includes('tab=header')) return 'header';
   if (fullHash === 'menu' || fullHash === 'settings/menu' || fullHash.startsWith('settings/menu') || fullHash.includes('tab=menu')) return 'menu';
+  if (fullHash === 'footer' || fullHash === 'settings/footer' || fullHash.startsWith('settings/footer') || fullHash.includes('tab=footer')) return 'footer';
   if (fullHash === 'email-config' || fullHash === 'email' || fullHash === 'settings/email' || fullHash.startsWith('settings/email') || fullHash.includes('tab=email')) return 'email';
   if (fullHash === 'telegram' || fullHash === 'telegram-config' || fullHash === 'settings/telegram' || fullHash.startsWith('settings/telegram') || fullHash.includes('tab=telegram')) return 'telegram';
   return 'system';
@@ -53,7 +56,7 @@ export const getSettingsSubTabFromHash = () => {
 export const getTabFromHash = () => {
   if (typeof window === 'undefined') return 'dashboard';
   const rawHash = (window.location.hash || '').replace(/^#/, '').split('?')[0].split('/')[0].trim().toLowerCase();
-  if (rawHash === 'header' || rawHash === 'menu' || rawHash === 'email-config' || rawHash === 'email') return 'settings';
+  if (rawHash === 'header' || rawHash === 'menu' || rawHash === 'footer' || rawHash === 'email-config' || rawHash === 'email') return 'settings';
   return VALID_ADMIN_TABS.includes(rawHash) ? rawHash : 'dashboard';
 };
 
@@ -2478,6 +2481,22 @@ export default function AdminBackendPage() {
 
                   <button
                     type="button"
+                    onClick={() => handleSelectSettingsSubTab('footer')}
+                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between text-left transition ${
+                      settingsSubTab === 'footer'
+                        ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <i className="fa-solid fa-shoe-prints text-[11px] w-4 text-center text-cyan-400"></i>
+                      <span>4. Footer</span>
+                    </div>
+                    {settingsSubTab === 'footer' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
+                  </button>
+
+                  <button
+                    type="button"
                     onClick={() => handleSelectSettingsSubTab('email')}
                     className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between text-left transition ${
                       settingsSubTab === 'email'
@@ -2487,7 +2506,7 @@ export default function AdminBackendPage() {
                   >
                     <div className="flex items-center gap-2">
                       <i className="fa-solid fa-envelope-open-text text-[11px] w-4 text-center text-teal-400"></i>
-                      <span>4. Email Setting</span>
+                      <span>5. Email Setting</span>
                     </div>
                     {settingsSubTab === 'email' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
                   </button>
@@ -2503,7 +2522,7 @@ export default function AdminBackendPage() {
                   >
                     <div className="flex items-center gap-2">
                       <i className="fa-brands fa-telegram text-[11px] w-4 text-center text-sky-400"></i>
-                      <span>5. Live Chat Telegram</span>
+                      <span>6. Live Chat Telegram</span>
                     </div>
                     {settingsSubTab === 'telegram' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
                   </button>
@@ -6022,6 +6041,13 @@ export default function AdminBackendPage() {
           )}
 
           {/* =========================================
+              PHÂN HỆ CẤU HÌNH FOOTER (FORWARD TỚI SETTINGS TAB)
+             ========================================= */}
+          {activeMenu === 'footer' && (
+            <AdminFooterConfigManager />
+          )}
+
+          {/* =========================================
               PHÂN HỆ: CẤU HÌNH PHƯƠNG THỨC THANH TOÁN (VIETQR, MOMO, VNPAY, VÍ NỘI BỘ)
              ========================================= */}
           {activeMenu === 'payments' && (
@@ -6824,22 +6850,22 @@ export default function AdminBackendPage() {
                           Trung Tâm Cài Đặt Website
                         </h2>
                         <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
-                          {settingsSubTab === 'system' ? '⚙️ Hệ Thống' : settingsSubTab === 'header' ? '🎨 Header' : settingsSubTab === 'menu' ? '🧭 Menu' : settingsSubTab === 'email' ? '✉️ Email Setting' : '💬 Live Chat Telegram'}
+                          {settingsSubTab === 'system' ? '⚙️ Hệ Thống' : settingsSubTab === 'header' ? '🎨 Header' : settingsSubTab === 'menu' ? '🧭 Menu' : settingsSubTab === 'footer' ? '🦶 Footer' : settingsSubTab === 'email' ? '✉️ Email Setting' : '💬 Live Chat Telegram'}
                         </span>
                       </div>
                       <p className="text-xs text-slate-400">
-                        Quản lý toàn diện nhận diện thương hiệu, giao diện Header, danh mục menu, Email Setting, Live Chat Telegram và vận hành hệ thống.
+                        Quản lý toàn diện nhận diện thương hiệu, giao diện Header, danh mục menu, cấu hình Footer, Email Setting, Live Chat Telegram và vận hành hệ thống.
                       </p>
                     </div>
                   </div>
 
-                  {/* Right: 5 Segmented Options Switcher */}
-                  <div className="grid grid-cols-2 lg:grid-cols-5 gap-1.5 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 shrink-0">
+                  {/* Right: 6 Segmented Options Switcher */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1.5 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 shrink-0">
                     {/* Option 1: System */}
                     <button
                       type="button"
                       onClick={() => handleSelectSettingsSubTab('system')}
-                      className={`px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2.5 cursor-pointer ${
+                      className={`px-3 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2 cursor-pointer ${
                         settingsSubTab === 'system'
                           ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-900/40 ring-1 ring-emerald-400/50'
                           : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -6847,8 +6873,8 @@ export default function AdminBackendPage() {
                     >
                       <i className="fa-solid fa-gear text-sm"></i>
                       <div className="text-left">
-                        <div className="leading-tight">1. Cài Đặt Hệ Thống</div>
-                        <div className="text-[10px] font-normal opacity-80 hidden sm:block">CSKH, Duyệt Tin, DB</div>
+                        <div className="leading-tight">1. Hệ Thống</div>
+                        <div className="text-[10px] font-normal opacity-80 hidden sm:block">CSKH, DB</div>
                       </div>
                     </button>
 
@@ -6856,7 +6882,7 @@ export default function AdminBackendPage() {
                     <button
                       type="button"
                       onClick={() => handleSelectSettingsSubTab('header')}
-                      className={`px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2.5 cursor-pointer ${
+                      className={`px-3 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2 cursor-pointer ${
                         settingsSubTab === 'header'
                           ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-900/40 ring-1 ring-emerald-400/50'
                           : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -6865,7 +6891,7 @@ export default function AdminBackendPage() {
                       <i className="fa-solid fa-window-maximize text-sm"></i>
                       <div className="text-left">
                         <div className="leading-tight">2. Header</div>
-                        <div className="text-[10px] font-normal opacity-80 hidden sm:block">Logo & Độ Rộng Navbar</div>
+                        <div className="text-[10px] font-normal opacity-80 hidden sm:block">Logo & Độ Rộng</div>
                       </div>
                     </button>
 
@@ -6873,7 +6899,7 @@ export default function AdminBackendPage() {
                     <button
                       type="button"
                       onClick={() => handleSelectSettingsSubTab('menu')}
-                      className={`px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2.5 cursor-pointer ${
+                      className={`px-3 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2 cursor-pointer ${
                         settingsSubTab === 'menu'
                           ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-900/40 ring-1 ring-emerald-400/50'
                           : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -6883,16 +6909,35 @@ export default function AdminBackendPage() {
                       <div className="text-left">
                         <div className="leading-tight">3. Menu</div>
                         <div className="text-[10px] font-normal opacity-80 hidden sm:block">
-                          {(navMenuItems || []).length} mục điều hướng
+                          {(navMenuItems || []).length} mục
                         </div>
                       </div>
                     </button>
 
-                    {/* Option 4: Email Setting */}
+                    {/* Option 4: Footer */}
+                    <button
+                      type="button"
+                      onClick={() => handleSelectSettingsSubTab('footer')}
+                      className={`px-3 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2 cursor-pointer ${
+                        settingsSubTab === 'footer'
+                          ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-900/40 ring-1 ring-emerald-400/50'
+                          : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
+                      }`}
+                    >
+                      <i className="fa-solid fa-shoe-prints text-sm text-cyan-400"></i>
+                      <div className="text-left">
+                        <div className="leading-tight">4. Footer</div>
+                        <div className="text-[10px] font-normal opacity-80 hidden sm:block">
+                          4 Cột & Pháp Lý
+                        </div>
+                      </div>
+                    </button>
+
+                    {/* Option 5: Email Setting */}
                     <button
                       type="button"
                       onClick={() => handleSelectSettingsSubTab('email')}
-                      className={`px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2.5 cursor-pointer ${
+                      className={`px-3 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2 cursor-pointer ${
                         settingsSubTab === 'email'
                           ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-900/40 ring-1 ring-emerald-400/50'
                           : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -6900,18 +6945,18 @@ export default function AdminBackendPage() {
                     >
                       <i className="fa-solid fa-envelope-open-text text-sm"></i>
                       <div className="text-left">
-                        <div className="leading-tight">4. Email Setting</div>
+                        <div className="leading-tight">5. Email Setting</div>
                         <div className="text-[10px] font-normal opacity-80 hidden sm:block">
-                          SMTP & 5 Mẫu Thư
+                          SMTP & 5 Mẫu
                         </div>
                       </div>
                     </button>
 
-                    {/* Option 5: Live Chat Telegram */}
+                    {/* Option 6: Live Chat Telegram */}
                     <button
                       type="button"
                       onClick={() => handleSelectSettingsSubTab('telegram')}
-                      className={`px-3.5 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2.5 cursor-pointer ${
+                      className={`px-3 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2 cursor-pointer ${
                         settingsSubTab === 'telegram'
                           ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-900/40 ring-1 ring-emerald-400/50'
                           : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
@@ -6919,9 +6964,9 @@ export default function AdminBackendPage() {
                     >
                       <i className="fa-brands fa-telegram text-sm text-sky-400"></i>
                       <div className="text-left">
-                        <div className="leading-tight">5. Live Chat Telegram</div>
+                        <div className="leading-tight">6. Telegram</div>
                         <div className="text-[10px] font-normal opacity-80 hidden sm:block">
-                          Bot, Webhook & Lead
+                          Live Chat Bot
                         </div>
                       </div>
                     </button>
@@ -8034,12 +8079,17 @@ export default function AdminBackendPage() {
                 <AdminMenuConfigManager onSwitchToHeader={() => handleSelectSettingsSubTab('header')} />
               )}
 
-              {/* TAB 4: EMAIL SETTING */}
+              {/* TAB 4: CẤU HÌNH FOOTER */}
+              {settingsSubTab === 'footer' && (
+                <AdminFooterConfigManager />
+              )}
+
+              {/* TAB 5: EMAIL SETTING */}
               {settingsSubTab === 'email' && (
                 <AdminEmailConfigManager onNavigateToEmails={() => setActiveMenu('emails')} />
               )}
 
-              {/* TAB 5: TELEGRAM LIVE CHAT */}
+              {/* TAB 6: TELEGRAM LIVE CHAT */}
               {settingsSubTab === 'telegram' && (
                 <AdminTelegramChatManager />
               )}

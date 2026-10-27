@@ -2359,6 +2359,71 @@ export const DEFAULT_HEADER_CONFIG = {
   socialLinks: DEFAULT_SOCIAL_LINKS
 };
 
+// Cấu hình Chân trang Website (Footer Settings)
+export const DEFAULT_FOOTER_CONFIG = {
+  // Cột 1: Thông tin thương hiệu & liên hệ
+  brandDescription: 'Nền tảng công nghệ bất động sản đa trang tiên phong tích hợp bản đồ số GIS, tour thực tế ảo VR 360°, hệ thống phân cấp tin đăng VIP thông minh và công cụ tính toán tài chính chuẩn ngân hàng.',
+  hotline: '', // Để trống sẽ fallback theo systemConfig.hotline
+  zalo: '',    // Để trống sẽ fallback theo systemConfig.zalo
+  email: '',   // Để trống sẽ fallback theo systemConfig.email
+  address: '', // Để trống sẽ fallback theo systemConfig.address
+  showSocialLinks: true,
+  socialLinksTitle: 'KẾT NỐI VỚI CHÚNG TÔI:',
+
+  // Cột 2: Khám Phá Nhà Đất
+  col2Title: 'KHÁM PHÁ NHÀ ĐẤT',
+  col2Links: [
+    { id: 'c2-1', label: 'Nhà Đất Cần Bán', url: '/nha-dat-ban' },
+    { id: 'c2-2', label: 'Cho Thuê Nhà Đất', url: '/nha-dat-cho-thue' },
+    { id: 'c2-3', label: 'Bảng Giá Tin Đăng', url: '/bang-gia-tin-dang' },
+    { id: 'c2-4', label: 'Đăng Tin Hiệu Quả', url: '/dang-tin' },
+    { id: 'c2-5', label: 'Công Cụ Tính Lãi Vay', url: '/tinh-lai-vay' }
+  ],
+
+  // Cột 3: Trang Thành Viên
+  col3Title: 'TRANG THÀNH VIÊN',
+  col3Links: [
+    { id: 'c3-1', icon: 'fa-solid fa-user', color: 'text-amber-500', label: 'Hồ Sơ Cá Nhân', url: '/ho-so-ca-nhan' },
+    { id: 'c3-2', icon: 'fa-solid fa-list-check', color: 'text-blue-400', label: 'Quản Lý Tin Đăng', url: '/quan-ly-tin' },
+    { id: 'c3-3', icon: 'fa-solid fa-heart', color: 'text-rose-400', label: 'Tin Đã Lưu Yêu Thích', url: '/tin-da-luu' },
+    { id: 'c3-4', icon: 'fa-solid fa-code-compare', color: 'text-blue-400', label: 'So Sánh Đối Đầu', url: '/so-sanh' },
+    { id: 'c3-5', icon: 'fa-solid fa-wallet', color: 'text-emerald-400', label: 'Nạp Tiền Ví Tài Khoản', url: '/nap-tien' }
+  ],
+  showAdminCmsLink: true,
+
+  // Cột 4: Chứng Nhận & Bảo Mật
+  col4Title: 'CHỨNG NHẬN & BẢO MẬT',
+  badges: [
+    {
+      id: 'b-1',
+      icon: 'fa-solid fa-shield-check',
+      iconColor: 'text-emerald-400',
+      title: 'Đã Đăng Ký Bộ Công Thương',
+      desc: 'Sàn TMĐT giao dịch bất động sản hợp pháp theo Nghị định 52/2013/NĐ-CP.',
+      url: ''
+    },
+    {
+      id: 'b-2',
+      icon: 'fa-solid fa-lock',
+      iconColor: 'text-blue-400',
+      title: 'Bảo Mật Giao Dịch SSL 256-bit',
+      desc: 'Mọi thanh toán qua VietQR, MoMo và VNPAY được mã hóa tối đa.',
+      url: ''
+    }
+  ],
+
+  // Bản quyền chân trang & Chính sách
+  copyrightCustomText: '', // Để trống sẽ tự sinh theo tên sàn
+  policyLinks: [
+    { id: 'p-1', label: 'Quy chế hoạt động', url: '/quy-che-hoat-dong' },
+    { id: 'p-2', label: 'Chính sách bảo mật', url: '/chinh-sach-bao-mat' },
+    { id: 'p-3', label: 'Giải quyết khiếu nại', url: '/giai-quyet-khieu-nai' }
+  ],
+
+  // Khối SEO Danh Mục & Địa Giới Hành Chính
+  showSeoTaxonomy: true
+};
+
 export const PRESET_LOGOS = [
   {
     id: 'preset-gold',

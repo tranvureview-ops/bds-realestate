@@ -565,6 +565,7 @@ export async function fetchFullSupabaseDb() {
       bds_users_list: mergedUsers.length > 0 ? mergedUsers : undefined,
       bds_transactions: txns && txns.length > 0 ? txns : undefined,
       bds_header_config: settingsMap['bds_header_config'] || undefined,
+      bds_footer_config: settingsMap['bds_footer_config'] || undefined,
       bds_system_config: settingsMap['bds_system_config'] || undefined,
       bds_payment_config: settingsMap['bds_payment_config'] || undefined,
       bds_nav_menu: settingsMap['bds_nav_menu'] || undefined,
@@ -595,6 +596,7 @@ export async function syncFullDbToSupabase(payload) {
     // 1. Đồng bộ cấu hình sàn (platform_settings)
     const settingsKeys = [
       'bds_header_config',
+      'bds_footer_config',
       'bds_system_config',
       'bds_payment_config',
       'bds_nav_menu',
