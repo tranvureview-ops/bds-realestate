@@ -166,19 +166,28 @@ export function filterProperties(properties = [], filters = {}) {
     // 12. Tin chính chủ / Đã xác thực
     if (filters.onlyVerified && (!prop.author || !prop.author.isVerified)) return false;
 
-    // 13. Môi giới chuyên nghiệp (Pro Broker / Agent)
+    // 13. Môi giới chuyên nghiệp: Chỉ hiển thị những tài khoản môi giới đã được xác nhận KYC
     if (filters.onlyProAgent) {
-      const isPro = Boolean(
-        prop.author && (
-          prop.author.isVerified ||
-          (prop.author.rating && prop.author.rating >= 4.5) ||
-          prop.author.role === 'agent' ||
-          prop.author.role === 'broker' ||
-          (prop.author.title && prop.author.title.toLowerCase().includes('môi giới')) ||
-          (prop.vipPackageId && prop.vipPackageId !== 'normal')
-        )
+      const author = prop.author;
+      if (!author) return false;
+
+      // 1. Phải là tài khoản môi giới (role broker/agent hoặc có chức danh môi giới, loại trừ chính chủ/khách cá nhân)
+      const isBroker = Boolean(
+        author.role === 'broker' ||
+        author.role === 'agent' ||
+        (author.id && String(author.id).startsWith('broker')) ||
+        (author.title && /môi giới|broker|chuyên viên|giám đốc kinh doanh|địa ốc/i.test(author.title) && !/chính chủ|khách vãng lai/i.test(author.title))
       );
-      if (!isPro) return false;
+
+      // 2. Phải được xác nhận KYC (tích xanh xác thực KYC: isVerified === true hoặc kycStatus === 'verified')
+      const isKycVerified = Boolean(
+        author.isVerified === true ||
+        author.kycStatus === 'verified'
+      );
+
+      if (!isBroker || !isKycVerified) {
+        return false;
+      }
     }
 
     return true;

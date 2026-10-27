@@ -467,7 +467,7 @@ export default function ListingFilterBar({
                 ? 'border-cyan-500 bg-cyan-50/60 text-cyan-800 font-bold'
                 : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
             }`}
-            title="Chỉ hiển thị bài đăng từ môi giới chuyên nghiệp hoặc hội viên uy tín"
+            title="Chỉ hiển thị bài đăng từ tài khoản môi giới đã được xác nhận KYC"
           >
             <i className="fa-solid fa-award text-cyan-600 text-xs sm:text-sm"></i>
             <span>Môi giới chuyên nghiệp</span>
