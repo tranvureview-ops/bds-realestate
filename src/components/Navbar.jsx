@@ -495,47 +495,52 @@ export default function Navbar() {
 
                       {/* Menu Navigation Links */}
                       <div className="px-2 space-y-0.5 text-xs font-medium">
-                        <Link
-                          to="/ho-so-ca-nhan"
-                          onClick={() => setUserMenuOpen(false)}
-                          className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center gap-2.5 ${currentRoute === '/ho-so-ca-nhan' ? 'bg-emerald-50 text-emerald-700 font-bold' : 'hover:bg-slate-50 text-slate-700'}`}
-                        >
-                          <i className="fa-solid fa-user-pen text-emerald-600 w-4 text-center"></i>
-                          <span>Hồ sơ cá nhân</span>
-                        </Link>
+                        {/* Chỉ hiển thị các mục người dùng cá nhân khi KHÔNG PHẢI tài khoản admin */}
+                        {currentUser.role !== 'admin' && (
+                          <>
+                            <Link
+                              to="/ho-so-ca-nhan"
+                              onClick={() => setUserMenuOpen(false)}
+                              className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center gap-2.5 ${currentRoute === '/ho-so-ca-nhan' ? 'bg-emerald-50 text-emerald-700 font-bold' : 'hover:bg-slate-50 text-slate-700'}`}
+                            >
+                              <i className="fa-solid fa-user-pen text-emerald-600 w-4 text-center"></i>
+                              <span>Hồ sơ cá nhân</span>
+                            </Link>
 
-                        <Link
-                          to="/quan-ly-tin"
-                          onClick={() => setUserMenuOpen(false)}
-                          className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center gap-2.5 ${currentRoute === '/quan-ly-tin' ? 'bg-emerald-50 text-emerald-700 font-bold' : 'hover:bg-slate-50 text-slate-700'}`}
-                        >
-                          <i className="fa-solid fa-newspaper text-blue-600 w-4 text-center"></i>
-                          <span>Quản lý tin đăng</span>
-                        </Link>
+                            <Link
+                              to="/quan-ly-tin"
+                              onClick={() => setUserMenuOpen(false)}
+                              className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center gap-2.5 ${currentRoute === '/quan-ly-tin' ? 'bg-emerald-50 text-emerald-700 font-bold' : 'hover:bg-slate-50 text-slate-700'}`}
+                            >
+                              <i className="fa-solid fa-newspaper text-blue-600 w-4 text-center"></i>
+                              <span>Quản lý tin đăng</span>
+                            </Link>
 
-                        <Link
-                          to="/goi-hoi-vien"
-                          onClick={() => setUserMenuOpen(false)}
-                          className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center justify-between ${currentRoute === '/goi-hoi-vien' ? 'bg-amber-50 text-amber-900 font-bold' : 'hover:bg-slate-50 text-slate-700'}`}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <i className="fa-solid fa-crown text-amber-500 w-4 text-center"></i>
-                            <span>Gói hội viên</span>
-                          </div>
-                          {isMemberActive ? (
-                            <span className="text-[9px] bg-amber-400 text-slate-950 font-black px-1.5 py-0.5 rounded-full">
-                              {currentUser.membership.packageName}
-                            </span>
-                          ) : isMemberExpired ? (
-                            <span className="text-[9px] bg-rose-500 text-white font-black px-1.5 py-0.5 rounded-full">
-                              Đã hết hạn
-                            </span>
-                          ) : (
-                            <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-full">
-                              Tiết kiệm {premiumSavePercent}%
-                            </span>
-                          )}
-                        </Link>
+                            <Link
+                              to="/goi-hoi-vien"
+                              onClick={() => setUserMenuOpen(false)}
+                              className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center justify-between ${currentRoute === '/goi-hoi-vien' ? 'bg-amber-50 text-amber-900 font-bold' : 'hover:bg-slate-50 text-slate-700'}`}
+                            >
+                              <div className="flex items-center gap-2.5">
+                                <i className="fa-solid fa-crown text-amber-500 w-4 text-center"></i>
+                                <span>Gói hội viên</span>
+                              </div>
+                              {isMemberActive ? (
+                                <span className="text-[9px] bg-amber-400 text-slate-950 font-black px-1.5 py-0.5 rounded-full">
+                                  {currentUser.membership.packageName}
+                                </span>
+                              ) : isMemberExpired ? (
+                                <span className="text-[9px] bg-rose-500 text-white font-black px-1.5 py-0.5 rounded-full">
+                                  Đã hết hạn
+                                </span>
+                              ) : (
+                                <span className="text-[9px] bg-emerald-100 text-emerald-800 font-bold px-1.5 py-0.5 rounded-full">
+                                  Tiết kiệm {premiumSavePercent}%
+                                </span>
+                              )}
+                            </Link>
+                          </>
+                        )}
 
                         {currentUser.role === 'admin' && (
                           <Link
@@ -543,7 +548,7 @@ export default function Navbar() {
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={() => setUserMenuOpen(false)}
-                            className="w-full px-3 py-2 rounded-xl text-left font-bold transition flex items-center justify-between bg-red-50 text-red-700 hover:bg-red-100"
+                            className="w-full px-3 py-2.5 rounded-xl text-left font-bold transition flex items-center justify-between bg-red-50 text-red-700 hover:bg-red-100 border border-red-100"
                           >
                             <div className="flex items-center gap-2.5">
                               <i className="fa-solid fa-shield-halved text-red-600 w-4 text-center"></i>

@@ -88,9 +88,9 @@ export default function MobileBottomNav() {
           <span className="text-[10px] mt-1 tracking-tight">Cho Thuê</span>
         </Link>
 
-        {/* 5. Tài Khoản Cá Nhân / Đăng Nhập */}
+        {/* 5. Tài Khoản Cá Nhân / Đăng Nhập / CMS Admin */}
         <Link
-          to={isGuest ? "/dang-nhap" : "/ho-so-ca-nhan"}
+          to={isGuest ? "/dang-nhap" : currentUser.role === 'admin' ? "/admin" : "/ho-so-ca-nhan"}
           className={`flex-1 flex flex-col items-center justify-center py-1 transition-colors ${
             isAccount ? 'text-emerald-600 font-bold' : 'text-slate-500 hover:text-slate-800'
           }`}
@@ -110,7 +110,7 @@ export default function MobileBottomNav() {
             )}
           </div>
           <span className="text-[10px] mt-1 tracking-tight truncate max-w-[55px]">
-            {isGuest ? 'Tài Khoản' : 'Cá Nhân'}
+            {isGuest ? 'Tài Khoản' : currentUser.role === 'admin' ? 'CMS Admin' : 'Cá Nhân'}
           </span>
         </Link>
       </div>
