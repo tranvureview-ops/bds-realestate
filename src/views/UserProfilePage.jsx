@@ -11,6 +11,19 @@ export default function UserProfilePage() {
   const [countdown, setCountdown] = useState(3);
 
   const isGuest = !currentUser || currentUser.role === 'guest' || currentUser.id === 'guest';
+  const isAdmin = currentUser?.role === 'admin';
+
+  // Với vai trò Admin: Tự động chuyển hướng ngay về trang Quản trị CMS (/admin)
+  useEffect(() => {
+    if (!isHydrated) return;
+    if (isAdmin) {
+      if (typeof window !== 'undefined') {
+        window.location.replace('/admin');
+      } else {
+        navigate('/admin');
+      }
+    }
+  }, [isHydrated, isAdmin, navigate]);
 
   // Tự động chuyển hướng đến trang đăng nhập sau 3 giây nếu là khách vãng lai
   useEffect(() => {
@@ -30,12 +43,14 @@ export default function UserProfilePage() {
     return () => clearInterval(timer);
   }, [isHydrated, isGuest, navigate]);
 
-  // 1. Trạng thái đang kiểm tra phiên làm việc (Hydration)
-  if (!isHydrated) {
+  // 1. Trạng thái đang kiểm tra phiên làm việc (Hydration) hoặc đang chuyển hướng Admin
+  if (!isHydrated || isAdmin) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-4">
-        <div className="w-10 h-10 border-4 border-emerald-500/20 border-t-emerald-600 rounded-full animate-spin mb-3"></div>
-        <p className="text-xs font-semibold text-slate-500">Đang kiểm tra trạng thái tài khoản...</p>
+        <div className="w-10 h-10 border-4 border-red-500/20 border-t-red-600 rounded-full animate-spin mb-3"></div>
+        <p className="text-xs font-semibold text-slate-500">
+          {isAdmin ? 'Đang chuyển hướng về trang Quản trị CMS...' : 'Đang kiểm tra trạng thái tài khoản...'}
+        </p>
       </div>
     );
   }
