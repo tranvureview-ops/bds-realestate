@@ -7012,17 +7012,11 @@ export default function AdminBackendPage() {
                 <div className="lg:col-span-2 space-y-6">
                   {/* Nhóm 1: Nhận diện thương hiệu sàn */}
                   <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800/80 gap-2">
-                      <div className="flex items-center gap-2">
-                        <i className="fa-solid fa-building text-emerald-400 text-sm"></i>
-                        <h4 className="text-xs font-black uppercase tracking-wider text-white">
-                          1. Thông Tin Nhận Diện Thương Hiệu
-                        </h4>
-                      </div>
-                      <span className="text-[10px] text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 self-start sm:self-auto">
-                        <i className="fa-solid fa-arrows-rotate"></i>
-                        Đồng bộ tự động Header, Footer & Email
-                      </span>
+                    <div className="flex items-center gap-2 pb-3 border-b border-slate-800/80">
+                      <i className="fa-solid fa-building text-emerald-400 text-sm"></i>
+                      <h4 className="text-xs font-black uppercase tracking-wider text-white">
+                        1. Thông Tin Nhận Diện Thương Hiệu
+                      </h4>
                     </div>
 
                     <div className="space-y-3 text-xs">
