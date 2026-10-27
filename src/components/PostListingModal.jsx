@@ -453,7 +453,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const activeVipPackages = (vipPackages && vipPackages.length > 0) ? vipPackages : VIP_PACKAGES;
   const defaultPkg = activeVipPackages.find(p => p.id === 'normal') || activeVipPackages[activeVipPackages.length - 1];
   const selectedPkg = activeVipPackages.find(p => p.id === selectedVipId) || defaultPkg;
-  const ratesConfig = useMemo(() => getEffectiveListingRates(activeVipPackages, paymentConfig), [activeVipPackages, paymentConfig]);
+  const ratesConfig = useMemo(() => getEffectiveListingRates(activeVipPackages, paymentConfig, systemConfig), [activeVipPackages, paymentConfig, systemConfig]);
   const bdsConfig = ratesConfig?.[selectedVipId] || ratesConfig?.['normal'] || LISTING_RATES['normal'];
   const isNormal60 = selectedVipId === 'normal' && listingDays === 60;
   const normal60Price = bdsConfig?.rates?.[60] !== undefined && Number(bdsConfig.rates[60]) !== 0

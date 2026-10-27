@@ -1145,7 +1145,13 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           setHeaderConfig(prev => ({ ...prev, ...db.bds_header_config }));
         }
         if (db.bds_system_config) {
-          setSystemConfig(db.bds_system_config);
+          setSystemConfig(prev => ({
+            ...prev,
+            ...db.bds_system_config,
+            discount30DaysPercent: typeof db.bds_system_config.discount30DaysPercent === 'number'
+              ? db.bds_system_config.discount30DaysPercent
+              : (prev.discount30DaysPercent ?? 25)
+          }));
         }
         if (Array.isArray(db.bds_nav_menu) && db.bds_nav_menu.length > 0) {
           const hasNewCategories = db.bds_nav_menu.some(m => m.children?.some(c => c.path?.includes('chung-cu-mini')));

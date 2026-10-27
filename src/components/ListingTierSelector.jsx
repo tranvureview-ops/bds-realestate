@@ -129,7 +129,7 @@ export function getEffectiveListingRates(customVipPackages, paymentConfig = null
       price7 = (pkg.rates?.[7] !== undefined && !isNaN(Number(pkg.rates[7]))) ? Math.max(0, Number(pkg.rates[7])) : baseDaily;
       price10 = (pkg.rates?.[10] !== undefined && !isNaN(Number(pkg.rates[10]))) ? Math.max(0, Number(pkg.rates[10])) : baseDaily;
       price15 = (pkg.rates?.[15] !== undefined && !isNaN(Number(pkg.rates[15]))) ? Math.max(0, Number(pkg.rates[15])) : baseDaily;
-      price30 = (pkg.rates?.[30] !== undefined && !isNaN(Number(pkg.rates[30]))) ? Math.max(0, Number(pkg.rates[30])) : Math.round(baseDaily * discount30Multiplier);
+      price30 = Math.round(baseDaily * discount30Multiplier);
       price60 = (pkg.rates?.[60] !== undefined && !isNaN(Number(pkg.rates[60]))) ? Math.max(0, Number(pkg.rates[60])) : Math.round(baseDaily * 0.70);
     }
 
@@ -357,14 +357,8 @@ export default function ListingTierSelector({
   const isNormal = selectedType === 'normal';
   const currentConfig = ratesConfig?.[selectedType] || ratesConfig?.['normal'] || LISTING_RATES['normal'];
 
-  // Mức tiết kiệm mốc 30 ngày (tính động theo giá mốc 30 ngày hoặc cấu hình admin)
-  const discount30Percent = useMemo(() => {
-    if (currentConfig?.rates?.[30] && currentConfig?.pricePerDay && currentConfig.pricePerDay > 0) {
-      const computed = Math.round(((currentConfig.pricePerDay - currentConfig.rates[30]) / currentConfig.pricePerDay) * 100);
-      if (computed > 0) return computed;
-    }
-    return Number(systemConfig?.discount30DaysPercent ?? paymentConfig?.discount30DaysPercent ?? 25);
-  }, [currentConfig, systemConfig, paymentConfig]);
+  // Mức tiết kiệm mốc 30 ngày (đồng bộ trực tiếp từ cấu hình quản trị hệ thống)
+  const discount30Percent = Number(systemConfig?.discount30DaysPercent ?? paymentConfig?.discount30DaysPercent ?? 25);
 
   const todayStr = useMemo(() => getTodayString(), []);
   const todayFormatted = useMemo(() => {

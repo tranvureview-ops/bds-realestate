@@ -1957,7 +1957,8 @@
         "icon": "fa-brands fa-instagram",
         "hoverColor": "hover:text-fuchsia-400 hover:border-fuchsia-500/50"
       }
-    }
+    },
+    "discount30DaysPercent": 25
   },
   "bds_payment_config": {
     "momo": {
@@ -2293,19 +2294,19 @@
       "name": "Tin Thường",
       "level": 4,
       "rates": {
-        "15": 3320,
-        "30": 2490,
-        "60": 0
+        "15": 5000,
+        "30": 3750,
+        "60": 5000
       },
       "minDays": 60,
       "tagText": null,
       "features": [
         "Vị trí hiển thị: Nằm sau tất cả các phân hạng Tin VIP (Hiển thị dưới cùng)",
-        "(*) Hàng đợi tiêu chuẩn FIFO: Tự động xuất bản trong 1 tiếng (hoặc BQT duyệt sớm)",
-        "Phí đăng tin tiêu chuẩn: 35.000 đ/lần (Hội viên áp dụng Voucher giảm 35.000 đ còn 0 đ)",
+        "(*) Duyệt tự động ngẫu nhiên: Kích hoạt sau 5 - 15 phút (hoặc BQT duyệt sớm)",
+        "Phí đăng tin tiêu chuẩn: 5.000 đ cho 60 ngày (Hội viên dùng Voucher = 0 đ)",
         "Phí đẩy tin làm mới: 10.000 đ/lần (Hội viên áp dụng Voucher giảm 10.000 đ còn 0 đ)",
         "Đầy đủ thông tin liên hệ, hình ảnh và vị trí bản đồ BĐS",
-        "Phù hợp tin đăng dài hạn, tiết kiệm chi phí tối đa (chỉ từ 2.330 đ/ngày)"
+        "Phù hợp tin đăng dài hạn, tiết kiệm chi phí tối đa"
       ],
       "hasNoAds": false,
       "tagClass": "bg-slate-500 text-white",
@@ -2315,10 +2316,10 @@
       "badgeColor": "bg-slate-200 text-slate-700",
       "titleClass": "text-slate-800 font-medium hover:text-blue-600",
       "borderColor": "border-slate-200",
-      "pricePerDay": 3320,
+      "pricePerDay": 5000,
       "recommended": false,
       "approvalType": "random_fifo",
-      "publishPrice": 35000,
+      "publishPrice": 5000,
       "approvalBadge": "Duyệt tự động (5 - 15 phút)",
       "approvalLabel": "Duyệt tự động ngẫu nhiên (5 - 15 phút)",
       "hasDualListing": false,
