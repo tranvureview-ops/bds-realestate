@@ -483,15 +483,15 @@ export default function LiveChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-40 select-none">
+    <div className="fixed bottom-20 sm:bottom-5 right-3 sm:right-5 z-50 select-none">
       {/* 1. FLOATING TRIGGER BUTTON */}
       {!isOpen && (
         <button
           onClick={handleOpenWidget}
-          className="relative w-14 h-14 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-600 text-white flex items-center justify-center text-xl shadow-2xl hover:scale-110 active:scale-95 transition-all transform border-2 border-white group cursor-pointer"
+          className="relative w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-600 text-white flex items-center justify-center text-xl shadow-2xl hover:scale-110 active:scale-95 transition-all transform border-2 border-white group cursor-pointer"
           title="Live Chat tư vấn BĐS trực tiếp"
         >
-          <i className="fa-solid fa-comments text-2xl group-hover:scale-110 transition-transform"></i>
+          <i className="fa-solid fa-comments text-xl sm:text-2xl group-hover:scale-110 transition-transform"></i>
           
           {/* Unread / Notification Ping Badge */}
           {unreadCount > 0 ? (
@@ -506,7 +506,7 @@ export default function LiveChatWidget() {
 
       {/* 2. CHAT MODAL WINDOW */}
       {isOpen && (
-        <div className="w-[340px] sm:w-[380px] bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-[520px] animate-in slide-in-from-bottom duration-250">
+        <div className="w-[calc(100vw-1.5rem)] sm:w-[380px] max-w-[390px] bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-[490px] sm:h-[530px] max-h-[calc(100dvh-6rem)] animate-in slide-in-from-bottom duration-250">
           
           {/* HEADER: Chuyên viên tư vấn & Nút thu nhỏ */}
           <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white p-3.5 flex items-center justify-between border-b border-slate-800">

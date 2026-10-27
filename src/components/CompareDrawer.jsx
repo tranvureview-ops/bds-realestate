@@ -9,7 +9,7 @@ export default function CompareDrawer() {
   if (compareList.length === 0) return null;
 
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 bg-slate-900 text-white rounded-2xl shadow-2xl px-4 py-3 border border-slate-700 flex flex-wrap items-center gap-4 max-w-4xl w-[92%] sm:w-auto animate-in slide-in-from-bottom duration-300">
+    <div className="fixed bottom-20 md:bottom-4 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white rounded-2xl shadow-2xl px-4 py-3 border border-slate-700 flex flex-wrap items-center gap-4 max-w-4xl w-[92%] sm:w-auto animate-in slide-in-from-bottom duration-300">
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-black">
           {compareList.length}
