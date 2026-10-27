@@ -79,11 +79,12 @@
         }
       ],
       "author": {
-        "id": "user-1792645437733-545",
-        "name": "TRAN VAN VU",
-        "phone": "0905467138",
-        "zalo": "0905467138",
-        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+        "id": "broker-01",
+        "name": "Nguyễn Văn Tuấn",
+        "email": "tuan.batdongsan@datbiendanang.vn",
+        "phone": "0908 123 456",
+        "zalo": "0908123456",
+        "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
         "title": "Môi Giới Chuyên Nghiệp",
         "role": "broker",
         "isVerified": true
@@ -98,9 +99,10 @@
       "queuePriority": "priority_diamond",
       "is_verified": true,
       "isVerified": true,
-      "contactName": "TRAN VAN VU",
-      "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.690Z"
+      "contactName": "Nguyễn Văn Tuấn",
+      "contactPhone": "0908 123 456",
+      "updatedAt": "2026-10-27T23:22:18.453Z",
+      "userId": "broker-01"
     },
     {
       "id": "BDS-002",
@@ -169,11 +171,12 @@
         }
       ],
       "author": {
-        "id": "user-1792645437733-545",
-        "name": "TRAN VAN VU",
-        "phone": "0905467138",
-        "zalo": "0905467138",
-        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+        "id": "broker-01",
+        "name": "Nguyễn Văn Tuấn",
+        "email": "tuan.batdongsan@datbiendanang.vn",
+        "phone": "0908 123 456",
+        "zalo": "0908123456",
+        "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
         "title": "Môi Giới Chuyên Nghiệp",
         "role": "broker",
         "isVerified": true
@@ -188,9 +191,10 @@
       "queuePriority": "priority_diamond",
       "is_verified": true,
       "isVerified": true,
-      "contactName": "TRAN VAN VU",
-      "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "contactName": "Nguyễn Văn Tuấn",
+      "contactPhone": "0908 123 456",
+      "updatedAt": "2026-10-27T23:22:18.454Z",
+      "userId": "broker-01"
     },
     {
       "id": "BDS-003",
@@ -250,11 +254,12 @@
         }
       ],
       "author": {
-        "id": "user-1792645437733-545",
-        "name": "TRAN VAN VU",
-        "phone": "0905467138",
-        "zalo": "0905467138",
-        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+        "id": "broker-01",
+        "name": "Nguyễn Văn Tuấn",
+        "email": "tuan.batdongsan@datbiendanang.vn",
+        "phone": "0908 123 456",
+        "zalo": "0908123456",
+        "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
         "title": "Môi Giới Chuyên Nghiệp",
         "role": "broker",
         "isVerified": true
@@ -277,9 +282,10 @@
         "notes": "Sổ hồng chính chủ 8 tầng mặt phố Nguyễn Văn Linh Hải Châu, đã công chứng sao y bản chính.",
         "submittedAt": "2026-10-28T04:30:00.000Z"
       },
-      "contactName": "TRAN VAN VU",
-      "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "contactName": "Nguyễn Văn Tuấn",
+      "contactPhone": "0908 123 456",
+      "updatedAt": "2026-10-27T23:22:18.454Z",
+      "userId": "broker-01"
     },
     {
       "id": "BDS-004",
@@ -347,11 +353,12 @@
         }
       ],
       "author": {
-        "id": "user-1792645437733-545",
-        "name": "TRAN VAN VU",
-        "phone": "0905467138",
-        "zalo": "0905467138",
-        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+        "id": "broker-01",
+        "name": "Nguyễn Văn Tuấn",
+        "email": "tuan.batdongsan@datbiendanang.vn",
+        "phone": "0908 123 456",
+        "zalo": "0908123456",
+        "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
         "title": "Môi Giới Chuyên Nghiệp",
         "role": "broker",
         "isVerified": true
@@ -365,9 +372,10 @@
       "queuePriority": "priority_gold",
       "is_verified": true,
       "isVerified": true,
-      "contactName": "TRAN VAN VU",
-      "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "contactName": "Nguyễn Văn Tuấn",
+      "contactPhone": "0908 123 456",
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "broker-01"
     },
     {
       "id": "BDS-005",
@@ -424,6 +432,7 @@
       "author": {
         "id": "user-1792645437733-545",
         "name": "TRAN VAN VU",
+        "email": "tranvanvu.dev@gmail.com",
         "phone": "0905467138",
         "zalo": "0905467138",
         "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -442,7 +451,8 @@
       "isVerified": true,
       "contactName": "TRAN VAN VU",
       "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "user-1792645437733-545"
     },
     {
       "id": "BDS-006",
@@ -496,11 +506,12 @@
         }
       ],
       "author": {
-        "id": "user-1792645437733-545",
-        "name": "TRAN VAN VU",
-        "phone": "0905467138",
-        "zalo": "0905467138",
-        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+        "id": "broker-01",
+        "name": "Nguyễn Văn Tuấn",
+        "email": "tuan.batdongsan@datbiendanang.vn",
+        "phone": "0908 123 456",
+        "zalo": "0908123456",
+        "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
         "title": "Môi Giới Chuyên Nghiệp",
         "role": "broker",
         "isVerified": true
@@ -514,9 +525,10 @@
       "queuePriority": "priority_silver",
       "is_verified": false,
       "isVerified": false,
-      "contactName": "TRAN VAN VU",
-      "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "contactName": "Nguyễn Văn Tuấn",
+      "contactPhone": "0908 123 456",
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "broker-01"
     },
     {
       "id": "BDS-007",
@@ -576,6 +588,7 @@
       "author": {
         "id": "user-1792645437733-545",
         "name": "TRAN VAN VU",
+        "email": "tranvanvu.dev@gmail.com",
         "phone": "0905467138",
         "zalo": "0905467138",
         "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -594,7 +607,8 @@
       "isVerified": true,
       "contactName": "TRAN VAN VU",
       "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "user-1792645437733-545"
     },
     {
       "id": "BDS-008",
@@ -652,6 +666,7 @@
       "author": {
         "id": "user-1792645437733-545",
         "name": "TRAN VAN VU",
+        "email": "tranvanvu.dev@gmail.com",
         "phone": "0905467138",
         "zalo": "0905467138",
         "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -670,7 +685,8 @@
       "isVerified": false,
       "contactName": "TRAN VAN VU",
       "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "user-1792645437733-545"
     },
     {
       "id": "BDS-009",
@@ -724,6 +740,7 @@
       "author": {
         "id": "user-1792645437733-545",
         "name": "TRAN VAN VU",
+        "email": "tranvanvu.dev@gmail.com",
         "phone": "0905467138",
         "zalo": "0905467138",
         "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -742,7 +759,8 @@
       "isVerified": false,
       "contactName": "TRAN VAN VU",
       "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "user-1792645437733-545"
     },
     {
       "id": "BDS-010",
@@ -780,11 +798,12 @@
       ],
       "hasVR360": false,
       "author": {
-        "id": "user-1792645437733-545",
-        "name": "TRAN VAN VU",
-        "phone": "0905467138",
-        "zalo": "0905467138",
-        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+        "id": "broker-01",
+        "name": "Nguyễn Văn Tuấn",
+        "email": "tuan.batdongsan@datbiendanang.vn",
+        "phone": "0908 123 456",
+        "zalo": "0908123456",
+        "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
         "title": "Môi Giới Chuyên Nghiệp",
         "role": "broker",
         "isVerified": true
@@ -794,11 +813,12 @@
       "expiresAt": "2027-04-30T23:59:59.000Z",
       "autoRenew": false,
       "queuePriority": "priority_gold",
-      "contactName": "TRAN VAN VU",
+      "contactName": "Nguyễn Văn Tuấn",
       "is_verified": true,
       "isVerified": true,
-      "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "contactPhone": "0908 123 456",
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "broker-01"
     },
     {
       "id": "BDS-011",
@@ -838,6 +858,7 @@
       "author": {
         "id": "user-1792645437733-545",
         "name": "TRAN VAN VU",
+        "email": "tranvanvu.dev@gmail.com",
         "phone": "0905467138",
         "zalo": "0905467138",
         "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -854,7 +875,8 @@
       "is_verified": false,
       "isVerified": false,
       "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "user-1792645437733-545"
     },
     {
       "id": "BDS-012",
@@ -892,11 +914,12 @@
       ],
       "hasVR360": false,
       "author": {
-        "id": "user-1792645437733-545",
-        "name": "TRAN VAN VU",
-        "phone": "0905467138",
-        "zalo": "0905467138",
-        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+        "id": "broker-01",
+        "name": "Nguyễn Văn Tuấn",
+        "email": "tuan.batdongsan@datbiendanang.vn",
+        "phone": "0908 123 456",
+        "zalo": "0908123456",
+        "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
         "title": "Môi Giới Chuyên Nghiệp",
         "role": "broker",
         "isVerified": true
@@ -908,9 +931,10 @@
       "queuePriority": "priority_gold",
       "is_verified": false,
       "isVerified": false,
-      "contactName": "TRAN VAN VU",
-      "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "contactName": "Nguyễn Văn Tuấn",
+      "contactPhone": "0908 123 456",
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "broker-01"
     },
     {
       "id": "BDS-013",
@@ -950,6 +974,7 @@
       "author": {
         "id": "user-1792645437733-545",
         "name": "TRAN VAN VU",
+        "email": "tranvanvu.dev@gmail.com",
         "phone": "0905467138",
         "zalo": "0905467138",
         "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -966,7 +991,8 @@
       "isVerified": true,
       "contactName": "TRAN VAN VU",
       "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "user-1792645437733-545"
     },
     {
       "id": "BDS-014",
@@ -1006,6 +1032,7 @@
       "author": {
         "id": "user-1792645437733-545",
         "name": "TRAN VAN VU",
+        "email": "tranvanvu.dev@gmail.com",
         "phone": "0905467138",
         "zalo": "0905467138",
         "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -1022,7 +1049,8 @@
       "is_verified": false,
       "isVerified": false,
       "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "user-1792645437733-545"
     },
     {
       "id": "BDS-015",
@@ -1090,6 +1118,7 @@
       "author": {
         "id": "user-1792645437733-545",
         "name": "TRAN VAN VU",
+        "email": "tranvanvu.dev@gmail.com",
         "phone": "0905467138",
         "zalo": "0905467138",
         "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -1108,7 +1137,8 @@
       "isVerified": false,
       "contactName": "TRAN VAN VU",
       "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "user-1792645437733-545"
     },
     {
       "id": "BDS-016",
@@ -1163,11 +1193,12 @@
         }
       ],
       "author": {
-        "id": "user-1792645437733-545",
-        "name": "TRAN VAN VU",
-        "phone": "0905467138",
-        "zalo": "0905467138",
-        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+        "id": "broker-01",
+        "name": "Nguyễn Văn Tuấn",
+        "email": "tuan.batdongsan@datbiendanang.vn",
+        "phone": "0908 123 456",
+        "zalo": "0908123456",
+        "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
         "title": "Môi Giới Chuyên Nghiệp",
         "role": "broker",
         "isVerified": true
@@ -1181,9 +1212,10 @@
       "queuePriority": "priority_gold",
       "is_verified": true,
       "isVerified": true,
-      "contactName": "TRAN VAN VU",
-      "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "contactName": "Nguyễn Văn Tuấn",
+      "contactPhone": "0908 123 456",
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "broker-01"
     },
     {
       "id": "BDS-017",
@@ -1251,6 +1283,7 @@
       "author": {
         "id": "user-1792645437733-545",
         "name": "TRAN VAN VU",
+        "email": "tranvanvu.dev@gmail.com",
         "phone": "0905467138",
         "zalo": "0905467138",
         "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -1269,7 +1302,8 @@
       "isVerified": true,
       "contactName": "TRAN VAN VU",
       "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "user-1792645437733-545"
     },
     {
       "id": "BDS-018",
@@ -1325,11 +1359,12 @@
         }
       ],
       "author": {
-        "id": "user-1792645437733-545",
-        "name": "TRAN VAN VU",
-        "phone": "0905467138",
-        "zalo": "0905467138",
-        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+        "id": "broker-01",
+        "name": "Nguyễn Văn Tuấn",
+        "email": "tuan.batdongsan@datbiendanang.vn",
+        "phone": "0908 123 456",
+        "zalo": "0908123456",
+        "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
         "title": "Môi Giới Chuyên Nghiệp",
         "role": "broker",
         "isVerified": true
@@ -1343,9 +1378,10 @@
       "queuePriority": "priority_silver",
       "is_verified": false,
       "isVerified": false,
-      "contactName": "TRAN VAN VU",
-      "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "contactName": "Nguyễn Văn Tuấn",
+      "contactPhone": "0908 123 456",
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "broker-01"
     },
     {
       "id": "BDS-019",
@@ -1406,6 +1442,7 @@
       "author": {
         "id": "user-1792645437733-545",
         "name": "TRAN VAN VU",
+        "email": "tranvanvu.dev@gmail.com",
         "phone": "0905467138",
         "zalo": "0905467138",
         "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -1424,7 +1461,8 @@
       "isVerified": true,
       "contactName": "TRAN VAN VU",
       "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "user-1792645437733-545"
     },
     {
       "id": "BDS-020",
@@ -1481,6 +1519,7 @@
       "author": {
         "id": "user-1792645437733-545",
         "name": "TRAN VAN VU",
+        "email": "tranvanvu.dev@gmail.com",
         "phone": "0905467138",
         "zalo": "0905467138",
         "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -1499,7 +1538,8 @@
       "isVerified": false,
       "contactName": "TRAN VAN VU",
       "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "user-1792645437733-545"
     },
     {
       "id": "BDS-021",
@@ -1560,6 +1600,7 @@
       "author": {
         "id": "user-1792645437733-545",
         "name": "TRAN VAN VU",
+        "email": "tranvanvu.dev@gmail.com",
         "phone": "0905467138",
         "zalo": "0905467138",
         "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -1578,7 +1619,8 @@
       "isVerified": true,
       "contactName": "TRAN VAN VU",
       "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "user-1792645437733-545"
     },
     {
       "id": "BDS-022",
@@ -1632,11 +1674,12 @@
         }
       ],
       "author": {
-        "id": "user-1792645437733-545",
-        "name": "TRAN VAN VU",
-        "phone": "0905467138",
-        "zalo": "0905467138",
-        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+        "id": "broker-01",
+        "name": "Nguyễn Văn Tuấn",
+        "email": "tuan.batdongsan@datbiendanang.vn",
+        "phone": "0908 123 456",
+        "zalo": "0908123456",
+        "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
         "title": "Môi Giới Chuyên Nghiệp",
         "role": "broker",
         "isVerified": true
@@ -1650,9 +1693,10 @@
       "queuePriority": "standard_fifo",
       "is_verified": false,
       "isVerified": false,
-      "contactName": "TRAN VAN VU",
-      "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "contactName": "Nguyễn Văn Tuấn",
+      "contactPhone": "0908 123 456",
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "broker-01"
     },
     {
       "id": "BDS-023",
@@ -1720,6 +1764,7 @@
       "author": {
         "id": "user-1792645437733-545",
         "name": "TRAN VAN VU",
+        "email": "tranvanvu.dev@gmail.com",
         "phone": "0905467138",
         "zalo": "0905467138",
         "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -1738,7 +1783,8 @@
       "isVerified": false,
       "contactName": "TRAN VAN VU",
       "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "user-1792645437733-545"
     },
     {
       "id": "BDS-024",
@@ -1796,6 +1842,7 @@
       "author": {
         "id": "user-1792645437733-545",
         "name": "TRAN VAN VU",
+        "email": "tranvanvu.dev@gmail.com",
         "phone": "0905467138",
         "zalo": "0905467138",
         "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -1814,7 +1861,8 @@
       "isVerified": true,
       "contactName": "TRAN VAN VU",
       "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "user-1792645437733-545"
     },
     {
       "id": "BDS-025",
@@ -1871,6 +1919,7 @@
       "author": {
         "id": "user-1792645437733-545",
         "name": "TRAN VAN VU",
+        "email": "tranvanvu.dev@gmail.com",
         "phone": "0905467138",
         "zalo": "0905467138",
         "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -1889,7 +1938,8 @@
       "isVerified": false,
       "contactName": "TRAN VAN VU",
       "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "user-1792645437733-545"
     },
     {
       "id": "BDS-026",
@@ -1953,6 +2003,7 @@
       "author": {
         "id": "user-1792645437733-545",
         "name": "TRAN VAN VU",
+        "email": "tranvanvu.dev@gmail.com",
         "phone": "0905467138",
         "zalo": "0905467138",
         "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -1971,7 +2022,8 @@
       "isVerified": true,
       "contactName": "TRAN VAN VU",
       "contactPhone": "0905467138",
-      "updatedAt": "2026-10-27T23:06:16.691Z"
+      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "userId": "user-1792645437733-545"
     },
     {
       "id": "BDS-027",
@@ -2028,17 +2080,18 @@
         }
       ],
       "author": {
-        "id": "user-1792645437733-545",
-        "name": "TRAN VAN VU",
-        "phone": "0905467138",
-        "zalo": "0905467138",
-        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+        "id": "broker-01",
+        "name": "Nguyễn Văn Tuấn",
+        "email": "tuan.batdongsan@datbiendanang.vn",
+        "phone": "0908 123 456",
+        "zalo": "0908123456",
+        "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
         "title": "Môi Giới Chuyên Nghiệp",
         "role": "broker",
         "isVerified": true
       },
-      "contactName": "TRAN VAN VU",
-      "contactPhone": "0905467138",
+      "contactName": "Nguyễn Văn Tuấn",
+      "contactPhone": "0908 123 456",
       "publishedAt": "2026-10-26T09:00:00.000Z",
       "viewsCount": 215,
       "callsCount": 32,
@@ -2047,7 +2100,9 @@
       "autoRenew": true,
       "queuePriority": 1,
       "is_verified": true,
-      "isVerified": true
+      "isVerified": true,
+      "userId": "broker-01",
+      "updatedAt": "2026-10-27T23:22:18.455Z"
     },
     {
       "id": "BDS-028",
@@ -2104,6 +2159,7 @@
       "author": {
         "id": "user-1792645437733-545",
         "name": "TRAN VAN VU",
+        "email": "tranvanvu.dev@gmail.com",
         "phone": "0905467138",
         "zalo": "0905467138",
         "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -2121,7 +2177,9 @@
       "autoRenew": true,
       "queuePriority": 2,
       "is_verified": true,
-      "isVerified": true
+      "isVerified": true,
+      "userId": "user-1792645437733-545",
+      "updatedAt": "2026-10-27T23:22:18.455Z"
     },
     {
       "id": "BDS-029",
@@ -2178,6 +2236,7 @@
       "author": {
         "id": "user-1792645437733-545",
         "name": "TRAN VAN VU",
+        "email": "tranvanvu.dev@gmail.com",
         "phone": "0905467138",
         "zalo": "0905467138",
         "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -2195,7 +2254,9 @@
       "autoRenew": true,
       "queuePriority": 3,
       "is_verified": true,
-      "isVerified": true
+      "isVerified": true,
+      "userId": "user-1792645437733-545",
+      "updatedAt": "2026-10-27T23:22:18.455Z"
     },
     {
       "id": "BDS-030",
@@ -2249,17 +2310,18 @@
         }
       ],
       "author": {
-        "id": "user-1792645437733-545",
-        "name": "TRAN VAN VU",
-        "phone": "0905467138",
-        "zalo": "0905467138",
-        "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+        "id": "broker-01",
+        "name": "Nguyễn Văn Tuấn",
+        "email": "tuan.batdongsan@datbiendanang.vn",
+        "phone": "0908 123 456",
+        "zalo": "0908123456",
+        "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
         "title": "Môi Giới Chuyên Nghiệp",
         "role": "broker",
         "isVerified": true
       },
-      "contactName": "TRAN VAN VU",
-      "contactPhone": "0905467138",
+      "contactName": "Nguyễn Văn Tuấn",
+      "contactPhone": "0908 123 456",
       "publishedAt": "2026-10-26T11:00:00.000Z",
       "viewsCount": 280,
       "callsCount": 35,
@@ -2268,7 +2330,9 @@
       "autoRenew": true,
       "queuePriority": 2,
       "is_verified": true,
-      "isVerified": true
+      "isVerified": true,
+      "userId": "broker-01",
+      "updatedAt": "2026-10-27T23:22:18.455Z"
     },
     {
       "id": "BDS-031",
@@ -2324,6 +2388,7 @@
       "author": {
         "id": "user-1792645437733-545",
         "name": "TRAN VAN VU",
+        "email": "tranvanvu.dev@gmail.com",
         "phone": "0905467138",
         "zalo": "0905467138",
         "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
@@ -2341,7 +2406,9 @@
       "autoRenew": true,
       "queuePriority": 3,
       "is_verified": true,
-      "isVerified": true
+      "isVerified": true,
+      "userId": "user-1792645437733-545",
+      "updatedAt": "2026-10-27T23:22:18.455Z"
     }
   ],
   "bds_users_list": [
@@ -2371,7 +2438,8 @@
       },
       "isVerified": true,
       "status": "active",
-      "isDeleted": false
+      "isDeleted": false,
+      "activeListingsCount": 19
     },
     {
       "id": "broker-01",
@@ -2399,7 +2467,8 @@
       },
       "isVerified": true,
       "status": "active",
-      "isDeleted": false
+      "isDeleted": false,
+      "activeListingsCount": 12
     },
     {
       "id": "admin-01",

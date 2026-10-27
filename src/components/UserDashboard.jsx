@@ -85,27 +85,34 @@ export default function UserDashboard() {
     return `${num}đ`;
   };
 
-  // Listings authored by currentUser (or all listings if demo admin/broker)
-  const myListings = properties.filter(p => {
-    // Bỏ qua tin đã nằm trong thùng rác hoặc đã xóa
-    if (p.isDeleted || p.status === 'trash') return false;
-
-    // Show listings belonging to this user or all broker listings for demo
-    if (currentUser?.role === 'admin') return true;
+  // Helper kiểm tra quyền sở hữu tin đăng đồng bộ theo ID hoặc SĐT
+  const isPropertyOwner = (p) => {
+    if (!currentUser) return false;
+    if (currentUser.role === 'admin') return true;
     if (isGuest) {
       return p.author && (String(p.author.id).startsWith('guest') || p.author.id === 'guest');
     }
-    return p.author && p.author.id === currentUser?.id;
+    const cleanPhone = (phone) => (phone || '').replace(/\D/g, '');
+    const pPhone = cleanPhone(p.author?.phone || p.contactPhone);
+    const uPhone = cleanPhone(currentUser?.phone);
+    return Boolean(
+      (p.author?.id && String(p.author.id) === String(currentUser?.id)) ||
+      (p.userId && String(p.userId) === String(currentUser?.id)) ||
+      (uPhone && pPhone && uPhone.length >= 9 && uPhone === pPhone)
+    );
+  };
+
+  // Listings authored by currentUser (hoặc toàn bộ nếu là Admin)
+  const myListings = properties.filter(p => {
+    // Bỏ qua tin đã nằm trong thùng rác hoặc đã xóa
+    if (p.isDeleted || p.status === 'trash') return false;
+    return isPropertyOwner(p);
   });
 
   // Các tin rao đã chuyển vào Thùng rác (Trash)
   const trashListings = properties.filter(p => {
     if (!p.isDeleted && p.status !== 'trash') return false;
-    if (currentUser?.role === 'admin') return true;
-    if (isGuest) {
-      return p.author && (String(p.author.id).startsWith('guest') || p.author.id === 'guest');
-    }
-    return p.author && p.author.id === currentUser?.id;
+    return isPropertyOwner(p);
   });
 
   const activeCount = myListings.filter(p => p.status === 'active' && !getPropertyExpirationInfo?.(p)?.isExpired).length;
