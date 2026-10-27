@@ -3313,15 +3313,22 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
             ? {
                 ...(extraConfig.dailyFreeListingLimit !== undefined ? { dailyFreeLimit: Math.max(0, parseInt(extraConfig.dailyFreeListingLimit, 10) || 0) } : {}),
                 ...(extraConfig.normalAllowedDurations ? { allowedDurations: extraConfig.normalAllowedDurations } : {}),
-                ...(extraConfig.normalCustomRates ? { rates: { ...(p.rates || {}), ...extraConfig.normalCustomRates, 15: rate15, 30: rate30, 60: rate60 } } : {})
+                ...(extraConfig.normalCustomRates ? { rates: { ...(p.rates || {}), ...extraConfig.normalCustomRates, 15: rate15, 30: rate30, 60: rate60 } } : {}),
+                ...(extraConfig.approvalMinMinutes !== undefined ? { approvalMinMinutes: Number(extraConfig.approvalMinMinutes) } : {}),
+                ...(extraConfig.approvalMaxMinutes !== undefined ? { approvalMaxMinutes: Number(extraConfig.approvalMaxMinutes) } : {}),
+                approvalMode: 'random',
+                approvalBadge: `Duyệt tự động (${extraConfig.approvalMinMinutes ?? p.approvalMinMinutes ?? 5} - ${extraConfig.approvalMaxMinutes ?? p.approvalMaxMinutes ?? 15} phút)`
               }
             : {
                 allowedDurations: [5, 7, 10, 15, 30],
-                minDays: 5
+                minDays: 5,
+                approvalMode: 'instant',
+                approvalBadge: 'Duyệt tức thì (0s)'
               };
           return {
             ...p,
             pricePerDay: priceNum,
+            publishPrice: (p.id === 'normal' ? rate60 : p.publishPrice),
             rates: {
               ...(p.rates || {}),
               5: rate5,
@@ -3348,6 +3355,30 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           ...(extraConfig.discount30DaysPercent !== undefined ? { discount30DaysPercent: discount30Percent } : {})
         };
         persistSettingToSupabase('bds_system_config', nextCfg);
+        return nextCfg;
+      });
+    }
+    if (extraConfig.approvalMinMinutes !== undefined || extraConfig.approvalMaxMinutes !== undefined) {
+      setPaymentConfig(prev => {
+        const currentTiers = prev?.approvalTiers || DEFAULT_APPROVAL_TIERS;
+        const currentPkgTier = currentTiers['normal'] || DEFAULT_APPROVAL_TIERS['normal'] || {};
+        const delayMinMinutes = extraConfig.approvalMinMinutes !== undefined ? Number(extraConfig.approvalMinMinutes) : (currentPkgTier.delayMinMinutes ?? 5);
+        const delayMaxMinutes = extraConfig.approvalMaxMinutes !== undefined ? Number(extraConfig.approvalMaxMinutes) : (currentPkgTier.delayMaxMinutes ?? 15);
+        const badgeText = `Duyệt tự động (${delayMinMinutes} - ${delayMaxMinutes} phút)`;
+        const nextCfg = {
+          ...prev,
+          approvalTiers: {
+            ...currentTiers,
+            normal: {
+              ...currentPkgTier,
+              mode: 'random',
+              delayMinMinutes,
+              delayMaxMinutes,
+              badgeText
+            }
+          }
+        };
+        persistSettingToSupabase('bds_payment_config', nextCfg);
         return nextCfg;
       });
     }

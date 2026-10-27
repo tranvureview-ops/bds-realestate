@@ -363,6 +363,7 @@ export default function AdminBackendPage() {
   const [isTestingMapsKey, setIsTestingMapsKey] = useState(false);
   const [isClearingMapsCache, setIsClearingMapsCache] = useState(false);
   const [mapsTestResult, setMapsTestResult] = useState(null);
+  const [isSavingPricing, setIsSavingPricing] = useState(false);
 
   // Tải cấu hình Google Maps API & thống kê Cache từ API Server-side
   const fetchMapsSettings = useCallback(async () => {
@@ -5649,46 +5650,58 @@ export default function AdminBackendPage() {
 
                 <div className="flex items-center gap-2 flex-wrap">
                   <button
+                    disabled={isSavingPricing}
                     onClick={async () => {
-                      const pricesMap = {};
-                      (vipPackages || []).forEach(p => {
-                        const inputEl = document.getElementById(`price-${p.id}`);
-                        if (inputEl && inputEl.value !== undefined && inputEl.value !== '') {
-                          pricesMap[p.id] = inputEl.value;
-                        } else {
-                          pricesMap[p.id] = p.pricePerDay ?? 0;
+                      setIsSavingPricing(true);
+                      try {
+                        const pricesMap = {};
+                        (vipPackages || []).forEach(p => {
+                          const inputEl = document.getElementById(`price-${p.id}`);
+                          if (inputEl && inputEl.value !== undefined && inputEl.value !== '') {
+                            pricesMap[p.id] = inputEl.value;
+                          } else {
+                            pricesMap[p.id] = p.pricePerDay ?? 0;
+                          }
+                        });
+                        const bumpEl = document.getElementById('price-bump-service');
+                        if (bumpEl && bumpEl.value !== undefined && bumpEl.value !== '') {
+                          await updateBumpServicePrice(bumpEl.value);
                         }
-                      });
-                      const bumpEl = document.getElementById('price-bump-service');
-                      if (bumpEl && bumpEl.value !== undefined && bumpEl.value !== '') {
-                        await updateBumpServicePrice(bumpEl.value);
-                      }
-                      const limitEl = document.getElementById('input-daily-free-limit');
-                      const discount30El = document.getElementById('input-discount-30days');
-                      const normalAllowed = [15, 30, 60].filter(d => document.getElementById(`duration-check-normal-${d}`)?.checked);
-                      const normalRates = {
-                        15: Math.max(0, parseInt(document.getElementById('rate-normal-15')?.value, 10) || 0),
-                        30: Math.max(0, parseInt(document.getElementById('rate-normal-30')?.value, 10) || 0),
-                        60: Math.max(0, parseInt(document.getElementById('rate-normal-60')?.value, 10) || 0)
-                      };
-                      const extraConfig = {
-                        dailyFreeListingLimit: (limitEl && limitEl.value !== undefined && limitEl.value !== '')
-                          ? (parseInt(limitEl.value, 10) || 0)
-                          : 5,
-                        discount30DaysPercent: (discount30El && discount30El.value !== undefined && discount30El.value !== '')
-                          ? (parseInt(discount30El.value, 10) || 25)
-                          : 25,
-                        normalAllowedDurations: normalAllowed.length > 0 ? normalAllowed : [60],
-                        normalCustomRates: normalRates
-                      };
-                      if (updateAllVipPackagePrices && Object.keys(pricesMap).length > 0) {
-                        await updateAllVipPackagePrices(pricesMap, extraConfig);
+                        const limitEl = document.getElementById('input-daily-free-limit');
+                        const discount30El = document.getElementById('input-discount-30days');
+                        const minApprovalEl = document.getElementById('input-normal-approval-min');
+                        const maxApprovalEl = document.getElementById('input-normal-approval-max');
+                        const normalAllowed = [15, 30, 60].filter(d => document.getElementById(`duration-check-normal-${d}`)?.checked);
+                        const normalRates = {
+                          15: Math.max(0, parseInt(document.getElementById('rate-normal-15')?.value, 10) || 0),
+                          30: Math.max(0, parseInt(document.getElementById('rate-normal-30')?.value, 10) || 0),
+                          60: Math.max(0, parseInt(document.getElementById('rate-normal-60')?.value, 10) || 0)
+                        };
+                        const extraConfig = {
+                          dailyFreeListingLimit: (limitEl && limitEl.value !== undefined && limitEl.value !== '')
+                            ? (parseInt(limitEl.value, 10) || 0)
+                            : 5,
+                          discount30DaysPercent: (discount30El && discount30El.value !== undefined && discount30El.value !== '')
+                            ? (parseInt(discount30El.value, 10) || 25)
+                            : 25,
+                          approvalMinMinutes: minApprovalEl ? Math.max(1, parseInt(minApprovalEl.value, 10) || 5) : 5,
+                          approvalMaxMinutes: maxApprovalEl ? Math.max(1, parseInt(maxApprovalEl.value, 10) || 15) : 15,
+                          normalAllowedDurations: normalAllowed.length > 0 ? normalAllowed : [60],
+                          normalCustomRates: normalRates
+                        };
+                        if (updateAllVipPackagePrices && Object.keys(pricesMap).length > 0) {
+                          await updateAllVipPackagePrices(pricesMap, extraConfig);
+                        }
+                      } catch (err) {
+                        console.error('Lỗi lưu toàn bộ bảng giá:', err);
+                      } finally {
+                        setIsSavingPricing(false);
                       }
                     }}
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-black shadow-lg shadow-red-600/20 transition flex items-center gap-2 cursor-pointer"
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs font-black shadow-lg shadow-red-600/20 transition flex items-center gap-2 cursor-pointer disabled:opacity-50"
                   >
-                    <i className="fa-solid fa-floppy-disk"></i>
-                    <span>Lưu Toàn Bộ Bảng Giá</span>
+                    <i className={isSavingPricing ? "fa-solid fa-spinner animate-spin" : "fa-solid fa-floppy-disk"}></i>
+                    <span>{isSavingPricing ? 'Đang Lưu...' : 'Lưu Toàn Bộ Bảng Giá'}</span>
                   </button>
 
                   <button
@@ -5734,20 +5747,6 @@ export default function AdminBackendPage() {
                     />
                     <span className="text-xs text-slate-300 font-bold">%</span>
                   </div>
-                  {updateDiscount30DaysPercent && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const val = document.getElementById('input-discount-30days')?.value;
-                        if (val !== undefined && val !== '') {
-                          updateDiscount30DaysPercent(val);
-                        }
-                      }}
-                      className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition cursor-pointer shadow-md"
-                    >
-                      Lưu
-                    </button>
-                  )}
                 </div>
               </div>
 
@@ -5792,45 +5791,6 @@ export default function AdminBackendPage() {
                           className="w-28 px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-xs font-bold text-right text-emerald-400 focus:border-emerald-500 focus:outline-none"
                         />
                         <span className="text-xs text-slate-400">đ/ngày</span>
-                        <button
-                          onClick={() => {
-                            const rawVal = document.getElementById(`price-${pkg.id}`)?.value;
-                            const val = (rawVal !== undefined && rawVal !== '') ? rawVal : (pkg.pricePerDay ?? 0);
-                            const limitEl = document.getElementById('input-daily-free-limit');
-                            let extra = {};
-                            if (pkg.id === 'normal') {
-                              const allowedDurations = [15, 30, 60].filter(d => document.getElementById(`duration-check-${pkg.id}-${d}`)?.checked);
-                              const customRates = {
-                                15: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-15`)?.value, 10) || 0),
-                                30: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-30`)?.value, 10) || 0),
-                                60: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-60`)?.value, 10) || 0)
-                              };
-                              const minApproval = Math.max(1, parseInt(document.getElementById('input-normal-approval-min')?.value, 10) || 5);
-                              const maxApproval = Math.max(minApproval, parseInt(document.getElementById('input-normal-approval-max')?.value, 10) || 15);
-                              extra = {
-                                dailyFreeLimit: limitEl ? (parseInt(limitEl.value, 10) || 0) : 5,
-                                allowedDurations: allowedDurations.length > 0 ? allowedDurations : [60],
-                                rates: customRates,
-                                approvalMode: 'random',
-                                approvalMinMinutes: minApproval,
-                                approvalMaxMinutes: maxApproval,
-                                approvalBadge: `Duyệt tự động (${minApproval} - ${maxApproval} phút)`
-                              };
-                            } else {
-                              extra = {
-                                approvalMode: 'instant',
-                                delayMinutes: 0,
-                                approvalBadge: 'Duyệt tức thì (0s)',
-                                allowedDurations: [5, 7, 10, 15, 30],
-                                minDays: 5
-                              };
-                            }
-                            updateVipPackagePrice(pkg.id, val, extra);
-                          }}
-                          className="px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition cursor-pointer"
-                        >
-                          Lưu
-                        </button>
                       </div>
                     </div>
 
@@ -5889,21 +5849,6 @@ export default function AdminBackendPage() {
                               title="Số lượng tin miễn phí tối đa mỗi user được đăng trong 1 ngày (0 = không giới hạn)"
                             />
                             <span className="text-[11px] text-slate-400 whitespace-nowrap">tin / ngày</span>
-                            {updateDailyFreeListingLimit && (
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const limit = document.getElementById('input-daily-free-limit')?.value;
-                                  if (limit !== undefined && limit !== '') {
-                                    updateDailyFreeListingLimit(limit);
-                                  }
-                                }}
-                                className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 rounded-lg text-[10px] font-bold transition cursor-pointer"
-                                title="Lưu riêng hạn mức ngày"
-                              >
-                                Lưu
-                              </button>
-                            )}
                           </div>
                         </div>
 
@@ -5947,31 +5892,7 @@ export default function AdminBackendPage() {
                               <i className="fa-solid fa-calendar-days text-indigo-400"></i>
                               <span>Quản Lý Các Mốc Thời Hạn (15, 30, 60 ngày):</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] text-slate-400 hidden sm:inline">Bật/tắt hiển thị ở Client</span>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const allowedDurations = [15, 30, 60].filter(d => document.getElementById(`duration-check-${pkg.id}-${d}`)?.checked);
-                                  const customRates = {
-                                    15: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-15`)?.value, 10) || 0),
-                                    30: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-30`)?.value, 10) || 0),
-                                    60: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-60`)?.value, 10) || 0)
-                                  };
-                                  const rawVal = document.getElementById(`price-${pkg.id}`)?.value;
-                                  const val = (rawVal !== undefined && rawVal !== '') ? rawVal : (pkg.pricePerDay ?? 0);
-                                  updateVipPackagePrice(pkg.id, val, {
-                                    allowedDurations: allowedDurations.length > 0 ? allowedDurations : [60],
-                                    rates: customRates
-                                  });
-                                }}
-                                className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[10px] font-black transition cursor-pointer shadow-sm flex items-center gap-1"
-                                title="Lưu cấu hình mốc thời hạn và đơn giá ngày của Tin Thường"
-                              >
-                                <i className="fa-solid fa-floppy-disk text-[9px]"></i>
-                                <span>Lưu Mốc</span>
-                              </button>
-                            </div>
+                            <span className="text-[10px] text-slate-400">Bật/tắt hiển thị ở Client</span>
                           </div>
 
                           <div className="space-y-2">
@@ -6082,15 +6003,6 @@ export default function AdminBackendPage() {
                     className="w-28 px-2.5 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-xs font-bold text-right text-amber-400 focus:border-amber-500 focus:outline-none"
                   />
                   <span className="text-xs text-slate-400">đ/lần</span>
-                  <button
-                    onClick={() => {
-                      const val = document.getElementById('price-bump-service')?.value;
-                      if (val) updateBumpServicePrice(val);
-                    }}
-                    className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition cursor-pointer shadow-md"
-                  >
-                    Lưu
-                  </button>
                 </div>
               </div>
             </div>
