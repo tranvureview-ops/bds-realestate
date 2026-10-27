@@ -444,6 +444,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   // 6. Listing Types / VIP Packages Configuration (editable by Admin)
   const normalizeVipPackage = (pkg) => {
     if (!pkg || !pkg.id) return pkg;
+    const cleanFeatures = (Array.isArray(pkg.features) ? pkg.features : []).filter(f => {
+      if (typeof f !== 'string') return true;
+      const lower = f.toLowerCase();
+      return !lower.includes('nhân đôi hiển thị') &&
+             !lower.includes('tặng kèm 1 tin thường') &&
+             !lower.includes('đẩy miễn phí luôn tin thường') &&
+             !lower.includes('được đẩy miễn phí luôn');
+    });
     if (pkg.id === 'normal') {
       const baseNormal = (pkg.pricePerDay !== undefined && pkg.pricePerDay !== null && !isNaN(Number(pkg.pricePerDay)))
         ? Math.max(0, Number(pkg.pricePerDay))
@@ -453,6 +461,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         : 5000;
       return {
         ...pkg,
+        features: cleanFeatures,
+        hasDualListing: false,
         pricePerDay: baseNormal,
         publishPrice: rate60,
         minDays: 60,
@@ -475,6 +485,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       : (pkg.rates?.[7] ?? pkg.rates?.[15] ?? 0);
     return {
       ...pkg,
+      features: cleanFeatures,
+      hasDualListing: false,
       pricePerDay: base,
       minDays: 5,
       allowedDurations: [5, 7, 10, 15, 30],

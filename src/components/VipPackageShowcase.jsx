@@ -151,12 +151,21 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
 
                   {/* Feature Checklist */}
                   <ul className="space-y-1.5 py-2 border-t border-slate-100 text-xs text-slate-600">
-                    {pkg.features.slice(0, 4).map((feat, idx) => (
-                      <li key={idx} className="flex items-start gap-1.5 leading-tight">
-                        <i className={`fa-solid fa-check text-[11px] mt-0.5 shrink-0 ${isDiamond ? 'text-red-600' : isGold ? 'text-amber-500' : isSilver ? 'text-blue-500' : 'text-slate-400'}`}></i>
-                        <span className={idx === 0 ? 'font-bold text-slate-800' : ''}>{feat}</span>
-                      </li>
-                    ))}
+                    {(pkg.features || [])
+                      .filter(feat => {
+                        const lower = feat?.toLowerCase?.() || '';
+                        return !lower.includes('nhân đôi hiển thị') &&
+                               !lower.includes('tặng kèm 1 tin thường') &&
+                               !lower.includes('đẩy miễn phí luôn tin thường') &&
+                               !lower.includes('được đẩy miễn phí luôn');
+                      })
+                      .slice(0, 4)
+                      .map((feat, idx) => (
+                        <li key={idx} className="flex items-start gap-1.5 leading-tight">
+                          <i className={`fa-solid fa-check text-[11px] mt-0.5 shrink-0 ${isDiamond ? 'text-red-600' : isGold ? 'text-amber-500' : isSilver ? 'text-blue-500' : 'text-slate-400'}`}></i>
+                          <span className={idx === 0 ? 'font-bold text-slate-800' : ''}>{feat}</span>
+                        </li>
+                      ))}
                   </ul>
                 </div>
 
