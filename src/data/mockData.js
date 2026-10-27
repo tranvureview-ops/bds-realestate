@@ -2246,6 +2246,376 @@ export const INITIAL_PROPERTIES = [
     "contactName": "TRAN VAN VU",
     "contactPhone": "0905467138",
     "updatedAt": "2026-10-27T23:06:16.691Z"
+  },
+  {
+    "id": "BDS-027",
+    "title": "BÁN BIỆT THỰ NGHỈ DƯỠNG VEN SÔNG CỔ CÒ THÀNH PHỐ HỘI AN VIEW TRỌN SÔNG SỔ HỒNG LÂU DÀI",
+    "slug": "ban-biet-thu-nghi-duong-ven-song-co-co-tp-hoi-an-quang-nam",
+    "demand": "sale",
+    "propertyType": "villa",
+    "propertyTypeName": "Biệt thự, villa nghỉ dưỡng",
+    "vipPackageId": "vip-diamond",
+    "status": "active",
+    "price": 16500000000,
+    "priceDisplay": "16.5 tỷ",
+    "pricePerM2": "51.5 triệu/m²",
+    "area": 320,
+    "facade": 14,
+    "entranceRoad": 15,
+    "roadType": "car_pass",
+    "bedroom": 4,
+    "bathroom": 5,
+    "floor": 3,
+    "direction": "Đông Nam",
+    "balconyDirection": "Đông",
+    "legal": "Sổ hồng lâu dài chính chủ",
+    "furniture": "Full nội thất gỗ tự nhiên cao cấp phong cách Indochine",
+    "address": "Đường Lạc Long Quân, Phường Cẩm An, Thành phố Hội An, Quảng Nam",
+    "street": "Lạc Long Quân",
+    "ward": "Phường Cẩm An",
+    "district": "Thành phố Hội An",
+    "city": "Quảng Nam",
+    "project": "Casamia Hoi An Calm River",
+    "lat": 15.892,
+    "lng": 108.358,
+    "description": "Tuyệt tác biệt thự ven sông Cổ Cò, Phường Cẩm An, TP. Hội An, Quảng Nam.\n- Cách bãi biển An Bàng chỉ 800m, cách phố cổ Hội An 3km.\n- Có bến du thuyền riêng, hồ bơi tràn bờ view sông cực thoáng.\n- Thiết kế kiến trúc sinh thái xanh mát, chuẩn nghỉ dưỡng 5 sao.\n- Pháp lý sổ hồng lâu dài sẵn sàng công chứng sang tên ngay.",
+    "images": [
+      "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "hasVR360": true,
+    "amenities": [
+      "Hồ bơi riêng",
+      "Bến du thuyền",
+      "Công viên ven sông",
+      "An ninh 24/7"
+    ],
+    "nearbyFacilities": [
+      {
+        "name": "Bãi biển An Bàng",
+        "distance": "800m"
+      },
+      {
+        "name": "Phố cổ Hội An",
+        "distance": "3km"
+      }
+    ],
+    "author": {
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
+      "isVerified": true
+    },
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "publishedAt": "2026-10-26T09:00:00.000Z",
+    "viewsCount": 215,
+    "callsCount": 32,
+    "listingDays": 30,
+    "expiresAt": "2027-04-30T23:59:59.000Z",
+    "autoRenew": true,
+    "queuePriority": 1,
+    "is_verified": true,
+    "isVerified": true
+  },
+  {
+    "id": "BDS-028",
+    "title": "BÁN SHOPHOUSE 4 TẦNG MẶT TIỀN TRẦN THỦ ĐỘ ĐIỆN BÀN QUẢNG NAM LIỀN KỀ KHU ĐÔ THỊ ĐÀ NẴNG",
+    "slug": "ban-shophouse-tran-thu-do-dien-ban-quang-nam",
+    "demand": "sale",
+    "propertyType": "shophouse",
+    "propertyTypeName": "Nhà phố thương mại (Shophouse)",
+    "vipPackageId": "vip-gold",
+    "status": "active",
+    "price": 4800000000,
+    "priceDisplay": "4.8 tỷ",
+    "pricePerM2": "38.4 triệu/m²",
+    "area": 125,
+    "facade": 6,
+    "entranceRoad": 27,
+    "roadType": "car_pass",
+    "bedroom": 4,
+    "bathroom": 4,
+    "floor": 4,
+    "direction": "Đông",
+    "balconyDirection": "Đông",
+    "legal": "Sổ hồng hoàn công 4 tầng đầy đủ",
+    "furniture": "Hoàn thiện mặt ngoài, thô bên trong tiện thiết kế kinh doanh",
+    "address": "Đường Trần Thủ Độ, Phường Điện Ngọc, Thị xã Điện Bàn, Quảng Nam",
+    "street": "Trần Thủ Độ",
+    "ward": "Phường Điện Ngọc",
+    "district": "Thị xã Điện Bàn",
+    "city": "Quảng Nam",
+    "project": "KĐT Số 9 Điện Ngọc",
+    "lat": 15.987,
+    "lng": 108.252,
+    "description": "Shophouse mặt tiền đường 27m Trần Thủ Độ, giáp ranh Quận Ngũ Hành Sơn Đà Nẵng.\n- Vị trí đắc địa ngay làng đại học Đà Nẵng, trục thông ra bãi tắm Viêm Đông.\n- Nhà 4 tầng đúc kiên cố, vỉa hè rộng 6m kinh doanh đa ngành nghề hoặc cho thuê văn phòng.\n- Sổ hồng chính chủ, hỗ trợ vay ngân hàng 70%.",
+    "images": [
+      "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "hasVR360": false,
+    "amenities": [
+      "Vỉa hè 6m",
+      "Hạ tầng ngầm đồng bộ",
+      "Gần chợ Điện Ngọc"
+    ],
+    "nearbyFacilities": [
+      {
+        "name": "Đại học FPT Đà Nẵng",
+        "distance": "1.5km"
+      },
+      {
+        "name": "Bãi tắm Viêm Đông",
+        "distance": "2km"
+      }
+    ],
+    "author": {
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
+      "isVerified": true
+    },
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "publishedAt": "2026-10-25T14:00:00.000Z",
+    "viewsCount": 180,
+    "callsCount": 19,
+    "listingDays": 30,
+    "expiresAt": "2027-04-30T23:59:59.000Z",
+    "autoRenew": true,
+    "queuePriority": 2,
+    "is_verified": true,
+    "isVerified": true
+  },
+  {
+    "id": "BDS-029",
+    "title": "BÁN ĐẤT NỀN KHU ĐÔ THỊ VEN BIỂN VIÊM ĐÔNG ĐIỆN BÀN QUẢNG NAM SỔ ĐỎ CÔNG CHỨNG NGAY",
+    "slug": "ban-dat-nen-viem-dong-dien-ban-quang-nam",
+    "demand": "sale",
+    "propertyType": "project-land",
+    "propertyTypeName": "Đất nền dự án",
+    "vipPackageId": "vip-silver",
+    "status": "active",
+    "price": 1950000000,
+    "priceDisplay": "1.95 tỷ",
+    "pricePerM2": "19.5 triệu/m²",
+    "area": 100,
+    "facade": 5,
+    "entranceRoad": 11.5,
+    "roadType": "car_pass",
+    "bedroom": 0,
+    "bathroom": 0,
+    "floor": 0,
+    "direction": "Đông Nam",
+    "balconyDirection": "Đông Nam",
+    "legal": "Sổ đỏ cá nhân sẵn sàng công chứng",
+    "furniture": "Đất trống hạ tầng hoàn thiện 100%",
+    "address": "Khu đô thị Viêm Đông, Phường Điện Ngọc, Thị xã Điện Bàn, Quảng Nam",
+    "street": "Dũng Sĩ Điện Ngọc",
+    "ward": "Phường Điện Ngọc",
+    "district": "Thị xã Điện Bàn",
+    "city": "Quảng Nam",
+    "project": "KĐT Viêm Đông Sea",
+    "lat": 15.975,
+    "lng": 108.268,
+    "description": "Lô đất nền sạch đẹp vuông vức 5x20m tại KĐT Viêm Đông, giáp biển Sơn Thủy - Non Nước.\n- Đường 11.5m lề mỗi bên 3m, điện nước ngầm hiện đại.\n- Giá cực tốt dưới 2 tỷ thích hợp an cư hoặc đầu tư tích sản lâu dài.\n- Pháp lý minh bạch, sổ đỏ trao tay.",
+    "images": [
+      "https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1628744448840-55bdb2497bd4?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "hasVR360": false,
+    "amenities": [
+      "Đường nhựa 11.5m",
+      "Hạ tầng hoàn chỉnh",
+      "Công viên cây xanh"
+    ],
+    "nearbyFacilities": [
+      {
+        "name": "Sân Golf Montgomerie Links",
+        "distance": "800m"
+      },
+      {
+        "name": "Bãi tắm Viêm Đông",
+        "distance": "1km"
+      }
+    ],
+    "author": {
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
+      "isVerified": true
+    },
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "publishedAt": "2026-10-24T10:00:00.000Z",
+    "viewsCount": 310,
+    "callsCount": 42,
+    "listingDays": 30,
+    "expiresAt": "2027-04-30T23:59:59.000Z",
+    "autoRenew": true,
+    "queuePriority": 3,
+    "is_verified": true,
+    "isVerified": true
+  },
+  {
+    "id": "BDS-030",
+    "title": "CHO THUÊ NHÀ CỔ NGUYÊN CĂN TRUNG TÂM PHỐ CỔ HỘI AN TIỆN MỞ CAFE HOMESTAY ĐẶC TRƯNG",
+    "slug": "cho-thue-nha-co-pho-co-hoi-an-quang-nam",
+    "demand": "rent",
+    "propertyType": "house",
+    "propertyTypeName": "Nhà riêng, nguyên căn",
+    "vipPackageId": "vip-gold",
+    "status": "active",
+    "price": 25000000,
+    "priceDisplay": "25 Triệu/tháng",
+    "pricePerM2": "227.3 nghìn/m²",
+    "area": 110,
+    "facade": 6,
+    "entranceRoad": 8,
+    "roadType": "car_pass",
+    "bedroom": 3,
+    "bathroom": 3,
+    "floor": 2,
+    "direction": "Nam",
+    "balconyDirection": "Nam",
+    "legal": "Hợp đồng thuê 3-5 năm công chứng",
+    "furniture": "Đầy đủ nội thất gỗ truyền thống, máy lạnh từng phòng",
+    "address": "45 Trần Phú, Phường Minh An, Thành phố Hội An, Quảng Nam",
+    "street": "Trần Phú",
+    "ward": "Phường Minh An",
+    "district": "Thành phố Hội An",
+    "city": "Quảng Nam",
+    "lat": 15.877,
+    "lng": 108.328,
+    "description": "Cho thuê nhà cổ 2 tầng ngay vùng lõi di sản Phố cổ Hội An.\n- Mặt tiền đường sầm uất du khách qua lại tấp nập ngày đêm.\n- Rất phù hợp mở quán cà phê nghệ thuật, tiệm trà, gallery tranh hoặc lưu trú homestay.\n- Hợp đồng dài hạn, hỗ trợ thời gian sửa chữa set-up ban đầu.",
+    "images": [
+      "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "hasVR360": false,
+    "amenities": [
+      "Vị trí du lịch đắc địa",
+      "Nội thất gỗ",
+      "Điều hòa đầy đủ"
+    ],
+    "nearbyFacilities": [
+      {
+        "name": "Chùa Cầu Hội An",
+        "distance": "200m"
+      },
+      {
+        "name": "Chợ Đêm Hội An",
+        "distance": "300m"
+      }
+    ],
+    "author": {
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
+      "isVerified": true
+    },
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "publishedAt": "2026-10-26T11:00:00.000Z",
+    "viewsCount": 280,
+    "callsCount": 35,
+    "listingDays": 30,
+    "expiresAt": "2027-04-30T23:59:59.000Z",
+    "autoRenew": true,
+    "queuePriority": 2,
+    "is_verified": true,
+    "isVerified": true
+  },
+  {
+    "id": "BDS-031",
+    "title": "BÁN NHÀ MẶT PHỐ TRẦN PHÚ TP TAM KỲ QUẢNG NAM 140M2 X 3 TẦNG KINH DOANH TỐT",
+    "slug": "ban-nha-mat-pho-tran-phu-tp-tam-ky-quang-nam",
+    "demand": "sale",
+    "propertyType": "street-house",
+    "propertyTypeName": "Nhà mặt phố",
+    "vipPackageId": "vip-silver",
+    "status": "active",
+    "price": 5200000000,
+    "priceDisplay": "5.2 tỷ",
+    "pricePerM2": "37.1 triệu/m²",
+    "area": 140,
+    "facade": 7,
+    "entranceRoad": 20,
+    "roadType": "car_pass",
+    "bedroom": 4,
+    "bathroom": 3,
+    "floor": 3,
+    "direction": "Đông Bắc",
+    "balconyDirection": "Đông Bắc",
+    "legal": "Sổ hồng riêng chính chủ vuông vắn",
+    "furniture": "Nội thất cơ bản, nhà mới xây kiên cố",
+    "address": "128 Trần Phú, Phường An Mỹ, Thành phố Tam Kỳ, Quảng Nam",
+    "street": "Trần Phú",
+    "ward": "Phường An Mỹ",
+    "district": "Thành phố Tam Kỳ",
+    "city": "Quảng Nam",
+    "lat": 15.568,
+    "lng": 108.483,
+    "description": "Bán nhà mặt phố đường Trần Phú, trung tâm hành chính TP. Tam Kỳ, Quảng Nam.\n- Diện tích đất 140m2 (7x20m), nhà 3 tầng đúc mê kiên cố, thiết kế hiện đại.\n- Khu vực kinh doanh mua bán sầm uất, gần trường học, ngân hàng, bệnh viện.\n- Sổ hồng trao tay, có thương lượng cho khách thiện chí.",
+    "images": [
+      "https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1200&q=80"
+    ],
+    "hasVR360": false,
+    "amenities": [
+      "Mặt tiền 7m",
+      "Đường 20m có vỉa hè",
+      "Gần TTTM"
+    ],
+    "nearbyFacilities": [
+      {
+        "name": "Quảng trường Tam Kỳ",
+        "distance": "500m"
+      },
+      {
+        "name": "Bệnh viện Đa khoa Quảng Nam",
+        "distance": "1.2km"
+      }
+    ],
+    "author": {
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
+      "isVerified": true
+    },
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "publishedAt": "2026-10-25T15:00:00.000Z",
+    "viewsCount": 165,
+    "callsCount": 14,
+    "listingDays": 30,
+    "expiresAt": "2027-04-30T23:59:59.000Z",
+    "autoRenew": true,
+    "queuePriority": 3,
+    "is_verified": true,
+    "isVerified": true
   }
 ];
 

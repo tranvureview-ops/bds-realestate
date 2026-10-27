@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link, useRouter } from '../router/RouterContext';
@@ -46,25 +46,35 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
     onlyVerified: queryVerified
   }));
 
-  // Cập nhật bộ lọc và SEO Schema khi taxonomy URL hoặc query parameters thay đổi
+  // Chỉ reset lại bộ lọc khi người dùng thực sự chuyển sang URL / trang mới
+  const lastUrlRef = useRef(null);
+  const currentUrl = typeof window !== 'undefined' ? (window.location.pathname + window.location.search) : '';
+
   useEffect(() => {
-    setFilters(prev => ({
-      ...prev,
-      demand: 'rent',
-      propertyType: queryType,
-      city: queryCity,
-      district: queryDistrict,
-      keyword: queryKeyword,
-      priceRange: queryPrice,
-      minPrice: queryMinPrice,
-      maxPrice: queryMaxPrice,
-      areaRange: queryArea,
-      minArea: queryMinArea,
-      maxArea: queryMaxArea,
-      bedroom: queryBedroom,
-      onlyVerified: queryVerified
-    }));
-  }, [taxonomyInfo, queryDistrict, queryCity, queryType, queryKeyword, queryPrice, queryMinPrice, queryMaxPrice, queryArea, queryMinArea, queryMaxArea, queryBedroom, queryVerified]);
+    if (lastUrlRef.current === null) {
+      lastUrlRef.current = currentUrl;
+      return;
+    }
+    if (lastUrlRef.current !== currentUrl) {
+      lastUrlRef.current = currentUrl;
+      setFilters(prev => ({
+        ...prev,
+        demand: 'rent',
+        propertyType: queryType,
+        city: queryCity,
+        district: queryDistrict,
+        keyword: queryKeyword,
+        priceRange: queryPrice,
+        minPrice: queryMinPrice,
+        maxPrice: queryMaxPrice,
+        areaRange: queryArea,
+        minArea: queryMinArea,
+        maxArea: queryMaxArea,
+        bedroom: queryBedroom,
+        onlyVerified: queryVerified
+      }));
+    }
+  }, [currentUrl, queryDistrict, queryCity, queryType, queryKeyword, queryPrice, queryMinPrice, queryMaxPrice, queryArea, queryMinArea, queryMaxArea, queryBedroom, queryVerified]);
 
   // Bơm Schema.org Category/CollectionPage JSON-LD
   useEffect(() => {

@@ -3,12 +3,13 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { PROPERTY_TYPES } from '../data/mockData';
 import { VIETNAM_ADMINISTRATIVE_DATA, DANANG_MERGERS_MAP } from '../data/vietnamAdministrativeData';
+import { removeAccents } from '../utils/propertyFilter';
 
 const CITIES = [
   'Đà Nẵng',
+  'Quảng Nam',
   'Hà Nội',
   'TP. Hồ Chí Minh',
-  'Quảng Nam',
   'Khánh Hòa'
 ];
 
@@ -66,7 +67,7 @@ export default function ListingFilterBar({
   const [draftFilters, setDraftFilters] = useState({
     demand: filters?.demand || demand || 'sale',
     propertyType: filters?.propertyType || 'all',
-    city: filters?.city || 'Đà Nẵng',
+    city: filters?.city || '',
     district: filters?.district || '',
     ward: filters?.ward || '',
     street: filters?.street || '',
@@ -107,7 +108,7 @@ export default function ListingFilterBar({
     setDraftFilters({
       demand: filters?.demand || demand || 'sale',
       propertyType: filters?.propertyType || 'all',
-      city: filters?.city || 'Đà Nẵng',
+      city: filters?.city || '',
       district: filters?.district || '',
       ward: filters?.ward || '',
       street: filters?.street || '',
@@ -230,6 +231,25 @@ export default function ListingFilterBar({
     setOpenDropdown(null);
   };
 
+  const handleSelectQuickLocation = (cityVal = '', districtVal = '') => {
+    if (!setFilters) return;
+    setFilters(prev => ({
+      ...prev,
+      city: cityVal,
+      district: districtVal,
+      ward: '',
+      street: '',
+      project: ''
+    }));
+    setOpenDropdown(null);
+  };
+
+  const getLocationQuickLabel = () => {
+    if (filters?.district) return filters.district;
+    if (filters?.city) return filters.city;
+    return 'Khu vực';
+  };
+
   // Labels for quick filter buttons
   const getPropertyTypeLabel = (typeId = filters?.propertyType) => {
     if (!typeId || typeId === 'all') return 'Loại nhà đất';
@@ -306,17 +326,18 @@ export default function ListingFilterBar({
     return getAreaRangeLabel(draftFilters.areaRange);
   };
 
-  // Location data calculations for Screenshot 2
-  const danangData = useMemo(() => {
-    return VIETNAM_ADMINISTRATIVE_DATA.find(c => c.name === 'Đà Nẵng') || VIETNAM_ADMINISTRATIVE_DATA[0];
-  }, []);
+  // Location data calculations for Screenshot 2 (Hỗ trợ đầy đủ Đà Nẵng, Quảng Nam...)
+  const currentCityData = useMemo(() => {
+    const targetCity = draftFilters.city || 'Đà Nẵng';
+    return VIETNAM_ADMINISTRATIVE_DATA.find(c => 
+      c.name.toLowerCase() === targetCity.toLowerCase() || 
+      removeAccents(c.name) === removeAccents(targetCity)
+    ) || VIETNAM_ADMINISTRATIVE_DATA[0];
+  }, [draftFilters.city]);
 
   const districtList = useMemo(() => {
-    if (draftFilters.city === 'Đà Nẵng' || !draftFilters.city) {
-      return danangData?.districts || [];
-    }
-    return [];
-  }, [draftFilters.city, danangData]);
+    return currentCityData?.districts || [];
+  }, [currentCityData]);
 
   const currentDistrictObj = useMemo(() => {
     if (!draftFilters.district) return null;
@@ -357,8 +378,8 @@ export default function ListingFilterBar({
   ].filter(Boolean).length;
 
   return (
-    <div ref={containerRef} className={`max-w-7xl mx-auto px-3 sm:px-8 mt-3 sm:mt-5 ${className}`}>
-      <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs p-2.5 sm:p-4">
+    <div ref={containerRef} className={`max-w-7xl mx-auto px-3 sm:px-8 mt-3 sm:mt-5 relative z-30 ${className}`}>
+      <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs p-2.5 sm:p-4 relative z-30 overflow-visible">
         {/* ROW 1: Search Input with Red "Tìm kiếm" button */}
         <form onSubmit={handleApplySearch} className="relative flex items-center border border-slate-200 hover:border-slate-300 focus-within:border-slate-400 focus-within:ring-2 focus-within:ring-slate-100 rounded-lg sm:rounded-xl bg-white transition p-1 sm:p-1.5">
           <i className="fa-solid fa-magnifying-glass text-slate-400 pl-2.5 sm:pl-3 pr-1.5 sm:pr-2 text-xs sm:text-sm"></i>
@@ -397,8 +418,8 @@ export default function ListingFilterBar({
           </button>
         </form>
 
-        {/* ROW 2: Horizontal Quick Filter Dropdowns & Toggles (Tinh chỉnh gọn gàng trên mobile) */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 mt-2 sm:mt-3 overflow-x-auto no-scrollbar pb-1 sm:pb-0 sm:flex-wrap text-xs sm:text-sm">
+        {/* ROW 2: Horizontal Quick Filter Dropdowns & Toggles (Đầy đủ Khu vực, Loại BĐS, Giá, Diện tích) */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 mt-2 sm:mt-3 overflow-x-auto sm:overflow-visible no-scrollbar pb-1 sm:pb-0 sm:flex-wrap text-xs sm:text-sm relative z-30">
           {/* 1. Nút "Lọc" (Mở bộ lọc phong cách Batdongsan) */}
           <button
             type="button"
@@ -439,6 +460,111 @@ export default function ListingFilterBar({
               }`} />
             </div>
           </button>
+
+          {/* 2.5. Dropdown "Khu vực ⌵" (TP. Đà Nẵng & Tỉnh Quảng Nam) */}
+          <div className="relative shrink-0">
+            <button
+              type="button"
+              onClick={() => setOpenDropdown(prev => prev === 'location' ? null : 'location')}
+              className={`border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs ${
+                filters.city || filters.district
+                  ? 'border-red-500 bg-red-50/60 text-red-700 font-bold'
+                  : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
+              }`}
+            >
+              <i className="fa-solid fa-location-dot text-slate-400 text-xs"></i>
+              <span>{getLocationQuickLabel()}</span>
+              <i className={`fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform ${openDropdown === 'location' ? 'rotate-180' : ''}`}></i>
+            </button>
+
+            {/* Menu Dropdown Khu vực */}
+            {openDropdown === 'location' && (
+              <div className="absolute top-full left-0 mt-1.5 w-72 sm:w-80 bg-white rounded-xl border border-slate-200 shadow-xl z-50 py-2 animate-fadeIn max-h-96 overflow-y-auto">
+                <div className="px-3.5 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 flex items-center justify-between">
+                  <span>Khu Vực Bất Động Sản</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setModalScreen('location');
+                      setShowAdvancedModal(true);
+                      setOpenDropdown(null);
+                    }}
+                    className="text-red-600 hover:underline text-[11px] font-bold normal-case cursor-pointer"
+                  >
+                    Lọc chi tiết »
+                  </button>
+                </div>
+
+                {/* Option 1: Toàn quốc / Tất cả */}
+                <button
+                  type="button"
+                  onClick={() => handleSelectQuickLocation('', '')}
+                  className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-slate-50 transition cursor-pointer ${
+                    (!filters.city && !filters.district) ? 'text-red-600 font-bold bg-red-50/40' : 'text-slate-700'
+                  }`}
+                >
+                  <span className="font-semibold">Tất cả Khu Vực (Toàn quốc)</span>
+                  {(!filters.city && !filters.district) && <i className="fa-solid fa-check text-xs text-red-600"></i>}
+                </button>
+
+                {/* GROUP 1: TP. ĐÀ NẴNG */}
+                <div className="mt-1 border-t border-slate-100 pt-1">
+                  <div className="px-3.5 py-1 text-[11px] font-bold text-emerald-700 bg-emerald-50/70 flex items-center justify-between">
+                    <span>TP. ĐÀ NẴNG</span>
+                    <button
+                      type="button"
+                      onClick={() => handleSelectQuickLocation('Đà Nẵng', '')}
+                      className="text-[10px] text-emerald-800 underline font-semibold hover:text-emerald-950 cursor-pointer"
+                    >
+                      Toàn TP. Đà Nẵng
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-0.5 px-2 py-1">
+                    {['Quận Hải Châu', 'Quận Sơn Trà', 'Quận Ngũ Hành Sơn', 'Quận Thanh Khê', 'Quận Liên Chiểu', 'Quận Cẩm Lệ', 'Huyện Hòa Vang'].map(dName => (
+                      <button
+                        key={dName}
+                        type="button"
+                        onClick={() => handleSelectQuickLocation('Đà Nẵng', dName)}
+                        className={`text-left px-2.5 py-1.5 rounded-lg text-xs truncate transition cursor-pointer ${
+                          filters.district === dName ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-600 hover:bg-slate-100'
+                        }`}
+                      >
+                        {dName}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* GROUP 2: TỈNH QUẢNG NAM */}
+                <div className="mt-1 border-t border-slate-100 pt-1">
+                  <div className="px-3.5 py-1 text-[11px] font-bold text-blue-700 bg-blue-50/70 flex items-center justify-between">
+                    <span>TỈNH QUẢNG NAM</span>
+                    <button
+                      type="button"
+                      onClick={() => handleSelectQuickLocation('Quảng Nam', '')}
+                      className="text-[10px] text-blue-800 underline font-semibold hover:text-blue-950 cursor-pointer"
+                    >
+                      Toàn Tỉnh Quảng Nam
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-0.5 px-2 py-1">
+                    {['Thành phố Hội An', 'Thị xã Điện Bàn', 'Thành phố Tam Kỳ', 'Huyện Duy Xuyên', 'Huyện Thăng Bình', 'Huyện Núi Thành'].map(dName => (
+                      <button
+                        key={dName}
+                        type="button"
+                        onClick={() => handleSelectQuickLocation('Quảng Nam', dName)}
+                        className={`text-left px-2.5 py-1.5 rounded-lg text-xs truncate transition cursor-pointer ${
+                          filters.district === dName ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-600 hover:bg-slate-100'
+                        }`}
+                      >
+                        {dName}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* 3. Dropdown "Loại nhà đất ⌵" */}
           <div className="relative shrink-0">
@@ -908,7 +1034,7 @@ export default function ListingFilterBar({
                       Tỉnh/Thành phố
                     </label>
                     <select
-                      value={draftFilters.city || 'Đà Nẵng'}
+                      value={draftFilters.city || ''}
                       onChange={(e) => {
                         const newCity = e.target.value;
                         setDraftFilters(prev => ({
@@ -922,7 +1048,7 @@ export default function ListingFilterBar({
                       }}
                       className="w-full p-3 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs sm:text-sm font-medium outline-none focus:border-red-500 cursor-pointer"
                     >
-                      <option value="">Chọn Tỉnh/Thành phố</option>
+                      <option value="">Tất cả Tỉnh/Thành phố (Toàn quốc)</option>
                       {CITIES.map(c => (
                         <option key={c} value={c}>{c}</option>
                       ))}
@@ -948,7 +1074,7 @@ export default function ListingFilterBar({
                       }}
                       className="w-full p-3 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs sm:text-sm font-medium outline-none focus:border-red-500 cursor-pointer"
                     >
-                      <option value="">Chọn Quận/Huyện</option>
+                      <option value="">{draftFilters.city ? `Tất cả Quận/Huyện tại ${draftFilters.city}` : 'Tất cả Quận/Huyện'}</option>
                       {districtList.map(dist => (
                         <option key={dist.id || dist.name} value={dist.name}>{dist.name}</option>
                       ))}

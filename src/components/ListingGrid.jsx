@@ -96,6 +96,11 @@ export default function ListingGrid({
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  // Reset trang về 1 khi người dùng thay đổi bộ lọc
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
+
   // Filter Properties
   const filteredProperties = useMemo(() => {
     return filterProperties(properties, filters);

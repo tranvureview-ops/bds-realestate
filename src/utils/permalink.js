@@ -145,17 +145,20 @@ export const PROPERTY_TAXONOMY = {
 };
 
 
-// Ánh xạ thành phố chuẩn Đà Nẵng
+// Ánh xạ thành phố chuẩn Đà Nẵng & Quảng Nam
 export const CITY_SLUGS = {
-  'Đà Nẵng': 'da-nang'
+  'Đà Nẵng': 'da-nang',
+  'Quảng Nam': 'quang-nam'
 };
 
 export const SLUG_TO_CITY = {
-  'da-nang': 'Đà Nẵng'
+  'da-nang': 'Đà Nẵng',
+  'quang-nam': 'Quảng Nam'
 };
 
-// Bảng ánh xạ Quận/Huyện TP. Đà Nẵng chuẩn hỗ trợ Clean Slug SEO
+// Bảng ánh xạ Quận/Huyện TP. Đà Nẵng & Tỉnh Quảng Nam chuẩn hỗ trợ Clean Slug SEO
 export const DISTRICT_MAP = {
+  // Đà Nẵng
   'hai-chau': { name: 'Quận Hải Châu', city: 'Đà Nẵng' },
   'son-tra': { name: 'Quận Sơn Trà', city: 'Đà Nẵng' },
   'ngu-hanh-son': { name: 'Quận Ngũ Hành Sơn', city: 'Đà Nẵng' },
@@ -163,7 +166,17 @@ export const DISTRICT_MAP = {
   'lien-chieu': { name: 'Quận Liên Chiểu', city: 'Đà Nẵng' },
   'cam-le': { name: 'Quận Cẩm Lệ', city: 'Đà Nẵng' },
   'hoa-vang': { name: 'Huyện Hòa Vang', city: 'Đà Nẵng' },
-  'hoang-sa': { name: 'Huyện Hoàng Sa', city: 'Đà Nẵng' }
+  'hoang-sa': { name: 'Huyện Hoàng Sa', city: 'Đà Nẵng' },
+  // Quảng Nam
+  'hoi-an': { name: 'Thành phố Hội An', city: 'Quảng Nam' },
+  'dien-ban': { name: 'Thị xã Điện Bàn', city: 'Quảng Nam' },
+  'tam-ky': { name: 'Thành phố Tam Kỳ', city: 'Quảng Nam' },
+  'duy-xuyen': { name: 'Huyện Duy Xuyên', city: 'Quảng Nam' },
+  'thang-binh': { name: 'Huyện Thăng Bình', city: 'Quảng Nam' },
+  'nui-thanh': { name: 'Huyện Núi Thành', city: 'Quảng Nam' },
+  'dai-loc': { name: 'Huyện Đại Lộc', city: 'Quảng Nam' },
+  'que-son': { name: 'Huyện Quế Sơn', city: 'Quảng Nam' },
+  'phu-ninh': { name: 'Huyện Phú Ninh', city: 'Quảng Nam' }
 };
 
 // Danh mục thực thể địa danh và dự án BĐS tiêu biểu tại TP. Đà Nẵng
