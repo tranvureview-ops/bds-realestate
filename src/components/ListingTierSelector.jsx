@@ -621,7 +621,7 @@ export default function ListingTierSelector({
                   )}
                 </div>
                 <div className="text-[11px] text-slate-500">
-                  Tin đăng hiển thị tối đa 60 ngày trên toàn sàn (~{Math.round(normal60Price / 60)} đ/ngày)
+                  Tin đăng hiển thị tối đa 60 ngày trên toàn sàn
                 </div>
               </div>
             </div>
