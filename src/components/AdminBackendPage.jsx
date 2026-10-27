@@ -2377,7 +2377,7 @@ export default function AdminBackendPage() {
             >
               <div className="flex items-center gap-3">
                 <i className="fa-solid fa-city text-sm w-5 text-center"></i>
-                <span>Quản Lý Bất Động Sản</span>
+                <span>Bất Động Sản</span>
               </div>
               {verificationPendingCount > 0 ? (
                 <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black animate-pulse flex items-center gap-1 shadow-sm" title={`${verificationPendingCount} hồ sơ Sổ đỏ cần thẩm định`}>
