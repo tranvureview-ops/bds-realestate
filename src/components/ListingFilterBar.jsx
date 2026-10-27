@@ -35,6 +35,44 @@ export default function ListingFilterBar({
   const [keywordInput, setKeywordInput] = useState(filters?.keyword || '');
   const [openDropdown, setOpenDropdown] = useState(null); // 'type' | 'price' | 'area' | null
   const [showAdvancedModal, setShowAdvancedModal] = useState(false);
+  const [draftAdvanced, setDraftAdvanced] = useState({
+    district: '',
+    bedroom: 'all',
+    direction: 'all',
+    hasVR360: false
+  });
+
+  const handleOpenAdvancedModal = () => {
+    setDraftAdvanced({
+      district: filters?.district || '',
+      bedroom: filters?.bedroom || 'all',
+      direction: filters?.direction || 'all',
+      hasVR360: Boolean(filters?.hasVR360)
+    });
+    setShowAdvancedModal(true);
+  };
+
+  const handleApplyAdvancedFilters = () => {
+    if (setFilters) {
+      setFilters(prev => ({
+        ...prev,
+        district: draftAdvanced.district || '',
+        bedroom: draftAdvanced.bedroom || 'all',
+        direction: draftAdvanced.direction || 'all',
+        hasVR360: Boolean(draftAdvanced.hasVR360)
+      }));
+    }
+    setShowAdvancedModal(false);
+  };
+
+  const handleResetAdvancedDraft = () => {
+    setDraftAdvanced({
+      district: '',
+      bedroom: 'all',
+      direction: 'all',
+      hasVR360: false
+    });
+  };
 
   const containerRef = useRef(null);
 
@@ -206,7 +244,7 @@ export default function ListingFilterBar({
           {/* 1. Nút "Lọc" (Mở bộ lọc nâng cao) */}
           <button
             type="button"
-            onClick={() => setShowAdvancedModal(true)}
+            onClick={handleOpenAdvancedModal}
             className={`border rounded-lg px-3 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs ${
               advancedCount > 0
                 ? 'border-red-500 bg-red-50/60 text-red-700 font-bold'
@@ -446,8 +484,14 @@ export default function ListingFilterBar({
 
       {/* POPUP MODAL: BỘ LỌC NÂNG CAO (KHI BẤM NÚT "LỌC") */}
       {showAdvancedModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden animate-scaleIn">
+        <div
+          onClick={() => setShowAdvancedModal(false)}
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden animate-scaleIn"
+          >
             {/* Modal Header */}
             <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
               <div className="flex items-center gap-2">
@@ -476,8 +520,8 @@ export default function ListingFilterBar({
                   Quận / Huyện:
                 </label>
                 <select
-                  value={filters.district || ''}
-                  onChange={(e) => setFilters && setFilters(prev => ({ ...prev, district: e.target.value }))}
+                  value={draftAdvanced.district || ''}
+                  onChange={(e) => setDraftAdvanced(prev => ({ ...prev, district: e.target.value }))}
                   className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-800 outline-none focus:border-red-500"
                 >
                   <option value="">Tất cả Quận / Huyện</option>
@@ -504,9 +548,9 @@ export default function ListingFilterBar({
                     <button
                       key={item.val}
                       type="button"
-                      onClick={() => setFilters && setFilters(prev => ({ ...prev, bedroom: item.val }))}
+                      onClick={() => setDraftAdvanced(prev => ({ ...prev, bedroom: item.val }))}
                       className={`py-2 rounded-xl font-bold border transition text-center cursor-pointer ${
-                        (filters.bedroom || 'all') === item.val
+                        (draftAdvanced.bedroom || 'all') === item.val
                           ? 'bg-red-600 text-white border-red-600 shadow-xs'
                           : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                       }`}
@@ -524,8 +568,8 @@ export default function ListingFilterBar({
                   Hướng nhà:
                 </label>
                 <select
-                  value={filters.direction || 'all'}
-                  onChange={(e) => setFilters && setFilters(prev => ({ ...prev, direction: e.target.value }))}
+                  value={draftAdvanced.direction || 'all'}
+                  onChange={(e) => setDraftAdvanced(prev => ({ ...prev, direction: e.target.value }))}
                   className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-800 outline-none focus:border-red-500"
                 >
                   {DIRECTIONS.map(dir => (
@@ -539,8 +583,8 @@ export default function ListingFilterBar({
                 <label className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition cursor-pointer border border-slate-200">
                   <input
                     type="checkbox"
-                    checked={Boolean(filters.hasVR360)}
-                    onChange={(e) => setFilters && setFilters(prev => ({ ...prev, hasVR360: e.target.checked }))}
+                    checked={Boolean(draftAdvanced.hasVR360)}
+                    onChange={(e) => setDraftAdvanced(prev => ({ ...prev, hasVR360: e.target.checked }))}
                     className="w-4 h-4 text-red-600 rounded border-slate-300 focus:ring-red-500"
                   />
                   <div>
@@ -558,17 +602,7 @@ export default function ListingFilterBar({
             <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-3">
               <button
                 type="button"
-                onClick={() => {
-                  if (setFilters) {
-                    setFilters(prev => ({
-                      ...prev,
-                      district: '',
-                      bedroom: 'all',
-                      direction: 'all',
-                      hasVR360: false
-                    }));
-                  }
-                }}
+                onClick={handleResetAdvancedDraft}
                 className="text-slate-500 hover:text-red-600 font-bold text-xs flex items-center gap-1 cursor-pointer"
               >
                 <i className="fa-solid fa-rotate-left"></i>
@@ -577,7 +611,7 @@ export default function ListingFilterBar({
 
               <button
                 type="button"
-                onClick={() => setShowAdvancedModal(false)}
+                onClick={handleApplyAdvancedFilters}
                 className="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-md transition cursor-pointer"
               >
                 Áp dụng bộ lọc
