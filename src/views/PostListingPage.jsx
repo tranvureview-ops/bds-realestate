@@ -86,7 +86,7 @@ export default function PostListingPage() {
                     <span className="font-black text-red-600 text-[11px]">Tiếp cận x20</span>
                   </div>
                   <p className="text-[11px] text-slate-700 font-medium">
-                    Top 1 sàn, <b>TẶNG KÈM 1 Tin Thường song hành</b> + Đẩy tin kép miễn phí, duyệt bài tức thì.
+                    Vị trí độc tôn Top 1 sàn, nổi bật nhất trang chủ, duyệt bài tức thì.
                   </p>
                 </div>
 

@@ -890,7 +890,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       publishedAt: new Date().toISOString(),
       author: safeAuthor,
       isFeatured: selectedVipId === 'vip-diamond',
-      hasDualListing: selectedVipId === 'vip-diamond',
+      hasDualListing: false,
       viewsCount: 1,
       listingDays: listingDays || 15
     };
@@ -2894,9 +2894,6 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   <div className="text-left sm:text-right text-xs text-slate-300 space-y-0.5">
                     <div>Gói: <strong className="text-white">{selectedPkg.name}</strong></div>
                     <div>Thời hạn: <strong className="text-white">{listingDays} ngày</strong></div>
-                    {selectedPkg.id === 'vip-diamond' && (
-                      <div className="text-amber-300 font-bold">★ Tặng kèm 1 Tin Thường song hành</div>
-                    )}
                     {autoBumpHours.length > 0 && (
                       <div className="text-emerald-400">
                         Đẩy tin tự động: {autoBumpHours.length} lần/ngày x {bumpDays} ngày (+{autoBumpFee.toLocaleString('vi-VN')} đ)

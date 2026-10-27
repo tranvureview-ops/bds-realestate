@@ -149,17 +149,6 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
                     )}
                   </div>
 
-                  {/* Diamond Special Perks */}
-                  {isDiamond && (
-                    <div className="p-2.5 bg-red-50 border border-red-200 rounded-xl text-[11px] text-red-900 font-medium mb-2 space-y-0.5">
-                      <div className="font-extrabold flex items-center gap-1 text-red-950">
-                        <i className="fa-solid fa-gem text-red-600 text-[10px]"></i>
-                        <span>TẶNG KÈM 1 Tin Thường song hành</span>
-                      </div>
-                      <div className="text-[10px] text-slate-600">Đẩy tin kép MIỄN PHÍ • Duyệt bài tức thì</div>
-                    </div>
-                  )}
-
                   {/* Feature Checklist */}
                   <ul className="space-y-1.5 py-2 border-t border-slate-100 text-xs text-slate-600">
                     {pkg.features.slice(0, 4).map((feat, idx) => (

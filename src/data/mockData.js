@@ -25,12 +25,10 @@ export const LISTING_TYPES = [
       '(*) Duyệt Tức Thì tự động: Kích hoạt hiển thị (Active ngay) lập tức khi thanh toán',
       '(**) Hết hạn VIP tự động hạ thành Tin Thường & cộng thêm 60 ngày hiển thị miễn phí',
       '(***) Không hiển thị quảng cáo: Trang chi tiết không xuất hiện banner quảng cáo của bên thứ 3',
-      '(****) Nhân đôi hiển thị: Tặng kèm 1 Tin Thường hiển thị đồng thời ở kết quả tìm kiếm',
-      'Đẩy tin VIP Kim Cương được đẩy MIỄN PHÍ luôn Tin Thường kèm theo',
       'Thẻ hiển thị cực đại (Hero Card), hiệu ứng viền phát sáng',
       'Tỷ lệ tiếp cận khách hàng cao gấp 30 lần tin thường'
     ],
-    hasDualListing: true,     // Nhân đôi hiển thị
+    hasDualListing: false,
     hasNoAds: true,           // Không hiển thị quảng cáo
     hasPriorityQueue: true,   // Ưu tiên hiển thị sớm
     recommended: true

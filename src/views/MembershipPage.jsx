@@ -700,11 +700,7 @@ export default function MembershipPage() {
               <p>Theo quy chế hội viên (Hình thức 1), quyền lợi voucher được cấp mới định kỳ mỗi 30 ngày một lần. Khách hàng mua gói 3 tháng sẽ nhận 3 đợt cấp voucher, gói 6 tháng nhận 6 đợt. Mỗi 30 ngày, hệ thống sẽ tự động cấp mới bộ voucher tương ứng để bạn sử dụng cho tháng tiếp theo.</p>
             </div>
             <div className="p-4 bg-white rounded-2xl border border-slate-200 space-y-1.5">
-              <div className="font-bold text-slate-900">3. Tin VIP Kim Cương có ưu đãi gì đặc biệt?</div>
-              <p>VIP Kim Cương sở hữu đặc quyền "Nhân đôi hiển thị": Khi tạo tin VIP Kim Cương, bạn được tặng kèm 1 Tin Thường hiển thị đồng thời; và khi bạn Đẩy tin VIP Kim Cương, tin thường đi kèm cũng được đẩy MIỄN PHÍ!</p>
-            </div>
-            <div className="p-4 bg-white rounded-2xl border border-slate-200 space-y-1.5">
-              <div className="font-bold text-slate-900">4. Tôi có thể đổi sang gói khác khi đang dùng không?</div>
+              <div className="font-bold text-slate-900">3. Tôi có thể đổi sang gói khác khi đang dùng không?</div>
               <p>Để đảm bảo quyền lợi và sự đồng bộ của kho voucher, khi gói hội viên hiện tại đang còn hạn sử dụng, bạn sẽ không thể đăng ký gói khác mà chỉ có thể gia hạn gói đang dùng. Bạn có thể đổi sang gói mới sau khi gói cũ hết hạn sử dụng.</p>
             </div>
           </div>

@@ -175,14 +175,6 @@ export default function VipPricingPage() {
       a: `Gói Hội Viên là hình thức thuê bao tài khoản môi giới định kỳ hàng tháng để nhận kho Voucher ưu đãi. Khi bạn đăng bất kỳ bài viết BĐS nào (chọn Loại Tin Thường hoặc Loại Tin VIP), bạn có thể áp dụng Voucher từ Gói Hội Viên của mình để được Miễn phí 100% tin thường hoặc Giảm ${vipVoucherDiscount.toLocaleString('vi-VN')} đ cho tin VIP.`
     },
     {
-      q: 'Đặc quyền "Tặng kèm 1 Tin Thường song hành" của VIP Kim Cương hoạt động như thế nào?',
-      a: 'Khi đăng một tin phân hạng VIP Kim Cương, hệ thống sẽ tự động tạo thêm một tin đăng phân hạng Tin Thường với cùng nội dung và hiển thị song song ở các trang tìm kiếm. Điều này giúp bất động sản của bạn vừa xuất hiện ở Top 1 sàn đấu giá hiển thị cao nhất, vừa có mặt ở danh sách tin thường, nhân đôi tỷ lệ tiếp cận khách mua nhà.'
-    },
-    {
-      q: 'Cơ chế "Đẩy tin kép MIỄN PHÍ" của VIP Kim Cương là gì?',
-      a: 'Bất cứ khi nào bạn thực hiện Đẩy Tin (làm mới tin) cho tin VIP Kim Cương, tin thường được tặng kèm song hành cũng sẽ tự động được làm mới lên đầu trang MIỄN PHÍ 100% cùng thời điểm mà không tốn thêm bất kỳ lượt đẩy tin hay chi phí nào.'
-    },
-    {
       q: 'Tôi có thể nâng cấp tin từ Tin Thường lên Tin VIP khi tin đang chạy không?',
       a: 'Hoàn toàn được! Bạn chỉ cần vào mục "Quản Lý Tin Của Tôi", chọn tin đăng cần nâng cấp và nhấn nút "Nâng cấp VIP". Tin đăng sẽ được đẩy lên phân hạng mới ngay lập tức với vị trí và giao diện viền màu tương ứng.'
     },
@@ -533,8 +525,7 @@ export default function VipPricingPage() {
                           <span>Đặc quyền VIP Kim Cương:</span>
                         </div>
                         <div className="text-[11px] text-slate-700 space-y-0.5 font-medium">
-                          <div>• <b>TẶNG KÈM 1 Tin Thường</b> song hành</div>
-                          <div>• <b>Đẩy tin kép MIỄN PHÍ</b> cả 2 tin</div>
+                          <div>• <b>Vị trí độc tôn Top 1 toàn sàn</b></div>
                           <div>• <b>Duyệt bài TỨC THÌ (Active ngay)</b></div>
                           <div>• <b>Hết hạn VIP:</b> Hạ Tin Thường + 60 ngày miễn phí</div>
                         </div>
@@ -682,46 +673,7 @@ export default function VipPricingPage() {
                   </td>
                 </tr>
 
-                {/* 3. Tặng kèm Tin Thường */}
-                <tr className="hover:bg-slate-50/50 bg-red-50/20">
-                  <td className="py-3 px-4 font-bold text-slate-900 flex items-center gap-1.5">
-                    <i className="fa-solid fa-gift text-red-600"></i>
-                    <span>Tặng kèm 1 Tin Thường song hành</span>
-                  </td>
-                  <td className="py-3 px-3 text-center font-black text-red-700 bg-red-100/50 border-x border-red-200">
-                    ✓ CÓ (Nhân đôi phủ sóng)
-                  </td>
-                  <td className="py-3 px-3 text-center text-slate-400 bg-amber-50/30 border-r border-amber-100">
-                    ✗ Không
-                  </td>
-                  <td className="py-3 px-3 text-center text-slate-400 bg-blue-50/30 border-r border-blue-100">
-                    ✗ Không
-                  </td>
-                  <td className="py-3 px-3 text-center text-slate-400 bg-slate-50/30">
-                    ✗ Không
-                  </td>
-                </tr>
-
-                {/* 4. Đẩy tin kép miễn phí */}
-                <tr className="hover:bg-slate-50/50">
-                  <td className="py-3 px-4 font-bold text-slate-900">
-                    Đẩy tin kép MIỄN PHÍ cả 2 tin
-                  </td>
-                  <td className="py-3 px-3 text-center font-black text-red-700 bg-red-50/30 border-x border-red-100">
-                    ✓ CÓ (Tự động đẩy tin thường)
-                  </td>
-                  <td className="py-3 px-3 text-center text-slate-400 bg-amber-50/30 border-r border-amber-100">
-                    ✗ Không
-                  </td>
-                  <td className="py-3 px-3 text-center text-slate-400 bg-blue-50/30 border-r border-blue-100">
-                    ✗ Không
-                  </td>
-                  <td className="py-3 px-3 text-center text-slate-400 bg-slate-50/30">
-                    ✗ Không
-                  </td>
-                </tr>
-
-                {/* 5. Không quảng cáo đối thủ */}
+                {/* 3. Không quảng cáo đối thủ */}
                 <tr className="hover:bg-slate-50/50">
                   <td className="py-3 px-4 font-bold text-slate-900">
                     Không hiển thị quảng cáo bên thứ 3

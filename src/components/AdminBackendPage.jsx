@@ -5769,9 +5769,7 @@ export default function AdminBackendPage() {
                     </div>
 
                     <div className="text-[11px] text-slate-400">
-                      {pkg.id === 'vip-diamond' ? (
-                        <span className="text-red-400 font-bold">★ Đặc quyền: Tặng kèm 1 Tin Thường + Đẩy tin kèm MIỄN PHÍ</span>
-                      ) : pkg.id === 'normal' ? (
+                      {pkg.id === 'normal' ? (
                         <span className="text-slate-300">
                           {pkg.pricePerDay === 0 ? 'Tin Thường đang miễn phí (0 đ) • Giới hạn đăng tin theo ngày' : 'Tin Thường đăng chuẩn • Hỗ trợ Voucher Hội viên'}
                         </span>

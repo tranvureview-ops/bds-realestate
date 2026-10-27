@@ -1789,10 +1789,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     showToast('Đã xóa toàn bộ danh sách so sánh', 'info');
   };
 
-  // Bump listing (Đẩy tin) - Hỗ trợ Voucher Hội viên và Nhân đôi hiển thị VIP Kim Cương
+  // Bump listing (Đẩy tin) - Hỗ trợ Voucher Hội viên
   const bumpListing = (propertyId, useVoucher = false) => {
     const property = properties.find(p => p.id === propertyId);
-    const isVipDiamond = property?.vipPackageId === 'vip-diamond';
     const isMemberActive = isMembershipActive(currentUser);
     const hasBumpVoucher = isMemberActive && (currentUser.vouchers?.normalBump || 0) > 0;
 
@@ -1860,9 +1859,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     };
     setTransactions([newTxn, ...transactions]);
 
-    if (isVipDiamond) {
-      showToast(`Đẩy tin VIP Kim Cương ${propertyId} thành công! Kèm đặc quyền: Đẩy MIỄN PHÍ luôn Tin Thường nhân đôi hiển thị!`, 'success');
-    } else if (usedVoucher) {
+    if (usedVoucher) {
       showToast(`Đã dùng Voucher Hội viên! Đẩy tin ${propertyId} thành công (0 đ).`, 'success');
     } else {
       showToast(`Đẩy tin ${propertyId} thành công! Tin đã được đưa lên đầu trang.`, 'success');
@@ -1903,7 +1900,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           publishedAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
           isFeatured: newVipPackageId === 'vip-diamond',
-          hasDualListing: newVipPackageId === 'vip-diamond'
+          hasDualListing: false
         };
       }
       return p;
@@ -2263,7 +2260,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       viewsCount: 1,
       callsCount: 0,
       isFeatured: vipPackageId === 'vip-diamond',
-      hasDualListing: vipPackageId === 'vip-diamond',
+      hasDualListing: false,
       paymentMethod: paymentMethodLabel,
       paidAmount: finalCost,
       autoBumpHours: autoBumpHours,
@@ -2937,7 +2934,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           downgradedFromVip: isRenewingVip ? null : p.downgradedFromVip,
           vipExpiredAt: isRenewingVip ? null : p.vipExpiredAt,
           isFeatured: vipId === 'vip-diamond',
-          hasDualListing: vipId === 'vip-diamond',
+          hasDualListing: false,
           autoRenew: autoRenew !== undefined ? autoRenew : (p.autoRenew ?? false),
           updatedAt: new Date().toISOString(),
           lastRenewedAt: new Date().toISOString(),

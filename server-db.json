@@ -2168,8 +2168,6 @@
         "Vị trí số 1: Luôn đứng đầu tiên trên Trang Chủ & Kết Quả Tìm Kiếm",
         "(*) Duyệt Tức Thì tự động: Kích hoạt hiển thị (Active ngay) lập tức khi thanh toán",
         "(**) Không hiển thị quảng cáo: Trang chi tiết không xuất hiện banner quảng cáo của bên thứ 3",
-        "(***) Nhân đôi hiển thị: Tặng kèm 1 Tin Thường hiển thị đồng thời ở kết quả tìm kiếm",
-        "Đẩy tin VIP Kim Cương được đẩy MIỄN PHÍ luôn Tin Thường kèm theo",
         "Thẻ hiển thị cực đại (Hero Card), hiệu ứng viền phát sáng",
         "Tỷ lệ tiếp cận khách hàng cao gấp 30 lần tin thường"
       ],
@@ -2185,7 +2183,7 @@
       "approvalType": "instant",
       "approvalBadge": "Duyệt tức thì (0s)",
       "approvalLabel": "Duyệt Tức Thì tự động (Active ngay)",
-      "hasDualListing": true,
+      "hasDualListing": false,
       "multiplierText": "x30",
       "hasPriorityQueue": true,
       "approvalTimeMinutes": 0,
