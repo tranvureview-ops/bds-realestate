@@ -740,15 +740,6 @@ export default function AdminBackendPage() {
     setIsSavingSystem(true);
     try {
       await updateSystemConfig(formSystemConfig);
-      if (formSystemConfig.similarPropertiesLimit && updateSingleConfig && singleConfig) {
-        await updateSingleConfig({
-          ...singleConfig,
-          features: {
-            ...singleConfig.features,
-            similarPropertiesLimit: Number(formSystemConfig.similarPropertiesLimit)
-          }
-        });
-      }
       if (mapsApiKey && mapsApiKey.trim()) {
         await handleSaveMapsApiKey();
       }
@@ -7774,56 +7765,6 @@ export default function AdminBackendPage() {
                         </div>
                       </div>
 
-                      {/* 3. Số lượng tin hiển thị trong Khối BĐS Tương Tự (Single Page) */}
-                      <div className="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-3">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          <div>
-                            <div className="font-bold text-white text-xs flex items-center gap-2">
-                              <span>Số tin hiển thị trong Khối BĐS Tương Tự (Trang Chi Tiết):</span>
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-950 text-rose-300 border border-rose-800">
-                                {formSystemConfig.similarPropertiesLimit || 4} tin
-                              </span>
-                            </div>
-                            <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                              Quy định số lượng bất động sản cùng phân khúc hoặc khu vực hiển thị tại khối gợi ý dưới chân trang chi tiết sản phẩm. Mặc định là 4 sản phẩm.
-                            </p>
-                          </div>
-
-                          <div className="flex items-center gap-2 shrink-0">
-                            <select
-                              value={formSystemConfig.similarPropertiesLimit || 4}
-                              onChange={(e) => setFormSystemConfig(prev => ({ ...prev, similarPropertiesLimit: Number(e.target.value) }))}
-                              className="p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-bold text-xs outline-none focus:border-rose-500"
-                            >
-                              <option value={2}>2 tin</option>
-                              <option value={3}>3 tin</option>
-                              <option value={4}>4 tin (Mặc định)</option>
-                              <option value={6}>6 tin</option>
-                              <option value={8}>8 tin</option>
-                              <option value={12}>12 tin</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        {/* Preset buttons */}
-                        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80">
-                          <span className="text-[10px] font-bold text-slate-500 uppercase">Chọn nhanh:</span>
-                          {[2, 3, 4, 6, 8, 12].map(val => (
-                            <button
-                              key={val}
-                              type="button"
-                              onClick={() => setFormSystemConfig(prev => ({ ...prev, similarPropertiesLimit: val }))}
-                              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
-                                (formSystemConfig.similarPropertiesLimit || 4) === val
-                                  ? 'bg-rose-600 text-white shadow-sm'
-                                  : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
-                              }`}
-                            >
-                              {val} tin
-                            </button>
-                          ))}
-                        </div>
-                      </div>
                     </div>
                   </div>
 
@@ -8061,10 +8002,6 @@ export default function AdminBackendPage() {
                       <div className="flex items-center justify-between">
                         <span>Tin hiển thị Trang chủ:</span>
                         <span className="font-bold text-blue-400 font-mono">{formSystemConfig.homePageSize || 18} tin</span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>BĐS tương tự (Single):</span>
-                        <span className="font-bold text-rose-400 font-mono">{formSystemConfig.similarPropertiesLimit || 4} tin</span>
                       </div>
                       <div className="flex items-center justify-between pt-1 border-t border-slate-800">
                         <span>Chế độ bảo trì hệ thống:</span>
