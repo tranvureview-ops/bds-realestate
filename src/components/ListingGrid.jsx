@@ -207,6 +207,15 @@ export default function ListingGrid({
               </p>
             )}
           </div>
+        ) : isHomePage ? (
+          <div>
+            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+              Danh Sách Bất Động Sản Nổi Bật
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+              {subtitle || 'Ưu tiên hiển thị tin VIP Kim Cương, VIP Vàng và tin có tương tác cao'}
+            </p>
+          </div>
         ) : (
           <div className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600">
             <span>Hiện có</span>
