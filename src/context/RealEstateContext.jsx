@@ -500,8 +500,16 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const rawPackages = (initialData?.bds_membership_packages && Array.isArray(initialData.bds_membership_packages))
       ? initialData.bds_membership_packages
       : MEMBERSHIP_PACKAGES;
+    const normalPkg = (initialData?.bds_vip_packages || VIP_PACKAGES).find(p => p.id === 'normal');
+    const defaultNormalPrice = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
     return rawPackages.map(pkg => ({
       ...pkg,
+      vouchersPerCycle: {
+        ...pkg.vouchersPerCycle,
+        normalPublishDiscount: (pkg.vouchersPerCycle?.normalPublishDiscount === 35000)
+          ? defaultNormalPrice
+          : (pkg.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalPrice)
+      },
       allowScheduledPublishing: typeof pkg.allowScheduledPublishing === 'boolean'
         ? pkg.allowScheduledPublishing
         : (pkg.id === 'member-basic' ? false : true),
@@ -1165,8 +1173,16 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           setVipPackages(db.bds_vip_packages.map(normalizeVipPackage));
         }
         if (Array.isArray(db.bds_membership_packages)) {
+          const normalPkg = (db.bds_vip_packages || vipPackages || []).find(p => p.id === 'normal');
+          const defaultNormalPrice = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
           setMembershipPackages(db.bds_membership_packages.map(pkg => ({
             ...pkg,
+            vouchersPerCycle: {
+              ...pkg.vouchersPerCycle,
+              normalPublishDiscount: (pkg.vouchersPerCycle?.normalPublishDiscount === 35000)
+                ? defaultNormalPrice
+                : (pkg.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalPrice)
+            },
             allowScheduledPublishing: typeof pkg.allowScheduledPublishing === 'boolean'
               ? pkg.allowScheduledPublishing
               : (pkg.id === 'member-basic' ? false : true),

@@ -12,12 +12,32 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
     updateCommonVoucherPrices 
   } = useRealEstate();
 
-  // Lấy đơn giá hiện tại từ danh sách gói
+  // Lấy đơn giá chuẩn trực tiếp từ cấu hình Bảng Giá Tin Đăng
+  const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
+  const normalAllowedDurations = (Array.isArray(normalPkg?.allowedDurations) && normalPkg.allowedDurations.length > 0)
+    ? normalPkg.allowedDurations
+    : [60];
+  const activeNormalDuration = normalAllowedDurations.includes(60) ? 60 : normalAllowedDurations[0];
+  const normalPriceFromTable = normalPkg?.rates?.[activeNormalDuration] !== undefined
+    ? Number(normalPkg.rates[activeNormalDuration])
+    : Number(normalPkg?.pricePerDay || 0);
+
+  const bumpPriceFromTable = Number(bumpServicePrice ?? 10000);
+  const diamondPkg = (vipPackages || []).find(p => p.id === 'vip-diamond');
+  const diamondPriceFromTable = diamondPkg?.rates?.[7] ? (diamondPkg.rates[7] * 7) : 700000;
+
+  // Lấy đơn giá hiện tại từ danh sách gói hoặc đồng bộ theo Bảng Giá Tin Đăng
   const getInitialPrices = () => {
-    const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
-    const defaultNormalPrice = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
-    const pubVal = membershipPackages[0]?.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalPrice;
-    const bumpVal = membershipPackages[0]?.vouchersPerCycle?.normalBumpDiscount ?? bumpServicePrice ?? 10000;
+    const rawPub = membershipPackages[0]?.vouchersPerCycle?.normalPublishDiscount;
+    const pubVal = (rawPub !== undefined && rawPub !== null && rawPub !== 35000)
+      ? Number(rawPub)
+      : normalPriceFromTable;
+
+    const rawBump = membershipPackages[0]?.vouchersPerCycle?.normalBumpDiscount;
+    const bumpVal = (rawBump !== undefined && rawBump !== null)
+      ? Number(rawBump)
+      : bumpPriceFromTable;
+
     const vipVal = membershipPackages.find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount ?? 400000;
     return {
       normalPublishDiscount: pubVal,
@@ -30,12 +50,11 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
   const [isSaving, setIsSaving] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
-  // Cập nhật state nếu membershipPackages thay đổi từ bên ngoài
+  // Cập nhật state nếu membershipPackages, vipPackages hoặc bumpServicePrice thay đổi
   useEffect(() => {
     const initial = getInitialPrices();
     setPrices(initial);
-    setHasChanges(false);
-  }, [membershipPackages]);
+  }, [membershipPackages, vipPackages, bumpServicePrice]);
 
   const handleChange = (field, value) => {
     const num = Math.max(0, parseInt(value, 10) || 0);
@@ -43,6 +62,15 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
       ...prev,
       [field]: num
     }));
+    setHasChanges(true);
+  };
+
+  const handleSyncFromPricingTable = () => {
+    setPrices({
+      normalPublishDiscount: normalPriceFromTable,
+      normalBumpDiscount: bumpPriceFromTable,
+      vipDiscount: Math.min(400000, diamondPriceFromTable)
+    });
     setHasChanges(true);
   };
 
@@ -82,23 +110,35 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={isSaving}
-          className={`px-5 py-2.5 rounded-xl font-black text-xs transition flex items-center gap-2 cursor-pointer self-start sm:self-auto shrink-0 shadow-lg ${
-            hasChanges
-              ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-amber-500/20 ring-2 ring-amber-400/50 animate-pulse'
-              : 'bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700'
-          }`}
-        >
-          {isSaving ? (
-            <i className="fa-solid fa-spinner animate-spin"></i>
-          ) : (
-            <i className="fa-solid fa-floppy-disk"></i>
-          )}
-          <span>{isSaving ? 'Đang Đồng Bộ...' : (hasChanges ? 'Lưu & Áp Dụng Ngay' : 'Lưu Đơn Giá Chung')}</span>
-        </button>
+        <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto shrink-0">
+          <button
+            type="button"
+            onClick={handleSyncFromPricingTable}
+            className="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 border border-slate-700 font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-sm"
+            title="Tự động đồng bộ chuẩn 100% theo giá hiện hành trong Bảng Giá Tin Đăng"
+          >
+            <i className="fa-solid fa-arrows-rotate text-emerald-400"></i>
+            <span>Cập Nhật Theo Bảng Giá Tin Đăng</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={isSaving}
+            className={`px-5 py-2.5 rounded-xl font-black text-xs transition flex items-center gap-2 cursor-pointer shadow-lg ${
+              hasChanges
+                ? 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-amber-500/20 ring-2 ring-amber-400/50 animate-pulse'
+                : 'bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-700'
+            }`}
+          >
+            {isSaving ? (
+              <i className="fa-solid fa-spinner animate-spin"></i>
+            ) : (
+              <i className="fa-solid fa-floppy-disk"></i>
+            )}
+            <span>{isSaving ? 'Đang Đồng Bộ...' : (hasChanges ? 'Lưu & Áp Dụng Ngay' : 'Lưu Đơn Giá Chung')}</span>
+          </button>
+        </div>
       </div>
 
       {/* 3 Voucher Price Inputs */}
@@ -112,7 +152,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
               </span>
               <div>
                 <span className="font-bold text-white text-xs block">Voucher Đăng Tin Thường</span>
-                <span className="text-[10px] text-slate-400">Đăng tin thường 60 ngày</span>
+                <span className="text-[10px] text-slate-400">Đăng tin thường {activeNormalDuration} ngày</span>
               </div>
             </div>
             <span className="px-2 py-0.5 rounded-md bg-emerald-950/80 text-emerald-400 text-[10px] font-mono font-bold border border-emerald-800/60">
@@ -121,7 +161,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
           </div>
 
           <p className="text-[11px] text-slate-400 line-clamp-1">
-            Mức giảm trừ mỗi lần đăng tin thường (áp dụng theo Bảng Giá Tin Đăng)
+            Mức giảm trừ mỗi lần đăng tin thường (Bảng Giá Tin Đăng: <strong className="text-emerald-400">{normalPriceFromTable === 0 ? '0 đ (Miễn phí)' : `${normalPriceFromTable.toLocaleString('vi-VN')} đ/ngày`}</strong>)
           </p>
 
           <div className="relative pt-1">
@@ -132,7 +172,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
               value={prices.normalPublishDiscount}
               onChange={(e) => handleChange('normalPublishDiscount', e.target.value)}
               className="w-full py-2.5 pl-3 pr-14 bg-slate-900 border border-slate-700 rounded-xl text-emerald-400 font-mono font-black text-sm outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
-              placeholder="0"
+              placeholder={String(normalPriceFromTable)}
             />
             <span className="absolute right-3.5 top-3.5 text-xs text-slate-500 font-bold pointer-events-none">VNĐ</span>
           </div>
@@ -168,7 +208,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
           </div>
 
           <p className="text-[11px] text-slate-400 line-clamp-1">
-            Mức giảm cho mỗi lần dùng dịch vụ đẩy tin (chuẩn 10.000 đ)
+            Mức giảm cho mỗi lần dùng dịch vụ đẩy tin (Bảng Giá Tin Đăng: <strong className="text-amber-400">{bumpPriceFromTable.toLocaleString('vi-VN')} đ</strong>)
           </p>
 
           <div className="relative pt-1">
@@ -179,7 +219,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
               value={prices.normalBumpDiscount}
               onChange={(e) => handleChange('normalBumpDiscount', e.target.value)}
               className="w-full py-2.5 pl-3 pr-14 bg-slate-900 border border-slate-700 rounded-xl text-amber-400 font-mono font-black text-sm outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition"
-              placeholder="10000"
+              placeholder={String(bumpPriceFromTable)}
             />
             <span className="absolute right-3.5 top-3.5 text-xs text-slate-500 font-bold pointer-events-none">VNĐ</span>
           </div>
@@ -215,7 +255,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
           </div>
 
           <p className="text-[11px] text-slate-400 line-clamp-1">
-            Mức giảm trực tiếp khi đăng Tin VIP
+            Mức giảm trực tiếp khi đăng Tin VIP (Bảng Giá Tin Đăng Kim Cương: <strong className="text-rose-400">{diamondPriceFromTable.toLocaleString('vi-VN')} đ</strong>)
           </p>
 
           <div className="relative pt-1">
@@ -226,7 +266,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
               value={prices.vipDiscount}
               onChange={(e) => handleChange('vipDiscount', e.target.value)}
               className="w-full py-2.5 pl-3 pr-14 bg-slate-900 border border-slate-700 rounded-xl text-rose-400 font-mono font-black text-sm outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
-              placeholder="400000"
+              placeholder={String(diamondPriceFromTable)}
             />
             <span className="absolute right-3.5 top-3.5 text-xs text-slate-500 font-bold pointer-events-none">VNĐ</span>
           </div>
