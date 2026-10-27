@@ -7273,54 +7273,6 @@ export default function AdminBackendPage() {
                         </div>
                       </label>
 
-                      {/* Tiện Ích Hẹn Giờ Đăng Tin được quản lý riêng cho từng Gói Hội Viên */}
-                      <div className="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 flex items-center justify-between gap-3 flex-wrap">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center shrink-0">
-                            <i className="fa-regular fa-clock text-sm"></i>
-                          </div>
-                          <div>
-                            <div className="font-bold text-white text-xs flex items-center gap-2">
-                              <span>Tiện ích Hẹn Giờ Đăng Tin (Khung Giờ Vàng)</span>
-                              <span className="text-[10px] text-amber-400 font-bold bg-amber-950/60 border border-amber-800/80 px-2 py-0.5 rounded-full">
-                                Cấu hình trong Gói Hội Viên
-                              </span>
-                            </div>
-                            <div className="text-[11px] text-slate-400 mt-0.5">
-                              Tính năng bật/tắt hẹn giờ đăng tin được phân quyền chi tiết độc lập cho từng gói tại menu <b>"👑 Gói Hội Viên"</b>.
-                            </div>
-                          </div>
-                        </div>
-
-                        <button
-                          type="button"
-                          onClick={() => setActiveMenu && setActiveMenu('membership')}
-                          className="px-3.5 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <i className="fa-solid fa-crown text-[11px]"></i>
-                          <span>Đi Đến Gói Hội Viên</span>
-                        </button>
-                      </div>
-
-                      {/* Default Listing Days */}
-                      <div className="p-3.5 bg-slate-900/80 rounded-2xl border border-slate-800 flex items-center justify-between gap-3 flex-wrap">
-                        <div>
-                          <div className="font-bold text-white">Thời gian hiển thị mặc định của tin đăng:</div>
-                          <div className="text-[11px] text-slate-400">Số ngày tin đăng được chọn mặc định trong form tạo tin mới</div>
-                        </div>
-                        <select
-                          value={formSystemConfig.defaultListingDays || 15}
-                          onChange={(e) => setFormSystemConfig(prev => ({ ...prev, defaultListingDays: Number(e.target.value) }))}
-                          className="p-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-bold text-xs"
-                        >
-                          <option value={7}>7 ngày</option>
-                          <option value={10}>10 ngày</option>
-                          <option value={15}>15 ngày (Mặc định)</option>
-                          <option value={30}>30 ngày</option>
-                          <option value={60}>60 ngày</option>
-                        </select>
-                      </div>
-
                       {/* Maintenance mode */}
                       <div className={`p-4 rounded-2xl border transition ${
                         formSystemConfig.maintenanceMode 
@@ -8101,10 +8053,6 @@ export default function AdminBackendPage() {
                         <span className={`font-bold ${formSystemConfig.enableAiModeration !== false ? 'text-purple-400' : 'text-slate-500'}`}>
                           {formSystemConfig.enableAiModeration !== false ? 'Đang kích hoạt' : 'Tắt'}
                         </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>Thời hạn tin mặc định:</span>
-                        <span className="font-bold text-white font-mono">{formSystemConfig.defaultListingDays || 15} ngày</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span>Phân trang Danh mục:</span>
