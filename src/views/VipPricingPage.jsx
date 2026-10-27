@@ -767,11 +767,11 @@ export default function VipPricingPage() {
                   <td className="py-3 px-4 font-bold text-slate-900">
                     Màu sắc & Định dạng tiêu đề
                   </td>
-                  <td className="py-3 px-3 text-center font-black text-red-600 uppercase bg-red-50/30 border-x border-red-100">
-                    Chữ In Hoa Đỏ Ruby
+                  <td className="py-3 px-3 text-center font-black text-red-600 bg-red-50/30 border-x border-red-100">
+                    Chữ Đậm Đỏ Ruby
                   </td>
-                  <td className="py-3 px-3 text-center font-bold text-amber-600 uppercase bg-amber-50/30 border-r border-amber-100">
-                    Chữ In Hoa Cam Vàng
+                  <td className="py-3 px-3 text-center font-bold text-amber-600 bg-amber-50/30 border-r border-amber-100">
+                    Chữ Đậm Cam Vàng
                   </td>
                   <td className="py-3 px-3 text-center font-bold text-blue-700 bg-blue-50/30 border-r border-blue-100">
                     Chữ Đậm Xanh Sapphire

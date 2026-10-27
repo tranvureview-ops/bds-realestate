@@ -58,7 +58,7 @@ export const LISTING_TYPES = [
       '(*) Duyệt Tức Thì tự động: Kích hoạt hiển thị (Active ngay) lập tức khi thanh toán',
       '(**) Hết hạn VIP tự động hạ thành Tin Thường & cộng thêm 60 ngày hiển thị miễn phí',
       '(***) Không hiển thị quảng cáo: Không xuất hiện banner quảng cáo ở trang chi tiết',
-      'Khung viền ánh vàng sang trọng, tiêu đề Chữ In Hoa màu Cam Vàng',
+      'Khung viền ánh vàng sang trọng, tiêu đề chữ đậm màu Cam Vàng',
       'Tỷ lệ tiếp cận gấp 15 lần tin thường',
       'Hiển thị số điện thoại to & nút Gọi/Zalo 1-chạm nổi bật'
     ],
