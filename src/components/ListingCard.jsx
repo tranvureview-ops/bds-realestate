@@ -76,7 +76,7 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
   return (
     <div 
       onClick={handleCardClick}
-      className={`relative bg-white rounded-2xl overflow-hidden transition-all duration-300 group cursor-pointer ${
+      className={`relative isolate bg-white rounded-2xl overflow-hidden transition-all duration-300 group cursor-pointer ${
         isDiamond 
           ? 'vip-diamond-border hover:shadow-2xl' 
           : isGold 
@@ -99,7 +99,7 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none"></div>
 
         {/* Top Badges */}
-        <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5 z-10">
+        <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5 z-[2]">
           {/* VIP Level Badge */}
           <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase shadow-sm tracking-wide ${vipPkg.badgeColor}`}>
             {vipPkg.shortName}
@@ -112,7 +112,7 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
         </div>
 
         {/* Action Buttons Top Right: Favorite & Compare */}
-        <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-10">
+        <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-[2]">
           {/* Compare Button */}
           <button
             onClick={() => toggleCompare(property)}
