@@ -483,31 +483,86 @@ export default function LiveChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-20 sm:bottom-5 right-3 sm:right-5 z-50 select-none">
+    <div className={`fixed z-50 select-none ${
+      isOpen 
+        ? 'inset-x-0 bottom-0 sm:bottom-5 sm:right-5 sm:left-auto flex justify-center sm:block' 
+        : 'bottom-[4.25rem] sm:bottom-6 right-3 sm:right-6'
+    }`}>
       {/* 1. FLOATING TRIGGER BUTTON */}
       {!isOpen && (
-        <button
-          onClick={handleOpenWidget}
-          className="relative w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-gradient-to-tr from-emerald-600 via-teal-600 to-cyan-600 text-white flex items-center justify-center text-xl shadow-2xl hover:scale-110 active:scale-95 transition-all transform border-2 border-white group cursor-pointer"
-          title="Live Chat tư vấn BĐS trực tiếp"
-        >
-          <i className="fa-solid fa-comments text-xl sm:text-2xl group-hover:scale-110 transition-transform"></i>
-          
-          {/* Unread / Notification Ping Badge */}
-          {unreadCount > 0 ? (
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-600 text-white rounded-full border-2 border-white flex items-center justify-center text-[10px] font-black animate-bounce shadow-md">
-              {unreadCount}
-            </span>
-          ) : (
-            <span className="absolute top-0 right-0 w-3.5 h-3.5 bg-emerald-400 rounded-full border-2 border-white flex items-center justify-center animate-pulse"></span>
-          )}
-        </button>
+        <>
+          {/* Mobile: Sleek Floating Concierge Pill (Gọn gàng, sang trọng, bo viền ngọc lục bảo) */}
+          <button
+            onClick={handleOpenWidget}
+            className="sm:hidden flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full bg-white/95 text-slate-800 shadow-[0_8px_25px_rgba(0,0,0,0.12)] border border-slate-200/90 backdrop-blur-md active:scale-95 transition-all cursor-pointer group"
+            title="Chat tư vấn trực tiếp"
+          >
+            <div className="relative shrink-0">
+              <img
+                src={agentInfo.avatar || '/avatars/ai-preset-1.jpg'}
+                alt="Tư vấn"
+                className="w-7 h-7 rounded-full object-cover ring-2 ring-emerald-500 shadow-xs"
+              />
+              <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-500 border-2 border-white rounded-full">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              </span>
+            </div>
+            <div className="text-left leading-none pr-0.5">
+              <div className="text-[11px] font-bold text-slate-900 flex items-center gap-1">
+                <span>Chat tư vấn</span>
+                <i className="fa-solid fa-comment-dots text-emerald-600 text-[10px]"></i>
+              </div>
+              <div className="text-[8.5px] text-emerald-600 font-semibold mt-0.5">
+                Online 24/7
+              </div>
+            </div>
+            {unreadCount > 0 && (
+              <span className="w-4 h-4 bg-red-600 text-white rounded-full flex items-center justify-center text-[9px] font-black animate-bounce shadow-xs">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
+          {/* Desktop: Luxury Floating Concierge Button */}
+          <button
+            onClick={handleOpenWidget}
+            className="hidden sm:flex items-center gap-2.5 pl-2 pr-4 py-2 rounded-full bg-white/95 hover:bg-white text-slate-800 shadow-[0_10px_35px_rgba(0,0,0,0.12)] border border-slate-200 hover:border-emerald-400 hover:shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md group"
+            title="Live Chat tư vấn BĐS trực tiếp"
+          >
+            <div className="relative shrink-0">
+              <img
+                src={agentInfo.avatar || '/avatars/ai-preset-1.jpg'}
+                alt="Chuyên viên tư vấn"
+                className="w-9 h-9 rounded-full object-cover ring-2 ring-emerald-500 shadow-xs"
+              />
+              <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              </span>
+            </div>
+            <div className="text-left leading-none">
+              <div className="text-xs font-black text-slate-900 group-hover:text-emerald-700 transition flex items-center gap-1.5">
+                <span>Tư vấn BĐS 24/7</span>
+                <i className="fa-solid fa-comment-dots text-emerald-600 text-xs"></i>
+              </div>
+              <div className="text-[10px] text-slate-500 font-medium mt-1">
+                {agentInfo.name} • <span className="text-emerald-600 font-bold">Online</span>
+              </div>
+            </div>
+            {unreadCount > 0 && (
+              <span className="px-2 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-black animate-bounce shadow">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+        </>
       )}
 
       {/* 2. CHAT MODAL WINDOW */}
       {isOpen && (
-        <div className="w-[calc(100vw-1.5rem)] sm:w-[380px] max-w-[390px] bg-white rounded-2xl sm:rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col h-[490px] sm:h-[530px] max-h-[calc(100dvh-6rem)] animate-in slide-in-from-bottom duration-250">
-          
+        <div className="w-full sm:w-[385px] max-w-[420px] bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl border-t sm:border border-slate-200 overflow-hidden flex flex-col h-[85dvh] sm:h-[540px] max-h-[640px] animate-in slide-in-from-bottom duration-250">
+          {/* Mobile Handle Indicator */}
+          <div className="sm:hidden w-10 h-1 bg-slate-300 rounded-full mx-auto my-1.5 shrink-0"></div>
+
           {/* HEADER: Chuyên viên tư vấn & Nút thu nhỏ */}
           <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white p-3.5 flex items-center justify-between border-b border-slate-800">
             <div className="flex items-center gap-2.5 min-w-0">
@@ -548,9 +603,9 @@ export default function LiveChatWidget() {
               <button
                 onClick={handleCancelChat}
                 className="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-xs transition cursor-pointer"
-                title="Thu nhỏ khung chat"
+                title="Đóng khung chat"
               >
-                <i className="fa-solid fa-minus"></i>
+                <i className="fa-solid fa-xmark text-sm"></i>
               </button>
             </div>
           </div>

@@ -187,8 +187,8 @@ export default function ListingGrid({
 
   // Nhãn phân loại nhu cầu hiển thị trên thanh công cụ
   const demandLabel = useMemo(() => {
-    if (filters?.demand === 'rent') return 'BĐS cho thuê';
-    if (filters?.demand === 'sale') return 'BĐS đang bán';
+    if (filters?.demand === 'rent') return 'bất động sản cho thuê';
+    if (filters?.demand === 'sale') return 'bất động sản đang bán';
     return 'bất động sản';
   }, [filters?.demand]);
 
