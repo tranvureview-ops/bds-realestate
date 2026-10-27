@@ -64,8 +64,10 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 
       bedroom: queryBedroom,
       onlyVerified: queryVerified
     }));
+  }, [taxonomyInfo, queryDistrict, queryCity, queryType, queryKeyword, queryPrice, queryMinPrice, queryMaxPrice, queryArea, queryMinArea, queryMaxArea, queryBedroom, queryVerified]);
 
-    // Bơm Schema.org Category/CollectionPage JSON-LD
+  // Bơm Schema.org Category/CollectionPage JSON-LD
+  useEffect(() => {
     const jsonLdData = generateCategoryJsonLd(
       taxonomyInfo || { 
         demand: 'sale', 
@@ -89,7 +91,7 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 
         scriptTag.parentNode.removeChild(scriptTag);
       }
     };
-  }, [taxonomyInfo, queryDistrict, queryCity, queryType, queryKeyword, queryPrice, queryArea, queryVerified, properties]);
+  }, [taxonomyInfo, queryDistrict, queryCity, properties]);
 
   const activePage = useMemo(() => {
     if (initialPage && Number(initialPage) > 0) return Number(initialPage);

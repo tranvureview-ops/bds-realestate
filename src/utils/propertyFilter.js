@@ -38,20 +38,43 @@ export function filterProperties(properties = [], filters = {}) {
     // 4. Thành phố (City)
     if (filters.city && filters.city.trim() && prop.city) {
       const filterCityClean = removeAccents(filters.city);
-      const propCityClean = removeAccents(prop.city);
-      if (!propCityClean.includes(filterCityClean) && !prop.city.toLowerCase().includes(filters.city.trim().toLowerCase())) {
-        return false;
+      const isAllCity = [
+        'all',
+        'toan quoc',
+        'tat ca',
+        'tat ca tinh thanh',
+        'tat ca tinh / thanh',
+        'tat ca tinhthanh'
+      ].includes(filterCityClean);
+
+      if (!isAllCity) {
+        const propCityClean = removeAccents(prop.city);
+        if (!propCityClean.includes(filterCityClean) && !prop.city.toLowerCase().includes(filters.city.trim().toLowerCase())) {
+          return false;
+        }
       }
     }
 
     // 5. Quận / Huyện (District)
     if (filters.district && filters.district.trim() && prop.district) {
-      const filterDistClean = removeAccents(filters.district.replace(/^(quận|huyện|thị xã|tp\.)\s+/i, ''));
-      const propDistClean = removeAccents(prop.district.replace(/^(quận|huyện|thị xã|tp\.)\s+/i, ''));
-      const directMatch = prop.district.toLowerCase().includes(filters.district.trim().toLowerCase());
-      const cleanMatch = propDistClean.includes(filterDistClean);
-      if (!directMatch && !cleanMatch) {
-        return false;
+      const isAllDistrict = [
+        'all',
+        'tat ca',
+        'tat ca quan huyen',
+        'tat ca quan/huyen',
+        'tat ca quanhuyen',
+        'chon tinh thanh truoc',
+        'chon tinh/thanh truoc'
+      ].includes(removeAccents(filters.district));
+
+      if (!isAllDistrict) {
+        const filterDistClean = removeAccents(filters.district.replace(/^(quận|huyện|thị xã|tp\.)\s+/i, ''));
+        const propDistClean = removeAccents(prop.district.replace(/^(quận|huyện|thị xã|tp\.)\s+/i, ''));
+        const directMatch = prop.district.toLowerCase().includes(filters.district.trim().toLowerCase());
+        const cleanMatch = propDistClean.includes(filterDistClean);
+        if (!directMatch && !cleanMatch) {
+          return false;
+        }
       }
     }
 
