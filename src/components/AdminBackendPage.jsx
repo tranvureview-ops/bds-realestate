@@ -6054,18 +6054,8 @@ export default function AdminBackendPage() {
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
-                    onClick={handleResetPaymentSettings}
-                    className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white font-bold text-xs border border-slate-800 transition flex items-center gap-1.5"
-                    title="Khôi phục thiết lập thanh toán về mặc định"
-                  >
-                    <i className="fa-solid fa-rotate-left"></i>
-                    <span>Khôi Phục Mặc Định</span>
-                  </button>
-
-                  <button
-                    type="button"
                     onClick={handleSavePaymentSettings}
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition flex items-center gap-2"
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition flex items-center gap-2 cursor-pointer"
                   >
                     <i className="fa-solid fa-floppy-disk"></i>
                     <span>Lưu Cấu Hình Thanh Toán</span>
@@ -6433,21 +6423,6 @@ export default function AdminBackendPage() {
                         </div>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setFormPaymentConfig(prev => ({
-                            ...prev,
-                            approvalTiers: DEFAULT_APPROVAL_TIERS,
-                            autoApproveVip: true,
-                            autoApproveOther: true
-                          }));
-                          showToast('Đã đặt lại quy chế duyệt tin theo chuẩn mặc định', 'info');
-                        }}
-                        className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white rounded-lg text-[10px] font-bold border border-slate-800 transition"
-                      >
-                        <i className="fa-solid fa-rotate-left mr-1"></i> Mặc định
-                      </button>
                     </div>
 
                     <div className="space-y-3 text-xs">
@@ -6985,19 +6960,9 @@ export default function AdminBackendPage() {
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     type="button"
-                    onClick={handleResetSystemSettings}
-                    className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white font-bold text-xs border border-slate-800 transition flex items-center gap-1.5"
-                    title="Khôi phục toàn bộ cài đặt sàn về mặc định"
-                  >
-                    <i className="fa-solid fa-rotate-left"></i>
-                    <span>Mặc Định</span>
-                  </button>
-
-                  <button
-                    type="button"
                     disabled={isSavingSystem}
                     onClick={handleSaveSystemConfig}
-                    className="px-5 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-60 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-900/30 transition flex items-center gap-1.5"
+                    className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-60 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-900/30 transition flex items-center gap-1.5 cursor-pointer"
                   >
                     <i className={isSavingSystem ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-floppy-disk"}></i>
                     <span>{isSavingSystem ? "Đang lưu..." : "Lưu Cài Đặt Hệ Thống"}</span>

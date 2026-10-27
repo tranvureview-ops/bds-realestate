@@ -154,22 +154,8 @@ export default function AdminMenuConfigManager({ onSwitchToHeader = null }) {
 
         <div className="flex flex-wrap items-center gap-2">
           <button
-            onClick={() => {
-              if (window.confirm('Khôi phục toàn bộ danh sách menu về mặc định ban đầu?')) {
-                resetNavMenu();
-                showToast('Đã khôi phục danh sách menu về mặc định!', 'info');
-              }
-            }}
-            className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-xs border border-slate-700 transition flex items-center gap-1.5"
-            title="Khôi phục danh sách menu về mặc định ban đầu"
-          >
-            <i className="fa-solid fa-rotate-left text-slate-400"></i>
-            <span>Khôi Phục Mặc Định</span>
-          </button>
-
-          <button
             onClick={handleOpenAddMenu}
-            className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-red-600/30 transition flex items-center gap-2"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs shadow-lg shadow-red-600/30 transition flex items-center gap-2 cursor-pointer"
           >
             <i className="fa-solid fa-plus-circle"></i>
             <span>+ Thêm Mục Menu Mới</span>

@@ -181,16 +181,6 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
-            onClick={handleResetHeaderSettings}
-            className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white font-bold text-xs border border-slate-800 transition flex items-center gap-1.5"
-            title="Khôi phục logo và độ rộng về mặc định"
-          >
-            <i className="fa-solid fa-rotate-left"></i>
-            <span>Khôi Phục Mặc Định</span>
-          </button>
-
-          <button
-            type="button"
             onClick={handleSaveHeaderSettings}
             disabled={isSavingHeader}
             className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-bold text-xs shadow-lg shadow-emerald-600/30 transition flex items-center gap-2 cursor-pointer"
@@ -650,14 +640,6 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
               className="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 font-bold text-[11px] border border-slate-700/60 transition cursor-pointer"
             >
               <i className="fa-solid fa-xmark mr-1"></i> Tắt Tất Cả
-            </button>
-            <button
-              type="button"
-              onClick={handleResetSocialLinks}
-              className="px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-amber-400 font-bold text-[11px] border border-slate-700/60 transition cursor-pointer"
-              title="Khôi phục link mặc định"
-            >
-              <i className="fa-solid fa-rotate-left mr-1"></i> Mặc Định
             </button>
           </div>
         </div>

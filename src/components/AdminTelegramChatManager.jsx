@@ -494,19 +494,6 @@ export default function AdminTelegramChatManager() {
                       <i className="fa-solid fa-cloud-arrow-up"></i>
                       <span>Tải ảnh từ máy tính</span>
                     </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setConfig(prev => ({ ...prev, agentAvatar: '/avatars/ai-preset-1.jpg' }));
-                        showToast('Đã chọn lại ảnh mẫu nữ mặc định!', 'info');
-                      }}
-                      className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-semibold text-xs rounded-xl transition flex items-center gap-1 cursor-pointer"
-                      title="Khôi phục ảnh mẫu mặc định"
-                    >
-                      <i className="fa-solid fa-rotate-left"></i>
-                      <span>Khôi phục mẫu</span>
-                    </button>
                   </div>
 
                   <p className="text-[10.5px] text-slate-400 leading-relaxed">

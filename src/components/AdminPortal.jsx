@@ -463,21 +463,11 @@ export default function AdminPortal() {
               <button
                 type="button"
                 onClick={() => {
-                  resetPaymentConfig();
-                  showToast('Đã khôi phục cấu hình cổng thanh toán mặc định!', 'info');
-                }}
-                className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-bold transition border border-slate-700 flex items-center gap-1.5"
-              >
-                <i className="fa-solid fa-rotate-left"></i>
-                Khôi phục mặc định
-              </button>
-              <button
-                type="button"
-                onClick={() => {
                   updatePaymentConfig(formPaymentConfig);
                   showToast('Đã lưu cấu hình cổng thanh toán thành công!', 'success');
                 }}
-                className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black transition shadow-lg shadow-red-600/30 flex items-center gap-1.5"
+                className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black transition shadow-lg shadow-red-600/30 flex items-center gap-1.5 cursor-pointer"
+              >
               >
                 <i className="fa-solid fa-floppy-disk"></i>
                 Lưu cấu hình

@@ -71,13 +71,6 @@ export default function AdminSingleConfigManager() {
     }
   };
 
-  const handleReset = () => {
-    if (window.confirm('Bạn có chắc chắn muốn khôi phục toàn bộ cấu hình trang Single về mặc định ban đầu?')) {
-      resetSingleConfig();
-      setFormData(DEFAULT_SINGLE_CONFIG);
-    }
-  };
-
   // Preview computed text
   const previewSampleTitle = 'Căn hộ chung cư Masterise Park Place 3PN view hồ';
   const previewSampleId = 'BDS-003';
@@ -127,15 +120,8 @@ export default function AdminSingleConfigManager() {
         <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={handleReset}
-            className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold rounded-xl text-xs border border-slate-800 transition"
-          >
-            Khôi Phục Mặc Định
-          </button>
-          <button
-            type="button"
             onClick={handleSave}
-            className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl text-xs shadow-lg shadow-red-600/30 transition flex items-center gap-2"
+            className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl text-xs shadow-lg shadow-red-600/30 transition flex items-center gap-2 cursor-pointer"
           >
             <i className="fa-solid fa-floppy-disk"></i>
             <span>Lưu Cấu Hình Single</span>
