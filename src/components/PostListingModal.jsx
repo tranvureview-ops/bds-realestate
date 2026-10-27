@@ -258,7 +258,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const isMemberExpired = Boolean(currentUser?.membership && !isMemberActive);
   const memberPackageObj = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
   const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
-  const defaultNormalPrice = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
+  const defaultNormalPrice = Number(normalPkg?.rates?.[60] !== undefined && normalPkg.rates[60] !== 0 ? normalPkg.rates[60] : (normalPkg?.publishPrice ?? 5000));
   const normalPublishVoucherDiscount = memberPackageObj?.vouchersPerCycle?.normalPublishDiscount || (membershipPackages?.[0]?.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalPrice);
   const vipVoucherDiscount = memberPackageObj?.vouchersPerCycle?.vipDiscount || (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount || 400000;
 
@@ -455,10 +455,16 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const selectedPkg = activeVipPackages.find(p => p.id === selectedVipId) || defaultPkg;
   const ratesConfig = useMemo(() => getEffectiveListingRates(activeVipPackages, paymentConfig), [activeVipPackages, paymentConfig]);
   const bdsConfig = ratesConfig?.[selectedVipId] || ratesConfig?.['normal'] || LISTING_RATES['normal'];
-  const dailyRate = bdsConfig?.rates?.[listingDays] ?? bdsConfig?.rates?.[15] ?? bdsConfig?.pricePerDay ?? 0;
+  const isNormal60 = selectedVipId === 'normal' && listingDays === 60;
+  const normal60Price = bdsConfig?.rates?.[60] !== undefined && Number(bdsConfig.rates[60]) !== 0
+    ? Number(bdsConfig.rates[60])
+    : (Number(bdsConfig?.publishPrice) || 5000);
+  const dailyRate = isNormal60
+    ? Math.round(normal60Price / 60)
+    : (bdsConfig?.rates?.[listingDays] ?? bdsConfig?.rates?.[15] ?? bdsConfig?.pricePerDay ?? 0);
   const bumpDays = Math.max(1, Math.min(Number(autoBumpDays) || 1, listingDays || 1));
   const autoBumpFee = autoBumpHours.length * effectiveBumpPrice * bumpDays;
-  const listingCost = dailyRate * listingDays;
+  const listingCost = isNormal60 ? normal60Price : (dailyRate * listingDays);
   const totalCost = listingCost + autoBumpFee;
 
   // Smart selection handler with auto voucher recommendation

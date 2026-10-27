@@ -18,9 +18,9 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
     ? normalPkg.allowedDurations
     : [60];
   const activeNormalDuration = normalAllowedDurations.includes(60) ? 60 : normalAllowedDurations[0];
-  const normalPriceFromTable = normalPkg?.rates?.[activeNormalDuration] !== undefined
+  const normalPriceFromTable = (normalPkg?.rates?.[activeNormalDuration] !== undefined && normalPkg.rates[activeNormalDuration] !== 0)
     ? Number(normalPkg.rates[activeNormalDuration])
-    : Number(normalPkg?.pricePerDay || 0);
+    : (Number(normalPkg?.publishPrice) || 5000);
 
   const bumpPriceFromTable = Number(bumpServicePrice ?? 10000);
   const diamondPkg = (vipPackages || []).find(p => p.id === 'vip-diamond');
@@ -29,7 +29,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
   // Lấy đơn giá hiện tại từ danh sách gói hoặc đồng bộ theo Bảng Giá Tin Đăng
   const getInitialPrices = () => {
     const rawPub = membershipPackages[0]?.vouchersPerCycle?.normalPublishDiscount;
-    const pubVal = (rawPub !== undefined && rawPub !== null && rawPub !== 35000)
+    const pubVal = (rawPub !== undefined && rawPub !== null && rawPub !== 35000 && rawPub !== 0)
       ? Number(rawPub)
       : normalPriceFromTable;
 
@@ -67,7 +67,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
 
   const handleSyncFromPricingTable = () => {
     setPrices({
-      normalPublishDiscount: normalPriceFromTable,
+      normalPublishDiscount: normalPriceFromTable || 5000,
       normalBumpDiscount: bumpPriceFromTable,
       vipDiscount: Math.min(400000, diamondPriceFromTable)
     });
@@ -161,7 +161,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
           </div>
 
           <p className="text-[11px] text-slate-400 line-clamp-1">
-            Mức giảm trừ mỗi lần đăng tin thường (Bảng Giá Tin Đăng: <strong className="text-emerald-400">{normalPriceFromTable === 0 ? '0 đ (Miễn phí)' : `${normalPriceFromTable.toLocaleString('vi-VN')} đ/ngày`}</strong>)
+            Mức giảm trừ mỗi lần đăng tin thường (Bảng Giá Tin Đăng: <strong className="text-emerald-400">{normalPriceFromTable.toLocaleString('vi-VN')} đ cho 60 ngày</strong>)
           </p>
 
           <div className="relative pt-1">
@@ -180,7 +180,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
           <div className="flex items-center justify-between text-[10px] pt-1 text-slate-500 border-t border-slate-800/60">
             <span>Đang cấu hình:</span>
             <div className="flex items-center gap-1.5">
-              <b className="text-emerald-400 font-mono text-xs">{Number(prices.normalPublishDiscount || 0).toLocaleString('vi-VN')} đ/lần</b>
+              <b className="text-emerald-400 font-mono text-xs">{Number(prices.normalPublishDiscount || 0).toLocaleString('vi-VN')} đ/tin</b>
               {isVoucherDiscountFree('normalPublish', prices.normalPublishDiscount, { vipPackages, bumpServicePrice }) && (
                 <span className="px-1.5 py-0.5 rounded text-[9px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 uppercase">
                   Miễn Phí

@@ -34,7 +34,7 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
   }, [membershipPackages]);
 
   const normalPublishVoucherDiscount = useMemo(() => {
-    return (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.normalPublishDiscount || 0) > 0)?.vouchersPerCycle?.normalPublishDiscount ?? 0;
+    return (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.normalPublishDiscount || 0) > 0)?.vouchersPerCycle?.normalPublishDiscount ?? 5000;
   }, [membershipPackages]);
 
   const activeVipPackages = (contextVipPackages && contextVipPackages.length > 0) ? contextVipPackages : VIP_PACKAGES;

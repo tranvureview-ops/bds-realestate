@@ -48,8 +48,10 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
 
   // Đơn giá voucher chung toàn sàn (áp dụng cho cả 3 gói)
   const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
-  const defaultNormalRate = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
-  const commonPublishDiscount = membershipPackages[0]?.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalRate;
+  const defaultNormalRate = Number(normalPkg?.rates?.[60] !== undefined && normalPkg.rates[60] !== 0 ? normalPkg.rates[60] : (normalPkg?.publishPrice ?? 5000));
+  const commonPublishDiscount = (membershipPackages[0]?.vouchersPerCycle?.normalPublishDiscount && membershipPackages[0]?.vouchersPerCycle?.normalPublishDiscount !== 35000 && membershipPackages[0]?.vouchersPerCycle?.normalPublishDiscount !== 0)
+    ? Number(membershipPackages[0].vouchersPerCycle.normalPublishDiscount)
+    : defaultNormalRate;
   const commonBumpDiscount = membershipPackages[0]?.vouchersPerCycle?.normalBumpDiscount ?? 10000;
   const commonVipDiscount = membershipPackages.find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount ?? 400000;
 

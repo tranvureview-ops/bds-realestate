@@ -107,13 +107,13 @@ export const LISTING_TYPES = [
     level: 4,
     name: 'Tin Thường',
     shortName: 'TIN THƯỜNG',
-    pricePerDay: 3320,
+    pricePerDay: 83,
     dailyFreeLimit: 5,
     allowedDurations: [60],
-    rates: { 15: 3320, 30: 2490, 60: 0 },
+    rates: { 15: 5000, 30: 3750, 60: 5000 },
     multiplierText: null,
     tagText: null,
-    publishPrice: 0,
+    publishPrice: 5000,
     bumpPrice: 10000,    // Đẩy tin thường = 10.000 đ/lần
     minDays: 60,
     badgeColor: 'bg-slate-200 text-slate-700',
@@ -130,7 +130,7 @@ export const LISTING_TYPES = [
     features: [
       'Vị trí hiển thị: Nằm sau tất cả các phân hạng Tin VIP (Hiển thị dưới cùng)',
       '(*) Duyệt tự động ngẫu nhiên: Kích hoạt sau 5 - 15 phút (hoặc BQT duyệt sớm)',
-      'Phí đăng tin tiêu chuẩn: Theo Bảng Giá Tin Đăng (Hội viên dùng Voucher = 0 đ)',
+      'Phí đăng tin tiêu chuẩn: 5.000 đ cho 60 ngày (Hội viên dùng Voucher = 0 đ)',
       'Phí đẩy tin làm mới: 10.000 đ/lần (Hội viên áp dụng Voucher giảm 10.000 đ còn 0 đ)',
       'Đầy đủ thông tin liên hệ, hình ảnh và vị trí bản đồ BĐS',
       'Phù hợp tin đăng dài hạn, tiết kiệm chi phí tối đa'
@@ -162,7 +162,7 @@ export const MEMBERSHIP_PACKAGES = [
     ],
     vouchersPerCycle: {
       normalPublishVouchers: 15, // 15 voucher Đăng Tin Thường Miễn Phí
-      normalPublishDiscount: 0,
+      normalPublishDiscount: 5000,
       normalBumpVouchers: 15,    // 15 voucher giảm 10.000 đ/lần Đẩy Tin
       normalBumpDiscount: 10000,
       vipVouchers: 0,
@@ -195,7 +195,7 @@ export const MEMBERSHIP_PACKAGES = [
     ],
     vouchersPerCycle: {
       normalPublishVouchers: 20, // 20 voucher Đăng Tin Thường Miễn Phí
-      normalPublishDiscount: 0,
+      normalPublishDiscount: 5000,
       vipVouchers: 1,            // 1 voucher giảm 400.000 đ cho Tin VIP
       vipDiscount: 400000,
       normalBumpVouchers: 20,    // 20 voucher giảm 10.000 đ/lần Đẩy Tin
@@ -230,7 +230,7 @@ export const MEMBERSHIP_PACKAGES = [
     ],
     vouchersPerCycle: {
       normalPublishVouchers: 50, // 50 voucher Đăng Tin Thường Miễn Phí
-      normalPublishDiscount: 0,
+      normalPublishDiscount: 5000,
       vipVouchers: 3,            // 3 voucher giảm 400.000 đ cho Tin VIP
       vipDiscount: 400000,
       normalBumpVouchers: 50,    // 50 voucher giảm 10.000 đ/lần Đẩy Tin

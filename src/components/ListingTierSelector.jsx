@@ -82,9 +82,9 @@ export const LISTING_RATES = {
     approvalColor: 'text-slate-600 bg-slate-100 border-slate-200',
     allowedDurations: [60],
     rates: {
-      15: 3320,   // Base
-      30: 2490,   // -25%
-      60: 0       // Miễn phí
+      15: 5000,   // Base
+      30: 3750,   // -25%
+      60: 5000    // 5.000 đ cho 60 ngày
     }
   }
 };
@@ -107,7 +107,7 @@ export function getEffectiveListingRates(customVipPackages, paymentConfig = null
       id: pkg.id,
       name: pkg.name || 'Gói VIP',
       positionDesc: '',
-      rates: { 5: 10000, 7: 10000, 10: 10000, 15: 10000, 30: 7500, 60: 0 }
+      rates: { 5: 10000, 7: 10000, 10: 10000, 15: 10000, 30: 7500, 60: (pkg.id === 'normal' ? 5000 : 7000) }
     };
 
     const baseDaily = (pkg.pricePerDay !== undefined && pkg.pricePerDay !== null && !isNaN(Number(pkg.pricePerDay)))
@@ -122,7 +122,7 @@ export function getEffectiveListingRates(customVipPackages, paymentConfig = null
       price10 = baseDaily;
       price15 = (pkg.rates?.[15] !== undefined && !isNaN(Number(pkg.rates[15]))) ? Math.max(0, Number(pkg.rates[15])) : baseDaily;
       price30 = (pkg.rates?.[30] !== undefined && !isNaN(Number(pkg.rates[30]))) ? Math.max(0, Number(pkg.rates[30])) : Math.round(baseDaily * discount30Multiplier);
-      price60 = (pkg.rates?.[60] !== undefined && !isNaN(Number(pkg.rates[60]))) ? Math.max(0, Number(pkg.rates[60])) : 0;
+      price60 = (pkg.rates?.[60] !== undefined && !isNaN(Number(pkg.rates[60])) && Number(pkg.rates[60]) !== 0) ? Math.max(0, Number(pkg.rates[60])) : (Number(pkg.publishPrice) || 5000);
     } else {
       // Các gói VIP (Kim Cương, Vàng, Bạc):
       price5 = (pkg.rates?.[5] !== undefined && !isNaN(Number(pkg.rates[5]))) ? Math.max(0, Number(pkg.rates[5])) : baseDaily;
@@ -456,9 +456,15 @@ export default function ListingTierSelector({
     }
   }, [allowedDurations, selectedDays, onSelectDays, isNormal]);
 
+  const isNormal60 = isNormal && selectedDays === 60;
+  const normal60Price = currentConfig?.rates?.[60] !== undefined && Number(currentConfig.rates[60]) !== 0
+    ? Number(currentConfig.rates[60])
+    : (Number(currentConfig?.publishPrice) || 5000);
   const baseRate = currentConfig?.rates?.[7] ?? currentConfig?.rates?.[15] ?? currentConfig?.pricePerDay ?? 0;
-  const currentDailyRate = currentConfig?.rates?.[selectedDays] ?? currentConfig?.rates?.[7] ?? currentConfig?.pricePerDay ?? 0;
-  const grossCost = currentDailyRate * selectedDays;
+  const currentDailyRate = isNormal60
+    ? Math.round(normal60Price / 60)
+    : (currentConfig?.rates?.[selectedDays] ?? currentConfig?.rates?.[7] ?? currentConfig?.pricePerDay ?? 0);
+  const grossCost = isNormal60 ? normal60Price : (currentDailyRate * selectedDays);
   const finalCost = Math.max(0, grossCost - voucherDiscount);
 
   return (
@@ -533,7 +539,16 @@ export default function ListingTierSelector({
               {/* Đơn giá niêm yết theo ngày tinh giản */}
               <div className="pt-2 text-sm font-bold tracking-tight">
                 {isNormalItem ? (
-                  <span className="text-emerald-600 font-extrabold uppercase">Miễn phí</span>
+                  (item?.rates?.[60] === 0) ? (
+                    <span className="text-emerald-600 font-extrabold uppercase">Miễn phí</span>
+                  ) : (
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-sm sm:text-base font-black text-slate-900">
+                        {(item?.rates?.[60] ?? 5000).toLocaleString('vi-VN')} đ
+                      </span>
+                      <span className="text-[11px] text-slate-500 font-normal">/60 ngày</span>
+                    </div>
+                  )
                 ) : (
                   <div className="flex items-baseline gap-1">
                     <span className="text-sm sm:text-base font-black text-slate-900">
@@ -562,7 +577,9 @@ export default function ListingTierSelector({
           {isNormal ? (
             <div className="flex items-center gap-1.5">
               <span>🎁 Thời hạn hiển thị:</span>
-              <span className="text-emerald-700 font-bold">60 ngày miễn phí</span>
+              <span className="text-emerald-700 font-bold">
+                {normal60Price === 0 ? '60 ngày miễn phí' : `60 ngày (${normal60Price.toLocaleString('vi-VN')} đ)`}
+              </span>
             </div>
           ) : (
             <div className="flex items-center gap-1.5">
@@ -590,9 +607,19 @@ export default function ListingTierSelector({
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-bold text-sm text-slate-950">60 ngày</span>
-                  <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
-                    Miễn phí 100%
-                  </span>
+                  {normal60Price === 0 ? (
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                      Miễn phí 100%
+                    </span>
+                  ) : voucherDiscount >= normal60Price ? (
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                      Hội viên: 0 đ (Voucher)
+                    </span>
+                  ) : (
+                    <span className="text-[10px] font-bold text-slate-700 bg-slate-100 border border-slate-300 px-2 py-0.5 rounded-full">
+                      {normal60Price.toLocaleString('vi-VN')} đ / 60 ngày
+                    </span>
+                  )}
                   {dailyQuotaInfo && !dailyQuotaInfo.unlimited && (
                     <span className="text-[10px] font-semibold text-slate-500">
                       • Còn {dailyQuotaInfo.remaining}/{dailyQuotaInfo.limit} tin hôm nay
@@ -600,12 +627,21 @@ export default function ListingTierSelector({
                   )}
                 </div>
                 <div className="text-[11px] text-slate-500">
-                  Tin đăng hiển thị tối đa 60 ngày trên toàn sàn
+                  Tin đăng hiển thị tối đa 60 ngày trên toàn sàn (~{Math.round(normal60Price / 60)} đ/ngày)
                 </div>
               </div>
             </div>
             <div className="text-right shrink-0">
-              <div className="text-sm font-black text-emerald-600">0 đ</div>
+              {voucherDiscount >= normal60Price && normal60Price > 0 ? (
+                <div>
+                  <span className="text-xs text-slate-400 line-through mr-1.5">{normal60Price.toLocaleString('vi-VN')} đ</span>
+                  <span className="text-sm font-black text-emerald-600">0 đ</span>
+                </div>
+              ) : (
+                <div className="text-sm font-black text-slate-900">
+                  {normal60Price === 0 ? '0 đ' : `${normal60Price.toLocaleString('vi-VN')} đ`}
+                </div>
+              )}
             </div>
           </div>
         ) : (

@@ -5984,12 +5984,15 @@ export default function AdminBackendPage() {
                                 ? pkg.allowedDurations
                                 : [60];
                               const isChecked = activeDurations.includes(m.days);
-                              const rateVal = pkg.rates?.[m.days] !== undefined ? pkg.rates[m.days] : (
-                                m.days === 15 ? (pkg.pricePerDay || 0) :
-                                m.days === 30 ? Math.round((pkg.pricePerDay || 0) * (100 - (discount30DaysPercent ?? systemConfig?.discount30DaysPercent ?? 25)) / 100) :
-                                (m.days === 60 ? (pkg.rates?.[60] !== undefined ? pkg.rates[60] : 0) : Math.round((pkg.pricePerDay || 0) * 0.70))
-                              );
-                              const totalVal = rateVal * m.days;
+                              const isNormal60 = pkg.id === 'normal' && m.days === 60;
+                              const rateVal = pkg.rates?.[m.days] !== undefined
+                                ? (isNormal60 && pkg.rates[60] === 0 ? 5000 : pkg.rates[m.days])
+                                : (
+                                  m.days === 15 ? (pkg.pricePerDay || 0) :
+                                  m.days === 30 ? Math.round((pkg.pricePerDay || 0) * (100 - (discount30DaysPercent ?? systemConfig?.discount30DaysPercent ?? 25)) / 100) :
+                                  (isNormal60 ? 5000 : Math.round((pkg.pricePerDay || 0) * 0.70))
+                                );
+                              const totalVal = isNormal60 ? rateVal : (rateVal * m.days);
 
                               return (
                                 <div
@@ -6016,7 +6019,11 @@ export default function AdminBackendPage() {
                                         </span>
                                       </div>
                                       <div className="text-[10px] text-slate-400 mt-0.5">
-                                        {m.discountLabel} • Tổng: <b className="text-slate-200">{totalVal === 0 ? '0 đ (Miễn phí)' : `${totalVal.toLocaleString('vi-VN')} đ`}</b>
+                                        {isNormal60 ? (
+                                          <span>{m.discountLabel} • Trọn gói: <b className="text-emerald-400">{rateVal.toLocaleString('vi-VN')} đ (cho 60 ngày)</b></span>
+                                        ) : (
+                                          <span>{m.discountLabel} • Tổng: <b className="text-slate-200">{totalVal === 0 ? '0 đ (Miễn phí)' : `${totalVal.toLocaleString('vi-VN')} đ`}</b></span>
+                                        )}
                                       </div>
                                     </div>
                                   </label>
@@ -6029,9 +6036,9 @@ export default function AdminBackendPage() {
                                       defaultValue={rateVal}
                                       key={`rate-${pkg.id}-${m.days}-${rateVal}`}
                                       className="w-24 px-2 py-1 bg-slate-900 border border-slate-700 rounded-lg text-xs font-bold text-right text-emerald-400 focus:border-emerald-500 focus:outline-none"
-                                      title={`Đơn giá ngày của mốc ${m.days} ngày`}
+                                      title={isNormal60 ? 'Trọn gói giá đăng tin 60 ngày' : `Đơn giá ngày của mốc ${m.days} ngày`}
                                     />
-                                    <span className="text-[11px] text-slate-400">đ/ngày</span>
+                                    <span className="text-[11px] text-slate-400">{isNormal60 ? 'đ/60 ngày' : 'đ/ngày'}</span>
                                   </div>
                                 </div>
                               );
@@ -10213,7 +10220,7 @@ export default function AdminBackendPage() {
                     {(() => {
                       const curAdminPkg = (membershipPackages || []).find(p => p.id === membershipForm.packageId);
                       const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
-                      const defaultNormalRate = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
+                      const defaultNormalRate = Number(normalPkg?.rates?.[60] !== undefined && normalPkg.rates[60] !== 0 ? normalPkg.rates[60] : (normalPkg?.publishPrice ?? 5000));
                       const pubDisc = curAdminPkg?.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalRate;
                       const bumpDisc = curAdminPkg?.vouchersPerCycle?.normalBumpDiscount || 10000;
                       const isPubFree = isVoucherDiscountFree('normalPublish', pubDisc, { vipPackages, bumpServicePrice });
@@ -10309,7 +10316,7 @@ export default function AdminBackendPage() {
                         {(() => {
                           const curAdminPkg = (membershipPackages || []).find(p => p.id === membershipForm.packageId);
                           const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
-                          const defaultNormalRate = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
+                          const defaultNormalRate = Number(normalPkg?.rates?.[60] !== undefined && normalPkg.rates[60] !== 0 ? normalPkg.rates[60] : (normalPkg?.publishPrice ?? 5000));
                           const pubDisc = curAdminPkg?.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalRate;
                           const bumpDisc = curAdminPkg?.vouchersPerCycle?.normalBumpDiscount || 10000;
                           const isPubFree = isVoucherDiscountFree('normalPublish', pubDisc, { vipPackages, bumpServicePrice });

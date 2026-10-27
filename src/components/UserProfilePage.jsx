@@ -995,8 +995,10 @@ export default function UserProfilePage() {
 
                     {(() => {
                       const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
-                      const defaultNormalPrice = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
-                      const pubDisc = currentPkg?.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalPrice;
+                      const defaultNormalPrice = Number(normalPkg?.rates?.[60] !== undefined && normalPkg.rates[60] !== 0 ? normalPkg.rates[60] : (normalPkg?.publishPrice ?? 5000));
+                      const pubDisc = (currentPkg?.vouchersPerCycle?.normalPublishDiscount && currentPkg?.vouchersPerCycle?.normalPublishDiscount !== 35000 && currentPkg?.vouchersPerCycle?.normalPublishDiscount !== 0)
+                        ? Number(currentPkg.vouchersPerCycle.normalPublishDiscount)
+                        : defaultNormalPrice;
                       const bumpDisc = currentPkg?.vouchersPerCycle?.normalBumpDiscount || 10000;
                       const pricingOptions = { vipPackages, bumpServicePrice };
                       const isPubFree = isVoucherDiscountFree('normalPublish', pubDisc, pricingOptions);

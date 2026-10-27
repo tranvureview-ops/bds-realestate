@@ -446,10 +446,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     if (pkg.id === 'normal') {
       const baseNormal = (pkg.pricePerDay !== undefined && pkg.pricePerDay !== null && !isNaN(Number(pkg.pricePerDay)))
         ? Math.max(0, Number(pkg.pricePerDay))
-        : (pkg.rates?.[15] ?? 3320);
+        : (pkg.rates?.[15] ?? 5000);
+      const rate60 = (pkg.rates?.[60] !== undefined && Number(pkg.rates[60]) !== 0)
+        ? Number(pkg.rates[60])
+        : 5000;
       return {
         ...pkg,
         pricePerDay: baseNormal,
+        publishPrice: rate60,
         minDays: 60,
         allowedDurations: Array.isArray(pkg.allowedDurations) && pkg.allowedDurations.length > 0 ? pkg.allowedDurations : [60],
         approvalType: 'random_fifo',
@@ -459,9 +463,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         approvalBadge: 'Duyệt tự động (5 - 15 phút)',
         approvalLabel: 'Duyệt tự động ngẫu nhiên (5 - 15 phút)',
         rates: {
-          15: baseNormal,
-          30: Math.round(baseNormal * 0.75),
-          60: 0
+          15: pkg.rates?.[15] ?? baseNormal,
+          30: pkg.rates?.[30] ?? Math.round(baseNormal * 0.75),
+          60: rate60
         }
       };
     }
@@ -501,14 +505,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       ? initialData.bds_membership_packages
       : MEMBERSHIP_PACKAGES;
     const normalPkg = (initialData?.bds_vip_packages || VIP_PACKAGES).find(p => p.id === 'normal');
-    const defaultNormalPrice = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
+    const defaultNormalPrice = Number(normalPkg?.rates?.[60] !== undefined && normalPkg.rates[60] !== 0 ? normalPkg.rates[60] : (normalPkg?.publishPrice ?? 5000));
     return rawPackages.map(pkg => ({
       ...pkg,
       vouchersPerCycle: {
         ...pkg.vouchersPerCycle,
-        normalPublishDiscount: (pkg.vouchersPerCycle?.normalPublishDiscount === 35000)
+        normalPublishDiscount: (pkg.vouchersPerCycle?.normalPublishDiscount === 35000 || pkg.vouchersPerCycle?.normalPublishDiscount === 0 || !pkg.vouchersPerCycle?.normalPublishDiscount)
           ? defaultNormalPrice
-          : (pkg.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalPrice)
+          : Number(pkg.vouchersPerCycle?.normalPublishDiscount)
       },
       allowScheduledPublishing: typeof pkg.allowScheduledPublishing === 'boolean'
         ? pkg.allowScheduledPublishing
@@ -1174,14 +1178,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         }
         if (Array.isArray(db.bds_membership_packages)) {
           const normalPkg = (db.bds_vip_packages || vipPackages || []).find(p => p.id === 'normal');
-          const defaultNormalPrice = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
+          const defaultNormalPrice = Number(normalPkg?.rates?.[60] !== undefined && normalPkg.rates[60] !== 0 ? normalPkg.rates[60] : (normalPkg?.publishPrice ?? 5000));
           setMembershipPackages(db.bds_membership_packages.map(pkg => ({
             ...pkg,
             vouchersPerCycle: {
               ...pkg.vouchersPerCycle,
-              normalPublishDiscount: (pkg.vouchersPerCycle?.normalPublishDiscount === 35000)
+              normalPublishDiscount: (pkg.vouchersPerCycle?.normalPublishDiscount === 35000 || pkg.vouchersPerCycle?.normalPublishDiscount === 0 || !pkg.vouchersPerCycle?.normalPublishDiscount)
                 ? defaultNormalPrice
-                : (pkg.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalPrice)
+                : Number(pkg.vouchersPerCycle?.normalPublishDiscount)
             },
             allowScheduledPublishing: typeof pkg.allowScheduledPublishing === 'boolean'
               ? pkg.allowScheduledPublishing
@@ -3193,7 +3197,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           : Math.round(priceNum * (100 - discount30Percent) / 100));
     const rate60 = customRates[60] !== undefined
       ? customRates[60]
-      : (pkgId === 'normal' ? 0 : Math.round(priceNum * 0.70));
+      : (pkgId === 'normal' ? 5000 : Math.round(priceNum * 0.70));
 
     let updatedPackages;
     setVipPackages(prev => {
@@ -3202,6 +3206,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           return {
             ...p,
             pricePerDay: priceNum,
+            publishPrice: (pkgId === 'normal' ? rate60 : p.publishPrice),
             rates: {
               ...(p.rates || {}),
               5: rate5,

@@ -68,13 +68,13 @@ export default function VipPricingPage() {
       : [60];
     const activeDuration = normalAllowed.includes(60) ? 60 : normalAllowed[0];
 
-    // Đơn giá bán lẻ Tin Thường (lấy trực tiếp từ Bảng Giá Tin Đăng theo mốc hoặc pricePerDay):
+    // Đơn giá bán lẻ Tin Thường (lấy trực tiếp từ Bảng Giá Tin Đăng mốc 60 ngày = 5.000 đ):
     const configuredRate = normalRateConfig?.rates?.[activeDuration] ?? normalPkg?.rates?.[activeDuration];
-    const normalDailyRate = (configuredRate !== undefined && !isNaN(Number(configuredRate)))
+    const normalDailyRate = (configuredRate !== undefined && !isNaN(Number(configuredRate)) && Number(configuredRate) !== 0)
       ? Number(configuredRate)
-      : Number(normalRateConfig?.pricePerDay ?? normalPkg?.pricePerDay ?? 0);
+      : (Number(normalRateConfig?.publishPrice ?? normalPkg?.publishPrice) || 5000);
 
-    const normalUnitPrice = normalDailyRate > 0 ? normalDailyRate : 0;
+    const normalUnitPrice = normalDailyRate > 0 ? normalDailyRate : 5000;
     const totalNormalRetail = normalCount * normalUnitPrice;
 
     const bumpUnitPrice = currentBumpPrice;
@@ -413,11 +413,17 @@ export default function VipPricingPage() {
               const isNormal = pkg.id === 'normal';
 
               const activeRates = ratesConfig?.[pkg.id] || ratesConfig?.['normal'] || LISTING_RATES['normal'];
-              const currentDailyRate = activeRates?.rates?.[selectedDuration] ?? activeRates?.rates?.[7] ?? activeRates?.rates?.[15] ?? 0;
+              const isNormal60 = isNormal && selectedDuration === 60;
+              const normalPeriodPrice = isNormal60
+                ? (activeRates?.rates?.[60] !== undefined && Number(activeRates.rates[60]) !== 0 ? Number(activeRates.rates[60]) : 5000)
+                : 5000;
+              const currentDailyRate = isNormal60
+                ? Math.round(normalPeriodPrice / 60)
+                : (activeRates?.rates?.[selectedDuration] ?? activeRates?.rates?.[7] ?? activeRates?.rates?.[15] ?? 0);
               const baseRate = activeRates?.rates?.[7] ?? activeRates?.rates?.[15] ?? 0;
               const discountInfo = DURATION_DISCOUNTS[selectedDuration] || DURATION_DISCOUNTS[7] || { label: `${selectedDuration} ngày`, discountPercent: 0, badge: 'Đăng ký chuẩn' };
               const discountPercent = discountInfo.discountPercent;
-              const grossPeriodPrice = currentDailyRate * selectedDuration;
+              const grossPeriodPrice = isNormal60 ? normalPeriodPrice : (currentDailyRate * selectedDuration);
 
               return (
                 <div
@@ -475,10 +481,15 @@ export default function VipPricingPage() {
                     {/* Pricing Display */}
                     <div className="text-center py-4 bg-slate-50/70 rounded-2xl my-3 border border-slate-100">
                       <div className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">
-                        Đơn giá theo ngày ({selectedDuration} ngày)
+                        {isNormal60 ? 'Trọn gói 60 ngày' : `Đơn giá theo ngày (${selectedDuration} ngày)`}
                       </div>
                       <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-0.5">
-                        {currentDailyRate === 0 ? (
+                        {isNormal60 ? (
+                          <>
+                            {normalPeriodPrice.toLocaleString('vi-VN')} <span className="text-xs font-normal text-slate-500">đ/60 ngày</span>
+                            <div className="text-[11px] text-slate-400 font-normal mt-0.5">(~{Math.round(normalPeriodPrice / 60)} đ/ngày)</div>
+                          </>
+                        ) : currentDailyRate === 0 ? (
                           <span className="text-emerald-600 font-extrabold uppercase">Miễn Phí</span>
                         ) : (
                           <>
@@ -491,7 +502,11 @@ export default function VipPricingPage() {
                         <div className="text-slate-600 font-medium">
                           Tổng {selectedDuration} ngày: <b className="text-slate-900">{grossPeriodPrice === 0 ? '0 đ (Miễn phí)' : `${grossPeriodPrice.toLocaleString('vi-VN')} đ`}</b>
                         </div>
-                        {discountPercent > 0 ? (
+                        {isNormal ? (
+                          <div className="text-[10px] text-slate-400 mt-0.5">
+                            Gói tiêu chuẩn 60 ngày
+                          </div>
+                        ) : discountPercent > 0 ? (
                           <div className="text-[10px] text-emerald-600 font-bold mt-0.5">
                             <span className="line-through text-slate-400 mr-1">{(baseRate * selectedDuration).toLocaleString('vi-VN')} đ</span>
                             Tiết kiệm {discountPercent}%
@@ -505,7 +520,7 @@ export default function VipPricingPage() {
 
                       {isNormal && (
                         <div className="text-[10px] font-bold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full inline-block mt-1">
-                          {currentDailyRate === 0 ? 'Tin đăng miễn phí toàn sàn' : 'Áp dụng Voucher Hội viên = 0 đ'}
+                          Hội viên dùng Voucher = 0 đ (Giảm {normalPeriodPrice.toLocaleString('vi-VN')} đ)
                         </div>
                       )}
                     </div>
@@ -622,7 +637,7 @@ export default function VipPricingPage() {
                       {ratesConfig?.['normal']?.rates?.[60] === 0 ? (
                         <span className="text-emerald-700 font-black">Miễn phí</span>
                       ) : (
-                        `Từ ${(ratesConfig?.['normal']?.rates?.[60] ?? 2324).toLocaleString('vi-VN')} đ/ngày`
+                        `5.000 đ / 60 ngày`
                       )}
                     </div>
                   </th>
