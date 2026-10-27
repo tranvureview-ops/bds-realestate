@@ -5655,6 +5655,8 @@ export default function AdminBackendPage() {
                         const inputEl = document.getElementById(`price-${p.id}`);
                         if (inputEl && inputEl.value !== undefined && inputEl.value !== '') {
                           pricesMap[p.id] = inputEl.value;
+                        } else {
+                          pricesMap[p.id] = p.pricePerDay ?? 0;
                         }
                       });
                       const bumpEl = document.getElementById('price-bump-service');
@@ -5792,39 +5794,38 @@ export default function AdminBackendPage() {
                         <span className="text-xs text-slate-400">đ/ngày</span>
                         <button
                           onClick={() => {
-                            const val = document.getElementById(`price-${pkg.id}`)?.value;
-                            if (val !== undefined && val !== '') {
-                              const limitEl = document.getElementById('input-daily-free-limit');
-                              let extra = {};
-                              if (pkg.id === 'normal') {
-                                const allowedDurations = [15, 30, 60].filter(d => document.getElementById(`duration-check-${pkg.id}-${d}`)?.checked);
-                                const customRates = {
-                                  15: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-15`)?.value, 10) || 0),
-                                  30: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-30`)?.value, 10) || 0),
-                                  60: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-60`)?.value, 10) || 0)
-                                };
-                                const minApproval = Math.max(1, parseInt(document.getElementById('input-normal-approval-min')?.value, 10) || 5);
-                                const maxApproval = Math.max(minApproval, parseInt(document.getElementById('input-normal-approval-max')?.value, 10) || 15);
-                                extra = {
-                                  dailyFreeLimit: limitEl ? (parseInt(limitEl.value, 10) || 0) : 5,
-                                  allowedDurations: allowedDurations.length > 0 ? allowedDurations : [60],
-                                  rates: customRates,
-                                  approvalMode: 'random',
-                                  approvalMinMinutes: minApproval,
-                                  approvalMaxMinutes: maxApproval,
-                                  approvalBadge: `Duyệt tự động (${minApproval} - ${maxApproval} phút)`
-                                };
-                              } else {
-                                extra = {
-                                  approvalMode: 'instant',
-                                  delayMinutes: 0,
-                                  approvalBadge: 'Duyệt tức thì (0s)',
-                                  allowedDurations: [5, 7, 10, 15, 30],
-                                  minDays: 5
-                                };
-                              }
-                              updateVipPackagePrice(pkg.id, val, extra);
+                            const rawVal = document.getElementById(`price-${pkg.id}`)?.value;
+                            const val = (rawVal !== undefined && rawVal !== '') ? rawVal : (pkg.pricePerDay ?? 0);
+                            const limitEl = document.getElementById('input-daily-free-limit');
+                            let extra = {};
+                            if (pkg.id === 'normal') {
+                              const allowedDurations = [15, 30, 60].filter(d => document.getElementById(`duration-check-${pkg.id}-${d}`)?.checked);
+                              const customRates = {
+                                15: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-15`)?.value, 10) || 0),
+                                30: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-30`)?.value, 10) || 0),
+                                60: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-60`)?.value, 10) || 0)
+                              };
+                              const minApproval = Math.max(1, parseInt(document.getElementById('input-normal-approval-min')?.value, 10) || 5);
+                              const maxApproval = Math.max(minApproval, parseInt(document.getElementById('input-normal-approval-max')?.value, 10) || 15);
+                              extra = {
+                                dailyFreeLimit: limitEl ? (parseInt(limitEl.value, 10) || 0) : 5,
+                                allowedDurations: allowedDurations.length > 0 ? allowedDurations : [60],
+                                rates: customRates,
+                                approvalMode: 'random',
+                                approvalMinMinutes: minApproval,
+                                approvalMaxMinutes: maxApproval,
+                                approvalBadge: `Duyệt tự động (${minApproval} - ${maxApproval} phút)`
+                              };
+                            } else {
+                              extra = {
+                                approvalMode: 'instant',
+                                delayMinutes: 0,
+                                approvalBadge: 'Duyệt tức thì (0s)',
+                                allowedDurations: [5, 7, 10, 15, 30],
+                                minDays: 5
+                              };
                             }
+                            updateVipPackagePrice(pkg.id, val, extra);
                           }}
                           className="px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-lg text-xs font-bold transition cursor-pointer"
                         >
@@ -5946,13 +5947,37 @@ export default function AdminBackendPage() {
                               <i className="fa-solid fa-calendar-days text-indigo-400"></i>
                               <span>Quản Lý Các Mốc Thời Hạn (15, 30, 60 ngày):</span>
                             </div>
-                            <span className="text-[10px] text-slate-400">Bật/tắt hiển thị ở Client</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] text-slate-400 hidden sm:inline">Bật/tắt hiển thị ở Client</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const allowedDurations = [15, 30, 60].filter(d => document.getElementById(`duration-check-${pkg.id}-${d}`)?.checked);
+                                  const customRates = {
+                                    15: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-15`)?.value, 10) || 0),
+                                    30: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-30`)?.value, 10) || 0),
+                                    60: Math.max(0, parseInt(document.getElementById(`rate-${pkg.id}-60`)?.value, 10) || 0)
+                                  };
+                                  const rawVal = document.getElementById(`price-${pkg.id}`)?.value;
+                                  const val = (rawVal !== undefined && rawVal !== '') ? rawVal : (pkg.pricePerDay ?? 0);
+                                  updateVipPackagePrice(pkg.id, val, {
+                                    allowedDurations: allowedDurations.length > 0 ? allowedDurations : [60],
+                                    rates: customRates
+                                  });
+                                }}
+                                className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[10px] font-black transition cursor-pointer shadow-sm flex items-center gap-1"
+                                title="Lưu cấu hình mốc thời hạn và đơn giá ngày của Tin Thường"
+                              >
+                                <i className="fa-solid fa-floppy-disk text-[9px]"></i>
+                                <span>Lưu Mốc</span>
+                              </button>
+                            </div>
                           </div>
 
                           <div className="space-y-2">
                             {[
                               { days: 15, label: 'Mốc 15 ngày', discountLabel: 'Đơn giá chuẩn', tag: '15 NGÀY' },
-                              { days: 30, label: 'Mốc 30 ngày', discountLabel: 'Tiết kiệm 25%', tag: '30 NGÀY' },
+                              { days: 30, label: 'Mốc 30 ngày', discountLabel: `Tiết kiệm ${discount30DaysPercent ?? systemConfig?.discount30DaysPercent ?? 25}%`, tag: '30 NGÀY' },
                               { days: 60, label: 'Mốc 60 ngày', discountLabel: 'Tiết kiệm 30%', tag: '60 NGÀY (Khuyến nghị)' }
                             ].map(m => {
                               const activeDurations = Array.isArray(pkg.allowedDurations) && pkg.allowedDurations.length > 0
@@ -5961,8 +5986,8 @@ export default function AdminBackendPage() {
                               const isChecked = activeDurations.includes(m.days);
                               const rateVal = pkg.rates?.[m.days] !== undefined ? pkg.rates[m.days] : (
                                 m.days === 15 ? (pkg.pricePerDay || 0) :
-                                m.days === 30 ? Math.round((pkg.pricePerDay || 0) * 0.75) :
-                                Math.round((pkg.pricePerDay || 0) * 0.70)
+                                m.days === 30 ? Math.round((pkg.pricePerDay || 0) * (100 - (discount30DaysPercent ?? systemConfig?.discount30DaysPercent ?? 25)) / 100) :
+                                (m.days === 60 ? (pkg.rates?.[60] !== undefined ? pkg.rates[60] : 0) : Math.round((pkg.pricePerDay || 0) * 0.70))
                               );
                               const totalVal = rateVal * m.days;
 
@@ -10187,7 +10212,9 @@ export default function AdminBackendPage() {
 
                     {(() => {
                       const curAdminPkg = (membershipPackages || []).find(p => p.id === membershipForm.packageId);
-                      const pubDisc = curAdminPkg?.vouchersPerCycle?.normalPublishDiscount || 35000;
+                      const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
+                      const defaultNormalRate = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
+                      const pubDisc = curAdminPkg?.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalRate;
                       const bumpDisc = curAdminPkg?.vouchersPerCycle?.normalBumpDiscount || 10000;
                       const isPubFree = isVoucherDiscountFree('normalPublish', pubDisc, { vipPackages, bumpServicePrice });
                       const isBumpFree = isVoucherDiscountFree('normalBump', bumpDisc, { vipPackages, bumpServicePrice });
@@ -10281,7 +10308,9 @@ export default function AdminBackendPage() {
 
                         {(() => {
                           const curAdminPkg = (membershipPackages || []).find(p => p.id === membershipForm.packageId);
-                          const pubDisc = curAdminPkg?.vouchersPerCycle?.normalPublishDiscount || 35000;
+                          const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
+                          const defaultNormalRate = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
+                          const pubDisc = curAdminPkg?.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalRate;
                           const bumpDisc = curAdminPkg?.vouchersPerCycle?.normalBumpDiscount || 10000;
                           const isPubFree = isVoucherDiscountFree('normalPublish', pubDisc, { vipPackages, bumpServicePrice });
                           const isBumpFree = isVoucherDiscountFree('normalBump', bumpDisc, { vipPackages, bumpServicePrice });

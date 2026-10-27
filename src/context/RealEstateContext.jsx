@@ -1982,7 +1982,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         return null;
       }
       if (isMemberActive && appliedVoucher === 'normalPublish' && (currentUser.vouchers?.normalPublish || 0) > 0) {
-        discountAmount = Math.min(listingCost, 35000);
+        const userPkg = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
+        const normalVoucherVal = Number(userPkg?.vouchersPerCycle?.normalPublishDiscount);
+        discountAmount = (normalVoucherVal && normalVoucherVal > 0) ? Math.min(listingCost, normalVoucherVal) : listingCost;
         usedVoucherType = 'normalPublish';
       } else if (isMemberActive && appliedVoucher === 'vipPublish' && (currentUser.vouchers?.vipPublish || 0) > 0 && vipPackageId !== 'normal') {
         discountAmount = Math.min(listingCost, 400000);
@@ -3163,14 +3165,19 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       ? Math.max(0, Math.min(100, parseInt(extraData.discount30DaysPercent, 10) || 0))
       : (Number(systemConfig?.discount30DaysPercent) || 25);
 
+    const customRates = (pkgId === 'normal' && extraData.rates) ? extraData.rates : {};
     const rate5 = priceNum;
     const rate7 = priceNum;
     const rate10 = priceNum;
-    const rate15 = priceNum;
-    const rate30 = extraData.rate30 !== undefined
-      ? Math.max(0, parseInt(extraData.rate30, 10) || 0)
-      : Math.round(priceNum * (100 - discount30Percent) / 100);
-    const rate60 = Math.round(priceNum * 0.70);
+    const rate15 = customRates[15] !== undefined ? customRates[15] : priceNum;
+    const rate30 = customRates[30] !== undefined
+      ? customRates[30]
+      : (extraData.rate30 !== undefined
+          ? Math.max(0, parseInt(extraData.rate30, 10) || 0)
+          : Math.round(priceNum * (100 - discount30Percent) / 100));
+    const rate60 = customRates[60] !== undefined
+      ? customRates[60]
+      : (pkgId === 'normal' ? 0 : Math.round(priceNum * 0.70));
 
     let updatedPackages;
     setVipPackages(prev => {
@@ -3186,7 +3193,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
               10: rate10,
               15: rate15,
               30: rate30,
-              60: rate60
+              60: rate60,
+              ...customRates
             },
             ...(pkgId !== 'normal' ? { allowedDurations: [5, 7, 10, 15, 30], minDays: 5 } : {}),
             ...extraData
@@ -3263,13 +3271,17 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           const rate5 = priceNum;
           const rate7 = priceNum;
           const rate10 = priceNum;
-          const rate15 = priceNum;
+          const rate15 = (p.id === 'normal' && extraConfig.normalCustomRates?.[15] !== undefined)
+            ? extraConfig.normalCustomRates[15]
+            : priceNum;
           const rate30 = (p.id === 'normal' && extraConfig.normalCustomRates?.[30] !== undefined)
             ? extraConfig.normalCustomRates[30]
             : (extraConfig.customRates30?.[p.id] !== undefined
                 ? Math.max(0, parseInt(extraConfig.customRates30[p.id], 10) || 0)
                 : Math.round(priceNum * (100 - discount30Percent) / 100));
-          const rate60 = (p.id === 'normal') ? (extraConfig.normalCustomRates?.[60] ?? 0) : Math.round(priceNum * 0.70);
+          const rate60 = (p.id === 'normal') 
+            ? (extraConfig.normalCustomRates?.[60] !== undefined ? extraConfig.normalCustomRates[60] : 0) 
+            : Math.round(priceNum * 0.70);
           const extra = (p.id === 'normal')
             ? {
                 ...(extraConfig.dailyFreeListingLimit !== undefined ? { dailyFreeLimit: Math.max(0, parseInt(extraConfig.dailyFreeListingLimit, 10) || 0) } : {}),
@@ -3290,7 +3302,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
               10: rate10,
               15: rate15,
               30: rate30,
-              60: rate60
+              60: rate60,
+              ...(p.id === 'normal' && extraConfig.normalCustomRates ? extraConfig.normalCustomRates : {})
             },
             ...extra
           };

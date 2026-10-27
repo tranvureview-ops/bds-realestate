@@ -122,7 +122,7 @@ export function getEffectiveListingRates(customVipPackages, paymentConfig = null
       price10 = baseDaily;
       price15 = (pkg.rates?.[15] !== undefined && !isNaN(Number(pkg.rates[15]))) ? Math.max(0, Number(pkg.rates[15])) : baseDaily;
       price30 = (pkg.rates?.[30] !== undefined && !isNaN(Number(pkg.rates[30]))) ? Math.max(0, Number(pkg.rates[30])) : Math.round(baseDaily * discount30Multiplier);
-      price60 = 0; // Tin Thường luôn miễn phí 60 ngày
+      price60 = (pkg.rates?.[60] !== undefined && !isNaN(Number(pkg.rates[60]))) ? Math.max(0, Number(pkg.rates[60])) : 0;
     } else {
       // Các gói VIP (Kim Cương, Vàng, Bạc):
       price5 = (pkg.rates?.[5] !== undefined && !isNaN(Number(pkg.rates[5]))) ? Math.max(0, Number(pkg.rates[5])) : baseDaily;

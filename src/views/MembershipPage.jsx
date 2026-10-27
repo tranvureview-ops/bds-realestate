@@ -90,7 +90,9 @@ export default function MembershipPage() {
 
   // Lấy đơn giá giảm trừ voucher từ gói đang dùng hoặc cấu hình chung 3 gói
   const activePackage = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId) || membershipPackages?.[0];
-  const commonPublishDiscount = activePackage?.vouchersPerCycle?.normalPublishDiscount ?? 35000;
+  const normalPkg = (activeVipPackages || []).find(p => p.id === 'normal');
+  const defaultNormalPrice = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
+  const commonPublishDiscount = activePackage?.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalPrice;
   const commonBumpDiscount = activePackage?.vouchersPerCycle?.normalBumpDiscount ?? 10000;
   const commonVipDiscount = (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount 
     ?? (activePackage?.vouchersPerCycle?.vipDiscount || 400000);
@@ -413,7 +415,7 @@ export default function MembershipPage() {
                     <div className="space-y-2">
                       {/* Tin thường voucher */}
                       {(() => {
-                        const pubDisc = pkg.vouchersPerCycle?.normalPublishDiscount ?? 35000;
+                        const pubDisc = pkg.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalPrice;
                         const isPubFree = isVoucherDiscountFree('normalPublish', pubDisc, pricingOptions);
                         return (
                           <div className="p-2.5 rounded-xl bg-emerald-50/80 border border-emerald-100 flex items-center justify-between text-xs">
@@ -579,7 +581,7 @@ export default function MembershipPage() {
                 <tr>
                   <td className="p-4 font-bold text-slate-800">Voucher Đăng Tin Thường (30 ngày)</td>
                   {(membershipPackages || []).map(p => {
-                    const pubDisc = p.vouchersPerCycle?.normalPublishDiscount ?? 35000;
+                    const pubDisc = p.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalPrice;
                     const isPubFree = isVoucherDiscountFree('normalPublish', pubDisc, pricingOptions);
                     return (
                       <td key={p.id} className={`p-4 text-center font-black text-emerald-600 text-sm ${p.recommended ? 'bg-amber-50/30' : ''}`}>
@@ -782,7 +784,7 @@ export default function MembershipPage() {
                 <div className="border-t pt-2 space-y-1 text-[11px] text-slate-600">
                   <div className="font-bold text-slate-700">Kho Voucher sẽ nhận:</div>
                   {(() => {
-                    const pubDisc = confirmingPackage.pkg.vouchersPerCycle?.normalPublishDiscount ?? 35000;
+                    const pubDisc = confirmingPackage.pkg.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalPrice;
                     const bumpDisc = confirmingPackage.pkg.vouchersPerCycle?.normalBumpDiscount ?? 10000;
                     const isPubFree = isVoucherDiscountFree('normalPublish', pubDisc, pricingOptions);
                     const isBumpFree = isVoucherDiscountFree('normalBump', bumpDisc, pricingOptions);

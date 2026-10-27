@@ -113,7 +113,7 @@ export const LISTING_TYPES = [
     rates: { 15: 3320, 30: 2490, 60: 0 },
     multiplierText: null,
     tagText: null,
-    publishPrice: 35000, // Đăng tin tiêu chuẩn = 35.000 đ
+    publishPrice: 0,
     bumpPrice: 10000,    // Đẩy tin thường = 10.000 đ/lần
     minDays: 60,
     badgeColor: 'bg-slate-200 text-slate-700',
@@ -130,10 +130,10 @@ export const LISTING_TYPES = [
     features: [
       'Vị trí hiển thị: Nằm sau tất cả các phân hạng Tin VIP (Hiển thị dưới cùng)',
       '(*) Duyệt tự động ngẫu nhiên: Kích hoạt sau 5 - 15 phút (hoặc BQT duyệt sớm)',
-      'Phí đăng tin tiêu chuẩn: 35.000 đ/lần (Hội viên áp dụng Voucher giảm 35.000 đ còn 0 đ)',
+      'Phí đăng tin tiêu chuẩn: Theo Bảng Giá Tin Đăng (Hội viên dùng Voucher = 0 đ)',
       'Phí đẩy tin làm mới: 10.000 đ/lần (Hội viên áp dụng Voucher giảm 10.000 đ còn 0 đ)',
       'Đầy đủ thông tin liên hệ, hình ảnh và vị trí bản đồ BĐS',
-      'Phù hợp tin đăng dài hạn, tiết kiệm chi phí tối đa (chỉ từ 2.330 đ/ngày)'
+      'Phù hợp tin đăng dài hạn, tiết kiệm chi phí tối đa'
     ],
     hasDualListing: false,
     hasNoAds: false,
@@ -161,15 +161,15 @@ export const MEMBERSHIP_PACKAGES = [
       { months: 6, label: '6 tháng', duration_days: 180, price: 2520000, discount: 10, note: 'Tiết kiệm thêm 10%' }
     ],
     vouchersPerCycle: {
-      normalPublishVouchers: 15, // 15 voucher giảm 35.000 đ/lần Đăng Tin Thường
-      normalPublishDiscount: 35000,
+      normalPublishVouchers: 15, // 15 voucher Đăng Tin Thường Miễn Phí
+      normalPublishDiscount: 0,
       normalBumpVouchers: 15,    // 15 voucher giảm 10.000 đ/lần Đẩy Tin
       normalBumpDiscount: 10000,
       vipVouchers: 0,
       vipDiscount: 400000
     },
     features: [
-      '15 voucher giảm 35.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)',
+      '15 voucher Đăng Tin Thường Miễn Phí (mỗi chu kỳ 30 ngày)',
       '15 voucher giảm 10.000 đ/lần Đẩy Tin (mỗi chu kỳ 30 ngày)',
       'Ưu đãi voucher cấp mới định kỳ 30 ngày trong suốt thời hạn gói',
       'Tiết kiệm 31% chi phí so với mua lẻ từng tin đăng',
@@ -194,15 +194,15 @@ export const MEMBERSHIP_PACKAGES = [
       { months: 6, label: '6 tháng', duration_days: 180, price: 6840000, discount: 10, note: 'Tiết kiệm thêm 10%' }
     ],
     vouchersPerCycle: {
-      normalPublishVouchers: 20, // 20 voucher giảm 35.000 đ/lần Đăng Tin Thường
-      normalPublishDiscount: 35000,
+      normalPublishVouchers: 20, // 20 voucher Đăng Tin Thường Miễn Phí
+      normalPublishDiscount: 0,
       vipVouchers: 1,            // 1 voucher giảm 400.000 đ cho Tin VIP
       vipDiscount: 400000,
       normalBumpVouchers: 20,    // 20 voucher giảm 10.000 đ/lần Đẩy Tin
       normalBumpDiscount: 10000
     },
     features: [
-      '20 voucher giảm 35.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)',
+      '20 voucher Đăng Tin Thường Miễn Phí (mỗi chu kỳ 30 ngày)',
       '1 voucher giảm 400.000 đ áp dụng cho Tin VIP (mỗi chu kỳ 30 ngày)',
       '20 voucher giảm 10.000 đ/lần Đẩy Tin (mỗi chu kỳ 30 ngày)',
       'Tiện ích Hẹn giờ đăng tin tự động theo khung giờ vàng',
@@ -229,15 +229,15 @@ export const MEMBERSHIP_PACKAGES = [
       { months: 6, label: '6 tháng', duration_days: 180, price: 11880000, discount: 10, note: 'Tiết kiệm thêm 10%' }
     ],
     vouchersPerCycle: {
-      normalPublishVouchers: 50, // 50 voucher giảm 35.000 đ/lần Đăng Tin Thường
-      normalPublishDiscount: 35000,
+      normalPublishVouchers: 50, // 50 voucher Đăng Tin Thường Miễn Phí
+      normalPublishDiscount: 0,
       vipVouchers: 3,            // 3 voucher giảm 400.000 đ cho Tin VIP
       vipDiscount: 400000,
       normalBumpVouchers: 50,    // 50 voucher giảm 10.000 đ/lần Đẩy Tin
       normalBumpDiscount: 10000
     },
     features: [
-      '50 voucher giảm 35.000 đ/lần Đăng Tin Thường (mỗi chu kỳ 30 ngày)',
+      '50 voucher Đăng Tin Thường Miễn Phí (mỗi chu kỳ 30 ngày)',
       '3 voucher giảm 400.000 đ áp dụng cho Tin VIP (mỗi chu kỳ 30 ngày)',
       '50 voucher giảm 10.000 đ/lần Đẩy Tin (mỗi chu kỳ 30 ngày)',
       'Trọn bộ tiện ích: Hẹn giờ đăng tin & Tự động đẩy tin định kỳ',
@@ -253,7 +253,7 @@ export const MEMBERSHIP_PACKAGES = [
 ];
 
 export const BUMP_SERVICE_PRICE = 10000; // 10,000 VND / lần đẩy tin thường
-export const NORMAL_PUBLISH_PRICE = 35000; // 35,000 VND / lần đăng tin thường
+export const NORMAL_PUBLISH_PRICE = 0; // Đăng tin thường (theo Bảng Giá Tin Đăng)
 
 export const PROPERTY_TYPES = [
   { id: 'apartment', slug: 'can-ho-chung-cu', name: 'Căn hộ chung cư', icon: 'fa-building' },
@@ -2110,7 +2110,7 @@ export const MOCK_USERS = [
       badgeColor: 'bg-amber-500 text-slate-950 font-black'
     },
     vouchers: {
-      normalPublish: 26, // Còn 26 voucher giảm 35.000 đ đăng tin thường
+      normalPublish: 26, // Còn 26 voucher đăng tin thường (Miễn phí 0 đ)
       normalBump: 28,    // Còn 28 voucher giảm 10.000 đ đẩy tin thường
       vipPublish: 1      // Còn 1 voucher giảm 400.000 đ cho tin VIP
     }

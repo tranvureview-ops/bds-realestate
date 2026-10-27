@@ -54,7 +54,9 @@ export default function UserDashboard() {
 
   // Lấy đơn giá giảm trừ voucher từ gói đang dùng hoặc cấu hình chung 3 gói
   const activePackage = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId) || membershipPackages?.[0];
-  const commonPublishDiscount = activePackage?.vouchersPerCycle?.normalPublishDiscount ?? 35000;
+  const normalPkg = (activeVipPackages || []).find(p => p.id === 'normal');
+  const defaultNormalPrice = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
+  const commonPublishDiscount = activePackage?.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalPrice;
   const commonBumpDiscount = activePackage?.vouchersPerCycle?.normalBumpDiscount ?? 10000;
   const commonVipDiscount = (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount 
     ?? (activePackage?.vouchersPerCycle?.vipDiscount || 400000);

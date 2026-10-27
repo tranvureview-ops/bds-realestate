@@ -22,14 +22,16 @@ export function isVoucherDiscountFree(voucherType, discount, { vipPackages = [],
   if (voucherType === 'normalPublish' || voucherType === 'normal') {
     const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
     const pricePerDay = Number(normalPkg?.pricePerDay) || 0;
-    const publishPrice = Number(normalPkg?.publishPrice) || 35000;
+    const rate60 = Number(normalPkg?.rates?.[60] ?? 0);
+    const rate30 = Number(normalPkg?.rates?.[30] ?? 0);
+    const rate15 = Number(normalPkg?.rates?.[15] ?? 0);
+    const effectiveNormalRate = rate60 || rate30 || rate15 || pricePerDay || 0;
 
-    // 1) When discount matches/exceeds the listing price per day configured in Bảng Giá Tin Đăng (e.g. 5000 >= 5000)
-    if (pricePerDay > 0 && d >= pricePerDay) return true;
-    // 2) Or discount matches/exceeds standard publish price (e.g. 35000 >= 35000)
-    if (d >= publishPrice) return true;
-    // 3) Or normal package is explicitly set as 0 đ (free)
-    if (normalPkg && pricePerDay === 0) return true;
+    // 1) Nếu Tin Thường đang miễn phí ở Client (mốc 60 ngày = 0 đ hoặc pricePerDay = 0)
+    if (normalPkg && (rate60 === 0 || pricePerDay === 0)) return true;
+    // 2) Khi voucher discount >= đơn giá Tin Thường cấu hình trong Bảng Giá Tin Đăng
+    if (effectiveNormalRate > 0 && d >= effectiveNormalRate) return true;
+    if (d > 0 && effectiveNormalRate === 0) return true;
     return false;
   }
 
@@ -82,7 +84,9 @@ export function getResolvedFeatures(pkg, options = {}) {
   if (!pkg) return [];
   const v = pkg.vouchersPerCycle || {};
   const pubCount = v.normalPublishVouchers ?? 0;
-  const rawPubDiscount = v.normalPublishDiscount ?? 35000;
+  const normalPkg = (options.vipPackages || []).find(p => p.id === 'normal');
+  const defaultNormalPrice = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
+  const rawPubDiscount = v.normalPublishDiscount ?? defaultNormalPrice;
   const isPubFree = isVoucherDiscountFree('normalPublish', rawPubDiscount, options);
   const pubDiscount = Number(rawPubDiscount).toLocaleString('vi-VN');
 
@@ -134,7 +138,9 @@ export function getResolvedFeatures(pkg, options = {}) {
  */
 export function syncFeaturesWithVouchers(features = [], vouchers = {}, options = {}) {
   const pubCount = vouchers?.normalPublishVouchers ?? 0;
-  const rawPubDiscount = vouchers?.normalPublishDiscount ?? 35000;
+  const normalPkg = (options.vipPackages || []).find(p => p.id === 'normal');
+  const defaultNormalPrice = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
+  const rawPubDiscount = vouchers?.normalPublishDiscount ?? defaultNormalPrice;
   const isPubFree = isVoucherDiscountFree('normalPublish', rawPubDiscount, options);
   const pubDiscount = Number(rawPubDiscount).toLocaleString('vi-VN');
 

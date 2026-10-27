@@ -14,8 +14,10 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
 
   // Lấy đơn giá hiện tại từ danh sách gói
   const getInitialPrices = () => {
-    const pubVal = membershipPackages[0]?.vouchersPerCycle?.normalPublishDiscount ?? 35000;
-    const bumpVal = membershipPackages[0]?.vouchersPerCycle?.normalBumpDiscount ?? 10000;
+    const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
+    const defaultNormalPrice = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
+    const pubVal = membershipPackages[0]?.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalPrice;
+    const bumpVal = membershipPackages[0]?.vouchersPerCycle?.normalBumpDiscount ?? bumpServicePrice ?? 10000;
     const vipVal = membershipPackages.find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount ?? 400000;
     return {
       normalPublishDiscount: pubVal,
@@ -119,7 +121,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
           </div>
 
           <p className="text-[11px] text-slate-400 line-clamp-1">
-            Mức giảm trừ mỗi lần đăng tin thường (chuẩn 35.000 đ)
+            Mức giảm trừ mỗi lần đăng tin thường (áp dụng theo Bảng Giá Tin Đăng)
           </p>
 
           <div className="relative pt-1">
@@ -130,7 +132,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
               value={prices.normalPublishDiscount}
               onChange={(e) => handleChange('normalPublishDiscount', e.target.value)}
               className="w-full py-2.5 pl-3 pr-14 bg-slate-900 border border-slate-700 rounded-xl text-emerald-400 font-mono font-black text-sm outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition"
-              placeholder="35000"
+              placeholder="0"
             />
             <span className="absolute right-3.5 top-3.5 text-xs text-slate-500 font-bold pointer-events-none">VNĐ</span>
           </div>

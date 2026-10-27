@@ -42,7 +42,7 @@ export default function VipPricingPage() {
   }, [membershipPackages]);
 
   const normalPublishVoucherDiscount = useMemo(() => {
-    return (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.normalPublishDiscount || 0) > 0)?.vouchersPerCycle?.normalPublishDiscount ?? 35000;
+    return (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.normalPublishDiscount || 0) > 0)?.vouchersPerCycle?.normalPublishDiscount ?? 0;
   }, [membershipPackages]);
 
   const vipVoucherDiscount = useMemo(() => {
@@ -60,10 +60,21 @@ export default function VipPricingPage() {
     const bumpCount = Number(standardPkg?.vouchersPerCycle?.normalBumpVouchers) || 30;
     const vipCount = Number(standardPkg?.vouchersPerCycle?.vipVouchers) || 1;
 
-    const normalUnitPrice = Number((vipPackages || []).find(p => p.id === 'normal')?.publishPrice) 
-      || Number(standardPkg?.vouchersPerCycle?.normalPublishDiscount) 
-      || 35000;
-    const normalDiscount = Number(standardPkg?.vouchersPerCycle?.normalPublishDiscount) || normalUnitPrice;
+    // Lấy cấu hình đơn giá Tin Thường trực tiếp từ Bảng Giá Tin Đăng
+    const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
+    const normalRateConfig = ratesConfig?.['normal'] || normalPkg;
+    const normalAllowed = Array.isArray(normalRateConfig?.allowedDurations) && normalRateConfig.allowedDurations.length > 0
+      ? normalRateConfig.allowedDurations
+      : [60];
+    const activeDuration = normalAllowed.includes(60) ? 60 : normalAllowed[0];
+
+    // Đơn giá bán lẻ Tin Thường (lấy trực tiếp từ Bảng Giá Tin Đăng theo mốc hoặc pricePerDay):
+    const configuredRate = normalRateConfig?.rates?.[activeDuration] ?? normalPkg?.rates?.[activeDuration];
+    const normalDailyRate = (configuredRate !== undefined && !isNaN(Number(configuredRate)))
+      ? Number(configuredRate)
+      : Number(normalRateConfig?.pricePerDay ?? normalPkg?.pricePerDay ?? 0);
+
+    const normalUnitPrice = normalDailyRate > 0 ? normalDailyRate : 0;
     const totalNormalRetail = normalCount * normalUnitPrice;
 
     const bumpUnitPrice = currentBumpPrice;
@@ -83,7 +94,6 @@ export default function VipPricingPage() {
     return {
       normalCount,
       normalUnitPrice,
-      normalDiscount,
       totalNormalRetail,
       bumpCount,
       bumpUnitPrice,
@@ -883,7 +893,7 @@ export default function VipPricingPage() {
                   Đăng Ký Gói Hội Viên — Tiết Kiệm Tới {premiumSavePercent}% Chi Phí Đăng Tin
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-950 font-medium mt-1 max-w-xl">
-                  Nhận trọn bộ kho Voucher cấp mới định kỳ 30 ngày: voucher giảm {economicData.normalDiscount.toLocaleString('vi-VN')}đ đăng tin + voucher giảm {economicData.bumpDiscount.toLocaleString('vi-VN')}đ đẩy tin + voucher {economicData.vipDiscountVal.toLocaleString('vi-VN')}đ tin VIP.
+                  Nhận trọn bộ kho Voucher cấp mới định kỳ 30 ngày: {economicData.normalCount} voucher đăng tin thường (0 đ) + voucher giảm {economicData.bumpDiscount.toLocaleString('vi-VN')}đ đẩy tin + voucher {economicData.vipDiscountVal.toLocaleString('vi-VN')}đ tin VIP.
                 </p>
               </div>
             </div>
@@ -905,7 +915,16 @@ export default function VipPricingPage() {
                 <span className="text-red-600 text-xs font-bold">Không Ưu Đãi</span>
               </div>
               <ul className="space-y-1 text-slate-700 text-[11px]">
-                <li>• Đăng {economicData.normalCount} tin thường: {economicData.normalCount} x {economicData.normalUnitPrice.toLocaleString('vi-VN')} đ = <b>{economicData.totalNormalRetail.toLocaleString('vi-VN')} đ</b></li>
+                <li>
+                  • Đăng {economicData.normalCount} tin thường:{' '}
+                  {economicData.normalUnitPrice > 0 ? (
+                    <>
+                      {economicData.normalCount} x {economicData.normalUnitPrice.toLocaleString('vi-VN')} đ = <b>{economicData.totalNormalRetail.toLocaleString('vi-VN')} đ</b>
+                    </>
+                  ) : (
+                    <b>Miễn phí (0 đ)</b>
+                  )}
+                </li>
                 <li>• Đẩy {economicData.bumpCount} lần tin thường: {economicData.bumpCount} x {economicData.bumpUnitPrice.toLocaleString('vi-VN')} đ = <b>{economicData.totalBumpRetail.toLocaleString('vi-VN')} đ</b></li>
                 {economicData.vipCount > 0 && (
                   <li>• Đăng {economicData.vipCount} tin VIP Kim Cương (7 ngày): <b>{economicData.totalVipRetail.toLocaleString('vi-VN')} đ</b></li>
@@ -922,7 +941,7 @@ export default function VipPricingPage() {
                 <span className="bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">Tiết Kiệm {standardSavePercent}%</span>
               </div>
               <ul className="space-y-1 text-slate-300 text-[11px]">
-                <li>• Cấp {economicData.normalCount} voucher giảm {economicData.normalDiscount.toLocaleString('vi-VN')} đ đăng tin thường (<b>{economicData.normalDiscount >= economicData.normalUnitPrice ? '0 đ' : `còn ${(economicData.normalUnitPrice - economicData.normalDiscount).toLocaleString('vi-VN')} đ`}</b>)</li>
+                <li>• Cấp {economicData.normalCount} voucher đăng tin thường (<b>Miễn phí 0 đ</b>)</li>
                 <li>• Cấp {economicData.bumpCount} voucher giảm {economicData.bumpDiscount.toLocaleString('vi-VN')} đ đẩy tin (<b>{economicData.bumpDiscount >= economicData.bumpUnitPrice ? '0 đ' : `còn ${(economicData.bumpUnitPrice - economicData.bumpDiscount).toLocaleString('vi-VN')} đ`}</b>)</li>
                 {economicData.vipCount > 0 && (
                   <li>• Tặng {economicData.vipCount} voucher giảm {economicData.vipDiscountVal.toLocaleString('vi-VN')} đ đăng tin VIP (<b>Giảm ngay {economicData.vipDiscountVal >= 1000 ? `${(economicData.vipDiscountVal / 1000).toLocaleString('vi-VN')}k` : `${economicData.vipDiscountVal.toLocaleString('vi-VN')}đ`}</b>)</li>

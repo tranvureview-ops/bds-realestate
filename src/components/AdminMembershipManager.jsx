@@ -47,7 +47,9 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
   const pricingOptions = { vipPackages, bumpServicePrice };
 
   // Đơn giá voucher chung toàn sàn (áp dụng cho cả 3 gói)
-  const commonPublishDiscount = membershipPackages[0]?.vouchersPerCycle?.normalPublishDiscount ?? 35000;
+  const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
+  const defaultNormalRate = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
+  const commonPublishDiscount = membershipPackages[0]?.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalRate;
   const commonBumpDiscount = membershipPackages[0]?.vouchersPerCycle?.normalBumpDiscount ?? 10000;
   const commonVipDiscount = membershipPackages.find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount ?? 400000;
 
@@ -438,7 +440,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
   // Calculate total monthly voucher value for editing package
   const calcTotalVoucherValue = (vouchers) => {
     if (!vouchers) return 0;
-    const pubVal = (vouchers.normalPublishVouchers || 0) * (vouchers.normalPublishDiscount || 35000);
+    const pubVal = (vouchers.normalPublishVouchers || 0) * (vouchers.normalPublishDiscount ?? defaultNormalRate);
     const bumpVal = (vouchers.normalBumpVouchers || 0) * (vouchers.normalBumpDiscount || 10000);
     const vipVal = (vouchers.vipVouchers || 0) * (vouchers.vipDiscount || 400000);
     return pubVal + bumpVal + vipVal;
@@ -629,10 +631,10 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                       <span className="text-slate-300">• Voucher Đăng Tin Thường:</span>
                       <span className="text-emerald-400 font-mono font-bold flex items-center gap-1.5">
                         <span>{pkg.vouchersPerCycle?.normalPublishVouchers || 0} voucher</span>
-                        {isVoucherDiscountFree('normalPublish', pkg.vouchersPerCycle?.normalPublishDiscount ?? 35000, pricingOptions) ? (
+                        {isVoucherDiscountFree('normalPublish', pkg.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalRate, pricingOptions) ? (
                           <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/30 uppercase">Miễn Phí</span>
                         ) : (
-                          <span className="text-slate-400 text-[10px]">(-{Math.round((pkg.vouchersPerCycle?.normalPublishDiscount || 35000) / 1000)}k)</span>
+                          <span className="text-slate-400 text-[10px]">(-{Math.round((pkg.vouchersPerCycle?.normalPublishDiscount || defaultNormalRate) / 1000)}k)</span>
                         )}
                       </span>
                     </div>
@@ -1580,7 +1582,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
 
                           <div className="space-y-1.5">
                             {(() => {
-                              const pubDisc = editingPkg.vouchersPerCycle?.normalPublishDiscount || 35000;
+                              const pubDisc = editingPkg.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalRate;
                               const isPubFree = isVoucherDiscountFree('normalPublish', pubDisc, pricingOptions);
                               return (
                                 <div className="p-2 rounded-xl bg-emerald-50/80 border border-emerald-100 flex items-center justify-between text-xs">

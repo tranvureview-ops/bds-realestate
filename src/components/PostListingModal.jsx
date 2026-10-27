@@ -257,7 +257,9 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   );
   const isMemberExpired = Boolean(currentUser?.membership && !isMemberActive);
   const memberPackageObj = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
-  const normalPublishVoucherDiscount = memberPackageObj?.vouchersPerCycle?.normalPublishDiscount || (membershipPackages?.[0]?.vouchersPerCycle?.normalPublishDiscount ?? 35000);
+  const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
+  const defaultNormalPrice = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
+  const normalPublishVoucherDiscount = memberPackageObj?.vouchersPerCycle?.normalPublishDiscount || (membershipPackages?.[0]?.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalPrice);
   const vipVoucherDiscount = memberPackageObj?.vouchersPerCycle?.vipDiscount || (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount || 400000;
 
   const [step, setStep] = useState(1); // 1: Vị trí, 2: Bài viết & Kỹ thuật, 3: Hình ảnh & VR, 4: Loại Tin & Lịch đăng
@@ -466,7 +468,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       setListingDays(60); // Mặc định hiển thị 60 ngày cho Tin Thường
       if (hasNormalVoucher) {
         setAppliedVoucher('normalPublish');
-        showToast('Đã tự động áp dụng Voucher Hội Viên (-35.000 đ): Đăng Tin Thường chỉ 0 đ!', 'success');
+        showToast('Đã tự động áp dụng Voucher Hội Viên: Đăng Tin Thường chỉ 0 đ!', 'success');
       } else {
         setAppliedVoucher(null);
       }

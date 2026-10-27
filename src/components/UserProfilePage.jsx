@@ -994,7 +994,9 @@ export default function UserProfilePage() {
                     </div>
 
                     {(() => {
-                      const pubDisc = currentPkg?.vouchersPerCycle?.normalPublishDiscount || 35000;
+                      const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
+                      const defaultNormalPrice = Number(normalPkg?.rates?.[60] ?? normalPkg?.pricePerDay ?? 0);
+                      const pubDisc = currentPkg?.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalPrice;
                       const bumpDisc = currentPkg?.vouchersPerCycle?.normalBumpDiscount || 10000;
                       const pricingOptions = { vipPackages, bumpServicePrice };
                       const isPubFree = isVoucherDiscountFree('normalPublish', pubDisc, pricingOptions);
