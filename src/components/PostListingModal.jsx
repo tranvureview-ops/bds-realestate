@@ -374,6 +374,82 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     setAutoBumpHours(prev => [...prev, timeStr].sort());
     showToast(`Đã thêm mốc đẩy tin tự động lúc ${timeStr}!`, 'info');
   };
+
+  // Image Upload State & Handlers
+  const fileInputRef = useRef(null);
+  const [isDraggingImages, setIsDraggingImages] = useState(false);
+  const [imageUrlInput, setImageUrlInput] = useState('');
+  const [showUrlInput, setShowUrlInput] = useState(false);
+
+  const handleImageFileUpload = (e) => {
+    const files = Array.from(e.target?.files || []);
+    if (!files.length) return;
+
+    const currentCount = formData.images?.length || 0;
+    const remainingSlots = 20 - currentCount;
+    if (remainingSlots <= 0) {
+      showToast('Đã đạt giới hạn tối đa 20 ảnh cho mỗi bài đăng!', 'warning');
+      return;
+    }
+
+    const filesToProcess = files.slice(0, remainingSlots);
+    if (files.length > remainingSlots) {
+      showToast(`Chỉ có thể thêm tối đa ${remainingSlots} ảnh nữa (tổng 20 ảnh)!`, 'info');
+    }
+
+    const newImages = [];
+    let processed = 0;
+
+    filesToProcess.forEach(file => {
+      if (!file.type.startsWith('image/')) {
+        showToast(`Tệp "${file.name}" không phải là ảnh hợp lệ!`, 'warning');
+        processed++;
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        showToast(`Ảnh "${file.name}" vượt quá dung lượng 10MB!`, 'warning');
+        processed++;
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        newImages.push(event.target.result);
+        processed++;
+        if (processed === filesToProcess.length) {
+          setFormData(prev => ({
+            ...prev,
+            images: [...(prev.images || []), ...newImages]
+          }));
+          showToast(`Đã tải lên ${newImages.length} ảnh thành công!`, 'success');
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    if (e.target) e.target.value = '';
+  };
+
+  const handleAddImageUrl = (e) => {
+    if (e?.preventDefault) e.preventDefault();
+    const url = imageUrlInput.trim();
+    if (!url) return;
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      showToast('Đường dẫn ảnh phải bắt đầu bằng http:// hoặc https://', 'warning');
+      return;
+    }
+    if ((formData.images?.length || 0) >= 20) {
+      showToast('Đã đạt tối đa 20 ảnh!', 'warning');
+      return;
+    }
+    setFormData(prev => ({
+      ...prev,
+      images: [...(prev.images || []), url]
+    }));
+    setImageUrlInput('');
+    setShowUrlInput(false);
+    showToast('Đã thêm liên kết ảnh thành công!', 'success');
+  };
   // Nếu chưa đăng nhập (khách vãng lai), mặc định là VietQR Ngân Hàng
   const [paymentMethod, setPaymentMethod] = useState(!isGuest ? 'wallet' : 'vietqr');
   const [appliedVoucher, setAppliedVoucher] = useState(defaultListingType === 'normal' && hasNormalVoucher ? 'normalPublish' : null);
@@ -2178,52 +2254,158 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
             <div className="space-y-4">
               <div>
                 <div className="flex justify-between items-center mb-1">
-                  <label className="text-xs font-bold text-slate-800 uppercase">
-                    1. Hình Ảnh Bất Động Sản (Tối thiểu 1 - 20 ảnh) <span className="text-red-500">*</span>
+                  <label className="text-xs font-bold text-slate-800 uppercase flex items-center gap-1.5">
+                    <i className="fa-solid fa-camera text-red-600"></i>
+                    <span>1. Hình Ảnh Bất Động Sản (Tối thiểu 1 - 20 ảnh)</span>
+                    <span className="text-red-500">*</span>
                   </label>
-                  <span className="text-xs font-bold text-emerald-600">{formData.images.length} ảnh đã chọn</span>
+                  <span className="text-xs font-bold text-emerald-600">{formData.images.length}/20 ảnh đã chọn</span>
                 </div>
-                <p className="text-xs text-slate-500 mb-2">
+                <p className="text-xs text-slate-500 mb-3">
                   Theo thuật toán của hệ thống, bài đăng có từ 4 ảnh thực tế trở lên tăng 250% tỷ lệ người mua liên hệ.
                 </p>
 
-                {/* Grid ảnh */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-                  {formData.images.map((img, idx) => (
-                    <div 
-                      key={idx} 
-                      className={`relative rounded-2xl overflow-hidden border-2 group h-28 cursor-pointer ${
-                        formData.coverImageIndex === idx ? 'border-red-600 ring-2 ring-red-500/30' : 'border-slate-200'
-                      }`}
-                      onClick={() => setFormData(prev => ({ ...prev, coverImageIndex: idx }))}
-                    >
-                      <img src={img} alt="" className="w-full h-full object-cover" />
-                      {formData.coverImageIndex === idx ? (
-                        <span className="absolute bottom-1.5 left-1.5 bg-red-600 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow">
-                          ★ Ảnh Bìa
-                        </span>
-                      ) : (
-                        <span className="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition">
-                          Đặt làm ảnh bìa
-                        </span>
-                      )}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setFormData(prev => ({
-                            ...prev,
-                            images: prev.images.filter((_, i) => i !== idx),
-                            coverImageIndex: 0
-                          }));
-                        }}
-                        className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow"
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ))}
+                {/* VÙNG TẢI ẢNH CHÍNH (DRAG & DROP + INPUT FILE) */}
+                <div
+                  onDragOver={(e) => { e.preventDefault(); setIsDraggingImages(true); }}
+                  onDragLeave={() => setIsDraggingImages(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDraggingImages(false);
+                    if (e.dataTransfer?.files?.length > 0) {
+                      handleImageFileUpload({ target: { files: e.dataTransfer.files } });
+                    }
+                  }}
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`border-2 border-dashed rounded-2xl p-5 sm:p-6 text-center transition cursor-pointer mb-3 ${
+                    isDraggingImages
+                      ? 'border-red-500 bg-red-50/60 scale-[1.01]'
+                      : 'border-slate-300 hover:border-red-500 bg-slate-50/80 hover:bg-red-50/30'
+                  }`}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageFileUpload}
+                    className="hidden"
+                  />
+
+                  <div className="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mx-auto text-xl mb-2 shadow-xs">
+                    <i className="fa-solid fa-cloud-arrow-up"></i>
+                  </div>
+                  <div className="font-bold text-slate-800 text-sm">
+                    Bấm để chọn ảnh từ máy tính / điện thoại hoặc Kéo thả ảnh vào đây
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-1">
+                    Hỗ trợ định dạng JPG, JPEG, PNG, WebP (Tối đa 20 ảnh, dung lượng tối đa 10MB/ảnh)
+                  </div>
+                  <div className="mt-3.5 inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-bold text-xs rounded-xl shadow transition">
+                    <i className="fa-solid fa-plus-circle"></i>
+                    <span>Tải Ảnh Từ Thiết Bị Của Bạn</span>
+                  </div>
                 </div>
+
+                {/* Nút mở ô nhập Link URL ảnh trực tiếp & Xóa tất cả */}
+                <div className="flex items-center justify-between mb-3 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setShowUrlInput(!showUrlInput)}
+                    className="text-slate-600 hover:text-red-600 font-semibold flex items-center gap-1.5 transition cursor-pointer"
+                  >
+                    <i className="fa-solid fa-link text-slate-400"></i>
+                    <span>{showUrlInput ? 'Ẩn ô nhập link ảnh' : '+ Hoặc chèn ảnh từ đường dẫn URL trực tiếp'}</span>
+                  </button>
+
+                  {formData.images.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, images: [], coverImageIndex: 0 }))}
+                      className="text-slate-400 hover:text-rose-600 text-xs font-semibold flex items-center gap-1 transition cursor-pointer"
+                    >
+                      <i className="fa-solid fa-trash-can"></i>
+                      <span>Xóa tất cả ảnh</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Form chèn URL ảnh nếu mở */}
+                {showUrlInput && (
+                  <form onSubmit={handleAddImageUrl} className="flex gap-2 mb-3 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                    <input
+                      type="url"
+                      placeholder="Dán link ảnh (https://...)"
+                      value={imageUrlInput}
+                      onChange={(e) => setImageUrlInput(e.target.value)}
+                      className="flex-1 px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg outline-none focus:border-red-500"
+                    />
+                    <button
+                      type="submit"
+                      className="px-3.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold transition cursor-pointer"
+                    >
+                      Thêm
+                    </button>
+                  </form>
+                )}
+
+                {/* Grid ảnh */}
+                {formData.images.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+                    {formData.images.map((img, idx) => (
+                      <div 
+                        key={idx} 
+                        className={`relative rounded-2xl overflow-hidden border-2 group h-28 cursor-pointer ${
+                          formData.coverImageIndex === idx ? 'border-red-600 ring-2 ring-red-500/30' : 'border-slate-200'
+                        }`}
+                        onClick={() => setFormData(prev => ({ ...prev, coverImageIndex: idx }))}
+                      >
+                        <img src={img} alt="" className="w-full h-full object-cover" />
+                        {formData.coverImageIndex === idx ? (
+                          <span className="absolute bottom-1.5 left-1.5 bg-red-600 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-full shadow">
+                            ★ Ảnh Bìa
+                          </span>
+                        ) : (
+                          <span className="absolute bottom-1.5 left-1.5 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition">
+                            Đặt làm ảnh bìa
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setFormData(prev => ({
+                              ...prev,
+                              images: prev.images.filter((_, i) => i !== idx),
+                              coverImageIndex: 0
+                            }));
+                          }}
+                          className="absolute top-1.5 right-1.5 w-6 h-6 rounded-full bg-red-600 text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow cursor-pointer"
+                          title="Xóa ảnh này"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+
+                    {/* Thẻ + Thêm ảnh nếu chưa đủ 20 ảnh */}
+                    {formData.images.length < 20 && (
+                      <div
+                        onClick={() => fileInputRef.current?.click()}
+                        className="rounded-2xl border-2 border-dashed border-slate-300 hover:border-red-500 bg-slate-50 hover:bg-red-50/30 flex flex-col items-center justify-center h-28 cursor-pointer transition text-slate-400 hover:text-red-600"
+                        title="Tải thêm ảnh từ máy"
+                      >
+                        <i className="fa-solid fa-plus text-xl mb-1"></i>
+                        <span className="text-[11px] font-bold">Thêm ảnh</span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-800 text-xs flex items-center gap-2 mb-3">
+                    <i className="fa-solid fa-circle-exclamation text-amber-600 text-base shrink-0"></i>
+                    <span>Chưa có ảnh nào được chọn. Vui lòng bấm vào khung trên để tải lên từ 1 đến 20 ảnh thực tế của bất động sản.</span>
+                  </div>
+                )}
 
                 {/* Chọn bộ ảnh mẫu chất lượng cao */}
                 <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl">
@@ -2242,7 +2424,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                           'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=format&fit=crop&w=1200&q=80'
                         ]
                       }))}
-                      className="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-bold hover:bg-slate-100 text-slate-700 shadow-sm"
+                      className="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-bold hover:bg-slate-100 text-slate-700 shadow-sm cursor-pointer"
                     >
                       Bộ ảnh Căn hộ Biển Đà Nẵng cao cấp
                     </button>
@@ -2256,7 +2438,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                           'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=1200&q=80'
                         ]
                       }))}
-                      className="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-bold hover:bg-slate-100 text-slate-700 shadow-sm"
+                      className="px-3 py-1.5 bg-white border border-slate-300 rounded-xl text-xs font-bold hover:bg-slate-100 text-slate-700 shadow-sm cursor-pointer"
                     >
                       Bộ ảnh Biệt thự sân vườn
                     </button>
