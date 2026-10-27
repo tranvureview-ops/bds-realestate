@@ -213,11 +213,15 @@ export function filterProperties(properties = [], filters = {}) {
     // 11. VR360
     if (filters.hasVR360 && !prop.hasVR360) return false;
 
-    // 12. Tin chính chủ / Đã xác thực
+    // 12. Tin đăng đã được BQT xác thực (Có huy hiệu "Tin xác thực" màu xanh)
     if (filters.onlyVerified) {
-      const isPropVerified = Boolean(prop.is_verified || prop.isVerified);
-      const isAuthorVerified = Boolean(prop.author?.isVerified || prop.author?.kycStatus === 'verified');
-      if (!isPropVerified && !isAuthorVerified) return false;
+      const isPropVerified = Boolean(
+        prop.is_verified ||
+        prop.isVerified ||
+        prop.verification_status === 'verified' ||
+        prop.verificationStatus === 'verified'
+      );
+      if (!isPropVerified) return false;
     }
 
     // 13. Môi giới chuyên nghiệp: Chỉ hiển thị những tài khoản môi giới đã được xác nhận KYC

@@ -215,7 +215,7 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
               </span>
             )}
             {/* Tin đã xác thực: Đặt tại hàng thông số thay thế vị trí pháp lý cũ (Chỉ hiển thị khi đã xác thực, ẩn khi chưa xác thực) */}
-            {Boolean(property.is_verified || property.isVerified) && (
+            {Boolean(property.is_verified || property.isVerified || property.verification_status === 'verified' || property.verificationStatus === 'verified') && (
               <span className="px-2 py-1 bg-emerald-50 text-emerald-700 rounded-md flex items-center gap-1 font-bold border border-emerald-200 shadow-2xs">
                 <i className="fa-solid fa-circle-check text-emerald-600"></i>
                 <span>Tin xác thực</span>
