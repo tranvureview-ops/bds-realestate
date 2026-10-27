@@ -675,15 +675,6 @@ export default function AdminTelegramChatManager() {
                 <i className={`fa-solid ${isTesting ? 'fa-spinner fa-spin' : 'fa-paper-plane'}`}></i>
                 <span>{isTesting ? 'Đang gửi...' : 'Test Kết Nối'}</span>
               </button>
-
-              <button
-                type="submit"
-                disabled={isSaving}
-                className="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-black text-xs rounded-xl shadow-lg shadow-emerald-900/40 transition flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <i className={`fa-solid ${isSaving ? 'fa-spinner fa-spin' : 'fa-floppy-disk'}`}></i>
-                <span>{isSaving ? 'Đang lưu hệ thống...' : 'Lưu Thay Đổi Cấu Hình'}</span>
-              </button>
             </div>
           </div>
         </form>

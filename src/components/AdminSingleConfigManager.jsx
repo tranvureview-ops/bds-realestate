@@ -578,16 +578,6 @@ export default function AdminSingleConfigManager() {
                 <div>• BĐS tương tự: <strong className={formData.features?.showSimilarProperties !== false ? 'text-emerald-400' : 'text-slate-600'}>{formData.features?.showSimilarProperties !== false ? 'Bật' : 'Tắt'}</strong></div>
               </div>
             </div>
-
-            {/* Bottom Save Action */}
-            <button
-              type="button"
-              onClick={handleSave}
-              className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-black text-xs rounded-xl shadow-lg shadow-red-600/30 transition flex items-center justify-center gap-2"
-            >
-              <i className="fa-solid fa-check"></i>
-              <span>Lưu Cấu Hình Single Ngay</span>
-            </button>
           </div>
         </div>
       </div>

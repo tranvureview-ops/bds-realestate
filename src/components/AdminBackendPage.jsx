@@ -749,6 +749,9 @@ export default function AdminBackendPage() {
           }
         });
       }
+      if (mapsApiKey && mapsApiKey.trim()) {
+        await handleSaveMapsApiKey();
+      }
       showToast('Đã lưu cấu hình hệ thống thành công!', 'success');
     } finally {
       setTimeout(() => setIsSavingSystem(false), 500);
@@ -7292,20 +7295,9 @@ export default function AdminBackendPage() {
                         </div>
                       </div>
 
-                      {/* Direct Apply & Save button right in the font preview */}
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-800">
-                        <div className="text-[11px] text-slate-400">
-                          Áp dụng phông chữ này cho toàn bộ khách truy cập và mọi trang trên sàn BĐS.
-                        </div>
-                        <button
-                          type="button"
-                          disabled={isSavingSystem}
-                          onClick={handleSaveSystemConfig}
-                          className="px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-violet-950/40 transition flex items-center justify-center gap-2 whitespace-nowrap self-end sm:self-auto"
-                        >
-                          <i className={isSavingSystem ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-check-double"}></i>
-                          <span>{isSavingSystem ? "Đang lưu..." : `Lưu & Kích Hoạt Phông ${formSystemConfig.fontFamily || 'Plus Jakarta Sans'}`}</span>
-                        </button>
+                      {/* Font preview notice */}
+                      <div className="pt-3 border-t border-slate-800 text-[11px] text-slate-400">
+                        * Phông chữ đã chọn sẽ được lưu và áp dụng cho toàn bộ website khi bấm <strong>Lưu Cài Đặt Hệ Thống</strong> ở thanh trên cùng.
                       </div>
                     </div>
                   </div>
@@ -8038,18 +8030,8 @@ export default function AdminBackendPage() {
                       </p>
                     </div>
 
-                    {/* Hàng Nút Hành Động: Lưu Key & Test Key */}
+                    {/* Hàng Nút Hành Động: Test Key */}
                     <div className="flex flex-wrap items-center gap-3 pt-1">
-                      <button
-                        type="button"
-                        disabled={isSavingMapsKey}
-                        onClick={handleSaveMapsApiKey}
-                        className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 disabled:opacity-60 text-white font-bold text-xs rounded-xl shadow-lg shadow-emerald-900/30 transition flex items-center gap-1.5 cursor-pointer"
-                      >
-                        <i className={isSavingMapsKey ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-floppy-disk'}></i>
-                        <span>{isSavingMapsKey ? 'Đang lưu...' : 'Lưu API Key Vào Database'}</span>
-                      </button>
-
                       <button
                         type="button"
                         disabled={isTestingMapsKey}
@@ -8060,6 +8042,9 @@ export default function AdminBackendPage() {
                         <i className={isTestingMapsKey ? 'fa-solid fa-spinner fa-spin' : 'fa-solid fa-bolt'}></i>
                         <span>{isTestingMapsKey ? 'Đang kiểm tra...' : 'Kiểm Tra Kết Nối (Test Key)'}</span>
                       </button>
+                      <span className="text-[11px] text-slate-400">
+                        * Nhập Key và bấm <strong>Lưu Cài Đặt Hệ Thống</strong> ở thanh trên cùng để lưu vĩnh viễn vào Database.
+                      </span>
                     </div>
 
                     {/* Hiển thị kết quả Test nếu có */}
@@ -8227,18 +8212,12 @@ export default function AdminBackendPage() {
                       </div>
                     </div>
 
-                    <button
-                      type="button"
-                      disabled={isSavingSystem}
-                      onClick={handleSaveSystemConfig}
-                      className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-60 text-white font-black rounded-xl text-xs shadow-lg transition flex items-center justify-center gap-2"
-                    >
-                      <i className={isSavingSystem ? "fa-solid fa-spinner fa-spin" : "fa-solid fa-check"}></i>
-                      <span>{isSavingSystem ? "Đang lưu hệ thống..." : "Lưu Thay Đổi Ngay"}</span>
-                    </button>
+                      <div className="pt-2 border-t border-slate-800 text-[11px] text-slate-400 text-center">
+                        Bấm <strong>Lưu Cài Đặt Hệ Thống</strong> ở trên cùng để áp dụng mọi thay đổi.
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
                 </div>
               )}
 
