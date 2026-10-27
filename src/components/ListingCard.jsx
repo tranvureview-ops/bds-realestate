@@ -106,24 +106,9 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
           </span>
 
           {/* Demand Badge */}
-          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold shadow-sm ${property.demand === 'sale' ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'}`}>
+          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-sm ${property.demand === 'sale' ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'}`}>
             {property.demand === 'sale' ? 'BÁN' : 'CHO THUÊ'}
           </span>
-
-          {/* Tin đã xác thực: Badge màu xanh lục (Ẩn hoàn toàn khi chưa xác thực) */}
-          {Boolean(property.is_verified || property.isVerified) && (
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-600 text-white shadow-sm flex items-center gap-1">
-              <i className="fa-solid fa-circle-check"></i>
-              <span>Tin xác thực</span>
-            </span>
-          )}
-
-          {/* VR 360 Badge */}
-          {property.hasVR360 && (
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-600 text-white shadow-sm flex items-center gap-1 animate-pulse">
-              <i className="fa-solid fa-vr-cardboard"></i> VR 360°
-            </span>
-          )}
         </div>
 
         {/* Action Buttons Top Right: Favorite & Compare */}
@@ -229,10 +214,11 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
                 {property.direction}
               </span>
             )}
-            {property.legal && (
-              <span className="px-2 py-1 bg-emerald-50 text-emerald-700 rounded-md flex items-center gap-1 font-medium border border-emerald-100">
-                <i className="fa-solid fa-certificate text-emerald-600"></i>
-                {property.legal.includes('Sổ') ? 'Sổ đỏ/hồng sẵn' : 'Pháp lý chuẩn'}
+            {/* Tin đã xác thực: Đặt tại hàng thông số thay thế vị trí pháp lý cũ (Chỉ hiển thị khi đã xác thực, ẩn khi chưa xác thực) */}
+            {Boolean(property.is_verified || property.isVerified) && (
+              <span className="px-2 py-1 bg-emerald-50 text-emerald-700 rounded-md flex items-center gap-1 font-bold border border-emerald-200 shadow-2xs">
+                <i className="fa-solid fa-circle-check text-emerald-600"></i>
+                <span>Tin xác thực</span>
               </span>
             )}
           </div>
