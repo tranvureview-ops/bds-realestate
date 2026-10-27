@@ -157,11 +157,8 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
           </div>
 
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-2">
-              <span>{taxonomyInfo?.title || 'Cho Thuê Bất Động Sản Toàn Quốc'}</span>
-              <span className="text-xs px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 font-bold">
-                {rentCount} BĐS cho thuê
-              </span>
+            <h1 className="text-2xl sm:text-3xl font-black text-white">
+              {taxonomyInfo?.title || 'Cho Thuê Bất Động Sản Toàn Quốc'}
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
               {categorySeo.description}

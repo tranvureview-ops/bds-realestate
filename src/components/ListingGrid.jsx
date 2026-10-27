@@ -185,11 +185,18 @@ export default function ListingGrid({
     }
   };
 
+  // Nhãn phân loại nhu cầu hiển thị trên thanh công cụ
+  const demandLabel = useMemo(() => {
+    if (filters?.demand === 'rent') return 'BĐS cho thuê';
+    if (filters?.demand === 'sale') return 'BĐS đang bán';
+    return 'bất động sản';
+  }, [filters?.demand]);
+
   return (
     <div ref={gridContainerRef} className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className ? className : (isHomePage ? 'pt-2 pb-3' : 'pt-4 sm:pt-6 pb-8')}`}>
       {/* View Controls & Sorting Bar */}
-      <div className={`flex flex-col sm:flex-row items-start sm:items-center ${title ? 'justify-between' : 'justify-end'} gap-3 sm:gap-4 pb-4 sm:pb-5 border-b border-slate-200`}>
-        {title && (
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 pb-4 sm:pb-5 border-b border-slate-200">
+        {title ? (
           <div>
             <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
               {title}
@@ -199,6 +206,14 @@ export default function ListingGrid({
                 {subtitle}
               </p>
             )}
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-600">
+            <span>Hiện có</span>
+            <span className="font-extrabold text-slate-900 text-sm sm:text-base">
+              {totalItems.toLocaleString('vi-VN')}
+            </span>
+            <span>{demandLabel}</span>
           </div>
         )}
 
