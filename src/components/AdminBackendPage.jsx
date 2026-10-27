@@ -56,7 +56,7 @@ export const getSettingsSubTabFromHash = () => {
 export const getTabFromHash = () => {
   if (typeof window === 'undefined') return 'dashboard';
   const rawHash = (window.location.hash || '').replace(/^#/, '').split('?')[0].split('/')[0].trim().toLowerCase();
-  if (rawHash === 'header' || rawHash === 'menu' || rawHash === 'footer' || rawHash === 'email-config' || rawHash === 'email') return 'settings';
+  if (rawHash === 'header' || rawHash === 'menu' || rawHash === 'footer' || rawHash === 'email-config' || rawHash === 'email' || rawHash === 'telegram' || rawHash === 'telegram-config') return 'settings';
   return VALID_ADMIN_TABS.includes(rawHash) ? rawHash : 'dashboard';
 };
 
@@ -188,9 +188,15 @@ export default function AdminBackendPage() {
     } else if (tab === 'menu') {
       targetTab = 'settings';
       targetSubTab = 'menu';
+    } else if (tab === 'footer') {
+      targetTab = 'settings';
+      targetSubTab = 'footer';
     } else if (tab === 'email-config' || tab === 'email') {
       targetTab = 'settings';
       targetSubTab = 'email';
+    } else if (tab === 'telegram' || tab === 'telegram-config') {
+      targetTab = 'settings';
+      targetSubTab = 'telegram';
     }
 
     if (!VALID_ADMIN_TABS.includes(targetTab)) return;
@@ -227,7 +233,7 @@ export default function AdminBackendPage() {
       } else if (tab === 'settings') {
         const sub = getSettingsSubTabFromHash();
         const expectedHash = sub === 'system' ? '#settings' : `#settings/${sub}`;
-        if (currentHash === 'header' || currentHash === 'menu' || currentHash === 'email-config' || currentHash === 'email') {
+        if (currentHash === 'header' || currentHash === 'menu' || currentHash === 'footer' || currentHash === 'email-config' || currentHash === 'email' || currentHash === 'telegram' || currentHash === 'telegram-config') {
           if (window.history?.replaceState) {
             window.history.replaceState(null, '', expectedHash);
           }
@@ -2422,7 +2428,7 @@ export default function AdminBackendPage() {
                 </div>
                 <div className="flex items-center gap-1">
                   <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${activeMenu === 'settings' ? 'bg-black/30 text-white' : 'bg-slate-800 text-slate-400'}`}>
-                    4 Tab
+                    6 Tab
                   </span>
                   <i className={`fa-solid fa-chevron-${activeMenu === 'settings' ? 'down' : 'right'} text-[10px] opacity-70`}></i>
                 </div>
@@ -2550,17 +2556,6 @@ export default function AdminBackendPage() {
             >
               <i className="fa-solid fa-file-contract text-sm w-5 text-center text-rose-400"></i>
               <span>Cấu Hình Single</span>
-            </Link>
-
-            <Link
-              href="#telegram"
-              onClick={handleNavClick('telegram')}
-              className={`w-full px-3 py-2.5 rounded-xl transition flex items-center gap-3 text-left ${
-                activeMenu === 'telegram' ? 'bg-red-600 text-white shadow-lg shadow-red-600/20' : 'text-slate-400 hover:text-white hover:bg-slate-900'
-              }`}
-            >
-              <i className="fa-brands fa-telegram text-sm w-5 text-center text-sky-400"></i>
-              <span>Live Chat Telegram</span>
             </Link>
           </nav>
         </div>
