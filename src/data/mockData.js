@@ -353,12 +353,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-03",
-      "name": "Lê Hoàng Nam",
-      "title": "Chuyên Gia BĐS Cao Cấp",
-      "phone": "0905 678 910",
-      "zalo": "0905 678 910",
-      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-15T13:04:54.496Z",
@@ -371,8 +372,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_diamond",
     "is_verified": true,
     "isVerified": true,
-    "contactName": "Lê Hoàng Nam",
-    "contactPhone": "0905 678 910"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.690Z"
   },
   {
     "id": "BDS-002",
@@ -441,13 +443,14 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "user-02",
-      "name": "Hoàng Anh Tuấn",
-      "title": "Chính chủ ký gửi",
-      "phone": "0988 776 655",
-      "zalo": "0988 776 655",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
-      "isVerified": false
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
+      "isVerified": true
     },
     "publishedAt": "2026-10-15T01:15:00Z",
     "viewsCount": 5120,
@@ -459,8 +462,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_diamond",
     "is_verified": true,
     "isVerified": true,
-    "contactName": "Hoàng Anh Tuấn",
-    "contactPhone": "0988 776 655"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-003",
@@ -520,12 +524,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-03",
-      "name": "Lê Hoàng Nam",
-      "title": "Chuyên Gia BĐS Cao Cấp",
-      "phone": "0905 678 910",
-      "zalo": "0905 678 910",
-      "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-15T13:03:41.203Z",
@@ -546,8 +551,9 @@ export const INITIAL_PROPERTIES = [
       "notes": "Sổ hồng chính chủ 8 tầng mặt phố Nguyễn Văn Linh Hải Châu, đã công chứng sao y bản chính.",
       "submittedAt": "2026-10-28T04:30:00.000Z"
     },
-    "contactName": "Lê Hoàng Nam",
-    "contactPhone": "0905 678 910"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-004",
@@ -615,12 +621,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "admin-01",
-      "name": "Trần Vũ RB",
-      "title": "Tổng Quản Trị Viên (CMS Admin)",
-      "phone": "0898 246 607",
-      "zalo": "0898 246 607",
-      "avatar": "/avatars/ai-preset-2.jpg",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-14T14:20:00Z",
@@ -632,8 +639,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_gold",
     "is_verified": true,
     "isVerified": true,
-    "contactName": "Trần Vũ RB",
-    "contactPhone": "0898 246 607"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-005",
@@ -688,12 +696,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-06",
-      "name": "Đoàn Thị Mai",
-      "title": "Chuyên Viên BĐS Nghỉ Dưỡng",
-      "phone": "0918 334 455",
-      "zalo": "0918 334 455",
-      "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=256&q=80",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-12T09:10:00Z",
@@ -705,8 +714,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_silver",
     "is_verified": true,
     "isVerified": true,
-    "contactName": "Đoàn Thị Mai",
-    "contactPhone": "0918 334 455"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-006",
@@ -760,12 +770,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-02",
-      "name": "Trần Thị Thu Hà",
-      "title": "Chuyên Viên Tư Vấn Sun Group",
-      "phone": "0912 888 999",
-      "zalo": "0912 888 999",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
       "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-11T16:00:00Z",
@@ -777,8 +788,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_silver",
     "is_verified": false,
     "isVerified": false,
-    "contactName": "Trần Thị Thu Hà",
-    "contactPhone": "0912 888 999"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-007",
@@ -836,12 +848,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-01",
-      "name": "Nguyễn Văn Tuấn",
-      "title": "Giám Đốc Kinh Doanh BĐS",
-      "phone": "0908 123 456",
-      "zalo": "0908 123 456",
-      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-10T11:00:00Z",
@@ -853,8 +866,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_silver",
     "is_verified": true,
     "isVerified": true,
-    "contactName": "Nguyễn Văn Tuấn",
-    "contactPhone": "0908 123 456"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-008",
@@ -910,13 +924,14 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "user-02",
-      "name": "Hoàng Anh Tuấn",
-      "title": "Chính chủ ký gửi",
-      "phone": "0988 776 655",
-      "zalo": "0988 776 655",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
-      "isVerified": false
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
+      "isVerified": true
     },
     "publishedAt": "2026-09-20T08:00:00Z",
     "viewsCount": 780,
@@ -927,8 +942,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "standard_fifo",
     "is_verified": false,
     "isVerified": false,
-    "contactName": "Hoàng Anh Tuấn",
-    "contactPhone": "0988 776 655"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-009",
@@ -980,12 +996,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-05",
-      "name": "Phạm Hải Đăng",
-      "title": "Trưởng Phòng Kinh Doanh",
-      "phone": "0903 556 778",
-      "zalo": "0903 556 778",
-      "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=256&q=80",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-15T06:00:00Z",
@@ -997,8 +1014,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "standard_fifo",
     "is_verified": false,
     "isVerified": false,
-    "contactName": "Phạm Hải Đăng",
-    "contactPhone": "0903 556 778"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-010",
@@ -1036,12 +1054,13 @@ export const INITIAL_PROPERTIES = [
     ],
     "hasVR360": false,
     "author": {
-      "id": "broker-02",
-      "name": "Trần Thị Thu Hà",
-      "title": "Chuyên Viên Tư Vấn Sun Group",
-      "phone": "0912 888 999",
-      "zalo": "0912 888 999",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
       "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-15T12:04:10.754Z",
@@ -1049,10 +1068,11 @@ export const INITIAL_PROPERTIES = [
     "expiresAt": "2027-04-30T23:59:59.000Z",
     "autoRenew": false,
     "queuePriority": "priority_gold",
-    "contactName": "Trần Thị Thu Hà",
+    "contactName": "TRAN VAN VU",
     "is_verified": true,
     "isVerified": true,
-    "contactPhone": "0912 888 999"
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-011",
@@ -1090,12 +1110,13 @@ export const INITIAL_PROPERTIES = [
     ],
     "hasVR360": false,
     "author": {
-      "id": "user-01",
-      "name": "Lê Minh Tâm",
-      "title": "Khách hàng cá nhân",
-      "phone": "0912 345 678",
-      "zalo": "0912 345 678",
-      "avatar": "/avatars/ai-preset-1.jpg",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-15T14:49:09.983Z",
@@ -1103,10 +1124,11 @@ export const INITIAL_PROPERTIES = [
     "expiresAt": "2027-04-30T23:59:59.000Z",
     "autoRenew": false,
     "queuePriority": "priority_silver",
-    "contactName": "Lê Minh Tâm",
+    "contactName": "TRAN VAN VU",
     "is_verified": false,
     "isVerified": false,
-    "contactPhone": "0912 345 678"
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-012",
@@ -1144,12 +1166,13 @@ export const INITIAL_PROPERTIES = [
     ],
     "hasVR360": false,
     "author": {
-      "id": "broker-02",
-      "name": "Trần Thị Thu Hà",
-      "title": "Chuyên Viên Tư Vấn Sun Group",
-      "phone": "0912 888 999",
-      "zalo": "0912 888 999",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
       "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-15T14:49:35.321Z",
@@ -1159,8 +1182,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_gold",
     "is_verified": false,
     "isVerified": false,
-    "contactName": "Trần Thị Thu Hà",
-    "contactPhone": "0912 888 999"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-013",
@@ -1198,12 +1222,13 @@ export const INITIAL_PROPERTIES = [
     ],
     "hasVR360": false,
     "author": {
-      "id": "user-03",
-      "name": "Nguyễn Thảo My",
-      "title": "Nhà đầu tư cá nhân",
-      "phone": "0977 443 322",
-      "zalo": "0977 443 322",
-      "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=256&q=80",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-15T14:55:17.069Z",
@@ -1213,8 +1238,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "standard_fifo",
     "is_verified": true,
     "isVerified": true,
-    "contactName": "Nguyễn Thảo My",
-    "contactPhone": "0977 443 322"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-014",
@@ -1252,12 +1278,13 @@ export const INITIAL_PROPERTIES = [
     ],
     "hasVR360": false,
     "author": {
-      "id": "broker-02",
-      "name": "Trần Thị Thu Hà",
-      "title": "Chuyên Viên Tư Vấn Sun Group",
-      "phone": "0912 888 999",
-      "zalo": "0912 888 999",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
       "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-15T14:57:50.044Z",
@@ -1265,10 +1292,11 @@ export const INITIAL_PROPERTIES = [
     "expiresAt": "2027-04-30T23:59:59.000Z",
     "autoRenew": false,
     "queuePriority": "priority_gold",
-    "contactName": "Trần Thị Thu Hà",
+    "contactName": "TRAN VAN VU",
     "is_verified": false,
     "isVerified": false,
-    "contactPhone": "0912 888 999"
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-015",
@@ -1334,12 +1362,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "user-01",
-      "name": "Lê Minh Tâm",
-      "title": "Khách hàng cá nhân",
-      "phone": "0912 345 678",
-      "zalo": "0912 345 678",
-      "avatar": "/avatars/ai-preset-1.jpg",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-15T15:00:00Z",
@@ -1351,8 +1380,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_diamond",
     "is_verified": false,
     "isVerified": false,
-    "contactName": "Lê Minh Tâm",
-    "contactPhone": "0912 345 678"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-016",
@@ -1407,13 +1437,14 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "user-02",
-      "name": "Hoàng Anh Tuấn",
-      "title": "Chính chủ ký gửi",
-      "phone": "0988 776 655",
-      "zalo": "0988 776 655",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
-      "isVerified": false
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
+      "isVerified": true
     },
     "publishedAt": "2026-10-15T09:30:00Z",
     "viewsCount": 1540,
@@ -1424,8 +1455,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_gold",
     "is_verified": true,
     "isVerified": true,
-    "contactName": "Hoàng Anh Tuấn",
-    "contactPhone": "0988 776 655"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-017",
@@ -1491,12 +1523,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-01",
-      "name": "Nguyễn Văn Tuấn",
-      "title": "Giám Đốc Kinh Doanh BĐS",
-      "phone": "0908 123 456",
-      "zalo": "0908 123 456",
-      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-15T11:00:00Z",
@@ -1508,8 +1541,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_diamond",
     "is_verified": true,
     "isVerified": true,
-    "contactName": "Nguyễn Văn Tuấn",
-    "contactPhone": "0908 123 456"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-018",
@@ -1565,12 +1599,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "user-01",
-      "name": "Lê Minh Tâm",
-      "title": "Khách hàng cá nhân",
-      "phone": "0912 345 678",
-      "zalo": "0912 345 678",
-      "avatar": "/avatars/ai-preset-1.jpg",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-14T08:00:00Z",
@@ -1582,8 +1617,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_silver",
     "is_verified": false,
     "isVerified": false,
-    "contactName": "Lê Minh Tâm",
-    "contactPhone": "0912 345 678"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-019",
@@ -1642,12 +1678,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "user-03",
-      "name": "Nguyễn Thảo My",
-      "title": "Nhà đầu tư cá nhân",
-      "phone": "0977 443 322",
-      "zalo": "0977 443 322",
-      "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=256&q=80",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-15T07:00:00Z",
@@ -1659,8 +1696,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_gold",
     "is_verified": true,
     "isVerified": true,
-    "contactName": "Nguyễn Thảo My",
-    "contactPhone": "0977 443 322"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-020",
@@ -1715,12 +1753,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "user-01",
-      "name": "Lê Minh Tâm",
-      "title": "Khách hàng cá nhân",
-      "phone": "0912 345 678",
-      "zalo": "0912 345 678",
-      "avatar": "/avatars/ai-preset-1.jpg",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-14T10:00:00Z",
@@ -1732,8 +1771,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_silver",
     "is_verified": false,
     "isVerified": false,
-    "contactName": "Lê Minh Tâm",
-    "contactPhone": "0912 345 678"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-021",
@@ -1792,12 +1832,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-05",
-      "name": "Phạm Hải Đăng",
-      "title": "Trưởng Phòng Kinh Doanh",
-      "phone": "0903 556 778",
-      "zalo": "0903 556 778",
-      "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=256&q=80",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-14T11:00:00Z",
@@ -1809,8 +1850,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_gold",
     "is_verified": true,
     "isVerified": true,
-    "contactName": "Phạm Hải Đăng",
-    "contactPhone": "0903 556 778"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-022",
@@ -1864,13 +1906,14 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "user-02",
-      "name": "Hoàng Anh Tuấn",
-      "title": "Chính chủ ký gửi",
-      "phone": "0988 776 655",
-      "zalo": "0988 776 655",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
-      "isVerified": false
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
+      "isVerified": true
     },
     "publishedAt": "2026-10-13T14:00:00Z",
     "viewsCount": 920,
@@ -1881,8 +1924,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "standard_fifo",
     "is_verified": false,
     "isVerified": false,
-    "contactName": "Hoàng Anh Tuấn",
-    "contactPhone": "0988 776 655"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-023",
@@ -1948,12 +1992,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-01",
-      "name": "Nguyễn Văn Tuấn",
-      "title": "Giám Đốc Kinh Doanh BĐS",
-      "phone": "0908 123 456",
-      "zalo": "0908 123 456",
-      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-15T16:00:00Z",
@@ -1965,8 +2010,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_diamond",
     "is_verified": false,
     "isVerified": false,
-    "contactName": "Nguyễn Văn Tuấn",
-    "contactPhone": "0908 123 456"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-024",
@@ -2022,12 +2068,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-01",
-      "name": "Nguyễn Văn Tuấn",
-      "title": "Giám Đốc Kinh Doanh BĐS",
-      "phone": "0908 123 456",
-      "zalo": "0908 123 456",
-      "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-15T13:00:00Z",
@@ -2039,8 +2086,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_gold",
     "is_verified": true,
     "isVerified": true,
-    "contactName": "Nguyễn Văn Tuấn",
-    "contactPhone": "0908 123 456"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-025",
@@ -2095,12 +2143,13 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "user-01",
-      "name": "Lê Minh Tâm",
-      "title": "Khách hàng cá nhân",
-      "phone": "0912 345 678",
-      "zalo": "0912 345 678",
-      "avatar": "/avatars/ai-preset-1.jpg",
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
+      "role": "broker",
       "isVerified": true
     },
     "publishedAt": "2026-10-15T14:00:00Z",
@@ -2112,8 +2161,9 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "standard_fifo",
     "is_verified": false,
     "isVerified": false,
-    "contactName": "Lê Minh Tâm",
-    "contactPhone": "0912 345 678"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   },
   {
     "id": "BDS-026",
@@ -2175,13 +2225,14 @@ export const INITIAL_PROPERTIES = [
       }
     ],
     "author": {
-      "id": "broker-02",
-      "name": "Nguyễn Văn Tuấn",
-      "phone": "0908 123 456",
-      "isVerified": true,
+      "id": "user-1792645437733-545",
+      "name": "TRAN VAN VU",
+      "phone": "0905467138",
+      "zalo": "0905467138",
+      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
-      "avatar": "/avatars/ai-preset-3.jpg",
-      "title": "Môi giới BĐS Chuyên Nghiệp"
+      "isVerified": true
     },
     "publishedAt": "2026-10-25T08:00:00.000Z",
     "viewsCount": 142,
@@ -2192,291 +2243,96 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": 2,
     "is_verified": true,
     "isVerified": true,
-    "contactName": "Nguyễn Văn Tuấn",
-    "contactPhone": "0908 123 456"
+    "contactName": "TRAN VAN VU",
+    "contactPhone": "0905467138",
+    "updatedAt": "2026-10-27T23:06:16.691Z"
   }
 ];
 
 export const MOCK_USERS = [
   {
-    "id": "user-01",
-    "name": "Lê Minh Tâm",
-    "email": "minhtam.le@gmail.com",
-    "password": "123456",
-    "passwordHash": "\\.94N0oTNi",
-    "role": "user",
-    "roleName": "Khách hàng cá nhân",
-    "walletBalance": 850000,
-    "phone": "0912 345 678",
-    "avatar": "/avatars/ai-preset-1.jpg",
+    "id": "user-1792645437733-545",
+    "name": "TRAN VAN VU",
+    "email": "tranvanvu.dev@gmail.com",
+    "role": "broker",
+    "roleName": "Môi Giới Chuyên Nghiệp",
+    "walletBalance": 2966000,
+    "phone": "0905467138",
+    "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+    "membership": {
+      "packageId": "member-standard",
+      "packageName": "Gói Hội Viên Tiêu Chuẩn",
+      "shortName": "GÓI TIÊU CHUẨN",
+      "badge": "BÁN CHẠY NHẤT ★",
+      "badgeColor": "bg-amber-500 text-slate-950 font-black",
+      "status": "active",
+      "durationDays": 30,
+      "isAutoRenew": true
+    },
+    "vouchers": {
+      "normalBump": 10,
+      "vipPublish": 2,
+      "normalPublish": 15
+    },
     "isVerified": true,
-    "membership": null,
-    "vouchers": {
-      "normalPublish": 2,
-      "normalBump": 2,
-      "vipPublish": 0
-    }
-  },
-  {
-    "id": "user-02",
-    "name": "Hoàng Anh Tuấn",
-    "email": "anhtuan.hoang@gmail.com",
-    "password": "123456",
-    "passwordHash": "\\.94N0oTNi",
-    "role": "user",
-    "roleName": "Chính chủ ký gửi",
-    "walletBalance": 1200000,
-    "phone": "0988 776 655",
-    "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&q=80",
-    "isVerified": false,
-    "membership": null,
-    "vouchers": {
-      "normalPublish": 1,
-      "normalBump": 1,
-      "vipPublish": 0
-    }
-  },
-  {
-    "id": "user-03",
-    "name": "Nguyễn Thảo My",
-    "email": "thaomy.nguyen@gmail.com",
-    "password": "123456",
-    "passwordHash": "\\.94N0oTNi",
-    "role": "user",
-    "roleName": "Nhà đầu tư cá nhân",
-    "walletBalance": 2500000,
-    "phone": "0977 443 322",
-    "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=256&q=80",
-    "isVerified": true,
-    "membership": null,
-    "vouchers": {
-      "normalPublish": 3,
-      "normalBump": 5,
-      "vipPublish": 1
-    }
+    "status": "active",
+    "isDeleted": false
   },
   {
     "id": "broker-01",
     "name": "Nguyễn Văn Tuấn",
-    "email": "tuan.datbien@datbiendanang.vn",
-    "password": "123456",
-    "passwordHash": "\\.94N0oTNi",
+    "email": "tuan.batdongsan@datbiendanang.vn",
     "role": "broker",
-    "roleName": "Giám Đốc Kinh Doanh BĐS",
+    "roleName": "Môi Giới",
     "walletBalance": 4250000,
     "phone": "0908 123 456",
-    "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=256&q=80",
-    "isVerified": true,
-    "activeListingsCount": 8,
+    "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
     "membership": {
       "packageId": "member-standard",
       "packageName": "Hội Viên Tiêu Chuẩn",
       "shortName": "GÓI TIÊU CHUẨN",
-      "billingMonths": 3,
-      "durationDays": 90,
-      "subscribedAt": "2026-10-01T00:00:00Z",
-      "expiresAt": "2027-01-01T00:00:00Z",
-      "status": "active",
-      "isAutoRenew": false,
       "badge": "HỘI VIÊN TIÊU CHUẨN ★",
-      "badgeColor": "bg-amber-500 text-slate-950 font-black"
-    },
-    "vouchers": {
-      "normalPublish": 26,
-      "normalBump": 28,
-      "vipPublish": 1
-    }
-  },
-  {
-    "id": "broker-02",
-    "name": "Trần Thị Thu Hà",
-    "email": "thuha.sun@gmail.com",
-    "password": "123456",
-    "passwordHash": "\\.94N0oTNi",
-    "role": "broker",
-    "roleName": "Chuyên Viên Tư Vấn Sun Group",
-    "walletBalance": 6800000,
-    "phone": "0912 888 999",
-    "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
-    "isVerified": true,
-    "activeListingsCount": 6,
-    "membership": {
-      "packageId": "member-premium",
-      "packageName": "Hội Viên Cao Cấp VIP",
-      "shortName": "GÓI CAO CẤP",
-      "billingMonths": 6,
-      "durationDays": 180,
-      "subscribedAt": "2026-09-15T00:00:00Z",
-      "expiresAt": "2027-03-15T00:00:00Z",
+      "badgeColor": "bg-amber-500 text-slate-950 font-black",
       "status": "active",
-      "isAutoRenew": true,
-      "badge": "HỘI VIÊN CAO CẤP",
-      "badgeColor": "bg-gradient-to-r from-red-600 to-purple-600 text-white font-black"
-    },
-    "vouchers": {
-      "normalPublish": 35,
-      "normalBump": 40,
-      "vipPublish": 2
-    }
-  },
-  {
-    "id": "broker-03",
-    "name": "Lê Hoàng Nam",
-    "email": "nam.bds@gmail.com",
-    "password": "123456",
-    "passwordHash": "\\.94N0oTNi",
-    "role": "broker",
-    "roleName": "Chuyên Gia BĐS Cao Cấp",
-    "walletBalance": 3100000,
-    "phone": "0905 678 910",
-    "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=256&q=80",
-    "isVerified": true,
-    "activeListingsCount": 5,
-    "membership": {
-      "packageId": "member-standard",
-      "packageName": "Hội Viên Tiêu Chuẩn",
-      "shortName": "GÓI TIÊU CHUẨN",
-      "billingMonths": 1,
       "durationDays": 30,
-      "subscribedAt": "2026-10-10T00:00:00Z",
-      "expiresAt": "2026-11-10T00:00:00Z",
-      "status": "active",
-      "isAutoRenew": false,
-      "badge": "HỘI VIÊN TIÊU CHUẨN ★",
-      "badgeColor": "bg-amber-500 text-slate-950 font-black"
+      "isAutoRenew": false
     },
     "vouchers": {
-      "normalPublish": 12,
-      "normalBump": 15,
-      "vipPublish": 1
-    }
-  },
-  {
-    "id": "broker-04",
-    "name": "Võ Minh Quân",
-    "email": "quan.vominh@gmail.com",
-    "password": "123456",
-    "passwordHash": "\\.94N0oTNi",
-    "role": "broker",
-    "roleName": "Môi Giới Chuyên Nghiệp",
-    "walletBalance": 2950000,
-    "phone": "0935 112 233",
-    "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=256&q=80",
+      "normalBump": 28,
+      "vipPublish": 1,
+      "normalPublish": 26
+    },
     "isVerified": true,
-    "activeListingsCount": 7,
-    "membership": {
-      "packageId": "member-basic",
-      "packageName": "Gói Hội Viên Cơ Bản",
-      "shortName": "GÓI CƠ BẢN",
-      "billingMonths": 3,
-      "durationDays": 90,
-      "subscribedAt": "2026-10-05T00:00:00Z",
-      "expiresAt": "2027-01-05T00:00:00Z",
-      "status": "active",
-      "isAutoRenew": false,
-      "badge": "HỘI VIÊN CƠ BẢN",
-      "badgeColor": "bg-emerald-600 text-white font-bold"
-    },
-    "vouchers": {
-      "normalPublish": 10,
-      "normalBump": 10,
-      "vipPublish": 0
-    }
-  },
-  {
-    "id": "broker-05",
-    "name": "Phạm Hải Đăng",
-    "email": "dang.haidang@gmail.com",
-    "password": "123456",
-    "passwordHash": "\\.94N0oTNi",
-    "role": "broker",
-    "roleName": "Trưởng Phòng Kinh Doanh",
-    "walletBalance": 5100000,
-    "phone": "0903 556 778",
-    "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=256&q=80",
-    "isVerified": true,
-    "activeListingsCount": 4,
-    "membership": {
-      "packageId": "member-standard",
-      "packageName": "Hội Viên Tiêu Chuẩn",
-      "shortName": "GÓI TIÊU CHUẨN",
-      "billingMonths": 6,
-      "durationDays": 180,
-      "subscribedAt": "2026-08-01T00:00:00Z",
-      "expiresAt": "2027-02-01T00:00:00Z",
-      "status": "active",
-      "isAutoRenew": true,
-      "badge": "HỘI VIÊN TIÊU CHUẨN ★",
-      "badgeColor": "bg-amber-500 text-slate-950 font-black"
-    },
-    "vouchers": {
-      "normalPublish": 18,
-      "normalBump": 22,
-      "vipPublish": 1
-    }
-  },
-  {
-    "id": "broker-06",
-    "name": "Đoàn Thị Mai",
-    "email": "mai.doan@gmail.com",
-    "password": "123456",
-    "passwordHash": "\\.94N0oTNi",
-    "role": "broker",
-    "roleName": "Chuyên Viên BĐS Nghỉ Dưỡng",
-    "walletBalance": 4600000,
-    "phone": "0918 334 455",
-    "avatar": "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=256&q=80",
-    "isVerified": true,
-    "activeListingsCount": 5,
-    "membership": {
-      "packageId": "member-premium",
-      "packageName": "Hội Viên Cao Cấp VIP",
-      "shortName": "GÓI CAO CẤP",
-      "billingMonths": 3,
-      "durationDays": 90,
-      "subscribedAt": "2026-10-01T00:00:00Z",
-      "expiresAt": "2027-01-01T00:00:00Z",
-      "status": "active",
-      "isAutoRenew": false,
-      "badge": "HỘI VIÊN CAO CẤP",
-      "badgeColor": "bg-purple-600 text-white font-black"
-    },
-    "vouchers": {
-      "normalPublish": 45,
-      "normalBump": 45,
-      "vipPublish": 3
-    }
+    "status": "active",
+    "isDeleted": false
   },
   {
     "id": "admin-01",
     "name": "Trần Vũ RB",
     "email": "tranvu.review@gmail.com",
-    "password": "123456",
-    "passwordHash": "\\.94N0oTNi",
     "role": "admin",
     "roleName": "Tổng Quản Trị Viên (CMS Admin)",
-    "walletBalance": 99999999,
-    "phone": "0898 246 607",
-    "avatar": "/avatars/ai-preset-2.jpg",
-    "isVerified": true,
+    "walletBalance": 998673000,
+    "phone": "0898 256 607",
+    "avatar": "/avatars/ai-preset-1.jpg",
     "membership": {
-      "packageId": "member-premium",
-      "packageName": "Hội Viên Cao Cấp VIP",
-      "shortName": "GÓI CAO CẤP",
-      "billingMonths": 12,
-      "durationDays": 365,
-      "subscribedAt": "2026-01-01T00:00:00Z",
-      "expiresAt": "2030-01-01T00:00:00Z",
+      "packageId": "member-standard",
+      "packageName": "Gói Hội Viên Tiêu Chuẩn",
+      "shortName": "GÓI TIÊU CHUẨN",
+      "badge": "BÁN CHẠY NHẤT ★",
+      "badgeColor": "bg-amber-500 text-slate-950 font-black",
       "status": "active",
-      "isAutoRenew": false,
-      "badge": "HỘI VIÊN CAO CẤP",
-      "badgeColor": "bg-purple-600 text-white font-black"
+      "durationDays": 30,
+      "isAutoRenew": false
     },
     "vouchers": {
-      "normalPublish": 99,
-      "normalBump": 99,
-      "vipPublish": 99
-    }
+      "normalBump": 20,
+      "vipPublish": 1,
+      "normalPublish": 20
+    },
+    "isVerified": true,
+    "status": "active",
+    "isDeleted": false
   }
 ];
 

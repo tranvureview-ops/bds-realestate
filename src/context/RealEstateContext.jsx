@@ -2734,49 +2734,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return null;
   }, [properties, showToast]);
 
-  // Phân bổ ngẫu nhiên tác giả / người đăng bài viết cho các thành viên hiện có
-  const randomizePropertiesAuthors = useCallback(async () => {
-    const activeUsers = (usersList || []).filter(u => !u.isDeleted && u.status !== 'trash');
-    if (!activeUsers || activeUsers.length === 0) {
-      showToast('Không tìm thấy danh sách thành viên hợp lệ để phân bổ!', 'warning');
-      return;
-    }
-
-    let updatedProps = [];
-    setProperties(prev => {
-      updatedProps = prev.map(p => {
-        const randUser = activeUsers[Math.floor(Math.random() * activeUsers.length)];
-        return {
-          ...p,
-          author: {
-            id: randUser.id,
-            name: randUser.name,
-            title: randUser.roleName || (randUser.role === 'broker' ? 'Môi Giới Chuyên Nghiệp' : 'Chính Chủ Ký Gửi'),
-            phone: randUser.phone,
-            zalo: randUser.phone ? randUser.phone.replace(/\s+/g, '') : '0908123456',
-            avatar: randUser.avatar || '/avatars/ai-preset-2.jpg',
-            isVerified: Boolean(randUser.isVerified)
-          },
-          contactName: randUser.name,
-          contactPhone: randUser.phone,
-          updatedAt: new Date().toISOString()
-        };
-      });
-      return updatedProps;
-    });
-
-    if (typeof window !== 'undefined' && updatedProps.length > 0) {
-      fetch('/api/db-sync', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ bds_properties: updatedProps })
-      }).catch(err => console.warn('Lỗi db-sync khi phân bổ ngẫu nhiên user:', err));
-    }
-
-    showToast(`🎲 Đã phân bổ ngẫu nhiên toàn bộ bài viết cho ${activeUsers.length} user thành công!`, 'success');
-    return updatedProps;
-  }, [usersList, showToast]);
-
   // Admin moderation: Reject
   const rejectProperty = async (propertyId, reason = 'Vi phạm quy chế') => {
     let rejectedTarget = null;
@@ -4506,7 +4463,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         publishPropertyNow,
         verifyProperty,
         submitPropertyVerification,
-        randomizePropertiesAuthors,
         rejectProperty,
         deleteProperty,
         moveToTrash,

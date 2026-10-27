@@ -72,7 +72,6 @@ export default function AdminBackendPage() {
     approveProperty, 
     rejectProperty, 
     verifyProperty,
-    randomizePropertiesAuthors,
     deleteProperty, 
     moveToTrash,
     restoreProperty,
@@ -3996,21 +3995,6 @@ export default function AdminBackendPage() {
                         <span>Đặt lại</span>
                       </button>
                     )}
-
-                    {/* Nút Phân Bổ Ngẫu Nhiên Toàn Bộ Bài Viết Cho Các User Hiện Có */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (window.confirm('Bạn có chắc chắn muốn PHÂN BỔ NGẪU NHIÊN toàn bộ bài viết bất động sản cho các thành viên/user hiện có trong hệ thống không?')) {
-                          randomizePropertiesAuthors();
-                        }
-                      }}
-                      className="px-3 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer ml-auto"
-                      title="Gán ngẫu nhiên người đăng của tất cả bài viết cho các tài khoản thành viên hiện có"
-                    >
-                      <i className="fa-solid fa-dice text-amber-300"></i>
-                      <span>Phân Bổ User Ngẫu Nhiên</span>
-                    </button>
                   </div>
                 </div>
               </div>
