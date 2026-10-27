@@ -90,7 +90,7 @@ export default function MembershipPage() {
 
   // Lấy đơn giá giảm trừ voucher từ gói đang dùng hoặc cấu hình chung 3 gói
   const activePackage = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId) || membershipPackages?.[0];
-  const normalPkg = (activeVipPackages || []).find(p => p.id === 'normal');
+  const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
   const defaultNormalPrice = Number(normalPkg?.rates?.[60] !== undefined && normalPkg.rates[60] !== 0 ? normalPkg.rates[60] : (normalPkg?.publishPrice ?? 5000));
   const commonPublishDiscount = (activePackage?.vouchersPerCycle?.normalPublishDiscount && activePackage?.vouchersPerCycle?.normalPublishDiscount !== 35000 && activePackage?.vouchersPerCycle?.normalPublishDiscount !== 0)
     ? Number(activePackage.vouchersPerCycle.normalPublishDiscount)
