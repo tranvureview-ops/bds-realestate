@@ -188,18 +188,6 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
             <i className={`fa-solid ${isSavingHeader ? 'fa-spinner fa-spin' : 'fa-floppy-disk'}`}></i>
             <span>{isSavingHeader ? 'Đang Lưu...' : 'Lưu Header'}</span>
           </button>
-
-          {onSwitchToMenu && (
-            <button
-              type="button"
-              onClick={onSwitchToMenu}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-xs border border-slate-700 transition flex items-center gap-1.5"
-              title="Chuyển sang phân hệ cấu hình các nút menu"
-            >
-              <i className="fa-solid fa-bars-staggered"></i>
-              <span>Cấu Hình Nút Menu ➔</span>
-            </button>
-          )}
         </div>
       </div>
 
