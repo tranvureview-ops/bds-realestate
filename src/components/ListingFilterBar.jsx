@@ -1,16 +1,41 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { PROPERTY_TYPES } from '../data/mockData';
+import { VIETNAM_ADMINISTRATIVE_DATA, DANANG_MERGERS_MAP } from '../data/vietnamAdministrativeData';
 
-const DA_NANG_DISTRICTS = [
-  'Quận Hải Châu',
-  'Quận Thanh Khê',
-  'Quận Sơn Trà',
-  'Quận Ngũ Hành Sơn',
-  'Quận Liên Chiểu',
-  'Quận Cẩm Lệ',
-  'Huyện Hòa Vang'
+const CITIES = [
+  'Đà Nẵng',
+  'Hà Nội',
+  'TP. Hồ Chí Minh',
+  'Quảng Nam',
+  'Khánh Hòa'
+];
+
+const SALE_PRICE_PRESETS = [
+  { value: 'all', label: 'Tất cả khoảng giá', min: null, max: null },
+  { value: 'under-2b', label: 'Dưới 2 tỷ', min: null, max: 2000000000 },
+  { value: '2b-5b', label: '2 - 5 tỷ', min: 2000000000, max: 5000000000 },
+  { value: '5b-10b', label: '5 - 10 tỷ', min: 5000000000, max: 10000000000 },
+  { value: '10b-30b', label: '10 - 30 tỷ', min: 10000000000, max: 30000000000 },
+  { value: 'over-30b', label: 'Trên 30 tỷ', min: 30000000000, max: null }
+];
+
+const RENT_PRICE_PRESETS = [
+  { value: 'all', label: 'Tất cả khoảng giá', min: null, max: null },
+  { value: 'under-5m', label: 'Dưới 5 triệu', min: null, max: 5000000 },
+  { value: '5m-10m', label: '5 - 10 triệu', min: 5000000, max: 10000000 },
+  { value: '10m-20m', label: '10 - 20 triệu', min: 10000000, max: 20000000 },
+  { value: '20m-40m', label: '20 - 40 triệu', min: 20000000, max: 40000000 },
+  { value: 'over-40m', label: 'Trên 40 triệu', min: 40000000, max: null }
+];
+
+const AREA_PRESETS = [
+  { value: 'all', label: 'Tất cả diện tích', min: null, max: null },
+  { value: 'under-50', label: 'Dưới 50 m²', min: null, max: 50 },
+  { value: '50-100', label: '50 - 100 m²', min: 50, max: 100 },
+  { value: '100-200', label: '100 - 200 m²', min: 100, max: 200 },
+  { value: 'over-200', label: 'Trên 200 m²', min: 200, max: null }
 ];
 
 const DIRECTIONS = [
@@ -35,53 +60,39 @@ export default function ListingFilterBar({
   const [keywordInput, setKeywordInput] = useState(filters?.keyword || '');
   const [openDropdown, setOpenDropdown] = useState(null); // 'type' | 'price' | 'area' | null
   const [showAdvancedModal, setShowAdvancedModal] = useState(false);
-  const [draftAdvanced, setDraftAdvanced] = useState({
-    district: '',
-    bedroom: 'all',
-    direction: 'all',
-    hasVR360: false
+  const [modalScreen, setModalScreen] = useState('main'); // 'main' | 'location' | 'price' | 'area' | 'type'
+
+  // Draft filters state for modal - only applied when clicking "Xem kết quả"
+  const [draftFilters, setDraftFilters] = useState({
+    demand: filters?.demand || demand || 'sale',
+    propertyType: filters?.propertyType || 'all',
+    city: filters?.city || 'Đà Nẵng',
+    district: filters?.district || '',
+    ward: filters?.ward || '',
+    street: filters?.street || '',
+    project: filters?.project || '',
+    useMergedAddress: false,
+    priceRange: filters?.priceRange || 'all',
+    minPrice: filters?.minPrice ?? null,
+    maxPrice: filters?.maxPrice ?? null,
+    areaRange: filters?.areaRange || 'all',
+    minArea: filters?.minArea ?? null,
+    maxArea: filters?.maxArea ?? null,
+    bedroom: filters?.bedroom || 'all',
+    direction: filters?.direction || 'all',
+    hasVR360: Boolean(filters?.hasVR360),
+    onlyVerified: Boolean(filters?.onlyVerified),
+    onlyProAgent: Boolean(filters?.onlyProAgent),
   });
-
-  const handleOpenAdvancedModal = () => {
-    setDraftAdvanced({
-      district: filters?.district || '',
-      bedroom: filters?.bedroom || 'all',
-      direction: filters?.direction || 'all',
-      hasVR360: Boolean(filters?.hasVR360)
-    });
-    setShowAdvancedModal(true);
-  };
-
-  const handleApplyAdvancedFilters = () => {
-    if (setFilters) {
-      setFilters(prev => ({
-        ...prev,
-        district: draftAdvanced.district || '',
-        bedroom: draftAdvanced.bedroom || 'all',
-        direction: draftAdvanced.direction || 'all',
-        hasVR360: Boolean(draftAdvanced.hasVR360)
-      }));
-    }
-    setShowAdvancedModal(false);
-  };
-
-  const handleResetAdvancedDraft = () => {
-    setDraftAdvanced({
-      district: '',
-      bedroom: 'all',
-      direction: 'all',
-      hasVR360: false
-    });
-  };
 
   const containerRef = useRef(null);
 
-  // Đồng bộ keywordInput khi filters.keyword thay đổi từ URL hoặc chip
+  // Sync keywordInput with filters.keyword
   useEffect(() => {
     setKeywordInput(filters?.keyword || '');
   }, [filters?.keyword]);
 
-  // Click outside to close dropdowns
+  // Click outside to close quick dropdowns
   useEffect(() => {
     const handleOutsideClick = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
@@ -92,6 +103,88 @@ export default function ListingFilterBar({
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []);
 
+  // Open modal and load current active filters into draft
+  const handleOpenAdvancedModal = () => {
+    setDraftFilters({
+      demand: filters?.demand || demand || 'sale',
+      propertyType: filters?.propertyType || 'all',
+      city: filters?.city || 'Đà Nẵng',
+      district: filters?.district || '',
+      ward: filters?.ward || '',
+      street: filters?.street || '',
+      project: filters?.project || '',
+      useMergedAddress: false,
+      priceRange: filters?.priceRange || 'all',
+      minPrice: filters?.minPrice ?? null,
+      maxPrice: filters?.maxPrice ?? null,
+      areaRange: filters?.areaRange || 'all',
+      minArea: filters?.minArea ?? null,
+      maxArea: filters?.maxArea ?? null,
+      bedroom: filters?.bedroom || 'all',
+      direction: filters?.direction || 'all',
+      hasVR360: Boolean(filters?.hasVR360),
+      onlyVerified: Boolean(filters?.onlyVerified),
+      onlyProAgent: Boolean(filters?.onlyProAgent),
+    });
+    setModalScreen('main');
+    setShowAdvancedModal(true);
+  };
+
+  // Apply draft filters when clicking "Xem kết quả"
+  const handleApplyAllDraftFilters = () => {
+    if (setFilters) {
+      setFilters(prev => ({
+        ...prev,
+        demand: draftFilters.demand,
+        propertyType: draftFilters.propertyType,
+        city: draftFilters.city,
+        district: draftFilters.district,
+        ward: draftFilters.ward,
+        street: draftFilters.street,
+        project: draftFilters.project,
+        priceRange: draftFilters.priceRange,
+        minPrice: draftFilters.minPrice,
+        maxPrice: draftFilters.maxPrice,
+        areaRange: draftFilters.areaRange,
+        minArea: draftFilters.minArea,
+        maxArea: draftFilters.maxArea,
+        bedroom: draftFilters.bedroom,
+        direction: draftFilters.direction,
+        hasVR360: draftFilters.hasVR360,
+        onlyVerified: draftFilters.onlyVerified,
+        onlyProAgent: draftFilters.onlyProAgent
+      }));
+    }
+    setShowAdvancedModal(false);
+  };
+
+  // Reset main draft filters
+  const handleResetMainDraft = () => {
+    setDraftFilters(prev => ({
+      ...prev,
+      demand: demand || 'sale',
+      propertyType: 'all',
+      city: 'Đà Nẵng',
+      district: '',
+      ward: '',
+      street: '',
+      project: '',
+      useMergedAddress: false,
+      priceRange: 'all',
+      minPrice: null,
+      maxPrice: null,
+      areaRange: 'all',
+      minArea: null,
+      maxArea: null,
+      bedroom: 'all',
+      direction: 'all',
+      hasVR360: false,
+      onlyVerified: false,
+      onlyProAgent: false,
+    }));
+  };
+
+  // Search input submission
   const handleApplySearch = (e) => {
     if (e?.preventDefault) e.preventDefault();
     if (!setFilters) return;
@@ -101,6 +194,7 @@ export default function ListingFilterBar({
     }));
   };
 
+  // Quick bar toggles
   const handleToggleVerified = () => {
     if (!setFilters) return;
     setFilters(prev => ({
@@ -148,54 +242,131 @@ export default function ListingFilterBar({
     setOpenDropdown(null);
   };
 
-  // Nhãn hiển thị cho Loại BĐS
-  const getPropertyTypeLabel = () => {
-    if (!filters.propertyType || filters.propertyType === 'all') return 'Loại nhà đất';
-    const found = PROPERTY_TYPES.find(t => t.id === filters.propertyType);
-    return found ? found.name : filters.propertyType;
+  // Labels for quick filter buttons
+  const getPropertyTypeLabel = (typeId = filters?.propertyType) => {
+    if (!typeId || typeId === 'all') return 'Loại nhà đất';
+    const found = PROPERTY_TYPES.find(t => t.id === typeId);
+    return found ? found.name : typeId;
   };
 
-  // Nhãn hiển thị cho Khoảng Giá
-  const getPriceRangeLabel = () => {
-    if (!filters.priceRange || filters.priceRange === 'all') return 'Khoảng giá';
-    if (demand === 'rent') {
-      switch (filters.priceRange) {
+  const getPriceRangeLabel = (rangeKey = filters?.priceRange, currentDemand = demand) => {
+    if (!rangeKey || rangeKey === 'all') return 'Khoảng giá';
+    if (currentDemand === 'rent') {
+      switch (rangeKey) {
         case 'under-5m': return '< 5 triệu';
         case '5m-10m': return '5 - 10 triệu';
         case '10m-20m': return '10 - 20 triệu';
         case '20m-40m': return '20 - 40 triệu';
         case 'over-40m': return '> 40 triệu';
-        default: return filters.priceRange;
+        default: return rangeKey;
       }
     }
-    switch (filters.priceRange) {
+    switch (rangeKey) {
       case 'under-2b': return '< 2 tỷ';
       case '2b-5b': return '2 - 5 tỷ';
       case '5b-10b': return '5 - 10 tỷ';
       case '10b-30b': return '10 - 30 tỷ';
       case 'over-30b': return '> 30 tỷ';
-      default: return filters.priceRange;
+      default: return rangeKey;
     }
   };
 
-  // Nhãn hiển thị cho Diện Tích
-  const getAreaRangeLabel = () => {
-    if (!filters.areaRange || filters.areaRange === 'all') return 'Diện tích';
-    switch (filters.areaRange) {
+  const getAreaRangeLabel = (rangeKey = filters?.areaRange) => {
+    if (!rangeKey || rangeKey === 'all') return 'Diện tích';
+    switch (rangeKey) {
       case 'under-50': return '< 50 m²';
       case '50-100': return '50 - 100 m²';
       case '100-200': return '100 - 200 m²';
       case 'over-200': return '> 200 m²';
-      default: return `${filters.areaRange} m²`;
+      default: return `${rangeKey} m²`;
     }
   };
 
-  // Số lượng tiêu chí lọc nâng cao đang active
+  // Summary labels for Modal rows (Screenshot 1)
+  const getLocationSummary = () => {
+    const parts = [];
+    if (draftFilters.project) parts.push(draftFilters.project);
+    if (draftFilters.street) parts.push(draftFilters.street);
+    if (draftFilters.ward) parts.push(draftFilters.ward);
+    if (draftFilters.district) parts.push(draftFilters.district);
+    if (parts.length > 0) return parts.join(', ');
+    if (draftFilters.city && draftFilters.city !== 'Toàn quốc') return draftFilters.city;
+    return 'Trên toàn quốc';
+  };
+
+  const getPriceSummary = () => {
+    if (!draftFilters.priceRange || draftFilters.priceRange === 'all') {
+      if (draftFilters.minPrice || draftFilters.maxPrice) {
+        const unit = draftFilters.demand === 'rent' ? 'triệu' : 'tỷ';
+        const div = draftFilters.demand === 'rent' ? 1e6 : 1e9;
+        const minStr = draftFilters.minPrice ? `${draftFilters.minPrice / div}` : '0';
+        const maxStr = draftFilters.maxPrice ? `${draftFilters.maxPrice / div}` : 'Không giới hạn';
+        return `${minStr} - ${maxStr} ${unit}`;
+      }
+      return 'Tất cả';
+    }
+    return getPriceRangeLabel(draftFilters.priceRange, draftFilters.demand);
+  };
+
+  const getAreaSummary = () => {
+    if (!draftFilters.areaRange || draftFilters.areaRange === 'all') {
+      if (draftFilters.minArea || draftFilters.maxArea) {
+        return `${draftFilters.minArea || 0} - ${draftFilters.maxArea || 'Không giới hạn'} m²`;
+      }
+      return 'Tất cả';
+    }
+    return getAreaRangeLabel(draftFilters.areaRange);
+  };
+
+  // Location data calculations for Screenshot 2
+  const danangData = useMemo(() => {
+    return VIETNAM_ADMINISTRATIVE_DATA.find(c => c.name === 'Đà Nẵng') || VIETNAM_ADMINISTRATIVE_DATA[0];
+  }, []);
+
+  const districtList = useMemo(() => {
+    if (draftFilters.city === 'Đà Nẵng' || !draftFilters.city) {
+      return danangData?.districts || [];
+    }
+    return [];
+  }, [draftFilters.city, danangData]);
+
+  const currentDistrictObj = useMemo(() => {
+    if (!draftFilters.district) return null;
+    return districtList.find(d => d.name === draftFilters.district) || null;
+  }, [draftFilters.district, districtList]);
+
+  const wardList = useMemo(() => {
+    if (draftFilters.useMergedAddress) {
+      const filtered = draftFilters.district
+        ? DANANG_MERGERS_MAP.filter(m => m.newDistrict === draftFilters.district)
+        : DANANG_MERGERS_MAP;
+      return Array.from(new Set(filtered.map(m => m.newWard)));
+    }
+    if (currentDistrictObj?.wards) {
+      return currentDistrictObj.wards;
+    }
+    return [];
+  }, [draftFilters.useMergedAddress, draftFilters.district, currentDistrictObj]);
+
+  const streetList = useMemo(() => {
+    return currentDistrictObj?.streets || [];
+  }, [currentDistrictObj]);
+
+  const projectList = useMemo(() => {
+    return currentDistrictObj?.projects || [];
+  }, [currentDistrictObj]);
+
+  // Count active advanced criteria
   const advancedCount = [
     Boolean(filters.district),
+    Boolean(filters.ward),
+    Boolean(filters.street),
+    Boolean(filters.project),
     Boolean(filters.bedroom && filters.bedroom !== 'all'),
     Boolean(filters.direction && filters.direction !== 'all'),
-    Boolean(filters.hasVR360)
+    Boolean(filters.hasVR360),
+    Boolean(filters.onlyVerified),
+    Boolean(filters.onlyProAgent)
   ].filter(Boolean).length;
 
   return (
@@ -241,7 +412,7 @@ export default function ListingFilterBar({
 
         {/* ROW 2: Horizontal Quick Filter Dropdowns & Toggles */}
         <div className="flex items-center gap-2 sm:gap-2.5 mt-3 flex-wrap text-xs sm:text-sm">
-          {/* 1. Nút "Lọc" (Mở bộ lọc nâng cao) */}
+          {/* 1. Nút "Lọc" (Mở bộ lọc phong cách Batdongsan) */}
           <button
             type="button"
             onClick={handleOpenAdvancedModal}
@@ -358,43 +529,17 @@ export default function ListingFilterBar({
                   Chọn Khoảng Giá
                 </div>
                 <div className="max-h-72 overflow-y-auto">
-                  <button
-                    type="button"
-                    onClick={() => handleSelectPriceRange('all')}
-                    className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-slate-50 transition ${
-                      (!filters.priceRange || filters.priceRange === 'all') ? 'text-red-600 font-bold bg-red-50/40' : 'text-slate-700'
-                    }`}
-                  >
-                    <span>Tất cả mức giá</span>
-                    {(!filters.priceRange || filters.priceRange === 'all') && <i className="fa-solid fa-check text-xs text-red-600"></i>}
-                  </button>
-
-                  {(demand === 'rent'
-                    ? [
-                        { key: 'under-5m', label: 'Dưới 5 triệu' },
-                        { key: '5m-10m', label: '5 - 10 triệu' },
-                        { key: '10m-20m', label: '10 - 20 triệu' },
-                        { key: '20m-40m', label: '20 - 40 triệu' },
-                        { key: 'over-40m', label: 'Trên 40 triệu' }
-                      ]
-                    : [
-                        { key: 'under-2b', label: 'Dưới 2 tỷ' },
-                        { key: '2b-5b', label: '2 - 5 tỷ' },
-                        { key: '5b-10b', label: '5 - 10 tỷ' },
-                        { key: '10b-30b', label: '10 - 30 tỷ' },
-                        { key: 'over-30b', label: 'Trên 30 tỷ' }
-                      ]
-                  ).map(item => (
+                  {(demand === 'rent' ? RENT_PRICE_PRESETS : SALE_PRICE_PRESETS).map(item => (
                     <button
-                      key={item.key}
+                      key={item.value}
                       type="button"
-                      onClick={() => handleSelectPriceRange(item.key)}
+                      onClick={() => handleSelectPriceRange(item.value, item.min, item.max)}
                       className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-slate-50 transition ${
-                        filters.priceRange === item.key ? 'text-red-600 font-bold bg-red-50/40' : 'text-slate-700'
+                        (filters.priceRange || 'all') === item.value ? 'text-red-600 font-bold bg-red-50/40' : 'text-slate-700'
                       }`}
                     >
                       <span>{item.label}</span>
-                      {filters.priceRange === item.key && <i className="fa-solid fa-check text-xs text-red-600"></i>}
+                      {(filters.priceRange || 'all') === item.value && <i className="fa-solid fa-check text-xs text-red-600"></i>}
                     </button>
                   ))}
                 </div>
@@ -419,38 +564,22 @@ export default function ListingFilterBar({
 
             {/* Menu Dropdown Diện tích */}
             {openDropdown === 'area' && (
-              <div className="absolute top-full left-0 mt-1.5 w-48 bg-white rounded-xl border border-slate-200 shadow-xl z-50 py-1.5 animate-fadeIn">
+              <div className="absolute top-full left-0 mt-1.5 w-52 bg-white rounded-xl border border-slate-200 shadow-xl z-50 py-1.5 animate-fadeIn">
                 <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
                   Chọn Diện Tích
                 </div>
                 <div className="max-h-72 overflow-y-auto">
-                  <button
-                    type="button"
-                    onClick={() => handleSelectAreaRange('all')}
-                    className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-slate-50 transition ${
-                      (!filters.areaRange || filters.areaRange === 'all') ? 'text-red-600 font-bold bg-red-50/40' : 'text-slate-700'
-                    }`}
-                  >
-                    <span>Tất cả diện tích</span>
-                    {(!filters.areaRange || filters.areaRange === 'all') && <i className="fa-solid fa-check text-xs text-red-600"></i>}
-                  </button>
-
-                  {[
-                    { key: 'under-50', label: 'Dưới 50 m²' },
-                    { key: '50-100', label: '50 - 100 m²' },
-                    { key: '100-200', label: '100 - 200 m²' },
-                    { key: 'over-200', label: 'Trên 200 m²' }
-                  ].map(item => (
+                  {AREA_PRESETS.map(item => (
                     <button
-                      key={item.key}
+                      key={item.value}
                       type="button"
-                      onClick={() => handleSelectAreaRange(item.key)}
+                      onClick={() => handleSelectAreaRange(item.value, item.min, item.max)}
                       className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-slate-50 transition ${
-                        filters.areaRange === item.key ? 'text-red-600 font-bold bg-red-50/40' : 'text-slate-700'
+                        (filters.areaRange || 'all') === item.value ? 'text-red-600 font-bold bg-red-50/40' : 'text-slate-700'
                       }`}
                     >
                       <span>{item.label}</span>
-                      {filters.areaRange === item.key && <i className="fa-solid fa-check text-xs text-red-600"></i>}
+                      {(filters.areaRange || 'all') === item.value && <i className="fa-solid fa-check text-xs text-red-600"></i>}
                     </button>
                   ))}
                 </div>
@@ -482,141 +611,708 @@ export default function ListingFilterBar({
         </div>
       </div>
 
-      {/* POPUP MODAL: BỘ LỌC NÂNG CAO (KHI BẤM NÚT "LỌC") */}
+      {/* ========================================================
+          POPUP MODAL: BỘ LỌC TÌM KIẾM CHUẨN BATDONGSAN (ẢNH 1 & ẢNH 2)
+         ======================================================== */}
       {showAdvancedModal && (
         <div
           onClick={() => setShowAdvancedModal(false)}
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden animate-scaleIn"
+            className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden animate-scaleIn flex flex-col max-h-[90vh]"
           >
-            {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-              <div className="flex items-center gap-2">
-                <span className="w-8 h-8 rounded-xl bg-red-100 text-red-600 flex items-center justify-center text-sm font-bold">
-                  <i className="fa-solid fa-filter"></i>
-                </span>
-                <h3 className="text-base font-black text-slate-900">
-                  Bộ Lọc Tìm Kiếm Nâng Cao
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowAdvancedModal(false)}
-                className="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-600 flex items-center justify-center transition cursor-pointer"
-              >
-                <i className="fa-solid fa-xmark text-sm"></i>
-              </button>
-            </div>
+            {/* ----------------------------------------------------
+                MODAL SCREEN 1: BỘ LỌC CHÍNH (ẢNH 1)
+               ---------------------------------------------------- */}
+            {modalScreen === 'main' && (
+              <>
+                {/* Header */}
+                <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-slate-900">
+                    Bộ lọc
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={() => setShowAdvancedModal(false)}
+                    className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer"
+                  >
+                    <i className="fa-solid fa-xmark text-sm"></i>
+                  </button>
+                </div>
 
-            {/* Modal Body */}
-            <div className="p-4 sm:p-6 space-y-4 max-h-[70vh] overflow-y-auto text-xs">
-              {/* Quận / Huyện */}
-              <div className="space-y-1.5">
-                <label className="font-bold text-slate-700 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                  <i className="fa-solid fa-map-pin text-red-600"></i>
-                  Quận / Huyện:
-                </label>
-                <select
-                  value={draftAdvanced.district || ''}
-                  onChange={(e) => setDraftAdvanced(prev => ({ ...prev, district: e.target.value }))}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-800 outline-none focus:border-red-500"
-                >
-                  <option value="">Tất cả Quận / Huyện</option>
-                  {DA_NANG_DISTRICTS.map(dist => (
-                    <option key={dist} value={dist}>{dist}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Số phòng ngủ */}
-              <div className="space-y-1.5">
-                <label className="font-bold text-slate-700 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                  <i className="fa-solid fa-bed text-purple-600"></i>
-                  Số phòng ngủ:
-                </label>
-                <div className="grid grid-cols-5 gap-2">
-                  {[
-                    { val: 'all', label: 'Tất cả' },
-                    { val: '1', label: '1 PN' },
-                    { val: '2', label: '2 PN' },
-                    { val: '3', label: '3 PN' },
-                    { val: '4+', label: '4+ PN' },
-                  ].map(item => (
+                {/* Body Content */}
+                <div className="p-4 sm:p-6 space-y-5 overflow-y-auto text-xs flex-1">
+                  {/* 1. Demand Tabs: Tìm mua / Tìm thuê */}
+                  <div className="grid grid-cols-2 p-1 bg-slate-100 rounded-xl border border-slate-200">
                     <button
-                      key={item.val}
                       type="button"
-                      onClick={() => setDraftAdvanced(prev => ({ ...prev, bedroom: item.val }))}
-                      className={`py-2 rounded-xl font-bold border transition text-center cursor-pointer ${
-                        (draftAdvanced.bedroom || 'all') === item.val
-                          ? 'bg-red-600 text-white border-red-600 shadow-xs'
-                          : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                      onClick={() => setDraftFilters(prev => ({ ...prev, demand: 'sale' }))}
+                      className={`py-2.5 rounded-lg font-bold text-xs sm:text-sm transition cursor-pointer text-center ${
+                        draftFilters.demand === 'sale'
+                          ? 'bg-[#3e3e3e] text-white shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
                       }`}
                     >
-                      {item.label}
+                      Tìm mua
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDraftFilters(prev => ({ ...prev, demand: 'rent' }))}
+                      className={`py-2.5 rounded-lg font-bold text-xs sm:text-sm transition cursor-pointer text-center ${
+                        draftFilters.demand === 'rent'
+                          ? 'bg-[#3e3e3e] text-white shadow-xs'
+                          : 'text-slate-600 hover:text-slate-900'
+                      }`}
+                    >
+                      Tìm thuê
+                    </button>
+                  </div>
+
+                  {/* 2. Loại bất động sản */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="font-bold text-slate-900 text-sm">
+                        Loại bất động sản
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => setModalScreen('type')}
+                        className="text-red-600 hover:text-red-700 font-bold text-xs flex items-center gap-1 cursor-pointer"
+                      >
+                        <i className="fa-solid fa-plus text-[10px]"></i>
+                        <span>Thêm</span>
+                      </button>
+                    </div>
+
+                    {draftFilters.propertyType && draftFilters.propertyType !== 'all' ? (
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 border border-red-200 text-red-700 font-bold text-xs">
+                          <span>{getPropertyTypeLabel(draftFilters.propertyType)}</span>
+                          <button
+                            type="button"
+                            onClick={() => setDraftFilters(prev => ({ ...prev, propertyType: 'all' }))}
+                            className="hover:text-red-900 ml-0.5 text-xs font-bold"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => setModalScreen('type')}
+                        className="p-3 border border-slate-300 rounded-xl flex items-center justify-between cursor-pointer hover:border-slate-400 bg-white"
+                      >
+                        <span className="text-slate-500 font-medium">Tất cả loại nhà đất</span>
+                        <i className="fa-solid fa-chevron-right text-xs text-slate-400"></i>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 3. Khu vực & Dự án (Chuyển sang Ảnh 2 khi bấm) */}
+                  <div className="space-y-1.5">
+                    <label className="font-bold text-slate-900 text-sm">
+                      Khu vực & Dự án
+                    </label>
+                    <div
+                      onClick={() => setModalScreen('location')}
+                      className="p-3 border border-slate-300 rounded-xl flex items-center justify-between cursor-pointer hover:border-slate-400 bg-white transition"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <i className="fa-solid fa-location-dot text-slate-500 text-sm shrink-0"></i>
+                        <span className="text-slate-800 font-medium truncate">
+                          {getLocationSummary()}
+                        </span>
+                      </div>
+                      <i className="fa-solid fa-chevron-right text-xs text-slate-400 shrink-0 ml-2"></i>
+                    </div>
+                  </div>
+
+                  {/* 4. Khoảng giá */}
+                  <div className="space-y-1.5">
+                    <label className="font-bold text-slate-900 text-sm">
+                      Khoảng giá
+                    </label>
+                    <div
+                      onClick={() => setModalScreen('price')}
+                      className="p-3 border border-slate-300 rounded-xl flex items-center justify-between cursor-pointer hover:border-slate-400 bg-white transition"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span className="w-5 h-5 rounded-full border border-slate-400 text-slate-600 flex items-center justify-center text-xs font-bold shrink-0">
+                          ₫
+                        </span>
+                        <span className="text-slate-800 font-medium truncate">
+                          {getPriceSummary()}
+                        </span>
+                      </div>
+                      <i className="fa-solid fa-chevron-right text-xs text-slate-400 shrink-0 ml-2"></i>
+                    </div>
+                  </div>
+
+                  {/* 5. Diện tích */}
+                  <div className="space-y-1.5">
+                    <label className="font-bold text-slate-900 text-sm">
+                      Diện tích
+                    </label>
+                    <div
+                      onClick={() => setModalScreen('area')}
+                      className="p-3 border border-slate-300 rounded-xl flex items-center justify-between cursor-pointer hover:border-slate-400 bg-white transition"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <i className="fa-solid fa-ruler-combined text-slate-500 text-sm shrink-0"></i>
+                        <span className="text-slate-800 font-medium truncate">
+                          {getAreaSummary()}
+                        </span>
+                      </div>
+                      <i className="fa-solid fa-chevron-right text-xs text-slate-400 shrink-0 ml-2"></i>
+                    </div>
+                  </div>
+
+                  {/* 6. Uy tín & Chất lượng (Khuyên dùng) */}
+                  <div className="space-y-2.5 pt-2 border-t border-slate-100">
+                    <div className="flex items-center gap-2">
+                      <label className="font-bold text-slate-900 text-sm">
+                        Uy tín & Chất lượng
+                      </label>
+                      <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">
+                        Khuyên dùng
+                      </span>
+                    </div>
+
+                    {/* Card 1: Tin xác thực */}
+                    <div className="p-3.5 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition space-y-2">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1.5 text-sm font-bold text-slate-900">
+                            <i className="fa-solid fa-circle-check text-emerald-600 text-base"></i>
+                            <span>Tin xác thực</span>
+                          </div>
+                          <div className="text-[11px] text-slate-500 leading-relaxed">
+                            <span className="font-semibold text-slate-700 block mb-0.5">Hệ thống Đất Biển Đà Nẵng đã xác thực:</span>
+                            <div>• Có sổ đỏ/hợp đồng mua bán chính chủ</div>
+                            <div>• Đúng địa chỉ, hình ảnh & đặc điểm thực tế</div>
+                            <div>• Trong khoảng giá thị trường chuẩn xác</div>
+                          </div>
+                        </div>
+
+                        {/* Switch */}
+                        <button
+                          type="button"
+                          onClick={() => setDraftFilters(prev => ({ ...prev, onlyVerified: !prev.onlyVerified }))}
+                          className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors cursor-pointer mt-1 ${
+                            draftFilters.onlyVerified ? 'bg-emerald-600' : 'bg-slate-300'
+                          }`}
+                        >
+                          <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-xs transition-transform ${
+                            draftFilters.onlyVerified ? 'translate-x-6' : 'translate-x-1'
+                          }`} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Card 2: Môi giới chuyên nghiệp */}
+                    <div className="p-3.5 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition space-y-2">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1.5 text-sm font-bold text-slate-900">
+                            <i className="fa-solid fa-award text-cyan-600 text-base"></i>
+                            <span>Môi giới chuyên nghiệp</span>
+                          </div>
+                          <div className="text-[11px] text-slate-500 leading-relaxed">
+                            <span className="font-semibold text-slate-700 block mb-0.5">Tài khoản môi giới được xác nhận KYC:</span>
+                            <div>• Cấp tích xanh xác thực danh tính chính chủ</div>
+                            <div>• Chuyên viên môi giới hoạt động uy tín trên sàn</div>
+                          </div>
+                        </div>
+
+                        {/* Switch */}
+                        <button
+                          type="button"
+                          onClick={() => setDraftFilters(prev => ({ ...prev, onlyProAgent: !prev.onlyProAgent }))}
+                          className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors cursor-pointer mt-1 ${
+                            draftFilters.onlyProAgent ? 'bg-cyan-600' : 'bg-slate-300'
+                          }`}
+                        >
+                          <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-xs transition-transform ${
+                            draftFilters.onlyProAgent ? 'translate-x-6' : 'translate-x-1'
+                          }`} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 7. Tiêu chí chi tiết khác: Số PN, Hướng nhà, VR360 */}
+                  <div className="space-y-3 pt-2 border-t border-slate-100">
+                    <label className="font-bold text-slate-900 text-sm block">
+                      Số phòng ngủ & Hướng nhà
+                    </label>
+
+                    {/* Số phòng ngủ */}
+                    <div className="grid grid-cols-5 gap-2">
+                      {[
+                        { val: 'all', label: 'Tất cả' },
+                        { val: '1', label: '1 PN' },
+                        { val: '2', label: '2 PN' },
+                        { val: '3', label: '3 PN' },
+                        { val: '4+', label: '4+ PN' },
+                      ].map(item => (
+                        <button
+                          key={item.val}
+                          type="button"
+                          onClick={() => setDraftFilters(prev => ({ ...prev, bedroom: item.val }))}
+                          className={`py-2 rounded-xl font-bold border transition text-center cursor-pointer text-xs ${
+                            (draftFilters.bedroom || 'all') === item.val
+                              ? 'bg-red-600 text-white border-red-600 shadow-xs'
+                              : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Hướng nhà */}
+                    <select
+                      value={draftFilters.direction || 'all'}
+                      onChange={(e) => setDraftFilters(prev => ({ ...prev, direction: e.target.value }))}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-800 outline-none focus:border-red-500"
+                    >
+                      {DIRECTIONS.map(dir => (
+                        <option key={dir.value} value={dir.value}>{dir.label}</option>
+                      ))}
+                    </select>
+
+                    {/* VR 360 */}
+                    <label className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition cursor-pointer border border-slate-200">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(draftFilters.hasVR360)}
+                        onChange={(e) => setDraftFilters(prev => ({ ...prev, hasVR360: e.target.checked }))}
+                        className="w-4 h-4 text-red-600 rounded border-slate-300 focus:ring-red-500"
+                      />
+                      <div>
+                        <div className="font-bold text-slate-800 flex items-center gap-1.5">
+                          <i className="fa-solid fa-vr-cardboard text-indigo-600"></i>
+                          <span>Xem nhà thực tế ảo (VR 360)</span>
+                        </div>
+                        <div className="text-[11px] text-slate-500">Chỉ lọc bất động sản có tích hợp video thực tế ảo 360°</div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Footer (Ảnh 1) */}
+                <div className="p-4 border-t border-slate-200 bg-white flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleResetMainDraft}
+                    className="px-6 py-3 border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-sm rounded-xl transition cursor-pointer shrink-0"
+                  >
+                    Đặt lại
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleApplyAllDraftFilters}
+                    className="flex-1 py-3 bg-[#e03c31] hover:bg-red-700 text-white font-bold text-sm rounded-xl shadow-md transition cursor-pointer text-center"
+                  >
+                    Xem kết quả
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* ----------------------------------------------------
+                MODAL SCREEN 2: KHU VỰC, DỰ ÁN (ẢNH 2 CHUẨN BATDONGSAN)
+               ---------------------------------------------------- */}
+            {modalScreen === 'location' && (
+              <>
+                {/* Header Sub-screen */}
+                <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setModalScreen('main')}
+                    className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2 hover:text-red-600 transition cursor-pointer"
+                  >
+                    <i className="fa-solid fa-arrow-left text-sm"></i>
+                    <span>Khu vực, dự án</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAdvancedModal(false)}
+                    className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer"
+                  >
+                    <i className="fa-solid fa-xmark text-sm"></i>
+                  </button>
+                </div>
+
+                {/* Body Content */}
+                <div className="p-4 sm:p-6 space-y-4 overflow-y-auto text-xs flex-1">
+                  {/* Switch: Tìm theo địa chỉ mới sau sáp nhập */}
+                  <div className="p-3 bg-purple-50/70 border border-purple-100 rounded-2xl flex items-center justify-between gap-3">
+                    <span className="font-bold text-xs sm:text-sm text-slate-900">
+                      Tìm theo địa chỉ mới sau sáp nhập
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setDraftFilters(prev => ({ ...prev, useMergedAddress: !prev.useMergedAddress }))}
+                      className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors cursor-pointer ${
+                        draftFilters.useMergedAddress ? 'bg-purple-600' : 'bg-slate-300'
+                      }`}
+                    >
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-xs transition-transform ${
+                        draftFilters.useMergedAddress ? 'translate-x-6' : 'translate-x-1'
+                      }`} />
+                    </button>
+                  </div>
+
+                  {/* 1. Tỉnh/Thành phố */}
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-slate-700 text-xs sm:text-sm">
+                      Tỉnh/Thành phố
+                    </label>
+                    <select
+                      value={draftFilters.city || 'Đà Nẵng'}
+                      onChange={(e) => {
+                        const newCity = e.target.value;
+                        setDraftFilters(prev => ({
+                          ...prev,
+                          city: newCity,
+                          district: '',
+                          ward: '',
+                          street: '',
+                          project: ''
+                        }));
+                      }}
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs sm:text-sm font-medium outline-none focus:border-red-500 cursor-pointer"
+                    >
+                      <option value="">Chọn Tỉnh/Thành phố</option>
+                      {CITIES.map(c => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* 2. Quận/Huyện */}
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-slate-700 text-xs sm:text-sm">
+                      Quận/Huyện
+                    </label>
+                    <select
+                      value={draftFilters.district || ''}
+                      onChange={(e) => {
+                        const newDist = e.target.value;
+                        setDraftFilters(prev => ({
+                          ...prev,
+                          district: newDist,
+                          ward: '',
+                          street: '',
+                          project: ''
+                        }));
+                      }}
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs sm:text-sm font-medium outline-none focus:border-red-500 cursor-pointer"
+                    >
+                      <option value="">Chọn Quận/Huyện</option>
+                      {districtList.map(dist => (
+                        <option key={dist.id || dist.name} value={dist.name}>{dist.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* 3. Phường/Xã */}
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-slate-700 text-xs sm:text-sm">
+                      Phường/Xã
+                    </label>
+                    <select
+                      value={draftFilters.ward || ''}
+                      onChange={(e) => setDraftFilters(prev => ({ ...prev, ward: e.target.value }))}
+                      disabled={wardList.length === 0}
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs sm:text-sm font-medium outline-none focus:border-red-500 cursor-pointer disabled:bg-slate-100 disabled:text-slate-400"
+                    >
+                      <option value="">Chọn Phường/Xã</option>
+                      {wardList.map(w => (
+                        <option key={w} value={w}>{w}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* 4. Đường/Phố */}
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-slate-700 text-xs sm:text-sm">
+                      Đường/Phố
+                    </label>
+                    <select
+                      value={draftFilters.street || ''}
+                      onChange={(e) => setDraftFilters(prev => ({ ...prev, street: e.target.value }))}
+                      disabled={streetList.length === 0}
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs sm:text-sm font-medium outline-none focus:border-red-500 cursor-pointer disabled:bg-slate-100 disabled:text-slate-400"
+                    >
+                      <option value="">Chọn Đường/Phố</option>
+                      {streetList.map(st => (
+                        <option key={st} value={st}>{st}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* 5. Dự án */}
+                  <div className="space-y-1.5">
+                    <label className="font-semibold text-slate-700 text-xs sm:text-sm">
+                      Dự án
+                    </label>
+                    <select
+                      value={draftFilters.project || ''}
+                      onChange={(e) => setDraftFilters(prev => ({ ...prev, project: e.target.value }))}
+                      disabled={projectList.length === 0}
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs sm:text-sm font-medium outline-none focus:border-red-500 cursor-pointer disabled:bg-slate-100 disabled:text-slate-400"
+                    >
+                      <option value="">Chọn Dự án</option>
+                      {projectList.map(pj => (
+                        <option key={pj} value={pj}>{pj}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Footer Sub-screen */}
+                <div className="p-4 border-t border-slate-200 bg-white flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDraftFilters(prev => ({
+                        ...prev,
+                        city: 'Đà Nẵng',
+                        district: '',
+                        ward: '',
+                        street: '',
+                        project: '',
+                        useMergedAddress: false
+                      }));
+                    }}
+                    className="px-6 py-3 border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-sm rounded-xl transition cursor-pointer shrink-0"
+                  >
+                    Đặt lại
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setModalScreen('main')}
+                    className="flex-1 py-3 bg-[#e03c31] hover:bg-red-700 text-white font-bold text-sm rounded-xl shadow-md transition cursor-pointer text-center"
+                  >
+                    Áp dụng
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* ----------------------------------------------------
+                MODAL SCREEN 3: KHOẢNG GIÁ
+               ---------------------------------------------------- */}
+            {modalScreen === 'price' && (
+              <>
+                <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setModalScreen('main')}
+                    className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2 hover:text-red-600 transition cursor-pointer"
+                  >
+                    <i className="fa-solid fa-arrow-left text-sm"></i>
+                    <span>Khoảng giá</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAdvancedModal(false)}
+                    className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer"
+                  >
+                    <i className="fa-solid fa-xmark text-sm"></i>
+                  </button>
+                </div>
+
+                <div className="p-4 sm:p-6 space-y-4 overflow-y-auto text-xs flex-1">
+                  <div className="grid grid-cols-2 gap-2">
+                    {(draftFilters.demand === 'rent' ? RENT_PRICE_PRESETS : SALE_PRICE_PRESETS).map(item => (
+                      <button
+                        key={item.value}
+                        type="button"
+                        onClick={() => setDraftFilters(prev => ({
+                          ...prev,
+                          priceRange: item.value,
+                          minPrice: item.min,
+                          maxPrice: item.max
+                        }))}
+                        className={`p-3 rounded-xl border text-center font-bold transition cursor-pointer text-xs sm:text-sm ${
+                          draftFilters.priceRange === item.value
+                            ? 'bg-red-50 text-red-700 border-red-500 shadow-xs'
+                            : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
+                        }`}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="p-4 border-t border-slate-200 bg-white flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setDraftFilters(prev => ({ ...prev, priceRange: 'all', minPrice: null, maxPrice: null }))}
+                    className="px-6 py-3 border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-sm rounded-xl transition cursor-pointer shrink-0"
+                  >
+                    Đặt lại
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setModalScreen('main')}
+                    className="flex-1 py-3 bg-[#e03c31] hover:bg-red-700 text-white font-bold text-sm rounded-xl shadow-md transition cursor-pointer text-center"
+                  >
+                    Áp dụng
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* ----------------------------------------------------
+                MODAL SCREEN 4: DIỆN TÍCH
+               ---------------------------------------------------- */}
+            {modalScreen === 'area' && (
+              <>
+                <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setModalScreen('main')}
+                    className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2 hover:text-red-600 transition cursor-pointer"
+                  >
+                    <i className="fa-solid fa-arrow-left text-sm"></i>
+                    <span>Diện tích</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAdvancedModal(false)}
+                    className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer"
+                  >
+                    <i className="fa-solid fa-xmark text-sm"></i>
+                  </button>
+                </div>
+
+                <div className="p-4 sm:p-6 space-y-4 overflow-y-auto text-xs flex-1">
+                  <div className="grid grid-cols-2 gap-2">
+                    {AREA_PRESETS.map(item => (
+                      <button
+                        key={item.value}
+                        type="button"
+                        onClick={() => setDraftFilters(prev => ({
+                          ...prev,
+                          areaRange: item.value,
+                          minArea: item.min,
+                          maxArea: item.max
+                        }))}
+                        className={`p-3 rounded-xl border text-center font-bold transition cursor-pointer text-xs sm:text-sm ${
+                          draftFilters.areaRange === item.value
+                            ? 'bg-red-50 text-red-700 border-red-500 shadow-xs'
+                            : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
+                        }`}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="p-4 border-t border-slate-200 bg-white flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setDraftFilters(prev => ({ ...prev, areaRange: 'all', minArea: null, maxArea: null }))}
+                    className="px-6 py-3 border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-sm rounded-xl transition cursor-pointer shrink-0"
+                  >
+                    Đặt lại
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setModalScreen('main')}
+                    className="flex-1 py-3 bg-[#e03c31] hover:bg-red-700 text-white font-bold text-sm rounded-xl shadow-md transition cursor-pointer text-center"
+                  >
+                    Áp dụng
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* ----------------------------------------------------
+                MODAL SCREEN 5: LOẠI BẤT ĐỘNG SẢN
+               ---------------------------------------------------- */}
+            {modalScreen === 'type' && (
+              <>
+                <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => setModalScreen('main')}
+                    className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2 hover:text-red-600 transition cursor-pointer"
+                  >
+                    <i className="fa-solid fa-arrow-left text-sm"></i>
+                    <span>Loại bất động sản</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowAdvancedModal(false)}
+                    className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer"
+                  >
+                    <i className="fa-solid fa-xmark text-sm"></i>
+                  </button>
+                </div>
+
+                <div className="p-4 sm:p-6 space-y-2 overflow-y-auto text-xs flex-1">
+                  <button
+                    type="button"
+                    onClick={() => setDraftFilters(prev => ({ ...prev, propertyType: 'all' }))}
+                    className={`w-full text-left p-3 rounded-xl border flex items-center justify-between transition cursor-pointer ${
+                      draftFilters.propertyType === 'all'
+                        ? 'border-red-500 bg-red-50/50 text-red-700 font-bold'
+                        : 'border-slate-200 hover:border-slate-300 text-slate-700'
+                    }`}
+                  >
+                    <span className="font-semibold text-xs sm:text-sm">Tất cả loại nhà đất</span>
+                    {draftFilters.propertyType === 'all' && <i className="fa-solid fa-check text-red-600"></i>}
+                  </button>
+
+                  {PROPERTY_TYPES.map(type => (
+                    <button
+                      key={type.id}
+                      type="button"
+                      onClick={() => setDraftFilters(prev => ({ ...prev, propertyType: type.id }))}
+                      className={`w-full text-left p-3 rounded-xl border flex items-center justify-between transition cursor-pointer ${
+                        draftFilters.propertyType === type.id
+                          ? 'border-red-500 bg-red-50/50 text-red-700 font-bold'
+                          : 'border-slate-200 hover:border-slate-300 text-slate-700'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <i className={`fa-solid ${type.icon} text-slate-400 text-sm w-4 text-center`}></i>
+                        <span className="font-semibold text-xs sm:text-sm">{type.name}</span>
+                      </div>
+                      {draftFilters.propertyType === type.id && <i className="fa-solid fa-check text-red-600"></i>}
                     </button>
                   ))}
                 </div>
-              </div>
 
-              {/* Hướng nhà */}
-              <div className="space-y-1.5">
-                <label className="font-bold text-slate-700 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-                  <i className="fa-solid fa-compass text-amber-600"></i>
-                  Hướng nhà:
-                </label>
-                <select
-                  value={draftAdvanced.direction || 'all'}
-                  onChange={(e) => setDraftAdvanced(prev => ({ ...prev, direction: e.target.value }))}
-                  className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-800 outline-none focus:border-red-500"
-                >
-                  {DIRECTIONS.map(dir => (
-                    <option key={dir.value} value={dir.value}>{dir.label}</option>
-                  ))}
-                </select>
-              </div>
-
-              {/* VR 360 */}
-              <div className="pt-2 border-t border-slate-100">
-                <label className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition cursor-pointer border border-slate-200">
-                  <input
-                    type="checkbox"
-                    checked={Boolean(draftAdvanced.hasVR360)}
-                    onChange={(e) => setDraftAdvanced(prev => ({ ...prev, hasVR360: e.target.checked }))}
-                    className="w-4 h-4 text-red-600 rounded border-slate-300 focus:ring-red-500"
-                  />
-                  <div>
-                    <div className="font-bold text-slate-800 flex items-center gap-1.5">
-                      <i className="fa-solid fa-vr-cardboard text-indigo-600"></i>
-                      <span>Xem nhà thực tế ảo (VR 360)</span>
-                    </div>
-                    <div className="text-[11px] text-slate-500">Chỉ lọc bất động sản có tích hợp video thực tế ảo 360°</div>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between gap-3">
-              <button
-                type="button"
-                onClick={handleResetAdvancedDraft}
-                className="text-slate-500 hover:text-red-600 font-bold text-xs flex items-center gap-1 cursor-pointer"
-              >
-                <i className="fa-solid fa-rotate-left"></i>
-                <span>Thiết lập lại</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleApplyAdvancedFilters}
-                className="px-6 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-md transition cursor-pointer"
-              >
-                Áp dụng bộ lọc
-              </button>
-            </div>
+                <div className="p-4 border-t border-slate-200 bg-white flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setDraftFilters(prev => ({ ...prev, propertyType: 'all' }))}
+                    className="px-6 py-3 border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-sm rounded-xl transition cursor-pointer shrink-0"
+                  >
+                    Đặt lại
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setModalScreen('main')}
+                    className="flex-1 py-3 bg-[#e03c31] hover:bg-red-700 text-white font-bold text-sm rounded-xl shadow-md transition cursor-pointer text-center"
+                  >
+                    Áp dụng
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

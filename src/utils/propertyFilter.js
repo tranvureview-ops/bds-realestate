@@ -55,6 +55,33 @@ export function filterProperties(properties = [], filters = {}) {
       }
     }
 
+    // 5.1 Phường / Xã (Ward)
+    if (filters.ward && filters.ward.trim() && (prop.ward || prop.address)) {
+      const filterWardClean = removeAccents(filters.ward.replace(/^(phường|xã|thị trấn)\s+/i, ''));
+      const propWardClean = removeAccents((prop.ward || '') + ' ' + (prop.address || ''));
+      if (!propWardClean.includes(filterWardClean)) {
+        return false;
+      }
+    }
+
+    // 5.2 Đường / Phố (Street)
+    if (filters.street && filters.street.trim() && (prop.street || prop.address)) {
+      const streetClean = removeAccents(filters.street.replace(/^(đường|phố|tuyến)\s+/i, ''));
+      const propAddressClean = removeAccents((prop.street || '') + ' ' + (prop.address || ''));
+      if (!propAddressClean.includes(streetClean)) {
+        return false;
+      }
+    }
+
+    // 5.3 Dự án (Project)
+    if (filters.project && filters.project.trim() && (prop.project || prop.title || prop.address || prop.description)) {
+      const projClean = removeAccents(filters.project);
+      const propProjClean = removeAccents((prop.project || '') + ' ' + (prop.title || '') + ' ' + (prop.address || '') + ' ' + (prop.description || ''));
+      if (!propProjClean.includes(projClean)) {
+        return false;
+      }
+    }
+
     // 6. Từ khóa (Keyword / Search Query)
     if (filters.keyword && filters.keyword.trim()) {
       const kw = filters.keyword.trim().toLowerCase();
