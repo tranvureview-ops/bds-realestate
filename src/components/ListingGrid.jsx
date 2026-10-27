@@ -188,19 +188,19 @@ export default function ListingGrid({
   return (
     <div ref={gridContainerRef} className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className ? className : (isHomePage ? 'pt-2 pb-3' : 'pt-4 sm:pt-6 pb-8')}`}>
       {/* View Controls & Sorting Bar */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-slate-200">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-            {title || 'Danh Sách Bất Động Sản Nổi Bật'}
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            {subtitle || (
-              isHomePage 
-                ? `Hiển thị ${displayedProperties.length} tin VIP và mới nhất trên Trang Chủ`
-                : 'Ưu tiên hiển thị tin VIP Kim Cương, VIP Vàng và tin có tương tác cao'
+      <div className={`flex flex-col sm:flex-row items-start sm:items-center ${title ? 'justify-between' : 'justify-end'} gap-3 sm:gap-4 pb-4 sm:pb-5 border-b border-slate-200`}>
+        {title && (
+          <div>
+            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+              {title}
+            </h2>
+            {subtitle && (
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                {subtitle}
+              </p>
             )}
-          </p>
-        </div>
+          </div>
+        )}
 
         {/* Sorting & View Mode Switches */}
         <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
