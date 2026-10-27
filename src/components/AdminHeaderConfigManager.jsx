@@ -9,7 +9,6 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
   const {
     headerConfig,
     updateHeaderConfig,
-    resetHeaderConfig,
     PRESET_LOGOS,
     navMenuItems,
     showToast
@@ -119,14 +118,6 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
       socialLinks: DEFAULT_SOCIAL_LINKS
     }));
     showToast('Đã khôi phục danh sách mạng xã hội về mặc định!', 'info');
-  };
-
-  const handleResetHeaderSettings = async () => {
-    if (window.confirm('Bạn có chắc chắn muốn khôi phục toàn bộ cấu hình Header & Độ rộng về mặc định ban đầu?')) {
-      await resetHeaderConfig();
-      setLogoFormData(DEFAULT_HEADER_CONFIG);
-      showToast('Đã khôi phục cấu hình Header về mặc định!', 'info');
-    }
   };
 
   const handleLogoFileUpload = (e) => {
@@ -245,7 +236,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
 
       {/* PHÂN HỆ CẤU HÌNH LOGO & ĐỘ RỘNG MENU */}
       <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+        <div className="border-b border-slate-800 pb-4">
           <div className="flex items-center gap-2.5">
             <span className="w-9 h-9 rounded-xl bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center text-base">
               <i className="fa-solid fa-sliders"></i>
@@ -258,17 +249,6 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
                 Tùy biến nhận diện thương hiệu (Text hoặc Logo ảnh) và bố cục hiển thị thanh Header (Full-width tràn viền hoặc Boxed)
               </p>
             </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={handleResetHeaderSettings}
-              className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white font-bold text-xs border border-slate-800 transition"
-              title="Khôi phục logo và độ rộng về mặc định"
-            >
-              <i className="fa-solid fa-rotate-left mr-1"></i> Mặc Định
-            </button>
           </div>
         </div>
 
