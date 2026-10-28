@@ -524,50 +524,59 @@ export const buildSeoUrl = ({
   let areaCleanSlug = '';
   if (effectiveAreaRange && effectiveAreaRange !== 'all') {
     const aSlugMap = {
-      'under-30': 'dien-tich-duoi-30-m2',
-      '30-50': 'dien-tich-tu-30-den-50-m2',
-      '50-80': 'dien-tich-tu-50-den-80-m2',
-      '80-100': 'dien-tich-tu-80-den-100-m2',
-      '100-150': 'dien-tich-tu-100-den-150-m2',
-      '150-200': 'dien-tich-tu-150-den-200-m2',
-      '200-250': 'dien-tich-tu-200-den-250-m2',
-      '250-300': 'dien-tich-tu-250-den-300-m2',
-      '300-500': 'dien-tich-tu-300-den-500-m2',
-      'over-500': 'dien-tich-tren-500-m2'
+      'under-30': 'dt-duoi-30m2',
+      '30-50': 'dt-tu-30m2-den-50m2',
+      '50-80': 'dt-tu-50m2-den-80m2',
+      '80-100': 'dt-tu-80m2-den-100m2',
+      '100-150': 'dt-tu-100m2-den-150m2',
+      '150-200': 'dt-tu-150m2-den-200m2',
+      '200-250': 'dt-tu-200m2-den-250m2',
+      '250-300': 'dt-tu-250m2-den-300m2',
+      '200-300': 'dt-tu-200m2-den-300m2',
+      '300-500': 'dt-tu-300m2-den-500m2',
+      '500-1000': 'dt-tu-500m2-den-1000m2',
+      '1000-2000': 'dt-tu-1000m2-den-2000m2',
+      '2000-3000': 'dt-tu-2000m2-den-3000m2',
+      'over-3000': 'dt-tren-3000m2',
+      'over-500': 'dt-tren-500m2'
     };
     if (aSlugMap[effectiveAreaRange]) {
       areaCleanSlug = aSlugMap[effectiveAreaRange];
-    } else if (effectiveAreaRange.startsWith('dien-tich-')) {
+    } else if (effectiveAreaRange.startsWith('dt-')) {
       areaCleanSlug = toVietnameseSlug(effectiveAreaRange);
+    } else if (effectiveAreaRange.startsWith('dien-tich-')) {
+      areaCleanSlug = toVietnameseSlug(effectiveAreaRange).replace(/^dien-tich-/, 'dt-');
     } else {
       const dynBetweenArea = effectiveAreaRange.match(/^([0-9.]+)-([0-9.]+)$/);
       const dynUnderArea = effectiveAreaRange.match(/^under-([0-9.]+)$/);
       const dynOverArea = effectiveAreaRange.match(/^over-([0-9.]+)$/);
       if (dynBetweenArea) {
-        areaCleanSlug = `dien-tich-tu-${dynBetweenArea[1]}-den-${dynBetweenArea[2]}-m2`;
+        areaCleanSlug = `dt-tu-${dynBetweenArea[1]}m2-den-${dynBetweenArea[2]}m2`;
       } else if (dynUnderArea) {
-        areaCleanSlug = `dien-tich-duoi-${dynUnderArea[1]}-m2`;
+        areaCleanSlug = `dt-duoi-${dynUnderArea[1]}m2`;
       } else if (dynOverArea) {
-        areaCleanSlug = `dien-tich-tren-${dynOverArea[1]}-m2`;
+        areaCleanSlug = `dt-tren-${dynOverArea[1]}m2`;
       } else {
-        areaCleanSlug = `dien-tich-${toVietnameseSlug(effectiveAreaRange)}-m2`;
+        areaCleanSlug = `dt-${toVietnameseSlug(effectiveAreaRange)}`;
       }
     }
   }
 
   // Kết nối theo cấu trúc thư mục sạch chuẩn Batdongsan.com.vn:
-  // /{base-category-and-location}/{facet-slug}
-  // Ví dụ: /nha-dat-ban/gia-tu-3-ty-den-5-ty
-  //        /nha-dat-ban-da-nang/gia-tu-3-ty-den-5-ty
-  //        /ban-can-ho-chung-cu/gia-tu-3-ty-den-5-ty
+  // 1. Cả giá và diện tích: /{base-category-and-location}/{price-slug}-{area-slug}
+  //    Ví dụ: /ban-can-ho-chung-cu/gia-tu-3-ty-den-5-ty-dt-tu-50m2-den-80m2
+  //           /nha-dat-ban/gia-tu-3-ty-den-5-ty-dt-tu-50m2-den-80m2
+  // 2. Chỉ có giá: /{base-category-and-location}/{price-slug}
+  //    Ví dụ: /ban-can-ho-chung-cu/gia-tu-3-ty-den-5-ty
+  // 3. Chỉ có diện tích: /{base-category-and-location}/{area-slug}
+  //    Ví dụ: /ban-can-ho-chung-cu/dt-tu-50m2-den-80m2
   let baseCore = `${basePath}${locationOrProjectSegment}`.replace(/\/+$/, '');
   let fullCleanPath = baseCore;
 
-  if (priceCleanSlug) {
+  if (priceCleanSlug && areaCleanSlug) {
+    fullCleanPath = `${baseCore}/${priceCleanSlug}-${areaCleanSlug}`;
+  } else if (priceCleanSlug) {
     fullCleanPath = `${baseCore}/${priceCleanSlug}`;
-    if (areaCleanSlug) {
-      queryParams.set('areaRange', effectiveAreaRange);
-    }
   } else if (areaCleanSlug) {
     fullCleanPath = `${baseCore}/${areaCleanSlug}`;
   }
@@ -901,9 +910,12 @@ export const parseTaxonomyUrl = (urlPath) => {
     let areaLabel = '';
     let minArea = null;
     let maxArea = null;
-    const areaBetweenMatch = raw.match(/(?:dien-tich-)?(?:tu-)?([0-9.]+)(?:-m2)?-(?:den-)?([0-9.]+)-m2/);
-    const areaUnderMatch = raw.match(/(?:dien-tich-)?duoi-([0-9.]+)-m2/);
-    const areaOverMatch = raw.match(/(?:dien-tich-)?tren-([0-9.]+)-m2/);
+    const areaBetweenMatch = raw.match(/(?:dien-tich-|dt-)(?:tu-)?([0-9.]+)(?:-?m2)?-(?:den-)?([0-9.]+)-?m2/i) ||
+                             raw.match(/(?:dien-tich-)?(?:tu-)?([0-9.]+)(?:-m2)?-(?:den-)?([0-9.]+)-m2/i);
+    const areaUnderMatch = raw.match(/(?:dien-tich-|dt-)duoi-([0-9.]+)-?m2/i) ||
+                           raw.match(/(?:dien-tich-)?duoi-([0-9.]+)-m2/i);
+    const areaOverMatch = raw.match(/(?:dien-tich-|dt-)tren-([0-9.]+)-?m2/i) ||
+                          raw.match(/(?:dien-tich-)?tren-([0-9.]+)-m2/i);
 
     if (areaBetweenMatch) {
       const minVal = parseFloat(areaBetweenMatch[1]);
@@ -1650,17 +1662,17 @@ export const getAreaPresetSlug = (presetValue) => {
   if (!presetValue || presetValue === 'all') return '';
   if (presetValue.startsWith('under-')) {
     const val = presetValue.replace('under-', '');
-    return `dien-tich-duoi-${val}-m2`;
+    return `dt-duoi-${val}m2`;
   }
   if (presetValue.startsWith('over-')) {
     const val = presetValue.replace('over-', '');
-    return `dien-tich-tren-${val}-m2`;
+    return `dt-tren-${val}m2`;
   }
   const match = presetValue.match(/^([0-9.]+)-([0-9.]+)$/);
   if (match) {
-    return `dien-tich-tu-${match[1]}-den-${match[2]}-m2`;
+    return `dt-tu-${match[1]}m2-den-${match[2]}m2`;
   }
-  return `dien-tich-${presetValue}`;
+  return `dt-${presetValue}`;
 };
 
 /**
@@ -1676,22 +1688,23 @@ export const buildSeoFilterUrl = ({ basePath = '', demand = 'sale', priceRange =
   // Lấy base path sạch, loại bỏ subslug filter hiện tại nếu có
   let cleanBase = (basePath || (demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban')).split('?')[0].replace(/\/+$/, '');
 
-  // Nếu base path đang kết thúc bằng filter slug cũ (gia-... hoặc dien-tich-... hoặc /page/...), bóc tách ra
+  // Nếu base path đang kết thúc bằng filter slug cũ (gia-... hoặc dien-tich-... hoặc dt-... hoặc /page/...), bóc tách ra
   cleanBase = cleanBase.replace(/\/page\/\d+$/i, '');
-  cleanBase = cleanBase.replace(/\/(gia|dien-tich)-[^/]+$/i, '');
+  cleanBase = cleanBase.replace(/\/(gia|dien-tich|dt)-[^/]+$/i, '');
 
   if (!cleanBase || cleanBase === '') {
     cleanBase = demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban';
   }
 
-  if (priceRange && priceRange !== 'all') {
-    const pSlug = getPricePresetSlug(priceRange);
-    if (pSlug) return `${cleanBase}/${pSlug}`;
-  }
+  const pSlug = priceRange && priceRange !== 'all' ? getPricePresetSlug(priceRange) : '';
+  const aSlug = areaRange && areaRange !== 'all' ? getAreaPresetSlug(areaRange).replace(/^dien-tich-/, 'dt-') : '';
 
-  if (areaRange && areaRange !== 'all') {
-    const aSlug = getAreaPresetSlug(areaRange);
-    if (aSlug) return `${cleanBase}/${aSlug}`;
+  if (pSlug && aSlug) {
+    return `${cleanBase}/${pSlug}-${aSlug}`;
+  } else if (pSlug) {
+    return `${cleanBase}/${pSlug}`;
+  } else if (aSlug) {
+    return `${cleanBase}/${aSlug}`;
   }
 
   return cleanBase;
