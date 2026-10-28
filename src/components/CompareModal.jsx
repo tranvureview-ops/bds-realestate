@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useRealEstate } from '../context/RealEstateContext';
+import SeoImage from './SeoImage';
 
 export default function CompareModal({ onClose }) {
   const { compareList, removeCompare, clearCompare, openPropertyDetail } = useRealEstate();
@@ -76,9 +77,10 @@ export default function CompareModal({ onClose }) {
                 {compareList.map((prop) => (
                   <th key={prop.id} className="p-3 bg-slate-50/50 border-b border-slate-200 text-left min-w-[220px]">
                     <div className="relative group">
-                      <img
+                      <SeoImage
                         src={prop.images[0]}
-                        alt=""
+                        property={prop}
+                        type="thumbnail"
                         className="w-full h-32 object-cover rounded-xl mb-2 shadow-sm"
                       />
                       <button

@@ -44,6 +44,9 @@ export const formatSentenceCase = (str) => {
 // Cấu hình Base Domain chuẩn SEO
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://bds-realestate.vercel.app';
 
+// Tối ưu hóa SEO hình ảnh & tự động tạo thẻ ALT theo tiêu đề
+export { buildImageAlt, DEFAULT_PROPERTY_FALLBACK_IMAGE, DEFAULT_AVATAR_FALLBACK_IMAGE } from './imageSeo.js';
+
 /**
  * Xây dựng đường dẫn phân trang chuẩn SEO (SEO Pagination Path)
  * - Trang 1: /{basePath}/ (không tạo URL biến thể /page/1/)
@@ -1284,7 +1287,15 @@ export const generatePropertyJsonLd = (property, siteUrl = 'https://datbiendanan
         'name': formatSentenceCase(property.title),
         'description': property.description?.slice(0, 300) || formatSentenceCase(property.title),
         'url': fullUrl,
-        'image': property.images || [],
+        'image': (property.images && property.images.length > 0)
+          ? property.images.map((imgUrl, idx) => ({
+              '@type': 'ImageObject',
+              'contentUrl': imgUrl,
+              'url': imgUrl,
+              'name': buildImageAlt(property.title, { index: idx, total: property.images.length, type: idx === 0 ? 'main' : 'gallery' }),
+              'caption': `${formatSentenceCase(property.title)} - ${property.district ? property.district + ', ' : ''}${property.city || 'Việt Nam'}`
+            }))
+          : [],
         'datePosted': property.publishedAt || new Date().toISOString(),
         'numberOfRooms': property.bedroom || 1,
         'numberOfBathroomsTotal': property.bathroom || 1,

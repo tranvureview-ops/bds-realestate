@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
+import SeoImage from './SeoImage';
 
 export default function CompareDrawer() {
   const { compareList, removeCompare, clearCompare, setActiveModal } = useRealEstate();
@@ -24,9 +25,10 @@ export default function CompareDrawer() {
       <div className="flex items-center gap-2 overflow-x-auto py-1">
         {compareList.map((prop) => (
           <div key={prop.id} className="relative group shrink-0">
-            <img
+            <SeoImage
               src={prop.images[0]}
-              alt=""
+              property={prop}
+              type="thumbnail"
               className="w-12 h-10 object-cover rounded-lg border border-slate-600"
             />
             <button

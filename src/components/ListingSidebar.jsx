@@ -6,6 +6,7 @@ import { Link } from '../router/RouterContext';
 import { buildSeoUrl, buildSeoFilterUrl, buildDistrictSeoUrl, buildCitySeoUrl, getDistrictSlug } from '../utils/permalink';
 import { expandPropertyTypeIds } from '../data/propertyTypeTaxonomy';
 import { VIETNAM_ADMINISTRATIVE_DATA } from '../data/vietnamAdministrativeData';
+import SeoImage from './SeoImage';
 
 // Danh sách các dự án nổi bật tiêu biểu tại Đà Nẵng & Quảng Nam
 const FEATURED_PROJECTS = [
@@ -664,11 +665,12 @@ export default function ListingSidebar({
                 }`}
               >
                 <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-slate-100 relative">
-                  <img
+                  <SeoImage
                     src={proj.image}
-                    alt={proj.name}
+                    propertyTitle={proj.name}
+                    type="project"
+                    customContext={proj.location}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    loading="lazy"
                   />
                 </div>
                 <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">

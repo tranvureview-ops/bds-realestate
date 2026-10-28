@@ -6,6 +6,7 @@ import { Link, useRouter } from '../router/RouterContext';
 import { VIP_PACKAGES } from '../data/mockData';
 import { getPropertyPermalink, formatSentenceCase } from '../utils/permalink';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
+import SeoImage from './SeoImage';
 
 export default function ListingCard({ property, viewMode = 'grid' }) {
   const { navigate } = useRouter();
@@ -87,11 +88,11 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
       {/* Property Image Container */}
       <div className={`relative overflow-hidden shrink-0 ${viewMode === 'list' ? 'w-full md:w-72 lg:w-80 h-56 md:h-auto md:self-stretch min-h-[220px]' : 'h-52 w-full'}`}>
         <Link to={getPropertyPermalink(property)} className="block w-full h-full absolute inset-0">
-          <img
+          <SeoImage
             src={safeImages[0]}
-            alt={property.title}
+            property={property}
+            type="thumbnail"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 cursor-pointer"
-            loading="lazy"
           />
         </Link>
 
@@ -229,9 +230,11 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
           <div className="flex items-center justify-between gap-2 mb-2.5">
             {/* Broker Avatar & Name */}
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              <img
+              <SeoImage
                 src={safeAuthor.avatar}
-                alt={safeAuthor.name}
+                propertyTitle={property.title}
+                type="agent"
+                customContext={safeAuthor.name}
                 className="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0"
               />
               <div className="leading-tight min-w-0 flex-1">

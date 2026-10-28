@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 import { VIP_PACKAGES } from '../data/mockData';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 import { formatSentenceCase } from '../utils/permalink';
+import SeoImage from './SeoImage';
 const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
   ssr: false,
   loading: () => (
@@ -217,9 +218,13 @@ export default function ListingDetailModal({ property, onClose }) {
               <div className="space-y-3">
                 {/* Big Main Image */}
                 <div className="relative h-72 sm:h-96 w-full rounded-2xl overflow-hidden bg-slate-900 shadow-inner group">
-                  <img
+                  <SeoImage
                     src={property.images[selectedPhotoIndex]}
-                    alt={property.title}
+                    property={property}
+                    index={selectedPhotoIndex}
+                    total={property.images.length}
+                    type={selectedPhotoIndex === 0 ? 'main' : 'gallery'}
+                    priority={selectedPhotoIndex === 0}
                     className="w-full h-full object-cover"
                   />
                   {/* Prev / Next buttons */}
@@ -248,7 +253,14 @@ export default function ListingDetailModal({ property, onClose }) {
                       onClick={() => setSelectedPhotoIndex(idx)}
                       className={`relative w-20 h-16 rounded-xl overflow-hidden shrink-0 border-2 transition ${selectedPhotoIndex === idx ? 'border-emerald-600 ring-2 ring-emerald-500/30' : 'border-transparent opacity-70 hover:opacity-100'}`}
                     >
-                      <img src={img} alt="" className="w-full h-full object-cover" />
+                      <SeoImage
+                        src={img}
+                        property={property}
+                        index={idx}
+                        total={property.images.length}
+                        type="gallery"
+                        className="w-full h-full object-cover"
+                      />
                     </button>
                   ))}
                 </div>
@@ -259,9 +271,11 @@ export default function ListingDetailModal({ property, onClose }) {
             {activeMediaTab === 'vr360' && property.hasVR360 && (
               <div className="relative rounded-2xl overflow-hidden bg-slate-900 border border-purple-500 shadow-xl">
                 <div className="relative h-96 w-full cursor-grab active:cursor-grabbing">
-                  <img
+                  <SeoImage
                     src={property.vrScenes[activeVrSceneIndex]?.img || property.images[0]}
-                    alt="VR 360 Scene"
+                    property={property}
+                    type="vr360"
+                    sceneName={property.vrScenes[activeVrSceneIndex]?.name}
                     className="w-full h-full object-cover animate-pulse"
                   />
                   {/* Overlay VR badge & controls */}
@@ -452,9 +466,11 @@ export default function ListingDetailModal({ property, onClose }) {
                 {/* Broker Profile */}
                 <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
                   <div className="relative">
-                    <img
+                    <SeoImage
                       src={safeAuthor.avatar}
-                      alt={safeAuthor.name}
+                      propertyTitle={property.title}
+                      type="agent"
+                      customContext={safeAuthor.name}
                       className="w-14 h-14 rounded-full object-cover border-2 border-emerald-500 shadow-md"
                     />
                     {safeAuthor.isVerified && (

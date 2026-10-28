@@ -8,6 +8,7 @@ import { getPropertyPermalink, formatSentenceCase } from '../utils/permalink';
 import { isVoucherDiscountFree } from '../utils/membershipHelper';
 import PropertyVerificationModal from './PropertyVerificationModal';
 import PropertyVerificationReviewModal from './PropertyVerificationReviewModal';
+import SeoImage from './SeoImage';
 
 export default function UserDashboard() {
   const { 
@@ -448,9 +449,10 @@ export default function UserDashboard() {
                     {/* Property info */}
                     <div className="flex items-start gap-4">
                       <Link to={getPropertyPermalink(prop)} className="shrink-0 block relative">
-                        <img
-                          src={prop.images?.[0] || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=400&q=80'}
-                          alt=""
+                        <SeoImage
+                          src={prop.images?.[0]}
+                          property={prop}
+                          type="thumbnail"
                           className={`w-24 h-20 object-cover rounded-xl border border-slate-200 hover:opacity-90 transition cursor-pointer ${isItemExpired ? 'grayscale contrast-125 opacity-75' : ''}`}
                         />
                         {isItemExpired && (
@@ -875,9 +877,10 @@ export default function UserDashboard() {
                     className="bg-white rounded-2xl p-4 border border-rose-200/70 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4 transition hover:border-rose-300"
                   >
                     <div className="flex items-start gap-3.5 flex-1 min-w-0">
-                      <img
-                        src={(prop.images && prop.images[0]) || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=300&q=80'}
-                        alt={prop.title}
+                      <SeoImage
+                        src={prop.images?.[0]}
+                        property={prop}
+                        type="thumbnail"
                         className="w-20 h-20 rounded-xl object-cover shrink-0 border border-slate-200 grayscale opacity-80"
                       />
                       <div className="min-w-0 flex-1">
@@ -964,9 +967,10 @@ export default function UserDashboard() {
 
             {/* Property summary info */}
             <div className="p-4 border-b border-slate-100 bg-slate-50/70 flex items-center gap-3">
-              <img
-                src={renewModalProp.images?.[0] || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=200&q=80'}
-                alt=""
+              <SeoImage
+                src={renewModalProp.images?.[0]}
+                property={renewModalProp}
+                type="thumbnail"
                 className="w-14 h-14 rounded-xl object-cover border border-slate-200 shrink-0"
               />
               <div className="min-w-0 flex-1">

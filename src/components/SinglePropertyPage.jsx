@@ -20,6 +20,7 @@ import { findAdministrativeMerger, VIETNAM_ADMINISTRATIVE_DATA } from '../data/v
 import { validatePhoneNumber, normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 import PropertyVerificationModal from './PropertyVerificationModal';
 import PropertyVerificationReviewModal from './PropertyVerificationReviewModal';
+import SeoImage from './SeoImage';
 
 export default function SinglePropertyPage({ propertyOverride = null }) {
   const { 
@@ -896,14 +897,18 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
           <div className="relative rounded-3xl overflow-hidden bg-slate-900 shadow-xl border border-slate-200">
             {/* Grid Mosaic: 1 Big Photo Left (60%), 4 Smaller Photos Right */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-2 h-[340px] sm:h-[440px] lg:h-[480px]">
-              {/* Main Big Photo */}
+              {/* Main Big Photo (LCP Optimized) */}
               <div 
                 onClick={() => { setSelectedPhotoIndex(0); setIsLightboxOpen(true); }}
                 className="md:col-span-2 h-full relative overflow-hidden group cursor-pointer"
               >
-                <img
+                <SeoImage
                   src={safeImages[0]}
-                  alt={property.title}
+                  property={property}
+                  index={0}
+                  total={safeImages.length}
+                  type="main"
+                  priority={true}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition"></div>
@@ -931,9 +936,12 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   onClick={() => { setSelectedPhotoIndex(1 % safeImages.length); setIsLightboxOpen(true); }}
                   className="h-1/2 relative overflow-hidden group cursor-pointer"
                 >
-                  <img
+                  <SeoImage
                     src={safeImages[1] || safeImages[0]}
-                    alt=""
+                    property={property}
+                    index={1}
+                    total={safeImages.length}
+                    type="gallery"
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                   />
                   <div className="absolute inset-0 bg-black/15 group-hover:bg-transparent transition"></div>
@@ -942,9 +950,12 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   onClick={() => { setSelectedPhotoIndex(2 % safeImages.length); setIsLightboxOpen(true); }}
                   className="h-1/2 relative overflow-hidden group cursor-pointer"
                 >
-                  <img
+                  <SeoImage
                     src={safeImages[2] || safeImages[0]}
-                    alt=""
+                    property={property}
+                    index={2}
+                    total={safeImages.length}
+                    type="gallery"
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                   />
                   <div className="absolute inset-0 bg-black/15 group-hover:bg-transparent transition"></div>
@@ -957,9 +968,12 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   onClick={() => { setSelectedPhotoIndex(3 % safeImages.length); setIsLightboxOpen(true); }}
                   className="h-1/2 relative overflow-hidden group cursor-pointer"
                 >
-                  <img
+                  <SeoImage
                     src={safeImages[3] || safeImages[0]}
-                    alt=""
+                    property={property}
+                    index={3}
+                    total={safeImages.length}
+                    type="gallery"
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                   />
                   <div className="absolute inset-0 bg-black/15 group-hover:bg-transparent transition"></div>
@@ -968,9 +982,12 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   onClick={() => { setSelectedPhotoIndex(0); setIsLightboxOpen(true); }}
                   className="h-1/2 relative overflow-hidden group cursor-pointer"
                 >
-                  <img
+                  <SeoImage
                     src={safeImages[0]}
-                    alt=""
+                    property={property}
+                    index={0}
+                    total={safeImages.length}
+                    type="gallery"
                     className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                   />
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white font-black text-sm group-hover:bg-black/30 transition">
@@ -997,9 +1014,11 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
         {/* VR 360 Panorama View */}
         {activeMediaTab === 'vr360' && property.hasVR360 && (
           <div className="relative rounded-3xl overflow-hidden bg-slate-900 border-2 border-purple-500 shadow-2xl h-[420px] sm:h-[480px]">
-            <img
+            <SeoImage
               src={property.vrScenes?.[activeVrIndex]?.img || safeImages[0]}
-              alt="VR Scene"
+              property={property}
+              type="vr360"
+              sceneName={property.vrScenes?.[activeVrIndex]?.name || 'Không gian thực tế'}
               className="w-full h-full object-cover animate-pulse"
             />
             <div className="absolute top-4 left-4 bg-purple-950/90 text-white px-4 py-2 rounded-2xl border border-purple-400 text-xs font-bold flex items-center gap-2 backdrop-blur-md">
@@ -1596,9 +1615,11 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   {/* Broker Header */}
                   <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
                     <div className="relative">
-                      <img
+                      <SeoImage
                         src={safeAuthor.avatar}
-                        alt={safeAuthor.name}
+                        propertyTitle={property.title}
+                        type="agent"
+                        customContext={safeAuthor.name}
                         className="w-16 h-16 rounded-2xl object-cover border-2 border-emerald-500 shadow-md"
                       />
                       {safeAuthor.isVerified && (
@@ -1922,9 +1943,12 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               ❮
             </button>
 
-            <img
+            <SeoImage
               src={safeImages[selectedPhotoIndex] || safeImages[0]}
-              alt=""
+              property={property}
+              index={selectedPhotoIndex}
+              total={safeImages.length}
+              type="gallery"
               className="max-h-[75vh] max-w-[90vw] object-contain rounded-xl shadow-2xl"
             />
 
@@ -1938,10 +1962,13 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
           <div className="flex items-center justify-center gap-2 overflow-x-auto py-2">
             {safeImages.map((img, idx) => (
-              <img
+              <SeoImage
                 key={idx}
                 src={img}
-                alt=""
+                property={property}
+                index={idx}
+                total={safeImages.length}
+                type="gallery"
                 onClick={() => setSelectedPhotoIndex(idx)}
                 className={`w-16 h-12 object-cover rounded-lg cursor-pointer border-2 transition ${selectedPhotoIndex === idx ? 'border-emerald-500 scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`}
               />
@@ -2099,7 +2126,10 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             <div className="flex items-center gap-3.5 p-3 rounded-2xl bg-slate-50 border border-slate-200">
               <img
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(currentUrl)}`}
-                alt="QR Code bài đăng"
+                alt={`Mã QR quét nhanh bài đăng: ${property.title}`}
+                title={`Mã QR quét nhanh bài đăng: ${property.title}`}
+                loading="lazy"
+                decoding="async"
                 className="w-20 h-20 rounded-xl bg-white p-1 border border-slate-200 shrink-0"
               />
               <div className="text-xs text-slate-600 space-y-1">
