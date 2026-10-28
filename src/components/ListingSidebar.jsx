@@ -3,7 +3,8 @@
 import React, { useState, useMemo } from 'react';
 import { SALE_PRICE_PRESETS, RENT_PRICE_PRESETS, AREA_PRESETS } from '../data/mockData';
 import { Link } from '../router/RouterContext';
-import { buildSeoFilterUrl, buildDistrictSeoUrl, buildCitySeoUrl, getDistrictSlug } from '../utils/permalink';
+import { buildSeoUrl, buildSeoFilterUrl, buildDistrictSeoUrl, buildCitySeoUrl, getDistrictSlug } from '../utils/permalink';
+import { expandPropertyTypeIds } from '../data/propertyTypeTaxonomy';
 import { VIETNAM_ADMINISTRATIVE_DATA } from '../data/vietnamAdministrativeData';
 
 // Danh sách các dự án nổi bật tiêu biểu tại Đà Nẵng & Quảng Nam
@@ -101,44 +102,113 @@ export default function ListingSidebar({
   const activeCity = filters?.city || '';
   const isCitySelected = Boolean(activeCity && activeCity !== 'all' && activeCity !== 'Toàn Quốc');
 
-  // Tính số lượng tin đăng theo từng tỉnh thành
+  // 1. Lọc danh sách BĐS theo đúng Danh Mục (Nhu cầu & Loại hình BĐS hiện tại)
+  const categoryProperties = useMemo(() => {
+    if (!Array.isArray(properties)) return [];
+
+    const activeTypes = expandPropertyTypeIds(filters?.propertyTypes || filters?.propertyType);
+    const hasTypeFilter = activeTypes.length > 0 && !activeTypes.includes('all');
+
+    return properties.filter(p => {
+      // a. Phù hợp Trạng thái tin
+      if (p.status && p.status !== 'active') return false;
+
+      // b. Phù hợp Nhu cầu (Mua bán / Cho thuê)
+      if (p.demand !== currentDemand) return false;
+
+      // c. Phù hợp Loại hình BĐS (Danh mục)
+      if (hasTypeFilter && !activeTypes.includes(p.propertyType)) {
+        return false;
+      }
+
+      // d. Nếu có lọc Tin xác thực
+      if (filters?.onlyVerified && !p.verified && !p.isVerified) {
+        return false;
+      }
+
+      return true;
+    });
+  }, [properties, currentDemand, filters?.propertyType, filters?.propertyTypes, filters?.onlyVerified]);
+
+  // 2. Tính số lượng tin đăng theo từng tỉnh thành theo đúng danh mục
   const cityCounts = useMemo(() => {
     const counts = {};
-    if (Array.isArray(properties)) {
-      properties.forEach(p => {
-        if (p.demand === currentDemand && p.city) {
-          counts[p.city] = (counts[p.city] || 0) + 1;
-        }
-      });
-    }
+    categoryProperties.forEach(p => {
+      if (p.city) {
+        counts[p.city] = (counts[p.city] || 0) + 1;
+      }
+    });
     return counts;
-  }, [properties, currentDemand]);
+  }, [categoryProperties]);
 
-  // Tính số lượng tin đăng theo từng quận huyện theo đúng nhu cầu (Mua bán / Cho thuê)
+  // 3. Danh sách Tỉnh / Thành phố được sắp xếp GIẢM DẦN theo số lượng tin
+  const sortedCities = useMemo(() => {
+    const allCityNames = new Set(POPULAR_CITIES.map(c => c.name));
+    Object.keys(cityCounts).forEach(cName => allCityNames.add(cName));
+
+    const list = Array.from(allCityNames).map(name => ({
+      name,
+      count: cityCounts[name] || 0
+    }));
+
+    return list.sort((a, b) => {
+      // Ưu tiên tỉnh/thành có số lượng tin nhiều nhất lên trước
+      if (b.count !== a.count) return b.count - a.count;
+      // Cùng số lượng tin thì xếp theo thứ tự bảng chữ cái tiếng Việt
+      return a.name.localeCompare(b.name, 'vi');
+    });
+  }, [cityCounts]);
+
+  // 4. Tính số lượng tin đăng theo từng quận huyện theo đúng danh mục
   const districtCounts = useMemo(() => {
     const counts = {};
-    if (Array.isArray(properties)) {
-      properties.forEach(p => {
-        if (p.demand === currentDemand && p.district) {
+    categoryProperties.forEach(p => {
+      if (p.district) {
+        if (!isCitySelected || !p.city || p.city.toLowerCase() === activeCity.toLowerCase() || p.city.toLowerCase().includes(activeCity.toLowerCase())) {
           counts[p.district] = (counts[p.district] || 0) + 1;
         }
-      });
-    }
+      }
+    });
     return counts;
-  }, [properties, currentDemand]);
+  }, [categoryProperties, isCitySelected, activeCity]);
 
-  // Danh sách quận/huyện của thành phố đang chọn
+  // 5. Danh sách quận/huyện của thành phố đang chọn, sắp xếp GIẢM DẦN theo số lượng tin
   const cityDistricts = useMemo(() => {
     if (!isCitySelected) return [];
     const matchedCity = VIETNAM_ADMINISTRATIVE_DATA.find(c =>
       c.name.toLowerCase() === activeCity.toLowerCase() ||
       c.name.toLowerCase().includes(activeCity.toLowerCase())
     );
+
+    let rawDistricts = [];
     if (matchedCity?.districts && matchedCity.districts.length > 0) {
-      return matchedCity.districts.map(d => ({ name: d.name, city: activeCity }));
+      rawDistricts = matchedCity.districts.map(d => ({ name: d.name, city: activeCity }));
+    } else {
+      rawDistricts = POPULAR_DISTRICTS.filter(d => !d.city || d.city === activeCity);
     }
-    return POPULAR_DISTRICTS.filter(d => !d.city || d.city === activeCity);
-  }, [isCitySelected, activeCity]);
+
+    // Đảm bảo tất cả quận/huyện có tin trong categoryProperties cũng có mặt
+    const districtNameSet = new Set(rawDistricts.map(d => d.name));
+    categoryProperties.forEach(p => {
+      if (p.district && (!p.city || p.city.toLowerCase() === activeCity.toLowerCase() || p.city.toLowerCase().includes(activeCity.toLowerCase()))) {
+        if (!districtNameSet.has(p.district)) {
+          districtNameSet.add(p.district);
+          rawDistricts.push({ name: p.district, city: activeCity });
+        }
+      }
+    });
+
+    // Gắn số lượng tin và sắp xếp giảm dần theo số lượng tin (quận nhiều tin nhất lên đầu)
+    const withCounts = rawDistricts.map(d => ({
+      ...d,
+      count: districtCounts[d.name] || 0
+    }));
+
+    return withCounts.sort((a, b) => {
+      if (b.count !== a.count) return b.count - a.count;
+      return a.name.localeCompare(b.name, 'vi');
+    });
+  }, [isCitySelected, activeCity, districtCounts, categoryProperties]);
 
   // Đồng bộ thanh địa chỉ trình duyệt mà KHÔNG gây cuộn trang / reload
   const syncBrowserUrl = (targetUrl) => {
@@ -174,7 +244,13 @@ export default function ListingSidebar({
       }));
     }
 
-    const resetUrl = basePath || (isRent ? '/nha-dat-cho-thue' : '/nha-dat-ban');
+    const resetUrl = buildSeoUrl({
+      ...filters,
+      demand: isRent ? 'rent' : 'sale',
+      priceRange: 'all',
+      minPrice: null,
+      maxPrice: null
+    });
     const nextUrl = isSelected ? resetUrl : targetUrl;
     syncBrowserUrl(nextUrl);
   };
@@ -200,7 +276,13 @@ export default function ListingSidebar({
       }));
     }
 
-    const resetUrl = basePath || (isRent ? '/nha-dat-cho-thue' : '/nha-dat-ban');
+    const resetUrl = buildSeoUrl({
+      ...filters,
+      demand: isRent ? 'rent' : 'sale',
+      areaRange: 'all',
+      minArea: null,
+      maxArea: null
+    });
     const nextUrl = isSelected ? resetUrl : targetUrl;
     syncBrowserUrl(nextUrl);
   };
@@ -244,7 +326,15 @@ export default function ListingSidebar({
       }));
     }
 
-    const resetUrl = isRent ? '/nha-dat-cho-thue' : '/nha-dat-ban';
+    const resetUrl = buildSeoUrl({
+      ...filters,
+      demand: currentDemand,
+      city: '',
+      district: '',
+      ward: '',
+      street: '',
+      project: ''
+    });
     syncBrowserUrl(resetUrl);
   };
 
@@ -267,7 +357,14 @@ export default function ListingSidebar({
       }));
     }
 
-    const resetUrl = isRent ? '/nha-dat-cho-thue' : '/nha-dat-ban';
+    const resetUrl = buildSeoUrl({
+      ...filters,
+      demand: currentDemand,
+      city: item.city || activeCity,
+      district: '',
+      ward: '',
+      street: ''
+    });
     const nextUrl = isSelected ? resetUrl : targetUrl;
     syncBrowserUrl(nextUrl);
   };
@@ -304,7 +401,7 @@ export default function ListingSidebar({
 
   const displayedPrices = showAllPrices ? filteredPricePresets : filteredPricePresets.slice(0, 8);
   const displayedAreas = showAllAreas ? filteredAreaPresets : filteredAreaPresets.slice(0, 8);
-  const displayedCities = showAllCities ? POPULAR_CITIES : POPULAR_CITIES.slice(0, 7);
+  const displayedCities = showAllCities ? sortedCities : sortedCities.slice(0, 7);
   const displayedDistricts = showAllDistricts ? cityDistricts : cityDistricts.slice(0, 7);
 
   return (
@@ -324,8 +421,8 @@ export default function ListingSidebar({
 
         <div className="grid grid-cols-2 gap-1.5 text-xs">
           {displayedPrices.map(item => {
-            const targetUrl = buildSeoFilterUrl({
-              basePath,
+            const targetUrl = buildSeoUrl({
+              ...filters,
               demand: isRent ? 'rent' : 'sale',
               priceRange: item.value
             });
@@ -373,8 +470,8 @@ export default function ListingSidebar({
 
         <div className="grid grid-cols-2 gap-1.5 text-xs">
           {displayedAreas.map(item => {
-            const targetUrl = buildSeoFilterUrl({
-              basePath,
+            const targetUrl = buildSeoUrl({
+              ...filters,
               demand: isRent ? 'rent' : 'sale',
               areaRange: item.value
             });
@@ -440,11 +537,15 @@ export default function ListingSidebar({
           <>
             <div className="space-y-1 text-xs">
               {displayedCities.map(item => {
-                const count = cityCounts[item.name] || 0;
-                const targetUrl = buildCitySeoUrl({
-                  basePath,
+                const count = item.count || 0;
+                const targetUrl = buildSeoUrl({
+                  ...filters,
                   demand: currentDemand,
-                  cityName: item.name
+                  city: item.name,
+                  district: '',
+                  ward: '',
+                  street: '',
+                  project: ''
                 });
 
                 return (
@@ -467,13 +568,13 @@ export default function ListingSidebar({
               })}
             </div>
 
-            {POPULAR_CITIES.length > 7 && (
+            {sortedCities.length > 7 && (
               <button
                 type="button"
                 onClick={() => setShowAllCities(!showAllCities)}
                 className="w-full mt-3 pt-2.5 border-t border-slate-100 text-center text-xs font-bold text-slate-600 hover:text-red-600 transition cursor-pointer flex items-center justify-center gap-1"
               >
-                <span>{showAllCities ? 'Thu gọn' : `Xem thêm tỉnh thành (${POPULAR_CITIES.length - 7})`}</span>
+                <span>{showAllCities ? 'Thu gọn' : `Xem thêm tỉnh thành (${sortedCities.length - 7})`}</span>
                 <i className={`fa-solid fa-chevron-${showAllCities ? 'up' : 'down'} text-[10px]`}></i>
               </button>
             )}
@@ -483,11 +584,14 @@ export default function ListingSidebar({
           <>
             <div className="space-y-1 text-xs">
               {displayedDistricts.map(item => {
-                const count = districtCounts[item.name] || 0;
-                const targetUrl = buildDistrictSeoUrl({
-                  basePath,
+                const count = item.count || 0;
+                const targetUrl = buildSeoUrl({
+                  ...filters,
                   demand: currentDemand,
-                  districtName: item.name
+                  city: item.city || activeCity,
+                  district: item.name,
+                  ward: '',
+                  street: ''
                 });
 
                 return (
@@ -503,7 +607,7 @@ export default function ListingSidebar({
                       <span className="truncate">{item.name}</span>
                     </div>
                     <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0 ml-2 bg-slate-100 text-slate-500 group-hover:bg-red-100 group-hover:text-red-600 transition-colors">
-                      {count > 0 ? `${count} tin` : (item.city || activeCity)}
+                      {count > 0 ? `${count} tin` : 'Xem tin'}
                     </span>
                   </Link>
                 );
