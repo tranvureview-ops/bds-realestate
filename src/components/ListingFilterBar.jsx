@@ -167,7 +167,7 @@ export default function ListingFilterBar({
       demand: demand || 'sale',
       propertyType: 'all',
       propertyTypes: ['all'],
-      city: 'Đà Nẵng',
+      city: '',
       district: '',
       ward: '',
       street: '',
@@ -342,11 +342,11 @@ export default function ListingFilterBar({
 
   // Location data calculations for Screenshot 2 (Hỗ trợ đầy đủ Đà Nẵng, Quảng Nam...)
   const currentCityData = useMemo(() => {
-    const targetCity = draftFilters.city || 'Đà Nẵng';
+    if (!draftFilters.city) return null;
     return VIETNAM_ADMINISTRATIVE_DATA.find(c => 
-      c.name.toLowerCase() === targetCity.toLowerCase() || 
-      removeAccents(c.name) === removeAccents(targetCity)
-    ) || VIETNAM_ADMINISTRATIVE_DATA[0];
+      c.name.toLowerCase() === draftFilters.city.toLowerCase() || 
+      removeAccents(c.name) === removeAccents(draftFilters.city)
+    ) || null;
   }, [draftFilters.city]);
 
   const districtList = useMemo(() => {
@@ -1130,7 +1130,8 @@ export default function ListingFilterBar({
                           project: ''
                         }));
                       }}
-                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs sm:text-sm font-medium outline-none focus:border-red-500 cursor-pointer"
+                      disabled={!draftFilters.city}
+                      className="w-full p-3 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs sm:text-sm font-medium outline-none focus:border-red-500 cursor-pointer disabled:bg-slate-100 disabled:text-slate-400"
                     >
                       <option value="">{draftFilters.city ? `Tất cả Quận/Huyện tại ${draftFilters.city}` : 'Tất cả Quận/Huyện'}</option>
                       {districtList.map(dist => (
@@ -1201,7 +1202,7 @@ export default function ListingFilterBar({
                     onClick={() => {
                       setDraftFilters(prev => ({
                         ...prev,
-                        city: 'Đà Nẵng',
+                        city: '',
                         district: '',
                         ward: '',
                         street: '',
@@ -1216,7 +1217,7 @@ export default function ListingFilterBar({
 
                   <button
                     type="button"
-                    onClick={() => setModalScreen('main')}
+                    onClick={handleApplyAllDraftFilters}
                     className="flex-1 py-3 bg-[#e03c31] hover:bg-red-700 text-white font-bold text-sm rounded-xl shadow-md transition cursor-pointer text-center"
                   >
                     Áp dụng
