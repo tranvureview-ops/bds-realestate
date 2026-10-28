@@ -145,18 +145,24 @@ export const PROPERTY_TAXONOMY = {
 };
 
 
-// Ánh xạ thành phố chuẩn Đà Nẵng & Quảng Nam
+// Ánh xạ thành phố chuẩn toàn quốc (Đà Nẵng, Quảng Nam, TP.HCM, Hà Nội, Khánh Hòa)
 export const CITY_SLUGS = {
   'Đà Nẵng': 'da-nang',
-  'Quảng Nam': 'quang-nam'
+  'Quảng Nam': 'quang-nam',
+  'TP. Hồ Chí Minh': 'ho-chi-minh',
+  'Hà Nội': 'ha-noi',
+  'Khánh Hòa': 'khanh-hoa'
 };
 
 export const SLUG_TO_CITY = {
   'da-nang': 'Đà Nẵng',
-  'quang-nam': 'Quảng Nam'
+  'quang-nam': 'Quảng Nam',
+  'ho-chi-minh': 'TP. Hồ Chí Minh',
+  'ha-noi': 'Hà Nội',
+  'khanh-hoa': 'Khánh Hòa'
 };
 
-// Bảng ánh xạ Quận/Huyện TP. Đà Nẵng & Tỉnh Quảng Nam chuẩn hỗ trợ Clean Slug SEO
+// Bảng ánh xạ Quận/Huyện toàn quốc chuẩn hỗ trợ Clean Slug SEO
 export const DISTRICT_MAP = {
   // Đà Nẵng
   'hai-chau': { name: 'Quận Hải Châu', city: 'Đà Nẵng' },
@@ -176,7 +182,63 @@ export const DISTRICT_MAP = {
   'nui-thanh': { name: 'Huyện Núi Thành', city: 'Quảng Nam' },
   'dai-loc': { name: 'Huyện Đại Lộc', city: 'Quảng Nam' },
   'que-son': { name: 'Huyện Quế Sơn', city: 'Quảng Nam' },
-  'phu-ninh': { name: 'Huyện Phú Ninh', city: 'Quảng Nam' }
+  'phu-ninh': { name: 'Huyện Phú Ninh', city: 'Quảng Nam' },
+  // TP. Hồ Chí Minh
+  'quan-1': { name: 'Quận 1', city: 'TP. Hồ Chí Minh' },
+  'quan-3': { name: 'Quận 3', city: 'TP. Hồ Chí Minh' },
+  'quan-4': { name: 'Quận 4', city: 'TP. Hồ Chí Minh' },
+  'quan-5': { name: 'Quận 5', city: 'TP. Hồ Chí Minh' },
+  'quan-6': { name: 'Quận 6', city: 'TP. Hồ Chí Minh' },
+  'quan-7': { name: 'Quận 7', city: 'TP. Hồ Chí Minh' },
+  'quan-8': { name: 'Quận 8', city: 'TP. Hồ Chí Minh' },
+  'quan-10': { name: 'Quận 10', city: 'TP. Hồ Chí Minh' },
+  'quan-11': { name: 'Quận 11', city: 'TP. Hồ Chí Minh' },
+  'quan-12': { name: 'Quận 12', city: 'TP. Hồ Chí Minh' },
+  'binh-thanh': { name: 'Quận Bình Thạnh', city: 'TP. Hồ Chí Minh' },
+  'phu-nhuan': { name: 'Quận Phú Nhuận', city: 'TP. Hồ Chí Minh' },
+  'go-vap': { name: 'Quận Gò Vấp', city: 'TP. Hồ Chí Minh' },
+  'tan-binh': { name: 'Quận Tân Bình', city: 'TP. Hồ Chí Minh' },
+  'tan-phu': { name: 'Quận Tân Phú', city: 'TP. Hồ Chí Minh' },
+  'binh-tan': { name: 'Quận Bình Tân', city: 'TP. Hồ Chí Minh' },
+  'thu-duc': { name: 'Thành phố Thủ Đức', city: 'TP. Hồ Chí Minh' },
+  'binh-chanh': { name: 'Huyện Bình Chánh', city: 'TP. Hồ Chí Minh' },
+  'hoc-mon': { name: 'Huyện Hóc Môn', city: 'TP. Hồ Chí Minh' },
+  'cu-chi': { name: 'Huyện Củ Chi', city: 'TP. Hồ Chí Minh' },
+  'nha-be': { name: 'Huyện Nhà Bè', city: 'TP. Hồ Chí Minh' },
+  'can-gio': { name: 'Huyện Cần Giờ', city: 'TP. Hồ Chí Minh' },
+  // Hà Nội
+  'ba-dinh': { name: 'Quận Ba Đình', city: 'Hà Nội' },
+  'hoan-kiem': { name: 'Quận Hoàn Kiếm', city: 'Hà Nội' },
+  'tay-ho': { name: 'Quận Tây Hồ', city: 'Hà Nội' },
+  'cau-giay': { name: 'Quận Cầu Giấy', city: 'Hà Nội' },
+  'dong-da': { name: 'Quận Đống Đa', city: 'Hà Nội' },
+  'hai-ba-trung': { name: 'Quận Hai Bà Trưng', city: 'Hà Nội' },
+  'thanh-xuan': { name: 'Quận Thanh Xuân', city: 'Hà Nội' },
+  'nam-tu-liem': { name: 'Quận Nam Từ Liêm', city: 'Hà Nội' },
+  'bac-tu-liem': { name: 'Quận Bắc Từ Liêm', city: 'Hà Nội' },
+  'long-bien': { name: 'Quận Long Biên', city: 'Hà Nội' },
+  'hoang-mai': { name: 'Quận Hoàng Mai', city: 'Hà Nội' },
+  'ha-dong': { name: 'Quận Hà Đông', city: 'Hà Nội' },
+  'gia-lam': { name: 'Huyện Gia Lâm', city: 'Hà Nội' },
+  'dong-anh': { name: 'Huyện Đông Anh', city: 'Hà Nội' },
+  'thanh-tri': { name: 'Huyện Thanh Trì', city: 'Hà Nội' },
+  'hoai-duc': { name: 'Huyện Hoài Đức', city: 'Hà Nội' },
+  'dan-phuong': { name: 'Huyện Đan Phượng', city: 'Hà Nội' },
+  'me-linh': { name: 'Huyện Mê Linh', city: 'Hà Nội' },
+  'son-tay': { name: 'Thị xã Sơn Tây', city: 'Hà Nội' },
+  'soc-son': { name: 'Huyện Sóc Sơn', city: 'Hà Nội' },
+  'thach-that': { name: 'Huyện Thạch Thất', city: 'Hà Nội' },
+  'quoc-oai': { name: 'Huyện Quốc Oai', city: 'Hà Nội' },
+  // Khánh Hòa
+  'nha-trang': { name: 'Thành phố Nha Trang', city: 'Khánh Hòa' },
+  'cam-ranh': { name: 'Thành phố Cam Ranh', city: 'Khánh Hòa' },
+  'ninh-hoa': { name: 'Thị xã Ninh Hòa', city: 'Khánh Hòa' },
+  'cam-lam': { name: 'Huyện Cam Lâm', city: 'Khánh Hòa' },
+  'dien-khanh': { name: 'Huyện Diên Khánh', city: 'Khánh Hòa' },
+  'van-ninh': { name: 'Huyện Vạn Ninh', city: 'Khánh Hòa' },
+  'khanh-vinh': { name: 'Huyện Khánh Vĩnh', city: 'Khánh Hòa' },
+  'khanh-son': { name: 'Huyện Khánh Sơn', city: 'Khánh Hòa' },
+  'truong-sa': { name: 'Huyện Trường Sa', city: 'Khánh Hòa' }
 };
 
 // Danh mục thực thể địa danh và dự án BĐS tiêu biểu tại TP. Đà Nẵng

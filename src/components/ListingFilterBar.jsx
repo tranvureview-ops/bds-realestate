@@ -563,6 +563,90 @@ export default function ListingFilterBar({
                     ))}
                   </div>
                 </div>
+
+                {/* GROUP 3: TP. HỒ CHÍ MINH */}
+                <div className="mt-1 border-t border-slate-100 pt-1">
+                  <div className="px-3.5 py-1 text-[11px] font-bold text-amber-700 bg-amber-50/70 flex items-center justify-between">
+                    <span>TP. HỒ CHÍ MINH</span>
+                    <button
+                      type="button"
+                      onClick={() => handleSelectQuickLocation('TP. Hồ Chí Minh', '')}
+                      className="text-[10px] text-amber-800 underline font-semibold hover:text-amber-950 cursor-pointer"
+                    >
+                      Toàn TP. Hồ Chí Minh
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-0.5 px-2 py-1">
+                    {['Quận 1', 'Quận 3', 'Quận 7', 'Thành phố Thủ Đức', 'Quận Bình Thạnh', 'Quận Tân Bình', 'Quận Gò Vấp', 'Quận Phú Nhuận'].map(dName => (
+                      <button
+                        key={dName}
+                        type="button"
+                        onClick={() => handleSelectQuickLocation('TP. Hồ Chí Minh', dName)}
+                        className={`text-left px-2.5 py-1.5 rounded-lg text-xs truncate transition cursor-pointer ${
+                          filters.district === dName ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-600 hover:bg-slate-100'
+                        }`}
+                      >
+                        {dName}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* GROUP 4: THỦ ĐÔ HÀ NỘI */}
+                <div className="mt-1 border-t border-slate-100 pt-1">
+                  <div className="px-3.5 py-1 text-[11px] font-bold text-rose-700 bg-rose-50/70 flex items-center justify-between">
+                    <span>THỦ ĐÔ HÀ NỘI</span>
+                    <button
+                      type="button"
+                      onClick={() => handleSelectQuickLocation('Hà Nội', '')}
+                      className="text-[10px] text-rose-800 underline font-semibold hover:text-rose-950 cursor-pointer"
+                    >
+                      Toàn TP. Hà Nội
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-0.5 px-2 py-1">
+                    {['Quận Cầu Giấy', 'Quận Nam Từ Liêm', 'Quận Ba Đình', 'Quận Hoàn Kiếm', 'Quận Tây Hồ', 'Quận Đống Đa', 'Quận Thanh Xuân', 'Quận Hà Đông'].map(dName => (
+                      <button
+                        key={dName}
+                        type="button"
+                        onClick={() => handleSelectQuickLocation('Hà Nội', dName)}
+                        className={`text-left px-2.5 py-1.5 rounded-lg text-xs truncate transition cursor-pointer ${
+                          filters.district === dName ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-600 hover:bg-slate-100'
+                        }`}
+                      >
+                        {dName}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* GROUP 5: TỈNH KHÁNH HÒA */}
+                <div className="mt-1 border-t border-slate-100 pt-1">
+                  <div className="px-3.5 py-1 text-[11px] font-bold text-teal-700 bg-teal-50/70 flex items-center justify-between">
+                    <span>TỈNH KHÁNH HÒA</span>
+                    <button
+                      type="button"
+                      onClick={() => handleSelectQuickLocation('Khánh Hòa', '')}
+                      className="text-[10px] text-teal-800 underline font-semibold hover:text-teal-950 cursor-pointer"
+                    >
+                      Toàn Tỉnh Khánh Hòa
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-0.5 px-2 py-1">
+                    {['Thành phố Nha Trang', 'Thành phố Cam Ranh', 'Huyện Cam Lâm', 'Thị xã Ninh Hòa', 'Huyện Diên Khánh', 'Huyện Vạn Ninh'].map(dName => (
+                      <button
+                        key={dName}
+                        type="button"
+                        onClick={() => handleSelectQuickLocation('Khánh Hòa', dName)}
+                        className={`text-left px-2.5 py-1.5 rounded-lg text-xs truncate transition cursor-pointer ${
+                          filters.district === dName ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-600 hover:bg-slate-100'
+                        }`}
+                      >
+                        {dName}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             )}
           </div>
