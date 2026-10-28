@@ -8,6 +8,7 @@ import { filterProperties } from '../utils/propertyFilter';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link } from '../router/RouterContext';
 import { buildPaginationUrl } from '../utils/permalink';
+import ListingSidebar from './ListingSidebar';
 
 const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
   ssr: false,
@@ -42,6 +43,7 @@ export default function ListingGrid({
   pageSize,
   limit,
   isHomePage = false,
+  hasSidebar,
   title,
   subtitle,
   initialPage = 1,
@@ -50,6 +52,8 @@ export default function ListingGrid({
 }) {
   const { systemConfig } = useRealEstate();
   const gridContainerRef = useRef(null);
+
+  const showSidebar = hasSidebar !== undefined ? hasSidebar : !isHomePage;
 
   const [viewMode, setViewMode] = useState('grid'); // 'grid', 'list', 'split'
   const [sortBy, setSortBy] = useState('vip'); // 'vip', 'price-asc', 'price-desc', 'area-desc', 'newest'
@@ -197,6 +201,172 @@ export default function ListingGrid({
     return 'bất động sản';
   }, [filters?.demand]);
 
+  // Render Trạng thái rỗng khi không có kết quả phù hợp
+  const renderEmptyState = () => (
+    <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 p-8 my-4">
+      <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 text-2xl mx-auto mb-4">
+        <i className="fa-solid fa-house-chimney-crack"></i>
+      </div>
+      <h3 className="text-lg font-bold text-slate-800">Không tìm thấy bất động sản phù hợp</h3>
+      <p className="text-sm text-slate-500 mt-1 max-w-md mx-auto">
+        Không có kết quả nào khớp với bộ lọc hiện tại của bạn. Hãy thử thay đổi mức giá, diện tích hoặc từ khóa tìm kiếm.
+      </p>
+      {setFilters && (
+        <button
+          onClick={() => setFilters({
+            keyword: '',
+            demand: filters.demand || 'sale',
+            propertyType: 'all',
+            city: '',
+            district: '',
+            priceRange: 'all',
+            areaRange: 'all',
+            bedroom: 'all',
+            direction: 'all',
+            hasVR360: false,
+            onlyVerified: false
+          })}
+          className="mt-5 px-5 py-2.5 bg-[#e03c31] hover:bg-red-700 text-white font-bold rounded-xl text-sm transition shadow-sm cursor-pointer"
+        >
+          <i className="fa-solid fa-rotate-left mr-2"></i>
+          Xóa toàn bộ bộ lọc
+        </button>
+      )}
+    </div>
+  );
+
+  // Render Thanh Phân Trang Chuẩn SEO & UX
+  const renderPagination = () => {
+    if (!enablePagination || totalPages <= 1) return null;
+    return (
+      <div className="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+        {/* Thông tin số lượng tin đang hiển thị */}
+        <div className="text-xs sm:text-sm text-slate-500 font-medium text-center sm:text-left">
+          Đang hiển thị <span className="font-bold text-slate-900">{startIndex + 1}</span> - <span className="font-bold text-slate-900">{endIndex}</span> trong tổng số <span className="font-bold text-red-600">{totalItems}</span> bất động sản
+        </div>
+
+        {/* Các nút liên kết phân trang chuẩn thẻ <a> HTML cho Crawler & Bot SEO */}
+        <nav className="flex items-center gap-1.5 flex-wrap justify-center" aria-label="Phân trang danh mục">
+          {/* Nút Về Trang Đầu */}
+          {safePage === 1 ? (
+            <span
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition border border-slate-200 bg-white text-slate-300 opacity-40 cursor-not-allowed shadow-2xs select-none"
+              title="Đang ở trang đầu tiên"
+            >
+              <i className="fa-solid fa-angles-left"></i>
+            </span>
+          ) : (
+            <Link
+              href={getPageUrl(1)}
+              onClick={scrollToGridTop}
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer shadow-2xs"
+              title="Về trang đầu tiên"
+            >
+              <i className="fa-solid fa-angles-left"></i>
+            </Link>
+          )}
+
+          {/* Nút Trang Trước */}
+          {safePage === 1 ? (
+            <span
+              className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-300 opacity-40 cursor-not-allowed shadow-2xs select-none"
+              title="Đang ở trang đầu"
+            >
+              <i className="fa-solid fa-angle-left"></i>
+              <span className="hidden sm:inline">Trước</span>
+            </span>
+          ) : (
+            <Link
+              href={getPageUrl(safePage - 1)}
+              onClick={scrollToGridTop}
+              className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer shadow-2xs"
+              title="Trang trước"
+            >
+              <i className="fa-solid fa-angle-left"></i>
+              <span className="hidden sm:inline">Trước</span>
+            </Link>
+          )}
+
+          {/* Danh sách các số trang */}
+          {getPageNumbers(safePage, totalPages).map((p, idx) => {
+            if (p === '...') {
+              return (
+                <span 
+                  key={`ellipsis-${idx}`} 
+                  className="w-8 h-9 flex items-center justify-center text-slate-400 font-bold text-xs select-none"
+                >
+                  ...
+                </span>
+              );
+            }
+            const isActive = p === safePage;
+            if (isActive) {
+              return (
+                <span
+                  key={`page-${p}`}
+                  className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black transition cursor-default bg-[#e03c31] text-white shadow-md shadow-red-600/30 ring-2 ring-red-600/20"
+                  aria-current="page"
+                >
+                  {p}
+                </span>
+              );
+            }
+            return (
+              <Link
+                key={`page-${p}`}
+                href={getPageUrl(p)}
+                onClick={scrollToGridTop}
+                className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black transition cursor-pointer border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+              >
+                {p}
+              </Link>
+            );
+          })}
+
+          {/* Nút Trang Sau */}
+          {safePage === totalPages ? (
+            <span
+              className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-300 opacity-40 cursor-not-allowed shadow-2xs select-none"
+              title="Đang ở trang cuối"
+            >
+              <span className="hidden sm:inline">Sau</span>
+              <i className="fa-solid fa-angle-right"></i>
+            </span>
+          ) : (
+            <Link
+              href={getPageUrl(safePage + 1)}
+              onClick={scrollToGridTop}
+              className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer shadow-2xs"
+              title="Trang kế tiếp"
+            >
+              <span className="hidden sm:inline">Sau</span>
+              <i className="fa-solid fa-angle-right"></i>
+            </Link>
+          )}
+
+          {/* Nút Đến Trang Cuối */}
+          {safePage === totalPages ? (
+            <span
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition border border-slate-200 bg-white text-slate-300 opacity-40 cursor-not-allowed shadow-2xs select-none"
+              title="Đang ở trang cuối"
+            >
+              <i className="fa-solid fa-angles-right"></i>
+            </span>
+          ) : (
+            <Link
+              href={getPageUrl(totalPages)}
+              onClick={scrollToGridTop}
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black transition border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer shadow-2xs"
+              title="Đến trang cuối cùng"
+            >
+              <i className="fa-solid fa-angles-right"></i>
+            </Link>
+          )}
+        </nav>
+      </div>
+    );
+  };
+
   return (
     <div ref={gridContainerRef} className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className ? className : (isHomePage ? 'pt-2 pb-3' : 'pt-4 sm:pt-6 pb-8')}`}>
       {/* View Controls & Sorting Bar */}
@@ -282,207 +452,104 @@ export default function ListingGrid({
         </div>
       </div>
 
-      {/* Main Content Area */}
-      {sortedProperties.length === 0 ? (
-        /* Empty State */
-        <div className="text-center py-16 bg-white rounded-2xl border border-slate-200 p-8 my-8">
-          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 text-2xl mx-auto mb-4">
-            <i className="fa-solid fa-house-chimney-crack"></i>
+      {/* ========================================================
+          MAIN CONTENT AREA (HỖ TRỢ 2 CỘT CÓ SIDEBAR BÊN PHẢI CHUẨN BATDONGSAN)
+         ======================================================== */}
+      {showSidebar ? (
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start my-5 sm:my-6">
+          {/* CỘT TRÁI: DANH SÁCH BẤT ĐỘNG SẢN CHÍNH (~70% Chiều ngang desktop) */}
+          <div className="w-full lg:flex-1 min-w-0">
+            {sortedProperties.length === 0 ? (
+              renderEmptyState()
+            ) : viewMode === 'split' ? (
+              /* Split Screen View */
+              <div className="space-y-4">
+                <div className="h-[400px] rounded-2xl overflow-hidden border border-slate-200 shadow-xs mb-4">
+                  <InteractiveMap properties={displayedProperties} height="400px" />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {displayedProperties.map(property => (
+                    <ListingCard key={property.id} property={property} viewMode="grid" />
+                  ))}
+                </div>
+              </div>
+            ) : viewMode === 'list' ? (
+              /* List View: Hiển thị thẻ dạng danh sách ngang rộng rãi */
+              <div className="space-y-4">
+                {displayedProperties.map(property => (
+                  <ListingCard key={property.id} property={property} viewMode="list" />
+                ))}
+              </div>
+            ) : (
+              /* Grid View: 2 cột chuẩn khi có sidebar bên phải */
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                {displayedProperties.map(property => (
+                  <ListingCard key={property.id} property={property} viewMode="grid" />
+                ))}
+              </div>
+            )}
+
+            {/* Phân trang danh mục chuẩn SEO */}
+            {renderPagination()}
           </div>
-          <h3 className="text-lg font-bold text-slate-800">Không tìm thấy bất động sản phù hợp</h3>
-          <p className="text-sm text-slate-500 mt-1 max-w-md mx-auto">
-            Không có kết quả nào khớp với bộ lọc hiện tại của bạn. Hãy thử thay đổi mức giá, diện tích hoặc từ khóa tìm kiếm.
-          </p>
-          {setFilters && (
-            <button
-              onClick={() => setFilters({
-                keyword: '',
-                demand: 'all',
-                propertyType: 'all',
-                city: '',
-                district: '',
-                priceRange: 'all',
-                areaRange: 'all',
-                bedroom: 'all',
-                direction: 'all',
-                hasVR360: false,
-                onlyVerified: false
-              })}
-              className="mt-5 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition shadow-sm cursor-pointer"
-            >
-              <i className="fa-solid fa-rotate-left mr-2"></i>
-              Xóa toàn bộ bộ lọc
-            </button>
-          )}
-        </div>
-      ) : viewMode === 'split' ? (
-        /* Split Screen View: List on left, Interactive Map on right */
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 my-6 items-start">
-          <div className="lg:col-span-6 space-y-4 max-h-[800px] overflow-y-auto pr-2">
-            {displayedProperties.map(property => (
-              <ListingCard key={property.id} property={property} viewMode="grid" />
-            ))}
-          </div>
-          <div className="lg:col-span-6 sticky top-6">
-            <InteractiveMap properties={displayedProperties} height="750px" />
-          </div>
-        </div>
-      ) : viewMode === 'list' ? (
-        /* List View */
-        <div className="space-y-4 my-6">
-          {displayedProperties.map(property => (
-            <ListingCard key={property.id} property={property} viewMode="list" />
-          ))}
+
+          {/* CỘT PHẢI: SIDEBAR ĐA NĂNG CHUẨN BATDONGSAN.COM.VN */}
+          <aside className="w-full lg:w-80 shrink-0 lg:sticky lg:top-24">
+            <ListingSidebar
+              demand={filters?.demand || 'sale'}
+              filters={filters}
+              setFilters={setFilters}
+              properties={properties}
+              onScrollToTop={scrollToGridTop}
+            />
+          </aside>
         </div>
       ) : (
-        /* Grid View: 3 columns */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-6">
-          {displayedProperties.map(property => (
-            <ListingCard key={property.id} property={property} viewMode="grid" />
-          ))}
-        </div>
-      )}
+        /* Khi KHÔNG có Sidebar (Chế độ Trang Chủ) */
+        <>
+          {sortedProperties.length === 0 ? (
+            renderEmptyState()
+          ) : viewMode === 'split' ? (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 my-6 items-start">
+              <div className="lg:col-span-6 space-y-4 max-h-[800px] overflow-y-auto pr-2">
+                {displayedProperties.map(property => (
+                  <ListingCard key={property.id} property={property} viewMode="grid" />
+                ))}
+              </div>
+              <div className="lg:col-span-6 sticky top-6">
+                <InteractiveMap properties={displayedProperties} height="750px" />
+              </div>
+            </div>
+          ) : viewMode === 'list' ? (
+            <div className="space-y-4 my-6">
+              {displayedProperties.map(property => (
+                <ListingCard key={property.id} property={property} viewMode="list" />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-6">
+              {displayedProperties.map(property => (
+                <ListingCard key={property.id} property={property} viewMode="grid" />
+              ))}
+            </div>
+          )}
 
-      {/* Trang Chủ: Nút xem tất cả BĐS nếu còn tin chưa hiển thị */}
-      {isHomePage && sortedProperties.length > homeLimit && (
-        <div className="mt-4 mb-0 text-center">
-          <Link 
-            to={filters?.demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban'}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-white border border-slate-300 hover:border-emerald-500 hover:bg-emerald-50 text-slate-800 hover:text-emerald-700 font-bold text-xs sm:text-sm shadow-xs transition group cursor-pointer"
-          >
-            <span>Xem tất cả {sortedProperties.length} bất động sản</span>
-            <i className="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition text-emerald-600"></i>
-          </Link>
-        </div>
-      )}
-
-      {/* Danh Mục: Thanh Phân Trang Chuẩn SEO & UX */}
-      {enablePagination && totalPages > 1 && (
-        <div className="mt-10 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-          {/* Thông tin số lượng tin đang hiển thị */}
-          <div className="text-xs sm:text-sm text-slate-500 font-medium text-center sm:text-left">
-            Đang hiển thị <span className="font-bold text-slate-900">{startIndex + 1}</span> - <span className="font-bold text-slate-900">{endIndex}</span> trong tổng số <span className="font-bold text-emerald-600">{totalItems}</span> bất động sản
-          </div>
-
-          {/* Các nút liên kết phân trang chuẩn thẻ <a> HTML cho Crawler & Bot SEO */}
-          <nav className="flex items-center gap-1.5 flex-wrap justify-center" aria-label="Phân trang danh mục">
-            {/* Nút Về Trang Đầu */}
-            {safePage === 1 ? (
-              <span
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition border border-slate-200 bg-white text-slate-300 opacity-40 cursor-not-allowed shadow-2xs select-none"
-                title="Đang ở trang đầu tiên"
+          {/* Trang Chủ: Nút xem tất cả BĐS nếu còn tin chưa hiển thị */}
+          {isHomePage && sortedProperties.length > homeLimit && (
+            <div className="mt-4 mb-0 text-center">
+              <Link 
+                to={filters?.demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban'}
+                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-white border border-slate-300 hover:border-red-500 hover:bg-red-50 text-slate-800 hover:text-red-700 font-bold text-xs sm:text-sm shadow-xs transition group cursor-pointer"
               >
-                <i className="fa-solid fa-angles-left"></i>
-              </span>
-            ) : (
-              <Link
-                href={getPageUrl(1)}
-                onClick={scrollToGridTop}
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer shadow-2xs"
-                title="Về trang đầu tiên"
-              >
-                <i className="fa-solid fa-angles-left"></i>
+                <span>Xem tất cả {sortedProperties.length} bất động sản</span>
+                <i className="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition text-red-600"></i>
               </Link>
-            )}
+            </div>
+          )}
 
-            {/* Nút Trang Trước */}
-            {safePage === 1 ? (
-              <span
-                className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-300 opacity-40 cursor-not-allowed shadow-2xs select-none"
-                title="Đang ở trang đầu"
-              >
-                <i className="fa-solid fa-angle-left"></i>
-                <span className="hidden sm:inline">Trước</span>
-              </span>
-            ) : (
-              <Link
-                href={getPageUrl(safePage - 1)}
-                onClick={scrollToGridTop}
-                className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer shadow-2xs"
-                title="Trang trước"
-              >
-                <i className="fa-solid fa-angle-left"></i>
-                <span className="hidden sm:inline">Trước</span>
-              </Link>
-            )}
-
-            {/* Danh sách các số trang */}
-            {getPageNumbers(safePage, totalPages).map((p, idx) => {
-              if (p === '...') {
-                return (
-                  <span 
-                    key={`ellipsis-${idx}`} 
-                    className="w-8 h-9 flex items-center justify-center text-slate-400 font-bold text-xs select-none"
-                  >
-                    ...
-                  </span>
-                );
-              }
-              const isActive = p === safePage;
-              if (isActive) {
-                return (
-                  <span
-                    key={`page-${p}`}
-                    className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black transition cursor-default bg-emerald-600 text-white shadow-md shadow-emerald-600/30 ring-2 ring-emerald-600/20"
-                    aria-current="page"
-                  >
-                    {p}
-                  </span>
-                );
-              }
-              return (
-                <Link
-                  key={`page-${p}`}
-                  href={getPageUrl(p)}
-                  onClick={scrollToGridTop}
-                  className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black transition cursor-pointer border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900"
-                >
-                  {p}
-                </Link>
-              );
-            })}
-
-            {/* Nút Trang Sau */}
-            {safePage === totalPages ? (
-              <span
-                className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-300 opacity-40 cursor-not-allowed shadow-2xs select-none"
-                title="Đang ở trang cuối"
-              >
-                <span className="hidden sm:inline">Sau</span>
-                <i className="fa-solid fa-angle-right"></i>
-              </span>
-            ) : (
-              <Link
-                href={getPageUrl(safePage + 1)}
-                onClick={scrollToGridTop}
-                className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer shadow-2xs"
-                title="Trang kế tiếp"
-              >
-                <span className="hidden sm:inline">Sau</span>
-                <i className="fa-solid fa-angle-right"></i>
-              </Link>
-            )}
-
-            {/* Nút Đến Trang Cuối */}
-            {safePage === totalPages ? (
-              <span
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition border border-slate-200 bg-white text-slate-300 opacity-40 cursor-not-allowed shadow-2xs select-none"
-                title="Đang ở trang cuối"
-              >
-                <i className="fa-solid fa-angles-right"></i>
-              </span>
-            ) : (
-              <Link
-                href={getPageUrl(totalPages)}
-                onClick={scrollToGridTop}
-                className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer shadow-2xs"
-                title="Đến trang cuối cùng"
-              >
-                <i className="fa-solid fa-angles-right"></i>
-              </Link>
-            )}
-          </nav>
-        </div>
+          {/* Phân trang */}
+          {renderPagination()}
+        </>
       )}
     </div>
   );
