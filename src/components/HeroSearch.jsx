@@ -103,24 +103,15 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
   }, []);
 
   // Current Demand
-  const currentDemand = filters?.demand === 'rent' ? 'rent' : (filters?.demand === 'project' ? 'project' : 'sale');
+  const currentDemand = filters?.demand === 'rent' ? 'rent' : 'sale';
 
   // Change Demand Tab
   const handleTabChange = (demandKey) => {
-    if (demandKey === 'project') {
-      setFilters(prev => ({
-        ...prev,
-        demand: 'sale',
-        propertyType: 'project-land'
-      }));
-    } else {
-      setFilters(prev => ({
-        ...prev,
-        demand: demandKey,
-        propertyType: prev.propertyType === 'project-land' ? 'all' : prev.propertyType,
-        priceRange: 'all' // reset price range when changing demand
-      }));
-    }
+    setFilters(prev => ({
+      ...prev,
+      demand: demandKey,
+      priceRange: 'all' // reset price range when changing demand
+    }));
     setIsDropdownOpen(false);
   };
 
@@ -285,11 +276,8 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
     if (filters?.demand === 'rent') {
       return 'VD: Cho thuê căn hộ studio, chung cư dưới 10 triệu';
     }
-    if (filters?.propertyType === 'project-land') {
-      return 'VD: Dự án Sun Cosmo, Wyndham, Eco Central Park...';
-    }
     return 'VD: Bán nhà Bình Thạnh dưới 5 tỷ';
-  }, [filters?.demand, filters?.propertyType]);
+  }, [filters?.demand]);
 
   // Labels for Quick Bar
   const getLocationLabel = () => {
@@ -349,13 +337,13 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
             BATDONGSAN.COM.VN SEARCH BOX WIDGET
            ---------------------------------------------------- */}
         <div className="w-full">
-          {/* 1. TOP TABS: Mua bán / Cho thuê / Dự án */}
-          <div className="flex items-center gap-2 sm:gap-6 px-4 sm:px-6 pt-2.5 pb-0 bg-[#2b353e]/95 backdrop-blur-md rounded-t-2xl border-b border-white/10 w-fit sm:min-w-[360px] shadow-lg">
+          {/* 1. TOP TABS: Mua bán / Cho thuê */}
+          <div className="flex items-center gap-3 sm:gap-6 px-4 sm:px-6 pt-2.5 pb-0 bg-[#2b353e]/95 backdrop-blur-md rounded-t-2xl border-b border-white/10 w-fit sm:min-w-[260px] shadow-lg">
             <button
               type="button"
               onClick={() => handleTabChange('sale')}
-              className={`pb-2.5 px-1 sm:px-2 text-xs sm:text-sm font-bold transition cursor-pointer relative ${
-                currentDemand === 'sale' && filters.propertyType !== 'project-land'
+              className={`pb-2.5 px-2 text-xs sm:text-sm font-bold transition cursor-pointer relative ${
+                currentDemand === 'sale'
                   ? 'text-white border-b-2 border-red-500 font-black'
                   : 'text-slate-300 hover:text-white'
               }`}
@@ -365,24 +353,13 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
             <button
               type="button"
               onClick={() => handleTabChange('rent')}
-              className={`pb-2.5 px-1 sm:px-2 text-xs sm:text-sm font-bold transition cursor-pointer relative ${
+              className={`pb-2.5 px-2 text-xs sm:text-sm font-bold transition cursor-pointer relative ${
                 currentDemand === 'rent'
                   ? 'text-white border-b-2 border-red-500 font-black'
                   : 'text-slate-300 hover:text-white'
               }`}
             >
               Cho thuê
-            </button>
-            <button
-              type="button"
-              onClick={() => handleTabChange('project')}
-              className={`pb-2.5 px-1 sm:px-2 text-xs sm:text-sm font-bold transition cursor-pointer relative ${
-                filters.propertyType === 'project-land'
-                  ? 'text-white border-b-2 border-red-500 font-black'
-                  : 'text-slate-300 hover:text-white'
-              }`}
-            >
-              Dự án
             </button>
           </div>
 
