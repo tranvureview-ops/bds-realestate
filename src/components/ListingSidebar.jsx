@@ -3,7 +3,8 @@
 import React, { useState, useMemo } from 'react';
 import { SALE_PRICE_PRESETS, RENT_PRICE_PRESETS, AREA_PRESETS } from '../data/mockData';
 import { Link } from '../router/RouterContext';
-import { buildSeoFilterUrl, buildDistrictSeoUrl, getDistrictSlug } from '../utils/permalink';
+import { buildSeoFilterUrl, buildDistrictSeoUrl, buildCitySeoUrl, getDistrictSlug } from '../utils/permalink';
+import { VIETNAM_ADMINISTRATIVE_DATA } from '../data/vietnamAdministrativeData';
 
 // Danh sách các dự án nổi bật tiêu biểu tại Đà Nẵng & Quảng Nam
 const FEATURED_PROJECTS = [
@@ -49,6 +50,22 @@ const FEATURED_PROJECTS = [
   }
 ];
 
+// Danh sách các tỉnh/thành phố trọng điểm toàn quốc chuẩn batdongsan.com.vn
+const POPULAR_CITIES = [
+  { name: 'Hà Nội' },
+  { name: 'TP. Hồ Chí Minh' },
+  { name: 'Đà Nẵng' },
+  { name: 'Bình Dương' },
+  { name: 'Đồng Nai' },
+  { name: 'Quảng Nam' },
+  { name: 'Khánh Hòa' },
+  { name: 'Hải Phòng' },
+  { name: 'Bà Rịa - Vũng Tàu' },
+  { name: 'Cần Thơ' },
+  { name: 'Lâm Đồng' },
+  { name: 'Kiên Giang' }
+];
+
 // Danh sách các quận/huyện trọng điểm
 const POPULAR_DISTRICTS = [
   { name: 'Quận Hải Châu', city: 'Đà Nẵng' },
@@ -79,6 +96,23 @@ export default function ListingSidebar({
   const [showAllPrices, setShowAllPrices] = useState(false);
   const [showAllAreas, setShowAllAreas] = useState(false);
   const [showAllDistricts, setShowAllDistricts] = useState(false);
+  const [showAllCities, setShowAllCities] = useState(false);
+
+  const activeCity = filters?.city || '';
+  const isCitySelected = Boolean(activeCity && activeCity !== 'all' && activeCity !== 'Toàn Quốc');
+
+  // Tính số lượng tin đăng theo từng tỉnh thành
+  const cityCounts = useMemo(() => {
+    const counts = {};
+    if (Array.isArray(properties)) {
+      properties.forEach(p => {
+        if (p.demand === currentDemand && p.city) {
+          counts[p.city] = (counts[p.city] || 0) + 1;
+        }
+      });
+    }
+    return counts;
+  }, [properties, currentDemand]);
 
   // Tính số lượng tin đăng theo từng quận huyện theo đúng nhu cầu (Mua bán / Cho thuê)
   const districtCounts = useMemo(() => {
@@ -92,6 +126,19 @@ export default function ListingSidebar({
     }
     return counts;
   }, [properties, currentDemand]);
+
+  // Danh sách quận/huyện của thành phố đang chọn
+  const cityDistricts = useMemo(() => {
+    if (!isCitySelected) return [];
+    const matchedCity = VIETNAM_ADMINISTRATIVE_DATA.find(c =>
+      c.name.toLowerCase() === activeCity.toLowerCase() ||
+      c.name.toLowerCase().includes(activeCity.toLowerCase())
+    );
+    if (matchedCity?.districts && matchedCity.districts.length > 0) {
+      return matchedCity.districts.map(d => ({ name: d.name, city: activeCity }));
+    }
+    return POPULAR_DISTRICTS.filter(d => !d.city || d.city === activeCity);
+  }, [isCitySelected, activeCity]);
 
   // Đồng bộ thanh địa chỉ trình duyệt mà KHÔNG gây cuộn trang / reload
   const syncBrowserUrl = (targetUrl) => {
@@ -158,6 +205,49 @@ export default function ListingSidebar({
     syncBrowserUrl(nextUrl);
   };
 
+  // Xử lý chọn tỉnh/thành phố khi ở danh mục chính
+  const handleSelectCity = (e, cityName, targetUrl) => {
+    if (e) {
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+      e.preventDefault();
+    }
+
+    if (setFilters) {
+      setFilters(prev => ({
+        ...prev,
+        city: cityName,
+        district: '',
+        ward: '',
+        street: '',
+        project: ''
+      }));
+    }
+
+    syncBrowserUrl(targetUrl);
+  };
+
+  // Quay lại danh mục chính toàn quốc
+  const handleResetCity = (e) => {
+    if (e) {
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+      e.preventDefault();
+    }
+
+    if (setFilters) {
+      setFilters(prev => ({
+        ...prev,
+        city: '',
+        district: '',
+        ward: '',
+        street: '',
+        project: ''
+      }));
+    }
+
+    const resetUrl = isRent ? '/nha-dat-cho-thue' : '/nha-dat-ban';
+    syncBrowserUrl(resetUrl);
+  };
+
   // Xử lý chọn quận huyện (Mượt mà, không cuộn giật, hỗ trợ bật/tắt toggle)
   const handleSelectDistrict = (e, item, targetUrl) => {
     if (e) {
@@ -170,7 +260,7 @@ export default function ListingSidebar({
     if (setFilters) {
       setFilters(prev => ({
         ...prev,
-        city: isSelected ? '' : item.city,
+        city: isSelected ? '' : (item.city || activeCity),
         district: isSelected ? '' : item.name,
         ward: '',
         street: ''
@@ -214,7 +304,8 @@ export default function ListingSidebar({
 
   const displayedPrices = showAllPrices ? filteredPricePresets : filteredPricePresets.slice(0, 8);
   const displayedAreas = showAllAreas ? filteredAreaPresets : filteredAreaPresets.slice(0, 8);
-  const displayedDistricts = showAllDistricts ? POPULAR_DISTRICTS : POPULAR_DISTRICTS.slice(0, 7);
+  const displayedCities = showAllCities ? POPULAR_CITIES : POPULAR_CITIES.slice(0, 7);
+  const displayedDistricts = showAllDistricts ? cityDistricts : cityDistricts.slice(0, 7);
 
   return (
     <div className="w-full space-y-5">
@@ -318,55 +409,118 @@ export default function ListingSidebar({
 
       {/* ========================================================
           WIDGET 3: BẤT ĐỘNG SẢN THEO KHU VỰC
+          - Ở danh mục chính (chưa chọn thành phố): Hiển thị Tỉnh / Thành phố nổi bật
+          - Khi đã chọn thành phố: Hiển thị các Quận / Huyện thuộc thành phố đó
          ======================================================== */}
       <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-2xs">
-        <div className="flex items-center gap-2 pb-3 mb-3 border-b border-slate-100">
-          <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-            <i className="fa-solid fa-location-dot text-xs"></i>
+        <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2 truncate">
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <i className={`fa-solid ${isCitySelected ? 'fa-location-dot' : 'fa-map-location-dot'} text-xs`}></i>
+            </div>
+            <h3 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight truncate">
+              {isCitySelected ? `Khu vực tại ${activeCity}` : 'Bất động sản theo tỉnh thành'}
+            </h3>
           </div>
-          <h3 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
-            Khu vực nổi bật
-          </h3>
+          {isCitySelected && (
+            <button
+              type="button"
+              onClick={handleResetCity}
+              className="text-[11px] font-semibold text-slate-500 hover:text-red-600 flex items-center gap-1 cursor-pointer transition-colors shrink-0 ml-2"
+              title="Xem tất cả tỉnh thành"
+            >
+              <i className="fa-solid fa-arrow-left text-[9px]"></i>
+              <span>Toàn quốc</span>
+            </button>
+          )}
         </div>
 
-        <div className="space-y-1 text-xs">
-          {displayedDistricts.map(item => {
-            const count = districtCounts[item.name] || 0;
-            const targetUrl = buildDistrictSeoUrl({
-              basePath,
-              demand: currentDemand,
-              districtName: item.name
-            });
+        {/* 1. Danh sách Tỉnh / Thành phố khi ở Danh mục chính (Toàn quốc) */}
+        {!isCitySelected ? (
+          <>
+            <div className="space-y-1 text-xs">
+              {displayedCities.map(item => {
+                const count = cityCounts[item.name] || 0;
+                const targetUrl = buildCitySeoUrl({
+                  basePath,
+                  demand: currentDemand,
+                  cityName: item.name
+                });
 
-            return (
-              <Link
-                key={item.name}
-                href={targetUrl}
-                scroll={false}
-                onClick={(e) => handleSelectDistrict(e, item, targetUrl)}
-                className="w-full text-left px-3 py-2 rounded-xl transition-colors duration-150 cursor-pointer flex items-center justify-between group border border-transparent text-slate-700 hover:bg-slate-50 hover:text-red-600"
+                return (
+                  <Link
+                    key={item.name}
+                    href={targetUrl}
+                    scroll={false}
+                    onClick={(e) => handleSelectCity(e, item.name, targetUrl)}
+                    className="w-full text-left px-3 py-2 rounded-xl transition-colors duration-150 cursor-pointer flex items-center justify-between group border border-transparent text-slate-700 hover:bg-slate-50 hover:text-red-600"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <i className="fa-solid fa-map-pin text-[10px] text-slate-400 group-hover:text-red-500 transition-colors"></i>
+                      <span className="truncate">{item.name}</span>
+                    </div>
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0 ml-2 bg-slate-100 text-slate-500 group-hover:bg-red-100 group-hover:text-red-600 transition-colors">
+                      {count > 0 ? `${count} tin` : 'Xem tin'}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {POPULAR_CITIES.length > 7 && (
+              <button
+                type="button"
+                onClick={() => setShowAllCities(!showAllCities)}
+                className="w-full mt-3 pt-2.5 border-t border-slate-100 text-center text-xs font-bold text-slate-600 hover:text-red-600 transition cursor-pointer flex items-center justify-center gap-1"
               >
-                <div className="flex items-center gap-2 truncate">
-                  <i className="fa-solid fa-map-pin text-[10px] text-slate-400 group-hover:text-red-500 transition-colors"></i>
-                  <span className="truncate">{item.name}</span>
-                </div>
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0 ml-2 bg-slate-100 text-slate-500 group-hover:bg-red-100 group-hover:text-red-600 transition-colors">
-                  {count > 0 ? `${count} tin` : item.city}
-                </span>
-              </Link>
-            );
-          })}
-        </div>
+                <span>{showAllCities ? 'Thu gọn' : `Xem thêm tỉnh thành (${POPULAR_CITIES.length - 7})`}</span>
+                <i className={`fa-solid fa-chevron-${showAllCities ? 'up' : 'down'} text-[10px]`}></i>
+              </button>
+            )}
+          </>
+        ) : (
+          /* 2. Danh sách Quận / Huyện khi đã chọn một Tỉnh / Thành phố cụ thể */
+          <>
+            <div className="space-y-1 text-xs">
+              {displayedDistricts.map(item => {
+                const count = districtCounts[item.name] || 0;
+                const targetUrl = buildDistrictSeoUrl({
+                  basePath,
+                  demand: currentDemand,
+                  districtName: item.name
+                });
 
-        {POPULAR_DISTRICTS.length > 7 && (
-          <button
-            type="button"
-            onClick={() => setShowAllDistricts(!showAllDistricts)}
-            className="w-full mt-3 pt-2.5 border-t border-slate-100 text-center text-xs font-bold text-slate-600 hover:text-red-600 transition cursor-pointer flex items-center justify-center gap-1"
-          >
-            <span>{showAllDistricts ? 'Thu gọn' : `Xem thêm khu vực (${POPULAR_DISTRICTS.length - 7})`}</span>
-            <i className={`fa-solid fa-chevron-${showAllDistricts ? 'up' : 'down'} text-[10px]`}></i>
-          </button>
+                return (
+                  <Link
+                    key={item.name}
+                    href={targetUrl}
+                    scroll={false}
+                    onClick={(e) => handleSelectDistrict(e, item, targetUrl)}
+                    className="w-full text-left px-3 py-2 rounded-xl transition-colors duration-150 cursor-pointer flex items-center justify-between group border border-transparent text-slate-700 hover:bg-slate-50 hover:text-red-600"
+                  >
+                    <div className="flex items-center gap-2 truncate">
+                      <i className="fa-solid fa-map-pin text-[10px] text-slate-400 group-hover:text-red-500 transition-colors"></i>
+                      <span className="truncate">{item.name}</span>
+                    </div>
+                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0 ml-2 bg-slate-100 text-slate-500 group-hover:bg-red-100 group-hover:text-red-600 transition-colors">
+                      {count > 0 ? `${count} tin` : (item.city || activeCity)}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {cityDistricts.length > 7 && (
+              <button
+                type="button"
+                onClick={() => setShowAllDistricts(!showAllDistricts)}
+                className="w-full mt-3 pt-2.5 border-t border-slate-100 text-center text-xs font-bold text-slate-600 hover:text-red-600 transition cursor-pointer flex items-center justify-center gap-1"
+              >
+                <span>{showAllDistricts ? 'Thu gọn' : `Xem thêm khu vực (${cityDistricts.length - 7})`}</span>
+                <i className={`fa-solid fa-chevron-${showAllDistricts ? 'up' : 'down'} text-[10px]`}></i>
+              </button>
+            )}
+          </>
         )}
       </div>
 

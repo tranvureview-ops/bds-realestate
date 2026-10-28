@@ -145,21 +145,35 @@ export const PROPERTY_TAXONOMY = {
 };
 
 
-// Ánh xạ thành phố chuẩn toàn quốc (Đà Nẵng, Quảng Nam, TP.HCM, Hà Nội, Khánh Hòa)
+// Ánh xạ thành phố chuẩn toàn quốc (Đà Nẵng, Quảng Nam, TP.HCM, Hà Nội, Khánh Hòa, Bình Dương, Đồng Nai, Hải Phòng...)
 export const CITY_SLUGS = {
-  'Đà Nẵng': 'da-nang',
-  'Quảng Nam': 'quang-nam',
-  'TP. Hồ Chí Minh': 'ho-chi-minh',
   'Hà Nội': 'ha-noi',
-  'Khánh Hòa': 'khanh-hoa'
+  'TP. Hồ Chí Minh': 'ho-chi-minh',
+  'Đà Nẵng': 'da-nang',
+  'Bình Dương': 'binh-duong',
+  'Đồng Nai': 'dong-nai',
+  'Quảng Nam': 'quang-nam',
+  'Khánh Hòa': 'khanh-hoa',
+  'Hải Phòng': 'hai-phong',
+  'Bà Rịa - Vũng Tàu': 'ba-ria-vung-tau',
+  'Cần Thơ': 'can-tho',
+  'Lâm Đồng': 'lam-dong',
+  'Kiên Giang': 'kien-giang'
 };
 
 export const SLUG_TO_CITY = {
-  'da-nang': 'Đà Nẵng',
-  'quang-nam': 'Quảng Nam',
-  'ho-chi-minh': 'TP. Hồ Chí Minh',
   'ha-noi': 'Hà Nội',
-  'khanh-hoa': 'Khánh Hòa'
+  'ho-chi-minh': 'TP. Hồ Chí Minh',
+  'da-nang': 'Đà Nẵng',
+  'binh-duong': 'Bình Dương',
+  'dong-nai': 'Đồng Nai',
+  'quang-nam': 'Quảng Nam',
+  'khanh-hoa': 'Khánh Hòa',
+  'hai-phong': 'Hải Phòng',
+  'ba-ria-vung-tau': 'Bà Rịa - Vũng Tàu',
+  'can-tho': 'Cần Thơ',
+  'lam-dong': 'Lâm Đồng',
+  'kien-giang': 'Kiên Giang'
 };
 
 // Bảng ánh xạ Quận/Huyện toàn quốc chuẩn hỗ trợ Clean Slug SEO
@@ -577,7 +591,7 @@ export const parseTaxonomyUrl = (urlPath) => {
           demand,
           propertyType: 'all',
           city: cityName,
-          title: `${group.title} tại ${cityName}`,
+          title: `${demand === 'sale' ? 'Mua Bán Nhà Đất' : 'Cho Thuê Nhà Đất'} tại ${cityName}`,
           canonicalUrl: clean
         });
       }
@@ -1623,6 +1637,32 @@ export const getDistrictSlug = (districtName) => {
   }
   let clean = districtName.toLowerCase().replace(/^(quận|huyện|thành phố|thị xã)\s+/i, '').trim();
   return toVietnameseSlug(clean);
+};
+
+/**
+ * Xây dựng URL danh mục theo tỉnh thành chuẩn SEO Batdongsan.com.vn
+ * Ví dụ:
+ * - /nha-dat-ban-da-nang
+ * - /nha-dat-cho-thue-ha-noi
+ * - /ban-can-ho-chung-cu-da-nang
+ */
+export const buildCitySeoUrl = ({ basePath = '', demand = 'sale', cityName = '' }) => {
+  const cSlug = CITY_SLUGS[cityName] || toVietnameseSlug(cityName);
+  const basePrefix = demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban';
+  if (!cSlug) return basePrefix;
+
+  if (basePath && !basePath.startsWith('/nha-dat-ban') && !basePath.startsWith('/nha-dat-cho-thue')) {
+    let cleanBase = basePath.split('?')[0].replace(/\/+$/, '');
+    for (const s of Object.values(CITY_SLUGS)) {
+      if (cleanBase.endsWith(`-${s}`)) {
+        cleanBase = cleanBase.slice(0, -(s.length + 1));
+        break;
+      }
+    }
+    return `${cleanBase}-${cSlug}`;
+  }
+
+  return `${basePrefix}-${cSlug}`;
 };
 
 /**
