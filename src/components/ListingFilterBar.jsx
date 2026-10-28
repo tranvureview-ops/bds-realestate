@@ -102,7 +102,7 @@ export default function ListingFilterBar({
   }, []);
 
   // Open modal and load current active filters into draft
-  const handleOpenAdvancedModal = () => {
+  const handleOpenAdvancedModal = (initialScreen = 'main') => {
     setDraftFilters({
       demand: filters?.demand || demand || 'sale',
       propertyType: filters?.propertyType || 'all',
@@ -124,9 +124,12 @@ export default function ListingFilterBar({
       hasVR360: Boolean(filters?.hasVR360),
       onlyVerified: Boolean(filters?.onlyVerified)
     });
-    setModalScreen('main');
+    setModalScreen(initialScreen);
     setShowAdvancedModal(true);
+    setOpenDropdown(null);
   };
+
+  const handleOpenLocationModal = () => handleOpenAdvancedModal('location');
 
   // Apply draft filters when clicking "Xem kết quả"
   const handleApplyAllDraftFilters = () => {
@@ -503,9 +506,23 @@ export default function ListingFilterBar({
               <i className={`fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform ${openDropdown === 'location' ? 'rotate-180' : ''}`}></i>
             </button>
 
-            {/* Menu Dropdown Khu vực chuẩn HeroSearch / Hình 2 */}
+            {/* Menu Dropdown Khu vực chuẩn HeroSearch / Hình 2 có nút Lọc chi tiết */}
             {openDropdown === 'location' && (
-              <div className="absolute top-full left-0 mt-1.5 w-64 bg-white rounded-xl shadow-xl border border-slate-200 z-50 p-2 animate-fadeIn max-h-72 overflow-y-auto">
+              <div className="absolute top-full left-0 mt-1.5 w-72 sm:w-80 bg-white rounded-xl shadow-xl border border-slate-200 z-50 p-2 animate-fadeIn max-h-80 overflow-y-auto">
+                {/* Header: Tiêu đề + Nút Lọc chi tiết */}
+                <div className="px-2.5 py-1.5 border-b border-slate-100 flex items-center justify-between mb-1.5">
+                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Khu vực</span>
+                  <button
+                    type="button"
+                    onClick={handleOpenLocationModal}
+                    className="text-red-600 hover:text-red-700 text-xs font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                    title="Mở bộ lọc chi tiết phường xã, đường phố, dự án"
+                  >
+                    <i className="fa-solid fa-sliders text-[10px]"></i>
+                    <span>Lọc chi tiết »</span>
+                  </button>
+                </div>
+
                 <button
                   type="button"
                   onClick={() => handleSelectQuickLocation('', '')}
@@ -563,6 +580,18 @@ export default function ListingFilterBar({
                     </div>
                   );
                 })}
+
+                {/* Footer: Nút bấm mở lọc chi tiết các trường phường, đường, dự án */}
+                <div className="mt-1.5 pt-1.5 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={handleOpenLocationModal}
+                    className="w-full py-1.5 px-3 bg-red-50 hover:bg-red-100/80 text-red-600 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-location-dot text-xs"></i>
+                    <span>Lọc chi tiết phường, đường, dự án »</span>
+                  </button>
+                </div>
               </div>
             )}
           </div>
