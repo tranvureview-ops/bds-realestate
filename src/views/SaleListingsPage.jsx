@@ -6,7 +6,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { Link, useRouter } from '../router/RouterContext';
 import ListingGrid from '../components/ListingGrid';
 import ListingFilterBar from '../components/ListingFilterBar';
-import { generateCategoryJsonLd, generateCategoryMetadata } from '../utils/permalink';
+import { generateCategoryJsonLd, generateCategoryMetadata, parseTaxonomyUrl } from '../utils/permalink';
 import { filterProperties } from '../utils/propertyFilter';
 
 export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 }) {
@@ -75,6 +75,30 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 
       }));
     }
   }, [currentUrl, queryDistrict, queryCity, queryType, queryKeyword, queryPrice, queryMinPrice, queryMaxPrice, queryArea, queryMinArea, queryMaxArea, queryBedroom, queryVerified]);
+
+  // Lắng nghe popstate khi người dùng nhấn Back / Forward trên trình duyệt
+  useEffect(() => {
+    const handlePopState = () => {
+      if (typeof window === 'undefined') return;
+      const parsed = parseTaxonomyUrl(window.location.pathname);
+      if (parsed?.isTaxonomy) {
+        setFilters(prev => ({
+          ...prev,
+          district: parsed.district || '',
+          city: parsed.city || '',
+          priceRange: parsed.priceRange || 'all',
+          minPrice: parsed.minPrice || null,
+          maxPrice: parsed.maxPrice || null,
+          areaRange: parsed.areaRange || 'all',
+          minArea: parsed.minArea || null,
+          maxArea: parsed.maxArea || null,
+          propertyType: parsed.propertyType || 'all'
+        }));
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   // Bơm Schema.org Category/CollectionPage JSON-LD
   useEffect(() => {

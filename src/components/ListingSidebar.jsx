@@ -93,53 +93,116 @@ export default function ListingSidebar({
     return counts;
   }, [properties, currentDemand]);
 
-  // Xử lý chọn khoảng giá
-  const handleSelectPrice = (preset) => {
-    if (!setFilters) return;
-    setFilters(prev => ({
-      ...prev,
-      priceRange: preset.value,
-      minPrice: preset.min || null,
-      maxPrice: preset.max || null
-    }));
-    if (onScrollToTop) onScrollToTop();
+  // Đồng bộ thanh địa chỉ trình duyệt mà KHÔNG gây cuộn trang / reload
+  const syncBrowserUrl = (targetUrl) => {
+    if (typeof window !== 'undefined' && targetUrl) {
+      try {
+        if (window.location.pathname !== targetUrl) {
+          window.history.pushState(null, '', targetUrl);
+        }
+      } catch {
+        // Fallback im lặng nếu pushState bị hạn chế
+      }
+    }
   };
 
-  // Xử lý chọn diện tích
-  const handleSelectArea = (preset) => {
-    if (!setFilters) return;
-    setFilters(prev => ({
-      ...prev,
-      areaRange: preset.value,
-      minArea: preset.min || null,
-      maxArea: preset.max || null
-    }));
-    if (onScrollToTop) onScrollToTop();
+  // Xử lý chọn khoảng giá (Mượt mà, không cuộn giật, hỗ trợ bật/tắt toggle)
+  const handleSelectPrice = (e, preset, targetUrl) => {
+    if (e) {
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+      e.preventDefault();
+    }
+
+    const isSelected = (filters.priceRange || 'all') === preset.value;
+    const nextRange = isSelected ? 'all' : preset.value;
+    const nextMin = isSelected ? null : (preset.min || null);
+    const nextMax = isSelected ? null : (preset.max || null);
+
+    if (setFilters) {
+      setFilters(prev => ({
+        ...prev,
+        priceRange: nextRange,
+        minPrice: nextMin,
+        maxPrice: nextMax
+      }));
+    }
+
+    const resetUrl = basePath || (isRent ? '/nha-dat-cho-thue' : '/nha-dat-ban');
+    const nextUrl = isSelected ? resetUrl : targetUrl;
+    syncBrowserUrl(nextUrl);
   };
 
-  // Xử lý chọn quận huyện
-  const handleSelectDistrict = (item) => {
-    if (!setFilters) return;
-    const isCurrent = filters.district === item.name;
-    setFilters(prev => ({
-      ...prev,
-      city: isCurrent ? '' : item.city,
-      district: isCurrent ? '' : item.name,
-      ward: '',
-      street: ''
-    }));
-    if (onScrollToTop) onScrollToTop();
+  // Xử lý chọn diện tích (Mượt mà, không cuộn giật, hỗ trợ bật/tắt toggle)
+  const handleSelectArea = (e, preset, targetUrl) => {
+    if (e) {
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+      e.preventDefault();
+    }
+
+    const isSelected = (filters.areaRange || 'all') === preset.value;
+    const nextRange = isSelected ? 'all' : preset.value;
+    const nextMin = isSelected ? null : (preset.min || null);
+    const nextMax = isSelected ? null : (preset.max || null);
+
+    if (setFilters) {
+      setFilters(prev => ({
+        ...prev,
+        areaRange: nextRange,
+        minArea: nextMin,
+        maxArea: nextMax
+      }));
+    }
+
+    const resetUrl = basePath || (isRent ? '/nha-dat-cho-thue' : '/nha-dat-ban');
+    const nextUrl = isSelected ? resetUrl : targetUrl;
+    syncBrowserUrl(nextUrl);
   };
 
-  // Xử lý chọn dự án
-  const handleSelectProject = (proj) => {
-    if (!setFilters) return;
-    setFilters(prev => ({
-      ...prev,
-      keyword: proj.filterKeyword,
-      project: proj.name
-    }));
-    if (onScrollToTop) onScrollToTop();
+  // Xử lý chọn quận huyện (Mượt mà, không cuộn giật, hỗ trợ bật/tắt toggle)
+  const handleSelectDistrict = (e, item, targetUrl) => {
+    if (e) {
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+      e.preventDefault();
+    }
+
+    const districtSlug = getDistrictSlug(item.name);
+    const isSelected = filters.district === item.name || (basePath && basePath.includes(districtSlug));
+
+    if (setFilters) {
+      setFilters(prev => ({
+        ...prev,
+        city: isSelected ? '' : item.city,
+        district: isSelected ? '' : item.name,
+        ward: '',
+        street: ''
+      }));
+    }
+
+    const resetUrl = isRent ? '/nha-dat-cho-thue' : '/nha-dat-ban';
+    const nextUrl = isSelected ? resetUrl : targetUrl;
+    syncBrowserUrl(nextUrl);
+  };
+
+  // Xử lý chọn dự án (Mượt mà, không cuộn giật, hỗ trợ bật/tắt toggle)
+  const handleSelectProject = (e, proj, targetUrl) => {
+    if (e) {
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) return;
+      e.preventDefault();
+    }
+
+    const isSelected = filters.project === proj.name;
+
+    if (setFilters) {
+      setFilters(prev => ({
+        ...prev,
+        keyword: isSelected ? '' : (proj.filterKeyword || proj.name),
+        project: isSelected ? '' : proj.name
+      }));
+    }
+
+    const resetUrl = isRent ? '/nha-dat-cho-thue' : '/nha-dat-ban';
+    const nextUrl = isSelected ? resetUrl : targetUrl;
+    syncBrowserUrl(nextUrl);
   };
 
   const displayedPrices = showAllPrices ? pricePresets : pricePresets.slice(0, 8);
@@ -174,11 +237,12 @@ export default function ListingSidebar({
               <Link
                 key={item.value}
                 href={targetUrl}
-                onClick={() => handleSelectPrice(item)}
-                className={`text-left px-2.5 py-2 rounded-xl transition cursor-pointer truncate font-medium flex items-center justify-between group ${
+                scroll={false}
+                onClick={(e) => handleSelectPrice(e, item, targetUrl)}
+                className={`text-left px-2.5 py-2 rounded-xl transition-all duration-150 cursor-pointer truncate font-medium flex items-center justify-between group border ${
                   isSelected
-                    ? 'bg-red-50 text-red-600 font-bold border border-red-200'
-                    : 'text-slate-700 hover:bg-slate-50 hover:text-red-600'
+                    ? 'bg-red-50 text-red-600 font-bold border-red-200 shadow-2xs'
+                    : 'border-transparent text-slate-700 hover:bg-slate-50 hover:text-red-600'
                 }`}
                 title={item.label}
               >
@@ -227,11 +291,12 @@ export default function ListingSidebar({
               <Link
                 key={item.value}
                 href={targetUrl}
-                onClick={() => handleSelectArea(item)}
-                className={`text-left px-2.5 py-2 rounded-xl transition cursor-pointer truncate font-medium flex items-center justify-between group ${
+                scroll={false}
+                onClick={(e) => handleSelectArea(e, item, targetUrl)}
+                className={`text-left px-2.5 py-2 rounded-xl transition-all duration-150 cursor-pointer truncate font-medium flex items-center justify-between group border ${
                   isSelected
-                    ? 'bg-teal-50 text-teal-700 font-bold border border-teal-200'
-                    : 'text-slate-700 hover:bg-slate-50 hover:text-teal-700'
+                    ? 'bg-teal-50 text-teal-700 font-bold border-teal-200 shadow-2xs'
+                    : 'border-transparent text-slate-700 hover:bg-slate-50 hover:text-teal-700'
                 }`}
                 title={item.label}
               >
@@ -284,11 +349,12 @@ export default function ListingSidebar({
               <Link
                 key={item.name}
                 href={targetUrl}
-                onClick={() => handleSelectDistrict(item)}
-                className={`w-full text-left px-3 py-2 rounded-xl transition cursor-pointer flex items-center justify-between group ${
+                scroll={false}
+                onClick={(e) => handleSelectDistrict(e, item, targetUrl)}
+                className={`w-full text-left px-3 py-2 rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-between group border ${
                   isSelected
-                    ? 'bg-red-50 text-red-600 font-bold border border-red-200'
-                    : 'text-slate-700 hover:bg-slate-50 hover:text-red-600'
+                    ? 'bg-red-50 text-red-600 font-bold border-red-200 shadow-2xs'
+                    : 'border-transparent text-slate-700 hover:bg-slate-50 hover:text-red-600'
                 }`}
               >
                 <div className="flex items-center gap-2 truncate">
@@ -338,42 +404,52 @@ export default function ListingSidebar({
         </div>
 
         <div className="space-y-3">
-          {FEATURED_PROJECTS.map(proj => (
-            <Link
-              key={proj.id}
-              href={`/${currentDemand === 'rent' ? 'nha-dat-cho-thue' : 'nha-dat-ban'}?keyword=${encodeURIComponent(proj.filterKeyword || proj.name)}`}
-              onClick={() => handleSelectProject(proj)}
-              className="group flex gap-3 p-2 rounded-xl hover:bg-slate-50 transition cursor-pointer border border-transparent hover:border-slate-200"
-            >
-              <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-slate-100 relative">
-                <img
-                  src={proj.image}
-                  alt={proj.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  loading="lazy"
-                />
-              </div>
-              <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-                <div>
-                  <h4 className="text-xs font-bold text-slate-800 group-hover:text-red-600 transition truncate">
-                    {proj.name}
-                  </h4>
-                  <p className="text-[11px] text-slate-500 truncate mt-0.5">
-                    <i className="fa-solid fa-location-dot text-[9px] mr-1 text-slate-400"></i>
-                    {proj.location}
-                  </p>
+          {FEATURED_PROJECTS.map(proj => {
+            const isSelected = filters.project === proj.name;
+            const projUrl = `/${currentDemand === 'rent' ? 'nha-dat-cho-thue' : 'nha-dat-ban'}?keyword=${encodeURIComponent(proj.filterKeyword || proj.name)}`;
+
+            return (
+              <Link
+                key={proj.id}
+                href={projUrl}
+                scroll={false}
+                onClick={(e) => handleSelectProject(e, proj, projUrl)}
+                className={`group flex gap-3 p-2 rounded-xl transition-all duration-150 cursor-pointer border ${
+                  isSelected
+                    ? 'bg-amber-50/60 border-amber-200 shadow-2xs'
+                    : 'border-transparent hover:bg-slate-50 hover:border-slate-200'
+                }`}
+              >
+                <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 bg-slate-100 relative">
+                  <img
+                    src={proj.image}
+                    alt={proj.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    loading="lazy"
+                  />
                 </div>
-                <div className="flex items-center justify-between mt-1">
-                  <span className="text-xs font-extrabold text-red-600">
-                    {proj.price}
-                  </span>
-                  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${proj.badgeColor}`}>
-                    {proj.status}
-                  </span>
+                <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-800 group-hover:text-red-600 transition truncate">
+                      {proj.name}
+                    </h4>
+                    <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                      <i className="fa-solid fa-location-dot text-[9px] mr-1 text-slate-400"></i>
+                      {proj.location}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between mt-1">
+                    <span className="text-xs font-extrabold text-red-600">
+                      {proj.price}
+                    </span>
+                    <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${proj.badgeColor}`}>
+                      {proj.status}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
+              </Link>
+            );
+          })}
         </div>
       </div>
 

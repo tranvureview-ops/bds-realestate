@@ -458,7 +458,7 @@ export default function ListingGrid({
       {showSidebar ? (
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start my-5 sm:my-6">
           {/* CỘT TRÁI: DANH SÁCH BẤT ĐỘNG SẢN CHÍNH (~70% Chiều ngang desktop) */}
-          <div className="w-full lg:flex-1 min-w-0">
+          <div className="w-full lg:flex-1 min-w-0 min-h-[550px] transition-opacity duration-200">
             {sortedProperties.length === 0 ? (
               renderEmptyState()
             ) : viewMode === 'split' ? (
@@ -500,7 +500,6 @@ export default function ListingGrid({
               filters={filters}
               setFilters={setFilters}
               properties={properties}
-              onScrollToTop={scrollToGridTop}
               basePath={basePath}
             />
           </aside>
