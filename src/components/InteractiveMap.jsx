@@ -27,6 +27,9 @@ export default function InteractiveMap({ properties, activePropertyId = null, he
         } catch (_) {}
         mapInstanceRef.current = null;
       }
+      if (mapContainerRef.current) {
+        mapContainerRef.current._leaflet_id = null;
+      }
 
       // Default center: TP. Đà Nẵng
       const firstProp = properties.find(p => p.lat && p.lng) || { lat: 16.0544, lng: 108.2022 };
@@ -121,7 +124,7 @@ export default function InteractiveMap({ properties, activePropertyId = null, he
 
       if (markersRef.current.length > 0 && typeof bounds.isValid === 'function' && bounds.isValid()) {
         try {
-          map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14 });
+          map.fitBounds(bounds, { padding: [40, 40], maxZoom: 14, animate: false });
         } catch (e) {
           console.warn('fitBounds error:', e);
         }
@@ -147,6 +150,9 @@ export default function InteractiveMap({ properties, activePropertyId = null, he
           mapInstanceRef.current.remove();
         } catch (_) {}
         mapInstanceRef.current = null;
+      }
+      if (mapContainerRef.current) {
+        mapContainerRef.current._leaflet_id = null;
       }
     };
   }, [properties, openPropertyDetail]);

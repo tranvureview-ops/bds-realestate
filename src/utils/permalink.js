@@ -45,7 +45,8 @@ export const formatSentenceCase = (str) => {
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://bds-realestate.vercel.app';
 
 // Tối ưu hóa SEO hình ảnh & tự động tạo thẻ ALT theo tiêu đề
-export { buildImageAlt, DEFAULT_PROPERTY_FALLBACK_IMAGE, DEFAULT_AVATAR_FALLBACK_IMAGE } from './imageSeo.js';
+import { buildImageAlt, DEFAULT_PROPERTY_FALLBACK_IMAGE, DEFAULT_AVATAR_FALLBACK_IMAGE } from './imageSeo.js';
+export { buildImageAlt, DEFAULT_PROPERTY_FALLBACK_IMAGE, DEFAULT_AVATAR_FALLBACK_IMAGE };
 
 /**
  * Xây dựng đường dẫn phân trang chuẩn SEO (SEO Pagination Path)
