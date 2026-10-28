@@ -210,9 +210,9 @@ export default function AreaRangeSelector({
   };
 
   return (
-    <div className={`bg-white flex flex-col text-slate-800 ${isModal ? 'w-full h-full' : 'w-80 sm:w-88 rounded-2xl border border-slate-200 shadow-2xl overflow-hidden'} ${className}`}>
+    <div className={`bg-white flex flex-col text-slate-800 ${isModal ? 'w-full h-full' : 'w-80 sm:w-[320px] rounded-2xl border border-slate-200 shadow-2xl overflow-hidden'} ${className}`}>
       {/* 1. HEADER (Tiêu đề "Diện tích" + Nút đóng ✕) */}
-      <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between shrink-0">
+      <div className="px-4 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0">
         <h4 className="text-sm sm:text-base font-bold text-slate-900 w-full text-center pl-6">
           Diện tích
         </h4>
@@ -226,55 +226,39 @@ export default function AreaRangeSelector({
         </button>
       </div>
 
-      <div className={`overflow-y-auto px-4 py-3 space-y-4 ${isModal ? 'flex-1' : 'max-h-96'}`}>
-        {/* 2. DÒNG HIỂN THỊ TỪ / ĐẾN (Chuẩn thiết kế Batdongsan màu xanh Teal #009BA1) */}
-        <div className="flex items-center justify-between text-xs sm:text-sm">
-          <div>
-            <span className="text-slate-500 font-medium">Từ: </span>
-            <span className="text-[#009BA1] font-bold">
-              {minVal > 0 ? `${minVal} m²` : '0 m²'}
-            </span>
-          </div>
-          <div>
-            <span className="text-slate-500 font-medium">Đến: </span>
-            <span className="text-[#009BA1] font-bold">
-              {maxVal < maxLimit ? `${maxVal} m²` : `${maxLimit} m²+`}
-            </span>
-          </div>
-        </div>
-
-        {/* 3. HAI Ô NHẬP TRỰC TIẾP [ Từ ] -> [ Đến ] */}
-        <div className="flex items-center gap-2.5">
+      <div className={`overflow-y-auto ${isModal ? 'flex-1' : 'max-h-[420px]'}`}>
+        {/* 2. HAI Ô NHẬP TRỰC TIẾP [ Từ ] -> [ Đến ] (Tối giản tinh gọn, không dòng chữ thừa) */}
+        <div className="pt-3.5 pb-2 px-4 flex items-center gap-3">
           <div className="flex-1 relative">
             <input
               type="number"
               value={inputMin}
               onChange={handleInputMinChange}
               placeholder="Từ"
-              className="w-full text-center py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-bold text-slate-800 outline-none focus:border-[#009BA1] focus:ring-1 focus:ring-[#009BA1] transition placeholder-slate-400"
+              className="w-full text-center py-2.5 px-3 bg-white border border-slate-200 rounded-2xl text-xs sm:text-sm font-bold text-slate-800 outline-none focus:border-[#009BA1] transition placeholder:text-slate-400 placeholder:font-bold"
             />
           </div>
-          <span className="text-slate-400 font-bold text-base shrink-0">→</span>
+          <span className="text-slate-400 font-normal text-base shrink-0 select-none">→</span>
           <div className="flex-1 relative">
             <input
               type="number"
               value={inputMax}
               onChange={handleInputMaxChange}
               placeholder="Đến"
-              className="w-full text-center py-2 px-3 bg-white border border-slate-300 rounded-xl text-xs sm:text-sm font-bold text-slate-800 outline-none focus:border-[#009BA1] focus:ring-1 focus:ring-[#009BA1] transition placeholder-slate-400"
+              className="w-full text-center py-2.5 px-3 bg-white border border-slate-200 rounded-2xl text-xs sm:text-sm font-bold text-slate-800 outline-none focus:border-[#009BA1] transition placeholder:text-slate-400 placeholder:font-bold"
             />
           </div>
         </div>
 
-        {/* 4. THANH TRƯỢT KÉP RANGE SLIDER 2 ĐẦU */}
-        <div className="py-2 px-1">
+        {/* 3. THANH TRƯỢT KÉP RANGE SLIDER 2 ĐẦU */}
+        <div className="pt-1 pb-3 px-4">
           <div className="relative h-6 flex items-center select-none">
             {/* Đường ray nền */}
-            <div className="absolute left-0 right-0 h-1.5 bg-slate-200 rounded-full" />
+            <div className="absolute left-0 right-0 h-1 bg-slate-100 rounded-full" />
 
             {/* Dải màu xanh Teal kích hoạt giữa 2 nút */}
             <div
-              className="absolute h-1.5 bg-[#009BA1] rounded-full pointer-events-none"
+              className="absolute h-1 bg-[#009BA1] rounded-full pointer-events-none"
               style={{
                 left: `${minPercent}%`,
                 width: `${Math.max(0, maxPercent - minPercent)}%`
@@ -305,27 +289,30 @@ export default function AreaRangeSelector({
           </div>
         </div>
 
+        {/* 4. ĐƯỜNG PHÂN CÁCH TINH GỌN */}
+        <div className="border-t border-slate-100" />
+
         {/* 5. DANH SÁCH MỨC DIỆN TÍCH ĐỊNH SẴN VỚI RADIO BUTTON */}
-        <div className="pt-2 border-t border-slate-100 space-y-0.5">
+        <div className="p-2 space-y-0.5">
           {presets.map(item => {
             const isSelected = activePresetValue === item.value;
             return (
               <div
                 key={item.value}
                 onClick={() => handleSelectPreset(item)}
-                className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition select-none hover:bg-slate-50 ${
-                  isSelected ? 'bg-teal-50/50' : ''
+                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer transition select-none ${
+                  isSelected ? 'bg-teal-50/50 text-[#009BA1] font-bold' : 'text-slate-700 font-medium hover:bg-slate-50'
                 }`}
               >
-                <span className={`text-xs sm:text-sm ${isSelected ? 'text-[#009BA1] font-bold' : 'text-slate-700 font-medium'}`}>
+                <span className="text-xs sm:text-sm">
                   {item.label}
                 </span>
 
-                {/* Radio Circle */}
-                <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition shrink-0 ml-3 ${
+                {/* Radio Circle chuẩn batdongsan */}
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition shrink-0 ml-3 ${
                   isSelected ? 'border-[#009BA1] bg-white' : 'border-slate-300'
                 }`}>
-                  {isSelected && <div className="w-2 h-2 rounded-full bg-[#009BA1]" />}
+                  {isSelected && <div className="w-2.5 h-2.5 rounded-full bg-[#009BA1]" />}
                 </div>
               </div>
             );
@@ -334,11 +321,11 @@ export default function AreaRangeSelector({
       </div>
 
       {/* 6. FOOTER ACTIONS: ĐẶT LẠI & ÁP DỤNG */}
-      <div className="p-3 sm:p-3.5 border-t border-slate-100 flex items-center justify-between bg-white shrink-0">
+      <div className="px-4 py-3 border-t border-slate-100 flex items-center justify-between bg-white shrink-0">
         <button
           type="button"
           onClick={handleReset}
-          className="text-slate-700 hover:text-slate-900 font-semibold text-xs sm:text-sm px-3 py-1.5 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+          className="text-slate-800 hover:text-slate-950 font-bold text-xs sm:text-sm px-2 py-1 transition cursor-pointer"
         >
           Đặt lại
         </button>
@@ -346,7 +333,7 @@ export default function AreaRangeSelector({
         <button
           type="button"
           onClick={handleApply}
-          className="bg-[#e03c31] hover:bg-red-700 text-white font-bold text-xs sm:text-sm px-5 py-2 rounded-lg transition cursor-pointer shadow-xs active:scale-95"
+          className="bg-[#e03c31] hover:bg-[#c9352b] text-white font-bold text-xs sm:text-sm px-6 py-2 rounded-xl transition cursor-pointer shadow-xs active:scale-95"
         >
           Áp dụng
         </button>

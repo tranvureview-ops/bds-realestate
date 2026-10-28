@@ -230,11 +230,11 @@ export default function PropertyTypeSelector({
       </div>
 
       {/* FOOTER ACTIONS: ĐẶT LẠI & ÁP DỤNG */}
-      <div className="p-3 sm:p-3.5 border-t border-slate-100 flex items-center justify-between bg-white shrink-0">
+      <div className="px-4 py-3 border-t border-slate-100 flex items-center justify-between bg-white shrink-0">
         <button
           type="button"
           onClick={handleReset}
-          className="text-slate-700 hover:text-slate-900 font-semibold text-xs sm:text-sm px-3 py-1.5 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+          className="text-slate-800 hover:text-slate-950 font-bold text-xs sm:text-sm px-2 py-1 transition cursor-pointer"
         >
           Đặt lại
         </button>
@@ -242,7 +242,7 @@ export default function PropertyTypeSelector({
         <button
           type="button"
           onClick={handleApply}
-          className="bg-[#e03c31] hover:bg-red-700 text-white font-bold text-xs sm:text-sm px-5 py-2 rounded-lg transition cursor-pointer shadow-xs active:scale-95"
+          className="bg-[#e03c31] hover:bg-[#c9352b] text-white font-bold text-xs sm:text-sm px-6 py-2 rounded-xl transition cursor-pointer shadow-xs active:scale-95"
         >
           Áp dụng
         </button>
