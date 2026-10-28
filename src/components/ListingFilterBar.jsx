@@ -1001,26 +1001,18 @@ export default function ListingFilterBar({
                     </div>
 
                     {/* Card 1: Tin xác thực */}
-                    <div className="p-3.5 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition space-y-2">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1.5 text-sm font-bold text-slate-900">
-                            <i className="fa-solid fa-circle-check text-emerald-600 text-base"></i>
-                            <span>Tin xác thực</span>
-                          </div>
-                          <div className="text-[11px] text-slate-500 leading-relaxed">
-                            <span className="font-semibold text-slate-700 block mb-0.5">Hệ thống Đất Biển Đà Nẵng đã xác thực:</span>
-                            <div>• Có sổ đỏ/hợp đồng mua bán chính chủ</div>
-                            <div>• Đúng địa chỉ, hình ảnh & đặc điểm thực tế</div>
-                            <div>• Trong khoảng giá thị trường chuẩn xác</div>
-                          </div>
+                    <div className="p-3.5 rounded-2xl border border-slate-200 bg-white hover:border-slate-300 transition">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-1.5 text-sm font-bold text-slate-900">
+                          <i className="fa-solid fa-circle-check text-emerald-600 text-base"></i>
+                          <span>Tin xác thực</span>
                         </div>
 
                         {/* Switch */}
                         <button
                           type="button"
                           onClick={() => setDraftFilters(prev => ({ ...prev, onlyVerified: !prev.onlyVerified }))}
-                          className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors cursor-pointer mt-1 ${
+                          className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors cursor-pointer ${
                             draftFilters.onlyVerified ? 'bg-emerald-600' : 'bg-slate-300'
                           }`}
                         >
