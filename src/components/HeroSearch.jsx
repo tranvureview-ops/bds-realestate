@@ -712,7 +712,19 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                       onApply={(selectedIds) => {
                         const cleanIds = Array.isArray(selectedIds) ? selectedIds : [selectedIds].filter(Boolean);
                         const isAll = cleanIds.includes('all') || cleanIds.length === 0;
-                        const primaryId = isAll ? 'all' : (cleanIds.length === 1 ? cleanIds[0] : cleanIds.join(','));
+                        const houseChildren = ['house', 'villa', 'street-house', 'shophouse'];
+                        const landChildren = ['project-land', 'land'];
+                        const isFullHouse = houseChildren.every(id => cleanIds.includes(id)) && cleanIds.filter(id => !houseChildren.includes(id)).length === 0;
+                        const isFullLand = landChildren.every(id => cleanIds.includes(id)) && cleanIds.filter(id => !landChildren.includes(id)).length === 0;
+
+                        const primaryId = isAll
+                          ? 'all'
+                          : isFullHouse
+                            ? (currentDemand === 'rent' ? 'house-rent-group' : 'house-group')
+                            : isFullLand
+                              ? 'land-group'
+                              : (cleanIds.length === 1 ? cleanIds[0] : cleanIds.join(','));
+
                         setFilters(prev => ({
                           ...prev,
                           propertyType: primaryId,

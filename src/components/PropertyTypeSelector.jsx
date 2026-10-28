@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   getPropertyTypeTree,
-  formatPropertyTypeTriggerLabel
+  formatPropertyTypeTriggerLabel,
+  expandPropertyTypeIds
 } from '../data/propertyTypeTaxonomy';
 
 /**
@@ -11,15 +12,15 @@ import {
  */
 const normalizeSelectedValues = (val) => {
   if (!val || val === 'all') return ['all'];
+  let raw = [];
   if (Array.isArray(val)) {
-    const clean = val.filter(v => v && v !== 'all');
-    return clean.length > 0 ? clean : ['all'];
+    raw = val.filter(v => v && v !== 'all');
+  } else if (typeof val === 'string') {
+    raw = val.split(',').map(s => s.trim()).filter(v => v && v !== 'all');
   }
-  if (typeof val === 'string') {
-    const split = val.split(',').map(s => s.trim()).filter(v => v && v !== 'all');
-    return split.length > 0 ? split : ['all'];
-  }
-  return ['all'];
+  if (raw.length === 0) return ['all'];
+  const expanded = expandPropertyTypeIds(raw);
+  return expanded.length > 0 ? expanded : ['all'];
 };
 
 /**

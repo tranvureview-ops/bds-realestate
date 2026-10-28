@@ -692,7 +692,19 @@ export default function ListingFilterBar({
                   onApply={(selectedIds) => {
                     const cleanIds = Array.isArray(selectedIds) ? selectedIds : [selectedIds].filter(Boolean);
                     const isAll = cleanIds.includes('all') || cleanIds.length === 0;
-                    const primaryId = isAll ? 'all' : (cleanIds.length === 1 ? cleanIds[0] : cleanIds.join(','));
+                    const houseChildren = ['house', 'villa', 'street-house', 'shophouse'];
+                    const landChildren = ['project-land', 'land'];
+                    const isFullHouse = houseChildren.every(id => cleanIds.includes(id)) && cleanIds.filter(id => !houseChildren.includes(id)).length === 0;
+                    const isFullLand = landChildren.every(id => cleanIds.includes(id)) && cleanIds.filter(id => !landChildren.includes(id)).length === 0;
+
+                    const primaryId = isAll
+                      ? 'all'
+                      : isFullHouse
+                        ? (effectiveDemand === 'rent' ? 'house-rent-group' : 'house-group')
+                        : isFullLand
+                          ? 'land-group'
+                          : (cleanIds.length === 1 ? cleanIds[0] : cleanIds.join(','));
+
                     if (setFilters) {
                       setFilters(prev => ({
                         ...prev,
@@ -1360,7 +1372,19 @@ export default function ListingFilterBar({
                     onApply={(selectedIds) => {
                       const cleanIds = Array.isArray(selectedIds) ? selectedIds : [selectedIds].filter(Boolean);
                       const isAll = cleanIds.includes('all') || cleanIds.length === 0;
-                      const primaryId = isAll ? 'all' : (cleanIds.length === 1 ? cleanIds[0] : cleanIds.join(','));
+                      const houseChildren = ['house', 'villa', 'street-house', 'shophouse'];
+                      const landChildren = ['project-land', 'land'];
+                      const isFullHouse = houseChildren.every(id => cleanIds.includes(id)) && cleanIds.filter(id => !houseChildren.includes(id)).length === 0;
+                      const isFullLand = landChildren.every(id => cleanIds.includes(id)) && cleanIds.filter(id => !landChildren.includes(id)).length === 0;
+
+                      const primaryId = isAll
+                        ? 'all'
+                        : isFullHouse
+                          ? (draftFilters.demand === 'rent' ? 'house-rent-group' : 'house-group')
+                          : isFullLand
+                            ? 'land-group'
+                            : (cleanIds.length === 1 ? cleanIds[0] : cleanIds.join(','));
+
                       setDraftFilters(prev => ({
                         ...prev,
                         propertyType: primaryId,

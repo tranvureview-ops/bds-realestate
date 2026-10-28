@@ -368,28 +368,44 @@ export const buildSeoUrl = ({
   minArea = null,
   maxArea = null,
   bedroom = null,
+  propertyTypes = null,
   extraParams = {}
 } = {}) => {
   const isRent = demand === 'rent';
   const group = PROPERTY_TAXONOMY[isRent ? 'rent' : 'sale'] || PROPERTY_TAXONOMY.sale;
 
-  // 1. Base slug theo loại hình (Hỗ trợ đơn lẻ & đa lựa chọn mảng/chuỗi phân tách dấu phẩy)
+  // 1. Base slug theo loại hình (Hỗ trợ đơn lẻ & đa lựa chọn mảng/chuỗi phân tách dấu phẩy & nhóm phân cấp chuẩn Batdongsan)
   let normalizedType = null;
   let multiTypeParam = null;
 
-  if (Array.isArray(propertyType)) {
-    const valid = propertyType.filter(t => t && t !== 'all');
-    if (valid.length === 1) {
-      normalizedType = valid[0];
-    } else if (valid.length > 1) {
-      multiTypeParam = valid.join(',');
-    }
-  } else if (typeof propertyType === 'string' && propertyType && propertyType !== 'all') {
-    if (propertyType.includes(',')) {
-      multiTypeParam = propertyType;
-    } else {
-      normalizedType = propertyType;
-    }
+  const rawType = (propertyType && propertyType !== 'all') ? propertyType : (propertyTypes && propertyTypes !== 'all' ? propertyTypes : null);
+  let typeList = [];
+  if (Array.isArray(rawType)) {
+    typeList = rawType.filter(t => t && t !== 'all');
+  } else if (typeof rawType === 'string' && rawType && rawType !== 'all') {
+    typeList = rawType.split(',').map(s => s.trim()).filter(t => t && t !== 'all');
+  }
+
+  const houseChildren = ['house', 'villa', 'street-house', 'shophouse'];
+  const landChildren = ['project-land', 'land'];
+
+  const isFullHouse = typeList.includes('house-group') || typeList.includes('house-rent-group') ||
+    (houseChildren.every(id => typeList.includes(id)) && typeList.filter(id => !houseChildren.includes(id) && id !== 'house-group' && id !== 'house-rent-group').length === 0);
+
+  const isFullLand = typeList.includes('land-group') ||
+    (landChildren.every(id => typeList.includes(id)) && typeList.filter(id => !landChildren.includes(id) && id !== 'land-group').length === 0);
+
+  if (isFullHouse) {
+    normalizedType = isRent ? 'house-rent-group' : 'house-group';
+    multiTypeParam = null;
+  } else if (isFullLand) {
+    normalizedType = 'land-group';
+    multiTypeParam = null;
+  } else if (typeList.length === 1) {
+    normalizedType = typeList[0];
+    multiTypeParam = null;
+  } else if (typeList.length > 1) {
+    multiTypeParam = typeList.join(',');
   }
 
   let basePath = '';
@@ -759,31 +775,38 @@ export const parseTaxonomyUrl = (urlPath) => {
     else if (raw.includes('bat-dong-san-khac')) { propertyType = 'other'; matchedTypeSlug = 'bat-dong-san-khac'; }
     else if (raw.includes('mat-bang-van-phong')) { propertyType = 'office'; matchedTypeSlug = 'mat-bang-van-phong'; }
     else if (raw.includes('van-phong')) { propertyType = 'office'; matchedTypeSlug = 'van-phong'; }
-    else if (
-      raw.includes('nha-rieng') ||
-      ((raw.startsWith('ban-nha-') || raw.startsWith('cho-thue-nha-')) &&
-       !isGeneralNhaDat &&
-       !raw.includes('biet-thu') &&
-       !raw.includes('biethu') &&
-       !raw.includes('mat-pho') &&
-       !raw.includes('pho-thuong-mai') &&
-       !raw.includes('nha-xuong'))
-    ) {
+    else if (raw.includes('nha-rieng')) {
       propertyType = 'house';
-      matchedTypeSlug = raw.includes('nha-rieng') ? 'nha-rieng' : 'nha';
+      matchedTypeSlug = 'nha-rieng';
     }
     else if (
       !isGeneralNhaDat &&
-      (raw.includes('-dat-') || raw.endsWith('-dat') || raw.startsWith('ban-dat') || raw.startsWith('cho-thue-dat'))
+      (raw === 'ban-nha' || raw.startsWith('ban-nha/') || raw.startsWith('ban-nha-') ||
+       raw === 'cho-thue-nha' || raw.startsWith('cho-thue-nha/') || raw.startsWith('cho-thue-nha-')) &&
+      !raw.includes('biet-thu') &&
+      !raw.includes('biethu') &&
+      !raw.includes('mat-pho') &&
+      !raw.includes('pho-thuong-mai') &&
+      !raw.includes('nha-xuong')
     ) {
-      propertyType = 'land';
+      propertyType = isRent ? 'house-rent-group' : 'house-group';
+      matchedTypeSlug = 'nha';
+    }
+    else if (
+      !isGeneralNhaDat &&
+      (raw === 'ban-dat' || raw.startsWith('ban-dat/') || raw.startsWith('ban-dat-') ||
+       raw === 'cho-thue-dat' || raw.startsWith('cho-thue-dat/') || raw.startsWith('cho-thue-dat-') ||
+       raw.includes('-dat-') || raw.endsWith('-dat')) &&
+      !raw.includes('dat-nen')
+    ) {
+      propertyType = 'land-group';
       matchedTypeSlug = 'dat';
     }
 
     // Loại bỏ demand prefix và propertyType prefix để thu được remainder thuần túy
     let remainder = raw.replace(/^(?:ban|cho-thue|nha-dat-ban|nha-dat-cho-thue|ban-nha-dat|cho-thue-nha-dat|nha-dat)-?/, '');
     if (matchedTypeSlug && remainder.startsWith(matchedTypeSlug)) {
-      remainder = remainder.slice(matchedTypeSlug.length).replace(/^-/, '');
+      remainder = remainder.slice(matchedTypeSlug.length).replace(/^[-/]+/, '');
     }
 
     // C. Dự án (Project) - chỉ tìm trong remainder sau khi đã bóc tách propertyType
