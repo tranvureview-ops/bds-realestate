@@ -205,8 +205,16 @@ export default function ListingSidebar({
     syncBrowserUrl(nextUrl);
   };
 
-  const displayedPrices = showAllPrices ? pricePresets : pricePresets.slice(0, 8);
-  const displayedAreas = showAllAreas ? AREA_PRESETS : AREA_PRESETS.slice(0, 8);
+  const filteredPricePresets = useMemo(() => {
+    return pricePresets.filter(p => p.value !== 'all');
+  }, [pricePresets]);
+
+  const filteredAreaPresets = useMemo(() => {
+    return AREA_PRESETS.filter(p => p.value !== 'all');
+  }, []);
+
+  const displayedPrices = showAllPrices ? filteredPricePresets : filteredPricePresets.slice(0, 8);
+  const displayedAreas = showAllAreas ? filteredAreaPresets : filteredAreaPresets.slice(0, 8);
   const displayedDistricts = showAllDistricts ? POPULAR_DISTRICTS : POPULAR_DISTRICTS.slice(0, 7);
 
   return (
@@ -253,13 +261,13 @@ export default function ListingSidebar({
           })}
         </div>
 
-        {pricePresets.length > 8 && (
+        {filteredPricePresets.length > 8 && (
           <button
             type="button"
             onClick={() => setShowAllPrices(!showAllPrices)}
             className="w-full mt-3 pt-2.5 border-t border-slate-100 text-center text-xs font-bold text-red-600 hover:text-red-700 transition cursor-pointer flex items-center justify-center gap-1"
           >
-            <span>{showAllPrices ? 'Thu gọn' : `Xem thêm (${pricePresets.length - 8} mức giá)`}</span>
+            <span>{showAllPrices ? 'Thu gọn' : `Xem thêm (${filteredPricePresets.length - 8} mức giá)`}</span>
             <i className={`fa-solid fa-chevron-${showAllPrices ? 'up' : 'down'} text-[10px]`}></i>
           </button>
         )}
@@ -307,13 +315,13 @@ export default function ListingSidebar({
           })}
         </div>
 
-        {AREA_PRESETS.length > 8 && (
+        {filteredAreaPresets.length > 8 && (
           <button
             type="button"
             onClick={() => setShowAllAreas(!showAllAreas)}
             className="w-full mt-3 pt-2.5 border-t border-slate-100 text-center text-xs font-bold text-teal-700 hover:text-teal-800 transition cursor-pointer flex items-center justify-center gap-1"
           >
-            <span>{showAllAreas ? 'Thu gọn' : `Xem thêm (${AREA_PRESETS.length - 8} khoảng)`}</span>
+            <span>{showAllAreas ? 'Thu gọn' : `Xem thêm (${filteredAreaPresets.length - 8} khoảng)`}</span>
             <i className={`fa-solid fa-chevron-${showAllAreas ? 'up' : 'down'} text-[10px]`}></i>
           </button>
         )}
