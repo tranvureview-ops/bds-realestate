@@ -676,7 +676,7 @@ export default function ListingFilterBar({
                   onApply={(selectedIds) => {
                     const cleanIds = Array.isArray(selectedIds) ? selectedIds : [selectedIds].filter(Boolean);
                     const isAll = cleanIds.includes('all') || cleanIds.length === 0;
-                    const primaryId = isAll ? 'all' : cleanIds[0];
+                    const primaryId = isAll ? 'all' : (cleanIds.length === 1 ? cleanIds[0] : cleanIds.join(','));
                     if (setFilters) {
                       setFilters(prev => {
                         const nextFilters = {
@@ -1355,7 +1355,7 @@ export default function ListingFilterBar({
                     onApply={(selectedIds) => {
                       const cleanIds = Array.isArray(selectedIds) ? selectedIds : [selectedIds].filter(Boolean);
                       const isAll = cleanIds.includes('all') || cleanIds.length === 0;
-                      const primaryId = isAll ? 'all' : cleanIds[0];
+                      const primaryId = isAll ? 'all' : (cleanIds.length === 1 ? cleanIds[0] : cleanIds.join(','));
                       setDraftFilters(prev => ({
                         ...prev,
                         propertyType: primaryId,

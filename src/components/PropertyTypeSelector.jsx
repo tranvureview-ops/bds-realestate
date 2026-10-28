@@ -1,18 +1,35 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
-  getPropertyTypeOptions,
+  getPropertyTypeTree,
   formatPropertyTypeTriggerLabel
 } from '../data/propertyTypeTaxonomy';
 
 /**
- * Component Bảng chọn Loại Nhà Đất dạng Select chuẩn Batdongsan.com.vn
- * - Thiết kế đồng bộ 100% với Bộ Lọc "Khoảng giá" và "Diện tích"
+ * Chuẩn hóa giá trị đầu vào thành mảng ID
+ */
+const normalizeSelectedValues = (val) => {
+  if (!val || val === 'all') return ['all'];
+  if (Array.isArray(val)) {
+    const clean = val.filter(v => v && v !== 'all');
+    return clean.length > 0 ? clean : ['all'];
+  }
+  if (typeof val === 'string') {
+    const split = val.split(',').map(s => s.trim()).filter(v => v && v !== 'all');
+    return split.length > 0 ? split : ['all'];
+  }
+  return ['all'];
+};
+
+/**
+ * Component Bảng chọn Loại Nhà Đất phân cấp dạng cây (Tree Checkbox) chuẩn Batdongsan.com.vn
+ * - Hiển thị danh sách cây (Tree list) với checkbox vuông bên phải
+ * - Phân cấp nhóm cha (Ví dụ: "Các loại nhà bán", "Các loại đất bán") và các mục con thụt lề
+ * - Tự động đồng bộ trạng thái checkbox cha (checked / indeterminate) khi chọn tất cả hoặc một phần mục con
  * - Header có tiêu đề "Loại nhà đất" và nút đóng [ ✕ ]
- * - Danh sách dạng cuộn gọn gàng kèm radio button tròn (#009BA1) bên phải
  * - Chân popup có nút "Đặt lại" và "Áp dụng" màu đỏ nổi bật
- * - Đồng bộ tức thì với bộ lọc trang và URL SEO
+ * - Đảm bảo state độc lập, không bị reset khi render lại
  */
 export default function PropertyTypeSelector({
   value,
@@ -22,64 +39,113 @@ export default function PropertyTypeSelector({
   isModal = false,
   className = ''
 }) {
-  const options = useMemo(() => getPropertyTypeOptions(demand), [demand]);
+  const tree = useMemo(() => getPropertyTypeTree(demand), [demand]);
 
-  // Chuẩn hóa giá trị đầu vào thành ID duy nhất (mặc định 'all')
-  const initialSelectedId = useMemo(() => {
+  // Chuỗi khóa nhận diện thay đổi từ bên ngoài (chỉ re-sync khi value thực sự thay đổi)
+  const externalKey = useMemo(() => {
     if (!value || value === 'all') return 'all';
-    if (Array.isArray(value)) {
-      const first = value.find(v => v && v !== 'all');
-      return first || 'all';
-    }
-    if (typeof value === 'string') {
-      const split = value.split(',').map(s => s.trim()).filter(Boolean);
-      const first = split.find(v => v && v !== 'all');
-      return first || 'all';
-    }
-    return 'all';
+    if (Array.isArray(value)) return value.filter(Boolean).sort().join(',');
+    return String(value).trim();
   }, [value]);
 
-  const [selectedId, setSelectedId] = useState(initialSelectedId);
+  const [selected, setSelected] = useState(() => normalizeSelectedValues(value));
+  const prevKeyRef = useRef(externalKey);
 
-  // Đồng bộ khi prop value hoặc demand thay đổi từ bên ngoài
+  // Chỉ đồng bộ lại khi externalKey hoặc demand thực sự thay đổi
   useEffect(() => {
-    setSelectedId(initialSelectedId);
-  }, [initialSelectedId, demand]);
+    if (prevKeyRef.current !== externalKey) {
+      prevKeyRef.current = externalKey;
+      setSelected(normalizeSelectedValues(value));
+    }
+  }, [externalKey, value, demand]);
 
-  // Xử lý chọn nhanh 1 loại hình
-  const handleSelect = (val) => {
-    setSelectedId(val);
+  // Kiểm tra trạng thái của một nhóm cha (Group)
+  const getGroupState = (group) => {
+    if (!group.children || group.children.length === 0) {
+      return { isChecked: false, isIndeterminate: false };
+    }
+    const childIds = group.children.map(c => c.id);
+    const selectedCount = childIds.filter(id => selected.includes(id)).length;
+    const isChecked = selectedCount === childIds.length;
+    const isIndeterminate = selectedCount > 0 && selectedCount < childIds.length;
+    return { isChecked, isIndeterminate };
   };
 
-  // Xử lý nút Đặt lại -> Trở về "Tất cả nhà đất"
+  // Toggle item 'all' (Tất cả nhà đất)
+  const handleToggleAll = (e) => {
+    if (e) e.stopPropagation();
+    setSelected(['all']);
+  };
+
+  // Toggle nhóm cha (Chọn hoặc bỏ chọn toàn bộ mục con)
+  const handleToggleGroup = (e, group) => {
+    if (e) e.stopPropagation();
+    const childIds = group.children.map(c => c.id);
+    const { isChecked } = getGroupState(group);
+
+    if (isChecked) {
+      // Đang chọn hết => bỏ chọn tất cả mục con trong nhóm này
+      const next = selected.filter(id => !childIds.includes(id));
+      setSelected(next.length === 0 ? ['all'] : next);
+    } else {
+      // Chưa chọn hết => chọn toàn bộ mục con và bỏ 'all'
+      const base = selected.filter(id => id !== 'all');
+      const next = Array.from(new Set([...base, ...childIds]));
+      setSelected(next);
+    }
+  };
+
+  // Toggle mục đơn / mục con
+  const handleToggleItem = (e, itemId) => {
+    if (e) e.stopPropagation();
+    if (itemId === 'all') {
+      setSelected(['all']);
+      return;
+    }
+
+    const isCurrentlySelected = selected.includes(itemId);
+    let next;
+
+    if (isCurrentlySelected) {
+      next = selected.filter(id => id !== itemId);
+      if (next.length === 0) {
+        next = ['all'];
+      }
+    } else {
+      next = [...selected.filter(id => id !== 'all'), itemId];
+    }
+
+    setSelected(next);
+  };
+
+  // Xử lý nút Đặt lại => Trở về "Tất cả nhà đất"
   const handleReset = (e) => {
     if (e) e.stopPropagation();
-    setSelectedId('all');
+    setSelected(['all']);
   };
 
   // Xử lý nút Áp dụng
   const handleApply = (e) => {
     if (e) e.stopPropagation();
-    const finalId = selectedId || 'all';
-    const opt = options.find(o => o.value === finalId);
-    const label = opt ? opt.label : 'Loại nhà đất';
+    const finalSelected = selected.length === 0 ? ['all'] : selected;
+    const label = formatPropertyTypeTriggerLabel(finalSelected, demand);
 
     if (onApply) {
-      // Hỗ trợ truyền mảng ID để tương thích cả multi-select và single-select
-      const resultIds = finalId === 'all' ? ['all'] : [finalId];
-      onApply(resultIds, label);
+      onApply(finalSelected, label);
     }
     if (onClose) {
       onClose();
     }
   };
 
+  const isAllChecked = selected.includes('all') || selected.length === 0;
+
   return (
     <div
       className={`bg-white flex flex-col text-slate-800 ${
         isModal
           ? 'w-full h-full'
-          : 'w-80 sm:w-[320px] rounded-2xl border border-slate-200 shadow-2xl overflow-hidden'
+          : 'w-80 sm:w-[340px] rounded-2xl border border-slate-200 shadow-2xl overflow-hidden'
       } ${className}`}
     >
       {/* 1. HEADER (Tiêu đề "Loại nhà đất" + Nút đóng ✕) */}
@@ -97,48 +163,113 @@ export default function PropertyTypeSelector({
         </button>
       </div>
 
-      {/* 2. DANH SÁCH CÁC LOẠI HÌNH VỚI RADIO BUTTON GỌN GÀNG */}
-      <div className={`overflow-y-auto ${isModal ? 'flex-1' : 'max-h-80 sm:max-h-96'}`}>
-        <div className="p-2 space-y-0.5">
-          {options.map((item) => {
-            const isSelected = selectedId === item.value;
+      {/* 2. DANH SÁCH CÂY PHÂN CẤP CHUẨN BATDONGSAN.COM.VN */}
+      <div className={`overflow-y-auto divide-y divide-slate-100 ${isModal ? 'flex-1 p-2 sm:p-3' : 'max-h-80 sm:max-h-96 py-1'}`}>
+        {tree.map(item => {
+          // MỤC "TẤT CẢ NHÀ ĐẤT"
+          if (item.isAll) {
             return (
               <div
-                key={item.value}
-                onClick={() => handleSelect(item.value)}
-                className={`flex items-center justify-between px-3.5 py-2.5 rounded-xl cursor-pointer transition select-none ${
-                  isSelected
-                    ? 'bg-teal-50/50 text-[#009BA1] font-bold'
-                    : 'text-slate-700 font-medium hover:bg-slate-50'
-                }`}
+                key={item.id}
+                onClick={(e) => handleToggleAll(e)}
+                className="flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 transition cursor-pointer select-none group"
               >
                 <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                  {item.icon && (
-                    <i
-                      className={`${item.icon} text-xs w-4 text-center shrink-0 ${
-                        isSelected ? 'text-[#009BA1]' : 'text-slate-400'
-                      }`}
-                    ></i>
-                  )}
-                  <span className="text-xs sm:text-sm truncate">
-                    {item.label}
+                  <i className={`${item.icon} text-slate-400 group-hover:text-red-600 text-sm w-4 text-center transition-colors shrink-0`}></i>
+                  <span className={`text-xs sm:text-sm truncate ${isAllChecked ? 'text-[#e03c31] font-bold' : 'text-slate-800 font-medium'}`}>
+                    {item.name}
                   </span>
                 </div>
-
-                {/* Radio Circle chuẩn phong cách Batdongsan (đồng bộ Khoảng giá & Diện tích) */}
-                <div
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition shrink-0 ml-3 ${
-                    isSelected ? 'border-[#009BA1] bg-white' : 'border-slate-300'
-                  }`}
-                >
-                  {isSelected && (
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#009BA1]" />
-                  )}
+                <div className={`w-4 h-4 rounded-[4px] border flex items-center justify-center transition shrink-0 ml-3 ${
+                  isAllChecked
+                    ? 'bg-[#e03c31] border-[#e03c31] text-white shadow-2xs'
+                    : 'border-slate-300 bg-white group-hover:border-slate-400'
+                }`}>
+                  {isAllChecked && <i className="fa-solid fa-check text-[10px]"></i>}
                 </div>
               </div>
             );
-          })}
-        </div>
+          }
+
+          // NHÓM PHÂN CẤP CHA - CON (Ví dụ: "Các loại nhà bán", "Các loại đất bán")
+          if (item.isGroup) {
+            const { isChecked, isIndeterminate } = getGroupState(item);
+
+            return (
+              <div key={item.id} className="py-1">
+                {/* DÒNG TIÊU ĐỀ NHÓM CHA */}
+                <div
+                  onClick={(e) => handleToggleGroup(e, item)}
+                  className="flex items-center justify-between px-4 py-2 hover:bg-slate-50 transition cursor-pointer select-none group"
+                >
+                  <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                    <i className={`${item.icon} text-slate-400 group-hover:text-red-600 text-sm w-4 text-center transition-colors shrink-0`}></i>
+                    <span className={`text-xs sm:text-sm font-bold truncate ${isChecked || isIndeterminate ? 'text-[#e03c31]' : 'text-slate-900'}`}>
+                      {item.name}
+                    </span>
+                  </div>
+                  <div className={`w-4 h-4 rounded-[4px] border flex items-center justify-center transition shrink-0 ml-3 ${
+                    isChecked || isIndeterminate
+                      ? 'bg-[#e03c31] border-[#e03c31] text-white shadow-2xs'
+                      : 'border-slate-300 bg-white group-hover:border-slate-400'
+                  }`}>
+                    {isChecked && <i className="fa-solid fa-check text-[10px]"></i>}
+                    {!isChecked && isIndeterminate && <i className="fa-solid fa-minus text-[10px]"></i>}
+                  </div>
+                </div>
+
+                {/* CÁC MỤC CON THỤT LỀ (INDENTED) */}
+                <div className="space-y-0.5">
+                  {item.children.map(child => {
+                    const isChildChecked = selected.includes(child.id);
+                    return (
+                      <div
+                        key={child.id}
+                        onClick={(e) => handleToggleItem(e, child.id)}
+                        className="flex items-center justify-between pl-10 pr-4 py-1.5 hover:bg-slate-50 transition cursor-pointer select-none group"
+                      >
+                        <span className={`text-xs sm:text-[13px] truncate ${isChildChecked ? 'text-[#e03c31] font-bold' : 'text-slate-700 font-medium'}`}>
+                          {child.name}
+                        </span>
+                        <div className={`w-4 h-4 rounded-[4px] border flex items-center justify-center transition shrink-0 ml-3 ${
+                          isChildChecked
+                            ? 'bg-[#e03c31] border-[#e03c31] text-white shadow-2xs'
+                            : 'border-slate-300 bg-white group-hover:border-slate-400'
+                        }`}>
+                          {isChildChecked && <i className="fa-solid fa-check text-[10px]"></i>}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          }
+
+          // MỤC ĐƠN KHÔNG PHÂN NHÓM (Căn hộ chung cư, Condotel, Kho xưởng...)
+          const isItemChecked = selected.includes(item.id);
+          return (
+            <div
+              key={item.id}
+              onClick={(e) => handleToggleItem(e, item.id)}
+              className="flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 transition cursor-pointer select-none group"
+            >
+              <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                <i className={`${item.icon} text-slate-400 group-hover:text-red-600 text-sm w-4 text-center transition-colors shrink-0`}></i>
+                <span className={`text-xs sm:text-sm truncate ${isItemChecked ? 'text-[#e03c31] font-bold' : 'text-slate-800 font-medium'}`}>
+                  {item.name}
+                </span>
+              </div>
+              <div className={`w-4 h-4 rounded-[4px] border flex items-center justify-center transition shrink-0 ml-3 ${
+                isItemChecked
+                  ? 'bg-[#e03c31] border-[#e03c31] text-white shadow-2xs'
+                  : 'border-slate-300 bg-white group-hover:border-slate-400'
+              }`}>
+                {isItemChecked && <i className="fa-solid fa-check text-[10px]"></i>}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* 3. FOOTER ACTIONS: ĐẶT LẠI & ÁP DỤNG */}
