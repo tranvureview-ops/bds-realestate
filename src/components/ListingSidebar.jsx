@@ -165,8 +165,7 @@ export default function ListingSidebar({
       e.preventDefault();
     }
 
-    const districtSlug = getDistrictSlug(item.name);
-    const isSelected = filters.district === item.name || (basePath && basePath.includes(districtSlug));
+    const isSelected = filters.district === item.name;
 
     if (setFilters) {
       setFilters(prev => ({
@@ -234,7 +233,6 @@ export default function ListingSidebar({
 
         <div className="grid grid-cols-2 gap-1.5 text-xs">
           {displayedPrices.map(item => {
-            const isSelected = (filters.priceRange || 'all') === item.value;
             const targetUrl = buildSeoFilterUrl({
               basePath,
               demand: isRent ? 'rent' : 'sale',
@@ -247,15 +245,11 @@ export default function ListingSidebar({
                 href={targetUrl}
                 scroll={false}
                 onClick={(e) => handleSelectPrice(e, item, targetUrl)}
-                className={`text-left px-2.5 py-2 rounded-xl transition-all duration-150 cursor-pointer truncate font-medium flex items-center justify-between group border ${
-                  isSelected
-                    ? 'bg-red-50 text-red-600 font-bold border-red-200 shadow-2xs'
-                    : 'border-transparent text-slate-700 hover:bg-slate-50 hover:text-red-600'
-                }`}
+                className="text-left px-2.5 py-2 rounded-xl transition-colors duration-150 cursor-pointer truncate font-medium flex items-center justify-between group border border-transparent text-slate-700 hover:bg-slate-50 hover:text-red-600"
                 title={item.label}
               >
                 <span className="truncate">{item.label}</span>
-                <i className={`fa-solid fa-chevron-right text-[9px] transition-transform ${isSelected ? 'text-red-600' : 'text-slate-300 group-hover:text-red-500 group-hover:translate-x-0.5'}`}></i>
+                <i className="fa-solid fa-chevron-right text-[9px] text-slate-300 group-hover:text-red-500 group-hover:translate-x-0.5 transition-transform"></i>
               </Link>
             );
           })}
@@ -288,7 +282,6 @@ export default function ListingSidebar({
 
         <div className="grid grid-cols-2 gap-1.5 text-xs">
           {displayedAreas.map(item => {
-            const isSelected = (filters.areaRange || 'all') === item.value;
             const targetUrl = buildSeoFilterUrl({
               basePath,
               demand: isRent ? 'rent' : 'sale',
@@ -301,15 +294,11 @@ export default function ListingSidebar({
                 href={targetUrl}
                 scroll={false}
                 onClick={(e) => handleSelectArea(e, item, targetUrl)}
-                className={`text-left px-2.5 py-2 rounded-xl transition-all duration-150 cursor-pointer truncate font-medium flex items-center justify-between group border ${
-                  isSelected
-                    ? 'bg-teal-50 text-teal-700 font-bold border-teal-200 shadow-2xs'
-                    : 'border-transparent text-slate-700 hover:bg-slate-50 hover:text-teal-700'
-                }`}
+                className="text-left px-2.5 py-2 rounded-xl transition-colors duration-150 cursor-pointer truncate font-medium flex items-center justify-between group border border-transparent text-slate-700 hover:bg-slate-50 hover:text-teal-700"
                 title={item.label}
               >
                 <span className="truncate">{item.label}</span>
-                <i className={`fa-solid fa-chevron-right text-[9px] transition-transform ${isSelected ? 'text-teal-700' : 'text-slate-300 group-hover:text-teal-500 group-hover:translate-x-0.5'}`}></i>
+                <i className="fa-solid fa-chevron-right text-[9px] text-slate-300 group-hover:text-teal-500 group-hover:translate-x-0.5 transition-transform"></i>
               </Link>
             );
           })}
@@ -342,16 +331,12 @@ export default function ListingSidebar({
 
         <div className="space-y-1 text-xs">
           {displayedDistricts.map(item => {
-            const districtSlug = getDistrictSlug(item.name);
-            const isSelected = filters.district === item.name || (basePath && basePath.includes(districtSlug));
             const count = districtCounts[item.name] || 0;
-            const targetUrl = isSelected
-              ? (currentDemand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban')
-              : buildDistrictSeoUrl({
-                  basePath,
-                  demand: currentDemand,
-                  districtName: item.name
-                });
+            const targetUrl = buildDistrictSeoUrl({
+              basePath,
+              demand: currentDemand,
+              districtName: item.name
+            });
 
             return (
               <Link
@@ -359,21 +344,13 @@ export default function ListingSidebar({
                 href={targetUrl}
                 scroll={false}
                 onClick={(e) => handleSelectDistrict(e, item, targetUrl)}
-                className={`w-full text-left px-3 py-2 rounded-xl transition-all duration-150 cursor-pointer flex items-center justify-between group border ${
-                  isSelected
-                    ? 'bg-red-50 text-red-600 font-bold border-red-200 shadow-2xs'
-                    : 'border-transparent text-slate-700 hover:bg-slate-50 hover:text-red-600'
-                }`}
+                className="w-full text-left px-3 py-2 rounded-xl transition-colors duration-150 cursor-pointer flex items-center justify-between group border border-transparent text-slate-700 hover:bg-slate-50 hover:text-red-600"
               >
                 <div className="flex items-center gap-2 truncate">
-                  <i className={`fa-solid fa-map-pin text-[10px] ${isSelected ? 'text-red-600' : 'text-slate-400 group-hover:text-red-500'}`}></i>
+                  <i className="fa-solid fa-map-pin text-[10px] text-slate-400 group-hover:text-red-500 transition-colors"></i>
                   <span className="truncate">{item.name}</span>
                 </div>
-                <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0 ml-2 ${
-                  isSelected
-                    ? 'bg-red-600 text-white'
-                    : 'bg-slate-100 text-slate-500 group-hover:bg-red-100 group-hover:text-red-600'
-                }`}>
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0 ml-2 bg-slate-100 text-slate-500 group-hover:bg-red-100 group-hover:text-red-600 transition-colors">
                   {count > 0 ? `${count} tin` : item.city}
                 </span>
               </Link>

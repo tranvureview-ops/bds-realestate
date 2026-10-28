@@ -46,35 +46,22 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 
     onlyVerified: queryVerified
   }));
 
-  // Chỉ reset lại bộ lọc khi người dùng thực sự chuyển sang URL / trang mới
-  const lastUrlRef = useRef(null);
-  const currentUrl = typeof window !== 'undefined' ? (window.location.pathname + window.location.search) : '';
-
+  // Đồng bộ khi prop taxonomyInfo thực sự thay đổi từ SSR routing
   useEffect(() => {
-    if (lastUrlRef.current === null) {
-      lastUrlRef.current = currentUrl;
-      return;
-    }
-    if (lastUrlRef.current !== currentUrl) {
-      lastUrlRef.current = currentUrl;
-      setFilters(prev => ({
-        ...prev,
-        demand: 'sale',
-        propertyType: queryType,
-        city: queryCity,
-        district: queryDistrict,
-        keyword: queryKeyword,
-        priceRange: queryPrice,
-        minPrice: queryMinPrice,
-        maxPrice: queryMaxPrice,
-        areaRange: queryArea,
-        minArea: queryMinArea,
-        maxArea: queryMaxArea,
-        bedroom: queryBedroom,
-        onlyVerified: queryVerified
-      }));
-    }
-  }, [currentUrl, queryDistrict, queryCity, queryType, queryKeyword, queryPrice, queryMinPrice, queryMaxPrice, queryArea, queryMinArea, queryMaxArea, queryBedroom, queryVerified]);
+    if (!taxonomyInfo) return;
+    setFilters(prev => ({
+      ...prev,
+      city: taxonomyInfo.city || prev.city,
+      district: taxonomyInfo.district || prev.district,
+      propertyType: taxonomyInfo.propertyType || prev.propertyType,
+      priceRange: taxonomyInfo.priceRange || prev.priceRange,
+      minPrice: taxonomyInfo.minPrice ? Number(taxonomyInfo.minPrice) : prev.minPrice,
+      maxPrice: taxonomyInfo.maxPrice ? Number(taxonomyInfo.maxPrice) : prev.maxPrice,
+      areaRange: taxonomyInfo.areaRange || prev.areaRange,
+      minArea: taxonomyInfo.minArea ? Number(taxonomyInfo.minArea) : prev.minArea,
+      maxArea: taxonomyInfo.maxArea ? Number(taxonomyInfo.maxArea) : prev.maxArea,
+    }));
+  }, [taxonomyInfo]);
 
   // Lắng nghe popstate khi người dùng nhấn Back / Forward trên trình duyệt
   useEffect(() => {
