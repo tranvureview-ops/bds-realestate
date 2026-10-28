@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { LOCATIONS, PROPERTY_TYPES } from '../data/mockData';
+import { LOCATIONS, PROPERTY_TYPES, SALE_PRICE_PRESETS, RENT_PRICE_PRESETS, AREA_PRESETS } from '../data/mockData';
 import CustomSelect from './CustomSelect';
 import { Link } from '../router/RouterContext';
 
@@ -184,11 +184,10 @@ export default function HeroSearch({ filters, setFilters, totalResults }) {
                 onChange={(val) => setFilters(prev => ({ ...prev, priceRange: val }))}
                 options={[
                   { value: 'all', label: 'Mọi mức giá' },
-                  { value: 'under-2b', label: 'Dưới 2 tỷ' },
-                  { value: '2b-5b', label: '2 tỷ - 5 tỷ' },
-                  { value: '5b-10b', label: '5 tỷ - 10 tỷ' },
-                  { value: '10b-30b', label: '10 tỷ - 30 tỷ' },
-                  { value: 'over-30b', label: 'Trên 30 tỷ (Cao cấp)' }
+                  ...(filters.demand === 'rent' ? RENT_PRICE_PRESETS : SALE_PRICE_PRESETS).slice(1).map(p => ({
+                    value: p.value,
+                    label: p.label
+                  }))
                 ]}
                 placeholder="Mọi mức giá"
               />
@@ -204,10 +203,10 @@ export default function HeroSearch({ filters, setFilters, totalResults }) {
                 onChange={(val) => setFilters(prev => ({ ...prev, areaRange: val }))}
                 options={[
                   { value: 'all', label: 'Mọi diện tích' },
-                  { value: 'under-50', label: 'Dưới 50 m²' },
-                  { value: '50-100', label: '50 - 100 m²' },
-                  { value: '100-200', label: '100 - 200 m²' },
-                  { value: 'over-200', label: 'Trên 200 m²' }
+                  ...AREA_PRESETS.slice(1).map(a => ({
+                    value: a.value,
+                    label: a.label
+                  }))
                 ]}
                 placeholder="Mọi diện tích"
               />

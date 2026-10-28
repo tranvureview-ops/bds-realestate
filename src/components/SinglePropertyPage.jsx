@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link } from '../router/RouterContext';
-import { VIP_PACKAGES } from '../data/mockData';
+import { VIP_PACKAGES, SALE_PRICE_PRESETS, RENT_PRICE_PRESETS } from '../data/mockData';
 import dynamic from 'next/dynamic';
 import { getCategoryPermalink, toVietnameseSlug, buildFacetedUrl, buildKeywordCleanSlug, buildSeoUrl, CITY_SLUGS, PROPERTY_TAXONOMY, formatSentenceCase } from '../utils/permalink';
 const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
@@ -739,21 +739,10 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
   // Điều hướng đa diện theo Khoảng Giá tại Quận/Huyện (Phân biệt mua bán và cho thuê)
   const isRent = property.demand === 'rent';
-  const priceRangesInDistrict = (isRent ? [
-    { key: 'under-5m', label: 'Dưới 5 triệu' },
-    { key: '5m-10m', label: 'Từ 5 - 10 triệu' },
-    { key: '10m-20m', label: 'Từ 10 - 20 triệu' },
-    { key: '20m-40m', label: 'Từ 20 - 40 triệu' },
-    { key: 'over-40m', label: 'Trên 40 triệu' }
-  ] : [
-    { key: 'under-2b', label: 'Dưới 2 tỷ' },
-    { key: '2b-5b', label: 'Từ 2 - 5 tỷ' },
-    { key: '5b-10b', label: 'Từ 5 - 10 tỷ' },
-    { key: '10b-30b', label: 'Từ 10 - 30 tỷ' },
-    { key: 'over-30b', label: 'Trên 30 tỷ' }
-  ]).map(pr => ({
-    ...pr,
-    url: buildSeoUrl({ demand: property.demand, city: property.city, district: property.district, priceRange: pr.key })
+  const priceRangesInDistrict = (isRent ? RENT_PRICE_PRESETS.slice(1) : SALE_PRICE_PRESETS.slice(1)).map(pr => ({
+    key: pr.value,
+    label: pr.label,
+    url: buildSeoUrl({ demand: property.demand, city: property.city, district: property.district, priceRange: pr.value })
   }));
 
   return (

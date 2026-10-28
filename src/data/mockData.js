@@ -268,6 +268,53 @@ export const PROPERTY_TYPES = [
   { id: 'other', slug: 'bat-dong-san-khac', name: 'Loại BĐS khác', icon: 'fa-shapes' }
 ];
 
+// Cấu hình các khoảng giá Bán chuẩn ngành BĐS (Bao quát từ dưới 1 tỷ tới trên 100 tỷ)
+export const SALE_PRICE_PRESETS = [
+  { value: 'all', label: 'Tất cả khoảng giá', min: null, max: null },
+  { value: 'under-1b', label: 'Dưới 1 tỷ', min: null, max: 1000000000 },
+  { value: '1b-2b', label: '1 - 2 tỷ', min: 1000000000, max: 2000000000 },
+  { value: '2b-3b', label: '2 - 3 tỷ', min: 2000000000, max: 3000000000 },
+  { value: '3b-5b', label: '3 - 5 tỷ', min: 3000000000, max: 5000000000 },
+  { value: '5b-7b', label: '5 - 7 tỷ', min: 5000000000, max: 7000000000 },
+  { value: '7b-10b', label: '7 - 10 tỷ', min: 7000000000, max: 10000000000 },
+  { value: '10b-15b', label: '10 - 15 tỷ', min: 10000000000, max: 15000000000 },
+  { value: '15b-20b', label: '15 - 20 tỷ', min: 15000000000, max: 20000000000 },
+  { value: '20b-30b', label: '20 - 30 tỷ', min: 20000000000, max: 30000000000 },
+  { value: '30b-50b', label: '30 - 50 tỷ', min: 30000000000, max: 50000000000 },
+  { value: '50b-70b', label: '50 - 70 tỷ', min: 50000000000, max: 70000000000 },
+  { value: '70b-100b', label: '70 - 100 tỷ', min: 70000000000, max: 100000000000 },
+  { value: 'over-100b', label: 'Trên 100 tỷ', min: 100000000000, max: null }
+];
+
+// Cấu hình các khoảng giá Cho Thuê chuẩn (Bao quát từ dưới 3 triệu tới trên 100 triệu)
+export const RENT_PRICE_PRESETS = [
+  { value: 'all', label: 'Tất cả khoảng giá', min: null, max: null },
+  { value: 'under-3m', label: 'Dưới 3 triệu', min: null, max: 3000000 },
+  { value: '3m-5m', label: '3 - 5 triệu', min: 3000000, max: 5000000 },
+  { value: '5m-10m', label: '5 - 10 triệu', min: 5000000, max: 10000000 },
+  { value: '10m-20m', label: '10 - 20 triệu', min: 10000000, max: 20000000 },
+  { value: '20m-30m', label: '20 - 30 triệu', min: 20000000, max: 30000000 },
+  { value: '30m-50m', label: '30 - 50 triệu', min: 30000000, max: 50000000 },
+  { value: '50m-70m', label: '50 - 70 triệu', min: 50000000, max: 70000000 },
+  { value: '70m-100m', label: '70 - 100 triệu', min: 70000000, max: 100000000 },
+  { value: 'over-100m', label: 'Trên 100 triệu', min: 100000000, max: null }
+];
+
+// Cấu hình các khoảng Diện Tích chuẩn (Bao quát từ dưới 30 m² tới trên 1.000 m²)
+export const AREA_PRESETS = [
+  { value: 'all', label: 'Tất cả diện tích', min: null, max: null },
+  { value: 'under-30', label: 'Dưới 30 m²', min: null, max: 30 },
+  { value: '30-50', label: '30 - 50 m²', min: 30, max: 50 },
+  { value: '50-80', label: '50 - 80 m²', min: 50, max: 80 },
+  { value: '80-100', label: '80 - 100 m²', min: 80, max: 100 },
+  { value: '100-150', label: '100 - 150 m²', min: 100, max: 150 },
+  { value: '150-200', label: '150 - 200 m²', min: 150, max: 200 },
+  { value: '200-300', label: '200 - 300 m²', min: 200, max: 300 },
+  { value: '300-500', label: '300 - 500 m²', min: 300, max: 500 },
+  { value: '500-1000', label: '500 - 1.000 m²', min: 500, max: 1000 },
+  { value: 'over-1000', label: 'Trên 1.000 m²', min: 1000, max: null }
+];
+
 
 import { VIETNAM_ADMINISTRATIVE_DATA } from './vietnamAdministrativeData.js';
 

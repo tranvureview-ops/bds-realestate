@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { PROPERTY_TYPES } from '../data/mockData';
+import { PROPERTY_TYPES, SALE_PRICE_PRESETS, RENT_PRICE_PRESETS, AREA_PRESETS } from '../data/mockData';
 import { VIETNAM_ADMINISTRATIVE_DATA, DANANG_MERGERS_MAP } from '../data/vietnamAdministrativeData';
 import { removeAccents } from '../utils/propertyFilter';
+import { formatPriceRangeText, formatAreaRangeText } from '../utils/permalink';
 
 const CITIES = [
   'Đà Nẵng',
@@ -12,32 +13,6 @@ const CITIES = [
   'Hà Nội',
   'TP. Hồ Chí Minh',
   'Khánh Hòa'
-];
-
-const SALE_PRICE_PRESETS = [
-  { value: 'all', label: 'Tất cả khoảng giá', min: null, max: null },
-  { value: 'under-2b', label: 'Dưới 2 tỷ', min: null, max: 2000000000 },
-  { value: '2b-5b', label: '2 - 5 tỷ', min: 2000000000, max: 5000000000 },
-  { value: '5b-10b', label: '5 - 10 tỷ', min: 5000000000, max: 10000000000 },
-  { value: '10b-30b', label: '10 - 30 tỷ', min: 10000000000, max: 30000000000 },
-  { value: 'over-30b', label: 'Trên 30 tỷ', min: 30000000000, max: null }
-];
-
-const RENT_PRICE_PRESETS = [
-  { value: 'all', label: 'Tất cả khoảng giá', min: null, max: null },
-  { value: 'under-5m', label: 'Dưới 5 triệu', min: null, max: 5000000 },
-  { value: '5m-10m', label: '5 - 10 triệu', min: 5000000, max: 10000000 },
-  { value: '10m-20m', label: '10 - 20 triệu', min: 10000000, max: 20000000 },
-  { value: '20m-40m', label: '20 - 40 triệu', min: 20000000, max: 40000000 },
-  { value: 'over-40m', label: 'Trên 40 triệu', min: 40000000, max: null }
-];
-
-const AREA_PRESETS = [
-  { value: 'all', label: 'Tất cả diện tích', min: null, max: null },
-  { value: 'under-50', label: 'Dưới 50 m²', min: null, max: 50 },
-  { value: '50-100', label: '50 - 100 m²', min: 50, max: 100 },
-  { value: '100-200', label: '100 - 200 m²', min: 100, max: 200 },
-  { value: 'over-200', label: 'Trên 200 m²', min: 200, max: null }
 ];
 
 const DIRECTIONS = [
@@ -260,35 +235,21 @@ export default function ListingFilterBar({
 
   const getPriceRangeLabel = (rangeKey = filters?.priceRange, currentDemand = demand) => {
     if (!rangeKey || rangeKey === 'all') return 'Khoảng giá';
-    if (currentDemand === 'rent') {
-      switch (rangeKey) {
-        case 'under-5m': return '< 5 triệu';
-        case '5m-10m': return '5 - 10 triệu';
-        case '10m-20m': return '10 - 20 triệu';
-        case '20m-40m': return '20 - 40 triệu';
-        case 'over-40m': return '> 40 triệu';
-        default: return rangeKey;
-      }
+    const presets = currentDemand === 'rent' ? RENT_PRICE_PRESETS : SALE_PRICE_PRESETS;
+    const found = presets.find(p => p.value === rangeKey);
+    if (found) {
+      return found.label.replace('Dưới ', '< ').replace('Trên ', '> ');
     }
-    switch (rangeKey) {
-      case 'under-2b': return '< 2 tỷ';
-      case '2b-5b': return '2 - 5 tỷ';
-      case '5b-10b': return '5 - 10 tỷ';
-      case '10b-30b': return '10 - 30 tỷ';
-      case 'over-30b': return '> 30 tỷ';
-      default: return rangeKey;
-    }
+    return formatPriceRangeText(rangeKey).replace('Dưới ', '< ').replace('Trên ', '> ');
   };
 
   const getAreaRangeLabel = (rangeKey = filters?.areaRange) => {
     if (!rangeKey || rangeKey === 'all') return 'Diện tích';
-    switch (rangeKey) {
-      case 'under-50': return '< 50 m²';
-      case '50-100': return '50 - 100 m²';
-      case '100-200': return '100 - 200 m²';
-      case 'over-200': return '> 200 m²';
-      default: return `${rangeKey} m²`;
+    const found = AREA_PRESETS.find(p => p.value === rangeKey);
+    if (found) {
+      return found.label.replace('Dưới ', '< ').replace('Trên ', '> ');
     }
+    return formatAreaRangeText(rangeKey).replace('Dưới ', '< ').replace('Trên ', '> ');
   };
 
   // Summary labels for Modal rows (Screenshot 1)

@@ -431,14 +431,21 @@ export const buildSeoUrl = ({
 
   let areaCleanSlug = '';
   if (areaRange && areaRange !== 'all') {
-    if (areaRange === 'under-50') areaCleanSlug = '-dien-tich-duoi-50-m2';
-    else if (areaRange === '50-100') areaCleanSlug = '-dien-tich-50-100-m2';
-    else if (areaRange === '100-200') areaCleanSlug = '-dien-tich-100-200-m2';
-    else if (areaRange === 'over-200') areaCleanSlug = '-dien-tich-tren-200-m2';
-    else if (areaRange.startsWith('dien-tich-')) {
+    if (areaRange.startsWith('dien-tich-')) {
       areaCleanSlug = `-${toVietnameseSlug(areaRange)}`;
     } else {
-      areaCleanSlug = `-dien-tich-${toVietnameseSlug(areaRange)}-m2`;
+      const dynBetweenArea = areaRange.match(/^([0-9.]+)-([0-9.]+)$/);
+      const dynUnderArea = areaRange.match(/^under-([0-9.]+)$/);
+      const dynOverArea = areaRange.match(/^over-([0-9.]+)$/);
+      if (dynBetweenArea) {
+        areaCleanSlug = `-dien-tich-${dynBetweenArea[1]}-${dynBetweenArea[2]}-m2`;
+      } else if (dynUnderArea) {
+        areaCleanSlug = `-dien-tich-duoi-${dynUnderArea[1]}-m2`;
+      } else if (dynOverArea) {
+        areaCleanSlug = `-dien-tich-tren-${dynOverArea[1]}-m2`;
+      } else {
+        areaCleanSlug = `-dien-tich-${toVietnameseSlug(areaRange)}-m2`;
+      }
     }
   }
 
@@ -740,27 +747,15 @@ export const parseTaxonomyUrl = (urlPath) => {
       }
 
       // Khớp chuẩn các preset hệ thống nếu min-max khớp hoàn hảo
-      if (minVal === 0 && maxVal === 2 && maxUnit === 'ty') {
-        priceRange = 'under-2b';
-      } else if (minVal === 2 && maxVal === 5 && actualMinUnit === 'ty' && maxUnit === 'ty') {
-        priceRange = '2b-5b';
-      } else if (minVal === 5 && maxVal === 10 && actualMinUnit === 'ty' && maxUnit === 'ty') {
-        priceRange = '5b-10b';
-      } else if (minVal === 10 && maxVal === 30 && actualMinUnit === 'ty' && maxUnit === 'ty') {
-        priceRange = '10b-30b';
-      } else {
-        // Dải giá động (ví dụ: 7b-10b, 3b-5b, 500m-1b)
-        priceRange = `${minVal}${actualMinUnit === 'trieu' ? 'm' : 'b'}-${maxVal}${maxUnit === 'trieu' ? 'm' : 'b'}`;
-      }
+      // Dải giá động hoặc preset hệ thống
+      priceRange = `${minVal}${actualMinUnit === 'trieu' ? 'm' : 'b'}-${maxVal}${maxUnit === 'trieu' ? 'm' : 'b'}`;
     } else if (priceUnderMatch) {
       const maxVal = parseFloat(priceUnderMatch[1]);
       const unit = priceUnderMatch[2];
       const unitText = unit === 'trieu' ? 'triệu' : 'tỷ';
       maxPrice = maxVal * (unit === 'trieu' ? 1000000 : 1000000000);
       priceLabel = `giá dưới ${maxVal} ${unitText}`;
-      if (unit === 'ty' && maxVal <= 2) {
-        priceRange = 'under-2b';
-      } else if (unit === 'ty') {
+      if (unit === 'ty') {
         priceRange = `under-${maxVal}b`;
       } else {
         priceRange = `under-${maxVal}m`;
@@ -771,9 +766,7 @@ export const parseTaxonomyUrl = (urlPath) => {
       const unitText = unit === 'trieu' ? 'triệu' : 'tỷ';
       minPrice = minVal * (unit === 'trieu' ? 1000000 : 1000000000);
       priceLabel = `giá trên ${minVal} ${unitText}`;
-      if (unit === 'ty' && minVal >= 30) {
-        priceRange = 'over-30b';
-      } else if (unit === 'ty') {
+      if (unit === 'ty') {
         priceRange = `over-${minVal}b`;
       } else {
         priceRange = `over-${minVal}m`;
@@ -799,22 +792,17 @@ export const parseTaxonomyUrl = (urlPath) => {
       minArea = minVal;
       maxArea = maxVal;
       areaLabel = `diện tích ${minVal} - ${maxVal} m²`;
-      if (minVal === 0 && maxVal === 50) areaRange = 'under-50';
-      else if (minVal === 50 && maxVal === 100) areaRange = '50-100';
-      else if (minVal === 100 && maxVal === 200) areaRange = '100-200';
-      else areaRange = `${minVal}-${maxVal}`;
+      areaRange = `${minVal}-${maxVal}`;
     } else if (areaUnderMatch) {
       const maxVal = parseFloat(areaUnderMatch[1]);
       maxArea = maxVal;
       areaLabel = `diện tích dưới ${maxVal} m²`;
-      if (maxVal <= 50) areaRange = 'under-50';
-      else areaRange = `under-${maxVal}`;
+      areaRange = `under-${maxVal}`;
     } else if (areaOverMatch) {
       const minVal = parseFloat(areaOverMatch[1]);
       minArea = minVal;
       areaLabel = `diện tích trên ${minVal} m²`;
-      if (minVal >= 200) areaRange = 'over-200';
-      else areaRange = `over-${minVal}`;
+      areaRange = `over-${minVal}`;
     }
 
     // I. Tiện ích & Từ khóa đặc biệt
@@ -941,17 +929,25 @@ export const formatAreaRangeText = (areaRange, label = '') => {
 
   const dynBetween = areaRange.match(/^([0-9.]+)-([0-9.]+)$/);
   if (dynBetween) {
-    return `${dynBetween[1]} - ${dynBetween[2]} m²`;
+    const v1 = parseFloat(dynBetween[1]);
+    const v2 = parseFloat(dynBetween[2]);
+    const f1 = v1 >= 1000 ? v1.toLocaleString('vi-VN') : v1;
+    const f2 = v2 >= 1000 ? v2.toLocaleString('vi-VN') : v2;
+    return `${f1} - ${f2} m²`;
   }
 
   const dynUnder = areaRange.match(/^under-([0-9.]+)$/);
   if (dynUnder) {
-    return `Dưới ${dynUnder[1]} m²`;
+    const val = parseFloat(dynUnder[1]);
+    const formatted = val >= 1000 ? val.toLocaleString('vi-VN') : val;
+    return `Dưới ${formatted} m²`;
   }
 
   const dynOver = areaRange.match(/^over-([0-9.]+)$/);
   if (dynOver) {
-    return `Trên ${dynOver[1]} m²`;
+    const val = parseFloat(dynOver[1]);
+    const formatted = val >= 1000 ? val.toLocaleString('vi-VN') : val;
+    return `Trên ${formatted} m²`;
   }
 
   return `${areaRange} m²`;
