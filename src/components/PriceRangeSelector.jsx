@@ -266,15 +266,21 @@ export default function PriceRangeSelector({
       </div>
 
       <div className={`overflow-y-auto ${isModal ? 'flex-1' : 'max-h-[420px]'}`}>
-        {/* 2. HAI Ô NHẬP TRỰC TIẾP [ Từ ] -> [ Đến ] (Tối giản tinh gọn, không dòng chữ thừa) */}
-        <div className="pt-3.5 pb-2 px-4 flex items-center gap-3">
+        {/* Dynamic labels: "Từ: X" - "Đến: Y" chuẩn Batdongsan */}
+        <div className="pt-3 pb-1 px-4 flex items-center justify-between text-xs font-bold text-[#009BA1] select-none">
+          <span>Từ: {minUnit} {unitText}</span>
+          <span>Đến: {maxUnit >= maxLimit ? `>${maxLimit - (isRent ? 10 : 1)} ${unitText}` : `${maxUnit} ${unitText}`}</span>
+        </div>
+
+        {/* 2. HAI Ô NHẬP TRỰC TIẾP [ Từ ] -> [ Đến ] */}
+        <div className="pt-1.5 pb-2 px-4 flex items-center gap-3">
           <div className="flex-1 relative">
             <input
               type="number"
               value={inputMin}
               onChange={handleInputMinChange}
               placeholder="Từ"
-              className="w-full text-center py-2.5 px-3 bg-white border border-slate-200 rounded-2xl text-xs sm:text-sm font-bold text-slate-800 outline-none focus:border-[#009BA1] transition placeholder:text-slate-400 placeholder:font-bold"
+              className="w-full text-center py-2 px-3 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 outline-none focus:border-[#009BA1] transition placeholder:text-slate-400 placeholder:font-bold"
             />
           </div>
           <span className="text-slate-400 font-normal text-base shrink-0 select-none">→</span>
@@ -284,7 +290,7 @@ export default function PriceRangeSelector({
               value={inputMax}
               onChange={handleInputMaxChange}
               placeholder="Đến"
-              className="w-full text-center py-2.5 px-3 bg-white border border-slate-200 rounded-2xl text-xs sm:text-sm font-bold text-slate-800 outline-none focus:border-[#009BA1] transition placeholder:text-slate-400 placeholder:font-bold"
+              className="w-full text-center py-2 px-3 bg-white border border-slate-200 rounded-xl text-xs sm:text-sm font-bold text-slate-800 outline-none focus:border-[#009BA1] transition placeholder:text-slate-400 placeholder:font-bold"
             />
           </div>
         </div>

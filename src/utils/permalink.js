@@ -1609,4 +1609,40 @@ export const buildSeoFilterUrl = ({ basePath = '', demand = 'sale', priceRange =
   return cleanBase;
 };
 
+/**
+ * Lấy slug quận huyện từ tên quận huyện
+ * @param {string} districtName Tên quận huyện (ví dụ: 'Quận Hải Châu', 'Quận Sơn Trà')
+ * @returns {string} Slug quận huyện (ví dụ: 'hai-chau', 'son-tra')
+ */
+export const getDistrictSlug = (districtName) => {
+  if (!districtName) return '';
+  for (const [slug, info] of Object.entries(DISTRICT_MAP)) {
+    if (info.name.toLowerCase() === districtName.toLowerCase()) {
+      return slug;
+    }
+  }
+  let clean = districtName.toLowerCase().replace(/^(quận|huyện|thành phố|thị xã)\s+/i, '').trim();
+  return toVietnameseSlug(clean);
+};
+
+/**
+ * Xây dựng URL danh mục theo quận huyện chuẩn SEO Batdongsan.com.vn
+ * Ví dụ:
+ * - /nha-dat-ban-hai-chau
+ * - /nha-dat-cho-thue-hai-chau
+ * - /ban-can-ho-chung-cu-hai-chau (nếu basePath là /ban-can-ho-chung-cu)
+ */
+export const buildDistrictSeoUrl = ({ basePath = '', demand = 'sale', districtName }) => {
+  const dSlug = getDistrictSlug(districtName);
+  const basePrefix = demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban';
+  if (!dSlug) return basePrefix;
+
+  if (basePath && !basePath.startsWith('/nha-dat-ban') && !basePath.startsWith('/nha-dat-cho-thue')) {
+    const cleanBase = basePath.split('?')[0].replace(/\/+$/, '');
+    return `${cleanBase}-${dSlug}`;
+  }
+
+  return `${basePrefix}-${dSlug}`;
+};
+
 

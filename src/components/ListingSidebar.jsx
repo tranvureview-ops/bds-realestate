@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { SALE_PRICE_PRESETS, RENT_PRICE_PRESETS, AREA_PRESETS } from '../data/mockData';
 import { Link } from '../router/RouterContext';
-import { buildSeoFilterUrl } from '../utils/permalink';
+import { buildSeoFilterUrl, buildDistrictSeoUrl, getDistrictSlug } from '../utils/permalink';
 
 // Danh sách các dự án nổi bật tiêu biểu tại Đà Nẵng & Quảng Nam
 const FEATURED_PROJECTS = [
@@ -73,24 +73,25 @@ export default function ListingSidebar({
   basePath = ''
 }) {
   const isRent = (filters?.demand === 'rent' || demand === 'rent');
+  const currentDemand = isRent ? 'rent' : 'sale';
   const pricePresets = isRent ? RENT_PRICE_PRESETS : SALE_PRICE_PRESETS;
 
   const [showAllPrices, setShowAllPrices] = useState(false);
   const [showAllAreas, setShowAllAreas] = useState(false);
   const [showAllDistricts, setShowAllDistricts] = useState(false);
 
-  // Tính số lượng tin đăng theo từng quận huyện
+  // Tính số lượng tin đăng theo từng quận huyện theo đúng nhu cầu (Mua bán / Cho thuê)
   const districtCounts = useMemo(() => {
     const counts = {};
     if (Array.isArray(properties)) {
       properties.forEach(p => {
-        if (p.demand === demand && p.district) {
+        if (p.demand === currentDemand && p.district) {
           counts[p.district] = (counts[p.district] || 0) + 1;
         }
       });
     }
     return counts;
-  }, [properties, demand]);
+  }, [properties, currentDemand]);
 
   // Xử lý chọn khoảng giá
   const handleSelectPrice = (preset) => {
@@ -268,12 +269,21 @@ export default function ListingSidebar({
 
         <div className="space-y-1 text-xs">
           {displayedDistricts.map(item => {
-            const isSelected = filters.district === item.name;
+            const districtSlug = getDistrictSlug(item.name);
+            const isSelected = filters.district === item.name || (basePath && basePath.includes(districtSlug));
             const count = districtCounts[item.name] || 0;
+            const targetUrl = isSelected
+              ? (currentDemand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban')
+              : buildDistrictSeoUrl({
+                  basePath,
+                  demand: currentDemand,
+                  districtName: item.name
+                });
+
             return (
-              <button
+              <Link
                 key={item.name}
-                type="button"
+                href={targetUrl}
                 onClick={() => handleSelectDistrict(item)}
                 className={`w-full text-left px-3 py-2 rounded-xl transition cursor-pointer flex items-center justify-between group ${
                   isSelected
@@ -292,7 +302,7 @@ export default function ListingSidebar({
                 }`}>
                   {count > 0 ? `${count} tin` : item.city}
                 </span>
-              </button>
+              </Link>
             );
           })}
         </div>
@@ -329,8 +339,9 @@ export default function ListingSidebar({
 
         <div className="space-y-3">
           {FEATURED_PROJECTS.map(proj => (
-            <div
+            <Link
               key={proj.id}
+              href={`/${currentDemand === 'rent' ? 'nha-dat-cho-thue' : 'nha-dat-ban'}?keyword=${encodeURIComponent(proj.filterKeyword || proj.name)}`}
               onClick={() => handleSelectProject(proj)}
               className="group flex gap-3 p-2 rounded-xl hover:bg-slate-50 transition cursor-pointer border border-transparent hover:border-slate-200"
             >
@@ -361,7 +372,7 @@ export default function ListingSidebar({
                   </span>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
