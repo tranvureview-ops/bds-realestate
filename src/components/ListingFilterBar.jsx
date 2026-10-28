@@ -6,6 +6,8 @@ import { PROPERTY_TYPES, SALE_PRICE_PRESETS, RENT_PRICE_PRESETS, AREA_PRESETS } 
 import { VIETNAM_ADMINISTRATIVE_DATA, DANANG_MERGERS_MAP } from '../data/vietnamAdministrativeData';
 import { removeAccents } from '../utils/propertyFilter';
 import { formatPriceRangeText, formatAreaRangeText } from '../utils/permalink';
+import PropertyTypeSelector from './PropertyTypeSelector';
+import { formatPropertyTypeTriggerLabel, getFlatPropertyTypes } from '../data/propertyTypeTaxonomy';
 
 const CITIES = [
   'Đà Nẵng',
@@ -43,6 +45,7 @@ export default function ListingFilterBar({
   const [draftFilters, setDraftFilters] = useState({
     demand: filters?.demand || demand || 'sale',
     propertyType: filters?.propertyType || 'all',
+    propertyTypes: filters?.propertyTypes || (filters?.propertyType && filters?.propertyType !== 'all' ? filters.propertyType.split(',') : ['all']),
     city: filters?.city || '',
     district: filters?.district || '',
     ward: filters?.ward || '',
@@ -60,6 +63,13 @@ export default function ListingFilterBar({
     hasVR360: Boolean(filters?.hasVR360),
     onlyVerified: Boolean(filters?.onlyVerified)
   });
+
+  const activeDraftTypes = useMemo(() => {
+    const raw = draftFilters.propertyTypes || draftFilters.propertyType;
+    if (!raw || raw === 'all') return [];
+    if (Array.isArray(raw)) return raw.filter(id => id && id !== 'all');
+    return raw.split(',').map(s => s.trim()).filter(id => id && id !== 'all');
+  }, [draftFilters.propertyTypes, draftFilters.propertyType]);
 
   const containerRef = useRef(null);
 
@@ -84,6 +94,7 @@ export default function ListingFilterBar({
     setDraftFilters({
       demand: filters?.demand || demand || 'sale',
       propertyType: filters?.propertyType || 'all',
+      propertyTypes: filters?.propertyTypes || (filters?.propertyType && filters?.propertyType !== 'all' ? filters.propertyType.split(',') : ['all']),
       city: filters?.city || '',
       district: filters?.district || '',
       ward: filters?.ward || '',
@@ -112,6 +123,7 @@ export default function ListingFilterBar({
         ...prev,
         demand: draftFilters.demand,
         propertyType: draftFilters.propertyType,
+        propertyTypes: draftFilters.propertyTypes,
         city: draftFilters.city,
         district: draftFilters.district,
         ward: draftFilters.ward,
@@ -138,6 +150,7 @@ export default function ListingFilterBar({
       ...prev,
       demand: demand || 'sale',
       propertyType: 'all',
+      propertyTypes: ['all'],
       city: 'Đà Nẵng',
       district: '',
       ward: '',
@@ -227,10 +240,8 @@ export default function ListingFilterBar({
   };
 
   // Labels for quick filter buttons
-  const getPropertyTypeLabel = (typeId = filters?.propertyType) => {
-    if (!typeId || typeId === 'all') return 'Loại nhà đất';
-    const found = PROPERTY_TYPES.find(t => t.id === typeId);
-    return found ? found.name : typeId;
+  const getPropertyTypeLabel = (typeId = (filters?.propertyTypes || filters?.propertyType)) => {
+    return formatPropertyTypeTriggerLabel(typeId, demand, 'Loại nhà đất');
   };
 
   const getPriceRangeLabel = (rangeKey = filters?.priceRange, currentDemand = demand) => {
@@ -618,7 +629,7 @@ export default function ListingFilterBar({
               type="button"
               onClick={() => setOpenDropdown(prev => prev === 'type' ? null : 'type')}
               className={`border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs ${
-                filters.propertyType && filters.propertyType !== 'all'
+                (filters.propertyTypes?.length > 0 && !filters.propertyTypes.includes('all')) || (filters.propertyType && filters.propertyType !== 'all')
                   ? 'border-red-500 bg-red-50/50 text-red-700 font-bold'
                   : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
               }`}
@@ -627,41 +638,25 @@ export default function ListingFilterBar({
               <i className={`fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform ${openDropdown === 'type' ? 'rotate-180' : ''}`}></i>
             </button>
 
-            {/* Menu Dropdown Loại nhà đất */}
+            {/* Menu Dropdown Loại nhà đất chuẩn Batdongsan */}
             {openDropdown === 'type' && (
-              <div className="absolute top-full left-0 mt-1.5 w-60 bg-white rounded-xl border border-slate-200 shadow-xl z-50 py-1.5 animate-fadeIn">
-                <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
-                  Chọn Loại Bất Động Sản
-                </div>
-                <div className="max-h-72 overflow-y-auto">
-                  <button
-                    type="button"
-                    onClick={() => handleSelectPropertyType('all')}
-                    className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-slate-50 transition ${
-                      (!filters.propertyType || filters.propertyType === 'all') ? 'text-red-600 font-bold bg-red-50/40' : 'text-slate-700'
-                    }`}
-                  >
-                    <span>Tất cả loại nhà đất</span>
-                    {(!filters.propertyType || filters.propertyType === 'all') && <i className="fa-solid fa-check text-xs text-red-600"></i>}
-                  </button>
-
-                  {PROPERTY_TYPES.map(type => (
-                    <button
-                      key={type.id}
-                      type="button"
-                      onClick={() => handleSelectPropertyType(type.id)}
-                      className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-slate-50 transition ${
-                        filters.propertyType === type.id ? 'text-red-600 font-bold bg-red-50/40' : 'text-slate-700'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <i className={`fa-solid ${type.icon} text-slate-400 text-xs w-4 text-center`}></i>
-                        <span>{type.name}</span>
-                      </div>
-                      {filters.propertyType === type.id && <i className="fa-solid fa-check text-xs text-red-600"></i>}
-                    </button>
-                  ))}
-                </div>
+              <div className="absolute top-full left-0 mt-1.5 z-50 animate-fadeIn">
+                <PropertyTypeSelector
+                  value={filters.propertyTypes || filters.propertyType}
+                  demand={demand}
+                  onApply={(selectedIds) => {
+                    const isAll = selectedIds.includes('all') || selectedIds.length === 0;
+                    if (setFilters) {
+                      setFilters(prev => ({
+                        ...prev,
+                        propertyType: isAll ? 'all' : (selectedIds.length === 1 ? selectedIds[0] : selectedIds.join(',')),
+                        propertyTypes: isAll ? ['all'] : selectedIds
+                      }));
+                    }
+                    setOpenDropdown(null);
+                  }}
+                  onClose={() => setOpenDropdown(null)}
+                />
               </div>
             )}
           </div>
@@ -823,18 +818,32 @@ export default function ListingFilterBar({
                       </button>
                     </div>
 
-                    {draftFilters.propertyType && draftFilters.propertyType !== 'all' ? (
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 border border-red-200 text-red-700 font-bold text-xs">
-                          <span>{getPropertyTypeLabel(draftFilters.propertyType)}</span>
-                          <button
-                            type="button"
-                            onClick={() => setDraftFilters(prev => ({ ...prev, propertyType: 'all' }))}
-                            className="hover:text-red-900 ml-0.5 text-xs font-bold"
-                          >
-                            ×
-                          </button>
-                        </span>
+                    {activeDraftTypes.length > 0 ? (
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        {activeDraftTypes.map(tId => {
+                          const flat = getFlatPropertyTypes(draftFilters.demand);
+                          const name = flat.find(f => f.id === tId)?.name || tId;
+                          return (
+                            <span key={tId} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 border border-red-200 text-red-700 font-semibold text-xs">
+                              <span>{name}</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const next = activeDraftTypes.filter(x => x !== tId);
+                                  const isAll = next.length === 0;
+                                  setDraftFilters(prev => ({
+                                    ...prev,
+                                    propertyType: isAll ? 'all' : (next.length === 1 ? next[0] : next.join(',')),
+                                    propertyTypes: isAll ? ['all'] : next
+                                  }));
+                                }}
+                                className="hover:text-red-900 ml-0.5 text-xs font-bold cursor-pointer"
+                              >
+                                ×
+                              </button>
+                            </span>
+                          );
+                        })}
                       </div>
                     ) : (
                       <div
@@ -1346,11 +1355,11 @@ export default function ListingFilterBar({
             )}
 
             {/* ----------------------------------------------------
-                MODAL SCREEN 5: LOẠI BẤT ĐỘNG SẢN
+                MODAL SCREEN 5: LOẠI BẤT ĐỘNG SẢN (CHUẨN BATDONGSAN)
                ---------------------------------------------------- */}
             {modalScreen === 'type' && (
               <>
-                <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+                <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between shrink-0">
                   <button
                     type="button"
                     onClick={() => setModalScreen('main')}
@@ -1368,55 +1377,22 @@ export default function ListingFilterBar({
                   </button>
                 </div>
 
-                <div className="p-4 sm:p-6 space-y-2 overflow-y-auto text-xs flex-1">
-                  <button
-                    type="button"
-                    onClick={() => setDraftFilters(prev => ({ ...prev, propertyType: 'all' }))}
-                    className={`w-full text-left p-3 rounded-xl border flex items-center justify-between transition cursor-pointer ${
-                      draftFilters.propertyType === 'all'
-                        ? 'border-red-500 bg-red-50/50 text-red-700 font-bold'
-                        : 'border-slate-200 hover:border-slate-300 text-slate-700'
-                    }`}
-                  >
-                    <span className="font-semibold text-xs sm:text-sm">Tất cả loại nhà đất</span>
-                    {draftFilters.propertyType === 'all' && <i className="fa-solid fa-check text-red-600"></i>}
-                  </button>
-
-                  {PROPERTY_TYPES.map(type => (
-                    <button
-                      key={type.id}
-                      type="button"
-                      onClick={() => setDraftFilters(prev => ({ ...prev, propertyType: type.id }))}
-                      className={`w-full text-left p-3 rounded-xl border flex items-center justify-between transition cursor-pointer ${
-                        draftFilters.propertyType === type.id
-                          ? 'border-red-500 bg-red-50/50 text-red-700 font-bold'
-                          : 'border-slate-200 hover:border-slate-300 text-slate-700'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <i className={`fa-solid ${type.icon} text-slate-400 text-sm w-4 text-center`}></i>
-                        <span className="font-semibold text-xs sm:text-sm">{type.name}</span>
-                      </div>
-                      {draftFilters.propertyType === type.id && <i className="fa-solid fa-check text-red-600"></i>}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="p-4 border-t border-slate-200 bg-white flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setDraftFilters(prev => ({ ...prev, propertyType: 'all' }))}
-                    className="px-6 py-3 border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-sm rounded-xl transition cursor-pointer shrink-0"
-                  >
-                    Đặt lại
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setModalScreen('main')}
-                    className="flex-1 py-3 bg-[#e03c31] hover:bg-red-700 text-white font-bold text-sm rounded-xl shadow-md transition cursor-pointer text-center"
-                  >
-                    Áp dụng
-                  </button>
+                <div className="flex-1 overflow-hidden flex flex-col">
+                  <PropertyTypeSelector
+                    value={draftFilters.propertyTypes || draftFilters.propertyType}
+                    demand={draftFilters.demand}
+                    isModal={true}
+                    onApply={(selectedIds) => {
+                      const isAll = selectedIds.includes('all') || selectedIds.length === 0;
+                      setDraftFilters(prev => ({
+                        ...prev,
+                        propertyType: isAll ? 'all' : (selectedIds.length === 1 ? selectedIds[0] : selectedIds.join(',')),
+                        propertyTypes: isAll ? ['all'] : selectedIds
+                      }));
+                      setModalScreen('main');
+                    }}
+                    onClose={() => setModalScreen('main')}
+                  />
                 </div>
               </>
             )}

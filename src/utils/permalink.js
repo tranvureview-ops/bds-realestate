@@ -350,14 +350,35 @@ export const buildSeoUrl = ({
   const isRent = demand === 'rent';
   const group = PROPERTY_TAXONOMY[isRent ? 'rent' : 'sale'] || PROPERTY_TAXONOMY.sale;
 
-  // 1. Base slug theo loại hình
+  // 1. Base slug theo loại hình (Hỗ trợ đơn lẻ & đa lựa chọn mảng/chuỗi phân tách dấu phẩy)
+  let normalizedType = null;
+  let multiTypeParam = null;
+
+  if (Array.isArray(propertyType)) {
+    const valid = propertyType.filter(t => t && t !== 'all');
+    if (valid.length === 1) {
+      normalizedType = valid[0];
+    } else if (valid.length > 1) {
+      multiTypeParam = valid.join(',');
+    }
+  } else if (typeof propertyType === 'string' && propertyType && propertyType !== 'all') {
+    if (propertyType.includes(',')) {
+      multiTypeParam = propertyType;
+    } else {
+      normalizedType = propertyType;
+    }
+  }
+
   let basePath = '';
-  if (propertyType && group.types[propertyType]) {
-    basePath = (propertyType === 'house' && !city && !district && !ward && !project)
+  if (normalizedType && group.types[normalizedType]) {
+    basePath = (normalizedType === 'house' && !city && !district && !ward && !project)
       ? (isRent ? '/cho-thue-nha-rieng-nha-pho' : '/ban-nha-rieng-nha-pho')
-      : group.types[propertyType].slug;
+      : group.types[normalizedType].slug;
   } else {
     basePath = group.base;
+    if (multiTypeParam) {
+      extraParams = { ...extraParams, type: multiTypeParam };
+    }
   }
 
   // 2. Dự án (Ưu tiên cao nhất)

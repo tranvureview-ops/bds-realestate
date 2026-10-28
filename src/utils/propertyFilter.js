@@ -1,3 +1,5 @@
+import { expandPropertyTypeIds } from '../data/propertyTypeTaxonomy.js';
+
 /**
  * Chuẩn hóa chuỗi loại bỏ dấu tiếng Việt để tìm kiếm không phân biệt dấu
  */
@@ -30,9 +32,15 @@ export function filterProperties(properties = [], filters = {}) {
       return false;
     }
 
-    // 3. Loại hình BĐS (Property Type)
-    if (filters.propertyType && filters.propertyType !== 'all' && prop.propertyType !== filters.propertyType) {
-      return false;
+    // 3. Loại hình BĐS (Property Type - Hỗ trợ đơn lẻ, phân cấp nhóm & đa lựa chọn chuẩn Batdongsan)
+    const rawTypes = filters.propertyTypes || filters.propertyType;
+    if (rawTypes && rawTypes !== 'all') {
+      const activeTypes = expandPropertyTypeIds(rawTypes);
+      if (activeTypes.length > 0 && !activeTypes.includes('all')) {
+        if (!activeTypes.includes(prop.propertyType)) {
+          return false;
+        }
+      }
     }
 
     // 4. Thành phố (City)

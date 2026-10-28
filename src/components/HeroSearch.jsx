@@ -6,6 +6,8 @@ import { VIETNAM_ADMINISTRATIVE_DATA, DANANG_MERGERS_MAP } from '../data/vietnam
 import { formatPriceRangeText, formatAreaRangeText, buildSeoUrl } from '../utils/permalink';
 import { removeAccents } from '../utils/propertyFilter';
 import { Link, useRouter } from '../router/RouterContext';
+import PropertyTypeSelector from './PropertyTypeSelector';
+import { formatPropertyTypeTriggerLabel } from '../data/propertyTypeTaxonomy';
 
 const DEFAULT_RECENT_SEARCHES = [
   {
@@ -313,9 +315,7 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
   };
 
   const getPropertyTypeLabel = () => {
-    if (!filters.propertyType || filters.propertyType === 'all') return 'Loại nhà đất';
-    const found = PROPERTY_TYPES.find(p => p.id === filters.propertyType);
-    return found ? found.name : 'Loại nhà đất';
+    return formatPropertyTypeTriggerLabel(filters.propertyTypes || filters.propertyType, currentDemand, 'Loại nhà đất');
   };
 
   const getPriceLabel = () => {
@@ -668,35 +668,21 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                 </button>
 
                 {openFilterMenu === 'type' && (
-                  <div className="absolute top-full left-0 mt-1.5 w-60 bg-white rounded-xl shadow-xl border border-slate-200 z-50 p-2 animate-fadeIn max-h-72 overflow-y-auto">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFilters(prev => ({ ...prev, propertyType: 'all' }));
+                  <div className="absolute top-full left-0 mt-1.5 z-50 animate-fadeIn">
+                    <PropertyTypeSelector
+                      value={filters.propertyTypes || filters.propertyType}
+                      demand={currentDemand}
+                      onApply={(selectedIds) => {
+                        const isAll = selectedIds.includes('all') || selectedIds.length === 0;
+                        setFilters(prev => ({
+                          ...prev,
+                          propertyType: isAll ? 'all' : (selectedIds.length === 1 ? selectedIds[0] : selectedIds.join(',')),
+                          propertyTypes: isAll ? ['all'] : selectedIds
+                        }));
                         setOpenFilterMenu(null);
                       }}
-                      className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${
-                        filters.propertyType === 'all' ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-700 hover:bg-slate-50'
-                      }`}
-                    >
-                      Tất cả loại hình
-                    </button>
-                    {PROPERTY_TYPES.map(pt => (
-                      <button
-                        key={pt.id}
-                        type="button"
-                        onClick={() => {
-                          setFilters(prev => ({ ...prev, propertyType: pt.id }));
-                          setOpenFilterMenu(null);
-                        }}
-                        className={`w-full text-left px-3 py-1.5 rounded-lg text-xs flex items-center gap-2 ${
-                          filters.propertyType === pt.id ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-700 hover:bg-slate-50'
-                        }`}
-                      >
-                        <i className={`fa-solid ${pt.icon} text-slate-400 w-4`}></i>
-                        <span>{pt.name}</span>
-                      </button>
-                    ))}
+                      onClose={() => setOpenFilterMenu(null)}
+                    />
                   </div>
                 )}
               </div>
