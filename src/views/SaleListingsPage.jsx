@@ -183,7 +183,7 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 
       <ListingFilterBar 
         filters={filters} 
         setFilters={setFilters} 
-        demand="sale" 
+        demand={filters?.demand || "sale"} 
         taxonomyInfo={taxonomyInfo} 
       />
 

@@ -143,7 +143,11 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
     setFilters(prev => ({
       ...prev,
       demand: demandKey,
-      priceRange: 'all' // reset price range when changing demand
+      priceRange: 'all',
+      minPrice: null,
+      maxPrice: null,
+      propertyType: 'all',
+      propertyTypes: ['all']
     }));
     setIsDropdownOpen(false);
   };

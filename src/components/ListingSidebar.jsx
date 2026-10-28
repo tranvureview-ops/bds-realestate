@@ -72,7 +72,7 @@ export default function ListingSidebar({
   onScrollToTop,
   basePath = ''
 }) {
-  const isRent = demand === 'rent';
+  const isRent = (filters?.demand === 'rent' || demand === 'rent');
   const pricePresets = isRent ? RENT_PRICE_PRESETS : SALE_PRICE_PRESETS;
 
   const [showAllPrices, setShowAllPrices] = useState(false);
@@ -165,7 +165,7 @@ export default function ListingSidebar({
             const isSelected = (filters.priceRange || 'all') === item.value;
             const targetUrl = buildSeoFilterUrl({
               basePath,
-              demand,
+              demand: isRent ? 'rent' : 'sale',
               priceRange: item.value
             });
 
@@ -218,7 +218,7 @@ export default function ListingSidebar({
             const isSelected = (filters.areaRange || 'all') === item.value;
             const targetUrl = buildSeoFilterUrl({
               basePath,
-              demand,
+              demand: isRent ? 'rent' : 'sale',
               areaRange: item.value
             });
 

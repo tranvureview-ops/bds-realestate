@@ -183,7 +183,7 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
       <ListingFilterBar 
         filters={filters} 
         setFilters={setFilters} 
-        demand="rent" 
+        demand={filters?.demand || "rent"} 
         taxonomyInfo={taxonomyInfo} 
       />
 

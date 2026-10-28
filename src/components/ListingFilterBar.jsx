@@ -38,6 +38,8 @@ export default function ListingFilterBar({
   taxonomyInfo = null,
   className = ''
 }) {
+  const effectiveDemand = (filters?.demand === 'rent' || taxonomyInfo?.demand === 'rent' || demand === 'rent') ? 'rent' : 'sale';
+
   const [keywordInput, setKeywordInput] = useState(filters?.keyword || '');
   const [openDropdown, setOpenDropdown] = useState(null); // 'type' | 'price' | 'area' | null
   const [showAdvancedModal, setShowAdvancedModal] = useState(false);
@@ -45,7 +47,7 @@ export default function ListingFilterBar({
 
   // Draft filters state for modal - only applied when clicking "Xem kết quả"
   const [draftFilters, setDraftFilters] = useState({
-    demand: filters?.demand || demand || 'sale',
+    demand: effectiveDemand,
     propertyType: filters?.propertyType || 'all',
     propertyTypes: filters?.propertyTypes || (filters?.propertyType && filters?.propertyType !== 'all' ? filters.propertyType.split(',') : ['all']),
     city: filters?.city || '',
@@ -243,10 +245,10 @@ export default function ListingFilterBar({
 
   // Labels for quick filter buttons
   const getPropertyTypeLabel = (typeId = (filters?.propertyTypes || filters?.propertyType)) => {
-    return formatPropertyTypeTriggerLabel(typeId, demand, 'Loại nhà đất');
+    return formatPropertyTypeTriggerLabel(typeId, effectiveDemand, 'Loại nhà đất');
   };
 
-  const getPriceRangeLabel = (rangeKey = filters?.priceRange, currentDemand = demand) => {
+  const getPriceRangeLabel = (rangeKey = filters?.priceRange, currentDemand = effectiveDemand) => {
     const isRent = currentDemand === 'rent';
     const mult = isRent ? 1e6 : 1e9;
     const u = isRent ? 'triệu' : 'tỷ';
@@ -391,7 +393,7 @@ export default function ListingFilterBar({
             placeholder={
               filters.propertyType && filters.propertyType !== 'all' 
                 ? `${getPropertyTypeLabel()} - Nhập từ khóa, vị trí...` 
-                : (demand === 'rent' ? 'Căn hộ, nhà riêng, mặt bằng...' : 'Nhà riêng, căn hộ, biệt thự...')
+                : (effectiveDemand === 'rent' ? 'Căn hộ, nhà riêng, mặt bằng...' : 'Nhà riêng, căn hộ, biệt thự...')
             }
             className="flex-1 bg-transparent py-1 sm:py-2 px-1 text-slate-800 placeholder-slate-400 text-xs sm:text-sm focus:outline-none min-w-0"
           />
@@ -670,7 +672,7 @@ export default function ListingFilterBar({
               <div className="absolute top-full left-0 mt-1.5 z-50 animate-fadeIn">
                 <PropertyTypeSelector
                   value={filters.propertyTypes || filters.propertyType}
-                  demand={demand}
+                  demand={effectiveDemand}
                   onApply={(selectedIds) => {
                     const isAll = selectedIds.includes('all') || selectedIds.length === 0;
                     if (setFilters) {
@@ -707,7 +709,7 @@ export default function ListingFilterBar({
             {openDropdown === 'price' && (
               <div className="absolute top-full left-0 mt-1.5 z-50 animate-fadeIn">
                 <PriceRangeSelector
-                  demand={demand}
+                  demand={effectiveDemand}
                   minPrice={filters.minPrice}
                   maxPrice={filters.maxPrice}
                   priceRange={filters.priceRange}
@@ -806,7 +808,15 @@ export default function ListingFilterBar({
                   <div className="grid grid-cols-2 p-1 bg-slate-100 rounded-xl border border-slate-200">
                     <button
                       type="button"
-                      onClick={() => setDraftFilters(prev => ({ ...prev, demand: 'sale' }))}
+                      onClick={() => setDraftFilters(prev => ({
+                        ...prev,
+                        demand: 'sale',
+                        priceRange: 'all',
+                        minPrice: null,
+                        maxPrice: null,
+                        propertyType: 'all',
+                        propertyTypes: ['all']
+                      }))}
                       className={`py-2.5 rounded-lg font-bold text-xs sm:text-sm transition cursor-pointer text-center ${
                         draftFilters.demand === 'sale'
                           ? 'bg-[#3e3e3e] text-white shadow-xs'
@@ -817,7 +827,15 @@ export default function ListingFilterBar({
                     </button>
                     <button
                       type="button"
-                      onClick={() => setDraftFilters(prev => ({ ...prev, demand: 'rent' }))}
+                      onClick={() => setDraftFilters(prev => ({
+                        ...prev,
+                        demand: 'rent',
+                        priceRange: 'all',
+                        minPrice: null,
+                        maxPrice: null,
+                        propertyType: 'all',
+                        propertyTypes: ['all']
+                      }))}
                       className={`py-2.5 rounded-lg font-bold text-xs sm:text-sm transition cursor-pointer text-center ${
                         draftFilters.demand === 'rent'
                           ? 'bg-[#3e3e3e] text-white shadow-xs'
