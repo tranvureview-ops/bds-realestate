@@ -184,11 +184,9 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 
                 </span>
               )}
             </h1>
-            {activePage === 1 && (
-              <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
-                {categorySeo.description}
-              </p>
-            )}
+            <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
+              {categorySeo.description}
+            </p>
           </div>
         </div>
       </div>
