@@ -704,11 +704,13 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                       value={filters.propertyTypes || filters.propertyType}
                       demand={currentDemand}
                       onApply={(selectedIds) => {
-                        const isAll = selectedIds.includes('all') || selectedIds.length === 0;
+                        const cleanIds = Array.isArray(selectedIds) ? selectedIds : [selectedIds].filter(Boolean);
+                        const isAll = cleanIds.includes('all') || cleanIds.length === 0;
+                        const primaryId = isAll ? 'all' : cleanIds[0];
                         setFilters(prev => ({
                           ...prev,
-                          propertyType: isAll ? 'all' : (selectedIds.length === 1 ? selectedIds[0] : selectedIds.join(',')),
-                          propertyTypes: isAll ? ['all'] : selectedIds
+                          propertyType: primaryId,
+                          propertyTypes: isAll ? ['all'] : cleanIds
                         }));
                         setOpenFilterMenu(null);
                       }}

@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { PROPERTY_TYPES, SALE_PRICE_PRESETS, RENT_PRICE_PRESETS, AREA_PRESETS } from '../data/mockData';
 import { VIETNAM_ADMINISTRATIVE_DATA, DANANG_MERGERS_MAP } from '../data/vietnamAdministrativeData';
 import { removeAccents } from '../utils/propertyFilter';
-import { formatPriceRangeText, formatAreaRangeText } from '../utils/permalink';
+import { formatPriceRangeText, formatAreaRangeText, buildSeoUrl } from '../utils/permalink';
 import PropertyTypeSelector from './PropertyTypeSelector';
 import PriceRangeSelector from './PriceRangeSelector';
 import AreaRangeSelector from './AreaRangeSelector';
@@ -674,13 +674,26 @@ export default function ListingFilterBar({
                   value={filters.propertyTypes || filters.propertyType}
                   demand={effectiveDemand}
                   onApply={(selectedIds) => {
-                    const isAll = selectedIds.includes('all') || selectedIds.length === 0;
+                    const cleanIds = Array.isArray(selectedIds) ? selectedIds : [selectedIds].filter(Boolean);
+                    const isAll = cleanIds.includes('all') || cleanIds.length === 0;
+                    const primaryId = isAll ? 'all' : cleanIds[0];
                     if (setFilters) {
-                      setFilters(prev => ({
-                        ...prev,
-                        propertyType: isAll ? 'all' : (selectedIds.length === 1 ? selectedIds[0] : selectedIds.join(',')),
-                        propertyTypes: isAll ? ['all'] : selectedIds
-                      }));
+                      setFilters(prev => {
+                        const nextFilters = {
+                          ...prev,
+                          propertyType: primaryId,
+                          propertyTypes: isAll ? ['all'] : cleanIds
+                        };
+                        try {
+                          const targetUrl = buildSeoUrl(nextFilters);
+                          if (typeof window !== 'undefined' && targetUrl && window.location.pathname !== targetUrl) {
+                            window.history.pushState(null, '', targetUrl);
+                          }
+                        } catch {
+                          // Ignore pushState restriction
+                        }
+                        return nextFilters;
+                      });
                     }
                     setOpenDropdown(null);
                   }}
@@ -1340,11 +1353,13 @@ export default function ListingFilterBar({
                     demand={draftFilters.demand}
                     isModal={true}
                     onApply={(selectedIds) => {
-                      const isAll = selectedIds.includes('all') || selectedIds.length === 0;
+                      const cleanIds = Array.isArray(selectedIds) ? selectedIds : [selectedIds].filter(Boolean);
+                      const isAll = cleanIds.includes('all') || cleanIds.length === 0;
+                      const primaryId = isAll ? 'all' : cleanIds[0];
                       setDraftFilters(prev => ({
                         ...prev,
-                        propertyType: isAll ? 'all' : (selectedIds.length === 1 ? selectedIds[0] : selectedIds.join(',')),
-                        propertyTypes: isAll ? ['all'] : selectedIds
+                        propertyType: primaryId,
+                        propertyTypes: isAll ? ['all'] : cleanIds
                       }));
                       setModalScreen('main');
                     }}

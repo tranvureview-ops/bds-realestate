@@ -121,6 +121,47 @@ export const PROPERTY_TYPE_TREE_RENT = [
   }
 ];
 
+export const SALE_PROPERTY_TYPE_OPTIONS = [
+  { value: 'all', label: 'Tất cả nhà đất', icon: 'fa-solid fa-house-chimney' },
+  { value: 'apartment', label: 'Căn hộ chung cư', icon: 'fa-regular fa-building' },
+  { value: 'mini-apartment', label: 'Chung cư mini, căn hộ dịch vụ', icon: 'fa-solid fa-city' },
+  { value: 'house-group', label: 'Tất cả các loại nhà bán', icon: 'fa-solid fa-house' },
+  { value: 'house', label: 'Nhà riêng, nhà phố', icon: 'fa-solid fa-house-user' },
+  { value: 'villa', label: 'Nhà biệt thự, liền kề', icon: 'fa-solid fa-landmark-dome' },
+  { value: 'street-house', label: 'Nhà mặt phố', icon: 'fa-solid fa-shop' },
+  { value: 'shophouse', label: 'Shophouse, nhà phố thương mại', icon: 'fa-solid fa-store' },
+  { value: 'land-group', label: 'Tất cả các loại đất bán', icon: 'fa-solid fa-mountain-sun' },
+  { value: 'project-land', label: 'Đất nền dự án', icon: 'fa-solid fa-map-location-dot' },
+  { value: 'land', label: 'Đất thổ cư, đất ở', icon: 'fa-solid fa-vector-square' },
+  { value: 'farm-resort', label: 'Trang trại, khu nghỉ dưỡng', icon: 'fa-solid fa-tree' },
+  { value: 'condotel', label: 'Condotel', icon: 'fa-solid fa-hotel' },
+  { value: 'warehouse', label: 'Kho, nhà xưởng', icon: 'fa-solid fa-warehouse' },
+  { value: 'other', label: 'Bất động sản khác', icon: 'fa-solid fa-shapes' }
+];
+
+export const RENT_PROPERTY_TYPE_OPTIONS = [
+  { value: 'all', label: 'Tất cả nhà đất cho thuê', icon: 'fa-solid fa-house-chimney' },
+  { value: 'apartment', label: 'Căn hộ chung cư', icon: 'fa-regular fa-building' },
+  { value: 'mini-apartment', label: 'Chung cư mini, căn hộ dịch vụ', icon: 'fa-solid fa-city' },
+  { value: 'house-rent-group', label: 'Tất cả các loại nhà cho thuê', icon: 'fa-solid fa-house' },
+  { value: 'house', label: 'Nhà riêng, nhà phố', icon: 'fa-solid fa-house-user' },
+  { value: 'villa', label: 'Nhà biệt thự, liền kề', icon: 'fa-solid fa-landmark-dome' },
+  { value: 'street-house', label: 'Nhà mặt phố', icon: 'fa-solid fa-shop' },
+  { value: 'shophouse', label: 'Shophouse, nhà phố thương mại', icon: 'fa-solid fa-store' },
+  { value: 'room', label: 'Nhà trọ, phòng trọ', icon: 'fa-solid fa-door-open' },
+  { value: 'office', label: 'Văn phòng', icon: 'fa-solid fa-briefcase' },
+  { value: 'commercial-space', label: 'Cửa hàng, mặt bằng bán lẻ', icon: 'fa-solid fa-store' },
+  { value: 'warehouse', label: 'Kho, nhà xưởng, đất', icon: 'fa-solid fa-warehouse' },
+  { value: 'other', label: 'Bất động sản khác', icon: 'fa-solid fa-shapes' }
+];
+
+/**
+ * Lấy danh sách tùy chọn phẳng gọn gàng (Select/Radio) theo nhu cầu
+ */
+export function getPropertyTypeOptions(demand = 'sale') {
+  return demand === 'rent' ? RENT_PROPERTY_TYPE_OPTIONS : SALE_PROPERTY_TYPE_OPTIONS;
+}
+
 /**
  * Lấy danh sách cây loại hình BĐS theo nhu cầu (demand: 'sale' | 'rent')
  */
@@ -205,8 +246,12 @@ export function formatPropertyTypeTriggerLabel(rawSelected, demand = 'sale', fal
   if (selected.length === 0) return fallbackLabel;
 
   const flatTypes = getFlatPropertyTypes(demand);
+  const options = getPropertyTypeOptions(demand);
   const typeMap = new Map();
-  flatTypes.forEach(t => typeMap.set(t.id, t.name));
+  options.forEach(t => typeMap.set(t.value, t.label));
+  flatTypes.forEach(t => {
+    if (!typeMap.has(t.id)) typeMap.set(t.id, t.name);
+  });
 
   // Kiểm tra trọn nhóm nhà
   const houseChildren = ['house', 'villa', 'street-house', 'shophouse'];
