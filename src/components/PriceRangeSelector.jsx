@@ -337,8 +337,8 @@ export default function PriceRangeSelector({
         {/* 4. ĐƯỜNG PHÂN CÁCH TINH GỌN */}
         <div className="border-t border-slate-100" />
 
-        {/* 5. DANH SÁCH MỨC GIÁ ĐỊNH SẴN VỚI RADIO BUTTON */}
-        <div className="p-2 space-y-0.5">
+        {/* 5. DANH SÁCH MỨC GIÁ ĐỊNH SẴN VỚI RADIO BUTTON (GỌN GÀNG GIỐNG DIỆN TÍCH) */}
+        <div className="p-2 space-y-0.5 max-h-48 overflow-y-auto">
           {presets.map(item => {
             const isSelected = activePresetValue === item.value;
             return (
