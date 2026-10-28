@@ -42,6 +42,7 @@ export default function ListingFilterBar({
 
   const [keywordInput, setKeywordInput] = useState(filters?.keyword || '');
   const [openDropdown, setOpenDropdown] = useState(null); // 'type' | 'price' | 'area' | null
+  const [expandedCity, setExpandedCity] = useState(filters?.city || '');
   const [showAdvancedModal, setShowAdvancedModal] = useState(false);
   const [modalScreen, setModalScreen] = useState('main'); // 'main' | 'location' | 'price' | 'area' | 'type'
 
@@ -81,6 +82,13 @@ export default function ListingFilterBar({
   useEffect(() => {
     setKeywordInput(filters?.keyword || '');
   }, [filters?.keyword]);
+
+  // Sync expandedCity when opening location dropdown or when filters.city changes
+  useEffect(() => {
+    if (openDropdown === 'location') {
+      setExpandedCity(filters?.city || '');
+    }
+  }, [openDropdown, filters?.city]);
 
   // Click outside to close quick dropdowns
   useEffect(() => {
@@ -495,175 +503,66 @@ export default function ListingFilterBar({
               <i className={`fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform ${openDropdown === 'location' ? 'rotate-180' : ''}`}></i>
             </button>
 
-            {/* Menu Dropdown Khu vực */}
+            {/* Menu Dropdown Khu vực chuẩn HeroSearch / Hình 2 */}
             {openDropdown === 'location' && (
-              <div className="absolute top-full left-0 mt-1.5 w-72 sm:w-80 bg-white rounded-xl border border-slate-200 shadow-xl z-50 py-2 animate-fadeIn max-h-96 overflow-y-auto">
-                <div className="px-3.5 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 flex items-center justify-between">
-                  <span>Khu Vực Bất Động Sản</span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setModalScreen('location');
-                      setShowAdvancedModal(true);
-                      setOpenDropdown(null);
-                    }}
-                    className="text-red-600 hover:underline text-[11px] font-bold normal-case cursor-pointer"
-                  >
-                    Lọc chi tiết »
-                  </button>
-                </div>
-
-                {/* Option 1: Toàn quốc / Tất cả */}
+              <div className="absolute top-full left-0 mt-1.5 w-64 bg-white rounded-xl shadow-xl border border-slate-200 z-50 p-2 animate-fadeIn max-h-72 overflow-y-auto">
                 <button
                   type="button"
                   onClick={() => handleSelectQuickLocation('', '')}
-                  className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-slate-50 transition cursor-pointer ${
-                    (!filters.city && !filters.district) ? 'text-red-600 font-bold bg-red-50/40' : 'text-slate-700'
+                  className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition ${
+                    (!filters.city && !filters.district) ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-700 hover:bg-slate-50'
                   }`}
                 >
-                  <span className="font-semibold">Tất cả Khu Vực (Toàn quốc)</span>
-                  {(!filters.city && !filters.district) && <i className="fa-solid fa-check text-xs text-red-600"></i>}
+                  Trên toàn quốc
                 </button>
-
-                {/* GROUP 1: TP. ĐÀ NẴNG */}
-                <div className="mt-1 border-t border-slate-100 pt-1">
-                  <div className="px-3.5 py-1 text-[11px] font-bold text-emerald-700 bg-emerald-50/70 flex items-center justify-between">
-                    <span>TP. ĐÀ NẴNG</span>
-                    <button
-                      type="button"
-                      onClick={() => handleSelectQuickLocation('Đà Nẵng', '')}
-                      className="text-[10px] text-emerald-800 underline font-semibold hover:text-emerald-950 cursor-pointer"
-                    >
-                      Toàn TP. Đà Nẵng
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-0.5 px-2 py-1">
-                    {['Quận Hải Châu', 'Quận Sơn Trà', 'Quận Ngũ Hành Sơn', 'Quận Thanh Khê', 'Quận Liên Chiểu', 'Quận Cẩm Lệ', 'Huyện Hòa Vang'].map(dName => (
+                <div className="my-1 border-t border-slate-100"></div>
+                {VIETNAM_ADMINISTRATIVE_DATA.map(c => {
+                  const isCityActive = filters.city === c.name;
+                  const isExpanded = expandedCity === c.name;
+                  return (
+                    <div key={c.name}>
                       <button
-                        key={dName}
                         type="button"
-                        onClick={() => handleSelectQuickLocation('Đà Nẵng', dName)}
-                        className={`text-left px-2.5 py-1.5 rounded-lg text-xs truncate transition cursor-pointer ${
-                          filters.district === dName ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-600 hover:bg-slate-100'
+                        onClick={() => {
+                          setExpandedCity(prev => prev === c.name ? '' : c.name);
+                        }}
+                        className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between cursor-pointer transition ${
+                          isCityActive ? 'bg-red-50 text-red-600' : 'text-slate-800 hover:bg-slate-50'
                         }`}
                       >
-                        {dName}
+                        <span>{c.name}</span>
+                        <span className="text-[10px] text-slate-400 font-normal">({c.districts?.length || 0} quận)</span>
                       </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* GROUP 2: TỈNH QUẢNG NAM */}
-                <div className="mt-1 border-t border-slate-100 pt-1">
-                  <div className="px-3.5 py-1 text-[11px] font-bold text-blue-700 bg-blue-50/70 flex items-center justify-between">
-                    <span>TỈNH QUẢNG NAM</span>
-                    <button
-                      type="button"
-                      onClick={() => handleSelectQuickLocation('Quảng Nam', '')}
-                      className="text-[10px] text-blue-800 underline font-semibold hover:text-blue-950 cursor-pointer"
-                    >
-                      Toàn Tỉnh Quảng Nam
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-0.5 px-2 py-1">
-                    {['Thành phố Hội An', 'Thị xã Điện Bàn', 'Thành phố Tam Kỳ', 'Huyện Duy Xuyên', 'Huyện Thăng Bình', 'Huyện Núi Thành'].map(dName => (
-                      <button
-                        key={dName}
-                        type="button"
-                        onClick={() => handleSelectQuickLocation('Quảng Nam', dName)}
-                        className={`text-left px-2.5 py-1.5 rounded-lg text-xs truncate transition cursor-pointer ${
-                          filters.district === dName ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-600 hover:bg-slate-100'
-                        }`}
-                      >
-                        {dName}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* GROUP 3: TP. HỒ CHÍ MINH */}
-                <div className="mt-1 border-t border-slate-100 pt-1">
-                  <div className="px-3.5 py-1 text-[11px] font-bold text-amber-700 bg-amber-50/70 flex items-center justify-between">
-                    <span>TP. HỒ CHÍ MINH</span>
-                    <button
-                      type="button"
-                      onClick={() => handleSelectQuickLocation('TP. Hồ Chí Minh', '')}
-                      className="text-[10px] text-amber-800 underline font-semibold hover:text-amber-950 cursor-pointer"
-                    >
-                      Toàn TP. Hồ Chí Minh
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-0.5 px-2 py-1">
-                    {['Quận 1', 'Quận 3', 'Quận 7', 'Thành phố Thủ Đức', 'Quận Bình Thạnh', 'Quận Tân Bình', 'Quận Gò Vấp', 'Quận Phú Nhuận'].map(dName => (
-                      <button
-                        key={dName}
-                        type="button"
-                        onClick={() => handleSelectQuickLocation('TP. Hồ Chí Minh', dName)}
-                        className={`text-left px-2.5 py-1.5 rounded-lg text-xs truncate transition cursor-pointer ${
-                          filters.district === dName ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-600 hover:bg-slate-100'
-                        }`}
-                      >
-                        {dName}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* GROUP 4: THỦ ĐÔ HÀ NỘI */}
-                <div className="mt-1 border-t border-slate-100 pt-1">
-                  <div className="px-3.5 py-1 text-[11px] font-bold text-rose-700 bg-rose-50/70 flex items-center justify-between">
-                    <span>THỦ ĐÔ HÀ NỘI</span>
-                    <button
-                      type="button"
-                      onClick={() => handleSelectQuickLocation('Hà Nội', '')}
-                      className="text-[10px] text-rose-800 underline font-semibold hover:text-rose-950 cursor-pointer"
-                    >
-                      Toàn TP. Hà Nội
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-0.5 px-2 py-1">
-                    {['Quận Cầu Giấy', 'Quận Nam Từ Liêm', 'Quận Ba Đình', 'Quận Hoàn Kiếm', 'Quận Tây Hồ', 'Quận Đống Đa', 'Quận Thanh Xuân', 'Quận Hà Đông'].map(dName => (
-                      <button
-                        key={dName}
-                        type="button"
-                        onClick={() => handleSelectQuickLocation('Hà Nội', dName)}
-                        className={`text-left px-2.5 py-1.5 rounded-lg text-xs truncate transition cursor-pointer ${
-                          filters.district === dName ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-600 hover:bg-slate-100'
-                        }`}
-                      >
-                        {dName}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* GROUP 5: TỈNH KHÁNH HÒA */}
-                <div className="mt-1 border-t border-slate-100 pt-1">
-                  <div className="px-3.5 py-1 text-[11px] font-bold text-teal-700 bg-teal-50/70 flex items-center justify-between">
-                    <span>TỈNH KHÁNH HÒA</span>
-                    <button
-                      type="button"
-                      onClick={() => handleSelectQuickLocation('Khánh Hòa', '')}
-                      className="text-[10px] text-teal-800 underline font-semibold hover:text-teal-950 cursor-pointer"
-                    >
-                      Toàn Tỉnh Khánh Hòa
-                    </button>
-                  </div>
-                  <div className="grid grid-cols-2 gap-0.5 px-2 py-1">
-                    {['Thành phố Nha Trang', 'Thành phố Cam Ranh', 'Huyện Cam Lâm', 'Thị xã Ninh Hòa', 'Huyện Diên Khánh', 'Huyện Vạn Ninh'].map(dName => (
-                      <button
-                        key={dName}
-                        type="button"
-                        onClick={() => handleSelectQuickLocation('Khánh Hòa', dName)}
-                        className={`text-left px-2.5 py-1.5 rounded-lg text-xs truncate transition cursor-pointer ${
-                          filters.district === dName ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-600 hover:bg-slate-100'
-                        }`}
-                      >
-                        {dName}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                      {isExpanded && (c.districts?.length || 0) > 0 && (
+                        <div className="pl-3 pr-1 py-1 space-y-0.5 border-l-2 border-red-200 ml-3 my-1 max-h-40 overflow-y-auto">
+                          <button
+                            type="button"
+                            onClick={() => handleSelectQuickLocation(c.name, '')}
+                            className={`w-full text-left px-2 py-1 rounded text-[11px] cursor-pointer transition flex items-center justify-between ${
+                              isCityActive && !filters.district ? 'font-bold text-red-600' : 'text-slate-600 hover:bg-slate-100'
+                            }`}
+                          >
+                            <span>Tất cả {c.name}</span>
+                            {isCityActive && !filters.district && <i className="fa-solid fa-check text-[10px] text-red-600"></i>}
+                          </button>
+                          {c.districts.map(d => (
+                            <button
+                              key={d.name}
+                              type="button"
+                              onClick={() => handleSelectQuickLocation(c.name, d.name)}
+                              className={`w-full text-left px-2 py-1 rounded text-[11px] cursor-pointer transition flex items-center justify-between ${
+                                isCityActive && filters.district === d.name ? 'font-bold text-red-600 bg-red-50' : 'text-slate-600 hover:bg-slate-100'
+                              }`}
+                            >
+                              <span>{d.name}</span>
+                              {isCityActive && filters.district === d.name && <i className="fa-solid fa-check text-[10px] text-red-600"></i>}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
