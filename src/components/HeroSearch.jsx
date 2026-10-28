@@ -3,9 +3,9 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { PROPERTY_TYPES, SALE_PRICE_PRESETS, RENT_PRICE_PRESETS, AREA_PRESETS } from '../data/mockData';
 import { VIETNAM_ADMINISTRATIVE_DATA, DANANG_MERGERS_MAP } from '../data/vietnamAdministrativeData';
-import { formatPriceRangeText, formatAreaRangeText } from '../utils/permalink';
+import { formatPriceRangeText, formatAreaRangeText, buildSeoUrl } from '../utils/permalink';
 import { removeAccents } from '../utils/propertyFilter';
-import { Link } from '../router/RouterContext';
+import { Link, useRouter } from '../router/RouterContext';
 
 const DEFAULT_RECENT_SEARCHES = [
   {
@@ -32,6 +32,7 @@ const DEFAULT_RECENT_SEARCHES = [
 ];
 
 export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 }) {
+  const { navigate } = useRouter();
   const [searchTerm, setSearchTerm] = useState(filters?.keyword || '');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMergerMode, setIsMergerMode] = useState(false);
@@ -43,6 +44,34 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
 
   const containerRef = useRef(null);
   const dropdownRef = useRef(null);
+
+  // Điều hướng chuyển trang kết quả chuẩn SEO Batdongsan.com.vn
+  const executeSearchNavigation = (targetFilters, queryStr = '') => {
+    const targetUrl = buildSeoUrl({
+      demand: targetFilters.demand || 'sale',
+      propertyType: targetFilters.propertyType && targetFilters.propertyType !== 'all' ? targetFilters.propertyType : null,
+      city: targetFilters.city || null,
+      district: targetFilters.district || null,
+      ward: targetFilters.ward || null,
+      project: targetFilters.project || null,
+      priceRange: targetFilters.priceRange && targetFilters.priceRange !== 'all' ? targetFilters.priceRange : null,
+      areaRange: targetFilters.areaRange && targetFilters.areaRange !== 'all' ? targetFilters.areaRange : null,
+      bedroom: targetFilters.bedroom && targetFilters.bedroom !== 'all' ? targetFilters.bedroom : null,
+      extraParams: {
+        ...(queryStr ? { q: queryStr } : {}),
+        ...(targetFilters.minPrice ? { minPrice: String(targetFilters.minPrice) } : {}),
+        ...(targetFilters.maxPrice ? { maxPrice: String(targetFilters.maxPrice) } : {}),
+        ...(targetFilters.minArea ? { minArea: String(targetFilters.minArea) } : {}),
+        ...(targetFilters.maxArea ? { maxArea: String(targetFilters.maxArea) } : {}),
+        ...(targetFilters.direction && targetFilters.direction !== 'all' ? { direction: targetFilters.direction } : {}),
+        ...(targetFilters.onlyVerified ? { onlyVerified: 'true' } : {}),
+        ...(targetFilters.hasVR360 ? { hasVR360: 'true' } : {})
+      }
+    });
+
+    setIsDropdownOpen(false);
+    navigate(targetUrl);
+  };
 
   // Sync external filters.keyword changes
   useEffect(() => {
@@ -134,14 +163,16 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
             subtitle: `Sắp xếp sáp nhập từ các đơn vị cũ (${m.match.join(', ')})`,
             icon: 'fa-solid fa-arrows-split-up-and-left text-emerald-500',
             apply: () => {
-              setSearchTerm(m.newWard);
-              setFilters(prev => ({
-                ...prev,
+              const updatedFilters = {
+                ...filters,
                 city: 'Đà Nẵng',
                 district: m.newDistrict,
                 ward: m.newWard,
-                keyword: m.newWard
-              }));
+                keyword: ''
+              };
+              setSearchTerm('');
+              setFilters(updatedFilters);
+              executeSearchNavigation(updatedFilters, '');
             }
           });
         }
@@ -159,8 +190,10 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
           subtitle: `Bất động sản tại ${city.name} (${city.districts?.length || 0} Quận/Huyện)`,
           icon: 'fa-solid fa-location-dot text-red-500',
           apply: () => {
+            const updatedFilters = { ...filters, city: city.name, district: '', keyword: '' };
             setSearchTerm('');
-            setFilters(prev => ({ ...prev, city: city.name, district: '', keyword: '' }));
+            setFilters(updatedFilters);
+            executeSearchNavigation(updatedFilters, '');
           }
         });
       }
@@ -174,8 +207,10 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
             subtitle: `Khu vực ${dist.name} (${dist.wards?.length || 0} Phường/Xã)`,
             icon: 'fa-solid fa-map-pin text-blue-500',
             apply: () => {
+              const updatedFilters = { ...filters, city: city.name, district: dist.name, keyword: '' };
               setSearchTerm('');
-              setFilters(prev => ({ ...prev, city: city.name, district: dist.name, keyword: '' }));
+              setFilters(updatedFilters);
+              executeSearchNavigation(updatedFilters, '');
             }
           });
         }
@@ -192,64 +227,55 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
           subtitle: `Tìm theo danh mục ${pt.name}`,
           icon: `fa-solid ${pt.icon} text-amber-500`,
           apply: () => {
-            setFilters(prev => ({ ...prev, propertyType: pt.id }));
+            const updatedFilters = { ...filters, propertyType: pt.id };
+            setFilters(updatedFilters);
+            executeSearchNavigation(updatedFilters, searchTerm.trim());
           }
         });
       }
     });
 
     return results.slice(0, 6);
-  }, [searchTerm, isMergerMode, setFilters]);
+  }, [searchTerm, isMergerMode, filters, setFilters]);
 
-  // Handle Search Submission
+  // Handle Search Submission (Chuẩn Batdongsan.com.vn: Điều hướng sang trang kết quả)
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault();
     const cleanKw = searchTerm.trim();
-    setFilters(prev => ({
-      ...prev,
+    const updatedFilters = {
+      ...filters,
       keyword: cleanKw
-    }));
-    setIsDropdownOpen(false);
+    };
+    setFilters(updatedFilters);
 
     // Save recent search
-    if (cleanKw || filters.city || filters.propertyType !== 'all') {
+    if (cleanKw || filters.city || (filters.propertyType && filters.propertyType !== 'all')) {
       const locationPart = filters.district ? `${filters.district}, ${filters.city}` : (filters.city || 'Toàn quốc');
-      const typePart = filters.propertyType !== 'all' ? (PROPERTY_TYPES.find(p => p.id === filters.propertyType)?.name || '') : '';
+      const typePart = filters.propertyType && filters.propertyType !== 'all' ? (PROPERTY_TYPES.find(p => p.id === filters.propertyType)?.name || '') : '';
       saveRecentSearch({
         title: cleanKw || (typePart ? `${typePart} tại ${locationPart}` : (filters.demand === 'rent' ? 'Cho thuê BĐS' : 'Mua bán BĐS')),
-        subtitle: [locationPart, typePart, filters.priceRange !== 'all' ? (filters.demand === 'rent' ? RENT_PRICE_PRESETS.find(p => p.value === filters.priceRange)?.label : SALE_PRICE_PRESETS.find(p => p.value === filters.priceRange)?.label) : null].filter(Boolean).join(' · '),
-        filters: { ...filters, keyword: cleanKw },
+        subtitle: [locationPart, typePart, filters.priceRange && filters.priceRange !== 'all' ? (filters.demand === 'rent' ? RENT_PRICE_PRESETS.find(p => p.value === filters.priceRange)?.label : SALE_PRICE_PRESETS.find(p => p.value === filters.priceRange)?.label) : null].filter(Boolean).join(' · '),
+        filters: updatedFilters,
         keyword: cleanKw
       });
     }
 
-    // Smooth scroll down to listing results
-    setTimeout(() => {
-      const target = document.getElementById('home-listings-section');
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
+    // Điều hướng trực tiếp sang trang danh sách kết quả chuyên biệt
+    executeSearchNavigation(updatedFilters, cleanKw);
   };
 
-  // Handle Selecting a Recent Search Item
+  // Handle Selecting a Recent Search Item (Điều hướng sang trang kết quả)
   const handleSelectRecentSearch = (item) => {
-    if (item.filters) {
-      setFilters(prev => ({
-        ...prev,
-        ...item.filters
-      }));
-    }
+    const updatedFilters = {
+      ...filters,
+      ...(item.filters || {}),
+      keyword: item.keyword !== undefined ? item.keyword : (item.filters?.keyword || '')
+    };
+    setFilters(updatedFilters);
     if (item.keyword !== undefined) {
       setSearchTerm(item.keyword);
     }
-    setIsDropdownOpen(false);
-    setTimeout(() => {
-      const target = document.getElementById('home-listings-section');
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, 100);
+    executeSearchNavigation(updatedFilters, item.keyword || item.filters?.keyword || '');
   };
 
   // Clear all filters
