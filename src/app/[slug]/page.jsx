@@ -85,6 +85,20 @@ export default async function Page({ params, searchParams }) {
 
   const currentPath = `/${slug || ''}`;
 
+  // 1. Ưu tiên tuyệt đối cho trang chi tiết bài đăng đơn lẻ (Single Property: /{slug}-pr{id})
+  const parsed = parsePropertyUrl(currentPath);
+  if (parsed.isProperty) {
+    const serverProps = await fetchServerProperties();
+    const prop = findProperty(serverProps, parsed, currentPath) || findProperty(INITIAL_PROPERTIES, parsed, currentPath);
+    if (!prop) notFound();
+
+    const canonical = getPropertyPermalink(prop);
+    if (currentPath !== canonical) permanentRedirect(canonical);
+
+    return <PropertyDetailPage initialProperty={prop} slug={slug} currentPath={currentPath} />;
+  }
+
+  // 2. Xử lý trang Danh mục / Taxonomy (Nhà đất bán, cho thuê, faceted clean slugs)
   const taxonomyInfo = parseTaxonomyUrl(currentPath);
   if (taxonomyInfo.isTaxonomy) {
     // 301 Redirect nếu URL có query param ?page=...
@@ -104,15 +118,5 @@ export default async function Page({ params, searchParams }) {
     return renderTaxonomyPage(taxonomyInfo, 1);
   }
 
-  const parsed = parsePropertyUrl(currentPath);
-  if (!parsed.isProperty) notFound();
-
-  const serverProps = await fetchServerProperties();
-  const prop = findProperty(serverProps, parsed, currentPath) || findProperty(INITIAL_PROPERTIES, parsed, currentPath);
-  if (!prop) notFound();
-
-  const canonical = getPropertyPermalink(prop);
-  if (currentPath !== canonical) permanentRedirect(canonical);
-
-  return <PropertyDetailPage initialProperty={prop} slug={slug} currentPath={currentPath} />;
+  notFound();
 }

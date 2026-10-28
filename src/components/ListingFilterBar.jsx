@@ -103,6 +103,7 @@ export default function ListingFilterBar({
 
   // Open modal and load current active filters into draft
   const handleOpenAdvancedModal = (initialScreen = 'main') => {
+    const screen = (typeof initialScreen === 'string' && initialScreen) ? initialScreen : 'main';
     setDraftFilters({
       demand: filters?.demand || demand || 'sale',
       propertyType: filters?.propertyType || 'all',
@@ -124,7 +125,7 @@ export default function ListingFilterBar({
       hasVR360: Boolean(filters?.hasVR360),
       onlyVerified: Boolean(filters?.onlyVerified)
     });
-    setModalScreen(initialScreen);
+    setModalScreen(screen);
     setShowAdvancedModal(true);
     setOpenDropdown(null);
   };
@@ -378,29 +379,37 @@ export default function ListingFilterBar({
     return currentDistrictObj?.projects || [];
   }, [currentDistrictObj]);
 
+  // Kiểm tra các tiêu chí lọc đang được kích hoạt (không tính các giá trị mặc định của chính trang danh mục)
   const isTypeFilterActive = Boolean(
-    (filters.propertyType && filters.propertyType !== 'all') ||
-    (Array.isArray(filters.propertyTypes) && filters.propertyTypes.length > 0 && !filters.propertyTypes.includes('all'))
+    (filters.propertyTypes && filters.propertyTypes.length > 0 && !filters.propertyTypes.includes('all')) ||
+    (filters.propertyType && filters.propertyType !== 'all' && filters.propertyType !== taxonomyInfo?.propertyType)
   );
-
+  const isCityFilterActive = Boolean(
+    filters.city && filters.city !== taxonomyInfo?.city
+  );
+  const isDistrictFilterActive = Boolean(
+    filters.district && filters.district !== taxonomyInfo?.district
+  );
   const isPriceFilterActive = Boolean(
-    (filters.priceRange && filters.priceRange !== 'all') || filters.minPrice || filters.maxPrice
+    ((filters.priceRange && filters.priceRange !== 'all') || filters.minPrice || filters.maxPrice) &&
+    filters.priceRange !== taxonomyInfo?.priceRange
   );
-
   const isAreaFilterActive = Boolean(
-    (filters.areaRange && filters.areaRange !== 'all') || filters.minArea || filters.maxArea
+    ((filters.areaRange && filters.areaRange !== 'all') || filters.minArea || filters.maxArea) &&
+    filters.areaRange !== taxonomyInfo?.areaRange
   );
 
-  // Đếm tổng số tiêu chí lọc đang được kích hoạt (chuẩn Batdongsan.com.vn)
+  // Đếm tổng số tiêu chí lọc nâng cao đang được kích hoạt (chuẩn Batdongsan.com.vn)
   const advancedCount = [
     isTypeFilterActive,
     isPriceFilterActive,
     isAreaFilterActive,
-    Boolean(filters.district),
-    Boolean(filters.ward),
-    Boolean(filters.street),
-    Boolean(filters.project),
-    Boolean(filters.bedroom && filters.bedroom !== 'all'),
+    isDistrictFilterActive,
+    isCityFilterActive,
+    Boolean(filters.ward && filters.ward !== taxonomyInfo?.ward),
+    Boolean(filters.street && filters.street !== taxonomyInfo?.street),
+    Boolean(filters.project && filters.project !== taxonomyInfo?.project),
+    Boolean(filters.bedroom && filters.bedroom !== 'all' && filters.bedroom !== taxonomyInfo?.bedroom),
     Boolean(filters.direction && filters.direction !== 'all'),
     Boolean(filters.hasVR360),
     Boolean(filters.onlyVerified)
@@ -452,7 +461,7 @@ export default function ListingFilterBar({
           {/* 1. Nút "Lọc" (Mở bộ lọc phong cách Batdongsan) */}
           <button
             type="button"
-            onClick={handleOpenAdvancedModal}
+            onClick={() => handleOpenAdvancedModal('main')}
             className={`shrink-0 border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs ${
               advancedCount > 0
                 ? 'border-red-500 bg-red-50/60 text-red-700 font-bold'
