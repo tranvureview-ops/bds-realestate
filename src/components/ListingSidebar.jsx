@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { SALE_PRICE_PRESETS, RENT_PRICE_PRESETS, AREA_PRESETS } from '../data/mockData';
 import { Link } from '../router/RouterContext';
+import { buildSeoFilterUrl } from '../utils/permalink';
 
 // Danh sách các dự án nổi bật tiêu biểu tại Đà Nẵng & Quảng Nam
 const FEATURED_PROJECTS = [
@@ -68,7 +69,8 @@ export default function ListingSidebar({
   filters = {},
   setFilters,
   properties = [],
-  onScrollToTop
+  onScrollToTop,
+  basePath = ''
 }) {
   const isRent = demand === 'rent';
   const pricePresets = isRent ? RENT_PRICE_PRESETS : SALE_PRICE_PRESETS;
@@ -161,10 +163,16 @@ export default function ListingSidebar({
         <div className="grid grid-cols-2 gap-1.5 text-xs">
           {displayedPrices.map(item => {
             const isSelected = (filters.priceRange || 'all') === item.value;
+            const targetUrl = buildSeoFilterUrl({
+              basePath,
+              demand,
+              priceRange: item.value
+            });
+
             return (
-              <button
+              <Link
                 key={item.value}
-                type="button"
+                href={targetUrl}
                 onClick={() => handleSelectPrice(item)}
                 className={`text-left px-2.5 py-2 rounded-xl transition cursor-pointer truncate font-medium flex items-center justify-between group ${
                   isSelected
@@ -175,7 +183,7 @@ export default function ListingSidebar({
               >
                 <span className="truncate">{item.label}</span>
                 <i className={`fa-solid fa-chevron-right text-[9px] transition-transform ${isSelected ? 'text-red-600' : 'text-slate-300 group-hover:text-red-500 group-hover:translate-x-0.5'}`}></i>
-              </button>
+              </Link>
             );
           })}
         </div>
@@ -208,10 +216,16 @@ export default function ListingSidebar({
         <div className="grid grid-cols-2 gap-1.5 text-xs">
           {displayedAreas.map(item => {
             const isSelected = (filters.areaRange || 'all') === item.value;
+            const targetUrl = buildSeoFilterUrl({
+              basePath,
+              demand,
+              areaRange: item.value
+            });
+
             return (
-              <button
+              <Link
                 key={item.value}
-                type="button"
+                href={targetUrl}
                 onClick={() => handleSelectArea(item)}
                 className={`text-left px-2.5 py-2 rounded-xl transition cursor-pointer truncate font-medium flex items-center justify-between group ${
                   isSelected
@@ -222,7 +236,7 @@ export default function ListingSidebar({
               >
                 <span className="truncate">{item.label}</span>
                 <i className={`fa-solid fa-chevron-right text-[9px] transition-transform ${isSelected ? 'text-teal-700' : 'text-slate-300 group-hover:text-teal-500 group-hover:translate-x-0.5'}`}></i>
-              </button>
+              </Link>
             );
           })}
         </div>

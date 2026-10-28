@@ -712,16 +712,26 @@ export const parseTaxonomyUrl = (urlPath) => {
       ward = 'Phường ' + slugToTitleCase(wardMatch[1]);
     }
 
-    // F. Thành phố & Quận/Huyện TP. Đà Nẵng
-    let city = 'Đà Nẵng';
+    // F. Thành phố & Quận/Huyện
+    let city = '';
     let district = '';
 
-    // Đối chiếu các quận huyện Đà Nẵng
+    // Đối chiếu các quận huyện
     for (const [dSlug, dInfo] of Object.entries(DISTRICT_MAP)) {
       if (raw.includes(`quan-${dSlug}`) || raw.includes(`huyen-${dSlug}`) || raw.includes(`tp-${dSlug}`) || raw.includes(`-${dSlug}-`) || raw.endsWith(`-${dSlug}`) || raw.includes(dSlug)) {
         district = dInfo.name;
-        city = dInfo.city || 'Đà Nẵng';
+        city = dInfo.city || '';
         break;
+      }
+    }
+
+    // Nếu chưa xác định city từ quận huyện, kiểm tra thành phố trực thuộc
+    if (!city) {
+      for (const [cName, cSlug] of Object.entries(CITY_SLUGS)) {
+        if (raw.includes(cSlug)) {
+          city = cName;
+          break;
+        }
       }
     }
 
@@ -861,6 +871,8 @@ export const parseTaxonomyUrl = (urlPath) => {
       if (city) title += `, ${city}`;
     } else if (city) {
       title += ` tại ${city}`;
+    } else if (!project && !street && !ward && !district) {
+      title += ` Toàn Quốc`;
     }
 
     if (priceLabel) title += ` ${priceLabel}`;
@@ -1507,4 +1519,94 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, year = 2026, page = 
 
   return { title, description: desc };
 };
+
+/**
+ * Chuyển đổi mã preset khoảng giá sang SEO URL slug chuẩn Batdongsan
+ * Ví dụ: 'under-1b' -> 'gia-duoi-1-ty'
+ *        '7b-10b' -> 'gia-tu-7-ty-den-10-ty'
+ *        'over-1000b' -> 'gia-tren-1000-ty'
+ *        'under-3m' -> 'gia-duoi-3-trieu'
+ *        '10m-20m' -> 'gia-tu-10-trieu-den-20-trieu'
+ */
+export const getPricePresetSlug = (presetValue) => {
+  if (!presetValue || presetValue === 'all') return '';
+  if (presetValue.startsWith('under-')) {
+    const raw = presetValue.replace('under-', '');
+    if (raw.endsWith('b')) return `gia-duoi-${raw.replace('b', '')}-ty`;
+    if (raw.endsWith('m')) return `gia-duoi-${raw.replace('m', '')}-trieu`;
+    return `gia-duoi-${raw}`;
+  }
+  if (presetValue.startsWith('over-')) {
+    const raw = presetValue.replace('over-', '');
+    if (raw.endsWith('b')) return `gia-tren-${raw.replace('b', '')}-ty`;
+    if (raw.endsWith('m')) return `gia-tren-${raw.replace('m', '')}-trieu`;
+    return `gia-tren-${raw}`;
+  }
+  // Dạng x-y: '7b-10b', '10m-20m'
+  const matchB = presetValue.match(/^([0-9.]+)b-([0-9.]+)b$/);
+  if (matchB) return `gia-tu-${matchB[1]}-ty-den-${matchB[2]}-ty`;
+
+  const matchM = presetValue.match(/^([0-9.]+)m-([0-9.]+)m$/);
+  if (matchM) return `gia-tu-${matchM[1]}-trieu-den-${matchM[2]}-trieu`;
+
+  return `gia-${presetValue}`;
+};
+
+/**
+ * Chuyển đổi mã preset diện tích sang SEO URL slug chuẩn Batdongsan
+ * Ví dụ: 'under-30' -> 'dien-tich-duoi-30-m2'
+ *        '50-80' -> 'dien-tich-tu-50-den-80-m2'
+ *        'over-3000' -> 'dien-tich-tren-3000-m2'
+ */
+export const getAreaPresetSlug = (presetValue) => {
+  if (!presetValue || presetValue === 'all') return '';
+  if (presetValue.startsWith('under-')) {
+    const val = presetValue.replace('under-', '');
+    return `dien-tich-duoi-${val}-m2`;
+  }
+  if (presetValue.startsWith('over-')) {
+    const val = presetValue.replace('over-', '');
+    return `dien-tich-tren-${val}-m2`;
+  }
+  const match = presetValue.match(/^([0-9.]+)-([0-9.]+)$/);
+  if (match) {
+    return `dien-tich-tu-${match[1]}-den-${match[2]}-m2`;
+  }
+  return `dien-tich-${presetValue}`;
+};
+
+/**
+ * Xây dựng URL liên kết nội bộ thân thiện SEO cho bộ lọc Sidebar (Faceted SEO URL)
+ * @param {Object} options
+ * @param {string} options.basePath Đường dẫn danh mục hiện tại (ví dụ: '/nha-dat-ban-ha-noi', '/nha-dat-ban')
+ * @param {string} [options.demand] 'sale' | 'rent'
+ * @param {string} [options.priceRange] Mã preset giá (ví dụ: '7b-10b', 'under-1b', 'all')
+ * @param {string} [options.areaRange] Mã preset diện tích (ví dụ: '200-300', 'under-30', 'all')
+ * @returns {string} Đường dẫn SEO hoàn chỉnh (ví dụ: '/nha-dat-ban-ha-noi/gia-tu-7-ty-den-10-ty')
+ */
+export const buildSeoFilterUrl = ({ basePath = '', demand = 'sale', priceRange = '', areaRange = '' }) => {
+  // Lấy base path sạch, loại bỏ subslug filter hiện tại nếu có
+  let cleanBase = (basePath || (demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban')).split('?')[0].replace(/\/+$/, '');
+
+  // Nếu base path đang kết thúc bằng filter slug cũ (gia-... hoặc dien-tich-... hoặc /page/...), bóc tách ra
+  cleanBase = cleanBase.replace(/\/page\/\d+$/i, '');
+  cleanBase = cleanBase.replace(/\/(gia|dien-tich)-[^/]+$/i, '');
+
+  if (!cleanBase || cleanBase === '') {
+    cleanBase = demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban';
+  }
+
+  if (priceRange && priceRange !== 'all') {
+    const pSlug = getPricePresetSlug(priceRange);
+    if (pSlug) return `${cleanBase}/${pSlug}`;
+  }
+
+  if (areaRange && areaRange !== 'all') {
+    const aSlug = getAreaPresetSlug(areaRange);
+    if (aSlug) return `${cleanBase}/${aSlug}`;
+  }
+
+  return cleanBase;
+};
+
 

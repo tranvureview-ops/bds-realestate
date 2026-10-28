@@ -501,6 +501,7 @@ export default function ListingGrid({
               setFilters={setFilters}
               properties={properties}
               onScrollToTop={scrollToGridTop}
+              basePath={basePath}
             />
           </aside>
         </div>
