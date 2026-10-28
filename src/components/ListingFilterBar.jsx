@@ -7,6 +7,8 @@ import { VIETNAM_ADMINISTRATIVE_DATA, DANANG_MERGERS_MAP } from '../data/vietnam
 import { removeAccents } from '../utils/propertyFilter';
 import { formatPriceRangeText, formatAreaRangeText } from '../utils/permalink';
 import PropertyTypeSelector from './PropertyTypeSelector';
+import PriceRangeSelector from './PriceRangeSelector';
+import AreaRangeSelector from './AreaRangeSelector';
 import { formatPropertyTypeTriggerLabel, getFlatPropertyTypes } from '../data/propertyTypeTaxonomy';
 
 const CITIES = [
@@ -245,22 +247,47 @@ export default function ListingFilterBar({
   };
 
   const getPriceRangeLabel = (rangeKey = filters?.priceRange, currentDemand = demand) => {
+    const isRent = currentDemand === 'rent';
+    const mult = isRent ? 1e6 : 1e9;
+    const u = isRent ? 'triệu' : 'tỷ';
+    const minP = filters?.minPrice;
+    const maxP = filters?.maxPrice;
+
+    if (minP && maxP) {
+      return `${Math.round(minP / mult * 10) / 10} - ${Math.round(maxP / mult * 10) / 10} ${u}`;
+    } else if (maxP) {
+      return `≤ ${Math.round(maxP / mult * 10) / 10} ${u}`;
+    } else if (minP) {
+      return `≥ ${Math.round(minP / mult * 10) / 10} ${u}`;
+    }
+
     if (!rangeKey || rangeKey === 'all') return 'Khoảng giá';
-    const presets = currentDemand === 'rent' ? RENT_PRICE_PRESETS : SALE_PRICE_PRESETS;
+    const presets = isRent ? RENT_PRICE_PRESETS : SALE_PRICE_PRESETS;
     const found = presets.find(p => p.value === rangeKey);
     if (found) {
-      return found.label.replace('Dưới ', '< ').replace('Trên ', '> ');
+      return found.label.replace('Dưới ', '≤ ').replace('Trên ', '≥ ');
     }
-    return formatPriceRangeText(rangeKey).replace('Dưới ', '< ').replace('Trên ', '> ');
+    return formatPriceRangeText(rangeKey).replace('Dưới ', '≤ ').replace('Trên ', '≥ ');
   };
 
   const getAreaRangeLabel = (rangeKey = filters?.areaRange) => {
+    const minA = filters?.minArea;
+    const maxA = filters?.maxArea;
+
+    if (minA && maxA) {
+      return `${minA} - ${maxA} m²`;
+    } else if (maxA) {
+      return `≤ ${maxA} m²`;
+    } else if (minA) {
+      return `≥ ${minA} m²`;
+    }
+
     if (!rangeKey || rangeKey === 'all') return 'Diện tích';
     const found = AREA_PRESETS.find(p => p.value === rangeKey);
     if (found) {
-      return found.label.replace('Dưới ', '< ').replace('Trên ', '> ');
+      return found.label.replace('Dưới ', '≤ ').replace('Trên ', '≥ ');
     }
-    return formatAreaRangeText(rangeKey).replace('Dưới ', '< ').replace('Trên ', '> ');
+    return formatAreaRangeText(rangeKey).replace('Dưới ', '≤ ').replace('Trên ', '≥ ');
   };
 
   // Summary labels for Modal rows (Screenshot 1)
@@ -661,13 +688,13 @@ export default function ListingFilterBar({
             )}
           </div>
 
-          {/* 4. Dropdown "Khoảng giá ⌵" */}
+          {/* 4. Dropdown "Khoảng giá ⌵" có Thanh Range Slider */}
           <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setOpenDropdown(prev => prev === 'price' ? null : 'price')}
               className={`border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs ${
-                filters.priceRange && filters.priceRange !== 'all'
+                (filters.priceRange && filters.priceRange !== 'all') || filters.minPrice || filters.maxPrice
                   ? 'border-red-500 bg-red-50/50 text-red-700 font-bold'
                   : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
               }`}
@@ -676,38 +703,38 @@ export default function ListingFilterBar({
               <i className={`fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform ${openDropdown === 'price' ? 'rotate-180' : ''}`}></i>
             </button>
 
-            {/* Menu Dropdown Khoảng giá */}
+            {/* Menu Dropdown Khoảng giá chuẩn Batdongsan */}
             {openDropdown === 'price' && (
-              <div className="absolute top-full left-0 mt-1.5 w-52 bg-white rounded-xl border border-slate-200 shadow-xl z-50 py-1.5 animate-fadeIn">
-                <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
-                  Chọn Khoảng Giá
-                </div>
-                <div className="max-h-72 overflow-y-auto">
-                  {(demand === 'rent' ? RENT_PRICE_PRESETS : SALE_PRICE_PRESETS).map(item => (
-                    <button
-                      key={item.value}
-                      type="button"
-                      onClick={() => handleSelectPriceRange(item.value, item.min, item.max)}
-                      className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-slate-50 transition ${
-                        (filters.priceRange || 'all') === item.value ? 'text-red-600 font-bold bg-red-50/40' : 'text-slate-700'
-                      }`}
-                    >
-                      <span>{item.label}</span>
-                      {(filters.priceRange || 'all') === item.value && <i className="fa-solid fa-check text-xs text-red-600"></i>}
-                    </button>
-                  ))}
-                </div>
+              <div className="absolute top-full left-0 mt-1.5 z-50 animate-fadeIn">
+                <PriceRangeSelector
+                  demand={demand}
+                  minPrice={filters.minPrice}
+                  maxPrice={filters.maxPrice}
+                  priceRange={filters.priceRange}
+                  onApply={({ minPrice, maxPrice, priceRange }) => {
+                    if (setFilters) {
+                      setFilters(prev => ({
+                        ...prev,
+                        minPrice,
+                        maxPrice,
+                        priceRange
+                      }));
+                    }
+                    setOpenDropdown(null);
+                  }}
+                  onClose={() => setOpenDropdown(null)}
+                />
               </div>
             )}
           </div>
 
-          {/* 5. Dropdown "Diện tích ⌵" */}
+          {/* 5. Dropdown "Diện tích ⌵" có Thanh Range Slider */}
           <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setOpenDropdown(prev => prev === 'area' ? null : 'area')}
               className={`border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs ${
-                filters.areaRange && filters.areaRange !== 'all'
+                (filters.areaRange && filters.areaRange !== 'all') || filters.minArea || filters.maxArea
                   ? 'border-red-500 bg-red-50/50 text-red-700 font-bold'
                   : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
               }`}
@@ -716,27 +743,26 @@ export default function ListingFilterBar({
               <i className={`fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform ${openDropdown === 'area' ? 'rotate-180' : ''}`}></i>
             </button>
 
-            {/* Menu Dropdown Diện tích */}
+            {/* Menu Dropdown Diện tích chuẩn Batdongsan */}
             {openDropdown === 'area' && (
-              <div className="absolute top-full left-0 mt-1.5 w-52 bg-white rounded-xl border border-slate-200 shadow-xl z-50 py-1.5 animate-fadeIn">
-                <div className="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100">
-                  Chọn Diện Tích
-                </div>
-                <div className="max-h-72 overflow-y-auto">
-                  {AREA_PRESETS.map(item => (
-                    <button
-                      key={item.value}
-                      type="button"
-                      onClick={() => handleSelectAreaRange(item.value, item.min, item.max)}
-                      className={`w-full text-left px-3.5 py-2 text-xs flex items-center justify-between hover:bg-slate-50 transition ${
-                        (filters.areaRange || 'all') === item.value ? 'text-red-600 font-bold bg-red-50/40' : 'text-slate-700'
-                      }`}
-                    >
-                      <span>{item.label}</span>
-                      {(filters.areaRange || 'all') === item.value && <i className="fa-solid fa-check text-xs text-red-600"></i>}
-                    </button>
-                  ))}
-                </div>
+              <div className="absolute top-full left-0 mt-1.5 z-50 animate-fadeIn">
+                <AreaRangeSelector
+                  minArea={filters.minArea}
+                  maxArea={filters.maxArea}
+                  areaRange={filters.areaRange}
+                  onApply={({ minArea, maxArea, areaRange }) => {
+                    if (setFilters) {
+                      setFilters(prev => ({
+                        ...prev,
+                        minArea,
+                        maxArea,
+                        areaRange
+                      }));
+                    }
+                    setOpenDropdown(null);
+                  }}
+                  onClose={() => setOpenDropdown(null)}
+                />
               </div>
             )}
           </div>
@@ -1223,135 +1249,48 @@ export default function ListingFilterBar({
             )}
 
             {/* ----------------------------------------------------
-                MODAL SCREEN 3: KHOẢNG GIÁ
+                MODAL SCREEN 3: KHOẢNG GIÁ (RANGE SLIDER CHUẨN BATDONGSAN)
                ---------------------------------------------------- */}
             {modalScreen === 'price' && (
-              <>
-                <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={() => setModalScreen('main')}
-                    className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2 hover:text-red-600 transition cursor-pointer"
-                  >
-                    <i className="fa-solid fa-arrow-left text-sm"></i>
-                    <span>Khoảng giá</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowAdvancedModal(false)}
-                    className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer"
-                  >
-                    <i className="fa-solid fa-xmark text-sm"></i>
-                  </button>
-                </div>
-
-                <div className="p-4 sm:p-6 space-y-4 overflow-y-auto text-xs flex-1">
-                  <div className="grid grid-cols-2 gap-2">
-                    {(draftFilters.demand === 'rent' ? RENT_PRICE_PRESETS : SALE_PRICE_PRESETS).map(item => (
-                      <button
-                        key={item.value}
-                        type="button"
-                        onClick={() => setDraftFilters(prev => ({
-                          ...prev,
-                          priceRange: item.value,
-                          minPrice: item.min,
-                          maxPrice: item.max
-                        }))}
-                        className={`p-3 rounded-xl border text-center font-bold transition cursor-pointer text-xs sm:text-sm ${
-                          draftFilters.priceRange === item.value
-                            ? 'bg-red-50 text-red-700 border-red-500 shadow-xs'
-                            : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
-                        }`}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="p-4 border-t border-slate-200 bg-white flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setDraftFilters(prev => ({ ...prev, priceRange: 'all', minPrice: null, maxPrice: null }))}
-                    className="px-6 py-3 border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-sm rounded-xl transition cursor-pointer shrink-0"
-                  >
-                    Đặt lại
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setModalScreen('main')}
-                    className="flex-1 py-3 bg-[#e03c31] hover:bg-red-700 text-white font-bold text-sm rounded-xl shadow-md transition cursor-pointer text-center"
-                  >
-                    Áp dụng
-                  </button>
-                </div>
-              </>
+              <PriceRangeSelector
+                demand={draftFilters.demand}
+                minPrice={draftFilters.minPrice}
+                maxPrice={draftFilters.maxPrice}
+                priceRange={draftFilters.priceRange}
+                isModal={true}
+                onApply={({ minPrice, maxPrice, priceRange }) => {
+                  setDraftFilters(prev => ({
+                    ...prev,
+                    minPrice,
+                    maxPrice,
+                    priceRange
+                  }));
+                  setModalScreen('main');
+                }}
+                onClose={() => setModalScreen('main')}
+              />
             )}
 
             {/* ----------------------------------------------------
-                MODAL SCREEN 4: DIỆN TÍCH
+                MODAL SCREEN 4: DIỆN TÍCH (RANGE SLIDER CHUẨN BATDONGSAN)
                ---------------------------------------------------- */}
             {modalScreen === 'area' && (
-              <>
-                <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
-                  <button
-                    type="button"
-                    onClick={() => setModalScreen('main')}
-                    className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2 hover:text-red-600 transition cursor-pointer"
-                  >
-                    <i className="fa-solid fa-arrow-left text-sm"></i>
-                    <span>Diện tích</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowAdvancedModal(false)}
-                    className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer"
-                  >
-                    <i className="fa-solid fa-xmark text-sm"></i>
-                  </button>
-                </div>
-
-                <div className="p-4 sm:p-6 space-y-4 overflow-y-auto text-xs flex-1">
-                  <div className="grid grid-cols-2 gap-2">
-                    {AREA_PRESETS.map(item => (
-                      <button
-                        key={item.value}
-                        type="button"
-                        onClick={() => setDraftFilters(prev => ({
-                          ...prev,
-                          areaRange: item.value,
-                          minArea: item.min,
-                          maxArea: item.max
-                        }))}
-                        className={`p-3 rounded-xl border text-center font-bold transition cursor-pointer text-xs sm:text-sm ${
-                          draftFilters.areaRange === item.value
-                            ? 'bg-red-50 text-red-700 border-red-500 shadow-xs'
-                            : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
-                        }`}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="p-4 border-t border-slate-200 bg-white flex items-center gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setDraftFilters(prev => ({ ...prev, areaRange: 'all', minArea: null, maxArea: null }))}
-                    className="px-6 py-3 border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-sm rounded-xl transition cursor-pointer shrink-0"
-                  >
-                    Đặt lại
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setModalScreen('main')}
-                    className="flex-1 py-3 bg-[#e03c31] hover:bg-red-700 text-white font-bold text-sm rounded-xl shadow-md transition cursor-pointer text-center"
-                  >
-                    Áp dụng
-                  </button>
-                </div>
-              </>
+              <AreaRangeSelector
+                minArea={draftFilters.minArea}
+                maxArea={draftFilters.maxArea}
+                areaRange={draftFilters.areaRange}
+                isModal={true}
+                onApply={({ minArea, maxArea, areaRange }) => {
+                  setDraftFilters(prev => ({
+                    ...prev,
+                    minArea,
+                    maxArea,
+                    areaRange
+                  }));
+                  setModalScreen('main');
+                }}
+                onClose={() => setModalScreen('main')}
+              />
             )}
 
             {/* ----------------------------------------------------

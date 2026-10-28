@@ -7,6 +7,8 @@ import { formatPriceRangeText, formatAreaRangeText, buildSeoUrl } from '../utils
 import { removeAccents } from '../utils/propertyFilter';
 import { Link, useRouter } from '../router/RouterContext';
 import PropertyTypeSelector from './PropertyTypeSelector';
+import PriceRangeSelector from './PriceRangeSelector';
+import AreaRangeSelector from './AreaRangeSelector';
 import { formatPropertyTypeTriggerLabel } from '../data/propertyTypeTaxonomy';
 
 const DEFAULT_RECENT_SEARCHES = [
@@ -319,16 +321,41 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
   };
 
   const getPriceLabel = () => {
+    const isRent = currentDemand === 'rent';
+    const mult = isRent ? 1e6 : 1e9;
+    const u = isRent ? 'triệu' : 'tỷ';
+    const minP = filters?.minPrice;
+    const maxP = filters?.maxPrice;
+
+    if (minP && maxP) {
+      return `${Math.round(minP / mult * 10) / 10} - ${Math.round(maxP / mult * 10) / 10} ${u}`;
+    } else if (maxP) {
+      return `≤ ${Math.round(maxP / mult * 10) / 10} ${u}`;
+    } else if (minP) {
+      return `≥ ${Math.round(minP / mult * 10) / 10} ${u}`;
+    }
+
     if (!filters.priceRange || filters.priceRange === 'all') return 'Mức giá';
-    const presets = filters.demand === 'rent' ? RENT_PRICE_PRESETS : SALE_PRICE_PRESETS;
+    const presets = isRent ? RENT_PRICE_PRESETS : SALE_PRICE_PRESETS;
     const found = presets.find(p => p.value === filters.priceRange);
-    return found ? found.label : formatPriceRangeText(filters.priceRange);
+    return found ? found.label.replace('Dưới ', '≤ ').replace('Trên ', '≥ ') : formatPriceRangeText(filters.priceRange);
   };
 
   const getAreaLabel = () => {
+    const minA = filters?.minArea;
+    const maxA = filters?.maxArea;
+
+    if (minA && maxA) {
+      return `${minA} - ${maxA} m²`;
+    } else if (maxA) {
+      return `≤ ${maxA} m²`;
+    } else if (minA) {
+      return `≥ ${minA} m²`;
+    }
+
     if (!filters.areaRange || filters.areaRange === 'all') return 'Diện tích';
     const found = AREA_PRESETS.find(a => a.value === filters.areaRange);
-    return found ? found.label : formatAreaRangeText(filters.areaRange);
+    return found ? found.label.replace('Dưới ', '≤ ').replace('Trên ', '≥ ') : formatAreaRangeText(filters.areaRange);
   };
 
   // Active City's districts
@@ -687,13 +714,13 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                 )}
               </div>
 
-              {/* Dropdown 3: Mức giá (Tự đổi Sale vs Rent) */}
+              {/* Dropdown 3: Mức giá có Thanh Range Slider */}
               <div className="relative">
                 <button
                   type="button"
                   onClick={() => setOpenFilterMenu(prev => prev === 'price' ? null : 'price')}
                   className={`px-3 py-1.5 rounded-lg border font-semibold flex items-center gap-1.5 transition cursor-pointer ${
-                    filters.priceRange && filters.priceRange !== 'all'
+                    (filters.priceRange && filters.priceRange !== 'all') || filters.minPrice || filters.maxPrice
                       ? 'border-red-500 bg-red-50/50 text-red-700 font-bold'
                       : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white hover:bg-slate-50'
                   }`}
@@ -704,34 +731,34 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                 </button>
 
                 {openFilterMenu === 'price' && (
-                  <div className="absolute top-full left-0 mt-1.5 w-56 bg-white rounded-xl shadow-xl border border-slate-200 z-50 p-2 animate-fadeIn max-h-72 overflow-y-auto">
-                    {(filters.demand === 'rent' ? RENT_PRICE_PRESETS : SALE_PRICE_PRESETS).map(item => (
-                      <button
-                        key={item.value}
-                        type="button"
-                        onClick={() => {
-                          setFilters(prev => ({ ...prev, priceRange: item.value, minPrice: item.min, maxPrice: item.max }));
-                          setOpenFilterMenu(null);
-                        }}
-                        className={`w-full text-left px-3 py-1.5 rounded-lg text-xs flex items-center justify-between ${
-                          (filters.priceRange || 'all') === item.value ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-700 hover:bg-slate-50'
-                        }`}
-                      >
-                        <span>{item.label}</span>
-                        {(filters.priceRange || 'all') === item.value && <i className="fa-solid fa-check text-xs text-red-600"></i>}
-                      </button>
-                    ))}
+                  <div className="absolute top-full left-0 mt-1.5 z-50 animate-fadeIn">
+                    <PriceRangeSelector
+                      demand={currentDemand}
+                      minPrice={filters.minPrice}
+                      maxPrice={filters.maxPrice}
+                      priceRange={filters.priceRange}
+                      onApply={({ minPrice, maxPrice, priceRange }) => {
+                        setFilters(prev => ({
+                          ...prev,
+                          minPrice,
+                          maxPrice,
+                          priceRange
+                        }));
+                        setOpenFilterMenu(null);
+                      }}
+                      onClose={() => setOpenFilterMenu(null)}
+                    />
                   </div>
                 )}
               </div>
 
-              {/* Dropdown 4: Diện tích */}
+              {/* Dropdown 4: Diện tích có Thanh Range Slider */}
               <div className="relative">
                 <button
                   type="button"
                   onClick={() => setOpenFilterMenu(prev => prev === 'area' ? null : 'area')}
                   className={`px-3 py-1.5 rounded-lg border font-semibold flex items-center gap-1.5 transition cursor-pointer ${
-                    filters.areaRange && filters.areaRange !== 'all'
+                    (filters.areaRange && filters.areaRange !== 'all') || filters.minArea || filters.maxArea
                       ? 'border-red-500 bg-red-50/50 text-red-700 font-bold'
                       : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white hover:bg-slate-50'
                   }`}
@@ -742,23 +769,22 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                 </button>
 
                 {openFilterMenu === 'area' && (
-                  <div className="absolute top-full left-0 mt-1.5 w-56 bg-white rounded-xl shadow-xl border border-slate-200 z-50 p-2 animate-fadeIn max-h-72 overflow-y-auto">
-                    {AREA_PRESETS.map(item => (
-                      <button
-                        key={item.value}
-                        type="button"
-                        onClick={() => {
-                          setFilters(prev => ({ ...prev, areaRange: item.value, minArea: item.min, maxArea: item.max }));
-                          setOpenFilterMenu(null);
-                        }}
-                        className={`w-full text-left px-3 py-1.5 rounded-lg text-xs flex items-center justify-between ${
-                          (filters.areaRange || 'all') === item.value ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-700 hover:bg-slate-50'
-                        }`}
-                      >
-                        <span>{item.label}</span>
-                        {(filters.areaRange || 'all') === item.value && <i className="fa-solid fa-check text-xs text-red-600"></i>}
-                      </button>
-                    ))}
+                  <div className="absolute top-full left-0 mt-1.5 z-50 animate-fadeIn">
+                    <AreaRangeSelector
+                      minArea={filters.minArea}
+                      maxArea={filters.maxArea}
+                      areaRange={filters.areaRange}
+                      onApply={({ minArea, maxArea, areaRange }) => {
+                        setFilters(prev => ({
+                          ...prev,
+                          minArea,
+                          maxArea,
+                          areaRange
+                        }));
+                        setOpenFilterMenu(null);
+                      }}
+                      onClose={() => setOpenFilterMenu(null)}
+                    />
                   </div>
                 )}
               </div>
