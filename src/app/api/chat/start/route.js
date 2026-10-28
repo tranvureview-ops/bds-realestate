@@ -9,7 +9,7 @@ import { formatPhoneNumber } from '../../../../utils/authValidation';
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { sessionId, customer, propertyContext } = body || {};
+    const { sessionId, customer, propertyContext, agentName } = body || {};
 
     if (!sessionId) {
       return NextResponse.json({ success: false, error: 'Thiếu mã định danh phiên (sessionId)' }, { status: 400 });
@@ -28,7 +28,8 @@ export async function POST(req) {
     const result = await registerNewLeadChat({
       sessionId,
       customer: formattedCustomer,
-      propertyContext: propertyContext || null
+      propertyContext: propertyContext || null,
+      agentName: agentName || null
     });
 
     return NextResponse.json({

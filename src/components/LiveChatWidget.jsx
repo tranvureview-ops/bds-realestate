@@ -78,9 +78,9 @@ export default function LiveChatWidget() {
 
   // Thông tin nhân viên tư vấn
   const [agentInfo, setAgentInfo] = useState({
-    name: 'Nguyễn Văn Tuấn',
+    name: 'Nguyễn Huyền',
     avatar: '/avatars/ai-preset-1.jpg',
-    title: 'Chuyên Viên Tư Vấn Đất Biển Đà Nẵng'
+    title: 'Tư Vấn Viên'
   });
 
   const messagesEndRef = useRef(null);
@@ -305,6 +305,7 @@ export default function LiveChatWidget() {
         body: JSON.stringify({
           sessionId: freshSessionId,
           customer: newCustomer,
+          agentName: agentInfo.name,
           propertyContext: propContext
         })
       });

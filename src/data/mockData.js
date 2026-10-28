@@ -3439,16 +3439,30 @@ export const DEFAULT_EMAIL_CONFIG = {
   templates: DEFAULT_EMAIL_TEMPLATES
 };
 
+// Danh sách tên chuyên viên tư vấn mặc định hỗ trợ Random liên tục
+export const DEFAULT_AGENT_NAMES_LIST = [
+  'Nguyễn Huyền',
+  'Trần Bảo Ngọc',
+  'Lê Hoàng Nam',
+  'Phạm Quỳnh Anh',
+  'Vũ Minh Tuấn',
+  'Đặng Thu Thảo',
+  'Hoàng Gia Bảo',
+  'Mai Phương Thúy'
+];
+
 // Cấu hình Hệ Thống Live Chat Telegram 2 Chiều (Two-Way Telegram Live Chat)
 export const DEFAULT_TELEGRAM_CONFIG = {
   enabled: true,
   botToken: '', // Token bot từ @BotFather (lưu trữ mã hóa AES-256)
   chatId: '', // ID nhóm / kênh Telegram nhận tin nhắn tư vấn
   botUsername: 'DatBienDaNangBot',
-  welcomeMessage: 'Xin chào quý khách! Tôi là trợ lý tư vấn Đất Biển Đà Nẵng. Quý khách đang quan tâm đến dự án nào cần hỗ trợ thông tin nhanh?',
-  agentName: 'Nguyễn Văn Tuấn',
+  welcomeMessage: 'Xin chào quý khách! Tôi là trợ lý tư vấn Kênh Nhà Đất 24H. Quý khách đang quan tâm đến bất động sản nào cần hỗ trợ thông tin?',
+  agentName: 'Nguyễn Huyền',
+  enableRandomAgentName: true,
+  agentNamesList: DEFAULT_AGENT_NAMES_LIST,
   agentAvatar: '/avatars/ai-preset-1.jpg',
-  agentTitle: 'Chuyên Viên Tư Vấn Đất Biển Đà Nẵng',
+  agentTitle: 'Tư Vấn Viên',
   notifyNewLead: true, // Tự động thông báo Lead mới khi khách điền Form
   quickQuestions: [
     'Bất động sản này còn không?',

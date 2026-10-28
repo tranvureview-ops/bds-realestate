@@ -80,6 +80,22 @@ export async function getTelegramConfig(maskForAdmin = false) {
 
   const merged = { ...DEFAULT_TELEGRAM_CONFIG, ...rawConfig };
 
+  if (!Array.isArray(merged.agentNamesList) || merged.agentNamesList.length === 0) {
+    merged.agentNamesList = [
+      'Nguyễn Huyền',
+      'Trần Bảo Ngọc',
+      'Lê Hoàng Nam',
+      'Phạm Quỳnh Anh',
+      'Vũ Minh Tuấn',
+      'Đặng Thu Thảo',
+      'Hoàng Gia Bảo',
+      'Mai Phương Thúy'
+    ];
+  }
+  if (merged.enableRandomAgentName === undefined) {
+    merged.enableRandomAgentName = true;
+  }
+
   // Giải mã botToken & pusherSecret
   const decryptedToken = decryptAES256(merged.botToken);
   const decryptedPusherSecret = decryptAES256(merged.pusherSecret);
@@ -467,7 +483,7 @@ export async function setTelegramWebhook(webhookUrl, secretToken = null, botToke
 /**
  * Xử lý Khách Hàng mới bắt đầu phiên chat (Bắn Lead thông báo lên Telegram)
  */
-export async function registerNewLeadChat({ sessionId, customer, propertyContext }) {
+export async function registerNewLeadChat({ sessionId, customer, propertyContext, agentName }) {
   const config = await getTelegramConfig(false);
   if (!config.enabled || !config.botToken || !config.chatId) {
     return { success: false, message: 'Telegram bot chưa kích hoạt' };
@@ -476,9 +492,21 @@ export async function registerNewLeadChat({ sessionId, customer, propertyContext
   // Khởi tạo hoặc cập nhật session trong DB
   const sessions = await getChatSessions();
   const existing = sessions[sessionId] || {};
+
+  // Xác định chuyên viên tư vấn tiếp nhận (ưu tiên tên đã gán, tên truyền từ client, hoặc random từ danh sách)
+  let assignedAgent = existing.agentName || agentName;
+  if (!assignedAgent) {
+    if (config.enableRandomAgentName && Array.isArray(config.agentNamesList) && config.agentNamesList.length > 0) {
+      assignedAgent = config.agentNamesList[Math.floor(Math.random() * config.agentNamesList.length)];
+    } else {
+      assignedAgent = config.agentName || 'Nguyễn Huyền';
+    }
+  }
+
   const sessionData = {
     ...existing,
     sessionId,
+    agentName: assignedAgent,
     customer: {
       name: customer?.name || 'Khách vãng lai',
       phone: customer?.phone || 'Chưa cung cấp',
@@ -509,6 +537,7 @@ export async function registerNewLeadChat({ sessionId, customer, propertyContext
 ────────────────────────
 👤 <b>Họ tên:</b> ${customer?.name || 'Khách vãng lai'}
 📞 <b>Số điện thoại:</b> <a href="tel:${cleanPhone}">${customer?.phone || 'Chưa có'}</a>
+👩‍💼 <b>Chuyên viên tiếp nhận:</b> ${assignedAgent}
 💬 <b>Zalo:</b> <a href="https://zalo.me/${cleanPhone}">Chat Zalo ngay</a>${customer?.email ? `\n✉️ <b>Email:</b> ${customer.email}` : ''}<a href="https://chat.bds/#chat_${sessionId}">&#8203;</a>
 `.trim();
 

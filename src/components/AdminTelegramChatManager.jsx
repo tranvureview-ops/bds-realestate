@@ -29,6 +29,131 @@ export default function AdminTelegramChatManager() {
   const [sessions, setSessions] = useState([]);
   const [selectedSession, setSelectedSession] = useState(null);
 
+  // Quản lý danh sách tên chuyên viên tư vấn (Random liên tục)
+  const [newAgentNameInput, setNewAgentNameInput] = useState('');
+  const [isBulkEditMode, setIsBulkEditMode] = useState(false);
+  const [bulkNamesText, setBulkNamesText] = useState('');
+  const [previewRandomHighlight, setPreviewRandomHighlight] = useState(false);
+
+  // Danh sách mẫu 10 chuyên viên tư vấn chuẩn
+  const SAMPLE_AGENT_NAMES = [
+    'Nguyễn Huyền',
+    'Trần Bảo Ngọc',
+    'Lê Hoàng Nam',
+    'Phạm Quỳnh Anh',
+    'Vũ Minh Tuấn',
+    'Đặng Thu Thảo',
+    'Hoàng Gia Bảo',
+    'Mai Phương Thúy',
+    'Bùi Thanh Tùng',
+    'Đỗ Hải Yến'
+  ];
+
+  // Thêm 1 tên mới vào danh sách
+  const handleAddAgentName = () => {
+    const trimmed = newAgentNameInput.trim();
+    if (!trimmed) return;
+    const currentList = Array.isArray(config.agentNamesList) ? config.agentNamesList : [];
+    if (currentList.some(n => n.toLowerCase() === trimmed.toLowerCase())) {
+      showToast(`Tên "${trimmed}" đã có trong danh sách!`, 'warning');
+      return;
+    }
+    const updated = [...currentList, trimmed];
+    setConfig(prev => ({
+      ...prev,
+      agentNamesList: updated,
+      agentName: prev.agentName || trimmed
+    }));
+    setNewAgentNameInput('');
+    showToast(`Đã thêm chuyên viên: ${trimmed}`, 'success');
+  };
+
+  // Xóa 1 tên khỏi danh sách
+  const handleRemoveAgentName = (nameToRemove) => {
+    const currentList = Array.isArray(config.agentNamesList) ? config.agentNamesList : [];
+    const updated = currentList.filter(n => n !== nameToRemove);
+    setConfig(prev => ({
+      ...prev,
+      agentNamesList: updated,
+      agentName: prev.agentName === nameToRemove ? (updated[0] || 'Chuyên Viên Tư Vấn') : prev.agentName
+    }));
+  };
+
+  // Nạp lại danh sách 10 tên mẫu
+  const handleLoadSampleNames = () => {
+    setConfig(prev => ({
+      ...prev,
+      agentNamesList: [...SAMPLE_AGENT_NAMES],
+      agentName: SAMPLE_AGENT_NAMES[0],
+      enableRandomAgentName: true
+    }));
+    showToast('Đã nạp 10 tên chuyên viên mẫu thành công!', 'success');
+  };
+
+  // Xóa toàn bộ danh sách
+  const handleClearAllNames = () => {
+    if (typeof window !== 'undefined' && window.confirm('Bạn có chắc chắn muốn xóa toàn bộ danh sách tên chuyên viên?')) {
+      setConfig(prev => ({
+        ...prev,
+        agentNamesList: []
+      }));
+      showToast('Đã xóa danh sách tên.', 'info');
+    }
+  };
+
+  // Chuyển đổi chế độ nhập hàng loạt
+  const handleToggleBulkEdit = () => {
+    if (!isBulkEditMode) {
+      const currentList = Array.isArray(config.agentNamesList) ? config.agentNamesList : [];
+      setBulkNamesText(currentList.join('\n'));
+      setIsBulkEditMode(true);
+    } else {
+      setIsBulkEditMode(false);
+    }
+  };
+
+  // Áp dụng nhập văn bản hàng loạt
+  const handleApplyBulkNames = () => {
+    const rawLines = bulkNamesText
+      .split(/[\n,;]+/)
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const unique = Array.from(new Set(rawLines));
+    if (unique.length === 0) {
+      showToast('Vui lòng nhập ít nhất 1 tên!', 'warning');
+      return;
+    }
+
+    setConfig(prev => ({
+      ...prev,
+      agentNamesList: unique,
+      agentName: unique[0] || prev.agentName
+    }));
+    setIsBulkEditMode(false);
+    showToast(`Đã cập nhật danh sách ${unique.length} tên chuyên viên!`, 'success');
+  };
+
+  // Random thử 1 tên từ danh sách để xem trước
+  const handleRandomizeTest = () => {
+    const list = Array.isArray(config.agentNamesList) && config.agentNamesList.length > 0
+      ? config.agentNamesList
+      : SAMPLE_AGENT_NAMES;
+
+    const candidates = list.filter(n => n !== config.agentName);
+    const pool = candidates.length > 0 ? candidates : list;
+    const randomPicked = pool[Math.floor(Math.random() * pool.length)];
+
+    setConfig(prev => ({
+      ...prev,
+      agentName: randomPicked
+    }));
+
+    setPreviewRandomHighlight(true);
+    setTimeout(() => setPreviewRandomHighlight(false), 900);
+    showToast(`🎲 Đã random thử: ${randomPicked}`, 'info');
+  };
+
   const avatarFileInputRef = useRef(null);
 
   // Xử lý tải ảnh đại diện từ máy tính (nén Canvas HTML5 chuẩn 400x400 nhẹ ~30KB)
@@ -89,7 +214,14 @@ export default function AdminTelegramChatManager() {
       const res = await fetch('/api/admin/telegram-config');
       const data = await res.json();
       if (data.success) {
-        setConfig(data.config || DEFAULT_TELEGRAM_CONFIG);
+        const loadedConfig = data.config || DEFAULT_TELEGRAM_CONFIG;
+        if (!Array.isArray(loadedConfig.agentNamesList) || loadedConfig.agentNamesList.length === 0) {
+          loadedConfig.agentNamesList = [...SAMPLE_AGENT_NAMES];
+        }
+        if (loadedConfig.enableRandomAgentName === undefined) {
+          loadedConfig.enableRandomAgentName = true;
+        }
+        setConfig(loadedConfig);
         if (data.suggestedWebhookUrl) setSuggestedWebhookUrl(data.suggestedWebhookUrl);
         if (data.webhookInfo) setWebhookInfo(data.webhookInfo);
         if (Array.isArray(data.sessions)) setSessions(data.sessions);
@@ -555,53 +687,310 @@ export default function AdminTelegramChatManager() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              <div>
-                <label className="block text-slate-300 font-bold mb-1">
-                  Tên chuyên viên tư vấn:
-                </label>
-                <input
-                  type="text"
-                  value={config.agentName || ''}
-                  onChange={(e) => setConfig(prev => ({ ...prev, agentName: e.target.value }))}
-                  placeholder="Ví dụ: Nguyễn Huyền"
-                  className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-emerald-500"
-                />
+            {/* CẤU HÌNH TÊN CHUYÊN VIÊN & DANH SÁCH RANDOM LIÊN TỤC */}
+            <div className="space-y-4 pt-1">
+              {/* Box Bật / Tắt Chế độ Random liên tục */}
+              <div className="p-3.5 bg-slate-900 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <i className="fa-solid fa-shuffle text-emerald-400"></i>
+                      <span>Chế độ Random tên chuyên viên liên tục:</span>
+                    </span>
+                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                      config.enableRandomAgentName !== false
+                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                        : 'bg-slate-800 text-slate-400 border border-slate-700'
+                    }`}>
+                      {config.enableRandomAgentName !== false ? '● ĐANG BẬT' : '○ ĐANG TẮT'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-1">
+                    Tự động chọn ngẫu nhiên một chuyên viên từ danh sách dưới đây cho mỗi khách hàng / phiên chat mới trên website.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setConfig(prev => ({ ...prev, enableRandomAgentName: !(prev.enableRandomAgentName !== false) }))}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
+                      config.enableRandomAgentName !== false ? 'bg-emerald-500' : 'bg-slate-700'
+                    }`}
+                    title="Bật/Tắt chế độ chọn ngẫu nhiên tên chuyên viên"
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        config.enableRandomAgentName !== false ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
               </div>
 
-              <div>
-                <label className="block text-slate-300 font-bold mb-1">
-                  Chức danh / Tiêu đề phụ:
-                </label>
-                <input
-                  type="text"
-                  value={config.agentTitle || ''}
-                  onChange={(e) => setConfig(prev => ({ ...prev, agentTitle: e.target.value }))}
-                  placeholder="Ví dụ: Chuyên Viên Tư Vấn Đất Biển Đà Nẵng"
-                  className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-emerald-500"
-                />
+              {/* Danh sách nhiều tên chuyên viên (Random Pool) */}
+              <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <label className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <i className="fa-solid fa-users text-blue-400"></i>
+                      <span>Danh sách nhiều tên chuyên viên tư vấn:</span>
+                    </label>
+                    <span className="px-2 py-0.5 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded-full text-[10px] font-bold">
+                      {(config.agentNamesList || []).length} tên
+                    </span>
+                  </div>
+
+                  {/* Thanh công cụ thao tác */}
+                  <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                    <button
+                      type="button"
+                      onClick={handleRandomizeTest}
+                      className="px-2.5 py-1 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 rounded-lg font-bold transition flex items-center gap-1 cursor-pointer"
+                      title="Chọn ngẫu nhiên 1 tên để xem trước giao diện"
+                    >
+                      <i className="fa-solid fa-dice text-xs"></i>
+                      <span>🎲 Random thử</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleToggleBulkEdit}
+                      className={`px-2.5 py-1 rounded-lg font-medium transition flex items-center gap-1 cursor-pointer border ${
+                        isBulkEditMode
+                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                          : 'bg-slate-800 text-slate-300 border-slate-700 hover:text-white'
+                      }`}
+                    >
+                      <i className="fa-solid fa-file-pen text-xs"></i>
+                      <span>{isBulkEditMode ? 'Quay lại thẻ' : 'Nhập hàng loạt'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={handleLoadSampleNames}
+                      className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 rounded-lg font-medium transition flex items-center gap-1 cursor-pointer"
+                      title="Nạp sẵn 10 tên chuyên viên BĐS chuẩn"
+                    >
+                      <i className="fa-solid fa-rotate-right text-xs"></i>
+                      <span>Mẫu chuẩn</span>
+                    </button>
+
+                    {(config.agentNamesList || []).length > 0 && (
+                      <button
+                        type="button"
+                        onClick={handleClearAllNames}
+                        className="px-2 py-1 bg-rose-950/40 hover:bg-rose-900/60 text-rose-400 border border-rose-800/40 rounded-lg transition cursor-pointer"
+                        title="Xóa toàn bộ danh sách"
+                      >
+                        <i className="fa-regular fa-trash-can"></i>
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Giao diện nhập hàng loạt (Bulk edit mode) */}
+                {isBulkEditMode ? (
+                  <div className="space-y-2">
+                    <p className="text-[11px] text-slate-400">
+                      Dán hoặc nhập danh sách nhiều tên, mỗi tên một dòng (hoặc cách nhau bằng dấu phẩy):
+                    </p>
+                    <textarea
+                      rows={5}
+                      value={bulkNamesText}
+                      onChange={(e) => setBulkNamesText(e.target.value)}
+                      placeholder="Nguyễn Huyền&#10;Trần Bảo Ngọc&#10;Lê Hoàng Nam&#10;Phạm Quỳnh Anh&#10;Vũ Minh Tuấn"
+                      className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-mono outline-none focus:border-emerald-500"
+                    />
+                    <div className="flex justify-end gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setIsBulkEditMode(false)}
+                        className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs rounded-lg cursor-pointer"
+                      >
+                        Hủy
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleApplyBulkNames}
+                        className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-lg shadow-xs cursor-pointer flex items-center gap-1"
+                      >
+                        <i className="fa-solid fa-check"></i>
+                        <span>Lưu danh sách tên</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* Giao diện thẻ Tags trực quan + Input thêm tên */
+                  <div className="space-y-3">
+                    {/* Thêm tên mới */}
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <i className="fa-solid fa-user-plus absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                        <input
+                          type="text"
+                          value={newAgentNameInput}
+                          onChange={(e) => setNewAgentNameInput(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              handleAddAgentName();
+                            }
+                          }}
+                          placeholder="Nhập họ tên chuyên viên (VD: Nguyễn Huyền, Trần Bảo Ngọc...)"
+                          className="w-full pl-8 pr-3 py-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs outline-none focus:border-emerald-500"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleAddAgentName}
+                        className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1 cursor-pointer shrink-0"
+                      >
+                        <i className="fa-solid fa-plus text-xs"></i>
+                        <span>Thêm tên</span>
+                      </button>
+                    </div>
+
+                    {/* Danh sách Tags tên chuyên viên */}
+                    <div className="flex flex-wrap gap-2 pt-1 max-h-48 overflow-y-auto pr-1">
+                      {(config.agentNamesList || []).length === 0 ? (
+                        <div className="text-[11px] text-amber-400/90 italic bg-amber-950/20 border border-amber-900/30 p-2.5 rounded-xl w-full flex items-center justify-between">
+                          <span>Chưa có tên nào trong danh sách. Hãy bấm nút "Mẫu chuẩn" để nạp nhanh 10 tên chuyên viên!</span>
+                          <button
+                            type="button"
+                            onClick={handleLoadSampleNames}
+                            className="px-2 py-1 bg-amber-600 hover:bg-amber-500 text-white font-bold rounded-lg text-[10px] ml-2 shrink-0 cursor-pointer"
+                          >
+                            + Nạp mẫu ngay
+                          </button>
+                        </div>
+                      ) : (
+                        (config.agentNamesList || []).map((name, idx) => {
+                          const isCurrentActive = config.agentName === name;
+                          return (
+                            <span
+                              key={`${name}_${idx}`}
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-semibold border transition ${
+                                isCurrentActive
+                                  ? 'bg-emerald-950/80 border-emerald-500 text-emerald-300 ring-1 ring-emerald-500/50'
+                                  : 'bg-slate-950/90 border-slate-800 text-slate-200 hover:border-slate-700'
+                              }`}
+                            >
+                              <i className="fa-solid fa-user-tie text-[10px] text-slate-400"></i>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setConfig(prev => ({ ...prev, agentName: name }));
+                                  showToast(`Đã chọn xem trước: ${name}`, 'info');
+                                }}
+                                className="cursor-pointer hover:underline text-left"
+                                title="Bấm để xem trước tên này trên khung chat"
+                              >
+                                {name}
+                              </button>
+                              {isCurrentActive && (
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" title="Đang xem trước"></span>
+                              )}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRemoveAgentName(name);
+                                }}
+                                className="text-slate-500 hover:text-rose-400 ml-1 transition cursor-pointer p-0.5"
+                                title="Xóa tên này khỏi danh sách random"
+                              >
+                                <i className="fa-solid fa-xmark text-[11px]"></i>
+                              </button>
+                            </span>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="sm:col-span-2">
-                <label className="block text-slate-300 font-bold mb-1">
-                  Lời chào mừng mở đầu phiên chat:
-                </label>
-                <textarea
-                  rows={2}
-                  value={config.welcomeMessage || ''}
-                  onChange={(e) => setConfig(prev => ({ ...prev, welcomeMessage: e.target.value }))}
-                  placeholder="Ví dụ: Xin chào quý khách! Tôi có thể hỗ trợ gì cho quý khách?"
-                  className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-emerald-500 text-xs"
-                />
+              {/* Tên hiển thị xem trước / mặc định & Chức danh phụ */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-slate-300 font-bold">
+                      Tên chuyên viên xem trước / mặc định:
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleRandomizeTest}
+                      className="text-emerald-400 hover:text-emerald-300 text-[11px] font-bold flex items-center gap-1 cursor-pointer"
+                      title="Chọn ngẫu nhiên tên khác từ danh sách"
+                    >
+                      <i className="fa-solid fa-shuffle"></i>
+                      <span>🎲 Đổi ngẫu nhiên</span>
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    value={config.agentName || ''}
+                    onChange={(e) => setConfig(prev => ({ ...prev, agentName: e.target.value }))}
+                    placeholder="Ví dụ: Nguyễn Huyền"
+                    className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-emerald-500"
+                  />
+                  <p className="text-[10.5px] text-slate-500 mt-1">
+                    {config.enableRandomAgentName !== false
+                      ? 'Tên này đang được dùng để hiển thị mẫu trong bảng xem trước bên dưới.'
+                      : 'Đang dùng tên cố định này cho toàn bộ khung chat (do đã tắt chế độ random).'}
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 font-bold mb-1">
+                    Chức danh / Tiêu đề phụ:
+                  </label>
+                  <input
+                    type="text"
+                    value={config.agentTitle || ''}
+                    onChange={(e) => setConfig(prev => ({ ...prev, agentTitle: e.target.value }))}
+                    placeholder="Ví dụ: Chuyên Viên Tư Vấn Đất Biển Đà Nẵng"
+                    className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-emerald-500"
+                  />
+                  <p className="text-[10.5px] text-slate-500 mt-1">
+                    Hiển thị ngay dưới tên chuyên viên trên thanh tiêu đề khung chat.
+                  </p>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label className="block text-slate-300 font-bold mb-1">
+                    Lời chào mừng mở đầu phiên chat:
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={config.welcomeMessage || ''}
+                    onChange={(e) => setConfig(prev => ({ ...prev, welcomeMessage: e.target.value }))}
+                    placeholder="Ví dụ: Xin chào quý khách! Tôi có thể hỗ trợ gì cho quý khách?"
+                    className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-emerald-500 text-xs"
+                  />
+                </div>
               </div>
             </div>
 
             {/* LIVE PREVIEW BOX TRỰC QUAN */}
             <div className="p-3.5 bg-slate-900 rounded-2xl border border-slate-800 space-y-2">
-              <div className="text-[11px] font-bold text-slate-400 flex items-center gap-1.5 uppercase tracking-wider">
-                <i className="fa-regular fa-eye text-emerald-400"></i>
-                <span>Xem trước giao diện trên khung chat website:</span>
+              <div className="flex items-center justify-between">
+                <div className="text-[11px] font-bold text-slate-400 flex items-center gap-1.5 uppercase tracking-wider">
+                  <i className="fa-regular fa-eye text-emerald-400"></i>
+                  <span>Xem trước giao diện trên khung chat website:</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRandomizeTest}
+                  className="px-2.5 py-1 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
+                  title="Random thử sang tên khác trong danh sách"
+                >
+                  <i className="fa-solid fa-dice text-xs"></i>
+                  <span>🎲 Random thử tên khác</span>
+                </button>
               </div>
+
               <div className="w-full max-w-sm mx-auto bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-lg">
                 <div className="p-3 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 border-b border-slate-800 flex items-center gap-2.5">
                   <div className="relative shrink-0">
@@ -614,7 +1003,9 @@ export default function AdminTelegramChatManager() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="text-xs font-bold text-white flex items-center gap-1">
-                      <span>{config.agentName || 'Chuyên Viên Tư Vấn'}</span>
+                      <span className={`transition-all duration-300 ${previewRandomHighlight ? 'text-emerald-300 scale-105 font-black' : ''}`}>
+                        {config.agentName || 'Chuyên Viên Tư Vấn'}
+                      </span>
                       <i className="fa-solid fa-circle-check text-blue-400 text-[9px]"></i>
                     </div>
                     {config.agentTitle && (

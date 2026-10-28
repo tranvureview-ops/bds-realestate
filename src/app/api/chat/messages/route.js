@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import {
   getSessionMessages,
   getTelegramConfig,
-  checkAndProcessSessionTimeout
+  checkAndProcessSessionTimeout,
+  getChatSessions
 } from '../../../../lib/telegramService';
 
 /**
@@ -20,10 +21,23 @@ export async function GET(req) {
       return NextResponse.json({ success: false, error: 'Thiếu mã định danh phiên (sessionId)' }, { status: 400 });
     }
 
+    const config = await getTelegramConfig(true);
+    const sessions = await getChatSessions();
+    const currentSession = sessions[sessionId];
+
+    // Xác định tên chuyên viên phụ trách cho phiên này
+    let effectiveAgentName = currentSession?.agentName;
+    if (!effectiveAgentName) {
+      if (config.enableRandomAgentName && Array.isArray(config.agentNamesList) && config.agentNamesList.length > 0) {
+        effectiveAgentName = config.agentNamesList[Math.floor(Math.random() * config.agentNamesList.length)];
+      } else {
+        effectiveAgentName = config.agentName || 'Nguyễn Huyền';
+      }
+    }
+
     // 1. Kiểm tra phiên chat có bị timeout 10 phút sau phản hồi của tư vấn viên không
     const timeoutCheck = await checkAndProcessSessionTimeout(sessionId);
     if (timeoutCheck.isEnded) {
-      const config = await getTelegramConfig(true);
       return NextResponse.json({
         success: true,
         sessionEnded: true,
@@ -32,17 +46,18 @@ export async function GET(req) {
         sessionId,
         messages: [],
         agentInfo: {
-          name: config.agentName,
+          name: effectiveAgentName,
           avatar: config.agentAvatar,
           title: config.agentTitle
         },
+        enableRandomAgentName: config.enableRandomAgentName ?? true,
+        agentNamesList: config.agentNamesList || [],
         welcomeMessage: config.welcomeMessage,
         quickQuestions: config.quickQuestions
       });
     }
 
     const messages = await getSessionMessages(sessionId, Number(since));
-    const config = await getTelegramConfig(true);
 
     return NextResponse.json({
       success: true,
@@ -50,10 +65,12 @@ export async function GET(req) {
       sessionId,
       messages,
       agentInfo: {
-        name: config.agentName,
+        name: effectiveAgentName,
         avatar: config.agentAvatar,
         title: config.agentTitle
       },
+      enableRandomAgentName: config.enableRandomAgentName ?? true,
+      agentNamesList: config.agentNamesList || [],
       welcomeMessage: config.welcomeMessage,
       quickQuestions: config.quickQuestions
     });
