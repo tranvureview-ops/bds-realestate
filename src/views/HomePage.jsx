@@ -98,7 +98,7 @@ export default function HomePage() {
       </section>
 
       {/* Core Listings Grid & Interactive Map */}
-      <div className="!mt-2 sm:!mt-3">
+      <div id="home-listings-section" className="!mt-2 sm:!mt-3 scroll-mt-20">
         <ListingGrid 
           properties={properties} 
           filters={filters} 
