@@ -915,18 +915,25 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
             <i className="fa-solid fa-fire text-amber-400 text-[10px]"></i>
             Xu hướng tìm kiếm:
           </span>
-          {[
+          {(currentDemand === 'rent' ? [
+            { label: 'Căn hộ Sơn Trà', path: '/cho-thue-can-ho-chung-cu-quan-son-tra' },
+            { label: 'Căn hộ Hải Châu', path: '/cho-thue-can-ho-chung-cu-quan-hai-chau' },
+            { label: 'Nhà mặt phố Hải Châu', path: '/cho-thue-nha-mat-pho-quan-hai-chau' },
+            { label: 'Biệt thự biển Đà Nẵng', path: '/cho-thue-nha-biet-thu-lien-ke-da-nang' },
+            { label: 'Văn phòng Hải Châu', path: '/cho-thue-van-phong-quan-hai-chau' },
+            { label: 'Nhà riêng Ngũ Hành Sơn', path: '/cho-thue-nha-rieng-quan-ngu-hanh-son' }
+          ] : [
             { label: 'Căn hộ Hải Châu', path: '/ban-can-ho-chung-cu-quan-hai-chau' },
             { label: 'Căn hộ biển Sơn Trà', path: '/ban-can-ho-chung-cu-quan-son-tra' },
             { label: 'Đất Nam Hòa Xuân', path: '/ban-dat-nen-du-an-quan-ngu-hanh-son' },
             { label: 'Nhà mặt phố Hải Châu', path: '/ban-nha-mat-pho-quan-hai-chau' },
-            { label: 'Biệt thự biển Đà Nẵng', path: '/ban-nha-biethu-lien-ke-da-nang' },
-            { label: 'Cho thuê Căn hộ Sơn Trà', path: '/cho-thue-can-ho-chung-cu-quan-son-tra' }
-          ].map((item, idx) => (
+            { label: 'Biệt thự biển Đà Nẵng', path: '/ban-nha-biet-thu-lien-ke-da-nang' },
+            { label: 'Đất Cẩm Lệ', path: '/ban-dat-quan-cam-le' }
+          ]).map((item, idx) => (
             <Link
               key={idx}
               to={item.path}
-              className="px-2.5 py-1 bg-slate-800/80 hover:bg-red-600/90 text-slate-300 hover:text-white rounded-full border border-slate-700/80 hover:border-red-500 text-[11px] font-medium transition"
+              className="px-2.5 py-1 bg-slate-800/80 hover:bg-red-600/90 text-slate-300 hover:text-white rounded-full border border-slate-700/80 hover:border-red-500 text-[11px] font-medium transition cursor-pointer"
             >
               {item.label}
             </Link>
