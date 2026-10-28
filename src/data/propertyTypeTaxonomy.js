@@ -253,18 +253,24 @@ export function formatPropertyTypeTriggerLabel(rawSelected, demand = 'sale', fal
     if (!typeMap.has(t.id)) typeMap.set(t.id, t.name);
   });
 
-  // Kiểm tra trọn nhóm nhà
+  // Kiểm tra trọn nhóm nhà (Chấp nhận cả id 'house-group' / 'house-rent-group' hoặc đủ 4 mục con)
   const houseChildren = ['house', 'villa', 'street-house', 'shophouse'];
-  const isFullHouseGroup = houseChildren.every(id => selected.includes(id));
-  if (isFullHouseGroup && selected.length === houseChildren.length) {
+  const hasHouseGroupDirect = selected.includes('house-group') || selected.includes('house-rent-group');
+  const hasAllHouseChildren = houseChildren.every(id => selected.includes(id));
+  const hasOnlyHouseItems = selected.every(id => houseChildren.includes(id) || id === 'house-group' || id === 'house-rent-group');
+
+  if ((hasHouseGroupDirect || hasAllHouseChildren) && hasOnlyHouseItems) {
     return demand === 'rent' ? 'Các loại nhà cho thuê' : 'Các loại nhà bán';
   }
 
-  // Kiểm tra trọn nhóm đất
+  // Kiểm tra trọn nhóm đất (Chấp nhận id 'land-group' hoặc đủ mục con)
   const landChildren = ['project-land', 'land'];
-  const isFullLandGroup = landChildren.every(id => selected.includes(id));
-  if (isFullLandGroup && selected.length === landChildren.length) {
-    return 'Các loại đất bán';
+  const hasLandGroupDirect = selected.includes('land-group');
+  const hasAllLandChildren = landChildren.every(id => selected.includes(id));
+  const hasOnlyLandItems = selected.every(id => landChildren.includes(id) || id === 'land-group');
+
+  if ((hasLandGroupDirect || hasAllLandChildren) && hasOnlyLandItems) {
+    return demand === 'rent' ? 'Các loại đất cho thuê' : 'Các loại đất bán';
   }
 
   // 1 lựa chọn

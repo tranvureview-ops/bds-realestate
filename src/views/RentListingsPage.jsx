@@ -164,13 +164,13 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
           <div className="flex items-center gap-2 text-xs text-slate-400">
             <Link to="/" className="hover:text-blue-400 font-medium">Trang chủ</Link>
             <i className="fa-solid fa-chevron-right text-[10px]"></i>
-            <Link to="/nha-dat-cho-thue" className="hover:text-blue-400 font-medium">Cho Thuê Nhà Đất</Link>
-            {dynamicTaxonomy?.title && dynamicTaxonomy.title !== 'Cho Thuê Nhà Đất Toàn Quốc' && (
-              <>
-                <i className="fa-solid fa-chevron-right text-[10px]"></i>
-                <span className="text-white font-bold">{dynamicTaxonomy.title}</span>
-              </>
-            )}
+            <Link to="/nha-dat-cho-thue" className="hover:text-blue-400 font-medium">Cho thuê</Link>
+            <i className="fa-solid fa-chevron-right text-[10px]"></i>
+            <span className="text-white font-bold">
+              {dynamicTaxonomy?.title?.toLowerCase().includes('các loại nhà')
+                ? (filters.city ? `Nhà cho thuê tại ${filters.city}` : 'Nhà cho thuê trên toàn quốc')
+                : (dynamicTaxonomy?.title || 'Cho Thuê Nhà Đất')}
+            </span>
           </div>
 
           <div>

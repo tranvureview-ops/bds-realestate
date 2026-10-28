@@ -108,6 +108,8 @@ export const PROPERTY_TAXONOMY = {
     base: '/nha-dat-ban',
     title: 'Nhà Đất Bán Toàn Quốc',
     types: {
+      'house-group': { slug: '/ban-nha', name: 'Mua bán các loại nhà bán' },
+      'land-group': { slug: '/ban-dat', name: 'Mua bán các loại đất bán' },
       apartment: { slug: '/ban-can-ho-chung-cu', name: 'Bán căn hộ chung cư' },
       'mini-apartment': { slug: '/ban-chung-cu-mini', name: 'Bán chung cư mini, căn hộ dịch vụ' },
       house: { slug: '/ban-nha-rieng', name: 'Bán nhà riêng' },
@@ -127,6 +129,9 @@ export const PROPERTY_TAXONOMY = {
     base: '/nha-dat-cho-thue',
     title: 'Cho Thuê Nhà Đất Toàn Quốc',
     types: {
+      'house-rent-group': { slug: '/cho-thue-nha', name: 'Cho thuê các loại nhà' },
+      'house-group': { slug: '/cho-thue-nha', name: 'Cho thuê các loại nhà' },
+      'land-group': { slug: '/cho-thue-dat', name: 'Cho thuê các loại đất' },
       apartment: { slug: '/cho-thue-can-ho-chung-cu', name: 'Cho thuê căn hộ chung cư' },
       'mini-apartment': { slug: '/cho-thue-chung-cu-mini', name: 'Cho thuê chung cư mini, căn hộ dịch vụ' },
       house: { slug: '/cho-thue-nha-rieng', name: 'Cho thuê nhà riêng' },
@@ -1704,11 +1709,30 @@ export const buildDynamicTaxonomyInfo = (filters = {}, baseTaxonomyInfo = null) 
   const areaRange = filters.areaRange || 'all';
   const bedroom = filters.bedroom || 'all';
 
-  // Lấy tên loại hình
+  // Lấy tên loại hình (Xử lý đơn lẻ, nhóm phân cấp chuẩn Batdongsan & danh sách đa lựa chọn)
   let typeName = '';
-  if (propertyType && propertyType !== 'all' && PROPERTY_TAXONOMY[demand]?.types[propertyType]) {
+  const houseChildren = ['house', 'villa', 'street-house', 'shophouse'];
+  const landChildren = ['project-land', 'land'];
+
+  const typeList = Array.isArray(filters.propertyTypes || propertyType)
+    ? (filters.propertyTypes || propertyType).filter(Boolean)
+    : (typeof propertyType === 'string' ? propertyType.split(',').map(s => s.trim()).filter(Boolean) : []);
+
+  const isFullHouse = propertyType === 'house-group' || propertyType === 'house-rent-group' ||
+    (houseChildren.every(id => typeList.includes(id)) && typeList.filter(id => !houseChildren.includes(id) && id !== 'house-group' && id !== 'house-rent-group').length === 0);
+  const isFullLand = propertyType === 'land-group' ||
+    (landChildren.every(id => typeList.includes(id)) && typeList.filter(id => !landChildren.includes(id) && id !== 'land-group').length === 0);
+
+  if (isFullHouse) {
+    typeName = isRent ? 'Cho Thuê Các Loại Nhà' : 'Mua Bán Các Loại Nhà Bán';
+  } else if (isFullLand) {
+    typeName = isRent ? 'Cho Thuê Các Loại Đất' : 'Mua Bán Các Loại Đất Bán';
+  } else if (propertyType && propertyType !== 'all' && PROPERTY_TAXONOMY[demand]?.types[propertyType]) {
     typeName = PROPERTY_TAXONOMY[demand].types[propertyType].name;
     typeName = typeName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  } else if (typeList.length > 0 && !typeList.includes('all')) {
+    const triggerLabel = formatPropertyTypeTriggerLabel(typeList, demand);
+    typeName = isRent ? `Cho Thuê ${triggerLabel}` : `Mua Bán ${triggerLabel}`;
   } else {
     typeName = isRent ? 'Cho Thuê Nhà Đất' : 'Mua Bán Nhà Đất';
   }
@@ -1733,7 +1757,7 @@ export const buildDynamicTaxonomyInfo = (filters = {}, baseTaxonomyInfo = null) 
   } else if (city) {
     title += ` tại ${city}`;
   } else if (!project && !street && !ward && !district) {
-    title += ` Toàn Quốc`;
+    title += ` trên toàn quốc`;
   }
 
   // Nhãn mức giá

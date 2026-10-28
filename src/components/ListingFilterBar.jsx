@@ -367,8 +367,24 @@ export default function ListingFilterBar({
     return currentDistrictObj?.projects || [];
   }, [currentDistrictObj]);
 
-  // Count active advanced criteria
+  const isTypeFilterActive = Boolean(
+    (filters.propertyType && filters.propertyType !== 'all') ||
+    (Array.isArray(filters.propertyTypes) && filters.propertyTypes.length > 0 && !filters.propertyTypes.includes('all'))
+  );
+
+  const isPriceFilterActive = Boolean(
+    (filters.priceRange && filters.priceRange !== 'all') || filters.minPrice || filters.maxPrice
+  );
+
+  const isAreaFilterActive = Boolean(
+    (filters.areaRange && filters.areaRange !== 'all') || filters.minArea || filters.maxArea
+  );
+
+  // Đếm tổng số tiêu chí lọc đang được kích hoạt (chuẩn Batdongsan.com.vn)
   const advancedCount = [
+    isTypeFilterActive,
+    isPriceFilterActive,
+    isAreaFilterActive,
     Boolean(filters.district),
     Boolean(filters.ward),
     Boolean(filters.street),

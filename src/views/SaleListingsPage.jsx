@@ -164,13 +164,15 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 
           <div className="flex items-center gap-2 text-xs text-slate-400">
             <Link to="/" className="hover:text-emerald-400 font-medium">Trang chủ</Link>
             <i className="fa-solid fa-chevron-right text-[10px]"></i>
-            <Link to="/nha-dat-ban" className="hover:text-emerald-400 font-medium">Nhà Đất Cần Bán</Link>
-            {dynamicTaxonomy?.title && dynamicTaxonomy.title !== 'Mua Bán Nhà Đất Toàn Quốc' && (
-              <>
-                <i className="fa-solid fa-chevron-right text-[10px]"></i>
-                <span className="text-white font-bold">{dynamicTaxonomy.title}</span>
-              </>
-            )}
+            <Link to="/nha-dat-ban" className="hover:text-emerald-400 font-medium">Bán</Link>
+            <i className="fa-solid fa-chevron-right text-[10px]"></i>
+            <span className="text-white font-bold">
+              {dynamicTaxonomy?.title?.toLowerCase().includes('các loại nhà bán')
+                ? (filters.city ? `Nhà bán tại ${filters.city}` : 'Nhà bán trên toàn quốc')
+                : dynamicTaxonomy?.title?.toLowerCase().includes('các loại đất bán')
+                ? (filters.city ? `Đất bán tại ${filters.city}` : 'Đất bán trên toàn quốc')
+                : (dynamicTaxonomy?.title || 'Nhà Đất Cần Bán')}
+            </span>
           </div>
 
           <div>
