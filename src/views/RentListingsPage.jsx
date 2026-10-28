@@ -6,7 +6,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { Link, useRouter } from '../router/RouterContext';
 import ListingGrid from '../components/ListingGrid';
 import ListingFilterBar from '../components/ListingFilterBar';
-import { generateCategoryJsonLd, generateCategoryMetadata, parseTaxonomyUrl } from '../utils/permalink';
+import { generateCategoryJsonLd, generateCategoryMetadata, parseTaxonomyUrl, buildDynamicTaxonomyInfo } from '../utils/permalink';
 import { filterProperties } from '../utils/propertyFilter';
 
 export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 }) {
@@ -87,14 +87,14 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
+  const dynamicTaxonomy = useMemo(() => {
+    return buildDynamicTaxonomyInfo(filters, taxonomyInfo);
+  }, [filters, taxonomyInfo]);
+
   // Bơm Schema.org Category/CollectionPage JSON-LD
   useEffect(() => {
     const jsonLdData = generateCategoryJsonLd(
-      taxonomyInfo || { 
-        demand: 'rent', 
-        title: queryDistrict ? `Cho Thuê Nhà Đất tại ${queryDistrict}, ${queryCity || 'Toàn Quốc'}` : 'Cho Thuê Bất Động Sản Toàn Quốc', 
-        canonicalUrl: '/nha-dat-cho-thue' 
-      },
+      dynamicTaxonomy,
       properties.filter(p => p.demand === 'rent')
     );
 
@@ -112,7 +112,7 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
         scriptTag.parentNode.removeChild(scriptTag);
       }
     };
-  }, [taxonomyInfo, queryDistrict, queryCity, properties]);
+  }, [dynamicTaxonomy, properties]);
 
   const activePage = useMemo(() => {
     if (initialPage && Number(initialPage) > 0) return Number(initialPage);
@@ -129,17 +129,11 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
 
   const categorySeo = useMemo(() => {
     return generateCategoryMetadata(
-      taxonomyInfo || {
-        demand: 'rent',
-        propertyType: queryType !== 'all' ? queryType : null,
-        city: queryCity,
-        district: queryDistrict,
-        page: activePage
-      },
+      dynamicTaxonomy,
       2026,
       activePage
     );
-  }, [taxonomyInfo, queryType, queryCity, queryDistrict, activePage]);
+  }, [dynamicTaxonomy, activePage]);
 
   // Cập nhật thẻ Title & Meta Description tối ưu SEO
   useEffect(() => {
@@ -171,17 +165,17 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
             <Link to="/" className="hover:text-blue-400 font-medium">Trang chủ</Link>
             <i className="fa-solid fa-chevron-right text-[10px]"></i>
             <Link to="/nha-dat-cho-thue" className="hover:text-blue-400 font-medium">Cho Thuê Nhà Đất</Link>
-            {taxonomyInfo?.title && (
+            {dynamicTaxonomy?.title && dynamicTaxonomy.title !== 'Cho Thuê Nhà Đất Toàn Quốc' && (
               <>
                 <i className="fa-solid fa-chevron-right text-[10px]"></i>
-                <span className="text-white font-bold">{taxonomyInfo.title}</span>
+                <span className="text-white font-bold">{dynamicTaxonomy.title}</span>
               </>
             )}
           </div>
 
           <div>
             <h1 className="text-2xl sm:text-3xl font-black text-white">
-              {taxonomyInfo?.title || 'Cho Thuê Bất Động Sản Toàn Quốc'}
+              {dynamicTaxonomy?.title || 'Cho Thuê Bất Động Sản Toàn Quốc'}
             </h1>
             <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
               {categorySeo.description}

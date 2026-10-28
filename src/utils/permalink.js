@@ -1645,4 +1645,116 @@ export const buildDistrictSeoUrl = ({ basePath = '', demand = 'sale', districtNa
   return `${basePrefix}-${dSlug}`;
 };
 
+/**
+ * Tự động tạo taxonomyInfo động khi người dùng tương tác thay đổi các bộ lọc
+ * (loại nhà đất, khoảng giá, diện tích, khu vực, phòng ngủ...) trên client.
+ */
+export const buildDynamicTaxonomyInfo = (filters = {}, baseTaxonomyInfo = null) => {
+  const demand = filters.demand || baseTaxonomyInfo?.demand || 'sale';
+  const isRent = demand === 'rent';
+  const propertyType = (filters.propertyType && filters.propertyType !== 'all')
+    ? filters.propertyType
+    : (baseTaxonomyInfo?.propertyType || 'all');
+  const city = filters.city || baseTaxonomyInfo?.city || '';
+  const district = filters.district || baseTaxonomyInfo?.district || '';
+  const ward = filters.ward || baseTaxonomyInfo?.ward || '';
+  const street = filters.street || baseTaxonomyInfo?.street || '';
+  const project = filters.project || baseTaxonomyInfo?.project || '';
+  const priceRange = filters.priceRange || 'all';
+  const areaRange = filters.areaRange || 'all';
+  const bedroom = filters.bedroom || 'all';
+
+  // Lấy tên loại hình
+  let typeName = '';
+  if (propertyType && propertyType !== 'all' && PROPERTY_TAXONOMY[demand]?.types[propertyType]) {
+    typeName = PROPERTY_TAXONOMY[demand].types[propertyType].name;
+    typeName = typeName.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+  } else {
+    typeName = isRent ? 'Cho Thuê Nhà Đất' : 'Mua Bán Nhà Đất';
+  }
+
+  let title = typeName;
+  if (project) {
+    title += ` tại Dự án ${project}`;
+    if (district) title += `, ${district}`;
+    if (city) title += `, ${city}`;
+  } else if (street && district) {
+    title += ` tại Đường ${street}, ${district}`;
+    if (city) title += `, ${city}`;
+  } else if (street) {
+    title += ` tại Đường ${street}`;
+    if (city) title += `, ${city}`;
+  } else if (ward && district) {
+    title += ` tại ${ward}, ${district}`;
+    if (city) title += `, ${city}`;
+  } else if (district) {
+    title += ` tại ${district}`;
+    if (city && city !== 'Đà Nẵng') title += `, ${city}`;
+  } else if (city) {
+    title += ` tại ${city}`;
+  } else if (!project && !street && !ward && !district) {
+    title += ` Toàn Quốc`;
+  }
+
+  // Nhãn mức giá
+  let priceLabel = '';
+  if (priceRange && priceRange !== 'all') {
+    const pText = formatPriceRangeText(priceRange);
+    if (pText && pText !== 'Mọi mức giá') {
+      priceLabel = `Giá ${pText}`;
+    }
+  }
+
+  // Nhãn diện tích
+  let areaLabel = '';
+  if (areaRange && areaRange !== 'all') {
+    const aText = formatAreaRangeText(areaRange);
+    if (aText && aText !== 'Mọi diện tích') {
+      areaLabel = `Diện Tích ${aText}`;
+    }
+  }
+
+  // Nhãn phòng ngủ
+  let bedroomLabel = '';
+  if (bedroom && bedroom !== 'all') {
+    bedroomLabel = `${bedroom} phòng ngủ`;
+  }
+
+  if (priceLabel) title += ` ${priceLabel}`;
+  if (areaLabel) title += ` ${areaLabel}`;
+  if (bedroomLabel) title += ` ${bedroomLabel}`;
+
+  const hasFacetedFilters = Boolean(
+    priceLabel || 
+    areaLabel || 
+    bedroomLabel || 
+    district || 
+    (propertyType && propertyType !== 'all') ||
+    baseTaxonomyInfo?.isFacetedCleanSlug
+  );
+
+  return {
+    ...(baseTaxonomyInfo || {}),
+    isTaxonomy: true,
+    isFacetedCleanSlug: hasFacetedFilters,
+    demand,
+    propertyType,
+    city,
+    district,
+    ward,
+    street,
+    project,
+    priceRange,
+    minPrice: filters.minPrice,
+    maxPrice: filters.maxPrice,
+    priceLabel,
+    areaRange,
+    minArea: filters.minArea,
+    maxArea: filters.maxArea,
+    areaLabel,
+    bedroom,
+    title
+  };
+};
+
 
