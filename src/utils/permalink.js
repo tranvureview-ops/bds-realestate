@@ -362,7 +362,11 @@ export const buildSeoUrl = ({
   ward = null,
   project = null,
   priceRange = null,
+  minPrice = null,
+  maxPrice = null,
   areaRange = null,
+  minArea = null,
+  maxArea = null,
   bedroom = null,
   extraParams = {}
 } = {}) => {
@@ -429,73 +433,143 @@ export const buildSeoUrl = ({
     locationOrProjectSegment = `-${citySlug}`;
   }
 
-  let fullCleanPath = `${basePath}${locationOrProjectSegment}`;
   const queryParams = new URLSearchParams();
 
   // 6. Xử lý Single Clean Filter & Multi-filter
+  let effectivePriceRange = priceRange;
+  if ((!effectivePriceRange || effectivePriceRange === 'all') && (minPrice !== undefined && minPrice !== null || maxPrice !== undefined && maxPrice !== null)) {
+    const minVal = minPrice ? Number(minPrice) : null;
+    const maxVal = maxPrice ? Number(maxPrice) : null;
+    if (minVal && maxVal) {
+      if (minVal >= 1e9 && maxVal >= 1e9) {
+        effectivePriceRange = `${minVal / 1e9}b-${maxVal / 1e9}b`;
+      } else if (minVal < 1e9 && maxVal < 1e9) {
+        effectivePriceRange = `${minVal / 1e6}m-${maxVal / 1e6}m`;
+      }
+    } else if (!minVal && maxVal) {
+      effectivePriceRange = maxVal >= 1e9 ? `under-${maxVal / 1e9}b` : `under-${maxVal / 1e6}m`;
+    } else if (minVal && !maxVal) {
+      effectivePriceRange = minVal >= 1e9 ? `over-${minVal / 1e9}b` : `over-${minVal / 1e6}m`;
+    }
+  }
+
+  let effectiveAreaRange = areaRange;
+  if ((!effectiveAreaRange || effectiveAreaRange === 'all') && (minArea !== undefined && minArea !== null || maxArea !== undefined && maxArea !== null)) {
+    const minA = minArea ? Number(minArea) : null;
+    const maxA = maxArea ? Number(maxArea) : null;
+    if (minA && maxA) effectiveAreaRange = `${minA}-${maxA}`;
+    else if (!minA && maxA) effectiveAreaRange = `under-${maxA}`;
+    else if (minA && !maxA) effectiveAreaRange = `over-${minA}`;
+  }
+
   let priceCleanSlug = '';
-  if (priceRange && priceRange !== 'all') {
-    if (priceRange === 'under-2b') priceCleanSlug = '-gia-duoi-2-ty';
-    else if (priceRange === '2b-5b') priceCleanSlug = '-gia-tu-2-den-5-ty';
-    else if (priceRange === '5b-10b') priceCleanSlug = '-gia-tu-5-den-10-ty';
-    else if (priceRange === '10b-30b') priceCleanSlug = '-gia-tu-10-den-30-ty';
-    else if (priceRange === 'over-30b') priceCleanSlug = '-gia-tren-30-ty';
-    else if (priceRange === 'under-5m') priceCleanSlug = '-gia-duoi-5-trieu';
-    else if (priceRange === '5m-10m') priceCleanSlug = '-gia-tu-5-den-10-trieu';
-    else if (priceRange === '10m-20m') priceCleanSlug = '-gia-tu-10-den-20-trieu';
-    else if (priceRange === '20m-40m') priceCleanSlug = '-gia-tu-20-den-40-trieu';
-    else if (priceRange === 'over-40m') priceCleanSlug = '-gia-tren-40-trieu';
-    else if (priceRange.startsWith('gia-') || priceRange.startsWith('tu-')) {
-      priceCleanSlug = `-${toVietnameseSlug(priceRange)}`;
+  if (effectivePriceRange && effectivePriceRange !== 'all') {
+    const pSlugMap = {
+      'under-500m': 'gia-duoi-500-trieu',
+      '500m-800m': 'gia-tu-500-den-800-trieu',
+      '800m-1b': 'gia-tu-800-trieu-den-1-ty',
+      'under-1b': 'gia-duoi-1-ty',
+      '1b-2b': 'gia-tu-1-ty-den-2-ty',
+      '2b-3b': 'gia-tu-2-ty-den-3-ty',
+      '2b-5b': 'gia-tu-2-ty-den-5-ty',
+      '3b-5b': 'gia-tu-3-ty-den-5-ty',
+      '5b-7b': 'gia-tu-5-ty-den-7-ty',
+      '5b-10b': 'gia-tu-5-ty-den-10-ty',
+      '7b-10b': 'gia-tu-7-ty-den-10-ty',
+      '10b-15b': 'gia-tu-10-ty-den-15-ty',
+      '15b-20b': 'gia-tu-15-ty-den-20-ty',
+      '10b-20b': 'gia-tu-10-ty-den-20-ty',
+      '10b-30b': 'gia-tu-10-ty-den-30-ty',
+      '20b-30b': 'gia-tu-20-ty-den-30-ty',
+      '30b-50b': 'gia-tu-30-ty-den-50-ty',
+      '50b-70b': 'gia-tu-50-ty-den-70-ty',
+      '70b-100b': 'gia-tu-70-ty-den-100-ty',
+      '100b-200b': 'gia-tu-100-ty-den-200-ty',
+      '200b-500b': 'gia-tu-200-ty-den-500-ty',
+      'over-30b': 'gia-tren-30-ty',
+      'over-500b': 'gia-tren-500-ty',
+      'under-1m': 'gia-duoi-1-trieu',
+      '1m-3m': 'gia-tu-1-trieu-den-3-trieu',
+      '3m-5m': 'gia-tu-3-trieu-den-5-trieu',
+      '5m-10m': 'gia-tu-5-trieu-den-10-trieu',
+      '10m-20m': 'gia-tu-10-trieu-den-20-trieu',
+      '20m-40m': 'gia-tu-20-trieu-den-40-trieu',
+      'over-40m': 'gia-tren-40-trieu'
+    };
+
+    if (pSlugMap[effectivePriceRange]) {
+      priceCleanSlug = pSlugMap[effectivePriceRange];
+    } else if (effectivePriceRange.startsWith('gia-') || effectivePriceRange.startsWith('tu-')) {
+      priceCleanSlug = toVietnameseSlug(effectivePriceRange);
     } else {
-      const dynBetweenMatch = priceRange.match(/^([0-9.]+)([bm])-([0-9.]+)([bm])$/i);
-      const dynUnderMatch = priceRange.match(/^under-([0-9.]+)([bm])$/i);
-      const dynOverMatch = priceRange.match(/^over-([0-9.]+)([bm])$/i);
+      const dynBetweenMatch = effectivePriceRange.match(/^([0-9.]+)([bm])-([0-9.]+)([bm])$/i);
+      const dynUnderMatch = effectivePriceRange.match(/^under-([0-9.]+)([bm])$/i);
+      const dynOverMatch = effectivePriceRange.match(/^over-([0-9.]+)([bm])$/i);
       if (dynBetweenMatch) {
         const u1 = dynBetweenMatch[2].toLowerCase() === 'm' ? 'trieu' : 'ty';
         const u2 = dynBetweenMatch[4].toLowerCase() === 'm' ? 'trieu' : 'ty';
-        priceCleanSlug = u1 === u2 
-          ? `-gia-tu-${dynBetweenMatch[1]}-den-${dynBetweenMatch[3]}-${u2}`
-          : `-gia-tu-${dynBetweenMatch[1]}-${u1}-den-${dynBetweenMatch[3]}-${u2}`;
+        priceCleanSlug = `gia-tu-${dynBetweenMatch[1]}-${u1}-den-${dynBetweenMatch[3]}-${u2}`;
       } else if (dynUnderMatch) {
         const u = dynUnderMatch[2].toLowerCase() === 'm' ? 'trieu' : 'ty';
-        priceCleanSlug = `-gia-duoi-${dynUnderMatch[1]}-${u}`;
+        priceCleanSlug = `gia-duoi-${dynUnderMatch[1]}-${u}`;
       } else if (dynOverMatch) {
         const u = dynOverMatch[2].toLowerCase() === 'm' ? 'trieu' : 'ty';
-        priceCleanSlug = `-gia-tren-${dynOverMatch[1]}-${u}`;
+        priceCleanSlug = `gia-tren-${dynOverMatch[1]}-${u}`;
       } else {
-        priceCleanSlug = `-gia-${toVietnameseSlug(priceRange)}`;
+        priceCleanSlug = `gia-${toVietnameseSlug(effectivePriceRange)}`;
       }
     }
   }
 
   let areaCleanSlug = '';
-  if (areaRange && areaRange !== 'all') {
-    if (areaRange.startsWith('dien-tich-')) {
-      areaCleanSlug = `-${toVietnameseSlug(areaRange)}`;
+  if (effectiveAreaRange && effectiveAreaRange !== 'all') {
+    const aSlugMap = {
+      'under-30': 'dien-tich-duoi-30-m2',
+      '30-50': 'dien-tich-tu-30-den-50-m2',
+      '50-80': 'dien-tich-tu-50-den-80-m2',
+      '80-100': 'dien-tich-tu-80-den-100-m2',
+      '100-150': 'dien-tich-tu-100-den-150-m2',
+      '150-200': 'dien-tich-tu-150-den-200-m2',
+      '200-250': 'dien-tich-tu-200-den-250-m2',
+      '250-300': 'dien-tich-tu-250-den-300-m2',
+      '300-500': 'dien-tich-tu-300-den-500-m2',
+      'over-500': 'dien-tich-tren-500-m2'
+    };
+    if (aSlugMap[effectiveAreaRange]) {
+      areaCleanSlug = aSlugMap[effectiveAreaRange];
+    } else if (effectiveAreaRange.startsWith('dien-tich-')) {
+      areaCleanSlug = toVietnameseSlug(effectiveAreaRange);
     } else {
-      const dynBetweenArea = areaRange.match(/^([0-9.]+)-([0-9.]+)$/);
-      const dynUnderArea = areaRange.match(/^under-([0-9.]+)$/);
-      const dynOverArea = areaRange.match(/^over-([0-9.]+)$/);
+      const dynBetweenArea = effectiveAreaRange.match(/^([0-9.]+)-([0-9.]+)$/);
+      const dynUnderArea = effectiveAreaRange.match(/^under-([0-9.]+)$/);
+      const dynOverArea = effectiveAreaRange.match(/^over-([0-9.]+)$/);
       if (dynBetweenArea) {
-        areaCleanSlug = `-dien-tich-${dynBetweenArea[1]}-${dynBetweenArea[2]}-m2`;
+        areaCleanSlug = `dien-tich-tu-${dynBetweenArea[1]}-den-${dynBetweenArea[2]}-m2`;
       } else if (dynUnderArea) {
-        areaCleanSlug = `-dien-tich-duoi-${dynUnderArea[1]}-m2`;
+        areaCleanSlug = `dien-tich-duoi-${dynUnderArea[1]}-m2`;
       } else if (dynOverArea) {
-        areaCleanSlug = `-dien-tich-tren-${dynOverArea[1]}-m2`;
+        areaCleanSlug = `dien-tich-tren-${dynOverArea[1]}-m2`;
       } else {
-        areaCleanSlug = `-dien-tich-${toVietnameseSlug(areaRange)}-m2`;
+        areaCleanSlug = `dien-tich-${toVietnameseSlug(effectiveAreaRange)}-m2`;
       }
     }
   }
 
+  // Kết nối theo cấu trúc thư mục sạch chuẩn Batdongsan.com.vn:
+  // /{base-category-and-location}/{facet-slug}
+  // Ví dụ: /nha-dat-ban/gia-tu-3-ty-den-5-ty
+  //        /nha-dat-ban-da-nang/gia-tu-3-ty-den-5-ty
+  //        /ban-can-ho-chung-cu/gia-tu-3-ty-den-5-ty
+  let baseCore = `${basePath}${locationOrProjectSegment}`.replace(/\/+$/, '');
+  let fullCleanPath = baseCore;
+
   if (priceCleanSlug) {
-    fullCleanPath += priceCleanSlug;
+    fullCleanPath = `${baseCore}/${priceCleanSlug}`;
     if (areaCleanSlug) {
-      queryParams.set('areaRange', areaRange);
+      queryParams.set('areaRange', effectiveAreaRange);
     }
   } else if (areaCleanSlug) {
-    fullCleanPath += areaCleanSlug;
+    fullCleanPath = `${baseCore}/${areaCleanSlug}`;
   }
 
   if (bedroom && bedroom !== 'all') queryParams.set('bedroom', String(bedroom));
@@ -505,11 +579,6 @@ export const buildSeoUrl = ({
         queryParams.set(k, String(v));
       }
     }
-  }
-
-  // Luôn đảm bảo đường dẫn danh mục chuẩn SEO có trailing slash
-  if (!fullCleanPath.endsWith('/')) {
-    fullCleanPath += '/';
   }
 
   const qs = queryParams.toString();

@@ -694,22 +694,11 @@ export default function ListingFilterBar({
                     const isAll = cleanIds.includes('all') || cleanIds.length === 0;
                     const primaryId = isAll ? 'all' : (cleanIds.length === 1 ? cleanIds[0] : cleanIds.join(','));
                     if (setFilters) {
-                      setFilters(prev => {
-                        const nextFilters = {
-                          ...prev,
-                          propertyType: primaryId,
-                          propertyTypes: isAll ? ['all'] : cleanIds
-                        };
-                        try {
-                          const targetUrl = buildSeoUrl(nextFilters);
-                          if (typeof window !== 'undefined' && targetUrl && window.location.pathname !== targetUrl) {
-                            window.history.pushState(null, '', targetUrl);
-                          }
-                        } catch {
-                          // Ignore pushState restriction
-                        }
-                        return nextFilters;
-                      });
+                      setFilters(prev => ({
+                        ...prev,
+                        propertyType: primaryId,
+                        propertyTypes: isAll ? ['all'] : cleanIds
+                      }));
                     }
                     setOpenDropdown(null);
                   }}

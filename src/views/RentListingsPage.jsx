@@ -6,7 +6,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { Link, useRouter } from '../router/RouterContext';
 import ListingGrid from '../components/ListingGrid';
 import ListingFilterBar from '../components/ListingFilterBar';
-import { generateCategoryJsonLd, generateCategoryMetadata, parseTaxonomyUrl, buildDynamicTaxonomyInfo } from '../utils/permalink';
+import { generateCategoryJsonLd, generateCategoryMetadata, parseTaxonomyUrl, buildDynamicTaxonomyInfo, buildSeoUrl } from '../utils/permalink';
 import { filterProperties } from '../utils/propertyFilter';
 
 export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 }) {
@@ -86,6 +86,51 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
+
+  // Tự động đồng bộ Clean URL chuẩn SEO (PushState) khi người dùng thay đổi bộ lọc
+  const isFirstRender = useRef(true);
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    try {
+      if (typeof window === 'undefined') return;
+      const targetUrl = buildSeoUrl({
+        demand: 'rent',
+        propertyType: filters.propertyType && filters.propertyType !== 'all' ? filters.propertyType : null,
+        city: filters.city || null,
+        district: filters.district || null,
+        ward: filters.ward || null,
+        project: filters.project || null,
+        priceRange: filters.priceRange && filters.priceRange !== 'all' ? filters.priceRange : null,
+        minPrice: filters.minPrice,
+        maxPrice: filters.maxPrice,
+        areaRange: filters.areaRange && filters.areaRange !== 'all' ? filters.areaRange : null,
+        minArea: filters.minArea,
+        maxArea: filters.maxArea,
+        bedroom: filters.bedroom && filters.bedroom !== 'all' ? filters.bedroom : null,
+        extraParams: {
+          ...(filters.keyword ? { keyword: filters.keyword } : {}),
+          ...(filters.onlyVerified ? { onlyVerified: 'true' } : {}),
+          ...(filters.hasVR360 ? { hasVR360: 'true' } : {}),
+          ...(filters.direction && filters.direction !== 'all' ? { direction: filters.direction } : {})
+        }
+      });
+
+      if (targetUrl) {
+        const currentUrl = window.location.pathname + (window.location.search || '');
+        const normCurrent = currentUrl.replace(/\/+(\?|$)/, '$1');
+        const normTarget = targetUrl.replace(/\/+(\?|$)/, '$1');
+        if (normCurrent !== normTarget) {
+          window.history.pushState(null, '', targetUrl);
+        }
+      }
+    } catch {
+      // Bỏ qua nếu môi trường bị giới hạn
+    }
+  }, [filters]);
 
   const dynamicTaxonomy = useMemo(() => {
     return buildDynamicTaxonomyInfo(filters, taxonomyInfo);
