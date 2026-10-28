@@ -838,7 +838,7 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
 
             {/* Collapsible Advanced Filters Section */}
             {showAdvanced && (
-              <div className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-50/70 p-3 rounded-xl animate-fadeIn">
+              <div className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 gap-3 bg-slate-50/70 p-3 rounded-xl animate-fadeIn">
                 {/* Bedrooms */}
                 <div>
                   <label className="block text-[11px] font-bold text-slate-600 mb-1">
@@ -877,32 +877,6 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                     <option value="Đông Bắc">Đông Bắc</option>
                     <option value="Tây Bắc">Tây Bắc</option>
                   </select>
-                </div>
-
-                {/* VR 360 */}
-                <div className="flex items-center pt-5">
-                  <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 select-none">
-                    <input
-                      type="checkbox"
-                      checked={Boolean(filters.hasVR360)}
-                      onChange={(e) => setFilters(prev => ({ ...prev, hasVR360: e.target.checked }))}
-                      className="w-4 h-4 text-red-600 rounded border-slate-300 focus:ring-red-500"
-                    />
-                    <span><i className="fa-solid fa-vr-cardboard text-purple-600 mr-1"></i> Có Tour VR 360</span>
-                  </label>
-                </div>
-
-                {/* Verified Broker */}
-                <div className="flex items-center pt-5">
-                  <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 select-none">
-                    <input
-                      type="checkbox"
-                      checked={Boolean(filters.onlyVerified)}
-                      onChange={(e) => setFilters(prev => ({ ...prev, onlyVerified: e.target.checked }))}
-                      className="w-4 h-4 text-red-600 rounded border-slate-300 focus:ring-red-500"
-                    />
-                    <span><i className="fa-solid fa-circle-check text-blue-600 mr-1"></i> Môi giới xác thực</span>
-                  </label>
                 </div>
               </div>
             )}
