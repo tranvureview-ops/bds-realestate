@@ -51,6 +51,38 @@ export default function PropertyTypeSelector({
   const [selected, setSelected] = useState(() => normalizeSelectedValues(value));
   const prevKeyRef = useRef(externalKey);
 
+  // Quản lý trạng thái mở rộng/thu gọn của từng nhóm cha (mặc định thu gọn để giao diện gọn gàng)
+  const [expandedGroups, setExpandedGroups] = useState(() => ({}));
+
+  const toggleGroupExpand = (e, groupId) => {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    setExpandedGroups(prev => ({
+      ...prev,
+      [groupId]: !prev[groupId]
+    }));
+  };
+
+  // Thu gọn tất cả hoặc Mở rộng tất cả
+  const isAnyGroupExpanded = useMemo(() => {
+    return Object.values(expandedGroups).some(Boolean);
+  }, [expandedGroups]);
+
+  const toggleAllGroups = (e) => {
+    if (e) e.stopPropagation();
+    if (isAnyGroupExpanded) {
+      setExpandedGroups({});
+    } else {
+      const allExpanded = {};
+      tree.forEach(item => {
+        if (item.isGroup) allExpanded[item.id] = true;
+      });
+      setExpandedGroups(allExpanded);
+    }
+  };
+
   // Chỉ đồng bộ lại khi externalKey hoặc demand thực sự thay đổi
   useEffect(() => {
     if (prevKeyRef.current !== externalKey) {
@@ -145,26 +177,37 @@ export default function PropertyTypeSelector({
       className={`bg-white flex flex-col text-slate-800 ${
         isModal
           ? 'w-full h-full'
-          : 'w-80 sm:w-[340px] rounded-2xl border border-slate-200 shadow-2xl overflow-hidden'
+          : 'w-72 sm:w-[295px] rounded-xl border border-slate-200 shadow-xl overflow-hidden'
       } ${className}`}
     >
-      {/* 1. HEADER (Tiêu đề "Loại nhà đất" + Nút đóng ✕) */}
-      <div className="px-4 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0">
-        <h4 className="text-sm sm:text-base font-bold text-slate-900 w-full text-center pl-6">
+      {/* 1. HEADER (Tiêu đề "Loại nhà đất" + Nút Thu gọn/Mở rộng + Nút đóng ✕) */}
+      <div className="px-3.5 py-2 border-b border-slate-100 flex items-center justify-between shrink-0 bg-slate-50/70">
+        <button
+          type="button"
+          onClick={toggleAllGroups}
+          className="text-[10px] text-slate-500 hover:text-red-600 font-medium transition cursor-pointer flex items-center gap-1 select-none"
+          title={isAnyGroupExpanded ? 'Thu gọn tất cả nhóm' : 'Mở rộng tất cả nhóm'}
+        >
+          <i className={`fa-solid fa-${isAnyGroupExpanded ? 'compress' : 'expand'} text-[9px]`}></i>
+          <span>{isAnyGroupExpanded ? 'Thu gọn' : 'Mở rộng'}</span>
+        </button>
+
+        <h4 className="text-xs sm:text-[13px] font-bold text-slate-900 text-center">
           Loại nhà đất
         </h4>
+
         <button
           type="button"
           onClick={onClose}
-          className="w-7 h-7 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition cursor-pointer shrink-0"
+          className="w-5 h-5 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-700 flex items-center justify-center transition cursor-pointer shrink-0"
           title="Đóng"
         >
-          <i className="fa-solid fa-xmark text-sm"></i>
+          <i className="fa-solid fa-xmark text-xs"></i>
         </button>
       </div>
 
-      {/* 2. DANH SÁCH CÂY PHÂN CẤP CHUẨN BATDONGSAN.COM.VN */}
-      <div className={`overflow-y-auto divide-y divide-slate-100 ${isModal ? 'flex-1 p-2 sm:p-3' : 'max-h-80 sm:max-h-96 py-1'}`}>
+      {/* 2. DANH SÁCH CÂY PHÂN CẤP CHUẨN BATDONGSAN (GỌN GÀNG, TIẾT KIỆM KHÔNG GIAN) */}
+      <div className={`overflow-y-auto divide-y divide-slate-50 ${isModal ? 'flex-1 p-2' : 'max-h-[340px] py-0.5'}`}>
         {tree.map(item => {
           // MỤC "TẤT CẢ NHÀ ĐẤT"
           if (item.isAll) {
@@ -172,20 +215,20 @@ export default function PropertyTypeSelector({
               <div
                 key={item.id}
                 onClick={(e) => handleToggleAll(e)}
-                className="flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 transition cursor-pointer select-none group"
+                className="flex items-center justify-between px-3.5 py-1.5 hover:bg-slate-50 transition cursor-pointer select-none group"
               >
-                <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                  <i className={`${item.icon} text-slate-400 group-hover:text-red-600 text-sm w-4 text-center transition-colors shrink-0`}></i>
-                  <span className={`text-xs sm:text-sm truncate ${isAllChecked ? 'text-[#e03c31] font-bold' : 'text-slate-800 font-medium'}`}>
+                <div className="flex items-center gap-2 min-w-0 pr-2">
+                  <i className={`${item.icon} text-slate-400 group-hover:text-red-600 text-xs w-3.5 text-center transition-colors shrink-0`}></i>
+                  <span className={`text-xs truncate ${isAllChecked ? 'text-[#e03c31] font-bold' : 'text-slate-800 font-medium'}`}>
                     {item.name}
                   </span>
                 </div>
-                <div className={`w-4 h-4 rounded-[4px] border flex items-center justify-center transition shrink-0 ml-3 ${
+                <div className={`w-3.5 h-3.5 rounded-[3px] border flex items-center justify-center transition shrink-0 ml-2 ${
                   isAllChecked
                     ? 'bg-[#e03c31] border-[#e03c31] text-white shadow-2xs'
                     : 'border-slate-300 bg-white group-hover:border-slate-400'
                 }`}>
-                  {isAllChecked && <i className="fa-solid fa-check text-[10px]"></i>}
+                  {isAllChecked && <i className="fa-solid fa-check text-[9px]"></i>}
                 </div>
               </div>
             );
@@ -194,54 +237,69 @@ export default function PropertyTypeSelector({
           // NHÓM PHÂN CẤP CHA - CON (Ví dụ: "Các loại nhà bán", "Các loại đất bán")
           if (item.isGroup) {
             const { isChecked, isIndeterminate } = getGroupState(item);
+            const isExpanded = Boolean(expandedGroups[item.id]);
 
             return (
-              <div key={item.id} className="py-1">
+              <div key={item.id} className="py-0.5">
                 {/* DÒNG TIÊU ĐỀ NHÓM CHA */}
                 <div
-                  onClick={(e) => handleToggleGroup(e, item)}
-                  className="flex items-center justify-between px-4 py-2 hover:bg-slate-50 transition cursor-pointer select-none group"
+                  className="flex items-center justify-between px-3.5 py-1.5 hover:bg-slate-50 transition select-none group cursor-pointer"
                 >
-                  <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                    <i className={`${item.icon} text-slate-400 group-hover:text-red-600 text-sm w-4 text-center transition-colors shrink-0`}></i>
-                    <span className={`text-xs sm:text-sm font-bold truncate ${isChecked || isIndeterminate ? 'text-[#e03c31]' : 'text-slate-900'}`}>
+                  <div
+                    onClick={(e) => toggleGroupExpand(e, item.id)}
+                    className="flex items-center gap-2 min-w-0 flex-1 pr-2 cursor-pointer"
+                    title={isExpanded ? 'Bấm để thu gọn' : 'Bấm để mở rộng chi tiết'}
+                  >
+                    <i className={`${item.icon} text-slate-400 group-hover:text-red-600 text-xs w-3.5 text-center transition-colors shrink-0`}></i>
+                    <span className={`text-xs font-bold truncate ${isChecked || isIndeterminate ? 'text-[#e03c31]' : 'text-slate-900'}`}>
                       {item.name}
                     </span>
+                    <span className="text-[10px] text-slate-400 font-normal">
+                      ({item.children.length})
+                    </span>
+                    <i className={`fa-solid fa-chevron-${isExpanded ? 'up' : 'down'} text-[8.5px] text-slate-400 group-hover:text-slate-600 ml-0.5 transition-transform`}></i>
                   </div>
-                  <div className={`w-4 h-4 rounded-[4px] border flex items-center justify-center transition shrink-0 ml-3 ${
-                    isChecked || isIndeterminate
-                      ? 'bg-[#e03c31] border-[#e03c31] text-white shadow-2xs'
-                      : 'border-slate-300 bg-white group-hover:border-slate-400'
-                  }`}>
-                    {isChecked && <i className="fa-solid fa-check text-[10px]"></i>}
-                    {!isChecked && isIndeterminate && <i className="fa-solid fa-minus text-[10px]"></i>}
+
+                  <div
+                    onClick={(e) => handleToggleGroup(e, item)}
+                    className={`w-3.5 h-3.5 rounded-[3px] border flex items-center justify-center transition shrink-0 ml-2 cursor-pointer ${
+                      isChecked || isIndeterminate
+                        ? 'bg-[#e03c31] border-[#e03c31] text-white shadow-2xs'
+                        : 'border-slate-300 bg-white group-hover:border-slate-400'
+                    }`}
+                    title="Chọn / Bỏ chọn toàn bộ nhóm"
+                  >
+                    {isChecked && <i className="fa-solid fa-check text-[9px]"></i>}
+                    {!isChecked && isIndeterminate && <i className="fa-solid fa-minus text-[9px]"></i>}
                   </div>
                 </div>
 
-                {/* CÁC MỤC CON THỤT LỀ (INDENTED) */}
-                <div className="space-y-0.5">
-                  {item.children.map(child => {
-                    const isChildChecked = selected.includes(child.id);
-                    return (
-                      <div
-                        key={child.id}
-                        onClick={(e) => handleToggleItem(e, child.id)}
-                        className="flex items-center justify-between pl-10 pr-4 py-1.5 hover:bg-slate-50 transition cursor-pointer select-none group"
-                      >
-                        <span className={`text-xs sm:text-[13px] truncate ${isChildChecked ? 'text-[#e03c31] font-bold' : 'text-slate-700 font-medium'}`}>
-                          {child.name}
-                        </span>
-                        <div className={`w-4 h-4 rounded-[4px] border flex items-center justify-center transition shrink-0 ml-3 ${
-                          isChildChecked
-                            ? 'bg-[#e03c31] border-[#e03c31] text-white shadow-2xs'
-                            : 'border-slate-300 bg-white group-hover:border-slate-400'
-                        }`}>
-                          {isChildChecked && <i className="fa-solid fa-check text-[10px]"></i>}
+                {/* CÁC MỤC CON THỤT LỀ (CHỈ HIỂN THỊ KHI MỞ RỘNG) */}
+                {isExpanded && (
+                  <div className="border-l-2 border-slate-100 ml-6 pl-2.5 py-0.5 space-y-0.5 animate-fadeIn">
+                    {item.children.map(child => {
+                      const isChildChecked = selected.includes(child.id);
+                      return (
+                        <div
+                          key={child.id}
+                          onClick={(e) => handleToggleItem(e, child.id)}
+                          className="flex items-center justify-between px-2 py-1 hover:bg-slate-50 rounded-md transition cursor-pointer select-none group"
+                        >
+                          <span className={`text-[11.5px] truncate ${isChildChecked ? 'text-[#e03c31] font-semibold' : 'text-slate-700 font-medium'}`}>
+                            {child.name}
+                          </span>
+                          <div className={`w-3.5 h-3.5 rounded-[3px] border flex items-center justify-center transition shrink-0 ml-2 ${
+                            isChildChecked
+                              ? 'bg-[#e03c31] border-[#e03c31] text-white shadow-2xs'
+                              : 'border-slate-300 bg-white group-hover:border-slate-400'
+                          }`}>
+                            {isChildChecked && <i className="fa-solid fa-check text-[9px]"></i>}
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             );
           }
@@ -252,20 +310,20 @@ export default function PropertyTypeSelector({
             <div
               key={item.id}
               onClick={(e) => handleToggleItem(e, item.id)}
-              className="flex items-center justify-between px-4 py-2.5 hover:bg-slate-50 transition cursor-pointer select-none group"
+              className="flex items-center justify-between px-3.5 py-1.5 hover:bg-slate-50 transition cursor-pointer select-none group"
             >
-              <div className="flex items-center gap-2.5 min-w-0 pr-2">
-                <i className={`${item.icon} text-slate-400 group-hover:text-red-600 text-sm w-4 text-center transition-colors shrink-0`}></i>
-                <span className={`text-xs sm:text-sm truncate ${isItemChecked ? 'text-[#e03c31] font-bold' : 'text-slate-800 font-medium'}`}>
+              <div className="flex items-center gap-2 min-w-0 pr-2">
+                <i className={`${item.icon} text-slate-400 group-hover:text-red-600 text-xs w-3.5 text-center transition-colors shrink-0`}></i>
+                <span className={`text-xs truncate ${isItemChecked ? 'text-[#e03c31] font-bold' : 'text-slate-800 font-medium'}`}>
                   {item.name}
                 </span>
               </div>
-              <div className={`w-4 h-4 rounded-[4px] border flex items-center justify-center transition shrink-0 ml-3 ${
+              <div className={`w-3.5 h-3.5 rounded-[3px] border flex items-center justify-center transition shrink-0 ml-2 ${
                 isItemChecked
                   ? 'bg-[#e03c31] border-[#e03c31] text-white shadow-2xs'
                   : 'border-slate-300 bg-white group-hover:border-slate-400'
               }`}>
-                {isItemChecked && <i className="fa-solid fa-check text-[10px]"></i>}
+                {isItemChecked && <i className="fa-solid fa-check text-[9px]"></i>}
               </div>
             </div>
           );
@@ -273,11 +331,11 @@ export default function PropertyTypeSelector({
       </div>
 
       {/* 3. FOOTER ACTIONS: ĐẶT LẠI & ÁP DỤNG */}
-      <div className="px-4 py-3 border-t border-slate-100 flex items-center justify-between bg-white shrink-0">
+      <div className="px-3.5 py-2 border-t border-slate-100 flex items-center justify-between bg-white shrink-0">
         <button
           type="button"
           onClick={handleReset}
-          className="text-slate-800 hover:text-slate-950 font-bold text-xs sm:text-sm px-2 py-1 transition cursor-pointer"
+          className="text-slate-600 hover:text-slate-900 font-bold text-xs px-1.5 py-1 transition cursor-pointer"
         >
           Đặt lại
         </button>
@@ -285,7 +343,7 @@ export default function PropertyTypeSelector({
         <button
           type="button"
           onClick={handleApply}
-          className="bg-[#e03c31] hover:bg-[#c9352b] text-white font-bold text-xs sm:text-sm px-6 py-2 rounded-xl transition cursor-pointer shadow-xs active:scale-95"
+          className="bg-[#e03c31] hover:bg-[#c9352b] text-white font-bold text-xs px-4 py-1.5 rounded-lg transition cursor-pointer shadow-xs active:scale-95"
         >
           Áp dụng
         </button>
