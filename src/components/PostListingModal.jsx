@@ -124,7 +124,8 @@ function formatPriceToVietnameseText(num, isRent = false) {
   if (num >= 1000000000) {
     const ty = Math.floor(num / 1000000000);
     const trieu = Math.round((num % 1000000000) / 1000000);
-    text = trieu > 0 ? `${ty} tỷ ${trieu} triệu` : `${ty} tỷ`;
+    const tyText = ty >= 1000 ? ty.toLocaleString('vi-VN') : ty;
+    text = trieu > 0 ? `${tyText} tỷ ${trieu} triệu` : `${tyText} tỷ`;
   } else if (num >= 1000000) {
     const trieu = Math.round(num / 1000000);
     text = `${trieu} triệu`;
@@ -143,7 +144,8 @@ export function formatSummaryPrice(num, isRent = false, isPerM2 = false) {
   let text = '';
   if (num >= 1e9) {
     const val = +(num / 1e9).toFixed(3);
-    text = `${val.toString().replace('.', ',')} tỷ`;
+    const valText = val >= 1000 ? val.toLocaleString('vi-VN') : val.toString().replace('.', ',');
+    text = `${valText} tỷ`;
   } else if (num >= 1e6) {
     const val = +(num / 1e6).toFixed(3);
     text = `${val.toString().replace('.', ',')} triệu`;
@@ -168,18 +170,18 @@ export function getPriceSuggestions(rawInput, isRent = false, isPerM2 = false) {
   if (!num || num <= 0) return [];
 
   let minVal = 10_000_000;
-  let maxVal = 500_000_000_000;
+  let maxVal = 2_000_000_000_000; // Hỗ trợ tới 2.000 tỷ
 
   if (isPerM2) {
     minVal = isRent ? 10_000 : 1_000_000;
     maxVal = isRent ? 50_000_000 : 500_000_000;
   } else if (isRent) {
     minVal = 1_000_000;
-    maxVal = 10_000_000_000;
+    maxVal = 2_000_000_000; // Hỗ trợ tới 2 tỷ/tháng (bao gồm 500 triệu)
   }
 
   const candidates = [];
-  for (let p = -5; p <= 9; p++) {
+  for (let p = -5; p <= 12; p++) {
     const val = Math.round(num * Math.pow(10, p));
     if (val >= minVal && val <= maxVal) {
       if (!candidates.includes(val)) {
@@ -200,7 +202,8 @@ export function getPriceSuggestions(rawInput, isRent = false, isPerM2 = false) {
     let label = '';
     if (val >= 1e9) {
       const v = +(val / 1e9).toFixed(3);
-      label = `${v.toString().replace('.', ',')} tỷ`;
+      const vText = v >= 1000 ? v.toLocaleString('vi-VN') : v.toString().replace('.', ',');
+      label = `${vText} tỷ`;
     } else if (val >= 1e6) {
       const v = +(val / 1e6).toFixed(3);
       label = `${v.toString().replace('.', ',')} triệu`;

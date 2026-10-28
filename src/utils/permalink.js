@@ -888,27 +888,35 @@ export const formatPriceRangeText = (priceRange, label = '') => {
   if (priceRange === '10b-30b') return '10 - 30 tỷ';
   if (priceRange === 'over-30b') return 'Trên 30 tỷ';
 
-  // Dynamic formats: ví dụ '7b-10b', '3b-5b', '500m-1b'
+  // Dynamic formats: ví dụ '7b-10b', '3b-5b', '500b-1000b'
   const dynBetween = priceRange.match(/^([0-9.]+)([bm])-([0-9.]+)([bm])$/i);
   if (dynBetween) {
     const minUnit = dynBetween[2].toLowerCase() === 'm' ? 'triệu' : 'tỷ';
     const maxUnit = dynBetween[4].toLowerCase() === 'm' ? 'triệu' : 'tỷ';
+    const v1 = parseFloat(dynBetween[1]);
+    const v2 = parseFloat(dynBetween[3]);
+    const f1 = v1 >= 1000 ? v1.toLocaleString('vi-VN') : v1;
+    const f2 = v2 >= 1000 ? v2.toLocaleString('vi-VN') : v2;
     if (minUnit === maxUnit) {
-      return `${dynBetween[1]} - ${dynBetween[3]} ${maxUnit}`;
+      return `${f1} - ${f2} ${maxUnit}`;
     }
-    return `${dynBetween[1]} ${minUnit} - ${dynBetween[3]} ${maxUnit}`;
+    return `${f1} ${minUnit} - ${f2} ${maxUnit}`;
   }
 
   const dynUnder = priceRange.match(/^under-([0-9.]+)([bm])$/i);
   if (dynUnder) {
     const unit = dynUnder[2].toLowerCase() === 'm' ? 'triệu' : 'tỷ';
-    return `Dưới ${dynUnder[1]} ${unit}`;
+    const val = parseFloat(dynUnder[1]);
+    const f = val >= 1000 ? val.toLocaleString('vi-VN') : val;
+    return `Dưới ${f} ${unit}`;
   }
 
   const dynOver = priceRange.match(/^over-([0-9.]+)([bm])$/i);
   if (dynOver) {
     const unit = dynOver[2].toLowerCase() === 'm' ? 'triệu' : 'tỷ';
-    return `Trên ${dynOver[1]} ${unit}`;
+    const val = parseFloat(dynOver[1]);
+    const f = val >= 1000 ? val.toLocaleString('vi-VN') : val;
+    return `Trên ${f} ${unit}`;
   }
 
   return priceRange;
