@@ -394,29 +394,35 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
             BATDONGSAN.COM.VN SEARCH BOX WIDGET
            ---------------------------------------------------- */}
         <div className="w-full">
-          {/* 1. TOP TABS: Mua bán / Cho thuê */}
-          <div className="flex items-center gap-3 sm:gap-6 px-4 sm:px-6 pt-2.5 pb-0 bg-[#2b353e]/95 backdrop-blur-md rounded-t-2xl border-b border-white/10 w-fit sm:min-w-[260px] shadow-lg">
+          {/* 1. TOP TABS: Mua bán / Cho thuê (Cân đối đối xứng 100%) */}
+          <div className="inline-grid grid-cols-2 bg-[#2b353e]/95 backdrop-blur-md rounded-t-2xl border-b border-white/10 shadow-lg overflow-hidden">
             <button
               type="button"
               onClick={() => handleTabChange('sale')}
-              className={`pb-2.5 px-2 text-xs sm:text-sm font-bold transition cursor-pointer relative ${
+              className={`px-5 sm:px-7 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition cursor-pointer relative flex items-center justify-center select-none ${
                 currentDemand === 'sale'
-                  ? 'text-white border-b-2 border-red-500 font-black'
-                  : 'text-slate-300 hover:text-white'
+                  ? 'text-white font-black'
+                  : 'text-slate-300 hover:text-white font-medium'
               }`}
             >
-              Mua bán
+              <span>Mua bán</span>
+              {currentDemand === 'sale' && (
+                <span className="absolute bottom-0 inset-x-3 sm:inset-x-4 h-[2.5px] bg-[#e03c31] rounded-t-full shadow-xs" />
+              )}
             </button>
             <button
               type="button"
               onClick={() => handleTabChange('rent')}
-              className={`pb-2.5 px-2 text-xs sm:text-sm font-bold transition cursor-pointer relative ${
+              className={`px-5 sm:px-7 py-2.5 sm:py-3 text-xs sm:text-sm font-bold transition cursor-pointer relative flex items-center justify-center select-none ${
                 currentDemand === 'rent'
-                  ? 'text-white border-b-2 border-red-500 font-black'
-                  : 'text-slate-300 hover:text-white'
+                  ? 'text-white font-black'
+                  : 'text-slate-300 hover:text-white font-medium'
               }`}
             >
-              Cho thuê
+              <span>Cho thuê</span>
+              {currentDemand === 'rent' && (
+                <span className="absolute bottom-0 inset-x-3 sm:inset-x-4 h-[2.5px] bg-[#e03c31] rounded-t-full shadow-xs" />
+              )}
             </button>
           </div>
 
