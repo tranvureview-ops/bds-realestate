@@ -17,6 +17,7 @@ import AdminAppointmentsManager from './AdminAppointmentsManager';
 import AdminTwoFactorScreen from './AdminTwoFactorScreen';
 import AdminTelegramChatManager from './AdminTelegramChatManager';
 import AdminRewardsGamificationManager from './AdminRewardsGamificationManager';
+import AdminAffiliateManager from './AdminAffiliateManager';
 import MaintenanceScreen from './MaintenanceScreen';
 import PropertyVerificationReviewModal from './PropertyVerificationReviewModal';
 import { AVAILABLE_FONTS, getFontConfig, applyFontToDom } from '../utils/fontConfig';
@@ -35,6 +36,7 @@ export const VALID_ADMIN_TABS = [
   'pricing',
   'membership',
   'rewards-gamification',
+  'affiliate',
   'header',
   'menu',
   'footer',
@@ -2462,6 +2464,25 @@ export default function AdminBackendPage() {
               </span>
             </Link>
 
+            {/* Affiliate & Trả Thưởng */}
+            <Link
+              href="#affiliate"
+              onClick={handleNavClick('affiliate')}
+              className={`w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between text-left ${
+                activeMenu === 'affiliate' ? 'bg-indigo-600 text-white font-black shadow-lg shadow-indigo-600/30' : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <i className="fa-solid fa-users-gear text-sm w-5 text-center text-indigo-400"></i>
+                <span>Affiliate & Trả Thưởng</span>
+              </div>
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                activeMenu === 'affiliate' ? 'bg-white text-indigo-900' : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+              }`}>
+                Hoa hồng
+              </span>
+            </Link>
+
             {/* Nhóm Cài Đặt Website & Giao Diện */}
             <div className="pt-2">
               <Link
@@ -2697,6 +2718,7 @@ export default function AdminBackendPage() {
               {activeMenu === 'email-config' && '✉️ Email Setting'}
               {activeMenu === 'telegram' && '💬 Live Chat Telegram (2 Chiều)'}
               {activeMenu === 'rewards-gamification' && '🎁 Cấu Hình Khuyến Mãi & Trung Tâm Phần Thưởng'}
+              {activeMenu === 'affiliate' && '👥 Quản Lý Tiếp Thị Liên Kết & Trả Thưởng Affiliate'}
               {activeMenu === 'settings' && (
                 settingsSubTab === 'header'
                   ? '🎨 Cài Đặt Website › Header'
@@ -8387,6 +8409,13 @@ export default function AdminBackendPage() {
              ========================================= */}
           {activeMenu === 'rewards-gamification' && (
             <AdminRewardsGamificationManager />
+          )}
+
+          {/* =========================================
+              PHÂN HỆ: QUẢN LÝ TIẾP THỊ LIÊN KẾT & TRẢ THƯỞNG AFFILIATE
+             ========================================= */}
+          {activeMenu === 'affiliate' && (
+            <AdminAffiliateManager />
           )}
 
         </main>

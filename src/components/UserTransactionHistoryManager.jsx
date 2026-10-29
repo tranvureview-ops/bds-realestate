@@ -183,6 +183,15 @@ export default function UserTransactionHistoryManager() {
                     txn.title?.toLowerCase().includes('nhiệm vụ') ||
                     txn.title?.toLowerCase().includes('rương');
 
+    if (txn.type === 'affiliate_commission' || txn.title?.toLowerCase().includes('hoa hồng')) {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
+          <i className="fa-solid fa-users-rays text-indigo-600"></i>
+          Hoa hồng Affiliate
+        </span>
+      );
+    }
+
     if (isDeposit) {
       return (
         <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">

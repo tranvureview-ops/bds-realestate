@@ -3242,9 +3242,61 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       createdAt: new Date().toISOString(),
       paymentMethod: paymentMethod
     };
-    setTransactions([newTxn, ...transactions]);
+    setTransactions(prev => [newTxn, ...prev]);
 
     showToast(`Nạp thành công +${numAmount.toLocaleString('vi-VN')} đ vào ví! Số dư mới: ${newBalance.toLocaleString('vi-VN')} đ`, 'success');
+
+    // === TỰ ĐỘNG TRẢ THƯỞNG HOA HỒNG DOANH THU AFFILIATE (% DOANH THU) ===
+    const commissionRate = Number(systemConfig?.affiliateCommissionRate !== undefined ? systemConfig.affiliateCommissionRate : 10);
+    if (currentUser?.referredBy && commissionRate > 0) {
+      const cleanRefBy = String(currentUser.referredBy);
+      const referrer = (usersList || []).find(u => 
+        String(u.id) === cleanRefBy ||
+        (u.refCode && String(u.refCode).toUpperCase() === cleanRefBy.toUpperCase()) ||
+        (u.phone && normalizePhone(u.phone) === normalizePhone(cleanRefBy))
+      );
+
+      if (referrer && referrer.id !== currentUser.id) {
+        const commissionAmt = Math.round((numAmount * commissionRate) / 100);
+        if (commissionAmt > 0) {
+          const referrerNewBal = (Number(referrer.walletBalance) || 0) + commissionAmt;
+          const updatedReferrer = { ...referrer, walletBalance: referrerNewBal };
+          setUsersList(prevList => prevList.map(u => u.id === referrer.id ? updatedReferrer : u));
+
+          const commTxn = {
+            id: `TXN-COMM-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`,
+            userId: referrer.id,
+            userName: referrer.name,
+            type: 'affiliate_commission',
+            title: `Hoa hồng nạp tiền (${commissionRate}%): ${currentUser.name || 'F1'} nạp ${numAmount.toLocaleString('vi-VN')}đ`,
+            amount: commissionAmt,
+            balanceAfter: referrerNewBal,
+            status: 'success',
+            createdAt: new Date().toISOString(),
+            paymentMethod: 'Hoa Hồng Tiếp Thị'
+          };
+          setTransactions(prev => [commTxn, ...prev]);
+
+          if (typeof window !== 'undefined') {
+            try {
+              const storedComm = JSON.parse(localStorage.getItem('bds_affiliate_commissions') || '[]');
+              storedComm.unshift({
+                id: commTxn.id,
+                referrerId: referrer.id,
+                referrerName: referrer.name,
+                refereeId: currentUser.id,
+                refereeName: currentUser.name,
+                depositAmount: numAmount,
+                rate: commissionRate,
+                commissionAmount: commissionAmt,
+                createdAt: commTxn.createdAt
+              });
+              localStorage.setItem('bds_affiliate_commissions', JSON.stringify(storedComm));
+            } catch (e) {}
+          }
+        }
+      }
+    }
   };
 
   // Admin Adjust User Balance (Cộng/trừ tiền thủ công)

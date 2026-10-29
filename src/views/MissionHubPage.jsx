@@ -7,6 +7,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { getDailyClaims } from '../services/treasureHuntService';
 import { getCheckInStatus } from '../services/checkInService';
 import { normalizePhone } from '../utils/authValidation';
+import { getAffiliateReport } from '../utils/affiliateEngine';
 
 export default function MissionHubPage({ initialCategory = 'all' }) {
   const [activeCategory, setActiveCategory] = useState(initialCategory);
@@ -18,7 +19,8 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
     rewardsConfig, 
     systemConfig,
     properties,
-    usersList
+    usersList,
+    transactions
   } = useRealEstate();
   const router = useRouter();
   const pathname = router?.pathname || '';
@@ -34,14 +36,11 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
     ? `${window.location.origin}/dang-ky?ref=${userRefCode || 'BDS'}`
     : `https://bds-realestate.vercel.app/dang-ky?ref=${userRefCode || 'BDS'}`;
 
-  // Đếm số lượng người thực tế đã đăng ký qua mã giới thiệu của tài khoản này
-  const referredFriends = (usersList || []).filter(u => {
-    if (!currentUser?.id || currentUser.id === 'guest') return false;
-    return String(u.referredBy) === String(currentUser.id) ||
-           (currentUser.refCode && String(u.referredBy) === String(currentUser.refCode)) ||
-           (currentUser.phone && u.referredBy && normalizePhone(u.referredBy) === normalizePhone(currentUser.phone));
-  });
-  const realRefSuccess = referredFriends.length;
+  // Thống kê Affiliate chuẩn hóa với cơ chế thẩm tra đạt chuẩn (Qualified)
+  const affiliateReport = getAffiliateReport(currentUser, usersList, properties, transactions);
+  const realRefSuccess = affiliateReport.qualifiedCount;
+  const totalReferred = affiliateReport.totalReferred;
+  const referredFriends = affiliateReport.allReferred;
 
   useEffect(() => {
     setLocalRewardsConfig(rewardsConfig);
@@ -552,9 +551,15 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
             {/* Reward & Progress Box */}
             <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-700">Tiến độ chiêu mộ:</span>
-                <span className="text-xs font-black text-blue-700 font-mono">
-                  {realRefSuccess} / 5 bạn bè
+                <div>
+                  <span className="text-xs font-bold text-slate-700">Tiến độ đạt chuẩn: </span>
+                  <span className="text-xs font-black text-blue-700 font-mono">
+                    {realRefSuccess} / 5 bạn bè
+                  </span>
+                  <span className="text-[11px] text-slate-500 ml-1.5">(Tổng đã mời: {totalReferred})</span>
+                </div>
+                <span className="text-[11px] font-bold text-emerald-600">
+                  {realRefSuccess >= 5 ? '🎉 Đã đạt chỉ tiêu!' : `Còn ${Math.max(0, 5 - realRefSuccess)} bạn nữa`}
                 </span>
               </div>
               <div className="w-full h-2.5 bg-blue-200/60 rounded-full overflow-hidden">
@@ -563,11 +568,20 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
                   style={{ width: `${Math.min(100, (realRefSuccess / 5) * 100)}%` }}
                 ></div>
               </div>
-              <div className="flex items-center justify-between text-[11px] text-slate-600">
-                <span>🎁 Thưởng: <strong>+300.000đ vào Ví KM</strong></span>
-                <span className="font-bold text-emerald-600">
-                  {realRefSuccess >= 5 ? '🎉 Đã đạt chỉ tiêu!' : `Còn ${Math.max(0, 5 - realRefSuccess)} lượt nữa`}
-                </span>
+              <div className="flex items-center justify-between text-[11px] text-slate-600 pt-0.5">
+                <span>🎁 Thưởng: <strong>+300.000đ vào Ví KM</strong> (hạn 30 ngày)</span>
+                <span className="text-[10px] text-slate-500 italic">Tiêu chuẩn: Kích hoạt + có tin đăng hoặc eKYC</span>
+              </div>
+            </div>
+
+            {/* Revenue Share 10% Commission Banner */}
+            <div className="p-3 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg shrink-0 shadow-sm">
+                <i className="fa-solid fa-sack-dollar"></i>
+              </div>
+              <div className="text-[11px] text-emerald-950 leading-snug">
+                <div className="font-black text-emerald-800">Hoa hồng nạp tiền {systemConfig?.affiliateCommissionRate || 10}% trọn đời</div>
+                <div className="text-emerald-700">Mỗi khi bạn bè nạp tiền mua gói VIP hoặc đẩy tin, bạn nhận ngay {systemConfig?.affiliateCommissionRate || 10}% hoa hồng tiền mặt vào Ví Chính.</div>
               </div>
             </div>
 
@@ -663,29 +677,40 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
             {/* Danh sách bạn bè đã tham gia */}
             <div className="space-y-2 border-t border-slate-100 pt-4">
               <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                <span>Bạn bè đã đăng ký ({referredFriends.length}/5)</span>
+                <span>Bạn bè đã tham gia ({totalReferred} người, {realRefSuccess}/5 đạt chuẩn)</span>
                 <span className="text-emerald-600 text-[11px]">
-                  {referredFriends.length >= 5 ? '🎉 Đủ điều kiện nhận thưởng' : `Cần thêm ${Math.max(0, 5 - referredFriends.length)} người`}
+                  {realRefSuccess >= 5 ? '🎉 Đã đủ điều kiện nhận 300k!' : `Cần thêm ${Math.max(0, 5 - realRefSuccess)} bạn đạt chuẩn`}
                 </span>
               </div>
               {referredFriends.length > 0 ? (
-                <div className="max-h-40 overflow-y-auto space-y-1.5 pr-1">
+                <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1">
                   {referredFriends.map((f, idx) => (
-                    <div key={f.id || idx} className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center text-[10px]">
+                    <div key={f.id || idx} className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs gap-2">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className={`w-6 h-6 rounded-full font-bold flex items-center justify-center text-[10px] shrink-0 ${f.isQualified ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}`}>
                           {idx + 1}
                         </div>
-                        <div>
-                          <div className="font-bold text-slate-800">{f.name || 'Người dùng mới'}</div>
+                        <div className="min-w-0">
+                          <div className="font-bold text-slate-800 truncate">{f.name || 'Người dùng mới'}</div>
                           <div className="text-[10px] text-slate-400 font-mono">
-                            {f.phone ? f.phone.slice(0, 4) + '***' + f.phone.slice(-3) : f.email ? f.email.replace(/(.{2})(.*)(?=@)/, '$1***') : 'Tài khoản thành viên'}
+                            {f.phone ? f.phone.slice(0, 4) + '***' + f.phone.slice(-3) : f.email ? f.email.replace(/(.{2})(.*)(?=@)/, '$1***') : 'Tài khoản'}
+                            {f.userListingsCount > 0 ? ` • ${f.userListingsCount} tin đăng` : ''}
                           </div>
                         </div>
                       </div>
-                      <span className="text-[10px] px-2 py-0.5 rounded-md font-bold bg-emerald-100 text-emerald-700">
-                        {f.status === 'active' || f.emailVerified ? '✓ Đã kích hoạt' : 'Chờ kích hoạt'}
-                      </span>
+                      <div className="shrink-0 text-right">
+                        {f.isQualified ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                            <i className="fa-solid fa-circle-check text-emerald-600"></i>
+                            <span>Đạt chuẩn</span>
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                            <i className="fa-regular fa-clock text-amber-500"></i>
+                            <span>Chờ tin/KYC</span>
+                          </span>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
