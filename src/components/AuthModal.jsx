@@ -509,7 +509,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
                   <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">Khu vực hoạt động chính:</label>
                   <input
                     type="text"
-                    placeholder="VD: Quận 1, Bình Thạnh, Cầu Giấy..."
+                    placeholder="VD: TP. Đà Nẵng, Hà Nội..."
                     value={registerData.primaryArea}
                     onChange={(e) => setRegisterData({ ...registerData, primaryArea: e.target.value })}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 font-medium"
@@ -519,7 +519,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
                   <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">Công ty / Sàn BĐS:</label>
                   <input
                     type="text"
-                    placeholder="VD: Masterise Homes, Độc lập..."
+                    placeholder={`VD: ${systemConfig?.brandShortName || 'KÊNH NHÀ ĐẤT 24H'}...`}
                     value={registerData.company}
                     onChange={(e) => setRegisterData({ ...registerData, company: e.target.value })}
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 font-medium"
@@ -528,15 +528,60 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
               </div>
             )}
 
+            {/* Referral Code (Mã giới thiệu) */}
+            <div>
+              <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">
+                Mã giới thiệu (Nếu có):
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Nhập mã giới thiệu người quen (VD: BDS888)..."
+                  value={registerData.referralCode || ''}
+                  onChange={(e) => setRegisterData({ ...registerData, referralCode: e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, '') })}
+                  className="w-full px-3 py-2 pr-9 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 uppercase tracking-wider text-xs focus:ring-2 focus:ring-emerald-500"
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">
+                  <i className="fa-solid fa-user-tag"></i>
+                </span>
+              </div>
+              {registerData.referralCode && (
+                <p className="text-[10px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                  <i className="fa-solid fa-circle-check text-[9px]"></i>
+                  <span>Mã giới thiệu: <strong>{registerData.referralCode}</strong></span>
+                </p>
+              )}
+            </div>
+
             {/* Terms checkbox */}
             <label className="flex items-start gap-2 cursor-pointer text-slate-600 text-[11px] pt-1">
               <input
                 type="checkbox"
                 checked={registerData.agreeTerms}
                 onChange={(e) => setRegisterData({ ...registerData, agreeTerms: e.target.checked })}
-                className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 mt-0.5"
+                className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 mt-0.5 cursor-pointer"
               />
-              <span>Tôi đồng ý với <strong>Quy chế hoạt động</strong> và <strong>Chính sách bảo mật</strong> của Sàn {systemConfig?.brandShortName || 'Bất Động Sản'}.</span>
+              <span>
+                Tôi đồng ý với{' '}
+                <Link
+                  href="/quy-che-hoat-dong"
+                  target="_blank"
+                  className="font-bold text-emerald-700 hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Quy chế hoạt động
+                </Link>{' '}
+                và{' '}
+                <Link
+                  href="/chinh-sach-bao-mat"
+                  target="_blank"
+                  className="font-bold text-emerald-700 hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Chính sách bảo mật
+                </Link>{' '}
+                của Sàn {systemConfig?.brandShortName || 'KÊNH NHÀ ĐẤT 24H'}.
+              </span>
             </label>
 
             {/* Submit */}

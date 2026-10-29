@@ -11,17 +11,18 @@ export default function RegisterPage() {
   const { navigate } = useRouter();
 
   const [registerData, setRegisterData] = useState({
-    role: 'broker',
+    role: 'broker', // 'broker' or 'user'
     name: '',
     phone: '',
     email: '',
     password: '',
     confirmPassword: '',
     primaryArea: 'TP. Đà Nẵng',
-    company: systemConfig?.brandShortName || 'Đối tác BĐS',
+    company: systemConfig?.brandShortName || 'KÊNH NHÀ ĐẤT 24H',
     referralCode: '',
     agreeTerms: true
   });
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [phoneTouched, setPhoneTouched] = useState(false);
@@ -48,7 +49,9 @@ export default function RegisterPage() {
   }, []);
 
   const bonusAmount = Number(systemConfig?.welcomeBonusAmount || 100000);
-  const bonusFormatted = bonusAmount.toLocaleString('vi-VN') + 'đ';
+  const enableWelcomeBonus = systemConfig?.enableWelcomeBonus !== false && bonusAmount > 0;
+  const bonusText = `${bonusAmount >= 1000 ? Math.floor(bonusAmount / 1000) + 'k' : bonusAmount}`;
+  const bonusFormatted = `${bonusAmount.toLocaleString('vi-VN')} đ`;
   const tokenExpiry = systemConfig?.tokenExpiryMinutes || 30;
 
   // Real-time field validation messages
@@ -87,8 +90,8 @@ export default function RegisterPage() {
 
   if (registrationResult) {
     return (
-      <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
-        <div className="max-w-md w-full bg-white p-8 rounded-3xl border border-emerald-200 shadow-xl text-center space-y-4">
+      <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50/80">
+        <div className="max-w-md w-full bg-white p-8 rounded-3xl border border-emerald-200 shadow-2xl text-center space-y-4">
           <div className="w-16 h-16 rounded-3xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mx-auto shadow-inner">
             <i className="fa-regular fa-envelope-open" />
           </div>
@@ -145,88 +148,131 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-slate-50">
-      <div className="max-w-md w-full space-y-6 bg-white p-8 rounded-3xl border border-slate-200 shadow-xl">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-red-600 via-rose-600 to-red-700 text-white flex items-center justify-center text-xl font-black mx-auto shadow-md">
-            <i className="fa-solid fa-user-plus"></i>
-          </div>
-          <h1 className="text-2xl font-black text-slate-900">Đăng Ký Thành Viên Mới</h1>
-          <p className="text-xs text-slate-500">
-            Tạo tài khoản đăng tin và nhận ngay quà tặng chào mừng <strong className="text-red-600 font-bold">{bonusFormatted}</strong> vào ví
-          </p>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-          {/* Role selector */}
-          <div>
-            <label className="block font-bold text-slate-700 uppercase mb-1">
-              Bạn tham gia với tư cách:
-            </label>
-            <div className="grid grid-cols-2 gap-2">
-              <label className={`p-3 border-2 rounded-2xl flex items-center gap-2 cursor-pointer transition ${registerData.role === 'broker' ? 'border-amber-500 bg-amber-50 text-amber-800' : 'border-slate-200 text-slate-600'}`}>
-                <input
-                  type="radio"
-                  name="role"
-                  value="broker"
-                  checked={registerData.role === 'broker'}
-                  onChange={() => setRegisterData(prev => ({ ...prev, role: 'broker' }))}
-                  className="accent-amber-500"
-                />
-                <div>
-                  <div className="font-bold">Môi Giới BĐS</div>
-                  <div className="text-[10px]">Đăng tin & nâng VIP</div>
-                </div>
-              </label>
-
-              <label className={`p-3 border-2 rounded-2xl flex items-center gap-2 cursor-pointer transition ${registerData.role === 'user' ? 'border-blue-500 bg-blue-50 text-blue-800' : 'border-slate-200 text-slate-600'}`}>
-                <input
-                  type="radio"
-                  name="role"
-                  value="user"
-                  checked={registerData.role === 'user'}
-                  onChange={() => setRegisterData(prev => ({ ...prev, role: 'user' }))}
-                  className="accent-blue-500"
-                />
-                <div>
-                  <div className="font-bold">Khách Tìm Mua</div>
-                  <div className="text-[10px]">Lưu tin & liên hệ</div>
-                </div>
-              </label>
+    <div className="min-h-[85vh] flex items-center justify-center py-8 sm:py-12 px-4 sm:px-6 lg:px-8 bg-slate-50/80">
+      <div className="max-w-lg w-full bg-white rounded-3xl border border-slate-200/90 shadow-2xl overflow-hidden">
+        {/* Modal-style Header */}
+        <div className="p-5 sm:p-6 pb-4 border-b border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-lg font-black shadow-md shrink-0">
+              <i className="fa-solid fa-city"></i>
+            </div>
+            <div>
+              <h1 className="text-base sm:text-lg font-black text-slate-900 leading-tight">
+                Đăng Ký Thành Viên Mới
+              </h1>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                Sàn Giao Dịch Bất Động Sản & Hệ Thống Tin VIP {systemConfig?.brandShortName || 'KÊNH NHÀ ĐẤT 24H'}
+              </p>
             </div>
           </div>
 
+          <Link
+            to="/"
+            className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs transition shrink-0"
+            title="Về trang chủ"
+          >
+            <i className="fa-solid fa-xmark"></i>
+          </Link>
+        </div>
+
+        {/* Tab Switcher Buttons */}
+        <div className="grid grid-cols-2 p-1.5 mx-5 mt-4 bg-slate-100 rounded-2xl text-xs font-bold">
+          <Link
+            to="/dang-nhap"
+            className="py-2.5 rounded-xl transition text-slate-600 hover:text-slate-900 flex items-center justify-center gap-1.5"
+          >
+            <i className="fa-solid fa-right-to-bracket text-emerald-600"></i>
+            <span>Đăng Nhập</span>
+          </Link>
+          <div className="py-2.5 rounded-xl bg-white text-slate-900 shadow-xs flex items-center justify-center gap-1.5 font-bold">
+            <i className="fa-solid fa-user-plus text-red-600"></i>
+            <span>Đăng Ký {enableWelcomeBonus ? `(+${bonusText} ví)` : ''}</span>
+          </div>
+        </div>
+
+        {/* Form Body */}
+        <form onSubmit={handleSubmit} className="p-5 sm:p-6 pt-4 space-y-4 text-xs">
+          {/* Orange Promo Banner (Tặng Ngay 100.000 đ Vào Ví Khuyến Mãi) */}
+          {enableWelcomeBonus && (
+            <div className="p-3.5 bg-gradient-to-r from-amber-500 to-orange-500 rounded-2xl text-white flex items-center gap-3 shadow-xs">
+              <div className="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-base shrink-0">
+                <i className="fa-solid fa-gift"></i>
+              </div>
+              <div className="min-w-0">
+                <div className="font-black text-xs">Tặng Ngay {bonusFormatted} Vào Ví Khuyến Mãi!</div>
+                <div className="text-[11px] text-white/90">Áp dụng trực tiếp để mua gói đăng tin VIP hoặc dịch vụ đẩy tin.</div>
+              </div>
+            </div>
+          )}
+
+          {/* Account Type Selector (Bạn tham gia với tư cách) */}
           <div>
-            <label className="block font-bold text-slate-700 uppercase mb-1">
-              Họ và tên hiển thị <span className="text-red-500">*</span>
+            <label className="block text-slate-700 font-bold uppercase text-[11px] mb-1.5">
+              Bạn tham gia với tư cách:
             </label>
-            <input
-              type="text"
-              required
-              placeholder="Nhập họ và tên..."
-              value={registerData.name}
-              onChange={(e) => setRegisterData(prev => ({ ...prev, name: e.target.value }))}
-              className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-red-500"
-            />
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setRegisterData(prev => ({ ...prev, role: 'broker' }))}
+                className={`p-3 rounded-2xl border text-left transition cursor-pointer ${
+                  registerData.role === 'broker'
+                    ? 'border-red-600 bg-red-50 text-red-900 ring-2 ring-red-400/20'
+                    : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                <div className="font-extrabold flex items-center gap-1.5">
+                  <i className="fa-solid fa-crown text-amber-500"></i>
+                  <span>Môi Giới</span>
+                </div>
+                <div className="text-[10px] text-slate-500 mt-0.5">Đăng tin BĐS, mua gói VIP Kim Cương</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setRegisterData(prev => ({ ...prev, role: 'user' }))}
+                className={`p-3 rounded-2xl border text-left transition cursor-pointer ${
+                  registerData.role === 'user'
+                    ? 'border-blue-600 bg-blue-50 text-blue-900 ring-2 ring-blue-400/20'
+                    : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                <div className="font-extrabold flex items-center gap-1.5">
+                  <i className="fa-solid fa-user text-blue-500"></i>
+                  <span>Khách Hàng Tìm Mua</span>
+                </div>
+                <div className="text-[10px] text-slate-500 mt-0.5">Tìm kiếm nhà đất, so sánh & lưu tin</div>
+              </button>
+            </div>
           </div>
 
+          {/* Name & Phone */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-bold text-slate-700 uppercase mb-1">
-                Số điện thoại <span className="text-red-500">*</span>
+              <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">Họ và tên:</label>
+              <input
+                type="text"
+                placeholder="Nhập họ và tên..."
+                value={registerData.name}
+                onChange={(e) => setRegisterData(prev => ({ ...prev, name: e.target.value }))}
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">
+                Số điện thoại chính chủ <span className="text-red-500">*</span>:
               </label>
               <input
                 type="tel"
-                required
                 placeholder="VD: 0908 123 456"
                 value={registerData.phone}
                 onBlur={() => setPhoneTouched(true)}
                 onChange={(e) => setRegisterData(prev => ({ ...prev, phone: e.target.value }))}
-                className={`w-full px-3 py-2.5 bg-slate-50 border rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-red-500 transition ${
+                className={`w-full px-3 py-2 bg-slate-50 border rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition ${
                   phoneTouched && !phoneValidation.isValid ? 'border-red-400 bg-red-50/30' : 'border-slate-300'
                 }`}
+                required
               />
               {phoneTouched && !phoneValidation.isValid && (
                 <p className="text-[10px] text-red-500 font-semibold mt-1 flex items-center gap-1">
@@ -235,50 +281,51 @@ export default function RegisterPage() {
                 </p>
               )}
             </div>
-
-            <div>
-              <label className="block font-bold text-slate-700 uppercase mb-1">
-                Email nhận tin <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="email"
-                required
-                placeholder="name@example.com"
-                value={registerData.email}
-                onBlur={() => setEmailTouched(true)}
-                onChange={(e) => setRegisterData(prev => ({ ...prev, email: e.target.value }))}
-                className={`w-full px-3 py-2.5 bg-slate-50 border rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-red-500 transition ${
-                  emailTouched && !emailValidation.isValid ? 'border-red-400 bg-red-50/30' : 'border-slate-300'
-                }`}
-              />
-              {emailTouched && !emailValidation.isValid && (
-                <p className="text-[10px] text-red-500 font-semibold mt-1 flex items-center gap-1">
-                  <i className="fa-solid fa-circle-exclamation text-[9px]" />
-                  <span>{emailValidation.message}</span>
-                </p>
-              )}
-            </div>
           </div>
 
-          {/* Password & Confirm Password */}
+          {/* Email */}
+          <div>
+            <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">
+              Email đăng nhập <span className="text-red-500">*</span>:
+            </label>
+            <input
+              type="email"
+              placeholder="name@example.com"
+              value={registerData.email}
+              onBlur={() => setEmailTouched(true)}
+              onChange={(e) => setRegisterData(prev => ({ ...prev, email: e.target.value }))}
+              className={`w-full px-3 py-2 bg-slate-50 border rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none transition ${
+                emailTouched && !emailValidation.isValid ? 'border-red-400 bg-red-50/30' : 'border-slate-300'
+              }`}
+              required
+            />
+            {emailTouched && !emailValidation.isValid && (
+              <p className="text-[10px] text-red-500 font-semibold mt-1 flex items-center gap-1">
+                <i className="fa-solid fa-circle-exclamation text-[9px]" />
+                <span>{emailValidation.message}</span>
+              </p>
+            )}
+          </div>
+
+          {/* Passwords */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-bold text-slate-700 uppercase mb-1">
-                Mật khẩu tạo mới <span className="text-red-500">*</span>
+              <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">
+                Mật khẩu <span className="text-red-500">*</span>:
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
-                  required
-                  placeholder="Tối thiểu 8 ký tự..."
+                  placeholder="Tối thiểu 8 ký tự"
                   value={registerData.password}
                   onChange={(e) => setRegisterData(prev => ({ ...prev, password: e.target.value }))}
-                  className="w-full px-3 py-2.5 pr-10 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-red-500"
+                  className="w-full px-3 py-2 pr-9 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
+                  required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(prev => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition p-1"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition p-1 cursor-pointer"
                   title={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                 >
                   <i className={`fa-regular ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`} />
@@ -287,22 +334,22 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block font-bold text-slate-700 uppercase mb-1">
-                Xác nhận mật khẩu <span className="text-red-500">*</span>
+              <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">
+                Xác nhận mật khẩu <span className="text-red-500">*</span>:
               </label>
               <div className="relative">
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
-                  required
-                  placeholder="Nhập lại mật khẩu..."
+                  placeholder="Nhập lại mật khẩu"
                   value={registerData.confirmPassword}
                   onChange={(e) => setRegisterData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                  className="w-full px-3 py-2.5 pr-10 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-red-500"
+                  className="w-full px-3 py-2 pr-9 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 outline-none"
+                  required
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(prev => !prev)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition p-1"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition p-1 cursor-pointer"
                   title={showConfirmPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
                 >
                   <i className={`fa-regular ${showConfirmPassword ? 'fa-eye-slash' : 'fa-eye'}`} />
@@ -315,49 +362,105 @@ export default function RegisterPage() {
           <PasswordSecurityChecker
             password={registerData.password}
             confirmPassword={registerData.confirmPassword}
+            compact={true}
           />
 
-          {/* Referral Code Box (Affiliate Tracking) */}
-          <div className="space-y-1.5">
-            <label className="block font-bold text-slate-700 uppercase text-xs">
-              Mã giới thiệu (Nếu có)
+          {/* If broker: primary area & company */}
+          {registerData.role === 'broker' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">Khu vực hoạt động chính:</label>
+                <input
+                  type="text"
+                  placeholder="VD: TP. Đà Nẵng, Hà Nội..."
+                  value={registerData.primaryArea}
+                  onChange={(e) => setRegisterData(prev => ({ ...prev, primaryArea: e.target.value }))}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 font-medium outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+              <div>
+                <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">Công ty / Sàn BĐS:</label>
+                <input
+                  type="text"
+                  placeholder={`VD: ${systemConfig?.brandShortName || 'KÊNH NHÀ ĐẤT 24H'}...`}
+                  value={registerData.company}
+                  onChange={(e) => setRegisterData(prev => ({ ...prev, company: e.target.value }))}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 font-medium outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Referral Code (Mã giới thiệu) */}
+          <div>
+            <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">
+              Mã giới thiệu (Nếu có):
             </label>
             <div className="relative">
               <input
                 type="text"
-                value={registerData.referralCode}
-                onChange={(e) => setRegisterData(prev => ({ ...prev, referralCode: e.target.value.toUpperCase() }))}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-red-500 uppercase tracking-wider text-xs"
+                placeholder="Nhập mã giới thiệu người quen (VD: BDS888)..."
+                value={registerData.referralCode || ''}
+                onChange={(e) => setRegisterData(prev => ({ ...prev, referralCode: e.target.value.toUpperCase().replace(/[^A-Z0-9_-]/g, '') }))}
+                className="w-full px-3 py-2 pr-9 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 uppercase tracking-wider text-xs focus:ring-2 focus:ring-emerald-500 outline-none"
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">
                 <i className="fa-solid fa-user-tag"></i>
               </span>
             </div>
+            {registerData.referralCode && (
+              <p className="text-[10px] text-emerald-600 font-semibold mt-1 flex items-center gap-1">
+                <i className="fa-solid fa-circle-check text-[9px]"></i>
+                <span>Mã giới thiệu: <strong>{registerData.referralCode}</strong> (Cộng hoa hồng cho người giới thiệu)</span>
+              </p>
+            )}
           </div>
 
-          {/* Welcome Promo Gift Banner */}
-          <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg shrink-0">
-              <i className="fa-solid fa-gift"></i>
-            </div>
-            <div className="text-[11px] text-emerald-800">
-              <span className="font-bold">Ưu đãi thành viên mới:</span> Tặng ngay <strong className="font-black text-emerald-700">{bonusFormatted} vào ví</strong> để trải nghiệm đăng tin và đẩy tin VIP hoàn toàn miễn phí.
-            </div>
-          </div>
+          {/* Terms checkbox với Link Quy chế hoạt động & Chính sách bảo mật */}
+          <label className="flex items-start gap-2 cursor-pointer text-slate-600 text-[11px] pt-1">
+            <input
+              type="checkbox"
+              checked={registerData.agreeTerms}
+              onChange={(e) => setRegisterData(prev => ({ ...prev, agreeTerms: e.target.checked }))}
+              className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 mt-0.5 cursor-pointer"
+            />
+            <span>
+              Tôi đồng ý với{' '}
+              <Link
+                to="/quy-che-hoat-dong"
+                target="_blank"
+                className="font-bold text-emerald-700 hover:underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Quy chế hoạt động
+              </Link>{' '}
+              và{' '}
+              <Link
+                to="/chinh-sach-bao-mat"
+                target="_blank"
+                className="font-bold text-emerald-700 hover:underline"
+                onClick={(e) => e.stopPropagation()}
+              >
+                Chính sách bảo mật
+              </Link>{' '}
+              của Sàn {systemConfig?.brandShortName || 'KÊNH NHÀ ĐẤT 24H'}.
+            </span>
+          </label>
 
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 disabled:opacity-60 text-white font-black text-sm shadow-lg transition flex items-center justify-center gap-2"
+            className="w-full py-3.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 disabled:opacity-60 text-white font-black text-sm rounded-2xl shadow-lg transition flex items-center justify-center gap-2 cursor-pointer active:scale-98"
           >
-            {isSubmitting ? <i className="fa-solid fa-spinner animate-spin"></i> : <i className="fa-solid fa-user-plus"></i>}
-            <span>{isSubmitting ? 'Đang Xử Lý Đăng Ký...' : `Đăng Ký & Nhận ${bonusFormatted} Vào Ví Ngay`}</span>
+            {isSubmitting ? <i className="fa-solid fa-spinner animate-spin"></i> : <i className="fa-solid fa-user-check"></i>}
+            <span>{isSubmitting ? 'Đang Xử Lý Đăng Ký...' : enableWelcomeBonus ? `Hoàn Tất Đăng Ký & Nhận ${bonusText}` : 'Hoàn Tất Đăng Ký'}</span>
           </button>
         </form>
 
-        {/* Switch to Login */}
-        <div className="text-center text-xs text-slate-500 pt-2">
-          Đã có tài khoản trên {systemConfig?.brandShortName || 'Sàn Bất Động Sản'}?{' '}
+        {/* Switch to Login Footer */}
+        <div className="text-center text-xs text-slate-500 py-4 bg-slate-50/50 border-t border-slate-100">
+          Đã có tài khoản trên {systemConfig?.brandShortName || 'KÊNH NHÀ ĐẤT 24H'}?{' '}
           <Link to="/dang-nhap" className="text-emerald-600 font-bold hover:underline">
             Đăng nhập ngay
           </Link>
