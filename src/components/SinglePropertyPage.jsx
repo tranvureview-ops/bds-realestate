@@ -238,16 +238,43 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     ? usersList?.find(u => String(u.id) === String(property.author.id))
     : (property?.author?.phone ? usersList?.find(u => normalizePhone(u.phone) === normalizePhone(property.author.phone)) : null);
 
+  // Phân định chính xác vai trò: Môi giới vs Khách tìm mua (đồng bộ theo lựa chọn đăng ký tài khoản)
+  const rawRole = (authorUser?.role || property?.author?.role || '').toLowerCase();
+  const rawRoleName = (authorUser?.roleName || property?.author?.title || '').toLowerCase();
+  const isExplicitCustomer = rawRole === 'user' || rawRole === 'customer' || rawRole === 'buyer' ||
+                             rawRoleName.includes('khách') || Boolean(property?.isGuest);
+
+  const isBroker = !isExplicitCustomer && (
+    rawRole === 'broker' ||
+    rawRole === 'agent' ||
+    rawRoleName.includes('môi giới') ||
+    rawRoleName.includes('chuyên viên') ||
+    Boolean(authorUser?.membership) ||
+    (!authorUser?.role && !property?.author?.role) // Mặc định người đăng tin BĐS là môi giới
+  );
+
+  const authorRolePrefix = isBroker ? 'Môi Giới' : 'Khách tìm mua';
+  const authorName = authorUser?.name || property?.author?.name || property?.contactName || 'Người đăng tin';
+  const authorTitle = `${authorRolePrefix} ${authorName}`;
+  const authorRoleLabel = isBroker ? 'Môi Giới BĐS' : 'Khách Tìm Mua';
+  const authorBadgeLabel = isBroker ? 'Chuyên viên tư vấn' : 'Khách tìm mua';
+  const authorSlug = toVietnameseSlug(authorName) || 'tran-van-vu';
+  const brokerUrl = `/moi-gioi/${authorSlug}`;
+
   const safeAuthor = {
     id: authorUser?.id || property?.author?.id || null,
-    name: authorUser?.name || property?.author?.name || property?.contactName || 'Người đăng tin',
+    name: authorName,
+    fullNameWithRole: authorTitle,
+    rolePrefix: authorRolePrefix,
+    isBroker,
     phone: formatPhoneNumber(authorUser?.phone || property?.author?.phone || property?.contactPhone || '0908 123 456'),
     zalo: (authorUser?.phone || property?.author?.zalo || property?.author?.phone || property?.contactPhone || '0908123456').replace(/\s+/g, ''),
     avatar: authorUser?.avatar || property?.author?.avatar || '/avatars/ai-preset-2.jpg',
-    title: authorUser?.roleName || authorUser?.membership?.packageName || property?.author?.title || (property?.isGuest ? 'Khách vãng lai' : 'Chính chủ đăng tin'),
+    title: authorUser?.membership?.packageName || (isBroker ? (authorUser?.roleName || 'Môi Giới BĐS') : 'Khách Tìm Mua'),
     isVerified: authorUser?.isVerified ?? property?.author?.isVerified ?? false,
     rating: property?.author?.rating || '5.0',
-    reviewCount: property?.author?.reviewCount || 1
+    reviewCount: property?.author?.reviewCount || 1,
+    url: brokerUrl
   };
 
   // Lấy toàn bộ danh sách tin đăng thực tế của chuyên viên / môi giới này trên sàn
@@ -255,7 +282,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     if (!properties || !Array.isArray(properties)) return [];
     const authorId = safeAuthor.id ? String(safeAuthor.id) : null;
     const authorPhone = normalizePhone(safeAuthor.phone);
-    const authorName = safeAuthor.name?.trim().toLowerCase();
+    const authorNameLower = safeAuthor.name?.trim().toLowerCase();
 
     return properties.filter(p => {
       if (p.isDeleted || p.status === 'trash' || p.status === 'rejected') return false;
@@ -265,7 +292,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
       return (authorId && pAuthorId && authorId === pAuthorId) ||
              (authorPhone && pPhone && authorPhone.length >= 9 && authorPhone === pPhone) ||
-             (authorName && pName && authorName === pName);
+             (authorNameLower && pName && authorNameLower === pName);
     });
   }, [properties, safeAuthor.id, safeAuthor.phone, safeAuthor.name]);
 
@@ -281,14 +308,8 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     return authorProperties.filter(p => String(p.id) !== String(property?.id));
   }, [authorProperties, property?.id]);
 
-  // Cấu trúc liên kết có cấu trúc cho chuyên viên môi giới (Structured Link Object)
-  const structuredBrokerLink = useMemo(() => ({
-    pathname: '/nha-dat-ban',
-    query: {
-      broker: safeAuthor.name,
-      contact: safeAuthor.phone?.replace(/\s+/g, '')
-    }
-  }), [safeAuthor.name, safeAuthor.phone]);
+  // Cấu trúc liên kết chuẩn: /moi-gioi/tran-van-vu
+  const structuredBrokerLink = brokerUrl;
 
   // Handler mở Modal Popup hồ sơ môi giới bằng React State
   const handleOpenBrokerModal = (e) => {
@@ -1675,7 +1696,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                       rel="nofollow"
                       onClick={handleOpenBrokerModal}
                       className="relative shrink-0 block cursor-pointer"
-                      title={`Bấm để xem hồ sơ chuyên viên & ${authorListingsCount} tin đăng của ${safeAuthor.name}`}
+                      title={authorTitle}
                     >
                       <SeoImage
                         src={safeAuthor.avatar}
@@ -1686,7 +1707,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                         itemProp="image"
                       />
                       {safeAuthor.isVerified && (
-                        <span className="absolute -bottom-1 -right-1 bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow" title="Môi giới đã xác thực">
+                        <span className="absolute -bottom-1 -right-1 bg-blue-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow" title={`${authorTitle} đã xác thực`}>
                           <i className="fa-solid fa-check"></i>
                         </span>
                       )}
@@ -1696,14 +1717,14 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between gap-1">
                         <div className="text-[10px] font-black uppercase text-emerald-700 tracking-wider">
-                          Chuyên viên tư vấn
+                          {authorBadgeLabel}
                         </div>
                         <Link
                           href={structuredBrokerLink}
                           rel="nofollow"
                           onClick={handleOpenBrokerModal}
                           className="text-[10px] text-emerald-600 font-bold hover:underline flex items-center gap-1 shrink-0 cursor-pointer"
-                          title={`Xem hồ sơ chuyên viên ${safeAuthor.name}`}
+                          title={authorTitle}
                         >
                           <span>Xem hồ sơ</span>
                           <i className="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
@@ -1715,14 +1736,14 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                         rel="nofollow"
                         onClick={handleOpenBrokerModal}
                         className="block cursor-pointer group-hover:text-emerald-700 transition"
-                        title={`Xem hồ sơ và ${authorListingsCount} tin đăng của ${safeAuthor.name}`}
+                        title={authorTitle}
                       >
                         <h4 className="text-base font-extrabold text-slate-900 group-hover:text-emerald-700 transition truncate">
                           {safeAuthor.name}
                         </h4>
                       </Link>
 
-                      <div className="text-xs text-slate-500 truncate">
+                      <div className="text-xs text-slate-500 truncate" title={safeAuthor.title}>
                         {safeAuthor.title}
                       </div>
 
@@ -1737,7 +1758,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                           rel="nofollow"
                           onClick={handleOpenBrokerModal}
                           className="text-emerald-600 font-bold hover:underline cursor-pointer"
-                          title={`Xem tất cả ${authorListingsCount} tin đăng`}
+                          title={`Xem tất cả ${authorListingsCount} tin đăng của ${authorTitle}`}
                         >
                           ({authorListingsCount} tin đăng)
                         </Link>
@@ -1990,10 +2011,10 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               <div>
                 <h3 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2.5">
                   <span className="w-2.5 h-6 bg-emerald-600 rounded-full"></span>
-                  <span>Tin Đăng Cùng Chuyên Viên {safeAuthor.name}</span>
+                  <span>Tin Đăng Cùng {authorTitle}</span>
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                  Khám phá thêm các bất động sản do chuyên viên {safeAuthor.name} đang trực tiếp quản lý và hỗ trợ pháp lý ({authorProperties.length} tin)
+                  Khám phá thêm các bất động sản do {authorTitle} đang đăng tải và phụ trách ({authorProperties.length} tin)
                 </p>
               </div>
               <Link
@@ -2001,7 +2022,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 rel="nofollow"
                 onClick={handleOpenBrokerModal}
                 className="self-start sm:self-center text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-4 py-2 rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
-                title={`Xem toàn bộ ${authorProperties.length} tin đăng của chuyên viên ${safeAuthor.name}`}
+                title={`Xem toàn bộ ${authorProperties.length} tin đăng của ${authorTitle}`}
               >
                 <span>Xem tất cả ({authorProperties.length} tin)</span>
                 <i className="fa-solid fa-arrow-right text-[10px]"></i>
@@ -2714,7 +2735,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 <div className="space-y-1.5 flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-[11px] font-black uppercase text-emerald-300 bg-white/10 px-2.5 py-0.5 rounded-full backdrop-blur-md">
-                      Hồ Sơ Chuyên Viên Tư Vấn
+                      {isBroker ? 'Hồ Sơ Chuyên Viên Môi Giới' : 'Hồ Sơ Khách Tìm Mua'}
                     </span>
                     {safeAuthor.isVerified && (
                       <span className="text-[11px] font-bold text-sky-200 bg-sky-500/20 px-2.5 py-0.5 rounded-full flex items-center gap-1">
@@ -2724,12 +2745,12 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                     )}
                   </div>
 
-                  <h3 className="text-2xl sm:text-3xl font-black truncate">
-                    {safeAuthor.name}
+                  <h3 className="text-2xl sm:text-3xl font-black truncate" title={authorTitle}>
+                    {authorTitle}
                   </h3>
 
                   <div className="flex items-center gap-2.5 text-xs text-white/80 flex-wrap">
-                    <span>{safeAuthor.title || 'Môi giới chuyên nghiệp'}</span>
+                    <span>{safeAuthor.title}</span>
                     <span>•</span>
                     <span className="flex items-center gap-1 text-amber-300 font-bold">
                       <i className="fa-solid fa-star"></i>
@@ -2786,7 +2807,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               <div className="flex items-center gap-2">
                 <h4 className="text-xs sm:text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
                   <i className="fa-solid fa-house-chimney text-emerald-600"></i>
-                  <span>Bất Động Sản Của {safeAuthor.name}</span>
+                  <span>Bất Động Sản Của {authorTitle}</span>
                 </h4>
                 <span className="text-xs font-bold text-slate-500 bg-white px-2 py-0.5 rounded-full border border-slate-200">
                   {authorProperties.length} tin

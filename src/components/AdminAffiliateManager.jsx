@@ -338,7 +338,7 @@ export default function AdminAffiliateManager() {
                         <input
                           type="number"
                           min="0"
-                          step="1000"
+                          step="any"
                           value={m.reward}
                           onChange={(e) => handleMilestoneChange(idx, 'reward', e.target.value)}
                           className="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-emerald-700 outline-none focus:ring-2 focus:ring-indigo-500 font-mono"

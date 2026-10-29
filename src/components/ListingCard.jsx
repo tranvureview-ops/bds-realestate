@@ -33,13 +33,35 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
   const rawAuthorPhone = authorUser?.phone || property.author?.phone || property.contactPhone || '0908 123 456';
   const displayAuthorPhone = formatPhoneNumber(rawAuthorPhone);
 
+  // Phân định chính xác vai trò: Môi giới vs Khách tìm mua
+  const rawRole = (authorUser?.role || property.author?.role || '').toLowerCase();
+  const rawRoleName = (authorUser?.roleName || property.author?.title || '').toLowerCase();
+  const isExplicitCustomer = rawRole === 'user' || rawRole === 'customer' || rawRole === 'buyer' ||
+                             rawRoleName.includes('khách') || Boolean(property.isGuest);
+
+  const isBroker = !isExplicitCustomer && (
+    rawRole === 'broker' ||
+    rawRole === 'agent' ||
+    rawRoleName.includes('môi giới') ||
+    rawRoleName.includes('chuyên viên') ||
+    Boolean(authorUser?.membership) ||
+    (!authorUser?.role && !property.author?.role)
+  );
+
+  const authorRolePrefix = isBroker ? 'Môi Giới' : 'Khách tìm mua';
+  const authorName = authorUser?.name || property.author?.name || property.contactName || 'Người đăng tin';
+  const authorTitle = `${authorRolePrefix} ${authorName}`;
+
   const safeAuthor = {
     id: authorUser?.id || property.author?.id || null,
-    name: authorUser?.name || property.author?.name || property.contactName || 'Người đăng tin',
+    name: authorName,
+    fullNameWithRole: authorTitle,
+    rolePrefix: authorRolePrefix,
+    isBroker,
     phone: displayAuthorPhone,
     zalo: (authorUser?.phone || property.author?.zalo || property.author?.phone || property.contactPhone || '0908123456').replace(/\s+/g, ''),
     avatar: authorUser?.avatar || property.author?.avatar || '/avatars/ai-preset-2.jpg',
-    title: authorUser?.roleName || authorUser?.membership?.packageName || property.author?.title || (property.isGuest ? 'Khách vãng lai' : 'Chính chủ'),
+    title: authorUser?.membership?.packageName || (isBroker ? (authorUser?.roleName || 'Môi Giới BĐS') : 'Khách Tìm Mua'),
     isVerified: authorUser?.isVerified ?? property.author?.isVerified ?? false
   };
 
@@ -239,9 +261,9 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
               />
               <div className="leading-tight min-w-0 flex-1">
                 <div className="text-xs font-bold text-slate-800 flex items-center gap-1 min-w-0">
-                  <span className="truncate block" title={safeAuthor.name}>{safeAuthor.name}</span>
+                  <span className="truncate block" title={safeAuthor.fullNameWithRole}>{safeAuthor.name}</span>
                   {safeAuthor.isVerified && (
-                    <i className="fa-solid fa-circle-check text-blue-500 text-[11px] shrink-0" title="Môi giới đã xác thực"></i>
+                    <i className="fa-solid fa-circle-check text-blue-500 text-[11px] shrink-0" title={`${safeAuthor.fullNameWithRole} đã xác thực`}></i>
                   )}
                 </div>
                 <div className="text-[10px] text-slate-400 truncate" title={safeAuthor.title}>

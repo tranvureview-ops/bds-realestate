@@ -6,7 +6,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import dynamic from 'next/dynamic';
 import { VIP_PACKAGES } from '../data/mockData';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
-import { formatSentenceCase, getPropertyPermalink } from '../utils/permalink';
+import { formatSentenceCase, getPropertyPermalink, toVietnameseSlug } from '../utils/permalink';
 import SeoImage from './SeoImage';
 const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
   ssr: false,
@@ -43,16 +43,43 @@ export default function ListingDetailModal({ property, onClose }) {
     ? usersList?.find(u => String(u.id) === String(property.author.id))
     : (property?.author?.phone ? usersList?.find(u => normalizePhone(u.phone) === normalizePhone(property.author.phone)) : null);
 
+  // Phân định chính xác vai trò: Môi giới vs Khách tìm mua
+  const rawRole = (authorUser?.role || property?.author?.role || '').toLowerCase();
+  const rawRoleName = (authorUser?.roleName || property?.author?.title || '').toLowerCase();
+  const isExplicitCustomer = rawRole === 'user' || rawRole === 'customer' || rawRole === 'buyer' ||
+                             rawRoleName.includes('khách') || Boolean(property?.isGuest);
+
+  const isBroker = !isExplicitCustomer && (
+    rawRole === 'broker' ||
+    rawRole === 'agent' ||
+    rawRoleName.includes('môi giới') ||
+    rawRoleName.includes('chuyên viên') ||
+    Boolean(authorUser?.membership) ||
+    (!authorUser?.role && !property?.author?.role)
+  );
+
+  const authorRolePrefix = isBroker ? 'Môi Giới' : 'Khách tìm mua';
+  const authorName = authorUser?.name || property?.author?.name || property?.contactName || 'Người đăng tin';
+  const authorTitle = `${authorRolePrefix} ${authorName}`;
+  const authorRoleLabel = isBroker ? 'Môi Giới BĐS' : 'Khách Tìm Mua';
+  const authorBadgeLabel = isBroker ? 'Chuyên viên tư vấn' : 'Khách tìm mua';
+  const authorSlug = toVietnameseSlug(authorName) || 'tran-van-vu';
+  const brokerUrl = `/moi-gioi/${authorSlug}`;
+
   const safeAuthor = {
     id: authorUser?.id || property?.author?.id || null,
-    name: authorUser?.name || property?.author?.name || property?.contactName || 'Người đăng tin',
+    name: authorName,
+    fullNameWithRole: authorTitle,
+    rolePrefix: authorRolePrefix,
+    isBroker,
     phone: formatPhoneNumber(authorUser?.phone || property?.author?.phone || property?.contactPhone || '0908 123 456'),
     zalo: (authorUser?.phone || property?.author?.zalo || property?.author?.phone || property?.contactPhone || '0908123456').replace(/\s+/g, ''),
     avatar: authorUser?.avatar || property?.author?.avatar || '/avatars/ai-preset-2.jpg',
-    title: authorUser?.roleName || authorUser?.membership?.packageName || property?.author?.title || (property?.isGuest ? 'Khách vãng lai' : 'Chính chủ'),
+    title: authorUser?.membership?.packageName || (isBroker ? (authorUser?.roleName || 'Môi Giới BĐS') : 'Khách Tìm Mua'),
     isVerified: authorUser?.isVerified ?? property?.author?.isVerified ?? false,
     rating: property?.author?.rating || '5.0',
-    reviewCount: property?.author?.reviewCount || 1
+    reviewCount: property?.author?.reviewCount || 1,
+    url: brokerUrl
   };
 
   // Toàn bộ danh sách tin đăng của môi giới này
@@ -60,7 +87,7 @@ export default function ListingDetailModal({ property, onClose }) {
     if (!properties || !Array.isArray(properties)) return [];
     const authorId = safeAuthor.id ? String(safeAuthor.id) : null;
     const authorPhone = normalizePhone(safeAuthor.phone);
-    const authorName = safeAuthor.name?.trim().toLowerCase();
+    const authorNameLower = safeAuthor.name?.trim().toLowerCase();
 
     return properties.filter(p => {
       if (p.isDeleted || p.status === 'trash' || p.status === 'rejected') return false;
@@ -70,7 +97,7 @@ export default function ListingDetailModal({ property, onClose }) {
 
       return (authorId && pAuthorId && authorId === pAuthorId) ||
              (authorPhone && pPhone && authorPhone.length >= 9 && authorPhone === pPhone) ||
-             (authorName && pName && authorName === pName);
+             (authorNameLower && pName && authorNameLower === pName);
     });
   }, [properties, safeAuthor.id, safeAuthor.phone, safeAuthor.name]);
 
@@ -81,14 +108,8 @@ export default function ListingDetailModal({ property, onClose }) {
       : (authorUser?.activeListingsCount ?? (authorUser?.listingsCount ?? 1));
   }, [authorProperties.length, authorUser]);
 
-  // Cấu trúc liên kết có cấu trúc cho chuyên viên môi giới (Structured Link Object)
-  const structuredBrokerLink = useMemo(() => ({
-    pathname: '/nha-dat-ban',
-    query: {
-      broker: safeAuthor.name,
-      contact: safeAuthor.phone?.replace(/\s+/g, '')
-    }
-  }), [safeAuthor.name, safeAuthor.phone]);
+  // Cấu trúc liên kết chuẩn: /moi-gioi/tran-van-vu
+  const structuredBrokerLink = brokerUrl;
 
   // Handler mở Modal Popup hồ sơ môi giới bằng React State
   const handleOpenBrokerModal = (e) => {
@@ -504,7 +525,7 @@ export default function ListingDetailModal({ property, onClose }) {
                   itemType="https://schema.org/RealEstateAgent"
                   className="flex items-center gap-3 pb-4 border-b border-slate-100 group hover:bg-emerald-50/60 -mx-2 px-2 py-2 rounded-2xl transition-all"
                 >
-                  <meta itemProp="name" content={safeAuthor.name} />
+                  <meta itemProp="name" content={authorTitle} />
                   <meta itemProp="telephone" content={safeAuthor.phone} />
                   <meta itemProp="jobTitle" content={safeAuthor.title} />
 
@@ -514,7 +535,7 @@ export default function ListingDetailModal({ property, onClose }) {
                     rel="nofollow"
                     onClick={handleOpenBrokerModal}
                     className="relative shrink-0 block cursor-pointer"
-                    title={`Bấm để xem hồ sơ chuyên viên & ${authorListingsCount} tin đăng của ${safeAuthor.name}`}
+                    title={authorTitle}
                   >
                     <SeoImage
                       src={safeAuthor.avatar}
@@ -525,7 +546,7 @@ export default function ListingDetailModal({ property, onClose }) {
                       itemProp="image"
                     />
                     {safeAuthor.isVerified && (
-                      <span className="absolute -bottom-1 -right-1 bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow" title="Môi giới đã xác thực">
+                      <span className="absolute -bottom-1 -right-1 bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow" title={`${authorTitle} đã xác thực`}>
                         <i className="fa-solid fa-check"></i>
                       </span>
                     )}
@@ -535,14 +556,14 @@ export default function ListingDetailModal({ property, onClose }) {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-1">
                       <div className="text-[10px] font-black text-emerald-700 uppercase tracking-wider">
-                        Người đăng tin
+                        {authorBadgeLabel}
                       </div>
                       <Link
                         href={structuredBrokerLink}
                         rel="nofollow"
                         onClick={handleOpenBrokerModal}
                         className="text-[10px] text-emerald-600 font-bold hover:underline flex items-center gap-1 shrink-0 cursor-pointer"
-                        title={`Xem hồ sơ ${safeAuthor.name}`}
+                        title={authorTitle}
                       >
                         <span>Xem hồ sơ</span>
                         <i className="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
@@ -554,14 +575,14 @@ export default function ListingDetailModal({ property, onClose }) {
                       rel="nofollow"
                       onClick={handleOpenBrokerModal}
                       className="block cursor-pointer group-hover:text-emerald-700 transition"
-                      title={`Xem hồ sơ và ${authorListingsCount} tin đăng của ${safeAuthor.name}`}
+                      title={authorTitle}
                     >
                       <h4 className="text-base font-extrabold text-slate-900 group-hover:text-emerald-700 transition truncate">
                         {safeAuthor.name}
                       </h4>
                     </Link>
 
-                    <p className="text-xs text-slate-500 truncate">
+                    <p className="text-xs text-slate-500 truncate" title={safeAuthor.title}>
                       {safeAuthor.title}
                     </p>
 
@@ -576,7 +597,7 @@ export default function ListingDetailModal({ property, onClose }) {
                         rel="nofollow"
                         onClick={handleOpenBrokerModal}
                         className="text-emerald-600 font-bold hover:underline cursor-pointer"
-                        title={`Xem tất cả ${authorListingsCount} tin đăng`}
+                        title={`Xem tất cả ${authorListingsCount} tin đăng của ${authorTitle}`}
                       >
                         ({authorListingsCount} tin đăng)
                       </Link>
@@ -683,7 +704,7 @@ export default function ListingDetailModal({ property, onClose }) {
                 <div className="space-y-1.5 flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-[11px] font-black uppercase text-emerald-300 bg-white/10 px-2.5 py-0.5 rounded-full backdrop-blur-md">
-                      Hồ Sơ Chuyên Viên Tư Vấn
+                      {isBroker ? 'Hồ Sơ Chuyên Viên Môi Giới' : 'Hồ Sơ Khách Tìm Mua'}
                     </span>
                     {safeAuthor.isVerified && (
                       <span className="text-[11px] font-bold text-sky-200 bg-sky-500/20 px-2.5 py-0.5 rounded-full flex items-center gap-1">
@@ -693,12 +714,12 @@ export default function ListingDetailModal({ property, onClose }) {
                     )}
                   </div>
 
-                  <h3 className="text-2xl sm:text-3xl font-black truncate">
-                    {safeAuthor.name}
+                  <h3 className="text-2xl sm:text-3xl font-black truncate" title={authorTitle}>
+                    {authorTitle}
                   </h3>
 
                   <div className="flex items-center gap-2.5 text-xs text-white/80 flex-wrap">
-                    <span>{safeAuthor.title || 'Môi giới chuyên nghiệp'}</span>
+                    <span>{safeAuthor.title}</span>
                     <span>•</span>
                     <span className="flex items-center gap-1 text-amber-300 font-bold">
                       <i className="fa-solid fa-star"></i>
@@ -755,7 +776,7 @@ export default function ListingDetailModal({ property, onClose }) {
               <div className="flex items-center gap-2">
                 <h4 className="text-xs sm:text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
                   <i className="fa-solid fa-house-chimney text-emerald-600"></i>
-                  <span>Bất Động Sản Của {safeAuthor.name}</span>
+                  <span>Bất Động Sản Của {authorTitle}</span>
                 </h4>
                 <span className="text-xs font-bold text-slate-500 bg-white px-2 py-0.5 rounded-full border border-slate-200">
                   {authorProperties.length} tin
