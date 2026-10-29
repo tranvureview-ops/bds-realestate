@@ -4337,7 +4337,25 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     };
 
     setHeaderConfig(toSave);
-    await persistSettingToSupabase('bds_header_config', toSave);
+
+    // Đồng bộ 2 chiều: Khi cập nhật Tên thương hiệu ở Header, tự động đồng bộ sang systemConfig
+    const fullBrandName = [toSave.brandName, toSave.brandHighlight].filter(Boolean).join(' ').trim();
+    let updatedSystem;
+    if (fullBrandName) {
+      setSystemConfig(prev => {
+        updatedSystem = {
+          ...prev,
+          brandShortName: fullBrandName,
+          ...(toSave.brandTagline ? { tagline: toSave.brandTagline } : {})
+        };
+        return updatedSystem;
+      });
+    }
+
+    await Promise.all([
+      persistSettingToSupabase('bds_header_config', toSave),
+      updatedSystem ? persistSettingToSupabase('bds_system_config', updatedSystem) : Promise.resolve()
+    ]);
 
     const widthLabel = toSave.containerWidth === 'full' 
       ? 'Toàn Màn Hình (100% Full-Width)' 

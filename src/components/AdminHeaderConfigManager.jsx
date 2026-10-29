@@ -146,7 +146,6 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
     setIsSavingHeader(true);
     try {
       await updateHeaderConfig(logoFormData);
-      showToast('Đã lưu cấu hình Header & Logo thành công!', 'success');
     } finally {
       setTimeout(() => setIsSavingHeader(false), 400);
     }
@@ -264,7 +263,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
               <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-xl border border-slate-800">
                 <button
                   type="button"
-                  onClick={() => setLogoFormData({ ...logoFormData, logoType: 'text' })}
+                  onClick={() => setLogoFormData(prev => ({ ...prev, logoType: 'text' }))}
                   className={`px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
                     logoFormData.logoType === 'text'
                       ? 'bg-emerald-600 text-white shadow'
@@ -276,7 +275,11 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setLogoFormData({ ...logoFormData, logoType: 'image' })}
+                  onClick={() => setLogoFormData(prev => ({
+                    ...prev,
+                    logoType: 'image',
+                    logoImageUrl: prev.logoImageUrl || DEFAULT_HEADER_CONFIG.logoImageUrl || (PRESET_LOGOS?.[0]?.url || '')
+                  }))}
                   className={`px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 ${
                     logoFormData.logoType === 'image'
                       ? 'bg-emerald-600 text-white shadow'

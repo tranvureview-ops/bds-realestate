@@ -67,6 +67,36 @@ export default function Navbar() {
   const userMenuRef = useRef(null);
   const isGuest = !currentUser || currentUser.role === 'guest';
 
+  // Quản lý fallback ảnh logo và định dạng hiển thị thương hiệu
+  const [logoImgError, setLogoImgError] = useState(false);
+  useEffect(() => {
+    setLogoImgError(false);
+  }, [headerConfig?.logoImageUrl, headerConfig?.logoType]);
+
+  const { brandNameDisplay, brandHighlightDisplay } = useMemo(() => {
+    const hasHeaderBrand = Boolean(headerConfig?.brandName?.trim() || headerConfig?.brandHighlight?.trim());
+    if (hasHeaderBrand) {
+      return {
+        brandNameDisplay: headerConfig?.brandName?.trim() || '',
+        brandHighlightDisplay: headerConfig?.brandHighlight?.trim() || ''
+      };
+    }
+    const fullText = systemConfig?.brandShortName?.trim() || 'ĐẤT BIỂN ĐÀ NẴNG';
+    const words = fullText.split(/\s+/).filter(Boolean);
+    if (words.length <= 1) {
+      return {
+        brandNameDisplay: words[0] || 'BẤT ĐỘNG SẢN',
+        brandHighlightDisplay: ''
+      };
+    }
+    return {
+      brandNameDisplay: words.slice(0, -1).join(' '),
+      brandHighlightDisplay: words[words.length - 1]
+    };
+  }, [headerConfig?.brandName, headerConfig?.brandHighlight, systemConfig?.brandShortName]);
+
+  const isImageLogo = headerConfig?.logoType === 'image' && Boolean(headerConfig?.logoImageUrl) && !logoImgError;
+
   // Chuẩn hóa chiều rộng container đồng nhất với toàn bộ trang:
   // - Boxed: 1152px (max-w-6xl) trên laptop, 1280px (xl:max-w-7xl) trên màn lớn (canh giữa)
   // - Wide: 94% chiều rộng màn hình (max-w-[94vw]) đến 1536px (2xl:max-w-[1536px])
@@ -143,8 +173,8 @@ export default function Navbar() {
           <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950/90 text-emerald-400 border border-emerald-800/80 font-semibold text-[10px] sm:text-[11px] truncate">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-              <span className="hidden sm:inline truncate">Sàn BĐS {systemConfig?.brandShortName || `${headerConfig?.brandName || 'Sàn'} ${headerConfig?.brandHighlight || 'Bất Động Sản'}`.trim()}</span>
-              <span className="sm:hidden truncate">{systemConfig?.brandShortName || 'Sàn BĐS'}</span>
+              <span className="hidden sm:inline truncate">Sàn BĐS {[brandNameDisplay, brandHighlightDisplay].filter(Boolean).join(' ') || 'Bất Động Sản'}</span>
+              <span className="sm:hidden truncate">{brandNameDisplay || 'Sàn BĐS'}</span>
             </span>
             <span suppressHydrationWarning className="hidden md:inline-flex items-center gap-1.5 text-slate-400 shrink-0">
               <span className="text-slate-600">|</span>
@@ -207,18 +237,18 @@ export default function Navbar() {
             suppressHydrationWarning
             className="flex items-center gap-2 sm:gap-3 cursor-pointer select-none group min-w-0 shrink"
           >
-            {headerConfig?.logoType === 'image' && headerConfig?.logoImageUrl ? (
+            {isImageLogo ? (
               <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
                 <img 
                   src={headerConfig.logoImageUrl} 
                   alt={headerConfig.logoAlt || 'Logo'} 
                   style={{ height: `${headerConfig.logoHeight || 38}px` }}
                   className="object-contain max-h-10 sm:max-h-14 max-w-[130px] sm:max-w-[240px] transition-transform group-hover:scale-102"
-                  onError={(e) => { e.target.style.display = 'none'; }}
+                  onError={() => setLogoImgError(true)}
                 />
-                {headerConfig.showTaglineWithImage && headerConfig.brandTagline && (
+                {headerConfig.showTaglineWithImage && (headerConfig.brandTagline || systemConfig?.tagline) && (
                   <span className="text-[10px] text-slate-500 font-bold tracking-wider uppercase hidden md:inline-block truncate">
-                    {headerConfig.brandTagline}
+                    {headerConfig.brandTagline || systemConfig?.tagline}
                   </span>
                 )}
               </div>
@@ -229,21 +259,10 @@ export default function Navbar() {
                 </div>
                 <div className="leading-tight min-w-0 truncate">
                   <div className="flex items-center gap-1 font-black text-slate-900 tracking-tight text-base sm:text-lg truncate">
-                    {(() => {
-                      const brandText = systemConfig?.brandShortName || `${headerConfig?.brandName || 'ĐẤT BIỂN'} ${headerConfig?.brandHighlight || ''}`.trim();
-                      const words = brandText.split(/\s+/).filter(Boolean);
-                      if (words.length <= 1) {
-                        return <span className="truncate">{words[0] || 'BẤT ĐỘNG SẢN'}</span>;
-                      }
-                      const mainText = words.slice(0, -1).join(' ');
-                      const highlightText = words[words.length - 1];
-                      return (
-                        <>
-                          <span className="truncate">{mainText}</span>
-                          <span className="text-emerald-600 shrink-0 ml-1">{highlightText}</span>
-                        </>
-                      );
-                    })()}
+                    <span className="truncate">{brandNameDisplay}</span>
+                    {brandHighlightDisplay ? (
+                      <span className="text-emerald-600 shrink-0 ml-1">{brandHighlightDisplay}</span>
+                    ) : null}
                     {headerConfig?.badgeText && (
                       <span className={`hidden sm:inline-block text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0 ${headerConfig?.badgeColor || 'bg-red-100 text-red-600 border border-red-200'}`}>
                         {headerConfig.badgeText}
@@ -682,12 +701,12 @@ export default function Navbar() {
           <div className="relative ml-auto w-full max-w-sm bg-white h-full shadow-2xl flex flex-col z-10 animate-in slide-in-from-right duration-250">
             {/* Drawer Header */}
             <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-              {headerConfig?.logoType === 'image' && headerConfig?.logoImageUrl ? (
+              {isImageLogo ? (
                 <img 
                   src={headerConfig.logoImageUrl} 
                   alt={headerConfig.logoAlt || 'Logo'} 
                   className="h-8 max-w-[180px] object-contain"
-                  onError={(e) => { e.target.style.display = 'none'; }}
+                  onError={() => setLogoImgError(true)}
                 />
               ) : (
                 <div className="flex items-center gap-2">
@@ -695,7 +714,8 @@ export default function Navbar() {
                     <i className={headerConfig?.brandIcon || 'fa-solid fa-water'}></i>
                   </div>
                   <div className="font-black text-slate-900 text-base">
-                    <span>{headerConfig?.brandName || systemConfig?.brandShortName || 'ĐẤT BIỂN'}</span> {headerConfig?.brandHighlight ? <span className="text-emerald-600">{headerConfig.brandHighlight}</span> : null}
+                    <span>{brandNameDisplay}</span>
+                    {brandHighlightDisplay ? <span className="text-emerald-600 ml-1">{brandHighlightDisplay}</span> : null}
                   </div>
                 </div>
               )}
