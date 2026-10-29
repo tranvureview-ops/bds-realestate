@@ -7,7 +7,7 @@ import { getDailyQuotaStatus, getDailyClaims, hasClaimedPropertyToday } from '..
 import { getPropertyPermalink, SITE_URL } from '../utils/permalink';
 
 export default function TreasureHuntPage() {
-  const { currentUser, properties, rewardsConfig, systemConfig } = useRealEstate();
+  const { currentUser, properties, rewardsConfig, systemConfig, addBonusWalletBalance } = useRealEstate();
   const tConfig = rewardsConfig?.treasureHuntConfig;
   const dailyLimit = Number(tConfig?.dailyLimit || 3);
   const minAmount = Number(tConfig?.minAmount || 2000);
@@ -18,16 +18,73 @@ export default function TreasureHuntPage() {
   const [quota, setQuota] = useState({ count: 0, limit: dailyLimit, remaining: dailyLimit, isLimitReached: false });
   const [claimsToday, setClaimsToday] = useState([]);
 
-  const userId = currentUser && currentUser.role !== 'guest' ? currentUser.id : null;
-  const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
+  const userId = (currentUser && currentUser.role !== 'guest' ? currentUser.id : null) || 'guest';
+  const [localBonusBal, setLocalBonusBal] = useState(Number(currentUser?.bonusWalletBalance || 0));
+  const [expiringBonusInfo, setExpiringBonusInfo] = useState(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    if (userId) {
-      setQuota(getDailyQuotaStatus(userId, dailyLimit));
-      setClaimsToday(getDailyClaims(userId));
+
+    // 1. Lấy danh sách rương đã mở hôm nay (kiểm tra cả user hiện tại lẫn guest)
+    let claims = getDailyClaims(userId);
+    if (claims.length === 0 && userId !== 'guest') {
+      const guestClaims = getDailyClaims('guest');
+      if (guestClaims.length > 0) {
+        claims = guestClaims;
+      }
     }
-  }, [userId, dailyLimit, bonusBal]);
+    setQuota(getDailyQuotaStatus(userId, dailyLimit));
+    setClaimsToday(claims);
+
+    const earnedToday = claims.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
+
+    // 2. Đồng bộ số dư Ví Khuyến Mãi từ LocalStorage & currentUser
+    let resolvedBonus = Number(currentUser?.bonusWalletBalance || 0);
+    try {
+      const cachedBonus = localStorage.getItem(`bds_user_bonus_${userId}`);
+      if (cachedBonus !== null && !isNaN(Number(cachedBonus))) {
+        resolvedBonus = Math.max(resolvedBonus, Number(cachedBonus));
+      }
+      const cachedExp = localStorage.getItem(`bds_user_bonus_exp_${userId}`);
+      if (cachedExp) {
+        const parsed = JSON.parse(cachedExp);
+        if (parsed?.amount && parsed?.formattedDate) {
+          setExpiringBonusInfo(parsed);
+        }
+      }
+    } catch (e) {}
+
+    // 3. Tự động đối soát: Nếu đã săn được rương hôm nay mà Ví KM hiển thị nhỏ hơn số tiền săn rương, tự động cộng bù ngay
+    if (earnedToday > 0 && resolvedBonus < earnedToday) {
+      resolvedBonus = earnedToday;
+      if (addBonusWalletBalance) {
+        addBonusWalletBalance(earnedToday - (Number(currentUser?.bonusWalletBalance) || 0), 'Tiền thưởng săn rương kho báu hôm nay');
+      } else {
+        try {
+          localStorage.setItem(`bds_user_bonus_${userId}`, String(resolvedBonus));
+        } catch (e) {}
+      }
+    }
+
+    setLocalBonusBal(resolvedBonus);
+
+    const handleWalletUpdated = (e) => {
+      if (e.detail?.bonusWalletBalance !== undefined) {
+        setLocalBonusBal(Number(e.detail.bonusWalletBalance));
+      }
+      if (e.detail?.earliestExpiringBonus) {
+        setExpiringBonusInfo(e.detail.earliestExpiringBonus);
+      }
+    };
+
+    window.addEventListener('bds_bonus_wallet_updated', handleWalletUpdated);
+    window.addEventListener('storage', handleWalletUpdated);
+
+    return () => {
+      window.removeEventListener('bds_bonus_wallet_updated', handleWalletUpdated);
+      window.removeEventListener('storage', handleWalletUpdated);
+    };
+  }, [userId, dailyLimit, currentUser?.bonusWalletBalance]);
 
   const totalEarnedToday = claimsToday.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
 
@@ -84,7 +141,16 @@ export default function TreasureHuntPage() {
               <div>
                 <div className="text-[11px] text-white/70 font-semibold">Ví Khuyến Mãi hiện có</div>
                 <div className="text-xl font-black text-amber-300 font-mono">
-                  +{bonusBal.toLocaleString('vi-VN')} đ
+                  +{localBonusBal.toLocaleString('vi-VN')} đ
+                </div>
+                {/* Dòng cảnh báo hạn dùng 30 ngày */}
+                <div className="text-[10px] text-amber-200/90 pt-0.5 flex items-center gap-1 font-medium">
+                  <span>⏳</span>
+                  <span>
+                    {expiringBonusInfo?.formattedDate
+                      ? `Có ${Number(expiringBonusInfo.amount || localBonusBal).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${expiringBonusInfo.formattedDate}`
+                      : 'Tiền thưởng săn rương có hạn sử dụng 30 ngày kể từ ngày nhận'}
+                  </span>
                 </div>
               </div>
             </div>

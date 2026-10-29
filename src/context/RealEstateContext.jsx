@@ -1274,6 +1274,29 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     }
   }, [currentUser]);
 
+  // Đồng bộ số dư Ví Khuyến Mãi của currentUser từ LocalStorage sau khi Hydration ở Client
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const uid = currentUser?.id || 'guest';
+    try {
+      const cachedBonus = localStorage.getItem(`bds_user_bonus_${uid}`);
+      if (cachedBonus !== null && !isNaN(Number(cachedBonus))) {
+        const numBonus = Number(cachedBonus);
+        if (numBonus !== Number(currentUser?.bonusWalletBalance)) {
+          setCurrentUser(prev => ({ ...prev, bonusWalletBalance: numBonus }));
+        }
+      }
+    } catch (e) {}
+
+    const handleBonusWalletEvent = (e) => {
+      if (e.detail?.bonusWalletBalance !== undefined && e.detail?.userId === uid) {
+        setCurrentUser(prev => ({ ...prev, bonusWalletBalance: Number(e.detail.bonusWalletBalance) }));
+      }
+    };
+    window.addEventListener('bds_bonus_wallet_updated', handleBonusWalletEvent);
+    return () => window.removeEventListener('bds_bonus_wallet_updated', handleBonusWalletEvent);
+  }, [currentUser?.id]);
+
   // Tải dữ liệu mới nhất trực tiếp từ Supabase qua SDK (Central Fetcher)
   const fetchLatestDataFromSupabase = useCallback(async (isSilent = true) => {
     try {
