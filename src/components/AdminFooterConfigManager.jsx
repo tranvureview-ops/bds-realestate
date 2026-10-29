@@ -4,20 +4,40 @@ import React, { useState, useEffect } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { DEFAULT_FOOTER_CONFIG } from '../data/mockData';
 
-// Danh sách toàn bộ các đường dẫn nội bộ trong website BĐS
+// Danh sách toàn bộ các đường dẫn nội bộ trong website BĐS (Đầy đủ trang chức năng, danh mục chuẩn SEO, loại trừ triệt để link sản phẩm đơn lẻ)
 export const ALL_INTERNAL_ROUTES = [
   {
     category: '📌 Trang Chính & Khám Phá',
     routes: [
       { label: 'Trang Chủ', url: '/' },
-      { label: 'Nhà Đất Cần Bán', url: '/nha-dat-ban' },
-      { label: 'Cho Thuê Nhà Đất', url: '/nha-dat-cho-thue' },
-      { label: 'Bảng Giá Tin Đăng', url: '/bang-gia-tin-dang' },
-      { label: 'Bảng Giá VIP', url: '/bang-gia-vip' },
-      { label: 'Gói Hội Viên', url: '/goi-hoi-vien' },
-      { label: 'Đăng Tin Mới (Hiệu Quả)', url: '/dang-tin' },
+      { label: 'Nhà Đất Cần Bán (Toàn Quốc)', url: '/nha-dat-ban' },
+      { label: 'Cho Thuê Nhà Đất (Toàn Quốc)', url: '/nha-dat-cho-thue' },
+      { label: 'Bảng Giá Tin Đăng & VIP', url: '/bang-gia-tin-dang' },
+      { label: 'Gói Hội Viên Môi Giới', url: '/goi-hoi-vien' },
+      { label: 'Đăng Tin BĐS Mới', url: '/dang-tin' },
       { label: 'Công Cụ Tính Lãi Vay', url: '/tinh-lai-vay' },
       { label: 'So Sánh Đối Đầu BĐS', url: '/so-sanh' },
+    ]
+  },
+  {
+    category: '🎁 Trung Tâm Phần Thưởng & Minigame',
+    routes: [
+      { label: 'Trung Tâm Phần Thưởng', url: '/trung-tam-phan-thuong' },
+      { label: 'Săn Kho Báu BĐS', url: '/trung-tam-phan-thuong/san-kho-bau-bds' },
+      { label: 'Điểm Danh 7 Ngày', url: '/trung-tam-phan-thuong/diem-danh-7-ngay' },
+      { label: 'Minigame Dự Đoán Giá BĐS', url: '/trung-tam-phan-thuong/du-doan-gia-bds' },
+      { label: 'Đổi Quà & Thẻ Cào', url: '/trung-tam-phan-thuong/doi-qua' },
+    ]
+  },
+  {
+    category: '🎯 Khuyến Mãi, Nhiệm Vụ & Affiliate',
+    routes: [
+      { label: 'Chương Trình Khuyến Mãi', url: '/khuyen-mai' },
+      { label: 'Hệ Thống Nhiệm Vụ', url: '/nhiem-vu' },
+      { label: 'Nhiệm Vụ Hàng Ngày', url: '/nhiem-vu/hang-ngay' },
+      { label: 'Nhiệm Vụ Tăng Trưởng', url: '/nhiem-vu/tang-truong' },
+      { label: 'Huy Hiệu & Thành Tựu', url: '/nhiem-vu/thanh-tuu' },
+      { label: 'Tiếp Thị Liên Kết (Affiliate)', url: '/r' },
     ]
   },
   {
@@ -31,6 +51,7 @@ export const ALL_INTERNAL_ROUTES = [
       { label: 'Đăng Ký Tài Khoản', url: '/dang-ky' },
       { label: 'Quên Mật Khẩu', url: '/quen-mat-khau' },
       { label: 'Đặt Lại Mật Khẩu', url: '/dat-lai-mat-khau' },
+      { label: 'Xác Thực Email', url: '/xac-thuc-email' },
       { label: 'Bàn Làm Việc CMS Admin', url: '/admin' }
     ]
   },
@@ -46,46 +67,69 @@ export const ALL_INTERNAL_ROUTES = [
   {
     category: '🏢 Danh Mục BĐS Bán (Chuẩn SEO)',
     routes: [
-      { label: 'Bán căn hộ chung cư', url: '/ban-can-ho-chung-cu/' },
-      { label: 'Bán chung cư mini, CH dịch vụ', url: '/ban-chung-cu-mini/' },
-      { label: 'Bán nhà riêng', url: '/ban-nha-rieng/' },
-      { label: 'Bán nhà biệt thự, liền kề', url: '/ban-nha-biet-thu-lien-ke/' },
-      { label: 'Bán nhà mặt phố', url: '/ban-nha-mat-pho/' },
-      { label: 'Bán shophouse', url: '/ban-shophouse/' },
-      { label: 'Bán đất nền dự án', url: '/ban-dat-nen-du-an/' },
-      { label: 'Bán đất', url: '/ban-dat/' },
-      { label: 'Bán trang trại, khu nghỉ dưỡng', url: '/ban-trang-trai-khu-nghi-duong/' },
-      { label: 'Bán condotel', url: '/ban-condotel/' },
-      { label: 'Bán kho, nhà xưởng', url: '/ban-kho-nha-xuong/' },
-      { label: 'Bán loại BĐS khác', url: '/ban-bat-dong-san-khac/' }
+      { label: 'Mua bán các loại nhà bán', url: '/ban-nha' },
+      { label: 'Bán căn hộ chung cư', url: '/ban-can-ho-chung-cu' },
+      { label: 'Bán chung cư mini, CH dịch vụ', url: '/ban-chung-cu-mini' },
+      { label: 'Bán nhà riêng', url: '/ban-nha-rieng' },
+      { label: 'Bán nhà biệt thự, liền kề', url: '/ban-nha-biet-thu-lien-ke' },
+      { label: 'Bán nhà mặt phố', url: '/ban-nha-mat-pho' },
+      { label: 'Bán shophouse', url: '/ban-shophouse' },
+      { label: 'Bán đất nền dự án', url: '/ban-dat-nen-du-an' },
+      { label: 'Bán đất', url: '/ban-dat' },
+      { label: 'Bán trang trại, khu nghỉ dưỡng', url: '/ban-trang-trai-khu-nghi-duong' },
+      { label: 'Bán condotel', url: '/ban-condotel' },
+      { label: 'Bán kho, nhà xưởng', url: '/ban-kho-nha-xuong' },
+      { label: 'Bán văn phòng, mặt bằng', url: '/ban-mat-bang-van-phong' },
+      { label: 'Bán loại BĐS khác', url: '/ban-bat-dong-san-khac' }
     ]
   },
   {
     category: '🔑 Danh Mục BĐS Cho Thuê (Chuẩn SEO)',
     routes: [
-      { label: 'Cho thuê căn hộ chung cư', url: '/cho-thue-can-ho-chung-cu/' },
-      { label: 'Cho thuê chung cư mini, CH dịch vụ', url: '/cho-thue-chung-cu-mini/' },
-      { label: 'Cho thuê nhà riêng, nguyên căn', url: '/cho-thue-nha-rieng/' },
-      { label: 'Cho thuê biệt thự, liền kề', url: '/cho-thue-nha-biet-thu-lien-ke/' },
-      { label: 'Cho thuê nhà mặt phố', url: '/cho-thue-nha-mat-pho/' },
-      { label: 'Cho thuê shophouse', url: '/cho-thue-shophouse/' },
-      { label: 'Cho thuê kho, nhà xưởng', url: '/cho-thue-kho-nha-xuong/' },
-      { label: 'Cho thuê văn phòng', url: '/cho-thue-van-phong/' },
-      { label: 'Cho thuê loại BĐS khác', url: '/cho-thue-bat-dong-san-khac/' }
-    ]
-  },
-  {
-    category: '📍 BĐS Trọng Điểm Đà Nẵng',
-    routes: [
-      { label: 'Căn hộ Sơn Trà (The Sang)', url: '/ban-can-ho-chung-cu-quan-son-tra/' },
-      { label: 'Nhà riêng Quận Hải Châu', url: '/ban-nha-rieng-quan-hai-chau/' },
-      { label: 'Đất nền Nam Hòa Xuân', url: '/ban-dat-nen-du-an-quan-ngu-hanh-son/' },
-      { label: 'Đất nền dự án Đà Nẵng', url: '/ban-dat-nen-du-an-da-nang/' },
-      { label: 'Biệt thự biển Sơn Trà', url: '/cho-thue-nha-biet-thu-lien-ke-quan-son-tra/' },
-      { label: 'Đất Cẩm Lệ & Hòa Vang', url: '/ban-dat-quan-cam-le/' }
+      { label: 'Cho thuê các loại nhà', url: '/cho-thue-nha' },
+      { label: 'Cho thuê căn hộ chung cư', url: '/cho-thue-can-ho-chung-cu' },
+      { label: 'Cho thuê chung cư mini, CH dịch vụ', url: '/cho-thue-chung-cu-mini' },
+      { label: 'Cho thuê nhà riêng, nguyên căn', url: '/cho-thue-nha-rieng' },
+      { label: 'Cho thuê biệt thự, liền kề', url: '/cho-thue-nha-biet-thu-lien-ke' },
+      { label: 'Cho thuê nhà mặt phố', url: '/cho-thue-nha-mat-pho' },
+      { label: 'Cho thuê shophouse', url: '/cho-thue-shophouse' },
+      { label: 'Cho thuê đất nền dự án', url: '/cho-thue-dat-nen-du-an' },
+      { label: 'Cho thuê đất', url: '/cho-thue-dat' },
+      { label: 'Cho thuê trang trại, khu nghỉ dưỡng', url: '/cho-thue-trang-trai-khu-nghi-duong' },
+      { label: 'Cho thuê condotel', url: '/cho-thue-condotel' },
+      { label: 'Cho thuê kho, nhà xưởng', url: '/cho-thue-kho-nha-xuong' },
+      { label: 'Cho thuê văn phòng', url: '/cho-thue-van-phong' },
+      { label: 'Cho thuê loại BĐS khác', url: '/cho-thue-bat-dong-san-khac' }
     ]
   }
 ];
+
+// Helper chuẩn hóa url để so khớp chính xác
+export const normalizeRouteUrl = (url) => {
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (trimmed === '/' || !trimmed.startsWith('/')) return trimmed;
+  return trimmed.replace(/\/+$/, '');
+};
+
+// Tìm route tương ứng trong ALL_INTERNAL_ROUTES
+export const findMatchedRoute = (url) => {
+  if (!url) return null;
+  const norm = normalizeRouteUrl(url);
+  for (const group of ALL_INTERNAL_ROUTES) {
+    const found = group.routes.find(r => normalizeRouteUrl(r.url) === norm);
+    if (found) return found;
+  }
+  return null;
+};
+
+// Xác định value hiển thị cho dropdown <select>
+export const getRouteSelectValue = (url) => {
+  if (!url || url === '__custom__') return '';
+  const found = findMatchedRoute(url);
+  if (found) return found.url;
+  return '__custom__';
+};
 
 // Danh sách các icon phổ biến theo nhóm phục vụ Icon Picker
 export const AVAILABLE_FOOTER_ICONS = [
@@ -221,10 +265,14 @@ export default function AdminFooterConfigManager() {
     }));
   };
 
-  const handleUpdateCol2Link = (index, field, val) => {
+  const handleUpdateCol2Link = (index, fieldOrObj, val) => {
     setFormData(prev => {
       const list = [...(prev.col2Links || [])];
-      list[index] = { ...list[index], [field]: val };
+      if (typeof fieldOrObj === 'object' && fieldOrObj !== null) {
+        list[index] = { ...list[index], ...fieldOrObj };
+      } else {
+        list[index] = { ...list[index], [fieldOrObj]: val };
+      }
       return { ...prev, col2Links: list };
     });
   };
@@ -248,10 +296,14 @@ export default function AdminFooterConfigManager() {
     }));
   };
 
-  const handleUpdateCol3Link = (index, field, val) => {
+  const handleUpdateCol3Link = (index, fieldOrObj, val) => {
     setFormData(prev => {
       const list = [...(prev.col3Links || [])];
-      list[index] = { ...list[index], [field]: val };
+      if (typeof fieldOrObj === 'object' && fieldOrObj !== null) {
+        list[index] = { ...list[index], ...fieldOrObj };
+      } else {
+        list[index] = { ...list[index], [fieldOrObj]: val };
+      }
       return { ...prev, col3Links: list };
     });
   };
@@ -309,10 +361,14 @@ export default function AdminFooterConfigManager() {
     }));
   };
 
-  const handleUpdatePolicyLink = (index, field, val) => {
+  const handleUpdatePolicyLink = (index, fieldOrObj, val) => {
     setFormData(prev => {
       const list = [...(prev.policyLinks || [])];
-      list[index] = { ...list[index], [field]: val };
+      if (typeof fieldOrObj === 'object' && fieldOrObj !== null) {
+        list[index] = { ...list[index], ...fieldOrObj };
+      } else {
+        list[index] = { ...list[index], [fieldOrObj]: val };
+      }
       return { ...prev, policyLinks: list };
     });
   };
@@ -339,26 +395,21 @@ export default function AdminFooterConfigManager() {
     setIconPickerTarget(null);
   };
 
-  // Helper chọn đường dẫn từ Dropdown toàn bộ routes nội bộ
-  const handleSelectRouteForLink = (chosenUrl, updateFn, currentLabel) => {
+  // Helper chọn đường dẫn từ Dropdown: Tự động cập nhật đồng thời CẢ URL và Tên hiển thị (Label)
+  const handleSelectRouteForLink = (chosenUrl, updateFn) => {
     if (!chosenUrl) return;
-    // Tìm route tương ứng để gợi ý tên nhãn tự động
-    let matchedLabel = '';
-    for (const group of ALL_INTERNAL_ROUTES) {
-      const found = group.routes.find(r => r.url === chosenUrl);
-      if (found) {
-        matchedLabel = found.label;
-        break;
-      }
+    if (chosenUrl === '__custom__') {
+      // Khi chọn "Đường dẫn tùy chỉnh khác...", không ghi đè chữ "__custom__" vào database / input
+      // Xóa url nếu trước đó đang là internal route để người dùng tự gõ URL ngoài
+      updateFn({ url: '' });
+      return;
     }
-    updateFn('url', chosenUrl);
-    // Nếu tên nhãn hiện tại đang rỗng hoặc là tên mặc định tạo mới thì tự động điền tên trang chuẩn
-    const isDefaultLabel = !currentLabel || 
-      currentLabel === 'Liên kết mới' || 
-      currentLabel === 'Trang mới' || 
-      currentLabel === 'Chính sách mới';
-    if (isDefaultLabel && matchedLabel) {
-      updateFn('label', matchedLabel);
+    const matched = findMatchedRoute(chosenUrl);
+    if (matched) {
+      // Tự động điền chuẩn cả URL và Tên trang tương ứng
+      updateFn({ url: matched.url, label: matched.label });
+    } else {
+      updateFn({ url: chosenUrl });
     }
   };
 
@@ -610,11 +661,11 @@ export default function AdminFooterConfigManager() {
                       <span>Sổ danh sách trang web (Chọn để tự động điền URL & Tên):</span>
                     </label>
                     <select
-                      value={link.url || ''}
-                      onChange={(e) => handleSelectRouteForLink(e.target.value, (f, v) => handleUpdateCol2Link(idx, f, v), link.label)}
+                      value={getRouteSelectValue(link.url)}
+                      onChange={(e) => handleSelectRouteForLink(e.target.value, (obj) => handleUpdateCol2Link(idx, obj))}
                       className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-medium text-xs outline-none focus:border-teal-500"
                     >
-                      <option value="">-- Bấm vào đây để chọn nhanh trong 40+ trang website --</option>
+                      <option value="">-- Bấm vào đây để chọn nhanh trong 50+ trang website --</option>
                       {ALL_INTERNAL_ROUTES.map((group, gIdx) => (
                         <optgroup key={gIdx} label={group.category} className="bg-slate-900 text-emerald-400 font-bold">
                           {group.routes.map((r, rIdx) => (
@@ -739,11 +790,11 @@ export default function AdminFooterConfigManager() {
                       <span>Sổ danh sách trang web (Tự động điền URL & Tên):</span>
                     </label>
                     <select
-                      value={link.url || ''}
-                      onChange={(e) => handleSelectRouteForLink(e.target.value, (f, v) => handleUpdateCol3Link(idx, f, v), link.label)}
+                      value={getRouteSelectValue(link.url)}
+                      onChange={(e) => handleSelectRouteForLink(e.target.value, (obj) => handleUpdateCol3Link(idx, obj))}
                       className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-medium text-xs outline-none focus:border-amber-500"
                     >
-                      <option value="">-- Bấm vào đây để chọn nhanh trong 40+ trang website --</option>
+                      <option value="">-- Bấm vào đây để chọn nhanh trong 50+ trang website --</option>
                       {ALL_INTERNAL_ROUTES.map((group, gIdx) => (
                         <optgroup key={gIdx} label={group.category} className="bg-slate-900 text-emerald-400 font-bold">
                           {group.routes.map((r, rIdx) => (
@@ -969,12 +1020,12 @@ export default function AdminFooterConfigManager() {
                       Sổ chọn nhanh trang chính sách:
                     </label>
                     <select
-                      value={policy.url || ''}
-                      onChange={(e) => handleSelectRouteForLink(e.target.value, (f, v) => handleUpdatePolicyLink(idx, f, v), policy.label)}
+                      value={getRouteSelectValue(policy.url)}
+                      onChange={(e) => handleSelectRouteForLink(e.target.value, (obj) => handleUpdatePolicyLink(idx, obj))}
                       className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-medium text-xs outline-none focus:border-slate-500"
                     >
                       <option value="">-- Chọn trong danh sách trang pháp lý --</option>
-                      {ALL_INTERNAL_ROUTES.filter(g => g.category.includes('Chính Sách') || g.category.includes('Chính')).map((group, gIdx) => (
+                      {ALL_INTERNAL_ROUTES.filter(g => g.category.includes('Chính Sách') || g.category.includes('Pháp Lý') || g.category.includes('Chính')).map((group, gIdx) => (
                         <optgroup key={gIdx} label={group.category} className="bg-slate-900 text-emerald-400 font-bold">
                           {group.routes.map((r, rIdx) => (
                             <option key={rIdx} value={r.url} className="bg-slate-950 text-white font-normal">
@@ -983,6 +1034,7 @@ export default function AdminFooterConfigManager() {
                           ))}
                         </optgroup>
                       ))}
+                      <option value="__custom__" className="text-amber-400">✏️ Đường dẫn tùy chỉnh khác...</option>
                     </select>
                   </div>
 
