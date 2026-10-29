@@ -20,7 +20,7 @@ export const PROMOTIONS_DATA = [
     validUntil: '2026-12-31',
     isEvergreen: true,
     thumbnail: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80',
-    description: 'Cộng trực tiếp 100.000đ vào Ví Khuyến Mãi dành cho thành viên mới xác thực tài khoản trên sàn Đất Biển Đà Nẵng.',
+    description: 'Cộng trực tiếp 100.000đ vào Ví Khuyến Mãi dành cho thành viên mới xác thực tài khoản trên sàn giao dịch.',
     content: `
       ### Thể lệ chương trình
       - Tặng ngay **100.000đ trực tiếp vào Ví Khuyến Mãi** khi thành viên thực hiện giao dịch nạp tiền đầu tiên tối thiểu từ 200.000đ.
@@ -345,11 +345,11 @@ export const PROMO_WALLET_SERVICES = [
   {
     id: 'srv-02',
     title: 'Đẩy Tin TOP 1 Giờ Vàng',
-    cost: '10.000đ / lượt (Trừ Ví KM)',
+    cost: '400đ / lượt (Trừ Ví KM)',
     icon: 'fa-solid fa-rocket text-blue-500',
     actionText: 'Đẩy tin ngay',
     link: '/quan-ly-tin',
-    description: 'Trừ trực tiếp 10.000đ trong Ví Khuyến Mãi để đưa tin đăng lên vị trí top đầu danh mục trong 24 giờ.'
+    description: 'Trừ trực tiếp 400đ trong Ví Khuyến Mãi để đưa tin đăng lên vị trí top đầu danh mục ngay lập tức.'
   },
   {
     id: 'srv-03',

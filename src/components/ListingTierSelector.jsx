@@ -24,11 +24,11 @@ export const LISTING_RATES = {
     approvalColor: 'text-red-600 bg-red-50 border-red-200',
     allowedDurations: [5, 7, 10, 15, 30],
     rates: {
-      5: 79000,
-      7: 79000,
-      10: 79000,
-      15: 79000,  // Base
-      30: 59250   // -25%
+      5: 32000,
+      7: 32000,
+      10: 32000,
+      15: 32000,  // Base
+      30: 24000   // -25%
     }
   },
   'vip-gold': {
@@ -44,11 +44,11 @@ export const LISTING_RATES = {
     approvalColor: 'text-amber-700 bg-amber-50 border-amber-200',
     allowedDurations: [5, 7, 10, 15, 30],
     rates: {
-      5: 29000,
-      7: 29000,
-      10: 29000,
-      15: 29000,
-      30: 21750   // -25%
+      5: 15000,
+      7: 15000,
+      10: 15000,
+      15: 15000,
+      30: 11250   // -25%
     }
   },
   'vip-silver': {
@@ -64,11 +64,11 @@ export const LISTING_RATES = {
     approvalColor: 'text-teal-700 bg-teal-50 border-teal-200',
     allowedDurations: [5, 7, 10, 15, 30],
     rates: {
-      5: 9000,
-      7: 9000,
-      10: 9000,
-      15: 9000,
-      30: 6750    // -25%
+      5: 8000,
+      7: 8000,
+      10: 8000,
+      15: 8000,
+      30: 6000    // -25%
     }
   },
   'normal': {
@@ -84,7 +84,7 @@ export const LISTING_RATES = {
     rates: {
       15: 5000,   // Base
       30: 3750,   // -25%
-      60: 5000    // 5.000 đ cho 60 ngày
+      60: 0       // Đăng tin thường 60 ngày
     }
   }
 };

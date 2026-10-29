@@ -598,6 +598,8 @@ export async function fetchFullSupabaseDb() {
       bds_verification_tokens: settingsMap['bds_verification_tokens'] || undefined,
       bds_appointments: settingsMap['bds_appointments'] || undefined,
       bds_notifications: settingsMap['bds_notifications'] || undefined,
+      bds_bump_service_price: settingsMap['bds_bump_service_price'] !== undefined ? settingsMap['bds_bump_service_price'] : undefined,
+      bds_rewards_config: settingsMap['bds_rewards_config'] || undefined,
     };
   } catch (err) {
     console.error('Lỗi khi fetchFullSupabaseDb:', err);
@@ -622,6 +624,8 @@ export async function syncFullDbToSupabase(payload) {
       'bds_nav_menu',
       'bds_vip_packages',
       'bds_membership_packages',
+      'bds_bump_service_price',
+      'bds_rewards_config',
       'bds_single_config',
       'bds_email_config',
       'bds_reported_listings',

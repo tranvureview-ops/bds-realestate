@@ -53,7 +53,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
     ? Number(membershipPackages[0].vouchersPerCycle.normalPublishDiscount)
     : defaultNormalRate;
   const commonBumpDiscount = membershipPackages[0]?.vouchersPerCycle?.normalBumpDiscount ?? 10000;
-  const commonVipDiscount = membershipPackages.find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount ?? 400000;
+  const commonVipDiscount = membershipPackages.find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount ?? 50000;
 
   // State for Edit/Create Modal
   const [editingPkg, setEditingPkg] = useState(null); // null when modal closed, pkg object when open
@@ -444,7 +444,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
     if (!vouchers) return 0;
     const pubVal = (vouchers.normalPublishVouchers || 0) * (vouchers.normalPublishDiscount ?? defaultNormalRate);
     const bumpVal = (vouchers.normalBumpVouchers || 0) * (vouchers.normalBumpDiscount || 10000);
-    const vipVal = (vouchers.vipVouchers || 0) * (vouchers.vipDiscount || 400000);
+    const vipVal = (vouchers.vipVouchers || 0) * (vouchers.vipDiscount || 50000);
     return pubVal + bumpVal + vipVal;
   };
 
@@ -657,7 +657,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                       <span className="text-slate-300">• Voucher Giảm Tin VIP:</span>
                       <span className={`font-mono font-bold ${(pkg.vouchersPerCycle?.vipVouchers || 0) > 0 ? 'text-red-400' : 'text-slate-500'}`}>
                         {(pkg.vouchersPerCycle?.vipVouchers || 0) > 0 
-                          ? `${pkg.vouchersPerCycle.vipVouchers} voucher (-${(pkg.vouchersPerCycle.vipDiscount || 400000) / 1000}k)`
+                          ? `${pkg.vouchersPerCycle.vipVouchers} voucher (-${(pkg.vouchersPerCycle.vipDiscount || 50000) / 1000}k)`
                           : 'Không áp dụng'}
                       </span>
                     </div>
@@ -1132,7 +1132,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                             step="1000"
                             value={editingPkg.monthlyPrice || 0}
                             onChange={(e) => handleFieldChange('monthlyPrice', Number(e.target.value))}
-                            placeholder="1267000"
+                            placeholder="599000"
                             className="w-full p-3 bg-slate-950 border border-slate-700 rounded-xl text-amber-400 font-mono text-base font-black outline-none focus:border-amber-500"
                           />
                           <span className="absolute right-3.5 top-3 text-slate-400 font-bold">VNĐ</span>
@@ -1640,7 +1640,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                                   <span className="font-bold text-amber-950 text-[11px]">Voucher Giảm Tin VIP</span>
                                 </div>
                                 <span className="text-amber-800 font-black text-[10px]">
-                                  -{(editingPkg.vouchersPerCycle.vipDiscount || 400000).toLocaleString('vi-VN')} đ/tin
+                                  -{(editingPkg.vouchersPerCycle.vipDiscount || 50000).toLocaleString('vi-VN')} đ/tin
                                 </span>
                               </div>
                             )}

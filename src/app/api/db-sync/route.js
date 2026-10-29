@@ -69,7 +69,8 @@ export async function POST(request) {
       'bds_system_config',
       'bds_payment_config',
       'bds_single_config',
-      'bds_email_config'
+      'bds_email_config',
+      'bds_rewards_config'
     ];
     for (const k of objectKeys) {
       if (mergedPayload[k] && typeof mergedPayload[k] === 'object' && !Array.isArray(mergedPayload[k])) {

@@ -81,14 +81,14 @@ export default function VipPricingPage() {
     const bumpDiscount = Math.min(Number(standardPkg?.vouchersPerCycle?.normalBumpDiscount) || bumpUnitPrice, bumpUnitPrice);
     const totalBumpRetail = bumpCount * bumpUnitPrice;
 
-    const diamond7DaysPrice = ratesConfig?.['vip-diamond']?.rates?.[7] && ratesConfig?.['vip-diamond']?.rates?.[7] !== 79000
+    const diamond7DaysPrice = ratesConfig?.['vip-diamond']?.rates?.[7]
       ? (ratesConfig['vip-diamond'].rates[7] * 7)
-      : 700000;
-    const vipDiscountVal = Number(standardPkg?.vouchersPerCycle?.vipDiscount) || vipVoucherDiscount || 400000;
+      : (32000 * 7);
+    const vipDiscountVal = Number(standardPkg?.vouchersPerCycle?.vipDiscount) || vipVoucherDiscount || 50000;
     const totalVipRetail = vipCount * diamond7DaysPrice;
 
     const totalRetailCost = totalNormalRetail + totalBumpRetail + totalVipRetail;
-    const monthlyPrice = Number(standardPkg?.monthlyPrice) || 1267000;
+    const monthlyPrice = Number(standardPkg?.monthlyPrice) || 599000;
     const totalSavings = Math.max(0, totalRetailCost - monthlyPrice);
 
     return {
