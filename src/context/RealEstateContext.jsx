@@ -4577,7 +4577,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
    * Dùng cho Gamification, Điểm danh, Nhiệm vụ, Săn kho báu, Dự đoán giá & Affiliate
    * Đảm bảo lưu đồng thời vào State, LocalStorage, Supabase Cloud và server-db.json
    */
-  const addBonusWalletBalance = (amount, reason = '') => {
+  const addBonusWalletBalance = (amount, reason = '', options = {}) => {
     const num = Number(amount);
     if (!num || num <= 0) return 0;
 
@@ -4586,16 +4586,50 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const currentBonus = Number(targetUser.bonusWalletBalance) || 0;
     const newBonus = currentBonus + num;
 
+    // Hạn sử dụng: mặc định 30 ngày cho tiền thưởng điểm danh / khuyến mãi
+    const expiryDays = Number(options.expiryDays) || 30;
+    const expiryDateObj = options.expiresAt 
+      ? new Date(options.expiresAt) 
+      : new Date(Date.now() + expiryDays * 24 * 60 * 60 * 1000);
+    const newExpiresAt = expiryDateObj.toISOString();
+
+    // Quản lý các gói tiền thưởng có hạn (bonusBatches)
+    const currentBatches = Array.isArray(targetUser.bonusBatches) ? targetUser.bonusBatches : [];
+    const newBatch = {
+      id: `BATCH-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      amount: num,
+      expiresAt: newExpiresAt,
+      reason: reason || 'Tiền thưởng Ví Khuyến Mãi (Gamification)',
+      createdAt: new Date().toISOString()
+    };
+    const nextBatches = [...currentBatches, newBatch];
+
+    // Xác định gói tiền có hạn gần nhất (đang hiệu lực)
+    const now = Date.now();
+    const validBatches = nextBatches
+      .filter(b => new Date(b.expiresAt).getTime() > now && Number(b.amount) > 0)
+      .sort((a, b) => new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime());
+    const earliestBatch = validBatches[0] || newBatch;
+
+    const earliestInfo = {
+      amount: earliestBatch.amount,
+      expiresAt: earliestBatch.expiresAt,
+      formattedDate: new Date(earliestBatch.expiresAt).toLocaleDateString('vi-VN')
+    };
+
     const updatedUser = {
       ...targetUser,
-      bonusWalletBalance: newBonus
+      bonusWalletBalance: newBonus,
+      bonusBatches: nextBatches,
+      bonusExpiresAt: earliestBatch.expiresAt,
+      earliestExpiringBonus: earliestInfo
     };
 
     // 1. Cập nhật state currentUser
     setCurrentUser(updatedUser);
 
     // 2. Cập nhật state usersList
-    const nextUsers = (usersList || []).map(u => String(u.id) === String(targetUserId) ? { ...u, bonusWalletBalance: newBonus } : u);
+    const nextUsers = (usersList || []).map(u => String(u.id) === String(targetUserId) ? updatedUser : u);
     setUsersList(nextUsers);
 
     // 3. Ghi nhận giao dịch thưởng vào transactions
@@ -4618,9 +4652,16 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     if (typeof window !== 'undefined') {
       try {
         localStorage.setItem(`bds_user_bonus_${targetUserId}`, String(newBonus));
+        localStorage.setItem(`bds_user_bonus_exp_${targetUserId}`, JSON.stringify(earliestInfo));
         localStorage.setItem('bds_current_user', JSON.stringify(updatedUser));
         window.dispatchEvent(new CustomEvent('bds_bonus_wallet_updated', {
-          detail: { userId: targetUserId, bonusWalletBalance: newBonus, addedAmount: num, reason }
+          detail: { 
+            userId: targetUserId, 
+            bonusWalletBalance: newBonus, 
+            addedAmount: num, 
+            reason,
+            earliestExpiringBonus: earliestInfo
+          }
         }));
       } catch (e) {}
     }

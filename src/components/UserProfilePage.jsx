@@ -398,13 +398,16 @@ export default function UserProfilePage() {
                 <div className="text-xl sm:text-2xl font-black text-emerald-700 mt-0.5">
                   {currentUser.walletBalance.toLocaleString('vi-VN')} đ
                 </div>
-                <div className="text-[11px] text-emerald-800 font-bold flex items-center gap-1.5 mt-1 bg-emerald-100/70 px-2 py-0.5 rounded-lg w-fit">
-                  <i className="fa-solid fa-gift text-emerald-600"></i>
-                  <span>Ví KM: <strong className="font-mono text-emerald-900">{(Number(currentUser.bonusWalletBalance) || 0).toLocaleString('vi-VN')} đ</strong></span>
+                <div className="space-y-1 mt-1">
+                  <div className="text-[11px] text-emerald-800 font-bold flex items-center gap-1.5 bg-emerald-100/70 px-2 py-0.5 rounded-lg w-fit">
+                    <i className="fa-solid fa-gift text-emerald-600"></i>
+                    <span>Ví KM: <strong className="font-mono text-emerald-900">{(Number(currentUser.bonusWalletBalance) || 0).toLocaleString('vi-VN')} đ</strong></span>
+                  </div>
                   {currentUser.bonusExpiresAt && Number(currentUser.bonusWalletBalance) > 0 && (
-                    <span className="text-[9px] text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded border border-amber-200">
-                      Hạn: {new Date(currentUser.bonusExpiresAt).toLocaleDateString('vi-VN')}
-                    </span>
+                    <div className="text-[10px] text-amber-800 font-semibold flex items-center gap-1">
+                      <i className="fa-solid fa-hourglass-half text-amber-600"></i>
+                      <span>(Có {(Number(currentUser.earliestExpiringBonus?.amount) || Number(currentUser.bonusWalletBalance)).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày {new Date(currentUser.bonusExpiresAt).toLocaleDateString('vi-VN')})</span>
+                    </div>
                   )}
                 </div>
               </div>

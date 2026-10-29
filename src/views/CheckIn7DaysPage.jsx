@@ -25,6 +25,8 @@ export default function CheckIn7DaysPage() {
   const userId = isLoggedIn ? currentUser.id : 'guest';
   const [currentStreak, setCurrentStreak] = useState(0);
   const [checkedToday, setCheckedToday] = useState(false);
+  const [isMissed, setIsMissed] = useState(false);
+  const [expiringBonusInfo, setExpiringBonusInfo] = useState(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -34,9 +36,11 @@ export default function CheckIn7DaysPage() {
         const status = getCheckInStatus(currentUser.id);
         setCurrentStreak(status.streak);
         setCheckedToday(status.checkedToday);
+        setIsMissed(Boolean(status.isMissed));
       } else {
         setCurrentStreak(0);
         setCheckedToday(false);
+        setIsMissed(false);
       }
     };
 
@@ -48,6 +52,46 @@ export default function CheckIn7DaysPage() {
       window.removeEventListener('storage', syncCheckInStatus);
     };
   }, [currentUser?.id, isLoggedIn]);
+
+  // Lấy dữ liệu gói tiền có hạn gần nhất được truyền từ API về
+  useEffect(() => {
+    if (!isLoggedIn || !currentUser?.id) {
+      setExpiringBonusInfo(null);
+      return;
+    }
+
+    // Ưu tiên hiển thị ngay từ state currentUser nếu đã có sẵn
+    if (currentUser?.earliestExpiringBonus?.amount && currentUser?.earliestExpiringBonus?.expiresAt) {
+      const expDate = new Date(currentUser.earliestExpiringBonus.expiresAt);
+      setExpiringBonusInfo({
+        amount: Number(currentUser.earliestExpiringBonus.amount),
+        expiresAt: currentUser.earliestExpiringBonus.expiresAt,
+        formattedDate: currentUser.earliestExpiringBonus.formattedDate || expDate.toLocaleDateString('vi-VN')
+      });
+    }
+
+    const fetchExpiringBonus = async () => {
+      try {
+        const res = await fetch(`/api/wallet/expiring-bonus?userId=${currentUser.id}`);
+        const data = await res.json();
+        if (data.success && data.hasExpiringBonus) {
+          setExpiringBonusInfo({
+            amount: data.amount,
+            expiresAt: data.expiresAt,
+            formattedDate: data.formattedDate
+          });
+        }
+      } catch (err) {
+        console.warn('Lỗi lấy thông tin gói tiền sắp hết hạn:', err);
+      }
+    };
+
+    fetchExpiringBonus();
+    window.addEventListener('bds_bonus_wallet_updated', fetchExpiringBonus);
+    return () => {
+      window.removeEventListener('bds_bonus_wallet_updated', fetchExpiringBonus);
+    };
+  }, [currentUser?.id, isLoggedIn, currentUser?.bonusWalletBalance]);
 
   const handleCheckIn = () => {
     // 1. Bắt buộc đăng nhập mới có thể điểm danh
@@ -63,7 +107,7 @@ export default function CheckIn7DaysPage() {
 
     if (checkedToday || !isEnabled) return;
 
-    // 2. Điểm danh đúng ngày (tuyệt đối không nhảy cóc 2 ngày)
+    // 2. Điểm danh đúng ngày (tuyệt đối không nhảy cóc 2 ngày, nếu bỏ lỡ thì reset về ngày 1)
     const res = executeCheckIn(currentUser, daysList);
     if (!res.success) {
       if (showToast) showToast(res.message, 'warning');
@@ -72,10 +116,21 @@ export default function CheckIn7DaysPage() {
 
     setCurrentStreak(res.streak);
     setCheckedToday(true);
+    setIsMissed(false);
 
-    // Cộng tiền trực tiếp vào Ví Khuyến Mãi của người dùng
+    // Cập nhật gói sắp hết hạn ngay lập tức
+    setExpiringBonusInfo({
+      amount: res.reward,
+      expiresAt: res.expiresAt,
+      formattedDate: res.formattedExpiryDate
+    });
+
+    // Cộng tiền trực tiếp vào Ví Khuyến Mãi của người dùng kèm thời hạn 30 ngày
     if (addBonusWalletBalance) {
-      addBonusWalletBalance(res.reward, `Điểm danh ${res.dayLabel}`);
+      addBonusWalletBalance(res.reward, `Điểm danh ${res.dayLabel}`, {
+        expiryDays: 30,
+        expiresAt: res.expiresAt
+      });
     }
 
     if (showToast) {
@@ -112,14 +167,39 @@ export default function CheckIn7DaysPage() {
             Không cần tích điểm. Tiền thưởng được cộng <strong>trực tiếp vào Ví Khuyến Mãi</strong> mỗi ngày để bạn sử dụng đăng tin và đẩy tin VIP trên {brandName} ngay lập tức.
           </p>
 
-          <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900">
-            <i className="fa-solid fa-wallet text-amber-600 text-base"></i>
-            <span className="text-xs font-bold">Ví Khuyến Mãi của bạn:</span>
-            <span className="font-mono text-base font-black text-amber-700">
-              +{bonusBal.toLocaleString('vi-VN')} VNĐ
-            </span>
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 shadow-sm">
+              <i className="fa-solid fa-wallet text-amber-600 text-base"></i>
+              <span className="text-xs font-bold">Ví Khuyến Mãi của bạn:</span>
+              <span className="font-mono text-base font-black text-amber-700">
+                +{bonusBal.toLocaleString('vi-VN')} VNĐ
+              </span>
+            </div>
+
+            {/* Dòng cảnh báo nhỏ kèm icon đồng hồ cát */}
+            {bonusBal > 0 && expiringBonusInfo?.amount > 0 && expiringBonusInfo?.formattedDate && (
+              <div className="text-xs text-amber-800 font-semibold flex items-center justify-center gap-1.5 pt-0.5">
+                <i className="fa-solid fa-hourglass-half text-amber-600 animate-pulse"></i>
+                <span>(Có {Number(expiringBonusInfo.amount).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày {expiringBonusInfo.formattedDate})</span>
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Banner cảnh báo nếu bỏ lỡ 1 ngày */}
+        {isMissed && !checkedToday && (
+          <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-start sm:items-center gap-3 text-xs text-rose-900 shadow-sm">
+            <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 text-base">
+              <i className="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <div>
+              <p className="font-bold text-rose-950">Chuỗi điểm danh đã quay lại từ Ngày 1!</p>
+              <p className="text-rose-700 mt-0.5">
+                Do bạn đã bỏ lỡ không điểm danh ngày hôm qua, chuỗi điểm danh 7 ngày liên tục được làm mới từ đầu. Hãy duy trì điểm danh mỗi ngày để tích lũy trọn vẹn tiền thưởng tuần nhé!
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Check-In 7 Days Grid */}
         <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-6">
@@ -216,7 +296,7 @@ export default function CheckIn7DaysPage() {
         </div>
 
         {/* Benefits Explain */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white p-5 rounded-2xl border border-slate-200 text-center space-y-2">
             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto text-lg">
               <i className="fa-solid fa-money-bill-wave"></i>
@@ -245,6 +325,28 @@ export default function CheckIn7DaysPage() {
             <p className="text-[11px] text-slate-500 leading-relaxed">
               Duy trì trọn vẹn 7 ngày nhận phần thưởng cao nhất tuần.
             </p>
+          </div>
+
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 text-center space-y-2">
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto text-lg">
+              <i className="fa-solid fa-hourglass-half"></i>
+            </div>
+            <h3 className="text-xs font-bold text-slate-800 uppercase">Hạn dùng 30 ngày</h3>
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              Mỗi mốc thưởng có hạn 30 ngày kể từ ngày điểm danh, sau 30 ngày không dùng sẽ thu hồi.
+            </p>
+          </div>
+        </div>
+
+        {/* Notice on Rules */}
+        <div className="p-4 rounded-2xl bg-amber-50/70 border border-amber-200/80 text-xs text-amber-900 flex items-start gap-3">
+          <i className="fa-solid fa-circle-info text-amber-600 text-base mt-0.5"></i>
+          <div className="space-y-1">
+            <p className="font-bold text-amber-950">Quy định chuỗi điểm danh & Thời hạn tiền thưởng:</p>
+            <ul className="list-disc list-inside space-y-0.5 text-slate-600 text-[11px]">
+              <li><strong>Bỏ lỡ ngày điểm danh:</strong> Nếu bạn bỏ lỡ bất kỳ 1 ngày nào mà không điểm danh, chuỗi tích lũy sẽ tự động quay lại từ Ngày 1.</li>
+              <li><strong>Hạn sử dụng tiền thưởng:</strong> Tiền thưởng được cộng có hạn sử dụng đúng <strong>30 ngày</strong>. Sau 30 ngày nếu bạn chưa sử dụng để đăng tin hay đẩy tin VIP, hệ thống sẽ tự động thu hồi số tiền hết hạn đó.</li>
+            </ul>
           </div>
         </div>
       </div>

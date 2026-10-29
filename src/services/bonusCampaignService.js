@@ -158,18 +158,81 @@ export function buildClawbackTransaction(user, expiredAmount) {
 }
 
 /**
- * Tự động quét và thu hồi số tiền thưởng quá hạn chưa sử dụng
+ * Tự động quét và thu hồi số tiền thưởng quá hạn 30 ngày chưa sử dụng
+ * Hỗ trợ cả cơ chế đa gói tiền thưởng (bonusBatches) và cấu hình đơn lẻ (bonusExpiresAt)
  * @param {Array} userList Danh sách người dùng
  * @returns {Object} { updatedUsers, clawbackTransactions, expiredCount }
  */
 export function scanAndExpireBonuses(userList = []) {
   const now = Date.now();
   const clawbackTransactions = [];
+
   const updatedUsers = userList.map((user) => {
-    if (!isUserBonusExpired(user, now)) return user;
-    const expiredAmount = Number(user.bonusWalletBalance);
-    clawbackTransactions.push(buildClawbackTransaction(user, expiredAmount));
-    return { ...user, bonusWalletBalance: 0, bonusExpiredAt: new Date().toISOString() };
+    const currentBonus = Number(user.bonusWalletBalance) || 0;
+    if (currentBonus <= 0) return user;
+
+    // 1. Quét theo danh sách các gói tiền thưởng có hạn (bonusBatches)
+    if (Array.isArray(user.bonusBatches) && user.bonusBatches.length > 0) {
+      const activeBatches = [];
+      let expiredBatchAmount = 0;
+
+      for (const batch of user.bonusBatches) {
+        if (new Date(batch.expiresAt).getTime() <= now) {
+          expiredBatchAmount += Number(batch.amount) || 0;
+        } else {
+          activeBatches.push(batch);
+        }
+      }
+
+      if (expiredBatchAmount > 0) {
+        const remainingBonus = Math.max(0, currentBonus - expiredBatchAmount);
+        activeBatches.sort((a, b) => new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime());
+        const earliestBatch = activeBatches[0];
+
+        clawbackTransactions.push({
+          id: `TXN-EXP-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`,
+          userId: user.id,
+          userName: user.name,
+          type: 'bonus_expired',
+          title: `Thu hồi tiền thưởng quá hạn 30 ngày (-${expiredBatchAmount.toLocaleString('vi-VN')}đ)`,
+          amount: -expiredBatchAmount,
+          balanceAfter: user.walletBalance || 0,
+          bonusBalanceAfter: remainingBonus,
+          status: 'success',
+          paymentMethod: 'Hệ thống tự động',
+          createdAt: new Date().toISOString()
+        });
+
+        return {
+          ...user,
+          bonusWalletBalance: remainingBonus,
+          bonusBatches: activeBatches,
+          bonusExpiresAt: earliestBatch ? earliestBatch.expiresAt : null,
+          earliestExpiringBonus: earliestBatch ? {
+            amount: earliestBatch.amount,
+            expiresAt: earliestBatch.expiresAt,
+            formattedDate: new Date(earliestBatch.expiresAt).toLocaleDateString('vi-VN')
+          } : null
+        };
+      }
+      return user;
+    }
+
+    // 2. Dự phòng kiểm tra theo mốc đơn lẻ bonusExpiresAt (cho các tài khoản cũ)
+    if (isUserBonusExpired(user, now)) {
+      const expiredAmount = currentBonus;
+      clawbackTransactions.push(buildClawbackTransaction(user, expiredAmount));
+      return {
+        ...user,
+        bonusWalletBalance: 0,
+        bonusExpiredAt: new Date().toISOString(),
+        bonusExpiresAt: null,
+        earliestExpiringBonus: null
+      };
+    }
+
+    return user;
   });
+
   return { updatedUsers, clawbackTransactions, expiredCount: clawbackTransactions.length };
 }

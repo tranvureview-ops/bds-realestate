@@ -43,6 +43,8 @@ export default function RewardCenterPage() {
   // 2. Trạng thái Điểm Danh trực tiếp (Chuẩn hóa từ checkInService)
   const [currentStreak, setCurrentStreak] = useState(0);
   const [checkedToday, setCheckedToday] = useState(false);
+  const [isMissed, setIsMissed] = useState(false);
+  const [expiringBonusInfo, setExpiringBonusInfo] = useState(null);
   const [copiedCode, setCopiedCode] = useState(null);
   const [claimedMissions, setClaimedMissions] = useState({});
 
@@ -54,9 +56,11 @@ export default function RewardCenterPage() {
         const status = getCheckInStatus(currentUser.id);
         setCurrentStreak(status.streak);
         setCheckedToday(status.checkedToday);
+        setIsMissed(Boolean(status.isMissed));
       } else {
         setCurrentStreak(0);
         setCheckedToday(false);
+        setIsMissed(false);
       }
     };
 
@@ -68,6 +72,45 @@ export default function RewardCenterPage() {
       window.removeEventListener('storage', syncCheckInStatus);
     };
   }, [currentUser?.id, isLoggedIn]);
+
+  // Lấy dữ liệu gói tiền có hạn gần nhất được truyền từ API về
+  useEffect(() => {
+    if (!isLoggedIn || !currentUser?.id) {
+      setExpiringBonusInfo(null);
+      return;
+    }
+
+    if (currentUser?.earliestExpiringBonus?.amount && currentUser?.earliestExpiringBonus?.expiresAt) {
+      const expDate = new Date(currentUser.earliestExpiringBonus.expiresAt);
+      setExpiringBonusInfo({
+        amount: Number(currentUser.earliestExpiringBonus.amount),
+        expiresAt: currentUser.earliestExpiringBonus.expiresAt,
+        formattedDate: currentUser.earliestExpiringBonus.formattedDate || expDate.toLocaleDateString('vi-VN')
+      });
+    }
+
+    const fetchExpiringBonus = async () => {
+      try {
+        const res = await fetch(`/api/wallet/expiring-bonus?userId=${currentUser.id}`);
+        const data = await res.json();
+        if (data.success && data.hasExpiringBonus) {
+          setExpiringBonusInfo({
+            amount: data.amount,
+            expiresAt: data.expiresAt,
+            formattedDate: data.formattedDate
+          });
+        }
+      } catch (err) {
+        console.warn('Lỗi lấy thông tin gói tiền sắp hết hạn:', err);
+      }
+    };
+
+    fetchExpiringBonus();
+    window.addEventListener('bds_bonus_wallet_updated', fetchExpiringBonus);
+    return () => {
+      window.removeEventListener('bds_bonus_wallet_updated', fetchExpiringBonus);
+    };
+  }, [currentUser?.id, isLoggedIn, currentUser?.bonusWalletBalance]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -114,9 +157,20 @@ export default function RewardCenterPage() {
 
     setCurrentStreak(res.streak);
     setCheckedToday(true);
+    setIsMissed(false);
+
+    // Cập nhật gói sắp hết hạn ngay lập tức
+    setExpiringBonusInfo({
+      amount: res.reward,
+      expiresAt: res.expiresAt,
+      formattedDate: res.formattedExpiryDate
+    });
 
     if (addBonusWalletBalance) {
-      addBonusWalletBalance(res.reward, `Điểm danh ${res.dayLabel} (Trung tâm phần thưởng)`);
+      addBonusWalletBalance(res.reward, `Điểm danh ${res.dayLabel} (Trung tâm phần thưởng)`, {
+        expiryDays: 30,
+        expiresAt: res.expiresAt
+      });
     }
 
     if (showToast) {
@@ -228,6 +282,13 @@ export default function RewardCenterPage() {
                 <div className="text-xl font-black text-amber-300 font-mono">
                   +{bonusBal.toLocaleString('vi-VN')} <span className="text-xs text-white">VNĐ</span>
                 </div>
+                {/* Dòng cảnh báo nhỏ kèm icon đồng hồ cát */}
+                {bonusBal > 0 && expiringBonusInfo?.amount > 0 && expiringBonusInfo?.formattedDate && (
+                  <div className="text-[11px] text-amber-200 font-semibold flex items-center gap-1.5 mt-0.5">
+                    <i className="fa-solid fa-hourglass-half text-amber-300 animate-pulse"></i>
+                    <span>(Có {Number(expiringBonusInfo.amount).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày {expiringBonusInfo.formattedDate})</span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -261,8 +322,14 @@ export default function RewardCenterPage() {
                 </h2>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Đăng nhập điểm danh mỗi ngày để tích lũy lên tới <strong className="text-emerald-600 font-bold">{totalWeeklyCheckin.toLocaleString('vi-VN')}đ</strong> vào Ví Khuyến Mãi.
+                Đăng nhập điểm danh mỗi ngày để tích lũy lên tới <strong className="text-emerald-600 font-bold">{totalWeeklyCheckin.toLocaleString('vi-VN')}đ</strong> vào Ví Khuyến Mãi (Hạn dùng 30 ngày/lần nhận, bỏ lỡ 1 ngày sẽ quay lại Ngày 1).
               </p>
+              {isMissed && !checkedToday && (
+                <div className="inline-flex items-center gap-1.5 mt-2 text-[11px] font-bold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">
+                  <i className="fa-solid fa-clock-rotate-left text-rose-600"></i>
+                  <span>Bạn đã bỏ lỡ ngày hôm qua! Chuỗi điểm danh quay lại từ Ngày 1.</span>
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-3">
               <button

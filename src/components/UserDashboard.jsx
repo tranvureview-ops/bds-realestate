@@ -175,12 +175,16 @@ export default function UserDashboard() {
               {(currentUser?.walletBalance || 0).toLocaleString('vi-VN')} đ
             </div>
             {Number(currentUser?.bonusWalletBalance) > 0 && (
-              <div className="text-[10px] text-emerald-800 font-bold flex items-center gap-1.5 mt-0.5">
-                <span>Ví KM: +{Number(currentUser.bonusWalletBalance).toLocaleString('vi-VN')} đ</span>
+              <div className="mt-1 space-y-0.5">
+                <div className="text-[11px] text-emerald-800 font-bold flex items-center gap-1.5">
+                  <i className="fa-solid fa-gift text-emerald-600"></i>
+                  <span>Ví KM: +{Number(currentUser.bonusWalletBalance).toLocaleString('vi-VN')} đ</span>
+                </div>
                 {currentUser.bonusExpiresAt && (
-                  <span className="text-[9px] text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded font-normal">
-                    Hạn: {new Date(currentUser.bonusExpiresAt).toLocaleDateString('vi-VN')}
-                  </span>
+                  <div className="text-[10px] text-amber-800 font-semibold flex items-center gap-1">
+                    <i className="fa-solid fa-hourglass-half text-amber-600"></i>
+                    <span>(Có {(Number(currentUser.earliestExpiringBonus?.amount) || Number(currentUser.bonusWalletBalance)).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày {new Date(currentUser.bonusExpiresAt).toLocaleDateString('vi-VN')})</span>
+                  </div>
                 )}
               </div>
             )}

@@ -4,6 +4,8 @@
  * 1. Bắt buộc ĐĂNG NHẬP mới có thể điểm danh.
  * 2. Mỗi ngày chỉ điểm danh đúng 1 ngày trong chuỗi (Ngày 1 -> Ngày 2 -> ... -> Ngày 7).
  * 3. Tuyệt đối không nhảy cóc hoặc tích 2 ngày cùng lúc trong 1 lần bấm.
+ * 4. Nếu bỏ lỡ 1 ngày không điểm danh thì chuỗi tự động quay lại từ Ngày 1.
+ * 5. Cảnh báo hạn dùng tiền khuyến mãi 30 ngày (điểm danh ngày nào thì 30 ngày sau không sử dụng sẽ bị thu hồi).
  */
 
 import { CHECK_IN_7_DAYS } from '../data/rewardData';
@@ -18,7 +20,7 @@ function getYesterdayDateString() {
 /**
  * Lấy trạng thái điểm danh hiện tại của người dùng
  * @param {string} userId - ID người dùng đã đăng nhập
- * @returns {object} { checkedToday, streak, isCurrentDay, canCheckIn }
+ * @returns {object} { isLoggedIn, checkedToday, streak, nextDayToClaim, isMissed }
  */
 export function getCheckInStatus(userId) {
   if (typeof window === 'undefined' || !userId || userId === 'guest') {
@@ -26,7 +28,8 @@ export function getCheckInStatus(userId) {
       isLoggedIn: false,
       checkedToday: false,
       streak: 0,
-      nextDayToClaim: 1
+      nextDayToClaim: 1,
+      isMissed: false
     };
   }
 
@@ -51,7 +54,8 @@ export function getCheckInStatus(userId) {
       isLoggedIn: true,
       checkedToday: true,
       streak: savedStreak || 1,
-      nextDayToClaim: savedStreak >= 7 ? 1 : savedStreak + 1
+      nextDayToClaim: savedStreak >= 7 ? 1 : savedStreak + 1,
+      isMissed: false
     };
   }
 
@@ -62,16 +66,20 @@ export function getCheckInStatus(userId) {
       isLoggedIn: true,
       checkedToday: false,
       streak: activeStreak,
-      nextDayToClaim: activeStreak + 1
+      nextDayToClaim: activeStreak + 1,
+      isMissed: false
     };
   }
 
-  // Chưa từng điểm danh hoặc bị đứt chuỗi (quá 1 ngày) -> Reset về 0 ngày
+  // Nếu đã từng điểm danh trước đây nhưng không phải hôm qua (bỏ lỡ 1 ngày trở lên) -> Chuỗi quay về Ngày 1
+  const isMissed = Boolean(lastDate && lastDate !== yesterdayStr && lastDate !== todayStr);
+
   return {
     isLoggedIn: true,
     checkedToday: false,
     streak: 0,
-    nextDayToClaim: 1
+    nextDayToClaim: 1,
+    isMissed
   };
 }
 
@@ -79,7 +87,7 @@ export function getCheckInStatus(userId) {
  * Thực hiện điểm danh nhận thưởng vào Ví Khuyến Mãi
  * @param {object} user - Object tài khoản currentUser
  * @param {Array} daysConfig - Danh sách cấu hình ngày (mặc định 7 ngày)
- * @returns {object} { success, streak, reward, error }
+ * @returns {object} { success, streak, reward, dayLabel, expiresAt, formattedExpiryDate, wasReset, message, error }
  */
 export function executeCheckIn(user, daysConfig = CHECK_IN_7_DAYS) {
   if (!user || user.role === 'guest' || !user.id) {
@@ -108,10 +116,17 @@ export function executeCheckIn(user, daysConfig = CHECK_IN_7_DAYS) {
 
   // Tính chính xác ngày điểm danh tiếp theo (tuyệt đối không nhảy số)
   let nextStreak = 1;
+  let wasReset = false;
+
   if (lastDate === yesterdayStr && currentSavedStreak > 0) {
+    // Có điểm danh hôm qua -> Tiếp tục chuỗi
     nextStreak = currentSavedStreak >= 7 ? 1 : currentSavedStreak + 1;
   } else {
-    nextStreak = 1; // Bắt đầu từ Ngày 1 nếu lần đầu hoặc đứt chuỗi
+    // Lần đầu hoặc bỏ lỡ 1 ngày không điểm danh -> Quay lại Ngày 1
+    nextStreak = 1;
+    if (lastDate && lastDate !== yesterdayStr && lastDate !== todayStr) {
+      wasReset = true;
+    }
   }
 
   // Lưu lại lịch sử
@@ -134,11 +149,21 @@ export function executeCheckIn(user, daysConfig = CHECK_IN_7_DAYS) {
   const dayItem = daysConfig[nextStreak - 1] || { reward: 5000 };
   const amount = Number(dayItem.reward || 5000);
 
+  // Tính thời hạn 30 ngày cho tiền thưởng điểm danh
+  const expiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  const formattedExpiryDate = expiryDate.toLocaleDateString('vi-VN');
+
+  const resetNotice = wasReset ? ' (Chuỗi đã quay lại từ Ngày 1 do bạn bỏ lỡ ngày trước đó)' : '';
+  const message = `🎉 Điểm danh Ngày ${nextStreak} thành công! Đã cộng +${amount.toLocaleString('vi-VN')}đ vào Ví Khuyến Mãi${resetNotice}. Lưu ý: Tiền thưởng có hạn sử dụng 30 ngày (đến ngày ${formattedExpiryDate}), quá thời hạn trên nếu không sử dụng sẽ bị thu hồi.`;
+
   return {
     success: true,
     streak: nextStreak,
     reward: amount,
     dayLabel: `Ngày ${nextStreak}`,
-    message: `🎉 Điểm danh Ngày ${nextStreak} thành công! Đã cộng +${amount.toLocaleString('vi-VN')}đ vào Ví Khuyến Mãi!`
+    expiresAt: expiryDate.toISOString(),
+    formattedExpiryDate,
+    wasReset,
+    message
   };
 }
