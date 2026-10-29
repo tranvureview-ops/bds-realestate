@@ -1,17 +1,23 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { MISSIONS_DATA } from '../data/rewardData';
 import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 import { getDailyClaims } from '../services/treasureHuntService';
 import { getCheckInStatus } from '../services/checkInService';
 import { normalizePhone } from '../utils/authValidation';
-import { getAffiliateReport } from '../utils/affiliateEngine';
+import { 
+  getAffiliateReport, 
+  DEFAULT_AFFILIATE_MILESTONES, 
+  getClaimedMilestones, 
+  saveClaimedMilestone 
+} from '../utils/affiliateEngine';
 
 export default function MissionHubPage({ initialCategory = 'all' }) {
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [claimedMissions, setClaimedMissions] = useState({});
+  const [claimedMilestones, setClaimedMilestones] = useState({});
   const { 
     currentUser, 
     showToast, 
@@ -152,16 +158,52 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
         }
       } catch (e) {}
     };
+    const loadClaimedMilestones = () => {
+      try {
+        setClaimedMilestones(getClaimedMilestones(userId));
+      } catch (e) {}
+    };
+
     loadClaimed();
+    loadClaimedMilestones();
+
     window.addEventListener('bds_claimed_missions_updated', loadClaimed);
     window.addEventListener('bds_rewards_config_updated', loadClaimed);
+    window.addEventListener('bds_milestones_updated', loadClaimedMilestones);
     window.addEventListener('storage', loadClaimed);
+    window.addEventListener('storage', loadClaimedMilestones);
     return () => {
       window.removeEventListener('bds_claimed_missions_updated', loadClaimed);
       window.removeEventListener('bds_rewards_config_updated', loadClaimed);
+      window.removeEventListener('bds_milestones_updated', loadClaimedMilestones);
       window.removeEventListener('storage', loadClaimed);
+      window.removeEventListener('storage', loadClaimedMilestones);
     };
   }, [userId]);
+
+  // Cấu hình các mốc thưởng Affiliate từ Admin CMS (hoặc mốc mặc định)
+  const activeMilestones = useMemo(() => {
+    if (Array.isArray(systemConfig?.affiliateMilestones) && systemConfig.affiliateMilestones.length > 0) {
+      return [...systemConfig.affiliateMilestones].sort((a, b) => Number(a.target) - Number(b.target));
+    }
+    return DEFAULT_AFFILIATE_MILESTONES;
+  }, [systemConfig?.affiliateMilestones]);
+
+  // Xác định mốc hiện tại mà user cần chinh phục hoặc đang chờ nhận thưởng
+  const firstClaimableMilestone = useMemo(() => {
+    return activeMilestones.find(
+      m => !claimedMilestones[m.id] && realRefSuccess >= Number(m.target)
+    );
+  }, [activeMilestones, claimedMilestones, realRefSuccess]);
+
+  const firstUnclaimedMilestone = useMemo(() => {
+    return activeMilestones.find(m => !claimedMilestones[m.id]);
+  }, [activeMilestones, claimedMilestones]);
+
+  const currentMilestone = firstClaimableMilestone || firstUnclaimedMilestone || activeMilestones[activeMilestones.length - 1];
+  const allMilestonesClaimed = useMemo(() => {
+    return activeMilestones.length > 0 && activeMilestones.every(m => Boolean(claimedMilestones[m.id]));
+  }, [activeMilestones, claimedMilestones]);
 
   const categories = [
     { id: 'all', label: 'Tất cả nhiệm vụ', icon: 'fa-solid fa-list-check' },
@@ -277,11 +319,33 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
       dynamicProgress = { current: Math.min(streakDays, targetDays), total: targetDays };
       dynamicStatus = streakDays >= targetDays ? 'claimable' : 'in-progress';
     }
-    // 10. Thành tựu giới thiệu bạn bè (Affiliate / Chiêu mộ bạn bè)
+    // 10. Thành tựu giới thiệu bạn bè (Affiliate / Chiêu mộ bạn bè theo từng mốc cấu hình)
     else if (m.id === 'm-ach-03' || m.title?.toLowerCase().includes('chiêu mộ') || m.title?.toLowerCase().includes('affiliate') || m.title?.toLowerCase().includes('giới thiệu')) {
-      const targetRef = parseTarget(m, 5);
-      dynamicProgress = { current: Math.min(realRefSuccess, targetRef), total: targetRef };
-      dynamicStatus = realRefSuccess >= targetRef ? 'claimable' : 'in-progress';
+      const curTarget = Number(currentMilestone?.target || 5);
+      const curReward = Number(currentMilestone?.reward || 150000);
+      const curLabel = currentMilestone?.label || `Chiêu mộ ${curTarget} người bạn đăng ký (Affiliate)`;
+
+      const isCurClaimable = !allMilestonesClaimed && realRefSuccess >= curTarget && !claimedMilestones[currentMilestone?.id];
+      dynamicProgress = {
+        current: Math.min(realRefSuccess, curTarget),
+        total: curTarget
+      };
+      dynamicStatus = allMilestonesClaimed ? 'claimed' : isCurClaimable ? 'claimable' : 'in-progress';
+
+      return {
+        ...m,
+        title: allMilestonesClaimed
+          ? 'Đã hoàn thành toàn bộ mốc Chiêu Mộ Bạn Bè'
+          : curLabel,
+        description: allMilestonesClaimed
+          ? `Chúc mừng bạn đã chinh phục toàn bộ ${activeMilestones.length} mốc thưởng Affiliate và tiếp tục nhận hoa hồng nạp tiền trọn đời!`
+          : `Giới thiệu đồng nghiệp cùng tham gia nhận ngay +${curReward.toLocaleString('vi-VN')}đ vào ví khi đạt mốc ${curTarget} bạn bè hợp lệ.`,
+        reward: curReward,
+        dynamicStatus,
+        dynamicProgress,
+        isAffiliateMilestone: true,
+        currentMilestoneId: currentMilestone?.id
+      };
     }
 
     return {
@@ -313,15 +377,38 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
     handleNavigate(m.link || '/dang-tin');
   };
 
-  const handleClaim = (missionId, reward, title) => {
+  const handleClaimMilestone = (milestone) => {
+    if (!milestone || !milestone.id) return;
     const effectiveUid = userId || 'guest';
-    const updated = { ...claimedMissions, [missionId]: true };
-    setClaimedMissions(updated);
-    if (typeof window !== 'undefined') {
-      try {
-        localStorage.setItem(`bds_claimed_missions_${effectiveUid}`, JSON.stringify(updated));
-        window.dispatchEvent(new CustomEvent('bds_claimed_missions_updated'));
-      } catch (e) {}
+    const updated = saveClaimedMilestone(effectiveUid, milestone.id);
+    setClaimedMilestones(updated);
+
+    const amount = Number(milestone.reward || 0);
+    if (addBonusWalletBalance) {
+      addBonusWalletBalance(amount, `Thưởng Affiliate: ${milestone.label || `Mốc ${milestone.target} bạn bè`}`, {
+        expiryDays: 30
+      });
+    }
+
+    if (showToast) {
+      showToast(`🎉 Xuất sắc! Bạn đã nhận +${amount.toLocaleString('vi-VN')}đ vào Ví Khuyến Mãi cho ${milestone.label || `Mốc ${milestone.target} bạn bè`}!`, 'success');
+    }
+  };
+
+  const handleClaim = (missionId, reward, title, milestoneId) => {
+    const effectiveUid = userId || 'guest';
+    if (milestoneId) {
+      const updated = saveClaimedMilestone(effectiveUid, milestoneId);
+      setClaimedMilestones(updated);
+    } else {
+      const updated = { ...claimedMissions, [missionId]: true };
+      setClaimedMissions(updated);
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(`bds_claimed_missions_${effectiveUid}`, JSON.stringify(updated));
+          window.dispatchEvent(new CustomEvent('bds_claimed_missions_updated'));
+        } catch (e) {}
+      }
     }
 
     const amount = Number(reward || 0);
@@ -501,7 +588,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
                     </button>
                   ) : isClaimable ? (
                     <button
-                      onClick={() => handleClaim(m.id, m.reward, m.title)}
+                      onClick={() => handleClaim(m.id, m.reward, m.title, m.currentMilestoneId)}
                       className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-200 cursor-pointer animate-pulse"
                     >
                       <i className="fa-solid fa-hand-holding-dollar"></i>
@@ -542,35 +629,121 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
               </div>
               <div>
                 <span className="text-[11px] font-black uppercase text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full">
-                  Chương trình Affiliate
+                  Chương trình Affiliate & Chiêu Mộ
                 </span>
-                <h3 className="text-lg font-black text-slate-900">Chiêu Mộ 5 Người Bạn Đăng Ký</h3>
+                <h3 className="text-lg font-black text-slate-900">Chinh Phục Các Mốc Thưởng Chiêu Mộ</h3>
               </div>
             </div>
 
-            {/* Reward & Progress Box */}
+            {/* Overview Progress Box */}
             <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-bold text-slate-700">Tiến độ đạt chuẩn: </span>
+                  <span className="text-xs font-bold text-slate-700">Tiến độ bạn bè đạt chuẩn: </span>
                   <span className="text-xs font-black text-blue-700 font-mono">
-                    {realRefSuccess} / 5 bạn bè
+                    {realRefSuccess} bạn bè
                   </span>
                   <span className="text-[11px] text-slate-500 ml-1.5">(Tổng đã mời: {totalReferred})</span>
                 </div>
-                <span className="text-[11px] font-bold text-emerald-600">
-                  {realRefSuccess >= 5 ? '🎉 Đã đạt chỉ tiêu!' : `Còn ${Math.max(0, 5 - realRefSuccess)} bạn nữa`}
+                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                  {allMilestonesClaimed
+                    ? '🎉 Đã nhận toàn bộ các mốc!'
+                    : `Đã mở khóa: ${activeMilestones.filter(m => Boolean(claimedMilestones[m.id])).length}/${activeMilestones.length} mốc`}
                 </span>
               </div>
-              <div className="w-full h-2.5 bg-blue-200/60 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full transition-all duration-500"
-                  style={{ width: `${Math.min(100, (realRefSuccess / 5) * 100)}%` }}
-                ></div>
+              <div className="text-[11px] text-slate-600 flex items-center justify-between pt-0.5">
+                <span>🎁 Tiền thưởng: <strong>Cộng trực tiếp vào Ví KM</strong> (hạn 30 ngày)</span>
+                <span className="text-[10px] text-slate-500 italic">Chuẩn: Kích hoạt + tin đăng / eKYC / nạp tiền</span>
               </div>
-              <div className="flex items-center justify-between text-[11px] text-slate-600 pt-0.5">
-                <span>🎁 Thưởng: <strong>+300.000đ vào Ví KM</strong> (hạn 30 ngày)</span>
-                <span className="text-[10px] text-slate-500 italic">Tiêu chuẩn: Kích hoạt + có tin đăng hoặc eKYC</span>
+            </div>
+
+            {/* Danh sách các Mốc Thưởng Từng Mốc (Interactive Milestone Track) */}
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-black uppercase text-slate-800 flex items-center gap-1.5 tracking-wider">
+                  <i className="fa-solid fa-trophy text-amber-500"></i>
+                  <span>Thưởng Từng Mốc Chiêu Mộ</span>
+                </h4>
+                <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md">
+                  Nhận thưởng riêng theo từng mốc
+                </span>
+              </div>
+
+              <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                {activeMilestones.map((m, idx) => {
+                  const isClaimed = Boolean(claimedMilestones[m.id]);
+                  const isReached = realRefSuccess >= Number(m.target);
+                  const isClaimable = isReached && !isClaimed;
+
+                  return (
+                    <div
+                      key={m.id || idx}
+                      className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                        isClaimed
+                          ? 'bg-slate-50 border-slate-200/80 opacity-80'
+                          : isClaimable
+                          ? 'bg-gradient-to-r from-emerald-50 via-teal-50 to-green-50 border-emerald-300 shadow-sm ring-1 ring-emerald-300'
+                          : 'bg-white border-slate-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shrink-0 ${
+                          isClaimed
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : isClaimable
+                            ? 'bg-emerald-600 text-white shadow-xs animate-bounce'
+                            : 'bg-blue-50 text-blue-700 border border-blue-200'
+                        }`}>
+                          {isClaimed ? (
+                            <i className="fa-solid fa-check"></i>
+                          ) : (
+                            <span>#{idx + 1}</span>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="font-bold text-xs text-slate-900 truncate">
+                              {m.label || `Mốc ${idx + 1}: Kết nối ${m.target} bạn bè`}
+                            </span>
+                            <span className="text-[10px] font-black text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded font-mono">
+                              +{Number(m.reward).toLocaleString('vi-VN')}đ
+                            </span>
+                          </div>
+                          <div className="text-[11px] text-slate-500 flex items-center gap-1.5 mt-0.5">
+                            <span>Mục tiêu: <strong>{m.target} bạn đạt chuẩn</strong></span>
+                            <span>•</span>
+                            <span className={isClaimed ? 'text-slate-400' : isReached ? 'text-emerald-600 font-bold' : 'text-slate-400'}>
+                              {isClaimed ? 'Đã nhận thưởng' : isReached ? 'Đã đủ điều kiện nhận!' : `Còn thiếu ${Math.max(0, m.target - realRefSuccess)} bạn`}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="shrink-0">
+                        {isClaimed ? (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
+                            <i className="fa-solid fa-circle-check"></i>
+                            <span>Đã nhận</span>
+                          </span>
+                        ) : isClaimable ? (
+                          <button
+                            type="button"
+                            onClick={() => handleClaimMilestone(m)}
+                            className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs shadow-md shadow-emerald-200 transition cursor-pointer flex items-center gap-1.5 active:scale-95"
+                          >
+                            <i className="fa-solid fa-gift"></i>
+                            <span>Nhận +{Number(m.reward).toLocaleString('vi-VN')}đ</span>
+                          </button>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+                            <i className="fa-solid fa-lock text-[10px]"></i>
+                            <span>{realRefSuccess}/{m.target}</span>
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -677,9 +850,11 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
             {/* Danh sách bạn bè đã tham gia */}
             <div className="space-y-2 border-t border-slate-100 pt-4">
               <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                <span>Bạn bè đã tham gia ({totalReferred} người, {realRefSuccess}/5 đạt chuẩn)</span>
+                <span>Bạn bè đã tham gia ({totalReferred} người, {realRefSuccess} đạt chuẩn)</span>
                 <span className="text-emerald-600 text-[11px]">
-                  {realRefSuccess >= 5 ? '🎉 Đã đủ điều kiện nhận 300k!' : `Cần thêm ${Math.max(0, 5 - realRefSuccess)} bạn đạt chuẩn`}
+                  {allMilestonesClaimed
+                    ? '🎉 Đã chinh phục tất cả mốc!'
+                    : `Mốc tiếp theo: ${currentMilestone?.target || 0} bạn (cần thêm ${Math.max(0, (currentMilestone?.target || 0) - realRefSuccess)} bạn)`}
                 </span>
               </div>
               {referredFriends.length > 0 ? (

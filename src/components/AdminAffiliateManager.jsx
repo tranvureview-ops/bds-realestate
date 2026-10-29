@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { normalizePhone } from '../utils/authValidation';
-import { isReferralQualified } from '../utils/affiliateEngine';
+import { isReferralQualified, DEFAULT_AFFILIATE_MILESTONES } from '../utils/affiliateEngine';
 
 export default function AdminAffiliateManager() {
   const { 
@@ -20,17 +20,51 @@ export default function AdminAffiliateManager() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'qualified', 'pending'
 
-  // Form Cấu hình Affiliate
+  // Form Cấu hình Affiliate & Milestones (Thưởng Từng Mốc)
   const [commissionRate, setCommissionRate] = useState(
     Number(systemConfig?.affiliateCommissionRate !== undefined ? systemConfig.affiliateCommissionRate : 10)
   );
-  const [missionReward, setMissionReward] = useState(
-    Number(systemConfig?.affiliateMissionReward || 300000)
-  );
-  const [targetFriends, setTargetFriends] = useState(
-    Number(systemConfig?.affiliateTargetFriends || 5)
-  );
+
+  const [milestones, setMilestones] = useState(() => {
+    if (Array.isArray(systemConfig?.affiliateMilestones) && systemConfig.affiliateMilestones.length > 0) {
+      return systemConfig.affiliateMilestones;
+    }
+    return DEFAULT_AFFILIATE_MILESTONES;
+  });
+
   const [isSavingConfig, setIsSavingConfig] = useState(false);
+
+  const handleMilestoneChange = (index, field, value) => {
+    setMilestones(prev => {
+      const updated = [...prev];
+      updated[index] = { 
+        ...updated[index], 
+        [field]: field === 'label' ? value : Math.max(0, Number(value) || 0) 
+      };
+      return updated;
+    });
+  };
+
+  const handleAddMilestone = () => {
+    const lastM = milestones[milestones.length - 1];
+    const nextTarget = lastM ? Number(lastM.target) + 5 : 5;
+    const nextReward = lastM ? Number(lastM.reward) + 100000 : 100000;
+    const newM = {
+      id: `mile-${Date.now()}`,
+      target: nextTarget,
+      reward: nextReward,
+      label: `Mốc ${milestones.length + 1}: Kết nối ${nextTarget} bạn bè`
+    };
+    setMilestones(prev => [...prev, newM]);
+  };
+
+  const handleRemoveMilestone = (index) => {
+    if (milestones.length <= 1) {
+      if (showToast) showToast('Cần giữ lại ít nhất 1 mốc thưởng!', 'warning');
+      return;
+    }
+    setMilestones(prev => prev.filter((_, i) => i !== index));
+  };
 
   // Tính toán tất cả các cặp quan hệ Affiliate (Referrer -> Referee)
   const affiliateRecords = useMemo(() => {
@@ -119,14 +153,14 @@ export default function AdminAffiliateManager() {
     e.preventDefault();
     setIsSavingConfig(true);
     try {
+      const sortedMilestones = [...milestones].sort((a, b) => Number(a.target) - Number(b.target));
       if (updateSystemConfig) {
         await updateSystemConfig({
           affiliateCommissionRate: Number(commissionRate),
-          affiliateMissionReward: Number(missionReward),
-          affiliateTargetFriends: Number(targetFriends)
+          affiliateMilestones: sortedMilestones
         });
       }
-      if (showToast) showToast('Đã lưu cấu hình Trả Thưởng Affiliate thành công!', 'success');
+      if (showToast) showToast('Đã lưu cấu hình Mốc Thưởng & Hoa Hồng Affiliate thành công!', 'success');
     } catch (err) {
       if (showToast) showToast('Lỗi khi lưu cấu hình Affiliate!', 'error');
     } finally {
@@ -230,10 +264,11 @@ export default function AdminAffiliateManager() {
           </div>
         </div>
 
-        <form onSubmit={handleSaveConfig} className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
-          <div>
+        <form onSubmit={handleSaveConfig} className="space-y-5 pt-1">
+          {/* Cấu hình hoa hồng nạp tiền */}
+          <div className="max-w-md">
             <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              Hoa hồng nạp tiền F1 (%):
+              Hoa hồng nạp tiền F1 (% trích từ doanh thu):
             </label>
             <div className="relative">
               <input
@@ -246,53 +281,110 @@ export default function AdminAffiliateManager() {
               />
               <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">%</span>
             </div>
-            <span className="text-[10px] text-slate-500 mt-1 block">Tự động cộng vào Ví Chính khi F1 nạp tiền</span>
+            <span className="text-[10px] text-slate-500 mt-1 block">Tự động cộng tiền mặt vào Ví Chính của người giới thiệu khi F1 nạp tiền</span>
           </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              Thưởng chiêu mộ 5 bạn (Ví KM):
-            </label>
-            <div className="relative">
-              <input
-                type="number"
-                min="10000"
-                step="10000"
-                value={missionReward}
-                onChange={(e) => setMissionReward(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
-              />
-              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">VNĐ</span>
+          {/* Cấu hình các Mốc Thưởng Chiêu Mộ (Milestones) */}
+          <div className="border border-slate-200/80 rounded-2xl p-4 bg-slate-50/50 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-bold text-xs text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <i className="fa-solid fa-trophy text-amber-500"></i>
+                  <span>Các Mốc Thưởng Chiêu Mộ Bạn Bè (Thưởng Từng Mốc Vào Ví KM)</span>
+                </h4>
+                <p className="text-[11px] text-slate-500">Người dùng đạt đến mốc nào sẽ nhận tiền thưởng tương ứng của mốc đó</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleAddMilestone}
+                className="px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs transition flex items-center gap-1.5 border border-indigo-200 cursor-pointer"
+              >
+                <i className="fa-solid fa-plus text-[10px]"></i>
+                <span>Thêm Mốc Thưởng</span>
+              </button>
             </div>
-            <span className="text-[10px] text-slate-500 mt-1 block">Tiền thưởng có hạn 30 ngày để đăng tin VIP</span>
-          </div>
 
-          <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">
-              Chỉ tiêu số lượng F1:
-            </label>
-            <div className="relative">
-              <input
-                type="number"
-                min="1"
-                max="20"
-                value={targetFriends}
-                onChange={(e) => setTargetFriends(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
-              />
-              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">Bạn</span>
+            <div className="space-y-2.5">
+              {milestones.map((m, idx) => (
+                <div key={m.id || idx} className="bg-white p-3.5 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 shrink-0">
+                    <span className="w-7 h-7 rounded-lg bg-indigo-600 text-white font-black text-xs flex items-center justify-center shadow-xs">
+                      {idx + 1}
+                    </span>
+                    <span className="font-bold text-xs text-slate-800">Mốc {idx + 1}</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 flex-1 w-full">
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 mb-1">Số bạn đạt chuẩn (Target):</label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min="1"
+                          max="100"
+                          value={m.target}
+                          onChange={(e) => handleMilestoneChange(idx, 'target', e.target.value)}
+                          className="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500"
+                        />
+                        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]">Bạn</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 mb-1">Thưởng Ví KM (VNĐ):</label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          min="5000"
+                          step="10000"
+                          value={m.reward}
+                          onChange={(e) => handleMilestoneChange(idx, 'reward', e.target.value)}
+                          className="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-emerald-700 outline-none focus:ring-2 focus:ring-indigo-500 font-mono"
+                        />
+                        <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]">đ</span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-bold text-slate-500 mb-1">Tên hiển thị mốc:</label>
+                      <input
+                        type="text"
+                        value={m.label || ''}
+                        onChange={(e) => handleMilestoneChange(idx, 'label', e.target.value)}
+                        placeholder={`Mốc ${idx + 1}: Kết nối ${m.target} bạn`}
+                        className="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 outline-none focus:ring-2 focus:ring-indigo-500"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveMilestone(idx)}
+                    title="Xóa mốc thưởng này"
+                    className="p-2 rounded-lg text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition text-xs shrink-0 cursor-pointer self-end md:self-center"
+                  >
+                    <i className="fa-solid fa-trash-can"></i>
+                  </button>
+                </div>
+              ))}
             </div>
-            <span className="text-[10px] text-slate-500 mt-1 block">Số người bạn đạt chuẩn để mở khóa nút nhận thưởng</span>
+
+            <div className="flex items-center justify-between text-xs text-slate-600 pt-1">
+              <span>Tổng cộng: <strong>{milestones.length} mốc thưởng</strong></span>
+              <span>
+                Tổng thưởng tích lũy: <strong className="text-emerald-700 font-mono">{milestones.reduce((s, m) => s + (Number(m.reward) || 0), 0).toLocaleString('vi-VN')}đ</strong> vào Ví KM
+              </span>
+            </div>
           </div>
 
-          <div className="md:col-span-3 flex justify-end pt-2">
+          <div className="flex justify-end pt-1">
             <button
               type="submit"
               disabled={isSavingConfig}
               className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition flex items-center gap-2 shadow-sm cursor-pointer disabled:opacity-50"
             >
               {isSavingConfig ? <i className="fa-solid fa-spinner animate-spin"></i> : <i className="fa-solid fa-floppy-disk"></i>}
-              <span>Lưu Cấu Hình Trả Thưởng</span>
+              <span>Lưu Cấu Hình Mốc Thưởng & Hoa Hồng</span>
             </button>
           </div>
         </form>

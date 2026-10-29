@@ -2892,7 +2892,34 @@
     "autoFilterPhoneInContent": true,
     "enableScheduledPublishing": true,
     "maxRegistrationsPerIpPerDay": 3,
-    "requireMembershipForSchedule": true
+    "requireMembershipForSchedule": true,
+    "affiliateCommissionRate": 10,
+    "affiliateMilestones": [
+      {
+        "id": "mile-1",
+        "target": 1,
+        "reward": 50000,
+        "label": "Mốc 1: Kết nối 1 bạn bè"
+      },
+      {
+        "id": "mile-2",
+        "target": 3,
+        "reward": 100000,
+        "label": "Mốc 2: Kết nối 3 bạn bè"
+      },
+      {
+        "id": "mile-3",
+        "target": 5,
+        "reward": 150000,
+        "label": "Mốc 3: Kết nối 5 bạn bè"
+      },
+      {
+        "id": "mile-4",
+        "target": 10,
+        "reward": 300000,
+        "label": "Mốc 4: Kết nối 10 bạn bè"
+      }
+    ]
   },
   "bds_payment_config": {
     "momo": {

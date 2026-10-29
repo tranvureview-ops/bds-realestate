@@ -107,3 +107,43 @@ export function getAffiliateReport(referrer, usersList = [], properties = [], tr
     allReferred: [...qualifiedList, ...pendingList]
   };
 }
+
+/**
+ * Cấu hình mặc định các mốc thưởng chiêu mộ bạn bè (Milestones)
+ * Cho phép quản trị viên tùy chỉnh số lượng bạn bè và số tiền thưởng từng mốc trong CMS
+ */
+export const DEFAULT_AFFILIATE_MILESTONES = [
+  { id: 'mile-1', target: 1, reward: 50000, label: 'Mốc 1: Kết nối 1 bạn bè' },
+  { id: 'mile-2', target: 3, reward: 100000, label: 'Mốc 2: Kết nối 3 bạn bè' },
+  { id: 'mile-3', target: 5, reward: 150000, label: 'Mốc 3: Kết nối 5 bạn bè' },
+  { id: 'mile-4', target: 10, reward: 300000, label: 'Mốc 4: Kết nối 10 bạn bè' }
+];
+
+/**
+ * Lấy lịch sử các mốc thưởng đã nhận của một người dùng
+ */
+export function getClaimedMilestones(userId) {
+  if (typeof window === 'undefined') return {};
+  try {
+    const raw = localStorage.getItem(`bds_claimed_milestones_${userId || 'guest'}`);
+    return raw ? JSON.parse(raw) : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+/**
+ * Đánh dấu một mốc thưởng đã nhận và lưu vào LocalStorage
+ */
+export function saveClaimedMilestone(userId, milestoneId) {
+  if (typeof window === 'undefined') return {};
+  try {
+    const current = getClaimedMilestones(userId);
+    const updated = { ...current, [milestoneId]: new Date().toISOString() };
+    localStorage.setItem(`bds_claimed_milestones_${userId || 'guest'}`, JSON.stringify(updated));
+    window.dispatchEvent(new CustomEvent('bds_milestones_updated', { detail: updated }));
+    return updated;
+  } catch (e) {
+    return {};
+  }
+}

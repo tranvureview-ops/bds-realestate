@@ -3267,6 +3267,15 @@ export const DEFAULT_SYSTEM_CONFIG = {
   homePageSize: 18, // Số lượng BĐS hiển thị trên Trang Chủ
   similarPropertiesLimit: 4, // Số lượng BĐS tương tự hiển thị trên Trang Chi Tiết (Mặc định 4 sản phẩm)
 
+  // Cấu hình Affiliate & Thưởng Từng Mốc Chiêu Mộ
+  affiliateCommissionRate: 10, // % Hoa hồng trọn đời khi bạn bè nạp tiền vào ví
+  affiliateMilestones: [
+    { id: 'mile-1', target: 1, reward: 50000, label: 'Mốc 1: Kết nối 1 bạn bè' },
+    { id: 'mile-2', target: 3, reward: 100000, label: 'Mốc 2: Kết nối 3 bạn bè' },
+    { id: 'mile-3', target: 5, reward: 150000, label: 'Mốc 3: Kết nối 5 bạn bè' },
+    { id: 'mile-4', target: 10, reward: 300000, label: 'Mốc 4: Kết nối 10 bạn bè' }
+  ],
+
   // Mạng xã hội toàn hệ thống
   socialLinks: DEFAULT_SOCIAL_LINKS
 };
