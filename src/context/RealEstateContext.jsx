@@ -693,6 +693,17 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // 11c2. Cấu hình Khuyến Mãi, Nhiệm Vụ & Trung Tâm Phần Thưởng (Rewards & Gamification Config)
   const [rewardsConfig, setRewardsConfig] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const local = localStorage.getItem('bds_rewards_config');
+        if (local) {
+          const parsed = JSON.parse(local);
+          if (parsed && typeof parsed === 'object') {
+            return { ...DEFAULT_REWARDS_CONFIG, ...parsed };
+          }
+        }
+      } catch (e) {}
+    }
     return initialData?.bds_rewards_config || DEFAULT_REWARDS_CONFIG;
   });
 
@@ -897,28 +908,39 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   };
 
   const updateRewardsConfig = async (newConfig) => {
-    let merged;
-    setRewardsConfig(prev => {
-      merged = {
-        ...prev,
-        ...newConfig,
-        checkInConfig: {
-          ...prev.checkInConfig,
-          ...(newConfig.checkInConfig || {})
-        },
-        treasureHuntConfig: {
-          ...prev.treasureHuntConfig,
-          ...(newConfig.treasureHuntConfig || {})
-        }
-      };
-      return merged;
-    });
+    const current = rewardsConfig || DEFAULT_REWARDS_CONFIG;
+    const merged = {
+      ...current,
+      ...newConfig,
+      promotions: newConfig.promotions || current.promotions || [],
+      missions: newConfig.missions || current.missions || {},
+      checkInConfig: {
+        ...(current.checkInConfig || {}),
+        ...(newConfig.checkInConfig || {})
+      },
+      treasureHuntConfig: {
+        ...(current.treasureHuntConfig || {}),
+        ...(newConfig.treasureHuntConfig || {})
+      },
+      predictionGames: newConfig.predictionGames || current.predictionGames || []
+    };
+    setRewardsConfig(merged);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('bds_rewards_config', JSON.stringify(merged));
+      } catch (e) {}
+    }
     await persistSettingToSupabase('bds_rewards_config', merged);
     showToast('Đã lưu cấu hình Khuyến mãi & Phần thưởng thành công!', 'success');
   };
 
   const resetRewardsConfig = async () => {
     setRewardsConfig(DEFAULT_REWARDS_CONFIG);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.removeItem('bds_rewards_config');
+      } catch (e) {}
+    }
     await removeSettingFromSupabase('bds_rewards_config');
     showToast('Đã khôi phục cấu hình Khuyến mãi & Phần thưởng về mặc định!', 'info');
   };

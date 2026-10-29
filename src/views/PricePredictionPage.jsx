@@ -1,28 +1,69 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PRICE_PREDICTION_GAMES } from '../data/rewardData';
 import { Link } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 
 export default function PricePredictionPage({ projectSlug = null }) {
-  const [games, setGames] = useState(PRICE_PREDICTION_GAMES);
+  const { currentUser, showToast, addBonusWalletBalance, rewardsConfig, systemConfig } = useRealEstate();
+  const initialGames = rewardsConfig?.predictionGames || PRICE_PREDICTION_GAMES;
+  const [games, setGames] = useState(initialGames);
   const [userVotes, setUserVotes] = useState({});
-  const { currentUser, showToast, addBonusWalletBalance } = useRealEstate();
+
+  const userId = currentUser && currentUser.role !== 'guest' ? currentUser.id : 'guest';
+  const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
+  const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Sàn Bất Động Sản';
+
+  useEffect(() => {
+    if (rewardsConfig?.predictionGames) {
+      setGames(rewardsConfig.predictionGames);
+    }
+  }, [rewardsConfig?.predictionGames]);
+
+  // Load user votes from localStorage
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const saved = localStorage.getItem(`bds_prediction_votes_${userId}`);
+      if (saved) {
+        setUserVotes(JSON.parse(saved));
+      }
+    } catch (e) {}
+  }, [userId]);
 
   const handleVote = (gameId, optionId, optionLabel) => {
+    if (!currentUser || currentUser.role === 'guest') {
+      if (showToast) showToast('Vui lòng đăng nhập để bình chọn và nhận tiền thưởng vào Ví KM!', 'info');
+      return;
+    }
+
     if (userVotes[gameId]) {
       if (showToast) showToast('Bạn đã bỏ phiếu cho phiên dự đoán này rồi!', 'info');
       return;
     }
 
-    setUserVotes(prev => ({ ...prev, [gameId]: optionId }));
+    const updatedVotes = { ...userVotes, [gameId]: optionId };
+    setUserVotes(updatedVotes);
+    try {
+      localStorage.setItem(`bds_prediction_votes_${userId}`, JSON.stringify(updatedVotes));
+    } catch (e) {}
+
     setGames(prev => prev.map(g => {
       if (g.id !== gameId) return g;
+      const nextTotal = (g.totalVotes || 0) + 1;
+      const nextOptions = g.options.map(o => {
+        const nextOVotes = o.id === optionId ? (o.votes || 0) + 1 : (o.votes || 0);
+        return {
+          ...o,
+          votes: nextOVotes,
+          percent: Math.round((nextOVotes / nextTotal) * 100)
+        };
+      });
       return {
         ...g,
-        totalVotes: g.totalVotes + 1,
-        options: g.options.map(o => o.id === optionId ? { ...o, votes: o.votes + 1 } : o)
+        totalVotes: nextTotal,
+        options: nextOptions
       };
     }));
 
@@ -32,7 +73,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
     }
 
     if (showToast) {
-      showToast(`Dự đoán thành công "${optionLabel}"! Bạn được cộng ngay +10.000đ vào Ví KM và tham gia chia thưởng lớn! 🎯`, 'success');
+      showToast(`🎯 Dự đoán thành công "${optionLabel}"! Đã cộng +10.000đ vào Ví KM và tham gia chia quỹ thưởng!`, 'success');
     }
   };
 
@@ -40,23 +81,8 @@ export default function PricePredictionPage({ projectSlug = null }) {
     ? games.filter(g => g.slug === projectSlug)
     : games;
 
-  const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
-
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'DiscussionForumPosting',
-    'headline': 'Minigame Dự Đoán Giá Bất Động Sản Chia Thưởng Tiền Ví KM',
-    'text': 'Tham gia dự đoán mức giá khớp lệnh thực tế của các dự án BĐS tại Đà Nẵng, Quảng Nam để chia quỹ thưởng tiền mặt hàng triệu đồng vào Ví Khuyến Mãi.',
-    'url': 'https://datbiendanang.vn/trung-tam-phan-thuong/du-doan-gia-bds/'
-  };
-
   return (
     <div className="min-h-screen bg-slate-50 py-8">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-xs text-slate-500 font-medium">
@@ -72,7 +98,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
           <div className="relative z-10 max-w-2xl space-y-3">
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider text-amber-300">
               <i className="fa-solid fa-chart-line"></i>
-              Sân Chơi Thẩm Định Giá Cộng Đồng
+              Sân Chơi Thẩm Định Giá Cộng Đồng {brandName}
             </span>
             <h1 className="text-2xl sm:text-4xl font-black">
               Dự Đoán Giá BĐS - Chia Thưởng Triệu Đồng Vào Ví
@@ -84,12 +110,12 @@ export default function PricePredictionPage({ projectSlug = null }) {
 
           <div className="mt-6 pt-5 border-t border-white/10 flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-lg">
+              <div className="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-lg shadow-md">
                 <i className="fa-solid fa-wallet"></i>
               </div>
               <div>
                 <div className="text-[11px] text-white/70 font-semibold">Ví Khuyến Mãi của bạn</div>
-                <div className="text-xl font-black text-amber-300">
+                <div className="text-xl font-black text-amber-300 font-mono">
                   +{bonusBal.toLocaleString('vi-VN')} đ
                 </div>
               </div>
@@ -120,7 +146,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
                     <img
                       src={game.image}
                       alt={game.projectName}
-                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover shrink-0 border border-slate-100"
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover shrink-0 border border-slate-100 shadow-xs"
                     />
                     <div>
                       <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">
@@ -137,8 +163,8 @@ export default function PricePredictionPage({ projectSlug = null }) {
 
                   <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-center sm:text-right shrink-0">
                     <div className="text-[10px] text-emerald-800 font-bold uppercase tracking-wider">Quỹ thưởng vòng này</div>
-                    <div className="text-lg font-black text-emerald-600">{game.totalPool}</div>
-                    <div className="text-[10px] text-slate-500 mt-0.5">{game.totalVotes.toLocaleString('vi-VN')} người tham gia</div>
+                    <div className="text-lg font-black text-emerald-600 font-mono">{game.totalPool}</div>
+                    <div className="text-[10px] text-slate-500 mt-0.5">{(game.totalVotes || 0).toLocaleString('vi-VN')} người tham gia</div>
                   </div>
                 </div>
 
@@ -163,7 +189,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
                           disabled={hasVoted}
                           className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden cursor-pointer ${
                             isUserChoice
-                              ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-200'
+                              ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-300'
                               : hasVoted
                               ? 'border-slate-200 bg-slate-50 cursor-default'
                               : 'border-slate-200 hover:border-blue-400 hover:bg-slate-50'
@@ -181,13 +207,13 @@ export default function PricePredictionPage({ projectSlug = null }) {
                           {hasVoted && (
                             <div className="mt-3 relative z-10">
                               <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 mb-1">
-                                <span>{opt.percent}%</span>
-                                <span>{opt.votes} lượt</span>
+                                <span>{opt.percent || 0}%</span>
+                                <span>{opt.votes || 0} lượt</span>
                               </div>
                               <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
                                 <div
                                   className={`h-full rounded-full ${isUserChoice ? 'bg-blue-600' : 'bg-slate-400'}`}
-                                  style={{ width: `${opt.percent}%` }}
+                                  style={{ width: `${opt.percent || 0}%` }}
                                 ></div>
                               </div>
                             </div>

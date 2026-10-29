@@ -165,7 +165,7 @@ export default function TreasureHuntPage() {
               </div>
             </div>
             <p className="text-[11px] text-slate-500 leading-relaxed">
-              Mỗi tin đăng chỉ nhận 1 lần/ngày. Thời gian đọc tin tối thiểu 4s và giãn cách 20s để bảo vệ hệ thống.
+              Mỗi tin đăng chỉ nhận 1 lần/ngày. Thời gian đọc tin tối thiểu {minReadingSeconds}s và giãn cách {cooldownSeconds}s để bảo vệ hệ thống.
             </p>
           </div>
         </div>
@@ -243,7 +243,7 @@ export default function TreasureHuntPage() {
           <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm space-y-4">
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <i className="fa-solid fa-clock-rotate-left text-slate-500"></i>
-              Lịch sử các rương đã mở hôm nay ({claimsToday.length}/3)
+              Lịch sử các rương đã mở hôm nay ({claimsToday.length}/{dailyLimit})
             </h3>
             <div className="divide-y divide-slate-100">
               {claimsToday.map((c, idx) => (

@@ -1,5 +1,8 @@
 import PromotionDetailPage from '../../../views/PromotionDetailPage';
 import { PROMOTIONS_DATA } from '../../../data/rewardData';
+import { SITE_URL } from '../../../utils/permalink';
+
+const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '');
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
@@ -8,8 +11,8 @@ export async function generateMetadata({ params }) {
 
   if (!promo) {
     return {
-      title: 'Chương Trình Khuyến Mãi | Đất Biển Đà Nẵng',
-      description: 'Chương trình khuyến mãi dịch vụ bất động sản trên Đất Biển Đà Nẵng.',
+      title: 'Chương Trình Khuyến Mãi Bất Động Sản',
+      description: 'Chương trình khuyến mãi dịch vụ bất động sản.',
     };
   }
 
@@ -17,13 +20,13 @@ export async function generateMetadata({ params }) {
     title: `${promo.title} | Khuyến Mãi BĐS`,
     description: promo.description,
     alternates: {
-      canonical: `https://datbiendanang.vn/khuyen-mai/${promo.slug}/`,
+      canonical: `${baseUrl}/khuyen-mai/${promo.slug}/`,
     },
     openGraph: {
       title: promo.title,
       description: promo.description,
       images: [promo.thumbnail],
-      url: `https://datbiendanang.vn/khuyen-mai/${promo.slug}/`,
+      url: `${baseUrl}/khuyen-mai/${promo.slug}/`,
     }
   };
 }

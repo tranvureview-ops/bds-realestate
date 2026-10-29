@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { PROMOTIONS_DATA } from '../data/rewardData';
 import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
+import { SITE_URL } from '../utils/permalink';
 
 export default function PromotionDetailPage({ slug }) {
   const [copiedCode, setCopiedCode] = useState(false);
@@ -72,7 +73,7 @@ export default function PromotionDetailPage({ slug }) {
     'priceCurrency': 'VND',
     'validThrough': promo.validUntil,
     'availability': 'https://schema.org/InStock',
-    'url': `https://datbiendanang.vn/khuyen-mai/${promo.slug}/`
+    'url': `${(process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '')}/khuyen-mai/${promo.slug}/`
   };
 
   return (
@@ -143,7 +144,7 @@ export default function PromotionDetailPage({ slug }) {
                 </button>
 
                 <button
-                  onClick={() => navigate(promo.category === 'nap-tien' ? '/nap-tien' : promo.category === 'goi-vip' ? '/bang-gia-vip' : '/goi-hoi-vien')}
+                  onClick={() => navigate(promo.category === 'nap-tien' ? '/nap-tien' : promo.category === 'goi-vip' ? '/bang-gia-tin-dang' : '/goi-hoi-vien')}
                   className="flex-1 sm:flex-none px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-sm cursor-pointer"
                 >
                   <span>Sử dụng ngay</span>

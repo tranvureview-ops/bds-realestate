@@ -2,14 +2,20 @@
 
 import React, { useState } from 'react';
 import { PROMOTIONS_DATA } from '../data/rewardData';
-import { Link } from '../router/RouterContext';
+import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 
 export default function PromotionListPage() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [copiedCode, setCopiedCode] = useState(null);
-  const { showToast, rewardsConfig, systemConfig } = useRealEstate();
+  const [testCodeInput, setTestCodeInput] = useState('');
+  const [testedVoucher, setTestedVoucher] = useState(null);
+  const { showToast, rewardsConfig, systemConfig, currentUser } = useRealEstate();
+  const { navigate } = useRouter();
+
   const promoList = rewardsConfig?.promotions || PROMOTIONS_DATA;
+  const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Sàn Bất Động Sản';
+  const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
 
   const categories = [
     { id: 'all', label: 'Tất cả khuyến mãi', icon: 'fa-solid fa-gift' },
@@ -23,46 +29,39 @@ export default function PromotionListPage() {
     : promoList.filter(p => p.category === activeCategory);
 
   const handleCopyCode = (code, e) => {
-    e.preventDefault();
-    e.stopPropagation();
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     navigator.clipboard.writeText(code);
     setCopiedCode(code);
     if (showToast) showToast(`Đã sao chép mã ưu đãi ${code}!`, 'success');
     setTimeout(() => setCopiedCode(null), 2500);
   };
 
-  // Structured Data (JSON-LD) cho Google SEO
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
-    'name': 'Trung Tâm Khuyến Mãi Bất Động Sản',
-    'description': `Tổng hợp các chương trình ưu đãi nạp tiền, chiết khấu tin VIP và gói hội viên môi giới trên ${systemConfig?.brandShortName || 'Sàn Bất Động Sản'}.`,
-    'url': 'https://datbiendanang.vn/khuyen-mai/',
-    'mainEntity': {
-      '@type': 'OfferCatalog',
-      'name': 'Danh mục ưu đãi dịch vụ BĐS',
-      'itemListElement': PROMOTIONS_DATA.map((promo, idx) => ({
-        '@type': 'Offer',
-        'position': idx + 1,
-        'name': promo.title,
-        'description': promo.description,
-        'url': `https://datbiendanang.vn/khuyen-mai/${promo.slug}/`
-      }))
+  const handleCheckCode = (e) => {
+    e.preventDefault();
+    const clean = testCodeInput.trim().toUpperCase();
+    if (!clean) return;
+
+    const matched = promoList.find(p => p.discountCode?.toUpperCase() === clean);
+    if (matched) {
+      setTestedVoucher({ valid: true, data: matched });
+      if (showToast) showToast(`Mã ${clean} hợp lệ! ${matched.discountValue}`, 'success');
+    } else {
+      setTestedVoucher({ valid: false, code: clean });
+      if (showToast) showToast(`Mã ưu đãi "${clean}" không tồn tại hoặc đã hết hạn!`, 'warning');
     }
   };
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
-      {/* Schema Markup */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-xs text-slate-500 font-medium">
           <Link to="/" className="hover:text-emerald-700 transition">Trang chủ</Link>
+          <span>/</span>
+          <Link to="/trung-tam-phan-thuong/" className="hover:text-emerald-700 transition">Trung tâm phần thưởng</Link>
           <span>/</span>
           <span className="text-slate-800 font-bold">Khuyến mãi</span>
         </nav>
@@ -72,7 +71,7 @@ export default function PromotionListPage() {
           <div className="relative z-10 max-w-2xl space-y-4">
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider">
               <i className="fa-solid fa-sparkles text-amber-300"></i>
-              Ưu Đãi Độc Quyền 2026
+              Ưu Đãi Độc Quyền {brandName}
             </span>
             <h1 className="text-2xl sm:text-4xl font-black leading-tight">
               Trung Tâm Khuyến Mãi & Voucher Bất Động Sản
@@ -81,27 +80,121 @@ export default function PromotionListPage() {
               Nhận voucher nạp tiền, chiết khấu đẩy tin VIP và các đặc quyền hội viên dành riêng cho nhà môi giới và chính chủ.
             </p>
           </div>
-          <div className="absolute right-[-20px] bottom-[-20px] opacity-20 pointer-events-none hidden md:block">
+
+          <div className="mt-6 pt-5 border-t border-white/10 flex items-center justify-between flex-wrap gap-4 relative z-10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-lg shadow-md">
+                <i className="fa-solid fa-wallet"></i>
+              </div>
+              <div>
+                <div className="text-[11px] text-white/70">Số dư Ví Khuyến Mãi của bạn</div>
+                <div className="text-xl font-black text-amber-300 font-mono">
+                  +{bonusBal.toLocaleString('vi-VN')} <span className="text-xs text-white">VNĐ</span>
+                </div>
+              </div>
+            </div>
+
+            <Link
+              to="/trung-tam-phan-thuong/doi-qua/"
+              className="px-4 py-2 rounded-xl bg-white text-slate-900 font-bold text-xs transition shadow-md hover:bg-amber-50"
+            >
+              <span>Xem đặc quyền Ví KM &rarr;</span>
+            </Link>
+          </div>
+
+          <div className="absolute right-[-20px] bottom-[-20px] opacity-15 pointer-events-none hidden md:block">
             <i className="fa-solid fa-tags text-[240px]"></i>
           </div>
         </div>
 
+        {/* Voucher Fast Checker Tool */}
+        <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <i className="fa-solid fa-ticket text-red-600 text-lg"></i>
+                <h2 className="text-base font-black text-slate-900">
+                  Kiểm Tra & Kích Hoạt Mã Ưu Đãi
+                </h2>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Nhập mã voucher bạn có để kiểm tra hạn sử dụng và quyền lợi chiết khấu.
+              </p>
+            </div>
+
+            <form onSubmit={handleCheckCode} className="flex items-center gap-2 max-w-md w-full">
+              <input
+                type="text"
+                value={testCodeInput}
+                onChange={(e) => setTestCodeInput(e.target.value)}
+                placeholder="Ví dụ: WELCOME100, VIPDIAMOND30..."
+                className="flex-1 p-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold uppercase tracking-wider outline-none focus:border-red-500"
+              />
+              <button
+                type="submit"
+                className="px-5 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs transition cursor-pointer shrink-0 shadow-sm"
+              >
+                Kiểm tra
+              </button>
+            </form>
+          </div>
+
+          {/* Result of Voucher Checker */}
+          {testedVoucher && (
+            <div className={`mt-4 p-4 rounded-2xl border text-xs ${testedVoucher.valid ? 'bg-emerald-50 border-emerald-300 text-emerald-950' : 'bg-rose-50 border-rose-300 text-rose-950'}`}>
+              {testedVoucher.valid ? (
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <div className="font-black text-sm flex items-center gap-1.5 text-emerald-700">
+                      <i className="fa-solid fa-circle-check"></i>
+                      <span>Mã [{testedVoucher.data.discountCode}] hợp lệ: {testedVoucher.data.title}</span>
+                    </div>
+                    <div className="text-[11px] text-emerald-800 mt-1">
+                      Giảm giá: <strong className="font-bold">{testedVoucher.data.discountValue}</strong> • Hạn dùng: <strong>{testedVoucher.data.validUntil}</strong>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => navigate(testedVoucher.data.category === 'nap-tien' ? '/nap-tien' : '/bang-gia-tin-dang')}
+                    className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition shrink-0 cursor-pointer shadow-xs"
+                  >
+                    Dùng mã này ngay &rarr;
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-rose-700 font-bold">
+                  <i className="fa-solid fa-circle-xmark"></i>
+                  <span>Mã "{testedVoucher.code}" không tồn tại hoặc đã hết hiệu lực. Vui lòng chọn một mã trong danh sách bên dưới!</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         {/* Category Tabs */}
         <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
-          {categories.map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer whitespace-nowrap shadow-xs ${
-                activeCategory === cat.id
-                  ? 'bg-red-600 text-white shadow-red-200'
-                  : 'bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900 border border-slate-200'
-              }`}
-            >
-              <i className={`${cat.icon} text-xs`}></i>
-              <span>{cat.label}</span>
-            </button>
-          ))}
+          {categories.map(cat => {
+            const count = cat.id === 'all'
+              ? promoList.length
+              : promoList.filter(p => p.category === cat.id).length;
+
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer whitespace-nowrap shadow-xs ${
+                  activeCategory === cat.id
+                    ? 'bg-red-600 text-white shadow-red-200'
+                    : 'bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900 border border-slate-200'
+                }`}
+              >
+                <i className={`${cat.icon} text-xs`}></i>
+                <span>{cat.label}</span>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] ${activeCategory === cat.id ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Promo Grid */}
@@ -117,7 +210,7 @@ export default function PromotionListPage() {
                   alt={promo.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <span className={`absolute top-3 left-3 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md ${promo.badgeColor}`}>
+                <span className={`absolute top-3 left-3 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md ${promo.badgeColor || 'bg-red-500 text-white'}`}>
                   {promo.badge}
                 </span>
                 <span className="absolute bottom-3 left-3 text-[11px] font-bold px-2 py-0.5 rounded-lg bg-black/60 backdrop-blur-md text-white">
@@ -143,7 +236,7 @@ export default function PromotionListPage() {
                   <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-dashed border-slate-300">
                     <div>
                       <div className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Mã Voucher</div>
-                      <div className="text-xs font-black text-slate-800 tracking-wider">{promo.discountCode}</div>
+                      <div className="text-xs font-black text-slate-800 tracking-wider font-mono">{promo.discountCode}</div>
                     </div>
                     <button
                       onClick={(e) => handleCopyCode(promo.discountCode, e)}

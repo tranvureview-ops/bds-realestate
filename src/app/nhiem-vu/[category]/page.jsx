@@ -1,4 +1,7 @@
 import MissionHubPage from '../../../views/MissionHubPage';
+import { SITE_URL } from '../../../utils/permalink';
+
+const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '');
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
@@ -14,9 +17,9 @@ export async function generateMetadata({ params }) {
 
   return {
     title: `${name} | Thưởng Tiền Vào Ví Khuyến Mãi`,
-    description: `Danh sách ${name.toLowerCase()} nhận tiền thưởng trực tiếp vào Ví Khuyến Mãi trên Đất Biển Đà Nẵng.`,
+    description: `Danh sách ${name.toLowerCase()} nhận tiền thưởng trực tiếp vào Ví Khuyến Mãi.`,
     alternates: {
-      canonical: `https://datbiendanang.vn/nhiem-vu/${category}/`,
+      canonical: `${baseUrl}/nhiem-vu/${category}/`,
     }
   };
 }

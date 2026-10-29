@@ -357,7 +357,7 @@ export const PROMO_WALLET_SERVICES = [
     cost: '50.000đ / tuần (Trừ Ví KM)',
     icon: 'fa-solid fa-crown text-amber-500',
     actionText: 'Xem bảng giá VIP',
-    link: '/bang-gia-vip',
+    link: '/bang-gia-tin-dang',
     description: 'Sử dụng tiền trong Ví Khuyến Mãi để gắn huy hiệu VIP Vàng nổi bật, tăng lượt xem gấp 5 lần.'
   },
   {
@@ -366,7 +366,7 @@ export const PROMO_WALLET_SERVICES = [
     cost: 'Chiết khấu trực tiếp từ Ví KM',
     icon: 'fa-solid fa-gem text-rose-500',
     actionText: 'Xem đặc quyền VIP',
-    link: '/bang-gia-vip',
+    link: '/bang-gia-tin-dang',
     description: 'Vị trí độc quyền trang chủ và danh mục chính của toàn sàn, thanh toán linh hoạt kết hợp Ví KM.'
   }
 ];

@@ -1,17 +1,37 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MISSIONS_DATA } from '../data/rewardData';
 import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
+import { getDailyClaims } from '../services/treasureHuntService';
 
 export default function MissionHubPage({ initialCategory = 'all' }) {
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [claimedMissions, setClaimedMissions] = useState({});
-  const { currentUser, showToast, addBonusWalletBalance, rewardsConfig } = useRealEstate();
+  const { 
+    currentUser, 
+    showToast, 
+    addBonusWalletBalance, 
+    rewardsConfig, 
+    systemConfig,
+    properties 
+  } = useRealEstate();
   const { navigate } = useRouter();
 
+  const userId = currentUser && currentUser.role !== 'guest' ? currentUser.id : 'guest';
   const allMissions = rewardsConfig?.missions || MISSIONS_DATA;
+
+  // Tải trạng thái các nhiệm vụ đã nhận thưởng từ LocalStorage
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const saved = localStorage.getItem(`bds_claimed_missions_${userId}`);
+      if (saved) {
+        setClaimedMissions(JSON.parse(saved));
+      }
+    } catch (e) {}
+  }, [userId]);
 
   const categories = [
     { id: 'all', label: 'Tất cả nhiệm vụ', icon: 'fa-solid fa-list-check' },
@@ -20,19 +40,72 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
     { id: 'thanh-tuu', label: 'Thành tựu', icon: 'fa-solid fa-trophy' }
   ];
 
-  let displayMissions = [];
+  let rawMissions = [];
   if (activeCategory === 'all') {
-    displayMissions = [
+    rawMissions = [
       ...(allMissions['tan-thu'] || []),
       ...(allMissions['hang-ngay'] || []),
       ...(allMissions['thanh-tuu'] || [])
     ];
   } else if (allMissions[activeCategory]) {
-    displayMissions = allMissions[activeCategory];
+    rawMissions = allMissions[activeCategory];
   }
 
+  // Đánh giá trạng thái thực tế của nhiệm vụ theo dữ liệu thực của tài khoản (Dynamic Progress Engine)
+  const isPhoneVerified = Boolean(currentUser?.isVerified);
+  const userPropertiesCount = (properties || []).filter(p => p.authorId === currentUser?.id).length;
+  const isCheckedInToday = typeof window !== 'undefined' 
+    ? (localStorage.getItem(`bds_checkin_last_date_${userId}`) === new Date().toDateString())
+    : false;
+  const treasureCountToday = typeof window !== 'undefined'
+    ? getDailyClaims(userId).length
+    : 0;
+
+  const displayMissions = rawMissions.map(m => {
+    const isClaimed = Boolean(claimedMissions[m.id]);
+    if (isClaimed) {
+      return { ...m, dynamicStatus: 'claimed' };
+    }
+
+    // Kiểm tra điều kiện tự động của từng nhiệm vụ
+    let dynamicStatus = m.status || 'in-progress';
+    let dynamicProgress = m.progress;
+
+    if (m.id === 'm-tt-1' || m.title?.toLowerCase().includes('định danh') || m.title?.toLowerCase().includes('xác thực')) {
+      if (isPhoneVerified) dynamicStatus = 'claimable';
+    } else if (m.id === 'm-hn-1' || m.title?.toLowerCase().includes('điểm danh')) {
+      if (isCheckedInToday) dynamicStatus = 'claimable';
+    } else if (m.id === 'm-hn-2' || m.title?.toLowerCase().includes('kho báu') || m.title?.toLowerCase().includes('rương')) {
+      dynamicProgress = { current: treasureCountToday, total: 3 };
+      if (treasureCountToday >= 1) dynamicStatus = 'claimable';
+    } else if (m.id === 'm-hn-3' || m.title?.toLowerCase().includes('đăng bài')) {
+      dynamicProgress = { current: Math.min(userPropertiesCount, 1), total: 1 };
+      if (userPropertiesCount >= 1) dynamicStatus = 'claimable';
+    } else if (m.id === 'm-tt-3' || m.title?.toLowerCase().includes('đăng 10 tin')) {
+      dynamicProgress = { current: Math.min(userPropertiesCount, 10), total: 10 };
+      if (userPropertiesCount >= 10) dynamicStatus = 'claimable';
+    }
+
+    return {
+      ...m,
+      dynamicStatus,
+      dynamicProgress
+    };
+  });
+
   const handleClaim = (missionId, reward, title) => {
-    setClaimedMissions(prev => ({ ...prev, [missionId]: true }));
+    if (!currentUser || currentUser.role === 'guest') {
+      if (showToast) showToast('Vui lòng đăng nhập để nhận tiền thưởng vào Ví Khuyến Mãi!', 'info');
+      navigate('/dang-nhap');
+      return;
+    }
+
+    const updated = { ...claimedMissions, [missionId]: true };
+    setClaimedMissions(updated);
+    try {
+      localStorage.setItem(`bds_claimed_missions_${userId}`, JSON.stringify(updated));
+    } catch (e) {}
+
     const amount = Number(reward || 0);
 
     // Cộng tiền trực tiếp vào Ví Khuyến Mãi của user
@@ -46,31 +119,16 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
   };
 
   const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
-
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'HowTo',
-    'name': 'Hệ Thống Nhiệm Vụ Thưởng Tiền Vào Ví Khuyến Mãi BĐS',
-    'description': 'Hoàn thành nhiệm vụ đăng tin, duyệt tin, định danh để nhận thưởng trực tiếp vào Ví Khuyến Mãi.',
-    'step': displayMissions.map((m, idx) => ({
-      '@type': 'HowToStep',
-      'position': idx + 1,
-      'name': m.title,
-      'text': m.description
-    }))
-  };
+  const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Sàn Bất Động Sản';
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-xs text-slate-500 font-medium">
           <Link to="/" className="hover:text-emerald-700 transition">Trang chủ</Link>
+          <span>/</span>
+          <Link to="/trung-tam-phan-thuong/" className="hover:text-emerald-700 transition">Trung tâm phần thưởng</Link>
           <span>/</span>
           <span className="text-slate-800 font-bold">Hệ thống nhiệm vụ</span>
         </nav>
@@ -80,7 +138,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
           <div className="space-y-3 text-center md:text-left">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider">
               <i className="fa-solid fa-gift text-amber-300"></i>
-              Nhiệm Vụ Nhận Tiền Vào Ví Khuyến Mãi
+              Nhiệm Vụ Nhận Tiền Vào Ví Khuyến Mãi {brandName}
             </span>
             <h1 className="text-2xl sm:text-3xl font-black">
               Làm Nhiệm Vụ - Tiền Tươi Vào Ví Khuyến Mãi
@@ -98,7 +156,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
               </div>
               <div>
                 <div className="text-[11px] uppercase tracking-wider text-white/70 font-bold">Ví Khuyến Mãi của bạn</div>
-                <div className="text-2xl font-black text-amber-300">
+                <div className="text-2xl font-black text-amber-300 font-mono">
                   +{bonusBal.toLocaleString('vi-VN')} <span className="text-xs text-white">VNĐ</span>
                 </div>
               </div>
@@ -116,33 +174,48 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
 
         {/* Category Tabs */}
         <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
-          {categories.map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => setActiveCategory(cat.id)}
-              className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer whitespace-nowrap shadow-xs ${
-                activeCategory === cat.id
-                  ? 'bg-blue-600 text-white shadow-blue-200'
-                  : 'bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900 border border-slate-200'
-              }`}
-            >
-              <i className={`${cat.icon} text-xs`}></i>
-              <span>{cat.label}</span>
-            </button>
-          ))}
+          {categories.map(cat => {
+            const count = cat.id === 'all'
+              ? [
+                  ...(allMissions['tan-thu'] || []),
+                  ...(allMissions['hang-ngay'] || []),
+                  ...(allMissions['thanh-tuu'] || [])
+                ].length
+              : (allMissions[cat.id] || []).length;
+
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer whitespace-nowrap shadow-xs ${
+                  activeCategory === cat.id
+                    ? 'bg-blue-600 text-white shadow-blue-200'
+                    : 'bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900 border border-slate-200'
+                }`}
+              >
+                <i className={`${cat.icon} text-xs`}></i>
+                <span>{cat.label}</span>
+                <span className={`px-2 py-0.5 rounded-full text-[10px] ${activeCategory === cat.id ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         {/* Missions List */}
         <div className="space-y-4">
           {displayMissions.map(m => {
-            const isClaimed = claimedMissions[m.id];
+            const isClaimed = m.dynamicStatus === 'claimed';
+            const isClaimable = m.dynamicStatus === 'claimable';
+
             return (
               <div
                 key={m.id}
                 className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 hover:border-blue-400 shadow-xs hover:shadow-md transition flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
               >
                 <div className="flex items-start gap-4 flex-1">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0 border border-blue-100">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0 border border-blue-100 shadow-inner">
                     <i className={m.icon}></i>
                   </div>
                   <div className="space-y-1">
@@ -152,24 +225,24 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
                       </h3>
                       <span className="inline-flex items-center gap-1 text-[11px] font-black px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
                         <i className="fa-solid fa-money-bill-wave text-emerald-600"></i>
-                        +{m.reward.toLocaleString('vi-VN')}đ vào Ví KM
+                        +{Number(m.reward || 0).toLocaleString('vi-VN')}đ vào Ví KM
                       </span>
                     </div>
                     <p className="text-xs text-slate-500 leading-relaxed">
                       {m.description}
                     </p>
 
-                    {/* Progress bar if present */}
-                    {m.progress && (
+                    {/* Dynamic Progress bar if present */}
+                    {m.dynamicProgress && (
                       <div className="pt-2 flex items-center gap-3">
                         <div className="w-36 sm:w-48 h-2 bg-slate-100 rounded-full overflow-hidden">
                           <div
                             className="h-full bg-blue-600 rounded-full transition-all"
-                            style={{ width: `${(m.progress.current / m.progress.total) * 100}%` }}
+                            style={{ width: `${Math.min(100, (m.dynamicProgress.current / m.dynamicProgress.total) * 100)}%` }}
                           ></div>
                         </div>
                         <span className="text-[11px] font-bold text-slate-500">
-                          {m.progress.current}/{m.progress.total}
+                          {m.dynamicProgress.current}/{m.dynamicProgress.total}
                         </span>
                       </div>
                     )}
@@ -181,22 +254,22 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
                   {isClaimed ? (
                     <button
                       disabled
-                      className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed"
+                      className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed border border-slate-200"
                     >
-                      <i className="fa-solid fa-check"></i>
+                      <i className="fa-solid fa-check text-emerald-600"></i>
                       <span>Đã cộng vào Ví KM</span>
                     </button>
-                  ) : m.status === 'claimable' ? (
+                  ) : isClaimable ? (
                     <button
                       onClick={() => handleClaim(m.id, m.reward, m.title)}
                       className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-200 cursor-pointer animate-pulse"
                     >
                       <i className="fa-solid fa-hand-holding-dollar"></i>
-                      <span>Nhận +{m.reward.toLocaleString('vi-VN')}đ</span>
+                      <span>Nhận +{Number(m.reward || 0).toLocaleString('vi-VN')}đ</span>
                     </button>
                   ) : (
                     <button
-                      onClick={() => navigate(m.link)}
+                      onClick={() => navigate(m.link || '/dang-tin')}
                       className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
                     >
                       <span>Thực hiện ngay</span>

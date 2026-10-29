@@ -4,6 +4,7 @@ import React from 'react';
 import { PROMO_WALLET_SERVICES } from '../data/rewardData';
 import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
+import { SITE_URL } from '../utils/permalink';
 
 export default function RewardRedeemPage() {
   const { currentUser } = useRealEstate();
@@ -16,7 +17,7 @@ export default function RewardRedeemPage() {
     '@type': 'OfferCatalog',
     'name': 'Dịch Vụ Sử Dụng Ví Khuyến Mãi Bất Động Sản',
     'description': 'Sử dụng tiền trong Ví Khuyến Mãi để đăng tin, mua lượt đẩy tin TOP 1 và nâng cấp tin VIP.',
-    'url': 'https://datbiendanang.vn/trung-tam-phan-thuong/doi-qua/'
+    'url': `${(process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '')}/trung-tam-phan-thuong/doi-qua/`
   };
 
   return (
