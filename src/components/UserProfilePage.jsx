@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 import { Link, useRouter } from '../router/RouterContext';
