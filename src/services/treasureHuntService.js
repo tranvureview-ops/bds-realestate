@@ -3,12 +3,9 @@
  * Cơ chế:
  * - 3 hộp / ngày / tài khoản
  * - 1 tin đăng chỉ mở được 1 lần / ngày
- * - Tỷ lệ random tiền thưởng:
- *   + 50%: 2.000đ - 4.000đ
- *   + 25%: 5.000đ - 10.000đ
- *   + 15%: 11.000đ - 15.000đ
- *   + 10%: 15.000đ - 20.000đ (Max 20.000đ)
- * - Chống spam: kiểm tra thời gian xem, kiểm tra đăng nhập, cooldown 30s
+ * - Tiền thưởng ngẫu nhiên từ minAmount (hạng thấp nhất) đến maxAmount (hạng cao nhất)
+ * - Mặc định: 2.000đ - 20.000đ (có thể tùy chỉnh trong CMS Quản trị)
+ * - Chống spam: kiểm tra thời gian xem (minReadingSeconds), kiểm tra đăng nhập, cooldown 20s
  */
 
 const DAILY_LIMIT = 3;
@@ -78,77 +75,53 @@ export function checkCooldownStatus(userId, customCooldown = COOLDOWN_SECONDS) {
   return { canOpen: true, secondsLeft: 0 };
 }
 
-// Hàm tính ngẫu nhiên tiền thưởng theo đúng tỷ lệ
-export function calculateTreasureReward(customTiers = null) {
-  if (Array.isArray(customTiers) && customTiers.length > 0) {
-    const rand = Math.random() * 100;
-    let accumulated = 0;
-    for (const t of customTiers) {
-      accumulated += Number(t.probability || 0);
-      if (rand <= accumulated) {
-        const min = Number(t.minAmount || 1000);
-        const max = Number(t.maxAmount || 5000);
-        const step = 1000;
-        const steps = Math.floor((max - min) / step);
-        const amount = steps > 0 
-          ? min + Math.floor(Math.random() * (steps + 1)) * step 
-          : min;
-        return {
-          amount,
-          tier: t.id || 'custom',
-          tierLabel: t.label || 'Quà May Mắn',
-          color: t.id === 'tier4' ? 'text-rose-700 bg-rose-50' : t.id === 'tier3' ? 'text-amber-900 bg-amber-100' : t.id === 'tier2' ? 'text-blue-700 bg-blue-50' : 'text-amber-700 bg-amber-50'
-        };
-      }
+// Hàm tính ngẫu nhiên tiền thưởng từ minAmount (hạng thấp nhất) đến maxAmount (hạng cao nhất)
+export function calculateTreasureReward(tConfig = null) {
+  let min = 2000;
+  let max = 20000;
+
+  if (tConfig && typeof tConfig === 'object') {
+    if (tConfig.minAmount !== undefined) min = Math.max(1000, Number(tConfig.minAmount) || 2000);
+    if (tConfig.maxAmount !== undefined) max = Math.max(min, Number(tConfig.maxAmount) || 20000);
+  }
+
+  const step = 1000;
+  const steps = Math.floor((max - min) / step);
+  const amount = steps > 0 
+    ? min + Math.floor(Math.random() * (steps + 1)) * step 
+    : min;
+
+  let tier = 'tier1';
+  let tierLabel = 'Rương May Mắn';
+  let color = 'text-amber-700 bg-amber-50';
+
+  const range = max - min;
+  if (range > 0) {
+    const ratio = (amount - min) / range;
+    if (ratio >= 0.75) {
+      tier = 'tier4';
+      tierLabel = 'Rương Kim Cương Đỉnh Cao';
+      color = 'text-rose-700 bg-rose-50';
+    } else if (ratio >= 0.45) {
+      tier = 'tier3';
+      tierLabel = 'Rương Vàng Phú Quý';
+      color = 'text-amber-900 bg-amber-100';
+    } else if (ratio >= 0.20) {
+      tier = 'tier2';
+      tierLabel = 'Rương Bạc Rực Rỡ';
+      color = 'text-blue-700 bg-blue-50';
+    } else {
+      tier = 'tier1';
+      tierLabel = 'Rương Đồng May Mắn';
+      color = 'text-amber-700 bg-amber-50';
     }
   }
 
-  const rand = Math.random();
-
-  // Tier 1 (50%): 2.000đ - 4.000đ
-  if (rand < 0.50) {
-    const choices = [2000, 3000, 4000];
-    const amount = choices[Math.floor(Math.random() * choices.length)];
-    return {
-      amount,
-      tier: 'tier1',
-      tierLabel: 'May Mắn Đồng',
-      color: 'text-amber-700 bg-amber-50'
-    };
-  }
-
-  // Tier 2 (25%): 5.000đ - 10.000đ
-  if (rand < 0.75) {
-    const choices = [5000, 6000, 7000, 8000, 9000, 10000];
-    const amount = choices[Math.floor(Math.random() * choices.length)];
-    return {
-      amount,
-      tier: 'tier2',
-      tierLabel: 'Bạc Rực Rỡ',
-      color: 'text-blue-700 bg-blue-50'
-    };
-  }
-
-  // Tier 3 (15%): 11.000đ - 15.000đ
-  if (rand < 0.90) {
-    const choices = [11000, 12000, 13000, 14000, 15000];
-    const amount = choices[Math.floor(Math.random() * choices.length)];
-    return {
-      amount,
-      tier: 'tier3',
-      tierLabel: 'Vàng Phú Quý',
-      color: 'text-amber-900 bg-amber-100'
-    };
-  }
-
-  // Tier 4 (10%): 15.000đ - 20.000đ (Tối đa 20.000đ)
-  const choices = [16000, 17000, 18000, 19000, 20000];
-  const amount = choices[Math.floor(Math.random() * choices.length)];
   return {
     amount,
-    tier: 'tier4',
-    tierLabel: 'Kim Cương Đỉnh Cao',
-    color: 'text-rose-700 bg-rose-50'
+    tier,
+    tierLabel,
+    color
   };
 }
 

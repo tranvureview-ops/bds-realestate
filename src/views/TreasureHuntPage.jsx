@@ -10,12 +10,10 @@ export default function TreasureHuntPage() {
   const { currentUser, properties, rewardsConfig } = useRealEstate();
   const tConfig = rewardsConfig?.treasureHuntConfig;
   const dailyLimit = Number(tConfig?.dailyLimit || 3);
-  const rewardTiers = tConfig?.rewardTiers || [
-    { id: 'tier1', label: 'Hạng May Mắn Đồng', probability: 50, minAmount: 2000, maxAmount: 4000 },
-    { id: 'tier2', label: 'Hạng Bạc Rực Rỡ', probability: 25, minAmount: 5000, maxAmount: 10000 },
-    { id: 'tier3', label: 'Hạng Vàng Phú Quý', probability: 15, minAmount: 11000, maxAmount: 15000 },
-    { id: 'tier4', label: 'Hạng Kim Cương Đỉnh Cao', probability: 10, minAmount: 15000, maxAmount: 20000 }
-  ];
+  const minAmount = Number(tConfig?.minAmount || 2000);
+  const maxAmount = Number(tConfig?.maxAmount || 20000);
+  const minReadingSeconds = Number(tConfig?.minReadingSeconds || 4);
+  const cooldownSeconds = Number(tConfig?.cooldownSeconds || 20);
 
   const [quota, setQuota] = useState({ count: 0, limit: dailyLimit, remaining: dailyLimit, isLimitReached: false });
   const [claimsToday, setClaimsToday] = useState([]);
@@ -172,44 +170,71 @@ export default function TreasureHuntPage() {
           </div>
         </div>
 
-        {/* Probability Table (Bảng tỷ lệ người dùng yêu cầu) */}
+        {/* Showcase cơ chế tiền thưởng ngẫu nhiên */}
         <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
             <div>
               <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                <i className="fa-solid fa-chart-pie text-orange-500"></i>
-                Bảng Tỷ Lệ Phân Bổ Tiền Thưởng Ngẫu Nhiên
+                <i className="fa-solid fa-gift text-orange-500"></i>
+                Cơ Chế Tiền Thưởng Ngẫu Nhiên & Quyền Lợi
               </h2>
               <p className="text-xs text-slate-500 mt-1">
-                Tỷ lệ minh bạch 100%, tiền thưởng cộng trực tiếp vào Ví Khuyến Mãi ngay khi bấm mở hộp:
+                Tiền thưởng ngẫu nhiên cộng trực tiếp vào Ví Khuyến Mãi ngay khi bấm mở rương bài viết:
               </p>
             </div>
             <span className="text-xs font-bold px-3 py-1 bg-amber-100 text-amber-900 rounded-full shrink-0">
-              Tối đa 20.000đ / hộp
+              {minAmount.toLocaleString('vi-VN')}đ - {maxAmount.toLocaleString('vi-VN')}đ / hộp
             </span>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {rewardTiers.map((t, idx) => {
-              const bgColors = [
-                'bg-amber-50/60 border-amber-200 text-amber-700',
-                'bg-blue-50/60 border-blue-200 text-blue-700',
-                'bg-purple-50/60 border-purple-200 text-purple-700',
-                'bg-rose-50/60 border-rose-200 text-rose-700'
-              ];
-              const colorCls = bgColors[idx % bgColors.length];
-              return (
-                <div key={t.id || idx} className={`p-4 rounded-2xl border space-y-1 ${colorCls.split(' ')[0]} ${colorCls.split(' ')[1]}`}>
-                  <div className={`text-[10px] font-bold uppercase tracking-wider ${colorCls.split(' ')[2]}`}>
-                    Tỷ Lệ {t.probability}%
-                  </div>
-                  <div className="text-xl font-black text-slate-900">
-                    {Number(t.minAmount).toLocaleString('vi-VN')}đ - {Number(t.maxAmount).toLocaleString('vi-VN')}đ
-                  </div>
-                  <div className="text-[11px] text-slate-500">{t.label}</div>
-                </div>
-              );
-            })}
+            <div className="p-4 rounded-2xl border bg-amber-50/60 border-amber-200 space-y-1">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700">
+                Khoảng Thưởng Ngẫu Nhiên
+              </div>
+              <div className="text-xl font-black text-slate-900">
+                {minAmount.toLocaleString('vi-VN')}đ - {maxAmount.toLocaleString('vi-VN')}đ
+              </div>
+              <div className="text-[11px] text-slate-500">
+                Random ngẫu nhiên (bước 1.000đ) cộng thẳng Ví KM
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl border bg-blue-50/60 border-blue-200 space-y-1">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-blue-700">
+                Hạn Mức Mỗi Ngày
+              </div>
+              <div className="text-xl font-black text-slate-900">
+                {dailyLimit} Rương / Ngày
+              </div>
+              <div className="text-[11px] text-slate-500">
+                Mỗi tin mở 1 rương/ngày, tối đa {dailyLimit} rương/tài khoản
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl border bg-purple-50/60 border-purple-200 space-y-1">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-purple-700">
+                Chống Bot & Gian Lận
+              </div>
+              <div className="text-xl font-black text-slate-900">
+                Xem {minReadingSeconds}s • Chờ {cooldownSeconds}s
+              </div>
+              <div className="text-[11px] text-slate-500">
+                Bảo vệ tương tác thật cho chủ tin đăng BĐS
+              </div>
+            </div>
+
+            <div className="p-4 rounded-2xl border bg-rose-50/60 border-rose-200 space-y-1">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-rose-700">
+                Tiêu Dùng Tiền Thưởng
+              </div>
+              <div className="text-xl font-black text-slate-900">
+                Đẩy Tin 400đ
+              </div>
+              <div className="text-[11px] text-slate-500">
+                Dùng ngay để Đẩy tin lên TOP hoặc đăng tin VIP
+              </div>
+            </div>
           </div>
         </div>
 

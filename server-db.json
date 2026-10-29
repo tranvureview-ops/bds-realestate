@@ -4293,5 +4293,356 @@
       "reporterEmail": "baopq@gmail.com",
       "reporterPhone": "0903 112 233"
     }
-  ]
+  ],
+  "bds_rewards_config": {
+    "promotions": [
+      {
+        "id": "km-01",
+        "slug": "tang-100k-nap-dau-tien",
+        "title": "Tặng 100.000đ vào Ví Khuyến Mãi khi nạp ví lần đầu",
+        "category": "nap-tien",
+        "categoryLabel": "Nạp tiền ví",
+        "badge": "Hot nhất",
+        "badgeColor": "bg-red-500 text-white",
+        "discountCode": "WELCOME100",
+        "discountValue": "100.000đ",
+        "minDeposit": 200000,
+        "validUntil": "2026-12-31",
+        "isEvergreen": true,
+        "thumbnail": "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80",
+        "description": "Cộng trực tiếp 100.000đ vào Ví Khuyến Mãi dành cho thành viên mới xác thực tài khoản trên sàn giao dịch.",
+        "content": "\n      ### Thể lệ chương trình\n      - Tặng ngay **100.000đ trực tiếp vào Ví Khuyến Mãi** khi thành viên thực hiện giao dịch nạp tiền đầu tiên tối thiểu từ 200.000đ.\n      - Tiền trong Ví Khuyến Mãi được sử dụng trực tiếp để đăng tin VIP, mua lượt đẩy tin TOP 1 hoặc gia hạn tin đăng.\n      - Mỗi tài khoản chính chủ chỉ được áp dụng 01 lần duy nhất.\n      \n      ### Hướng dẫn nhận ưu đãi\n      1. Đăng ký tài khoản và hoàn tất xác thực số điện thoại.\n      2. Truy cập mục **Nạp tiền vào ví**.\n      3. Nhập mã khuyến mãi **WELCOME100** tại bước thanh toán.\n      4. Hệ thống cộng ngay 100.000đ vào Ví Khuyến Mãi của bạn lập tức.\n    "
+      },
+      {
+        "id": "km-02",
+        "slug": "giam-30-tin-vip-kim-cuong",
+        "title": "Giảm 30% gói tin đăng VIP Kim Cương độc quyền",
+        "category": "goi-vip",
+        "categoryLabel": "Gói tin VIP",
+        "badge": "Tiết kiệm 30%",
+        "badgeColor": "bg-amber-500 text-white",
+        "discountCode": "VIPDIAMOND30",
+        "discountValue": "30%",
+        "minDeposit": 0,
+        "validUntil": "2026-11-30",
+        "isEvergreen": false,
+        "thumbnail": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+        "description": "Nâng tầm bất động sản lên vị trí đầu trang chủ và danh mục tìm kiếm với mức chiết khấu trừ trực tiếp số dư Ví KM.",
+        "content": "\n      ### Đặc quyền tin VIP Kim Cương\n      - Hiển thị cố định tại **Top 1 Trang chủ** và đầu trang danh mục Nhà Đất Bán / Cho Thuê.\n      - Khung viền đỏ kim cương sang trọng kèm huy hiệu **VIP KIM CƯƠNG**.\n      - Tự động đẩy tin lên đầu mỗi 12 tiếng một lần.\n      - Được thanh toán kết hợp từ Ví Chính và Ví Khuyến Mãi.\n    "
+      },
+      {
+        "id": "km-03",
+        "slug": "tri-an-moi-gioi-xuan-2027",
+        "title": "Tri ân Nhà Môi Giới: Tặng 50.000đ Ví KM & 5 lượt đẩy tin TOP",
+        "category": "hoi-vien",
+        "categoryLabel": "Hội viên Môi giới",
+        "badge": "Quà tặng",
+        "badgeColor": "bg-emerald-500 text-white",
+        "discountCode": "BROKER2027",
+        "discountValue": "50.000đ Ví KM",
+        "minDeposit": 0,
+        "validUntil": "2027-02-28",
+        "isEvergreen": false,
+        "thumbnail": "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=800&q=80",
+        "description": "Cộng ngay 50.000đ vào Ví Khuyến Mãi dành riêng cho nhà môi giới có huy hiệu xác thực danh tính.",
+        "content": "\n      ### Quyền lợi nhà môi giới\n      - Cộng ngay 50.000đ vào Ví Khuyến Mãi sử dụng trọn đời.\n      - Tặng 05 lượt đẩy tin tự động vào khung giờ vàng (11h00 - 12h00 và 19h00 - 21h00).\n      - Miễn phí gắn nhãn **Môi giới xác thực uy tín** trên tất cả tin đăng.\n    "
+      },
+      {
+        "id": "km-04",
+        "slug": "uu-dai-hoi-vien-vang",
+        "title": "Nâng cấp Gói Hội Viên Vàng - Chiết khấu 25% trọn đời",
+        "category": "hoi-vien",
+        "categoryLabel": "Gói hội viên",
+        "badge": "VIP Pro",
+        "badgeColor": "bg-blue-600 text-white",
+        "discountCode": "GOLDMEMBER",
+        "discountValue": "25% Trọn đời",
+        "minDeposit": 500000,
+        "validUntil": "2026-12-31",
+        "isEvergreen": true,
+        "thumbnail": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+        "description": "Giải pháp toàn diện cho sàn giao dịch và môi giới chuyên nghiệp cần đăng tin số lượng lớn.",
+        "content": "\n      ### Đặc quyền Gói Hội Viên Vàng\n      - Đăng tối đa 50 tin thường miễn phí mỗi tháng.\n      - Giảm trực tiếp 25% chi phí nâng cấp tất cả các cấp độ tin VIP.\n      - Tiền thưởng Ví Khuyến Mãi được trừ trực tiếp khi đăng ký gói.\n    "
+      }
+    ],
+    "missions": {
+      "tan-thu": [
+        {
+          "id": "m-new-01",
+          "title": "Xác thực số điện thoại OTP",
+          "reward": 20000,
+          "rewardFormatted": "+20.000đ vào Ví KM",
+          "icon": "fa-solid fa-mobile-screen-button",
+          "status": "claimable",
+          "description": "Bảo mật tài khoản và nhận ngay 20.000đ tiền thưởng vào ví.",
+          "link": "/ho-so-ca-nhan"
+        },
+        {
+          "id": "m-new-02",
+          "title": "Định danh CCCD / KYC điện tử",
+          "reward": 50000,
+          "rewardFormatted": "+50.000đ vào Ví KM",
+          "icon": "fa-solid fa-id-card",
+          "status": "pending",
+          "description": "Nhận huy hiệu Người Bán Xác Thực và thưởng ngay 50.000đ vào ví.",
+          "link": "/ho-so-ca-nhan"
+        },
+        {
+          "id": "m-new-03",
+          "title": "Đăng tin bất động sản đầu tiên",
+          "reward": 30000,
+          "rewardFormatted": "+30.000đ vào Ví KM",
+          "icon": "fa-solid fa-plus-circle",
+          "status": "pending",
+          "description": "Đăng 1 tin mua bán hoặc cho thuê nhận 30.000đ vào ví khuyến mãi.",
+          "link": "/dang-tin"
+        }
+      ],
+      "hang-ngay": [
+        {
+          "id": "m-day-01",
+          "title": "Điểm danh ngày mới",
+          "reward": 5000,
+          "rewardFormatted": "+5.000đ vào Ví KM",
+          "icon": "fa-solid fa-calendar-check",
+          "status": "claimable",
+          "description": "Mỗi ngày đăng nhập nhận ngay 5.000đ tiền tươi vào ví khuyến mãi.",
+          "link": "/trung-tam-phan-thuong/diem-danh-7-ngay/"
+        },
+        {
+          "id": "m-day-02",
+          "title": "Xem 5 tin bất động sản nổi bật",
+          "reward": 5000,
+          "rewardFormatted": "+5.000đ vào Ví KM",
+          "icon": "fa-solid fa-eye",
+          "progress": {
+            "current": 3,
+            "total": 5
+          },
+          "status": "in_progress",
+          "description": "Khảo sát giá thị trường nhận thưởng 5.000đ vào ví.",
+          "link": "/nha-dat-ban/"
+        },
+        {
+          "id": "m-day-03",
+          "title": "Chia sẻ 1 tin rao lên Zalo hoặc Facebook",
+          "reward": 10000,
+          "rewardFormatted": "+10.000đ vào Ví KM",
+          "icon": "fa-solid fa-share-nodes",
+          "status": "pending",
+          "description": "Chia sẻ tin đăng BĐS nhận ngay 10.000đ tiền thưởng vào ví.",
+          "link": "/nha-dat-ban/"
+        },
+        {
+          "id": "m-day-04",
+          "title": "Tham gia dự đoán giá 1 dự án",
+          "reward": 10000,
+          "rewardFormatted": "+10.000đ vào Ví KM",
+          "icon": "fa-solid fa-chart-line",
+          "status": "pending",
+          "description": "Bình chọn giá thị trường nhận 10.000đ vào ví khuyến mãi.",
+          "link": "/trung-tam-phan-thuong/du-doan-gia-bds/"
+        }
+      ],
+      "thanh-tuu": [
+        {
+          "id": "m-ach-01",
+          "title": "Nhà môi giới uy tín (10 tin xác thực)",
+          "reward": 150000,
+          "rewardFormatted": "+150.000đ vào Ví KM",
+          "icon": "fa-solid fa-medal",
+          "progress": {
+            "current": 4,
+            "total": 10
+          },
+          "status": "in_progress",
+          "description": "Sở hữu 10 tin đăng có sổ đỏ nhận 150.000đ vào ví khuyến mãi.",
+          "link": "/dang-tin"
+        },
+        {
+          "id": "m-ach-02",
+          "title": "Đạt chuỗi điểm danh 30 ngày",
+          "reward": 200000,
+          "rewardFormatted": "+200.000đ vào Ví KM",
+          "icon": "fa-solid fa-fire",
+          "progress": {
+            "current": 12,
+            "total": 30
+          },
+          "status": "in_progress",
+          "description": "Duy trì đăng nhập liên tục suốt 1 tháng thưởng ngay 200.000đ ví KM.",
+          "link": "/trung-tam-phan-thuong/diem-danh-7-ngay/"
+        },
+        {
+          "id": "m-ach-03",
+          "title": "Chiêu mộ 5 người bạn đăng ký (Affiliate)",
+          "reward": 300000,
+          "rewardFormatted": "+300.000đ vào Ví KM",
+          "icon": "fa-solid fa-users",
+          "progress": {
+            "current": 2,
+            "total": 5
+          },
+          "status": "in_progress",
+          "description": "Giới thiệu đồng nghiệp cùng tham gia nhận ngay 300.000đ vào ví.",
+          "link": "/r/"
+        }
+      ]
+    },
+    "checkInConfig": {
+      "enabled": true,
+      "days": [
+        {
+          "day": 1,
+          "reward": 5000,
+          "label": "+5.000đ vào Ví KM",
+          "icon": "fa-solid fa-money-bill-wave"
+        },
+        {
+          "day": 2,
+          "reward": 10000,
+          "label": "+10.000đ vào Ví KM",
+          "icon": "fa-solid fa-money-bill-wave"
+        },
+        {
+          "day": 3,
+          "reward": 15000,
+          "label": "+15.000đ + Đẩy Tin",
+          "icon": "fa-solid fa-gift",
+          "highlight": true
+        },
+        {
+          "day": 4,
+          "reward": 10000,
+          "label": "+10.000đ vào Ví KM",
+          "icon": "fa-solid fa-money-bill-wave"
+        },
+        {
+          "day": 5,
+          "reward": 15000,
+          "label": "+15.000đ vào Ví KM",
+          "icon": "fa-solid fa-money-bill-wave"
+        },
+        {
+          "day": 6,
+          "reward": 20000,
+          "label": "+20.000đ vào Ví KM",
+          "icon": "fa-solid fa-money-bill-wave"
+        },
+        {
+          "day": 7,
+          "reward": 50000,
+          "label": "+50.000đ Thưởng Tuần",
+          "icon": "fa-solid fa-crown",
+          "super": true
+        }
+      ]
+    },
+    "treasureHuntConfig": {
+      "enabled": true,
+      "dailyLimit": 3,
+      "minReadingSeconds": 4,
+      "cooldownSeconds": 20,
+      "minAmount": 2000,
+      "maxAmount": 20000
+    },
+    "predictionGames": [
+      {
+        "id": "pred-01",
+        "slug": "the-monarchy-da-nang",
+        "projectName": "Căn hộ 2PN The Monarchy Block B View Sông Hàn",
+        "location": "Sơn Trà, Đà Nẵng",
+        "currentEstimate": "3.65 - 3.85 tỷ",
+        "totalPool": "3.500.000đ Ví KM",
+        "totalVotes": 1420,
+        "endsAt": "2026-11-05T20:00:00Z",
+        "status": "open",
+        "image": "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80",
+        "options": [
+          {
+            "id": "opt-a",
+            "label": "Dưới 3.6 tỷ",
+            "votes": 290,
+            "percent": 20
+          },
+          {
+            "id": "opt-b",
+            "label": "Từ 3.6 - 3.8 tỷ",
+            "votes": 780,
+            "percent": 55
+          },
+          {
+            "id": "opt-c",
+            "label": "Trên 3.8 tỷ",
+            "votes": 350,
+            "percent": 25
+          }
+        ]
+      },
+      {
+        "id": "pred-02",
+        "slug": "sun-ponte-residence",
+        "projectName": "Penthouse Sun Ponte Residence Mặt Tiền Trần Hưng Đạo",
+        "location": "Sơn Trà, Đà Nẵng",
+        "currentEstimate": "14.5 - 16.0 tỷ",
+        "totalPool": "8.000.000đ Ví KM",
+        "totalVotes": 2310,
+        "endsAt": "2026-11-12T20:00:00Z",
+        "status": "open",
+        "image": "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80",
+        "options": [
+          {
+            "id": "opt-a",
+            "label": "Dưới 15 tỷ",
+            "votes": 550,
+            "percent": 24
+          },
+          {
+            "id": "opt-b",
+            "label": "Từ 15 - 16 tỷ",
+            "votes": 1150,
+            "percent": 50
+          },
+          {
+            "id": "opt-c",
+            "label": "Trên 16 tỷ",
+            "votes": 610,
+            "percent": 26
+          }
+        ]
+      },
+      {
+        "id": "pred-03",
+        "slug": "biet-thu-co-co-hoi-an",
+        "projectName": "Biệt Thự Nghỉ Dưỡng Ven Sông Cổ Cò Hội An (PR027)",
+        "location": "Hội An, Quảng Nam",
+        "currentEstimate": "16.5 tỷ",
+        "totalPool": "5.200.000đ Ví KM",
+        "totalVotes": 1890,
+        "endsAt": "2026-11-10T18:00:00Z",
+        "status": "open",
+        "image": "https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80",
+        "options": [
+          {
+            "id": "opt-a",
+            "label": "Chốt dưới 16 tỷ",
+            "votes": 410,
+            "percent": 22
+          },
+          {
+            "id": "opt-b",
+            "label": "Chốt từ 16 - 16.5 tỷ",
+            "votes": 980,
+            "percent": 52
+          },
+          {
+            "id": "opt-c",
+            "label": "Chốt trên 16.5 tỷ",
+            "votes": 500,
+            "percent": 26
+          }
+        ]
+      }
+    ]
+  }
 }

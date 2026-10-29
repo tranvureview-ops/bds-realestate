@@ -391,12 +391,8 @@ export const DEFAULT_REWARDS_CONFIG = {
     dailyLimit: 3,
     minReadingSeconds: 4,
     cooldownSeconds: 20,
-    tiers: [
-      { id: 'tier1', label: 'Hạng May Mắn Đồng', percent: 50, minAmount: 2000, maxAmount: 4000 },
-      { id: 'tier2', label: 'Hạng Bạc Rực Rỡ', percent: 25, minAmount: 5000, maxAmount: 10000 },
-      { id: 'tier3', label: 'Hạng Vàng Phú Quý', percent: 15, minAmount: 11000, maxAmount: 15000 },
-      { id: 'tier4', label: 'Hạng Kim Cương Đỉnh Cao', percent: 10, minAmount: 15000, maxAmount: 20000 }
-    ]
+    minAmount: 2000,
+    maxAmount: 20000
   },
 
   // E. Minigame dự đoán giá BĐS

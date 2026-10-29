@@ -20,6 +20,8 @@ export default function ArticleTreasureBox({ property }) {
   const dailyLimit = Number(tConfig?.dailyLimit || 3);
   const minReadingSeconds = Number(tConfig?.minReadingSeconds || 4);
   const cooldownSeconds = Number(tConfig?.cooldownSeconds || 20);
+  const minAmount = Number(tConfig?.minAmount || 2000);
+  const maxAmount = Number(tConfig?.maxAmount || 20000);
 
   const [hasClaimedThisArticle, setHasClaimedThisArticle] = useState(false);
   const [quota, setQuota] = useState({ count: 0, limit: dailyLimit, remaining: dailyLimit, isLimitReached: false });
@@ -88,8 +90,8 @@ export default function ArticleTreasureBox({ property }) {
     setIsOpening(true);
 
     setTimeout(() => {
-      // Tính ngẫu nhiên tiền thưởng theo đúng tỷ lệ
-      const reward = calculateTreasureReward(tConfig?.rewardTiers);
+      // Tính ngẫu nhiên tiền thưởng từ minAmount đến maxAmount
+      const reward = calculateTreasureReward(tConfig);
 
       // Cộng tiền trực tiếp vào Ví Khuyến Mãi
       if (addBonusWalletBalance) {
@@ -159,7 +161,7 @@ export default function ArticleTreasureBox({ property }) {
                 ? 'Tiền thưởng đã được cộng vào Ví Khuyến Mãi. Hãy tiếp tục xem tin khác để săn rương tiếp theo!'
                 : quota.isLimitReached
                 ? 'Hẹn gặp lại bạn vào ngày mai để tiếp tục săn 3 rương nhận tiền vào Ví Khuyến Mãi nhé.'
-                : 'Mở rương ngẫu nhiên nhận từ 2.000đ đến 20.000đ tiền tươi cộng thẳng vào Ví Khuyến Mãi.'}
+                : `Mở rương ngẫu nhiên nhận từ ${minAmount.toLocaleString('vi-VN')}đ đến ${maxAmount.toLocaleString('vi-VN')}đ tiền tươi cộng thẳng vào Ví Khuyến Mãi.`}
             </p>
           </div>
         </div>
@@ -197,8 +199,8 @@ export default function ArticleTreasureBox({ property }) {
           )}
 
           {!hasClaimedThisArticle && !quota.isLimitReached && (
-            <div className="text-[10px] text-white/80 mt-1.5">
-              Tỷ lệ: 2k-4k (50%), 5k-10k (25%), 11k-15k (15%), 15k-20k (10%)
+            <div className="text-[10px] text-white/90 mt-1.5 font-medium">
+              🎁 Thưởng ngẫu nhiên: {minAmount.toLocaleString('vi-VN')}đ - {maxAmount.toLocaleString('vi-VN')}đ / rương
             </div>
           )}
         </div>

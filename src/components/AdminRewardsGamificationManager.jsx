@@ -34,10 +34,10 @@ export default function AdminRewardsGamificationManager() {
 
   // 1. Lưu toàn bộ cấu hình
   const handleSaveAll = async () => {
-    // Validate tổng tỷ lệ rương kho báu
-    const totalPercent = (formData.treasureHuntConfig?.tiers || []).reduce((sum, t) => sum + Number(t.percent || 0), 0);
-    if (totalPercent !== 100) {
-      if (showToast) showToast(`Cảnh báo: Tổng tỷ lệ rương kho báu hiện là ${totalPercent}%, vui lòng điều chỉnh về đúng 100%!`, 'warning');
+    const minAmt = Number(formData.treasureHuntConfig?.minAmount || 2000);
+    const maxAmt = Number(formData.treasureHuntConfig?.maxAmount || 20000);
+    if (minAmt > maxAmt) {
+      if (showToast) showToast('Cảnh báo: Tiền thưởng Min không được lớn hơn Max!', 'warning');
       return;
     }
 
@@ -174,26 +174,6 @@ export default function AdminRewardsGamificationManager() {
       }
     }));
   };
-
-  const handleTierChange = (tierId, field, value) => {
-    setFormData(prev => {
-      const tiers = (prev.treasureHuntConfig?.tiers || []).map(t => {
-        if (t.id === tierId) {
-          return { ...t, [field]: Number(value) || 0 };
-        }
-        return t;
-      });
-      return {
-        ...prev,
-        treasureHuntConfig: {
-          ...prev.treasureHuntConfig,
-          tiers
-        }
-      };
-    });
-  };
-
-  const totalTreasurePercent = (formData.treasureHuntConfig?.tiers || []).reduce((sum, t) => sum + Number(t.percent || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -381,78 +361,72 @@ export default function AdminRewardsGamificationManager() {
             </div>
           </div>
 
-          {/* Tiers & Probability Configuration */}
+          {/* Cấu hình Khoảng Tiền Thưởng Ngẫu Nhiên */}
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
               <div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <i className="fa-solid fa-chart-pie text-orange-400"></i>
-                  Cấu Hình Tỷ Lệ & Khoảng Tiền Thưởng (Cộng Thẳng Ví KM)
+                  <i className="fa-solid fa-coins text-amber-400"></i>
+                  Khoảng Tiền Thưởng Ngẫu Nhiên (Cộng Trực Tiếp Ví KM)
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Tùy chỉnh tỷ lệ phần trăm ra từng hạng rương và khoảng tiền ngẫu nhiên tương ứng.
+                  Tùy chỉnh khoảng giá min (hạng thấp nhất) đến max (hạng cao nhất). Mỗi rương mở ra sẽ random số tiền trong khoảng này.
                 </p>
               </div>
 
-              <div className={`px-3 py-1 rounded-full text-xs font-black border ${
-                totalTreasurePercent === 100 
-                  ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' 
-                  : 'bg-red-500/20 text-red-400 border-red-500/30 animate-pulse'
-              }`}>
-                Tổng Tỷ Lệ: {totalTreasurePercent}% {totalTreasurePercent === 100 ? '✓ Hợp lệ' : '⚠ Phải bằng 100%'}
+              <div className="px-3 py-1 rounded-full text-xs font-black bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                {(Number(formData.treasureHuntConfig?.minAmount || 2000)).toLocaleString('vi-VN')} đ ➔ {(Number(formData.treasureHuntConfig?.maxAmount || 20000)).toLocaleString('vi-VN')} đ
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {(formData.treasureHuntConfig?.tiers || []).map((tier, idx) => (
-                <div key={tier.id} className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-white flex items-center gap-2">
-                      <span className="w-5 h-5 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center text-[10px] font-black">
-                        #{idx + 1}
-                      </span>
-                      {tier.label}
-                    </span>
-                    <span className="text-xs font-black text-amber-400">
-                      Tỷ Lệ: {tier.percent}%
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-2 pt-1">
-                    <div>
-                      <label className="text-[10px] text-slate-400 font-bold">Tỷ Lệ (%)</label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="100"
-                        value={tier.percent}
-                        onChange={(e) => handleTierChange(tier.id, 'percent', e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-bold text-xs"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-slate-400 font-bold">Min Tiền (VNĐ)</label>
-                      <input
-                        type="number"
-                        step="1000"
-                        value={tier.minAmount}
-                        onChange={(e) => handleTierChange(tier.id, 'minAmount', e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-bold text-xs"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-slate-400 font-bold">Max Tiền (VNĐ)</label>
-                      <input
-                        type="number"
-                        step="1000"
-                        value={tier.maxAmount}
-                        onChange={(e) => handleTierChange(tier.id, 'maxAmount', e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-bold text-xs"
-                      />
-                    </div>
-                  </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-2">
+                <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
+                  <span>Giá Min (Hạng Thấp Nhất)</span>
+                  <span className="text-emerald-400 text-[11px] font-mono">Tối thiểu: 1.000 đ</span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="1000"
+                    step="1000"
+                    value={formData.treasureHuntConfig?.minAmount ?? 2000}
+                    onChange={(e) => handleTreasureConfigChange('minAmount', Math.max(1000, Number(e.target.value) || 1000))}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm focus:border-amber-500 focus:outline-none"
+                  />
+                  <span className="text-xs text-slate-400 font-bold shrink-0">VNĐ</span>
                 </div>
-              ))}
+                <div className="text-[10px] text-slate-500">Mức tiền tối thiểu người dùng nhận được khi mở rương (Mặc định: 2.000 đ).</div>
+              </div>
+
+              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-2">
+                <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
+                  <span>Giá Max (Hạng Cao Nhất)</span>
+                  <span className="text-amber-400 text-[11px] font-mono">Ví dụ: 20.000 đ</span>
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    min="1000"
+                    step="1000"
+                    value={formData.treasureHuntConfig?.maxAmount ?? 20000}
+                    onChange={(e) => handleTreasureConfigChange('maxAmount', Math.max(1000, Number(e.target.value) || 20000))}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm focus:border-amber-500 focus:outline-none"
+                  />
+                  <span className="text-xs text-slate-400 font-bold shrink-0">VNĐ</span>
+                </div>
+                <div className="text-[10px] text-slate-500">Mức tiền tối đa người dùng có thể nhận được khi mở rương (Mặc định: 20.000 đ).</div>
+              </div>
+            </div>
+
+            {/* Xem trước trực quan */}
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-rose-500/10 border border-amber-500/20 text-xs text-slate-300 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg shrink-0">
+                <i className="fa-solid fa-wand-magic-sparkles"></i>
+              </div>
+              <div className="leading-relaxed">
+                Người dùng mở rương trong các bài viết tin rao sẽ nhận ngẫu nhiên một con số từ <strong className="text-emerald-400">{(Number(formData.treasureHuntConfig?.minAmount || 2000)).toLocaleString('vi-VN')} đ</strong> đến <strong className="text-amber-400">{(Number(formData.treasureHuntConfig?.maxAmount || 20000)).toLocaleString('vi-VN')} đ</strong> (bước nhảy 1.000 đ) cộng ngay vào Ví Khuyến Mãi.
+              </div>
             </div>
           </div>
         </div>
