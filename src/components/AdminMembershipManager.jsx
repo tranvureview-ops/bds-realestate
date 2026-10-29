@@ -443,6 +443,15 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
     );
   };
 
+  // Quick change max treasure articles per package
+  const handleQuickChangeTreasureArticles = (pkgId, newMax) => {
+    const target = membershipPackages.find(p => p.id === pkgId);
+    if (!target) return;
+    const count = Math.max(1, Math.min(50, Number(newMax) || 1));
+    updateMembershipPackage(pkgId, { ...target, treasureHuntMaxArticles: count });
+    showToast(`Đã cập nhật: Gói "${target.name}" được gắn tối đa ${count} tin vào Săn Kho Báu!`, 'success');
+  };
+
   // Quick Clone Package
   const handleClonePackage = (pkg) => {
     const cloned = {
@@ -812,9 +821,41 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                       <div className="text-xs font-bold text-white flex items-center gap-1.5 flex-wrap">
                         <span>Săn Kho Báu:</span>
                         {pkg.allowTreasureHunt ? (
-                          <span className="text-[10px] text-amber-400 font-bold bg-amber-950/80 border border-amber-800/80 px-1.5 py-0.2 rounded-full">
-                            ● BẬT ({pkg.treasureHuntMaxArticles || 2} tin)
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] text-amber-400 font-bold bg-amber-950/80 border border-amber-800/80 px-1.5 py-0.2 rounded-full">
+                              ● BẬT
+                            </span>
+                            {/* Nút bấm tăng giảm số lượng tin trực tiếp ngay trên thẻ */}
+                            <div className="inline-flex items-center gap-1 bg-slate-950 px-1.5 py-0.5 rounded-lg border border-amber-500/40 shadow-xs" title="Chỉnh số lượng tin tối đa được gắn Săn Kho Báu">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleQuickChangeTreasureArticles(pkg.id, (pkg.treasureHuntMaxArticles || 2) - 1);
+                                }}
+                                disabled={(pkg.treasureHuntMaxArticles || 2) <= 1}
+                                className="w-4 h-4 rounded flex items-center justify-center bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-amber-300 disabled:opacity-30 text-[10px] font-black transition cursor-pointer"
+                                title="Giảm 1 tin"
+                              >
+                                -
+                              </button>
+                              <span className="font-mono font-black text-amber-300 text-xs px-1 min-w-[18px] text-center">
+                                {pkg.treasureHuntMaxArticles || 2}
+                              </span>
+                              <span className="text-[10px] text-slate-400 font-semibold">tin</span>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleQuickChangeTreasureArticles(pkg.id, (pkg.treasureHuntMaxArticles || 2) + 1);
+                                }}
+                                className="w-4 h-4 rounded flex items-center justify-center bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-amber-300 text-[10px] font-black transition cursor-pointer"
+                                title="Tăng 1 tin"
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
                         ) : (
                           <span className="text-[10px] text-slate-500 font-bold bg-slate-800 border border-slate-700 px-1.5 py-0.2 rounded-full">
                             ○ TẮT
