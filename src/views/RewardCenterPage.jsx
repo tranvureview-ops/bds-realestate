@@ -66,12 +66,23 @@ export default function RewardCenterPage() {
       setCheckedToday(false);
     }
 
-    try {
-      const savedClaims = localStorage.getItem(`bds_claimed_missions_${userId}`);
-      if (savedClaims) {
-        setClaimedMissions(JSON.parse(savedClaims));
-      }
-    } catch (e) {}
+    const loadClaims = () => {
+      try {
+        const savedClaims = localStorage.getItem(`bds_claimed_missions_${userId}`);
+        if (savedClaims) {
+          setClaimedMissions(JSON.parse(savedClaims));
+        }
+      } catch (e) {}
+    };
+    loadClaims();
+    window.addEventListener('bds_claimed_missions_updated', loadClaims);
+    window.addEventListener('bds_rewards_config_updated', loadClaims);
+    window.addEventListener('storage', loadClaims);
+    return () => {
+      window.removeEventListener('bds_claimed_missions_updated', loadClaims);
+      window.removeEventListener('bds_rewards_config_updated', loadClaims);
+      window.removeEventListener('storage', loadClaims);
+    };
   }, [userId]);
 
   // Thao tác Điểm danh ngay trên Trung Tâm Phần Thưởng
@@ -109,15 +120,12 @@ export default function RewardCenterPage() {
   };
 
   const handleClaimMission = (mId, reward, title) => {
-    if (!currentUser || currentUser.role === 'guest') {
-      if (showToast) showToast('Vui lòng đăng nhập để nhận thưởng!', 'info');
-      navigate('/dang-nhap');
-      return;
-    }
+    const effectiveUid = userId || 'guest';
     const updated = { ...claimedMissions, [mId]: true };
     setClaimedMissions(updated);
     try {
-      localStorage.setItem(`bds_claimed_missions_${userId}`, JSON.stringify(updated));
+      localStorage.setItem(`bds_claimed_missions_${effectiveUid}`, JSON.stringify(updated));
+      window.dispatchEvent(new CustomEvent('bds_claimed_missions_updated'));
     } catch (e) {}
 
     const amount = Number(reward || 0);

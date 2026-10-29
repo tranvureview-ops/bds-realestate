@@ -703,6 +703,26 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // 11c2. Cấu hình Khuyến Mãi, Nhiệm Vụ & Trung Tâm Phần Thưởng (Rewards & Gamification Config)
   const [rewardsConfig, setRewardsConfig] = useState(() => {
+    // 1. Ưu tiên cấu hình mới nhất từ Server SSR (Supabase / server-db.json)
+    const serverConfig = initialData?.bds_rewards_config;
+    if (serverConfig && typeof serverConfig === 'object') {
+      const merged = {
+        ...DEFAULT_REWARDS_CONFIG,
+        ...serverConfig,
+        missions: {
+          ...(DEFAULT_REWARDS_CONFIG.missions || {}),
+          ...(serverConfig.missions || {})
+        }
+      };
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('bds_rewards_config', JSON.stringify(merged));
+        } catch (e) {}
+      }
+      return merged;
+    }
+
+    // 2. Dự phòng đọc từ LocalStorage
     if (typeof window !== 'undefined') {
       try {
         const local = localStorage.getItem('bds_rewards_config');
@@ -728,7 +748,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         }
       } catch (e) {}
     }
-    return initialData?.bds_rewards_config || DEFAULT_REWARDS_CONFIG;
+    return DEFAULT_REWARDS_CONFIG;
   });
 
   // 11d. Danh sách Lịch hẹn xem nhà (Direct Property Viewing Appointments)
@@ -952,6 +972,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     if (typeof window !== 'undefined') {
       try {
         localStorage.setItem('bds_rewards_config', JSON.stringify(merged));
+        window.dispatchEvent(new CustomEvent('bds_rewards_config_updated', { detail: merged }));
       } catch (e) {}
     }
     await persistSettingToSupabase('bds_rewards_config', merged);
@@ -1359,6 +1380,24 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         }
         if (Array.isArray(db.bds_notifications)) {
           setInAppNotifications(db.bds_notifications);
+        }
+        if (db.bds_rewards_config) {
+          setRewardsConfig(prev => {
+            const merged = {
+              ...prev,
+              ...db.bds_rewards_config,
+              missions: {
+                ...(prev?.missions || {}),
+                ...(db.bds_rewards_config.missions || {})
+              }
+            };
+            if (typeof window !== 'undefined') {
+              try {
+                localStorage.setItem('bds_rewards_config', JSON.stringify(merged));
+              } catch (e) {}
+            }
+            return merged;
+          });
         }
         if (!isSilent) {
           showToast('Đã tải và đồng bộ dữ liệu mới nhất từ Supabase Cloud!', 'success');
@@ -4158,10 +4197,21 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   };
 
   const updateFooterConfig = async (newConfig) => {
-    const toSave = {
+    const raw = {
       ...DEFAULT_FOOTER_CONFIG,
       ...(footerConfig || {}),
       ...newConfig
+    };
+    // Làm sạch tuyệt đối các url rác hoặc '__custom__' trước khi lưu
+    const cleanList = (list) => (list || []).map(item => ({
+      ...item,
+      url: (!item.url || item.url === '__custom__') ? '' : item.url
+    }));
+    const toSave = {
+      ...raw,
+      col2Links: cleanList(raw.col2Links),
+      col3Links: cleanList(raw.col3Links),
+      policyLinks: cleanList(raw.policyLinks)
     };
     setFooterConfig(toSave);
     await persistSettingToSupabase('bds_footer_config', toSave);

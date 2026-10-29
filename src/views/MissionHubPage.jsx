@@ -22,15 +22,33 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
   const userId = currentUser && currentUser.role !== 'guest' ? currentUser.id : 'guest';
   const allMissions = rewardsConfig?.missions || MISSIONS_DATA;
 
-  // Tải trạng thái các nhiệm vụ đã nhận thưởng từ LocalStorage
+  // Đồng bộ activeCategory khi url param initialCategory thay đổi
+  useEffect(() => {
+    if (initialCategory) {
+      setActiveCategory(initialCategory);
+    }
+  }, [initialCategory]);
+
+  // Tải trạng thái các nhiệm vụ đã nhận thưởng từ LocalStorage và lắng nghe sự kiện
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    try {
-      const saved = localStorage.getItem(`bds_claimed_missions_${userId}`);
-      if (saved) {
-        setClaimedMissions(JSON.parse(saved));
-      }
-    } catch (e) {}
+    const loadClaimed = () => {
+      try {
+        const saved = localStorage.getItem(`bds_claimed_missions_${userId}`);
+        if (saved) {
+          setClaimedMissions(JSON.parse(saved));
+        }
+      } catch (e) {}
+    };
+    loadClaimed();
+    window.addEventListener('bds_claimed_missions_updated', loadClaimed);
+    window.addEventListener('bds_rewards_config_updated', loadClaimed);
+    window.addEventListener('storage', loadClaimed);
+    return () => {
+      window.removeEventListener('bds_claimed_missions_updated', loadClaimed);
+      window.removeEventListener('bds_rewards_config_updated', loadClaimed);
+      window.removeEventListener('storage', loadClaimed);
+    };
   }, [userId]);
 
   const categories = [
@@ -53,14 +71,29 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
 
   // Đánh giá trạng thái thực tế của nhiệm vụ theo dữ liệu thực của tài khoản (Dynamic Progress Engine)
   const hasAvatar = Boolean(currentUser?.avatar && currentUser.avatar.trim() !== '' && !currentUser.avatar.includes('placeholder'));
-  const isPhoneVerified = Boolean(currentUser?.isVerified);
-  const userPropertiesCount = (properties || []).filter(p => p.authorId === currentUser?.id).length;
+  const isPhoneVerified = Boolean(currentUser?.isVerified || currentUser?.phone);
+  const isKycVerified = Boolean(currentUser?.kycStatus === 'verified' || currentUser?.isVerified);
+  
+  // Đếm chính xác số bài viết mà user hiện tại đã đăng
+  const userPropertiesCount = (properties || []).filter(p => {
+    if (!currentUser?.id) return false;
+    return (p.author?.id && p.author.id === currentUser.id) ||
+           (p.userId && p.userId === currentUser.id) ||
+           (p.authorId && p.authorId === currentUser.id);
+  }).length;
+
   const isCheckedInToday = typeof window !== 'undefined' 
     ? (localStorage.getItem(`bds_checkin_last_date_${userId}`) === new Date().toDateString())
     : false;
   const treasureCountToday = typeof window !== 'undefined'
     ? getDailyClaims(userId).length
     : 0;
+  const hasVotedPrediction = typeof window !== 'undefined'
+    ? Boolean(localStorage.getItem(`bds_prediction_votes_${userId}`))
+    : false;
+  const streakDays = typeof window !== 'undefined'
+    ? (Number(localStorage.getItem(`bds_checkin_streak_${userId}`)) || 1)
+    : 1;
 
   const displayMissions = rawMissions.map(m => {
     const isClaimed = Boolean(claimedMissions[m.id]);
@@ -72,21 +105,46 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
     let dynamicStatus = m.status || 'in-progress';
     let dynamicProgress = m.progress;
 
+    // 1. Nhiệm vụ Ảnh đại diện
     if (m.id === 'm-new-avatar' || m.title?.toLowerCase().includes('ảnh đại diện') || m.title?.toLowerCase().includes('avatar')) {
-      if (hasAvatar) dynamicStatus = 'claimable';
-    } else if (m.id === 'm-tt-1' || m.title?.toLowerCase().includes('định danh') || m.title?.toLowerCase().includes('xác thực')) {
-      if (isPhoneVerified) dynamicStatus = 'claimable';
-    } else if (m.id === 'm-hn-1' || m.title?.toLowerCase().includes('điểm danh')) {
-      if (isCheckedInToday) dynamicStatus = 'claimable';
-    } else if (m.id === 'm-hn-2' || m.title?.toLowerCase().includes('kho báu') || m.title?.toLowerCase().includes('rương')) {
-      dynamicProgress = { current: treasureCountToday, total: 3 };
-      if (treasureCountToday >= 1) dynamicStatus = 'claimable';
-    } else if (m.id === 'm-hn-3' || m.title?.toLowerCase().includes('đăng bài')) {
+      dynamicStatus = hasAvatar ? 'claimable' : 'in-progress';
+    } 
+    // 2. Nhiệm vụ Xác thực SĐT / OTP
+    else if (m.id === 'm-new-01' || (m.title?.toLowerCase().includes('số điện thoại') && m.title?.toLowerCase().includes('otp'))) {
+      dynamicStatus = isPhoneVerified ? 'claimable' : 'in-progress';
+    } 
+    // 3. Nhiệm vụ Định danh CCCD / KYC
+    else if (m.id === 'm-new-02' || m.title?.toLowerCase().includes('định danh') || m.title?.toLowerCase().includes('kyc') || m.title?.toLowerCase().includes('cccd')) {
+      dynamicStatus = isKycVerified ? 'claimable' : 'in-progress';
+    } 
+    // 4. Nhiệm vụ Đăng tin đầu tiên
+    else if (m.id === 'm-new-03' || m.title?.toLowerCase().includes('đăng tin bất động sản đầu tiên') || (m.title?.toLowerCase().includes('đăng tin') && m.title?.toLowerCase().includes('đầu tiên'))) {
       dynamicProgress = { current: Math.min(userPropertiesCount, 1), total: 1 };
-      if (userPropertiesCount >= 1) dynamicStatus = 'claimable';
-    } else if (m.id === 'm-tt-3' || m.title?.toLowerCase().includes('đăng 10 tin')) {
+      dynamicStatus = userPropertiesCount >= 1 ? 'claimable' : 'in-progress';
+    } 
+    // 5. Điểm danh ngày mới
+    else if (m.id === 'm-day-01' || m.title?.toLowerCase().includes('điểm danh ngày mới')) {
+      dynamicStatus = isCheckedInToday ? 'claimable' : 'in-progress';
+    } 
+    // 6. Xem tin hoặc mở rương
+    else if (m.id === 'm-day-02' || m.title?.toLowerCase().includes('xem 5 tin') || m.title?.toLowerCase().includes('kho báu') || m.title?.toLowerCase().includes('rương')) {
+      const views = Math.max(treasureCountToday * 2, 3);
+      dynamicProgress = { current: Math.min(views, 5), total: 5 };
+      if (treasureCountToday >= 1 || views >= 5) dynamicStatus = 'claimable';
+    } 
+    // 7. Tham gia dự đoán giá
+    else if (m.id === 'm-day-04' || m.title?.toLowerCase().includes('dự đoán')) {
+      dynamicStatus = hasVotedPrediction ? 'claimable' : 'in-progress';
+    } 
+    // 8. Thành tựu 10 tin
+    else if (m.id === 'm-ach-01' || m.title?.toLowerCase().includes('10 tin')) {
       dynamicProgress = { current: Math.min(userPropertiesCount, 10), total: 10 };
-      if (userPropertiesCount >= 10) dynamicStatus = 'claimable';
+      dynamicStatus = userPropertiesCount >= 10 ? 'claimable' : 'in-progress';
+    } 
+    // 9. Thành tựu chuỗi 30 ngày
+    else if (m.id === 'm-ach-02' || m.title?.toLowerCase().includes('30 ngày')) {
+      dynamicProgress = { current: Math.min(streakDays, 30), total: 30 };
+      dynamicStatus = streakDays >= 30 ? 'claimable' : 'in-progress';
     }
 
     return {
@@ -100,9 +158,12 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
     const effectiveUid = userId || 'guest';
     const updated = { ...claimedMissions, [missionId]: true };
     setClaimedMissions(updated);
-    try {
-      localStorage.setItem(`bds_claimed_missions_${effectiveUid}`, JSON.stringify(updated));
-    } catch (e) {}
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(`bds_claimed_missions_${effectiveUid}`, JSON.stringify(updated));
+        window.dispatchEvent(new CustomEvent('bds_claimed_missions_updated'));
+      } catch (e) {}
+    }
 
     const amount = Number(reward || 0);
 
@@ -114,6 +175,12 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
     if (showToast) {
       showToast(`🎉 Chúc mừng! Đã cộng trực tiếp +${amount.toLocaleString('vi-VN')}đ vào Ví Khuyến Mãi của bạn!`, 'success');
     }
+  };
+
+  const handleTabClick = (catId) => {
+    setActiveCategory(catId);
+    const targetUrl = catId === 'all' ? '/nhiem-vu' : `/nhiem-vu/${catId}`;
+    navigate(targetUrl);
   };
 
   const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
@@ -184,7 +251,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
             return (
               <button
                 key={cat.id}
-                onClick={() => setActiveCategory(cat.id)}
+                onClick={() => handleTabClick(cat.id)}
                 className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer whitespace-nowrap shadow-xs ${
                   activeCategory === cat.id
                     ? 'bg-blue-600 text-white shadow-blue-200'
