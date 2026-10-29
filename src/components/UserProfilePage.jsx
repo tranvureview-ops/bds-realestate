@@ -179,7 +179,7 @@ export default function UserProfilePage() {
       const optimizedDataUrl = await resizeImageToAvatar(file, 400, 400, 0.88);
       setFormData(prev => ({ ...prev, avatar: optimizedDataUrl }));
       updateUserProfile({ avatar: optimizedDataUrl });
-      showToast('Cập nhật ảnh đại diện thành công!', 'success');
+      showToast('Cập nhật ảnh đại diện thành công! Bạn có thể vào mục Nhiệm Vụ nhận ngay +10.000đ vào Ví KM!', 'success');
     } catch (err) {
       console.error('Avatar upload failed:', err);
       showToast('Không thể xử lý hình ảnh, vui lòng thử lại với ảnh khác!', 'error');
@@ -681,7 +681,7 @@ export default function UserProfilePage() {
                           onClick={() => {
                             setFormData(prev => ({ ...prev, avatar: presetUrl }));
                             updateUserProfile({ avatar: presetUrl });
-                            showToast(`Đã chọn avatar AI (${preset.label})!`, 'success');
+                            showToast(`Đã chọn avatar AI (${preset.label})! Bạn có thể vào mục Nhiệm Vụ nhận ngay +10.000đ vào Ví KM!`, 'success');
                           }}
                           className={`relative flex items-center gap-2.5 px-3 py-2 rounded-2xl border-2 transition cursor-pointer hover:scale-102 group shadow-xs ${
                             isSelected ? 'border-emerald-600 bg-emerald-50/60 ring-2 ring-emerald-500/30' : 'border-slate-200 bg-white hover:border-slate-300'

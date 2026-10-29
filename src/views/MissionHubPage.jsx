@@ -52,6 +52,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
   }
 
   // Đánh giá trạng thái thực tế của nhiệm vụ theo dữ liệu thực của tài khoản (Dynamic Progress Engine)
+  const hasAvatar = Boolean(currentUser?.avatar && currentUser.avatar.trim() !== '' && !currentUser.avatar.includes('placeholder'));
   const isPhoneVerified = Boolean(currentUser?.isVerified);
   const userPropertiesCount = (properties || []).filter(p => p.authorId === currentUser?.id).length;
   const isCheckedInToday = typeof window !== 'undefined' 
@@ -71,7 +72,9 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
     let dynamicStatus = m.status || 'in-progress';
     let dynamicProgress = m.progress;
 
-    if (m.id === 'm-tt-1' || m.title?.toLowerCase().includes('định danh') || m.title?.toLowerCase().includes('xác thực')) {
+    if (m.id === 'm-new-avatar' || m.title?.toLowerCase().includes('ảnh đại diện') || m.title?.toLowerCase().includes('avatar')) {
+      if (hasAvatar) dynamicStatus = 'claimable';
+    } else if (m.id === 'm-tt-1' || m.title?.toLowerCase().includes('định danh') || m.title?.toLowerCase().includes('xác thực')) {
       if (isPhoneVerified) dynamicStatus = 'claimable';
     } else if (m.id === 'm-hn-1' || m.title?.toLowerCase().includes('điểm danh')) {
       if (isCheckedInToday) dynamicStatus = 'claimable';

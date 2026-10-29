@@ -699,7 +699,21 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         if (local) {
           const parsed = JSON.parse(local);
           if (parsed && typeof parsed === 'object') {
-            return { ...DEFAULT_REWARDS_CONFIG, ...parsed };
+            const mergedMissions = { ...(DEFAULT_REWARDS_CONFIG.missions || {}) };
+            if (parsed.missions && typeof parsed.missions === 'object') {
+              for (const cat of Object.keys(mergedMissions)) {
+                const defaultList = mergedMissions[cat] || [];
+                const userList = parsed.missions[cat] || [];
+                const userIds = new Set(userList.map(m => m.id));
+                const missingFromUser = defaultList.filter(d => !userIds.has(d.id));
+                mergedMissions[cat] = [...userList, ...missingFromUser];
+              }
+            }
+            return {
+              ...DEFAULT_REWARDS_CONFIG,
+              ...parsed,
+              missions: mergedMissions
+            };
           }
         }
       } catch (e) {}

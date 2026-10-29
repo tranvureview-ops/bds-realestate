@@ -107,6 +107,16 @@ export const PROMOTIONS_DATA = [
 export const MISSIONS_DATA = {
   'tan-thu': [
     {
+      id: 'm-new-avatar',
+      title: 'Cập nhật ảnh đại diện cá nhân',
+      reward: 10000,
+      rewardFormatted: '+10.000đ vào Ví KM',
+      icon: 'fa-solid fa-circle-user',
+      status: 'claimable',
+      description: 'Tải lên ảnh chân dung uy tín cho hồ sơ cá nhân nhận ngay 10.000đ vào ví.',
+      link: '/ho-so-ca-nhan'
+    },
+    {
       id: 'm-new-01',
       title: 'Xác thực số điện thoại OTP',
       reward: 20000,
