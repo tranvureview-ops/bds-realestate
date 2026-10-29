@@ -14,6 +14,7 @@ import {
   insertSupabaseTransaction,
   syncFullDbToSupabase
 } from '../lib/supabase';
+import { getEarliestExpiringBonus, deductBatchesFifo } from '../utils/bonusExpiryUtils';
 
 // Helper bất đồng bộ lưu cấu hình sàn lên Supabase SDK
 const persistSettingToSupabase = async (key, value) => {
@@ -1274,28 +1275,52 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     }
   }, [currentUser]);
 
-  // Đồng bộ số dư Ví Khuyến Mãi của currentUser từ LocalStorage sau khi Hydration ở Client
+  // Đồng bộ số dư và mốc hết hạn Ví Khuyến Mãi của currentUser từ LocalStorage sau khi Hydration ở Client
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const uid = currentUser?.id || 'guest';
     try {
       const cachedBonus = localStorage.getItem(`bds_user_bonus_${uid}`);
+      let userUpdates = {};
+      let effectiveBonus = Number(currentUser?.bonusWalletBalance) || 0;
       if (cachedBonus !== null && !isNaN(Number(cachedBonus))) {
         const numBonus = Number(cachedBonus);
-        if (numBonus !== Number(currentUser?.bonusWalletBalance)) {
-          setCurrentUser(prev => ({ ...prev, bonusWalletBalance: numBonus }));
+        if (numBonus !== effectiveBonus) {
+          userUpdates.bonusWalletBalance = numBonus;
+          effectiveBonus = numBonus;
         }
+      }
+
+      // Tự động kiểm tra và chuyển mốc hết hạn sang ngày gần nhất còn hiệu lực (FIFO date progression)
+      if (effectiveBonus > 0) {
+        const freshEarliest = getEarliestExpiringBonus({
+          ...currentUser,
+          bonusWalletBalance: effectiveBonus
+        }, systemConfig);
+        if (freshEarliest && (!currentUser?.earliestExpiringBonus || currentUser.earliestExpiringBonus.expiresAt !== freshEarliest.expiresAt)) {
+          userUpdates.earliestExpiringBonus = freshEarliest;
+          userUpdates.bonusExpiresAt = freshEarliest.expiresAt;
+        }
+      }
+
+      if (Object.keys(userUpdates).length > 0) {
+        setCurrentUser(prev => ({ ...prev, ...userUpdates }));
       }
     } catch (e) {}
 
     const handleBonusWalletEvent = (e) => {
       if (e.detail?.bonusWalletBalance !== undefined && e.detail?.userId === uid) {
-        setCurrentUser(prev => ({ ...prev, bonusWalletBalance: Number(e.detail.bonusWalletBalance) }));
+        setCurrentUser(prev => ({ 
+          ...prev, 
+          bonusWalletBalance: Number(e.detail.bonusWalletBalance),
+          earliestExpiringBonus: e.detail.earliestExpiringBonus || prev.earliestExpiringBonus,
+          bonusExpiresAt: e.detail.earliestExpiringBonus?.expiresAt || prev.bonusExpiresAt
+        }));
       }
     };
     window.addEventListener('bds_bonus_wallet_updated', handleBonusWalletEvent);
     return () => window.removeEventListener('bds_bonus_wallet_updated', handleBonusWalletEvent);
-  }, [currentUser?.id]);
+  }, [currentUser?.id, systemConfig?.bonusExpiryDays]);
 
   // Tải dữ liệu mới nhất trực tiếp từ Supabase qua SDK (Central Fetcher)
   const fetchLatestDataFromSupabase = useCallback(async (isSilent = true) => {
@@ -2237,16 +2262,35 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     let newBal = (!isGuest && currentUser) ? (currentUser.walletBalance || 0) : 0;
     let newBonusBal = (!isGuest && currentUser) ? (currentUser.bonusWalletBalance || 0) : 0;
     if (!isGuest && currentUser) {
+      let updatedBatches = Array.isArray(currentUser.bonusBatches) ? [...currentUser.bonusBatches] : [];
+      let updatedEarliest = currentUser.earliestExpiringBonus;
+
       if (paymentMethod === 'wallet' && finalCost > 0) {
         let remaining = finalCost;
+        let bonusUsed = 0;
         if (newBonusBal >= remaining) {
+          bonusUsed = remaining;
           newBonusBal -= remaining;
           remaining = 0;
         } else {
+          bonusUsed = newBonusBal;
           remaining -= newBonusBal;
           newBonusBal = 0;
           newBal = Math.max(0, newBal - remaining);
         }
+
+        // Khấu trừ theo nguyên tắc FIFO: gói hết hạn sớm nhất trừ trước
+        if (bonusUsed > 0 && updatedBatches.length > 0) {
+          const deductRes = deductBatchesFifo(updatedBatches, bonusUsed);
+          updatedBatches = deductRes.updatedBatches;
+        }
+
+        // Tự động tính lại mốc sắp hết hạn gần nhất kế tiếp
+        updatedEarliest = getEarliestExpiringBonus({
+          ...currentUser,
+          bonusWalletBalance: newBonusBal,
+          bonusBatches: updatedBatches
+        }, systemConfig);
       }
 
       const updatedVouchers = usedVoucherType ? {
@@ -2258,10 +2302,32 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         ...currentUser, 
         walletBalance: newBal,
         bonusWalletBalance: newBonusBal,
+        bonusBatches: updatedBatches,
+        earliestExpiringBonus: updatedEarliest,
+        bonusExpiresAt: updatedEarliest?.expiresAt || null,
         vouchers: updatedVouchers
       };
       setCurrentUser(updatedUser);
       setUsersList(prev => prev.map(u => u.id === currentUser.id ? updatedUser : u));
+
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem(`bds_user_bonus_${currentUser.id}`, String(newBonusBal));
+          if (updatedEarliest) {
+            localStorage.setItem(`bds_user_bonus_exp_${currentUser.id}`, JSON.stringify(updatedEarliest));
+          } else {
+            localStorage.removeItem(`bds_user_bonus_exp_${currentUser.id}`);
+          }
+          localStorage.setItem('bds_current_user', JSON.stringify(updatedUser));
+          window.dispatchEvent(new CustomEvent('bds_bonus_wallet_updated', {
+            detail: { 
+              userId: currentUser.id, 
+              bonusWalletBalance: newBonusBal,
+              earliestExpiringBonus: updatedEarliest
+            }
+          }));
+        } catch (e) {}
+      }
     }
 
     const methodLabels = {
@@ -4679,8 +4745,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const currentBonus = Number(targetUser.bonusWalletBalance) || 0;
     const newBonus = currentBonus + num;
 
-    // Hạn sử dụng: mặc định 30 ngày cho tiền thưởng điểm danh / khuyến mãi
-    const expiryDays = Number(options.expiryDays) || 30;
+    // Hạn sử dụng: ưu tiên theo options.expiryDays, nếu không có lấy theo cấu hình quản trị hệ thống systemConfig.bonusExpiryDays, mặc định 30 ngày
+    const systemExpiryDays = Number(systemConfig?.bonusExpiryDays) || 30;
+    const expiryDays = Number(options.expiryDays) || systemExpiryDays;
     const expiryDateObj = options.expiresAt 
       ? new Date(options.expiresAt) 
       : new Date(Date.now() + expiryDays * 24 * 60 * 60 * 1000);
@@ -4697,24 +4764,18 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     };
     const nextBatches = [...currentBatches, newBatch];
 
-    // Xác định gói tiền có hạn gần nhất (đang hiệu lực)
-    const now = Date.now();
-    const validBatches = nextBatches
-      .filter(b => new Date(b.expiresAt).getTime() > now && Number(b.amount) > 0)
-      .sort((a, b) => new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime());
-    const earliestBatch = validBatches[0] || newBatch;
-
-    const earliestInfo = {
-      amount: earliestBatch.amount,
-      expiresAt: earliestBatch.expiresAt,
-      formattedDate: new Date(earliestBatch.expiresAt).toLocaleDateString('vi-VN')
-    };
+    // Tính toán mốc hết hạn sớm nhất bằng getEarliestExpiringBonus
+    const earliestInfo = getEarliestExpiringBonus({
+      ...targetUser,
+      bonusWalletBalance: newBonus,
+      bonusBatches: nextBatches
+    }, systemConfig);
 
     const updatedUser = {
       ...targetUser,
       bonusWalletBalance: newBonus,
       bonusBatches: nextBatches,
-      bonusExpiresAt: earliestBatch.expiresAt,
+      bonusExpiresAt: earliestInfo?.expiresAt || newExpiresAt,
       earliestExpiringBonus: earliestInfo
     };
 

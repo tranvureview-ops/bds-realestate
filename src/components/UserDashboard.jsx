@@ -191,20 +191,26 @@ export default function UserDashboard({ initialTab = 'listings' }) {
             <div className="text-2xl font-black text-emerald-700">
               {(currentUser?.walletBalance || 0).toLocaleString('vi-VN')} đ
             </div>
-            {Number(currentUser?.bonusWalletBalance) > 0 && (
-              <div className="mt-1 space-y-0.5">
-                <div className="text-[11px] text-emerald-800 font-bold flex items-center gap-1.5">
-                  <i className="fa-solid fa-gift text-emerald-600"></i>
-                  <span>Ví KM: +{Number(currentUser.bonusWalletBalance).toLocaleString('vi-VN')} đ</span>
-                </div>
-                {currentUser.bonusExpiresAt && (
-                  <div className="text-[10px] text-amber-800 font-semibold flex items-center gap-1">
-                    <i className="fa-solid fa-hourglass-half text-amber-600"></i>
-                    <span>(Có {(Number(currentUser.earliestExpiringBonus?.amount) || Number(currentUser.bonusWalletBalance)).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày {new Date(currentUser.bonusExpiresAt).toLocaleDateString('vi-VN')})</span>
+            {Number(currentUser?.bonusWalletBalance) > 0 && (() => {
+              const earliest = currentUser?.earliestExpiringBonus || (currentUser?.bonusExpiresAt ? {
+                amount: currentUser.bonusWalletBalance,
+                formattedDate: new Date(currentUser.bonusExpiresAt).toLocaleDateString('vi-VN')
+              } : null);
+              return (
+                <div className="mt-1 space-y-0.5">
+                  <div className="text-[11px] text-emerald-800 font-bold flex items-center gap-1.5">
+                    <i className="fa-solid fa-gift text-emerald-600"></i>
+                    <span>Ví KM: +{Number(currentUser.bonusWalletBalance).toLocaleString('vi-VN')} đ</span>
                   </div>
-                )}
-              </div>
-            )}
+                  {earliest && (
+                    <div className="text-[10px] text-amber-800 font-semibold flex items-center gap-1">
+                      <i className="fa-solid fa-hourglass-half text-amber-600"></i>
+                      <span>(Có {Number(earliest.amount || currentUser.bonusWalletBalance).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày {earliest.formattedDate})</span>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
             <button

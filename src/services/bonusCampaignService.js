@@ -236,3 +236,7 @@ export function scanAndExpireBonuses(userList = []) {
 
   return { updatedUsers, clawbackTransactions, expiredCount: clawbackTransactions.length };
 }
+
+import { getEarliestExpiringBonus, deductBatchesFifo } from '../utils/bonusExpiryUtils';
+
+export { getEarliestExpiringBonus, deductBatchesFifo };

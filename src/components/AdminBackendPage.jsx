@@ -7890,23 +7890,52 @@ export default function AdminBackendPage() {
                         </div>
 
                         {/* 3. THỜI_GIẠN_HẾT_HẠN_TIỀN */}
-                        <div className="p-3.5 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-1.5">
-                          <label className="block text-[11px] font-bold text-sky-300 uppercase">
-                            📅 [HẠN_DÙNG_TIỀN] (Ngày):
-                          </label>
-                          <select
-                            value={formSystemConfig.bonusExpiryDays || 30}
-                            onChange={(e) => setFormSystemConfig(prev => ({ ...prev, bonusExpiryDays: Number(e.target.value) }))}
-                            className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-bold text-xs focus:border-sky-500 outline-none"
-                          >
-                            <option value={7}>7 ngày (1 tuần)</option>
-                            <option value={15}>15 ngày</option>
-                            <option value={30}>30 ngày (1 tháng)</option>
-                            <option value={60}>60 ngày (2 tháng)</option>
-                            <option value={90}>90 ngày (3 tháng)</option>
-                          </select>
-                          <p className="text-[10px] text-slate-400">
-                            Sau số ngày này, tiền chưa dùng sẽ bị thu hồi.
+                        <div className="p-3.5 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <label className="block text-[11px] font-bold text-sky-300 uppercase">
+                              📅 [HẠN_DÙNG_TIỀN_TOÀN_HỆ_THỐNG] (Ngày):
+                            </label>
+                            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-950 text-sky-300 border border-sky-800">
+                              {formSystemConfig.bonusExpiryDays || 30} ngày
+                            </span>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              min="1"
+                              max="365"
+                              value={formSystemConfig.bonusExpiryDays ?? 30}
+                              onChange={(e) => {
+                                const val = Math.max(1, Math.min(365, Number(e.target.value) || 1));
+                                setFormSystemConfig(prev => ({ ...prev, bonusExpiryDays: val }));
+                              }}
+                              className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-bold text-xs focus:border-sky-500 outline-none"
+                              placeholder="Nhập số ngày (1 - 365)..."
+                            />
+                            <span className="text-xs text-slate-400 font-bold whitespace-nowrap">ngày</span>
+                          </div>
+
+                          {/* Phím tắt chọn nhanh các mốc phổ biến */}
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {[7, 15, 30, 45, 60, 90].map((days) => (
+                              <button
+                                key={days}
+                                type="button"
+                                onClick={() => setFormSystemConfig(prev => ({ ...prev, bonusExpiryDays: days }))}
+                                className={`px-2 py-1 rounded-lg text-[10px] font-bold transition border ${
+                                  (formSystemConfig.bonusExpiryDays || 30) === days
+                                    ? 'bg-sky-500 text-slate-950 border-sky-400 shadow-sm'
+                                    : 'bg-slate-950 text-slate-300 border-slate-800 hover:border-slate-600'
+                                }`}
+                              >
+                                {days} ngày
+                              </button>
+                            ))}
+                          </div>
+
+                          <p className="text-[10px] text-slate-400 leading-relaxed">
+                            💡 Áp dụng cho mọi nguồn thưởng (Đăng ký, Nhiệm vụ, Điểm danh, Rương báu, Affiliate). Tiền sắp hết hạn ưu tiên hiển thị ngày gần nhất, sau đó tự động chuyển sang mốc tiếp theo.
                           </p>
                         </div>
                       </div>

@@ -37,13 +37,32 @@ export async function markTokensAsUsed(email) {
 
 export async function executeManualActivation(user, campaign) {
   const bonusExpiresAt = calculateBonusExpiration(campaign.bonusExpiryDays);
+  const bonusAmount = Number(campaign.welcomeBonusAmount) || 100000;
+  const welcomeBatch = {
+    id: `BATCH-WELCOME-${Date.now()}`,
+    amount: bonusAmount,
+    expiresAt: bonusExpiresAt,
+    reason: 'Quà tặng chào mừng thành viên mới (Kích hoạt thủ công)',
+    createdAt: new Date().toISOString()
+  };
+  const currentBatches = Array.isArray(user.bonusBatches) ? user.bonusBatches : [];
+  const nextBatches = [...currentBatches, welcomeBatch];
+  const earliestInfo = {
+    amount: bonusAmount,
+    expiresAt: bonusExpiresAt,
+    formattedDate: new Date(bonusExpiresAt).toLocaleDateString('vi-VN')
+  };
+
   const updatedUser = await updateUserById(user.id, {
     status: 'active',
     emailVerified: true,
-    bonusWalletBalance: campaign.welcomeBonusAmount,
-    bonusExpiresAt
+    bonusWalletBalance: bonusAmount,
+    bonusExpiresAt,
+    bonusBatches: nextBatches,
+    earliestExpiringBonus: earliestInfo,
+    bonusActivatedAt: new Date().toISOString()
   });
-  const txn = buildManualActivationTransaction(user, campaign.welcomeBonusAmount);
+  const txn = buildManualActivationTransaction(user, bonusAmount);
   await appendTransactionRecord(txn);
   await markTokensAsUsed(user.email);
   return updatedUser;

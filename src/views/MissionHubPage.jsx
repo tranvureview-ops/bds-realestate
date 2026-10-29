@@ -384,9 +384,10 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
     setClaimedMilestones(updated);
 
     const amount = Number(milestone.reward || 0);
+    const expiryDays = Number(systemConfig?.bonusExpiryDays) || 30;
     if (addBonusWalletBalance) {
       addBonusWalletBalance(amount, `Thưởng Affiliate: ${milestone.label || `Mốc ${milestone.target} bạn bè`}`, {
-        expiryDays: 30
+        expiryDays
       });
     }
 
@@ -414,9 +415,10 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
     const amount = Number(reward || 0);
 
     // Cộng tiền trực tiếp vào Ví Khuyến Mãi của user
+    const expiryDays = Number(systemConfig?.bonusExpiryDays) || 30;
     if (addBonusWalletBalance) {
       addBonusWalletBalance(amount, `Nhiệm vụ: ${title}`, {
-        expiryDays: 30
+        expiryDays
       });
     }
 
@@ -482,8 +484,8 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
                     {localBonusBal > 0 && expiringBonusInfo?.amount > 0 && expiringBonusInfo?.formattedDate
                       ? `(Có ${Number(expiringBonusInfo.amount).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${expiringBonusInfo.formattedDate})`
                       : localBonusBal > 0
-                      ? `(Có ${localBonusBal.toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN')})`
-                      : '(Tiền thưởng nhiệm vụ có hạn dùng 30 ngày kể từ ngày nhận)'}
+                      ? `(Có ${localBonusBal.toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${new Date(Date.now() + (Number(systemConfig?.bonusExpiryDays) || 30) * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN')})`
+                      : `(Tiền thưởng nhiệm vụ có hạn dùng ${Number(systemConfig?.bonusExpiryDays) || 30} ngày kể từ ngày nhận)`}
                   </span>
                 </div>
               </div>
@@ -652,7 +654,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
                 </span>
               </div>
               <div className="text-[11px] text-slate-600 flex items-center justify-between pt-0.5">
-                <span>🎁 Tiền thưởng: <strong>Cộng trực tiếp vào Ví KM</strong> (hạn 30 ngày)</span>
+                <span>🎁 Tiền thưởng: <strong>Cộng trực tiếp vào Ví KM</strong> (hạn {Number(systemConfig?.bonusExpiryDays) || 30} ngày)</span>
                 <span className="text-[10px] text-slate-500 italic">Chuẩn: Kích hoạt + tin đăng / eKYC / nạp tiền</span>
               </div>
             </div>

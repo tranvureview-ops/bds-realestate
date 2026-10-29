@@ -45,6 +45,22 @@ export async function processAccountActivation(tokenRecord, users) {
   const bonusExpiresAt = calculateBonusExpirationDate(expiryDays);
   const newBonusBalance = (Number(user.bonusWalletBalance) || 0) + bonusAmount;
 
+  const welcomeBatch = {
+    id: `BATCH-WELCOME-${Date.now()}`,
+    amount: bonusAmount,
+    expiresAt: bonusExpiresAt,
+    reason: 'Quà tặng chào mừng thành viên mới (Kích hoạt email)',
+    createdAt: new Date().toISOString()
+  };
+  const currentBatches = Array.isArray(user.bonusBatches) ? user.bonusBatches : [];
+  const nextBatches = [...currentBatches, welcomeBatch];
+
+  const earliestInfo = {
+    amount: bonusAmount,
+    expiresAt: bonusExpiresAt,
+    formattedDate: new Date(bonusExpiresAt).toLocaleDateString('vi-VN')
+  };
+
   await recordTransaction(buildBonusTransaction(user, bonusAmount));
   await markTokenAsUsed(tokenRecord.token);
 
@@ -53,6 +69,8 @@ export async function processAccountActivation(tokenRecord, users) {
     emailVerified: true,
     bonusWalletBalance: newBonusBalance,
     bonusExpiresAt,
+    bonusBatches: nextBatches,
+    earliestExpiringBonus: earliestInfo,
     bonusActivatedAt: new Date().toISOString()
   });
 }

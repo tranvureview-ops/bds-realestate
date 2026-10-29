@@ -407,12 +407,19 @@ export default function UserProfilePage() {
                     <i className="fa-solid fa-gift text-emerald-600"></i>
                     <span>Ví KM: <strong className="font-mono text-emerald-900">{(Number(currentUser.bonusWalletBalance) || 0).toLocaleString('vi-VN')} đ</strong></span>
                   </div>
-                  {currentUser.bonusExpiresAt && Number(currentUser.bonusWalletBalance) > 0 && (
-                    <div className="text-[10px] text-amber-800 font-semibold flex items-center gap-1">
-                      <i className="fa-solid fa-hourglass-half text-amber-600"></i>
-                      <span>(Có {(Number(currentUser.earliestExpiringBonus?.amount) || Number(currentUser.bonusWalletBalance)).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày {new Date(currentUser.bonusExpiresAt).toLocaleDateString('vi-VN')})</span>
-                    </div>
-                  )}
+                  {(() => {
+                    const earliest = currentUser.earliestExpiringBonus || (currentUser.bonusExpiresAt ? {
+                      amount: currentUser.bonusWalletBalance,
+                      formattedDate: new Date(currentUser.bonusExpiresAt).toLocaleDateString('vi-VN')
+                    } : null);
+                    if (!earliest || Number(currentUser.bonusWalletBalance) <= 0) return null;
+                    return (
+                      <div className="text-[10px] text-amber-800 font-semibold flex items-center gap-1">
+                        <i className="fa-solid fa-hourglass-half text-amber-600"></i>
+                        <span>(Có {Number(earliest.amount || currentUser.bonusWalletBalance).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày {earliest.formattedDate})</span>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
 

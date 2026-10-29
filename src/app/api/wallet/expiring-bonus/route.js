@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getAllUsers } from '../../../../services/serverDbService';
+import { getFullSystemDatabase } from '../../../../services/serverDbService';
+import { getEarliestExpiringBonus } from '../../../../services/bonusCampaignService';
 
 /**
  * API trả về thông tin gói tiền thưởng sắp hết hạn gần nhất của người dùng
@@ -22,7 +23,8 @@ export async function GET(request) {
       });
     }
 
-    const users = await getAllUsers();
+    const db = await getFullSystemDatabase();
+    const users = Array.isArray(db.bds_users_list) ? db.bds_users_list : [];
     const user = (users || []).find(u => String(u.id) === String(userId));
 
     if (!user) {
@@ -49,49 +51,26 @@ export async function GET(request) {
       });
     }
 
-    const now = Date.now();
-    let earliestBatch = null;
-
-    // 1. Kiểm tra danh sách các gói tiền thưởng có hạn (bonusBatches)
-    if (Array.isArray(user.bonusBatches) && user.bonusBatches.length > 0) {
-      const validBatches = user.bonusBatches
-        .filter(b => new Date(b.expiresAt).getTime() > now && Number(b.amount) > 0)
-        .sort((a, b) => new Date(a.expiresAt).getTime() - new Date(b.expiresAt).getTime());
-
-      if (validBatches.length > 0) {
-        earliestBatch = validBatches[0];
-      }
+    const earliestInfo = getEarliestExpiringBonus(user, db.bds_system_config);
+    if (!earliestInfo) {
+      return NextResponse.json({
+        success: true,
+        hasExpiringBonus: false,
+        amount: 0,
+        expiresAt: null,
+        formattedDate: null,
+        formattedAmount: '0đ'
+      });
     }
-
-    // 2. Dự phòng cấu hình đơn lẻ bonusExpiresAt (nếu chưa có mảng batches)
-    if (!earliestBatch && user.bonusExpiresAt && new Date(user.bonusExpiresAt).getTime() > now) {
-      earliestBatch = {
-        amount: Number(user.earliestExpiringBonus?.amount) || bonusBalance,
-        expiresAt: user.bonusExpiresAt
-      };
-    }
-
-    // 3. Nếu user đang có tiền trong Ví KM mà chưa có ngày hết hạn -> Tính 30 ngày từ thời điểm hiện tại
-    if (!earliestBatch) {
-      const fallbackExpiry = new Date(now + 30 * 24 * 60 * 60 * 1000).toISOString();
-      earliestBatch = {
-        amount: bonusBalance,
-        expiresAt: fallbackExpiry
-      };
-    }
-
-    const expDate = new Date(earliestBatch.expiresAt);
-    const formattedDate = expDate.toLocaleDateString('vi-VN');
-    const daysLeft = Math.max(0, Math.ceil((expDate.getTime() - now) / (24 * 60 * 60 * 1000)));
 
     return NextResponse.json({
       success: true,
       hasExpiringBonus: true,
-      amount: Number(earliestBatch.amount) || bonusBalance,
-      expiresAt: earliestBatch.expiresAt,
-      formattedDate,
-      formattedAmount: `${(Number(earliestBatch.amount) || bonusBalance).toLocaleString('vi-VN')}đ`,
-      daysLeft
+      amount: earliestInfo.amount,
+      expiresAt: earliestInfo.expiresAt,
+      formattedDate: earliestInfo.formattedDate,
+      formattedAmount: `${earliestInfo.amount.toLocaleString('vi-VN')}đ`,
+      daysLeft: earliestInfo.daysLeft
     });
   } catch (error) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });

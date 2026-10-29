@@ -147,8 +147,8 @@ export default function PromotionListPage() {
                     {bonusBal > 0 && expiringBonusInfo?.amount > 0 && expiringBonusInfo?.formattedDate
                       ? `(Có ${Number(expiringBonusInfo.amount).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${expiringBonusInfo.formattedDate})`
                       : bonusBal > 0
-                      ? `(Có ${bonusBal.toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN')})`
-                      : '(Hạn dùng tiền thưởng khuyến mãi 30 ngày kể từ ngày nhận)'}
+                      ? `(Có ${bonusBal.toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${new Date(Date.now() + (Number(systemConfig?.bonusExpiryDays) || 30) * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN')})`
+                      : `(Hạn dùng tiền thưởng khuyến mãi ${Number(systemConfig?.bonusExpiryDays) || 30} ngày kể từ ngày nhận)`}
                   </span>
                 </div>
               </div>

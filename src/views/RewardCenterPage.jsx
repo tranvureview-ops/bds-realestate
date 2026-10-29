@@ -159,7 +159,8 @@ export default function RewardCenterPage() {
     if (checkedToday || !isCheckInEnabled) return;
 
     // 2. Thực hiện điểm danh đúng ngày trong chuỗi (tuyệt đối không nhảy số)
-    const res = executeCheckIn(currentUser, checkInDays);
+    const expiryDays = Number(systemConfig?.bonusExpiryDays) || 30;
+    const res = executeCheckIn(currentUser, checkInDays, expiryDays);
     if (!res.success) {
       if (showToast) showToast(res.message, 'warning');
       return;
@@ -178,7 +179,7 @@ export default function RewardCenterPage() {
 
     if (addBonusWalletBalance) {
       addBonusWalletBalance(res.reward, `Điểm danh ${res.dayLabel} (Trung tâm phần thưởng)`, {
-        expiryDays: 30,
+        expiryDays,
         expiresAt: res.expiresAt
       });
     }
@@ -299,8 +300,8 @@ export default function RewardCenterPage() {
                     {bonusBal > 0 && expiringBonusInfo?.amount > 0 && expiringBonusInfo?.formattedDate
                       ? `(Có ${Number(expiringBonusInfo.amount).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${expiringBonusInfo.formattedDate})`
                       : bonusBal > 0
-                      ? `(Có ${bonusBal.toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN')})`
-                      : '(Hạn dùng tiền thưởng 30 ngày kể từ ngày nhận)'}
+                      ? `(Có ${bonusBal.toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${new Date(Date.now() + (Number(systemConfig?.bonusExpiryDays) || 30) * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN')})`
+                      : `(Hạn dùng tiền thưởng ${Number(systemConfig?.bonusExpiryDays) || 30} ngày kể từ ngày nhận)`}
                   </span>
                 </div>
               </div>
@@ -336,7 +337,7 @@ export default function RewardCenterPage() {
                 </h2>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Đăng nhập điểm danh mỗi ngày để tích lũy lên tới <strong className="text-emerald-600 font-bold">{totalWeeklyCheckin.toLocaleString('vi-VN')}đ</strong> vào Ví Khuyến Mãi (Hạn dùng 30 ngày/lần nhận, bỏ lỡ 1 ngày sẽ quay lại Ngày 1).
+                Đăng nhập điểm danh mỗi ngày để tích lũy lên tới <strong className="text-emerald-600 font-bold">{totalWeeklyCheckin.toLocaleString('vi-VN')}đ</strong> vào Ví Khuyến Mãi (Hạn dùng {Number(systemConfig?.bonusExpiryDays) || 30} ngày/lần nhận, bỏ lỡ 1 ngày sẽ quay lại Ngày 1).
               </p>
               {isMissed && !checkedToday && (
                 <div className="inline-flex items-center gap-1.5 mt-2 text-[11px] font-bold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">

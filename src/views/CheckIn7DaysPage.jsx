@@ -118,7 +118,8 @@ export default function CheckIn7DaysPage() {
     if (checkedToday || !isEnabled) return;
 
     // 2. Điểm danh đúng ngày (tuyệt đối không nhảy cóc 2 ngày, nếu bỏ lỡ thì reset về ngày 1)
-    const res = executeCheckIn(currentUser, daysList);
+    const expiryDays = Number(systemConfig?.bonusExpiryDays) || 30;
+    const res = executeCheckIn(currentUser, daysList, expiryDays);
     if (!res.success) {
       if (showToast) showToast(res.message, 'warning');
       return;
@@ -135,10 +136,10 @@ export default function CheckIn7DaysPage() {
       formattedDate: res.formattedExpiryDate
     });
 
-    // Cộng tiền trực tiếp vào Ví Khuyến Mãi của người dùng kèm thời hạn 30 ngày
+    // Cộng tiền trực tiếp vào Ví Khuyến Mãi của người dùng kèm thời hạn theo cài đặt quản trị
     if (addBonusWalletBalance) {
       addBonusWalletBalance(res.reward, `Điểm danh ${res.dayLabel}`, {
-        expiryDays: 30,
+        expiryDays,
         expiresAt: res.expiresAt
       });
     }

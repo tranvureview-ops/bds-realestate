@@ -87,9 +87,10 @@ export function getCheckInStatus(userId) {
  * Thực hiện điểm danh nhận thưởng vào Ví Khuyến Mãi
  * @param {object} user - Object tài khoản currentUser
  * @param {Array} daysConfig - Danh sách cấu hình ngày (mặc định 7 ngày)
+ * @param {number} expiryDays - Số ngày hết hạn tiền thưởng theo cấu hình hệ thống
  * @returns {object} { success, streak, reward, dayLabel, expiresAt, formattedExpiryDate, wasReset, message, error }
  */
-export function executeCheckIn(user, daysConfig = CHECK_IN_7_DAYS) {
+export function executeCheckIn(user, daysConfig = CHECK_IN_7_DAYS, expiryDays = 30) {
   if (!user || user.role === 'guest' || !user.id) {
     return {
       success: false,
@@ -149,12 +150,13 @@ export function executeCheckIn(user, daysConfig = CHECK_IN_7_DAYS) {
   const dayItem = daysConfig[nextStreak - 1] || { reward: 5000 };
   const amount = Number(dayItem.reward || 5000);
 
-  // Tính thời hạn 30 ngày cho tiền thưởng điểm danh
-  const expiryDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  // Tính thời hạn cho tiền thưởng điểm danh theo cài đặt hệ thống
+  const effectiveExpiryDays = Number(expiryDays) || 30;
+  const expiryDate = new Date(Date.now() + effectiveExpiryDays * 24 * 60 * 60 * 1000);
   const formattedExpiryDate = expiryDate.toLocaleDateString('vi-VN');
 
   const resetNotice = wasReset ? ' (Chuỗi đã quay lại từ Ngày 1 do bạn bỏ lỡ ngày trước đó)' : '';
-  const message = `🎉 Điểm danh Ngày ${nextStreak} thành công! Đã cộng +${amount.toLocaleString('vi-VN')}đ vào Ví Khuyến Mãi${resetNotice}. Lưu ý: Tiền thưởng có hạn sử dụng 30 ngày (đến ngày ${formattedExpiryDate}), quá thời hạn trên nếu không sử dụng sẽ bị thu hồi.`;
+  const message = `🎉 Điểm danh Ngày ${nextStreak} thành công! Đã cộng +${amount.toLocaleString('vi-VN')}đ vào Ví Khuyến Mãi${resetNotice}. Lưu ý: Tiền thưởng có hạn sử dụng ${effectiveExpiryDays} ngày (đến ngày ${formattedExpiryDate}), quá thời hạn trên nếu không sử dụng sẽ bị thu hồi.`;
 
   return {
     success: true,

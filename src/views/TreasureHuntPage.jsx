@@ -149,7 +149,7 @@ export default function TreasureHuntPage() {
                   <span>
                     {expiringBonusInfo?.formattedDate
                       ? `Có ${Number(expiringBonusInfo.amount || localBonusBal).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${expiringBonusInfo.formattedDate}`
-                      : 'Tiền thưởng săn rương có hạn sử dụng 30 ngày kể từ ngày nhận'}
+                      : `Tiền thưởng săn rương có hạn sử dụng ${Number(systemConfig?.bonusExpiryDays) || 30} ngày kể từ ngày nhận`}
                   </span>
                 </div>
               </div>
