@@ -20,7 +20,7 @@ function RouterProviderWrapper({ children }) {
       }
     }
     if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo(0, 0);
     }
   };
 
@@ -168,7 +168,7 @@ export const Link = ({ to, href, children, className = '', activeClassName = '',
       onClick={handleClick}
       className={combinedClass}
       title={title}
-      prefetch={props.prefetch ?? false}
+      prefetch={props.prefetch ?? true}
       {...props}
     >
       {children}

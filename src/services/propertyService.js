@@ -1,20 +1,32 @@
 import fs from 'fs';
 import path from 'path';
+import { cache } from 'react';
 import { INITIAL_PROPERTIES } from '../data/mockData';
 import { isSupabaseConfigured, fetchSupabaseProperties } from '../lib/supabase';
 import { toVietnameseSlug, getPropertyPermalink } from '../utils/permalink';
 
+let inMemoryCache = null;
+let lastCacheTimestamp = 0;
+const CACHE_TTL_MS = 60 * 1000; // 60s memory cache giúp tăng tốc độ tải trang cực nhanh
+
 /**
- * Lấy danh sách bất động sản phía server từ Supabase hoặc file fallback server-db.json
+ * Lấy danh sách bất động sản phía server từ Supabase hoặc file fallback server-db.json (kèm cache)
  * @returns {Promise<Array>} Danh sách bất động sản
  */
-export async function fetchServerProperties() {
+async function getPropertiesInternal() {
+  const now = Date.now();
+  if (inMemoryCache && (now - lastCacheTimestamp < CACHE_TTL_MS)) {
+    return inMemoryCache;
+  }
+
   try {
     if (isSupabaseConfigured()) {
       try {
         const cloudProperties = await fetchSupabaseProperties();
         if (Array.isArray(cloudProperties) && cloudProperties.length > 0) {
-          return cloudProperties;
+          inMemoryCache = cloudProperties;
+          lastCacheTimestamp = Date.now();
+          return inMemoryCache;
         }
       } catch (error) {
         // Fallback to local server-db.json when Supabase request fails
@@ -26,15 +38,21 @@ export async function fetchServerProperties() {
       const fileContent = fs.readFileSync(databaseFilePath, 'utf8');
       const parsedDatabase = JSON.parse(fileContent || '{}');
       if (Array.isArray(parsedDatabase.bds_properties) && parsedDatabase.bds_properties.length > 0) {
-        return parsedDatabase.bds_properties;
+        inMemoryCache = parsedDatabase.bds_properties;
+        lastCacheTimestamp = Date.now();
+        return inMemoryCache;
       }
     }
   } catch (error) {
     // Return mock properties on read failure
   }
 
-  return INITIAL_PROPERTIES;
+  inMemoryCache = INITIAL_PROPERTIES;
+  lastCacheTimestamp = Date.now();
+  return inMemoryCache;
 }
+
+export const fetchServerProperties = cache(getPropertiesInternal);
 
 /**
  * Tìm bài đăng bất động sản theo tiêu chí nhận diện URL chuẩn

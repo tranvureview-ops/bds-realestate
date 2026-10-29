@@ -857,11 +857,20 @@ export default function ListingDetailModal({ property, onClose }) {
                         }`}
                       >
                         {/* Ảnh thu nhỏ */}
-                        <div className="w-28 h-24 sm:w-32 sm:h-28 rounded-xl overflow-hidden shrink-0 relative bg-slate-100">
+                        <Link
+                          href={permalink}
+                          prefetch={true}
+                          onClick={() => {
+                            setIsBrokerModalOpen(false);
+                            if (onClose) onClose();
+                          }}
+                          className="w-28 h-24 sm:w-32 sm:h-28 rounded-xl overflow-hidden shrink-0 relative bg-slate-100 block group/thumb cursor-pointer"
+                          title={`Xem chi tiết: ${p.title}`}
+                        >
                           <img
                             src={imgUrl}
                             alt={p.title}
-                            className="w-full h-full object-cover transition hover:scale-105 duration-300"
+                            className="w-full h-full object-cover transition group-hover/thumb:scale-105 duration-300"
                             loading="lazy"
                           />
                           {p.vipPackageId && p.vipPackageId !== 'normal' && (
@@ -874,7 +883,7 @@ export default function ListingDetailModal({ property, onClose }) {
                           }`}>
                             {isRent ? 'Cho thuê' : 'Bán'}
                           </span>
-                        </div>
+                        </Link>
 
                         {/* Thông tin BĐS */}
                         <div className="min-w-0 flex-1 flex flex-col justify-between">
@@ -885,6 +894,7 @@ export default function ListingDetailModal({ property, onClose }) {
 
                             <Link
                               href={permalink}
+                              prefetch={true}
                               onClick={() => {
                                 setIsBrokerModalOpen(false);
                                 if (onClose) onClose();
@@ -911,11 +921,12 @@ export default function ListingDetailModal({ property, onClose }) {
                               ) : (
                                 <Link
                                   href={permalink}
+                                  prefetch={true}
                                   onClick={() => {
                                     setIsBrokerModalOpen(false);
                                     if (onClose) onClose();
                                   }}
-                                  className="text-[11px] font-bold text-emerald-600 hover:text-emerald-800 flex items-center gap-1"
+                                  className="text-[11px] font-bold text-emerald-600 hover:text-emerald-800 flex items-center gap-1 cursor-pointer"
                                 >
                                   <span>Xem tin</span>
                                   <i className="fa-solid fa-arrow-right text-[9px]"></i>

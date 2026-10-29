@@ -2888,11 +2888,17 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                         }`}
                       >
                         {/* Ảnh thu nhỏ */}
-                        <div className="w-28 h-24 sm:w-32 sm:h-28 rounded-xl overflow-hidden shrink-0 relative bg-slate-100">
+                        <Link
+                          to={permalink}
+                          prefetch={true}
+                          onClick={() => setIsBrokerModalOpen(false)}
+                          className="w-28 h-24 sm:w-32 sm:h-28 rounded-xl overflow-hidden shrink-0 relative bg-slate-100 block group/thumb cursor-pointer"
+                          title={`Xem chi tiết: ${p.title}`}
+                        >
                           <img
                             src={imgUrl}
                             alt={p.title}
-                            className="w-full h-full object-cover transition hover:scale-105 duration-300"
+                            className="w-full h-full object-cover transition group-hover/thumb:scale-105 duration-300"
                             loading="lazy"
                           />
                           {p.vipPackageId && p.vipPackageId !== 'normal' && (
@@ -2905,7 +2911,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                           }`}>
                             {isRent ? 'Cho thuê' : 'Bán'}
                           </span>
-                        </div>
+                        </Link>
 
                         {/* Thông tin BĐS */}
                         <div className="min-w-0 flex-1 flex flex-col justify-between">
@@ -2916,6 +2922,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
                             <Link
                               to={permalink}
+                              prefetch={true}
                               onClick={() => setIsBrokerModalOpen(false)}
                               className="font-bold text-xs text-slate-800 hover:text-emerald-700 transition line-clamp-2 mt-0.5 leading-snug block"
                               title={p.title}
@@ -2939,8 +2946,9 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                               ) : (
                                 <Link
                                   to={permalink}
+                                  prefetch={true}
                                   onClick={() => setIsBrokerModalOpen(false)}
-                                  className="text-[11px] font-bold text-emerald-600 hover:text-emerald-800 flex items-center gap-1"
+                                  className="text-[11px] font-bold text-emerald-600 hover:text-emerald-800 flex items-center gap-1 cursor-pointer"
                                 >
                                   <span>Xem tin</span>
                                   <i className="fa-solid fa-arrow-right text-[9px]"></i>
