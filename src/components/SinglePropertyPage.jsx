@@ -319,13 +319,27 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     setIsBrokerModalOpen(true);
   };
 
+  // Helper nhận diện chuẩn BĐS Bán vs Cho Thuê
+  const isRentProperty = (p) => {
+    if (!p) return false;
+    const d = String(p.demand || p.type || p.listingType || '').toLowerCase();
+    if (d === 'rent' || d === 'cho-thue' || d === 'chothue' || d === 'thue') return true;
+    const title = String(p.title || '').toLowerCase();
+    if (title.startsWith('cho thuê') || title.includes('cho thuê') || title.includes('cho thue')) return true;
+    const price = String(p.priceDisplay || '').toLowerCase();
+    if (price.includes('/tháng') || price.includes('tháng') || price.includes('/thang')) return true;
+    return false;
+  };
+
+  const isSaleProperty = (p) => !isRentProperty(p);
+
   // Danh sách tin đăng hiển thị theo bộ lọc tab trong Modal hồ sơ môi giới
   const filteredAuthorProperties = useMemo(() => {
     if (brokerFilterTab === 'sale') {
-      return authorProperties.filter(p => p.type === 'ban' || p.listingType === 'sale');
+      return authorProperties.filter(isSaleProperty);
     }
     if (brokerFilterTab === 'rent') {
-      return authorProperties.filter(p => p.type === 'cho-thue' || p.listingType === 'rent');
+      return authorProperties.filter(isRentProperty);
     }
     return authorProperties;
   }, [authorProperties, brokerFilterTab]);
@@ -2836,7 +2850,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                       : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
                   }`}
                 >
-                  Bán ({authorProperties.filter(p => p.type === 'ban' || p.listingType === 'sale').length})
+                  Bán ({authorProperties.filter(isSaleProperty).length})
                 </button>
                 <button
                   type="button"
@@ -2847,7 +2861,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                       : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
                   }`}
                 >
-                  Cho thuê ({authorProperties.filter(p => p.type === 'cho-thue' || p.listingType === 'rent').length})
+                  Cho thuê ({authorProperties.filter(isRentProperty).length})
                 </button>
               </div>
             </div>
@@ -2859,6 +2873,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   {filteredAuthorProperties.map(p => {
                     const isCurrent = String(p.id) === String(property.id);
                     const permalink = getPropertyPermalink(p);
+                    const isRent = isRentProperty(p);
                     const imgUrl = Array.isArray(p.images) && p.images.length > 0 
                       ? p.images[0] 
                       : 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80';
@@ -2886,9 +2901,9 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                             </span>
                           )}
                           <span className={`absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-black uppercase text-white shadow-xs ${
-                            p.type === 'cho-thue' || p.listingType === 'rent' ? 'bg-sky-600' : 'bg-emerald-600'
+                            isRent ? 'bg-sky-600' : 'bg-emerald-600'
                           }`}>
-                            {p.type === 'cho-thue' || p.listingType === 'rent' ? 'Cho thuê' : 'Bán'}
+                            {isRent ? 'Cho thuê' : 'Bán'}
                           </span>
                         </div>
 
