@@ -103,17 +103,40 @@ export default function TreasureHuntPage() {
     return `${num.toLocaleString('vi-VN')} đ`;
   };
 
-  // Lọc ra các bài viết tin đăng BĐS nổi bật (ưu tiên Tin VIP Kim Cương, VIP Vàng, VIP Bạc) để tăng tương tác và lượt xem
+  // Lọc và sắp xếp bài viết tin đăng BĐS xuất hiện trong mục Săn Kho Báu:
+  // 1. Ưu tiên hàng đầu cho người mua Gói Hội Viên (bài viết được hội viên chọn bật isTreasureHuntActive)
+  // 2. Trong số các bài của người mua gói: Sắp xếp theo cấp bậc VIP:
+  //    VIP Kim Cương (vip-diamond) ⟶ VIP Vàng (vip-gold) ⟶ VIP Bạc (vip-silver) ⟶ Tin Thường (normal)
+  // 3. Trong cùng cấp bậc VIP: Ưu tiên tin mới xuất bản nhất (publishedAt || createdAt)
+  // 4. Nếu chưa đủ số lượng để lấp đầy lưới 4 cột (ví dụ 8 bài cho 2 hàng x 4 cột), tự động bổ sung tiếp các tin VIP khác theo đúng thứ tự VIP.
   const sampleArticles = useMemo(() => {
     if (!properties || !Array.isArray(properties)) return [];
     const valid = properties.filter(p => !p.isDeleted && p.status !== 'trash' && p.status !== 'rejected');
     const vipOrder = { 'vip-diamond': 4, 'vip-gold': 3, 'vip-silver': 2, 'normal': 1 };
-    return [...valid].sort((a, b) => {
+
+    // Nhóm 1: Các bài viết được người mua Gói Hội Viên chọn gắn vào Săn Kho Báu
+    const memberTreasureArticles = valid.filter(p => Boolean(p.isTreasureHuntActive));
+    memberTreasureArticles.sort((a, b) => {
       const weightA = vipOrder[a.vipPackageId] || 1;
       const weightB = vipOrder[b.vipPackageId] || 1;
       if (weightB !== weightA) return weightB - weightA;
-      return new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0);
-    }).slice(0, 6);
+      return new Date(b.publishedAt || b.createdAt || 0) - new Date(a.publishedAt || a.createdAt || 0);
+    });
+
+    // Nhóm 2: Các bài viết còn lại (sắp xếp theo VIP Kim Cương -> VIP Vàng -> VIP Bạc -> Tin Thường)
+    const remainingArticles = valid.filter(p => !p.isTreasureHuntActive);
+    remainingArticles.sort((a, b) => {
+      const weightA = vipOrder[a.vipPackageId] || 1;
+      const weightB = vipOrder[b.vipPackageId] || 1;
+      if (weightB !== weightA) return weightB - weightA;
+      return new Date(b.publishedAt || b.createdAt || 0) - new Date(a.publishedAt || a.createdAt || 0);
+    });
+
+    // Kết hợp ưu tiên tuyệt đối Nhóm 1 lên đầu, sau đó lấp đầy bằng Nhóm 2
+    const combined = [...memberTreasureArticles, ...remainingArticles];
+
+    // Trả về 8 bài để hiển thị trọn vẹn trên lưới 4 cột (2 hàng x 4 cột)
+    return combined.slice(0, 8);
   }, [properties]);
 
   const baseUrl = (typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL || 'https://bds-realestate.vercel.app')).replace(/\/+$/, '');
@@ -133,7 +156,7 @@ export default function TreasureHuntPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-xs text-slate-500 font-medium">
           <Link to="/" className="hover:text-emerald-700 transition">Trang chủ</Link>
@@ -379,7 +402,7 @@ export default function TreasureHuntPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
             {sampleArticles.map(p => {
               const link = getPropertyPermalink(p);
               const isClaimed = userId ? hasClaimedPropertyToday(userId, p.id) : false;
@@ -396,19 +419,32 @@ export default function TreasureHuntPage() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                     {isClaimed ? (
-                      <span className="absolute top-2.5 left-2.5 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-600 text-white shadow-sm flex items-center gap-1">
-                        <i className="fa-solid fa-circle-check"></i> Đã Mở Hôm Nay
+                      <span className="absolute top-2.5 left-2.5 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-sm flex items-center gap-1 z-10">
+                        <i className="fa-solid fa-circle-check"></i> Đã Mở
                       </span>
                     ) : (
-                      <span className="absolute top-2.5 left-2.5 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500 text-white shadow-sm flex items-center gap-1">
-                        <i className="fa-solid fa-gift"></i> Có Rương (+{minAmount.toLocaleString('vi-VN')}đ - +{maxAmount.toLocaleString('vi-VN')}đ)
+                      <span className="absolute top-2.5 left-2.5 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 shadow-sm flex items-center gap-1 z-10">
+                        <i className="fa-solid fa-gift"></i> Có Rương
                       </span>
                     )}
-                    {p.vipPackageId && p.vipPackageId !== 'normal' && (
-                      <span className="absolute top-2.5 right-2.5 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-red-600 text-white shadow-xs">
-                        VIP
-                      </span>
-                    )}
+
+                    <div className="absolute top-2.5 right-2.5 flex items-center gap-1 z-10">
+                      {Boolean(p.isTreasureHuntActive) && (
+                        <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500 text-slate-950 shadow-xs flex items-center gap-0.5" title="Đặc quyền bài viết từ Gói Hội Viên">
+                          <i className="fa-solid fa-crown text-[8px]"></i> Hội Viên
+                        </span>
+                      )}
+                      {p.vipPackageId && p.vipPackageId !== 'normal' && (
+                        <span className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md text-white shadow-xs ${
+                          p.vipPackageId === 'vip-diamond' ? 'bg-gradient-to-r from-red-600 to-rose-600' :
+                          p.vipPackageId === 'vip-gold' ? 'bg-amber-600' :
+                          'bg-slate-700'
+                        }`}>
+                          {p.vipPackageId === 'vip-diamond' ? 'VIP Kim Cương' : p.vipPackageId === 'vip-gold' ? 'VIP Vàng' : 'VIP Bạc'}
+                        </span>
+                      )}
+                    </div>
+
                     <span className="absolute bottom-2.5 right-2.5 text-[11px] font-black px-2.5 py-0.5 rounded-lg bg-black/75 text-white backdrop-blur-xs font-mono shadow-xs">
                       {formatPropertyPrice(p)}
                     </span>

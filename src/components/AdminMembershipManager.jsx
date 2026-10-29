@@ -95,6 +95,8 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
     ],
     allowScheduledPublishing: true,
     allowFutureStartDate: true,
+    allowTreasureHunt: true,
+    treasureHuntMaxArticles: 2,
     recommended: false
   });
 
@@ -108,6 +110,12 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
     cloned.allowFutureStartDate = typeof cloned.allowFutureStartDate === 'boolean'
       ? cloned.allowFutureStartDate
       : (cloned.id === 'member-basic' ? false : true);
+    cloned.allowTreasureHunt = typeof cloned.allowTreasureHunt === 'boolean'
+      ? cloned.allowTreasureHunt
+      : (cloned.id === 'member-basic' ? false : true);
+    cloned.treasureHuntMaxArticles = typeof cloned.treasureHuntMaxArticles === 'number'
+      ? cloned.treasureHuntMaxArticles
+      : (cloned.id === 'member-premium' ? 5 : (cloned.id === 'member-basic' ? 0 : 2));
     cloned.vouchersPerCycle = {
       ...cloned.vouchersPerCycle,
       normalPublishDiscount: commonPublishDiscount,
@@ -417,6 +425,20 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
       isEnabled
         ? `Đã BẬT quyền chọn Ngày bắt đầu tương lai cho "${target.name}"!`
         : `Đã TẮT quyền chọn Ngày bắt đầu tương lai cho "${target.name}"!`,
+      'success'
+    );
+  };
+
+  // Quick toggle Treasure Hunt flag per package
+  const handleTogglePackageTreasureHunt = (pkgId, isEnabled) => {
+    const target = membershipPackages.find(p => p.id === pkgId);
+    if (!target) return;
+    const currentMax = target.treasureHuntMaxArticles !== undefined ? target.treasureHuntMaxArticles : (pkgId === 'member-premium' ? 5 : 2);
+    updateMembershipPackage(pkgId, { ...target, allowTreasureHunt: isEnabled, treasureHuntMaxArticles: currentMax });
+    showToast(
+      isEnabled
+        ? `Đã BẬT đặc quyền Săn Kho Báu (Tối đa ${currentMax} tin) cho "${target.name}"!`
+        : `Đã TẮT đặc quyền Săn Kho Báu cho "${target.name}"!`,
       'success'
     );
   };
@@ -775,6 +797,51 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                     />
                   </button>
                 </div>
+
+                {/* Per-package Treasure Hunt Switch Toggle */}
+                <div className="mt-2.5 p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-3 shadow-inner">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                      pkg.allowTreasureHunt 
+                        ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' 
+                        : 'bg-slate-800 text-slate-500 border border-slate-700'
+                    }`}>
+                      <i className="fa-solid fa-gift text-xs"></i>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold text-white flex items-center gap-1.5 flex-wrap">
+                        <span>Săn Kho Báu:</span>
+                        {pkg.allowTreasureHunt ? (
+                          <span className="text-[10px] text-amber-400 font-bold bg-amber-950/80 border border-amber-800/80 px-1.5 py-0.2 rounded-full">
+                            ● BẬT ({pkg.treasureHuntMaxArticles || 2} tin)
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-slate-500 font-bold bg-slate-800 border border-slate-700 px-1.5 py-0.2 rounded-full">
+                            ○ TẮT
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[10px] text-slate-400 truncate">
+                        {pkg.allowTreasureHunt ? `Ưu tiên gắn tối đa ${pkg.treasureHuntMaxArticles || 2} bài vào Săn Kho Báu` : 'Không có quyền gắn tin Kho Báu'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleTogglePackageTreasureHunt(pkg.id, !pkg.allowTreasureHunt)}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      pkg.allowTreasureHunt ? 'bg-amber-500' : 'bg-slate-700'
+                    }`}
+                    title={pkg.allowTreasureHunt ? `Bấm để TẮT quyền Săn Kho Báu cho ${pkg.name}` : `Bấm để BẬT quyền Săn Kho Báu cho ${pkg.name}`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                        pkg.allowTreasureHunt ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
               </div>
 
               {/* Action Button: Edit Details */}
@@ -1100,6 +1167,61 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                           </p>
                         </div>
                       </label>
+
+                      {/* Treasure Hunt Feature Toggle & Quota Config */}
+                      <div className="p-3.5 bg-slate-900/60 hover:bg-slate-900 rounded-2xl border border-slate-800 space-y-3 transition">
+                        <label className="flex items-center gap-3 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(editingPkg.allowTreasureHunt)}
+                            onChange={(e) => handleFieldChange('allowTreasureHunt', e.target.checked)}
+                            className="w-4 h-4 text-amber-500 rounded border-slate-700 bg-slate-800 focus:ring-amber-400 shrink-0"
+                          />
+                          <div className="flex-1">
+                            <div className="font-bold text-white text-xs flex items-center gap-2">
+                              <i className="fa-solid fa-gift text-amber-400"></i>
+                              <span>Bật Đặc Quyền "Gắn Tin Vào Săn Kho Báu BĐS" Cho Gói Này</span>
+                              {editingPkg.allowTreasureHunt ? (
+                                <span className="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">
+                                  ✓ Đang Bật
+                                </span>
+                              ) : (
+                                <span className="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400 border border-slate-700 font-bold">
+                                  ○ Đang Tắt
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-[11px] text-slate-400 mt-0.5">
+                              Hội viên sở hữu gói này được phép tự chọn các bài đăng của mình trong trang Quản lý tin để gắn rương quà trong mục "Săn Kho Báu BĐS". Hệ thống ưu tiên hiển thị hàng đầu theo cấp độ VIP Kim Cương ⟶ VIP Vàng ⟶ VIP Bạc ⟶ Tin Thường để tăng đột biến lượt xem và tương tác.
+                            </p>
+                          </div>
+                        </label>
+
+                        {/* Ô cấu hình số lượng tin tối đa được gắn Săn Kho Báu */}
+                        {Boolean(editingPkg.allowTreasureHunt) && (
+                          <div className="pt-2.5 border-t border-slate-800 flex items-center justify-between gap-4">
+                            <div>
+                              <label className="block text-slate-300 font-bold text-xs">
+                                Số Lượng Tin Tối Đa Được Gắn Săn Kho Báu:
+                              </label>
+                              <span className="text-[10px] text-slate-400">
+                                Giới hạn số bài đăng hội viên được chọn trong trang Quản lý tin
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <input
+                                type="number"
+                                min={1}
+                                max={50}
+                                value={editingPkg.treasureHuntMaxArticles !== undefined ? editingPkg.treasureHuntMaxArticles : 2}
+                                onChange={(e) => handleFieldChange('treasureHuntMaxArticles', Math.max(1, parseInt(e.target.value) || 1))}
+                                className="w-24 px-3 py-1.5 bg-slate-950 border border-slate-700 rounded-xl text-center font-bold text-amber-400 text-sm focus:border-amber-400 focus:outline-none"
+                              />
+                              <span className="text-xs text-slate-400 font-medium">tin rao</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 
