@@ -117,7 +117,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
             ) : (
               <i className="fa-solid fa-floppy-disk"></i>
             )}
-            <span>{isSaving ? 'Đang Lưu...' : (hasChanges ? 'Lưu & Áp Dụng Ngay' : 'Lưu Đơn Giá Voucher')}</span>
+            <span>{isSaving ? 'Đang lưu...' : 'Lưu cài đặt'}</span>
           </button>
         </div>
       </div>
