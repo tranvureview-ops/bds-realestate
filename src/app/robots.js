@@ -19,6 +19,7 @@ export default function robots() {
           '/r/',
           '/admin/',
           '/api/',
+          '/moi-gioi/',
         ],
       },
     ],
