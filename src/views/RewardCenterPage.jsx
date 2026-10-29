@@ -5,7 +5,7 @@ import { Link } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 
 export default function RewardCenterPage() {
-  const { currentUser } = useRealEstate();
+  const { currentUser, systemConfig } = useRealEstate();
 
   const features = [
     {
@@ -79,7 +79,7 @@ export default function RewardCenterPage() {
               Khu Vực Tương Tác & Tiền Thưởng Ví KM
             </span>
             <h1 className="text-2xl sm:text-4xl font-black leading-tight">
-              Trung Tâm Phần Thưởng Đất Biển Đà Nẵng
+              Trung Tâm Phần Thưởng {systemConfig?.brandShortName || 'Bất Động Sản'}
             </h1>
             <p className="text-white/80 text-sm leading-relaxed">
               Nhận tiền thưởng <strong>cộng trực tiếp vào Ví Khuyến Mãi</strong> qua Điểm danh mỗi ngày, Săn rương dự án và Dự đoán giá thị trường. Sử dụng để đăng tin và đẩy tin VIP hoàn toàn miễn phí.

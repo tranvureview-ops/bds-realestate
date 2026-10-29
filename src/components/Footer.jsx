@@ -17,11 +17,17 @@ export default function Footer() {
       ...item
     }));
 
+  const activeBrandName = systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN';
+  const activePlatformName = systemConfig?.platformName || `${activeBrandName} - Sàn Giao Dịch Bất Động Sản`;
+
   const activeHotline = footerConfig?.hotline || systemConfig?.hotline || '0898 246 607';
   const activeZalo = footerConfig?.zalo || systemConfig?.zalo;
   const activeEmail = footerConfig?.email || systemConfig?.email || 'cskh@datbiendanang.vn';
   const activeAddress = footerConfig?.address || systemConfig?.address || 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng';
-  const brandDesc = footerConfig?.brandDescription ?? DEFAULT_FOOTER_CONFIG.brandDescription;
+  const rawBrandDesc = footerConfig?.brandDescription ?? DEFAULT_FOOTER_CONFIG.brandDescription;
+  const brandDesc = rawBrandDesc
+    ? rawBrandDesc.replace(/Đất Biển Đà Nẵng/g, activeBrandName).replace(/ĐẤT BIỂN ĐÀ NẴNG/g, activeBrandName)
+    : `${activeBrandName} là sàn thương mại điện tử chuyên biệt về bất động sản, đất nền dự án, biệt thự nghỉ dưỡng và căn hộ cao cấp toàn quốc.`;
 
   const col2Title = footerConfig?.col2Title || DEFAULT_FOOTER_CONFIG.col2Title;
   const col2Links = Array.isArray(footerConfig?.col2Links) && footerConfig.col2Links.length > 0 
@@ -43,8 +49,11 @@ export default function Footer() {
     : DEFAULT_FOOTER_CONFIG.policyLinks;
 
   const copyrightText = footerConfig?.copyrightCustomText?.trim() 
-    ? footerConfig.copyrightCustomText 
-    : `© 2026 ${systemConfig?.brandShortName || 'ĐẤT BIỂN ĐÀ NẴNG'}. Bản quyền thuộc về ${systemConfig?.platformName || 'Công ty Cổ phần Bất Động Sản Đất Biển Đà Nẵng'}.`;
+    ? footerConfig.copyrightCustomText
+        .replace(/ĐẤT BIỂN ĐÀ NẴNG/g, activeBrandName)
+        .replace(/Đất Biển Đà Nẵng/g, activeBrandName)
+        .replace(/Công ty Cổ phần Bất Động Sản Đất Biển Đà Nẵng/g, activePlatformName)
+    : `© ${new Date().getFullYear()} ${activeBrandName}. Bản quyền thuộc về ${activePlatformName}.`;
 
   const showSocial = footerConfig?.showSocialLinks !== false;
   const socialTitle = footerConfig?.socialLinksTitle || 'KẾT NỐI VỚI CHÚNG TÔI:';
@@ -63,10 +72,10 @@ export default function Footer() {
               </div>
               <div>
                 <div className="text-xl font-extrabold tracking-tight text-white flex items-center gap-1">
-                  <span>{systemConfig?.brandShortName || 'ĐẤT BIỂN ĐÀ NẴNG'}</span>
+                  <span>{activeBrandName}</span>
                 </div>
                 <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
-                  {systemConfig?.tagline || 'Sàn Giao Dịch Bất Động Sản Biển & Đất Nền Đà Nẵng'}
+                  {systemConfig?.tagline || 'Sàn Giao Dịch Bất Động Sản & Đăng Tin VIP'}
                 </div>
               </div>
             </Link>

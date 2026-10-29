@@ -16,7 +16,7 @@ const STORAGE_SESSION_KEY = 'bds_livechat_session_id';
 const STORAGE_LEAD_KEY = 'bds_livechat_lead_info';
 
 export default function LiveChatWidget() {
-  const { selectedPropertyDetail, currentUser } = useRealEstate();
+  const { selectedPropertyDetail, currentUser, systemConfig } = useRealEstate();
 
   const isUserLoggedIn = Boolean(currentUser && currentUser.role !== 'guest' && currentUser.id !== 'guest');
 
@@ -58,11 +58,11 @@ export default function LiveChatWidget() {
   const [isSubmittingForm, setIsSubmittingForm] = useState(false);
 
   // Danh sách tin nhắn trong phiên
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState(() => [
     {
       id: 'welcome',
       sender: 'agent',
-      text: 'Xin chào quý khách! Tôi là trợ lý tư vấn Đất Biển Đà Nẵng. Quý khách đang quan tâm đến dự án nào cần hỗ trợ thông tin nhanh?',
+      text: `Xin chào quý khách! Tôi là trợ lý tư vấn ${systemConfig?.brandShortName || 'Sàn Bất Động Sản'}. Quý khách đang quan tâm đến dự án nào cần hỗ trợ thông tin nhanh?`,
       time: 'Vừa xong',
       timestamp: Date.now()
     }

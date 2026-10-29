@@ -7,7 +7,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 
 export default function PromotionDetailPage({ slug }) {
   const [copiedCode, setCopiedCode] = useState(false);
-  const { showToast, rewardsConfig } = useRealEstate();
+  const { showToast, rewardsConfig, systemConfig } = useRealEstate();
   const { navigate } = useRouter();
 
   const allPromos = rewardsConfig?.promotions || PROMOTIONS_DATA;
@@ -116,7 +116,7 @@ export default function PromotionDetailPage({ slug }) {
                 </span>
                 <span className="flex items-center gap-1.5">
                   <i className="fa-solid fa-shield-halved text-emerald-600"></i>
-                  Chính thức từ Đất Biển Đà Nẵng
+                  Chính thức từ {systemConfig?.brandShortName || 'Ban Quản Trị'}
                 </span>
               </div>
             </div>

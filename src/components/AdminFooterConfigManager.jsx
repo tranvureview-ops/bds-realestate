@@ -937,7 +937,7 @@ export default function AdminFooterConfigManager() {
                 type="text"
                 value={formData.copyrightCustomText || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, copyrightCustomText: e.target.value }))}
-                placeholder={`© 2026 ${systemConfig?.brandShortName || 'ĐẤT BIỂN ĐÀ NẴNG'}. Bản quyền thuộc về ${systemConfig?.platformName || 'Công ty Cổ phần BĐS'}.`}
+                placeholder={`© ${new Date().getFullYear()} ${systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN'}. Bản quyền thuộc về ${systemConfig?.platformName || 'Công ty Cổ phần BĐS'}.`}
                 className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs outline-none focus:border-emerald-500"
               />
               <p className="text-[10px] text-slate-500 mt-1">Để trống sẽ tự động hiển thị theo Tên Thương Hiệu & Tên Pháp Nhân Sàn</p>
@@ -1067,7 +1067,7 @@ export default function AdminFooterConfigManager() {
                     </div>
                     <div>
                       <div className="font-extrabold text-white text-xs">
-                        {systemConfig?.brandShortName || 'ĐẤT BIỂN ĐÀ NẴNG'}
+                        {systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN'}
                       </div>
                       <div className="text-[9px] text-slate-400 uppercase">
                         {systemConfig?.tagline || 'Sàn Giao Dịch Bất Động Sản'}
@@ -1171,7 +1171,7 @@ export default function AdminFooterConfigManager() {
                 <div className="pt-2 border-t border-slate-800 text-[9px] text-slate-500 text-center">
                   {formData.copyrightCustomText?.trim() 
                     ? formData.copyrightCustomText 
-                    : `© 2026 ${systemConfig?.brandShortName || 'ĐẤT BIỂN ĐÀ NẴNG'}.`}
+                    : `© ${new Date().getFullYear()} ${systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN'}.`}
                 </div>
               </div>
 

@@ -18,7 +18,7 @@ export default function RegisterPage() {
     password: '',
     confirmPassword: '',
     primaryArea: 'TP. Đà Nẵng',
-    company: 'Đất Biển Đà Nẵng',
+    company: systemConfig?.brandShortName || 'Đối tác BĐS',
     referralCode: '',
     agreeTerms: true
   });
@@ -364,7 +364,7 @@ export default function RegisterPage() {
 
         {/* Switch to Login */}
         <div className="text-center text-xs text-slate-500 pt-2">
-          Đã có tài khoản trên Đất Biển Đà Nẵng?{' '}
+          Đã có tài khoản trên {systemConfig?.brandShortName || 'Sàn Bất Động Sản'}?{' '}
           <Link to="/dang-nhap" className="text-emerald-600 font-bold hover:underline">
             Đăng nhập ngay
           </Link>

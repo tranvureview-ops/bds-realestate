@@ -77,7 +77,7 @@ export default function AdminSingleConfigManager() {
   const renderedPreviewText = (formData.disclaimer?.contentTemplate || '')
     .replace(/\{title\}/g, `"${previewSampleTitle}"`)
     .replace(/\{id\}/g, previewSampleId)
-    .replace(/\{platformName\}/g, formData.disclaimer?.platformName || systemConfig?.brandShortName || 'ĐẤT BIỂN ĐÀ NẴNG')
+    .replace(/\{platformName\}/g, formData.disclaimer?.platformName || systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN')
     .replace(/\{hotline\}/g, formData.disclaimer?.hotline || systemConfig?.hotline || '0904 084 888');
 
   // Background and color classes mapping
@@ -186,18 +186,18 @@ export default function AdminSingleConfigManager() {
                       </label>
                       <button
                         type="button"
-                        onClick={() => handleDisclaimerChange('platformName', systemConfig?.brandShortName || 'ĐẤT BIỂN ĐÀ NẴNG')}
+                        onClick={() => handleDisclaimerChange('platformName', systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN')}
                         className="text-[10px] text-emerald-400 hover:text-emerald-300 hover:underline"
                         title="Đồng bộ từ tên thương hiệu sàn"
                       >
-                        Lấy từ Cài đặt sàn ({systemConfig?.brandShortName || 'ĐẤT BIỂN ĐÀ NẴNG'})
+                        Lấy từ Cài đặt sàn ({systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN'})
                       </button>
                     </div>
                     <input
                       type="text"
                       value={formData.disclaimer?.platformName || ''}
                       onChange={(e) => handleDisclaimerChange('platformName', e.target.value)}
-                      placeholder={`VD: ${systemConfig?.brandShortName || 'ĐẤT BIỂN ĐÀ NẴNG'}`}
+                      placeholder={`VD: ${systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN'}`}
                       className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white font-semibold focus:outline-none focus:ring-1 focus:ring-red-500"
                     />
                   </div>

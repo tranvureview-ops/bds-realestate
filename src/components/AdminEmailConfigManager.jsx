@@ -507,7 +507,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                         type="text"
                         value={formData.fromName || ''}
                         onChange={(e) => handleFieldChange('fromName', e.target.value)}
-                        placeholder="Ví dụ: Ban Quản Trị Sàn Đất Biển Đà Nẵng"
+                        placeholder={`Ví dụ: Ban Quản Trị Sàn ${systemConfig?.brandShortName || 'Bất Động Sản'}`}
                         className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                       />
                       <p className="text-[10px] text-slate-500 mt-1">Tên xuất hiện trong hộp thư đến của khách hàng</p>
@@ -879,7 +879,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                       type="text"
                       value={formData.signature?.companyName || ''}
                       onChange={(e) => handleSignatureChange('companyName', e.target.value)}
-                      placeholder="Sàn Giao Dịch Bất Động Sản Đất Biển Đà Nẵng"
+                      placeholder={`Ví dụ: ${systemConfig?.platformName || 'Sàn Giao Dịch Bất Động Sản'}`}
                       className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-teal-500"
                     />
                   </div>
@@ -1423,7 +1423,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                 <div className="bg-slate-900 p-3 rounded-2xl border border-slate-800 text-[11px] space-y-1">
                   <div className="flex items-center gap-2 truncate">
                     <span className="text-slate-500 w-16 shrink-0">Người gửi:</span>
-                    <strong className="text-slate-200 truncate">{formData.fromName || 'Ban Quản Trị Sàn Đất Biển Đà Nẵng'}</strong>
+                    <strong className="text-slate-200 truncate">{formData.fromName || `Ban Quản Trị Sàn ${systemConfig?.brandShortName || 'Bất Động Sản'}`}</strong>
                     <span className="text-slate-400 font-mono truncate">&lt;{formData.fromEmail || 'kiemduyet@datbiendanang.vn'}&gt;</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -1431,7 +1431,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                     <strong className="text-teal-300 font-mono text-[11px] break-all">
                       {renderEmailTemplateString(currentTemplate.subject || '', {
                         propertyId: 'BDS-003',
-                        siteName: formData.signature?.companyName || 'Đất Biển Đà Nẵng',
+                        siteName: formData.signature?.companyName || systemConfig?.brandShortName || 'Sàn BĐS',
                         websiteUrl: formData.signature?.websiteUrl || 'https://datbiendanang.vn',
                         reason: 'Giá không đúng thực tế',
                         currentTime: new Date().toLocaleTimeString('vi-VN')

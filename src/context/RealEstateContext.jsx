@@ -786,11 +786,29 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       return updatedEmail;
     });
 
+    let updatedFooter;
+    // 4. TỰ ĐỘNG ĐỒNG BỘ SANG CHÂN TRANG FOOTER
+    setFooterConfig(prev => {
+      const brandToSync = newConfig.brandShortName || newConfig.platformName;
+      const fullCompany = newConfig.platformName || brandToSync;
+      updatedFooter = {
+        ...prev,
+        ...(newConfig.hotline ? { hotline: newConfig.hotline } : {}),
+        ...(newConfig.zalo ? { zalo: newConfig.zalo } : {}),
+        ...(newConfig.email ? { email: newConfig.email } : {}),
+        ...(newConfig.address ? { address: newConfig.address } : {}),
+        copyrightCustomText: `© ${new Date().getFullYear()} ${brandToSync || 'Sàn Bất Động Sản'}. Bản quyền thuộc về ${fullCompany || 'Ban Quản Trị Sàn'}.`,
+        brandDescription: `${brandToSync || 'Sàn giao dịch'} là nền tảng thương mại điện tử chuyên nghiệp cung cấp thông tin mua bán, cho thuê nhà đất, dự án và đăng tin VIP hiệu quả cao trên toàn quốc.`
+      };
+      return updatedFooter;
+    });
+
     await Promise.all([
       persistSettingToSupabase('bds_system_config', updatedSystem || newConfig),
       updatedHeader ? persistSettingToSupabase('bds_header_config', updatedHeader) : Promise.resolve(),
       updatedSingle ? persistSettingToSupabase('bds_single_config', updatedSingle) : Promise.resolve(),
-      updatedEmail ? persistSettingToSupabase('bds_email_config', updatedEmail) : Promise.resolve()
+      updatedEmail ? persistSettingToSupabase('bds_email_config', updatedEmail) : Promise.resolve(),
+      updatedFooter ? persistSettingToSupabase('bds_footer_config', updatedFooter) : Promise.resolve()
     ]);
 
     showToast('Đã lưu và đồng bộ toàn bộ Thông tin thương hiệu & Liên hệ hệ thống!', 'success');

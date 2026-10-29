@@ -19,7 +19,8 @@ export default function AdminPortal() {
     paymentConfig,
     updatePaymentConfig,
     resetPaymentConfig,
-    VIETNAM_BANKS
+    VIETNAM_BANKS,
+    systemConfig
   } = useRealEstate();
 
   const [adminTab, setAdminTab] = useState('moderation'); // 'moderation', 'users', 'packages', 'payments', 'analytics'
@@ -62,7 +63,7 @@ export default function AdminPortal() {
               Hệ Thống Quản Trị Trung Tâm CMS
             </div>
             <h1 className="text-xl sm:text-2xl font-black">
-              Đất Biển Đà Nẵng Administration Portal
+              {systemConfig?.brandShortName || 'Bất Động Sản'} Administration Portal
             </h1>
           </div>
         </div>

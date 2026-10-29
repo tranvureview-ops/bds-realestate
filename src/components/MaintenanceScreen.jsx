@@ -8,7 +8,7 @@ export default function MaintenanceScreen() {
   const { systemConfig, showToast } = useRealEstate();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const brandName = systemConfig?.brandShortName || 'ĐẤT BIỂN ĐÀ NẴNG';
+  const brandName = systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN';
   const hotline = systemConfig?.hotline || '0904 084 888';
   const zalo = systemConfig?.zalo || '0904 084 888';
   const email = systemConfig?.email || 'tranvanvu.dev@gmail.com';

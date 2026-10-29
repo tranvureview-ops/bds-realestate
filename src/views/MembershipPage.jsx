@@ -22,7 +22,8 @@ export default function MembershipPage() {
     isMembershipActive,
     showToast,
     setActiveModal,
-    refetchData 
+    refetchData,
+    systemConfig 
   } = useRealEstate();
 
   const pricingOptions = { vipPackages, bumpServicePrice };
@@ -159,7 +160,7 @@ export default function MembershipPage() {
         <div className="text-center max-w-3xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200">
             <i className="fa-solid fa-crown text-amber-500"></i>
-            <span>Chính Sách Gói Hội Viên Đất Biển Đà Nẵng</span>
+            <span>Chính Sách Gói Hội Viên {systemConfig?.brandShortName || 'Môi Giới Chuyên Nghiệp'}</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
             Gói Hội Viên Bất Động Sản

@@ -1796,7 +1796,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
           <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl text-xs space-y-2 text-amber-900">
             <div className="font-bold flex items-center gap-1.5 text-amber-800">
               <i className="fa-solid fa-shield-halved text-amber-600"></i>
-              Bảo Hiểm Thông Tin Đất Biển Đà Nẵng
+              Bảo Hiểm Thông Tin {systemConfig?.brandShortName || 'Sàn Giao Dịch'}
             </div>
             <p className="text-[11px] text-amber-800/90 leading-relaxed">
               Mọi tin đăng trên sàn đều được kiểm tra địa chỉ thực tế. Tuyệt đối không đặt cọc hoặc chuyển khoản trước khi kiểm tra sổ đỏ/hồng bản gốc tại văn phòng công chứng.

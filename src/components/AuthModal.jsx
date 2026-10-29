@@ -57,7 +57,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
     password: '',
     confirmPassword: '',
     primaryArea: 'TP. Đà Nẵng',
-    company: 'Bất Động Sản Đất Biển Đà Nẵng',
+    company: systemConfig?.brandShortName || 'Đối tác BĐS',
     agreeTerms: true
   });
 
@@ -160,7 +160,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
                 {tab === 'login' ? 'Đăng Nhập Tài Khoản' : tab === 'register' ? 'Đăng Ký Thành Viên Mới' : 'Khôi Phục Mật Khẩu'}
               </h2>
               <p className="text-[11px] text-slate-500">
-                Sàn Giao Dịch Bất Động Sản & Hệ Thống Tin VIP Đất Biển Đà Nẵng
+                Sàn Giao Dịch Bất Động Sản & Hệ Thống Tin VIP {systemConfig?.brandShortName || 'Toàn Quốc'}
               </p>
             </div>
           </div>
@@ -520,7 +520,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
                 onChange={(e) => setRegisterData({ ...registerData, agreeTerms: e.target.checked })}
                 className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 mt-0.5"
               />
-              <span>Tôi đồng ý với <strong>Quy chế hoạt động</strong> và <strong>Chính sách bảo mật</strong> của Sàn Đất Biển Đà Nẵng.</span>
+              <span>Tôi đồng ý với <strong>Quy chế hoạt động</strong> và <strong>Chính sách bảo mật</strong> của Sàn {systemConfig?.brandShortName || 'Bất Động Sản'}.</span>
             </label>
 
             {/* Submit */}

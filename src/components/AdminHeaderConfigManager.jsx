@@ -11,7 +11,8 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
     updateHeaderConfig,
     PRESET_LOGOS,
     navMenuItems,
-    showToast
+    showToast,
+    systemConfig
   } = useRealEstate();
 
   // Logo & Header Width State
@@ -25,7 +26,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
     badgeColor: headerConfig?.badgeColor || 'bg-red-100 text-red-600 border border-red-200',
     logoImageUrl: headerConfig?.logoImageUrl || '',
     logoHeight: headerConfig?.logoHeight || 40,
-    logoAlt: headerConfig?.logoAlt || 'Đất Biển Đà Nẵng Logo',
+    logoAlt: headerConfig?.logoAlt || `${systemConfig?.brandShortName || 'Sàn BĐS'} Logo`,
     showTaglineWithImage: headerConfig?.showTaglineWithImage || false,
     containerWidth: headerConfig?.containerWidth || 'boxed',
     socialLinks: headerConfig?.socialLinks || DEFAULT_SOCIAL_LINKS

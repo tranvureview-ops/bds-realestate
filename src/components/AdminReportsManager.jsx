@@ -354,12 +354,13 @@ export default function AdminReportsManager({
   const activeHotline = systemConfig?.hotline || emailConfig?.signature?.hotline || '0904 084 888';
 
   const handleOpenComposeForUser = (recipientEmail, recipientName, report = null) => {
+    const activeBrand = systemConfig?.brandShortName || 'Sàn BĐS';
     setComposeFormData({
       to: recipientEmail || '',
       toName: recipientName || '',
-      subject: report ? `[Đất Biển Đà Nẵng] Phản hồi về tin rao #${report.propertyId}` : '[Đất Biển Đà Nẵng] Thông báo từ Ban Kiểm Duyệt Sàn',
+      subject: report ? `[${activeBrand}] Phản hồi về tin rao #${report.propertyId}` : `[${activeBrand}] Thông báo từ Ban Kiểm Duyệt Sàn`,
       messageContent: report
-        ? `Kính gửi ${recipientName || 'Quý khách'},\n\nBan kiểm duyệt Đất Biển Đà Nẵng xin gửi thông báo liên quan đến tin đăng #${report.propertyId} (${report.propertyTitle}).\n\nNội dung trao đổi:\n- \n\nMọi thắc mắc xin liên hệ Hotline ${activeHotline}.\nTrân trọng!`
+        ? `Kính gửi ${recipientName || 'Quý khách'},\n\nBan kiểm duyệt ${activeBrand} xin gửi thông báo liên quan đến tin đăng #${report.propertyId} (${report.propertyTitle}).\n\nNội dung trao đổi:\n- \n\nMọi thắc mắc xin liên hệ Hotline ${activeHotline}.\nTrân trọng!`
         : `Kính gửi ${recipientName || 'Quý khách'},\n\n`,
       templateType: 'custom'
     });
@@ -392,7 +393,7 @@ export default function AdminReportsManager({
       to: composeFormData.to,
       toName: composeFormData.toName || composeFormData.to,
       from: emailConfig?.fromEmail || 'kiemduyet@datbiendanang.vn',
-      fromName: emailConfig?.fromName || 'Ban Kiểm Duyệt Sàn Đất Biển Đà Nẵng',
+      fromName: emailConfig?.fromName || `Ban Kiểm Duyệt Sàn ${systemConfig?.brandShortName || 'Bất Động Sản'}`,
       subject: composeFormData.subject,
       htmlBody,
       type: 'custom_admin_direct'
@@ -1372,7 +1373,7 @@ export default function AdminReportsManager({
                 </span>
                 <div>
                   <h4 className="text-base font-black text-white">Soạn Email Quản Trị Viên</h4>
-                  <div className="text-[11px] text-slate-400">Gửi email trực tiếp từ ban kiểm duyệt Sàn Đất Biển Đà Nẵng</div>
+                  <div className="text-[11px] text-slate-400">Gửi email trực tiếp từ ban kiểm duyệt Sàn {systemConfig?.brandShortName || 'Bất Động Sản'}</div>
                 </div>
               </div>
 
@@ -1423,7 +1424,7 @@ export default function AdminReportsManager({
                   required
                   value={composeFormData.subject}
                   onChange={(e) => setComposeFormData(prev => ({ ...prev, subject: e.target.value }))}
-                  placeholder="Ví dụ: [Đất Biển Đà Nẵng] Yêu cầu cập nhật giá tin rao"
+                  placeholder={`Ví dụ: [${systemConfig?.brandShortName || 'Sàn BĐS'}] Yêu cầu cập nhật giá tin rao`}
                   className="w-full px-3 py-2 bg-slate-900 border border-slate-800 rounded-xl text-white text-xs font-semibold"
                 />
               </div>

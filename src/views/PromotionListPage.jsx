@@ -8,7 +8,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 export default function PromotionListPage() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [copiedCode, setCopiedCode] = useState(null);
-  const { showToast, rewardsConfig } = useRealEstate();
+  const { showToast, rewardsConfig, systemConfig } = useRealEstate();
   const promoList = rewardsConfig?.promotions || PROMOTIONS_DATA;
 
   const categories = [
@@ -36,7 +36,7 @@ export default function PromotionListPage() {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     'name': 'Trung Tâm Khuyến Mãi Bất Động Sản',
-    'description': 'Tổng hợp các chương trình ưu đãi nạp tiền, chiết khấu tin VIP và gói hội viên môi giới trên Đất Biển Đà Nẵng.',
+    'description': `Tổng hợp các chương trình ưu đãi nạp tiền, chiết khấu tin VIP và gói hội viên môi giới trên ${systemConfig?.brandShortName || 'Sàn Bất Động Sản'}.`,
     'url': 'https://datbiendanang.vn/khuyen-mai/',
     'mainEntity': {
       '@type': 'OfferCatalog',

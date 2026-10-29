@@ -53,7 +53,8 @@ export default function UserProfilePage() {
     vipPackages,
     bumpServicePrice,
     toggleMembershipAutoRenew,
-    isMembershipActive
+    isMembershipActive,
+    systemConfig
   } = useRealEstate();
 
   const { navigate } = useRouter();
@@ -99,7 +100,7 @@ export default function UserProfilePage() {
     email: currentUser.email || '',
     bio: currentUser.bio || 'Chuyên viên tư vấn bất động sản cao cấp, cam kết pháp lý minh bạch 100%.',
     primaryArea: currentUser.primaryArea || 'TP. Đà Nẵng',
-    company: currentUser.company || 'Đất Biển Đà Nẵng Partner',
+    company: currentUser.company || `${systemConfig?.brandShortName || 'Đối tác'} Partner`,
     address: currentUser.address || 'Góc Võ Nguyên Giáp & Phạm Văn Đồng, P. Phước Mỹ, Q. Sơn Trà, TP. Đà Nẵng',
     avatar: currentUser.avatar || '/avatars/ai-preset-2.jpg'
   });

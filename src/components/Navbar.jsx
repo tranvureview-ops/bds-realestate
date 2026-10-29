@@ -143,8 +143,8 @@ export default function Navbar() {
           <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950/90 text-emerald-400 border border-emerald-800/80 font-semibold text-[10px] sm:text-[11px] truncate">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-              <span className="hidden sm:inline truncate">Sàn BĐS {systemConfig?.brandShortName || `${headerConfig?.brandName || 'Đất Biển'} ${headerConfig?.brandHighlight || 'Đà Nẵng'}`.trim()}</span>
-              <span className="sm:hidden truncate">{systemConfig?.brandShortName || 'Đất Biển'}</span>
+              <span className="hidden sm:inline truncate">Sàn BĐS {systemConfig?.brandShortName || `${headerConfig?.brandName || 'Sàn'} ${headerConfig?.brandHighlight || 'Bất Động Sản'}`.trim()}</span>
+              <span className="sm:hidden truncate">{systemConfig?.brandShortName || 'Sàn BĐS'}</span>
             </span>
             <span suppressHydrationWarning className="hidden md:inline-flex items-center gap-1.5 text-slate-400 shrink-0">
               <span className="text-slate-600">|</span>
@@ -229,10 +229,21 @@ export default function Navbar() {
                 </div>
                 <div className="leading-tight min-w-0 truncate">
                   <div className="flex items-center gap-1 font-black text-slate-900 tracking-tight text-base sm:text-lg truncate">
-                    <span className="truncate">{headerConfig?.brandName || systemConfig?.brandShortName || 'ĐẤT BIỂN'}</span>
-                    {headerConfig?.brandHighlight ? (
-                      <span className="text-emerald-600 shrink-0">{headerConfig.brandHighlight}</span>
-                    ) : null}
+                    {(() => {
+                      const brandText = systemConfig?.brandShortName || `${headerConfig?.brandName || 'ĐẤT BIỂN'} ${headerConfig?.brandHighlight || ''}`.trim();
+                      const words = brandText.split(/\s+/).filter(Boolean);
+                      if (words.length <= 1) {
+                        return <span className="truncate">{words[0] || 'BẤT ĐỘNG SẢN'}</span>;
+                      }
+                      const mainText = words.slice(0, -1).join(' ');
+                      const highlightText = words[words.length - 1];
+                      return (
+                        <>
+                          <span className="truncate">{mainText}</span>
+                          <span className="text-emerald-600 shrink-0 ml-1">{highlightText}</span>
+                        </>
+                      );
+                    })()}
                     {headerConfig?.badgeText && (
                       <span className={`hidden sm:inline-block text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0 ${headerConfig?.badgeColor || 'bg-red-100 text-red-600 border border-red-200'}`}>
                         {headerConfig.badgeText}

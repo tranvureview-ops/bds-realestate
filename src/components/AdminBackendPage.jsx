@@ -672,7 +672,7 @@ export default function AdminBackendPage() {
     badgeColor: headerConfig?.badgeColor || 'bg-red-100 text-red-600 border border-red-200',
     logoImageUrl: headerConfig?.logoImageUrl || '',
     logoHeight: headerConfig?.logoHeight || 40,
-    logoAlt: headerConfig?.logoAlt || 'Đất Biển Đà Nẵng Logo',
+    logoAlt: headerConfig?.logoAlt || `${systemConfig?.brandShortName || 'Sàn BĐS'} Logo`,
     showTaglineWithImage: headerConfig?.showTaglineWithImage || false,
     containerWidth: headerConfig?.containerWidth || 'boxed',
   }));
@@ -805,7 +805,7 @@ export default function AdminBackendPage() {
 
   const handleExportSystemConfig = () => {
     const backupData = {
-      appName: 'ĐẤT BIỂN ĐÀ NẴNG',
+      appName: systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN',
       version: '1.0.0',
       exportedAt: new Date().toISOString(),
       paymentConfig: formPaymentConfig || paymentConfig,
@@ -7483,7 +7483,7 @@ export default function AdminBackendPage() {
                         style={{ fontFamily: getFontConfig(formSystemConfig.fontFamily).fontFamily }}
                       >
                         <h3 className="text-base font-extrabold text-white">
-                          Sàn Giao Dịch Bất Động Sản Đất Biển Đà Nẵng
+                          {formSystemConfig.platformName || formSystemConfig.brandShortName || 'Sàn Giao Dịch Bất Động Sản'}
                         </h3>
                         <p className="text-xs text-slate-300 leading-relaxed">
                           Hệ thống quản lý tin đăng VIP, bản đồ số GIS và pháp lý thương mại điện tử minh bạch. Mọi giao dịch được đảm bảo tuân thủ quy chuẩn pháp luật.
@@ -8228,7 +8228,7 @@ export default function AdminBackendPage() {
                       <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs text-slate-300">
                         <div className="flex items-center gap-1.5 text-[11px]">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                          <span className="text-emerald-400 font-bold truncate">{formSystemConfig.brandShortName || 'ĐẤT BIỂN ĐÀ NẴNG'}</span>
+                          <span className="text-emerald-400 font-bold truncate">{formSystemConfig.brandShortName || 'SÀN BẤT ĐỘNG SẢN'}</span>
                           <span className="text-slate-500">|</span>
                           <span className="text-slate-300 truncate font-mono">
                             Hotline: <strong className="text-white">{formSystemConfig.hotline || '0904 084 888'}</strong>
@@ -8243,7 +8243,7 @@ export default function AdminBackendPage() {
                       <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 text-xs space-y-2 text-slate-300">
                         <div className="font-extrabold text-white text-sm flex items-center gap-1.5">
                           <i className="fa-solid fa-building text-emerald-400"></i>
-                          <span>{formSystemConfig.brandShortName || 'ĐẤT BIỂN ĐÀ NẴNG'}</span>
+                          <span>{formSystemConfig.brandShortName || 'SÀN BẤT ĐỘNG SẢN'}</span>
                         </div>
                         <div className="text-[10px] text-slate-400 font-medium">
                           {formSystemConfig.tagline || 'Sàn Giao Dịch Bất Động Sản & Đăng Tin VIP'}

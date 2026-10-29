@@ -852,7 +852,7 @@ export default function AdminTelegramChatManager() {
                     type="text"
                     value={config.agentTitle || ''}
                     onChange={(e) => setConfig(prev => ({ ...prev, agentTitle: e.target.value }))}
-                    placeholder="Ví dụ: Chuyên Viên Tư Vấn Đất Biển Đà Nẵng"
+                    placeholder={`Ví dụ: Chuyên Viên Tư Vấn Sàn BĐS`}
                     className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white outline-none focus:border-emerald-500"
                   />
                   <p className="text-[10.5px] text-slate-500 mt-1">

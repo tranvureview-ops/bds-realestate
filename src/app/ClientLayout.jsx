@@ -45,6 +45,17 @@ function AppContent({ children }) {
     applyFontToDom(fontName);
   }, [systemConfig?.fontFamily]);
 
+  // Dynamic Browser Tab Title Synchronizer with Brand Identity
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const brand = systemConfig?.brandShortName;
+    if (brand && document.title && document.title.includes('Đất Biển Đà Nẵng') && brand !== 'Đất Biển Đà Nẵng') {
+      document.title = document.title
+        .replace(/Đất Biển Đà Nẵng/g, brand)
+        .replace(/ĐẤT BIỂN ĐÀ NẴNG/g, brand);
+    }
+  }, [systemConfig?.brandShortName]);
+
   // If Admin CMS, render full-screen dark layout (always accessible for admins)
   if (pathname.startsWith('/admin')) {
     return (
