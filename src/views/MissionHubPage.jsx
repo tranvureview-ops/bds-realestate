@@ -5,6 +5,7 @@ import { MISSIONS_DATA } from '../data/rewardData';
 import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 import { getDailyClaims } from '../services/treasureHuntService';
+import { getCheckInStatus } from '../services/checkInService';
 
 export default function MissionHubPage({ initialCategory = 'all' }) {
   const [activeCategory, setActiveCategory] = useState(initialCategory);
@@ -82,18 +83,15 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
            (p.authorId && p.authorId === currentUser.id);
   }).length;
 
-  const isCheckedInToday = typeof window !== 'undefined' 
-    ? (localStorage.getItem(`bds_checkin_last_date_${userId}`) === new Date().toDateString())
-    : false;
+  const checkInStatus = getCheckInStatus(userId);
+  const isCheckedInToday = checkInStatus.checkedToday;
   const treasureCountToday = typeof window !== 'undefined'
     ? getDailyClaims(userId).length
     : 0;
   const hasVotedPrediction = typeof window !== 'undefined'
     ? Boolean(localStorage.getItem(`bds_prediction_votes_${userId}`))
     : false;
-  const streakDays = typeof window !== 'undefined'
-    ? (Number(localStorage.getItem(`bds_checkin_streak_${userId}`)) || 1)
-    : 1;
+  const streakDays = checkInStatus.streak;
 
   const displayMissions = rawMissions.map(m => {
     const isClaimed = Boolean(claimedMissions[m.id]);
