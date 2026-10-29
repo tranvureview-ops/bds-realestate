@@ -38,13 +38,16 @@ export function getCheckInStatus(userId) {
 
   const lastDate = localStorage.getItem(`bds_checkin_last_date_${userId}`);
   let savedStreak = Number(localStorage.getItem(`bds_checkin_streak_${userId}`) || 0);
+  let savedContinuous = Number(localStorage.getItem(`bds_checkin_continuous_${userId}`) || savedStreak || 0);
 
   // Tự động sửa lỗi nếu user bị lưu sai streak = 2 khi mới điểm danh ngày đầu tiên hôm nay
   const prevDate = localStorage.getItem(`bds_checkin_prev_date_${userId}`);
   if (lastDate === todayStr && savedStreak === 2 && prevDate !== yesterdayStr) {
     savedStreak = 1;
+    savedContinuous = 1;
     try {
       localStorage.setItem(`bds_checkin_streak_${userId}`, '1');
+      localStorage.setItem(`bds_checkin_continuous_${userId}`, '1');
     } catch (e) {}
   }
 
@@ -54,6 +57,7 @@ export function getCheckInStatus(userId) {
       isLoggedIn: true,
       checkedToday: true,
       streak: savedStreak || 1,
+      continuousStreak: Math.max(savedContinuous, savedStreak || 1),
       nextDayToClaim: savedStreak >= 7 ? 1 : savedStreak + 1,
       isMissed: false
     };
@@ -66,6 +70,7 @@ export function getCheckInStatus(userId) {
       isLoggedIn: true,
       checkedToday: false,
       streak: activeStreak,
+      continuousStreak: Math.max(savedContinuous, savedStreak || 0),
       nextDayToClaim: activeStreak + 1,
       isMissed: false
     };
@@ -78,6 +83,7 @@ export function getCheckInStatus(userId) {
     isLoggedIn: true,
     checkedToday: false,
     streak: 0,
+    continuousStreak: 0,
     nextDayToClaim: 1,
     isMissed
   };
@@ -114,17 +120,21 @@ export function executeCheckIn(user, daysConfig = CHECK_IN_7_DAYS, expiryDays = 
   const yesterdayStr = getYesterdayDateString();
   const lastDate = localStorage.getItem(`bds_checkin_last_date_${userId}`);
   const currentSavedStreak = Number(localStorage.getItem(`bds_checkin_streak_${userId}`) || 0);
+  const currentContinuous = Number(localStorage.getItem(`bds_checkin_continuous_${userId}`) || currentSavedStreak || 0);
 
   // Tính chính xác ngày điểm danh tiếp theo (tuyệt đối không nhảy số)
   let nextStreak = 1;
+  let nextContinuous = 1;
   let wasReset = false;
 
   if (lastDate === yesterdayStr && currentSavedStreak > 0) {
     // Có điểm danh hôm qua -> Tiếp tục chuỗi
     nextStreak = currentSavedStreak >= 7 ? 1 : currentSavedStreak + 1;
+    nextContinuous = currentContinuous + 1;
   } else {
     // Lần đầu hoặc bỏ lỡ 1 ngày không điểm danh -> Quay lại Ngày 1
     nextStreak = 1;
+    nextContinuous = 1;
     if (lastDate && lastDate !== yesterdayStr && lastDate !== todayStr) {
       wasReset = true;
     }
@@ -137,11 +147,12 @@ export function executeCheckIn(user, daysConfig = CHECK_IN_7_DAYS, expiryDays = 
     }
     localStorage.setItem(`bds_checkin_last_date_${userId}`, todayStr);
     localStorage.setItem(`bds_checkin_streak_${userId}`, String(nextStreak));
+    localStorage.setItem(`bds_checkin_continuous_${userId}`, String(nextContinuous));
 
     // Bắn sự kiện đồng bộ toàn hệ thống (Reward Center, Checkin page, Missions)
     if (typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('bds_checkin_updated', {
-        detail: { userId, streak: nextStreak, checkedToday: true }
+        detail: { userId, streak: nextStreak, continuousStreak: nextContinuous, checkedToday: true }
       }));
       window.dispatchEvent(new CustomEvent('bds_claimed_missions_updated'));
     }

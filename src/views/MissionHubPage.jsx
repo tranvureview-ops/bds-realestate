@@ -254,7 +254,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
   const hasVotedPrediction = typeof window !== 'undefined'
     ? Boolean(localStorage.getItem(`bds_prediction_votes_${userId}`))
     : false;
-  const streakDays = checkInStatus.streak;
+  const streakDays = checkInStatus.continuousStreak ?? checkInStatus.streak ?? 0;
 
   const displayMissions = rawMissions.map(m => {
     const isClaimed = Boolean(claimedMissions[m.id]);
