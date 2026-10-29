@@ -334,12 +334,6 @@ export default function RegisterPage() {
                 <i className="fa-solid fa-user-tag"></i>
               </span>
             </div>
-            {registerData.referralCode && (
-              <div className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
-                <i className="fa-solid fa-circle-check text-emerald-600"></i>
-                <span>Áp dụng mã giới thiệu: <strong>{registerData.referralCode}</strong> (+50.000đ vào Ví Khuyến Mãi khi hoàn tất)</span>
-              </div>
-            )}
           </div>
 
           {/* Welcome Promo Gift Banner */}

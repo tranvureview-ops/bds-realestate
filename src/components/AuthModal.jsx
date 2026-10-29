@@ -528,13 +528,6 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
               </div>
             )}
 
-            {registerData.referralCode && (
-              <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 text-[11px] text-emerald-800 flex items-center gap-2">
-                <i className="fa-solid fa-gift text-emerald-600"></i>
-                <span>Áp dụng mã giới thiệu: <strong>{registerData.referralCode}</strong> (+50.000đ vào Ví KM khi hoàn tất)</span>
-              </div>
-            )}
-
             {/* Terms checkbox */}
             <label className="flex items-start gap-2 cursor-pointer text-slate-600 text-[11px] pt-1">
               <input
