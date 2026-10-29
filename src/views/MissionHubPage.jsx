@@ -695,17 +695,6 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
                 </div>
               )}
             </div>
-
-            {/* Cơ chế bảo vệ & Hạn dùng */}
-            <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-[11px] text-amber-900 space-y-1">
-              <div className="font-bold flex items-center gap-1.5">
-                <i className="fa-solid fa-shield-halved text-amber-600"></i>
-                <span>Cơ chế lưu vết Cookie 30 ngày:</span>
-              </div>
-              <p className="text-amber-800 leading-relaxed text-[10px]">
-                Bạn bè bấm vào link sẽ được lưu Cookie trong 30 ngày. Khi họ đăng ký tài khoản thành công, hệ thống tự động ghi nhận cho bạn. Đủ 5 người là bạn nhận ngay +300.000đ vào Ví Khuyến Mãi (hạn 30 ngày).
-              </p>
-            </div>
           </div>
         </div>
       )}
