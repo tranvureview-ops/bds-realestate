@@ -26,6 +26,7 @@ export function buildPendingUserRecord(input, clientIp) {
   const cleanEmail = (input.email || '').trim().toLowerCase();
   const selectedRole = input?.role === 'broker' ? 'broker' : 'user';
   const roleName = selectedRole === 'broker' ? 'Môi Giới' : 'Khách hàng';
+  const cleanReferral = (input.referralCode || input.referredBy || '').trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
   return {
     id: `user-${Date.now()}-${Math.floor(100 + Math.random() * 900)}`,
     name: (input.name || '').trim(),
@@ -43,6 +44,8 @@ export function buildPendingUserRecord(input, clientIp) {
     status: 'pending',
     emailVerified: false,
     registeredIp: clientIp,
+    refCode: cleanPhone || `REF${Date.now().toString().slice(-6)}`,
+    referredBy: cleanReferral || null,
     createdAt: new Date().toISOString()
   };
 }

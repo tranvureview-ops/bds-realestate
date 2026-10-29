@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRealEstate } from '../context/RealEstateContext';
 import { validateFullRegistration, validatePhoneNumber, validateEmailAddress } from '../utils/authValidation';
@@ -58,8 +58,24 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
     confirmPassword: '',
     primaryArea: 'TP. Đà Nẵng',
     company: systemConfig?.brandShortName || 'Đối tác BĐS',
+    referralCode: '',
     agreeTerms: true
   });
+
+  // Tự động nhận diện mã người giới thiệu từ URL (?ref=...) hoặc Cookie Affiliate (bds_aff_ref)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const urlParams = new URLSearchParams(window.location.search);
+    let code = urlParams.get('ref');
+    if (!code) {
+      const match = document.cookie.match(new RegExp('(^| )bds_aff_ref=([^;]+)'));
+      if (match) code = match[2];
+    }
+    if (code) {
+      const clean = code.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+      setRegisterData(prev => ({ ...prev, referralCode: clean }));
+    }
+  }, []);
 
   // Real-time register validations
   const phoneValidation = validatePhoneNumber(registerData.phone);
@@ -509,6 +525,13 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
                     className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-slate-900 font-medium"
                   />
                 </div>
+              </div>
+            )}
+
+            {registerData.referralCode && (
+              <div className="p-2.5 bg-emerald-50 rounded-xl border border-emerald-200 text-[11px] text-emerald-800 flex items-center gap-2">
+                <i className="fa-solid fa-gift text-emerald-600"></i>
+                <span>Áp dụng mã giới thiệu: <strong>{registerData.referralCode}</strong> (+50.000đ vào Ví KM khi hoàn tất)</span>
               </div>
             )}
 

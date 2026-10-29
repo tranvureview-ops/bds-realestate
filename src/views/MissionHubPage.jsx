@@ -27,6 +27,21 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
   const [localRewardsConfig, setLocalRewardsConfig] = useState(rewardsConfig);
   const [localBonusBal, setLocalBonusBal] = useState(Number(currentUser?.bonusWalletBalance || 0));
   const [expiringBonusInfo, setExpiringBonusInfo] = useState(null);
+  const [showAffiliateModal, setShowAffiliateModal] = useState(false);
+
+  const userRefCode = currentUser?.refCode || currentUser?.phone || (currentUser?.id && currentUser.id !== 'guest' ? currentUser.id : '');
+  const affiliateLink = typeof window !== 'undefined' && window.location?.origin
+    ? `${window.location.origin}/dang-ky?ref=${userRefCode || 'BDS'}`
+    : `https://bds-realestate.vercel.app/dang-ky?ref=${userRefCode || 'BDS'}`;
+
+  // Đếm số lượng người thực tế đã đăng ký qua mã giới thiệu của tài khoản này
+  const referredFriends = (usersList || []).filter(u => {
+    if (!currentUser?.id || currentUser.id === 'guest') return false;
+    return String(u.referredBy) === String(currentUser.id) ||
+           (currentUser.refCode && String(u.referredBy) === String(currentUser.refCode)) ||
+           (currentUser.phone && u.referredBy && normalizePhone(u.referredBy) === normalizePhone(currentUser.phone));
+  });
+  const realRefSuccess = referredFriends.length;
 
   useEffect(() => {
     setLocalRewardsConfig(rewardsConfig);
@@ -266,13 +281,6 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
     // 10. Thành tựu giới thiệu bạn bè (Affiliate / Chiêu mộ bạn bè)
     else if (m.id === 'm-ach-03' || m.title?.toLowerCase().includes('chiêu mộ') || m.title?.toLowerCase().includes('affiliate') || m.title?.toLowerCase().includes('giới thiệu')) {
       const targetRef = parseTarget(m, 5);
-      // Đếm số lượng người thực tế đã đăng ký qua mã giới thiệu của tài khoản này
-      const realRefSuccess = (usersList || []).filter(u => {
-        if (!currentUser?.id) return false;
-        return String(u.referredBy) === String(currentUser.id) ||
-               (currentUser.refCode && String(u.referredBy) === String(currentUser.refCode)) ||
-               (currentUser.phone && u.referredBy && normalizePhone(u.referredBy) === normalizePhone(currentUser.phone));
-      }).length;
       dynamicProgress = { current: Math.min(realRefSuccess, targetRef), total: targetRef };
       dynamicStatus = realRefSuccess >= targetRef ? 'claimable' : 'in-progress';
     }
@@ -283,6 +291,28 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
       dynamicProgress
     };
   });
+
+  const handleNavigate = (url) => {
+    if (router?.navigate) {
+      router.navigate(url);
+    } else {
+      window.location.href = url;
+    }
+  };
+
+  const handleActionClick = (m) => {
+    const isAffiliate = m.id === 'm-ach-03' || m.title?.toLowerCase().includes('chiêu mộ') || m.title?.toLowerCase().includes('affiliate');
+    if (isAffiliate) {
+      if (!currentUser || currentUser.role === 'guest') {
+        if (showToast) showToast('Vui lòng đăng nhập để nhận link và mã giới thiệu riêng của bạn!', 'info');
+        handleNavigate('/dang-nhap?redirect=/nhiem-vu/thanh-tuu');
+        return;
+      }
+      setShowAffiliateModal(true);
+      return;
+    }
+    handleNavigate(m.link || '/dang-tin');
+  };
 
   const handleClaim = (missionId, reward, title) => {
     const effectiveUid = userId || 'guest';
@@ -480,7 +510,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
                     </button>
                   ) : (
                     <button
-                      onClick={() => navigate(m.link || '/dang-tin')}
+                      onClick={() => handleActionClick(m)}
                       className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
                     >
                       <span>Thực hiện ngay</span>
@@ -493,6 +523,192 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
           })}
         </div>
       </div>
+
+      {/* Modal Hộp thoại Giới thiệu bạn bè (Affiliate Modal) */}
+      {showAffiliateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-100 relative space-y-5 my-8">
+            {/* Nút đóng */}
+            <button
+              onClick={() => setShowAffiliateModal(false)}
+              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition cursor-pointer"
+            >
+              <i className="fa-solid fa-xmark text-sm"></i>
+            </button>
+
+            {/* Header */}
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center text-xl shadow-md shrink-0">
+                <i className="fa-solid fa-users"></i>
+              </div>
+              <div>
+                <span className="text-[11px] font-black uppercase text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full">
+                  Chương trình Affiliate
+                </span>
+                <h3 className="text-lg font-black text-slate-900">Chiêu Mộ 5 Người Bạn Đăng Ký</h3>
+              </div>
+            </div>
+
+            {/* Reward & Progress Box */}
+            <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-700">Tiến độ chiêu mộ:</span>
+                <span className="text-xs font-black text-blue-700 font-mono">
+                  {realRefSuccess} / 5 bạn bè
+                </span>
+              </div>
+              <div className="w-full h-2.5 bg-blue-200/60 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full transition-all duration-500"
+                  style={{ width: `${Math.min(100, (realRefSuccess / 5) * 100)}%` }}
+                ></div>
+              </div>
+              <div className="flex items-center justify-between text-[11px] text-slate-600">
+                <span>🎁 Thưởng: <strong>+300.000đ vào Ví KM</strong></span>
+                <span className="font-bold text-emerald-600">
+                  {realRefSuccess >= 5 ? '🎉 Đã đạt chỉ tiêu!' : `Còn ${Math.max(0, 5 - realRefSuccess)} lượt nữa`}
+                </span>
+              </div>
+            </div>
+
+            {/* Referral Code & Referral Link */}
+            <div className="space-y-3">
+              {/* Mã giới thiệu */}
+              <div>
+                <label className="block text-[11px] font-black uppercase text-slate-600 mb-1.5">
+                  Mã giới thiệu của bạn
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={userRefCode || 'Chưa cập nhật'}
+                    className="flex-1 bg-slate-50 border border-slate-200 text-slate-900 font-mono font-bold text-sm px-3.5 py-2.5 rounded-xl outline-none"
+                  />
+                  <button
+                    onClick={() => {
+                      if (typeof navigator !== 'undefined' && navigator.clipboard && userRefCode) {
+                        navigator.clipboard.writeText(userRefCode);
+                        if (showToast) showToast('Đã sao chép mã giới thiệu!', 'success');
+                      }
+                    }}
+                    className="px-4 py-2.5 bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs rounded-xl transition flex items-center gap-1.5 shrink-0 cursor-pointer"
+                  >
+                    <i className="fa-regular fa-copy"></i>
+                    <span>Sao chép mã</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Link giới thiệu */}
+              <div>
+                <label className="block text-[11px] font-black uppercase text-slate-600 mb-1.5">
+                  Đường dẫn giới thiệu riêng (1 chạm mở trang đăng ký)
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={affiliateLink}
+                    className="flex-1 bg-slate-50 border border-slate-200 text-slate-700 text-xs px-3.5 py-2.5 rounded-xl outline-none truncate font-mono"
+                  />
+                  <button
+                    onClick={() => {
+                      if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                        navigator.clipboard.writeText(affiliateLink);
+                        if (showToast) showToast('Đã sao chép link giới thiệu vào bộ nhớ tạm!', 'success');
+                      }
+                    }}
+                    className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition flex items-center gap-1.5 shrink-0 shadow-sm cursor-pointer"
+                  >
+                    <i className="fa-solid fa-link"></i>
+                    <span>Sao chép link</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Nút chia sẻ nhanh qua Zalo & Facebook */}
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-black uppercase text-slate-600">
+                Chia sẻ nhanh
+              </label>
+              <div className="grid grid-cols-2 gap-2.5">
+                <button
+                  onClick={() => {
+                    const shareMsg = `Tham gia sàn Bất Động Sản cùng mình nhé! Đăng ký nhận ngay quà tặng vào Ví Khuyến Mãi để đăng tin VIP miễn phí: ${affiliateLink}`;
+                    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                      navigator.clipboard.writeText(shareMsg);
+                      if (showToast) showToast('Đã copy lời mời kèm link! Hãy dán vào Zalo để gửi cho bạn bè nhé!', 'success');
+                    }
+                    window.open(`https://zalo.me/share?url=${encodeURIComponent(affiliateLink)}`, '_blank');
+                  }}
+                  className="py-2.5 px-3 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+                >
+                  <i className="fa-solid fa-comment-dots"></i>
+                  <span>Gửi qua Zalo</span>
+                </button>
+                <button
+                  onClick={() => {
+                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(affiliateLink)}`, '_blank');
+                  }}
+                  className="py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
+                >
+                  <i className="fa-brands fa-facebook-f"></i>
+                  <span>Chia sẻ Facebook</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Danh sách bạn bè đã tham gia */}
+            <div className="space-y-2 border-t border-slate-100 pt-4">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                <span>Bạn bè đã đăng ký ({referredFriends.length}/5)</span>
+                <span className="text-emerald-600 text-[11px]">
+                  {referredFriends.length >= 5 ? '🎉 Đủ điều kiện nhận thưởng' : `Cần thêm ${Math.max(0, 5 - referredFriends.length)} người`}
+                </span>
+              </div>
+              {referredFriends.length > 0 ? (
+                <div className="max-h-40 overflow-y-auto space-y-1.5 pr-1">
+                  {referredFriends.map((f, idx) => (
+                    <div key={f.id || idx} className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center text-[10px]">
+                          {idx + 1}
+                        </div>
+                        <div>
+                          <div className="font-bold text-slate-800">{f.name || 'Người dùng mới'}</div>
+                          <div className="text-[10px] text-slate-400 font-mono">
+                            {f.phone ? f.phone.slice(0, 4) + '***' + f.phone.slice(-3) : f.email ? f.email.replace(/(.{2})(.*)(?=@)/, '$1***') : 'Tài khoản thành viên'}
+                          </div>
+                        </div>
+                      </div>
+                      <span className="text-[10px] px-2 py-0.5 rounded-md font-bold bg-emerald-100 text-emerald-700">
+                        {f.status === 'active' || f.emailVerified ? '✓ Đã kích hoạt' : 'Chờ kích hoạt'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-3.5 rounded-xl bg-slate-50 border border-dashed border-slate-200 text-center text-xs text-slate-400">
+                  Chưa có người bạn nào đăng ký qua mã của bạn. Hãy gửi link trên để mời đồng nghiệp ngay!
+                </div>
+              )}
+            </div>
+
+            {/* Cơ chế bảo vệ & Hạn dùng */}
+            <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-[11px] text-amber-900 space-y-1">
+              <div className="font-bold flex items-center gap-1.5">
+                <i className="fa-solid fa-shield-halved text-amber-600"></i>
+                <span>Cơ chế lưu vết Cookie 30 ngày:</span>
+              </div>
+              <p className="text-amber-800 leading-relaxed text-[10px]">
+                Bạn bè bấm vào link sẽ được lưu Cookie trong 30 ngày. Khi họ đăng ký tài khoản thành công, hệ thống tự động ghi nhận cho bạn. Đủ 5 người là bạn nhận ngay +300.000đ vào Ví Khuyến Mãi (hạn 30 ngày).
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
