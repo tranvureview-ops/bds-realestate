@@ -530,12 +530,12 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       ? initialData.bds_membership_packages
       : MEMBERSHIP_PACKAGES;
     const normalPkg = (initialData?.bds_vip_packages || VIP_PACKAGES).find(p => p.id === 'normal');
-    const defaultNormalPrice = Number(normalPkg?.rates?.[60] !== undefined && normalPkg.rates[60] !== 0 ? normalPkg.rates[60] : (normalPkg?.publishPrice ?? 5000));
+    const defaultNormalPrice = Number(normalPkg?.rates?.[60] !== undefined ? normalPkg.rates[60] : (normalPkg?.publishPrice ?? 0));
     return rawPackages.map(pkg => ({
       ...pkg,
       vouchersPerCycle: {
         ...pkg.vouchersPerCycle,
-        normalPublishDiscount: (pkg.vouchersPerCycle?.normalPublishDiscount === 35000 || pkg.vouchersPerCycle?.normalPublishDiscount === 0 || !pkg.vouchersPerCycle?.normalPublishDiscount)
+        normalPublishDiscount: (!pkg.vouchersPerCycle?.normalPublishDiscount || pkg.vouchersPerCycle?.normalPublishDiscount === 35000)
           ? defaultNormalPrice
           : Number(pkg.vouchersPerCycle?.normalPublishDiscount)
       },
@@ -1271,12 +1271,12 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         }
         if (Array.isArray(db.bds_membership_packages)) {
           const normalPkg = (db.bds_vip_packages || vipPackages || []).find(p => p.id === 'normal');
-          const defaultNormalPrice = Number(normalPkg?.rates?.[60] !== undefined && normalPkg.rates[60] !== 0 ? normalPkg.rates[60] : (normalPkg?.publishPrice ?? 5000));
+          const defaultNormalPrice = Number(normalPkg?.rates?.[60] !== undefined ? normalPkg.rates[60] : (normalPkg?.publishPrice ?? 0));
           setMembershipPackages(db.bds_membership_packages.map(pkg => ({
             ...pkg,
             vouchersPerCycle: {
               ...pkg.vouchersPerCycle,
-              normalPublishDiscount: (pkg.vouchersPerCycle?.normalPublishDiscount === 35000 || pkg.vouchersPerCycle?.normalPublishDiscount === 0 || !pkg.vouchersPerCycle?.normalPublishDiscount)
+              normalPublishDiscount: (!pkg.vouchersPerCycle?.normalPublishDiscount || pkg.vouchersPerCycle?.normalPublishDiscount === 35000)
                 ? defaultNormalPrice
                 : Number(pkg.vouchersPerCycle?.normalPublishDiscount)
             },

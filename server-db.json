@@ -3316,19 +3316,19 @@
       "name": "Tin Thường",
       "level": 4,
       "rates": {
-        "15": 5000,
-        "30": 3750,
+        "15": 0,
+        "30": 0,
         "60": 0
       },
       "minDays": 60,
       "tagText": null,
       "features": [
         "Vị trí hiển thị: Nằm sau tất cả các phân hạng Tin VIP (Hiển thị dưới cùng)",
-        "(*) Hàng đợi tiêu chuẩn FIFO: Tự động xuất bản trong 1 tiếng (hoặc BQT duyệt sớm)",
-        "Phí đăng tin tiêu chuẩn: 35.000 đ/lần (Hội viên áp dụng Voucher giảm 35.000 đ còn 0 đ)",
-        "Phí đẩy tin làm mới: 10.000 đ/lần (Hội viên áp dụng Voucher giảm 10.000 đ còn 0 đ)",
-        "Đầy đủ thông tin liên hệ, hình ảnh và vị trí bản đồ BĐS",
-        "Phù hợp tin đăng dài hạn, tiết kiệm chi phí tối đa (chỉ từ 2.330 đ/ngày)"
+        "(*) Duyệt tự động tiêu chuẩn: Kích hoạt sau 5 - 15 phút (hoặc BQT duyệt sớm)",
+        "Đăng tin hoàn toàn MIỄN PHÍ (thời hạn hiển thị lên đến 60 ngày)",
+        "Giới hạn đăng miễn phí: 3 tin / ngày / tài khoản",
+        "Phí đẩy tin làm mới: 400 đ/lần để đưa tin lên top danh sách",
+        "Đầy đủ thông tin liên hệ, hình ảnh và vị trí bản đồ BĐS"
       ],
       "hasNoAds": false,
       "tagClass": "bg-slate-500 text-white",
@@ -3338,11 +3338,11 @@
       "badgeColor": "bg-slate-200 text-slate-700",
       "titleClass": "text-slate-800 font-medium hover:text-blue-600",
       "borderColor": "border-slate-200",
-      "pricePerDay": 5000,
+      "pricePerDay": 0,
       "recommended": false,
       "approvalMode": "random",
       "approvalType": "random_fifo",
-      "publishPrice": 35000,
+      "publishPrice": 0,
       "approvalBadge": "Duyệt tự động (5 - 15 phút)",
       "approvalLabel": "Duyệt tự động ngẫu nhiên (5 - 15 phút)",
       "dailyFreeLimit": 3,
@@ -3408,7 +3408,7 @@
         "vipVouchers": 1,
         "normalBumpDiscount": 400,
         "normalBumpVouchers": 400,
-        "normalPublishDiscount": 5000,
+        "normalPublishDiscount": 0,
         "normalPublishVouchers": 30
       },
       "allowFutureStartDate": false,
@@ -3464,7 +3464,7 @@
         "vipVouchers": 3,
         "normalBumpDiscount": 400,
         "normalBumpVouchers": 1000,
-        "normalPublishDiscount": 5000,
+        "normalPublishDiscount": 0,
         "normalPublishVouchers": 60
       },
       "allowFutureStartDate": true,
@@ -3521,7 +3521,7 @@
         "vipVouchers": 5,
         "normalBumpDiscount": 400,
         "normalBumpVouchers": 2500,
-        "normalPublishDiscount": 5000,
+        "normalPublishDiscount": 0,
         "normalPublishVouchers": 99
       },
       "allowFutureStartDate": true,

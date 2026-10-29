@@ -68,13 +68,13 @@ export default function VipPricingPage() {
       : [60];
     const activeDuration = normalAllowed.includes(60) ? 60 : normalAllowed[0];
 
-    // Đơn giá bán lẻ Tin Thường (lấy trực tiếp từ Bảng Giá Tin Đăng mốc 60 ngày = 5.000 đ):
+    // Đơn giá bán lẻ Tin Thường (lấy trực tiếp từ Bảng Giá Tin Đăng mốc 60 ngày = 0 đ miễn phí):
     const configuredRate = normalRateConfig?.rates?.[activeDuration] ?? normalPkg?.rates?.[activeDuration];
-    const normalDailyRate = (configuredRate !== undefined && !isNaN(Number(configuredRate)) && Number(configuredRate) !== 0)
+    const normalDailyRate = (configuredRate !== undefined && !isNaN(Number(configuredRate)))
       ? Number(configuredRate)
-      : (Number(normalRateConfig?.publishPrice ?? normalPkg?.publishPrice) || 5000);
+      : (Number(normalRateConfig?.publishPrice ?? normalPkg?.publishPrice) || 0);
 
-    const normalUnitPrice = normalDailyRate > 0 ? normalDailyRate : 5000;
+    const normalUnitPrice = normalDailyRate;
     const totalNormalRetail = normalCount * normalUnitPrice;
 
     const bumpUnitPrice = currentBumpPrice;

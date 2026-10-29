@@ -92,13 +92,13 @@ export default function MembershipPage() {
   // Lấy đơn giá giảm trừ voucher từ gói đang dùng hoặc cấu hình chung 3 gói
   const activePackage = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId) || membershipPackages?.[0];
   const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
-  const defaultNormalPrice = Number(normalPkg?.rates?.[60] !== undefined && normalPkg.rates[60] !== 0 ? normalPkg.rates[60] : (normalPkg?.publishPrice ?? 5000));
-  const commonPublishDiscount = (activePackage?.vouchersPerCycle?.normalPublishDiscount && activePackage?.vouchersPerCycle?.normalPublishDiscount !== 35000 && activePackage?.vouchersPerCycle?.normalPublishDiscount !== 0)
+  const defaultNormalPrice = Number(normalPkg?.rates?.[60] !== undefined ? normalPkg.rates[60] : (normalPkg?.publishPrice ?? 0));
+  const commonPublishDiscount = (activePackage?.vouchersPerCycle?.normalPublishDiscount && activePackage?.vouchersPerCycle?.normalPublishDiscount !== 35000)
     ? Number(activePackage.vouchersPerCycle.normalPublishDiscount)
     : defaultNormalPrice;
-  const commonBumpDiscount = activePackage?.vouchersPerCycle?.normalBumpDiscount ?? 10000;
+  const commonBumpDiscount = activePackage?.vouchersPerCycle?.normalBumpDiscount ?? 400;
   const commonVipDiscount = (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount 
-    ?? (activePackage?.vouchersPerCycle?.vipDiscount || 400000);
+    ?? (activePackage?.vouchersPerCycle?.vipDiscount || 50000);
 
   const formatDiscountK = (val) => {
     const num = Number(val) || 0;

@@ -261,7 +261,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const isMemberExpired = Boolean(currentUser?.membership && !isMemberActive);
   const memberPackageObj = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
   const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
-  const defaultNormalPrice = Number(normalPkg?.rates?.[60] !== undefined && normalPkg.rates[60] !== 0 ? normalPkg.rates[60] : (normalPkg?.publishPrice ?? 5000));
+  const defaultNormalPrice = Number(normalPkg?.rates?.[60] !== undefined ? normalPkg.rates[60] : (normalPkg?.publishPrice ?? 0));
   const normalPublishVoucherDiscount = memberPackageObj?.vouchersPerCycle?.normalPublishDiscount || (membershipPackages?.[0]?.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalPrice);
   const vipVoucherDiscount = memberPackageObj?.vouchersPerCycle?.vipDiscount || (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount || 400000;
 
@@ -535,9 +535,9 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const ratesConfig = useMemo(() => getEffectiveListingRates(activeVipPackages, paymentConfig, systemConfig), [activeVipPackages, paymentConfig, systemConfig]);
   const bdsConfig = ratesConfig?.[selectedVipId] || ratesConfig?.['normal'] || LISTING_RATES['normal'];
   const isNormal60 = selectedVipId === 'normal' && listingDays === 60;
-  const normal60Price = bdsConfig?.rates?.[60] !== undefined && Number(bdsConfig.rates[60]) !== 0
+  const normal60Price = bdsConfig?.rates?.[60] !== undefined
     ? Number(bdsConfig.rates[60])
-    : (Number(bdsConfig?.publishPrice) || 5000);
+    : (Number(bdsConfig?.publishPrice) || 0);
   const dailyRate = isNormal60
     ? Math.round(normal60Price / 60)
     : (bdsConfig?.rates?.[listingDays] ?? bdsConfig?.rates?.[15] ?? bdsConfig?.pricePerDay ?? 0);

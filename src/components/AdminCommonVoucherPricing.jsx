@@ -18,18 +18,18 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
     ? normalPkg.allowedDurations
     : [60];
   const activeNormalDuration = normalAllowedDurations.includes(60) ? 60 : normalAllowedDurations[0];
-  const normalPriceFromTable = (normalPkg?.rates?.[activeNormalDuration] !== undefined && normalPkg.rates[activeNormalDuration] !== 0)
+  const normalPriceFromTable = normalPkg?.rates?.[activeNormalDuration] !== undefined
     ? Number(normalPkg.rates[activeNormalDuration])
-    : (Number(normalPkg?.publishPrice) || 5000);
+    : (Number(normalPkg?.publishPrice) || 0);
 
-  const bumpPriceFromTable = Number(bumpServicePrice ?? 10000);
+  const bumpPriceFromTable = Number(bumpServicePrice ?? 400);
   const diamondPkg = (vipPackages || []).find(p => p.id === 'vip-diamond');
-  const diamondPriceFromTable = diamondPkg?.rates?.[7] ? (diamondPkg.rates[7] * 7) : 700000;
+  const diamondPriceFromTable = diamondPkg?.rates?.[7] ? (diamondPkg.rates[7] * 7) : (32000 * 7);
 
   // Lấy đơn giá hiện tại từ danh sách gói hoặc đồng bộ theo Bảng Giá Tin Đăng
   const getInitialPrices = () => {
     const rawPub = membershipPackages[0]?.vouchersPerCycle?.normalPublishDiscount;
-    const pubVal = (rawPub !== undefined && rawPub !== null && rawPub !== 35000 && rawPub !== 0)
+    const pubVal = (rawPub !== undefined && rawPub !== null && rawPub !== 35000)
       ? Number(rawPub)
       : normalPriceFromTable;
 
@@ -38,7 +38,7 @@ export default function AdminCommonVoucherPricing({ className = '' }) {
       ? Number(rawBump)
       : bumpPriceFromTable;
 
-    const vipVal = membershipPackages.find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount ?? 400000;
+    const vipVal = membershipPackages.find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount ?? 50000;
     return {
       normalPublishDiscount: pubVal,
       normalBumpDiscount: bumpVal,

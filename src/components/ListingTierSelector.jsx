@@ -82,9 +82,9 @@ export const LISTING_RATES = {
     approvalColor: 'text-slate-600 bg-slate-100 border-slate-200',
     allowedDurations: [60],
     rates: {
-      15: 5000,   // Base
-      30: 3750,   // -25%
-      60: 0       // Đăng tin thường 60 ngày
+      15: 0,   // Base
+      30: 0,   // -25%
+      60: 0    // Đăng tin thường 60 ngày MIỄN PHÍ (0 đ)
     }
   }
 };
@@ -122,7 +122,7 @@ export function getEffectiveListingRates(customVipPackages, paymentConfig = null
       price10 = baseDaily;
       price15 = (pkg.rates?.[15] !== undefined && !isNaN(Number(pkg.rates[15]))) ? Math.max(0, Number(pkg.rates[15])) : baseDaily;
       price30 = (pkg.rates?.[30] !== undefined && !isNaN(Number(pkg.rates[30]))) ? Math.max(0, Number(pkg.rates[30])) : Math.round(baseDaily * discount30Multiplier);
-      price60 = (pkg.rates?.[60] !== undefined && !isNaN(Number(pkg.rates[60])) && Number(pkg.rates[60]) !== 0) ? Math.max(0, Number(pkg.rates[60])) : (Number(pkg.publishPrice) || 5000);
+      price60 = (pkg.rates?.[60] !== undefined && !isNaN(Number(pkg.rates[60]))) ? Math.max(0, Number(pkg.rates[60])) : (Number(pkg.publishPrice) || 0);
     } else {
       // Các gói VIP (Kim Cương, Vàng, Bạc):
       price5 = (pkg.rates?.[5] !== undefined && !isNaN(Number(pkg.rates[5]))) ? Math.max(0, Number(pkg.rates[5])) : baseDaily;
@@ -451,9 +451,9 @@ export default function ListingTierSelector({
   }, [allowedDurations, selectedDays, onSelectDays, isNormal]);
 
   const isNormal60 = isNormal && selectedDays === 60;
-  const normal60Price = currentConfig?.rates?.[60] !== undefined && Number(currentConfig.rates[60]) !== 0
-    ? Number(currentConfig.rates[60])
-    : (Number(currentConfig?.publishPrice) || 5000);
+  const normal60Price = currentConfig?.rates?.[60] !== undefined && !isNaN(Number(currentConfig.rates[60]))
+    ? Math.max(0, Number(currentConfig.rates[60]))
+    : (Number(currentConfig?.publishPrice) || 0);
   const baseRate = currentConfig?.rates?.[7] ?? currentConfig?.rates?.[15] ?? currentConfig?.pricePerDay ?? 0;
   const currentDailyRate = isNormal60
     ? Math.round(normal60Price / 60)

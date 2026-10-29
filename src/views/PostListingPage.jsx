@@ -10,7 +10,7 @@ export default function PostListingPage() {
   const { navigate } = useRouter();
   const { currentUser, systemConfig, vipPackages } = useRealEstate();
   const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
-  const normalPrice = Number(normalPkg?.rates?.[60] !== undefined ? normalPkg.rates[60] : (normalPkg?.publishPrice ?? 5000));
+  const normalPrice = Number(normalPkg?.rates?.[60] !== undefined ? normalPkg.rates[60] : (normalPkg?.publishPrice ?? 0));
   const isNormalFree = normalPrice === 0;
 
   return (
