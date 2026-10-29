@@ -144,7 +144,7 @@ export default function ArticleTreasureBox({ property }) {
                 Săn Kho Báu BĐS
               </span>
               <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white/20 text-white">
-                Hạn mức hôm nay: <strong>{quota.count}/3 rương</strong>
+                Hạn mức hôm nay: <strong>{quota.count}/{dailyLimit} rương</strong>
               </span>
             </div>
 
@@ -152,7 +152,7 @@ export default function ArticleTreasureBox({ property }) {
               {hasClaimedThisArticle 
                 ? 'Bạn đã mở rương bài viết này thành công!'
                 : quota.isLimitReached
-                ? 'Bạn đã nhận đủ 3/3 rương kho báu hôm nay!'
+                ? `Bạn đã nhận đủ ${dailyLimit}/${dailyLimit} rương kho báu hôm nay!`
                 : 'Bạn vừa tìm thấy 1 Rương Kho Báu trong bài viết này!'}
             </h4>
 
@@ -160,7 +160,7 @@ export default function ArticleTreasureBox({ property }) {
               {hasClaimedThisArticle
                 ? 'Tiền thưởng đã được cộng vào Ví Khuyến Mãi. Hãy tiếp tục xem tin khác để săn rương tiếp theo!'
                 : quota.isLimitReached
-                ? 'Hẹn gặp lại bạn vào ngày mai để tiếp tục săn 3 rương nhận tiền vào Ví Khuyến Mãi nhé.'
+                ? `Hẹn gặp lại bạn vào ngày mai để tiếp tục săn ${dailyLimit} rương nhận tiền vào Ví Khuyến Mãi nhé.`
                 : `Mở rương ngẫu nhiên nhận từ ${minAmount.toLocaleString('vi-VN')}đ đến ${maxAmount.toLocaleString('vi-VN')}đ tiền tươi cộng thẳng vào Ví Khuyến Mãi.`}
             </p>
           </div>
@@ -234,7 +234,7 @@ export default function ArticleTreasureBox({ property }) {
             </div>
 
             <div className="text-xs text-slate-500">
-              Tiến độ hôm nay: <strong>{quota.count}/3 rương</strong>
+              Tiến độ hôm nay: <strong>{quota.count}/{dailyLimit} rương</strong>
             </div>
 
             <button

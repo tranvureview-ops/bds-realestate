@@ -210,6 +210,21 @@ export const AVAILABLE_ICON_COLORS = [
   { label: 'Trắng Sáng', value: 'text-white', bg: 'bg-white' },
 ];
 
+// Hàm làm sạch triệt để dữ liệu đường dẫn footer (loại bỏ '__custom__' nếu có từ phiên bản trước)
+const sanitizeFooterConfig = (cfg) => {
+  if (!cfg) return cfg;
+  const cleanList = (list) => (list || []).map(item => ({
+    ...item,
+    url: item.url === '__custom__' ? '' : (item.url || '')
+  }));
+  return {
+    ...cfg,
+    col2Links: cleanList(cfg.col2Links),
+    col3Links: cleanList(cfg.col3Links),
+    policyLinks: cleanList(cfg.policyLinks)
+  };
+};
+
 export default function AdminFooterConfigManager() {
   const {
     footerConfig,
@@ -219,14 +234,14 @@ export default function AdminFooterConfigManager() {
     showToast
   } = useRealEstate();
 
-  const [formData, setFormData] = useState(() => ({
+  const [formData, setFormData] = useState(() => sanitizeFooterConfig({
     ...DEFAULT_FOOTER_CONFIG,
     ...(footerConfig || {})
   }));
 
   useEffect(() => {
     if (footerConfig && Object.keys(footerConfig).length > 0) {
-      setFormData(prev => ({
+      setFormData(prev => sanitizeFooterConfig({
         ...prev,
         ...footerConfig
       }));
@@ -695,7 +710,7 @@ export default function AdminFooterConfigManager() {
                       <label className="block text-[10px] font-semibold text-slate-400 mb-1">Đường Dẫn URL:</label>
                       <input
                         type="text"
-                        value={link.url || ''}
+                        value={link.url === '__custom__' ? '' : (link.url || '')}
                         onChange={(e) => handleUpdateCol2Link(idx, 'url', e.target.value)}
                         placeholder="/nha-dat-ban"
                         className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-300 font-mono text-xs outline-none focus:border-teal-500"
@@ -824,7 +839,7 @@ export default function AdminFooterConfigManager() {
                       <label className="block text-[10px] font-semibold text-slate-400 mb-1">Đường Dẫn URL:</label>
                       <input
                         type="text"
-                        value={link.url || ''}
+                        value={link.url === '__custom__' ? '' : (link.url || '')}
                         onChange={(e) => handleUpdateCol3Link(idx, 'url', e.target.value)}
                         placeholder="/ho-so-ca-nhan"
                         className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-300 font-mono text-xs outline-none focus:border-amber-500"
@@ -1053,7 +1068,7 @@ export default function AdminFooterConfigManager() {
                       <label className="block text-[10px] font-semibold text-slate-400 mb-1">Đường Dẫn URL:</label>
                       <input
                         type="text"
-                        value={policy.url || ''}
+                        value={policy.url === '__custom__' ? '' : (policy.url || '')}
                         onChange={(e) => handleUpdatePolicyLink(idx, 'url', e.target.value)}
                         placeholder="/quy-che-hoat-dong"
                         className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-300 font-mono text-xs outline-none focus:border-emerald-500"

@@ -93,7 +93,8 @@ export default function PropertyDetailPage({ initialProperty = null, slug = '', 
         canonicalTag.setAttribute('rel', 'canonical');
         document.head.appendChild(canonicalTag);
       }
-      canonicalTag.setAttribute('href', `https://datbiendanang.vn${getPropertyPermalink(targetProperty)}`);
+      const domain = (typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL || '')).replace(/\/+$/, '');
+      canonicalTag.setAttribute('href', `${domain}${getPropertyPermalink(targetProperty)}`);
 
       return () => {
         if (scriptTag && scriptTag.parentNode) {
@@ -152,7 +153,7 @@ export default function PropertyDetailPage({ initialProperty = null, slug = '', 
               <div>
                 <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                   <i className="fa-solid fa-fire text-rose-500"></i>
-                  Gợi ý bất động sản nổi bật tại Đà Nẵng
+                  Gợi ý bất động sản nổi bật dành cho bạn
                 </h3>
                 <p className="text-xs text-slate-500">Các tin đăng được xác thực và quan tâm nhiều nhất hôm nay</p>
               </div>

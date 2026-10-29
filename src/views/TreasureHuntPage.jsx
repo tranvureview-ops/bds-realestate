@@ -3,11 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
-import { getDailyQuotaStatus, getDailyClaims } from '../services/treasureHuntService';
-import { getPropertyPermalink } from '../utils/permalink';
+import { getDailyQuotaStatus, getDailyClaims, hasClaimedPropertyToday } from '../services/treasureHuntService';
+import { getPropertyPermalink, SITE_URL } from '../utils/permalink';
+import ArticleTreasureBox from '../components/ArticleTreasureBox';
 
 export default function TreasureHuntPage() {
-  const { currentUser, properties, rewardsConfig } = useRealEstate();
+  const { currentUser, properties, rewardsConfig, systemConfig } = useRealEstate();
   const tConfig = rewardsConfig?.treasureHuntConfig;
   const dailyLimit = Number(tConfig?.dailyLimit || 3);
   const minAmount = Number(tConfig?.minAmount || 2000);
@@ -27,19 +28,21 @@ export default function TreasureHuntPage() {
       setQuota(getDailyQuotaStatus(userId, dailyLimit));
       setClaimsToday(getDailyClaims(userId));
     }
-  }, [userId, dailyLimit]);
+  }, [userId, dailyLimit, bonusBal]);
 
   const totalEarnedToday = claimsToday.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
 
   // Lọc ra các bài viết tin đăng BĐS nổi bật để người dùng khám phá săn rương
   const sampleArticles = (properties || []).slice(0, 6);
 
+  const baseUrl = (typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL || 'https://bds-realestate.vercel.app')).replace(/\/+$/, '');
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Game',
     'name': 'Săn Hộp Quà Kho Báu Trong Bài Viết BĐS',
-    'description': 'Khám phá các bài viết tin rao nhà đất để tìm rương kho báu, nhận tiền thưởng ngẫu nhiên từ 2.000đ đến 20.000đ cộng trực tiếp vào Ví Khuyến Mãi (Tối đa 3 hộp/ngày).',
-    'url': 'https://datbiendanang.vn/trung-tam-phan-thuong/san-kho-bau-bds/'
+    'description': `Khám phá các bài viết tin rao nhà đất để tìm rương kho báu, nhận tiền thưởng ngẫu nhiên từ ${minAmount.toLocaleString('vi-VN')}đ đến ${maxAmount.toLocaleString('vi-VN')}đ cộng trực tiếp vào Ví Khuyến Mãi (Tối đa ${dailyLimit} hộp/ngày).`,
+    'url': `${baseUrl}/trung-tam-phan-thuong/san-kho-bau-bds/`
   };
 
   return (
@@ -106,24 +109,24 @@ export default function TreasureHuntPage() {
                 <i className="fa-solid fa-box-open"></i>
               </div>
               <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800">
-                1 Ngày 3 Hộp
+                1 Ngày {dailyLimit} Hộp
               </span>
             </div>
             <div>
               <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tiến độ hôm nay</div>
               <div className="text-2xl font-black text-slate-900 mt-0.5">
-                {quota.count} / 3 <span className="text-sm font-semibold text-slate-500">hộp</span>
+                {quota.count} / {dailyLimit} <span className="text-sm font-semibold text-slate-500">hộp</span>
               </div>
             </div>
             {/* Progress bar */}
             <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-500"
-                style={{ width: `${(quota.count / 3) * 100}%` }}
+                style={{ width: `${dailyLimit > 0 ? Math.min(100, (quota.count / dailyLimit) * 100) : 0}%` }}
               ></div>
             </div>
             <div className="text-[11px] text-slate-500">
-              {quota.isLimitReached ? '🎉 Bạn đã săn đủ 3 hộp quà hôm nay!' : `Còn lại ${quota.remaining} hộp quà có thể mở hôm nay.`}
+              {quota.isLimitReached ? `🎉 Bạn đã săn đủ ${dailyLimit} hộp quà hôm nay!` : `Còn lại ${quota.remaining} hộp quà có thể mở hôm nay.`}
             </div>
           </div>
 
@@ -229,14 +232,35 @@ export default function TreasureHuntPage() {
                 Tiêu Dùng Tiền Thưởng
               </div>
               <div className="text-xl font-black text-slate-900">
-                Đẩy Tin 400đ
+                Đăng & Đẩy Tin
               </div>
               <div className="text-[11px] text-slate-500">
-                Dùng ngay để Đẩy tin lên TOP hoặc đăng tin VIP
+                Dùng ngay tiền thưởng trong Ví KM để Đẩy tin lên TOP hoặc đăng tin VIP
               </div>
             </div>
           </div>
         </div>
+
+        {/* Live Interactive Box: Trải nghiệm mở rương trực tiếp tại trang này */}
+        {sampleArticles[0] && (
+          <div className="space-y-3 bg-white p-6 rounded-3xl border border-slate-200/80 shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div>
+                <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+                  <i className="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+                  Trải Nghiệm Mở Rương Trực Tiếp
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Bạn có thể trải nghiệm mở rương bài viết tiêu biểu ngay tại đây, hoặc bấm vào các tin bên dưới:
+                </p>
+              </div>
+              <span className="text-xs font-bold text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+                {sampleArticles[0].title?.slice(0, 40)}...
+              </span>
+            </div>
+            <ArticleTreasureBox property={sampleArticles[0]} />
+          </div>
+        )}
 
         {/* Claims History Today */}
         {claimsToday.length > 0 && (
@@ -274,10 +298,10 @@ export default function TreasureHuntPage() {
             <div>
               <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
                 <i className="fa-solid fa-fire text-red-500"></i>
-                Bài Viết Đang Chứa Hộp Quà Hôm Nay
+                Danh Sách Bài Viết Đang Chứa Hộp Quà Hôm Nay
               </h3>
               <p className="text-xs text-slate-500">
-                Bấm vào bài viết bên dưới, cuộn xuống phần mô tả để mở rương kho báu:
+                Bấm vào từng bài viết bên dưới, cuộn xuống phần mô tả để mở rương kho báu:
               </p>
             </div>
             <Link to="/nha-dat-ban" className="text-xs font-bold text-emerald-600 hover:underline">
@@ -288,6 +312,7 @@ export default function TreasureHuntPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {sampleArticles.map(p => {
               const link = getPropertyPermalink(p);
+              const isClaimed = userId ? hasClaimedPropertyToday(userId, p.id) : false;
               return (
                 <Link
                   key={p.id}
@@ -300,9 +325,15 @@ export default function TreasureHuntPage() {
                       alt={p.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <span className="absolute top-2.5 left-2.5 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500 text-white shadow-sm flex items-center gap-1">
-                      <i className="fa-solid fa-gift"></i> Có Rương Ẩn
-                    </span>
+                    {isClaimed ? (
+                      <span className="absolute top-2.5 left-2.5 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-600 text-white shadow-sm flex items-center gap-1">
+                        <i className="fa-solid fa-circle-check"></i> Đã Mở Hôm Nay
+                      </span>
+                    ) : (
+                      <span className="absolute top-2.5 left-2.5 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-500 text-white shadow-sm flex items-center gap-1">
+                        <i className="fa-solid fa-gift"></i> Có Rương (+{minAmount.toLocaleString('vi-VN')}đ - +{maxAmount.toLocaleString('vi-VN')}đ)
+                      </span>
+                    )}
                     <span className="absolute bottom-2.5 right-2.5 text-[11px] font-bold px-2 py-0.5 rounded bg-black/60 text-white">
                       {p.price}
                     </span>
@@ -314,11 +345,11 @@ export default function TreasureHuntPage() {
                     </h4>
                     <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
                       <i className="fa-solid fa-location-dot text-rose-500 text-[10px]"></i>
-                      <span className="truncate">{p.district || p.location || 'Đà Nẵng'}</span>
+                      <span className="truncate">{p.district || p.location || systemConfig?.city || 'Toàn quốc'}</span>
                     </div>
 
                     <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-amber-600">
-                      <span>Khám phá & Săn rương</span>
+                      <span>{isClaimed ? 'Đã nhận thưởng • Xem bài viết' : 'Khám phá & Săn rương'}</span>
                       <i className="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
                     </div>
                   </div>

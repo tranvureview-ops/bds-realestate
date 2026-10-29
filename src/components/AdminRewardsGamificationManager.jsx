@@ -46,16 +46,6 @@ export default function AdminRewardsGamificationManager() {
     }
   };
 
-  // 2. Khôi phục mặc định
-  const handleResetDefault = async () => {
-    if (confirm('Bạn có chắc chắn muốn khôi phục toàn bộ Khuyến mãi, Nhiệm vụ và Phần thưởng về mặc định không?')) {
-      if (resetRewardsConfig) {
-        await resetRewardsConfig();
-      }
-      setFormData(DEFAULT_REWARDS_CONFIG);
-    }
-  };
-
   // === XỬ LÝ KHUYẾN MÃI ===
   const handleSavePromo = (e) => {
     e.preventDefault();
@@ -199,16 +189,8 @@ export default function AdminRewardsGamificationManager() {
         <div className="flex items-center gap-2.5 w-full md:w-auto">
           <button
             type="button"
-            onClick={handleResetDefault}
-            className="px-4 py-2.5 rounded-xl border border-slate-700 hover:bg-slate-800 text-slate-300 font-bold text-xs transition cursor-pointer"
-          >
-            <i className="fa-solid fa-arrow-rotate-left mr-1.5"></i>
-            Khôi phục mặc định
-          </button>
-          <button
-            type="button"
             onClick={handleSaveAll}
-            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs transition shadow-lg shadow-emerald-900/30 cursor-pointer flex items-center gap-2"
+            className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs transition shadow-lg shadow-emerald-900/30 cursor-pointer flex items-center justify-center gap-2"
           >
             <i className="fa-solid fa-floppy-disk"></i>
             <span>Lưu Toàn Bộ Cấu Hình</span>
