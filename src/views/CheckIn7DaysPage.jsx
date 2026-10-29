@@ -284,28 +284,40 @@ export default function CheckIn7DaysPage() {
 
           {/* Action Button */}
           <div className="pt-2 text-center">
-            <button
-              disabled={(isLoggedIn && checkedToday) || !isEnabled}
-              onClick={handleCheckIn}
-              className={`w-full sm:w-auto px-10 py-4 rounded-2xl text-sm font-black transition-all flex items-center justify-center gap-2 mx-auto shadow-lg cursor-pointer ${
-                !isLoggedIn
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200'
-                  : checkedToday
-                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 cursor-not-allowed'
-                  : !isEnabled
-                  ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
-                  : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-200 animate-pulse hover:scale-102'
-              }`}
-            >
-              <i className={`fa-solid ${!isLoggedIn ? 'fa-arrow-right-to-bracket text-base' : checkedToday ? 'fa-circle-check text-base' : 'fa-calendar-check text-base'}`}></i>
-              <span>
-                {!isLoggedIn
-                  ? 'Đăng nhập tài khoản để điểm danh'
-                  : checkedToday
-                  ? '✅ Bạn đã điểm danh hôm nay (Quay lại vào ngày mai)'
-                  : `Điểm danh Ngày ${nextDayToClaim} nhận +${nextReward.toLocaleString('vi-VN')}đ ngay`}
-              </span>
-            </button>
+            {isLoggedIn && checkedToday ? (
+              <div className="inline-flex flex-col sm:flex-row items-center gap-3.5 px-6 sm:px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 border border-emerald-200/80 text-emerald-950 shadow-sm mx-auto">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-base shadow-sm shrink-0">
+                  <i className="fa-solid fa-check"></i>
+                </div>
+                <div className="text-center sm:text-left">
+                  <p className="text-sm font-black text-emerald-950">
+                    Bạn đã điểm danh thành công hôm nay!
+                  </p>
+                  <p className="text-xs text-emerald-700 font-medium mt-0.5">
+                    Hãy quay lại vào ngày mai để nhận tiếp <strong className="font-bold text-emerald-900">+{nextReward.toLocaleString('vi-VN')}đ</strong> (Ngày {nextDayToClaim})
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <button
+                disabled={!isEnabled}
+                onClick={handleCheckIn}
+                className={`w-full sm:w-auto px-10 py-4 rounded-2xl text-sm font-black transition-all flex items-center justify-center gap-2.5 mx-auto shadow-lg cursor-pointer ${
+                  !isLoggedIn
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200 hover:scale-102'
+                    : !isEnabled
+                    ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-500/25 animate-pulse hover:scale-102'
+                }`}
+              >
+                <i className={`fa-solid ${!isLoggedIn ? 'fa-arrow-right-to-bracket text-base' : 'fa-calendar-check text-base'}`}></i>
+                <span>
+                  {!isLoggedIn
+                    ? 'Đăng nhập tài khoản để điểm danh'
+                    : `Điểm danh Ngày ${nextDayToClaim} nhận +${nextReward.toLocaleString('vi-VN')}đ ngay`}
+                </span>
+              </button>
+            )}
           </div>
         </div>
 

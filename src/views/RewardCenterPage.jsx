@@ -353,11 +353,11 @@ export default function RewardCenterPage() {
                   !isLoggedIn
                     ? 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer shadow-blue-200'
                     : checkedToday 
-                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 cursor-not-allowed'
-                    : 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-emerald-200'
+                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/90 cursor-default font-semibold'
+                    : 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-emerald-200 hover:scale-102'
                 }`}
               >
-                <i className={`fa-solid ${!isLoggedIn ? 'fa-arrow-right-to-bracket' : checkedToday ? 'fa-check' : 'fa-calendar-check'}`}></i>
+                <i className={`fa-solid ${!isLoggedIn ? 'fa-arrow-right-to-bracket' : checkedToday ? 'fa-circle-check text-emerald-600' : 'fa-calendar-check'}`}></i>
                 <span>
                   {!isLoggedIn 
                     ? 'Đăng nhập để điểm danh' 
