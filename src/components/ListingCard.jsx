@@ -52,6 +52,14 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
   const authorName = authorUser?.name || property.author?.name || property.contactName || 'Người đăng tin';
   const authorTitle = `${authorRolePrefix} ${authorName}`;
 
+  const isVerifiedAuthor = Boolean(
+    authorUser?.isVerified ?? 
+    property.author?.isVerified ?? 
+    authorUser?.kycStatus === 'verified' ?? 
+    property.author?.kycStatus === 'verified' ?? 
+    false
+  );
+
   const safeAuthor = {
     id: authorUser?.id || property.author?.id || null,
     name: authorName,
@@ -61,8 +69,8 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
     phone: displayAuthorPhone,
     zalo: (authorUser?.phone || property.author?.zalo || property.author?.phone || property.contactPhone || '0908123456').replace(/\s+/g, ''),
     avatar: authorUser?.avatar || property.author?.avatar || '/avatars/ai-preset-2.jpg',
-    title: authorUser?.membership?.packageName || (isBroker ? (authorUser?.roleName || 'Môi Giới BĐS') : 'Khách Tìm Mua'),
-    isVerified: authorUser?.isVerified ?? property.author?.isVerified ?? false
+    title: isVerifiedAuthor ? 'Môi giới chuyên nghiệp' : '',
+    isVerified: isVerifiedAuthor
   };
 
   const isFav = favorites.includes(property.id);
@@ -266,9 +274,11 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
                     <i className="fa-solid fa-circle-check text-blue-500 text-[11px] shrink-0" title={`${safeAuthor.fullNameWithRole} đã xác thực`}></i>
                   )}
                 </div>
-                <div className="text-[10px] text-slate-400 truncate" title={safeAuthor.title}>
-                  {safeAuthor.title}
-                </div>
+                {safeAuthor.title ? (
+                  <div className="text-[10px] text-slate-400 truncate" title={safeAuthor.title}>
+                    {safeAuthor.title}
+                  </div>
+                ) : null}
               </div>
             </div>
 

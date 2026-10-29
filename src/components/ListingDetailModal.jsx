@@ -66,6 +66,14 @@ export default function ListingDetailModal({ property, onClose }) {
   const authorSlug = toVietnameseSlug(authorName) || 'tran-van-vu';
   const brokerUrl = `/moi-gioi/${authorSlug}`;
 
+  const isVerifiedAuthor = Boolean(
+    authorUser?.isVerified ?? 
+    property?.author?.isVerified ?? 
+    authorUser?.kycStatus === 'verified' ?? 
+    property?.author?.kycStatus === 'verified' ?? 
+    false
+  );
+
   const safeAuthor = {
     id: authorUser?.id || property?.author?.id || null,
     name: authorName,
@@ -75,8 +83,8 @@ export default function ListingDetailModal({ property, onClose }) {
     phone: formatPhoneNumber(authorUser?.phone || property?.author?.phone || property?.contactPhone || '0908 123 456'),
     zalo: (authorUser?.phone || property?.author?.zalo || property?.author?.phone || property?.contactPhone || '0908123456').replace(/\s+/g, ''),
     avatar: authorUser?.avatar || property?.author?.avatar || '/avatars/ai-preset-2.jpg',
-    title: authorUser?.membership?.packageName || (isBroker ? (authorUser?.roleName || 'Môi Giới BĐS') : 'Khách Tìm Mua'),
-    isVerified: authorUser?.isVerified ?? property?.author?.isVerified ?? false,
+    title: isVerifiedAuthor ? 'Môi giới chuyên nghiệp' : '',
+    isVerified: isVerifiedAuthor,
     rating: property?.author?.rating || '5.0',
     reviewCount: property?.author?.reviewCount || 1,
     url: brokerUrl
@@ -596,9 +604,11 @@ export default function ListingDetailModal({ property, onClose }) {
                       </h4>
                     </Link>
 
-                    <p className="text-xs text-slate-500 truncate" title={safeAuthor.title}>
-                      {safeAuthor.title}
-                    </p>
+                    {safeAuthor.title ? (
+                      <p className="text-xs text-slate-500 truncate" title={safeAuthor.title}>
+                        {safeAuthor.title}
+                      </p>
+                    ) : null}
 
                     <div className="flex items-center gap-1.5 text-amber-500 text-xs mt-1">
                       <div className="flex items-center gap-1">
@@ -733,8 +743,12 @@ export default function ListingDetailModal({ property, onClose }) {
                   </h3>
 
                   <div className="flex items-center gap-2.5 text-xs text-white/80 flex-wrap">
-                    <span>{safeAuthor.title}</span>
-                    <span>•</span>
+                    {safeAuthor.title ? (
+                      <>
+                        <span>{safeAuthor.title}</span>
+                        <span>•</span>
+                      </>
+                    ) : null}
                     <span className="flex items-center gap-1 text-amber-300 font-bold">
                       <i className="fa-solid fa-star"></i>
                       <span>{safeAuthor.rating || '5.0'} / 5.0</span>
