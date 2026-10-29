@@ -6,7 +6,9 @@ import { Link } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 
 export default function CheckIn7DaysPage() {
-  const { currentUser, showToast, addBonusWalletBalance } = useRealEstate();
+  const { currentUser, showToast, addBonusWalletBalance, rewardsConfig } = useRealEstate();
+  const daysList = rewardsConfig?.checkInConfig?.days || CHECK_IN_7_DAYS;
+  const isEnabled = rewardsConfig?.checkInConfig?.enabled !== false;
   const [currentStreak, setCurrentStreak] = useState(3);
   const [checkedToday, setCheckedToday] = useState(false);
 
@@ -18,13 +20,13 @@ export default function CheckIn7DaysPage() {
   }, []);
 
   const handleCheckIn = () => {
-    if (checkedToday) return;
+    if (checkedToday || !isEnabled) return;
     const nextStreak = currentStreak >= 7 ? 1 : currentStreak + 1;
     setCurrentStreak(nextStreak);
     setCheckedToday(true);
     localStorage.setItem('bds_checkin_today', new Date().toDateString());
 
-    const item = CHECK_IN_7_DAYS[nextStreak - 1];
+    const item = daysList[nextStreak - 1] || { reward: 5000 };
     const amount = Number(item.reward || 5000);
 
     // Cộng tiền trực tiếp vào Ví Khuyến Mãi của người dùng
@@ -103,7 +105,7 @@ export default function CheckIn7DaysPage() {
 
         {/* 7 Days Timeline Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3 sm:gap-4">
-          {CHECK_IN_7_DAYS.map((item) => {
+          {daysList.map((item) => {
             const isCompleted = item.day <= currentStreak;
             const isCurrent = item.day === currentStreak + 1 && !checkedToday;
 

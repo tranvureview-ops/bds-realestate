@@ -12,11 +12,17 @@ import {
 } from '../services/treasureHuntService';
 
 export default function ArticleTreasureBox({ property }) {
-  const { currentUser, showToast, addBonusWalletBalance } = useRealEstate();
+  const { currentUser, showToast, addBonusWalletBalance, rewardsConfig } = useRealEstate();
   const { navigate } = useRouter();
 
+  const tConfig = rewardsConfig?.treasureHuntConfig;
+  const isFeatureEnabled = tConfig?.enabled !== false;
+  const dailyLimit = Number(tConfig?.dailyLimit || 3);
+  const minReadingSeconds = Number(tConfig?.minReadingSeconds || 4);
+  const cooldownSeconds = Number(tConfig?.cooldownSeconds || 20);
+
   const [hasClaimedThisArticle, setHasClaimedThisArticle] = useState(false);
-  const [quota, setQuota] = useState({ count: 0, limit: 3, remaining: 3, isLimitReached: false });
+  const [quota, setQuota] = useState({ count: 0, limit: dailyLimit, remaining: dailyLimit, isLimitReached: false });
   const [timeReady, setTimeReady] = useState(false);
   const [isOpening, setIsOpening] = useState(false);
   const [revealedReward, setRevealedReward] = useState(null);
@@ -30,16 +36,16 @@ export default function ArticleTreasureBox({ property }) {
 
     if (userId && property?.id) {
       setHasClaimedThisArticle(hasClaimedPropertyToday(userId, property.id));
-      setQuota(getDailyQuotaStatus(userId));
+      setQuota(getDailyQuotaStatus(userId, dailyLimit));
     }
 
-    // Chống bot/spam: Phải xem bài viết ít nhất 4 giây mới sẵn sàng mở hộp
+    // Chống bot/spam: Phải xem bài viết ít nhất X giây mới sẵn sàng mở hộp
     const timer = setTimeout(() => {
       setTimeReady(true);
-    }, 4000);
+    }, minReadingSeconds * 1000);
 
     return () => clearTimeout(timer);
-  }, [userId, property?.id]);
+  }, [userId, property?.id, dailyLimit, minReadingSeconds]);
 
   // 2. Thao tác Mở Hộp Quà
   const handleOpenChest = () => {
@@ -52,11 +58,11 @@ export default function ArticleTreasureBox({ property }) {
       return;
     }
 
-    // B. Kiểm tra giới hạn 3 hộp / ngày
-    const currentQuota = getDailyQuotaStatus(userId);
+    // B. Kiểm tra giới hạn N hộp / ngày
+    const currentQuota = getDailyQuotaStatus(userId, dailyLimit);
     if (currentQuota.isLimitReached) {
       if (showToast) {
-        showToast('Hôm nay bạn đã mở đủ 3/3 rương kho báu! Hãy quay lại vào ngày mai nhé.', 'warning');
+        showToast(`Hôm nay bạn đã mở đủ ${dailyLimit}/${dailyLimit} rương kho báu! Hãy quay lại vào ngày mai nhé.`, 'warning');
       }
       return;
     }
@@ -69,8 +75,8 @@ export default function ArticleTreasureBox({ property }) {
       return;
     }
 
-    // D. Kiểm tra Cooldown chống spam 20s
-    const cooldown = checkCooldownStatus(userId);
+    // D. Kiểm tra Cooldown chống spam
+    const cooldown = checkCooldownStatus(userId, cooldownSeconds);
     if (!cooldown.canOpen) {
       if (showToast) {
         showToast(`Vui lòng chờ ${cooldown.secondsLeft} giây trước khi mở rương tiếp theo!`, 'warning');
@@ -83,7 +89,7 @@ export default function ArticleTreasureBox({ property }) {
 
     setTimeout(() => {
       // Tính ngẫu nhiên tiền thưởng theo đúng tỷ lệ
-      const reward = calculateTreasureReward();
+      const reward = calculateTreasureReward(tConfig?.rewardTiers);
 
       // Cộng tiền trực tiếp vào Ví Khuyến Mãi
       if (addBonusWalletBalance) {
@@ -95,7 +101,7 @@ export default function ArticleTreasureBox({ property }) {
 
       setRevealedReward(reward);
       setHasClaimedThisArticle(true);
-      setQuota(getDailyQuotaStatus(userId));
+      setQuota(getDailyQuotaStatus(userId, dailyLimit));
       setIsOpening(false);
 
       if (showToast) {
@@ -104,7 +110,7 @@ export default function ArticleTreasureBox({ property }) {
     }, 1200);
   };
 
-  if (!property) return null;
+  if (!property || !isFeatureEnabled) return null;
 
   return (
     <div className="relative overflow-hidden bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 rounded-3xl p-5 sm:p-7 text-white shadow-lg border border-amber-300/40 my-6">

@@ -7,8 +7,17 @@ import { getDailyQuotaStatus, getDailyClaims } from '../services/treasureHuntSer
 import { getPropertyPermalink } from '../utils/permalink';
 
 export default function TreasureHuntPage() {
-  const { currentUser, properties } = useRealEstate();
-  const [quota, setQuota] = useState({ count: 0, limit: 3, remaining: 3, isLimitReached: false });
+  const { currentUser, properties, rewardsConfig } = useRealEstate();
+  const tConfig = rewardsConfig?.treasureHuntConfig;
+  const dailyLimit = Number(tConfig?.dailyLimit || 3);
+  const rewardTiers = tConfig?.rewardTiers || [
+    { id: 'tier1', label: 'Hạng May Mắn Đồng', probability: 50, minAmount: 2000, maxAmount: 4000 },
+    { id: 'tier2', label: 'Hạng Bạc Rực Rỡ', probability: 25, minAmount: 5000, maxAmount: 10000 },
+    { id: 'tier3', label: 'Hạng Vàng Phú Quý', probability: 15, minAmount: 11000, maxAmount: 15000 },
+    { id: 'tier4', label: 'Hạng Kim Cương Đỉnh Cao', probability: 10, minAmount: 15000, maxAmount: 20000 }
+  ];
+
+  const [quota, setQuota] = useState({ count: 0, limit: dailyLimit, remaining: dailyLimit, isLimitReached: false });
   const [claimsToday, setClaimsToday] = useState([]);
 
   const userId = currentUser && currentUser.role !== 'guest' ? currentUser.id : null;
@@ -17,10 +26,10 @@ export default function TreasureHuntPage() {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (userId) {
-      setQuota(getDailyQuotaStatus(userId));
+      setQuota(getDailyQuotaStatus(userId, dailyLimit));
       setClaimsToday(getDailyClaims(userId));
     }
-  }, [userId]);
+  }, [userId, dailyLimit]);
 
   const totalEarnedToday = claimsToday.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
 
@@ -181,29 +190,26 @@ export default function TreasureHuntPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200 space-y-1">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700">Tỷ Lệ 50%</div>
-              <div className="text-xl font-black text-slate-900">2.000đ - 4.000đ</div>
-              <div className="text-[11px] text-slate-500">Hạng May Mắn Đồng</div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-200 space-y-1">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-blue-700">Tỷ Lệ 25%</div>
-              <div className="text-xl font-black text-slate-900">5.000đ - 10.000đ</div>
-              <div className="text-[11px] text-slate-500">Hạng Bạc Rực Rỡ</div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-purple-50/60 border border-purple-200 space-y-1">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-purple-700">Tỷ Lệ 15%</div>
-              <div className="text-xl font-black text-slate-900">11.000đ - 15.000đ</div>
-              <div className="text-[11px] text-slate-500">Hạng Vàng Phú Quý</div>
-            </div>
-
-            <div className="p-4 rounded-2xl bg-rose-50/60 border border-rose-200 space-y-1">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-rose-700">Tỷ Lệ 10%</div>
-              <div className="text-xl font-black text-slate-900">15.000đ - 20.000đ</div>
-              <div className="text-[11px] text-slate-500">Hạng Kim Cương Đỉnh Cao</div>
-            </div>
+            {rewardTiers.map((t, idx) => {
+              const bgColors = [
+                'bg-amber-50/60 border-amber-200 text-amber-700',
+                'bg-blue-50/60 border-blue-200 text-blue-700',
+                'bg-purple-50/60 border-purple-200 text-purple-700',
+                'bg-rose-50/60 border-rose-200 text-rose-700'
+              ];
+              const colorCls = bgColors[idx % bgColors.length];
+              return (
+                <div key={t.id || idx} className={`p-4 rounded-2xl border space-y-1 ${colorCls.split(' ')[0]} ${colorCls.split(' ')[1]}`}>
+                  <div className={`text-[10px] font-bold uppercase tracking-wider ${colorCls.split(' ')[2]}`}>
+                    Tỷ Lệ {t.probability}%
+                  </div>
+                  <div className="text-xl font-black text-slate-900">
+                    {Number(t.minAmount).toLocaleString('vi-VN')}đ - {Number(t.maxAmount).toLocaleString('vi-VN')}đ
+                  </div>
+                  <div className="text-[11px] text-slate-500">{t.label}</div>
+                </div>
+              );
+            })}
           </div>
         </div>
 

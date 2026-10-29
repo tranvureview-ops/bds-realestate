@@ -7,11 +7,12 @@ import { useRealEstate } from '../context/RealEstateContext';
 
 export default function PromotionDetailPage({ slug }) {
   const [copiedCode, setCopiedCode] = useState(false);
-  const { showToast } = useRealEstate();
+  const { showToast, rewardsConfig } = useRealEstate();
   const { navigate } = useRouter();
 
-  const promo = PROMOTIONS_DATA.find(p => p.slug === slug);
-  const relatedPromos = PROMOTIONS_DATA.filter(p => p.slug !== slug).slice(0, 3);
+  const allPromos = rewardsConfig?.promotions || PROMOTIONS_DATA;
+  const promo = allPromos.find(p => p.slug === slug);
+  const relatedPromos = allPromos.filter(p => p.slug !== slug).slice(0, 3);
 
   const handleCopy = (code) => {
     navigator.clipboard.writeText(code);

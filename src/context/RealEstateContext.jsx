@@ -68,6 +68,7 @@ import {
   DEFAULT_EMAIL_TEMPLATES
 } from '../data/mockData';
 import { getPropertyPermalink, parsePropertyUrl, toVietnameseSlug, formatSentenceCase } from '../utils/permalink';
+import { DEFAULT_REWARDS_CONFIG } from '../data/rewardData';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 import { sanitizePhoneFromText } from '../utils/textSanitizer';
 import {
@@ -690,6 +691,11 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return initialData?.bds_email_config || DEFAULT_EMAIL_CONFIG;
   });
 
+  // 11c2. Cấu hình Khuyến Mãi, Nhiệm Vụ & Trung Tâm Phần Thưởng (Rewards & Gamification Config)
+  const [rewardsConfig, setRewardsConfig] = useState(() => {
+    return initialData?.bds_rewards_config || DEFAULT_REWARDS_CONFIG;
+  });
+
   // 11d. Danh sách Lịch hẹn xem nhà (Direct Property Viewing Appointments)
   const [appointmentsList, setAppointmentsList] = useState(() => {
     return (initialData?.bds_appointments && Array.isArray(initialData.bds_appointments))
@@ -870,6 +876,33 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     setSingleConfig(DEFAULT_SINGLE_CONFIG);
     await removeSettingFromSupabase('bds_single_config');
     showToast('Đã khôi phục cấu hình trang Single về mặc định!', 'info');
+  };
+
+  const updateRewardsConfig = async (newConfig) => {
+    let merged;
+    setRewardsConfig(prev => {
+      merged = {
+        ...prev,
+        ...newConfig,
+        checkInConfig: {
+          ...prev.checkInConfig,
+          ...(newConfig.checkInConfig || {})
+        },
+        treasureHuntConfig: {
+          ...prev.treasureHuntConfig,
+          ...(newConfig.treasureHuntConfig || {})
+        }
+      };
+      return merged;
+    });
+    await persistSettingToSupabase('bds_rewards_config', merged);
+    showToast('Đã lưu cấu hình Khuyến mãi & Phần thưởng thành công!', 'success');
+  };
+
+  const resetRewardsConfig = async () => {
+    setRewardsConfig(DEFAULT_REWARDS_CONFIG);
+    await removeSettingFromSupabase('bds_rewards_config');
+    showToast('Đã khôi phục cấu hình Khuyến mãi & Phần thưởng về mặc định!', 'info');
   };
 
   const updateEmailConfig = async (newConfig) => {
@@ -4571,6 +4604,10 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         singleConfig,
         updateSingleConfig,
         resetSingleConfig,
+        rewardsConfig,
+        updateRewardsConfig,
+        resetRewardsConfig,
+        DEFAULT_REWARDS_CONFIG,
         emailConfig,
         updateEmailConfig,
         resetEmailConfig,

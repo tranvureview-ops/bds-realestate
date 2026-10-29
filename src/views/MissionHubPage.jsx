@@ -8,8 +8,10 @@ import { useRealEstate } from '../context/RealEstateContext';
 export default function MissionHubPage({ initialCategory = 'all' }) {
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [claimedMissions, setClaimedMissions] = useState({});
-  const { currentUser, showToast, addBonusWalletBalance } = useRealEstate();
+  const { currentUser, showToast, addBonusWalletBalance, rewardsConfig } = useRealEstate();
   const { navigate } = useRouter();
+
+  const allMissions = rewardsConfig?.missions || MISSIONS_DATA;
 
   const categories = [
     { id: 'all', label: 'Tất cả nhiệm vụ', icon: 'fa-solid fa-list-check' },
@@ -21,12 +23,12 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
   let displayMissions = [];
   if (activeCategory === 'all') {
     displayMissions = [
-      ...MISSIONS_DATA['tan-thu'],
-      ...MISSIONS_DATA['hang-ngay'],
-      ...MISSIONS_DATA['thanh-tuu']
+      ...(allMissions['tan-thu'] || []),
+      ...(allMissions['hang-ngay'] || []),
+      ...(allMissions['thanh-tuu'] || [])
     ];
-  } else if (MISSIONS_DATA[activeCategory]) {
-    displayMissions = MISSIONS_DATA[activeCategory];
+  } else if (allMissions[activeCategory]) {
+    displayMissions = allMissions[activeCategory];
   }
 
   const handleClaim = (missionId, reward, title) => {

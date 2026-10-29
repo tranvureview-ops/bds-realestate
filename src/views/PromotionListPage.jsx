@@ -8,7 +8,8 @@ import { useRealEstate } from '../context/RealEstateContext';
 export default function PromotionListPage() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [copiedCode, setCopiedCode] = useState(null);
-  const { showToast } = useRealEstate();
+  const { showToast, rewardsConfig } = useRealEstate();
+  const promoList = rewardsConfig?.promotions || PROMOTIONS_DATA;
 
   const categories = [
     { id: 'all', label: 'Tất cả khuyến mãi', icon: 'fa-solid fa-gift' },
@@ -18,8 +19,8 @@ export default function PromotionListPage() {
   ];
 
   const filteredPromos = activeCategory === 'all' 
-    ? PROMOTIONS_DATA 
-    : PROMOTIONS_DATA.filter(p => p.category === activeCategory);
+    ? promoList 
+    : promoList.filter(p => p.category === activeCategory);
 
   const handleCopyCode = (code, e) => {
     e.preventDefault();

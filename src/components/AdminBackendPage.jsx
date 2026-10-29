@@ -16,6 +16,7 @@ import AdminFooterConfigManager from './AdminFooterConfigManager';
 import AdminAppointmentsManager from './AdminAppointmentsManager';
 import AdminTwoFactorScreen from './AdminTwoFactorScreen';
 import AdminTelegramChatManager from './AdminTelegramChatManager';
+import AdminRewardsGamificationManager from './AdminRewardsGamificationManager';
 import MaintenanceScreen from './MaintenanceScreen';
 import PropertyVerificationReviewModal from './PropertyVerificationReviewModal';
 import { AVAILABLE_FONTS, getFontConfig, applyFontToDom } from '../utils/fontConfig';
@@ -33,6 +34,7 @@ export const VALID_ADMIN_TABS = [
   'finance',
   'pricing',
   'membership',
+  'rewards-gamification',
   'header',
   'menu',
   'footer',
@@ -2441,6 +2443,25 @@ export default function AdminBackendPage() {
               </span>
             </Link>
 
+            {/* Khuyến Mãi & Phần Thưởng */}
+            <Link
+              href="#rewards-gamification"
+              onClick={handleNavClick('rewards-gamification')}
+              className={`w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between text-left ${
+                activeMenu === 'rewards-gamification' ? 'bg-amber-500 text-slate-950 font-black shadow-lg shadow-amber-500/30' : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <i className="fa-solid fa-gift text-sm w-5 text-center text-amber-400"></i>
+                <span>Khuyến Mãi & Thưởng</span>
+              </div>
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                activeMenu === 'rewards-gamification' ? 'bg-slate-950 text-amber-300' : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+              }`}>
+                Ví KM
+              </span>
+            </Link>
+
             {/* Nhóm Cài Đặt Website & Giao Diện */}
             <div className="pt-2">
               <Link
@@ -2675,6 +2696,7 @@ export default function AdminBackendPage() {
               {activeMenu === 'single-config' && '📄 Cấu Hình Trang Chi Tiết BĐS'}
               {activeMenu === 'email-config' && '✉️ Email Setting'}
               {activeMenu === 'telegram' && '💬 Live Chat Telegram (2 Chiều)'}
+              {activeMenu === 'rewards-gamification' && '🎁 Cấu Hình Khuyến Mãi & Trung Tâm Phần Thưởng'}
               {activeMenu === 'settings' && (
                 settingsSubTab === 'header'
                   ? '🎨 Cài Đặt Website › Header'
@@ -8358,6 +8380,13 @@ export default function AdminBackendPage() {
              ========================================= */}
           {activeMenu === 'telegram' && (
             <AdminTelegramChatManager />
+          )}
+
+          {/* =========================================
+              PHÂN HỆ: QUẢN LÝ KHUYẾN MÃI & TRUNG TÂM PHẦN THƯỞNG
+             ========================================= */}
+          {activeMenu === 'rewards-gamification' && (
+            <AdminRewardsGamificationManager />
           )}
 
         </main>

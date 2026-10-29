@@ -370,3 +370,35 @@ export const PROMO_WALLET_SERVICES = [
     description: 'Vị trí độc quyền trang chủ và danh mục chính của toàn sàn, thanh toán linh hoạt kết hợp Ví KM.'
   }
 ];
+
+// 7. CẤU HÌNH TỔNG THỂ CHO CMS ADMIN QUẢN TRỊ
+export const DEFAULT_REWARDS_CONFIG = {
+  // A. Danh sách Khuyến mãi
+  promotions: PROMOTIONS_DATA,
+
+  // B. Danh sách Nhiệm vụ
+  missions: MISSIONS_DATA,
+
+  // C. Điểm danh 7 ngày
+  checkInConfig: {
+    enabled: true,
+    days: CHECK_IN_7_DAYS
+  },
+
+  // D. Săn kho báu bài viết (Treasure Hunt & Anti-Spam)
+  treasureHuntConfig: {
+    enabled: true,
+    dailyLimit: 3,
+    minReadingSeconds: 4,
+    cooldownSeconds: 20,
+    tiers: [
+      { id: 'tier1', label: 'Hạng May Mắn Đồng', percent: 50, minAmount: 2000, maxAmount: 4000 },
+      { id: 'tier2', label: 'Hạng Bạc Rực Rỡ', percent: 25, minAmount: 5000, maxAmount: 10000 },
+      { id: 'tier3', label: 'Hạng Vàng Phú Quý', percent: 15, minAmount: 11000, maxAmount: 15000 },
+      { id: 'tier4', label: 'Hạng Kim Cương Đỉnh Cao', percent: 10, minAmount: 15000, maxAmount: 20000 }
+    ]
+  },
+
+  // E. Minigame dự đoán giá BĐS
+  predictionGames: PRICE_PREDICTION_GAMES
+};

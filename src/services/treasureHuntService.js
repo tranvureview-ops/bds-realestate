@@ -41,23 +41,24 @@ export function hasClaimedPropertyToday(userId, propertyId) {
   return claims.some(c => String(c.propertyId) === String(propertyId));
 }
 
-// Kiểm tra user đã đạt hạn mức 3 hộp hôm nay chưa
-export function getDailyQuotaStatus(userId) {
+// Kiểm tra user đã đạt hạn mức số hộp hôm nay chưa
+export function getDailyQuotaStatus(userId, customLimit = DAILY_LIMIT) {
   const claims = getDailyClaims(userId);
   const count = claims.length;
-  const remaining = Math.max(0, DAILY_LIMIT - count);
-  const isLimitReached = count >= DAILY_LIMIT;
+  const limit = Number(customLimit || DAILY_LIMIT);
+  const remaining = Math.max(0, limit - count);
+  const isLimitReached = count >= limit;
 
   return {
     count,
-    limit: DAILY_LIMIT,
+    limit,
     remaining,
     isLimitReached
   };
 }
 
 // Kiểm tra Cooldown chống spam giữa 2 lần mở hộp
-export function checkCooldownStatus(userId) {
+export function checkCooldownStatus(userId, customCooldown = COOLDOWN_SECONDS) {
   const claims = getDailyClaims(userId);
   if (claims.length === 0) return { canOpen: true, secondsLeft: 0 };
 
@@ -65,19 +66,43 @@ export function checkCooldownStatus(userId) {
   const lastTime = new Date(lastClaim.timestamp).getTime();
   const now = Date.now();
   const elapsed = Math.floor((now - lastTime) / 1000);
+  const cooldown = Number(customCooldown || COOLDOWN_SECONDS);
 
-  if (elapsed < COOLDOWN_SECONDS) {
+  if (elapsed < cooldown) {
     return {
       canOpen: false,
-      secondsLeft: COOLDOWN_SECONDS - elapsed
+      secondsLeft: cooldown - elapsed
     };
   }
 
   return { canOpen: true, secondsLeft: 0 };
 }
 
-// Hàm tính ngẫu nhiên tiền thưởng theo đúng tỷ lệ người dùng yêu cầu
-export function calculateTreasureReward() {
+// Hàm tính ngẫu nhiên tiền thưởng theo đúng tỷ lệ
+export function calculateTreasureReward(customTiers = null) {
+  if (Array.isArray(customTiers) && customTiers.length > 0) {
+    const rand = Math.random() * 100;
+    let accumulated = 0;
+    for (const t of customTiers) {
+      accumulated += Number(t.probability || 0);
+      if (rand <= accumulated) {
+        const min = Number(t.minAmount || 1000);
+        const max = Number(t.maxAmount || 5000);
+        const step = 1000;
+        const steps = Math.floor((max - min) / step);
+        const amount = steps > 0 
+          ? min + Math.floor(Math.random() * (steps + 1)) * step 
+          : min;
+        return {
+          amount,
+          tier: t.id || 'custom',
+          tierLabel: t.label || 'Quà May Mắn',
+          color: t.id === 'tier4' ? 'text-rose-700 bg-rose-50' : t.id === 'tier3' ? 'text-amber-900 bg-amber-100' : t.id === 'tier2' ? 'text-blue-700 bg-blue-50' : 'text-amber-700 bg-amber-50'
+        };
+      }
+    }
+  }
+
   const rand = Math.random();
 
   // Tier 1 (50%): 2.000đ - 4.000đ
