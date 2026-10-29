@@ -4,8 +4,9 @@ import BrokerProfilePage from '../../../views/BrokerProfilePage';
 
 export async function generateMetadata({ params }) {
   const { slug } = (await params) || {};
-  const formattedName = slug
-    ? slug
+  const cleanSlug = slug ? slug.replace(/-[0-9]{1,6}$/, '') : '';
+  const formattedName = cleanSlug
+    ? cleanSlug
         .split('-')
         .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
         .join(' ')

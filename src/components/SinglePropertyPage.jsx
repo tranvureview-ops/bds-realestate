@@ -5,7 +5,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { Link } from '../router/RouterContext';
 import { VIP_PACKAGES, SALE_PRICE_PRESETS, RENT_PRICE_PRESETS } from '../data/mockData';
 import dynamic from 'next/dynamic';
-import { getPropertyPermalink, getCategoryPermalink, toVietnameseSlug, buildFacetedUrl, buildKeywordCleanSlug, buildSeoUrl, CITY_SLUGS, PROPERTY_TAXONOMY, formatSentenceCase } from '../utils/permalink';
+import { getPropertyPermalink, getCategoryPermalink, toVietnameseSlug, getBrokerPermalink, buildFacetedUrl, buildKeywordCleanSlug, buildSeoUrl, CITY_SLUGS, PROPERTY_TAXONOMY, formatSentenceCase } from '../utils/permalink';
 const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
   ssr: false,
   loading: () => (
@@ -259,8 +259,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   const authorTitle = `${authorRolePrefix} ${authorName}`;
   const authorRoleLabel = isBroker ? 'Môi Giới BĐS' : 'Khách Tìm Mua';
   const authorBadgeLabel = isBroker ? 'Chuyên viên tư vấn' : 'Khách tìm mua';
-  const authorSlug = toVietnameseSlug(authorName) || 'tran-van-vu';
-  const brokerUrl = `/moi-gioi/${authorSlug}`;
+  const brokerUrl = getBrokerPermalink({ id: authorUser?.id || property?.author?.id, name: authorName, phone: authorUser?.phone || property?.author?.phone || property?.contactPhone }, usersList);
 
   const isVerifiedAuthor = Boolean(
     authorUser?.isVerified ?? 

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link, useRouter } from '../router/RouterContext';
 import { VIP_PACKAGES } from '../data/mockData';
-import { getPropertyPermalink, formatSentenceCase, toVietnameseSlug } from '../utils/permalink';
+import { getPropertyPermalink, formatSentenceCase, toVietnameseSlug, getBrokerPermalink } from '../utils/permalink';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 import SeoImage from './SeoImage';
 import BrokerProfileModal from './BrokerProfileModal';
@@ -75,8 +75,7 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
     isVerified: isVerifiedAuthor
   };
 
-  const authorSlug = toVietnameseSlug(safeAuthor.name) || 'moi-gioi';
-  const brokerUrl = `/moi-gioi/${authorSlug}`;
+  const brokerUrl = getBrokerPermalink(safeAuthor, usersList);
 
   const handleOpenBrokerModal = (e) => {
     if (e) {

@@ -6,7 +6,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import dynamic from 'next/dynamic';
 import { VIP_PACKAGES } from '../data/mockData';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
-import { formatSentenceCase, getPropertyPermalink, toVietnameseSlug } from '../utils/permalink';
+import { formatSentenceCase, getPropertyPermalink, toVietnameseSlug, getBrokerPermalink } from '../utils/permalink';
 import SeoImage from './SeoImage';
 import BrokerProfileModal from './BrokerProfileModal';
 const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
@@ -64,8 +64,7 @@ export default function ListingDetailModal({ property, onClose }) {
   const authorTitle = `${authorRolePrefix} ${authorName}`;
   const authorRoleLabel = isBroker ? 'Môi Giới BĐS' : 'Khách Tìm Mua';
   const authorBadgeLabel = isBroker ? 'Chuyên viên tư vấn' : 'Khách tìm mua';
-  const authorSlug = toVietnameseSlug(authorName) || 'tran-van-vu';
-  const brokerUrl = `/moi-gioi/${authorSlug}`;
+  const brokerUrl = getBrokerPermalink({ id: authorUser?.id || property?.author?.id, name: authorName, phone: authorUser?.phone || property?.author?.phone || property?.contactPhone }, usersList);
 
   const isVerifiedAuthor = Boolean(
     authorUser?.isVerified ?? 

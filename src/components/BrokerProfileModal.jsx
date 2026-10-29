@@ -15,7 +15,7 @@ export default function BrokerProfileModal({
   properties: propList,
   onSelectProperty
 }) {
-  const { properties: contextProperties } = useRealEstate();
+  const { properties: contextProperties, usersList } = useRealEstate();
   const { navigate } = useRouter();
   const [brokerFilterTab, setBrokerFilterTab] = useState('all');
   const [mounted, setMounted] = useState(false);
@@ -68,17 +68,26 @@ export default function BrokerProfileModal({
     const authorPhone = normalizePhone(phone);
     const authorNameLower = authorName?.trim().toLowerCase();
 
+    const hasMultipleWithSameName = (usersList || []).filter(u => (u.name || '').trim().toLowerCase() === authorNameLower).length > 1;
+
     return allProperties.filter(p => {
       if (p.isDeleted || p.status === 'trash' || p.status === 'rejected') return false;
       const pAuthorId = p.author?.id ? String(p.author.id) : (p.userId ? String(p.userId) : null);
       const pPhone = normalizePhone(p.author?.phone || p.contactPhone);
       const pName = (p.author?.name || p.contactName || '').trim().toLowerCase();
 
-      return (authorId && pAuthorId && authorId === pAuthorId) ||
-             (authorPhone && pPhone && authorPhone.length >= 9 && authorPhone === pPhone) ||
-             (authorNameLower && pName && authorNameLower === pName);
+      // Tiêu chí 1: Khớp chính xác ID tác giả
+      if (authorId && pAuthorId && authorId === pAuthorId) return true;
+
+      // Tiêu chí 2: Khớp chính xác số điện thoại (duy nhất)
+      if (authorPhone && pPhone && authorPhone.length >= 9 && authorPhone === pPhone) return true;
+
+      // Tiêu chí 3: Chỉ khớp theo tên nếu hệ thống KHÔNG có ai trùng tên
+      if (!hasMultipleWithSameName && authorNameLower && pName && authorNameLower === pName) return true;
+
+      return false;
     });
-  }, [allProperties, safeAuthor.id, phone, authorName]);
+  }, [allProperties, safeAuthor.id, phone, authorName, usersList]);
 
   // Helper nhận diện chuẩn BĐS Bán vs Cho Thuê
   const isRentProperty = (p) => {

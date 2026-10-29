@@ -1938,4 +1938,123 @@ export const buildDynamicTaxonomyInfo = (filters = {}, baseTaxonomyInfo = null) 
   };
 };
 
+/**
+ * Tạo URL định danh chuẩn SEO và chống trùng lặp tuyệt đối cho nhà môi giới
+ * Xử lý hoàn hảo trường hợp trùng tên (ví dụ có 2 người cùng tên Nguyễn Văn Tuấn):
+ * - Người đầu tiên: /moi-gioi/nguyen-van-tuan
+ * - Người thứ hai: /moi-gioi/nguyen-van-tuan-{phone4Digits} (hoặc {index})
+ * @param {Object} author Thông tin tác giả/môi giới (name, id, phone, brokerSlug, username)
+ * @param {Array} [allUsers] Danh sách người dùng để kiểm tra trùng tên
+ * @returns {string} Đường dẫn định danh /moi-gioi/[slug]
+ */
+export const getBrokerPermalink = (author, allUsers = []) => {
+  if (!author) return '/moi-gioi/chuyen-vien';
+
+  // 1. Nếu có custom brokerSlug hoặc username hợp lệ
+  if (author.brokerSlug) {
+    return `/moi-gioi/${author.brokerSlug}`;
+  }
+  if (author.username && !author.username.includes('@')) {
+    const uSlug = toVietnameseSlug(author.username);
+    if (uSlug) return `/moi-gioi/${uSlug}`;
+  }
+
+  const authorName = author.name || author.contactName || 'Chuyên Viên';
+  const baseSlug = toVietnameseSlug(authorName) || 'chuyen-vien';
+  const authorPhone = String(author.phone || '').replace(/\D/g, '');
+  const authorId = author.id ? String(author.id) : '';
+
+  // 2. Kiểm tra xung đột trùng tên trong usersList
+  if (Array.isArray(allUsers) && allUsers.length > 0) {
+    const sameNameUsers = allUsers.filter(u => {
+      const uSlug = toVietnameseSlug(u.name || '');
+      return uSlug === baseSlug;
+    });
+
+    if (sameNameUsers.length > 1) {
+      // Xác định vị trí của user này trong danh sách trùng tên
+      const userIndex = sameNameUsers.findIndex(u => {
+        const uId = u.id ? String(u.id) : '';
+        const uPhone = String(u.phone || '').replace(/\D/g, '');
+        return (authorId && uId && authorId === uId) ||
+               (authorPhone && uPhone && authorPhone.length >= 9 && authorPhone === uPhone);
+      });
+
+      // Nếu không phải người đầu tiên, thêm hậu tố phân biệt theo 4 số cuối điện thoại hoặc số thứ tự
+      if (userIndex > 0) {
+        const phoneSuffix = authorPhone.length >= 4 ? authorPhone.slice(-4) : '';
+        const suffix = phoneSuffix || String(userIndex + 1);
+        return `/moi-gioi/${baseSlug}-${suffix}`;
+      }
+    }
+  }
+
+  return `/moi-gioi/${baseSlug}`;
+};
+
+/**
+ * Phân tích slug môi giới để tìm chính xác người dùng tương ứng (kể cả khi trùng tên)
+ * @param {string} slug Slug từ URL /moi-gioi/[slug]
+ * @param {Array} usersList Danh sách người dùng
+ * @param {Array} properties Danh sách bất động sản
+ * @returns {Object|null} Người dùng hoặc tác giả khớp chính xác
+ */
+export const resolveBrokerFromSlug = (slug, usersList = [], properties = []) => {
+  if (!slug) return null;
+  const cleanSlug = String(slug).toLowerCase().trim();
+
+  // 1. Thử khớp trực tiếp với custom brokerSlug hoặc username
+  if (Array.isArray(usersList)) {
+    const exactUser = usersList.find(u => {
+      if (u.brokerSlug && u.brokerSlug.toLowerCase() === cleanSlug) return true;
+      if (u.username && toVietnameseSlug(u.username) === cleanSlug) return true;
+      return false;
+    });
+    if (exactUser) return exactUser;
+  }
+
+  // 2. Kiểm tra xem slug có chứa hậu tố số (ví dụ: nguyen-van-tuan-9888 hoặc nguyen-van-tuan-2)
+  const matchWithSuffix = cleanSlug.match(/^(.+)-([0-9]{1,6})$/);
+  if (matchWithSuffix) {
+    const baseSlug = matchWithSuffix[1];
+    const suffix = matchWithSuffix[2];
+
+    if (Array.isArray(usersList)) {
+      // Tìm user có tên khớp baseSlug và SĐT kết thúc bằng suffix (ví dụ 4 số cuối SĐT)
+      const matchedByPhone = usersList.find(u => {
+        const uNameSlug = toVietnameseSlug(u.name || '');
+        const uPhone = String(u.phone || '').replace(/\D/g, '');
+        return uNameSlug === baseSlug && uPhone.endsWith(suffix);
+      });
+      if (matchedByPhone) return matchedByPhone;
+
+      // Tìm user theo số thứ tự đăng ký (ví dụ: nguyen-van-tuan-2)
+      const sameNameUsers = usersList.filter(u => toVietnameseSlug(u.name || '') === baseSlug);
+      const index = parseInt(suffix, 10) - 1;
+      if (index >= 0 && index < sameNameUsers.length) {
+        return sameNameUsers[index];
+      }
+    }
+  }
+
+  // 3. Khớp theo baseSlug thông thường (người dùng đầu tiên mang tên này)
+  if (Array.isArray(usersList)) {
+    const baseMatch = usersList.find(u => toVietnameseSlug(u.name || '') === cleanSlug);
+    if (baseMatch) return baseMatch;
+  }
+
+  // 4. Nếu không có trong usersList, tra cứu trong properties
+  if (Array.isArray(properties)) {
+    const propMatch = properties.find(p => {
+      const pAuthorName = p.author?.name || p.contactName || '';
+      return toVietnameseSlug(pAuthorName) === cleanSlug;
+    });
+    if (propMatch?.author) return propMatch.author;
+    if (propMatch) return { name: propMatch.contactName, phone: propMatch.contactPhone };
+  }
+
+  return null;
+};
+
+
 

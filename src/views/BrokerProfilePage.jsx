@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link } from '../router/RouterContext';
 import ListingCard from '../components/ListingCard';
-import { toVietnameseSlug } from '../utils/permalink';
+import { toVietnameseSlug, resolveBrokerFromSlug } from '../utils/permalink';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 
 export default function BrokerProfilePage({ slug = '', initialProperties = [] }) {
@@ -15,38 +15,24 @@ export default function BrokerProfilePage({ slug = '', initialProperties = [] })
     ? contextProperties 
     : initialProperties;
 
-  // Tra cứu môi giới từ usersList hoặc từ danh sách tin đăng
-  const matchedUser = useMemo(() => {
-    if (!usersList || !Array.isArray(usersList)) return null;
-    return usersList.find(u => {
-      const uSlug = toVietnameseSlug(u.name || '');
-      const uUsernameSlug = toVietnameseSlug(u.username || '');
-      return uSlug === slug || uUsernameSlug === slug || String(u.id) === slug;
-    });
-  }, [usersList, slug]);
-
-  // Nếu chưa có trong usersList, tra cứu tác giả đại diện từ tin đăng có slug tương ứng
-  const matchedPropertyAuthor = useMemo(() => {
-    if (!allProperties || !Array.isArray(allProperties)) return null;
-    const prop = allProperties.find(p => {
-      const pAuthorSlug = toVietnameseSlug(p.author?.name || p.contactName || '');
-      return pAuthorSlug === slug;
-    });
-    return prop ? (prop.author || { name: prop.contactName, phone: prop.contactPhone }) : null;
-  }, [allProperties, slug]);
+  // Tra cứu môi giới chuẩn xác bằng resolver (hỗ trợ phân biệt trùng tên qua hậu tố SĐT hoặc ID)
+  const matchedBroker = useMemo(() => {
+    return resolveBrokerFromSlug(slug, usersList, allProperties);
+  }, [slug, usersList, allProperties]);
 
   // Tái tạo họ tên dự phòng từ slug nếu không khớp dữ liệu tĩnh
   const fallbackName = useMemo(() => {
     if (!slug) return 'Chuyên Viên Môi Giới';
-    return slug
+    const clean = slug.replace(/-[0-9]{1,6}$/, '');
+    return clean
       .split('-')
       .map(w => w.charAt(0).toUpperCase() + w.slice(1))
       .join(' ');
   }, [slug]);
 
-  const authorName = matchedUser?.name || matchedPropertyAuthor?.name || fallbackName;
-  const rawRole = (matchedUser?.role || matchedPropertyAuthor?.role || '').toLowerCase();
-  const rawRoleName = (matchedUser?.roleName || matchedPropertyAuthor?.title || '').toLowerCase();
+  const authorName = matchedBroker?.name || fallbackName;
+  const rawRole = (matchedBroker?.role || '').toLowerCase();
+  const rawRoleName = (matchedBroker?.roleName || matchedBroker?.title || '').toLowerCase();
   const isExplicitCustomer = rawRole === 'user' || rawRole === 'customer' || rawRole === 'buyer' ||
                              rawRoleName.includes('khách');
 
@@ -55,41 +41,48 @@ export default function BrokerProfilePage({ slug = '', initialProperties = [] })
   const authorTitle = `${authorRolePrefix} ${authorName}`;
 
   const isVerified = Boolean(
-    matchedUser?.isVerified ?? 
-    matchedPropertyAuthor?.isVerified ?? 
-    matchedUser?.kycStatus === 'verified' ?? 
-    matchedPropertyAuthor?.kycStatus === 'verified' ?? 
+    matchedBroker?.isVerified ?? 
+    matchedBroker?.kycStatus === 'verified' ?? 
     false
   );
 
-  const rawPhone = matchedUser?.phone || matchedPropertyAuthor?.phone || '0908 123 456';
+  const rawPhone = matchedBroker?.phone || '0908 123 456';
   const displayPhone = formatPhoneNumber(rawPhone);
   const cleanPhone = rawPhone.replace(/\s+/g, '');
-  const zaloNumber = matchedUser?.phone || matchedPropertyAuthor?.zalo || matchedPropertyAuthor?.phone || cleanPhone;
-  const avatarUrl = matchedUser?.avatar || matchedPropertyAuthor?.avatar || '/avatars/ai-preset-2.jpg';
+  const zaloNumber = matchedBroker?.zalo || matchedBroker?.phone || cleanPhone;
+  const avatarUrl = matchedBroker?.avatar || '/avatars/ai-preset-2.jpg';
   const brokerTitle = isVerified ? 'Môi giới chuyên nghiệp' : '';
-  const rating = matchedPropertyAuthor?.rating || matchedUser?.rating || '5.0';
+  const rating = matchedBroker?.rating || '5.0';
 
   // Lọc toàn bộ danh sách bất động sản của môi giới này
+  // Ưu tiên tuyệt đối ID và Số điện thoại để không bao giờ bị lẫn lộn giữa 2 người trùng tên
   const authorProperties = useMemo(() => {
     if (!allProperties || !Array.isArray(allProperties)) return [];
-    const authorId = matchedUser?.id ? String(matchedUser.id) : (matchedPropertyAuthor?.id ? String(matchedPropertyAuthor.id) : null);
+    const authorId = matchedBroker?.id ? String(matchedBroker.id) : null;
     const authorPhoneNorm = normalizePhone(rawPhone);
     const authorNameNorm = authorName.trim().toLowerCase();
+
+    // Kiểm tra xem trong usersList có nhiều hơn 1 người trùng tên này không
+    const hasMultipleWithSameName = (usersList || []).filter(u => toVietnameseSlug(u.name || '') === toVietnameseSlug(authorName)).length > 1;
 
     return allProperties.filter(p => {
       if (p.isDeleted || p.status === 'trash' || p.status === 'rejected') return false;
       const pAuthorId = p.author?.id ? String(p.author.id) : (p.userId ? String(p.userId) : null);
       const pPhone = normalizePhone(p.author?.phone || p.contactPhone);
       const pName = (p.author?.name || p.contactName || '').trim().toLowerCase();
-      const pSlug = toVietnameseSlug(pName);
 
-      return (authorId && pAuthorId && authorId === pAuthorId) ||
-             (authorPhoneNorm && pPhone && authorPhoneNorm.length >= 9 && authorPhoneNorm === pPhone) ||
-             (authorNameNorm && pName && authorNameNorm === pName) ||
-             (pSlug && pSlug === slug);
+      // Tiêu chí 1: Khớp chính xác ID tác giả
+      if (authorId && pAuthorId && authorId === pAuthorId) return true;
+
+      // Tiêu chí 2: Khớp chính xác số điện thoại (duy nhất)
+      if (authorPhoneNorm && pPhone && authorPhoneNorm.length >= 9 && authorPhoneNorm === pPhone) return true;
+
+      // Tiêu chí 3: Chỉ khớp theo tên nếu hệ thống KHÔNG có ai trùng tên
+      if (!hasMultipleWithSameName && authorNameNorm && pName && authorNameNorm === pName) return true;
+
+      return false;
     });
-  }, [allProperties, matchedUser?.id, matchedPropertyAuthor?.id, rawPhone, authorName, slug]);
+  }, [allProperties, matchedBroker?.id, rawPhone, authorName, usersList]);
 
   const isRentProperty = (p) => {
     if (!p) return false;
