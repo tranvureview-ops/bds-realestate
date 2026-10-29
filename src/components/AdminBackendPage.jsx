@@ -4838,18 +4838,25 @@ export default function AdminBackendPage() {
                                 )}
                               </td>
                               <td className="p-3 text-center">
-                                <button
-                                  onClick={() => toggleUserVerification(u.id)}
-                                  className={`px-2.5 py-1 rounded-xl text-[10px] font-bold transition flex items-center gap-1 mx-auto ${
-                                    u.isVerified 
-                                      ? 'bg-blue-600 text-white shadow' 
-                                      : 'bg-slate-800 text-slate-500 hover:text-white'
-                                  }`}
-                                  title="Bấm để bật/tắt tích xanh KYC"
-                                >
-                                  <i className="fa-solid fa-circle-check"></i>
-                                  <span>{u.isVerified ? 'Đã cấp' : 'Chưa cấp'}</span>
-                                </button>
+                                <div className="flex flex-col items-center gap-1">
+                                  <button
+                                    onClick={() => toggleUserVerification(u.id)}
+                                    className={`px-2.5 py-1 rounded-xl text-[10px] font-bold transition flex items-center gap-1 mx-auto cursor-pointer ${
+                                      u.isVerified 
+                                        ? 'bg-blue-600 text-white shadow' 
+                                        : 'bg-slate-800 text-slate-500 hover:text-white'
+                                    }`}
+                                    title="Bấm để bật/tắt tích xanh KYC"
+                                  >
+                                    <i className="fa-solid fa-circle-check"></i>
+                                    <span>{u.isVerified ? 'Đã cấp' : 'Chưa cấp'}</span>
+                                  </button>
+                                  {!u.isVerified && (u.kycStatus === 'pending' || u.idCardNumber || u.idCardFront || u.kycImages?.idCardFront) && (
+                                    <span className="text-[9px] px-1.5 py-0.2 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/40 animate-pulse">
+                                      Chờ duyệt KYC
+                                    </span>
+                                  )}
+                                </div>
                               </td>
                               <td className="p-3 text-right">
                                 <div className="flex items-center justify-end gap-1.5 flex-wrap">
@@ -9893,6 +9900,58 @@ export default function AdminBackendPage() {
                   />
                 </div>
               </div>
+
+              {/* Hồ sơ KYC & Chứng chỉ đã gửi */}
+              {editingUser && (editingUser.idCardNumber || editingUser.licenseNumber || editingUser.idCardFront || editingUser.kycImages?.idCardFront) && (
+                <div className="p-3 bg-slate-900/90 rounded-xl border border-slate-800 space-y-2 text-xs">
+                  <div className="font-bold text-slate-200 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 text-blue-400">
+                      <i className="fa-solid fa-id-card"></i>
+                      <span>Hồ Sơ KYC & Chứng Chỉ Môi Giới:</span>
+                    </span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                      editUserForm.isVerified 
+                        ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' 
+                        : (editingUser.kycStatus === 'pending' || editingUser.idCardNumber)
+                        ? 'bg-amber-950 text-amber-400 border border-amber-800 animate-pulse'
+                        : 'bg-slate-800 text-slate-400'
+                    }`}>
+                      {editUserForm.isVerified ? '✓ Đã cấp tích xanh' : '⏳ Chờ xem xét duyệt'}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-300 bg-slate-950 p-2 rounded-lg border border-slate-800">
+                    <div>Số CCCD: <strong className="text-white font-mono">{editingUser.idCardNumber || 'Chưa có'}</strong></div>
+                    <div>Số CCHN: <strong className="text-white font-mono">{editingUser.licenseNumber || 'Chưa có'}</strong></div>
+                  </div>
+                  {/* Ảnh CCCD & Chứng chỉ */}
+                  <div className="grid grid-cols-3 gap-2 pt-1">
+                    {(editingUser.idCardFront || editingUser.kycImages?.idCardFront) && (
+                      <div className="text-center">
+                        <a href={editingUser.idCardFront || editingUser.kycImages?.idCardFront} target="_blank" rel="noreferrer" className="block border border-slate-700 rounded-lg overflow-hidden h-16 bg-slate-950 hover:border-blue-400 transition" title="Bấm để xem ảnh gốc">
+                          <img src={editingUser.idCardFront || editingUser.kycImages?.idCardFront} alt="CCCD Trước" className="w-full h-full object-cover" />
+                        </a>
+                        <span className="text-[9px] text-slate-400 mt-0.5 block truncate">CCCD Trước</span>
+                      </div>
+                    )}
+                    {(editingUser.idCardBack || editingUser.kycImages?.idCardBack) && (
+                      <div className="text-center">
+                        <a href={editingUser.idCardBack || editingUser.kycImages?.idCardBack} target="_blank" rel="noreferrer" className="block border border-slate-700 rounded-lg overflow-hidden h-16 bg-slate-950 hover:border-blue-400 transition" title="Bấm để xem ảnh gốc">
+                          <img src={editingUser.idCardBack || editingUser.kycImages?.idCardBack} alt="CCCD Sau" className="w-full h-full object-cover" />
+                        </a>
+                        <span className="text-[9px] text-slate-400 mt-0.5 block truncate">CCCD Sau</span>
+                      </div>
+                    )}
+                    {(editingUser.certificateImage || editingUser.kycImages?.certificateImage) && (
+                      <div className="text-center">
+                        <a href={editingUser.certificateImage || editingUser.kycImages?.certificateImage} target="_blank" rel="noreferrer" className="block border border-slate-700 rounded-lg overflow-hidden h-16 bg-slate-950 hover:border-emerald-400 transition" title="Bấm để xem ảnh gốc">
+                          <img src={editingUser.certificateImage || editingUser.kycImages?.certificateImage} alt="Chứng chỉ" className="w-full h-full object-cover" />
+                        </a>
+                        <span className="text-[9px] text-emerald-400 mt-0.5 block truncate">Chứng chỉ</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Tích xanh KYC Checkbox */}
               <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex items-center justify-between">

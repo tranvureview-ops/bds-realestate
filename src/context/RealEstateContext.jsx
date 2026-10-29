@@ -3424,20 +3424,26 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   // Admin Toggle User Verification
   const toggleUserVerification = (userId) => {
     let updatedTarget = null;
-    setUsersList(prev => prev.map(u => {
+    const nextUsers = usersList.map(u => {
       if (u.id === userId) {
         const nextState = !u.isVerified;
-        showToast(`${nextState ? 'Đã cấp tích xanh' : 'Đã thu hồi tích xanh'} cho ${u.name}`, 'info');
+        showToast(`${nextState ? 'Đã duyệt cấp tích xanh' : 'Đã thu hồi tích xanh'} cho ${u.name}`, 'info');
         if (currentUser.id === userId) {
-          setCurrentUser({ ...currentUser, isVerified: nextState });
+          setCurrentUser(curr => ({ ...curr, isVerified: nextState, kycStatus: nextState ? 'verified' : 'unverified' }));
         }
-        updatedTarget = { ...u, isVerified: nextState };
+        updatedTarget = { 
+          ...u, 
+          isVerified: nextState, 
+          kycStatus: nextState ? 'verified' : (u.idCardNumber ? 'pending' : 'unverified') 
+        };
         return updatedTarget;
       }
       return u;
-    }));
+    });
+    setUsersList(nextUsers);
     if (updatedTarget) {
       upsertSupabaseProfile(updatedTarget).catch(console.warn);
+      persistSettingToSupabase('bds_users_list', nextUsers).catch(console.warn);
     }
   };
 
@@ -4118,20 +4124,32 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     showToast('Cập nhật hồ sơ thông tin cá nhân thành công!', 'success');
   };
 
-  // Submit KYC Verification Request - Hỗ trợ Tự động kiểm duyệt (Auto-eKYC)
-  const submitKycVerification = (kycData) => {
+  // Submit KYC Verification Request - Hỗ trợ Tự động kiểm duyệt (Auto-eKYC) và Lưu trữ hồ sơ
+  const submitKycVerification = async (kycData) => {
     const cleanId = String(kycData.idCardNumber || '').trim().replace(/\s+/g, '');
-    const isValidId = cleanId.length >= 9 && cleanId.length <= 15;
+    const isAlreadyVerified = Boolean(currentUser.isVerified);
+    const nextKycStatus = isAlreadyVerified ? 'verified' : 'pending';
 
     const updated = {
       ...currentUser,
-      kycStatus: isValidId ? 'verified' : 'pending',
-      isVerified: isValidId ? true : Boolean(currentUser.isVerified),
+      kycStatus: nextKycStatus,
+      isVerified: isAlreadyVerified,
       idCardNumber: cleanId,
-      licenseNumber: kycData.licenseNumber || ''
+      licenseNumber: kycData.licenseNumber || '',
+      idCardFront: kycData.idCardFront || currentUser.idCardFront || '',
+      idCardBack: kycData.idCardBack || currentUser.idCardBack || '',
+      certificateImage: kycData.certificateImage || currentUser.certificateImage || '',
+      kycImages: {
+        idCardFront: kycData.idCardFront || currentUser.kycImages?.idCardFront || '',
+        idCardBack: kycData.idCardBack || currentUser.kycImages?.idCardBack || '',
+        certificateImage: kycData.certificateImage || currentUser.kycImages?.certificateImage || ''
+      },
+      kycSubmittedAt: new Date().toISOString()
     };
+
     setCurrentUser(updated);
-    setUsersList(prev => prev.map(u => String(u.id) === String(currentUser.id) ? updated : u));
+    const nextUsers = (usersList || []).map(u => String(u.id) === String(currentUser.id) ? updated : u);
+    setUsersList(nextUsers);
 
     if (typeof window !== 'undefined') {
       try {
@@ -4140,13 +4158,15 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     }
     if (updated.id !== 'guest') {
       upsertSupabaseProfile(updated).catch(console.warn);
+      persistSettingToSupabase('bds_users_list', nextUsers).catch(console.warn);
     }
 
-    if (isValidId) {
-      showToast('🎉 Tự động kiểm duyệt CCCD thành công! Tài khoản đã được cấp Tích Xanh và mở thưởng +50.000đ!', 'success');
+    if (isAlreadyVerified) {
+      showToast('Đã cập nhật bổ sung hồ sơ CCCD & Chứng chỉ môi giới thành công!', 'success');
     } else {
-      showToast('Đã gửi hồ sơ xác thực danh tính! Ban Quản Trị sẽ xét duyệt trong vòng 24h.', 'info');
+      showToast('Đã gửi hồ sơ xác thực CCCD & Chứng chỉ môi giới thành công! Ban Quản Trị sẽ xét duyệt và cấp Tích Xanh.', 'success');
     }
+    return updated;
   };
 
   // Logout User

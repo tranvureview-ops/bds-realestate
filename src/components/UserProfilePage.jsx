@@ -35,6 +35,37 @@ const resizeImageToAvatar = (file, maxWidth = 400, maxHeight = 400, quality = 0.
   });
 };
 
+// Helper nén ảnh tài liệu (CCCD / Chứng chỉ) đảm bảo rõ nét, nhẹ và tải nhanh
+const resizeDocumentImage = (file, maxWidth = 1200, maxHeight = 800, quality = 0.85) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        if (height > maxHeight) {
+          width = Math.round((width * maxHeight) / height);
+          height = maxHeight;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
 export default function UserProfilePage() {
   const { 
     currentUser, 
@@ -124,10 +155,29 @@ export default function UserProfilePage() {
 
   // KYC state
   const [kycForm, setKycForm] = useState({
-    idCardNumber: currentUser.idCardNumber || '079090001234',
-    licenseNumber: currentUser.licenseNumber || 'BDS-CCHN-2024-88',
-    fullName: currentUser.name || ''
+    idCardNumber: currentUser?.idCardNumber || '',
+    licenseNumber: currentUser?.licenseNumber || '',
+    fullName: currentUser?.name || '',
+    idCardFront: currentUser?.kycImages?.idCardFront || currentUser?.idCardFront || '',
+    idCardBack: currentUser?.kycImages?.idCardBack || currentUser?.idCardBack || '',
+    certificateImage: currentUser?.kycImages?.certificateImage || currentUser?.certificateImage || ''
   });
+  const [isSubmittingKyc, setIsSubmittingKyc] = useState(false);
+  const [previewKycImage, setPreviewKycImage] = useState(null);
+
+  useEffect(() => {
+    if (currentUser) {
+      setKycForm(prev => ({
+        ...prev,
+        fullName: currentUser.name || prev.fullName || '',
+        idCardNumber: currentUser.idCardNumber || prev.idCardNumber || '',
+        licenseNumber: currentUser.licenseNumber || prev.licenseNumber || '',
+        idCardFront: currentUser.kycImages?.idCardFront || currentUser.idCardFront || prev.idCardFront || '',
+        idCardBack: currentUser.kycImages?.idCardBack || currentUser.idCardBack || prev.idCardBack || '',
+        certificateImage: currentUser.kycImages?.certificateImage || currentUser.certificateImage || prev.certificateImage || ''
+      }));
+    }
+  }, [currentUser?.id, currentUser?.idCardNumber, currentUser?.licenseNumber, currentUser?.idCardFront, currentUser?.idCardBack, currentUser?.certificateImage]);
 
   // Security password state
   const [passwordForm, setPasswordForm] = useState({
@@ -224,13 +274,65 @@ export default function UserProfilePage() {
     showToast('Đã lưu tùy chọn thông báo (Email, Zalo, SMS) thành công!', 'success');
   };
 
-  const handleKycSubmit = (e) => {
-    e.preventDefault();
-    if (!kycForm.idCardNumber || kycForm.idCardNumber.length < 9) {
-      showToast('Vui lòng nhập số CCCD / Hộ chiếu hợp lệ', 'warning');
+  const handleKycFileUpload = async (slot, e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      showToast('Vui lòng chọn tệp hình ảnh hợp lệ (JPG, PNG, WEBP)!', 'warning');
       return;
     }
-    submitKycVerification(kycForm);
+
+    if (file.size > 10 * 1024 * 1024) {
+      showToast('Kích thước ảnh tối đa là 10MB!', 'warning');
+      return;
+    }
+
+    try {
+      const optimized = await resizeDocumentImage(file);
+      setKycForm(prev => ({ ...prev, [slot]: optimized }));
+      showToast('Tải ảnh tài liệu thành công!', 'success');
+    } catch (err) {
+      console.error('KYC image upload error:', err);
+      showToast('Không thể xử lý ảnh, vui lòng thử lại với ảnh khác!', 'error');
+    } finally {
+      e.target.value = '';
+    }
+  };
+
+  const handleRemoveKycImage = (slot) => {
+    setKycForm(prev => ({ ...prev, [slot]: '' }));
+  };
+
+  const handleKycSubmit = async (e) => {
+    e.preventDefault();
+    if (!kycForm.fullName || !kycForm.fullName.trim()) {
+      showToast('Vui lòng nhập họ và tên trên CCCD!', 'warning');
+      return;
+    }
+    const cleanId = String(kycForm.idCardNumber || '').trim().replace(/\s+/g, '');
+    if (!cleanId || cleanId.length < 9 || cleanId.length > 15) {
+      showToast('Vui lòng nhập số CCCD / Hộ chiếu hợp lệ (từ 9 - 12 chữ số)!', 'warning');
+      return;
+    }
+    if (!kycForm.idCardFront) {
+      showToast('Vui lòng tải lên ảnh Mặt trước CCCD / Hộ chiếu!', 'warning');
+      return;
+    }
+    if (!kycForm.idCardBack) {
+      showToast('Vui lòng tải lên ảnh Mặt sau CCCD!', 'warning');
+      return;
+    }
+
+    setIsSubmittingKyc(true);
+    try {
+      await submitKycVerification(kycForm);
+    } catch (err) {
+      console.error('KYC submit error:', err);
+      showToast('Có lỗi xảy ra khi gửi yêu cầu, vui lòng thử lại!', 'error');
+    } finally {
+      setIsSubmittingKyc(false);
+    }
   };
 
   const handlePasswordSubmit = async (e) => {
@@ -1191,28 +1293,160 @@ export default function UserProfilePage() {
                 />
               </div>
 
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl">
-                <div className="text-[11px] font-bold text-slate-700 mb-2">Ảnh chụp CCCD 2 mặt & Chứng chỉ:</div>
-                <div className="grid grid-cols-2 gap-3 text-center">
-                  <div className="border-2 border-dashed border-slate-300 rounded-xl p-4 bg-white hover:bg-slate-50 cursor-pointer">
-                    <i className="fa-solid fa-id-card text-2xl text-slate-400 mb-1"></i>
-                    <div className="text-[11px] font-bold text-slate-700">Mặt trước CCCD</div>
-                    <div className="text-[10px] text-emerald-600 font-bold mt-1">✓ Đã tải lên</div>
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                  <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <i className="fa-solid fa-file-shield text-blue-600"></i>
+                    <span>Ảnh chụp CCCD 2 mặt & Chứng chỉ hành nghề môi giới:</span>
                   </div>
-                  <div className="border-2 border-dashed border-slate-300 rounded-xl p-4 bg-white hover:bg-slate-50 cursor-pointer">
-                    <i className="fa-solid fa-id-card text-2xl text-slate-400 mb-1"></i>
-                    <div className="text-[11px] font-bold text-slate-700">Mặt sau CCCD</div>
-                    <div className="text-[10px] text-emerald-600 font-bold mt-1">✓ Đã tải lên</div>
+                  <span className="text-[10px] text-slate-400">Hỗ trợ JPG, PNG, WebP (Tối đa 10MB/ảnh)</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Ô 1: Mặt trước CCCD */}
+                  <div className="relative border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-xl p-3 bg-white transition flex flex-col items-center justify-between min-h-[150px] text-center group">
+                    {kycForm.idCardFront ? (
+                      <div className="w-full h-full flex flex-col items-center justify-between">
+                        <div 
+                          className="relative w-full h-24 rounded-lg overflow-hidden border border-slate-200 cursor-pointer"
+                          onClick={() => setPreviewKycImage({ url: kycForm.idCardFront, title: 'Mặt trước CCCD / Hộ chiếu' })}
+                          title="Bấm để xem ảnh lớn"
+                        >
+                          <img src={kycForm.idCardFront} alt="Mặt trước CCCD" className="w-full h-full object-cover group-hover:scale-105 transition" />
+                          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-[11px] font-bold gap-1">
+                            <i className="fa-solid fa-magnifying-glass-plus"></i> Xem lớn
+                          </div>
+                        </div>
+                        <div className="w-full flex items-center justify-between mt-2 pt-1.5 border-t border-slate-100 text-[10px]">
+                          <span className="text-emerald-600 font-bold flex items-center gap-1">
+                            <i className="fa-solid fa-circle-check"></i> Mặt trước CCCD *
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <label className="text-blue-600 hover:underline cursor-pointer font-semibold">
+                              Đổi
+                              <input type="file" accept="image/*" onChange={(e) => handleKycFileUpload('idCardFront', e)} className="hidden" />
+                            </label>
+                            <span className="text-slate-300">|</span>
+                            <button type="button" onClick={() => handleRemoveKycImage('idCardFront')} className="text-rose-500 hover:underline font-semibold cursor-pointer">
+                              Xóa
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer py-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-lg mb-1 group-hover:scale-110 transition">
+                          <i className="fa-solid fa-id-card"></i>
+                        </div>
+                        <div className="text-[11px] font-bold text-slate-800">Mặt trước CCCD *</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">Bấm để tải ảnh lên</div>
+                        <input type="file" accept="image/*" onChange={(e) => handleKycFileUpload('idCardFront', e)} className="hidden" />
+                      </label>
+                    )}
+                  </div>
+
+                  {/* Ô 2: Mặt sau CCCD */}
+                  <div className="relative border-2 border-dashed border-slate-300 hover:border-blue-400 rounded-xl p-3 bg-white transition flex flex-col items-center justify-between min-h-[150px] text-center group">
+                    {kycForm.idCardBack ? (
+                      <div className="w-full h-full flex flex-col items-center justify-between">
+                        <div 
+                          className="relative w-full h-24 rounded-lg overflow-hidden border border-slate-200 cursor-pointer"
+                          onClick={() => setPreviewKycImage({ url: kycForm.idCardBack, title: 'Mặt sau CCCD' })}
+                          title="Bấm để xem ảnh lớn"
+                        >
+                          <img src={kycForm.idCardBack} alt="Mặt sau CCCD" className="w-full h-full object-cover group-hover:scale-105 transition" />
+                          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-[11px] font-bold gap-1">
+                            <i className="fa-solid fa-magnifying-glass-plus"></i> Xem lớn
+                          </div>
+                        </div>
+                        <div className="w-full flex items-center justify-between mt-2 pt-1.5 border-t border-slate-100 text-[10px]">
+                          <span className="text-emerald-600 font-bold flex items-center gap-1">
+                            <i className="fa-solid fa-circle-check"></i> Mặt sau CCCD *
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <label className="text-blue-600 hover:underline cursor-pointer font-semibold">
+                              Đổi
+                              <input type="file" accept="image/*" onChange={(e) => handleKycFileUpload('idCardBack', e)} className="hidden" />
+                            </label>
+                            <span className="text-slate-300">|</span>
+                            <button type="button" onClick={() => handleRemoveKycImage('idCardBack')} className="text-rose-500 hover:underline font-semibold cursor-pointer">
+                              Xóa
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer py-3">
+                        <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center text-lg mb-1 group-hover:scale-110 transition">
+                          <i className="fa-solid fa-id-card"></i>
+                        </div>
+                        <div className="text-[11px] font-bold text-slate-800">Mặt sau CCCD *</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">Bấm để tải ảnh lên</div>
+                        <input type="file" accept="image/*" onChange={(e) => handleKycFileUpload('idCardBack', e)} className="hidden" />
+                      </label>
+                    )}
+                  </div>
+
+                  {/* Ô 3: Chứng chỉ hành nghề môi giới BĐS */}
+                  <div className="relative border-2 border-dashed border-slate-300 hover:border-emerald-400 rounded-xl p-3 bg-white transition flex flex-col items-center justify-between min-h-[150px] text-center group">
+                    {kycForm.certificateImage ? (
+                      <div className="w-full h-full flex flex-col items-center justify-between">
+                        <div 
+                          className="relative w-full h-24 rounded-lg overflow-hidden border border-slate-200 cursor-pointer"
+                          onClick={() => setPreviewKycImage({ url: kycForm.certificateImage, title: 'Chứng chỉ hành nghề môi giới BĐS' })}
+                          title="Bấm để xem ảnh lớn"
+                        >
+                          <img src={kycForm.certificateImage} alt="Chứng chỉ môi giới" className="w-full h-full object-cover group-hover:scale-105 transition" />
+                          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-[11px] font-bold gap-1">
+                            <i className="fa-solid fa-magnifying-glass-plus"></i> Xem lớn
+                          </div>
+                        </div>
+                        <div className="w-full flex items-center justify-between mt-2 pt-1.5 border-t border-slate-100 text-[10px]">
+                          <span className="text-emerald-600 font-bold flex items-center gap-1">
+                            <i className="fa-solid fa-award text-amber-500"></i> Chứng chỉ CCHN
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <label className="text-blue-600 hover:underline cursor-pointer font-semibold">
+                              Đổi
+                              <input type="file" accept="image/*" onChange={(e) => handleKycFileUpload('certificateImage', e)} className="hidden" />
+                            </label>
+                            <span className="text-slate-300">|</span>
+                            <button type="button" onClick={() => handleRemoveKycImage('certificateImage')} className="text-rose-500 hover:underline font-semibold cursor-pointer">
+                              Xóa
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer py-3">
+                        <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg mb-1 group-hover:scale-110 transition">
+                          <i className="fa-solid fa-award"></i>
+                        </div>
+                        <div className="text-[11px] font-bold text-slate-800">Chứng chỉ Môi giới BĐS</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">Bấm để tải ảnh lên (Nếu có)</div>
+                        <input type="file" accept="image/*" onChange={(e) => handleKycFileUpload('certificateImage', e)} className="hidden" />
+                      </label>
+                    )}
                   </div>
                 </div>
               </div>
 
               <button
                 type="submit"
-                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md transition flex items-center gap-2"
+                disabled={isSubmittingKyc}
+                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold rounded-xl text-xs shadow-md transition flex items-center gap-2 cursor-pointer"
               >
-                <i className="fa-solid fa-paper-plane"></i>
-                <span>Gửi Yêu Cầu Cấp Tích Xanh Xác Thực</span>
+                {isSubmittingKyc ? (
+                  <>
+                    <i className="fa-solid fa-spinner fa-spin"></i>
+                    <span>Đang gửi hồ sơ xét duyệt...</span>
+                  </>
+                ) : (
+                  <>
+                    <i className="fa-solid fa-paper-plane"></i>
+                    <span>Gửi Yêu Cầu Cấp Tích Xanh Xác Thực</span>
+                  </>
+                )}
               </button>
             </form>
           )}
@@ -1719,6 +1953,40 @@ export default function UserProfilePage() {
 
         </div>
       </div>
+
+      {/* Modal Phóng To Xem Ảnh KYC (CCCD / Chứng Chỉ) */}
+      {previewKycImage && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setPreviewKycImage(null)}
+        >
+          <div 
+            className="relative max-w-2xl w-full bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border border-slate-700"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-3.5 bg-slate-950 border-b border-slate-800 text-white flex items-center justify-between text-xs font-bold">
+              <span className="flex items-center gap-2">
+                <i className="fa-solid fa-id-card text-blue-400"></i>
+                <span>{previewKycImage.title}</span>
+              </span>
+              <button 
+                type="button" 
+                onClick={() => setPreviewKycImage(null)}
+                className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 flex items-center justify-center text-slate-300 hover:text-white transition"
+              >
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            <div className="p-3 max-h-[80vh] overflow-auto flex items-center justify-center bg-slate-950">
+              <img 
+                src={previewKycImage.url} 
+                alt={previewKycImage.title} 
+                className="max-w-full max-h-[75vh] object-contain rounded-lg shadow-md"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
