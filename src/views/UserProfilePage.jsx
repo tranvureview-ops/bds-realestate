@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 import UserProfileComponent from '../components/UserProfilePage';
@@ -8,54 +8,23 @@ import UserProfileComponent from '../components/UserProfilePage';
 export default function UserProfilePage() {
   const { currentUser, isHydrated } = useRealEstate();
   const { navigate } = useRouter();
-  const [countdown, setCountdown] = useState(3);
 
   const isGuest = !currentUser || currentUser.role === 'guest' || currentUser.id === 'guest';
   const isAdmin = currentUser?.role === 'admin';
 
-  // Với vai trò Admin: Tự động chuyển hướng ngay về trang Quản trị CMS (/admin)
-  useEffect(() => {
-    if (!isHydrated) return;
-    if (isAdmin) {
-      if (typeof window !== 'undefined') {
-        window.location.replace('/admin');
-      } else {
-        navigate('/admin');
-      }
-    }
-  }, [isHydrated, isAdmin, navigate]);
-
-  // Tự động chuyển hướng đến trang đăng nhập sau 3 giây nếu là khách vãng lai
-  useEffect(() => {
-    if (!isHydrated || !isGuest) return;
-
-    const timer = setInterval(() => {
-      setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          navigate('/dang-nhap?redirect=/ho-so-ca-nhan');
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [isHydrated, isGuest, navigate]);
-
-  // 1. Trạng thái đang kiểm tra phiên làm việc (Hydration) hoặc đang chuyển hướng Admin
-  if (!isHydrated || isAdmin) {
+  // 1. Trạng thái đang kiểm tra phiên làm việc (Hydration)
+  if (!isHydrated) {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-4">
-        <div className="w-10 h-10 border-4 border-red-500/20 border-t-red-600 rounded-full animate-spin mb-3"></div>
+        <div className="w-10 h-10 border-4 border-emerald-500/20 border-t-emerald-600 rounded-full animate-spin mb-3"></div>
         <p className="text-xs font-semibold text-slate-500">
-          {isAdmin ? 'Đang chuyển hướng về trang Quản trị CMS...' : 'Đang kiểm tra trạng thái tài khoản...'}
+          Đang tải dữ liệu hồ sơ cá nhân...
         </p>
       </div>
     );
   }
 
-  // 2. Trạng thái chưa đăng nhập: Hiển thị màn hình khóa yêu cầu đăng nhập
+  // 2. Trạng thái chưa đăng nhập: Hiển thị màn hình khóa yêu cầu đăng nhập rõ ràng, thân thiện
   if (isGuest) {
     return (
       <div className="min-h-[75vh] flex items-center justify-center px-4 py-12">
@@ -78,19 +47,14 @@ export default function UserProfilePage() {
             Vui Lòng Đăng Nhập Tài Khoản
           </h1>
           
-          <p className="text-xs text-slate-500 leading-relaxed mb-5">
-            Trang <strong>Hồ Sơ Cá Nhân</strong> chứa thông tin liên hệ bảo mật, ví tiền và danh sách lịch hẹn của bạn. Bạn cần đăng nhập để truy cập khu vực này.
+          <p className="text-xs text-slate-500 leading-relaxed mb-6">
+            Trang <strong>Hồ Sơ Cá Nhân</strong> chứa thông tin liên hệ bảo mật, ví tiền, xác thực CCCD/chứng chỉ môi giới và danh sách lịch hẹn của bạn. Bạn cần đăng nhập để truy cập khu vực này.
           </p>
-
-          {/* Countdown timer */}
-          <div className="text-[11px] text-slate-400 mb-5 flex items-center justify-center gap-1.5 bg-slate-50 py-2 rounded-xl border border-slate-100">
-            <i className="fa-regular fa-clock text-emerald-600"></i>
-            <span>Tự động chuyển đến trang Đăng nhập sau <strong className="text-emerald-700 font-bold">{countdown}s</strong>...</span>
-          </div>
 
           {/* Các nút hành động */}
           <div className="space-y-2.5">
             <button
+              type="button"
               onClick={() => navigate('/dang-nhap?redirect=/ho-so-ca-nhan')}
               className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2 cursor-pointer"
             >
@@ -99,6 +63,7 @@ export default function UserProfilePage() {
             </button>
 
             <button
+              type="button"
               onClick={() => navigate('/dang-ky')}
               className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer"
             >
@@ -107,6 +72,7 @@ export default function UserProfilePage() {
             </button>
 
             <button
+              type="button"
               onClick={() => navigate('/')}
               className="w-full py-2 px-4 rounded-xl text-slate-400 hover:text-slate-600 font-medium text-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
             >
@@ -119,16 +85,48 @@ export default function UserProfilePage() {
     );
   }
 
-  // 3. Đã đăng nhập hợp lệ: Hiển thị giao diện hồ sơ cá nhân đầy đủ
+  // 3. Đã đăng nhập hợp lệ (Admin, Môi giới, Thành viên): Hiển thị giao diện hồ sơ cá nhân đầy đủ
   return (
     <div className="space-y-1 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2 text-xs text-slate-500 mb-3">
           <Link to="/" className="hover:text-emerald-600 font-medium">Trang chủ</Link>
           <i className="fa-solid fa-chevron-right text-[10px]"></i>
           <span className="text-slate-800 font-bold">Hồ Sơ Cá Nhân</span>
         </div>
+
+        {/* Thanh thông báo nổi bật nếu là tài khoản Quản Trị Viên (Admin) */}
+        {isAdmin && (
+          <div className="mb-4 p-3.5 bg-gradient-to-r from-slate-900 via-slate-800 to-red-950 text-white rounded-2xl border border-red-500/30 flex flex-wrap items-center justify-between gap-3 shadow-lg">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-red-600/30 text-red-400 flex items-center justify-center font-bold text-base border border-red-500/40 shrink-0">
+                <i className="fa-solid fa-shield-halved"></i>
+              </div>
+              <div>
+                <div className="text-xs font-black uppercase tracking-wider text-red-300 flex items-center gap-2">
+                  <span>Hồ Sơ Quản Trị Viên Hệ Thống (CMS Admin)</span>
+                  <span className="text-[10px] bg-red-600 text-white px-2 py-0.5 rounded-full font-bold">Toàn Quyền</span>
+                </div>
+                <div className="text-[11px] text-slate-300 mt-0.5">
+                  Bạn có thể cập nhật thông tin cá nhân, mật khẩu, ảnh đại diện tại đây hoặc truy cập Bảng điều khiển Quản trị toàn hệ thống.
+                </div>
+              </div>
+            </div>
+            <Link
+              to="/admin"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs flex items-center gap-2 shadow-md transition cursor-pointer shrink-0"
+            >
+              <i className="fa-solid fa-gauge-high"></i>
+              <span>Vào Trang Quản Trị CMS</span>
+              <i className="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+            </Link>
+          </div>
+        )}
       </div>
+
       <UserProfileComponent />
     </div>
   );

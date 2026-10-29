@@ -546,36 +546,54 @@ export default function Navbar() {
 
                       {/* Menu Navigation Links */}
                       <div className="px-2 space-y-0.5 text-xs font-medium">
-                        {/* Chỉ hiển thị các mục người dùng cá nhân khi KHÔNG PHẢI tài khoản admin */}
+                        {/* Mục Quản trị CMS nổi bật dành riêng cho tài khoản Quản trị viên (Admin) */}
+                        {currentUser.role === 'admin' && (
+                          <Link
+                            to="/admin"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => setUserMenuOpen(false)}
+                            className="w-full px-3 py-2.5 rounded-xl text-left font-bold transition flex items-center justify-between bg-red-50 text-red-700 hover:bg-red-100 border border-red-200 shadow-xs mb-1.5"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <i className="fa-solid fa-shield-halved text-red-600 w-4 text-center"></i>
+                              <span>Trang CMS Quản Trị</span>
+                            </div>
+                            <i className="fa-solid fa-arrow-up-right-from-square text-[10px] text-red-400"></i>
+                          </Link>
+                        )}
+
+                        {/* Hồ sơ cá nhân - luôn truy cập được cho mọi vai trò (Admin / Môi giới / Thành viên) */}
+                        <Link
+                          to="/ho-so-ca-nhan"
+                          onClick={() => setUserMenuOpen(false)}
+                          className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center gap-2.5 ${currentRoute === '/ho-so-ca-nhan' ? 'bg-emerald-50 text-emerald-700 font-bold' : 'hover:bg-slate-50 text-slate-700'}`}
+                        >
+                          <i className="fa-solid fa-user-pen text-emerald-600 w-4 text-center"></i>
+                          <span>Hồ sơ cá nhân</span>
+                        </Link>
+
+                        <Link
+                          to="/quan-ly-tin"
+                          onClick={() => setUserMenuOpen(false)}
+                          className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center gap-2.5 ${currentRoute === '/quan-ly-tin' ? 'bg-emerald-50 text-emerald-700 font-bold' : 'hover:bg-slate-50 text-slate-700'}`}
+                        >
+                          <i className="fa-solid fa-newspaper text-blue-600 w-4 text-center"></i>
+                          <span>Quản lý tin đăng</span>
+                        </Link>
+
+                        <Link
+                          to="/lich-su-giao-dich"
+                          onClick={() => setUserMenuOpen(false)}
+                          className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center gap-2.5 ${currentRoute === '/lich-su-giao-dich' ? 'bg-emerald-50 text-emerald-700 font-bold' : 'hover:bg-slate-50 text-slate-700'}`}
+                        >
+                          <i className="fa-solid fa-receipt text-indigo-600 w-4 text-center"></i>
+                          <span>Lịch sử giao dịch & Ví</span>
+                        </Link>
+
+                        {/* Các mục đặc quyền dịch vụ hội viên */}
                         {currentUser.role !== 'admin' && (
                           <>
-                            <Link
-                              to="/ho-so-ca-nhan"
-                              onClick={() => setUserMenuOpen(false)}
-                              className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center gap-2.5 ${currentRoute === '/ho-so-ca-nhan' ? 'bg-emerald-50 text-emerald-700 font-bold' : 'hover:bg-slate-50 text-slate-700'}`}
-                            >
-                              <i className="fa-solid fa-user-pen text-emerald-600 w-4 text-center"></i>
-                              <span>Hồ sơ cá nhân</span>
-                            </Link>
-
-                            <Link
-                              to="/quan-ly-tin"
-                              onClick={() => setUserMenuOpen(false)}
-                              className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center gap-2.5 ${currentRoute === '/quan-ly-tin' ? 'bg-emerald-50 text-emerald-700 font-bold' : 'hover:bg-slate-50 text-slate-700'}`}
-                            >
-                              <i className="fa-solid fa-newspaper text-blue-600 w-4 text-center"></i>
-                              <span>Quản lý tin đăng</span>
-                            </Link>
-
-                            <Link
-                              to="/lich-su-giao-dich"
-                              onClick={() => setUserMenuOpen(false)}
-                              className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center gap-2.5 ${currentRoute === '/lich-su-giao-dich' ? 'bg-emerald-50 text-emerald-700 font-bold' : 'hover:bg-slate-50 text-slate-700'}`}
-                            >
-                              <i className="fa-solid fa-receipt text-indigo-600 w-4 text-center"></i>
-                              <span>Lịch sử giao dịch & Ví</span>
-                            </Link>
-
                             <Link
                               to="/goi-hoi-vien"
                               onClick={() => setUserMenuOpen(false)}
@@ -587,7 +605,7 @@ export default function Navbar() {
                               </div>
                               {isMemberActive ? (
                                 <span className="text-[9px] bg-amber-400 text-slate-950 font-black px-1.5 py-0.5 rounded-full">
-                                  {currentUser.membership.packageName}
+                                  {currentUser.membership?.packageName}
                                 </span>
                               ) : isMemberExpired ? (
                                 <span className="text-[9px] bg-rose-500 text-white font-black px-1.5 py-0.5 rounded-full">
@@ -627,22 +645,6 @@ export default function Navbar() {
                               <span>Nhiệm vụ nhận tiền ví</span>
                             </Link>
                           </>
-                        )}
-
-                        {currentUser.role === 'admin' && (
-                          <Link
-                            to="/admin"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={() => setUserMenuOpen(false)}
-                            className="w-full px-3 py-2.5 rounded-xl text-left font-bold transition flex items-center justify-between bg-red-50 text-red-700 hover:bg-red-100 border border-red-100"
-                          >
-                            <div className="flex items-center gap-2.5">
-                              <i className="fa-solid fa-shield-halved text-red-600 w-4 text-center"></i>
-                              <span>Trang CMS Quản Trị</span>
-                            </div>
-                            <i className="fa-solid fa-arrow-up-right-from-square text-[10px] text-red-400"></i>
-                          </Link>
                         )}
                       </div>
 

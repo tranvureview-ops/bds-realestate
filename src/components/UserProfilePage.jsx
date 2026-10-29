@@ -90,94 +90,98 @@ export default function UserProfilePage() {
 
   const { navigate } = useRouter();
 
+  const safeUser = currentUser || {};
+
   const [activeTab, setActiveTab] = useState('info'); // 'info', 'membership', 'kyc', 'security', 'notifications', 'appointments'
   const [appointmentFilter, setAppointmentFilter] = useState('all'); // 'all', 'pending', 'confirmed', 'completed', 'cancelled'
 
   // Trạng thái gói hội viên & tự động gia hạn
-  const memberActive = isMembershipActive ? isMembershipActive(currentUser) : Boolean(
-    currentUser?.membership && 
-    currentUser.membership.status === 'active' && 
-    (!currentUser.membership.expiresAt || new Date(currentUser.membership.expiresAt).getTime() > Date.now())
+  const memberActive = isMembershipActive ? isMembershipActive(safeUser) : Boolean(
+    safeUser?.membership && 
+    safeUser.membership.status === 'active' && 
+    (!safeUser.membership.expiresAt || new Date(safeUser.membership.expiresAt).getTime() > Date.now())
   );
-  const memberExpired = Boolean(currentUser?.membership?.packageId && currentUser.membership.packageId !== 'none' && !memberActive);
-  const hasMembership = Boolean(currentUser?.membership?.packageId && currentUser.membership.packageId !== 'none');
-  const isAutoRenew = Boolean(currentUser?.membership?.isAutoRenew);
+  const memberExpired = Boolean(safeUser?.membership?.packageId && safeUser.membership.packageId !== 'none' && !memberActive);
+  const hasMembership = Boolean(safeUser?.membership?.packageId && safeUser.membership.packageId !== 'none');
+  const isAutoRenew = Boolean(safeUser?.membership?.isAutoRenew);
 
-  const currentPkg = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
+  const currentPkg = (membershipPackages || []).find(p => p.id === safeUser?.membership?.packageId);
   const standardSavePercent = useMemo(() => getStandardPackageSavePercent(membershipPackages), [membershipPackages]);
   const premiumSavePercent = useMemo(() => getPremiumPackageSavePercent(membershipPackages), [membershipPackages]);
-  const billingMonths = currentUser?.membership?.billingMonths || 1;
+  const billingMonths = safeUser?.membership?.billingMonths || 1;
   const cycleInfo = currentPkg?.billingCycles?.find(c => c.months === billingMonths) || currentPkg?.billingCycles?.[0];
   const renewalCost = cycleInfo?.price || currentPkg?.monthlyPrice || 0;
-  const isWalletSufficient = (currentUser?.walletBalance || 0) >= renewalCost;
+  const walletBalance = Number(safeUser?.walletBalance || 0);
+  const bonusWalletBalance = Number(safeUser?.bonusWalletBalance || 0);
+  const isWalletSufficient = walletBalance >= renewalCost;
 
-  const expiresAtTime = currentUser?.membership?.expiresAt ? new Date(currentUser.membership.expiresAt).getTime() : 0;
+  const expiresAtTime = safeUser?.membership?.expiresAt ? new Date(safeUser.membership.expiresAt).getTime() : 0;
   const daysDiff = expiresAtTime ? Math.ceil((expiresAtTime - Date.now()) / (1000 * 60 * 60 * 24)) : 0;
 
   // Notification toggles state (Email, Zalo, SMS, In-App)
   const [notificationSettings, setNotificationSettings] = useState(() => ({
-    emailAppointment: currentUser?.notificationSettings?.emailAppointment !== false,
-    zaloAppointment: currentUser?.notificationSettings?.zaloAppointment !== false,
-    smsAppointment: currentUser?.notificationSettings?.smsAppointment !== false,
-    inAppAppointment: currentUser?.notificationSettings?.inAppAppointment !== false,
-    vipExpiryAlert: currentUser?.notificationSettings?.vipExpiryAlert !== false,
-    priceFluctuationAlert: currentUser?.notificationSettings?.priceFluctuationAlert !== false
+    emailAppointment: safeUser?.notificationSettings?.emailAppointment !== false,
+    zaloAppointment: safeUser?.notificationSettings?.zaloAppointment !== false,
+    smsAppointment: safeUser?.notificationSettings?.smsAppointment !== false,
+    inAppAppointment: safeUser?.notificationSettings?.inAppAppointment !== false,
+    vipExpiryAlert: safeUser?.notificationSettings?.vipExpiryAlert !== false,
+    priceFluctuationAlert: safeUser?.notificationSettings?.priceFluctuationAlert !== false
   }));
 
   // Profile Form state
   const [formData, setFormData] = useState({
-    name: currentUser.name || '',
-    phone: currentUser.phone || '',
-    email: currentUser.email || '',
-    bio: currentUser.bio || 'Chuyên viên tư vấn bất động sản cao cấp, cam kết pháp lý minh bạch 100%.',
-    primaryArea: currentUser.primaryArea || 'TP. Đà Nẵng',
-    company: currentUser.company || `${systemConfig?.brandShortName || 'Đối tác'} Partner`,
-    address: currentUser.address || 'Góc Võ Nguyên Giáp & Phạm Văn Đồng, P. Phước Mỹ, Q. Sơn Trà, TP. Đà Nẵng',
-    avatar: currentUser.avatar || '/avatars/ai-preset-2.jpg'
+    name: safeUser.name || '',
+    phone: safeUser.phone || '',
+    email: safeUser.email || '',
+    bio: safeUser.bio || 'Chuyên viên tư vấn bất động sản cao cấp, cam kết pháp lý minh bạch 100%.',
+    primaryArea: safeUser.primaryArea || 'TP. Đà Nẵng',
+    company: safeUser.company || `${systemConfig?.brandShortName || 'Đối tác'} Partner`,
+    address: safeUser.address || 'Góc Võ Nguyên Giáp & Phạm Văn Đồng, P. Phước Mỹ, Q. Sơn Trà, TP. Đà Nẵng',
+    avatar: safeUser.avatar || '/avatars/ai-preset-2.jpg'
   });
 
-  // Tự động đồng bộ form với currentUser khi hydration hoặc đổi tài khoản
+  // Tự động đồng bộ form với safeUser khi hydration hoặc đổi tài khoản
   React.useEffect(() => {
-    if (currentUser && currentUser.id !== 'guest') {
+    if (safeUser && safeUser.id && safeUser.id !== 'guest') {
       setFormData(prev => ({
         ...prev,
-        name: currentUser.name || prev.name || '',
-        phone: currentUser.phone || prev.phone || '',
-        email: currentUser.email || prev.email || '',
-        avatar: currentUser.avatar || prev.avatar || '',
-        bio: currentUser.bio || prev.bio || '',
-        primaryArea: currentUser.primaryArea || prev.primaryArea || '',
-        company: currentUser.company || prev.company || '',
-        address: currentUser.address || prev.address || ''
+        name: safeUser.name || prev.name || '',
+        phone: safeUser.phone || prev.phone || '',
+        email: safeUser.email || prev.email || '',
+        avatar: safeUser.avatar || prev.avatar || '',
+        bio: safeUser.bio || prev.bio || '',
+        primaryArea: safeUser.primaryArea || prev.primaryArea || '',
+        company: safeUser.company || prev.company || '',
+        address: safeUser.address || prev.address || ''
       }));
     }
-  }, [currentUser?.id, currentUser?.name, currentUser?.avatar, currentUser?.phone, currentUser?.email]);
+  }, [safeUser?.id, safeUser?.name, safeUser?.avatar, safeUser?.phone, safeUser?.email]);
 
   // KYC state
   const [kycForm, setKycForm] = useState({
-    idCardNumber: currentUser?.idCardNumber || '',
-    licenseNumber: currentUser?.licenseNumber || '',
-    fullName: currentUser?.name || '',
-    idCardFront: currentUser?.kycImages?.idCardFront || currentUser?.idCardFront || '',
-    idCardBack: currentUser?.kycImages?.idCardBack || currentUser?.idCardBack || '',
-    certificateImage: currentUser?.kycImages?.certificateImage || currentUser?.certificateImage || ''
+    idCardNumber: safeUser?.idCardNumber || '',
+    licenseNumber: safeUser?.licenseNumber || '',
+    fullName: safeUser?.name || '',
+    idCardFront: safeUser?.kycImages?.idCardFront || safeUser?.idCardFront || '',
+    idCardBack: safeUser?.kycImages?.idCardBack || safeUser?.idCardBack || '',
+    certificateImage: safeUser?.kycImages?.certificateImage || safeUser?.certificateImage || ''
   });
   const [isSubmittingKyc, setIsSubmittingKyc] = useState(false);
   const [previewKycImage, setPreviewKycImage] = useState(null);
 
   useEffect(() => {
-    if (currentUser) {
+    if (safeUser && safeUser.id) {
       setKycForm(prev => ({
         ...prev,
-        fullName: currentUser.name || prev.fullName || '',
-        idCardNumber: currentUser.idCardNumber || prev.idCardNumber || '',
-        licenseNumber: currentUser.licenseNumber || prev.licenseNumber || '',
-        idCardFront: currentUser.kycImages?.idCardFront || currentUser.idCardFront || prev.idCardFront || '',
-        idCardBack: currentUser.kycImages?.idCardBack || currentUser.idCardBack || prev.idCardBack || '',
-        certificateImage: currentUser.kycImages?.certificateImage || currentUser.certificateImage || prev.certificateImage || ''
+        fullName: safeUser.name || prev.fullName || '',
+        idCardNumber: safeUser.idCardNumber || prev.idCardNumber || '',
+        licenseNumber: safeUser.licenseNumber || prev.licenseNumber || '',
+        idCardFront: safeUser.kycImages?.idCardFront || safeUser.idCardFront || prev.idCardFront || '',
+        idCardBack: safeUser.kycImages?.idCardBack || safeUser.idCardBack || prev.idCardBack || '',
+        certificateImage: safeUser.kycImages?.certificateImage || safeUser.certificateImage || prev.certificateImage || ''
       }));
     }
-  }, [currentUser?.id, currentUser?.idCardNumber, currentUser?.licenseNumber, currentUser?.idCardFront, currentUser?.idCardBack, currentUser?.certificateImage]);
+  }, [safeUser?.id, safeUser?.idCardNumber, safeUser?.licenseNumber, safeUser?.idCardFront, safeUser?.idCardBack, safeUser?.certificateImage]);
 
   // Security password state
   const [passwordForm, setPasswordForm] = useState({
@@ -244,16 +248,17 @@ export default function UserProfilePage() {
   };
 
   // User's active listings
-  const myListings = properties.filter(p => p.author && p.author.id === currentUser.id);
+  const myListings = (properties || []).filter(p => p?.author && safeUser?.id && String(p.author.id) === String(safeUser.id));
 
   // Appointments for this user (either as broker or as customer)
   const myAppointments = (appointmentsList || []).filter(a => {
-    const isBroker = (a.brokerId && String(a.brokerId) === String(currentUser.id)) ||
-                     (a.brokerPhone && normalizePhone(a.brokerPhone) === normalizePhone(currentUser.phone)) ||
-                     (a.brokerEmail && currentUser.email && a.brokerEmail.toLowerCase() === currentUser.email.toLowerCase());
-    const isCustomer = (a.customerId && String(a.customerId) === String(currentUser.id)) ||
-                       (a.customerPhone && normalizePhone(a.customerPhone) === normalizePhone(currentUser.phone));
-    return isBroker || isCustomer;
+    if (!a) return false;
+    const isBroker = (a.brokerId && safeUser?.id && String(a.brokerId) === String(safeUser.id)) ||
+                     (a.brokerPhone && safeUser?.phone && normalizePhone(a.brokerPhone) === normalizePhone(safeUser.phone)) ||
+                     (a.brokerEmail && safeUser?.email && a.brokerEmail.toLowerCase() === safeUser.email.toLowerCase());
+    const isCustomer = (a.customerId && safeUser?.id && String(a.customerId) === String(safeUser.id)) ||
+                       (a.customerPhone && safeUser?.phone && normalizePhone(a.customerPhone) === normalizePhone(safeUser.phone));
+    return Boolean(isBroker || isCustomer);
   });
 
   const pendingAppointmentsCount = myAppointments.filter(a => a.status === 'pending').length;
@@ -431,8 +436,8 @@ export default function UserProfilePage() {
                 className="hidden"
               />
               <img
-                src={formData.avatar}
-                alt={currentUser.name}
+                src={formData.avatar || safeUser.avatar || '/avatars/ai-preset-2.jpg'}
+                alt={safeUser.name || 'Ảnh đại diện'}
                 className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl object-cover border-4 border-emerald-500 shadow-lg cursor-pointer transition hover:opacity-95"
                 onClick={() => fileInputRef.current?.click()}
                 title="Bấm để tải ảnh đại diện từ máy tính / điện thoại"
@@ -455,27 +460,27 @@ export default function UserProfilePage() {
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-xl sm:text-2xl font-black text-slate-900">
-                  {currentUser.name}
+                  {safeUser.name || 'Người dùng'}
                 </h1>
-                {currentUser.isVerified && (
+                {safeUser.isVerified && (
                   <span className="px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center gap-1 border border-blue-200">
                     <i className="fa-solid fa-circle-check text-blue-600"></i>
                     Đã Xác Thực
                   </span>
                 )}
                 <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
-                  currentUser.role === 'admin' ? 'bg-red-100 text-red-800' :
-                  currentUser.role === 'broker' ? 'bg-amber-100 text-amber-800' :
+                  safeUser.role === 'admin' ? 'bg-red-100 text-red-800' :
+                  safeUser.role === 'broker' ? 'bg-amber-100 text-amber-800' :
                   'bg-slate-100 text-slate-700'
                 }`}>
-                  {currentUser.roleName}
+                  {safeUser.roleName || (safeUser.role === 'admin' ? 'Quản Trị Viên' : safeUser.role === 'broker' ? 'Nhà Môi Giới' : 'Thành Viên')}
                 </span>
               </div>
 
               <p className="text-xs text-slate-500 mt-1 flex flex-wrap items-center gap-3">
-                <span><i className="fa-solid fa-envelope mr-1 text-slate-400"></i> {currentUser.email}</span>
+                <span><i className="fa-solid fa-envelope mr-1 text-slate-400"></i> {safeUser.email || 'Chưa có email'}</span>
                 <span>•</span>
-                <span><i className="fa-solid fa-phone mr-1 text-slate-400"></i> {formatPhoneNumber(currentUser.phone)}</span>
+                <span><i className="fa-solid fa-phone mr-1 text-slate-400"></i> {formatPhoneNumber(safeUser.phone) || 'Chưa có SĐT'}</span>
                 <span>•</span>
                 <span><i className="fa-solid fa-location-dot mr-1 text-slate-400"></i> {formData.primaryArea}</span>
               </p>
@@ -484,8 +489,8 @@ export default function UserProfilePage() {
               <div className="flex items-center gap-4 mt-3 text-xs">
                 <div className="flex items-center gap-1 text-amber-500 font-bold">
                   <i className="fa-solid fa-star"></i>
-                  <span className="text-slate-800 font-extrabold">{currentUser.rating || '4.9'}</span>
-                  <span className="text-slate-400">({currentUser.reviewCount || 38} đánh giá)</span>
+                  <span className="text-slate-800 font-extrabold">{safeUser.rating || '4.9'}</span>
+                  <span className="text-slate-400">({safeUser.reviewCount || 38} đánh giá)</span>
                 </div>
                 <span className="text-slate-300">|</span>
                 <div className="text-slate-600">
@@ -502,23 +507,23 @@ export default function UserProfilePage() {
               <div>
                 <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">Số dư ví tài khoản</div>
                 <div className="text-xl sm:text-2xl font-black text-emerald-700 mt-0.5">
-                  {currentUser.walletBalance.toLocaleString('vi-VN')} đ
+                  {walletBalance.toLocaleString('vi-VN')} đ
                 </div>
                 <div className="space-y-1 mt-1">
                   <div className="text-[11px] text-emerald-800 font-bold flex items-center gap-1.5 bg-emerald-100/70 px-2 py-0.5 rounded-lg w-fit">
                     <i className="fa-solid fa-gift text-emerald-600"></i>
-                    <span>Ví KM: <strong className="font-mono text-emerald-900">{(Number(currentUser.bonusWalletBalance) || 0).toLocaleString('vi-VN')} đ</strong></span>
+                    <span>Ví KM: <strong className="font-mono text-emerald-900">{bonusWalletBalance.toLocaleString('vi-VN')} đ</strong></span>
                   </div>
                   {(() => {
-                    const earliest = currentUser.earliestExpiringBonus || (currentUser.bonusExpiresAt ? {
-                      amount: currentUser.bonusWalletBalance,
-                      formattedDate: new Date(currentUser.bonusExpiresAt).toLocaleDateString('vi-VN')
+                    const earliest = safeUser.earliestExpiringBonus || (safeUser.bonusExpiresAt ? {
+                      amount: bonusWalletBalance,
+                      formattedDate: new Date(safeUser.bonusExpiresAt).toLocaleDateString('vi-VN')
                     } : null);
-                    if (!earliest || Number(currentUser.bonusWalletBalance) <= 0) return null;
+                    if (!earliest || bonusWalletBalance <= 0) return null;
                     return (
                       <div className="text-[10px] text-amber-800 font-semibold flex items-center gap-1">
                         <i className="fa-solid fa-hourglass-half text-amber-600"></i>
-                        <span>(Có {Number(earliest.amount || currentUser.bonusWalletBalance).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày {earliest.formattedDate})</span>
+                        <span>(Có {Number(earliest.amount || bonusWalletBalance).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày {earliest.formattedDate})</span>
                       </div>
                     );
                   })()}
@@ -555,7 +560,7 @@ export default function UserProfilePage() {
                   )}
                 </div>
                 <div className="text-sm font-black text-slate-900 mt-0.5 truncate max-w-[170px]">
-                  {currentUser.membership?.packageName || 'Chưa đăng ký'}
+                  {safeUser.membership?.packageName || 'Chưa đăng ký'}
                 </div>
                 <div className="text-[10px] mt-0.5 flex items-center gap-1.5">
                   {hasMembership ? (
@@ -654,7 +659,7 @@ export default function UserProfilePage() {
               <i className="fa-solid fa-certificate text-sm w-5 text-center"></i>
               <span>Xác Thực Tích Xanh Uy Tín</span>
             </div>
-            {currentUser.isVerified ? (
+            {safeUser.isVerified ? (
               <span className="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">Đã cấp</span>
             ) : (
               <span className="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">Cần KYC</span>
@@ -745,8 +750,8 @@ export default function UserProfilePage() {
                 <div className="flex flex-wrap items-center gap-4">
                   <div className="relative group">
                     <img
-                      src={formData.avatar}
-                      alt={currentUser.name}
+                      src={formData.avatar || safeUser.avatar || '/avatars/ai-preset-2.jpg'}
+                      alt={safeUser.name || 'Ảnh đại diện'}
                       className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-emerald-500 shadow-sm shrink-0"
                     />
                     {isUploadingAvatar && (
@@ -1006,7 +1011,7 @@ export default function UserProfilePage() {
                         {renewalCost.toLocaleString('vi-VN')} đ
                       </div>
                       <div className="text-[10.5px] text-slate-500">
-                        Gói hiện tại: <strong>{currentUser.membership?.packageName}</strong>
+                        Gói hiện tại: <strong>{safeUser.membership?.packageName || 'Chưa đăng ký'}</strong>
                       </div>
                     </div>
 
@@ -1022,7 +1027,7 @@ export default function UserProfilePage() {
                         </button>
                       </div>
                       <div className="text-base font-black text-slate-900">
-                        {currentUser.walletBalance.toLocaleString('vi-VN')} đ
+                        {walletBalance.toLocaleString('vi-VN')} đ
                       </div>
                       <div className="text-[10.5px]">
                         {isWalletSufficient ? (
@@ -1031,7 +1036,7 @@ export default function UserProfilePage() {
                           </span>
                         ) : (
                           <span className="text-amber-700 font-bold flex items-center gap-1">
-                            <i className="fa-solid fa-triangle-exclamation"></i> Cần nạp thêm {(renewalCost - currentUser.walletBalance).toLocaleString('vi-VN')} đ
+                            <i className="fa-solid fa-triangle-exclamation"></i> Cần nạp thêm {Math.max(0, renewalCost - walletBalance).toLocaleString('vi-VN')} đ
                           </span>
                         )}
                       </div>
@@ -1050,10 +1055,10 @@ export default function UserProfilePage() {
                       </div>
                       <div>
                         <div className="text-sm font-black text-slate-900">
-                          {currentUser.membership?.packageName}
+                          {safeUser.membership?.packageName}
                         </div>
                         <div className="text-[11px] text-slate-500">
-                          Mã gói: <span className="font-mono">{currentUser.membership?.packageId}</span> • Chu kỳ: <span className="font-bold text-slate-700">{billingMonths} tháng</span>
+                          Mã gói: <span className="font-mono">{safeUser.membership?.packageId}</span> • Chu kỳ: <span className="font-bold text-slate-700">{billingMonths} tháng</span>
                         </div>
                       </div>
                     </div>
@@ -1074,14 +1079,14 @@ export default function UserProfilePage() {
                     <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200">
                       <div className="text-[10px] text-slate-400 font-bold uppercase">Ngày đăng ký</div>
                       <div className="font-bold text-slate-800 mt-1">
-                        {currentUser.membership?.subscribedAt ? new Date(currentUser.membership.subscribedAt).toLocaleDateString('vi-VN') : '—'}
+                        {safeUser.membership?.subscribedAt ? new Date(safeUser.membership.subscribedAt).toLocaleDateString('vi-VN') : '—'}
                       </div>
                     </div>
 
                     <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200">
                       <div className="text-[10px] text-slate-400 font-bold uppercase">Ngày hết hạn chu kỳ</div>
                       <div className="font-bold text-slate-800 mt-1">
-                        {currentUser.membership?.expiresAt ? new Date(currentUser.membership.expiresAt).toLocaleDateString('vi-VN') : '—'}
+                        {safeUser.membership?.expiresAt ? new Date(safeUser.membership.expiresAt).toLocaleDateString('vi-VN') : '—'}
                       </div>
                     </div>
 
@@ -1104,9 +1109,9 @@ export default function UserProfilePage() {
                         <i className="fa-solid fa-ticket text-emerald-600"></i>
                         <span>Kho Voucher Chu Kỳ 30 Ngày (Đang Khả Dụng)</span>
                       </span>
-                      {currentUser.membership?.nextVoucherRefreshAt && (
+                      {safeUser.membership?.nextVoucherRefreshAt && (
                         <span className="text-[11px] text-slate-500 font-normal">
-                          Lần cấp tiếp theo: <strong className="text-slate-700">{new Date(currentUser.membership.nextVoucherRefreshAt).toLocaleDateString('vi-VN')}</strong>
+                          Lần cấp tiếp theo: <strong className="text-slate-700">{new Date(safeUser.membership.nextVoucherRefreshAt).toLocaleDateString('vi-VN')}</strong>
                         </span>
                       )}
                     </div>
@@ -1134,7 +1139,7 @@ export default function UserProfilePage() {
                               </div>
                             </div>
                             <div className="text-xl font-black text-emerald-700">
-                              {currentUser.vouchers?.normalPublish || 0}
+                              {safeUser.vouchers?.normalPublish || 0}
                             </div>
                           </div>
 
@@ -1148,7 +1153,7 @@ export default function UserProfilePage() {
                               </div>
                             </div>
                             <div className="text-xl font-black text-blue-700">
-                              {currentUser.vouchers?.normalBump || 0}
+                              {safeUser.vouchers?.normalBump || 0}
                             </div>
                           </div>
 
@@ -1160,7 +1165,7 @@ export default function UserProfilePage() {
                               </div>
                             </div>
                             <div className="text-xl font-black text-amber-600">
-                              {currentUser.vouchers?.vipPublish || 0}
+                              {safeUser.vouchers?.vipPublish || 0}
                             </div>
                           </div>
                         </div>
@@ -1234,23 +1239,23 @@ export default function UserProfilePage() {
 
               {/* Status Box */}
               <div className={`p-4 rounded-2xl border flex items-center gap-3 ${
-                currentUser.isVerified 
+                safeUser.isVerified 
                   ? 'bg-blue-50 border-blue-200 text-blue-900' 
-                  : currentUser.kycStatus === 'pending'
+                  : safeUser.kycStatus === 'pending'
                   ? 'bg-amber-50 border-amber-200 text-amber-900'
                   : 'bg-slate-50 border-slate-200 text-slate-800'
               }`}>
                 <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-lg ${
-                  currentUser.isVerified ? 'bg-blue-600 text-white' : 'bg-amber-500 text-white'
+                  safeUser.isVerified ? 'bg-blue-600 text-white' : 'bg-amber-500 text-white'
                 }`}>
-                  <i className={`fa-solid ${currentUser.isVerified ? 'fa-circle-check' : 'fa-hourglass-half'}`}></i>
+                  <i className={`fa-solid ${safeUser.isVerified ? 'fa-circle-check' : 'fa-hourglass-half'}`}></i>
                 </div>
                 <div>
                   <div className="font-extrabold text-sm">
-                    {currentUser.isVerified ? 'Tài Khoản Đã Được Cấp Tích Xanh Xác Thực' : currentUser.kycStatus === 'pending' ? 'Hồ Sơ Đang Chờ Ban Quản Trị Xét Duyệt' : 'Chưa Xác Thực Danh Tính'}
+                    {safeUser.isVerified ? 'Tài Khoản Đã Được Cấp Tích Xanh Xác Thực' : safeUser.kycStatus === 'pending' ? 'Hồ Sơ Đang Chờ Ban Quản Trị Xét Duyệt' : 'Chưa Xác Thực Danh Tính'}
                   </div>
                   <div className="text-[11px] opacity-80 mt-0.5">
-                    {currentUser.isVerified 
+                    {safeUser.isVerified 
                       ? 'Hồ sơ đã được kiểm duyệt số CCCD và chứng chỉ hành nghề BĐS.' 
                       : 'Vui lòng cung cấp số CCCD và chứng chỉ để nhận tích xanh uy tín.'}
                   </div>
@@ -1614,7 +1619,7 @@ export default function UserProfilePage() {
                     <div>
                       <div className="font-bold text-slate-800 text-sm">Thông báo qua Email</div>
                       <div className="text-[11px] text-slate-500 leading-relaxed">
-                        Gửi email chi tiết (thông tin khách, SĐT, giờ hẹn, BĐS) đến <strong>{currentUser.email || 'địa chỉ email của bạn'}</strong> ngay khi khách đặt lịch xem nhà.
+                        Gửi email chi tiết (thông tin khách, SĐT, giờ hẹn, BĐS) đến <strong>{safeUser.email || 'địa chỉ email của bạn'}</strong> ngay khi khách đặt lịch xem nhà.
                       </div>
                     </div>
                   </div>
@@ -1662,7 +1667,7 @@ export default function UserProfilePage() {
                     <div>
                       <div className="font-bold text-slate-800 text-sm">Thông báo qua Tin Nhắn SMS</div>
                       <div className="text-[11px] text-slate-500 leading-relaxed">
-                        Gửi tin nhắn SMS Brandname về số điện thoại <strong>{formatPhoneNumber(currentUser.phone) || 'chính của bạn'}</strong> thông báo mã hẹn và số liên hệ của khách.
+                        Gửi tin nhắn SMS Brandname về số điện thoại <strong>{formatPhoneNumber(safeUser.phone) || 'chính của bạn'}</strong> thông báo mã hẹn và số liên hệ của khách.
                       </div>
                     </div>
                   </div>
@@ -1807,8 +1812,8 @@ export default function UserProfilePage() {
                   {myAppointments
                     .filter(a => appointmentFilter === 'all' || a.status === appointmentFilter)
                     .map(appt => {
-                      const isCustomer = (appt.customerId && String(appt.customerId) === String(currentUser.id)) ||
-                                         (appt.customerPhone && normalizePhone(appt.customerPhone) === normalizePhone(currentUser.phone));
+                      const isCustomer = (appt.customerId && safeUser?.id && String(appt.customerId) === String(safeUser.id)) ||
+                                         (appt.customerPhone && safeUser?.phone && normalizePhone(appt.customerPhone) === normalizePhone(safeUser.phone));
                       return (
                         <div
                           key={appt.id}
@@ -1851,7 +1856,7 @@ export default function UserProfilePage() {
                                 ⏰ {appt.appointmentDate}
                               </div>
                               <div className="text-[10px] text-slate-400 mt-1">
-                                Tạo lúc: {new Date(appt.createdAt).toLocaleString('vi-VN')}
+                                Tạo lúc: {appt.createdAt ? new Date(appt.createdAt).toLocaleString('vi-VN') : '—'}
                               </div>
                             </div>
                           </div>
