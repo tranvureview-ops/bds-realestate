@@ -649,7 +649,7 @@ export default function LiveChatWidget() {
                         required
                         value={leadFormData.name}
                         onChange={(e) => setLeadFormData(prev => ({ ...prev, name: e.target.value }))}
-                        placeholder="Ví dụ: Nguyễn Văn Tuấn"
+                        placeholder="Nhập họ và tên..."
                         className="w-full pl-9 pr-3 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 shadow-xs"
                       />
                     </div>

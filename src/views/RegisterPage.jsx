@@ -205,7 +205,7 @@ export default function RegisterPage() {
             <input
               type="text"
               required
-              placeholder="Ví dụ: Nguyễn Văn Tuấn"
+              placeholder="Nhập họ và tên..."
               value={registerData.name}
               onChange={(e) => setRegisterData(prev => ({ ...prev, name: e.target.value }))}
               className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-red-500"
@@ -220,7 +220,7 @@ export default function RegisterPage() {
               <input
                 type="tel"
                 required
-                placeholder="VD: 0904 084 888"
+                placeholder="VD: 0908 123 456"
                 value={registerData.phone}
                 onBlur={() => setPhoneTouched(true)}
                 onChange={(e) => setRegisterData(prev => ({ ...prev, phone: e.target.value }))}
@@ -243,7 +243,7 @@ export default function RegisterPage() {
               <input
                 type="email"
                 required
-                placeholder="email@example.com"
+                placeholder="name@example.com"
                 value={registerData.email}
                 onBlur={() => setEmailTouched(true)}
                 onChange={(e) => setRegisterData(prev => ({ ...prev, email: e.target.value }))}

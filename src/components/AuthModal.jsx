@@ -219,7 +219,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
                 <i className="fa-solid fa-user absolute left-3.5 top-3 text-slate-400 text-xs"></i>
                 <input
                   type="text"
-                  placeholder="VD: tuan.datbien@datbiendanang.vn hoặc 0898246607"
+                  placeholder="Nhập email hoặc số điện thoại..."
                   value={loginIdentifier}
                   onChange={(e) => setLoginIdentifier(e.target.value)}
                   className="w-full pl-9 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500 focus:outline-none"
@@ -388,7 +388,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
                 <label className="block text-slate-700 font-bold mb-1 uppercase text-[10px]">Họ và tên:</label>
                 <input
                   type="text"
-                  placeholder="VD: Nguyễn Văn Tuấn"
+                  placeholder="Nhập họ và tên..."
                   value={registerData.name}
                   onChange={(e) => setRegisterData({ ...registerData, name: e.target.value })}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500"
@@ -427,7 +427,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
               </label>
               <input
                 type="email"
-                placeholder="VD: tuan.datbien@gmail.com"
+                placeholder="name@example.com"
                 value={registerData.email}
                 onBlur={() => setEmailTouched(true)}
                 onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
@@ -602,7 +602,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
                   </label>
                   <input
                     type="text"
-                    placeholder="VD: tuan.bds@gmail.com hoặc 0904084888"
+                    placeholder="Nhập email hoặc số điện thoại..."
                     value={forgotEmail}
                     onChange={(e) => setForgotEmail(e.target.value)}
                     className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-red-500"
