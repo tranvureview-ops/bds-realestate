@@ -325,7 +325,6 @@ export default function RegisterPage() {
             <div className="relative">
               <input
                 type="text"
-                placeholder="VD: VU888"
                 value={registerData.referralCode}
                 onChange={(e) => setRegisterData(prev => ({ ...prev, referralCode: e.target.value.toUpperCase() }))}
                 className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-red-500 uppercase tracking-wider text-xs"
