@@ -9,7 +9,7 @@ import { formatPriceRangeText, formatAreaRangeText, buildSeoUrl } from '../utils
 import PropertyTypeSelector from './PropertyTypeSelector';
 import PriceRangeSelector from './PriceRangeSelector';
 import AreaRangeSelector from './AreaRangeSelector';
-import { formatPropertyTypeTriggerLabel, getFlatPropertyTypes } from '../data/propertyTypeTaxonomy';
+import { formatPropertyTypeTriggerLabel, getFlatPropertyTypes, getPropertyTypeDisplayName } from '../data/propertyTypeTaxonomy';
 
 const CITIES = [
   'Đà Nẵng',
@@ -77,6 +77,7 @@ export default function ListingFilterBar({
   }, [draftFilters.propertyTypes, draftFilters.propertyType]);
 
   const containerRef = useRef(null);
+  const openedFromQuickLocationRef = useRef(false);
 
   // Sync keywordInput with filters.keyword
   useEffect(() => {
@@ -104,6 +105,9 @@ export default function ListingFilterBar({
   // Open modal and load current active filters into draft
   const handleOpenAdvancedModal = (initialScreen = 'main') => {
     const screen = (typeof initialScreen === 'string' && initialScreen) ? initialScreen : 'main';
+    if (screen !== 'location') {
+      openedFromQuickLocationRef.current = false;
+    }
     setDraftFilters({
       demand: filters?.demand || demand || 'sale',
       propertyType: filters?.propertyType || 'all',
@@ -130,7 +134,10 @@ export default function ListingFilterBar({
     setOpenDropdown(null);
   };
 
-  const handleOpenLocationModal = () => handleOpenAdvancedModal('location');
+  const handleOpenLocationModal = () => {
+    openedFromQuickLocationRef.current = true;
+    handleOpenAdvancedModal('location');
+  };
 
   // Apply draft filters when clicking "Xem kết quả"
   const handleApplyAllDraftFilters = () => {
@@ -311,6 +318,9 @@ export default function ListingFilterBar({
     if (draftFilters.street) parts.push(draftFilters.street);
     if (draftFilters.ward) parts.push(draftFilters.ward);
     if (draftFilters.district) parts.push(draftFilters.district);
+    if (draftFilters.city && draftFilters.city !== 'Toàn quốc' && parts.length > 0) {
+      parts.push(draftFilters.city);
+    }
     if (parts.length > 0) return parts.join(', ');
     if (draftFilters.city && draftFilters.city !== 'Toàn quốc') return draftFilters.city;
     return 'Trên toàn quốc';
@@ -832,8 +842,7 @@ export default function ListingFilterBar({
                     {activeDraftTypes.length > 0 ? (
                       <div className="flex items-center gap-1.5 flex-wrap">
                         {activeDraftTypes.map(tId => {
-                          const flat = getFlatPropertyTypes(draftFilters.demand);
-                          const name = flat.find(f => f.id === tId)?.name || tId;
+                          const name = getPropertyTypeDisplayName(tId, draftFilters.demand);
                           return (
                             <span key={tId} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-50 border border-red-200 text-red-700 font-semibold text-xs">
                               <span>{name}</span>
@@ -1217,7 +1226,13 @@ export default function ListingFilterBar({
 
                   <button
                     type="button"
-                    onClick={handleApplyAllDraftFilters}
+                    onClick={() => {
+                      if (openedFromQuickLocationRef.current) {
+                        handleApplyAllDraftFilters();
+                      } else {
+                        setModalScreen('main');
+                      }
+                    }}
                     className="flex-1 py-3 bg-[#e03c31] hover:bg-red-700 text-white font-bold text-sm rounded-xl shadow-md transition cursor-pointer text-center"
                   >
                     Áp dụng
@@ -1318,7 +1333,9 @@ export default function ListingFilterBar({
                       setDraftFilters(prev => ({
                         ...prev,
                         propertyType: primaryId,
-                        propertyTypes: isAll ? ['all'] : cleanIds
+                        propertyTypes: isFullHouse
+                          ? [draftFilters.demand === 'rent' ? 'house-rent-group' : 'house-group']
+                          : (isFullLand ? ['land-group'] : (isAll ? ['all'] : cleanIds))
                       }));
                       setModalScreen('main');
                     }}

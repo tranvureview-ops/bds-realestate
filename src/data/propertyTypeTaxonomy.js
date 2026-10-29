@@ -170,6 +170,57 @@ export function getPropertyTypeTree(demand = 'sale') {
 }
 
 /**
+ * Danh từ tiếng Việt chuẩn hóa cho tất cả các loại hình & nhóm loại hình BĐS
+ */
+export const PROPERTY_TYPE_NAMES = {
+  // Nhóm phân cấp
+  'house-group': 'Các loại nhà bán',
+  'house-rent-group': 'Các loại nhà cho thuê',
+  'land-group': 'Các loại đất bán',
+  
+  // Các loại hình cụ thể
+  'all': 'Tất cả nhà đất',
+  'apartment': 'Căn hộ chung cư',
+  'mini-apartment': 'Chung cư mini, căn hộ dịch vụ',
+  'house': 'Nhà riêng, nhà phố',
+  'villa': 'Nhà biệt thự, liền kề',
+  'street-house': 'Nhà mặt phố',
+  'shophouse': 'Shophouse, nhà phố thương mại',
+  'project-land': 'Đất nền dự án',
+  'land': 'Đất thổ cư, đất ở',
+  'farm-resort': 'Trang trại, khu nghỉ dưỡng',
+  'condotel': 'Condotel',
+  'warehouse': 'Kho, nhà xưởng',
+  'office': 'Văn phòng',
+  'commercial-space': 'Cửa hàng, mặt bằng bán lẻ',
+  'room': 'Nhà trọ, phòng trọ',
+  'other': 'Bất động sản khác'
+};
+
+/**
+ * Trả về tên tiếng Việt hiển thị thân thiện cho bất kỳ ID loại hình hoặc nhóm loại hình BĐS
+ */
+export function getPropertyTypeDisplayName(id, demand = 'sale') {
+  if (!id || id === 'all') return demand === 'rent' ? 'Tất cả nhà đất cho thuê' : 'Tất cả nhà đất';
+  
+  if (id === 'house-group') return demand === 'rent' ? 'Các loại nhà cho thuê' : 'Các loại nhà bán';
+  if (id === 'house-rent-group') return 'Các loại nhà cho thuê';
+  if (id === 'land-group') return demand === 'rent' ? 'Các loại đất cho thuê' : 'Các loại đất bán';
+  
+  if (PROPERTY_TYPE_NAMES[id]) return PROPERTY_TYPE_NAMES[id];
+
+  const flat = getFlatPropertyTypes(demand);
+  const found = flat.find(f => f.id === id);
+  if (found?.name) return found.name;
+
+  const options = getPropertyTypeOptions(demand);
+  const opt = options.find(o => o.value === id);
+  if (opt?.label) return opt.label;
+
+  return id;
+}
+
+/**
  * Trả về danh sách phẳng tất cả các loại hình (lá) cùng tên và nhóm cha
  */
 export function getFlatPropertyTypes(demand = 'sale') {
@@ -178,6 +229,12 @@ export function getFlatPropertyTypes(demand = 'sale') {
 
   tree.forEach(item => {
     if (item.isGroup && item.children) {
+      result.push({
+        id: item.id,
+        name: item.name,
+        icon: item.icon,
+        isGroup: true
+      });
       item.children.forEach(child => {
         result.push({
           ...child,
