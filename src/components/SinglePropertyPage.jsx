@@ -21,6 +21,7 @@ import { validatePhoneNumber, normalizePhone, formatPhoneNumber } from '../utils
 import PropertyVerificationModal from './PropertyVerificationModal';
 import PropertyVerificationReviewModal from './PropertyVerificationReviewModal';
 import SeoImage from './SeoImage';
+import ArticleTreasureBox from './ArticleTreasureBox';
 
 export default function SinglePropertyPage({ propertyOverride = null }) {
   const { 
@@ -1221,6 +1222,9 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               </div>
             </div>
           </div>
+
+          {/* RƯƠNG KHO BÁU BĐS TRONG BÀI VIẾT (TỐI ĐA 3 HỘP/NGÀY - CỘNG TIỀN VÀO VÍ KM) */}
+          <ArticleTreasureBox property={property} />
 
           {/* B2. ĐẶC ĐIỂM TIN ĐĂNG */}
           {(() => {
