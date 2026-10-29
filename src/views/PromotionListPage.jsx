@@ -16,6 +16,43 @@ export default function PromotionListPage() {
   const promoList = rewardsConfig?.promotions || PROMOTIONS_DATA;
   const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Sàn Bất Động Sản';
   const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
+  const [expiringBonusInfo, setExpiringBonusInfo] = useState(null);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const userId = currentUser && currentUser.role !== 'guest' ? currentUser.id : 'guest';
+    try {
+      const cachedExp = localStorage.getItem(`bds_user_bonus_exp_${userId}`);
+      if (cachedExp) {
+        const parsed = JSON.parse(cachedExp);
+        if (parsed?.amount && parsed?.formattedDate) setExpiringBonusInfo(parsed);
+      }
+    } catch (e) {}
+
+    if (currentUser?.earliestExpiringBonus?.amount && currentUser?.earliestExpiringBonus?.expiresAt) {
+      const expDate = new Date(currentUser.earliestExpiringBonus.expiresAt);
+      setExpiringBonusInfo({
+        amount: Number(currentUser.earliestExpiringBonus.amount),
+        expiresAt: currentUser.earliestExpiringBonus.expiresAt,
+        formattedDate: currentUser.earliestExpiringBonus.formattedDate || expDate.toLocaleDateString('vi-VN')
+      });
+    }
+
+    if (!userId || userId === 'guest') return;
+
+    fetch(`/api/wallet/expiring-bonus?userId=${userId}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.hasExpiringBonus) {
+          setExpiringBonusInfo({
+            amount: data.amount,
+            expiresAt: data.expiresAt,
+            formattedDate: data.formattedDate
+          });
+        }
+      })
+      .catch(() => {});
+  }, [currentUser?.id, currentUser?.bonusWalletBalance]);
 
   const categories = [
     { id: 'all', label: 'Tất cả khuyến mãi', icon: 'fa-solid fa-gift' },
@@ -102,6 +139,17 @@ export default function PromotionListPage() {
                 <div className="text-[11px] text-white/70">Số dư Ví Khuyến Mãi của bạn</div>
                 <div className="text-xl font-black text-amber-300 font-mono">
                   +{bonusBal.toLocaleString('vi-VN')} <span className="text-xs text-white">VNĐ</span>
+                </div>
+                {/* Dòng cảnh báo nhỏ kèm icon đồng hồ cát */}
+                <div className="text-[11px] text-amber-200 font-semibold flex items-center gap-1.5 mt-0.5">
+                  <i className="fa-solid fa-hourglass-half text-amber-300 animate-pulse"></i>
+                  <span>
+                    {bonusBal > 0 && expiringBonusInfo?.amount > 0 && expiringBonusInfo?.formattedDate
+                      ? `(Có ${Number(expiringBonusInfo.amount).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${expiringBonusInfo.formattedDate})`
+                      : bonusBal > 0
+                      ? `(Có ${bonusBal.toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN')})`
+                      : '(Hạn dùng tiền thưởng khuyến mãi 30 ngày kể từ ngày nhận)'}
+                  </span>
                 </div>
               </div>
             </div>

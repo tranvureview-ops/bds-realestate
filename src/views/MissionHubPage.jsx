@@ -18,17 +18,112 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
     systemConfig,
     properties 
   } = useRealEstate();
-  const { navigate } = useRouter();
+  const router = useRouter();
+  const pathname = router?.pathname || '';
 
   const userId = currentUser && currentUser.role !== 'guest' ? currentUser.id : 'guest';
-  const allMissions = rewardsConfig?.missions || MISSIONS_DATA;
+  const [localRewardsConfig, setLocalRewardsConfig] = useState(rewardsConfig);
+  const [localBonusBal, setLocalBonusBal] = useState(Number(currentUser?.bonusWalletBalance || 0));
+  const [expiringBonusInfo, setExpiringBonusInfo] = useState(null);
 
-  // Đồng bộ activeCategory khi url param initialCategory thay đổi
   useEffect(() => {
-    if (initialCategory) {
+    setLocalRewardsConfig(rewardsConfig);
+  }, [rewardsConfig]);
+
+  useEffect(() => {
+    setLocalBonusBal(Number(currentUser?.bonusWalletBalance || 0));
+  }, [currentUser?.bonusWalletBalance]);
+
+  // Đồng bộ activeCategory khi url param initialCategory hoặc pathname thay đổi
+  useEffect(() => {
+    if (initialCategory && initialCategory !== 'all') {
       setActiveCategory(initialCategory);
+    } else if (pathname) {
+      if (pathname.includes('/tan-thu')) setActiveCategory('tan-thu');
+      else if (pathname.includes('/hang-ngay')) setActiveCategory('hang-ngay');
+      else if (pathname.includes('/thanh-tuu')) setActiveCategory('thanh-tuu');
     }
-  }, [initialCategory]);
+  }, [initialCategory, pathname]);
+
+  // Lắng nghe cấu hình phần thưởng và thông tin ví theo thời gian thực
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    // 1. Kiểm tra LocalStorage ngay lập tức
+    try {
+      const cachedBonus = localStorage.getItem(`bds_user_bonus_${userId}`);
+      if (cachedBonus !== null && !isNaN(Number(cachedBonus))) {
+        setLocalBonusBal(Number(cachedBonus));
+      }
+      const cachedExp = localStorage.getItem(`bds_user_bonus_exp_${userId}`);
+      if (cachedExp) {
+        const parsed = JSON.parse(cachedExp);
+        if (parsed?.amount && parsed?.formattedDate) {
+          setExpiringBonusInfo(parsed);
+        }
+      }
+    } catch (e) {}
+
+    // 2. Ưu tiên từ currentUser
+    if (currentUser?.earliestExpiringBonus?.amount && currentUser?.earliestExpiringBonus?.expiresAt) {
+      const expDate = new Date(currentUser.earliestExpiringBonus.expiresAt);
+      setExpiringBonusInfo({
+        amount: Number(currentUser.earliestExpiringBonus.amount),
+        expiresAt: currentUser.earliestExpiringBonus.expiresAt,
+        formattedDate: currentUser.earliestExpiringBonus.formattedDate || expDate.toLocaleDateString('vi-VN')
+      });
+    }
+
+    const handleConfigUpdate = (e) => {
+      if (e.detail) {
+        setLocalRewardsConfig(e.detail);
+      }
+    };
+
+    const handleWalletUpdated = (e) => {
+      if (e.detail?.bonusWalletBalance !== undefined) {
+        setLocalBonusBal(Number(e.detail.bonusWalletBalance));
+      }
+      if (e.detail?.earliestExpiringBonus) {
+        setExpiringBonusInfo(e.detail.earliestExpiringBonus);
+      }
+    };
+
+    window.addEventListener('bds_rewards_config_updated', handleConfigUpdate);
+    window.addEventListener('bds_bonus_wallet_updated', handleWalletUpdated);
+
+    if (!userId || userId === 'guest') {
+      return () => {
+        window.removeEventListener('bds_rewards_config_updated', handleConfigUpdate);
+        window.removeEventListener('bds_bonus_wallet_updated', handleWalletUpdated);
+      };
+    }
+
+    const fetchExpiringBonus = async () => {
+      try {
+        const res = await fetch(`/api/wallet/expiring-bonus?userId=${userId}`);
+        const data = await res.json();
+        if (data.success && data.hasExpiringBonus) {
+          setExpiringBonusInfo({
+            amount: data.amount,
+            expiresAt: data.expiresAt,
+            formattedDate: data.formattedDate
+          });
+        }
+      } catch (err) {
+        console.warn('Lỗi lấy thông tin gói tiền sắp hết hạn:', err);
+      }
+    };
+
+    fetchExpiringBonus();
+
+    return () => {
+      window.removeEventListener('bds_rewards_config_updated', handleConfigUpdate);
+      window.removeEventListener('bds_bonus_wallet_updated', handleWalletUpdated);
+    };
+  }, [userId, currentUser?.bonusWalletBalance]);
+
+  const allMissions = localRewardsConfig?.missions || rewardsConfig?.missions || MISSIONS_DATA;
 
   // Tải trạng thái các nhiệm vụ đã nhận thưởng từ LocalStorage và lắng nghe sự kiện
   useEffect(() => {
@@ -167,7 +262,9 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
 
     // Cộng tiền trực tiếp vào Ví Khuyến Mãi của user
     if (addBonusWalletBalance) {
-      addBonusWalletBalance(amount, `Nhiệm vụ: ${title}`);
+      addBonusWalletBalance(amount, `Nhiệm vụ: ${title}`, {
+        expiryDays: 30
+      });
     }
 
     if (showToast) {
@@ -178,10 +275,13 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
   const handleTabClick = (catId) => {
     setActiveCategory(catId);
     const targetUrl = catId === 'all' ? '/nhiem-vu' : `/nhiem-vu/${catId}`;
-    navigate(targetUrl);
+    if (router?.navigate) {
+      router.navigate(targetUrl);
+    } else {
+      window.location.href = targetUrl;
+    }
   };
 
-  const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
   const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Sàn Bất Động Sản';
 
   return (
@@ -212,22 +312,33 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
           </div>
 
           {/* User Bonus Wallet Box */}
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-2xl flex items-center gap-5 shrink-0 w-full md:w-auto justify-between md:justify-start">
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center gap-5 shrink-0 w-full md:w-auto justify-between md:justify-start">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-400 text-slate-950 flex items-center justify-center text-2xl shadow-lg">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-400 text-slate-950 flex items-center justify-center text-2xl shadow-lg shrink-0">
                 <i className="fa-solid fa-wallet"></i>
               </div>
               <div>
                 <div className="text-[11px] uppercase tracking-wider text-white/70 font-bold">Ví Khuyến Mãi của bạn</div>
                 <div className="text-2xl font-black text-amber-300 font-mono">
-                  +{bonusBal.toLocaleString('vi-VN')} <span className="text-xs text-white">VNĐ</span>
+                  +{localBonusBal.toLocaleString('vi-VN')} <span className="text-xs text-white">VNĐ</span>
+                </div>
+                {/* Dòng cảnh báo nhỏ kèm icon đồng hồ cát */}
+                <div className="text-[11px] text-amber-200 font-semibold flex items-center gap-1.5 mt-0.5">
+                  <i className="fa-solid fa-hourglass-half text-amber-300 animate-pulse"></i>
+                  <span>
+                    {localBonusBal > 0 && expiringBonusInfo?.amount > 0 && expiringBonusInfo?.formattedDate
+                      ? `(Có ${Number(expiringBonusInfo.amount).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${expiringBonusInfo.formattedDate})`
+                      : localBonusBal > 0
+                      ? `(Có ${localBonusBal.toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN')})`
+                      : '(Tiền thưởng nhiệm vụ có hạn dùng 30 ngày kể từ ngày nhận)'}
+                  </span>
                 </div>
               </div>
             </div>
 
             <Link
               to="/dang-tin"
-              className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition shadow-md whitespace-nowrap flex items-center gap-1.5"
+              className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition shadow-md whitespace-nowrap flex items-center gap-1.5 shrink-0"
             >
               <span>Dùng ví đăng tin</span>
               <i className="fa-solid fa-arrow-right text-[10px]"></i>
