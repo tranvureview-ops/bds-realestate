@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { CHECK_IN_7_DAYS } from '../data/rewardData';
 import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
+import { getCheckInStatus, executeCheckIn } from '../services/checkInService';
 
 export default function CheckIn7DaysPage() {
   const { 
@@ -11,7 +12,8 @@ export default function CheckIn7DaysPage() {
     showToast, 
     addBonusWalletBalance, 
     rewardsConfig,
-    systemConfig 
+    systemConfig,
+    setActiveModal
   } = useRealEstate();
   const { navigate } = useRouter();
 
@@ -19,63 +21,70 @@ export default function CheckIn7DaysPage() {
   const isEnabled = rewardsConfig?.checkInConfig?.enabled !== false;
   const totalWeekly = daysList.reduce((acc, d) => acc + Number(d.reward || 0), 0);
 
-  const userId = currentUser && currentUser.role !== 'guest' ? currentUser.id : 'guest';
-  const [currentStreak, setCurrentStreak] = useState(1);
+  const isLoggedIn = Boolean(currentUser && currentUser.role !== 'guest' && currentUser.id);
+  const userId = isLoggedIn ? currentUser.id : 'guest';
+  const [currentStreak, setCurrentStreak] = useState(0);
   const [checkedToday, setCheckedToday] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const lastDate = localStorage.getItem(`bds_checkin_last_date_${userId}`);
-    const savedStreak = Number(localStorage.getItem(`bds_checkin_streak_${userId}`) || 0);
-    const todayStr = new Date().toDateString();
 
-    if (lastDate === todayStr) {
-      setCheckedToday(true);
-      setCurrentStreak(savedStreak || 1);
-    } else if (lastDate) {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      if (lastDate === yesterday.toDateString()) {
-        setCurrentStreak(savedStreak || 1);
+    const syncCheckInStatus = () => {
+      if (isLoggedIn) {
+        const status = getCheckInStatus(currentUser.id);
+        setCurrentStreak(status.streak);
+        setCheckedToday(status.checkedToday);
       } else {
-        setCurrentStreak(1);
+        setCurrentStreak(0);
+        setCheckedToday(false);
       }
-      setCheckedToday(false);
-    } else {
-      setCurrentStreak(1);
-      setCheckedToday(false);
-    }
-  }, [userId]);
+    };
+
+    syncCheckInStatus();
+    window.addEventListener('bds_checkin_updated', syncCheckInStatus);
+    window.addEventListener('storage', syncCheckInStatus);
+    return () => {
+      window.removeEventListener('bds_checkin_updated', syncCheckInStatus);
+      window.removeEventListener('storage', syncCheckInStatus);
+    };
+  }, [currentUser?.id, isLoggedIn]);
 
   const handleCheckIn = () => {
-    if (checkedToday || !isEnabled) return;
-    const effectiveUid = userId || 'guest';
-
-    const todayStr = new Date().toDateString();
-    let nextStreak = checkedToday ? currentStreak : (currentStreak >= 7 ? 1 : currentStreak + 1);
-    const lastDate = localStorage.getItem(`bds_checkin_last_date_${effectiveUid}`);
-    if (!lastDate) {
-      nextStreak = 1;
+    // 1. Bắt buộc đăng nhập mới có thể điểm danh
+    if (!isLoggedIn) {
+      if (showToast) showToast('Vui lòng đăng nhập tài khoản để điểm danh nhận tiền vào Ví Khuyến Mãi!', 'warning');
+      if (setActiveModal) {
+        setActiveModal('auth');
+      } else {
+        navigate('/dang-nhap');
+      }
+      return;
     }
 
-    setCurrentStreak(nextStreak);
-    setCheckedToday(true);
-    localStorage.setItem(`bds_checkin_last_date_${effectiveUid}`, todayStr);
-    localStorage.setItem(`bds_checkin_streak_${effectiveUid}`, String(nextStreak));
+    if (checkedToday || !isEnabled) return;
 
-    const item = daysList[nextStreak - 1] || { reward: 5000 };
-    const amount = Number(item.reward || 5000);
+    // 2. Điểm danh đúng ngày (tuyệt đối không nhảy cóc 2 ngày)
+    const res = executeCheckIn(currentUser, daysList);
+    if (!res.success) {
+      if (showToast) showToast(res.message, 'warning');
+      return;
+    }
+
+    setCurrentStreak(res.streak);
+    setCheckedToday(true);
 
     // Cộng tiền trực tiếp vào Ví Khuyến Mãi của người dùng
     if (addBonusWalletBalance) {
-      addBonusWalletBalance(amount, `Điểm danh Ngày ${nextStreak}`);
+      addBonusWalletBalance(res.reward, `Điểm danh ${res.dayLabel}`);
     }
 
     if (showToast) {
-      showToast(`🎉 Điểm danh Ngày ${nextStreak} thành công! Đã cộng trực tiếp +${amount.toLocaleString('vi-VN')}đ vào Ví Khuyến Mãi!`, 'success');
+      showToast(res.message, 'success');
     }
   };
 
+  const nextDayToClaim = checkedToday ? currentStreak : (currentStreak >= 7 ? 1 : currentStreak + 1);
+  const nextReward = Number(daysList[nextDayToClaim - 1]?.reward || 5000);
   const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
   const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Sàn Bất Động Sản';
 
@@ -127,40 +136,45 @@ export default function CheckIn7DaysPage() {
               </p>
             </div>
             <div className="text-xs font-bold px-3 py-1 bg-slate-100 rounded-full text-slate-600">
-              Chuỗi hiện tại: Ngày {currentStreak}/7
+              Chuỗi hiện tại: {currentStreak}/7 ngày {checkedToday ? '(Đã xong hôm nay)' : ''}
             </div>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
             {daysList.map((item, idx) => {
               const dayNum = idx + 1;
-              const isPast = dayNum < currentStreak || (dayNum === currentStreak && checkedToday);
-              const isCurrent = dayNum === currentStreak && !checkedToday;
+              const isChecked = dayNum <= currentStreak;
+              const isCurrent = !checkedToday && dayNum === (currentStreak + 1);
               const isSpecialDay = dayNum === 7;
 
               return (
                 <div
                   key={dayNum}
                   className={`relative p-4 rounded-2xl border text-center transition-all ${
-                    isPast
-                      ? 'bg-emerald-50/80 border-emerald-300 text-emerald-900'
+                    isChecked
+                      ? 'bg-emerald-50/80 border-emerald-300 text-emerald-900 font-bold'
                       : isCurrent
-                      ? 'bg-amber-50 border-amber-400 text-amber-950 ring-2 ring-amber-300 shadow-md scale-103'
+                      ? 'bg-amber-50 border-amber-400 text-amber-950 ring-2 ring-amber-300 shadow-md scale-103 font-bold'
                       : isSpecialDay
                       ? 'bg-purple-50/60 border-purple-200 text-purple-900'
-                      : 'bg-slate-50 border-slate-200 text-slate-600 opacity-80'
+                      : 'bg-slate-50 border-slate-200 text-slate-500 opacity-75'
                   }`}
                 >
-                  <div className="text-[10px] font-black uppercase tracking-wider mb-2">
-                    Ngày {dayNum}
+                  <div className="text-[10px] font-black uppercase tracking-wider mb-2 flex items-center justify-center gap-1">
+                    <span>Ngày {dayNum}</span>
+                    {isCurrent && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
+                    )}
                   </div>
                   <div className="w-10 h-10 rounded-full mx-auto flex items-center justify-center text-base font-black mb-2 bg-white shadow-xs">
-                    {isPast ? (
+                    {isChecked ? (
                       <i className="fa-solid fa-check text-emerald-600 text-lg"></i>
+                    ) : isCurrent ? (
+                      <i className="fa-solid fa-hand-holding-dollar text-amber-500 text-lg"></i>
                     ) : isSpecialDay ? (
                       <i className="fa-solid fa-crown text-purple-600 text-lg"></i>
                     ) : (
-                      <i className="fa-solid fa-gift text-amber-500"></i>
+                      <i className="fa-solid fa-gift text-slate-400"></i>
                     )}
                   </div>
                   <div className="text-xs font-black font-mono">
@@ -177,18 +191,26 @@ export default function CheckIn7DaysPage() {
           {/* Action Button */}
           <div className="pt-2 text-center">
             <button
-              disabled={checkedToday || !isEnabled}
+              disabled={(isLoggedIn && checkedToday) || !isEnabled}
               onClick={handleCheckIn}
               className={`w-full sm:w-auto px-10 py-4 rounded-2xl text-sm font-black transition-all flex items-center justify-center gap-2 mx-auto shadow-lg cursor-pointer ${
-                checkedToday
+                !isLoggedIn
+                  ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200'
+                  : checkedToday
                   ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 cursor-not-allowed'
                   : !isEnabled
                   ? 'bg-slate-200 text-slate-400 cursor-not-allowed'
                   : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-200 animate-pulse hover:scale-102'
               }`}
             >
-              <i className={`fa-solid ${checkedToday ? 'fa-circle-check text-base' : 'fa-calendar-check text-base'}`}></i>
-              <span>{checkedToday ? '✅ Bạn đã điểm danh hôm nay (Quay lại vào ngày mai)' : `Điểm danh Ngày ${currentStreak} nhận +${Number(daysList[currentStreak - 1]?.reward || 5000).toLocaleString('vi-VN')}đ ngay`}</span>
+              <i className={`fa-solid ${!isLoggedIn ? 'fa-arrow-right-to-bracket text-base' : checkedToday ? 'fa-circle-check text-base' : 'fa-calendar-check text-base'}`}></i>
+              <span>
+                {!isLoggedIn
+                  ? 'Đăng nhập tài khoản để điểm danh'
+                  : checkedToday
+                  ? '✅ Bạn đã điểm danh hôm nay (Quay lại vào ngày mai)'
+                  : `Điểm danh Ngày ${nextDayToClaim} nhận +${nextReward.toLocaleString('vi-VN')}đ ngay`}
+              </span>
             </button>
           </div>
         </div>

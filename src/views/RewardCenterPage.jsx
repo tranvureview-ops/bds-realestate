@@ -5,6 +5,7 @@ import { CHECK_IN_7_DAYS, PROMOTIONS_DATA, MISSIONS_DATA, PRICE_PREDICTION_GAMES
 import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 import { getDailyClaims } from '../services/treasureHuntService';
+import { getCheckInStatus, executeCheckIn } from '../services/checkInService';
 
 export default function RewardCenterPage() {
   const { 
@@ -13,11 +14,13 @@ export default function RewardCenterPage() {
     rewardsConfig, 
     showToast, 
     addBonusWalletBalance,
-    properties 
+    properties,
+    setActiveModal
   } = useRealEstate();
   const { navigate } = useRouter();
 
-  const userId = currentUser && currentUser.role !== 'guest' ? currentUser.id : 'guest';
+  const isLoggedIn = Boolean(currentUser && currentUser.role !== 'guest' && currentUser.id);
+  const userId = isLoggedIn ? currentUser.id : 'guest';
   const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
 
   // 1. Dữ liệu động từ rewardsConfig (quản trị CMS)
@@ -37,35 +40,37 @@ export default function RewardCenterPage() {
     ...(allMissions['tan-thu'] || [])
   ].slice(0, 3);
 
-  // 2. Trạng thái Điểm Danh trực tiếp
-  const [currentStreak, setCurrentStreak] = useState(1);
+  // 2. Trạng thái Điểm Danh trực tiếp (Chuẩn hóa từ checkInService)
+  const [currentStreak, setCurrentStreak] = useState(0);
   const [checkedToday, setCheckedToday] = useState(false);
   const [copiedCode, setCopiedCode] = useState(null);
   const [claimedMissions, setClaimedMissions] = useState({});
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    const lastDate = localStorage.getItem(`bds_checkin_last_date_${userId}`);
-    const savedStreak = Number(localStorage.getItem(`bds_checkin_streak_${userId}`) || 0);
-    const todayStr = new Date().toDateString();
 
-    if (lastDate === todayStr) {
-      setCheckedToday(true);
-      setCurrentStreak(savedStreak || 1);
-    } else if (lastDate) {
-      const yesterday = new Date();
-      yesterday.setDate(yesterday.getDate() - 1);
-      if (lastDate === yesterday.toDateString()) {
-        setCurrentStreak(savedStreak || 1);
+    const syncCheckInStatus = () => {
+      if (isLoggedIn) {
+        const status = getCheckInStatus(currentUser.id);
+        setCurrentStreak(status.streak);
+        setCheckedToday(status.checkedToday);
       } else {
-        setCurrentStreak(1);
+        setCurrentStreak(0);
+        setCheckedToday(false);
       }
-      setCheckedToday(false);
-    } else {
-      setCurrentStreak(1);
-      setCheckedToday(false);
-    }
+    };
 
+    syncCheckInStatus();
+    window.addEventListener('bds_checkin_updated', syncCheckInStatus);
+    window.addEventListener('storage', syncCheckInStatus);
+    return () => {
+      window.removeEventListener('bds_checkin_updated', syncCheckInStatus);
+      window.removeEventListener('storage', syncCheckInStatus);
+    };
+  }, [currentUser?.id, isLoggedIn]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
     const loadClaims = () => {
       try {
         const savedClaims = localStorage.getItem(`bds_claimed_missions_${userId}`);
@@ -87,26 +92,35 @@ export default function RewardCenterPage() {
 
   // Thao tác Điểm danh ngay trên Trung Tâm Phần Thưởng
   const handleQuickCheckIn = () => {
+    // 1. Bắt buộc đăng nhập mới có thể điểm danh
+    if (!isLoggedIn) {
+      if (showToast) showToast('Vui lòng đăng nhập tài khoản để điểm danh nhận tiền vào Ví Khuyến Mãi!', 'warning');
+      if (setActiveModal) {
+        setActiveModal('auth');
+      } else {
+        navigate('/dang-nhap');
+      }
+      return;
+    }
+
     if (checkedToday || !isCheckInEnabled) return;
-    const effectiveUid = userId || 'guest';
 
-    const todayStr = new Date().toDateString();
-    const nextStreak = checkedToday ? currentStreak : (currentStreak >= 7 ? 1 : currentStreak + 1);
+    // 2. Thực hiện điểm danh đúng ngày trong chuỗi (tuyệt đối không nhảy số)
+    const res = executeCheckIn(currentUser, checkInDays);
+    if (!res.success) {
+      if (showToast) showToast(res.message, 'warning');
+      return;
+    }
 
-    setCurrentStreak(nextStreak);
+    setCurrentStreak(res.streak);
     setCheckedToday(true);
-    localStorage.setItem(`bds_checkin_last_date_${effectiveUid}`, todayStr);
-    localStorage.setItem(`bds_checkin_streak_${effectiveUid}`, String(nextStreak));
-
-    const item = checkInDays[nextStreak - 1] || { reward: 5000 };
-    const amount = Number(item.reward || 5000);
 
     if (addBonusWalletBalance) {
-      addBonusWalletBalance(amount, `Điểm danh Ngày ${nextStreak} (Trung tâm phần thưởng)`);
+      addBonusWalletBalance(res.reward, `Điểm danh ${res.dayLabel} (Trung tâm phần thưởng)`);
     }
 
     if (showToast) {
-      showToast(`🎉 Điểm danh Ngày ${nextStreak} thành công! Đã cộng +${amount.toLocaleString('vi-VN')}đ vào Ví Khuyến Mãi!`, 'success');
+      showToast(res.message, 'success');
     }
   };
 
@@ -252,16 +266,24 @@ export default function RewardCenterPage() {
             </div>
             <div className="flex items-center gap-3">
               <button
-                disabled={checkedToday}
+                disabled={isLoggedIn && checkedToday}
                 onClick={handleQuickCheckIn}
                 className={`px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm ${
-                  checkedToday 
+                  !isLoggedIn
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer shadow-blue-200'
+                    : checkedToday 
                     ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 cursor-not-allowed'
                     : 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-emerald-200'
                 }`}
               >
-                <i className={`fa-solid ${checkedToday ? 'fa-check' : 'fa-calendar-check'}`}></i>
-                <span>{checkedToday ? 'Đã điểm danh hôm nay' : 'Điểm danh nhận tiền ngay'}</span>
+                <i className={`fa-solid ${!isLoggedIn ? 'fa-arrow-right-to-bracket' : checkedToday ? 'fa-check' : 'fa-calendar-check'}`}></i>
+                <span>
+                  {!isLoggedIn 
+                    ? 'Đăng nhập để điểm danh' 
+                    : checkedToday 
+                    ? 'Đã điểm danh hôm nay' 
+                    : 'Điểm danh nhận tiền ngay'}
+                </span>
               </button>
               <Link
                 to="/trung-tam-phan-thuong/diem-danh-7-ngay/"
@@ -275,27 +297,33 @@ export default function RewardCenterPage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
             {checkInDays.map((d, idx) => {
               const dayNum = idx + 1;
-              const isPast = dayNum < currentStreak || (dayNum === currentStreak && checkedToday);
-              const isCurrent = dayNum === currentStreak && !checkedToday;
+              const isChecked = dayNum <= currentStreak;
+              const isCurrent = !checkedToday && dayNum === (currentStreak + 1);
+
               return (
                 <div
                   key={dayNum}
                   className={`p-3.5 rounded-2xl border text-center transition-all ${
-                    isPast
-                      ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+                    isChecked
+                      ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-bold'
                       : isCurrent
-                      ? 'bg-amber-50 border-amber-400 text-amber-950 ring-2 ring-amber-300 shadow-md scale-102'
-                      : 'bg-slate-50 border-slate-200 text-slate-600 opacity-80'
+                      ? 'bg-amber-50 border-amber-400 text-amber-950 ring-2 ring-amber-300 shadow-md scale-102 font-bold'
+                      : 'bg-slate-50 border-slate-200 text-slate-500 opacity-75'
                   }`}
                 >
-                  <div className="text-[10px] font-black uppercase tracking-wider mb-1">
-                    Ngày {dayNum}
+                  <div className="text-[10px] font-black uppercase tracking-wider mb-1 flex items-center justify-center gap-1">
+                    <span>Ngày {dayNum}</span>
+                    {isCurrent && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
+                    )}
                   </div>
                   <div className="w-8 h-8 rounded-full mx-auto flex items-center justify-center text-sm font-black mb-1 bg-white shadow-xs">
-                    {isPast ? (
-                      <i className="fa-solid fa-check text-emerald-600"></i>
+                    {isChecked ? (
+                      <i className="fa-solid fa-check text-emerald-600 text-base"></i>
+                    ) : isCurrent ? (
+                      <i className="fa-solid fa-hand-holding-dollar text-amber-500 text-base"></i>
                     ) : (
-                      <i className="fa-solid fa-gift text-amber-500"></i>
+                      <i className="fa-solid fa-gift text-slate-400"></i>
                     )}
                   </div>
                   <div className="text-xs font-black font-mono">
