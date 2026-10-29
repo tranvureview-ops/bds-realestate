@@ -23,17 +23,6 @@ export const AVAILABLE_FONTS = [
     samplePrice: '12.500.000.000 ₫'
   },
   {
-    id: 'inter',
-    name: 'Inter',
-    category: 'Gọn gàng, Chuẩn Quốc tế, Tối ưu giao diện UI',
-    fontFamily: "'Inter', sans-serif",
-    cssValue: "'Inter', sans-serif",
-    googleFontUrl: 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap',
-    sampleHeadline: 'Căn Hộ View Biển Mỹ Khê Sơn Trà',
-    sampleText: 'Font chữ số 1 thế giới cho giao diện phần mềm và cổng thông tin.',
-    samplePrice: '3.200.000.000 ₫'
-  },
-  {
     id: 'montserrat',
     name: 'Montserrat',
     category: 'Sang trọng, Đẳng cấp, Khối hình học ấn tượng',
@@ -43,17 +32,6 @@ export const AVAILABLE_FONTS = [
     sampleHeadline: 'BIỆT THỰ BIỂN LUXURY RESORT',
     sampleText: 'Tạo dấu ấn thương hiệu mạnh mẽ, nổi bật trên các banner quảng cáo VIP.',
     samplePrice: '25.000.000.000 ₫'
-  },
-  {
-    id: 'lexend',
-    name: 'Lexend',
-    category: 'Tối ưu tốc độ đọc, Thoáng mắt, Dễ chịu',
-    fontFamily: "'Lexend', sans-serif",
-    cssValue: "'Lexend', sans-serif",
-    googleFontUrl: 'https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&display=swap',
-    sampleHeadline: 'Tra Cứu Bất Động Sản Nhanh Chóng',
-    sampleText: 'Được thiết kế khoa học giúp người xem đọc lướt thông tin tin đăng nhanh hơn.',
-    samplePrice: '7.900.000.000 ₫'
   },
   {
     id: 'roboto',
@@ -84,6 +62,10 @@ export const DEFAULT_FONT_NAME = 'Plus Jakarta Sans';
 export const getFontConfig = (fontNameOrId) => {
   if (!fontNameOrId) return AVAILABLE_FONTS[0];
   const query = fontNameOrId.trim().toLowerCase();
+  // Tự động chuyển về font mặc định nếu là font đã gỡ bỏ (Inter hoặc Lexend)
+  if (query === 'inter' || query.includes('inter') || query === 'lexend' || query.includes('lexend')) {
+    return AVAILABLE_FONTS[0];
+  }
   const match = AVAILABLE_FONTS.find(
     f => f.id.toLowerCase() === query || 
          f.name.toLowerCase() === query || 
