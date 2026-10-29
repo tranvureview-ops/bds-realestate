@@ -274,7 +274,8 @@ export default function AdminAffiliateManager() {
               <input
                 type="number"
                 min="0"
-                max="50"
+                max="100"
+                step="any"
                 value={commissionRate}
                 onChange={(e) => setCommissionRate(e.target.value)}
                 className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
@@ -321,7 +322,8 @@ export default function AdminAffiliateManager() {
                         <input
                           type="number"
                           min="1"
-                          max="100"
+                          max="1000"
+                          step="1"
                           value={m.target}
                           onChange={(e) => handleMilestoneChange(idx, 'target', e.target.value)}
                           className="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-900 outline-none focus:ring-2 focus:ring-indigo-500"
@@ -335,8 +337,8 @@ export default function AdminAffiliateManager() {
                       <div className="relative">
                         <input
                           type="number"
-                          min="5000"
-                          step="10000"
+                          min="0"
+                          step="1000"
                           value={m.reward}
                           onChange={(e) => handleMilestoneChange(idx, 'reward', e.target.value)}
                           className="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-emerald-700 outline-none focus:ring-2 focus:ring-indigo-500 font-mono"
