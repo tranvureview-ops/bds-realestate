@@ -117,7 +117,7 @@ export default function BrokerProfilePage({ slug = '', initialProperties = [] })
             <span>Trang chủ</span>
           </Link>
           <span className="text-slate-300">/</span>
-          <span className="text-slate-600 font-medium">Chuyên viên & Môi giới</span>
+          <span className="text-slate-600 font-medium">Nhà môi giới</span>
           <span className="text-slate-300">/</span>
           <span className="text-emerald-700 font-bold truncate max-w-[200px] sm:max-w-none">{authorName}</span>
         </nav>
