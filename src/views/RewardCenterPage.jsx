@@ -77,19 +77,15 @@ export default function RewardCenterPage() {
   // Thao tác Điểm danh ngay trên Trung Tâm Phần Thưởng
   const handleQuickCheckIn = () => {
     if (checkedToday || !isCheckInEnabled) return;
-    if (!currentUser || currentUser.role === 'guest') {
-      if (showToast) showToast('Vui lòng đăng nhập để nhận tiền thưởng điểm danh vào Ví KM!', 'info');
-      navigate('/dang-nhap');
-      return;
-    }
+    const effectiveUid = userId || 'guest';
 
     const todayStr = new Date().toDateString();
     const nextStreak = checkedToday ? currentStreak : (currentStreak >= 7 ? 1 : currentStreak + 1);
 
     setCurrentStreak(nextStreak);
     setCheckedToday(true);
-    localStorage.setItem(`bds_checkin_last_date_${userId}`, todayStr);
-    localStorage.setItem(`bds_checkin_streak_${userId}`, String(nextStreak));
+    localStorage.setItem(`bds_checkin_last_date_${effectiveUid}`, todayStr);
+    localStorage.setItem(`bds_checkin_streak_${effectiveUid}`, String(nextStreak));
 
     const item = checkInDays[nextStreak - 1] || { reward: 5000 };
     const amount = Number(item.reward || 5000);

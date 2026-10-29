@@ -29,16 +29,16 @@ export default function ArticleTreasureBox({ property }) {
   const [isOpening, setIsOpening] = useState(false);
   const [revealedReward, setRevealedReward] = useState(null);
 
-  const userId = currentUser && currentUser.role !== 'guest' ? currentUser.id : null;
-  const isGuest = !userId;
+  const effectiveUserId = (currentUser && currentUser.role !== 'guest' ? currentUser.id : null) || 'guest';
+  const isGuest = effectiveUserId === 'guest';
 
   // 1. Kiểm tra trạng thái rương khi tải bài viết
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    if (userId && property?.id) {
-      setHasClaimedThisArticle(hasClaimedPropertyToday(userId, property.id));
-      setQuota(getDailyQuotaStatus(userId, dailyLimit));
+    if (property?.id) {
+      setHasClaimedThisArticle(hasClaimedPropertyToday(effectiveUserId, property.id));
+      setQuota(getDailyQuotaStatus(effectiveUserId, dailyLimit));
     }
 
     // Chống bot/spam: Phải xem bài viết ít nhất X giây mới sẵn sàng mở hộp
@@ -47,21 +47,12 @@ export default function ArticleTreasureBox({ property }) {
     }, minReadingSeconds * 1000);
 
     return () => clearTimeout(timer);
-  }, [userId, property?.id, dailyLimit, minReadingSeconds]);
+  }, [effectiveUserId, property?.id, dailyLimit, minReadingSeconds]);
 
   // 2. Thao tác Mở Hộp Quà
   const handleOpenChest = () => {
-    // A. Yêu cầu đăng nhập nếu là khách
-    if (isGuest) {
-      if (showToast) {
-        showToast('Vui lòng đăng nhập để nhận tiền thưởng trực tiếp vào Ví Khuyến Mãi!', 'info');
-      }
-      navigate('/dang-nhap');
-      return;
-    }
-
-    // B. Kiểm tra giới hạn N hộp / ngày
-    const currentQuota = getDailyQuotaStatus(userId, dailyLimit);
+    // A. Kiểm tra giới hạn N hộp / ngày
+    const currentQuota = getDailyQuotaStatus(effectiveUserId, dailyLimit);
     if (currentQuota.isLimitReached) {
       if (showToast) {
         showToast(`Hôm nay bạn đã mở đủ ${dailyLimit}/${dailyLimit} rương kho báu! Hãy quay lại vào ngày mai nhé.`, 'warning');
@@ -69,16 +60,16 @@ export default function ArticleTreasureBox({ property }) {
       return;
     }
 
-    // C. Kiểm tra đã mở bài viết này chưa
-    if (hasClaimedPropertyToday(userId, property?.id)) {
+    // B. Kiểm tra đã mở bài viết này chưa
+    if (hasClaimedPropertyToday(effectiveUserId, property?.id)) {
       if (showToast) {
         showToast('Bạn đã nhận rương từ tin đăng này hôm nay. Hãy khám phá tin khác!', 'info');
       }
       return;
     }
 
-    // D. Kiểm tra Cooldown chống spam
-    const cooldown = checkCooldownStatus(userId, cooldownSeconds);
+    // C. Kiểm tra Cooldown chống spam
+    const cooldown = checkCooldownStatus(effectiveUserId, cooldownSeconds);
     if (!cooldown.canOpen) {
       if (showToast) {
         showToast(`Vui lòng chờ ${cooldown.secondsLeft} giây trước khi mở rương tiếp theo!`, 'warning');
@@ -99,11 +90,11 @@ export default function ArticleTreasureBox({ property }) {
       }
 
       // Lưu lịch sử claim
-      recordTreasureClaim(userId, property?.id, property?.title, reward.amount);
+      recordTreasureClaim(effectiveUserId, property?.id, property?.title, reward.amount);
 
       setRevealedReward(reward);
       setHasClaimedThisArticle(true);
-      setQuota(getDailyQuotaStatus(userId, dailyLimit));
+      setQuota(getDailyQuotaStatus(effectiveUserId, dailyLimit));
       setIsOpening(false);
 
       if (showToast) {
@@ -192,7 +183,7 @@ export default function ArticleTreasureBox({ property }) {
               ) : (
                 <>
                   <i className="fa-solid fa-key text-amber-500"></i>
-                  <span>{isGuest ? 'Đăng nhập mở rương' : 'Mở Rương Nhận Tiền'}</span>
+                  <span>Mở Rương Nhận Tiền</span>
                 </>
               )}
             </button>

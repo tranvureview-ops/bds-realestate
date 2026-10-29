@@ -97,16 +97,11 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
   });
 
   const handleClaim = (missionId, reward, title) => {
-    if (!currentUser || currentUser.role === 'guest') {
-      if (showToast) showToast('Vui lòng đăng nhập để nhận tiền thưởng vào Ví Khuyến Mãi!', 'info');
-      navigate('/dang-nhap');
-      return;
-    }
-
+    const effectiveUid = userId || 'guest';
     const updated = { ...claimedMissions, [missionId]: true };
     setClaimedMissions(updated);
     try {
-      localStorage.setItem(`bds_claimed_missions_${userId}`, JSON.stringify(updated));
+      localStorage.setItem(`bds_claimed_missions_${effectiveUid}`, JSON.stringify(updated));
     } catch (e) {}
 
     const amount = Number(reward || 0);

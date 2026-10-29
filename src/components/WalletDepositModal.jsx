@@ -55,14 +55,23 @@ export default function WalletDepositModal({ onClose }) {
         <div className="p-6 space-y-5">
           {/* Current Balance Banner */}
           <div className="p-4 rounded-2xl bg-gradient-to-r from-emerald-800 to-teal-900 text-white shadow-md flex items-center justify-between">
-            <div>
-              <div className="text-xs text-emerald-200">Số dư hiện tại của bạn:</div>
-              <div className="text-2xl font-black text-white mt-0.5">
-                {currentUser.walletBalance.toLocaleString('vi-VN')} đ
+            <div className="space-y-1.5">
+              <div>
+                <div className="text-[10px] uppercase font-bold text-emerald-200">Số dư ví chính (Nạp tiền):</div>
+                <div className="text-xl sm:text-2xl font-black text-white mt-0.5">
+                  {currentUser.walletBalance?.toLocaleString('vi-VN')} đ
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs text-emerald-100 pt-1 border-t border-white/10">
+                <i className="fa-solid fa-gift text-amber-300"></i>
+                <span>Ví Khuyến Mãi (Tiền thưởng):</span>
+                <strong className="text-amber-300 font-mono text-sm">
+                  +{(Number(currentUser.bonusWalletBalance) || 0).toLocaleString('vi-VN')} đ
+                </strong>
               </div>
             </div>
-            <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-lg">
-              <i className="fa-solid fa-coins text-amber-300"></i>
+            <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-xl shrink-0">
+              <i className="fa-solid fa-wallet text-amber-300"></i>
             </div>
           </div>
 

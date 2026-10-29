@@ -318,6 +318,7 @@ export async function upsertSupabaseProfile(user) {
       role: user.role,
       role_name: user.roleName,
       wallet_balance: Number(user.walletBalance || 0),
+      bonus_wallet_balance: Number(user.bonusWalletBalance || 0),
       phone: user.phone,
       avatar: user.avatar,
       membership: user.membership,
@@ -332,9 +333,9 @@ export async function upsertSupabaseProfile(user) {
       .from('profiles')
       .upsert(fullPayload, { onConflict: 'id' });
 
-    // Nếu bảng profiles chưa có các cột password / status / is_deleted, thử lại bằng payload cơ bản
-    if (error && (error.code === 'PGRST204' || String(error.message).includes('password'))) {
-      const { password: _p, password_hash: _ph, status: _st, is_deleted: _id, deleted_at: _da, ...basePayload } = fullPayload;
+    // Nếu bảng profiles chưa có các cột mới (password / status / is_deleted / bonus_wallet_balance), thử lại bằng payload tương thích
+    if (error && (error.code === 'PGRST204' || String(error.message).includes('password') || String(error.message).includes('bonus_wallet_balance') || String(error.message).includes('column'))) {
+      const { password: _p, password_hash: _ph, status: _st, is_deleted: _id, deleted_at: _da, bonus_wallet_balance: _bwb, ...basePayload } = fullPayload;
       const res = await supabase.from('profiles').upsert(basePayload, { onConflict: 'id' });
       error = res.error;
     }

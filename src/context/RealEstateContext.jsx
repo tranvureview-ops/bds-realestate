@@ -430,9 +430,19 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     if (initialUser && (initialUser.status === 'trash' || initialUser.isDeleted || initialUser.status === 'locked')) {
       return DEFAULT_GUEST_USER;
     }
-    const user = initialUser || DEFAULT_GUEST_USER;
+    let user = initialUser || DEFAULT_GUEST_USER;
+    // Kiểm tra localStorage để khôi phục tức thời số dư Ví Khuyến Mãi nếu client đã nhận thưởng trước đó
+    if (typeof window !== 'undefined' && user.id) {
+      try {
+        const cachedBonus = localStorage.getItem(`bds_user_bonus_${user.id}`);
+        if (cachedBonus !== null && !isNaN(Number(cachedBonus))) {
+          user = { ...user, bonusWalletBalance: Number(cachedBonus) };
+        }
+      } catch (e) {}
+    }
     return {
       ...user,
+      bonusWalletBalance: Number(user.bonusWalletBalance || 0),
       phone: user.phone ? formatPhoneNumber(user.phone) : user.phone
     };
   });
@@ -4515,21 +4525,74 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   /**
    * Cộng tiền thưởng trực tiếp vào Ví Khuyến Mãi (bonusWalletBalance) của người dùng
    * Dùng cho Gamification, Điểm danh, Nhiệm vụ, Săn kho báu, Dự đoán giá & Affiliate
+   * Đảm bảo lưu đồng thời vào State, LocalStorage, Supabase Cloud và server-db.json
    */
   const addBonusWalletBalance = (amount, reason = '') => {
     const num = Number(amount);
     if (!num || num <= 0) return 0;
-    let newBonus = 0;
-    setCurrentUser(curr => {
-      if (!curr) return curr;
-      newBonus = (Number(curr.bonusWalletBalance) || 0) + num;
-      const updated = {
-        ...curr,
-        bonusWalletBalance: newBonus
-      };
-      return updated;
-    });
-    setUsersList(prev => prev.map(u => (currentUser && u.id === currentUser.id) ? { ...u, bonusWalletBalance: (Number(u.bonusWalletBalance) || 0) + num } : u));
+
+    const targetUser = currentUser || DEFAULT_GUEST_USER;
+    const targetUserId = targetUser.id || 'guest';
+    const currentBonus = Number(targetUser.bonusWalletBalance) || 0;
+    const newBonus = currentBonus + num;
+
+    const updatedUser = {
+      ...targetUser,
+      bonusWalletBalance: newBonus
+    };
+
+    // 1. Cập nhật state currentUser
+    setCurrentUser(updatedUser);
+
+    // 2. Cập nhật state usersList
+    const nextUsers = (usersList || []).map(u => String(u.id) === String(targetUserId) ? { ...u, bonusWalletBalance: newBonus } : u);
+    setUsersList(nextUsers);
+
+    // 3. Ghi nhận giao dịch thưởng vào transactions
+    const newTxn = {
+      id: `TXN-BONUS-${Date.now()}`,
+      userId: targetUserId,
+      userName: updatedUser.name || 'Người dùng',
+      type: 'bonus_reward',
+      title: reason || 'Tiền thưởng Ví Khuyến Mãi (Gamification)',
+      amount: num,
+      balanceAfter: newBonus,
+      walletType: 'bonus',
+      status: 'success',
+      createdAt: new Date().toISOString(),
+      paymentMethod: 'system_reward'
+    };
+    setTransactions(prev => [newTxn, ...(prev || [])]);
+
+    // 4. Lưu ngay vào LocalStorage để F5 không bao giờ mất
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(`bds_user_bonus_${targetUserId}`, String(newBonus));
+        localStorage.setItem('bds_current_user', JSON.stringify(updatedUser));
+        window.dispatchEvent(new CustomEvent('bds_bonus_wallet_updated', {
+          detail: { userId: targetUserId, bonusWalletBalance: newBonus, addedAmount: num, reason }
+        }));
+      } catch (e) {}
+    }
+
+    // 5. Nếu không phải khách vãng lai, đồng bộ lên Supabase Cloud & server-db.json
+    if (targetUserId !== 'guest') {
+      upsertSupabaseProfile(updatedUser).catch(console.warn);
+      persistSettingToSupabase('bds_users_list', nextUsers).catch(console.warn);
+      persistSettingToSupabase('bds_transactions', [newTxn, ...(transactions || [])]).catch(console.warn);
+
+      try {
+        fetch('/api/db-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            bds_users_list: nextUsers,
+            bds_transactions: [newTxn, ...(transactions || []).slice(0, 50)]
+          })
+        }).catch(console.warn);
+      } catch (e) {}
+    }
+
     return newBonus;
   };
 

@@ -456,8 +456,14 @@ export default function Navbar() {
                         <span>{cleanUserName(currentUser.name)}</span>
                         {currentUser.role === 'admin' && <span className="text-[9px] px-1.5 py-0.5 bg-red-100 text-red-600 rounded font-bold shrink-0">Admin</span>}
                       </div>
-                      <div suppressHydrationWarning className="text-[10px] text-slate-500 font-medium">
-                        {currentUser.walletBalance?.toLocaleString('vi-VN')} đ
+                      <div suppressHydrationWarning className="text-[10px] text-slate-500 font-medium flex items-center gap-1.5 flex-wrap">
+                        <span>{currentUser.walletBalance?.toLocaleString('vi-VN')} đ</span>
+                        {Number(currentUser.bonusWalletBalance) > 0 && (
+                          <span className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-1 py-0.2 rounded font-bold text-[9px] flex items-center gap-0.5">
+                            <i className="fa-solid fa-gift text-emerald-600 text-[8px]"></i>
+                            +{Number(currentUser.bonusWalletBalance).toLocaleString('vi-VN')}đ KM
+                          </span>
+                        )}
                       </div>
                     </div>
                     <i className="fa-solid fa-chevron-down text-[9px] text-slate-400"></i>
@@ -501,16 +507,14 @@ export default function Navbar() {
                       {/* Wallet Quick Balance */}
                       <div className="px-4 py-2.5 bg-slate-50 mx-2 my-2 rounded-xl flex items-center justify-between">
                         <div>
-                          <div className="text-[10px] text-slate-500 font-semibold uppercase">Số dư ví khả dụng</div>
+                          <div className="text-[10px] text-slate-500 font-semibold uppercase">Số dư ví chính</div>
                           <div className="text-sm font-black text-emerald-600">
                             {currentUser.walletBalance?.toLocaleString('vi-VN')} đ
                           </div>
-                          {Number(currentUser.bonusWalletBalance) > 0 && (
-                            <div className="text-[10px] text-emerald-700 font-bold flex items-center gap-1 pt-0.5">
-                              <i className="fa-solid fa-gift text-emerald-600"></i>
-                              <span>Ví KM: +{Number(currentUser.bonusWalletBalance).toLocaleString('vi-VN')} đ</span>
-                            </div>
-                          )}
+                          <div className="text-[10px] text-emerald-700 font-bold flex items-center gap-1 pt-0.5">
+                            <i className="fa-solid fa-gift text-emerald-600"></i>
+                            <span>Ví KM: +{(Number(currentUser.bonusWalletBalance) || 0).toLocaleString('vi-VN')} đ</span>
+                          </div>
                         </div>
                         <Link
                           to="/nap-tien"
@@ -703,7 +707,14 @@ export default function Navbar() {
                     <img src={currentUser.avatar} alt={currentUser.name} className="w-10 h-10 rounded-full object-cover border" />
                     <div>
                       <div className="font-bold text-sm text-slate-900">{cleanUserName(currentUser.name)}</div>
-                      <div className="text-xs text-emerald-600 font-bold">{currentUser.walletBalance?.toLocaleString('vi-VN')} đ</div>
+                      <div className="text-xs text-emerald-600 font-bold flex items-center gap-1.5 flex-wrap">
+                        <span>{currentUser.walletBalance?.toLocaleString('vi-VN')} đ</span>
+                        {Number(currentUser.bonusWalletBalance) > 0 && (
+                          <span className="text-[10px] text-emerald-700 bg-emerald-100 border border-emerald-300 px-1.5 py-0.2 rounded font-bold">
+                            +{Number(currentUser.bonusWalletBalance).toLocaleString('vi-VN')}đ KM
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <Link

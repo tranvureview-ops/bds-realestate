@@ -2835,6 +2835,7 @@ export const DEFAULT_GUEST_USER = {
   role: 'guest',
   roleName: 'Chưa đăng nhập',
   walletBalance: 0,
+  bonusWalletBalance: 0,
   avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
   isVerified: false
 };

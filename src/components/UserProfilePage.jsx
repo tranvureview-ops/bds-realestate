@@ -398,10 +398,11 @@ export default function UserProfilePage() {
                 <div className="text-xl sm:text-2xl font-black text-emerald-700 mt-0.5">
                   {currentUser.walletBalance.toLocaleString('vi-VN')} đ
                 </div>
-                <div className="text-[10px] text-emerald-600 flex items-center gap-1.5">
-                  <span>Ví KM: <strong className="font-mono">{(Number(currentUser.bonusWalletBalance) || 0).toLocaleString('vi-VN')} đ</strong></span>
+                <div className="text-[11px] text-emerald-800 font-bold flex items-center gap-1.5 mt-1 bg-emerald-100/70 px-2 py-0.5 rounded-lg w-fit">
+                  <i className="fa-solid fa-gift text-emerald-600"></i>
+                  <span>Ví KM: <strong className="font-mono text-emerald-900">{(Number(currentUser.bonusWalletBalance) || 0).toLocaleString('vi-VN')} đ</strong></span>
                   {currentUser.bonusExpiresAt && Number(currentUser.bonusWalletBalance) > 0 && (
-                    <span className="text-[9px] text-amber-600 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">
+                    <span className="text-[9px] text-amber-700 bg-amber-100 px-1.5 py-0.2 rounded border border-amber-200">
                       Hạn: {new Date(currentUser.bonusExpiresAt).toLocaleDateString('vi-VN')}
                     </span>
                   )}
