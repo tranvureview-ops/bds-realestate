@@ -3110,7 +3110,9 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         >
                           <i className="fa-solid fa-wallet mb-1 text-sm block"></i>
                           <div>Ví tài khoản</div>
-                          <div className="text-[10px] font-normal text-slate-400 mt-0.5">Dư: {((Number(currentUser?.walletBalance) || 0) + (Number(currentUser?.bonusWalletBalance) || 0)).toLocaleString('vi-VN')} đ</div>
+                          <div className={`text-[11px] font-bold mt-0.5 tracking-tight ${paymentMethod === 'wallet' ? 'text-white drop-shadow-xs' : 'text-slate-300'}`}>
+                            Dư: {((Number(currentUser?.walletBalance) || 0) + (Number(currentUser?.bonusWalletBalance) || 0)).toLocaleString('vi-VN')} đ
+                          </div>
                         </button>
                       )}
 
@@ -3123,7 +3125,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         >
                           <i className="fa-solid fa-qrcode mb-1 text-sm block"></i>
                           <div>VietQR Ngân Hàng</div>
-                          <div className="text-[10px] font-normal text-slate-400 mt-0.5">Quét mã QR 24/7</div>
+                          <div className={`text-[10px] font-semibold mt-0.5 ${paymentMethod === 'vietqr' ? 'text-blue-100' : 'text-slate-400'}`}>Quét mã QR 24/7</div>
                         </button>
                       )}
 
@@ -3136,7 +3138,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         >
                           <i className="fa-solid fa-mobile-screen-button mb-1 text-sm block"></i>
                           <div>Ví MoMo</div>
-                          <div className="text-[10px] font-normal text-slate-400 mt-0.5">Thanh toán 1-chạm</div>
+                          <div className={`text-[10px] font-semibold mt-0.5 ${paymentMethod === 'momo' ? 'text-pink-100' : 'text-slate-400'}`}>Thanh toán 1-chạm</div>
                         </button>
                       )}
 
@@ -3149,7 +3151,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         >
                           <i className="fa-solid fa-credit-card mb-1 text-sm block"></i>
                           <div>Cổng VNPAY-QR</div>
-                          <div className="text-[10px] font-normal text-slate-400 mt-0.5">Thẻ ATM & Quốc tế</div>
+                          <div className={`text-[10px] font-semibold mt-0.5 ${paymentMethod === 'vnpay' ? 'text-blue-100' : 'text-slate-400'}`}>Thẻ ATM & Quốc tế</div>
                         </button>
                       )}
                     </div>
