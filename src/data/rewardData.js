@@ -100,8 +100,69 @@ export const PROMOTIONS_DATA = [
       - Giảm trực tiếp 25% chi phí nâng cấp tất cả các cấp độ tin VIP.
       - Tiền thưởng Ví Khuyến Mãi được trừ trực tiếp khi đăng ký gói.
     `
+  },
+  {
+    id: 'km-05',
+    slug: 'flash-sale-mua-thu-2026',
+    title: 'Flash Sale: Giảm 50% phí đẩy tin Top Khung Giờ Vàng',
+    category: 'goi-vip',
+    categoryLabel: 'Gói tin VIP',
+    badge: 'Đã Kết Thúc',
+    badgeColor: 'bg-slate-600 text-white',
+    discountCode: 'FLASHSALE50',
+    discountValue: '50%',
+    minDeposit: 0,
+    validUntil: '2026-09-30',
+    isExpired: true,
+    isEvergreen: false,
+    thumbnail: 'https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?auto=format&fit=crop&w=800&q=80',
+    description: 'Chương trình trợ giá đẩy tin khung giờ vàng mùa thu dành riêng cho các thành viên thân thiết.',
+    content: `
+      ### Thể lệ chương trình
+      - Áp dụng giảm trực tiếp 50% chi phí cho tất cả lượt đẩy tin thường lên vị trí đầu danh mục.
+      - Mỗi tài khoản được áp dụng tối đa 03 lần trong thời gian diễn ra sự kiện.
+      - Tiền thanh toán có thể trừ từ Ví Chính hoặc Ví Khuyến Mãi.
+      
+      ### Thời gian hiệu lực
+      - Chương trình đã kết thúc vào ngày 30/09/2026.
+    `
   }
 ];
+
+// Helper kiểm tra một chương trình khuyến mãi đã hết hạn chưa (dựa theo ngày hoặc cờ isExpired)
+export const isPromotionExpired = (promo) => {
+  if (!promo) return false;
+  if (promo.isExpired === true) return true;
+  if (promo.isEvergreen === true) return false;
+  if (!promo.validUntil) return false;
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const parts = String(promo.validUntil).split('-');
+    if (parts.length === 3) {
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      const expireDate = new Date(year, month, day, 23, 59, 59, 999);
+      return expireDate.getTime() < today.getTime();
+    }
+    const expireDate = new Date(promo.validUntil);
+    expireDate.setHours(23, 59, 59, 999);
+    return expireDate.getTime() < today.getTime();
+  } catch (e) {
+    return false;
+  }
+};
+
+// Helper định dạng ngày hiển thị dd/mm/yyyy
+export const formatPromoDate = (dateStr) => {
+  if (!dateStr) return '';
+  const parts = String(dateStr).split('-');
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+  return dateStr;
+};
 
 // 2. DANH SÁCH NHIỆM VỤ (TIỀN THƯỞNG CỘNG TRỰC TIẾP VÀO VÍ KHUYẾN MÃI)
 export const MISSIONS_DATA = {

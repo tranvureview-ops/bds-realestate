@@ -4363,6 +4363,24 @@
         "thumbnail": "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
         "description": "Giải pháp toàn diện cho sàn giao dịch và môi giới chuyên nghiệp cần đăng tin số lượng lớn.",
         "content": "\n      ### Đặc quyền Gói Hội Viên Vàng\n      - Đăng tối đa 50 tin thường miễn phí mỗi tháng.\n      - Giảm trực tiếp 25% chi phí nâng cấp tất cả các cấp độ tin VIP.\n      - Tiền thưởng Ví Khuyến Mãi được trừ trực tiếp khi đăng ký gói.\n    "
+      },
+      {
+        "id": "km-05",
+        "slug": "flash-sale-mua-thu-2026",
+        "title": "Flash Sale: Giảm 50% phí đẩy tin Top Khung Giờ Vàng",
+        "category": "goi-vip",
+        "categoryLabel": "Gói tin VIP",
+        "badge": "Đã Kết Thúc",
+        "badgeColor": "bg-slate-600 text-white",
+        "discountCode": "FLASHSALE50",
+        "discountValue": "50%",
+        "minDeposit": 0,
+        "validUntil": "2026-09-30",
+        "isExpired": true,
+        "isEvergreen": false,
+        "thumbnail": "https://images.unsplash.com/photo-1560520653-9e0e4c89eb11?auto=format&fit=crop&w=800&q=80",
+        "description": "Chương trình trợ giá đẩy tin khung giờ vàng mùa thu dành riêng cho các thành viên thân thiết.",
+        "content": "\n      ### Thể lệ chương trình\n      - Áp dụng giảm trực tiếp 50% chi phí cho tất cả lượt đẩy tin thường lên vị trí đầu danh mục.\n      - Mỗi tài khoản được áp dụng tối đa 03 lần trong thời gian diễn ra sự kiện.\n      - Tiền thanh toán có thể trừ từ Ví Chính hoặc Ví Khuyến Mãi.\n      \n      ### Thời gian hiệu lực\n      - Chương trình đã kết thúc vào ngày 30/09/2026.\n    "
       }
     ],
     "missions": {

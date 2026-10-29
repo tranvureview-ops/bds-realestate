@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { PROMOTIONS_DATA } from '../data/rewardData';
+import { PROMOTIONS_DATA, isPromotionExpired, formatPromoDate } from '../data/rewardData';
 import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 
@@ -19,14 +19,26 @@ export default function PromotionListPage() {
 
   const categories = [
     { id: 'all', label: 'Tất cả khuyến mãi', icon: 'fa-solid fa-gift' },
+    { id: 'active', label: 'Đang diễn ra', icon: 'fa-solid fa-circle-check' },
+    { id: 'expired', label: 'Đã hết hạn', icon: 'fa-solid fa-clock-rotate-left' },
     { id: 'nap-tien', label: 'Nạp tiền ví', icon: 'fa-solid fa-wallet' },
     { id: 'goi-vip', label: 'Gói tin VIP', icon: 'fa-solid fa-crown' },
     { id: 'hoi-vien', label: 'Hội viên Môi giới', icon: 'fa-solid fa-user-shield' }
   ];
 
-  const filteredPromos = activeCategory === 'all' 
-    ? promoList 
-    : promoList.filter(p => p.category === activeCategory);
+  const filteredPromos = promoList.filter(p => {
+    if (activeCategory === 'all') return true;
+    if (activeCategory === 'active') return !isPromotionExpired(p);
+    if (activeCategory === 'expired') return isPromotionExpired(p);
+    return p.category === activeCategory;
+  });
+
+  const getCategoryCount = (catId) => {
+    if (catId === 'all') return promoList.length;
+    if (catId === 'active') return promoList.filter(p => !isPromotionExpired(p)).length;
+    if (catId === 'expired') return promoList.filter(p => isPromotionExpired(p)).length;
+    return promoList.filter(p => p.category === catId).length;
+  };
 
   const handleCopyCode = (code, e) => {
     if (e) {
@@ -173,9 +185,7 @@ export default function PromotionListPage() {
         {/* Category Tabs */}
         <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
           {categories.map(cat => {
-            const count = cat.id === 'all'
-              ? promoList.length
-              : promoList.filter(p => p.category === cat.id).length;
+            const count = getCategoryCount(cat.id);
 
             return (
               <button
@@ -199,69 +209,139 @@ export default function PromotionListPage() {
 
         {/* Promo Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredPromos.map(promo => (
-            <div
-              key={promo.id}
-              className="bg-white rounded-3xl border border-slate-200/80 hover:border-red-400 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col group"
-            >
-              <div className="relative aspect-video overflow-hidden">
-                <img
-                  src={promo.thumbnail}
-                  alt={promo.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <span className={`absolute top-3 left-3 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md ${promo.badgeColor || 'bg-red-500 text-white'}`}>
-                  {promo.badge}
-                </span>
-                <span className="absolute bottom-3 left-3 text-[11px] font-bold px-2 py-0.5 rounded-lg bg-black/60 backdrop-blur-md text-white">
-                  Hạn dùng: {promo.validUntil}
-                </span>
-              </div>
+          {filteredPromos.map(promo => {
+            const isExpired = isPromotionExpired(promo);
 
-              <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                <div>
-                  <div className="text-[11px] font-bold text-red-600 uppercase tracking-wider">
-                    {promo.categoryLabel}
-                  </div>
-                  <h2 className="text-base font-bold text-slate-900 group-hover:text-red-600 transition line-clamp-2 mt-1">
-                    {promo.title}
-                  </h2>
-                  <p className="text-xs text-slate-500 line-clamp-2 mt-2 leading-relaxed">
-                    {promo.description}
-                  </p>
+            return (
+              <div
+                key={promo.id}
+                className={`bg-white rounded-3xl border ${
+                  isExpired 
+                    ? 'border-slate-300/80 bg-slate-50/60 shadow-xs' 
+                    : 'border-slate-200/80 hover:border-red-400 shadow-sm hover:shadow-xl'
+                } overflow-hidden transition-all duration-300 flex flex-col group`}
+              >
+                <div className="relative aspect-video overflow-hidden">
+                  <img
+                    src={promo.thumbnail}
+                    alt={promo.title}
+                    className={`w-full h-full object-cover transition-transform duration-500 ${
+                      isExpired ? 'grayscale contrast-75 group-hover:grayscale-0' : 'group-hover:scale-105'
+                    }`}
+                  />
+
+                  {/* Huy hiệu gốc */}
+                  <span className={`absolute top-3 left-3 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full shadow-md ${
+                    isExpired ? 'bg-slate-700 text-slate-200 opacity-80' : (promo.badgeColor || 'bg-red-500 text-white')
+                  }`}>
+                    {promo.badge}
+                  </span>
+
+                  {/* Nhãn dán ĐÃ HẾT HẠN thiết kế nổi bật */}
+                  {isExpired ? (
+                    <>
+                      {/* Tag dán góc trên phải */}
+                      <span className="absolute top-3 right-3 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-rose-600 text-white shadow-lg flex items-center gap-1.5 animate-pulse">
+                        <i className="fa-solid fa-clock-rotate-left"></i>
+                        <span>ĐÃ HẾT HẠN</span>
+                      </span>
+
+                      {/* Con dấu chìm đóng mộc ở tâm ảnh */}
+                      <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[0.5px] flex items-center justify-center pointer-events-none">
+                        <div className="border-2 border-dashed border-rose-500 bg-rose-950/90 text-rose-300 px-3.5 py-1 rounded-xl font-black text-xs uppercase tracking-widest rotate-[-10deg] shadow-2xl flex items-center gap-1.5">
+                          <i className="fa-solid fa-ban text-rose-400"></i>
+                          <span>HẾT HIỆU LỰC</span>
+                        </div>
+                      </div>
+
+                      {/* Tag hạn dùng đổi sang đỏ */}
+                      <span className="absolute bottom-3 left-3 text-[11px] font-bold px-2 py-0.5 rounded-lg bg-rose-950/90 text-rose-200 border border-rose-800/80 flex items-center gap-1 shadow-sm">
+                        <i className="fa-regular fa-calendar-xmark text-rose-400"></i>
+                        <span>Đã hết hạn: {formatPromoDate(promo.validUntil)}</span>
+                      </span>
+                    </>
+                  ) : (
+                    <span className="absolute bottom-3 left-3 text-[11px] font-bold px-2 py-0.5 rounded-lg bg-black/60 backdrop-blur-md text-white flex items-center gap-1">
+                      <i className="fa-regular fa-calendar-check text-emerald-400"></i>
+                      <span>Hạn dùng: {formatPromoDate(promo.validUntil)}</span>
+                    </span>
+                  )}
                 </div>
 
-                <div className="pt-3 border-t border-slate-100 space-y-3">
-                  {/* Voucher code box */}
-                  <div className="flex items-center justify-between p-2.5 bg-slate-50 rounded-xl border border-dashed border-slate-300">
-                    <div>
-                      <div className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Mã Voucher</div>
-                      <div className="text-xs font-black text-slate-800 tracking-wider font-mono">{promo.discountCode}</div>
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                  <div>
+                    <div className={`text-[11px] font-bold uppercase tracking-wider flex items-center justify-between ${
+                      isExpired ? 'text-slate-400' : 'text-red-600'
+                    }`}>
+                      <span>{promo.categoryLabel}</span>
+                      {isExpired && (
+                        <span className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                          Đã dừng ưu đãi
+                        </span>
+                      )}
                     </div>
-                    <button
-                      onClick={(e) => handleCopyCode(promo.discountCode, e)}
-                      className={`px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                        copiedCode === promo.discountCode 
-                          ? 'bg-emerald-600 text-white' 
-                          : 'bg-white border border-slate-200 hover:border-red-500 text-slate-700 hover:text-red-600'
+
+                    <h2 className={`text-base font-bold transition line-clamp-2 mt-1 ${
+                      isExpired ? 'text-slate-500' : 'text-slate-900 group-hover:text-red-600'
+                    }`}>
+                      {promo.title}
+                    </h2>
+
+                    <p className="text-xs text-slate-500 line-clamp-2 mt-2 leading-relaxed">
+                      {promo.description}
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-100 space-y-3">
+                    {/* Voucher code box */}
+                    <div className={`flex items-center justify-between p-2.5 rounded-xl border border-dashed ${
+                      isExpired ? 'bg-slate-100 border-slate-300' : 'bg-slate-50 border-slate-300'
+                    }`}>
+                      <div>
+                        <div className="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Mã Voucher</div>
+                        <div className={`text-xs font-black tracking-wider font-mono ${
+                          isExpired ? 'line-through text-slate-400' : 'text-slate-800'
+                        }`}>
+                          {promo.discountCode}
+                        </div>
+                      </div>
+
+                      {isExpired ? (
+                        <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-200 text-slate-500 flex items-center gap-1 cursor-not-allowed">
+                          <i className="fa-solid fa-ban text-[11px]"></i>
+                          <span>Đã hết hạn</span>
+                        </span>
+                      ) : (
+                        <button
+                          onClick={(e) => handleCopyCode(promo.discountCode, e)}
+                          className={`px-3 py-1 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                            copiedCode === promo.discountCode 
+                              ? 'bg-emerald-600 text-white' 
+                              : 'bg-white border border-slate-200 hover:border-red-500 text-slate-700 hover:text-red-600'
+                          }`}
+                        >
+                          <i className={`fa-solid ${copiedCode === promo.discountCode ? 'fa-check' : 'fa-copy'} text-[11px]`}></i>
+                          <span>{copiedCode === promo.discountCode ? 'Đã chép' : 'Sao chép'}</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <Link
+                      to={`/khuyen-mai/${promo.slug}/`}
+                      className={`w-full py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs ${
+                        isExpired
+                          ? 'bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700'
+                          : 'bg-slate-900 hover:bg-red-600 text-white'
                       }`}
                     >
-                      <i className={`fa-solid ${copiedCode === promo.discountCode ? 'fa-check' : 'fa-copy'} text-[11px]`}></i>
-                      <span>{copiedCode === promo.discountCode ? 'Đã chép' : 'Sao chép'}</span>
-                    </button>
+                      <span>{isExpired ? 'Xem Thể Lệ (Đã Hết Hạn)' : 'Xem chi tiết & Thể lệ'}</span>
+                      <i className="fa-solid fa-arrow-right text-[10px]"></i>
+                    </Link>
                   </div>
-
-                  <Link
-                    to={`/khuyen-mai/${promo.slug}/`}
-                    className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-red-600 text-white text-xs font-bold transition flex items-center justify-center gap-2 shadow-xs"
-                  >
-                    <span>Xem chi tiết & Thể lệ</span>
-                    <i className="fa-solid fa-arrow-right text-[10px]"></i>
-                  </Link>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

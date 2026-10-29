@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { CHECK_IN_7_DAYS, PROMOTIONS_DATA, MISSIONS_DATA, PRICE_PREDICTION_GAMES } from '../data/rewardData';
+import { CHECK_IN_7_DAYS, PROMOTIONS_DATA, MISSIONS_DATA, PRICE_PREDICTION_GAMES, isPromotionExpired, formatPromoDate } from '../data/rewardData';
 import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 import { getDailyClaims } from '../services/treasureHuntService';
@@ -375,43 +375,85 @@ export default function RewardCenterPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {promoList.map(promo => (
-              <div
-                key={promo.id}
-                className="rounded-2xl border border-slate-200 overflow-hidden hover:border-rose-400 hover:shadow-md transition flex flex-col justify-between"
-              >
-                <div>
-                  <div className="relative aspect-video overflow-hidden">
-                    <img src={promo.thumbnail} alt={promo.title} className="w-full h-full object-cover" />
-                    <span className={`absolute top-2 left-2 text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${promo.badgeColor || 'bg-red-500 text-white'}`}>
-                      {promo.badge}
-                    </span>
-                  </div>
-                  <div className="p-4 space-y-1.5">
-                    <div className="text-[10px] font-bold text-rose-600 uppercase">{promo.categoryLabel}</div>
-                    <div className="text-xs font-bold text-slate-900 line-clamp-2">{promo.title}</div>
-                  </div>
-                </div>
+            {promoList.map(promo => {
+              const isExpired = isPromotionExpired(promo);
 
-                <div className="p-4 pt-0 space-y-2">
-                  <div className="flex items-center justify-between p-2 bg-slate-50 rounded-xl border border-dashed border-slate-300">
-                    <span className="font-mono text-xs font-black text-slate-800">{promo.discountCode}</span>
-                    <button
-                      onClick={(e) => handleCopyCode(promo.discountCode, e)}
-                      className="text-[10px] font-bold text-rose-600 hover:underline cursor-pointer"
-                    >
-                      {copiedCode === promo.discountCode ? 'Đã chép' : 'Sao chép'}
-                    </button>
+              return (
+                <div
+                  key={promo.id}
+                  className={`rounded-2xl border ${
+                    isExpired ? 'border-slate-300 bg-slate-50/70' : 'border-slate-200 hover:border-rose-400'
+                  } overflow-hidden hover:shadow-md transition flex flex-col justify-between`}
+                >
+                  <div>
+                    <div className="relative aspect-video overflow-hidden">
+                      <img 
+                        src={promo.thumbnail} 
+                        alt={promo.title} 
+                        className={`w-full h-full object-cover ${isExpired ? 'grayscale contrast-75' : ''}`} 
+                      />
+                      <span className={`absolute top-2 left-2 text-[9px] font-black uppercase px-2 py-0.5 rounded-full ${
+                        isExpired ? 'bg-slate-700 text-slate-200 opacity-90' : (promo.badgeColor || 'bg-red-500 text-white')
+                      }`}>
+                        {promo.badge}
+                      </span>
+                      {isExpired && (
+                        <span className="absolute top-2 right-2 text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-rose-600 text-white shadow-md flex items-center gap-1">
+                          <i className="fa-solid fa-clock-rotate-left"></i>
+                          <span>Hết hạn</span>
+                        </span>
+                      )}
+                      <span className={`absolute bottom-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded ${
+                        isExpired ? 'bg-rose-950/90 text-rose-200 border border-rose-800' : 'bg-black/60 text-white'
+                      }`}>
+                        {isExpired ? `Hết hạn: ${formatPromoDate(promo.validUntil)}` : `Hạn dùng: ${formatPromoDate(promo.validUntil)}`}
+                      </span>
+                    </div>
+
+                    <div className="p-4 space-y-1.5">
+                      <div className={`text-[10px] font-bold uppercase flex items-center justify-between ${isExpired ? 'text-slate-400' : 'text-rose-600'}`}>
+                        <span>{promo.categoryLabel}</span>
+                        {isExpired && <span className="text-[9px] text-rose-600 font-bold bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200">Đã kết thúc</span>}
+                      </div>
+                      <div className={`text-xs font-bold line-clamp-2 ${isExpired ? 'text-slate-500 line-through' : 'text-slate-900'}`}>
+                        {promo.title}
+                      </div>
+                    </div>
                   </div>
-                  <Link
-                    to={`/khuyen-mai/${promo.slug}/`}
-                    className="block text-center py-2 bg-slate-900 hover:bg-rose-600 text-white text-[11px] font-bold rounded-xl transition"
-                  >
-                    Xem chi tiết
-                  </Link>
+
+                  <div className="p-4 pt-0 space-y-2">
+                    <div className={`flex items-center justify-between p-2 rounded-xl border border-dashed ${
+                      isExpired ? 'bg-slate-100 border-slate-300' : 'bg-slate-50 border-slate-300'
+                    }`}>
+                      <span className={`font-mono text-xs font-black ${isExpired ? 'line-through text-slate-400' : 'text-slate-800'}`}>
+                        {promo.discountCode}
+                      </span>
+                      {isExpired ? (
+                        <span className="text-[10px] font-bold text-slate-400">
+                          Đã hết hạn
+                        </span>
+                      ) : (
+                        <button
+                          onClick={(e) => handleCopyCode(promo.discountCode, e)}
+                          className="text-[10px] font-bold text-rose-600 hover:underline cursor-pointer"
+                        >
+                          {copiedCode === promo.discountCode ? 'Đã chép' : 'Sao chép'}
+                        </button>
+                      )}
+                    </div>
+
+                    <Link
+                      to={`/khuyen-mai/${promo.slug}/`}
+                      className={`block text-center py-2 text-[11px] font-bold rounded-xl transition ${
+                        isExpired ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-slate-900 hover:bg-rose-600 text-white'
+                      }`}
+                    >
+                      {isExpired ? 'Xem Thể Lệ (Đã Hết Hạn)' : 'Xem chi tiết & Thể lệ'}
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
