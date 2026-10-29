@@ -116,14 +116,19 @@ export const useRouter = () => {
 export const Link = ({ to, href, children, className = '', activeClassName = '', title = '', onClick, ...props }) => {
   const router = useRouter();
   const rawTarget = to || href || '/';
-  const target = typeof rawTarget === 'string' ? rawTarget : String(rawTarget || '/');
+  const isObjectTarget = rawTarget && typeof rawTarget === 'object';
+  const target = isObjectTarget
+    ? `${rawTarget.pathname || '/'}${rawTarget.query ? '?' + new URLSearchParams(rawTarget.query).toString() : ''}`
+    : (typeof rawTarget === 'string' ? rawTarget : String(rawTarget || '/'));
 
   // Kiểm tra nếu là URL bên ngoài (http, https, tel, mailto) hoặc liên kết neo (hash #)
-  const isExternal = target.startsWith('http://') || 
-                     target.startsWith('https://') || 
-                     target.startsWith('tel:') || 
-                     target.startsWith('mailto:');
-  const isHash = target.startsWith('#');
+  const isExternal = !isObjectTarget && (
+    target.startsWith('http://') || 
+    target.startsWith('https://') || 
+    target.startsWith('tel:') || 
+    target.startsWith('mailto:')
+  );
+  const isHash = !isObjectTarget && target.startsWith('#');
 
   const targetPath = (isExternal || isHash) ? target : (target.startsWith('/') ? target : '/' + target);
   const currentPath = router?.pathname || router?.currentPath || '/';
@@ -159,7 +164,7 @@ export const Link = ({ to, href, children, className = '', activeClassName = '',
 
   return (
     <NextLink
-      href={targetPath}
+      href={isObjectTarget ? rawTarget : targetPath}
       onClick={handleClick}
       className={combinedClass}
       title={title}

@@ -81,6 +81,23 @@ export default function ListingDetailModal({ property, onClose }) {
       : (authorUser?.activeListingsCount ?? (authorUser?.listingsCount ?? 1));
   }, [authorProperties.length, authorUser]);
 
+  // Cấu trúc liên kết có cấu trúc cho chuyên viên môi giới (Structured Link Object)
+  const structuredBrokerLink = useMemo(() => ({
+    pathname: '/nha-dat-ban',
+    query: {
+      broker: safeAuthor.name,
+      contact: safeAuthor.phone?.replace(/\s+/g, '')
+    }
+  }), [safeAuthor.name, safeAuthor.phone]);
+
+  // Handler mở Modal Popup hồ sơ môi giới bằng React State
+  const handleOpenBrokerModal = (e) => {
+    if (e && typeof e.preventDefault === 'function') {
+      e.preventDefault();
+    }
+    setIsBrokerModalOpen(true);
+  };
+
   const filteredAuthorProperties = useMemo(() => {
     if (brokerFilterTab === 'sale') {
       return authorProperties.filter(p => p.type === 'ban' || p.listingType === 'sale');
@@ -481,60 +498,91 @@ export default function ListingDetailModal({ property, onClose }) {
             {/* Right Column (4 cols): Broker Contact Card & Direct Form */}
             <div className="lg:col-span-4 sticky top-16 space-y-4">
               <div className="bg-white rounded-2xl border-2 border-emerald-500/30 p-5 shadow-xl">
-                {/* Broker Profile: Kiến trúc SEO tối ưu (Mã nguồn Link <a>, rel="nofollow", Giao diện Modal Popup) */}
-                <Link 
-                  href={`/nha-dat-ban?q=${encodeURIComponent(safeAuthor.name)}`}
-                  rel="nofollow"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setIsBrokerModalOpen(true);
-                  }}
-                  className="flex items-center gap-3 pb-4 border-b border-slate-100 cursor-pointer group hover:bg-emerald-50/60 -mx-2 px-2 py-2 rounded-2xl transition-all block"
-                  title={`Bấm để xem hồ sơ chuyên viên & ${authorListingsCount} tin đăng của ${safeAuthor.name}`}
+                {/* Broker Profile: Kiến trúc SEO tối ưu (Dùng State + Thẻ <Link> có cấu trúc + Schema.org Microdata) */}
+                <div 
+                  itemScope 
+                  itemType="https://schema.org/RealEstateAgent"
+                  className="flex items-center gap-3 pb-4 border-b border-slate-100 group hover:bg-emerald-50/60 -mx-2 px-2 py-2 rounded-2xl transition-all"
                 >
-                  <div className="relative shrink-0">
+                  <meta itemProp="name" content={safeAuthor.name} />
+                  <meta itemProp="telephone" content={safeAuthor.phone} />
+                  <meta itemProp="jobTitle" content={safeAuthor.title} />
+
+                  {/* 1. Avatar môi giới bọc trong thẻ <Link> có cấu trúc */}
+                  <Link 
+                    href={structuredBrokerLink}
+                    rel="nofollow"
+                    onClick={handleOpenBrokerModal}
+                    className="relative shrink-0 block cursor-pointer"
+                    title={`Bấm để xem hồ sơ chuyên viên & ${authorListingsCount} tin đăng của ${safeAuthor.name}`}
+                  >
                     <SeoImage
                       src={safeAuthor.avatar}
                       propertyTitle={property.title}
                       type="agent"
                       customContext={safeAuthor.name}
                       className="w-14 h-14 rounded-2xl object-cover border-2 border-emerald-500 shadow-md group-hover:scale-105 group-hover:border-emerald-600 transition-all"
+                      itemProp="image"
                     />
                     {safeAuthor.isVerified && (
                       <span className="absolute -bottom-1 -right-1 bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow" title="Môi giới đã xác thực">
                         <i className="fa-solid fa-check"></i>
                       </span>
                     )}
-                  </div>
+                  </Link>
 
+                  {/* 2. Thông tin chuyên viên bọc trong thẻ <Link> có cấu trúc */}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-1">
                       <div className="text-[10px] font-black text-emerald-700 uppercase tracking-wider">
                         Người đăng tin
                       </div>
-                      <span className="text-[10px] text-emerald-600 font-bold group-hover:underline flex items-center gap-1 shrink-0">
+                      <Link
+                        href={structuredBrokerLink}
+                        rel="nofollow"
+                        onClick={handleOpenBrokerModal}
+                        className="text-[10px] text-emerald-600 font-bold hover:underline flex items-center gap-1 shrink-0 cursor-pointer"
+                        title={`Xem hồ sơ ${safeAuthor.name}`}
+                      >
                         <span>Xem hồ sơ</span>
                         <i className="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-                      </span>
+                      </Link>
                     </div>
-                    <h4 className="text-base font-extrabold text-slate-900 group-hover:text-emerald-700 transition truncate">
-                      {safeAuthor.name}
-                    </h4>
+
+                    <Link
+                      href={structuredBrokerLink}
+                      rel="nofollow"
+                      onClick={handleOpenBrokerModal}
+                      className="block cursor-pointer group-hover:text-emerald-700 transition"
+                      title={`Xem hồ sơ và ${authorListingsCount} tin đăng của ${safeAuthor.name}`}
+                    >
+                      <h4 className="text-base font-extrabold text-slate-900 group-hover:text-emerald-700 transition truncate">
+                        {safeAuthor.name}
+                      </h4>
+                    </Link>
+
                     <p className="text-xs text-slate-500 truncate">
                       {safeAuthor.title}
                     </p>
+
                     <div className="flex items-center gap-1.5 text-amber-500 text-xs mt-1">
                       <div className="flex items-center gap-1">
                         <i className="fa-solid fa-star"></i>
                         <span className="font-bold text-slate-800">{safeAuthor.rating || '5.0'}</span>
                       </div>
                       <span className="text-slate-300">•</span>
-                      <span className="text-emerald-600 font-bold hover:underline">
+                      <Link
+                        href={structuredBrokerLink}
+                        rel="nofollow"
+                        onClick={handleOpenBrokerModal}
+                        className="text-emerald-600 font-bold hover:underline cursor-pointer"
+                        title={`Xem tất cả ${authorListingsCount} tin đăng`}
+                      >
                         ({authorListingsCount} tin đăng)
-                      </span>
+                      </Link>
                     </div>
                   </div>
-                </Link>
+                </div>
 
                 {/* Direct Call & Zalo Action Buttons */}
                 <div className="py-4 space-y-2.5">
