@@ -6,6 +6,7 @@ import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 import { getDailyClaims } from '../services/treasureHuntService';
 import { getCheckInStatus } from '../services/checkInService';
+import { normalizePhone } from '../utils/authValidation';
 
 export default function MissionHubPage({ initialCategory = 'all' }) {
   const [activeCategory, setActiveCategory] = useState(initialCategory);
@@ -16,7 +17,8 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
     addBonusWalletBalance, 
     rewardsConfig, 
     systemConfig,
-    properties 
+    properties,
+    usersList
   } = useRealEstate();
   const router = useRouter();
   const pathname = router?.pathname || '';
@@ -239,15 +241,40 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
     else if (m.id === 'm-day-04' || m.title?.toLowerCase().includes('dự đoán')) {
       dynamicStatus = hasVotedPrediction ? 'claimable' : 'in-progress';
     } 
-    // 8. Thành tựu 10 tin
-    else if (m.id === 'm-ach-01' || m.title?.toLowerCase().includes('10 tin')) {
-      dynamicProgress = { current: Math.min(userPropertiesCount, 10), total: 10 };
-      dynamicStatus = userPropertiesCount >= 10 ? 'claimable' : 'in-progress';
+    // Helper trích xuất chỉ tiêu số lượng thực tế từ tiêu đề / mô tả (Ví dụ: "15 tin" -> 15, "5 người" -> 5)
+    const parseTarget = (mission, fallback) => {
+      if (mission.target && Number(mission.target) > 0) return Number(mission.target);
+      const combined = `${mission.title || ''} ${mission.description || ''}`;
+      const matched = combined.match(/(\d+)\s*(tin|bài|người|ngày|lần|bạn)/i);
+      if (matched) return parseInt(matched[1], 10);
+      if (mission.progress?.total && Number(mission.progress.total) > 0) return Number(mission.progress.total);
+      return fallback;
+    };
+
+    // 8. Thành tựu đăng tin (Nhà môi giới uy tín 10 tin / 15 tin...)
+    if (m.id === 'm-ach-01' || m.title?.toLowerCase().includes('tin xác thực') || (m.title?.toLowerCase().includes('tin') && m.title?.toLowerCase().includes('môi giới'))) {
+      const targetTin = parseTarget(m, 15);
+      dynamicProgress = { current: Math.min(userPropertiesCount, targetTin), total: targetTin };
+      dynamicStatus = userPropertiesCount >= targetTin ? 'claimable' : 'in-progress';
     } 
-    // 9. Thành tựu chuỗi 30 ngày
-    else if (m.id === 'm-ach-02' || m.title?.toLowerCase().includes('30 ngày')) {
-      dynamicProgress = { current: Math.min(streakDays, 30), total: 30 };
-      dynamicStatus = streakDays >= 30 ? 'claimable' : 'in-progress';
+    // 9. Thành tựu chuỗi ngày điểm danh (30 ngày liên tục)
+    else if (m.id === 'm-ach-02' || m.title?.toLowerCase().includes('chuỗi') || m.title?.toLowerCase().includes('điểm danh 30')) {
+      const targetDays = parseTarget(m, 30);
+      dynamicProgress = { current: Math.min(streakDays, targetDays), total: targetDays };
+      dynamicStatus = streakDays >= targetDays ? 'claimable' : 'in-progress';
+    }
+    // 10. Thành tựu giới thiệu bạn bè (Affiliate / Chiêu mộ bạn bè)
+    else if (m.id === 'm-ach-03' || m.title?.toLowerCase().includes('chiêu mộ') || m.title?.toLowerCase().includes('affiliate') || m.title?.toLowerCase().includes('giới thiệu')) {
+      const targetRef = parseTarget(m, 5);
+      // Đếm số lượng người thực tế đã đăng ký qua mã giới thiệu của tài khoản này
+      const realRefSuccess = (usersList || []).filter(u => {
+        if (!currentUser?.id) return false;
+        return String(u.referredBy) === String(currentUser.id) ||
+               (currentUser.refCode && String(u.referredBy) === String(currentUser.refCode)) ||
+               (currentUser.phone && u.referredBy && normalizePhone(u.referredBy) === normalizePhone(currentUser.phone));
+      }).length;
+      dynamicProgress = { current: Math.min(realRefSuccess, targetRef), total: targetRef };
+      dynamicStatus = realRefSuccess >= targetRef ? 'claimable' : 'in-progress';
     }
 
     return {

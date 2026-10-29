@@ -1177,6 +1177,28 @@ export default function AdminRewardsGamificationManager() {
               </div>
 
               <div>
+                <label className="block font-bold text-slate-400 mb-1">Chỉ tiêu hoàn thành (Số lượng tin/ngày/lượt)</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={editingMission.target || editingMission.progress?.total || 1}
+                  onChange={(e) => {
+                    const tVal = Math.max(1, parseInt(e.target.value, 10) || 1);
+                    setEditingMission({ 
+                      ...editingMission, 
+                      target: tVal,
+                      progress: {
+                        ...(editingMission.progress || {}),
+                        total: tVal
+                      }
+                    });
+                  }}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold"
+                  placeholder="VD: 15"
+                />
+              </div>
+
+              <div>
                 <label className="block font-bold text-slate-400 mb-1">Đường dẫn làm nhiệm vụ (Link)</label>
                 <input
                   type="text"
