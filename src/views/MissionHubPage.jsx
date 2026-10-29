@@ -166,7 +166,17 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
   }
 
   // Đánh giá trạng thái thực tế của nhiệm vụ theo dữ liệu thực của tài khoản (Dynamic Progress Engine)
-  const hasAvatar = Boolean(currentUser?.avatar && currentUser.avatar.trim() !== '' && !currentUser.avatar.includes('placeholder'));
+  // Chỉ tính là ĐÃ CẬP NHẬT AVATAR khi người dùng thực sự tự tải ảnh mới lên (Base64 data URL, blob, hoặc có cờ hasCustomAvatar), loại trừ ảnh mẫu mặc định (unsplash, placeholder)
+  const isDefaultAvatar = !currentUser?.avatar || 
+    currentUser.avatar.includes('placeholder') || 
+    currentUser.avatar.includes('unsplash.com') ||
+    currentUser.avatar.includes('photo-1535713875002');
+  const hasAvatar = Boolean(
+    currentUser?.hasCustomAvatar || 
+    currentUser?.avatarUpdatedAt ||
+    (!isDefaultAvatar && (currentUser?.avatar?.startsWith('data:image/') || currentUser?.avatar?.startsWith('blob:')))
+  );
+
   const isPhoneVerified = Boolean(currentUser?.isVerified || currentUser?.phone);
   const isKycVerified = Boolean(currentUser?.kycStatus === 'verified' || currentUser?.isVerified);
   

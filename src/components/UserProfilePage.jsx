@@ -178,7 +178,11 @@ export default function UserProfilePage() {
     try {
       const optimizedDataUrl = await resizeImageToAvatar(file, 400, 400, 0.88);
       setFormData(prev => ({ ...prev, avatar: optimizedDataUrl }));
-      updateUserProfile({ avatar: optimizedDataUrl });
+      updateUserProfile({ 
+        avatar: optimizedDataUrl,
+        hasCustomAvatar: true,
+        avatarUpdatedAt: new Date().toISOString()
+      });
       showToast('Cập nhật ảnh đại diện thành công! Bạn có thể vào mục Nhiệm Vụ nhận ngay +10.000đ vào Ví KM!', 'success');
     } catch (err) {
       console.error('Avatar upload failed:', err);

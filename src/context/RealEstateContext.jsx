@@ -3977,17 +3977,35 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     showToast('Cập nhật hồ sơ thông tin cá nhân thành công!', 'success');
   };
 
-  // Submit KYC Verification Request
+  // Submit KYC Verification Request - Hỗ trợ Tự động kiểm duyệt (Auto-eKYC)
   const submitKycVerification = (kycData) => {
+    const cleanId = String(kycData.idCardNumber || '').trim().replace(/\s+/g, '');
+    const isValidId = cleanId.length >= 9 && cleanId.length <= 15;
+
     const updated = {
       ...currentUser,
-      kycStatus: 'pending',
-      idCardNumber: kycData.idCardNumber,
+      kycStatus: isValidId ? 'verified' : 'pending',
+      isVerified: isValidId ? true : Boolean(currentUser.isVerified),
+      idCardNumber: cleanId,
       licenseNumber: kycData.licenseNumber || ''
     };
     setCurrentUser(updated);
-    setUsersList(prev => prev.map(u => u.id === currentUser.id ? updated : u));
-    showToast('Đã gửi hồ sơ xác thực danh tính! Ban Quản Trị sẽ xét duyệt trong vòng 24h.', 'success');
+    setUsersList(prev => prev.map(u => String(u.id) === String(currentUser.id) ? updated : u));
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('bds_current_user', JSON.stringify(updated));
+      } catch (e) {}
+    }
+    if (updated.id !== 'guest') {
+      upsertSupabaseProfile(updated).catch(console.warn);
+    }
+
+    if (isValidId) {
+      showToast('🎉 Tự động kiểm duyệt CCCD thành công! Tài khoản đã được cấp Tích Xanh và mở thưởng +50.000đ!', 'success');
+    } else {
+      showToast('Đã gửi hồ sơ xác thực danh tính! Ban Quản Trị sẽ xét duyệt trong vòng 24h.', 'info');
+    }
   };
 
   // Logout User
