@@ -795,11 +795,13 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
                     <i className={logoFormData.brandIcon || 'fa-solid fa-city'}></i>
                   </div>
                   <div className="leading-tight">
-                    <div className="text-xs font-black tracking-tight text-slate-900 flex items-center gap-1">
+                    <div className="text-xs font-black tracking-tight text-slate-900 flex items-center">
                       <span>{logoFormData.brandName || 'ĐẤT BIỂN'}</span>
-                      <span className="text-emerald-600">{logoFormData.brandHighlight || 'ĐÀ NẴNG'}</span>
+                      {logoFormData.brandHighlight ? (
+                        <span className="text-emerald-600 ml-1">{logoFormData.brandHighlight}</span>
+                      ) : null}
                       {logoFormData.badgeText && (
-                        <span className={`text-[8px] px-1 py-0.2 rounded font-black uppercase ${logoFormData.badgeColor || 'bg-red-100 text-red-600'}`}>
+                        <span className={`ml-1 text-[8px] px-1 py-0.2 rounded font-black uppercase ${logoFormData.badgeColor || 'bg-red-100 text-red-600'}`}>
                           {logoFormData.badgeText}
                         </span>
                       )}
