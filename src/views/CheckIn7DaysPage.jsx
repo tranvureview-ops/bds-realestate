@@ -55,12 +55,18 @@ export default function CheckIn7DaysPage() {
 
   // Lấy dữ liệu gói tiền có hạn gần nhất được truyền từ API về
   useEffect(() => {
-    if (!isLoggedIn || !currentUser?.id) {
-      setExpiringBonusInfo(null);
-      return;
-    }
+    // 1. Kiểm tra LocalStorage ngay lập tức (kể cả guest hoặc khi API chưa phản hồi)
+    try {
+      const cachedExp = localStorage.getItem(`bds_user_bonus_exp_${userId}`);
+      if (cachedExp) {
+        const parsed = JSON.parse(cachedExp);
+        if (parsed?.amount && parsed?.formattedDate) {
+          setExpiringBonusInfo(parsed);
+        }
+      }
+    } catch (e) {}
 
-    // Ưu tiên hiển thị ngay từ state currentUser nếu đã có sẵn
+    // 2. Ưu tiên từ currentUser
     if (currentUser?.earliestExpiringBonus?.amount && currentUser?.earliestExpiringBonus?.expiresAt) {
       const expDate = new Date(currentUser.earliestExpiringBonus.expiresAt);
       setExpiringBonusInfo({
@@ -68,6 +74,10 @@ export default function CheckIn7DaysPage() {
         expiresAt: currentUser.earliestExpiringBonus.expiresAt,
         formattedDate: currentUser.earliestExpiringBonus.formattedDate || expDate.toLocaleDateString('vi-VN')
       });
+    }
+
+    if (!isLoggedIn || !currentUser?.id) {
+      return;
     }
 
     const fetchExpiringBonus = async () => {
@@ -91,7 +101,7 @@ export default function CheckIn7DaysPage() {
     return () => {
       window.removeEventListener('bds_bonus_wallet_updated', fetchExpiringBonus);
     };
-  }, [currentUser?.id, isLoggedIn, currentUser?.bonusWalletBalance]);
+  }, [currentUser?.id, isLoggedIn, currentUser?.bonusWalletBalance, userId]);
 
   const handleCheckIn = () => {
     // 1. Bắt buộc đăng nhập mới có thể điểm danh
@@ -177,12 +187,16 @@ export default function CheckIn7DaysPage() {
             </div>
 
             {/* Dòng cảnh báo nhỏ kèm icon đồng hồ cát */}
-            {bonusBal > 0 && expiringBonusInfo?.amount > 0 && expiringBonusInfo?.formattedDate && (
-              <div className="text-xs text-amber-800 font-semibold flex items-center justify-center gap-1.5 pt-0.5">
-                <i className="fa-solid fa-hourglass-half text-amber-600 animate-pulse"></i>
-                <span>(Có {Number(expiringBonusInfo.amount).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày {expiringBonusInfo.formattedDate})</span>
-              </div>
-            )}
+            <div className="text-xs text-amber-800 font-semibold flex items-center justify-center gap-1.5 pt-0.5">
+              <i className="fa-solid fa-hourglass-half text-amber-600 animate-pulse"></i>
+              <span>
+                {bonusBal > 0 && expiringBonusInfo?.amount > 0 && expiringBonusInfo?.formattedDate
+                  ? `(Có ${Number(expiringBonusInfo.amount).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${expiringBonusInfo.formattedDate})`
+                  : bonusBal > 0
+                  ? `(Có ${bonusBal.toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN')})`
+                  : '(Tiền thưởng điểm danh có hạn sử dụng 30 ngày kể từ ngày nhận)'}
+              </span>
+            </div>
           </div>
         </div>
 

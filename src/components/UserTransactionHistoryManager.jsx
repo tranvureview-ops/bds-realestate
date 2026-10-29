@@ -270,12 +270,16 @@ export default function UserTransactionHistoryManager() {
               <span>Ví KM: +{bonusBal.toLocaleString('vi-VN')} đ</span>
             </div>
             {/* Cảnh báo có tiền thưởng sắp hết hạn */}
-            {bonusBal > 0 && expiringBonusInfo?.amount > 0 && expiringBonusInfo?.formattedDate && (
-              <div className="text-[10px] text-amber-200 font-semibold flex items-center gap-1 mt-1 bg-amber-500/20 px-2 py-0.5 rounded-lg border border-amber-500/30">
-                <i className="fa-solid fa-hourglass-half text-amber-300 animate-pulse"></i>
-                <span>(Có {Number(expiringBonusInfo.amount).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày {expiringBonusInfo.formattedDate})</span>
-              </div>
-            )}
+            <div className="text-[10px] text-amber-200 font-semibold flex items-center gap-1 mt-1 bg-amber-500/20 px-2 py-0.5 rounded-lg border border-amber-500/30">
+              <i className="fa-solid fa-hourglass-half text-amber-300 animate-pulse"></i>
+              <span>
+                {bonusBal > 0 && expiringBonusInfo?.amount > 0 && expiringBonusInfo?.formattedDate
+                  ? `(Có ${Number(expiringBonusInfo.amount).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${expiringBonusInfo.formattedDate})`
+                  : bonusBal > 0
+                  ? `(Có ${bonusBal.toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN')})`
+                  : '(Tiền thưởng KM có hạn dùng 30 ngày kể từ ngày nhận)'}
+              </span>
+            </div>
           </div>
           <button
             type="button"
