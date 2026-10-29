@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { isPromotionExpired, formatPromoDate } from '../data/rewardData';
 
@@ -17,10 +17,13 @@ export default function AdminRewardsGamificationManager() {
   const [activeSubTab, setActiveSubTab] = useState('treasure'); // 'promotions', 'missions', 'checkin', 'treasure', 'predictions'
   const [formData, setFormData] = useState(rewardsConfig || DEFAULT_REWARDS_CONFIG);
   const [promoStatusFilter, setPromoStatusFilter] = useState('all'); // 'all', 'active', 'expired'
+  const [isDirty, setIsDirty] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const isDirtyRef = useRef(false);
 
-  // Sync when context changes
+  // Sync when context changes - TUYỆT ĐỐI KHÔNG GHI ĐÈ NẾU ADMIN ĐANG NHẬP DỞ (isDirty)
   useEffect(() => {
-    if (rewardsConfig) {
+    if (rewardsConfig && !isDirtyRef.current) {
       setFormData(rewardsConfig);
     }
   }, [rewardsConfig]);
@@ -35,16 +38,38 @@ export default function AdminRewardsGamificationManager() {
   const [missionModalOpen, setMissionModalOpen] = useState(false);
 
   // 1. Lưu toàn bộ cấu hình
-  const handleSaveAll = async () => {
-    const minAmt = Number(formData.treasureHuntConfig?.minAmount || 2000);
-    const maxAmt = Number(formData.treasureHuntConfig?.maxAmount || 20000);
+  const handleSaveAll = async (customConfig = null) => {
+    const targetConfig = customConfig || formData;
+    const minAmt = Number(targetConfig.treasureHuntConfig?.minAmount || 2000);
+    const maxAmt = Number(targetConfig.treasureHuntConfig?.maxAmount || 20000);
     if (minAmt > maxAmt) {
       if (showToast) showToast('Cảnh báo: Tiền thưởng Min không được lớn hơn Max!', 'warning');
       return;
     }
 
-    if (updateRewardsConfig) {
-      await updateRewardsConfig(formData);
+    // Chuẩn hóa dữ liệu ngày điểm danh đảm bảo luôn là kiểu Number
+    const sanitizedData = {
+      ...targetConfig,
+      checkInConfig: {
+        ...targetConfig.checkInConfig,
+        days: (targetConfig.checkInConfig?.days || []).map(d => ({
+          ...d,
+          reward: Number(d.reward) || 0,
+          label: `+${Number(d.reward || 0).toLocaleString('vi-VN')}đ vào Ví KM`
+        }))
+      }
+    };
+
+    setIsSaving(true);
+    try {
+      if (updateRewardsConfig) {
+        await updateRewardsConfig(sanitizedData);
+        isDirtyRef.current = false;
+        setIsDirty(false);
+        setFormData(sanitizedData);
+      }
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -56,6 +81,8 @@ export default function AdminRewardsGamificationManager() {
       return;
     }
 
+    isDirtyRef.current = true;
+    setIsDirty(true);
     setFormData(prev => {
       const exists = prev.promotions?.some(p => p.id === editingPromo.id);
       let updatedPromos = [];
@@ -78,6 +105,8 @@ export default function AdminRewardsGamificationManager() {
 
   const handleDeletePromo = (promoId) => {
     if (confirm('Xóa chương trình khuyến mãi này?')) {
+      isDirtyRef.current = true;
+      setIsDirty(true);
       setFormData(prev => ({
         ...prev,
         promotions: (prev.promotions || []).filter(p => p.id !== promoId)
@@ -86,6 +115,8 @@ export default function AdminRewardsGamificationManager() {
   };
 
   const handleTogglePromoExpired = (promoId) => {
+    isDirtyRef.current = true;
+    setIsDirty(true);
     setFormData(prev => {
       const updated = (prev.promotions || []).map(p => {
         if (p.id !== promoId) return p;
@@ -143,6 +174,8 @@ export default function AdminRewardsGamificationManager() {
       return;
     }
 
+    isDirtyRef.current = true;
+    setIsDirty(true);
     const cat = missionCategory;
     setFormData(prev => {
       const currentList = prev.missions?.[cat] || [];
@@ -173,6 +206,8 @@ export default function AdminRewardsGamificationManager() {
 
   const handleDeleteMission = (cat, missionId) => {
     if (confirm('Xóa nhiệm vụ này?')) {
+      isDirtyRef.current = true;
+      setIsDirty(true);
       setFormData(prev => ({
         ...prev,
         missions: {
@@ -185,12 +220,14 @@ export default function AdminRewardsGamificationManager() {
 
   // === XỬ LÝ ĐIỂM DANH 7 NGÀY ===
   const handleDayRewardChange = (dayNum, amount) => {
+    isDirtyRef.current = true;
+    setIsDirty(true);
     setFormData(prev => {
       const days = (prev.checkInConfig?.days || []).map(d => {
         if (d.day === dayNum) {
           return {
             ...d,
-            reward: Number(amount) || 0,
+            reward: amount === '' ? '' : (isNaN(Number(amount)) ? 0 : Number(amount)),
             label: `+${Number(amount || 0).toLocaleString('vi-VN')}đ vào Ví KM`
           };
         }
@@ -208,6 +245,8 @@ export default function AdminRewardsGamificationManager() {
 
   // === XỬ LÝ SĂN KHO BÁU BÀI VIẾT ===
   const handleTreasureConfigChange = (field, value) => {
+    isDirtyRef.current = true;
+    setIsDirty(true);
     setFormData(prev => ({
       ...prev,
       treasureHuntConfig: {
@@ -239,13 +278,20 @@ export default function AdminRewardsGamificationManager() {
         </div>
 
         <div className="flex items-center gap-2.5 w-full md:w-auto">
+          {isDirty && (
+            <span className="text-xs font-bold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-xl flex items-center gap-2 animate-pulse whitespace-nowrap">
+              <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+              Bản nháp chưa lưu
+            </span>
+          )}
           <button
             type="button"
-            onClick={handleSaveAll}
-            className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs transition shadow-lg shadow-emerald-900/30 cursor-pointer flex items-center justify-center gap-2"
+            onClick={() => handleSaveAll()}
+            disabled={isSaving}
+            className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs transition shadow-lg shadow-emerald-900/30 cursor-pointer flex items-center justify-center gap-2 disabled:opacity-50"
           >
-            <i className="fa-solid fa-floppy-disk"></i>
-            <span>Lưu Toàn Bộ Cấu Hình</span>
+            <i className={`fa-solid ${isSaving ? 'fa-spinner fa-spin' : 'fa-floppy-disk'}`}></i>
+            <span>{isSaving ? 'Đang Lưu...' : 'Lưu Toàn Bộ Cấu Hình'}</span>
           </button>
         </div>
       </div>
@@ -323,18 +369,35 @@ export default function AdminRewardsGamificationManager() {
                 </p>
               </div>
 
-              {/* Toggle Enable */}
-              <label className="flex items-center gap-3 cursor-pointer">
-                <span className="text-xs font-bold text-slate-300">
-                  {formData.treasureHuntConfig?.enabled ? 'Đang Bật' : 'Đang Tắt'}
-                </span>
-                <input
-                  type="checkbox"
-                  checked={formData.treasureHuntConfig?.enabled ?? true}
-                  onChange={(e) => handleTreasureConfigChange('enabled', e.target.checked)}
-                  className="w-5 h-5 accent-emerald-500 rounded cursor-pointer"
-                />
-              </label>
+              <div className="flex items-center gap-3">
+                {isDirty && (
+                  <span className="text-[11px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg flex items-center gap-1.5 animate-pulse">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                    Chưa lưu
+                  </span>
+                )}
+                <button
+                  type="button"
+                  onClick={() => handleSaveAll()}
+                  disabled={isSaving}
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs shadow-md shadow-emerald-900/30 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  <i className={`fa-solid ${isSaving ? 'fa-spinner fa-spin' : 'fa-floppy-disk'}`}></i>
+                  <span>{isSaving ? 'Đang lưu...' : 'Lưu Kho Báu'}</span>
+                </button>
+                {/* Toggle Enable */}
+                <label className="flex items-center gap-2 cursor-pointer bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700">
+                  <span className="text-xs font-bold text-slate-300">
+                    {formData.treasureHuntConfig?.enabled ? 'Đang Bật' : 'Đang Tắt'}
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={formData.treasureHuntConfig?.enabled ?? true}
+                    onChange={(e) => handleTreasureConfigChange('enabled', e.target.checked)}
+                    className="w-4 h-4 accent-emerald-500 rounded cursor-pointer"
+                  />
+                </label>
+              </div>
             </div>
 
             {/* Anti-spam inputs */}
@@ -755,20 +818,41 @@ export default function AdminRewardsGamificationManager() {
               </p>
             </div>
 
-            <label className="flex items-center gap-3 cursor-pointer">
-              <span className="text-xs font-bold text-slate-300">
-                {formData.checkInConfig?.enabled ? 'Đang Bật' : 'Đang Tắt'}
-              </span>
-              <input
-                type="checkbox"
-                checked={formData.checkInConfig?.enabled ?? true}
-                onChange={(e) => setFormData(prev => ({
-                  ...prev,
-                  checkInConfig: { ...prev.checkInConfig, enabled: e.target.checked }
-                }))}
-                className="w-5 h-5 accent-emerald-500 rounded cursor-pointer"
-              />
-            </label>
+            <div className="flex items-center gap-3">
+              {isDirty && (
+                <span className="text-[11px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg flex items-center gap-1.5 animate-pulse">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                  Chưa lưu
+                </span>
+              )}
+              <button
+                type="button"
+                onClick={() => handleSaveAll()}
+                disabled={isSaving}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs shadow-md shadow-emerald-900/30 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                <i className={`fa-solid ${isSaving ? 'fa-spinner fa-spin' : 'fa-floppy-disk'}`}></i>
+                <span>{isSaving ? 'Đang lưu...' : 'Lưu Điểm Danh'}</span>
+              </button>
+              <label className="flex items-center gap-2 cursor-pointer bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700">
+                <span className="text-xs font-bold text-slate-300">
+                  {formData.checkInConfig?.enabled ? 'Đang Bật' : 'Đang Tắt'}
+                </span>
+                <input
+                  type="checkbox"
+                  checked={formData.checkInConfig?.enabled ?? true}
+                  onChange={(e) => {
+                    isDirtyRef.current = true;
+                    setIsDirty(true);
+                    setFormData(prev => ({
+                      ...prev,
+                      checkInConfig: { ...prev.checkInConfig, enabled: e.target.checked }
+                    }));
+                  }}
+                  className="w-4 h-4 accent-emerald-500 rounded cursor-pointer"
+                />
+              </label>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
