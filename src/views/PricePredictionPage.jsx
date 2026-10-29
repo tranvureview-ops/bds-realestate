@@ -8,7 +8,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 export default function PricePredictionPage({ projectSlug = null }) {
   const [games, setGames] = useState(PRICE_PREDICTION_GAMES);
   const [userVotes, setUserVotes] = useState({});
-  const { showToast } = useRealEstate();
+  const { currentUser, showToast, addBonusWalletBalance } = useRealEstate();
 
   const handleVote = (gameId, optionId, optionLabel) => {
     if (userVotes[gameId]) {
@@ -26,8 +26,13 @@ export default function PricePredictionPage({ projectSlug = null }) {
       };
     }));
 
+    // Thưởng ngay 10.000đ vào Ví Khuyến Mãi khi tham gia bình chọn
+    if (addBonusWalletBalance) {
+      addBonusWalletBalance(10000, `Tham gia dự đoán: ${gameId}`);
+    }
+
     if (showToast) {
-      showToast(`Dự đoán thành công lựa chọn "${optionLabel}"! Chúc bạn may mắn chia quỹ thưởng! 🎯`, 'success');
+      showToast(`Dự đoán thành công "${optionLabel}"! Bạn được cộng ngay +10.000đ vào Ví KM và tham gia chia thưởng lớn! 🎯`, 'success');
     }
   };
 
@@ -35,11 +40,13 @@ export default function PricePredictionPage({ projectSlug = null }) {
     ? games.filter(g => g.slug === projectSlug)
     : games;
 
+  const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'DiscussionForumPosting',
-    'headline': 'Minigame Dự Đoán Giá Bất Động Sản Cộng Đồng',
-    'text': 'Tham gia dự đoán mức giá khớp lệnh thực tế của các dự án BĐS tại Đà Nẵng, Quảng Nam để nhận chia quỹ thưởng hàng triệu Xu.',
+    'headline': 'Minigame Dự Đoán Giá Bất Động Sản Chia Thưởng Tiền Ví KM',
+    'text': 'Tham gia dự đoán mức giá khớp lệnh thực tế của các dự án BĐS tại Đà Nẵng, Quảng Nam để chia quỹ thưởng tiền mặt hàng triệu đồng vào Ví Khuyến Mãi.',
     'url': 'https://datbiendanang.vn/trung-tam-phan-thuong/du-doan-gia-bds/'
   };
 
@@ -68,11 +75,33 @@ export default function PricePredictionPage({ projectSlug = null }) {
               Sân Chơi Thẩm Định Giá Cộng Đồng
             </span>
             <h1 className="text-2xl sm:text-4xl font-black">
-              Dự Đoán Giá BĐS - Chia Thưởng Triệu Xu
+              Dự Đoán Giá BĐS - Chia Thưởng Triệu Đồng Vào Ví
             </h1>
             <p className="text-white/80 text-xs sm:text-sm leading-relaxed">
-              Bạn có góc nhìn sắc bén về thị trường? Dự đoán giá chốt các sản phẩm BĐS tiêu biểu, tích lũy điểm chuyên gia và chia thưởng quỹ xu hấp dẫn.
+              Dự đoán mức giá chốt thực tế các căn hộ và biệt thự. Thưởng ngay <strong>+10.000đ vào Ví KM</strong> mỗi lượt bình chọn và chia quỹ tiền mặt lên tới 8.000.000đ khi chốt phiên!
             </p>
+          </div>
+
+          <div className="mt-6 pt-5 border-t border-white/10 flex items-center justify-between flex-wrap gap-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-lg">
+                <i className="fa-solid fa-wallet"></i>
+              </div>
+              <div>
+                <div className="text-[11px] text-white/70 font-semibold">Ví Khuyến Mãi của bạn</div>
+                <div className="text-xl font-black text-amber-300">
+                  +{bonusBal.toLocaleString('vi-VN')} đ
+                </div>
+              </div>
+            </div>
+
+            <Link
+              to="/dang-tin"
+              className="px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white font-bold text-xs transition flex items-center gap-2"
+            >
+              <span>Dùng ví đăng tin</span>
+              <i className="fa-solid fa-arrow-right text-[10px]"></i>
+            </Link>
           </div>
         </div>
 
@@ -106,17 +135,22 @@ export default function PricePredictionPage({ projectSlug = null }) {
                     </div>
                   </div>
 
-                  <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200 text-center sm:text-right shrink-0">
-                    <div className="text-[10px] text-amber-800 font-bold uppercase tracking-wider">Quỹ thưởng vòng này</div>
-                    <div className="text-lg font-black text-amber-600">{game.totalPool}</div>
+                  <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-center sm:text-right shrink-0">
+                    <div className="text-[10px] text-emerald-800 font-bold uppercase tracking-wider">Quỹ thưởng vòng này</div>
+                    <div className="text-lg font-black text-emerald-600">{game.totalPool}</div>
                     <div className="text-[10px] text-slate-500 mt-0.5">{game.totalVotes.toLocaleString('vi-VN')} người tham gia</div>
                   </div>
                 </div>
 
                 {/* Voting Options */}
                 <div className="space-y-3">
-                  <div className="text-xs font-bold text-slate-700 uppercase tracking-wider">
-                    {hasVoted ? 'Kết quả bình chọn cộng đồng:' : 'Chọn mức giá dự đoán của bạn:'}
+                  <div className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+                    <span>{hasVoted ? 'Kết quả bình chọn cộng đồng:' : 'Chọn mức giá dự đoán của bạn (Nhận ngay +10.000đ):'}</span>
+                    {!hasVoted && (
+                      <span className="text-[11px] text-emerald-600 font-bold">
+                        +10.000đ vào Ví KM
+                      </span>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

@@ -11,46 +11,48 @@ export default function RewardCenterPage() {
     {
       id: 'diem-danh',
       title: 'Điểm Danh 7 Ngày',
-      description: 'Đăng nhập mỗi ngày nhận vòng quay may mắn, rương quà VIP và xu thưởng liên tiếp.',
+      description: 'Đăng nhập mỗi ngày nhận tiền thưởng trực tiếp vào Ví Khuyến Mãi lên đến 50.000đ/tuần.',
       icon: 'fa-solid fa-calendar-check',
       color: 'from-amber-500 to-orange-500',
-      badge: 'Hàng ngày',
+      badge: 'Thưởng tiền mỗi ngày',
       link: '/trung-tam-phan-thuong/diem-danh-7-ngay/'
     },
     {
       id: 'kho-bau',
       title: 'Săn Kho Báu BĐS',
-      description: 'Mở rương kho báu ẩn tại các khu đô thị & dự án hot tại Đà Nẵng, Hội An, TP.HCM.',
+      description: 'Mở rương kho báu ẩn tại các dự án hot nhận ngay 50.000đ - 100.000đ vào Ví Khuyến Mãi.',
       icon: 'fa-solid fa-gem',
       color: 'from-emerald-500 to-teal-600',
-      badge: 'Hot Mini-game',
+      badge: 'Rương tiền tươi',
       link: '/trung-tam-phan-thuong/san-kho-bau-bds/'
     },
     {
       id: 'du-doan',
       title: 'Dự Đoán Giá BĐS',
-      description: 'Trổ tài thẩm định giá thị trường các căn hộ, biệt thự để chia quỹ thưởng hàng triệu Xu.',
+      description: 'Trổ tài thẩm định giá thị trường các căn hộ, biệt thự để chia quỹ thưởng tiền mặt 8 triệu đồng.',
       icon: 'fa-solid fa-chart-line',
       color: 'from-blue-600 to-indigo-600',
-      badge: 'Quỹ 10 Triệu Xu',
+      badge: 'Quỹ 8.000.000đ',
       link: '/trung-tam-phan-thuong/du-doan-gia-bds/'
     },
     {
       id: 'doi-qua',
-      title: 'Cửa Hàng Đổi Quà',
-      description: 'Quy đổi xu tích lũy lấy Voucher nạp tiền, lượt đẩy tin TOP 1 và mã giảm giá VIP.',
-      icon: 'fa-solid fa-gift',
+      title: 'Đặc Quyền Ví Khuyến Mãi',
+      description: 'Sử dụng tiền trong Ví Khuyến Mãi để đăng tin miễn phí, đẩy tin TOP 1 và nâng cấp VIP.',
+      icon: 'fa-solid fa-wallet',
       color: 'from-rose-500 to-pink-600',
-      badge: 'Đổi ngay',
+      badge: 'Dùng ngay',
       link: '/trung-tam-phan-thuong/doi-qua/'
     }
   ];
 
+  const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
-    'name': 'Trung Tâm Phần Thưởng & Gamification Bất Động Sản',
-    'description': 'Tham gia điểm danh 7 ngày, săn kho báu dự án và dự đoán giá BĐS để nhận hàng ngàn phần quà giá trị.',
+    'name': 'Trung Tâm Phần Thưởng Tiền Mặt Ví Khuyến Mãi BĐS',
+    'description': 'Tham gia điểm danh 7 ngày, săn kho báu dự án và dự đoán giá BĐS nhận tiền trực tiếp vào Ví Khuyến Mãi.',
     'url': 'https://datbiendanang.vn/trung-tam-phan-thuong/'
   };
 
@@ -74,25 +76,25 @@ export default function RewardCenterPage() {
           <div className="relative z-10 max-w-2xl space-y-4">
             <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-xs font-bold uppercase tracking-wider text-amber-300">
               <i className="fa-solid fa-trophy"></i>
-              Khu Vực Tương Tác & Gamification
+              Khu Vực Tương Tác & Tiền Thưởng Ví KM
             </span>
             <h1 className="text-2xl sm:text-4xl font-black leading-tight">
               Trung Tâm Phần Thưởng Đất Biển Đà Nẵng
             </h1>
             <p className="text-white/80 text-sm leading-relaxed">
-              Trải nghiệm các tính năng tương tác mới lạ: Điểm danh tích lũy, săn rương dự án, dự đoán giá nhà đất và đổi quà thả ga.
+              Nhận tiền thưởng <strong>cộng trực tiếp vào Ví Khuyến Mãi</strong> qua Điểm danh mỗi ngày, Săn rương dự án và Dự đoán giá thị trường. Sử dụng để đăng tin và đẩy tin VIP hoàn toàn miễn phí.
             </p>
           </div>
 
           <div className="mt-6 pt-6 border-t border-white/10 flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-lg">
-                <i className="fa-solid fa-coins"></i>
+                <i className="fa-solid fa-wallet"></i>
               </div>
               <div>
-                <div className="text-[11px] text-white/70">Số dư xu của bạn</div>
-                <div className="text-xl font-black text-amber-300">
-                  {(currentUser ? 85000 : 0).toLocaleString('vi-VN')} <span className="text-xs text-white">Xu</span>
+                <div className="text-[11px] text-white/70">Số dư Ví Khuyến Mãi của bạn</div>
+                <div className="text-xl font-black text-amber-300 font-mono">
+                  +{bonusBal.toLocaleString('vi-VN')} <span className="text-xs text-white">VNĐ</span>
                 </div>
               </div>
             </div>
@@ -100,17 +102,17 @@ export default function RewardCenterPage() {
             <div className="flex items-center gap-3">
               <Link
                 to="/nhiem-vu/"
-                className="px-4 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs transition flex items-center gap-2"
+                className="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs transition flex items-center gap-2"
               >
                 <i className="fa-solid fa-list-check"></i>
-                <span>Làm nhiệm vụ kiếm Xu</span>
+                <span>Nhiệm vụ nhận tiền vào ví</span>
               </Link>
               <Link
-                to="/trung-tam-phan-thuong/doi-qua/"
-                className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition flex items-center gap-2 shadow-md"
+                to="/dang-tin"
+                className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition flex items-center gap-2 shadow-md"
               >
-                <i className="fa-solid fa-gift"></i>
-                <span>Đổi quà ngay</span>
+                <i className="fa-solid fa-circle-plus"></i>
+                <span>Đăng tin bằng Ví KM</span>
               </Link>
             </div>
           </div>
@@ -145,7 +147,7 @@ export default function RewardCenterPage() {
               </div>
 
               <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-indigo-600 group-hover:translate-x-1 transition-transform">
-                <span>Tham gia ngay</span>
+                <span>Tham gia nhận thưởng</span>
                 <i className="fa-solid fa-arrow-right"></i>
               </div>
             </Link>

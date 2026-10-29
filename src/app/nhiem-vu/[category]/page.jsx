@@ -13,8 +13,8 @@ export async function generateMetadata({ params }) {
   const name = titles[category] || 'Danh Mục Nhiệm Vụ';
 
   return {
-    title: `${name} | Tích Xu Đổi Quà BĐS`,
-    description: `Danh sách ${name.toLowerCase()} nhận xu thưởng và ưu đãi VIP trên Đất Biển Đà Nẵng.`,
+    title: `${name} | Thưởng Tiền Vào Ví Khuyến Mãi`,
+    description: `Danh sách ${name.toLowerCase()} nhận tiền thưởng trực tiếp vào Ví Khuyến Mãi trên Đất Biển Đà Nẵng.`,
     alternates: {
       canonical: `https://datbiendanang.vn/nhiem-vu/${category}/`,
     }

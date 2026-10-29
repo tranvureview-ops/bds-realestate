@@ -581,7 +581,7 @@ export default function Navbar() {
                               className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center gap-2.5 ${currentRoute.startsWith('/nhiem-vu') ? 'bg-blue-50 text-blue-700 font-bold' : 'hover:bg-slate-50 text-slate-700'}`}
                             >
                               <i className="fa-solid fa-list-check text-blue-600 w-4 text-center"></i>
-                              <span>Nhiệm vụ kiếm Xu</span>
+                              <span>Nhiệm vụ nhận tiền ví</span>
                             </Link>
                           </>
                         )}
@@ -888,7 +888,7 @@ export default function Navbar() {
                 >
                   <div className="flex items-center gap-2.5">
                     <i className="fa-solid fa-list-check text-blue-600 w-4 text-center"></i>
-                    <span>Nhiệm vụ kiếm Xu</span>
+                    <span>Nhiệm vụ nhận tiền ví</span>
                   </div>
                 </Link>
               </div>

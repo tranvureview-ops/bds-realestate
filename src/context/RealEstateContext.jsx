@@ -4425,9 +4425,31 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return { success: true, email: res.email };
   };
 
+  /**
+   * Cộng tiền thưởng trực tiếp vào Ví Khuyến Mãi (bonusWalletBalance) của người dùng
+   * Dùng cho Gamification, Điểm danh, Nhiệm vụ, Săn kho báu, Dự đoán giá & Affiliate
+   */
+  const addBonusWalletBalance = (amount, reason = '') => {
+    const num = Number(amount);
+    if (!num || num <= 0) return 0;
+    let newBonus = 0;
+    setCurrentUser(curr => {
+      if (!curr) return curr;
+      newBonus = (Number(curr.bonusWalletBalance) || 0) + num;
+      const updated = {
+        ...curr,
+        bonusWalletBalance: newBonus
+      };
+      return updated;
+    });
+    setUsersList(prev => prev.map(u => (currentUser && u.id === currentUser.id) ? { ...u, bonusWalletBalance: (Number(u.bonusWalletBalance) || 0) + num } : u));
+    return newBonus;
+  };
+
   return (
     <RealEstateContext.Provider
       value={{
+        addBonusWalletBalance,
         currentView,
         setCurrentView,
         properties,

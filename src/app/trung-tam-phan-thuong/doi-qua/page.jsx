@@ -1,8 +1,8 @@
 import RewardRedeemPage from '../../../views/RewardRedeemPage';
 
 export const metadata = {
-  title: 'Cửa Hàng Đổi Quà & Voucher Bất Động Sản | Đất Biển Đà Nẵng',
-  description: 'Quy đổi xu tích lũy ra voucher nạp tiền, lượt đẩy tin TOP 1 và gói đăng tin VIP hoàn toàn miễn phí.',
+  title: 'Đặc Quyền Sử Dụng Ví Khuyến Mãi | Đất Biển Đà Nẵng',
+  description: 'Sử dụng tiền trong Ví Khuyến Mãi để đăng tin miễn phí, mua lượt đẩy tin TOP 1 và nâng cấp tin VIP hoàn toàn tiện lợi.',
   alternates: {
     canonical: 'https://datbiendanang.vn/trung-tam-phan-thuong/doi-qua/',
   }

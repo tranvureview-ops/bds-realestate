@@ -6,7 +6,7 @@ import { Link } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 
 export default function CheckIn7DaysPage() {
-  const { showToast } = useRealEstate();
+  const { currentUser, showToast, addBonusWalletBalance } = useRealEstate();
   const [currentStreak, setCurrentStreak] = useState(3);
   const [checkedToday, setCheckedToday] = useState(false);
 
@@ -24,17 +24,26 @@ export default function CheckIn7DaysPage() {
     setCheckedToday(true);
     localStorage.setItem('bds_checkin_today', new Date().toDateString());
 
-    const reward = CHECK_IN_7_DAYS[nextStreak - 1];
+    const item = CHECK_IN_7_DAYS[nextStreak - 1];
+    const amount = Number(item.reward || 5000);
+
+    // Cộng tiền trực tiếp vào Ví Khuyến Mãi của người dùng
+    if (addBonusWalletBalance) {
+      addBonusWalletBalance(amount, `Điểm danh Ngày ${nextStreak}`);
+    }
+
     if (showToast) {
-      showToast(`Điểm danh Ngày ${nextStreak} thành công! Nhận ${reward.label}! 🎉`, 'success');
+      showToast(`🎉 Điểm danh Ngày ${nextStreak} thành công! Đã cộng trực tiếp +${amount.toLocaleString('vi-VN')}đ vào Ví Khuyến Mãi!`, 'success');
     }
   };
+
+  const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Game',
-    'name': 'Điểm Danh 7 Ngày Nhận Thưởng BĐS',
-    'description': 'Đăng nhập điểm danh mỗi ngày tích lũy xu và rương quà VIP Kim Cương.',
+    'name': 'Điểm Danh 7 Ngày Thưởng Tiền Vào Ví Khuyến Mãi',
+    'description': 'Đăng nhập điểm danh mỗi ngày nhận tiền thưởng trực tiếp vào Ví Khuyến Mãi để đăng tin và đẩy tin VIP.',
     'url': 'https://datbiendanang.vn/trung-tam-phan-thuong/diem-danh-7-ngay/'
   };
 
@@ -55,17 +64,26 @@ export default function CheckIn7DaysPage() {
           <span className="text-slate-800 font-bold">Điểm danh 7 ngày</span>
         </nav>
 
-        {/* Header Card */}
+        {/* Header Card with Real-time Ví Khuyến Mãi */}
         <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-10 shadow-sm text-center space-y-4">
-          <div className="w-16 h-16 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mx-auto text-3xl shadow-sm">
-            <i className="fa-solid fa-calendar-check"></i>
+          <div className="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-3xl shadow-sm">
+            <i className="fa-solid fa-hand-holding-dollar"></i>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900">
-            Chuỗi Điểm Danh 7 Ngày
+            Điểm Danh Nhận Tiền Vào Ví Khuyến Mãi
           </h1>
           <p className="text-slate-500 text-xs sm:text-sm max-w-lg mx-auto">
-            Điểm danh liên tục không ngắt quãng để mở khóa Voucher Đẩy Tin Ngày 3 và Rương Quà VIP Kim Cương Ngày 7.
+            Không cần tích điểm. Tiền thưởng được cộng <strong>trực tiếp vào Ví Khuyến Mãi</strong> mỗi ngày để bạn sử dụng đăng tin và đẩy tin VIP ngay lập tức.
           </p>
+
+          {/* Real-time Ví Khuyến Mãi Badge */}
+          <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-emerald-50 rounded-2xl border border-emerald-200 text-emerald-800 font-bold text-xs sm:text-sm">
+            <i className="fa-solid fa-wallet text-emerald-600"></i>
+            <span>Số dư Ví Khuyến Mãi hiện tại:</span>
+            <strong className="text-emerald-700 text-base font-black font-mono">
+              +{bonusBal.toLocaleString('vi-VN')} đ
+            </strong>
+          </div>
 
           <div className="pt-2">
             <button
@@ -74,11 +92,11 @@ export default function CheckIn7DaysPage() {
               className={`px-8 py-3.5 rounded-2xl font-black text-sm transition shadow-lg flex items-center justify-center gap-2 mx-auto cursor-pointer ${
                 checkedToday
                   ? 'bg-slate-100 text-slate-400 shadow-none cursor-not-allowed'
-                  : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-amber-200 scale-105 animate-bounce'
+                  : 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-200 scale-105 animate-bounce'
               }`}
             >
               <i className={`fa-solid ${checkedToday ? 'fa-circle-check' : 'fa-hand-pointer'}`}></i>
-              <span>{checkedToday ? 'Đã điểm danh hôm nay' : 'Điểm danh ngay (+Xu)'}</span>
+              <span>{checkedToday ? 'Đã nhận thưởng hôm nay' : 'Điểm danh nhận tiền (+Ví KM)'}</span>
             </button>
           </div>
         </div>
@@ -94,11 +112,11 @@ export default function CheckIn7DaysPage() {
                 key={item.day}
                 className={`p-4 rounded-2xl border text-center transition-all duration-300 flex flex-col justify-between relative overflow-hidden ${
                   isCompleted
-                    ? 'bg-amber-50/80 border-amber-300 text-amber-900 shadow-xs'
+                    ? 'bg-emerald-50/80 border-emerald-300 text-emerald-900 shadow-xs'
                     : isCurrent
-                    ? 'bg-white border-orange-500 shadow-md ring-2 ring-orange-200'
+                    ? 'bg-white border-emerald-500 shadow-md ring-2 ring-emerald-200'
                     : 'bg-white border-slate-200 text-slate-400'
-                } ${item.super ? 'sm:col-span-2 md:col-span-1 bg-gradient-to-b from-purple-50 to-amber-50 border-purple-300' : ''}`}
+                } ${item.super ? 'sm:col-span-2 md:col-span-1 bg-gradient-to-b from-purple-50 to-emerald-50 border-purple-300' : ''}`}
               >
                 {item.highlight && (
                   <span className="absolute top-1 right-1 text-[8px] bg-red-500 text-white font-bold px-1.5 py-0.2 rounded-full">
@@ -116,20 +134,20 @@ export default function CheckIn7DaysPage() {
                     Ngày {item.day}
                   </div>
                   <div className={`w-10 h-10 rounded-xl mx-auto flex items-center justify-center text-lg my-2 ${
-                    isCompleted ? 'bg-amber-400 text-slate-950' : 'bg-slate-100 text-slate-400'
+                    isCompleted ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-400'
                   }`}>
                     <i className={item.icon}></i>
                   </div>
                 </div>
 
                 <div className="mt-2">
-                  <div className={`text-xs font-bold ${isCompleted ? 'text-amber-800' : 'text-slate-700'}`}>
+                  <div className={`text-xs font-bold ${isCompleted ? 'text-emerald-800' : 'text-slate-700'}`}>
                     {item.label}
                   </div>
                   <div className="mt-2 text-[10px]">
                     {isCompleted ? (
-                      <span className="text-emerald-600 font-bold flex items-center justify-center gap-1">
-                        <i className="fa-solid fa-check"></i> Đã nhận
+                      <span className="text-emerald-700 font-bold flex items-center justify-center gap-1">
+                        <i className="fa-solid fa-check"></i> Đã cộng ví
                       </span>
                     ) : (
                       <span className="text-slate-400">Chưa mở</span>
@@ -145,12 +163,12 @@ export default function CheckIn7DaysPage() {
         <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 space-y-4 text-xs sm:text-sm text-slate-600">
           <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
             <i className="fa-solid fa-circle-info text-blue-600"></i>
-            Thể lệ tích lũy chuỗi 7 ngày
+            Thể lệ nhận thưởng Ví Khuyến Mãi
           </h2>
           <ul className="list-disc pl-5 space-y-2 leading-relaxed">
-            <li>Mỗi tài khoản được điểm danh 01 lần duy nhất trong ngày (tính từ 00:00 đến 23:59).</li>
-            <li>Nếu bỏ lỡ 1 ngày không đăng nhập, chuỗi điểm danh sẽ được tính lại từ Ngày 1.</li>
-            <li>Xu thưởng nhận được từ điểm danh có giá trị sử dụng không thời hạn và có thể quy đổi sang Voucher dịch vụ tại <strong>Cửa hàng đổi quà</strong>.</li>
+            <li>Mỗi tài khoản được điểm danh 01 lần duy nhất trong ngày và tiền thưởng được cộng trực tiếp vào <strong>Ví Khuyến Mãi</strong>.</li>
+            <li>Tiền trong Ví Khuyến Mãi được trừ tự động khi thanh toán đăng tin mới, gia hạn tin đăng hoặc mua các gói đẩy tin TOP 1.</li>
+            <li>Duy trì điểm danh 7 ngày liên tục để nhận mốc thưởng tuần lớn nhất (+50.000đ).</li>
           </ul>
         </div>
       </div>
