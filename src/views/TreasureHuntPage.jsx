@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 import { getDailyQuotaStatus, getDailyClaims, hasClaimedPropertyToday } from '../services/treasureHuntService';
@@ -88,8 +88,33 @@ export default function TreasureHuntPage() {
 
   const totalEarnedToday = claimsToday.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
 
-  // Lọc ra các bài viết tin đăng BĐS nổi bật để người dùng khám phá săn rương
-  const sampleArticles = (properties || []).slice(0, 6);
+  // Định dạng chuẩn cấu trúc giá bất động sản theo tiêu chuẩn hệ thống
+  const formatPropertyPrice = (p) => {
+    if (p.priceDisplay) return p.priceDisplay.replace(/Tỷ/g, 'tỷ');
+    if (!p.price) return 'Thỏa thuận';
+    const num = Number(p.price);
+    if (isNaN(num)) return String(p.price);
+    if (num >= 1e9) {
+      return `${(num / 1e9).toFixed(1).replace(/\.0$/, '')} tỷ`;
+    }
+    if (num >= 1e6) {
+      return `${(num / 1e6).toFixed(0)} triệu${p.demand === 'rent' ? '/tháng' : ''}`;
+    }
+    return `${num.toLocaleString('vi-VN')} đ`;
+  };
+
+  // Lọc ra các bài viết tin đăng BĐS nổi bật (ưu tiên Tin VIP Kim Cương, VIP Vàng, VIP Bạc) để tăng tương tác và lượt xem
+  const sampleArticles = useMemo(() => {
+    if (!properties || !Array.isArray(properties)) return [];
+    const valid = properties.filter(p => !p.isDeleted && p.status !== 'trash' && p.status !== 'rejected');
+    const vipOrder = { 'vip-diamond': 4, 'vip-gold': 3, 'vip-silver': 2, 'normal': 1 };
+    return [...valid].sort((a, b) => {
+      const weightA = vipOrder[a.vipPackageId] || 1;
+      const weightB = vipOrder[b.vipPackageId] || 1;
+      if (weightB !== weightA) return weightB - weightA;
+      return new Date(b.publishedAt || 0) - new Date(a.publishedAt || 0);
+    }).slice(0, 6);
+  }, [properties]);
 
   const baseUrl = (typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL || 'https://bds-realestate.vercel.app')).replace(/\/+$/, '');
 
@@ -379,8 +404,13 @@ export default function TreasureHuntPage() {
                         <i className="fa-solid fa-gift"></i> Có Rương (+{minAmount.toLocaleString('vi-VN')}đ - +{maxAmount.toLocaleString('vi-VN')}đ)
                       </span>
                     )}
-                    <span className="absolute bottom-2.5 right-2.5 text-[11px] font-bold px-2 py-0.5 rounded bg-black/60 text-white">
-                      {p.price}
+                    {p.vipPackageId && p.vipPackageId !== 'normal' && (
+                      <span className="absolute top-2.5 right-2.5 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md bg-red-600 text-white shadow-xs">
+                        VIP
+                      </span>
+                    )}
+                    <span className="absolute bottom-2.5 right-2.5 text-[11px] font-black px-2.5 py-0.5 rounded-lg bg-black/75 text-white backdrop-blur-xs font-mono shadow-xs">
+                      {formatPropertyPrice(p)}
                     </span>
                   </div>
 
@@ -388,9 +418,14 @@ export default function TreasureHuntPage() {
                     <h4 className="text-xs font-bold text-slate-900 group-hover:text-amber-600 transition line-clamp-2">
                       {p.title}
                     </h4>
-                    <div className="text-[11px] text-slate-500 flex items-center gap-1.5">
-                      <i className="fa-solid fa-location-dot text-rose-500 text-[10px]"></i>
-                      <span className="truncate">{p.district || p.location || systemConfig?.city || 'Toàn quốc'}</span>
+                    <div className="text-[11px] text-slate-500 flex items-center justify-between gap-1.5">
+                      <div className="flex items-center gap-1 truncate">
+                        <i className="fa-solid fa-location-dot text-rose-500 text-[10px] shrink-0"></i>
+                        <span className="truncate">{p.district ? `${p.district}, ` : ''}{p.city || systemConfig?.city || 'Đà Nẵng'}</span>
+                      </div>
+                      {p.area ? (
+                        <span className="font-semibold text-slate-600 shrink-0">{p.area} m²</span>
+                      ) : null}
                     </div>
 
                     <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-amber-600">
