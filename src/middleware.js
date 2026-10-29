@@ -62,7 +62,26 @@ export function middleware(request) {
     }
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+
+  // 3. Xử lý Affiliate Deep Link: Nếu URL có ?ref=CODE, lưu Cookie 30 ngày
+  if (searchParams.has('ref')) {
+    const rawRef = searchParams.get('ref') || '';
+    const cleanRef = rawRef.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+    if (cleanRef) {
+      response.cookies.set({
+        name: 'bds_aff_ref',
+        value: cleanRef,
+        maxAge: 30 * 24 * 60 * 60, // 30 ngày
+        path: '/',
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: false,
+      });
+    }
+  }
+
+  return response;
 }
 
 export const config = {

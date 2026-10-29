@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter, Link } from '../router/RouterContext';
 import { validateFullRegistration, validatePhoneNumber, validateEmailAddress } from '../utils/authValidation';
@@ -19,6 +19,7 @@ export default function RegisterPage() {
     confirmPassword: '',
     primaryArea: 'TP. Đà Nẵng',
     company: 'Đất Biển Đà Nẵng',
+    referralCode: '',
     agreeTerms: true
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -28,6 +29,23 @@ export default function RegisterPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [registrationResult, setRegistrationResult] = useState(null);
+
+  // Tự động nhận diện mã người giới thiệu từ URL (?ref=...) hoặc Cookie Affiliate (bds_aff_ref)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const urlParams = new URLSearchParams(window.location.search);
+    let code = urlParams.get('ref');
+
+    if (!code) {
+      const match = document.cookie.match(new RegExp('(^| )bds_aff_ref=([^;]+)'));
+      if (match) code = match[2];
+    }
+
+    if (code) {
+      const clean = code.trim().toUpperCase().replace(/[^A-Z0-9_-]/g, '');
+      setRegisterData(prev => ({ ...prev, referralCode: clean }));
+    }
+  }, []);
 
   const bonusAmount = Number(systemConfig?.welcomeBonusAmount || 100000);
   const bonusFormatted = bonusAmount.toLocaleString('vi-VN') + 'đ';
@@ -298,6 +316,31 @@ export default function RegisterPage() {
             password={registerData.password}
             confirmPassword={registerData.confirmPassword}
           />
+
+          {/* Referral Code Box (Affiliate Tracking) */}
+          <div className="space-y-1.5">
+            <label className="block font-bold text-slate-700 uppercase text-xs">
+              Mã giới thiệu (Nếu có)
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="VD: VU888"
+                value={registerData.referralCode}
+                onChange={(e) => setRegisterData(prev => ({ ...prev, referralCode: e.target.value.toUpperCase() }))}
+                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-red-500 uppercase tracking-wider text-xs"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">
+                <i className="fa-solid fa-user-tag"></i>
+              </span>
+            </div>
+            {registerData.referralCode && (
+              <div className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1">
+                <i className="fa-solid fa-circle-check text-emerald-600"></i>
+                <span>Áp dụng mã giới thiệu: <strong>{registerData.referralCode}</strong> (+50.000 Xu khi đăng ký)</span>
+              </div>
+            )}
+          </div>
 
           {/* Welcome Promo Gift Banner */}
           <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 flex items-center gap-3">

@@ -385,6 +385,23 @@ export default function Navbar() {
               )}
             </Link>
 
+            {/* Trung tâm phần thưởng Quick Link */}
+            <Link
+              to="/trung-tam-phan-thuong"
+              suppressHydrationWarning
+              className={`hidden sm:flex relative p-2 rounded-xl border transition ${
+                currentRoute.startsWith('/trung-tam-phan-thuong')
+                  ? 'bg-purple-50 border-purple-200 text-purple-700'
+                  : 'border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-purple-600'
+              }`}
+              title="Trung tâm phần thưởng & Minigame"
+            >
+              <i className="fa-solid fa-gift text-sm text-purple-600"></i>
+              <span className="absolute -top-1.5 -right-1.5 bg-amber-400 text-slate-950 text-[8px] font-black px-1 rounded-full flex items-center justify-center shadow-xs">
+                HOT
+              </span>
+            </Link>
+
             {/* User Account Dropdown / Login Links */}
             <div suppressHydrationWarning>
               {isGuest ? (
@@ -538,6 +555,33 @@ export default function Navbar() {
                                   Tiết kiệm {premiumSavePercent}%
                                 </span>
                               )}
+                            </Link>
+
+                            <Link
+                              to="/trung-tam-phan-thuong"
+                              onClick={() => setUserMenuOpen(false)}
+                              className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center gap-2.5 ${currentRoute.startsWith('/trung-tam-phan-thuong') ? 'bg-purple-50 text-purple-700 font-bold' : 'hover:bg-slate-50 text-slate-700'}`}
+                            >
+                              <i className="fa-solid fa-gift text-purple-600 w-4 text-center"></i>
+                              <span>Trung tâm phần thưởng</span>
+                            </Link>
+
+                            <Link
+                              to="/khuyen-mai"
+                              onClick={() => setUserMenuOpen(false)}
+                              className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center gap-2.5 ${currentRoute.startsWith('/khuyen-mai') ? 'bg-rose-50 text-rose-700 font-bold' : 'hover:bg-slate-50 text-slate-700'}`}
+                            >
+                              <i className="fa-solid fa-tags text-rose-500 w-4 text-center"></i>
+                              <span>Khuyến mãi & Voucher</span>
+                            </Link>
+
+                            <Link
+                              to="/nhiem-vu"
+                              onClick={() => setUserMenuOpen(false)}
+                              className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center gap-2.5 ${currentRoute.startsWith('/nhiem-vu') ? 'bg-blue-50 text-blue-700 font-bold' : 'hover:bg-slate-50 text-slate-700'}`}
+                            >
+                              <i className="fa-solid fa-list-check text-blue-600 w-4 text-center"></i>
+                              <span>Nhiệm vụ kiếm Xu</span>
                             </Link>
                           </>
                         )}
@@ -799,6 +843,54 @@ export default function Navbar() {
                     </Link>
                   );
                 })}
+              </div>
+
+              {/* Tiện ích Phần thưởng & Khuyến mãi (Mobile) */}
+              <div className="space-y-1 pt-2 border-t border-slate-100">
+                <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1">
+                  Phần Thưởng & Ưu Đãi
+                </div>
+                <Link
+                  to="/trung-tam-phan-thuong"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`w-full px-3 py-2.5 rounded-xl flex items-center justify-between font-semibold text-sm transition ${
+                    currentRoute.startsWith('/trung-tam-phan-thuong') ? 'bg-purple-50 text-purple-700 font-bold' : 'text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <i className="fa-solid fa-gift text-purple-600 w-4 text-center"></i>
+                    <span>Trung tâm phần thưởng</span>
+                  </div>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded-full font-bold bg-amber-400 text-slate-950">
+                    HOT
+                  </span>
+                </Link>
+
+                <Link
+                  to="/khuyen-mai"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`w-full px-3 py-2.5 rounded-xl flex items-center justify-between font-semibold text-sm transition ${
+                    currentRoute.startsWith('/khuyen-mai') ? 'bg-rose-50 text-rose-700 font-bold' : 'text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <i className="fa-solid fa-tags text-rose-500 w-4 text-center"></i>
+                    <span>Khuyến mãi & Voucher</span>
+                  </div>
+                </Link>
+
+                <Link
+                  to="/nhiem-vu"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={`w-full px-3 py-2.5 rounded-xl flex items-center justify-between font-semibold text-sm transition ${
+                    currentRoute.startsWith('/nhiem-vu') ? 'bg-blue-50 text-blue-700 font-bold' : 'text-slate-700 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <i className="fa-solid fa-list-check text-blue-600 w-4 text-center"></i>
+                    <span>Nhiệm vụ kiếm Xu</span>
+                  </div>
+                </Link>
               </div>
             </div>
 

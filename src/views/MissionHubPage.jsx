@@ -1,0 +1,202 @@
+'use client';
+
+import React, { useState } from 'react';
+import { MISSIONS_DATA } from '../data/rewardData';
+import { Link, useRouter } from '../router/RouterContext';
+import { useRealEstate } from '../context/RealEstateContext';
+
+export default function MissionHubPage({ initialCategory = 'all' }) {
+  const [activeCategory, setActiveCategory] = useState(initialCategory);
+  const [claimedMissions, setClaimedMissions] = useState({});
+  const { currentUser, showToast } = useRealEstate();
+  const { navigate } = useRouter();
+
+  const categories = [
+    { id: 'all', label: 'Tất cả nhiệm vụ', icon: 'fa-solid fa-list-check' },
+    { id: 'tan-thu', label: 'Tân thủ', icon: 'fa-solid fa-seedling' },
+    { id: 'hang-ngay', label: 'Hàng ngày', icon: 'fa-solid fa-calendar-day' },
+    { id: 'thanh-tuu', label: 'Thành tựu', icon: 'fa-solid fa-trophy' }
+  ];
+
+  let displayMissions = [];
+  if (activeCategory === 'all') {
+    displayMissions = [
+      ...MISSIONS_DATA['tan-thu'],
+      ...MISSIONS_DATA['hang-ngay'],
+      ...MISSIONS_DATA['thanh-tuu']
+    ];
+  } else if (MISSIONS_DATA[activeCategory]) {
+    displayMissions = MISSIONS_DATA[activeCategory];
+  }
+
+  const handleClaim = (missionId, reward) => {
+    setClaimedMissions(prev => ({ ...prev, [missionId]: true }));
+    if (showToast) {
+      showToast(`Chúc mừng! Bạn đã nhận +${reward.toLocaleString('vi-VN')} Xu thưởng!`, 'success');
+    }
+  };
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    'name': 'Hệ Thống Nhiệm Vụ & Tích Lũy Điểm Thưởng BĐS',
+    'description': 'Hoàn thành nhiệm vụ đăng tin, duyệt tin, định danh và tương tác hàng ngày để nhận xu thưởng và ưu đãi VIP.',
+    'step': displayMissions.map((m, idx) => ({
+      '@type': 'HowToStep',
+      'position': idx + 1,
+      'name': m.title,
+      'text': m.description
+    }))
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 py-8">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+          <Link to="/" className="hover:text-emerald-700 transition">Trang chủ</Link>
+          <span>/</span>
+          <span className="text-slate-800 font-bold">Hệ thống nhiệm vụ</span>
+        </nav>
+
+        {/* Hero Banner with User Coin Balance */}
+        <div className="rounded-3xl bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 text-white p-6 sm:p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-3 text-center md:text-left">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider">
+              <i className="fa-solid fa-star text-amber-300"></i>
+              Nhiệm Vụ Kiếm Xu 2026
+            </span>
+            <h1 className="text-2xl sm:text-3xl font-black">
+              Trung Tâm Nhiệm Vụ & Tích Xu Đổi Quà
+            </h1>
+            <p className="text-white/80 text-xs sm:text-sm max-w-xl">
+              Hoàn thành các mốc nhiệm vụ để nhận Xu thưởng tích lũy. Quy đổi Xu thành Voucher đẩy tin TOP 1 và nâng cấp tin VIP hoàn toàn miễn phí.
+            </p>
+          </div>
+
+          {/* User Coin Box */}
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-2xl flex items-center gap-5 shrink-0 w-full md:w-auto justify-between md:justify-start">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-amber-400 text-amber-950 flex items-center justify-center text-2xl shadow-lg">
+                <i className="fa-solid fa-coins"></i>
+              </div>
+              <div>
+                <div className="text-[11px] uppercase tracking-wider text-white/70 font-bold">Số dư Xu tích lũy</div>
+                <div className="text-2xl font-black text-amber-300">
+                  {(currentUser ? 85000 : 0).toLocaleString('vi-VN')} <span className="text-xs text-white">Xu</span>
+                </div>
+              </div>
+            </div>
+
+            <Link
+              to="/trung-tam-phan-thuong/doi-qua/"
+              className="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition shadow-md whitespace-nowrap"
+            >
+              Đổi quà ngay &rarr;
+            </Link>
+          </div>
+        </div>
+
+        {/* Category Tabs */}
+        <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
+          {categories.map(cat => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer whitespace-nowrap shadow-xs ${
+                activeCategory === cat.id
+                  ? 'bg-blue-600 text-white shadow-blue-200'
+                  : 'bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900 border border-slate-200'
+              }`}
+            >
+              <i className={`${cat.icon} text-xs`}></i>
+              <span>{cat.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Missions List */}
+        <div className="space-y-4">
+          {displayMissions.map(m => {
+            const isClaimed = claimedMissions[m.id];
+            return (
+              <div
+                key={m.id}
+                className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 hover:border-blue-400 shadow-xs hover:shadow-md transition flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+              >
+                <div className="flex items-start gap-4 flex-1">
+                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0 border border-blue-100">
+                    <i className={m.icon}></i>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="font-bold text-sm sm:text-base text-slate-900">
+                        {m.title}
+                      </h3>
+                      <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-md bg-amber-100 text-amber-800">
+                        <i className="fa-solid fa-coins text-amber-500"></i>
+                        +{m.reward.toLocaleString('vi-VN')} Xu
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                      {m.description}
+                    </p>
+
+                    {/* Progress bar if present */}
+                    {m.progress && (
+                      <div className="pt-2 flex items-center gap-3">
+                        <div className="w-36 sm:w-48 h-2 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-blue-600 rounded-full transition-all"
+                            style={{ width: `${(m.progress.current / m.progress.total) * 100}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-[11px] font-bold text-slate-500">
+                          {m.progress.current}/{m.progress.total}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Action CTA */}
+                <div className="shrink-0 w-full sm:w-auto">
+                  {isClaimed ? (
+                    <button
+                      disabled
+                      className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed"
+                    >
+                      <i className="fa-solid fa-check"></i>
+                      <span>Đã nhận thưởng</span>
+                    </button>
+                  ) : m.status === 'claimable' ? (
+                    <button
+                      onClick={() => handleClaim(m.id, m.reward)}
+                      className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-amber-200 cursor-pointer animate-pulse"
+                    >
+                      <i className="fa-solid fa-gift"></i>
+                      <span>Nhận thưởng</span>
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => navigate(m.link)}
+                      className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
+                    >
+                      <span>Làm ngay</span>
+                      <i className="fa-solid fa-arrow-right text-[10px]"></i>
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}

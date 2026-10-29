@@ -46,6 +46,48 @@ export default async function sitemap() {
       changeFrequency: 'weekly',
       priority: 0.8,
     },
+    {
+      url: `${baseUrl}/khuyen-mai/`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/nhiem-vu/`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/trung-tam-phan-thuong/`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/trung-tam-phan-thuong/diem-danh-7-ngay/`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/trung-tam-phan-thuong/san-kho-bau-bds/`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/trung-tam-phan-thuong/du-doan-gia-bds/`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/trung-tam-phan-thuong/doi-qua/`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.7,
+    },
   ];
 
   // 2. 12 Danh mục loại hình bán & cho thuê
