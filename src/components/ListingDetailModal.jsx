@@ -481,10 +481,15 @@ export default function ListingDetailModal({ property, onClose }) {
             {/* Right Column (4 cols): Broker Contact Card & Direct Form */}
             <div className="lg:col-span-4 sticky top-16 space-y-4">
               <div className="bg-white rounded-2xl border-2 border-emerald-500/30 p-5 shadow-xl">
-                {/* Broker Profile (Bấm để xem hồ sơ & tin đăng) */}
-                <div 
-                  onClick={() => setIsBrokerModalOpen(true)}
-                  className="flex items-center gap-3 pb-4 border-b border-slate-100 cursor-pointer group hover:bg-emerald-50/60 -mx-2 px-2 py-2 rounded-2xl transition-all"
+                {/* Broker Profile: Kiến trúc SEO tối ưu (Mã nguồn Link <a>, rel="nofollow", Giao diện Modal Popup) */}
+                <Link 
+                  href={`/nha-dat-ban?q=${encodeURIComponent(safeAuthor.name)}`}
+                  rel="nofollow"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsBrokerModalOpen(true);
+                  }}
+                  className="flex items-center gap-3 pb-4 border-b border-slate-100 cursor-pointer group hover:bg-emerald-50/60 -mx-2 px-2 py-2 rounded-2xl transition-all block"
                   title={`Bấm để xem hồ sơ chuyên viên & ${authorListingsCount} tin đăng của ${safeAuthor.name}`}
                 >
                   <div className="relative shrink-0">
@@ -529,7 +534,7 @@ export default function ListingDetailModal({ property, onClose }) {
                       </span>
                     </div>
                   </div>
-                </div>
+                </Link>
 
                 {/* Direct Call & Zalo Action Buttons */}
                 <div className="py-4 space-y-2.5">

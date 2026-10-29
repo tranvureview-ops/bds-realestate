@@ -1641,10 +1641,15 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             <div id="broker-contact-box" className="bg-white rounded-3xl border-2 border-emerald-500/30 p-6 shadow-xl space-y-5">
               {singleConfig?.features?.showAuthorCard !== false && (
                 <>
-                  {/* Broker Header (Bấm để xem hồ sơ & tất cả tin đăng) */}
-                  <div 
-                    onClick={() => setIsBrokerModalOpen(true)}
-                    className="flex items-center gap-3 pb-4 border-b border-slate-100 cursor-pointer group hover:bg-emerald-50/60 -mx-2 px-2 py-2 rounded-2xl transition-all"
+                  {/* Broker Header: Kiến trúc SEO tối ưu (Mã nguồn Link <a>, rel="nofollow", Giao diện Modal Popup) */}
+                  <Link 
+                    href={`/nha-dat-ban?q=${encodeURIComponent(safeAuthor.name)}`}
+                    rel="nofollow"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setIsBrokerModalOpen(true);
+                    }}
+                    className="flex items-center gap-3 pb-4 border-b border-slate-100 cursor-pointer group hover:bg-emerald-50/60 -mx-2 px-2 py-2 rounded-2xl transition-all block"
                     title={`Bấm để xem hồ sơ chuyên viên & ${authorListingsCount} tin đăng của ${safeAuthor.name}`}
                   >
                     <div className="relative shrink-0">
@@ -1689,7 +1694,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                         </span>
                       </div>
                     </div>
-                  </div>
+                  </Link>
 
                   {/* Direct Calling Hotline Button */}
                   <div className="space-y-2">
@@ -1942,14 +1947,18 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   Khám phá thêm các bất động sản do chuyên viên {safeAuthor.name} đang trực tiếp quản lý và hỗ trợ pháp lý ({authorProperties.length} tin)
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsBrokerModalOpen(true)}
+              <Link
+                href={`/nha-dat-ban?q=${encodeURIComponent(safeAuthor.name)}`}
+                rel="nofollow"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setIsBrokerModalOpen(true);
+                }}
                 className="self-start sm:self-center text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-4 py-2 rounded-xl transition flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
               >
                 <span>Xem tất cả ({authorProperties.length} tin)</span>
                 <i className="fa-solid fa-arrow-right text-[10px]"></i>
-              </button>
+              </Link>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
