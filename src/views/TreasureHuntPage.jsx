@@ -7,7 +7,7 @@ import { getDailyQuotaStatus, getDailyClaims, hasClaimedPropertyToday } from '..
 import { getPropertyPermalink, SITE_URL } from '../utils/permalink';
 
 export default function TreasureHuntPage() {
-  const { currentUser, properties, rewardsConfig, systemConfig, addBonusWalletBalance } = useRealEstate();
+  const { currentUser, properties, rewardsConfig, systemConfig, addBonusWalletBalance, showToast } = useRealEstate();
   const tConfig = rewardsConfig?.treasureHuntConfig;
   const dailyLimit = Number(tConfig?.dailyLimit || 3);
   const minAmount = Number(tConfig?.minAmount || 2000);
@@ -21,6 +21,8 @@ export default function TreasureHuntPage() {
   const userId = (currentUser && currentUser.role !== 'guest' ? currentUser.id : null) || 'guest';
   const [localBonusBal, setLocalBonusBal] = useState(Number(currentUser?.bonusWalletBalance || 0));
   const [expiringBonusInfo, setExpiringBonusInfo] = useState(null);
+  const [shuffleSeed, setShuffleSeed] = useState(0);
+  const [isShuffling, setIsShuffling] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -68,6 +70,9 @@ export default function TreasureHuntPage() {
 
     setLocalBonusBal(resolvedBonus);
 
+    // 4. Khởi tạo phiên xáo trộn ngẫu nhiên công bằng khi client tải trang
+    setShuffleSeed(Date.now());
+
     const handleWalletUpdated = (e) => {
       if (e.detail?.bonusWalletBalance !== undefined) {
         setLocalBonusBal(Number(e.detail.bonusWalletBalance));
@@ -88,6 +93,18 @@ export default function TreasureHuntPage() {
 
   const totalEarnedToday = claimsToday.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
 
+  // Đổi danh sách bài viết ngẫu nhiên (Fair Shuffle)
+  const handleShuffleClick = () => {
+    setIsShuffling(true);
+    setShuffleSeed(Date.now() + Math.random());
+    if (showToast) {
+      showToast('Đã xoay vòng ngẫu nhiên danh sách bài viết!', 'info');
+    }
+    setTimeout(() => {
+      setIsShuffling(false);
+    }, 400);
+  };
+
   // Định dạng chuẩn cấu trúc giá bất động sản theo tiêu chuẩn hệ thống
   const formatPropertyPrice = (p) => {
     if (p.priceDisplay) return p.priceDisplay.replace(/Tỷ/g, 'tỷ');
@@ -103,41 +120,70 @@ export default function TreasureHuntPage() {
     return `${num.toLocaleString('vi-VN')} đ`;
   };
 
-  // Lọc và sắp xếp bài viết tin đăng BĐS xuất hiện trong mục Săn Kho Báu:
+  // Lọc và sắp xếp bài viết tin đăng BĐS xuất hiện trong mục Săn Kho Báu theo Phương Án 1 (Fair Random Shuffle):
   // 1. Ưu tiên hàng đầu cho người mua Gói Hội Viên (bài viết được hội viên chọn bật isTreasureHuntActive)
-  // 2. Trong số các bài của người mua gói: Sắp xếp theo cấp bậc VIP:
+  // 2. Trong số các bài của người mua gói: Tôn trọng cấp bậc VIP:
   //    VIP Kim Cương (vip-diamond) ⟶ VIP Vàng (vip-gold) ⟶ VIP Bạc (vip-silver) ⟶ Tin Thường (normal)
-  // 3. Trong cùng cấp bậc VIP: Ưu tiên tin mới xuất bản nhất (publishedAt || createdAt)
-  // 4. Nếu chưa đủ số lượng để lấp đầy lưới 4 cột (ví dụ 8 bài cho 2 hàng x 4 cột), tự động bổ sung tiếp các tin VIP khác theo đúng thứ tự VIP.
+  // 3. Trong cùng cấp bậc VIP: Tự động đảo ngẫu nhiên công bằng (Fisher-Yates Fair Shuffle) theo từng phiên truy cập
+  //    Đảm bảo 100% tất cả các bài của hội viên đều có cơ hội hiển thị ở vị trí hàng đầu như nhau, không bị dồn cục vào vài bài đầu!
+  // 4. Ưu tiên đưa bài chưa mở hôm nay lên trước bài đã mở của người dùng.
+  // 5. Nếu chưa đủ số lượng để lấp đầy lưới 4 cột (8 bài), tự động bổ sung tiếp các tin VIP khác theo cùng cơ chế công bằng.
   const sampleArticles = useMemo(() => {
     if (!properties || !Array.isArray(properties)) return [];
     const valid = properties.filter(p => !p.isDeleted && p.status !== 'trash' && p.status !== 'rejected');
-    const vipOrder = { 'vip-diamond': 4, 'vip-gold': 3, 'vip-silver': 2, 'normal': 1 };
+
+    // Hàm xáo trộn mảng theo chuẩn Fisher-Yates
+    const shuffleArray = (arr) => {
+      const copy = [...arr];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    };
+
+    // Hàm sắp xếp công bằng trong từng nhóm (Hội viên hoặc Tin thường)
+    const fairSortArticles = (list) => {
+      const diamond = list.filter(p => p.vipPackageId === 'vip-diamond');
+      const gold = list.filter(p => p.vipPackageId === 'vip-gold');
+      const silver = list.filter(p => p.vipPackageId === 'vip-silver');
+      const normal = list.filter(p => !p.vipPackageId || p.vipPackageId === 'normal');
+
+      // Helper đảo ngẫu nhiên và ưu tiên bài chưa mở hôm nay lên trước bài đã mở
+      const processTier = (tierList) => {
+        if (tierList.length <= 1) return tierList;
+        // Nếu đã hydrate client (shuffleSeed > 0), xáo trộn ngẫu nhiên công bằng
+        const listToOrder = shuffleSeed > 0 ? shuffleArray(tierList) : tierList;
+        // Bài chưa mở lên trước bài đã mở của user này
+        return listToOrder.sort((a, b) => {
+          const claimedA = claimsToday.some(c => String(c.propertyId) === String(a.id)) ? 1 : 0;
+          const claimedB = claimsToday.some(c => String(c.propertyId) === String(b.id)) ? 1 : 0;
+          return claimedA - claimedB;
+        });
+      };
+
+      return [
+        ...processTier(diamond),
+        ...processTier(gold),
+        ...processTier(silver),
+        ...processTier(normal)
+      ];
+    };
 
     // Nhóm 1: Các bài viết được người mua Gói Hội Viên chọn gắn vào Săn Kho Báu
     const memberTreasureArticles = valid.filter(p => Boolean(p.isTreasureHuntActive));
-    memberTreasureArticles.sort((a, b) => {
-      const weightA = vipOrder[a.vipPackageId] || 1;
-      const weightB = vipOrder[b.vipPackageId] || 1;
-      if (weightB !== weightA) return weightB - weightA;
-      return new Date(b.publishedAt || b.createdAt || 0) - new Date(a.publishedAt || a.createdAt || 0);
-    });
+    const sortedMembers = fairSortArticles(memberTreasureArticles);
 
     // Nhóm 2: Các bài viết còn lại (sắp xếp theo VIP Kim Cương -> VIP Vàng -> VIP Bạc -> Tin Thường)
     const remainingArticles = valid.filter(p => !p.isTreasureHuntActive);
-    remainingArticles.sort((a, b) => {
-      const weightA = vipOrder[a.vipPackageId] || 1;
-      const weightB = vipOrder[b.vipPackageId] || 1;
-      if (weightB !== weightA) return weightB - weightA;
-      return new Date(b.publishedAt || b.createdAt || 0) - new Date(a.publishedAt || a.createdAt || 0);
-    });
+    const sortedRemaining = fairSortArticles(remainingArticles);
 
-    // Kết hợp ưu tiên tuyệt đối Nhóm 1 lên đầu, sau đó lấp đầy bằng Nhóm 2
-    const combined = [...memberTreasureArticles, ...remainingArticles];
+    // Kết hợp ưu tiên tuyệt đối Nhóm bài của Hội viên lên đầu
+    const combined = [...sortedMembers, ...sortedRemaining];
 
     // Trả về 8 bài để hiển thị trọn vẹn trên lưới 4 cột (2 hàng x 4 cột)
     return combined.slice(0, 8);
-  }, [properties]);
+  }, [properties, shuffleSeed, claimsToday]);
 
   const baseUrl = (typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL || 'https://bds-realestate.vercel.app')).replace(/\/+$/, '');
 
@@ -387,19 +433,39 @@ export default function TreasureHuntPage() {
 
         {/* Suggested Articles containing Gift Boxes */}
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
             <div>
-              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
-                <i className="fa-solid fa-fire text-red-500"></i>
-                Danh Sách Bài Viết Đang Chứa Hộp Quà Hôm Nay
-              </h3>
-              <p className="text-xs text-slate-500">
-                Bấm vào từng bài viết bên dưới, cuộn xuống phần mô tả để mở rương kho báu:
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
+                  <i className="fa-solid fa-fire text-red-500"></i>
+                  <span>Danh Sách Bài Viết Đang Chứa Hộp Quà Hôm Nay</span>
+                </h3>
+                <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-300 px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs">
+                  <i className="fa-solid fa-shuffle text-[9px] text-amber-600"></i>
+                  <span>Xoay vòng công bằng</span>
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-1">
+                Thứ tự bài viết được tự động xoay vòng ngẫu nhiên cho mỗi phiên truy cập nhằm phân bổ lượt xem và tương tác đồng đều cho tất cả tin đăng của Hội viên.
               </p>
             </div>
-            <Link to="/nha-dat-ban" className="text-xs font-bold text-emerald-600 hover:underline">
-              Xem tất cả tin rao &rarr;
-            </Link>
+
+            <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={handleShuffleClick}
+                disabled={isShuffling}
+                className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-md hover:shadow-lg disabled:opacity-50"
+                title="Bấm để đảo ngẫu nhiên danh sách bài viết khác"
+              >
+                <i className={`fa-solid fa-rotate text-xs text-amber-400 ${isShuffling ? 'animate-spin' : ''}`}></i>
+                <span>{isShuffling ? 'Đang xoay...' : 'Đổi bài viết khác'}</span>
+              </button>
+
+              <Link to="/nha-dat-ban" className="text-xs font-bold text-emerald-600 hover:underline px-2 py-1">
+                Xem tất cả tin rao &rarr;
+              </Link>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
