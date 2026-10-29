@@ -327,27 +327,44 @@ export default function ListingFilterBar({
   };
 
   const getPriceSummary = () => {
-    if (!draftFilters.priceRange || draftFilters.priceRange === 'all') {
-      if (draftFilters.minPrice || draftFilters.maxPrice) {
-        const unit = draftFilters.demand === 'rent' ? 'triệu' : 'tỷ';
-        const div = draftFilters.demand === 'rent' ? 1e6 : 1e9;
-        const minStr = draftFilters.minPrice ? `${draftFilters.minPrice / div}` : '0';
-        const maxStr = draftFilters.maxPrice ? `${draftFilters.maxPrice / div}` : 'Không giới hạn';
-        return `${minStr} - ${maxStr} ${unit}`;
+    if (draftFilters.priceRange && draftFilters.priceRange !== 'all' && draftFilters.priceRange !== 'custom') {
+      const presets = draftFilters.demand === 'rent' ? RENT_PRICE_PRESETS : SALE_PRICE_PRESETS;
+      const found = presets.find(p => p.value === draftFilters.priceRange);
+      if (found) {
+        return found.label;
       }
-      return 'Tất cả';
     }
-    return getPriceRangeLabel(draftFilters.priceRange, draftFilters.demand);
+    if (draftFilters.minPrice || draftFilters.maxPrice) {
+      const unit = draftFilters.demand === 'rent' ? 'triệu' : 'tỷ';
+      const div = draftFilters.demand === 'rent' ? 1e6 : 1e9;
+      if (draftFilters.minPrice && draftFilters.maxPrice) {
+        return `${Math.round(draftFilters.minPrice / div * 10) / 10} - ${Math.round(draftFilters.maxPrice / div * 10) / 10} ${unit}`;
+      } else if (draftFilters.maxPrice) {
+        return `≤ ${Math.round(draftFilters.maxPrice / div * 10) / 10} ${unit}`;
+      } else if (draftFilters.minPrice) {
+        return `≥ ${Math.round(draftFilters.minPrice / div * 10) / 10} ${unit}`;
+      }
+    }
+    return 'Tất cả';
   };
 
   const getAreaSummary = () => {
-    if (!draftFilters.areaRange || draftFilters.areaRange === 'all') {
-      if (draftFilters.minArea || draftFilters.maxArea) {
-        return `${draftFilters.minArea || 0} - ${draftFilters.maxArea || 'Không giới hạn'} m²`;
+    if (draftFilters.areaRange && draftFilters.areaRange !== 'all' && draftFilters.areaRange !== 'custom') {
+      const found = AREA_PRESETS.find(p => p.value === draftFilters.areaRange);
+      if (found) {
+        return found.label;
       }
-      return 'Tất cả';
     }
-    return getAreaRangeLabel(draftFilters.areaRange);
+    if (draftFilters.minArea || draftFilters.maxArea) {
+      if (draftFilters.minArea && draftFilters.maxArea) {
+        return `${draftFilters.minArea} - ${draftFilters.maxArea} m²`;
+      } else if (draftFilters.maxArea) {
+        return `≤ ${draftFilters.maxArea} m²`;
+      } else if (draftFilters.minArea) {
+        return `≥ ${draftFilters.minArea} m²`;
+      }
+    }
+    return 'Tất cả';
   };
 
   // Location data calculations for Screenshot 2 (Hỗ trợ đầy đủ Đà Nẵng, Quảng Nam...)

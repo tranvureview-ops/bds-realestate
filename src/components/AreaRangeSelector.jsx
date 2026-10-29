@@ -122,23 +122,47 @@ export default function AreaRangeSelector({
     }
   };
 
-  // Chọn một preset định sẵn
+  // Chọn một preset định sẵn (tự động áp dụng ngay không cần bấm nút Áp dụng)
   const handleSelectPreset = (preset) => {
+    let finalMin = null;
+    let finalMax = null;
+    let rangeKey = preset.value;
+    let label = preset.label || 'Diện tích';
+
     if (preset.value === 'all') {
       setMinVal(0);
       setMaxVal(maxLimit);
       setInputMin('');
       setInputMax('');
-      return;
+      finalMin = null;
+      finalMax = null;
+      rangeKey = 'all';
+      label = 'Diện tích';
+    } else {
+      const min = preset.min || 0;
+      const max = preset.max || maxLimit;
+
+      setMinVal(min);
+      setMaxVal(max);
+      setInputMin(min > 0 ? String(min) : '');
+      setInputMax(max < maxLimit ? String(max) : '');
+
+      finalMin = preset.min ? Number(preset.min) : null;
+      finalMax = preset.max ? Number(preset.max) : null;
     }
 
-    const min = preset.min || 0;
-    const max = preset.max || maxLimit;
+    if (onApply) {
+      onApply({
+        minArea: finalMin,
+        maxArea: finalMax,
+        areaRange: rangeKey,
+        label
+      });
+    }
 
-    setMinVal(min);
-    setMaxVal(max);
-    setInputMin(min > 0 ? String(min) : '');
-    setInputMax(max < maxLimit ? String(max) : '');
+    if (onClose) {
+      onClose();
+    }
   };
 
   // Kiểm tra preset nào đang active

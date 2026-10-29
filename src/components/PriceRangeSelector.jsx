@@ -160,23 +160,47 @@ export default function PriceRangeSelector({
     }
   };
 
-  // Chọn một preset định sẵn
+  // Chọn một preset định sẵn (tự động áp dụng ngay không cần bấm nút Áp dụng)
   const handleSelectPreset = (preset) => {
+    let finalMinVnd = null;
+    let finalMaxVnd = null;
+    let rangeKey = preset.value;
+    let label = preset.label || 'Khoảng giá';
+
     if (preset.value === 'all') {
       setMinUnit(0);
       setMaxUnit(maxLimit);
       setInputMin('');
       setInputMax('');
-      return;
+      finalMinVnd = null;
+      finalMaxVnd = null;
+      rangeKey = 'all';
+      label = 'Khoảng giá';
+    } else {
+      const minU = preset.min ? toUnitVal(preset.min) : 0;
+      const maxU = preset.max ? toUnitVal(preset.max) : maxLimit;
+
+      setMinUnit(minU);
+      setMaxUnit(maxU);
+      setInputMin(minU > 0 ? String(minU) : '');
+      setInputMax(maxU < maxLimit ? String(maxU) : '');
+
+      finalMinVnd = preset.min ? Number(preset.min) : null;
+      finalMaxVnd = preset.max ? Number(preset.max) : null;
     }
 
-    const minU = preset.min ? toUnitVal(preset.min) : 0;
-    const maxU = preset.max ? toUnitVal(preset.max) : maxLimit;
+    if (onApply) {
+      onApply({
+        minPrice: finalMinVnd,
+        maxPrice: finalMaxVnd,
+        priceRange: rangeKey,
+        label
+      });
+    }
 
-    setMinUnit(minU);
-    setMaxUnit(maxU);
-    setInputMin(minU > 0 ? String(minU) : '');
-    setInputMax(maxU < maxLimit ? String(maxU) : '');
+    if (onClose) {
+      onClose();
+    }
   };
 
   // Kiểm tra preset nào đang active
