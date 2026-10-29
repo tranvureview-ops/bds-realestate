@@ -126,7 +126,11 @@ export function filterProperties(properties = [], filters = {}) {
         prop.street,
         prop.ward,
         prop.district,
-        prop.city
+        prop.city,
+        prop.author?.name,
+        prop.author?.phone,
+        prop.contactName,
+        prop.contactPhone
       ].filter(Boolean).join(' ').toLowerCase();
 
       const searchTargetClean = removeAccents(searchTargetRaw);

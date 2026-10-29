@@ -6,7 +6,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import dynamic from 'next/dynamic';
 import { VIP_PACKAGES } from '../data/mockData';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
-import { formatSentenceCase } from '../utils/permalink';
+import { formatSentenceCase, getPropertyPermalink } from '../utils/permalink';
 import SeoImage from './SeoImage';
 const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
   ssr: false,
@@ -35,6 +35,8 @@ export default function ListingDetailModal({ property, onClose }) {
   const [activeVrSceneIndex, setActiveVrSceneIndex] = useState(0);
   const [contactMessage, setContactMessage] = useState('');
   const [messageSent, setMessageSent] = useState(false);
+  const [isBrokerModalOpen, setIsBrokerModalOpen] = useState(false);
+  const [brokerFilterTab, setBrokerFilterTab] = useState('all'); // 'all', 'sale', 'rent'
 
   // Tra cứu tác giả mới nhất từ usersList để đảm bảo tên & avatar luôn cập nhật theo hồ sơ
   const authorUser = property?.author?.id 
@@ -53,14 +55,15 @@ export default function ListingDetailModal({ property, onClose }) {
     reviewCount: property?.author?.reviewCount || 1
   };
 
-  // Đếm tổng số tin đăng thực tế của tác giả này trên sàn
-  const authorListingsCount = useMemo(() => {
-    if (!property || !properties || !Array.isArray(properties)) return 1;
+  // Toàn bộ danh sách tin đăng của môi giới này
+  const authorProperties = useMemo(() => {
+    if (!properties || !Array.isArray(properties)) return [];
     const authorId = safeAuthor.id ? String(safeAuthor.id) : null;
     const authorPhone = normalizePhone(safeAuthor.phone);
     const authorName = safeAuthor.name?.trim().toLowerCase();
 
-    const count = properties.filter(p => {
+    return properties.filter(p => {
+      if (p.isDeleted || p.status === 'trash' || p.status === 'rejected') return false;
       const pAuthorId = p.author?.id ? String(p.author.id) : (p.userId ? String(p.userId) : null);
       const pPhone = normalizePhone(p.author?.phone || p.contactPhone);
       const pName = (p.author?.name || p.contactName || '').trim().toLowerCase();
@@ -68,10 +71,25 @@ export default function ListingDetailModal({ property, onClose }) {
       return (authorId && pAuthorId && authorId === pAuthorId) ||
              (authorPhone && pPhone && authorPhone.length >= 9 && authorPhone === pPhone) ||
              (authorName && pName && authorName === pName);
-    }).length;
+    });
+  }, [properties, safeAuthor.id, safeAuthor.phone, safeAuthor.name]);
 
-    return count > 0 ? count : (authorUser?.activeListingsCount ?? (authorUser?.listingsCount ?? 1));
-  }, [property, properties, safeAuthor.id, safeAuthor.phone, safeAuthor.name, authorUser]);
+  // Đếm tổng số tin đăng thực tế của tác giả này trên sàn
+  const authorListingsCount = useMemo(() => {
+    return authorProperties.length > 0 
+      ? authorProperties.length 
+      : (authorUser?.activeListingsCount ?? (authorUser?.listingsCount ?? 1));
+  }, [authorProperties.length, authorUser]);
+
+  const filteredAuthorProperties = useMemo(() => {
+    if (brokerFilterTab === 'sale') {
+      return authorProperties.filter(p => p.type === 'ban' || p.listingType === 'sale');
+    }
+    if (brokerFilterTab === 'rent') {
+      return authorProperties.filter(p => p.type === 'cho-thue' || p.listingType === 'rent');
+    }
+    return authorProperties;
+  }, [authorProperties, brokerFilterTab]);
 
   if (!property) return null;
 
@@ -463,15 +481,19 @@ export default function ListingDetailModal({ property, onClose }) {
             {/* Right Column (4 cols): Broker Contact Card & Direct Form */}
             <div className="lg:col-span-4 sticky top-16 space-y-4">
               <div className="bg-white rounded-2xl border-2 border-emerald-500/30 p-5 shadow-xl">
-                {/* Broker Profile */}
-                <div className="flex items-center gap-3 pb-4 border-b border-slate-100">
-                  <div className="relative">
+                {/* Broker Profile (Bấm để xem hồ sơ & tin đăng) */}
+                <div 
+                  onClick={() => setIsBrokerModalOpen(true)}
+                  className="flex items-center gap-3 pb-4 border-b border-slate-100 cursor-pointer group hover:bg-emerald-50/60 -mx-2 px-2 py-2 rounded-2xl transition-all"
+                  title={`Bấm để xem hồ sơ chuyên viên & ${authorListingsCount} tin đăng của ${safeAuthor.name}`}
+                >
+                  <div className="relative shrink-0">
                     <SeoImage
                       src={safeAuthor.avatar}
                       propertyTitle={property.title}
                       type="agent"
                       customContext={safeAuthor.name}
-                      className="w-14 h-14 rounded-full object-cover border-2 border-emerald-500 shadow-md"
+                      className="w-14 h-14 rounded-2xl object-cover border-2 border-emerald-500 shadow-md group-hover:scale-105 group-hover:border-emerald-600 transition-all"
                     />
                     {safeAuthor.isVerified && (
                       <span className="absolute -bottom-1 -right-1 bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow" title="Môi giới đã xác thực">
@@ -480,20 +502,31 @@ export default function ListingDetailModal({ property, onClose }) {
                     )}
                   </div>
 
-                  <div>
-                    <div className="text-[11px] font-bold text-emerald-700 uppercase">
-                      Người đăng tin
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-1">
+                      <div className="text-[10px] font-black text-emerald-700 uppercase tracking-wider">
+                        Người đăng tin
+                      </div>
+                      <span className="text-[10px] text-emerald-600 font-bold group-hover:underline flex items-center gap-1 shrink-0">
+                        <span>Xem hồ sơ</span>
+                        <i className="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                      </span>
                     </div>
-                    <h4 className="text-base font-extrabold text-slate-900">
+                    <h4 className="text-base font-extrabold text-slate-900 group-hover:text-emerald-700 transition truncate">
                       {safeAuthor.name}
                     </h4>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-500 truncate">
                       {safeAuthor.title}
                     </p>
-                    <div className="flex items-center gap-1 text-amber-500 text-xs mt-1">
-                      <i className="fa-solid fa-star"></i>
-                      <span className="font-bold text-slate-800">{safeAuthor.rating}</span>
-                      <span className="text-slate-400">({authorListingsCount} tin đăng)</span>
+                    <div className="flex items-center gap-1.5 text-amber-500 text-xs mt-1">
+                      <div className="flex items-center gap-1">
+                        <i className="fa-solid fa-star"></i>
+                        <span className="font-bold text-slate-800">{safeAuthor.rating || '5.0'}</span>
+                      </div>
+                      <span className="text-slate-300">•</span>
+                      <span className="text-emerald-600 font-bold hover:underline">
+                        ({authorListingsCount} tin đăng)
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -557,6 +590,279 @@ export default function ListingDetailModal({ property, onClose }) {
           </div>
         </div>
       </div>
+
+      {/* Modal Hồ sơ Chuyên viên tư vấn & Toàn bộ tin đăng của môi giới */}
+      {isBrokerModalOpen && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto"
+          onClick={() => setIsBrokerModalOpen(false)}
+        >
+          <div 
+            className="bg-white rounded-3xl max-w-4xl w-full shadow-2xl border border-slate-100 overflow-hidden my-4 sm:my-6 max-h-[92vh] flex flex-col relative animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Nút đóng */}
+            <button
+              type="button"
+              onClick={() => setIsBrokerModalOpen(false)}
+              className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-slate-900/60 hover:bg-slate-900 text-white flex items-center justify-center transition cursor-pointer backdrop-blur-md"
+              title="Đóng cửa sổ"
+            >
+              <i className="fa-solid fa-xmark text-sm"></i>
+            </button>
+
+            {/* Header Hero Cover của Môi Giới */}
+            <div className="bg-gradient-to-r from-emerald-700 via-teal-700 to-slate-900 text-white p-5 sm:p-7 relative shrink-0">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5">
+                <div className="relative shrink-0">
+                  <img
+                    src={safeAuthor.avatar}
+                    alt={safeAuthor.name}
+                    className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover border-4 border-white shadow-xl bg-white"
+                  />
+                  {safeAuthor.isVerified && (
+                    <span className="absolute -bottom-2 -right-2 bg-blue-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-xs shadow-lg border-2 border-white" title="Môi giới đã xác thực uy tín">
+                      <i className="fa-solid fa-check"></i>
+                    </span>
+                  )}
+                </div>
+
+                <div className="space-y-1.5 flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-[11px] font-black uppercase text-emerald-300 bg-white/10 px-2.5 py-0.5 rounded-full backdrop-blur-md">
+                      Hồ Sơ Chuyên Viên Tư Vấn
+                    </span>
+                    {safeAuthor.isVerified && (
+                      <span className="text-[11px] font-bold text-sky-200 bg-sky-500/20 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                        <i className="fa-solid fa-circle-check text-sky-300"></i>
+                        Đã xác thực CCCD/eKYC
+                      </span>
+                    )}
+                  </div>
+
+                  <h3 className="text-2xl sm:text-3xl font-black truncate">
+                    {safeAuthor.name}
+                  </h3>
+
+                  <div className="flex items-center gap-2.5 text-xs text-white/80 flex-wrap">
+                    <span>{safeAuthor.title || 'Môi giới chuyên nghiệp'}</span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1 text-amber-300 font-bold">
+                      <i className="fa-solid fa-star"></i>
+                      <span>{safeAuthor.rating || '5.0'} / 5.0</span>
+                    </span>
+                    <span>•</span>
+                    <span className="font-semibold text-emerald-200">
+                      {authorProperties.length} tin đăng đang phụ trách
+                    </span>
+                  </div>
+
+                  {/* Badges / Thông tin hoạt động */}
+                  <div className="flex items-center gap-3 pt-1 text-[11px] text-white/70 flex-wrap">
+                    <span className="flex items-center gap-1">
+                      <i className="fa-solid fa-map-location-dot text-emerald-400"></i>
+                      <span>Khu vực: {property.city || 'Đà Nẵng'}</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <i className="fa-solid fa-bolt text-amber-400"></i>
+                      <span>Phản hồi trong 5 phút</span>
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <i className="fa-solid fa-shield-halved text-sky-300"></i>
+                      <span>Pháp lý minh bạch</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Direct Action Buttons on Header */}
+                <div className="flex sm:flex-col gap-2 w-full sm:w-auto shrink-0 pt-2 sm:pt-0">
+                  <a
+                    href={`tel:${safeAuthor.phone.replace(/\s+/g, '')}`}
+                    className="flex-1 sm:flex-none px-4 py-2.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-black text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-95"
+                  >
+                    <i className="fa-solid fa-phone"></i>
+                    <span>Gọi {safeAuthor.phone}</span>
+                  </a>
+
+                  <a
+                    href={`https://zalo.me/${safeAuthor.zalo}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="flex-1 sm:flex-none px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow transition flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-95"
+                  >
+                    <i className="fa-solid fa-comment-dots"></i>
+                    <span>Chat Zalo</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Filter Tabs & Title */}
+            <div className="px-5 sm:px-6 py-3.5 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+              <div className="flex items-center gap-2">
+                <h4 className="text-xs sm:text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                  <i className="fa-solid fa-house-chimney text-emerald-600"></i>
+                  <span>Bất Động Sản Của {safeAuthor.name}</span>
+                </h4>
+                <span className="text-xs font-bold text-slate-500 bg-white px-2 py-0.5 rounded-full border border-slate-200">
+                  {authorProperties.length} tin
+                </span>
+              </div>
+
+              {/* Tabs Lọc */}
+              <div className="flex items-center gap-1.5 self-start sm:self-auto">
+                <button
+                  type="button"
+                  onClick={() => setBrokerFilterTab('all')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                    brokerFilterTab === 'all'
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                  }`}
+                >
+                  Tất cả ({authorProperties.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBrokerFilterTab('sale')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                    brokerFilterTab === 'sale'
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                  }`}
+                >
+                  Bán ({authorProperties.filter(p => p.type === 'ban' || p.listingType === 'sale').length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setBrokerFilterTab('rent')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                    brokerFilterTab === 'rent'
+                      ? 'bg-emerald-600 text-white shadow-xs'
+                      : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                  }`}
+                >
+                  Cho thuê ({authorProperties.filter(p => p.type === 'cho-thue' || p.listingType === 'rent').length})
+                </button>
+              </div>
+            </div>
+
+            {/* Danh sách BĐS của Môi Giới */}
+            <div className="overflow-y-auto p-4 sm:p-6 flex-1 space-y-3.5">
+              {filteredAuthorProperties.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {filteredAuthorProperties.map(p => {
+                    const isCurrent = String(p.id) === String(property.id);
+                    const permalink = getPropertyPermalink(p);
+                    const imgUrl = Array.isArray(p.images) && p.images.length > 0 
+                      ? p.images[0] 
+                      : 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=600&q=80';
+
+                    return (
+                      <div
+                        key={p.id}
+                        className={`rounded-2xl border p-3 flex gap-3 transition hover:shadow-md relative bg-white ${
+                          isCurrent 
+                            ? 'border-emerald-500 ring-2 ring-emerald-500/20 bg-emerald-50/20' 
+                            : 'border-slate-200 hover:border-emerald-300'
+                        }`}
+                      >
+                        {/* Ảnh thu nhỏ */}
+                        <div className="w-28 h-24 sm:w-32 sm:h-28 rounded-xl overflow-hidden shrink-0 relative bg-slate-100">
+                          <img
+                            src={imgUrl}
+                            alt={p.title}
+                            className="w-full h-full object-cover transition hover:scale-105 duration-300"
+                            loading="lazy"
+                          />
+                          {p.vipPackageId && p.vipPackageId !== 'normal' && (
+                            <span className="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-black uppercase text-white bg-red-600 shadow-xs">
+                              VIP
+                            </span>
+                          )}
+                          <span className={`absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded text-[9px] font-black uppercase text-white shadow-xs ${
+                            p.type === 'cho-thue' || p.listingType === 'rent' ? 'bg-sky-600' : 'bg-emerald-600'
+                          }`}>
+                            {p.type === 'cho-thue' || p.listingType === 'rent' ? 'Cho thuê' : 'Bán'}
+                          </span>
+                        </div>
+
+                        {/* Thông tin BĐS */}
+                        <div className="min-w-0 flex-1 flex flex-col justify-between">
+                          <div>
+                            <div className="text-sm font-black text-red-600 font-mono">
+                              {p.priceDisplay || (p.price ? `${p.price} Tỷ` : 'Thỏa thuận')}
+                            </div>
+
+                            <Link
+                              href={permalink}
+                              onClick={() => {
+                                setIsBrokerModalOpen(false);
+                                if (onClose) onClose();
+                              }}
+                              className="font-bold text-xs text-slate-800 hover:text-emerald-700 transition line-clamp-2 mt-0.5 leading-snug block"
+                              title={p.title}
+                            >
+                              {p.title}
+                            </Link>
+                          </div>
+
+                          <div className="space-y-1 pt-1.5 border-t border-slate-100">
+                            <div className="text-[11px] text-slate-500 truncate flex items-center gap-1">
+                              <i className="fa-solid fa-location-dot text-slate-400 text-[10px]"></i>
+                              <span>{p.district ? `${p.district}, ` : ''}{p.city || 'Đà Nẵng'}</span>
+                            </div>
+
+                            <div className="flex items-center justify-between text-[11px] text-slate-600">
+                              <span className="font-semibold">{p.area || 100} m²</span>
+                              {isCurrent ? (
+                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-md">
+                                  Đang xem tin này
+                                </span>
+                              ) : (
+                                <Link
+                                  href={permalink}
+                                  onClick={() => {
+                                    setIsBrokerModalOpen(false);
+                                    if (onClose) onClose();
+                                  }}
+                                  className="text-[11px] font-bold text-emerald-600 hover:text-emerald-800 flex items-center gap-1"
+                                >
+                                  <span>Xem tin</span>
+                                  <i className="fa-solid fa-arrow-right text-[9px]"></i>
+                                </Link>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="py-12 text-center text-slate-400 space-y-2">
+                  <i className="fa-solid fa-box-open text-3xl"></i>
+                  <p className="text-xs">Không có tin đăng nào phù hợp với bộ lọc này.</p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500 shrink-0">
+              <span className="truncate">
+                Chuyên viên: <strong className="text-slate-800">{safeAuthor.name}</strong> • SĐT: <strong className="text-slate-800">{safeAuthor.phone}</strong>
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsBrokerModalOpen(false)}
+                className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold text-xs rounded-xl transition cursor-pointer"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
