@@ -8,9 +8,10 @@ import { getPropertyPermalink, formatSentenceCase } from '../utils/permalink';
 import { isVoucherDiscountFree } from '../utils/membershipHelper';
 import PropertyVerificationModal from './PropertyVerificationModal';
 import PropertyVerificationReviewModal from './PropertyVerificationReviewModal';
+import UserTransactionHistoryManager from './UserTransactionHistoryManager';
 import SeoImage from './SeoImage';
 
-export default function UserDashboard() {
+export default function UserDashboard({ initialTab = 'listings' }) {
   const { 
     properties, 
     currentUser, 
@@ -38,7 +39,16 @@ export default function UserDashboard() {
 
   const { navigate } = useRouter();
 
-  const [activeTab, setActiveTab] = useState('listings'); // 'listings', 'wallet', 'transactions', 'trash'
+  const [activeTab, setActiveTab] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam === 'transactions' || tabParam === 'wallet') return 'transactions';
+      if (tabParam === 'trash') return 'trash';
+      if (tabParam === 'listings') return 'listings';
+    }
+    return initialTab;
+  }); // 'listings', 'wallet', 'transactions', 'trash'
   const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'active', 'expiring_soon', 'expired', 'pending'
 
   // Verification Modal State
@@ -116,6 +126,13 @@ export default function UserDashboard() {
     return isPropertyOwner(p);
   });
 
+  const userTransactionsCount = (transactions || []).filter(t => {
+    if (!currentUser || currentUser.role === 'guest') {
+      return String(t.userId || '').startsWith('guest') || t.userId === 'guest';
+    }
+    return String(t.userId) === String(currentUser.id);
+  }).length;
+
   const activeCount = myListings.filter(p => p.status === 'active' && !getPropertyExpirationInfo?.(p)?.isExpired).length;
   const pendingCount = myListings.filter(p => p.status === 'pending').length;
   const expiringCount = myListings.filter(p => {
@@ -189,13 +206,22 @@ export default function UserDashboard() {
               </div>
             )}
           </div>
-          <button
-            onClick={() => setActiveModal('wallet-deposit')}
-            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5"
-          >
-            <i className="fa-solid fa-plus-circle"></i>
-            <span>Nạp Thêm Tiền</span>
-          </button>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+            <button
+              onClick={() => setActiveModal('wallet-deposit')}
+              className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <i className="fa-solid fa-plus-circle"></i>
+              <span>Nạp Tiền</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('transactions')}
+              className="px-3.5 py-2 bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <i className="fa-solid fa-receipt text-emerald-600"></i>
+              <span>Lịch Sử GD</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -357,10 +383,13 @@ export default function UserDashboard() {
 
         <button
           onClick={() => setActiveTab('transactions')}
-          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 ${activeTab === 'transactions' ? 'bg-slate-900 text-white shadow' : 'text-slate-600 hover:bg-slate-100'}`}
+          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 cursor-pointer ${activeTab === 'transactions' ? 'bg-slate-900 text-white shadow' : 'text-slate-600 hover:bg-slate-100'}`}
         >
           <i className="fa-solid fa-receipt"></i>
-          Lịch Sử Giao Dịch Ví ({transactions.length})
+          <span>Lịch Sử Giao Dịch & Ví</span>
+          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${activeTab === 'transactions' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}`}>
+            {userTransactionsCount}
+          </span>
         </button>
 
         <button
@@ -748,66 +777,9 @@ export default function UserDashboard() {
         </div>
       )}
 
-      {/* TAB 2: TRANSACTIONS HISTORY */}
+      {/* TAB 2: TRANSACTIONS HISTORY (LỊCH SỬ GIAO DỊCH VÍ & TIỀN KHUYẾN MÃI) */}
       {activeTab === 'transactions' && (
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
-          <div className="p-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
-            <h3 className="text-xs font-black uppercase text-slate-700 tracking-wider">
-              Lịch Sử Biến Động Số Dư
-            </h3>
-            <button
-              onClick={() => setActiveModal('wallet-deposit')}
-              className="text-xs font-bold text-emerald-700 hover:underline flex items-center gap-1"
-            >
-              <i className="fa-solid fa-plus-circle"></i> Nạp thêm tiền
-            </button>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left">
-              <thead className="bg-slate-100 text-slate-600">
-                <tr>
-                  <th className="p-3">Mã GD</th>
-                  <th className="p-3">Loại giao dịch</th>
-                  <th className="p-3">Mô tả chi tiết</th>
-                  <th className="p-3">Phương thức</th>
-                  <th className="p-3 text-right">Số tiền (VND)</th>
-                  <th className="p-3 text-right">Số dư sau GD</th>
-                  <th className="p-3 text-center">Trạng thái</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {transactions.map(txn => (
-                  <tr key={txn.id} className="hover:bg-slate-50">
-                    <td className="p-3 font-mono font-bold text-slate-700">{txn.id}</td>
-                    <td className="p-3">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        txn.type === 'deposit' ? 'bg-emerald-100 text-emerald-800' :
-                        txn.type === 'purchase_vip' ? 'bg-red-100 text-red-800' :
-                        'bg-amber-100 text-amber-800'
-                      }`}>
-                        {txn.type === 'deposit' ? 'Nạp tiền ví' : txn.type === 'purchase_vip' ? 'Mua gói VIP' : 'Đẩy tin'}
-                      </span>
-                    </td>
-                    <td className="p-3 font-medium text-slate-800">{txn.title}</td>
-                    <td className="p-3 text-slate-500">{txn.paymentMethod}</td>
-                    <td className={`p-3 text-right font-black ${txn.amount > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                      {txn.amount > 0 ? `+${txn.amount.toLocaleString('vi-VN')} đ` : `${txn.amount.toLocaleString('vi-VN')} đ`}
-                    </td>
-                    <td className="p-3 text-right font-bold text-slate-700">
-                      {txn.balanceAfter.toLocaleString('vi-VN')} đ
-                    </td>
-                    <td className="p-3 text-center">
-                      <span className="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 font-bold text-[10px]">
-                        Thành công
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <UserTransactionHistoryManager />
       )}
 
       {/* TAB 3: TRASH MANAGEMENT (THÙNG RÁC TIN ĐĂNG) */}

@@ -549,6 +549,15 @@ export default function Navbar() {
                             </Link>
 
                             <Link
+                              to="/lich-su-giao-dich"
+                              onClick={() => setUserMenuOpen(false)}
+                              className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center gap-2.5 ${currentRoute === '/lich-su-giao-dich' ? 'bg-emerald-50 text-emerald-700 font-bold' : 'hover:bg-slate-50 text-slate-700'}`}
+                            >
+                              <i className="fa-solid fa-receipt text-indigo-600 w-4 text-center"></i>
+                              <span>Lịch sử giao dịch & Ví</span>
+                            </Link>
+
+                            <Link
                               to="/goi-hoi-vien"
                               onClick={() => setUserMenuOpen(false)}
                               className={`w-full px-3 py-2 rounded-xl text-left transition flex items-center justify-between ${currentRoute === '/goi-hoi-vien' ? 'bg-amber-50 text-amber-900 font-bold' : 'hover:bg-slate-50 text-slate-700'}`}
