@@ -1,15 +1,17 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link, useRouter } from '../router/RouterContext';
 import { VIP_PACKAGES } from '../data/mockData';
-import { getPropertyPermalink, formatSentenceCase } from '../utils/permalink';
+import { getPropertyPermalink, formatSentenceCase, toVietnameseSlug } from '../utils/permalink';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 import SeoImage from './SeoImage';
+import BrokerProfileModal from './BrokerProfileModal';
 
 export default function ListingCard({ property, viewMode = 'grid' }) {
   const { navigate } = useRouter();
+  const [isBrokerModalOpen, setIsBrokerModalOpen] = useState(false);
   const { 
     favorites, 
     toggleFavorite, 
@@ -71,6 +73,17 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
     avatar: authorUser?.avatar || property.author?.avatar || '/avatars/ai-preset-2.jpg',
     title: isVerifiedAuthor ? 'Môi giới chuyên nghiệp' : '',
     isVerified: isVerifiedAuthor
+  };
+
+  const authorSlug = toVietnameseSlug(safeAuthor.name) || 'moi-gioi';
+  const brokerUrl = `/moi-gioi/${authorSlug}`;
+
+  const handleOpenBrokerModal = (e) => {
+    if (e) {
+      if (typeof e.stopPropagation === 'function') e.stopPropagation();
+      if (typeof e.preventDefault === 'function') e.preventDefault();
+    }
+    setIsBrokerModalOpen(true);
   };
 
   const isFav = favorites.includes(property.id);
@@ -258,29 +271,42 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
         {/* Author / Broker Contact Box & Action Buttons */}
         <div className="pt-3 border-t border-slate-100">
           <div className="flex items-center justify-between gap-2 mb-2.5">
-            {/* Broker Avatar & Name */}
-            <div className="flex items-center gap-2 min-w-0 flex-1">
-              <SeoImage
-                src={safeAuthor.avatar}
-                propertyTitle={property.title}
-                type="agent"
-                customContext={safeAuthor.name}
-                className="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0"
-              />
+            {/* Broker Avatar & Name: Bọc trong Link chuẩn SEO và mở Modal Popup khi click */}
+            <Link
+              href={brokerUrl}
+              rel="nofollow"
+              onClick={handleOpenBrokerModal}
+              className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer group/broker"
+              title={`Xem hồ sơ ${safeAuthor.fullNameWithRole}`}
+            >
+              <div className="relative shrink-0">
+                <SeoImage
+                  src={safeAuthor.avatar}
+                  propertyTitle={property.title}
+                  type="agent"
+                  customContext={safeAuthor.name}
+                  className="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0 group-hover/broker:border-emerald-500 group-hover/broker:scale-105 transition"
+                />
+                {safeAuthor.isVerified && (
+                  <span className="absolute -bottom-0.5 -right-0.5 bg-blue-600 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center text-[8px] shadow-xs border border-white">
+                    <i className="fa-solid fa-check"></i>
+                  </span>
+                )}
+              </div>
               <div className="leading-tight min-w-0 flex-1">
-                <div className="text-xs font-bold text-slate-800 flex items-center gap-1 min-w-0">
+                <div className="text-xs font-bold text-slate-800 flex items-center gap-1 min-w-0 group-hover/broker:text-emerald-700 transition">
                   <span className="truncate block" title={safeAuthor.fullNameWithRole}>{safeAuthor.name}</span>
                   {safeAuthor.isVerified && (
                     <i className="fa-solid fa-circle-check text-blue-500 text-[11px] shrink-0" title={`${safeAuthor.fullNameWithRole} đã xác thực`}></i>
                   )}
                 </div>
                 {safeAuthor.title ? (
-                  <div className="text-[10px] text-slate-400 truncate" title={safeAuthor.title}>
+                  <div className="text-[10px] text-slate-400 truncate group-hover/broker:text-slate-500" title={safeAuthor.title}>
                     {safeAuthor.title}
                   </div>
                 ) : null}
               </div>
-            </div>
+            </Link>
 
             {/* Direct Call / Zalo Buttons */}
             <div className="flex items-center gap-1.5 shrink-0">
@@ -317,6 +343,16 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
 
         </div>
       </div>
+
+      {/* Modal Hồ Sơ Môi Giới Popup */}
+      {isBrokerModalOpen && (
+        <BrokerProfileModal
+          isOpen={isBrokerModalOpen}
+          onClose={() => setIsBrokerModalOpen(false)}
+          author={safeAuthor}
+          property={property}
+        />
+      )}
     </div>
   );
 }
