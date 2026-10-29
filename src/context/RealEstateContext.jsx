@@ -3270,7 +3270,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     showToast(`Nạp thành công +${numAmount.toLocaleString('vi-VN')} đ vào ví! Số dư mới: ${newBalance.toLocaleString('vi-VN')} đ`, 'success');
 
     // === TỰ ĐỘNG TRẢ THƯỞNG HOA HỒNG DOANH THU AFFILIATE (% DOANH THU) ===
-    const commissionRate = Number(systemConfig?.affiliateCommissionRate !== undefined ? systemConfig.affiliateCommissionRate : 10);
+    const commissionRate = Number(systemConfig?.affiliateCommissionRate !== undefined ? systemConfig.affiliateCommissionRate : 7);
     if (currentUser?.referredBy && commissionRate > 0) {
       const cleanRefBy = String(currentUser.referredBy);
       const referrer = (usersList || []).find(u => 

@@ -22,7 +22,7 @@ export default function AdminAffiliateManager() {
 
   // Form Cấu hình Affiliate & Milestones (Thưởng Từng Mốc)
   const [commissionRate, setCommissionRate] = useState(
-    Number(systemConfig?.affiliateCommissionRate !== undefined ? systemConfig.affiliateCommissionRate : 10)
+    Number(systemConfig?.affiliateCommissionRate !== undefined ? systemConfig.affiliateCommissionRate : 7)
   );
 
   const [milestones, setMilestones] = useState(() => {

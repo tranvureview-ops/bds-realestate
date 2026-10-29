@@ -338,7 +338,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
           ? 'Đã hoàn thành toàn bộ mốc Chiêu Mộ Bạn Bè'
           : curLabel,
         description: allMilestonesClaimed
-          ? `Chúc mừng bạn đã chinh phục toàn bộ ${activeMilestones.length} mốc thưởng Affiliate và tiếp tục nhận hoa hồng nạp tiền trọn đời!`
+          ? `Chúc mừng bạn đã chinh phục toàn bộ ${activeMilestones.length} mốc thưởng Affiliate và tiếp tục nhận hoa hồng nạp tiền!`
           : `Giới thiệu đồng nghiệp cùng tham gia nhận ngay +${curReward.toLocaleString('vi-VN')}đ vào ví khi đạt mốc ${curTarget} bạn bè hợp lệ.`,
         reward: curReward,
         dynamicStatus,
@@ -747,14 +747,14 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
               </div>
             </div>
 
-            {/* Revenue Share 10% Commission Banner */}
+            {/* Revenue Share Commission Banner */}
             <div className="p-3 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg shrink-0 shadow-sm">
                 <i className="fa-solid fa-sack-dollar"></i>
               </div>
               <div className="text-[11px] text-emerald-950 leading-snug">
-                <div className="font-black text-emerald-800">Hoa hồng nạp tiền {systemConfig?.affiliateCommissionRate || 10}% trọn đời</div>
-                <div className="text-emerald-700">Mỗi khi bạn bè nạp tiền mua gói VIP hoặc đẩy tin, bạn nhận ngay {systemConfig?.affiliateCommissionRate || 10}% hoa hồng tiền mặt vào Ví Chính.</div>
+                <div className="font-black text-emerald-800">Hoa hồng nạp tiền {systemConfig?.affiliateCommissionRate || 7}%</div>
+                <div className="text-emerald-700">Mỗi khi bạn bè nạp tiền mua gói VIP hoặc đẩy tin, bạn nhận ngay {systemConfig?.affiliateCommissionRate || 7}% hoa hồng tiền mặt vào Ví Chính.</div>
               </div>
             </div>
 

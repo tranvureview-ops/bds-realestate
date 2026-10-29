@@ -2893,7 +2893,7 @@
     "enableScheduledPublishing": true,
     "maxRegistrationsPerIpPerDay": 3,
     "requireMembershipForSchedule": true,
-    "affiliateCommissionRate": 10,
+    "affiliateCommissionRate": 7,
     "affiliateMilestones": [
       {
         "id": "mile-1",
