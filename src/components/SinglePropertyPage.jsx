@@ -1216,7 +1216,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
-                  <div className="text-slate-400 font-bold uppercase text-[10px]">Diện tích sử dụng</div>
+                  <div className="text-slate-600 font-bold uppercase text-[10px]">Diện tích sử dụng</div>
                   <div className="text-sm font-extrabold text-slate-800 mt-1 flex items-center gap-2">
                     <i className="fa-solid fa-vector-square text-emerald-600"></i>
                     {property.area} m²
@@ -1224,7 +1224,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
-                  <div className="text-slate-400 font-bold uppercase text-[10px]">Số phòng ngủ</div>
+                  <div className="text-slate-600 font-bold uppercase text-[10px]">Số phòng ngủ</div>
                   <div className="text-sm font-extrabold text-slate-800 mt-1 flex items-center gap-2">
                     <i className="fa-solid fa-bed text-blue-600"></i>
                     {property.bedroom} Phòng ngủ
@@ -1232,7 +1232,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
-                  <div className="text-slate-400 font-bold uppercase text-[10px]">Số phòng tắm / WC</div>
+                  <div className="text-slate-600 font-bold uppercase text-[10px]">Số phòng tắm / WC</div>
                   <div className="text-sm font-extrabold text-slate-800 mt-1 flex items-center gap-2">
                     <i className="fa-solid fa-bath text-indigo-600"></i>
                     {property.bathroom} Phòng tắm
@@ -1240,7 +1240,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
-                  <div className="text-slate-400 font-bold uppercase text-[10px]">Hướng nhà / ban công</div>
+                  <div className="text-slate-600 font-bold uppercase text-[10px]">Hướng nhà / ban công</div>
                   <div className="text-sm font-extrabold text-slate-800 mt-1 flex items-center gap-2">
                     <i className="fa-regular fa-compass text-amber-600"></i>
                     {property.direction || 'Đông Nam'}
@@ -1248,7 +1248,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
-                  <div className="text-slate-400 font-bold uppercase text-[10px]">Tình trạng pháp lý</div>
+                  <div className="text-slate-600 font-bold uppercase text-[10px]">Tình trạng pháp lý</div>
                   <div className="text-sm font-extrabold text-slate-800 mt-1 flex items-center gap-2 truncate" title={property.legal}>
                     <i className="fa-solid fa-certificate text-emerald-600"></i>
                     {property.legal}
@@ -1256,7 +1256,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
-                  <div className="text-slate-400 font-bold uppercase text-[10px]">Số tầng / Vị trí tầng</div>
+                  <div className="text-slate-600 font-bold uppercase text-[10px]">Số tầng / Vị trí tầng</div>
                   <div className="text-sm font-extrabold text-slate-800 mt-1 flex items-center gap-2">
                     <i className="fa-solid fa-stairs text-purple-600"></i>
                     {property.floor ? `Tầng ${property.floor}` : 'Nhà trệt'}
@@ -1264,7 +1264,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 </div>
 
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 col-span-2 sm:col-span-3">
-                  <div className="text-slate-400 font-bold uppercase text-[10px]">Nội thất bàn giao</div>
+                  <div className="text-slate-600 font-bold uppercase text-[10px]">Nội thất bàn giao</div>
                   <div className="text-sm font-bold text-slate-800 mt-1 flex items-center gap-2">
                     <i className="fa-solid fa-couch text-rose-600"></i>
                     {property.furniture}
@@ -1337,7 +1337,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
                   <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div className="text-slate-400 font-bold uppercase text-[10px]">Ngày đăng tin</div>
+                    <div className="text-slate-600 font-bold uppercase text-[10px]">Ngày đăng tin</div>
                     <div className="text-xs sm:text-sm font-extrabold text-slate-800 mt-1 flex items-center gap-1.5 font-mono">
                       <i className="fa-regular fa-calendar-plus text-emerald-600"></i>
                       {new Date(property.publishedAt || property.createdAt || property.submittedAt || Date.now()).toLocaleDateString('vi-VN')}
@@ -1345,7 +1345,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   </div>
 
                   <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div className="text-slate-400 font-bold uppercase text-[10px]">Ngày hết hạn</div>
+                    <div className="text-slate-600 font-bold uppercase text-[10px]">Ngày hết hạn</div>
                     <div className="text-xs sm:text-sm font-extrabold text-slate-800 mt-1 flex items-center gap-1.5 font-mono">
                       <i className="fa-regular fa-calendar-xmark text-rose-600"></i>
                       {property.expiresAt ? new Date(property.expiresAt).toLocaleDateString('vi-VN') : '15 ngày'}
@@ -1353,7 +1353,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   </div>
 
                   <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div className="text-slate-400 font-bold uppercase text-[10px]">Loại tin rao</div>
+                    <div className="text-slate-600 font-bold uppercase text-[10px]">Loại tin rao</div>
                     <div className="text-xs sm:text-sm font-extrabold text-slate-800 mt-1 flex items-center gap-1.5">
                       <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase ${vipPkg.badgeColor}`}>
                         {vipPkg.shortName}
@@ -1362,7 +1362,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   </div>
 
                   <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
-                    <div className="text-slate-400 font-bold uppercase text-[10px]">Mã tin đăng</div>
+                    <div className="text-slate-600 font-bold uppercase text-[10px]">Mã tin đăng</div>
                     <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-1 font-mono flex items-center gap-1.5">
                       <i className="fa-solid fa-hashtag text-slate-400 text-xs"></i>
                       {property.id}

@@ -524,7 +524,7 @@ export default function ListingSidebar({
             <button
               type="button"
               onClick={handleResetCity}
-              className="text-[11px] font-semibold text-slate-500 hover:text-red-600 flex items-center gap-1 cursor-pointer transition-colors shrink-0 ml-2"
+              className="text-[11px] font-semibold text-slate-600 hover:text-red-600 flex items-center gap-1 cursor-pointer transition-colors shrink-0 ml-2"
               title="Xem tất cả tỉnh thành"
             >
               <i className="fa-solid fa-arrow-left text-[9px]"></i>
@@ -561,7 +561,7 @@ export default function ListingSidebar({
                       <i className="fa-solid fa-map-pin text-[10px] text-slate-400 group-hover:text-red-500 transition-colors"></i>
                       <span className="truncate">{item.name}</span>
                     </div>
-                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0 ml-2 bg-slate-100 text-slate-500 group-hover:bg-red-100 group-hover:text-red-600 transition-colors">
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0 ml-2 bg-slate-100 text-slate-700 group-hover:bg-red-100 group-hover:text-red-700 transition-colors">
                       {count > 0 ? `${count} tin` : 'Xem tin'}
                     </span>
                   </Link>
@@ -607,7 +607,7 @@ export default function ListingSidebar({
                       <i className="fa-solid fa-map-pin text-[10px] text-slate-400 group-hover:text-red-500 transition-colors"></i>
                       <span className="truncate">{item.name}</span>
                     </div>
-                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full shrink-0 ml-2 bg-slate-100 text-slate-500 group-hover:bg-red-100 group-hover:text-red-600 transition-colors">
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-full shrink-0 ml-2 bg-slate-100 text-slate-700 group-hover:bg-red-100 group-hover:text-red-700 transition-colors">
                       {count > 0 ? `${count} tin` : 'Xem tin'}
                     </span>
                   </Link>
@@ -678,7 +678,7 @@ export default function ListingSidebar({
                     <h4 className="text-xs font-bold text-slate-800 group-hover:text-red-600 transition truncate">
                       {proj.name}
                     </h4>
-                    <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                    <p className="text-[11px] text-slate-600 truncate mt-0.5">
                       <i className="fa-solid fa-location-dot text-[9px] mr-1 text-slate-400"></i>
                       {proj.location}
                     </p>
@@ -710,7 +710,7 @@ export default function ListingSidebar({
             <h4 className="font-bold text-sm text-slate-900 leading-snug">
               Tính lãi suất vay mua nhà
             </h4>
-            <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+            <p className="text-xs text-slate-600 mt-1 leading-relaxed">
               Ước tính số tiền trả góp gốc & lãi hàng tháng từ Vietcombank, BIDV, Techcombank...
             </p>
           </div>
@@ -718,7 +718,7 @@ export default function ListingSidebar({
 
         <Link
           to="/tinh-lai-vay"
-          className="mt-3.5 w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
+          className="mt-3.5 w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-pointer"
         >
           <span>Tính toán khoản vay</span>
           <i className="fa-solid fa-arrow-right text-[10px]"></i>

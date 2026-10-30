@@ -32,13 +32,13 @@ export default function MobileBottomNav() {
         <Link
           to="/"
           className={`flex-1 flex flex-col items-center justify-center py-1 transition-colors ${
-            isHome ? 'text-emerald-600 font-bold' : 'text-slate-500 hover:text-slate-800'
+            isHome ? 'text-emerald-800 font-extrabold' : 'text-slate-600 font-semibold hover:text-slate-900'
           }`}
         >
           <div className="relative">
             <i className={`fa-solid fa-compass text-lg ${isHome ? 'scale-110' : ''} transition-transform`}></i>
             {isHome && (
-              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-emerald-800"></span>
             )}
           </div>
           <span className="text-[10px] mt-1 tracking-tight">Khám Phá</span>
@@ -48,13 +48,13 @@ export default function MobileBottomNav() {
         <Link
           to="/nha-dat-ban"
           className={`flex-1 flex flex-col items-center justify-center py-1 transition-colors ${
-            isSale ? 'text-emerald-600 font-bold' : 'text-slate-500 hover:text-slate-800'
+            isSale ? 'text-emerald-800 font-extrabold' : 'text-slate-600 font-semibold hover:text-slate-900'
           }`}
         >
           <div className="relative">
             <i className={`fa-solid fa-house-chimney text-lg ${isSale ? 'scale-110' : ''} transition-transform`}></i>
             {isSale && (
-              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-emerald-800"></span>
             )}
           </div>
           <span className="text-[10px] mt-1 tracking-tight">Mua Bán</span>
@@ -70,20 +70,20 @@ export default function MobileBottomNav() {
           >
             <i className="fa-solid fa-plus text-lg"></i>
           </Link>
-          <span className="text-[10px] font-bold text-red-600 mt-0.5 tracking-tight">Đăng Tin</span>
+          <span className="text-[10px] font-extrabold text-red-700 mt-0.5 tracking-tight">Đăng Tin</span>
         </div>
 
         {/* 4. Cho Thuê */}
         <Link
           to="/nha-dat-cho-thue"
           className={`flex-1 flex flex-col items-center justify-center py-1 transition-colors ${
-            isRent ? 'text-emerald-600 font-bold' : 'text-slate-500 hover:text-slate-800'
+            isRent ? 'text-emerald-800 font-extrabold' : 'text-slate-600 font-semibold hover:text-slate-900'
           }`}
         >
           <div className="relative">
             <i className={`fa-solid fa-key text-lg ${isRent ? 'scale-110' : ''} transition-transform`}></i>
             {isRent && (
-              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+              <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-emerald-800"></span>
             )}
           </div>
           <span className="text-[10px] mt-1 tracking-tight">Cho Thuê</span>
@@ -93,7 +93,7 @@ export default function MobileBottomNav() {
         <Link
           to={isGuest ? "/dang-nhap" : currentUser.role === 'admin' ? "/admin" : "/ho-so-ca-nhan"}
           className={`flex-1 flex flex-col items-center justify-center py-1 transition-colors ${
-            isAccount ? 'text-emerald-600 font-bold' : 'text-slate-500 hover:text-slate-800'
+            isAccount ? 'text-emerald-800 font-extrabold' : 'text-slate-600 font-semibold hover:text-slate-900'
           }`}
         >
           <div className="relative">

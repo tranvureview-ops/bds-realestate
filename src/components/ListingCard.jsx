@@ -191,10 +191,10 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
           {/* Price & Area Highlight Row */}
           <div className="flex items-baseline justify-between gap-2 mb-1.5">
             <div className="flex items-baseline gap-1.5">
-              <span className={`text-xl font-extrabold ${isDiamond ? 'text-red-600' : isGold ? 'text-amber-600' : 'text-emerald-700'}`}>
+              <span className={`text-xl font-extrabold ${isDiamond ? 'text-red-700' : isGold ? 'text-amber-800' : 'text-emerald-700'}`}>
                 {property.priceDisplay ? property.priceDisplay.replace(/Tỷ/g, 'tỷ') : ''}
               </span>
-              <span className="text-xs text-slate-500 font-medium">
+              <span className="text-xs text-slate-600 font-semibold">
                 ({property.pricePerM2})
               </span>
             </div>
@@ -216,7 +216,7 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
           </h3>
 
           {/* Location Address */}
-          <div className="text-xs text-slate-500 mb-3 flex items-center justify-between gap-1">
+          <div className="text-xs text-slate-600 mb-3 flex items-center justify-between gap-1">
             <div className="flex items-center gap-1 line-clamp-1 truncate">
               <i className="fa-solid fa-location-dot text-emerald-600 shrink-0"></i>
               <span className="truncate">{property.district}, {property.city}</span>
@@ -291,7 +291,7 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
                   )}
                 </div>
                 {safeAuthor.title ? (
-                  <div className="text-[10px] text-slate-500 truncate group-hover/broker:text-slate-600" title={safeAuthor.title}>
+                  <div className="text-[10px] text-slate-600 truncate group-hover/broker:text-slate-700" title={safeAuthor.title}>
                     {safeAuthor.title}
                   </div>
                 ) : null}
@@ -305,7 +305,7 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
                 onClick={(e) => e.stopPropagation()}
                 className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm transition shrink-0 whitespace-nowrap ${
                   isDiamond 
-                    ? 'bg-red-600 hover:bg-red-700 text-white' 
+                    ? 'bg-red-700 hover:bg-red-800 text-white' 
                     : isGold
                       ? 'bg-amber-700 hover:bg-amber-800 text-white'
                       : 'bg-emerald-700 hover:bg-emerald-800 text-white'
@@ -323,7 +323,7 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
                 target="_blank"
                 rel="noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1 shadow-sm transition shrink-0 whitespace-nowrap"
+                className="px-2.5 py-1.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1 shadow-sm transition shrink-0 whitespace-nowrap"
                 title={`Chat Zalo: ${safeAuthor.zalo || safeAuthor.phone}`}
                 aria-label={`Chat Zalo số ${safeAuthor.zalo || safeAuthor.phone} cho tin ${formatSentenceCase(property.title).slice(0, 45)}`}
               >

@@ -212,12 +212,13 @@ export default function ListingDetailModal({ property, onClose }) {
             {/* Favorite */}
             <button
               onClick={() => toggleFavorite(property.id)}
+              aria-label={isFav ? "Bỏ lưu tin đăng khỏi yêu thích" : "Lưu tin đăng vào danh sách yêu thích"}
               className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm transition ${
                 isFav 
                   ? 'bg-rose-600 text-white' 
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
-              title="Lưu tin"
+              title={isFav ? "Đã lưu vào danh sách yêu thích" : "Lưu tin đăng"}
             >
               <i className="fa-solid fa-heart"></i>
             </button>
@@ -225,7 +226,9 @@ export default function ListingDetailModal({ property, onClose }) {
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition"
+              aria-label="Đóng cửa sổ chi tiết tin đăng"
+              title="Đóng cửa sổ chi tiết tin đăng"
+              className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition"
             >
               <i className="fa-solid fa-xmark text-lg"></i>
             </button>
@@ -292,12 +295,14 @@ export default function ListingDetailModal({ property, onClose }) {
                   {/* Prev / Next buttons */}
                   <button
                     onClick={() => setSelectedPhotoIndex((prev) => (prev > 0 ? prev - 1 : property.images.length - 1))}
+                    aria-label="Xem ảnh trước"
                     className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center transition"
                   >
                     <i className="fa-solid fa-chevron-left"></i>
                   </button>
                   <button
                     onClick={() => setSelectedPhotoIndex((prev) => (prev < property.images.length - 1 ? prev + 1 : 0))}
+                    aria-label="Xem ảnh tiếp theo"
                     className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center transition"
                   >
                     <i className="fa-solid fa-chevron-right"></i>
@@ -313,6 +318,7 @@ export default function ListingDetailModal({ property, onClose }) {
                     <button
                       key={idx}
                       onClick={() => setSelectedPhotoIndex(idx)}
+                      aria-label={`Xem ảnh số ${idx + 1}`}
                       className={`relative w-20 h-16 rounded-xl overflow-hidden shrink-0 border-2 transition ${selectedPhotoIndex === idx ? 'border-emerald-600 ring-2 ring-emerald-500/30' : 'border-transparent opacity-70 hover:opacity-100'}`}
                     >
                       <SeoImage
@@ -400,21 +406,21 @@ export default function ListingDetailModal({ property, onClose }) {
 
                 <div className="flex flex-wrap items-baseline gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
                   <div>
-                    <div className="text-[11px] font-bold text-slate-400 uppercase">Mức giá niêm yết</div>
-                    <div className={`text-2xl sm:text-3xl font-black ${isDiamond ? 'text-red-600' : 'text-emerald-700'}`}>
+                    <div className="text-[11px] font-bold text-slate-600 uppercase">Mức giá niêm yết</div>
+                    <div className={`text-2xl sm:text-3xl font-black ${isDiamond ? 'text-red-700' : 'text-emerald-700'}`}>
                       {property.priceDisplay ? property.priceDisplay.replace(/Tỷ/g, 'tỷ') : ''}
                     </div>
                   </div>
 
                   <div className="border-l border-slate-300 pl-4">
-                    <div className="text-[11px] font-bold text-slate-400 uppercase">Đơn giá / m²</div>
+                    <div className="text-[11px] font-bold text-slate-600 uppercase">Đơn giá / m²</div>
                     <div className="text-base sm:text-lg font-bold text-slate-700">
                       {property.pricePerM2}
                     </div>
                   </div>
 
                   <div className="border-l border-slate-300 pl-4">
-                    <div className="text-[11px] font-bold text-slate-400 uppercase">Diện tích sử dụng</div>
+                    <div className="text-[11px] font-bold text-slate-600 uppercase">Diện tích sử dụng</div>
                     <div className="text-base sm:text-lg font-bold text-slate-700">
                       {property.area} m²
                     </div>
