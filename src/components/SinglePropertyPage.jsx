@@ -1691,7 +1691,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                     className="group px-3.5 py-2.5 bg-white hover:bg-slate-50 border border-slate-200 hover:border-indigo-400 rounded-2xl text-xs font-semibold text-slate-800 hover:text-indigo-700 transition flex items-center gap-2 shadow-xs hover:shadow-sm"
                   >
                     <i className="fa-solid fa-magnifying-glass text-[11px] text-slate-400 group-hover:text-indigo-600 transition"></i>
-                    <span>{kw.text}</span>
+                    <h3 className="font-semibold text-xs text-inherit inline">{kw.text}</h3>
                     <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-300 group-hover:text-indigo-500 transition opacity-0 group-hover:opacity-100"></i>
                   </Link>
                 ))}
