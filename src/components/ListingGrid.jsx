@@ -459,6 +459,7 @@ export default function ListingGrid({
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start my-5 sm:my-6">
           {/* CỘT TRÁI: DANH SÁCH BẤT ĐỘNG SẢN CHÍNH (~70% Chiều ngang desktop) */}
           <div className="w-full lg:flex-1 min-w-0 min-h-[550px] transition-opacity duration-200">
+            <h2 className="sr-only">Danh sách bất động sản {demandLabel}</h2>
             {sortedProperties.length === 0 ? (
               renderEmptyState()
             ) : viewMode === 'split' ? (
@@ -507,6 +508,7 @@ export default function ListingGrid({
       ) : (
         /* Khi KHÔNG có Sidebar (Chế độ Trang Chủ) */
         <>
+          <h2 className="sr-only">Danh sách bất động sản nổi bật</h2>
           {sortedProperties.length === 0 ? (
             renderEmptyState()
           ) : viewMode === 'split' ? (

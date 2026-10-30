@@ -81,17 +81,24 @@ export default function RewardCenterPage() {
       if (cachedExp) {
         const parsed = JSON.parse(cachedExp);
         if (parsed?.amount && parsed?.formattedDate) {
-          setExpiringBonusInfo(parsed);
+          setExpiringBonusInfo(prev => {
+            if (prev && prev.amount === parsed.amount && prev.expiresAt === parsed.expiresAt) return prev;
+            return parsed;
+          });
         }
       }
     } catch (e) {}
 
     if (currentUser?.earliestExpiringBonus?.amount && currentUser?.earliestExpiringBonus?.expiresAt) {
       const expDate = new Date(currentUser.earliestExpiringBonus.expiresAt);
-      setExpiringBonusInfo({
+      const nextInfo = {
         amount: Number(currentUser.earliestExpiringBonus.amount),
         expiresAt: currentUser.earliestExpiringBonus.expiresAt,
         formattedDate: currentUser.earliestExpiringBonus.formattedDate || expDate.toLocaleDateString('vi-VN')
+      };
+      setExpiringBonusInfo(prev => {
+        if (prev && prev.amount === nextInfo.amount && prev.expiresAt === nextInfo.expiresAt) return prev;
+        return nextInfo;
       });
     }
 
@@ -104,10 +111,13 @@ export default function RewardCenterPage() {
         const res = await fetch(`/api/wallet/expiring-bonus?userId=${currentUser.id}`);
         const data = await res.json();
         if (data.success && data.hasExpiringBonus) {
-          setExpiringBonusInfo({
-            amount: data.amount,
-            expiresAt: data.expiresAt,
-            formattedDate: data.formattedDate
+          setExpiringBonusInfo(prev => {
+            if (prev && prev.amount === data.amount && prev.expiresAt === data.expiresAt) return prev;
+            return {
+              amount: data.amount,
+              expiresAt: data.expiresAt,
+              formattedDate: data.formattedDate
+            };
           });
         }
       } catch (err) {
@@ -128,7 +138,11 @@ export default function RewardCenterPage() {
       try {
         const savedClaims = localStorage.getItem(`bds_claimed_missions_${userId}`);
         if (savedClaims) {
-          setClaimedMissions(JSON.parse(savedClaims));
+          const parsed = JSON.parse(savedClaims);
+          setClaimedMissions(prev => {
+            if (JSON.stringify(prev) === savedClaims) return prev;
+            return parsed;
+          });
         }
       } catch (e) {}
     };

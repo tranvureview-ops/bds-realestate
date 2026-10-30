@@ -70,18 +70,18 @@ export default function SeoImage({
 
   return (
     <img
+      {...rest}
       src={imgSrc}
       srcSet={rest.srcSet || responsiveProps.srcSet}
       sizes={rest.sizes || responsiveProps.sizes}
       alt={computedAlt}
       title={title || computedAlt}
-      loading={loading || (priority ? undefined : 'lazy')}
-      decoding={decoding}
-      fetchPriority={fetchPriority || (priority ? 'high' : undefined)}
-      fetchpriority={fetchPriority || (priority ? 'high' : undefined)}
+      loading={priority ? 'eager' : (loading || 'lazy')}
+      decoding={priority ? 'sync' : decoding}
+      fetchPriority={priority ? 'high' : (fetchPriority || undefined)}
+      fetchpriority={priority ? 'high' : (fetchPriority || undefined)}
       onError={handleError}
       className={className}
-      {...rest}
     />
   );
 }

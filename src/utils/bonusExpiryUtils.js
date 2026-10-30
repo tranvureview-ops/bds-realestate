@@ -59,9 +59,11 @@ export function getEarliestExpiringBonus(user, systemConfig = null) {
   // 3. Nếu user có số dư ví KM nhưng chưa có ngày hoặc ngày cũ đã qua:
   // Tính theo thời hạn cấu hình quản trị hệ thống (systemConfig.bonusExpiryDays)
   const fallbackExpiry = new Date(now + defaultDays * 24 * 60 * 60 * 1000);
+  fallbackExpiry.setHours(23, 59, 59, 0);
+  const fallbackIso = fallbackExpiry.toISOString();
   return {
     amount: balance,
-    expiresAt: fallbackExpiry.toISOString(),
+    expiresAt: fallbackIso,
     formattedDate: fallbackExpiry.toLocaleDateString('vi-VN'),
     daysLeft: defaultDays,
     batchCount: 1

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import {
   supabase,
   isSupabaseConfigured,
@@ -1294,14 +1294,26 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           ...currentUser,
           bonusWalletBalance: effectiveBonus
         }, systemConfig);
-        if (freshEarliest && (!currentUser?.earliestExpiringBonus || currentUser.earliestExpiringBonus.expiresAt !== freshEarliest.expiresAt)) {
-          userUpdates.earliestExpiringBonus = freshEarliest;
-          userUpdates.bonusExpiresAt = freshEarliest.expiresAt;
+        if (freshEarliest) {
+          const currentExp = currentUser?.earliestExpiringBonus;
+          if (!currentExp || currentExp.expiresAt !== freshEarliest.expiresAt || currentExp.amount !== freshEarliest.amount) {
+            userUpdates.earliestExpiringBonus = freshEarliest;
+            userUpdates.bonusExpiresAt = freshEarliest.expiresAt;
+          }
         }
       }
 
       if (Object.keys(userUpdates).length > 0) {
-        setCurrentUser(prev => ({ ...prev, ...userUpdates }));
+        setCurrentUser(prev => {
+          let hasDiff = false;
+          for (const k in userUpdates) {
+            if (prev?.[k] !== userUpdates[k]) {
+              hasDiff = true;
+              break;
+            }
+          }
+          return hasDiff ? { ...prev, ...userUpdates } : prev;
+        });
       }
     } catch (e) {}
 
@@ -1535,6 +1547,16 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     };
   }, [fetchLatestDataFromSupabase]);
 
+  // Stable refs for interval background processors to completely eliminate infinite re-render loops (React Error #185)
+  const vipPackagesRef = useRef(vipPackages);
+  vipPackagesRef.current = vipPackages;
+  const usersListRef = useRef(usersList);
+  usersListRef.current = usersList;
+  const currentUserRef = useRef(currentUser);
+  currentUserRef.current = currentUser;
+  const membershipPackagesRef = useRef(membershipPackages);
+  membershipPackagesRef.current = membershipPackages;
+
   // Background Auto-Approval Processor for Countdown Queues (VIP Vàng 15 phút, VIP Bạc 30 phút)
   useEffect(() => {
     const processAutoApprovals = () => {
@@ -1602,17 +1624,17 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
               // Kiểm tra xem có cấu hình Tự Động Gia Hạn (Auto-Renew) và ví tác giả đủ tiền không
               if (prop.autoRenew && prop.author && !prop.author.isGuest) {
-                const pkg = (vipPackages || []).find(v => v.id === prop.vipPackageId) || { pricePerDay: 5000 };
+                const pkg = (vipPackagesRef.current || []).find(v => v.id === prop.vipPackageId) || { pricePerDay: 5000 };
                 const days = Number(prop.listingDays) || 15;
                 const cost = (pkg.rates?.[days] || pkg.pricePerDay || 5000) * days;
-                const authorUser = usersList.find(u => u.id === prop.author.id);
+                const authorUser = (usersListRef.current || []).find(u => u.id === prop.author.id);
 
                 if (authorUser && authorUser.walletBalance >= cost) {
                   // Trừ ví người đăng tự động
                   const newBal = authorUser.walletBalance - cost;
                   const updatedAuthorUser = { ...authorUser, walletBalance: newBal };
                   setUsersList(uList => uList.map(u => u.id === authorUser.id ? updatedAuthorUser : u));
-                  if (currentUser.id === authorUser.id) {
+                  if (currentUserRef.current?.id === authorUser.id) {
                     setCurrentUser(updatedAuthorUser);
                   }
 
@@ -1648,7 +1670,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
                 const vipExpTime = expTime; // Thời điểm mốc hết hạn VIP
                 const newNormalExpiresAt = new Date(vipExpTime + 60 * 86400 * 1000).toISOString();
 
-                if (currentUser && currentUser.id === prop.author?.id) {
+                if (currentUserRef.current && currentUserRef.current.id === prop.author?.id) {
                   showToast(`ℹ️ Tin đăng ${prop.id} đã hoàn tất thời hạn VIP và được tự động chuyển thành Tin Thường + cộng thêm 60 ngày hiển thị miễn phí!`, 'info');
                 }
 
@@ -1686,7 +1708,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     processExpirations();
     const expireTimer = setInterval(processExpirations, 5000);
     return () => clearInterval(expireTimer);
-  }, [vipPackages, usersList, currentUser]);
+  }, [showToast]);
 
   // Bộ xử lý tự động quét & dọn dẹp Database ngầm khi bật autoCleanupEnabled
   useEffect(() => {
@@ -1744,7 +1766,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
             if (needsStatusUpdate || hasVouchers) {
               // 1. Kiểm tra nếu BẬT tự động gia hạn (isAutoRenew)
               if (user.membership.isAutoRenew && !user.isGuest) {
-                const pkg = (membershipPackages || []).find(p => p.id === user.membership.packageId);
+                const pkg = (membershipPackagesRef.current || []).find(p => p.id === user.membership.packageId);
                 const billingMonths = user.membership.billingMonths || 1;
                 const cycle = pkg?.billingCycles?.find(c => c.months === billingMonths) || pkg?.billingCycles?.[0];
                 const cost = cycle?.price || pkg?.monthlyPrice || 0;
@@ -1818,7 +1840,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
             if (nextRefreshTime > 0 && now >= nextRefreshTime && now < expTime) {
               usersChanged = true;
-              const pkg = (membershipPackages || []).find(p => p.id === user.membership.packageId);
+              const pkg = (membershipPackagesRef.current || []).find(p => p.id === user.membership.packageId);
               const normalPub = pkg?.vouchersPerCycle?.normalPublishVouchers || 0;
               const normalBump = pkg?.vouchersPerCycle?.normalBumpVouchers || 0;
               const vipPub = pkg?.vouchersPerCycle?.vipVouchers || 0;
@@ -1892,7 +1914,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
             : 0;
 
           if (nextRefreshTime > 0 && now >= nextRefreshTime && now < expTime) {
-            const pkg = (membershipPackages || []).find(p => p.id === curr.membership.packageId);
+            const pkg = (membershipPackagesRef.current || []).find(p => p.id === curr.membership.packageId);
             const normalPub = pkg?.vouchersPerCycle?.normalPublishVouchers || 0;
             const normalBump = pkg?.vouchersPerCycle?.normalBumpVouchers || 0;
             const vipPub = pkg?.vouchersPerCycle?.vipVouchers || 0;
@@ -1923,7 +1945,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     processMembershipExpirations();
     const membershipTimer = setInterval(processMembershipExpirations, 5000);
     return () => clearInterval(membershipTimer);
-  }, [membershipPackages]);
+  }, [showToast]);
 
   // Switch role helper
   const switchUserRole = (roleKey) => {

@@ -1749,7 +1749,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                         href={structuredBrokerLink}
                         rel="nofollow"
                         onClick={handleOpenBrokerModal}
-                        className="block cursor-pointer group/brokerInfo py-0.5"
+                        className="block cursor-pointer group/brokerInfo py-1.5 min-h-[44px]"
                         title={authorTitle}
                         aria-label={`Xem hồ sơ ${authorTitle}`}
                       >

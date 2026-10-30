@@ -266,8 +266,9 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
               href={brokerUrl}
               rel="nofollow"
               onClick={handleOpenBrokerModal}
-              className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer group/broker"
+              className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer group/broker py-1 min-h-[42px]"
               title={`Xem hồ sơ ${safeAuthor.fullNameWithRole}`}
+              aria-label={`Xem hồ sơ môi giới ${safeAuthor.name}`}
             >
               <div className="relative shrink-0">
                 <SeoImage
