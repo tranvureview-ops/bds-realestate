@@ -1162,7 +1162,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               </div>
 
               {/* Title */}
-              <h1 className={`text-xl sm:text-2xl lg:text-3xl font-black leading-snug tracking-tight property-title-sentence ${vipPkg.titleClass}`}>
+              <h1 className={`text-xl sm:text-2xl lg:text-3xl font-black leading-snug tracking-tight property-title-sentence ${(vipPkg.titleClass || '').replace(/\btext-amber-600\b/g, 'text-amber-800')}`}>
                 {formatSentenceCase(property.title)}
               </h1>
 

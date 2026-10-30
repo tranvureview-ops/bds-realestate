@@ -202,7 +202,7 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
           <h3 className="mb-2">
             <Link 
               to={getPropertyPermalink(property)}
-              className={`line-clamp-2 hover:underline transition block property-title-sentence ${vipPkg.titleClass}`}
+              className={`line-clamp-2 hover:underline transition block property-title-sentence ${(vipPkg.titleClass || '').replace(/\btext-amber-600\b/g, 'text-amber-800')}`}
             >
               {formatSentenceCase(property.title)}
             </Link>

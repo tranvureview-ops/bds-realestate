@@ -394,7 +394,7 @@ export default function ListingDetailModal({ property, onClose }) {
             <div className="lg:col-span-8 space-y-6">
               {/* Title & Price Header */}
               <div>
-                <h1 className={`text-xl sm:text-2xl font-black leading-snug mb-3 property-title-sentence ${vipPkg.titleClass}`}>
+                <h1 className={`text-xl sm:text-2xl font-black leading-snug mb-3 property-title-sentence ${(vipPkg.titleClass || '').replace(/\btext-amber-600\b/g, 'text-amber-800')}`}>
                   {formatSentenceCase(property.title)}
                 </h1>
 

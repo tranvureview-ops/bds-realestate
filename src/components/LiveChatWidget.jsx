@@ -513,7 +513,7 @@ export default function LiveChatWidget() {
                 <span>Chat tư vấn</span>
                 <i className="fa-solid fa-comment-dots text-emerald-600 text-[10px]"></i>
               </div>
-              <div className="text-[8.5px] text-emerald-600 font-semibold mt-0.5">
+              <div className="text-[8.5px] text-emerald-700 font-semibold mt-0.5">
                 Online 24/7
               </div>
             </div>
@@ -546,7 +546,7 @@ export default function LiveChatWidget() {
                 <i className="fa-solid fa-comment-dots text-emerald-600 text-xs"></i>
               </div>
               <div className="text-[10px] text-slate-500 font-medium mt-1">
-                {agentInfo.name} • <span className="text-emerald-600 font-bold">Online</span>
+                {agentInfo.name} • <span className="text-emerald-700 font-bold">Online</span>
               </div>
             </div>
             {unreadCount > 0 && (

@@ -47,7 +47,7 @@ export const LISTING_TYPES = [
     badgeColor: 'badge-gold',
     badgeText: 'VIP VÀNG ★★★★',
     borderColor: 'border-amber-400 shadow-amber-100',
-    titleClass: 'text-amber-600 font-bold text-base',
+    titleClass: 'text-amber-800 font-bold text-base',
     tagClass: 'bg-gradient-to-r from-amber-500 to-orange-500 text-white font-bold',
     approvalType: 'instant',
     approvalTimeMinutes: 0,

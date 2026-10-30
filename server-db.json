@@ -3274,7 +3274,7 @@
       "badgeText": "VIP VÀNG ★★★★",
       "shortName": "VIP VÀNG",
       "badgeColor": "badge-gold",
-      "titleClass": "text-amber-600 font-bold uppercase text-base",
+      "titleClass": "text-amber-800 font-bold uppercase text-base",
       "borderColor": "border-amber-400 shadow-amber-100",
       "pricePerDay": 15000,
       "recommended": false,

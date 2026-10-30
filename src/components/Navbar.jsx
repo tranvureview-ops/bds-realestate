@@ -304,10 +304,10 @@ export default function Navbar() {
                       className={`px-3 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap ${
                         isActive 
                           ? 'bg-emerald-50 text-emerald-700 font-bold' 
-                          : 'hover:bg-slate-50 text-slate-700 hover:text-emerald-600'
+                          : 'hover:bg-slate-50 text-slate-700 hover:text-emerald-700'
                       }`}
                     >
-                      {item.icon && <i className={`${item.icon} text-xs ${isActive ? 'text-emerald-600' : 'text-slate-400'}`}></i>}
+                      {item.icon && <i className={`${item.icon} text-xs ${isActive ? 'text-emerald-700' : 'text-slate-400'}`}></i>}
                       <span>{item.title}</span>
                       {item.badge && (
                         <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${item.badgeColor || 'bg-red-600 text-white'}`}>
@@ -323,7 +323,7 @@ export default function Navbar() {
                         <div className="bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-3 text-xs">
                           <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 mb-2 flex items-center justify-between">
                             <span>Danh mục {item.title}</span>
-                            <span className="text-emerald-600 font-bold lowercase">({item.children.length} loại hình)</span>
+                            <span className="text-emerald-700 font-bold lowercase">({item.children.length} loại hình)</span>
                           </div>
                           <div className={item.children.length > 6 ? "grid grid-cols-2 gap-1" : "space-y-1"}>
                             {item.children.map(sub => (
@@ -334,7 +334,7 @@ export default function Navbar() {
                                 className={`px-2.5 py-2 rounded-xl flex items-center gap-2 transition font-medium ${
                                   currentRoute === sub.path 
                                     ? 'bg-emerald-50 text-emerald-700 font-bold' 
-                                    : 'hover:bg-slate-50 text-slate-700 hover:text-emerald-600'
+                                    : 'hover:bg-slate-50 text-slate-700 hover:text-emerald-700'
                                 }`}
                               >
                                 {sub.icon && <i className={`${sub.icon} text-slate-400 w-4 text-center text-xs shrink-0`}></i>}
@@ -360,10 +360,10 @@ export default function Navbar() {
                   className={`px-3 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap ${
                     isActive 
                       ? 'bg-emerald-50 text-emerald-700 font-bold' 
-                      : 'hover:bg-slate-50 text-slate-700 hover:text-emerald-600'
+                      : 'hover:bg-slate-50 text-slate-700 hover:text-emerald-700'
                   }`}
                 >
-                  {item.icon && <i className={`${item.icon} text-xs ${isActive ? 'text-emerald-600' : 'text-slate-400'}`}></i>}
+                  {item.icon && <i className={`${item.icon} text-xs ${isActive ? 'text-emerald-700' : 'text-slate-400'}`}></i>}
                   <span>{item.title}</span>
                   {item.badge && (
                     <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${item.badgeColor || 'bg-red-600 text-white'}`}>
@@ -508,7 +508,7 @@ export default function Navbar() {
                       <div className="px-4 py-2.5 bg-slate-50 mx-2 my-2 rounded-xl flex items-center justify-between">
                         <div>
                           <div className="text-[10px] text-slate-500 font-semibold uppercase">Số dư ví chính</div>
-                          <div className="text-sm font-black text-emerald-600">
+                          <div className="text-sm font-black text-emerald-700">
                             {currentUser.walletBalance?.toLocaleString('vi-VN')} đ
                           </div>
                           <div className="text-[10px] text-emerald-700 font-bold flex items-center gap-1 pt-0.5">
@@ -719,7 +719,7 @@ export default function Navbar() {
                     <img src={currentUser.avatar} alt={currentUser.name} className="w-10 h-10 rounded-full object-cover border" />
                     <div>
                       <div className="font-bold text-sm text-slate-900">{cleanUserName(currentUser.name)}</div>
-                      <div className="text-xs text-emerald-600 font-bold flex items-center gap-1.5 flex-wrap">
+                      <div className="text-xs text-emerald-700 font-bold flex items-center gap-1.5 flex-wrap">
                         <span>{currentUser.walletBalance?.toLocaleString('vi-VN')} đ</span>
                         {Number(currentUser.bonusWalletBalance) > 0 && (
                           <span className="text-[10px] text-emerald-700 bg-emerald-100 border border-emerald-300 px-1.5 py-0.2 rounded font-bold">
