@@ -8,7 +8,6 @@ import { getPropertyPermalink, formatSentenceCase } from '../utils/permalink';
 import { isVoucherDiscountFree } from '../utils/membershipHelper';
 import PropertyVerificationModal from './PropertyVerificationModal';
 import PropertyVerificationReviewModal from './PropertyVerificationReviewModal';
-import UserTransactionHistoryManager from './UserTransactionHistoryManager';
 import SeoImage from './SeoImage';
 import { 
   calculateTreasureHuntExpiry, 
@@ -49,12 +48,11 @@ export default function UserDashboard({ initialTab = 'listings' }) {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
-      if (tabParam === 'transactions' || tabParam === 'wallet') return 'transactions';
       if (tabParam === 'trash') return 'trash';
       if (tabParam === 'listings') return 'listings';
     }
-    return initialTab;
-  }); // 'listings', 'wallet', 'transactions', 'trash'
+    return initialTab === 'trash' ? 'trash' : 'listings';
+  }); // 'listings', 'trash'
   const [statusFilter, setStatusFilter] = useState('all'); // 'all', 'active', 'expiring_soon', 'expired', 'pending'
 
   // Verification Modal State
@@ -190,13 +188,6 @@ export default function UserDashboard({ initialTab = 'listings' }) {
     }
   };
 
-  const userTransactionsCount = (transactions || []).filter(t => {
-    if (!currentUser || currentUser.role === 'guest') {
-      return String(t.userId || '').startsWith('guest') || t.userId === 'guest';
-    }
-    return String(t.userId) === String(currentUser.id);
-  }).length;
-
   const activeCount = myListings.filter(p => p.status === 'active' && !getPropertyExpirationInfo?.(p)?.isExpired).length;
   const pendingCount = myListings.filter(p => p.status === 'pending').length;
   const expiringCount = myListings.filter(p => {
@@ -284,13 +275,13 @@ export default function UserDashboard({ initialTab = 'listings' }) {
               <i className="fa-solid fa-plus-circle"></i>
               <span>Nạp Tiền</span>
             </button>
-            <button
-              onClick={() => setActiveTab('transactions')}
+            <Link
+              to="/lich-su-giao-dich"
               className="px-3.5 py-2 bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-bold transition shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <i className="fa-solid fa-receipt text-emerald-600"></i>
               <span>Lịch Sử GD</span>
-            </button>
+            </Link>
           </div>
         </div>
       </div>
@@ -449,17 +440,6 @@ export default function UserDashboard({ initialTab = 'listings' }) {
         >
           <i className="fa-solid fa-list"></i>
           Quản Lý Tin Đăng ({myListings.length})
-        </button>
-
-        <button
-          onClick={() => setActiveTab('transactions')}
-          className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center gap-2 cursor-pointer ${activeTab === 'transactions' ? 'bg-slate-900 text-white shadow' : 'text-slate-600 hover:bg-slate-100'}`}
-        >
-          <i className="fa-solid fa-receipt"></i>
-          <span>Lịch Sử Giao Dịch & Ví</span>
-          <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${activeTab === 'transactions' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}`}>
-            {userTransactionsCount}
-          </span>
         </button>
 
         <button
@@ -958,12 +938,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
         </div>
       )}
 
-      {/* TAB 2: TRANSACTIONS HISTORY (LỊCH SỬ GIAO DỊCH VÍ & TIỀN KHUYẾN MÃI) */}
-      {activeTab === 'transactions' && (
-        <UserTransactionHistoryManager />
-      )}
-
-      {/* TAB 3: TRASH MANAGEMENT (THÙNG RÁC TIN ĐĂNG) */}
+      {/* TAB 2: TRASH MANAGEMENT (THÙNG RÁC TIN ĐĂNG) */}
       {activeTab === 'trash' && (
         <div className="space-y-4">
           <div className="bg-white rounded-2xl p-4 border border-rose-200 bg-rose-50/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
