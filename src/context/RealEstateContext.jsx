@@ -1486,8 +1486,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     // Ngay khi mount ở client, kích hoạt hydrated ngay vì đã có dữ liệu SSR đầy đủ
     if (isMounted) setIsHydrated(true);
 
-    // Khi người dùng là Quản trị viên (Admin) hoặc đang xem route /admin, tự động kéo dữ liệu quản trị đầy đủ (emailLogs, usersList, transactions)
-    if (currentUser?.role === 'admin' || (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin'))) {
+    // Nếu người dùng đã đăng nhập (Thành viên / Môi giới / Quản trị) hoặc đang truy cập trang /admin, tự động kéo dữ liệu đồng bộ
+    if ((currentUser && currentUser.role !== 'guest' && currentUser.id !== 'guest') || (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin'))) {
       fetchLatestDataFromSupabase(true);
     } else if (!initialData || !initialData.bds_properties || initialData.bds_properties.length === 0) {
       fetchLatestDataFromSupabase(true);
