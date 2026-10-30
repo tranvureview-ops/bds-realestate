@@ -167,9 +167,9 @@ export default function Footer() {
 
           {/* Cột 2: Quick links */}
           <nav aria-label="Khám phá nhanh">
-            <h4 className="text-xs font-black uppercase text-white tracking-wider mb-3">
+            <h3 className="text-xs font-black uppercase text-white tracking-wider mb-3">
               {col2Title}
-            </h4>
+            </h3>
             <ul className="space-y-0.5 text-xs text-slate-300">
               {col2Links.map(link => (
                 <li key={link.id || link.url}>
@@ -184,9 +184,9 @@ export default function Footer() {
 
           {/* Cột 3: Service & Member packages */}
           <nav aria-label="Dịch vụ và tiện ích">
-            <h4 className="text-xs font-black uppercase text-white tracking-wider mb-3">
+            <h3 className="text-xs font-black uppercase text-white tracking-wider mb-3">
               {col3Title}
-            </h4>
+            </h3>
             <ul className="space-y-0.5 text-xs text-slate-300">
               {col3Links.map(link => (
                 <li key={link.id || link.url}>
@@ -215,9 +215,9 @@ export default function Footer() {
 
           {/* Cột 4: Trust & Certifications */}
           <div>
-            <h4 className="text-xs font-black uppercase text-white tracking-wider mb-3">
+            <h3 className="text-xs font-black uppercase text-white tracking-wider mb-3">
               {col4Title}
-            </h4>
+            </h3>
             <div className="space-y-2 text-xs text-slate-300">
               {badges.map(badge => {
                 const BadgeWrapper = badge.url ? Link : 'div';
@@ -250,10 +250,10 @@ export default function Footer() {
         {showSeo && (
           <nav aria-label="Chỉ mục danh mục bất động sản và khu vực" className="pt-8 pb-6 border-t border-slate-800/80">
             <div className="mb-4">
-              <h4 className="text-xs font-black uppercase text-emerald-400 tracking-wider flex items-center gap-2">
+              <h3 className="text-xs font-black uppercase text-emerald-400 tracking-wider flex items-center gap-2">
                 <i className="fa-solid fa-sitemap text-[11px]"></i>
                 Danh Mục Bất Động Sản & Địa Giới Hành Chính Chuẩn SEO
-              </h4>
+              </h3>
               <p className="text-xs text-slate-300 mt-0.5">
                 Tra cứu nhanh theo loại hình, tỉnh thành, quận huyện, phường xã và dự án trọng điểm
               </p>

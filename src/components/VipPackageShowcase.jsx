@@ -206,9 +206,9 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
               <div className="text-xs uppercase tracking-wider text-amber-400 font-extrabold">
                 Dịch Vụ Gia Tăng Đặc Biệt
               </div>
-              <h4 className="text-lg sm:text-xl font-bold text-white">
+              <h3 className="text-lg sm:text-xl font-bold text-white">
                 Dịch Vụ Đẩy Tin (Làm Mới Tin) Lên Đầu Trang
-              </h4>
+              </h3>
               <p className="text-xs text-slate-300 mt-1 max-w-xl">
                 Cập nhật thời gian đăng tin lên thời điểm hiện tại. Đưa tin của bạn lên đầu kết quả tìm kiếm theo đúng phân cấp VIP mà không cần tạo tin mới.
               </p>
@@ -246,9 +246,9 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
               <div className="inline-block px-2 py-0.5 rounded-full bg-slate-950 text-amber-300 text-[10px] font-black uppercase mb-1">
                 Dành Riêng Cho Môi Giới Bất Động Sản
               </div>
-              <h4 className="text-xl font-black text-slate-950">
+              <h3 className="text-xl font-black text-slate-950">
                 Đăng Ký Gói Hội Viên — Tiết Kiệm Tới {premiumSavePercent}%
-              </h4>
+              </h3>
               <p className="text-xs text-slate-900 font-medium mt-1 max-w-xl">
                 Nhận trọn bộ kho Voucher cấp mới định kỳ 30 ngày: voucher giảm {normalPublishVoucherDiscount.toLocaleString('vi-VN')}đ đăng tin thường + voucher giảm {currentBumpPrice.toLocaleString('vi-VN')}đ đẩy tin + voucher {vipVoucherDiscount.toLocaleString('vi-VN')}đ tin VIP.
               </p>

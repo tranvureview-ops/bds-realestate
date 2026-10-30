@@ -1206,9 +1206,9 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
             {/* Key Specs Matrix */}
             <div>
-              <h3 className="text-xs font-black uppercase text-slate-400 tracking-wider mb-3">
+              <h2 className="text-xs font-black uppercase text-slate-700 tracking-wider mb-3">
                 Thông Số Kỹ Thuật Bất Động Sản
-              </h3>
+              </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
                   <div className="text-slate-400 font-bold uppercase text-[10px]">Diện tích sử dụng</div>
@@ -1271,10 +1271,10 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
           {/* B. DETAILED DESCRIPTION & HIGHLIGHTS */}
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
-            <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+            <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
               <span className="w-2 h-5 bg-emerald-600 rounded-full"></span>
               Thông Tin Mô Tả Chi Tiết
-            </h3>
+            </h2>
 
             <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-line bg-slate-50/70 p-5 rounded-2xl border border-slate-100">
               {property.description}
@@ -1325,10 +1325,10 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
             return (
               <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
-                <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
                   <span className="w-2 h-5 bg-purple-600 rounded-full"></span>
                   Đặc Điểm Tin Đăng
-                </h3>
+                </h2>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
                   <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
@@ -1389,10 +1389,10 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
           {/* C. SATELLITE GIS MAP & NEARBY FACILITIES */}
           {singleConfig?.features?.showInteractiveMap !== false && (
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
-              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+              <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
                 <span className="w-2 h-5 bg-blue-600 rounded-full"></span>
                 Vị Trí Bản Đồ & Tiện Ích Xung Quanh (Bán Kính 1km)
-              </h3>
+              </h2>
 
               <div className="rounded-2xl overflow-hidden border border-slate-200">
                 <InteractiveMap properties={[property]} height="380px" />
@@ -1424,10 +1424,10 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                  <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
                     <span className="w-2 h-5 bg-amber-500 rounded-full"></span>
                     Ước Tính Trả Góp Vay Mua Căn Nhà Này
-                  </h3>
+                  </h2>
                   <p className="text-xs text-slate-500 mt-0.5">
                     Tính toán số tiền vay dựa trên giá trị thực tế: <strong>{property.priceDisplay}</strong>
                   </p>
@@ -1550,9 +1550,9 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                     <span className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold ${badgeClass}`}>
                       <i className={discCfg.icon || 'fa-solid fa-shield-halved'}></i>
                     </span>
-                    <h4 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
                       {discCfg.title || 'Thông Báo Về Nội Dung & Miễn Trừ Trách Nhiệm'}
-                    </h4>
+                    </h3>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -1649,10 +1649,10 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                  <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
                     <span className="w-2 h-5 bg-indigo-600 rounded-full"></span>
                     Tìm Kiếm Theo Từ Khóa & Cụm Từ Liên Quan
-                  </h3>
+                  </h2>
                   <p className="text-xs text-slate-500 mt-0.5">
                     Khám phá các bất động sản tương tự trong khu vực {property.district}, {property.city}
                   </p>
@@ -1745,9 +1745,9 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                         className="block cursor-pointer group-hover:text-emerald-700 transition"
                         title={authorTitle}
                       >
-                        <h4 className="text-base font-extrabold text-slate-900 group-hover:text-emerald-700 transition truncate">
+                        <div className="text-base font-extrabold text-slate-900 group-hover:text-emerald-700 transition truncate">
                           {safeAuthor.name}
-                        </h4>
+                        </div>
                       </Link>
 
                       {safeAuthor.title ? (
@@ -2022,10 +2022,10 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
               <div>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2.5">
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2.5">
                   <span className="w-2.5 h-6 bg-emerald-600 rounded-full"></span>
                   <span>Tin Đăng Cùng {authorTitle}</span>
-                </h3>
+                </h2>
                 <p className="text-xs sm:text-sm text-slate-500 mt-1">
                   Khám phá thêm các bất động sản do {authorTitle} đang đăng tải và phụ trách ({authorProperties.length} tin)
                 </p>
@@ -2057,10 +2057,10 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
               <div>
-                <h3 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2.5">
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2.5">
                   <span className="w-2.5 h-6 bg-rose-600 rounded-full"></span>
                   <span>Bất Động Sản Tương Tự Cùng Phân Khúc</span>
-                </h3>
+                </h2>
                 <p className="text-xs sm:text-sm text-slate-500 mt-1">
                   Khám phá các bất động sản tương đồng về phân khúc hoặc khu vực {property.district ? `tại ${property.district}, ` : ''}{property.city}
                 </p>
@@ -2623,9 +2623,9 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
       <div className="print-only-header hidden">
         <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3 mb-4">
           <div>
-            <h1 className="text-xl font-black text-slate-900 uppercase">
+            <div className="text-xl font-black text-slate-900 uppercase">
               {systemConfig?.platformName || 'ĐẤT BIỂN ĐÀ NẴNG • SÀN GIAO DỊCH BẤT ĐỘNG SẢN'}
-            </h1>
+            </div>
             <div suppressHydrationWarning className="text-xs text-slate-600 mt-0.5">
               Hotline kiểm định & tư vấn: <strong suppressHydrationWarning>{systemConfig?.hotline || '0904 084 888'}</strong> • Website: <strong suppressHydrationWarning>{typeof window !== 'undefined' ? window.location.host : 'datbiendanang.vn'}</strong>
             </div>
