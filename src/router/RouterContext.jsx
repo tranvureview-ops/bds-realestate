@@ -147,14 +147,15 @@ export const Link = ({ to, href, children, className = '', activeClassName = '',
   };
 
   if (isExternal) {
+    const isTelOrMail = typeof target === 'string' && (target.startsWith('tel:') || target.startsWith('mailto:'));
     return (
       <a
         href={targetPath}
         onClick={handleClick}
         className={combinedClass}
         title={title}
-        target={props.target || '_blank'}
-        rel={props.rel || 'noopener noreferrer'}
+        target={props.target || (isTelOrMail ? undefined : '_blank')}
+        rel={props.rel || (isTelOrMail ? undefined : 'noopener noreferrer')}
         {...props}
       >
         {children}

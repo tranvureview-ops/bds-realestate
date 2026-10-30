@@ -88,28 +88,31 @@ export default function Footer() {
 
             <div className="text-xs space-y-2 text-slate-300">
               <div className="flex items-center gap-2">
-                <i className="fa-solid fa-phone text-emerald-400"></i>
+                <i className="fa-solid fa-phone text-emerald-400" aria-hidden="true"></i>
                 <span>
                   Hotline 24/7:{' '}
                   <Link
                     href={`tel:${activeHotline.replace(/\s+/g, '')}`}
                     className="text-white hover:text-emerald-400 font-bold font-mono transition"
-                    title="Gọi Hotline CSKH"
+                    title={`Hotline 24/7: ${activeHotline}`}
+                    aria-label={`Hotline 24/7: ${activeHotline}`}
                   >
                     {activeHotline}
                   </Link>
                   {activeZalo && (
                     <span className="text-slate-400 text-[11px] ml-1.5">
-                      (Zalo:{' '}
+                      (
                       <Link
                         href={`https://zalo.me/${activeZalo.replace(/\s+/g, '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-emerald-400 hover:underline font-mono"
-                        title="Chat Zalo 24/7"
+                        title={`Nhắn tin Zalo: ${activeZalo}`}
+                        aria-label={`Nhắn tin Zalo: ${activeZalo}`}
                       >
-                        {activeZalo}
-                      </Link>)
+                        Zalo: {activeZalo}
+                      </Link>
+                      )
                     </span>
                   )}
                 </span>

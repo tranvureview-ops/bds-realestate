@@ -182,9 +182,10 @@ export default function Navbar() {
                 suppressHydrationWarning
                 href={`tel:${(systemConfig?.hotline || '0904 084 888').replace(/\s+/g, '')}`}
                 className="text-white hover:text-emerald-400 font-bold font-mono transition inline-flex items-center gap-1"
-                title="Gọi Hotline 24/7"
+                title={`Hotline 24/7: ${systemConfig?.hotline || '0904 084 888'}`}
+                aria-label={`Hotline 24/7: ${systemConfig?.hotline || '0904 084 888'}`}
               >
-                <i className="fa-solid fa-phone text-[10px] text-emerald-400"></i>
+                <i className="fa-solid fa-phone text-[10px] text-emerald-400" aria-hidden="true"></i>
                 <span suppressHydrationWarning>{systemConfig?.hotline || '0904 084 888'}</span>
               </Link>
             </span>
@@ -922,9 +923,11 @@ export default function Navbar() {
               <Link
                 href={`tel:${(systemConfig?.hotline || '0904 084 888').replace(/\s+/g, '')}`}
                 className="w-full py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 font-bold text-xs flex items-center justify-center gap-2 hover:bg-slate-100"
+                title={`Hotline 24/7: ${systemConfig?.hotline || '0904 084 888'}`}
+                aria-label={`Hotline 24/7: ${systemConfig?.hotline || '0904 084 888'}`}
               >
-                <i className="fa-solid fa-phone text-emerald-600"></i>
-                <span>Hotline: {systemConfig?.hotline || '0904 084 888'}</span>
+                <i className="fa-solid fa-phone text-emerald-600" aria-hidden="true"></i>
+                <span>Hotline 24/7: {systemConfig?.hotline || '0904 084 888'}</span>
               </Link>
 
               {/* Mobile Social Media Links */}
