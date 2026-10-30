@@ -12,7 +12,6 @@ import dynamic from 'next/dynamic';
 // Navigation & Layout
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import CompareDrawer from '../components/CompareDrawer';
 import ToastNotification from '../components/ToastNotification';
 import MobileBottomNav from '../components/MobileBottomNav';
 
@@ -22,7 +21,6 @@ const AuthModal = dynamic(() => import('../components/AuthModal'), { ssr: false 
 const ListingDetailModal = dynamic(() => import('../components/ListingDetailModal'), { ssr: false });
 const PostListingModal = dynamic(() => import('../components/PostListingModal'), { ssr: false });
 const MortgageCalculatorModal = dynamic(() => import('../components/MortgageCalculatorModal'), { ssr: false });
-const CompareModal = dynamic(() => import('../components/CompareModal'), { ssr: false });
 const WalletDepositModal = dynamic(() => import('../components/WalletDepositModal'), { ssr: false });
 import MaintenanceScreen from '../components/MaintenanceScreen';
 
@@ -123,7 +121,6 @@ function AppContent({ children }) {
       </main>
 
       {/* Persistent Bottom Components */}
-      <CompareDrawer />
       <LiveChatWidget />
 
       {/* Mobile App-like Bottom Navigation Bar */}
@@ -153,10 +150,6 @@ function AppContent({ children }) {
 
       {activeModal === 'mortgage-calc' && (
         <MortgageCalculatorModal onClose={() => setActiveModal(null)} />
-      )}
-
-      {activeModal === 'compare' && (
-        <CompareModal onClose={() => setActiveModal(null)} />
       )}
 
       {activeModal === 'wallet-deposit' && (

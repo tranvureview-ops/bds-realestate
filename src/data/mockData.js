@@ -3082,7 +3082,6 @@ export const DEFAULT_FOOTER_CONFIG = {
     { id: 'c3-1', icon: 'fa-solid fa-user', color: 'text-amber-500', label: 'Hồ Sơ Cá Nhân', url: '/ho-so-ca-nhan' },
     { id: 'c3-2', icon: 'fa-solid fa-list-check', color: 'text-blue-400', label: 'Quản Lý Tin Đăng', url: '/quan-ly-tin' },
     { id: 'c3-3', icon: 'fa-solid fa-heart', color: 'text-rose-400', label: 'Tin Đã Lưu Yêu Thích', url: '/tin-da-luu' },
-    { id: 'c3-4', icon: 'fa-solid fa-code-compare', color: 'text-blue-400', label: 'So Sánh Đối Đầu', url: '/so-sanh' },
     { id: 'c3-5', icon: 'fa-solid fa-wallet', color: 'text-emerald-400', label: 'Nạp Tiền Ví Tài Khoản', url: '/nap-tien' }
   ],
   showAdminCmsLink: true,

@@ -31,8 +31,6 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     setCurrentView, 
     favorites, 
     toggleFavorite, 
-    compareList, 
-    toggleCompare, 
     setActiveModal, 
     showToast,
     getPropertyExpirationInfo,
@@ -358,7 +356,6 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   const vipPkg = VIP_PACKAGES.find(p => p.id === property.vipPackageId) || defaultPkg;
   const isDiamond = property.vipPackageId === 'vip-diamond';
   const isFav = favorites.includes(property.id);
-  const isCompared = compareList.some(p => p.id === property.id);
 
   // Embedded Loan Calculation
   const loanAmount = (property.price * loanRatio) / 100;
@@ -910,18 +907,6 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             >
               <i className="fa-solid fa-flag text-rose-500"></i>
               <span className="hidden sm:inline">Báo cáo</span>
-            </button>
-
-            <button
-              onClick={() => toggleCompare(property)}
-              className={`px-3 py-1.5 rounded-lg border font-semibold transition flex items-center gap-1.5 cursor-pointer shadow-sm ${
-                isCompared 
-                  ? 'bg-blue-600 text-white border-blue-600' 
-                  : 'border-slate-200 hover:bg-slate-50 text-slate-700'
-              }`}
-            >
-              <i className="fa-solid fa-code-compare"></i>
-              <span className="hidden sm:inline">{isCompared ? 'Đang so sánh' : 'So sánh'}</span>
             </button>
 
             <button

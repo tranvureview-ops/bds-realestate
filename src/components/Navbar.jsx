@@ -35,7 +35,6 @@ export default function Navbar() {
   const { 
     currentUser, 
     favorites, 
-    compareList, 
     logoutUser,
     navMenuItems,
     headerConfig,
@@ -377,25 +376,6 @@ export default function Navbar() {
 
           {/* Right: Actions, User Menu, Post Listing CTA */}
           <div suppressHydrationWarning className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-            {/* So sánh BĐS Badge Link (Ẩn trên mobile < sm:, người dùng truy cập trong Drawer) */}
-            <Link
-              to="/so-sanh"
-              suppressHydrationWarning
-              className={`hidden sm:flex relative p-2 rounded-xl border transition ${
-                currentRoute === '/so-sanh' 
-                  ? 'bg-blue-50 border-blue-200 text-blue-700' 
-                  : 'border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-blue-600'
-              }`}
-              title="So sánh bất động sản đối đầu"
-            >
-              <i className="fa-solid fa-code-compare text-sm"></i>
-              {compareList.length > 0 && (
-                <span suppressHydrationWarning className="absolute -top-1.5 -right-1.5 bg-blue-600 text-white text-[10px] font-black w-4 h-4 rounded-full flex items-center justify-center animate-bounce">
-                  {compareList.length}
-                </span>
-              )}
-            </Link>
-
             {/* Yêu thích (Tin đã lưu) Link - Thu gọn padding trên mobile */}
             <Link
               to="/tin-da-luu"
@@ -786,26 +766,8 @@ export default function Navbar() {
                 </div>
               )}
 
-              {/* Quick Links Grid in Drawer (So Sánh & Yêu Thích) */}
-              <div className="grid grid-cols-2 gap-2">
-                <Link
-                  to="/so-sanh"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`p-2.5 rounded-xl border flex items-center justify-between text-xs font-bold transition ${
-                    currentRoute === '/so-sanh' ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <i className="fa-solid fa-code-compare text-blue-600"></i>
-                    <span>So sánh</span>
-                  </div>
-                  {compareList.length > 0 && (
-                    <span className="w-4 h-4 rounded-full bg-blue-600 text-white text-[9px] font-black flex items-center justify-center">
-                      {compareList.length}
-                    </span>
-                  )}
-                </Link>
-
+              {/* Quick Links in Drawer (Yêu Thích) */}
+              <div>
                 <Link
                   to="/tin-da-luu"
                   onClick={() => setMobileMenuOpen(false)}

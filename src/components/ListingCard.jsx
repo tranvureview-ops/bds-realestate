@@ -15,8 +15,6 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
   const { 
     favorites, 
     toggleFavorite, 
-    compareList, 
-    toggleCompare, 
     openPropertyDetail,
     usersList
   } = useRealEstate();
@@ -86,7 +84,6 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
   };
 
   const isFav = favorites.includes(property.id);
-  const isCompared = compareList.some(item => item.id === property.id);
 
   // Find VIP Package with robust fallback
   const defaultPkg = VIP_PACKAGES.find(p => p.id === 'normal') || VIP_PACKAGES[VIP_PACKAGES.length - 1];
@@ -154,21 +151,8 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
           </span>
         </div>
 
-        {/* Action Buttons Top Right: Favorite & Compare */}
+        {/* Action Buttons Top Right: Favorite */}
         <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-[2]">
-          {/* Compare Button */}
-          <button
-            onClick={() => toggleCompare(property)}
-            title={isCompared ? 'Xóa khỏi bảng so sánh' : 'Thêm vào so sánh'}
-            className={`w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md ${
-              isCompared 
-                ? 'bg-blue-600 text-white' 
-                : 'bg-white/90 text-slate-700 hover:bg-white hover:text-blue-600'
-            }`}
-          >
-            <i className="fa-solid fa-code-compare"></i>
-          </button>
-
           {/* Favorite Button */}
           <button
             onClick={() => toggleFavorite(property.id)}

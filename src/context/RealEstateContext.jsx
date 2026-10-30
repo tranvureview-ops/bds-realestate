@@ -423,9 +423,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   // 2. Favorites List
   const [favorites, setFavorites] = useState([]);
 
-  // 3. Comparison List (Max 4 properties)
-  const [compareList, setCompareList] = useState([]);
-
   // 4. Current User & Switcher (User, Broker, Admin) - Nhận initialUser từ Cookie Server SSR để đồng nhất 100%
   const [currentUser, setCurrentUser] = useState(() => {
     if (initialUser && (initialUser.status === 'trash' || initialUser.isDeleted || initialUser.status === 'locked')) {
@@ -1984,31 +1981,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     }
   };
 
-  // Toggle Compare
-  const toggleCompare = (property) => {
-    const exists = compareList.some(item => item.id === property.id);
-    if (exists) {
-      setCompareList(compareList.filter(item => item.id !== property.id));
-      showToast(`Đã bỏ ${property.id} khỏi bảng so sánh`, 'info');
-    } else {
-      if (compareList.length >= 4) {
-        showToast('Chỉ có thể so sánh tối đa 4 bất động sản cùng lúc!', 'warning');
-        return;
-      }
-      setCompareList([...compareList, property]);
-      showToast(`Đã thêm ${property.id} vào bảng so sánh!`, 'success');
-    }
-  };
-
-  const removeCompare = (id) => {
-    setCompareList(compareList.filter(item => item.id !== id));
-  };
-
-  const clearCompare = () => {
-    setCompareList([]);
-    showToast('Đã xóa toàn bộ danh sách so sánh', 'info');
-  };
-
   // Bump listing (Đẩy tin) - Hỗ trợ Voucher Hội viên
   const bumpListing = (propertyId, useVoucher = false) => {
     const property = properties.find(p => p.id === propertyId);
@@ -2996,7 +2968,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       }
       return p;
     }));
-    setCompareList(prev => prev.filter(p => p.id !== propertyId));
     setFavorites(prev => prev.filter(id => id !== propertyId));
     if (trashTarget) {
       deleteSupabaseProperty(propertyId, true).catch(console.warn);
@@ -3034,7 +3005,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   // Xóa vĩnh viễn bài đăng khỏi hệ thống database
   const permanentDeleteProperty = (propertyId) => {
     setProperties(prev => prev.filter(p => p.id !== propertyId));
-    setCompareList(prev => prev.filter(p => p.id !== propertyId));
     setFavorites(prev => prev.filter(id => id !== propertyId));
     deleteSupabaseProperty(propertyId, false).catch(console.warn);
     showToast(`Đã xóa vĩnh viễn bài đăng ${propertyId} khỏi cơ sở dữ liệu!`, 'warning');
@@ -3899,7 +3869,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   const resetToMockData = async () => {
     setProperties(INITIAL_PROPERTIES);
     setFavorites(['BDS-001']);
-    setCompareList([]);
     setCurrentUser(MOCK_USERS[1]);
     setUsersList(MOCK_USERS);
     setVipPackages(VIP_PACKAGES);
@@ -4908,7 +4877,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         setCurrentView,
         properties,
         favorites,
-        compareList,
+        compareList: [],
         currentUser,
         isHydrated,
         usersList,
@@ -4929,9 +4898,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         switchUserRole,
         navigateToProperty,
         toggleFavorite,
-        toggleCompare,
-        removeCompare,
-        clearCompare,
+        toggleCompare: () => {},
+        removeCompare: () => {},
+        clearCompare: () => {},
         bumpListing,
         upgradeVip,
         addProperty,

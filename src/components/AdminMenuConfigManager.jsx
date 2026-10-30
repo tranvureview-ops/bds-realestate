@@ -593,7 +593,6 @@ export default function AdminMenuConfigManager({ onSwitchToHeader = null }) {
                     { label: 'Văn Phòng', path: '/cho-thue-van-phong' },
                     { label: 'Bảng Giá Tin Đăng', path: '/bang-gia-tin-dang' },
                     { label: 'Lãi Vay', path: '/tinh-lai-vay' },
-                    { label: 'So Sánh', path: '/so-sanh' },
                     { label: 'Đăng Tin', path: '/dang-tin' },
                     { label: 'Quản Lý Tin', path: '/quan-ly-tin' }
                   ].map(s => (

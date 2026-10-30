@@ -7,7 +7,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 
 export default function MobileBottomNav() {
   const pathname = usePathname() || '/';
-  const { currentUser, favorites, compareList } = useRealEstate();
+  const { currentUser, favorites } = useRealEstate();
   const isGuest = !currentUser || currentUser.role === 'guest';
 
   // Do not render on single property detail page (which has its own mobile sticky contact action bar)

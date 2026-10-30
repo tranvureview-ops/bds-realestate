@@ -23,8 +23,6 @@ export default function ListingDetailModal({ property, onClose }) {
     properties,
     favorites, 
     toggleFavorite, 
-    compareList, 
-    toggleCompare, 
     setActiveModal, 
     showToast,
     usersList,
@@ -154,7 +152,6 @@ export default function ListingDetailModal({ property, onClose }) {
   if (!property) return null;
 
   const isFav = favorites.includes(property.id);
-  const isCompared = compareList.some(item => item.id === property.id);
   const defaultPkg = VIP_PACKAGES.find(p => p.id === 'normal') || VIP_PACKAGES[VIP_PACKAGES.length - 1];
   const vipPkg = VIP_PACKAGES.find(p => p.id === property.vipPackageId) || defaultPkg;
   const isDiamond = property.vipPackageId === 'vip-diamond';
@@ -211,19 +208,6 @@ export default function ListingDetailModal({ property, onClose }) {
                 <span>Xác thực tin</span>
               </button>
             )}
-
-            {/* Compare */}
-            <button
-              onClick={() => toggleCompare(property)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
-                isCompared 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-              }`}
-            >
-              <i className="fa-solid fa-code-compare"></i>
-              <span>{isCompared ? 'Đang so sánh' : 'So sánh BĐS'}</span>
-            </button>
 
             {/* Favorite */}
             <button

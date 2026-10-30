@@ -16,7 +16,6 @@ export const ALL_INTERNAL_ROUTES = [
       { label: 'Gói Hội Viên Môi Giới', url: '/goi-hoi-vien' },
       { label: 'Đăng Tin BĐS Mới', url: '/dang-tin' },
       { label: 'Công Cụ Tính Lãi Vay', url: '/tinh-lai-vay' },
-      { label: 'So Sánh Đối Đầu BĐS', url: '/so-sanh' },
     ]
   },
   {

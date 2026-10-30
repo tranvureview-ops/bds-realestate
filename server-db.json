@@ -4072,13 +4072,6 @@
         "label": "Tin Đã Lưu Yêu Thích"
       },
       {
-        "id": "c3-4",
-        "url": "/so-sanh",
-        "icon": "fa-solid fa-code-compare",
-        "color": "text-blue-400",
-        "label": "So Sánh Đối Đầu"
-      },
-      {
         "id": "c3-5",
         "url": "/nap-tien",
         "icon": "fa-solid fa-wallet",
