@@ -1445,17 +1445,23 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
                 <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
                   <div className="flex justify-between font-bold text-slate-700 mb-1">
-                    <span>Tỷ lệ vay:</span>
-                    <span className="text-blue-600">{loanRatio}%</span>
+                    <label htmlFor="quick-loan-ratio" className="cursor-pointer">Tỷ lệ vay:</label>
+                    <span className="text-blue-600 font-extrabold">{loanRatio}%</span>
                   </div>
                   <input
+                    id="quick-loan-ratio"
                     type="range"
                     min="20"
                     max="80"
                     step="5"
                     value={loanRatio}
                     onChange={(e) => setLoanRatio(Number(e.target.value))}
-                    className="w-full accent-blue-600"
+                    aria-label="Tỷ lệ vay ngân hàng (% giá trị bất động sản)"
+                    aria-valuemin={20}
+                    aria-valuemax={80}
+                    aria-valuenow={loanRatio}
+                    aria-valuetext={`${loanRatio}% giá trị bất động sản`}
+                    className="w-full accent-blue-600 cursor-pointer"
                   />
                   <div className="text-[11px] text-slate-500 mt-1">
                     Cần vay: <strong className="text-slate-800">{((property.price * loanRatio) / 100).toLocaleString('vi-VN')} đ</strong>
@@ -1464,17 +1470,23 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
                 <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
                   <div className="flex justify-between font-bold text-slate-700 mb-1">
-                    <span>Thời gian vay:</span>
-                    <span className="text-blue-600">{loanYears} năm</span>
+                    <label htmlFor="quick-loan-years" className="cursor-pointer">Thời gian vay:</label>
+                    <span className="text-blue-600 font-extrabold">{loanYears} năm</span>
                   </div>
                   <input
+                    id="quick-loan-years"
                     type="range"
                     min="5"
                     max="35"
                     step="1"
                     value={loanYears}
                     onChange={(e) => setLoanYears(Number(e.target.value))}
-                    className="w-full accent-blue-600"
+                    aria-label="Thời hạn vay mua nhà (năm)"
+                    aria-valuemin={5}
+                    aria-valuemax={35}
+                    aria-valuenow={loanYears}
+                    aria-valuetext={`${loanYears} năm (${totalMonths} tháng)`}
+                    className="w-full accent-blue-600 cursor-pointer"
                   />
                   <div className="text-[11px] text-slate-500 mt-1">
                     Tổng kỳ: <strong>{totalMonths} tháng</strong>
@@ -1483,17 +1495,23 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
                 <div className="bg-slate-50 p-3.5 rounded-2xl border border-slate-200">
                   <div className="flex justify-between font-bold text-slate-700 mb-1">
-                    <span>Lãi suất ưu đãi:</span>
-                    <span className="text-blue-600">{loanInterest}% / năm</span>
+                    <label htmlFor="quick-loan-interest" className="cursor-pointer">Lãi suất ưu đãi:</label>
+                    <span className="text-blue-600 font-extrabold">{loanInterest}% / năm</span>
                   </div>
                   <input
+                    id="quick-loan-interest"
                     type="range"
                     min="5"
                     max="12"
                     step="0.5"
                     value={loanInterest}
                     onChange={(e) => setLoanInterest(Number(e.target.value))}
-                    className="w-full accent-blue-600"
+                    aria-label="Lãi suất vay ưu đãi (%/năm)"
+                    aria-valuemin={5}
+                    aria-valuemax={12}
+                    aria-valuenow={loanInterest}
+                    aria-valuetext={`${loanInterest}% một năm`}
+                    className="w-full accent-blue-600 cursor-pointer"
                   />
                   <div className="text-[11px] text-slate-500 mt-1">
                     Áp dụng ưu đãi năm đầu
@@ -1834,10 +1852,12 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-semibold text-slate-500 mb-1">
+                    <label htmlFor="appointment-phone-input" className="block text-[11px] font-semibold text-slate-500 mb-1 cursor-pointer">
                       Số điện thoại của bạn:
                     </label>
                     <input
+                      id="appointment-phone-input"
+                      aria-label="Số điện thoại của bạn để môi giới xác nhận"
                       type="tel"
                       placeholder="Nhập SĐT để môi giới xác nhận..."
                       value={appointmentPhone}
@@ -2259,11 +2279,13 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
             {/* Copy Link Input */}
             <div className="space-y-1.5 pt-2">
-              <label className="block text-xs font-bold text-slate-700">
+              <label htmlFor="copy-property-share-link" className="block text-xs font-bold text-slate-700 cursor-pointer">
                 Sao chép liên kết bài đăng:
               </label>
               <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-300 rounded-xl p-1.5 focus-within:ring-2 focus-within:ring-emerald-500">
                 <input
+                  id="copy-property-share-link"
+                  aria-label="Đường dẫn liên kết bài đăng bất động sản"
                   type="text"
                   readOnly
                   value={currentUrl}
@@ -2406,6 +2428,8 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                           ) : (
                             <div className="flex items-center gap-1.5 w-full">
                               <input
+                                id="supplemental-report-email-input"
+                                aria-label="Nhập email của bạn để nhận biên bản xác nhận phản ánh"
                                 type="email"
                                 value={supplementalEmail}
                                 onChange={(e) => setSupplementalEmail(e.target.value)}
@@ -2484,15 +2508,18 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                       ].map((item) => (
                         <label
                           key={item.id}
+                          htmlFor={`report-reason-${item.id}`}
                           className={`flex items-start gap-2.5 p-2.5 rounded-xl border transition cursor-pointer ${reportReason === item.id ? 'bg-rose-50/70 border-rose-400 text-slate-900 font-semibold shadow-xs' : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700'}`}
                         >
                           <input
+                            id={`report-reason-${item.id}`}
                             type="radio"
                             name="reportReason"
                             value={item.id}
                             checked={reportReason === item.id}
                             onChange={(e) => setReportReason(e.target.value)}
-                            className="mt-0.5 accent-rose-600 shrink-0"
+                            aria-label={item.label}
+                            className="mt-0.5 accent-rose-600 shrink-0 cursor-pointer"
                           />
                           <span className="flex-1 flex items-center gap-1.5 text-xs">
                             <i className={`fa-solid ${item.icon} text-xs shrink-0`}></i>
@@ -2504,10 +2531,12 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-1">
+                    <label htmlFor="report-description-textarea" className="block text-xs font-bold text-slate-800 mb-1 cursor-pointer">
                       Mô tả chi tiết nội dung sai lệch (Tùy chọn):
                     </label>
                     <textarea
+                      id="report-description-textarea"
+                      aria-label="Mô tả chi tiết nội dung sai lệch"
                       rows="3"
                       value={reportDescription}
                       onChange={(e) => setReportDescription(e.target.value)}
@@ -2532,12 +2561,14 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-xs font-bold text-slate-700 mb-1">
+                          <label htmlFor="reporter-name-input" className="block text-xs font-bold text-slate-700 mb-1 cursor-pointer">
                             Họ và tên của bạn:
                           </label>
                           <div className="relative">
                             <i className="fa-solid fa-user absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                             <input
+                              id="reporter-name-input"
+                              aria-label="Họ và tên của bạn"
                               type="text"
                               value={reporterName}
                               onChange={(e) => setReporterName(e.target.value)}
@@ -2548,12 +2579,14 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-bold text-slate-700 mb-1">
+                          <label htmlFor="reporter-contact-input" className="block text-xs font-bold text-slate-700 mb-1 cursor-pointer">
                             Số điện thoại hoặc Email nhận phản hồi: <span className="text-red-500">*</span>
                           </label>
                           <div className="relative">
                             <i className="fa-solid fa-envelope absolute left-3 top-2.5 text-slate-400 text-xs"></i>
                             <input
+                              id="reporter-contact-input"
+                              aria-label="Số điện thoại hoặc Email nhận phản hồi"
                               type="text"
                               value={reporterContact}
                               onChange={(e) => setReporterContact(e.target.value)}

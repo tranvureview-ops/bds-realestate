@@ -126,10 +126,12 @@ export default function MortgageCalculatorModal({ onClose }) {
 
               {/* Property Value */}
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+                <label htmlFor="modal-property-price" className="block text-xs font-bold text-slate-700 mb-1 cursor-pointer">
                   Giá trị bất động sản: <span className="text-emerald-700 font-black">{formatVND(propertyPrice)}</span>
                 </label>
                 <input
+                  id="modal-property-price"
+                  aria-label="Giá trị bất động sản"
                   type="number"
                   step="50000000"
                   value={propertyPrice}
@@ -141,10 +143,15 @@ export default function MortgageCalculatorModal({ onClose }) {
               {/* Loan Ratio Slider */}
               <div>
                 <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                  <span>Tỷ lệ vay: <strong className="text-blue-600">{loanRatio}%</strong></span>
+                  <label htmlFor="modal-loan-ratio" className="cursor-pointer">Tỷ lệ vay: <strong className="text-blue-600">{loanRatio}%</strong></label>
                   <span>Cần vay: <strong className="text-emerald-700">{formatVND(loanAmount)}</strong></span>
                 </div>
                 <input
+                  id="modal-loan-ratio"
+                  aria-label="Tỷ lệ vay (% giá trị bất động sản)"
+                  aria-valuemin={10}
+                  aria-valuemax={85}
+                  aria-valuenow={loanRatio}
                   type="range"
                   min="10"
                   max="85"
@@ -164,10 +171,15 @@ export default function MortgageCalculatorModal({ onClose }) {
               {/* Loan Term */}
               <div>
                 <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
-                  <span>Thời gian vay: <strong className="text-blue-600">{loanYears} năm</strong></span>
+                  <label htmlFor="modal-loan-years" className="cursor-pointer">Thời gian vay: <strong className="text-blue-600">{loanYears} năm</strong></label>
                   <span className="text-slate-500">({totalMonths} tháng)</span>
                 </div>
                 <input
+                  id="modal-loan-years"
+                  aria-label="Thời gian vay mua nhà (năm)"
+                  aria-valuemin={1}
+                  aria-valuemax={35}
+                  aria-valuenow={loanYears}
                   type="range"
                   min="1"
                   max="35"
@@ -181,10 +193,12 @@ export default function MortgageCalculatorModal({ onClose }) {
               {/* Interest Rates Row */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                  <label htmlFor="modal-preferential-rate" className="block text-[11px] font-bold text-slate-600 mb-1 cursor-pointer">
                     Lãi suất ưu đãi (%/năm)
                   </label>
                   <input
+                    id="modal-preferential-rate"
+                    aria-label="Lãi suất ưu đãi (%/năm)"
                     type="number"
                     step="0.1"
                     value={preferentialRate}
@@ -194,10 +208,12 @@ export default function MortgageCalculatorModal({ onClose }) {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                  <label htmlFor="modal-preferential-months" className="block text-[11px] font-bold text-slate-600 mb-1 cursor-pointer">
                     Thời gian ưu đãi (tháng)
                   </label>
                   <select
+                    id="modal-preferential-months"
+                    aria-label="Thời gian ưu đãi lãi suất"
                     value={preferentialMonths}
                     onChange={(e) => setPreferentialMonths(Number(e.target.value))}
                     className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 hover:border-slate-400 shadow-sm transition cursor-pointer"
@@ -212,10 +228,12 @@ export default function MortgageCalculatorModal({ onClose }) {
 
               {/* Floating Rate */}
               <div>
-                <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                <label htmlFor="modal-floating-rate" className="block text-[11px] font-bold text-slate-600 mb-1 cursor-pointer">
                   Lãi suất sau ưu đãi ước tính (%/năm)
                 </label>
                 <input
+                  id="modal-floating-rate"
+                  aria-label="Lãi suất sau ưu đãi ước tính (%/năm)"
                   type="number"
                   step="0.1"
                   value={floatingRate}
