@@ -77,7 +77,7 @@ export default function ListingFilterBar({
   }, [draftFilters.propertyTypes, draftFilters.propertyType]);
 
   const containerRef = useRef(null);
-  const openedFromQuickLocationRef = useRef(false);
+  const openedFromQuickFilterRef = useRef(null); // 'location' | 'type' | 'price' | 'area' | null
 
   // Sync keywordInput with filters.keyword
   useEffect(() => {
@@ -102,11 +102,22 @@ export default function ListingFilterBar({
     return () => document.removeEventListener('mousedown', handleOutsideClick);
   }, []);
 
+  // Lock body scroll on mobile/desktop when modal is open
+  useEffect(() => {
+    if (showAdvancedModal) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [showAdvancedModal]);
+
   // Open modal and load current active filters into draft
   const handleOpenAdvancedModal = (initialScreen = 'main') => {
     const screen = (typeof initialScreen === 'string' && initialScreen) ? initialScreen : 'main';
-    if (screen !== 'location') {
-      openedFromQuickLocationRef.current = false;
+    if (screen === 'main') {
+      openedFromQuickFilterRef.current = null;
     }
     setDraftFilters({
       demand: filters?.demand || demand || 'sale',
@@ -135,8 +146,19 @@ export default function ListingFilterBar({
   };
 
   const handleOpenLocationModal = () => {
-    openedFromQuickLocationRef.current = true;
+    openedFromQuickFilterRef.current = 'location';
     handleOpenAdvancedModal('location');
+  };
+
+  // Mở bộ lọc nhanh: Trên mobile (< 768px) mở trực tiếp popup modal toàn màn hình, trên desktop mở dropdown
+  const handleQuickFilterClick = (type) => {
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    if (isMobile) {
+      openedFromQuickFilterRef.current = type;
+      handleOpenAdvancedModal(type);
+      return;
+    }
+    setOpenDropdown(prev => prev === type ? null : type);
   };
 
   // Apply draft filters when clicking "Xem kết quả"
@@ -484,12 +506,12 @@ export default function ListingFilterBar({
         </form>
 
         {/* ROW 2: Horizontal Quick Filter Dropdowns & Toggles (Đầy đủ Khu vực, Loại BĐS, Giá, Diện tích) */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 mt-2 sm:mt-3 overflow-x-auto sm:overflow-visible no-scrollbar pb-1 sm:pb-0 sm:flex-wrap text-xs sm:text-sm relative z-30">
+        <div className="flex items-center gap-1.5 sm:gap-2.5 mt-2 sm:mt-3 overflow-x-auto sm:overflow-visible no-scrollbar touch-pan-x pb-1 sm:pb-0 sm:flex-wrap text-xs sm:text-sm relative z-30">
           {/* 1. Nút "Lọc" (Mở bộ lọc phong cách Batdongsan) */}
           <button
             type="button"
             onClick={() => handleOpenAdvancedModal('main')}
-            className={`shrink-0 border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs ${
+            className={`shrink-0 border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs whitespace-nowrap ${
               advancedCount > 0
                 ? 'border-red-500 bg-red-50/60 text-red-700 font-bold'
                 : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
@@ -508,7 +530,7 @@ export default function ListingFilterBar({
           <button
             type="button"
             onClick={handleToggleVerified}
-            className={`shrink-0 border rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 sm:gap-2 transition cursor-pointer shadow-2xs ${
+            className={`shrink-0 border rounded-lg px-2.5 sm:px-3 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 sm:gap-2 transition cursor-pointer shadow-2xs whitespace-nowrap ${
               filters.onlyVerified
                 ? 'border-emerald-500 bg-emerald-50/60 text-emerald-800 font-bold'
                 : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
@@ -530,8 +552,8 @@ export default function ListingFilterBar({
           <div className="relative shrink-0">
             <button
               type="button"
-              onClick={() => setOpenDropdown(prev => prev === 'location' ? null : 'location')}
-              className={`border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs ${
+              onClick={() => handleQuickFilterClick('location')}
+              className={`border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs whitespace-nowrap shrink-0 ${
                 filters.city || filters.district
                   ? 'border-red-500 bg-red-50/60 text-red-700 font-bold'
                   : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
@@ -542,9 +564,9 @@ export default function ListingFilterBar({
               <i className={`fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform ${openDropdown === 'location' ? 'rotate-180' : ''}`}></i>
             </button>
 
-            {/* Menu Dropdown Khu vực chuẩn HeroSearch / Hình 2 có nút Lọc chi tiết */}
+            {/* Menu Dropdown Khu vực chuẩn HeroSearch / Hình 2 có nút Lọc chi tiết (chỉ mở trên desktop >= 768px) */}
             {openDropdown === 'location' && (
-              <div className="absolute top-full left-0 mt-1.5 w-72 sm:w-80 bg-white rounded-xl shadow-xl border border-slate-200 z-50 p-2 animate-fadeIn max-h-80 overflow-y-auto">
+              <div className="hidden md:block absolute top-full left-0 mt-1.5 w-72 sm:w-80 bg-white rounded-xl shadow-xl border border-slate-200 z-50 p-2 animate-fadeIn max-h-80 overflow-y-auto">
                 {/* Header: Tiêu đề + Nút Lọc chi tiết */}
                 <div className="px-2.5 py-1.5 border-b border-slate-100 flex items-center justify-between mb-1.5">
                   <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Khu vực</span>
@@ -636,8 +658,8 @@ export default function ListingFilterBar({
           <div className="relative shrink-0">
             <button
               type="button"
-              onClick={() => setOpenDropdown(prev => prev === 'type' ? null : 'type')}
-              className={`border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs ${
+              onClick={() => handleQuickFilterClick('type')}
+              className={`border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs whitespace-nowrap shrink-0 ${
                 (filters.propertyTypes?.length > 0 && !filters.propertyTypes.includes('all')) || (filters.propertyType && filters.propertyType !== 'all')
                   ? 'border-red-500 bg-red-50/50 text-red-700 font-bold'
                   : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
@@ -647,9 +669,9 @@ export default function ListingFilterBar({
               <i className={`fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform ${openDropdown === 'type' ? 'rotate-180' : ''}`}></i>
             </button>
 
-            {/* Menu Dropdown Loại nhà đất chuẩn Batdongsan */}
+            {/* Menu Dropdown Loại nhà đất chuẩn Batdongsan (chỉ mở trên desktop >= 768px) */}
             {openDropdown === 'type' && (
-              <div className="absolute top-full left-0 mt-1.5 z-50 animate-fadeIn">
+              <div className="hidden md:block absolute top-full left-0 mt-1.5 z-50 animate-fadeIn">
                 <PropertyTypeSelector
                   value={filters.propertyTypes || filters.propertyType}
                   demand={effectiveDemand}
@@ -688,8 +710,8 @@ export default function ListingFilterBar({
           <div className="relative shrink-0">
             <button
               type="button"
-              onClick={() => setOpenDropdown(prev => prev === 'price' ? null : 'price')}
-              className={`border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs ${
+              onClick={() => handleQuickFilterClick('price')}
+              className={`border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs whitespace-nowrap shrink-0 ${
                 (filters.priceRange && filters.priceRange !== 'all') || filters.minPrice || filters.maxPrice
                   ? 'border-red-500 bg-red-50/50 text-red-700 font-bold'
                   : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
@@ -699,9 +721,9 @@ export default function ListingFilterBar({
               <i className={`fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform ${openDropdown === 'price' ? 'rotate-180' : ''}`}></i>
             </button>
 
-            {/* Menu Dropdown Khoảng giá chuẩn Batdongsan */}
+            {/* Menu Dropdown Khoảng giá chuẩn Batdongsan (chỉ mở trên desktop >= 768px) */}
             {openDropdown === 'price' && (
-              <div className="absolute top-full left-0 mt-1.5 z-50 animate-fadeIn">
+              <div className="hidden md:block absolute top-full left-0 sm:left-auto sm:right-0 mt-1.5 z-50 animate-fadeIn">
                 <PriceRangeSelector
                   demand={effectiveDemand}
                   minPrice={filters.minPrice}
@@ -728,8 +750,8 @@ export default function ListingFilterBar({
           <div className="relative shrink-0">
             <button
               type="button"
-              onClick={() => setOpenDropdown(prev => prev === 'area' ? null : 'area')}
-              className={`border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs ${
+              onClick={() => handleQuickFilterClick('area')}
+              className={`border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs whitespace-nowrap shrink-0 ${
                 (filters.areaRange && filters.areaRange !== 'all') || filters.minArea || filters.maxArea
                   ? 'border-red-500 bg-red-50/50 text-red-700 font-bold'
                   : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
@@ -739,9 +761,9 @@ export default function ListingFilterBar({
               <i className={`fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform ${openDropdown === 'area' ? 'rotate-180' : ''}`}></i>
             </button>
 
-            {/* Menu Dropdown Diện tích chuẩn Batdongsan */}
+            {/* Menu Dropdown Diện tích chuẩn Batdongsan (chỉ mở trên desktop >= 768px) */}
             {openDropdown === 'area' && (
-              <div className="absolute top-full left-0 mt-1.5 z-50 animate-fadeIn">
+              <div className="hidden md:block absolute top-full left-0 sm:left-auto sm:right-0 mt-1.5 z-50 animate-fadeIn">
                 <AreaRangeSelector
                   minArea={filters.minArea}
                   maxArea={filters.maxArea}
@@ -1074,10 +1096,16 @@ export default function ListingFilterBar({
             {modalScreen === 'location' && (
               <>
                 {/* Header Sub-screen */}
-                <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+                <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between shrink-0">
                   <button
                     type="button"
-                    onClick={() => setModalScreen('main')}
+                    onClick={() => {
+                      if (openedFromQuickFilterRef.current) {
+                        setShowAdvancedModal(false);
+                      } else {
+                        setModalScreen('main');
+                      }
+                    }}
                     className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2 hover:text-red-600 transition cursor-pointer"
                   >
                     <i className="fa-solid fa-arrow-left text-sm"></i>
@@ -1244,7 +1272,7 @@ export default function ListingFilterBar({
                   <button
                     type="button"
                     onClick={() => {
-                      if (openedFromQuickLocationRef.current) {
+                      if (openedFromQuickFilterRef.current) {
                         handleApplyAllDraftFilters();
                       } else {
                         setModalScreen('main');
@@ -1268,6 +1296,13 @@ export default function ListingFilterBar({
                 maxPrice={draftFilters.maxPrice}
                 priceRange={draftFilters.priceRange}
                 isModal={true}
+                onBack={() => {
+                  if (openedFromQuickFilterRef.current) {
+                    setShowAdvancedModal(false);
+                  } else {
+                    setModalScreen('main');
+                  }
+                }}
                 onApply={({ minPrice, maxPrice, priceRange }) => {
                   setDraftFilters(prev => ({
                     ...prev,
@@ -1275,9 +1310,21 @@ export default function ListingFilterBar({
                     maxPrice,
                     priceRange
                   }));
-                  setModalScreen('main');
+                  if (openedFromQuickFilterRef.current) {
+                    if (setFilters) {
+                      setFilters(prev => ({
+                        ...prev,
+                        minPrice,
+                        maxPrice,
+                        priceRange
+                      }));
+                    }
+                    setShowAdvancedModal(false);
+                  } else {
+                    setModalScreen('main');
+                  }
                 }}
-                onClose={() => setModalScreen('main')}
+                onClose={() => setShowAdvancedModal(false)}
               />
             )}
 
@@ -1290,6 +1337,13 @@ export default function ListingFilterBar({
                 maxArea={draftFilters.maxArea}
                 areaRange={draftFilters.areaRange}
                 isModal={true}
+                onBack={() => {
+                  if (openedFromQuickFilterRef.current) {
+                    setShowAdvancedModal(false);
+                  } else {
+                    setModalScreen('main');
+                  }
+                }}
                 onApply={({ minArea, maxArea, areaRange }) => {
                   setDraftFilters(prev => ({
                     ...prev,
@@ -1297,9 +1351,21 @@ export default function ListingFilterBar({
                     maxArea,
                     areaRange
                   }));
-                  setModalScreen('main');
+                  if (openedFromQuickFilterRef.current) {
+                    if (setFilters) {
+                      setFilters(prev => ({
+                        ...prev,
+                        minArea,
+                        maxArea,
+                        areaRange
+                      }));
+                    }
+                    setShowAdvancedModal(false);
+                  } else {
+                    setModalScreen('main');
+                  }
                 }}
-                onClose={() => setModalScreen('main')}
+                onClose={() => setShowAdvancedModal(false)}
               />
             )}
 
@@ -1307,59 +1373,58 @@ export default function ListingFilterBar({
                 MODAL SCREEN 5: LOẠI BẤT ĐỘNG SẢN (CHUẨN BATDONGSAN)
                ---------------------------------------------------- */}
             {modalScreen === 'type' && (
-              <>
-                <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => setModalScreen('main')}
-                    className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2 hover:text-red-600 transition cursor-pointer"
-                  >
-                    <i className="fa-solid fa-arrow-left text-sm"></i>
-                    <span>Loại bất động sản</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowAdvancedModal(false)}
-                    className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer"
-                  >
-                    <i className="fa-solid fa-xmark text-sm"></i>
-                  </button>
-                </div>
+              <PropertyTypeSelector
+                value={draftFilters.propertyTypes || draftFilters.propertyType}
+                demand={draftFilters.demand}
+                isModal={true}
+                onBack={() => {
+                  if (openedFromQuickFilterRef.current) {
+                    setShowAdvancedModal(false);
+                  } else {
+                    setModalScreen('main');
+                  }
+                }}
+                onApply={(selectedIds) => {
+                  const cleanIds = Array.isArray(selectedIds) ? selectedIds : [selectedIds].filter(Boolean);
+                  const isAll = cleanIds.includes('all') || cleanIds.length === 0;
+                  const houseChildren = ['house', 'villa', 'street-house', 'shophouse'];
+                  const landChildren = ['project-land', 'land'];
+                  const isFullHouse = houseChildren.every(id => cleanIds.includes(id)) && cleanIds.filter(id => !houseChildren.includes(id)).length === 0;
+                  const isFullLand = landChildren.every(id => cleanIds.includes(id)) && cleanIds.filter(id => !landChildren.includes(id)).length === 0;
 
-                <div className="flex-1 overflow-hidden flex flex-col">
-                  <PropertyTypeSelector
-                    value={draftFilters.propertyTypes || draftFilters.propertyType}
-                    demand={draftFilters.demand}
-                    isModal={true}
-                    onApply={(selectedIds) => {
-                      const cleanIds = Array.isArray(selectedIds) ? selectedIds : [selectedIds].filter(Boolean);
-                      const isAll = cleanIds.includes('all') || cleanIds.length === 0;
-                      const houseChildren = ['house', 'villa', 'street-house', 'shophouse'];
-                      const landChildren = ['project-land', 'land'];
-                      const isFullHouse = houseChildren.every(id => cleanIds.includes(id)) && cleanIds.filter(id => !houseChildren.includes(id)).length === 0;
-                      const isFullLand = landChildren.every(id => cleanIds.includes(id)) && cleanIds.filter(id => !landChildren.includes(id)).length === 0;
+                  const primaryId = isAll
+                    ? 'all'
+                    : isFullHouse
+                      ? (draftFilters.demand === 'rent' ? 'house-rent-group' : 'house-group')
+                      : isFullLand
+                        ? 'land-group'
+                        : (cleanIds.length === 1 ? cleanIds[0] : cleanIds.join(','));
 
-                      const primaryId = isAll
-                        ? 'all'
-                        : isFullHouse
-                          ? (draftFilters.demand === 'rent' ? 'house-rent-group' : 'house-group')
-                          : isFullLand
-                            ? 'land-group'
-                            : (cleanIds.length === 1 ? cleanIds[0] : cleanIds.join(','));
+                  const updatedTypes = isFullHouse
+                    ? [draftFilters.demand === 'rent' ? 'house-rent-group' : 'house-group']
+                    : (isFullLand ? ['land-group'] : (isAll ? ['all'] : cleanIds));
 
-                      setDraftFilters(prev => ({
+                  setDraftFilters(prev => ({
+                    ...prev,
+                    propertyType: primaryId,
+                    propertyTypes: updatedTypes
+                  }));
+
+                  if (openedFromQuickFilterRef.current) {
+                    if (setFilters) {
+                      setFilters(prev => ({
                         ...prev,
                         propertyType: primaryId,
-                        propertyTypes: isFullHouse
-                          ? [draftFilters.demand === 'rent' ? 'house-rent-group' : 'house-group']
-                          : (isFullLand ? ['land-group'] : (isAll ? ['all'] : cleanIds))
+                        propertyTypes: updatedTypes
                       }));
-                      setModalScreen('main');
-                    }}
-                    onClose={() => setModalScreen('main')}
-                  />
-                </div>
-              </>
+                    }
+                    setShowAdvancedModal(false);
+                  } else {
+                    setModalScreen('main');
+                  }
+                }}
+                onClose={() => setShowAdvancedModal(false)}
+              />
             )}
           </div>
         </div>,

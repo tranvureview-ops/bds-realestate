@@ -37,6 +37,7 @@ export default function PropertyTypeSelector({
   demand = 'sale',
   onApply,
   onClose,
+  onBack,
   isModal = false,
   className = ''
 }) {
@@ -166,7 +167,7 @@ export default function PropertyTypeSelector({
     if (onApply) {
       onApply(finalSelected, label);
     }
-    if (onClose) {
+    if (onClose && !isModal) {
       onClose();
     }
   };
@@ -181,11 +182,22 @@ export default function PropertyTypeSelector({
           : 'w-80 sm:w-[320px] rounded-2xl border border-slate-200 shadow-2xl overflow-hidden'
       } ${className}`}
     >
-      {/* 1. HEADER (Tiêu đề "Loại nhà đất" + Nút đóng ✕ giống hệt Khoảng giá & Diện tích) */}
+      {/* 1. HEADER (Tiêu đề "Loại nhà đất" + Nút quay lại/đóng) */}
       <div className="px-4 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0">
-        <h4 className="text-sm sm:text-base font-bold text-slate-900 w-full text-center pl-6">
-          Loại nhà đất
-        </h4>
+        {onBack ? (
+          <button
+            type="button"
+            onClick={onBack}
+            className="text-base font-bold text-slate-900 flex items-center gap-2 hover:text-red-600 transition cursor-pointer"
+          >
+            <i className="fa-solid fa-arrow-left text-sm"></i>
+            <span>Loại nhà đất</span>
+          </button>
+        ) : (
+          <h4 className="text-sm sm:text-base font-bold text-slate-900 w-full text-center pl-6">
+            Loại nhà đất
+          </h4>
+        )}
         <button
           type="button"
           onClick={onClose}

@@ -18,6 +18,7 @@ export default function AreaRangeSelector({
   areaRange: initialAreaRange = 'all',
   onApply,
   onClose,
+  onBack,
   isModal = false,
   className = ''
 }) {
@@ -151,17 +152,19 @@ export default function AreaRangeSelector({
       finalMax = preset.max ? Number(preset.max) : null;
     }
 
-    if (onApply) {
-      onApply({
-        minArea: finalMin,
-        maxArea: finalMax,
-        areaRange: rangeKey,
-        label
-      });
-    }
+    if (!isModal) {
+      if (onApply) {
+        onApply({
+          minArea: finalMin,
+          maxArea: finalMax,
+          areaRange: rangeKey,
+          label
+        });
+      }
 
-    if (onClose) {
-      onClose();
+      if (onClose) {
+        onClose();
+      }
     }
   };
 
@@ -228,18 +231,29 @@ export default function AreaRangeSelector({
       });
     }
 
-    if (onClose) {
+    if (onClose && !isModal) {
       onClose();
     }
   };
 
   return (
     <div className={`bg-white flex flex-col text-slate-800 ${isModal ? 'w-full h-full' : 'w-80 sm:w-[320px] rounded-2xl border border-slate-200 shadow-2xl overflow-hidden'} ${className}`}>
-      {/* 1. HEADER (Tiêu đề "Diện tích" + Nút đóng ✕) */}
+      {/* 1. HEADER (Tiêu đề "Diện tích" + Nút quay lại/đóng) */}
       <div className="px-4 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0">
-        <h4 className="text-sm sm:text-base font-bold text-slate-900 w-full text-center pl-6">
-          Diện tích
-        </h4>
+        {onBack ? (
+          <button
+            type="button"
+            onClick={onBack}
+            className="text-base font-bold text-slate-900 flex items-center gap-2 hover:text-red-600 transition cursor-pointer"
+          >
+            <i className="fa-solid fa-arrow-left text-sm"></i>
+            <span>Diện tích</span>
+          </button>
+        ) : (
+          <h4 className="text-sm sm:text-base font-bold text-slate-900 w-full text-center pl-6">
+            Diện tích
+          </h4>
+        )}
         <button
           type="button"
           onClick={onClose}

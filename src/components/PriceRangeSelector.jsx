@@ -18,6 +18,7 @@ export default function PriceRangeSelector({
   priceRange: initialPriceRange = 'all',
   onApply,
   onClose,
+  onBack,
   isModal = false,
   className = ''
 }) {
@@ -189,17 +190,19 @@ export default function PriceRangeSelector({
       finalMaxVnd = preset.max ? Number(preset.max) : null;
     }
 
-    if (onApply) {
-      onApply({
-        minPrice: finalMinVnd,
-        maxPrice: finalMaxVnd,
-        priceRange: rangeKey,
-        label
-      });
-    }
+    if (!isModal) {
+      if (onApply) {
+        onApply({
+          minPrice: finalMinVnd,
+          maxPrice: finalMaxVnd,
+          priceRange: rangeKey,
+          label
+        });
+      }
 
-    if (onClose) {
-      onClose();
+      if (onClose) {
+        onClose();
+      }
     }
   };
 
@@ -267,18 +270,29 @@ export default function PriceRangeSelector({
       });
     }
 
-    if (onClose) {
+    if (onClose && !isModal) {
       onClose();
     }
   };
 
   return (
     <div className={`bg-white flex flex-col text-slate-800 ${isModal ? 'w-full h-full' : 'w-80 sm:w-[320px] rounded-2xl border border-slate-200 shadow-2xl overflow-hidden'} ${className}`}>
-      {/* 1. HEADER (Tiêu đề "Khoảng giá" + Nút đóng ✕) */}
+      {/* 1. HEADER (Tiêu đề "Khoảng giá" + Nút quay lại/đóng) */}
       <div className="px-4 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0">
-        <h4 className="text-sm sm:text-base font-bold text-slate-900 w-full text-center pl-6">
-          Khoảng giá
-        </h4>
+        {onBack ? (
+          <button
+            type="button"
+            onClick={onBack}
+            className="text-base font-bold text-slate-900 flex items-center gap-2 hover:text-red-600 transition cursor-pointer"
+          >
+            <i className="fa-solid fa-arrow-left text-sm"></i>
+            <span>Khoảng giá</span>
+          </button>
+        ) : (
+          <h4 className="text-sm sm:text-base font-bold text-slate-900 w-full text-center pl-6">
+            Khoảng giá
+          </h4>
+        )}
         <button
           type="button"
           onClick={onClose}
