@@ -1886,8 +1886,10 @@ export default function UserProfilePage() {
                               <Link
                                 href={`tel:${isCustomer ? appt.brokerPhone : appt.customerPhone}`}
                                 className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg font-bold text-[11px] transition flex items-center gap-1.5"
+                                title={`Gọi ngay: ${isCustomer ? appt.brokerPhone : appt.customerPhone}`}
+                                aria-label={`Gọi ngay: ${isCustomer ? appt.brokerPhone : appt.customerPhone}`}
                               >
-                                <i className="fa-solid fa-phone"></i>
+                                <i className="fa-solid fa-phone" aria-hidden="true"></i>
                                 <span>Gọi Ngay</span>
                               </Link>
 
@@ -1897,8 +1899,10 @@ export default function UserProfilePage() {
                                 target="_blank"
                                 rel="noreferrer"
                                 className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold text-[11px] transition flex items-center gap-1.5"
+                                title={`Chat Zalo: ${isCustomer ? appt.brokerPhone : appt.customerPhone}`}
+                                aria-label={`Chat Zalo: ${isCustomer ? appt.brokerPhone : appt.customerPhone}`}
                               >
-                                <i className="fa-solid fa-comment-dots"></i>
+                                <i className="fa-solid fa-comment-dots" aria-hidden="true"></i>
                                 <span>Chat Zalo</span>
                               </Link>
                             </div>

@@ -2651,8 +2651,10 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
           <Link
             href={`tel:${safeAuthor.phone.replace(/\s+/g, '')}`}
             className="px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-emerald-600/30 active:scale-95 transition whitespace-nowrap"
+            title={`Gọi ngay: ${safeAuthor.phone}`}
+            aria-label={`Gọi ngay: ${safeAuthor.phone}`}
           >
-            <i className="fa-solid fa-phone text-xs animate-pulse"></i>
+            <i className="fa-solid fa-phone text-xs animate-pulse" aria-hidden="true"></i>
             <span>Gọi Ngay</span>
           </Link>
 
@@ -2661,8 +2663,10 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             target="_blank"
             rel="noreferrer"
             className="px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1 shadow-md shadow-blue-600/30 active:scale-95 transition whitespace-nowrap"
+            title={`Chat Zalo: ${safeAuthor.zalo || safeAuthor.phone}`}
+            aria-label={`Chat Zalo: ${safeAuthor.zalo || safeAuthor.phone}`}
           >
-            <i className="fa-solid fa-comment-dots text-xs"></i>
+            <i className="fa-solid fa-comment-dots text-xs" aria-hidden="true"></i>
             <span>Zalo</span>
           </Link>
 

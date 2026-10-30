@@ -304,8 +304,9 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
                       : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                 }`}
                 title={`Gọi ngay: ${safeAuthor.phone}`}
+                aria-label={`Gọi ngay: ${safeAuthor.phone}`}
               >
-                <i className="fa-solid fa-phone text-[11px] shrink-0"></i>
+                <i className="fa-solid fa-phone text-[11px] shrink-0" aria-hidden="true"></i>
                 <span className="hidden sm:inline whitespace-nowrap">{safeAuthor.phone}</span>
                 <span className="sm:hidden whitespace-nowrap">Gọi</span>
               </Link>
@@ -316,7 +317,8 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
                 rel="noreferrer"
                 onClick={(e) => e.stopPropagation()}
                 className="px-2.5 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1 shadow-sm transition shrink-0 whitespace-nowrap"
-                title="Chat Zalo ngay"
+                title={`Chat Zalo: ${safeAuthor.zalo || safeAuthor.phone}`}
+                aria-label={`Chat Zalo: ${safeAuthor.zalo || safeAuthor.phone}`}
               >
                 <span>Zalo</span>
               </Link>
