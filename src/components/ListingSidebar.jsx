@@ -407,7 +407,6 @@ export default function ListingSidebar({
 
   return (
     <div className="w-full space-y-5">
-      <h2 className="sr-only">Bộ lọc và Chuyên mục Tìm kiếm Bất Động Sản</h2>
       {/* ========================================================
           WIDGET 1: LỌC THEO KHOẢNG GIÁ (CHUẨN BATDONGSAN.COM.VN)
          ======================================================== */}
@@ -416,9 +415,9 @@ export default function ListingSidebar({
           <div className="w-7 h-7 rounded-lg bg-red-50 text-red-600 flex items-center justify-center shrink-0">
             <i className="fa-solid fa-tag text-xs"></i>
           </div>
-          <h3 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
+          <h2 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
             Lọc theo khoảng giá
-          </h3>
+          </h2>
         </div>
 
         <div className="grid grid-cols-2 gap-1.5 text-xs">
@@ -465,9 +464,9 @@ export default function ListingSidebar({
           <div className="w-7 h-7 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
             <i className="fa-solid fa-ruler-combined text-xs"></i>
           </div>
-          <h3 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
+          <h2 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
             Lọc theo diện tích
-          </h3>
+          </h2>
         </div>
 
         <div className="grid grid-cols-2 gap-1.5 text-xs">
@@ -517,9 +516,9 @@ export default function ListingSidebar({
             <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
               <i className={`fa-solid ${isCitySelected ? 'fa-location-dot' : 'fa-map-location-dot'} text-xs`}></i>
             </div>
-            <h3 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight truncate">
+            <h2 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight truncate">
               {isCitySelected ? `Khu vực tại ${activeCity}` : 'Bất động sản theo tỉnh thành'}
-            </h3>
+            </h2>
           </div>
           {isCitySelected && (
             <button
@@ -639,9 +638,9 @@ export default function ListingSidebar({
             <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
               <i className="fa-solid fa-city text-xs"></i>
             </div>
-            <h3 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
+            <h2 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
               Dự án nổi bật
-            </h3>
+            </h2>
           </div>
           <span className="text-[10px] bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">
             Hot 2026
@@ -676,9 +675,9 @@ export default function ListingSidebar({
                 </div>
                 <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                   <div>
-                    <h4 className="text-xs font-bold text-slate-800 group-hover:text-red-600 transition truncate">
+                    <h3 className="text-xs font-bold text-slate-800 group-hover:text-red-600 transition truncate">
                       {proj.name}
-                    </h4>
+                    </h3>
                     <p className="text-[11px] text-slate-600 truncate mt-0.5">
                       <i className="fa-solid fa-location-dot text-[9px] mr-1 text-slate-400"></i>
                       {proj.location}
@@ -708,9 +707,9 @@ export default function ListingSidebar({
             <i className="fa-solid fa-calculator text-sm"></i>
           </div>
           <div>
-            <h4 className="font-bold text-sm text-slate-900 leading-snug">
+            <h3 className="font-bold text-sm text-slate-900 leading-snug">
               Tính lãi suất vay mua nhà
-            </h4>
+            </h3>
             <p className="text-xs text-slate-600 mt-1 leading-relaxed">
               Ước tính số tiền trả góp gốc & lãi hàng tháng từ Vietcombank, BIDV, Techcombank...
             </p>
@@ -737,9 +736,9 @@ export default function ListingSidebar({
             <i className="fa-solid fa-fire text-red-400"></i> Đăng tin hiệu quả
           </div>
 
-          <h4 className="text-sm font-black text-white leading-snug">
+          <h3 className="text-sm font-black text-white leading-snug">
             Bạn có nhà đất cần bán hoặc cho thuê?
-          </h4>
+          </h3>
 
           <p className="text-xs text-slate-300 leading-relaxed">
             Tiếp cận 100.000+ người tìm mua thực tế mỗi ngày. Hỗ trợ duyệt nhanh, định giá và pháp lý chuẩn xác!
