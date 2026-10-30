@@ -14,12 +14,13 @@ export const viewport = {
 
 import fs from 'fs';
 import path from 'path';
+import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { MOCK_USERS, DEFAULT_GUEST_USER } from '../data/mockData';
 import { isSupabaseConfigured, fetchFullSupabaseDb } from '../lib/supabase';
 import { getFontConfig } from '../utils/fontConfig';
 
-async function getInitialDb() {
+const getInitialDb = cache(async () => {
   try {
     if (isSupabaseConfigured()) {
       try {
@@ -47,7 +48,7 @@ async function getInitialDb() {
     console.error('Error reading server-db.json in layout:', e);
   }
   return null;
-}
+});
 
 export async function generateMetadata() {
   const db = await getInitialDb();

@@ -560,60 +560,118 @@ export function mergeProfilesWithSettingsUsers(profiles, settingsUsers) {
   return Array.from(map.values());
 }
 
+// ==========================================
+// BỘ NHỚ ĐỆM SERVER/CLIENT (IN-MEMORY CACHE)
+// ==========================================
+let _dbCache = null;
+let _dbCacheExpiresAt = 0;
+let _pendingFetchPromise = null;
+const CACHE_TTL_MS = 25000; // 25 giây cache trên RAM serverless/client
+
+/**
+ * Xóa cache Supabase khi có thao tác ghi hoặc đồng bộ dữ liệu mới
+ */
+export function invalidateSupabaseCache() {
+  _dbCache = null;
+  _dbCacheExpiresAt = 0;
+  _pendingFetchPromise = null;
+}
+
+/**
+ * Trình bọc bảo vệ timeout tránh tình trạng nghẽn mạng quốc tế quá lâu
+ */
+function withTimeout(promise, ms = 2500) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('SUPABASE_TIMEOUT')), ms))
+  ]);
+}
+
 /**
  * Tải toàn bộ dữ liệu hệ thống từ Supabase Cloud để đồng bộ SSR và Client
+ * Tích hợp In-memory Cache & Promise Deduplication siêu tốc
  */
-export async function fetchFullSupabaseDb() {
+export async function fetchFullSupabaseDb(options = {}) {
+  const forceRefresh = typeof options === 'boolean' ? options : Boolean(options?.forceRefresh);
   if (!isSupabaseConfigured() || !supabase) return null;
-  try {
-    const [props, settingsRes, profiles, txns] = await Promise.all([
-      fetchSupabaseProperties(),
-      supabase.from('platform_settings').select('key, value'),
-      fetchSupabaseProfiles(),
-      fetchSupabaseTransactions()
-    ]);
 
-    const settingsMap = {};
-    if (settingsRes && Array.isArray(settingsRes.data)) {
-      settingsRes.data.forEach(row => {
-        if (row.key && row.value !== undefined) {
-          settingsMap[row.key] = row.value;
-        }
-      });
-    }
-
-    // Nếu cả properties và platform_settings đều rỗng, có thể bảng chưa được tạo hoặc chưa có dữ liệu
-    if (!props && Object.keys(settingsMap).length === 0) {
-      return null;
-    }
-
-    const mergedUsers = mergeProfilesWithSettingsUsers(profiles, settingsMap['bds_users_list']);
-
-    return {
-      bds_properties: props && props.length > 0 ? props : undefined,
-      bds_users_list: mergedUsers.length > 0 ? mergedUsers : undefined,
-      bds_transactions: txns && txns.length > 0 ? txns : undefined,
-      bds_header_config: settingsMap['bds_header_config'] || undefined,
-      bds_footer_config: settingsMap['bds_footer_config'] || undefined,
-      bds_system_config: settingsMap['bds_system_config'] || undefined,
-      bds_payment_config: settingsMap['bds_payment_config'] || undefined,
-      bds_nav_menu: settingsMap['bds_nav_menu'] || undefined,
-      bds_vip_packages: settingsMap['bds_vip_packages'] || undefined,
-      bds_membership_packages: settingsMap['bds_membership_packages'] || undefined,
-      bds_single_config: settingsMap['bds_single_config'] || undefined,
-      bds_email_config: settingsMap['bds_email_config'] || undefined,
-      bds_reported_listings: settingsMap['bds_reported_listings'] || undefined,
-      bds_email_logs: settingsMap['bds_email_logs'] || undefined,
-      bds_verification_tokens: settingsMap['bds_verification_tokens'] || undefined,
-      bds_appointments: settingsMap['bds_appointments'] || undefined,
-      bds_notifications: settingsMap['bds_notifications'] || undefined,
-      bds_bump_service_price: settingsMap['bds_bump_service_price'] !== undefined ? settingsMap['bds_bump_service_price'] : undefined,
-      bds_rewards_config: settingsMap['bds_rewards_config'] || undefined,
-    };
-  } catch (err) {
-    console.error('Lỗi khi fetchFullSupabaseDb:', err);
-    return null;
+  const now = Date.now();
+  // Nếu có cache trong RAM và không ép refresh, trả về tức thì (0ms)
+  if (!forceRefresh && _dbCache && now < _dbCacheExpiresAt) {
+    return _dbCache;
   }
+
+  // Deduplication: Nếu đang có một promise fetch đang chạy, gộp vào chung một promise
+  if (!forceRefresh && _pendingFetchPromise) {
+    return _pendingFetchPromise;
+  }
+
+  _pendingFetchPromise = (async () => {
+    try {
+      const fetchTask = Promise.all([
+        fetchSupabaseProperties(),
+        supabase.from('platform_settings').select('key, value'),
+        fetchSupabaseProfiles(),
+        fetchSupabaseTransactions()
+      ]);
+
+      const [props, settingsRes, profiles, txns] = await withTimeout(fetchTask, 2500);
+
+      const settingsMap = {};
+      if (settingsRes && Array.isArray(settingsRes.data)) {
+        settingsRes.data.forEach(row => {
+          if (row.key && row.value !== undefined) {
+            settingsMap[row.key] = row.value;
+          }
+        });
+      }
+
+      // Nếu cả properties và platform_settings đều rỗng, có thể bảng chưa được tạo hoặc chưa có dữ liệu
+      if (!props && Object.keys(settingsMap).length === 0) {
+        return null;
+      }
+
+      const mergedUsers = mergeProfilesWithSettingsUsers(profiles, settingsMap['bds_users_list']);
+
+      const result = {
+        bds_properties: props && props.length > 0 ? props : undefined,
+        bds_users_list: mergedUsers.length > 0 ? mergedUsers : undefined,
+        bds_transactions: txns && txns.length > 0 ? txns : undefined,
+        bds_header_config: settingsMap['bds_header_config'] || undefined,
+        bds_footer_config: settingsMap['bds_footer_config'] || undefined,
+        bds_system_config: settingsMap['bds_system_config'] || undefined,
+        bds_payment_config: settingsMap['bds_payment_config'] || undefined,
+        bds_nav_menu: settingsMap['bds_nav_menu'] || undefined,
+        bds_vip_packages: settingsMap['bds_vip_packages'] || undefined,
+        bds_membership_packages: settingsMap['bds_membership_packages'] || undefined,
+        bds_single_config: settingsMap['bds_single_config'] || undefined,
+        bds_email_config: settingsMap['bds_email_config'] || undefined,
+        bds_reported_listings: settingsMap['bds_reported_listings'] || undefined,
+        bds_email_logs: settingsMap['bds_email_logs'] || undefined,
+        bds_verification_tokens: settingsMap['bds_verification_tokens'] || undefined,
+        bds_appointments: settingsMap['bds_appointments'] || undefined,
+        bds_notifications: settingsMap['bds_notifications'] || undefined,
+        bds_bump_service_price: settingsMap['bds_bump_service_price'] !== undefined ? settingsMap['bds_bump_service_price'] : undefined,
+        bds_rewards_config: settingsMap['bds_rewards_config'] || undefined,
+      };
+
+      // Lưu kết quả vào in-memory cache
+      _dbCache = result;
+      _dbCacheExpiresAt = Date.now() + CACHE_TTL_MS;
+      return result;
+    } catch (err) {
+      if (err?.message === 'SUPABASE_TIMEOUT') {
+        console.warn('Supabase fetch vượt quá 2.5s, chuyển nhanh sang dữ liệu local.');
+      } else {
+        console.error('Lỗi khi fetchFullSupabaseDb:', err);
+      }
+      return null;
+    } finally {
+      _pendingFetchPromise = null;
+    }
+  })();
+
+  return _pendingFetchPromise;
 }
 
 /**
@@ -788,6 +846,7 @@ export async function syncFullDbToSupabase(payload) {
     }
 
     await Promise.allSettled(promises);
+    invalidateSupabaseCache();
     return true;
   } catch (err) {
     console.error('Lỗi khi syncFullDbToSupabase:', err);

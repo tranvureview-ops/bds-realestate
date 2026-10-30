@@ -1,9 +1,10 @@
 import HomePage from '../views/HomePage';
 import fs from 'fs';
 import path from 'path';
+import { cache } from 'react';
 import { isSupabaseConfigured, fetchFullSupabaseDb } from '../lib/supabase';
 
-async function getPageDb() {
+const getPageDb = cache(async () => {
   try {
     if (isSupabaseConfigured()) {
       const cloud = await fetchFullSupabaseDb();
@@ -15,7 +16,7 @@ async function getPageDb() {
     }
   } catch {}
   return null;
-}
+});
 
 export async function generateMetadata() {
   const db = await getPageDb();

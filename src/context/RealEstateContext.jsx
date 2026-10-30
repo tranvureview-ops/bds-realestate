@@ -1483,12 +1483,16 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       });
     }
 
-    fetchLatestDataFromSupabase(true).finally(() => {
-      if (isMounted) setIsHydrated(true);
-    });
+    // Ngay khi mount ở client, kích hoạt hydrated ngay vì đã có dữ liệu SSR đầy đủ
+    if (isMounted) setIsHydrated(true);
+
+    // Nếu chưa có dữ liệu từ SSR (hiếm gặp), mới cần fetch gấp từ Supabase
+    if (!initialData || !initialData.bds_properties || initialData.bds_properties.length === 0) {
+      fetchLatestDataFromSupabase(true);
+    }
 
     return () => { isMounted = false; };
-  }, [fetchLatestDataFromSupabase]);
+  }, [fetchLatestDataFromSupabase, initialData]);
 
   // 2. Window Focus / Tab Switch Auto-Fetch (Tự động kéo dữ liệu mới khi chuyển tab về web)
   useEffect(() => {
