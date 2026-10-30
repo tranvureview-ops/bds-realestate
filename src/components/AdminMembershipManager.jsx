@@ -449,7 +449,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
     if (!target) return;
     const count = Math.max(1, Math.min(50, Number(newMax) || 1));
     updateMembershipPackage(pkgId, { ...target, treasureHuntMaxArticles: count });
-    showToast(`Đã cập nhật: Gói "${target.name}" được gắn tối đa ${count} tin vào Săn Kho Báu!`, 'success');
+    showToast(`Đã cập nhật: Gói "${target.name}" được gán nổi bật tối đa ${count} tin vào Săn Kho Báu!`, 'success');
   };
 
   // Quick Clone Package
@@ -826,7 +826,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                               ● BẬT
                             </span>
                             {/* Nút bấm tăng giảm số lượng tin trực tiếp ngay trên thẻ */}
-                            <div className="inline-flex items-center gap-1 bg-slate-950 px-1.5 py-0.5 rounded-lg border border-amber-500/40 shadow-xs" title="Chỉnh số lượng tin tối đa được gắn Săn Kho Báu">
+                            <div className="inline-flex items-center gap-1 bg-slate-950 px-1.5 py-0.5 rounded-lg border border-amber-500/40 shadow-xs" title="Chỉnh số lượng tin tối đa được gán nổi bật Săn Kho Báu">
                               <button
                                 type="button"
                                 onClick={(e) => {
@@ -863,7 +863,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                         )}
                       </div>
                       <div className="text-[10px] text-slate-400 truncate">
-                        {pkg.allowTreasureHunt ? `Ưu tiên gắn tối đa ${pkg.treasureHuntMaxArticles || 2} bài vào Săn Kho Báu` : 'Không có quyền gắn tin Kho Báu'}
+                        {pkg.allowTreasureHunt ? `Ưu tiên gán nổi bật tối đa ${pkg.treasureHuntMaxArticles || 2} bài vào Săn Kho Báu` : 'Không có quyền gán tin nổi bật'}
                       </div>
                     </div>
                   </div>
@@ -1221,7 +1221,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                           <div className="flex-1">
                             <div className="font-bold text-white text-xs flex items-center gap-2">
                               <i className="fa-solid fa-gift text-amber-400"></i>
-                              <span>Bật Đặc Quyền "Gắn Tin Vào Săn Kho Báu BĐS" Cho Gói Này</span>
+                              <span>Bật Đặc Quyền "Gán Tin Nổi Bật Săn Kho Báu BĐS" Cho Gói Này</span>
                               {editingPkg.allowTreasureHunt ? (
                                 <span className="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 font-bold">
                                   ✓ Đang Bật
@@ -1243,7 +1243,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                           <div className="pt-2.5 border-t border-slate-800 flex items-center justify-between gap-4">
                             <div>
                               <label className="block text-slate-300 font-bold text-xs">
-                                Số Lượng Tin Tối Đa Được Gắn Săn Kho Báu:
+                                Số Lượng Tin Tối Đa Được Gán Nổi Bật:
                               </label>
                               <span className="text-[10px] text-slate-400">
                                 Giới hạn số bài đăng hội viên được chọn trong trang Quản lý tin

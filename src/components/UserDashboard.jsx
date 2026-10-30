@@ -139,21 +139,21 @@ export default function UserDashboard({ initialTab = 'listings' }) {
 
   const handleToggleTreasureHunt = (prop) => {
     if (!isTreasureHuntAllowed) {
-      showToast('Đặc quyền đưa tin vào Săn Kho Báu BĐS dành riêng cho thành viên mua Gói Hội Viên! Vui lòng nâng cấp gói để mở khóa.', 'warning');
+      showToast('Đặc quyền Gán nổi bật bài viết vào Săn Kho Báu dành riêng cho thành viên mua Gói Hội Viên! Vui lòng nâng cấp gói để mở khóa.', 'warning');
       navigate('/goi-hoi-vien');
       return;
     }
     const isCurrentlyActive = Boolean(prop.isTreasureHuntActive);
     if (!isCurrentlyActive) {
       if (!isAdmin && currentTreasureCount >= maxTreasureArticles) {
-        showToast(`Gói hội viên của bạn chỉ cho phép tối đa ${maxTreasureArticles} bài viết vào mục Săn Kho Báu (Hiện đang có ${currentTreasureCount}/${maxTreasureArticles} bài). Vui lòng tắt bớt bài viết khác trước!`, 'warning');
+        showToast(`Gói hội viên của bạn chỉ cho phép tối đa ${maxTreasureArticles} bài viết gán nổi bật (Hiện đang có ${currentTreasureCount}/${maxTreasureArticles} bài). Vui lòng tắt bớt bài viết khác trước!`, 'warning');
         return;
       }
       updateProperty(prop.id, { isTreasureHuntActive: true });
-      showToast(`Đã đưa bài viết "${prop.title}" vào mục Săn Kho Báu BĐS thành công!`, 'success');
+      showToast(`Đã gán nổi bật bài viết "${prop.title}" thành công!`, 'success');
     } else {
       updateProperty(prop.id, { isTreasureHuntActive: false });
-      showToast(`Đã gỡ bài viết "${prop.title}" khỏi mục Săn Kho Báu.`, 'info');
+      showToast(`Đã gỡ nổi bật bài viết "${prop.title}".`, 'info');
     }
   };
 
@@ -495,13 +495,13 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                 </div>
                 <div>
                   <div className="text-xs font-black uppercase text-amber-900 tracking-wider flex items-center gap-2">
-                    <span>Đặc Quyền Hội Viên: Gắn Tin Vào Săn Kho Báu BĐS</span>
+                    <span>Đặc Quyền Hội Viên: Gán Tin Nổi Bật Săn Kho Báu</span>
                     <span className="text-[10px] bg-amber-500 text-slate-950 font-black px-2 py-0.5 rounded-full">
                       Đã chọn: {currentTreasureCount}/{maxTreasureArticles} bài
                     </span>
                   </div>
                   <p className="text-[11px] text-slate-600 mt-0.5 leading-relaxed">
-                    Gói <strong>{userPackage?.name}</strong> cho phép bạn gắn tối đa <strong>{maxTreasureArticles} bài viết</strong> vào mục "Săn Kho Báu". Các bài viết này được ưu tiên hiển thị hàng đầu theo cấp độ VIP (Kim Cương ⟶ Vàng ⟶ Bạc ⟶ Tin Thường) để thu hút hàng nghìn khách tìm rương quà tặng mỗi ngày.
+                    Gói <strong>{userPackage?.name}</strong> cho phép bạn gán nổi bật tối đa <strong>{maxTreasureArticles} bài viết</strong> vào mục "Săn Kho Báu". Các bài viết này được ưu tiên hiển thị hàng đầu theo cấp độ VIP (Kim Cương ⟶ Vàng ⟶ Bạc ⟶ Tin Thường) để thu hút hàng nghìn khách tìm rương quà tặng mỗi ngày.
                   </p>
                 </div>
               </div>
@@ -606,11 +606,11 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                             </button>
                           ) : null}
 
-                          {/* Huy hiệu Gắn Săn Kho Báu */}
+                          {/* Huy hiệu Gán Nổi Bật */}
                           {Boolean(prop.isTreasureHuntActive) && (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-slate-950 border border-amber-600 flex items-center gap-1 shadow-xs animate-in zoom-in-95 duration-150" title="Bài viết này đang được ưu tiên xuất hiện trong mục Săn Kho Báu BĐS">
-                              <i className="fa-solid fa-gift"></i>
-                              <span>Săn Kho Báu</span>
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-slate-950 border border-amber-600 flex items-center gap-1 shadow-xs animate-in zoom-in-95 duration-150" title="Bài viết này đang được gán nổi bật trong mục Săn Kho Báu BĐS">
+                              <i className="fa-solid fa-star text-[9px]"></i>
+                              <span>Nổi Bật</span>
                             </span>
                           )}
                           
@@ -840,43 +840,43 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                         <span>Nâng VIP</span>
                       </button>
 
-                      {/* Nút Gắn Vào Săn Kho Báu (Dành cho người mua Gói Hội Viên & Admin) */}
+                      {/* Nút Gán Nổi Bật (Dành cho người mua Gói Hội Viên & Admin) */}
                       {isTreasureHuntAllowed ? (
                         prop.isTreasureHuntActive ? (
                           <button
                             type="button"
                             onClick={() => handleToggleTreasureHunt(prop)}
                             className="px-3 py-1.5 font-black rounded-xl text-xs transition shadow-xs flex items-center gap-1.5 bg-amber-500 hover:bg-rose-500 hover:text-white text-slate-950 border border-amber-600 hover:border-rose-600 cursor-pointer group"
-                            title="Bài viết đang hiển thị trong mục Săn Kho Báu BĐS. Bấm để gỡ bỏ."
+                            title="Bài viết đang được gán nổi bật trong mục Săn Kho Báu BĐS. Bấm để gỡ bỏ."
                           >
-                            <i className="fa-solid fa-gift group-hover:hidden"></i>
-                            <i className="fa-solid fa-power-off hidden group-hover:inline"></i>
-                            <span className="group-hover:hidden">Đang Săn Kho Báu</span>
-                            <span className="hidden group-hover:inline">Gỡ Kho Báu</span>
+                            <i className="fa-solid fa-star group-hover:hidden text-slate-950 text-[10px]"></i>
+                            <i className="fa-solid fa-power-off hidden group-hover:inline text-[10px]"></i>
+                            <span className="group-hover:hidden">Đang nổi bật</span>
+                            <span className="hidden group-hover:inline">Gỡ nổi bật</span>
                           </button>
                         ) : (
                           <button
                             type="button"
                             onClick={() => handleToggleTreasureHunt(prop)}
                             className="px-3 py-1.5 font-bold rounded-xl text-xs transition shadow-xs flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 hover:border-amber-500 cursor-pointer"
-                            title={isAdmin ? 'Gắn bài viết này vào mục Săn Kho Báu BĐS (Đặc quyền Quản trị)' : `Gắn bài viết này vào mục Săn Kho Báu BĐS (Đã dùng: ${currentTreasureCount}/${maxTreasureArticles})`}
+                            title={isAdmin ? 'Gán nổi bật bài viết này vào mục Săn Kho Báu BĐS (Đặc quyền Quản trị)' : `Gán nổi bật bài viết này vào mục Săn Kho Báu BĐS (Đã dùng: ${currentTreasureCount}/${maxTreasureArticles})`}
                           >
-                            <i className="fa-solid fa-gift text-amber-600"></i>
-                            <span>Gắn Săn Kho Báu {isAdmin ? '' : `(${currentTreasureCount}/${maxTreasureArticles})`}</span>
+                            <i className="fa-solid fa-star text-amber-600 text-[10px]"></i>
+                            <span>Gán nổi bật {isAdmin ? '' : `(${currentTreasureCount}/${maxTreasureArticles})`}</span>
                           </button>
                         )
                       ) : (
                         <button
                           type="button"
                           onClick={() => {
-                            showToast('Đặc quyền đưa tin vào Săn Kho Báu BĐS dành riêng cho thành viên mua Gói Hội Viên! Vui lòng nâng cấp gói để mở khóa.', 'warning');
+                            showToast('Đặc quyền Gán nổi bật bài viết dành riêng cho thành viên mua Gói Hội Viên! Vui lòng nâng cấp gói để mở khóa.', 'warning');
                             navigate('/goi-hoi-vien');
                           }}
                           className="px-3 py-1.5 font-medium rounded-xl text-xs transition flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 text-slate-400 border border-slate-200 cursor-pointer"
                           title="Chỉ áp dụng cho tài khoản mua Gói Hội Viên"
                         >
                           <i className="fa-solid fa-lock text-slate-400 text-[10px]"></i>
-                          <span>Gắn Săn Kho Báu</span>
+                          <span>Gán nổi bật</span>
                         </button>
                       )}
 
