@@ -1,10 +1,23 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 import { getDailyQuotaStatus, getDailyClaims, hasClaimedPropertyToday, isPropertyTreasureActive } from '../services/treasureHuntService';
 import { getPropertyPermalink, SITE_URL } from '../utils/permalink';
+
+function getPageNumbers(currentPage, totalPages) {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+  if (currentPage <= 4) {
+    return [1, 2, 3, 4, 5, '...', totalPages];
+  }
+  if (currentPage >= totalPages - 3) {
+    return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+  }
+  return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+}
 
 export default function TreasureHuntPage() {
   const { currentUser, properties, rewardsConfig, systemConfig, addBonusWalletBalance, showToast } = useRealEstate();
@@ -114,8 +127,19 @@ export default function TreasureHuntPage() {
   // 3. Trong cùng cấp bậc VIP: Tự động đảo ngẫu nhiên công bằng (Fisher-Yates Fair Shuffle) theo từng phiên truy cập
   //    Đảm bảo 100% tất cả các bài của hội viên đều có cơ hội hiển thị ở vị trí hàng đầu như nhau, không bị dồn cục vào vài bài đầu!
   // 4. Ưu tiên đưa bài chưa mở hôm nay lên trước bài đã mở của người dùng.
-  // 5. Nếu chưa đủ số lượng để lấp đầy lưới 4 cột (8 bài), tự động bổ sung tiếp các tin VIP khác theo cùng cơ chế công bằng.
-  const sampleArticles = useMemo(() => {
+  const ITEMS_PER_PAGE = 16;
+  const [currentPage, setCurrentPage] = useState(1);
+  const articlesSectionRef = useRef(null);
+
+  // Lọc và sắp xếp bài viết tin đăng BĐS xuất hiện trong mục Săn Kho Báu theo Phương Án 1 (Fair Random Shuffle):
+  // 1. Ưu tiên hàng đầu cho người mua Gói Hội Viên (bài viết được hội viên chọn bật isTreasureHuntActive)
+  // 2. Trong số các bài của người mua gói: Tôn trọng cấp bậc VIP:
+  //    VIP Kim Cương (vip-diamond) ⟶ VIP Vàng (vip-gold) ⟶ VIP Bạc (vip-silver) ⟶ Tin Thường (normal)
+  // 3. Trong cùng cấp bậc VIP: Tự động đảo ngẫu nhiên công bằng (Fisher-Yates Fair Shuffle) theo từng phiên truy cập
+  //    Đảm bảo 100% tất cả các bài của hội viên đều có cơ hội hiển thị ở vị trí hàng đầu như nhau, không bị dồn cục vào vài bài đầu!
+  // 4. Ưu tiên đưa bài chưa mở hôm nay lên trước bài đã mở của người dùng.
+  // 5. Hiển thị 16 tin mỗi trang, nếu nhiều hơn 16 tin thì phân trang rõ ràng, trực quan.
+  const allTreasureArticles = useMemo(() => {
     if (!properties || !Array.isArray(properties)) return [];
     const valid = properties.filter(p => !p.isDeleted && p.status !== 'trash' && p.status !== 'rejected');
 
@@ -157,14 +181,36 @@ export default function TreasureHuntPage() {
       ];
     };
 
-    // Phương án 1: Chỉ lấy các bài viết đã được kích hoạt cờ Săn Kho Báu (isTreasureHuntActive === true)
+    // Lấy toàn bộ các bài viết đã được kích hoạt cờ Săn Kho Báu (isTreasureHuntActive === true)
     // và vẫn còn trong thời hạn 15 ngày hiệu lực
     const treasureArticles = valid.filter(p => isPropertyTreasureActive(p, p.author));
-    const sortedTreasures = fairSortArticles(treasureArticles);
-
-    // Trả về tối đa 8 bài để hiển thị trọn vẹn trên lưới (2 hàng x 4 cột)
-    return sortedTreasures.slice(0, 8);
+    return fairSortArticles(treasureArticles);
   }, [properties, shuffleSeed, claimsToday]);
+
+  const totalItems = allTreasureArticles.length;
+  const totalPages = Math.max(1, Math.ceil(totalItems / ITEMS_PER_PAGE));
+  const safePage = Math.min(Math.max(1, currentPage), totalPages);
+
+  // Danh sách hiển thị đúng 16 tin trên trang hiện tại
+  const paginatedArticles = useMemo(() => {
+    const startIndex = (safePage - 1) * ITEMS_PER_PAGE;
+    return allTreasureArticles.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [allTreasureArticles, safePage]);
+
+  // Tự động kiểm tra và reset trang nếu số lượng bài viết thay đổi
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [totalPages, currentPage]);
+
+  const handlePageChange = (p) => {
+    if (p === safePage || p < 1 || p > totalPages) return;
+    setCurrentPage(p);
+    if (articlesSectionRef.current) {
+      articlesSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   const baseUrl = (typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL || 'https://bds-realestate.vercel.app')).replace(/\/+$/, '');
 
@@ -413,23 +459,23 @@ export default function TreasureHuntPage() {
         )}
 
         {/* Suggested Articles containing Gift Boxes */}
-        <div className="space-y-4">
+        <div className="space-y-4" ref={articlesSectionRef}>
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
                 <i className="fa-solid fa-fire text-red-500"></i>
-                Danh Sách Bài Viết Đang Chứa Hộp Quà Hôm Nay
+                Danh Sách Bài Viết Đang Chứa Hộp Quà Hôm Nay {totalItems > 0 && <span className="text-sm font-bold text-amber-700">({totalItems})</span>}
               </h3>
               <p className="text-xs text-slate-500">
                 Bấm vào từng bài viết bên dưới, cuộn xuống phần mô tả để mở rương kho báu:
               </p>
             </div>
-            <Link to="/nha-dat-ban" className="text-xs font-bold text-emerald-600 hover:underline">
+            <Link to="/nha-dat-ban" className="text-xs font-bold text-emerald-700 hover:underline">
               Xem tất cả tin rao &rarr;
             </Link>
           </div>
 
-          {sampleArticles.length === 0 ? (
+          {allTreasureArticles.length === 0 ? (
             <div className="bg-white rounded-3xl border border-dashed border-amber-300 p-10 text-center space-y-4 shadow-xs">
               <div className="w-16 h-16 rounded-3xl bg-amber-100 text-amber-600 flex items-center justify-center text-3xl mx-auto">
                 <i className="fa-solid fa-gift"></i>
@@ -459,77 +505,208 @@ export default function TreasureHuntPage() {
               )}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-              {sampleArticles.map(p => {
-              const link = getPropertyPermalink(p);
-              const isClaimed = userId ? hasClaimedPropertyToday(userId, p.id) : false;
-              return (
-                <Link
-                  key={p.id}
-                  to={link}
-                  className="bg-white rounded-2xl border border-slate-200/80 hover:border-amber-400 overflow-hidden shadow-xs hover:shadow-lg transition-all flex flex-col justify-between group"
-                >
-                  <div className="relative aspect-video overflow-hidden">
-                    <img
-                      src={p.images?.[0] || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=500&q=80'}
-                      alt={p.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    {isClaimed ? (
-                      <span className="absolute top-2.5 left-2.5 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-sm flex items-center gap-1 z-10">
-                        <i className="fa-solid fa-circle-check"></i> Đã Mở
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                {paginatedArticles.map(p => {
+                  const link = getPropertyPermalink(p);
+                  const isClaimed = userId ? hasClaimedPropertyToday(userId, p.id) : false;
+                  return (
+                    <Link
+                      key={p.id}
+                      to={link}
+                      className="bg-white rounded-2xl border border-slate-200/80 hover:border-amber-400 overflow-hidden shadow-xs hover:shadow-lg transition-all flex flex-col justify-between group"
+                    >
+                      <div className="relative aspect-video overflow-hidden">
+                        <img
+                          src={p.images?.[0] || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=500&q=80'}
+                          alt={p.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        {isClaimed ? (
+                          <span className="absolute top-2.5 left-2.5 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-600 text-white shadow-sm flex items-center gap-1 z-10">
+                            <i className="fa-solid fa-circle-check"></i> Đã Mở
+                          </span>
+                        ) : (
+                          <span className="absolute top-2.5 left-2.5 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 shadow-sm flex items-center gap-1 z-10">
+                            <i className="fa-solid fa-gift"></i> Có Rương
+                          </span>
+                        )}
+
+                        <div className="absolute top-2.5 right-2.5 flex items-center gap-1 z-10">
+                          {Boolean(p.isTreasureHuntActive) && (
+                            <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500 text-slate-950 shadow-xs flex items-center gap-0.5" title="Đặc quyền bài viết từ Gói Hội Viên">
+                              <i className="fa-solid fa-crown text-[8px]"></i> Hội Viên
+                            </span>
+                          )}
+                          {p.vipPackageId && p.vipPackageId !== 'normal' && (
+                            <span className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md text-white shadow-xs ${
+                              p.vipPackageId === 'vip-diamond' ? 'bg-gradient-to-r from-red-600 to-rose-600' :
+                              p.vipPackageId === 'vip-gold' ? 'bg-amber-700' :
+                              'bg-slate-700'
+                            }`}>
+                              {p.vipPackageId === 'vip-diamond' ? 'VIP Kim Cương' : p.vipPackageId === 'vip-gold' ? 'VIP Vàng' : 'VIP Bạc'}
+                            </span>
+                          )}
+                        </div>
+
+                        <span className="absolute bottom-2.5 right-2.5 text-[11px] font-black px-2.5 py-0.5 rounded-lg bg-black/75 text-white backdrop-blur-xs font-mono shadow-xs">
+                          {formatPropertyPrice(p)}
+                        </span>
+                      </div>
+
+                      <div className="p-4 space-y-2">
+                        <h4 className="text-xs font-bold text-slate-900 group-hover:text-amber-700 transition line-clamp-2">
+                          {p.title}
+                        </h4>
+                        <div className="text-[11px] text-slate-500 flex items-center justify-between gap-1.5">
+                          <div className="flex items-center gap-1 truncate">
+                            <i className="fa-solid fa-location-dot text-rose-500 text-[10px] shrink-0"></i>
+                            <span className="truncate">{p.district ? `${p.district}, ` : ''}{p.city || systemConfig?.city || 'Đà Nẵng'}</span>
+                          </div>
+                          {p.area ? (
+                            <span className="font-semibold text-slate-600 shrink-0">{p.area} m²</span>
+                          ) : null}
+                        </div>
+
+                        <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-amber-700">
+                          <span>{isClaimed ? 'Đã nhận thưởng • Xem bài viết' : 'Khám phá & Săn rương'}</span>
+                          <i className="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </div>
+
+              {/* Phân trang khi số lượng tin lớn hơn 16 */}
+              {totalPages > 1 && (
+                <div className="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  {/* Thông tin số lượng tin đang hiển thị */}
+                  <div className="text-xs sm:text-sm text-slate-500 font-medium text-center sm:text-left">
+                    Đang hiển thị <span className="font-bold text-slate-900">{(safePage - 1) * ITEMS_PER_PAGE + 1}</span> - <span className="font-bold text-slate-900">{Math.min(safePage * ITEMS_PER_PAGE, totalItems)}</span> trong tổng số <span className="font-bold text-amber-700">{totalItems}</span> bài viết chứa rương
+                  </div>
+
+                  {/* Thanh chuyển trang */}
+                  <nav className="flex items-center gap-1.5 flex-wrap justify-center" aria-label="Phân trang rương kho báu">
+                    {/* Nút Về Trang Đầu */}
+                    {safePage === 1 ? (
+                      <span
+                        className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition border border-slate-200 bg-white text-slate-300 opacity-40 cursor-not-allowed select-none"
+                        title="Đang ở trang đầu tiên"
+                      >
+                        <i className="fa-solid fa-angles-left"></i>
                       </span>
                     ) : (
-                      <span className="absolute top-2.5 left-2.5 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 shadow-sm flex items-center gap-1 z-10">
-                        <i className="fa-solid fa-gift"></i> Có Rương
-                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handlePageChange(1)}
+                        className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition border border-slate-200 bg-white text-slate-700 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 cursor-pointer shadow-2xs"
+                        title="Về trang đầu tiên"
+                      >
+                        <i className="fa-solid fa-angles-left"></i>
+                      </button>
                     )}
 
-                    <div className="absolute top-2.5 right-2.5 flex items-center gap-1 z-10">
-                      {Boolean(p.isTreasureHuntActive) && (
-                        <span className="text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber-500 text-slate-950 shadow-xs flex items-center gap-0.5" title="Đặc quyền bài viết từ Gói Hội Viên">
-                          <i className="fa-solid fa-crown text-[8px]"></i> Hội Viên
-                        </span>
-                      )}
-                      {p.vipPackageId && p.vipPackageId !== 'normal' && (
-                        <span className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md text-white shadow-xs ${
-                          p.vipPackageId === 'vip-diamond' ? 'bg-gradient-to-r from-red-600 to-rose-600' :
-                          p.vipPackageId === 'vip-gold' ? 'bg-amber-600' :
-                          'bg-slate-700'
-                        }`}>
-                          {p.vipPackageId === 'vip-diamond' ? 'VIP Kim Cương' : p.vipPackageId === 'vip-gold' ? 'VIP Vàng' : 'VIP Bạc'}
-                        </span>
-                      )}
-                    </div>
+                    {/* Nút Trang Trước */}
+                    {safePage === 1 ? (
+                      <span
+                        className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-300 opacity-40 cursor-not-allowed select-none"
+                        title="Đang ở trang đầu"
+                      >
+                        <i className="fa-solid fa-angle-left"></i>
+                        <span className="hidden sm:inline">Trước</span>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handlePageChange(safePage - 1)}
+                        className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-700 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 cursor-pointer shadow-2xs"
+                        title="Trang trước"
+                      >
+                        <i className="fa-solid fa-angle-left"></i>
+                        <span className="hidden sm:inline">Trước</span>
+                      </button>
+                    )}
 
-                    <span className="absolute bottom-2.5 right-2.5 text-[11px] font-black px-2.5 py-0.5 rounded-lg bg-black/75 text-white backdrop-blur-xs font-mono shadow-xs">
-                      {formatPropertyPrice(p)}
-                    </span>
-                  </div>
+                    {/* Danh sách các số trang */}
+                    {getPageNumbers(safePage, totalPages).map((p, idx) => {
+                      if (p === '...') {
+                        return (
+                          <span 
+                            key={`ellipsis-${idx}`} 
+                            className="w-8 h-9 flex items-center justify-center text-slate-400 font-bold text-xs select-none"
+                          >
+                            ...
+                          </span>
+                        );
+                      }
+                      const isActive = p === safePage;
+                      if (isActive) {
+                        return (
+                          <span
+                            key={`page-${p}`}
+                            className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black transition cursor-default bg-amber-600 text-white shadow-md shadow-amber-600/30 ring-2 ring-amber-600/20"
+                            aria-current="page"
+                          >
+                            {p}
+                          </span>
+                        );
+                      }
+                      return (
+                        <button
+                          key={`page-${p}`}
+                          type="button"
+                          onClick={() => handlePageChange(p)}
+                          className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black transition cursor-pointer border border-slate-200 bg-white text-slate-700 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300"
+                        >
+                          {p}
+                        </button>
+                      );
+                    })}
 
-                  <div className="p-4 space-y-2">
-                    <h4 className="text-xs font-bold text-slate-900 group-hover:text-amber-600 transition line-clamp-2">
-                      {p.title}
-                    </h4>
-                    <div className="text-[11px] text-slate-500 flex items-center justify-between gap-1.5">
-                      <div className="flex items-center gap-1 truncate">
-                        <i className="fa-solid fa-location-dot text-rose-500 text-[10px] shrink-0"></i>
-                        <span className="truncate">{p.district ? `${p.district}, ` : ''}{p.city || systemConfig?.city || 'Đà Nẵng'}</span>
-                      </div>
-                      {p.area ? (
-                        <span className="font-semibold text-slate-600 shrink-0">{p.area} m²</span>
-                      ) : null}
-                    </div>
+                    {/* Nút Trang Sau */}
+                    {safePage === totalPages ? (
+                      <span
+                        className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-300 opacity-40 cursor-not-allowed select-none"
+                        title="Đang ở trang cuối"
+                      >
+                        <span className="hidden sm:inline">Sau</span>
+                        <i className="fa-solid fa-angle-right"></i>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handlePageChange(safePage + 1)}
+                        className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-700 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 cursor-pointer shadow-2xs"
+                        title="Trang kế tiếp"
+                      >
+                        <span className="hidden sm:inline">Sau</span>
+                        <i className="fa-solid fa-angle-right"></i>
+                      </button>
+                    )}
 
-                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-amber-600">
-                      <span>{isClaimed ? 'Đã nhận thưởng • Xem bài viết' : 'Khám phá & Săn rương'}</span>
-                      <i className="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-1 transition-transform"></i>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
+                    {/* Nút Đến Trang Cuối */}
+                    {safePage === totalPages ? (
+                      <span
+                        className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition border border-slate-200 bg-white text-slate-300 opacity-40 cursor-not-allowed select-none"
+                        title="Đang ở trang cuối"
+                      >
+                        <i className="fa-solid fa-angles-right"></i>
+                      </span>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handlePageChange(totalPages)}
+                        className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black transition border border-slate-200 bg-white text-slate-700 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-300 cursor-pointer shadow-2xs"
+                        title="Đến trang cuối cùng"
+                      >
+                        <i className="fa-solid fa-angles-right"></i>
+                      </button>
+                    )}
+                  </nav>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
