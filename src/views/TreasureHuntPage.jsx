@@ -157,19 +157,13 @@ export default function TreasureHuntPage() {
       ];
     };
 
-    // Nhóm 1: Các bài viết được người mua Gói Hội Viên chọn gắn vào Săn Kho Báu
-    const memberTreasureArticles = valid.filter(p => Boolean(p.isTreasureHuntActive));
-    const sortedMembers = fairSortArticles(memberTreasureArticles);
+    // Phương án 1: Chỉ lấy các bài viết đã được kích hoạt cờ Săn Kho Báu (isTreasureHuntActive === true)
+    // do Hội viên chọn gắn rương hoặc Ban quản trị Admin kích hoạt
+    const treasureArticles = valid.filter(p => Boolean(p.isTreasureHuntActive));
+    const sortedTreasures = fairSortArticles(treasureArticles);
 
-    // Nhóm 2: Các bài viết còn lại (sắp xếp theo VIP Kim Cương -> VIP Vàng -> VIP Bạc -> Tin Thường)
-    const remainingArticles = valid.filter(p => !p.isTreasureHuntActive);
-    const sortedRemaining = fairSortArticles(remainingArticles);
-
-    // Kết hợp ưu tiên tuyệt đối Nhóm bài của Hội viên lên đầu
-    const combined = [...sortedMembers, ...sortedRemaining];
-
-    // Trả về 8 bài để hiển thị trọn vẹn trên lưới 4 cột (2 hàng x 4 cột)
-    return combined.slice(0, 8);
+    // Trả về tối đa 8 bài để hiển thị trọn vẹn trên lưới (2 hàng x 4 cột)
+    return sortedTreasures.slice(0, 8);
   }, [properties, shuffleSeed, claimsToday]);
 
   const baseUrl = (typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL || 'https://bds-realestate.vercel.app')).replace(/\/+$/, '');
@@ -435,8 +429,38 @@ export default function TreasureHuntPage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-            {sampleArticles.map(p => {
+          {sampleArticles.length === 0 ? (
+            <div className="bg-white rounded-3xl border border-dashed border-amber-300 p-10 text-center space-y-4 shadow-xs">
+              <div className="w-16 h-16 rounded-3xl bg-amber-100 text-amber-600 flex items-center justify-center text-3xl mx-auto">
+                <i className="fa-solid fa-gift"></i>
+              </div>
+              <div className="max-w-md mx-auto space-y-1">
+                <h4 className="text-base font-bold text-slate-800">Chưa có bài viết nào kích hoạt rương hôm nay</h4>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Rương kho báu là quyền lợi độc quyền dành cho bài viết của Gói Hội Viên hoặc bài viết được Quản trị viên kích hoạt. Các rương mới sẽ được mở thưởng trong thời gian sớm nhất!
+                </p>
+              </div>
+              {currentUser?.role === 'admin' ? (
+                <Link
+                  to="/admin#properties"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 text-amber-300 hover:text-white font-bold text-xs shadow-md transition"
+                >
+                  <i className="fa-solid fa-gear text-amber-400"></i>
+                  <span>Vào Quản Trị kích hoạt rương bài viết</span>
+                </Link>
+              ) : (
+                <Link
+                  to="/nha-dat-ban"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-md hover:bg-emerald-700 transition"
+                >
+                  <span>Khám phá các tin rao BĐS khác</span>
+                  <i className="fa-solid fa-arrow-right text-[10px]"></i>
+                </Link>
+              )}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {sampleArticles.map(p => {
               const link = getPropertyPermalink(p);
               const isClaimed = userId ? hasClaimedPropertyToday(userId, p.id) : false;
               return (
@@ -506,6 +530,7 @@ export default function TreasureHuntPage() {
               );
             })}
           </div>
+          )}
         </div>
       </div>
     </div>

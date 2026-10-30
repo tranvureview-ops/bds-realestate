@@ -601,6 +601,7 @@ export default function AdminBackendPage() {
   const [propertyCategoryFilter, setPropertyCategoryFilter] = useState('all'); // 'all' or propertyType
   const [propertyCityFilter, setPropertyCityFilter] = useState('all'); // 'all' or city name
   const [propertyVipFilter, setPropertyVipFilter] = useState('all'); // 'all', 'vip-diamond', 'vip-gold', 'vip-silver', 'normal'
+  const [propertyTreasureFilter, setPropertyTreasureFilter] = useState('all'); // 'all', 'active', 'inactive'
   const [propertySortBy, setPropertySortBy] = useState('newest'); // 'newest', 'oldest', 'expiring_first', 'price_desc', 'price_asc'
 
   // Renewal Modal State (Gia Hạn Tin Đăng)
@@ -1338,6 +1339,15 @@ export default function AdminBackendPage() {
         if (propertyVipFilter === 'all') return true;
         return p.vipPackageId === propertyVipFilter;
       })
+      // 2.1 Phân loại Rương Kho Báu (Treasure Hunt)
+      .filter(p => {
+        if (propertyStatusFilter === 'trash') return true;
+        if (propertyTreasureFilter === 'all') return true;
+        const hasTreasure = Boolean(p.isTreasureHuntActive);
+        if (propertyTreasureFilter === 'active') return hasTreasure;
+        if (propertyTreasureFilter === 'inactive') return !hasTreasure;
+        return true;
+      })
       // 3. Trạng thái vòng đời tin đăng
       .filter(p => {
         if (propertyStatusFilter === 'all' || propertyStatusFilter === 'trash') return true;
@@ -1399,7 +1409,7 @@ export default function AdminBackendPage() {
         }
         return 0;
       });
-  }, [properties, propertyAuthorFilter, propertyDemandFilter, propertyCategoryFilter, propertyCityFilter, propertyVipFilter, propertyStatusFilter, propertySearchTerm, searchTerm, propertySortBy]);
+  }, [properties, propertyAuthorFilter, propertyDemandFilter, propertyCategoryFilter, propertyCityFilter, propertyVipFilter, propertyTreasureFilter, propertyStatusFilter, propertySearchTerm, searchTerm, propertySortBy]);
 
   const totalRevenue = useMemo(() => {
     return transactions
@@ -1997,6 +2007,7 @@ export default function AdminBackendPage() {
       listingDays: prop.listingDays || 15,
       expiresAt: expDateStr,
       autoRenew: prop.autoRenew ?? false,
+      isTreasureHuntActive: Boolean(prop.isTreasureHuntActive),
       contactName: prop.author?.name || prop.contactName || '',
       contactPhone: prop.author?.phone || prop.contactPhone || '',
       contactEmail: prop.author?.email || prop.contactEmail || '',
@@ -2060,6 +2071,7 @@ export default function AdminBackendPage() {
       listingDays: Number(editPropFormData.listingDays) || editingProperty.listingDays || 15,
       expiresAt: newExpiresAt,
       autoRenew: Boolean(editPropFormData.autoRenew),
+      isTreasureHuntActive: Boolean(editPropFormData.isTreasureHuntActive),
       contactName: editPropFormData.contactName || '',
       contactPhone: editPropFormData.contactPhone || '',
       contactEmail: editPropFormData.contactEmail || '',
@@ -3997,6 +4009,23 @@ export default function AdminBackendPage() {
                         <option value="normal" className="bg-slate-900 text-slate-300">Tin Thường</option>
                       </select>
                     </div>
+
+                    {/* Filter Rương Kho Báu */}
+                    <div className="flex items-center gap-1.5 bg-slate-900 px-3 py-1 rounded-xl border border-slate-800 text-xs">
+                      <span className="text-slate-400 font-bold flex items-center gap-1">
+                        <i className="fa-solid fa-gift text-amber-400"></i>
+                        <span>Rương:</span>
+                      </span>
+                      <select
+                        value={propertyTreasureFilter}
+                        onChange={(e) => setPropertyTreasureFilter(e.target.value)}
+                        className="bg-transparent text-white font-bold outline-none cursor-pointer"
+                      >
+                        <option value="all" className="bg-slate-900 text-white">Tất cả bài viết</option>
+                        <option value="active" className="bg-slate-900 text-amber-400 font-bold">🎁 Có rương ({properties.filter(p => Boolean(p.isTreasureHuntActive) && !p.isDeleted && p.status !== 'trash').length})</option>
+                        <option value="inactive" className="bg-slate-900 text-slate-400">Không có rương</option>
+                      </select>
+                    </div>
                   </div>
 
                   {/* Sắp xếp kết quả */}
@@ -4020,7 +4049,7 @@ export default function AdminBackendPage() {
                     </div>
 
                     {/* Nút đặt lại bộ lọc nếu có lọc */}
-                    {(propertySearchTerm || propertyStatusFilter !== 'all' || propertyDemandFilter !== 'all' || propertyCategoryFilter !== 'all' || propertyCityFilter !== 'all' || propertyVipFilter !== 'all' || propertyAuthorFilter !== 'all' || propertySortBy !== 'newest') && (
+                    {(propertySearchTerm || propertyStatusFilter !== 'all' || propertyDemandFilter !== 'all' || propertyCategoryFilter !== 'all' || propertyCityFilter !== 'all' || propertyVipFilter !== 'all' || propertyTreasureFilter !== 'all' || propertyAuthorFilter !== 'all' || propertySortBy !== 'newest') && (
                       <button
                         onClick={() => {
                           setPropertySearchTerm('');
@@ -4029,6 +4058,7 @@ export default function AdminBackendPage() {
                           setPropertyCategoryFilter('all');
                           setPropertyCityFilter('all');
                           setPropertyVipFilter('all');
+                          setPropertyTreasureFilter('all');
                           setPropertyAuthorFilter('all');
                           setPropertySortBy('newest');
                         }}
@@ -4214,6 +4244,37 @@ export default function AdminBackendPage() {
                                         <span>⏳ Chờ duyệt sổ đỏ</span>
                                       </button>
                                     ) : null}
+
+                                    {/* Kích hoạt Rương Kho Báu Gamification (1-Click Toggle) */}
+                                    {Boolean(p.isTreasureHuntActive) ? (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          updateProperty(p.id, { isTreasureHuntActive: false });
+                                          showToast(`Đã tắt rương thưởng cho bài viết ${p.id}`, 'info');
+                                        }}
+                                        className="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/50 flex items-center gap-1 font-bold hover:bg-rose-500/20 hover:text-rose-300 hover:border-rose-500/50 transition cursor-pointer group"
+                                        title="Bài viết đang BẬT rương kho báu tiền thưởng. Bấm để tắt."
+                                      >
+                                        <i className="fa-solid fa-gift text-[9px] text-amber-400 group-hover:hidden"></i>
+                                        <i className="fa-solid fa-power-off text-[9px] text-rose-400 hidden group-hover:inline"></i>
+                                        <span className="group-hover:hidden">🎁 Có rương</span>
+                                        <span className="hidden group-hover:inline">Tắt rương</span>
+                                      </button>
+                                    ) : (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          updateProperty(p.id, { isTreasureHuntActive: true });
+                                          showToast(`Đã kích hoạt rương thưởng cho bài viết ${p.id}`, 'success');
+                                        }}
+                                        className="px-1.5 py-0.5 rounded text-[10px] bg-slate-900 text-slate-400 border border-slate-800 flex items-center gap-1 font-semibold hover:bg-amber-500/20 hover:text-amber-300 hover:border-amber-500/40 transition cursor-pointer"
+                                        title="Bấm để kích hoạt rương kho báu cho bài viết này"
+                                      >
+                                        <i className="fa-solid fa-gift text-[9px] text-slate-500"></i>
+                                        <span>+ Bật rương</span>
+                                      </button>
+                                    )}
                                   </div>
                                   <Link 
                                     to={getPropertyPermalink(p)}
@@ -9280,6 +9341,23 @@ export default function AdminBackendPage() {
                           checked={Boolean(editPropFormData.autoRenew)}
                           onChange={(e) => setEditPropFormData({ ...editPropFormData, autoRenew: e.target.checked })}
                           className="w-4 h-4 accent-cyan-500 rounded cursor-pointer"
+                        />
+                      </div>
+                      <div className="sm:col-span-2 flex items-center justify-between pt-2 border-t border-slate-800/60 bg-amber-950/20 p-2.5 rounded-xl border border-amber-500/30">
+                        <div>
+                          <span className="text-[11px] text-amber-300 font-bold flex items-center gap-1.5">
+                            <i className="fa-solid fa-gift text-amber-400"></i>
+                            <span>Kích hoạt Rương Kho Báu trong bài viết (Gamification):</span>
+                          </span>
+                          <p className="text-[10px] text-slate-400 mt-0.5">
+                            Khi bật, bài viết này sẽ xuất hiện hộp quà tiền thưởng ngẫu nhiên cho người đọc và hiển thị trong Trung tâm phần thưởng.
+                          </p>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={Boolean(editPropFormData.isTreasureHuntActive)}
+                          onChange={(e) => setEditPropFormData({ ...editPropFormData, isTreasureHuntActive: e.target.checked })}
+                          className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
                         />
                       </div>
                     </div>

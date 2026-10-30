@@ -1,8 +1,10 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { isPromotionExpired, formatPromoDate } from '../data/rewardData';
+import { Link } from '../router/RouterContext';
+import { getPropertyPermalink } from '../utils/permalink';
 
 export default function AdminRewardsGamificationManager() {
   const { 
@@ -10,7 +12,9 @@ export default function AdminRewardsGamificationManager() {
     updateRewardsConfig, 
     resetRewardsConfig, 
     DEFAULT_REWARDS_CONFIG, 
-    showToast 
+    showToast,
+    properties = [],
+    updateProperty
   } = useRealEstate();
 
   // Local state form
@@ -20,6 +24,10 @@ export default function AdminRewardsGamificationManager() {
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const isDirtyRef = useRef(false);
+
+  // States quản lý bài viết kích hoạt rương kho báu (Phương án 1)
+  const [treasureSearchTerm, setTreasureSearchTerm] = useState('');
+  const [treasureViewMode, setTreasureViewMode] = useState('active_only'); // 'active_only', 'all', 'inactive_only'
 
   // Sync when context changes - TUYỆT ĐỐI KHÔNG GHI ĐÈ NẾU ADMIN ĐANG NHẬP DỞ (isDirty)
   useEffect(() => {
@@ -36,6 +44,72 @@ export default function AdminRewardsGamificationManager() {
   const [editingMission, setEditingMission] = useState(null);
   const [missionCategory, setMissionCategory] = useState('tan-thu');
   const [missionModalOpen, setMissionModalOpen] = useState(false);
+
+  // Danh sách bài viết hợp lệ & có rương (Phương án 1)
+  const validProperties = useMemo(() => {
+    return (properties || []).filter(p => !p.isDeleted && p.status !== 'trash');
+  }, [properties]);
+
+  const treasureArticlesList = useMemo(() => {
+    return validProperties.filter(p => Boolean(p.isTreasureHuntActive));
+  }, [validProperties]);
+
+  const filteredPropertiesForTreasure = useMemo(() => {
+    return validProperties
+      .filter(p => {
+        if (treasureViewMode === 'active_only') return Boolean(p.isTreasureHuntActive);
+        if (treasureViewMode === 'inactive_only') return !p.isTreasureHuntActive;
+        return true;
+      })
+      .filter(p => {
+        if (!treasureSearchTerm.trim()) return true;
+        const term = treasureSearchTerm.trim().toLowerCase();
+        return (
+          (p.id && p.id.toLowerCase().includes(term)) ||
+          (p.title && p.title.toLowerCase().includes(term)) ||
+          (p.author?.name && p.author.name.toLowerCase().includes(term)) ||
+          (p.district && p.district.toLowerCase().includes(term)) ||
+          (p.city && p.city.toLowerCase().includes(term))
+        );
+      });
+  }, [validProperties, treasureViewMode, treasureSearchTerm]);
+
+  const handleToggleTreasureArticle = (prop) => {
+    if (!updateProperty) return;
+    const nextState = !prop.isTreasureHuntActive;
+    updateProperty(prop.id, { isTreasureHuntActive: nextState });
+    if (showToast) {
+      showToast(
+        nextState 
+          ? `Đã kích hoạt rương kho báu cho bài viết ${prop.id}!` 
+          : `Đã tắt rương kho báu bài viết ${prop.id}`, 
+        nextState ? 'success' : 'info'
+      );
+    }
+  };
+
+  const handleEnableDiamondTreasure = () => {
+    if (!updateProperty) return;
+    const diamondProps = validProperties.filter(p => p.vipPackageId === 'vip-diamond' && !p.isTreasureHuntActive);
+    if (diamondProps.length === 0) {
+      if (showToast) showToast('Tất cả bài viết VIP Kim Cương đã được bật rương từ trước!', 'info');
+      return;
+    }
+    diamondProps.forEach(p => {
+      updateProperty(p.id, { isTreasureHuntActive: true });
+    });
+    if (showToast) showToast(`Đã kích hoạt rương cho ${diamondProps.length} bài viết VIP Kim Cương!`, 'success');
+  };
+
+  const handleDisableAllTreasure = () => {
+    if (!updateProperty) return;
+    if (!window.confirm('Bạn có chắc chắn muốn TẮT rương kho báu trên toàn bộ bài viết không?')) return;
+    const activeProps = validProperties.filter(p => Boolean(p.isTreasureHuntActive));
+    activeProps.forEach(p => {
+      updateProperty(p.id, { isTreasureHuntActive: false });
+    });
+    if (showToast) showToast(`Đã tắt rương trên toàn bộ ${activeProps.length} bài viết!`, 'info');
+  };
 
   // 1. Lưu toàn bộ cấu hình
   const handleSaveAll = async (customConfig = null) => {
@@ -525,6 +599,182 @@ export default function AdminRewardsGamificationManager() {
                 Người dùng mở rương trong các bài viết tin rao sẽ nhận ngẫu nhiên một con số từ <strong className="text-emerald-400">{(Number(formData.treasureHuntConfig?.minAmount || 2000)).toLocaleString('vi-VN')} đ</strong> đến <strong className="text-amber-400">{(Number(formData.treasureHuntConfig?.maxAmount || 20000)).toLocaleString('vi-VN')} đ</strong> (bước nhảy 1.000 đ) cộng ngay vào Ví Khuyến Mãi.
               </div>
             </div>
+          </div>
+
+          {/* PHÂN HỆ QUẢN LÝ BÀI VIẾT KÍCH HOẠT RƯƠNG (PHƯƠNG ÁN 1) */}
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <i className="fa-solid fa-gift text-amber-400"></i>
+                  <span>Quản Lý Kích Hoạt Bài Viết Có Rương Thưởng (Phương Án 1)</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-xs font-mono font-bold">
+                    {treasureArticlesList.length} bài đang bật rương
+                  </span>
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Theo <strong>Phương Án 1</strong>, chỉ các bài viết được kích hoạt cờ Rương bên dưới mới xuất hiện hộp quà tiền thưởng và được gợi ý tại trang Săn Kho Báu.
+                </p>
+              </div>
+
+              {/* Quick actions */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={handleEnableDiamondTreasure}
+                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-[11px] font-bold transition flex items-center gap-1 shadow-sm cursor-pointer"
+                  title="Kích hoạt rương cho toàn bộ tin VIP Kim Cương"
+                >
+                  <i className="fa-solid fa-crown text-[10px]"></i>
+                  <span>Bật tất cả VIP Kim Cương</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDisableAllTreasure}
+                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
+                  title="Tắt rương kho báu trên toàn bộ bài viết"
+                >
+                  <i className="fa-solid fa-power-off text-[10px] text-rose-400"></i>
+                  <span>Tắt tất cả rương</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Thanh tìm kiếm & lọc chế độ xem */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-950 p-3 rounded-2xl border border-slate-800">
+              {/* Tab chế độ lọc */}
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setTreasureViewMode('active_only')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                    treasureViewMode === 'active_only'
+                      ? 'bg-amber-500 text-slate-950 font-black shadow-sm'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                  }`}
+                >
+                  <i className="fa-solid fa-gift text-[11px]"></i>
+                  <span>Đang có rương ({treasureArticlesList.length})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTreasureViewMode('all')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                    treasureViewMode === 'all'
+                      ? 'bg-slate-800 text-white font-bold'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                  }`}
+                >
+                  <span>Tất cả bài viết ({validProperties.length})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTreasureViewMode('inactive_only')}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                    treasureViewMode === 'inactive_only'
+                      ? 'bg-slate-800 text-white font-bold'
+                      : 'text-slate-400 hover:text-white hover:bg-slate-900'
+                  }`}
+                >
+                  <span>Chưa bật ({validProperties.length - treasureArticlesList.length})</span>
+                </button>
+              </div>
+
+              {/* Ô tìm kiếm */}
+              <div className="relative min-w-[240px]">
+                <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                <input
+                  type="text"
+                  placeholder="Tìm theo tiêu đề, ID, tác giả..."
+                  value={treasureSearchTerm}
+                  onChange={(e) => setTreasureSearchTerm(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:border-amber-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Danh sách bài viết */}
+            {filteredPropertiesForTreasure.length === 0 ? (
+              <div className="text-center py-8 text-slate-500 text-xs">
+                Không tìm thấy bài viết nào phù hợp với bộ lọc hiện tại.
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-800/80 border border-slate-800 rounded-2xl overflow-hidden bg-slate-950">
+                {filteredPropertiesForTreasure.slice(0, 50).map(p => {
+                  const link = getPropertyPermalink(p);
+                  const isTreasure = Boolean(p.isTreasureHuntActive);
+                  return (
+                    <div key={p.id} className="p-3 sm:p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-900/60 transition">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-14 h-12 rounded-xl overflow-hidden bg-slate-900 border border-slate-800 shrink-0">
+                          <img
+                            src={p.images?.[0] || 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=200&q=80'}
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="min-w-0 space-y-0.5">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-mono text-[10px] text-slate-400 font-bold">{p.id}</span>
+                            {p.vipPackageId && p.vipPackageId !== 'normal' && (
+                              <span className={`text-[9px] font-black uppercase px-1.5 py-0.2 rounded ${
+                                p.vipPackageId === 'vip-diamond' ? 'bg-red-500/20 text-red-300 border border-red-500/30' :
+                                p.vipPackageId === 'vip-gold' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' :
+                                'bg-blue-500/20 text-blue-300 border border-blue-500/30'
+                              }`}>
+                                {p.vipPackageId === 'vip-diamond' ? 'VIP Kim Cương' : p.vipPackageId === 'vip-gold' ? 'VIP Vàng' : 'VIP Bạc'}
+                              </span>
+                            )}
+                            <span className="text-[10px] text-emerald-400 font-bold">{p.priceDisplay || 'Thỏa thuận'}</span>
+                          </div>
+                          <Link
+                            to={link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs font-bold text-white hover:text-amber-400 truncate block transition"
+                          >
+                            {p.title}
+                          </Link>
+                          <div className="text-[10px] text-slate-500">
+                            Người đăng: {p.author?.name || p.contactName || 'Khách vãng lai'}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Nút Toggle Kích Hoạt Rương */}
+                      <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleTreasureArticle(p)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm ${
+                            isTreasure
+                              ? 'bg-amber-500 hover:bg-rose-600 text-slate-950 hover:text-white'
+                              : 'bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-700'
+                          }`}
+                        >
+                          <i className={`fa-solid ${isTreasure ? 'fa-gift' : 'fa-plus'} text-[11px]`}></i>
+                          <span>{isTreasure ? 'Đang BẬT rương (Bấm tắt)' : 'Bật rương'}</span>
+                        </button>
+                        <Link
+                          to={link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold border border-slate-800 transition inline-flex items-center"
+                          title="Xem bài viết trong tab mới"
+                        >
+                          <i className="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            {filteredPropertiesForTreasure.length > 50 && (
+              <div className="text-center text-[11px] text-slate-500 pt-1">
+                Hiển thị 50 trên tổng số {filteredPropertiesForTreasure.length} bài viết. Dùng ô tìm kiếm để lọc thêm.
+              </div>
+            )}
           </div>
         </div>
       )}

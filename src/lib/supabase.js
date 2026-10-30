@@ -106,6 +106,7 @@ export async function fetchSupabaseProperties() {
         isFeatured: row.is_featured,
         autoRenew: row.auto_renew,
         isDeleted: row.is_deleted,
+        isTreasureHuntActive: Boolean(row.raw_data?.isTreasureHuntActive || row.is_treasure_hunt_active),
         is_verified: isVer,
         isVerified: isVer,
         verification_status: vStatus,
@@ -170,6 +171,7 @@ export async function upsertSupabaseProperty(prop) {
       is_deleted: Boolean(prop.isDeleted),
       raw_data: {
         ...prop,
+        isTreasureHuntActive: Boolean(prop.isTreasureHuntActive),
         is_verified: Boolean(prop.is_verified ?? prop.isVerified),
         isVerified: Boolean(prop.is_verified ?? prop.isVerified),
         verification_status: prop.verification_status || prop.verificationStatus || (Boolean(prop.is_verified ?? prop.isVerified) ? 'verified' : 'unverified'),
