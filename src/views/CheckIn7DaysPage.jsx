@@ -158,7 +158,7 @@ export default function CheckIn7DaysPage() {
     <div className="min-h-screen bg-slate-50 py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-8">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-500 font-medium">
           <Link to="/" className="hover:text-emerald-700 transition">Trang chủ</Link>
           <span>/</span>
           <Link to="/trung-tam-phan-thuong/" className="hover:text-emerald-700 transition">Trung tâm phần thưởng</Link>

@@ -281,7 +281,7 @@ export default function Navbar() {
           </Link>
 
           {/* Center: Desktop Navigation Links (Khớp 100% Cấu Hình Menu từ Admin) */}
-          <nav suppressHydrationWarning className="hidden lg:flex items-center gap-1 xl:gap-1.5 font-semibold text-[13.5px] text-slate-700 shrink-0">
+          <nav aria-label="Thanh điều hướng chính" suppressHydrationWarning className="hidden lg:flex items-center gap-1 xl:gap-1.5 font-semibold text-[13.5px] text-slate-700 shrink-0">
             {menuItems.map(item => {
               const hasChildren = item.children && item.children.length > 0;
               const isChildActive = hasChildren && item.children.some(c => c.path === currentRoute);
@@ -790,7 +790,7 @@ export default function Navbar() {
               </div>
 
               {/* Dynamic Navigation Menu Items (Khớp 100% Admin) */}
-              <div className="space-y-1">
+              <nav aria-label="Menu danh mục di động" className="space-y-1">
                 <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1">
                   Danh Mục Menu
                 </div>
@@ -860,7 +860,7 @@ export default function Navbar() {
                     </Link>
                   );
                 })}
-              </div>
+              </nav>
 
               {/* Tiện ích Phần thưởng & Khuyến mãi (Mobile) */}
               <div className="space-y-1 pt-2 border-t border-slate-100">

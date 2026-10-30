@@ -162,7 +162,7 @@ export default function LegalPolicyPage() {
                   </h2>
                 </div>
 
-                <nav className="mt-4 space-y-1.5 text-xs">
+                <nav aria-label="Mục lục nội dung" className="mt-4 space-y-1.5 text-xs">
                   <Link
                     href="#quy-che-hoat-dong"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-red-600"

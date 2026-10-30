@@ -82,6 +82,14 @@ function AppContent({ children }) {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 antialiased selection:bg-emerald-500 selection:text-white overflow-x-hidden w-full">
+      {/* Skip to Main Content Link for Keyboard & Screen Reader Accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2 focus:bg-emerald-600 focus:text-white focus:rounded-xl focus:shadow-xl focus:font-bold focus:text-xs focus:ring-2 focus:ring-white"
+      >
+        Chuyển đến nội dung chính (Skip to content)
+      </a>
+
       {/* Sticky Top Warning Banner if Admin is viewing site while Maintenance Mode is active */}
       {isMaintenance && isAdmin && (
         <div className="bg-gradient-to-r from-rose-800 via-amber-800 to-rose-800 text-white px-4 py-2.5 text-xs font-bold shadow-lg flex items-center justify-between sticky top-0 z-50 border-b border-rose-500">
@@ -116,7 +124,7 @@ function AppContent({ children }) {
       <Navbar />
 
       {/* Main Page Content */}
-      <main className="flex-1 pb-16 md:pb-0">
+      <main id="main-content" role="main" className="flex-1 pb-16 md:pb-0" tabIndex={-1}>
         {children}
       </main>
 

@@ -835,7 +835,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
       <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
           {/* Breadcrumbs */}
-          <nav className="flex items-center gap-1.5 text-slate-500 overflow-x-auto whitespace-nowrap">
+          <nav aria-label="Đường dẫn điều hướng Breadcrumb" className="flex items-center gap-1.5 text-slate-500 overflow-x-auto whitespace-nowrap">
             <Link 
               to="/" 
               className="hover:text-emerald-600 transition flex items-center gap-1 font-semibold"

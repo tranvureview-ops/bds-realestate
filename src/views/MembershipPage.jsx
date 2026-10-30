@@ -172,7 +172,7 @@ export default function MembershipPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-500 font-medium">
           <button onClick={() => navigate('/')} className="hover:text-emerald-600 transition">Trang chủ</button>
           <span>/</span>
           <span className="text-slate-800 font-bold">Gói Hội Viên</span>

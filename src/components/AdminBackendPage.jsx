@@ -2287,7 +2287,7 @@ export default function AdminBackendPage() {
           </div>
 
           {/* Navigation Menu Links */}
-          <nav className="px-3 space-y-1 text-xs font-bold">
+          <nav aria-label="Menu quản trị" className="px-3 space-y-1 text-xs font-bold">
             <Link
               href="#dashboard"
               onClick={handleNavClick('dashboard')}

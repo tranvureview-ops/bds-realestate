@@ -166,7 +166,7 @@ export default function Footer() {
           </div>
 
           {/* Cột 2: Quick links */}
-          <div>
+          <nav aria-label="Khám phá nhanh">
             <h4 className="text-xs font-black uppercase text-white tracking-wider mb-3">
               {col2Title}
             </h4>
@@ -180,10 +180,10 @@ export default function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
           {/* Cột 3: Service & Member packages */}
-          <div>
+          <nav aria-label="Dịch vụ và tiện ích">
             <h4 className="text-xs font-black uppercase text-white tracking-wider mb-3">
               {col3Title}
             </h4>
@@ -211,7 +211,7 @@ export default function Footer() {
                 </li>
               )}
             </ul>
-          </div>
+          </nav>
 
           {/* Cột 4: Trust & Certifications */}
           <div>
@@ -248,7 +248,7 @@ export default function Footer() {
 
         {/* SEO Category & Location Taxonomy Footer Links */}
         {showSeo && (
-          <div className="pt-8 pb-6 border-t border-slate-800/80">
+          <nav aria-label="Chỉ mục danh mục bất động sản và khu vực" className="pt-8 pb-6 border-t border-slate-800/80">
             <div className="mb-4">
               <h4 className="text-xs font-black uppercase text-emerald-400 tracking-wider flex items-center gap-2">
                 <i className="fa-solid fa-sitemap text-[11px]"></i>
@@ -320,7 +320,7 @@ export default function Footer() {
                 </ul>
               </div>
             </div>
-          </div>
+          </nav>
         )}
 
         {/* Bottom copyright */}
@@ -328,13 +328,13 @@ export default function Footer() {
           <div>
             {copyrightText}
           </div>
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <nav aria-label="Chính sách và điều khoản" className="flex flex-wrap items-center gap-x-4 gap-y-1">
             {policyLinks.map(policy => (
               <Link key={policy.id || policy.url} to={policy.url} className="py-1.5 hover:text-emerald-400 transition inline-block">
                 {policy.label}
               </Link>
             ))}
-          </div>
+          </nav>
         </div>
       </div>
     </footer>

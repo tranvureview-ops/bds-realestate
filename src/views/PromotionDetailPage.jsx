@@ -163,7 +163,7 @@ export default function PromotionDetailPage({ slug }) {
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 space-y-6">
         {/* Breadcrumb */}
-        <nav className="flex items-center gap-2 text-xs text-slate-500 font-medium">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-500 font-medium">
           <Link to="/" className="hover:text-emerald-700 transition">Trang chủ</Link>
           <span>/</span>
           <Link to="/khuyen-mai/" className="hover:text-emerald-700 transition">Khuyến mãi</Link>
