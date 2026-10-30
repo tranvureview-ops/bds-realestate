@@ -429,17 +429,18 @@ export default function ListingSidebar({
             });
 
             return (
-              <Link
-                key={item.value}
-                href={targetUrl}
-                scroll={false}
-                onClick={(e) => handleSelectPrice(e, item, targetUrl)}
-                className="text-left px-2.5 py-2 rounded-xl transition-colors duration-150 cursor-pointer truncate font-medium flex items-center justify-between group border border-transparent text-slate-700 hover:bg-slate-50 hover:text-red-600"
-                title={item.label}
-              >
-                <h3 className="truncate font-medium text-xs text-inherit">{item.label}</h3>
-                <i className="fa-solid fa-chevron-right text-[9px] text-slate-300 group-hover:text-red-500 group-hover:translate-x-0.5 transition-transform"></i>
-              </Link>
+              <h3 key={item.value} className="m-0 p-0 text-xs font-normal">
+                <Link
+                  href={targetUrl}
+                  scroll={false}
+                  onClick={(e) => handleSelectPrice(e, item, targetUrl)}
+                  className="text-left px-2.5 py-2 rounded-xl transition-colors duration-150 cursor-pointer truncate font-medium flex items-center justify-between group border border-transparent text-slate-700 hover:bg-slate-50 hover:text-red-600"
+                  title={item.label}
+                >
+                  <span className="truncate">{item.label}</span>
+                  <i className="fa-solid fa-chevron-right text-[9px] text-slate-300 group-hover:text-red-500 group-hover:translate-x-0.5 transition-transform"></i>
+                </Link>
+              </h3>
             );
           })}
         </div>
@@ -478,17 +479,18 @@ export default function ListingSidebar({
             });
 
             return (
-              <Link
-                key={item.value}
-                href={targetUrl}
-                scroll={false}
-                onClick={(e) => handleSelectArea(e, item, targetUrl)}
-                className="text-left px-2.5 py-2 rounded-xl transition-colors duration-150 cursor-pointer truncate font-medium flex items-center justify-between group border border-transparent text-slate-700 hover:bg-slate-50 hover:text-teal-700"
-                title={item.label}
-              >
-                <h3 className="truncate font-medium text-xs text-inherit">{item.label}</h3>
-                <i className="fa-solid fa-chevron-right text-[9px] text-slate-300 group-hover:text-teal-500 group-hover:translate-x-0.5 transition-transform"></i>
-              </Link>
+              <h3 key={item.value} className="m-0 p-0 text-xs font-normal">
+                <Link
+                  href={targetUrl}
+                  scroll={false}
+                  onClick={(e) => handleSelectArea(e, item, targetUrl)}
+                  className="text-left px-2.5 py-2 rounded-xl transition-colors duration-150 cursor-pointer truncate font-medium flex items-center justify-between group border border-transparent text-slate-700 hover:bg-slate-50 hover:text-teal-700"
+                  title={item.label}
+                >
+                  <span className="truncate">{item.label}</span>
+                  <i className="fa-solid fa-chevron-right text-[9px] text-slate-300 group-hover:text-teal-500 group-hover:translate-x-0.5 transition-transform"></i>
+                </Link>
+              </h3>
             );
           })}
         </div>
@@ -550,21 +552,22 @@ export default function ListingSidebar({
                 });
 
                 return (
-                  <Link
-                    key={item.name}
-                    href={targetUrl}
-                    scroll={false}
-                    onClick={(e) => handleSelectCity(e, item.name, targetUrl)}
-                    className="w-full text-left px-3 py-2 rounded-xl transition-colors duration-150 cursor-pointer flex items-center justify-between group border border-transparent text-slate-700 hover:bg-slate-50 hover:text-red-600"
-                  >
-                    <div className="flex items-center gap-2 truncate">
-                      <i className="fa-solid fa-map-pin text-[10px] text-slate-400 group-hover:text-red-500 transition-colors"></i>
-                      <h3 className="truncate text-xs font-normal text-inherit">{item.name}</h3>
-                    </div>
-                    <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full shrink-0 ml-2 bg-slate-200/90 text-slate-900 group-hover:bg-red-100 group-hover:text-red-700 transition-colors">
-                      {count > 0 ? `${count} tin` : 'Xem tin'}
-                    </span>
-                  </Link>
+                  <h3 key={item.name} className="m-0 p-0 text-xs font-normal">
+                    <Link
+                      href={targetUrl}
+                      scroll={false}
+                      onClick={(e) => handleSelectCity(e, item.name, targetUrl)}
+                      className="w-full text-left px-3 py-2 rounded-xl transition-colors duration-150 cursor-pointer flex items-center justify-between group border border-transparent text-slate-700 hover:bg-slate-50 hover:text-red-600"
+                    >
+                      <div className="flex items-center gap-2 truncate">
+                        <i className="fa-solid fa-map-pin text-[10px] text-slate-400 group-hover:text-red-500 transition-colors"></i>
+                        <span className="truncate">{item.name}</span>
+                      </div>
+                      <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full shrink-0 ml-2 bg-slate-200/90 text-slate-900 group-hover:bg-red-100 group-hover:text-red-700 transition-colors">
+                        {count > 0 ? `${count} tin` : 'Xem tin'}
+                      </span>
+                    </Link>
+                  </h3>
                 );
               })}
             </div>
@@ -596,21 +599,22 @@ export default function ListingSidebar({
                 });
 
                 return (
-                  <Link
-                    key={item.name}
-                    href={targetUrl}
-                    scroll={false}
-                    onClick={(e) => handleSelectDistrict(e, item, targetUrl)}
-                    className="w-full text-left px-3 py-2 rounded-xl transition-colors duration-150 cursor-pointer flex items-center justify-between group border border-transparent text-slate-700 hover:bg-slate-50 hover:text-red-600"
-                  >
-                    <div className="flex items-center gap-2 truncate">
-                      <i className="fa-solid fa-map-pin text-[10px] text-slate-400 group-hover:text-red-500 transition-colors"></i>
-                      <h3 className="truncate text-xs font-normal text-inherit">{item.name}</h3>
-                    </div>
-                    <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full shrink-0 ml-2 bg-slate-200/90 text-slate-900 group-hover:bg-red-100 group-hover:text-red-700 transition-colors">
-                      {count > 0 ? `${count} tin` : 'Xem tin'}
-                    </span>
-                  </Link>
+                  <h3 key={item.name} className="m-0 p-0 text-xs font-normal">
+                    <Link
+                      href={targetUrl}
+                      scroll={false}
+                      onClick={(e) => handleSelectDistrict(e, item, targetUrl)}
+                      className="w-full text-left px-3 py-2 rounded-xl transition-colors duration-150 cursor-pointer flex items-center justify-between group border border-transparent text-slate-700 hover:bg-slate-50 hover:text-red-600"
+                    >
+                      <div className="flex items-center gap-2 truncate">
+                        <i className="fa-solid fa-map-pin text-[10px] text-slate-400 group-hover:text-red-500 transition-colors"></i>
+                        <span className="truncate">{item.name}</span>
+                      </div>
+                      <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full shrink-0 ml-2 bg-slate-200/90 text-slate-900 group-hover:bg-red-100 group-hover:text-red-700 transition-colors">
+                        {count > 0 ? `${count} tin` : 'Xem tin'}
+                      </span>
+                    </Link>
+                  </h3>
                 );
               })}
             </div>
