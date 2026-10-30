@@ -88,3 +88,46 @@ export function buildImageAlt(title = '', options = {}) {
 
   return `${cleanTitle} - Hình ảnh chi tiết ${index + 1}`;
 }
+
+/**
+ * Tự động sinh thuộc tính responsive (srcSet, sizes) cho ảnh CDN (Unsplash, Cloudinary...)
+ * Giúp thiết bị di động chỉ tải ảnh có kích thước phù hợp (480px thay vì 1200px),
+ * tiết kiệm > 75% băng thông mạng và tối ưu LCP (Largest Contentful Paint) theo chuẩn Google Lighthouse.
+ */
+export function getResponsiveImageProps(src, type = 'gallery') {
+  if (!src || typeof src !== 'string') return {};
+
+  // 1. Tối ưu ảnh Unsplash CDN
+  if (src.includes('images.unsplash.com')) {
+    try {
+      const cleanBase = src
+        .replace(/[?&]w=\d+/g, '')
+        .replace(/[?&]q=\d+/g, '')
+        .replace(/[?&]fit=[^&]+/g, '')
+        .replace(/[?&]auto=[^&]+/g, '');
+      const connector = cleanBase.includes('?') ? '&' : '?';
+
+      const src480 = `${cleanBase}${connector}auto=format&fit=crop&w=480&q=75`;
+      const src768 = `${cleanBase}${connector}auto=format&fit=crop&w=768&q=80`;
+      const src1200 = `${cleanBase}${connector}auto=format&fit=crop&w=1200&q=80`;
+
+      let sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px';
+      if (type === 'main') {
+        sizes = '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px';
+      } else if (type === 'thumbnail') {
+        sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px';
+      } else if (type === 'gallery') {
+        sizes = '(max-width: 640px) 50vw, 250px';
+      }
+
+      return {
+        srcSet: `${src480} 480w, ${src768} 768w, ${src1200} 1200w`,
+        sizes
+      };
+    } catch (e) {
+      return {};
+    }
+  }
+
+  return {};
+}

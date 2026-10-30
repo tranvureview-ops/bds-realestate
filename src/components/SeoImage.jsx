@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { buildImageAlt, DEFAULT_PROPERTY_FALLBACK_IMAGE, DEFAULT_AVATAR_FALLBACK_IMAGE } from '../utils/imageSeo';
+import React, { useState, useEffect, useMemo } from 'react';
+import { buildImageAlt, getResponsiveImageProps, DEFAULT_PROPERTY_FALLBACK_IMAGE, DEFAULT_AVATAR_FALLBACK_IMAGE } from '../utils/imageSeo';
 
 /**
  * Component Hiển Thị Hình Ảnh Chuẩn SEO (Image SEO Component)
@@ -64,9 +64,15 @@ export default function SeoImage({
     if (onError) onError(e);
   };
 
+  const responsiveProps = useMemo(() => {
+    return getResponsiveImageProps(imgSrc, type);
+  }, [imgSrc, type]);
+
   return (
     <img
       src={imgSrc}
+      srcSet={rest.srcSet || responsiveProps.srcSet}
+      sizes={rest.sizes || responsiveProps.sizes}
       alt={computedAlt}
       title={title || computedAlt}
       loading={loading || (priority ? 'eager' : 'lazy')}
