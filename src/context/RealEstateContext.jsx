@@ -3209,19 +3209,40 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       }
     }
     let updatedTarget = null;
-    setProperties(prev => prev.map(p => {
-      if (p.id === propertyId) {
-        updatedTarget = { 
-          ...p, 
-          ...sanitizedData,
-          updatedAt: sanitizedData.updatedAt || new Date().toISOString()
-        };
-        return updatedTarget;
-      }
-      return p;
-    }));
+    let nextProperties = null;
+    setProperties(prev => {
+      nextProperties = prev.map(p => {
+        if (p.id === propertyId) {
+          updatedTarget = { 
+            ...p, 
+            ...sanitizedData,
+            updatedAt: sanitizedData.updatedAt || new Date().toISOString()
+          };
+          return updatedTarget;
+        }
+        return p;
+      });
+      return nextProperties;
+    });
+
     if (updatedTarget) {
+      // 1. Đồng bộ lên Supabase Cloud
       upsertSupabaseProperty(updatedTarget).catch(console.warn);
+
+      // 2. Đồng bộ xuống server-db.json qua API route /api/db-sync để F5 / SSR giữ nguyên
+      if (typeof window !== 'undefined') {
+        try {
+          fetch('/api/db-sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              bds_properties: nextProperties || properties.map(p => p.id === propertyId ? updatedTarget : p)
+            })
+          }).catch(console.warn);
+        } catch (e) {
+          console.warn('Lỗi db-sync khi updateProperty:', e);
+        }
+      }
     }
     showToast(`Đã cập nhật bài đăng ${propertyId}!`, 'success');
   };

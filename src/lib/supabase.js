@@ -62,8 +62,6 @@ export async function fetchSupabaseProperties() {
           verificationStatus: vStatus,
           verificationDocuments: vDocs,
           isTreasureHuntActive: Boolean(row.raw_data?.isTreasureHuntActive || row.is_treasure_hunt_active),
-        treasureHuntActivatedAt: row.raw_data?.treasureHuntActivatedAt || null,
-        treasureHuntExpiresAt: row.raw_data?.treasureHuntExpiresAt || null,
           treasureHuntActivatedAt: row.raw_data?.treasureHuntActivatedAt || null,
           treasureHuntExpiresAt: row.raw_data?.treasureHuntExpiresAt || null
         };
@@ -158,7 +156,6 @@ export async function upsertSupabaseProperty(prop) {
       project: prop.project || '',
       lat: prop.lat ? Number(prop.lat) : null,
       lng: prop.lng ? Number(prop.lng) : null,
-      google_place_id: prop.google_place_id || prop.googlePlaceId || null,
       description: prop.description || '',
       images: prop.images || [],
       video_url: prop.videoUrl || '',
