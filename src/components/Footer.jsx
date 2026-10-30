@@ -170,10 +170,10 @@ export default function Footer() {
             <h4 className="text-xs font-black uppercase text-white tracking-wider mb-3">
               {col2Title}
             </h4>
-            <ul className="space-y-2 text-xs text-slate-400">
+            <ul className="space-y-1 text-xs text-slate-400">
               {col2Links.map(link => (
                 <li key={link.id || link.url}>
-                  <Link to={link.url} className="hover:text-emerald-400 transition">
+                  <Link to={link.url} className="block py-1.5 hover:text-emerald-400 transition">
                     {link.label}
                   </Link>
                 </li>
@@ -186,10 +186,10 @@ export default function Footer() {
             <h4 className="text-xs font-black uppercase text-white tracking-wider mb-3">
               {col3Title}
             </h4>
-            <ul className="space-y-2 text-xs text-slate-400">
+            <ul className="space-y-1 text-xs text-slate-400">
               {col3Links.map(link => (
                 <li key={link.id || link.url}>
-                  <Link to={link.url} className="hover:text-amber-400 transition flex items-center gap-1.5">
+                  <Link to={link.url} className="block py-1.5 hover:text-amber-400 transition flex items-center gap-1.5">
                     {link.icon && <i className={`${link.icon} ${link.color || 'text-amber-400'} text-[10px]`}></i>}
                     <span>{link.label}</span>
                   </Link>
@@ -201,7 +201,7 @@ export default function Footer() {
                     to="/admin"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hover:text-red-400 transition flex items-center gap-1.5 text-red-400 font-semibold"
+                    className="block py-1.5 hover:text-red-400 transition flex items-center gap-1.5 text-red-400 font-semibold"
                   >
                     <i className="fa-solid fa-shield-halved text-red-500 text-[10px]"></i>
                     <span>Bàn Làm Việc CMS Admin</span>
@@ -264,13 +264,13 @@ export default function Footer() {
                 <div className="font-bold text-white text-[11px] uppercase tracking-wider mb-2 text-emerald-300">
                   Bất Động Sản Nhà Ở & Căn Hộ
                 </div>
-                <ul className="space-y-1.5">
-                  <li><Link to="/ban-can-ho-chung-cu/" className="hover:text-emerald-400 transition">Bán căn hộ chung cư</Link></li>
-                  <li><Link to="/ban-chung-cu-mini/" className="hover:text-emerald-400 transition">Bán chung cư mini, căn hộ dịch vụ</Link></li>
-                  <li><Link to="/ban-nha-rieng/" className="hover:text-emerald-400 transition">Bán nhà riêng</Link></li>
-                  <li><Link to="/ban-nha-biet-thu-lien-ke/" className="hover:text-emerald-400 transition">Bán nhà biệt thự, liền kề</Link></li>
-                  <li><Link to="/ban-nha-mat-pho/" className="hover:text-emerald-400 transition">Bán nhà mặt phố</Link></li>
-                  <li><Link to="/ban-shophouse/" className="hover:text-emerald-400 transition">Bán shophouse</Link></li>
+                <ul className="space-y-1">
+                  <li><Link to="/ban-can-ho-chung-cu/" className="block py-1.5 hover:text-emerald-400 transition">Bán căn hộ chung cư</Link></li>
+                  <li><Link to="/ban-chung-cu-mini/" className="block py-1.5 hover:text-emerald-400 transition">Bán chung cư mini, căn hộ dịch vụ</Link></li>
+                  <li><Link to="/ban-nha-rieng/" className="block py-1.5 hover:text-emerald-400 transition">Bán nhà riêng</Link></li>
+                  <li><Link to="/ban-nha-biet-thu-lien-ke/" className="block py-1.5 hover:text-emerald-400 transition">Bán nhà biệt thự, liền kề</Link></li>
+                  <li><Link to="/ban-nha-mat-pho/" className="block py-1.5 hover:text-emerald-400 transition">Bán nhà mặt phố</Link></li>
+                  <li><Link to="/ban-shophouse/" className="block py-1.5 hover:text-emerald-400 transition">Bán shophouse</Link></li>
                 </ul>
               </div>
 
@@ -279,13 +279,13 @@ export default function Footer() {
                 <div className="font-bold text-white text-[11px] uppercase tracking-wider mb-2 text-amber-300">
                   Đất Nền, Nghỉ Dưỡng & Kho Xưởng
                 </div>
-                <ul className="space-y-1.5">
-                  <li><Link to="/ban-dat-nen-du-an/" className="hover:text-amber-400 transition">Bán đất nền dự án</Link></li>
-                  <li><Link to="/ban-dat/" className="hover:text-amber-400 transition">Bán đất</Link></li>
-                  <li><Link to="/ban-trang-trai-khu-nghi-duong/" className="hover:text-amber-400 transition">Bán trang trại, khu nghỉ dưỡng</Link></li>
-                  <li><Link to="/ban-condotel/" className="hover:text-amber-400 transition">Bán condotel</Link></li>
-                  <li><Link to="/ban-kho-nha-xuong/" className="hover:text-amber-400 transition">Bán kho, nhà xưởng</Link></li>
-                  <li><Link to="/ban-bat-dong-san-khac/" className="hover:text-amber-400 transition">Bán loại BĐS khác</Link></li>
+                <ul className="space-y-1">
+                  <li><Link to="/ban-dat-nen-du-an/" className="block py-1.5 hover:text-amber-400 transition">Bán đất nền dự án</Link></li>
+                  <li><Link to="/ban-dat/" className="block py-1.5 hover:text-amber-400 transition">Bán đất</Link></li>
+                  <li><Link to="/ban-trang-trai-khu-nghi-duong/" className="block py-1.5 hover:text-amber-400 transition">Bán trang trại, khu nghỉ dưỡng</Link></li>
+                  <li><Link to="/ban-condotel/" className="block py-1.5 hover:text-amber-400 transition">Bán condotel</Link></li>
+                  <li><Link to="/ban-kho-nha-xuong/" className="block py-1.5 hover:text-amber-400 transition">Bán kho, nhà xưởng</Link></li>
+                  <li><Link to="/ban-bat-dong-san-khac/" className="block py-1.5 hover:text-amber-400 transition">Bán loại BĐS khác</Link></li>
                 </ul>
               </div>
 
@@ -294,13 +294,13 @@ export default function Footer() {
                 <div className="font-bold text-white text-[11px] uppercase tracking-wider mb-2 text-blue-300">
                   Bất Động Sản Cho Thuê
                 </div>
-                <ul className="space-y-1.5">
-                  <li><Link to="/cho-thue-can-ho-chung-cu/" className="hover:text-blue-400 transition">Cho thuê căn hộ chung cư</Link></li>
-                  <li><Link to="/cho-thue-chung-cu-mini/" className="hover:text-blue-400 transition">Cho thuê chung cư mini, CH dịch vụ</Link></li>
-                  <li><Link to="/cho-thue-nha-rieng/" className="hover:text-blue-400 transition">Cho thuê nhà riêng, nguyên căn</Link></li>
-                  <li><Link to="/cho-thue-nha-biet-thu-lien-ke/" className="hover:text-blue-400 transition">Cho thuê biệt thự, liền kề</Link></li>
-                  <li><Link to="/cho-thue-nha-mat-pho/" className="hover:text-blue-400 transition">Cho thuê nhà mặt phố</Link></li>
-                  <li><Link to="/cho-thue-kho-nha-xuong/" className="hover:text-blue-400 transition">Cho thuê kho, nhà xưởng</Link></li>
+                <ul className="space-y-1">
+                  <li><Link to="/cho-thue-can-ho-chung-cu/" className="block py-1.5 hover:text-blue-400 transition">Cho thuê căn hộ chung cư</Link></li>
+                  <li><Link to="/cho-thue-chung-cu-mini/" className="block py-1.5 hover:text-blue-400 transition">Cho thuê chung cư mini, CH dịch vụ</Link></li>
+                  <li><Link to="/cho-thue-nha-rieng/" className="block py-1.5 hover:text-blue-400 transition">Cho thuê nhà riêng, nguyên căn</Link></li>
+                  <li><Link to="/cho-thue-nha-biet-thu-lien-ke/" className="block py-1.5 hover:text-blue-400 transition">Cho thuê biệt thự, liền kề</Link></li>
+                  <li><Link to="/cho-thue-nha-mat-pho/" className="block py-1.5 hover:text-blue-400 transition">Cho thuê nhà mặt phố</Link></li>
+                  <li><Link to="/cho-thue-kho-nha-xuong/" className="block py-1.5 hover:text-blue-400 transition">Cho thuê kho, nhà xưởng</Link></li>
                 </ul>
               </div>
 
@@ -309,13 +309,13 @@ export default function Footer() {
                 <div className="font-bold text-white text-[11px] uppercase tracking-wider mb-2 text-rose-300">
                   BĐS Trọng Điểm Đà Nẵng
                 </div>
-                <ul className="space-y-1.5">
-                  <li><Link to="/ban-can-ho-chung-cu-quan-son-tra/" className="hover:text-rose-400 transition">Căn hộ Sơn Trà (The Sang)</Link></li>
-                  <li><Link to="/ban-nha-rieng-quan-hai-chau/" className="hover:text-rose-400 transition">Nhà riêng Quận Hải Châu</Link></li>
-                  <li><Link to="/ban-dat-nen-du-an-quan-ngu-hanh-son/" className="hover:text-rose-400 transition">Đất nền Nam Hòa Xuân</Link></li>
-                  <li><Link to="/ban-dat-nen-du-an-da-nang/" className="hover:text-rose-400 transition">Đất nền dự án Đà Nẵng</Link></li>
-                  <li><Link to="/cho-thue-nha-biet-thu-lien-ke-quan-son-tra/" className="hover:text-rose-400 transition">Biệt thự biển Sơn Trà</Link></li>
-                  <li><Link to="/ban-dat-quan-cam-le/" className="hover:text-rose-400 transition">Đất Cẩm Lệ & Hòa Vang</Link></li>
+                <ul className="space-y-1">
+                  <li><Link to="/ban-can-ho-chung-cu-quan-son-tra/" className="block py-1.5 hover:text-rose-400 transition">Căn hộ Sơn Trà (The Sang)</Link></li>
+                  <li><Link to="/ban-nha-rieng-quan-hai-chau/" className="block py-1.5 hover:text-rose-400 transition">Nhà riêng Quận Hải Châu</Link></li>
+                  <li><Link to="/ban-dat-nen-du-an-quan-ngu-hanh-son/" className="block py-1.5 hover:text-rose-400 transition">Đất nền Nam Hòa Xuân</Link></li>
+                  <li><Link to="/ban-dat-nen-du-an-da-nang/" className="block py-1.5 hover:text-rose-400 transition">Đất nền dự án Đà Nẵng</Link></li>
+                  <li><Link to="/cho-thue-nha-biet-thu-lien-ke-quan-son-tra/" className="block py-1.5 hover:text-rose-400 transition">Biệt thự biển Sơn Trà</Link></li>
+                  <li><Link to="/ban-dat-quan-cam-le/" className="block py-1.5 hover:text-rose-400 transition">Đất Cẩm Lệ & Hòa Vang</Link></li>
                 </ul>
               </div>
             </div>
@@ -327,9 +327,9 @@ export default function Footer() {
           <div>
             {copyrightText}
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
             {policyLinks.map(policy => (
-              <Link key={policy.id || policy.url} to={policy.url} className="hover:text-emerald-400 transition">
+              <Link key={policy.id || policy.url} to={policy.url} className="py-1.5 hover:text-emerald-400 transition inline-block">
                 {policy.label}
               </Link>
             ))}
