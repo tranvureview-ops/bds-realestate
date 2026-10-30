@@ -103,21 +103,50 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="vi" suppressHydrationWarning>
       <head>
-        {/* Google Fonts */}
+        {/* Preconnect to Google Fonts CDN */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Preload critical styling assets */}
         <link
-          id="server-google-font-link"
+          rel="preload"
+          as="style"
           href={fontConfig.googleFontUrl}
-          rel="stylesheet"
         />
+        <link
+          rel="preload"
+          as="style"
+          href="/leaflet/leaflet.css"
+        />
+        {/* Non-render-blocking Asynchronous Stylesheet Injector to eliminate Critical Request Chains */}
+        <script
+          id="server-async-styles"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                function loadCSS(href, id) {
+                  var l = document.createElement('link');
+                  if (id) l.id = id;
+                  l.rel = 'stylesheet';
+                  l.href = href;
+                  document.head.appendChild(l);
+                }
+                loadCSS('${fontConfig.googleFontUrl}', 'server-google-font-link');
+                loadCSS('/leaflet/leaflet.css', 'server-leaflet-css');
+              })();
+            `
+          }}
+        />
+        <noscript>
+          <link rel="stylesheet" href={fontConfig.googleFontUrl} />
+          <link rel="stylesheet" href="/leaflet/leaflet.css" />
+        </noscript>
         <style
           id="app-ssr-font-override"
           dangerouslySetInnerHTML={{
             __html: `
               :root { --font-custom-family: ${fontConfig.fontFamily}; }
               html, body {
-                font-family: var(--font-custom-family, ${fontConfig.fontFamily}) !important;
+                font-family: var(--font-custom-family, ${fontConfig.fontFamily}), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
               }
@@ -125,7 +154,7 @@ export default async function RootLayout({ children }) {
                 font-family: inherit !important;
               }
               .font-mono, .font-sans {
-                font-family: var(--font-custom-family, ${fontConfig.fontFamily}) !important;
+                font-family: var(--font-custom-family, ${fontConfig.fontFamily}), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
               }
               .font-mono {
                 font-variant-numeric: tabular-nums;
@@ -155,20 +184,11 @@ export default async function RootLayout({ children }) {
           type="font/woff2"
           crossOrigin="anonymous"
         />
-        {/* Leaflet CSS */}
-        <link
-          rel="stylesheet"
-          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-          crossOrigin=""
-        />
       </head>
       <body suppressHydrationWarning>
-        {/* Leaflet JS (Lazy loaded on idle to eliminate render blocking) */}
+        {/* Leaflet JS (Self-hosted locally & lazy loaded on idle) */}
         <Script
-          src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-          crossOrigin=""
+          src="/leaflet/leaflet.js"
           strategy="lazyOnload"
         />
         <ClientLayout initialDb={initialDb} initialUser={initialUser}>{children}</ClientLayout>
