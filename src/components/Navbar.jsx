@@ -260,7 +260,7 @@ export default function Navbar() {
                   <div className="flex items-center font-black text-slate-900 tracking-tight text-base sm:text-lg truncate">
                     <span className="truncate">{brandNameDisplay}</span>
                     {brandHighlightDisplay ? (
-                      <span className="text-emerald-600 shrink-0 ml-1">{brandHighlightDisplay}</span>
+                      <span className="text-emerald-600 shrink-0">{brandHighlightDisplay}</span>
                     ) : null}
                     {headerConfig?.badgeText && (
                       <span className={`hidden sm:inline-block ml-1.5 text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0 ${headerConfig?.badgeColor || 'bg-red-100 text-red-600 border border-red-200'}`}>
@@ -697,7 +697,7 @@ export default function Navbar() {
                   </div>
                   <div className="font-black text-slate-900 text-base flex items-center">
                     <span>{brandNameDisplay}</span>
-                    {brandHighlightDisplay ? <span className="text-emerald-600 ml-1">{brandHighlightDisplay}</span> : null}
+                    {brandHighlightDisplay ? <span className="text-emerald-600">{brandHighlightDisplay}</span> : null}
                   </div>
                 </div>
               )}
