@@ -4595,8 +4595,8 @@
     },
     "treasureHuntConfig": {
       "enabled": true,
-      "dailyLimit": 3,
-      "minReadingSeconds": 4,
+      "dailyLimit": 2,
+      "minReadingSeconds": 20,
       "cooldownSeconds": 20,
       "minAmount": 2000,
       "maxAmount": 20000

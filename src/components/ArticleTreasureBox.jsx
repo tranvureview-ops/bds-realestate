@@ -32,32 +32,70 @@ export default function ArticleTreasureBox({ property }) {
 
   const [hasClaimedThisArticle, setHasClaimedThisArticle] = useState(false);
   const [quota, setQuota] = useState({ count: 0, limit: dailyLimit, remaining: dailyLimit, isLimitReached: false });
-  const [timeReady, setTimeReady] = useState(false);
+  const [readingSecondsLeft, setReadingSecondsLeft] = useState(minReadingSeconds > 0 ? minReadingSeconds : 0);
+  const [timeReady, setTimeReady] = useState(minReadingSeconds <= 0);
   const [isOpening, setIsOpening] = useState(false);
   const [revealedReward, setRevealedReward] = useState(null);
 
   const effectiveUserId = (currentUser && currentUser.role !== 'guest' ? currentUser.id : null) || 'guest';
   const isGuest = effectiveUserId === 'guest';
 
-  // 1. Kiểm tra trạng thái rương khi tải bài viết
+  // 1. Kiểm tra trạng thái rương & đồng hồ đếm ngược xem bài viết (Anti-bot)
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    let timer = null;
+
     if (property?.id) {
-      setHasClaimedThisArticle(hasClaimedPropertyToday(effectiveUserId, property.id));
-      setQuota(getDailyQuotaStatus(effectiveUserId, dailyLimit));
+      const claimed = hasClaimedPropertyToday(effectiveUserId, property.id);
+      const quotaStatus = getDailyQuotaStatus(effectiveUserId, dailyLimit);
+      setHasClaimedThisArticle(claimed);
+      setQuota(quotaStatus);
+
+      // Nếu đã nhận rương hoặc hết hạn mức hôm nay thì không cần đếm ngược
+      if (claimed || quotaStatus.isLimitReached) {
+        setReadingSecondsLeft(0);
+        setTimeReady(true);
+        return;
+      }
     }
 
-    // Chống bot/spam: Phải xem bài viết ít nhất X giây mới sẵn sàng mở hộp
-    const timer = setTimeout(() => {
+    if (minReadingSeconds <= 0) {
+      setReadingSecondsLeft(0);
       setTimeReady(true);
-    }, minReadingSeconds * 1000);
+      return;
+    }
 
-    return () => clearTimeout(timer);
+    // Khởi tạo đếm ngược theo thời gian tối thiểu đã cấu hình trong Admin
+    setReadingSecondsLeft(minReadingSeconds);
+    setTimeReady(false);
+
+    timer = setInterval(() => {
+      setReadingSecondsLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          setTimeReady(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => {
+      if (timer) clearInterval(timer);
+    };
   }, [effectiveUserId, property?.id, dailyLimit, minReadingSeconds]);
 
   // 2. Thao tác Mở Hộp Quà
   const handleOpenChest = () => {
+    // 0. Chống bot/spam: Phải xem bài viết ít nhất X giây mới sẵn sàng mở hộp
+    if (!timeReady || readingSecondsLeft > 0) {
+      if (showToast) {
+        showToast(`🛡️ Vui lòng xem tin đăng thêm ${readingSecondsLeft}s nữa để mở khóa rương (Chống bot gian lận)!`, 'warning');
+      }
+      return;
+    }
+
     // A. Kiểm tra giới hạn N hộp / ngày
     const currentQuota = getDailyQuotaStatus(effectiveUserId, dailyLimit);
     if (currentQuota.isLimitReached) {
@@ -191,11 +229,20 @@ export default function ArticleTreasureBox({ property }) {
         <div className="flex items-center gap-4 text-center sm:text-left">
           <div className="relative shrink-0">
             <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center text-3xl sm:text-4xl text-amber-200 shadow-inner ${
-              !hasClaimedThisArticle && !quota.isLimitReached ? 'animate-bounce' : ''
+              !hasClaimedThisArticle && !quota.isLimitReached && timeReady ? 'animate-bounce' : ''
             }`}>
-              <i className={`fa-solid ${hasClaimedThisArticle ? 'fa-box-open text-white/80' : 'fa-box'}`}></i>
+              <i className={`fa-solid ${hasClaimedThisArticle ? 'fa-box-open text-white/80' : timeReady ? 'fa-box-open' : 'fa-box'}`}></i>
             </div>
-            {!hasClaimedThisArticle && !quota.isLimitReached && (
+            
+            {/* Huy hiệu đếm ngược trên góc icon */}
+            {!hasClaimedThisArticle && !quota.isLimitReached && !timeReady && (
+              <span className="absolute -top-2 -right-2 px-2 py-0.5 rounded-full bg-slate-950 text-amber-300 font-mono text-[11px] font-black border border-amber-400 shadow-md flex items-center gap-1">
+                <i className="fa-solid fa-lock text-[9px] text-amber-400"></i>
+                <span>{readingSecondsLeft}s</span>
+              </span>
+            )}
+
+            {!hasClaimedThisArticle && !quota.isLimitReached && timeReady && (
               <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-300 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-4 w-4 bg-amber-400 border border-white"></span>
@@ -211,6 +258,19 @@ export default function ArticleTreasureBox({ property }) {
               <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white/20 text-white">
                 Hạn mức hôm nay: <strong>{quota.count}/{dailyLimit} rương</strong>
               </span>
+              {!hasClaimedThisArticle && !quota.isLimitReached && (
+                !timeReady ? (
+                  <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-950/70 text-amber-300 border border-amber-400/40 flex items-center gap-1.5 shadow-xs">
+                    <i className="fa-solid fa-hourglass-half animate-spin text-[10px] text-amber-400"></i>
+                    <span>Đang đọc bài: <strong>còn {readingSecondsLeft}s</strong></span>
+                  </span>
+                ) : (
+                  <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/30 text-emerald-100 border border-emerald-300/40 flex items-center gap-1.5 shadow-xs">
+                    <i className="fa-solid fa-unlock-keyhole text-[10px] text-emerald-300"></i>
+                    <span>Đã mở khóa</span>
+                  </span>
+                )
+              )}
             </div>
 
             <h4 className="text-base sm:text-lg font-black leading-snug">
@@ -218,6 +278,8 @@ export default function ArticleTreasureBox({ property }) {
                 ? 'Bạn đã mở rương bài viết này thành công!'
                 : quota.isLimitReached
                 ? `Bạn đã nhận đủ ${dailyLimit}/${dailyLimit} rương kho báu hôm nay!`
+                : !timeReady
+                ? `Rương Kho Báu Đang Mở Khóa (${readingSecondsLeft}s)`
                 : 'Bạn vừa tìm thấy 1 Rương Kho Báu trong bài viết này!'}
             </h4>
 
@@ -226,8 +288,20 @@ export default function ArticleTreasureBox({ property }) {
                 ? 'Tiền thưởng đã được cộng vào Ví Khuyến Mãi. Hãy tiếp tục xem tin khác để săn rương tiếp theo!'
                 : quota.isLimitReached
                 ? `Hẹn gặp lại bạn vào ngày mai để tiếp tục săn ${dailyLimit} rương nhận tiền vào Ví Khuyến Mãi nhé.`
+                : !timeReady
+                ? `Vui lòng xem bài viết trong ${readingSecondsLeft} giây nữa để chống bot và mở khóa nhận từ ${minAmount.toLocaleString('vi-VN')}đ đến ${maxAmount.toLocaleString('vi-VN')}đ vào Ví Khuyến Mãi.`
                 : `Mở rương ngẫu nhiên nhận từ ${minAmount.toLocaleString('vi-VN')}đ đến ${maxAmount.toLocaleString('vi-VN')}đ tiền tươi cộng thẳng vào Ví Khuyến Mãi.`}
             </p>
+
+            {/* Thanh tiến trình đếm ngược thời gian đọc tin */}
+            {!hasClaimedThisArticle && !quota.isLimitReached && !timeReady && minReadingSeconds > 0 && (
+              <div className="w-full max-w-md bg-black/30 rounded-full h-1.5 overflow-hidden mt-2 p-0.5 border border-white/20">
+                <div 
+                  className="bg-gradient-to-r from-amber-300 to-yellow-200 h-full rounded-full transition-all duration-1000 ease-linear shadow"
+                  style={{ width: `${Math.min(100, Math.max(0, Math.round(((minReadingSeconds - readingSecondsLeft) / minReadingSeconds) * 100)))}%` }}
+                />
+              </div>
+            )}
           </div>
         </div>
 
@@ -243,11 +317,26 @@ export default function ArticleTreasureBox({ property }) {
               <i className="fa-solid fa-lock"></i>
               <span>Đã hết lượt hôm nay</span>
             </div>
+          ) : !timeReady ? (
+            <button
+              type="button"
+              onClick={() => {
+                if (showToast) {
+                  showToast(`🛡️ Vui lòng xem tin đăng thêm ${readingSecondsLeft}s nữa để mở khóa rương (Chống bot gian lận)!`, 'warning');
+                }
+              }}
+              className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-slate-950/70 hover:bg-slate-950/90 text-amber-300 font-bold text-xs sm:text-sm border border-amber-400/50 shadow-lg transition flex items-center justify-center gap-2 cursor-pointer"
+              title={`Vui lòng xem bài viết thêm ${readingSecondsLeft} giây để mở khóa`}
+            >
+              <i className="fa-solid fa-lock text-amber-400"></i>
+              <span>Mở sau {readingSecondsLeft}s</span>
+            </button>
           ) : (
             <button
+              type="button"
               onClick={handleOpenChest}
               disabled={isOpening}
-              className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-white hover:bg-amber-50 text-slate-900 font-black text-xs sm:text-sm shadow-xl transition-transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-white hover:bg-amber-50 text-slate-900 font-black text-xs sm:text-sm shadow-xl transition-transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 cursor-pointer animate-pulse"
             >
               {isOpening ? (
                 <>
