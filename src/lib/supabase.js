@@ -314,6 +314,39 @@ export async function fetchSupabaseProfiles() {
   }
 }
 
+export async function fetchSupabaseProfile(userId) {
+  if (!isSupabaseConfigured() || !supabase || !userId) return null;
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle();
+
+    if (error || !data || data.status === 'deleted' || data.name === '[Đã xóa]') return null;
+    return {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      role: data.role,
+      roleName: data.role_name,
+      walletBalance: Number(data.wallet_balance || 0),
+      bonusWalletBalance: Number(data.bonus_wallet_balance || 0),
+      phone: data.phone,
+      avatar: (data.avatar && typeof data.avatar === 'string' && data.avatar.startsWith('data:image') && data.avatar.length > 2048) ? '/avatars/ai-preset-2.jpg' : data.avatar,
+      membership: data.membership,
+      vouchers: data.vouchers,
+      isVerified: Boolean(data.is_verified),
+      status: data.status || 'active',
+      isDeleted: Boolean(data.is_deleted),
+      deletedAt: data.deleted_at || null,
+      createdAt: data.created_at || new Date().toISOString()
+    };
+  } catch (err) {
+    return null;
+  }
+}
+
 export async function upsertSupabaseProfile(user) {
   if (!isSupabaseConfigured() || !supabase || !user?.id) return false;
   try {

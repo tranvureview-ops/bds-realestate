@@ -60,6 +60,11 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
     false
   );
 
+  const rawAvatar = authorUser?.avatar || property.author?.avatar || '/avatars/ai-preset-2.jpg';
+  const cleanAvatar = (typeof rawAvatar === 'string' && rawAvatar.startsWith('data:image') && rawAvatar.length > 1024)
+    ? '/avatars/ai-preset-2.jpg'
+    : rawAvatar;
+
   const safeAuthor = {
     id: authorUser?.id || property.author?.id || null,
     name: authorName,
@@ -68,7 +73,7 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
     isBroker,
     phone: displayAuthorPhone,
     zalo: (authorUser?.phone || property.author?.zalo || property.author?.phone || property.contactPhone || '0908123456').replace(/\s+/g, ''),
-    avatar: authorUser?.avatar || property.author?.avatar || '/avatars/ai-preset-2.jpg',
+    avatar: cleanAvatar,
     title: isVerifiedAuthor ? 'Môi giới chuyên nghiệp' : '',
     isVerified: isVerifiedAuthor
   };
