@@ -1,4 +1,5 @@
 import './globals.css';
+import './fontawesome.css';
 import Script from 'next/script';
 import ClientLayout from './ClientLayout';
 
@@ -132,12 +133,27 @@ export default async function RootLayout({ children }) {
             `
           }}
         />
-        {/* Font Awesome Icons */}
+        {/* Preload Font Awesome Webfonts with font-display: swap */}
         <link
-          rel="stylesheet"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          rel="preload"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-solid-900.woff2"
+          as="font"
+          type="font/woff2"
           crossOrigin="anonymous"
-          referrerPolicy="no-referrer"
+        />
+        <link
+          rel="preload"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-regular-400.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-brands-400.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
         />
         {/* Leaflet CSS */}
         <link
