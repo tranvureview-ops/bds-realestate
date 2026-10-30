@@ -35,6 +35,26 @@ const DEFAULT_RECENT_SEARCHES = [
   }
 ];
 
+const BEDROOM_OPTIONS = [
+  { value: 'all', label: 'Bất kỳ' },
+  { value: '1', label: '1 phòng ngủ' },
+  { value: '2', label: '2 phòng ngủ' },
+  { value: '3', label: '3 phòng ngủ' },
+  { value: '4+', label: '4+ phòng ngủ' }
+];
+
+const DIRECTION_OPTIONS = [
+  { value: 'all', label: 'Mọi hướng' },
+  { value: 'Đông', label: 'Đông' },
+  { value: 'Tây', label: 'Tây' },
+  { value: 'Nam', label: 'Nam' },
+  { value: 'Bắc', label: 'Bắc' },
+  { value: 'Đông Nam', label: 'Đông Nam' },
+  { value: 'Tây Nam', label: 'Tây Nam' },
+  { value: 'Đông Bắc', label: 'Đông Bắc' },
+  { value: 'Tây Bắc', label: 'Tây Bắc' }
+];
+
 export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 }) {
   const { navigate } = useRouter();
   const [searchTerm, setSearchTerm] = useState(filters?.keyword || '');
@@ -360,6 +380,17 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
     if (!filters.areaRange || filters.areaRange === 'all') return 'Diện tích';
     const found = AREA_PRESETS.find(a => a.value === filters.areaRange);
     return found ? found.label.replace('Dưới ', '≤ ').replace('Trên ', '≥ ') : formatAreaRangeText(filters.areaRange);
+  };
+
+  const getBedroomLabel = () => {
+    if (!filters.bedroom || filters.bedroom === 'all') return 'Bất kỳ';
+    const found = BEDROOM_OPTIONS.find(b => b.value === filters.bedroom);
+    return found ? found.label : `${filters.bedroom} phòng ngủ`;
+  };
+
+  const getDirectionLabel = () => {
+    if (!filters.direction || filters.direction === 'all') return 'Mọi hướng';
+    return filters.direction;
   };
 
   // Active City's districts
@@ -818,11 +849,16 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                 type="button"
                 onClick={() => setShowAdvanced(!showAdvanced)}
                 className={`px-3 py-1.5 rounded-lg border font-semibold flex items-center gap-1.5 transition cursor-pointer ${
-                  showAdvanced ? 'border-emerald-500 bg-emerald-50 text-emerald-700' : 'border-slate-200 text-slate-700 hover:bg-slate-50'
+                  showAdvanced || (filters.bedroom && filters.bedroom !== 'all') || (filters.direction && filters.direction !== 'all')
+                    ? 'border-emerald-500 bg-emerald-50 text-emerald-700 font-bold'
+                    : 'border-slate-200 text-slate-700 hover:bg-slate-50'
                 }`}
               >
                 <i className="fa-solid fa-sliders text-[11px] text-emerald-600"></i>
                 <span className="hidden sm:inline">Lọc nâng cao</span>
+                {((filters.bedroom && filters.bedroom !== 'all') || (filters.direction && filters.direction !== 'all')) && (
+                  <span className="w-2 h-2 rounded-full bg-emerald-600 inline-block"></span>
+                )}
               </button>
 
               {/* Đặt lại bộ lọc (Reset) */}
@@ -838,45 +874,97 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
 
             {/* Collapsible Advanced Filters Section */}
             {showAdvanced && (
-              <div className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-2 gap-3 bg-slate-50/70 p-3 rounded-xl animate-fadeIn">
-                {/* Bedrooms */}
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
-                    Số phòng ngủ
+              <div className="mt-3 pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50/80 p-3 sm:p-3.5 rounded-2xl animate-fadeIn">
+                {/* 1. Bedrooms Custom Dropdown */}
+                <div className="relative">
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1 flex items-center gap-1.5 select-none">
+                    <i className="fa-solid fa-bed text-slate-400 text-[10px]"></i>
+                    <span>Số phòng ngủ</span>
                   </label>
-                  <select
-                    value={filters.bedroom || 'all'}
-                    onChange={(e) => setFilters(prev => ({ ...prev, bedroom: e.target.value }))}
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:ring-red-500 text-slate-800 outline-none"
+                  <button
+                    type="button"
+                    onClick={() => setOpenFilterMenu(prev => prev === 'bedroom' ? null : 'bedroom')}
+                    className={`w-full px-3 py-2 rounded-xl border text-xs font-semibold flex items-center justify-between transition cursor-pointer shadow-2xs ${
+                      filters.bedroom && filters.bedroom !== 'all'
+                        ? 'border-red-500 bg-red-50/60 text-red-700 font-bold'
+                        : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white hover:bg-slate-50'
+                    }`}
                   >
-                    <option value="all">Bất kỳ</option>
-                    <option value="1">1 phòng ngủ</option>
-                    <option value="2">2 phòng ngủ</option>
-                    <option value="3">3 phòng ngủ</option>
-                    <option value="4+">4+ phòng ngủ</option>
-                  </select>
+                    <span className="truncate">{getBedroomLabel()}</span>
+                    <i className={`fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform ${openFilterMenu === 'bedroom' ? 'rotate-180' : ''}`}></i>
+                  </button>
+
+                  {openFilterMenu === 'bedroom' && (
+                    <div className="absolute top-full left-0 mt-1.5 w-full bg-white rounded-xl shadow-xl border border-slate-200 z-50 p-1.5 animate-fadeIn">
+                      {BEDROOM_OPTIONS.map(opt => {
+                        const isSelected = (filters.bedroom || 'all') === opt.value;
+                        return (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => {
+                              setFilters(prev => ({ ...prev, bedroom: opt.value }));
+                              setOpenFilterMenu(null);
+                            }}
+                            className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
+                              isSelected
+                                ? 'bg-red-50 text-red-600 font-bold'
+                                : 'text-slate-700 hover:bg-slate-50'
+                            }`}
+                          >
+                            <span>{opt.label}</span>
+                            {isSelected && <i className="fa-solid fa-check text-xs text-red-600"></i>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
 
-                {/* Direction */}
-                <div>
-                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
-                    Hướng nhà
+                {/* 2. Direction Custom Dropdown */}
+                <div className="relative">
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1 flex items-center gap-1.5 select-none">
+                    <i className="fa-solid fa-compass text-slate-400 text-[10px]"></i>
+                    <span>Hướng nhà</span>
                   </label>
-                  <select
-                    value={filters.direction || 'all'}
-                    onChange={(e) => setFilters(prev => ({ ...prev, direction: e.target.value }))}
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs focus:ring-red-500 text-slate-800 outline-none"
+                  <button
+                    type="button"
+                    onClick={() => setOpenFilterMenu(prev => prev === 'direction' ? null : 'direction')}
+                    className={`w-full px-3 py-2 rounded-xl border text-xs font-semibold flex items-center justify-between transition cursor-pointer shadow-2xs ${
+                      filters.direction && filters.direction !== 'all'
+                        ? 'border-red-500 bg-red-50/60 text-red-700 font-bold'
+                        : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white hover:bg-slate-50'
+                    }`}
                   >
-                    <option value="all">Mọi hướng</option>
-                    <option value="Đông">Đông</option>
-                    <option value="Tây">Tây</option>
-                    <option value="Nam">Nam</option>
-                    <option value="Bắc">Bắc</option>
-                    <option value="Đông Nam">Đông Nam</option>
-                    <option value="Tây Nam">Tây Nam</option>
-                    <option value="Đông Bắc">Đông Bắc</option>
-                    <option value="Tây Bắc">Tây Bắc</option>
-                  </select>
+                    <span className="truncate">{getDirectionLabel()}</span>
+                    <i className={`fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform ${openFilterMenu === 'direction' ? 'rotate-180' : ''}`}></i>
+                  </button>
+
+                  {openFilterMenu === 'direction' && (
+                    <div className="absolute top-full left-0 mt-1.5 w-full bg-white rounded-xl shadow-xl border border-slate-200 z-50 p-1.5 animate-fadeIn max-h-56 overflow-y-auto">
+                      {DIRECTION_OPTIONS.map(opt => {
+                        const isSelected = (filters.direction || 'all') === opt.value;
+                        return (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => {
+                              setFilters(prev => ({ ...prev, direction: opt.value }));
+                              setOpenFilterMenu(null);
+                            }}
+                            className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
+                              isSelected
+                                ? 'bg-red-50 text-red-600 font-bold'
+                                : 'text-slate-700 hover:bg-slate-50'
+                            }`}
+                          >
+                            <span>{opt.label}</span>
+                            {isSelected && <i className="fa-solid fa-check text-xs text-red-600"></i>}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
