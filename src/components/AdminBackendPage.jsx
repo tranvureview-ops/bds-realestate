@@ -4253,13 +4253,12 @@ export default function AdminBackendPage() {
                                           updateProperty(p.id, { isTreasureHuntActive: false });
                                           showToast(`Đã tắt rương thưởng cho bài viết ${p.id}`, 'info');
                                         }}
-                                        className="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/50 flex items-center gap-1 font-bold hover:bg-rose-500/20 hover:text-rose-300 hover:border-rose-500/50 transition cursor-pointer group"
+                                        className="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/50 flex items-center gap-1 font-bold hover:bg-amber-500/30 hover:border-amber-400 transition cursor-pointer"
                                         title="Bài viết đang BẬT rương kho báu tiền thưởng. Bấm để tắt."
                                       >
-                                        <i className="fa-solid fa-gift text-[9px] text-amber-400 group-hover:hidden"></i>
-                                        <i className="fa-solid fa-power-off text-[9px] text-rose-400 hidden group-hover:inline"></i>
-                                        <span className="group-hover:hidden">🎁 Có rương</span>
-                                        <span className="hidden group-hover:inline">Tắt rương</span>
+                                        <i className="fa-solid fa-gift text-[9px] text-amber-400"></i>
+                                        <span>🎁 Có rương</span>
+                                        <i className="fa-solid fa-xmark text-[8px] opacity-70"></i>
                                       </button>
                                     ) : (
                                       <button

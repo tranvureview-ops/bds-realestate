@@ -846,13 +846,12 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                           <button
                             type="button"
                             onClick={() => handleToggleTreasureHunt(prop)}
-                            className="px-3 py-1.5 font-black rounded-xl text-xs transition shadow-xs flex items-center gap-1.5 bg-amber-500 hover:bg-rose-500 hover:text-white text-slate-950 border border-amber-600 hover:border-rose-600 cursor-pointer group"
-                            title="Bài viết đang được gán nổi bật trong mục Săn Kho Báu BĐS. Bấm để gỡ bỏ."
+                            className="px-3 py-1.5 font-bold rounded-xl text-xs transition-colors shadow-xs flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 border border-amber-600 cursor-pointer"
+                            title="Bài viết đang được gán nổi bật trong mục Săn Kho Báu BĐS. Bấm để tắt/gỡ bỏ."
                           >
-                            <i className="fa-solid fa-star group-hover:hidden text-slate-950 text-[10px]"></i>
-                            <i className="fa-solid fa-power-off hidden group-hover:inline text-[10px]"></i>
-                            <span className="group-hover:hidden">Đang nổi bật</span>
-                            <span className="hidden group-hover:inline">Gỡ nổi bật</span>
+                            <i className="fa-solid fa-star text-[10px]"></i>
+                            <span>Đang nổi bật</span>
+                            <i className="fa-solid fa-xmark text-[10px] opacity-70"></i>
                           </button>
                         ) : (
                           <button
