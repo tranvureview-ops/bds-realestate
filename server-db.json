@@ -3530,7 +3530,9 @@
         "normalPublishVouchers": 30
       },
       "allowFutureStartDate": false,
-      "allowScheduledPublishing": false
+      "allowScheduledPublishing": false,
+      "allowTreasureHunt": false,
+      "treasureHuntMaxArticles": 0
     },
     {
       "id": "member-standard",
@@ -3586,7 +3588,9 @@
         "normalPublishVouchers": 60
       },
       "allowFutureStartDate": true,
-      "allowScheduledPublishing": true
+      "allowScheduledPublishing": true,
+      "allowTreasureHunt": true,
+      "treasureHuntMaxArticles": 5
     },
     {
       "id": "member-premium",
@@ -3643,7 +3647,9 @@
         "normalPublishVouchers": 99
       },
       "allowFutureStartDate": true,
-      "allowScheduledPublishing": true
+      "allowScheduledPublishing": true,
+      "allowTreasureHunt": true,
+      "treasureHuntMaxArticles": 10
     }
   ],
   "bds_single_config": {

@@ -359,32 +359,45 @@ export default function UserDashboard({ initialTab = 'listings' }) {
 
           <div className="flex flex-wrap items-center gap-3">
             {isMemberActive ? (
-              <div className="flex items-center gap-2 bg-slate-950/80 p-2 rounded-xl border border-slate-800 text-xs">
-                <div className="px-2.5 py-1 text-center border-r border-slate-800">
+              <div className="flex items-center gap-1.5 sm:gap-2 bg-slate-950/80 p-2 rounded-xl border border-slate-800 text-xs">
+                <div className="px-2 sm:px-2.5 py-1 text-center border-r border-slate-800">
                   <div className="text-[10px] text-slate-400 font-bold uppercase">Tin Thường {isPubFree ? '(Miễn Phí)' : `(-${formatDiscountK(commonPublishDiscount)})`}</div>
                   <div className="text-sm font-black text-emerald-400 font-mono">{currentUser.vouchers?.normalPublish || 0}</div>
                 </div>
-                <div className="px-2.5 py-1 text-center border-r border-slate-800">
+                <div className="px-2 sm:px-2.5 py-1 text-center border-r border-slate-800">
                   <div className="text-[10px] text-slate-400 font-bold uppercase">Đẩy Tin {isBumpFree ? '(Miễn Phí)' : `(-${formatDiscountK(commonBumpDiscount)})`}</div>
                   <div className="text-sm font-black text-amber-400 font-mono">{currentUser.vouchers?.normalBump || 0}</div>
                 </div>
-                <div className="px-2.5 py-1 text-center">
+                <div className="px-2 sm:px-2.5 py-1 text-center border-r border-slate-800">
                   <div className="text-[10px] text-slate-400 font-bold uppercase">Tin VIP (-{formatDiscountK(commonVipDiscount)})</div>
                   <div className="text-sm font-black text-red-400 font-mono">{currentUser.vouchers?.vipPublish || 0}</div>
                 </div>
+                <div className="px-2 sm:px-2.5 py-1 text-center">
+                  <div className="text-[10px] text-amber-400 font-bold uppercase flex items-center justify-center gap-1">
+                    <i className="fa-solid fa-gift text-[9px]"></i>
+                    <span>Tin Nổi Bật</span>
+                  </div>
+                  <div className="text-sm font-black text-amber-400 font-mono">
+                    {isTreasureHuntAllowed ? `${currentTreasureCount}/${isAdmin ? '∞' : maxTreasureArticles}` : '—'}
+                  </div>
+                </div>
               </div>
             ) : isMemberExpired ? (
-              <div className="flex items-center gap-2 bg-rose-950/60 p-2 rounded-xl border border-rose-800/60 text-xs">
-                <div className="px-2.5 py-1 text-center border-r border-rose-900/60">
+              <div className="flex items-center gap-1.5 sm:gap-2 bg-rose-950/60 p-2 rounded-xl border border-rose-800/60 text-xs">
+                <div className="px-2 sm:px-2.5 py-1 text-center border-r border-rose-900/60">
                   <div className="text-[10px] text-rose-400 font-bold uppercase">Tin Thường</div>
                   <div className="text-sm font-black text-rose-300 font-mono">0</div>
                 </div>
-                <div className="px-2.5 py-1 text-center border-r border-rose-900/60">
+                <div className="px-2 sm:px-2.5 py-1 text-center border-r border-rose-900/60">
                   <div className="text-[10px] text-rose-400 font-bold uppercase">Đẩy Tin</div>
                   <div className="text-sm font-black text-rose-300 font-mono">0</div>
                 </div>
-                <div className="px-2.5 py-1 text-center">
+                <div className="px-2 sm:px-2.5 py-1 text-center border-r border-rose-900/60">
                   <div className="text-[10px] text-rose-400 font-bold uppercase">Tin VIP</div>
+                  <div className="text-sm font-black text-rose-300 font-mono">0</div>
+                </div>
+                <div className="px-2 sm:px-2.5 py-1 text-center">
+                  <div className="text-[10px] text-rose-400 font-bold uppercase">Tin Nổi Bật</div>
                   <div className="text-sm font-black text-rose-300 font-mono">0</div>
                 </div>
               </div>

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter } from '../router/RouterContext';
+import { isPropertyTreasureActive } from '../services/treasureHuntService';
 import { 
   getResolvedFeatures, 
   isVoucherDiscountFree, 
@@ -23,7 +24,8 @@ export default function MembershipPage() {
     showToast,
     setActiveModal,
     refetchData,
-    systemConfig 
+    systemConfig,
+    properties 
   } = useRealEstate();
 
   const pricingOptions = { vipPackages, bumpServicePrice };
@@ -99,6 +101,26 @@ export default function MembershipPage() {
   const commonBumpDiscount = activePackage?.vouchersPerCycle?.normalBumpDiscount ?? 400;
   const commonVipDiscount = (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount 
     ?? (activePackage?.vouchersPerCycle?.vipDiscount || 50000);
+
+  // Quyền lợi Tin Nổi Bật (Săn Kho Báu) của gói hội viên hiện tại
+  const isTreasureAllowed = Boolean(isMemberActive && (activePackage?.allowTreasureHunt !== false));
+  const maxTreasureCount = currentUser?.role === 'admin'
+    ? 999
+    : (activePackage?.treasureHuntMaxArticles !== undefined ? activePackage.treasureHuntMaxArticles : (currentUser?.membership?.treasureHuntMaxArticles || 5));
+
+  const isPropertyOwner = (p) => {
+    if (!p || !currentUser) return false;
+    if (p.authorId && String(p.authorId) === String(currentUser.id)) return true;
+    if (p.author?.id && String(p.author.id) === String(currentUser.id)) return true;
+    if (p.authorPhone && currentUser.phone && String(p.authorPhone).replace(/\s+/g, '') === String(currentUser.phone).replace(/\s+/g, '')) return true;
+    if (p.authorEmail && currentUser.email && String(p.authorEmail).toLowerCase() === String(currentUser.email).toLowerCase()) return true;
+    return false;
+  };
+
+  const myActiveTreasureCount = useMemo(() => {
+    if (!properties || !currentUser) return 0;
+    return properties.filter(p => isPropertyOwner(p) && isPropertyTreasureActive(p, currentUser)).length;
+  }, [properties, currentUser]);
 
   const formatDiscountK = (val) => {
     const num = Number(val) || 0;
@@ -233,29 +255,52 @@ export default function MembershipPage() {
               </div>
 
               {/* Vouchers balance pills */}
-              <div className={`flex flex-wrap items-center gap-3 p-3.5 rounded-2xl border ${
+              <div className={`grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 p-3.5 rounded-2xl border ${
                 isMemberExpired
                   ? 'bg-rose-950/40 border-rose-800/60'
                   : 'bg-slate-950/80 border-slate-800'
               }`}>
-                <div className="text-center px-3 py-1">
-                  <div className="text-[10px] text-slate-400 font-bold uppercase">Voucher Tin Thường</div>
-                  <div className={`text-lg font-black mt-0.5 ${isMemberExpired ? 'text-rose-400 font-mono' : 'text-emerald-400'}`}>
-                    {isMemberExpired ? 0 : (currentUser.vouchers?.normalPublish || 0)} <span className="text-xs text-slate-500 font-normal">{isMemberExpired ? '(hết hạn)' : (isVoucherDiscountFree('normalPublish', commonPublishDiscount, pricingOptions) ? 'lượt (Miễn Phí)' : `lượt (-${formatDiscountK(commonPublishDiscount)})`)}</span>
+                {/* 1. Tin Thường */}
+                <div className="text-center px-2 py-1">
+                  <div className="text-[10px] text-slate-400 font-bold uppercase truncate">Voucher Tin Thường</div>
+                  <div className={`text-base sm:text-lg font-black mt-0.5 ${isMemberExpired ? 'text-rose-400 font-mono' : 'text-emerald-400'}`}>
+                    {isMemberExpired ? 0 : (currentUser.vouchers?.normalPublish || 0)} <span className="text-[11px] sm:text-xs text-slate-500 font-normal">{isMemberExpired ? '(hết hạn)' : (isVoucherDiscountFree('normalPublish', commonPublishDiscount, pricingOptions) ? 'lượt (Miễn Phí)' : `lượt (-${formatDiscountK(commonPublishDiscount)})`)}</span>
                   </div>
                 </div>
-                <div className="w-px h-8 bg-slate-800 hidden sm:block"></div>
-                <div className="text-center px-3 py-1">
-                  <div className="text-[10px] text-slate-400 font-bold uppercase">Voucher Đẩy Tin</div>
-                  <div className={`text-lg font-black mt-0.5 ${isMemberExpired ? 'text-rose-400 font-mono' : 'text-blue-400'}`}>
-                    {isMemberExpired ? 0 : (currentUser.vouchers?.normalBump || 0)} <span className="text-xs text-slate-500 font-normal">{isMemberExpired ? '(hết hạn)' : (isVoucherDiscountFree('normalBump', commonBumpDiscount, pricingOptions) ? 'lượt (Miễn Phí)' : `lượt (-${formatDiscountK(commonBumpDiscount)})`)}</span>
+
+                {/* 2. Đẩy Tin */}
+                <div className="text-center px-2 py-1 border-l border-slate-800">
+                  <div className="text-[10px] text-slate-400 font-bold uppercase truncate">Voucher Đẩy Tin</div>
+                  <div className={`text-base sm:text-lg font-black mt-0.5 ${isMemberExpired ? 'text-rose-400 font-mono' : 'text-blue-400'}`}>
+                    {isMemberExpired ? 0 : (currentUser.vouchers?.normalBump || 0)} <span className="text-[11px] sm:text-xs text-slate-500 font-normal">{isMemberExpired ? '(hết hạn)' : (isVoucherDiscountFree('normalBump', commonBumpDiscount, pricingOptions) ? 'lượt (Miễn Phí)' : `lượt (-${formatDiscountK(commonBumpDiscount)})`)}</span>
                   </div>
                 </div>
-                <div className="w-px h-8 bg-slate-800 hidden sm:block"></div>
-                <div className="text-center px-3 py-1">
-                  <div className="text-[10px] text-slate-400 font-bold uppercase">Voucher Tin VIP</div>
-                  <div className={`text-lg font-black mt-0.5 ${isMemberExpired ? 'text-rose-400 font-mono' : 'text-amber-400'}`}>
-                    {isMemberExpired ? 0 : (currentUser.vouchers?.vipPublish || 0)} <span className="text-xs text-slate-500 font-normal">{isMemberExpired ? '(hết hạn)' : `voucher (-${formatDiscountK(commonVipDiscount)})`}</span>
+
+                {/* 3. Tin VIP */}
+                <div className="text-center px-2 py-1 border-t border-slate-800 sm:border-t-0 sm:border-l border-slate-800">
+                  <div className="text-[10px] text-slate-400 font-bold uppercase truncate">Voucher Tin VIP</div>
+                  <div className={`text-base sm:text-lg font-black mt-0.5 ${isMemberExpired ? 'text-rose-400 font-mono' : 'text-amber-400'}`}>
+                    {isMemberExpired ? 0 : (currentUser.vouchers?.vipPublish || 0)} <span className="text-[11px] sm:text-xs text-slate-500 font-normal">{isMemberExpired ? '(hết hạn)' : `voucher (-${formatDiscountK(commonVipDiscount)})`}</span>
+                  </div>
+                </div>
+
+                {/* 4. Tin Nổi Bật (Săn Rương) */}
+                <div className="text-center px-2 py-1 border-t border-slate-800 sm:border-t-0 sm:border-l border-slate-800">
+                  <div className="text-[10px] text-amber-400 font-bold uppercase truncate flex items-center justify-center gap-1">
+                    <i className="fa-solid fa-gift text-[9px]"></i>
+                    <span>Tin Nổi Bật (Săn Rương)</span>
+                  </div>
+                  <div className={`text-base sm:text-lg font-black mt-0.5 ${isMemberExpired ? 'text-rose-400 font-mono' : 'text-amber-400'}`}>
+                    {isMemberExpired ? 0 : (isTreasureAllowed ? (currentUser?.role === 'admin' ? 'Không giới hạn' : `${maxTreasureCount} tin`) : 0)}{' '}
+                    <span className="text-[11px] sm:text-xs text-slate-500 font-normal">
+                      {isMemberExpired
+                        ? '(hết hạn)'
+                        : (isTreasureAllowed
+                          ? (currentUser?.role === 'admin'
+                            ? `(${myActiveTreasureCount} đang bật)`
+                            : `(${myActiveTreasureCount}/${maxTreasureCount} đang bật)`)
+                          : 'Chưa hỗ trợ')}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -485,6 +530,26 @@ export default function MembershipPage() {
                           <span className="text-[11px]">Không áp dụng</span>
                         </div>
                       )}
+
+                      {/* Tin Nổi Bật Săn Rương */}
+                      {pkg.allowTreasureHunt ? (
+                        <div className="p-2.5 rounded-xl bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-lg bg-gradient-to-tr from-amber-500 to-orange-500 text-slate-950 flex items-center justify-center text-[10px] font-black">
+                              {pkg.treasureHuntMaxArticles || 2}
+                            </span>
+                            <span className="font-bold text-amber-950">Tin Nổi Bật Săn Rương</span>
+                          </div>
+                          <span className="text-orange-700 font-black text-[11px]">
+                            Tối đa {pkg.treasureHuntMaxArticles || 2} tin (15 ngày/lần)
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="p-2 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs text-slate-400">
+                          <span>Tin Nổi Bật Săn Rương:</span>
+                          <span className="text-[11px]">Không áp dụng</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -627,6 +692,24 @@ export default function MembershipPage() {
                         <>
                           {p.vouchersPerCycle.vipVouchers} voucher/tháng
                           <div className="text-[10px] text-slate-400 font-normal">(-{Number(p.vouchersPerCycle?.vipDiscount || 400000).toLocaleString('vi-VN')} đ/tin)</div>
+                        </>
+                      ) : '—'}
+                    </td>
+                  ))}
+                </tr>
+                <tr>
+                  <td className="p-4 font-bold text-slate-800">
+                    <div className="flex items-center gap-1.5">
+                      <i className="fa-solid fa-gift text-amber-500 text-xs"></i>
+                      <span>Gán tin nổi bật Săn Kho Báu (15 ngày/lần)</span>
+                    </div>
+                  </td>
+                  {(membershipPackages || []).map(p => (
+                    <td key={p.id} className={`p-4 text-center font-bold ${p.allowTreasureHunt ? 'text-amber-600 font-black' : 'text-slate-400'} ${p.recommended ? 'bg-amber-50/30' : ''}`}>
+                      {p.allowTreasureHunt ? (
+                        <>
+                          <span className="text-emerald-600">✓ Có hỗ trợ</span>
+                          <div className="text-[11px] text-amber-700 font-semibold mt-0.5">Tối đa {p.treasureHuntMaxArticles || 2} tin</div>
                         </>
                       ) : '—'}
                     </td>

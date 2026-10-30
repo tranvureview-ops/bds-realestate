@@ -1128,7 +1128,7 @@ export default function UserProfilePage() {
                       const isBumpFree = isVoucherDiscountFree('normalBump', bumpDisc, pricingOptions);
 
                       return (
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                           <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
                             <div>
                               <div className="text-[11px] text-slate-500 font-medium">Voucher Đăng Tin Thường</div>
@@ -1166,6 +1166,23 @@ export default function UserProfilePage() {
                             </div>
                             <div className="text-xl font-black text-amber-600">
                               {safeUser.vouchers?.vipPublish || 0}
+                            </div>
+                          </div>
+
+                          <div className="p-3 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-200 flex items-center justify-between">
+                            <div>
+                              <div className="text-[11px] text-amber-900 font-bold flex items-center gap-1">
+                                <i className="fa-solid fa-gift text-amber-500"></i>
+                                <span>Tin Nổi Bật Săn Rương</span>
+                              </div>
+                              <div className="text-[10px] text-amber-700">
+                                {currentPkg?.allowTreasureHunt 
+                                  ? `Tối đa ${currentPkg?.treasureHuntMaxArticles || 2} tin (15 ngày/lần)`
+                                  : 'Không áp dụng'}
+                              </div>
+                            </div>
+                            <div className="text-xl font-black text-amber-700">
+                              {currentPkg?.allowTreasureHunt ? (currentPkg?.treasureHuntMaxArticles || 2) : 0}
                             </div>
                           </div>
                         </div>

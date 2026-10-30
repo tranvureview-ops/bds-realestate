@@ -426,7 +426,7 @@ export default function ListingGrid({
           <div className="hidden sm:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-1.5 px-2.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${viewMode === 'grid' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+              className={`p-1.5 px-2.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${viewMode === 'grid' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-700 hover:text-slate-900'}`}
               title="Dạng lưới"
             >
               <i className="fa-solid fa-grip"></i>
@@ -434,7 +434,7 @@ export default function ListingGrid({
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-1.5 px-2.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${viewMode === 'list' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+              className={`p-1.5 px-2.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${viewMode === 'list' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-700 hover:text-slate-900'}`}
               title="Dạng danh sách"
             >
               <i className="fa-solid fa-list"></i>
@@ -442,7 +442,7 @@ export default function ListingGrid({
             </button>
             <button
               onClick={() => setViewMode('split')}
-              className={`p-1.5 px-2.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${viewMode === 'split' ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+              className={`p-1.5 px-2.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${viewMode === 'split' ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-700 hover:text-slate-900'}`}
               title="Bản đồ song song"
             >
               <i className="fa-solid fa-map-location-dot"></i>
