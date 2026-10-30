@@ -2768,6 +2768,7 @@ export const MOCK_USERS = [
       "badgeColor": "bg-amber-500 text-slate-950 font-black",
       "status": "active",
       "durationDays": 30,
+      "expiresAt": "2026-11-30T23:59:59.000Z",
       "isAutoRenew": true
     },
     "vouchers": {
@@ -2796,6 +2797,7 @@ export const MOCK_USERS = [
       "badgeColor": "bg-amber-500 text-slate-950 font-black",
       "status": "active",
       "durationDays": 30,
+      "expiresAt": "2026-11-30T23:59:59.000Z",
       "isAutoRenew": false
     },
     "vouchers": {
@@ -2824,6 +2826,7 @@ export const MOCK_USERS = [
       "badgeColor": "bg-amber-500 text-slate-950 font-black",
       "status": "active",
       "durationDays": 30,
+      "expiresAt": "2026-11-30T23:59:59.000Z",
       "isAutoRenew": false
     },
     "vouchers": {

@@ -153,21 +153,12 @@ export const TREASURE_HUNT_DURATION_DAYS = 15;
 /**
  * Tính toán thời gian bắt đầu và hết hạn khi Gán Nổi Bật bài viết
  * - Thời hạn cố định: 15 ngày kể từ ngày gắn
- * - Không vượt quá thời hạn của gói hội viên hiện tại (nếu là thành viên thường)
+ * - Được duy trì hiển thị trong thời gian tài khoản có Gói Hội Viên hiệu lực
  */
 export function calculateTreasureHuntExpiry(currentUser = null) {
   const now = Date.now();
   const durationMs = TREASURE_HUNT_DURATION_DAYS * 24 * 60 * 60 * 1000;
-  let targetExpiryMs = now + durationMs;
-
-  // Nếu là thành viên thường (không phải admin) và có hạn dùng gói hội viên
-  const isAdmin = currentUser?.role === 'admin';
-  if (!isAdmin && currentUser?.membership?.expiresAt) {
-    const memberExpMs = new Date(currentUser.membership.expiresAt).getTime();
-    if (!isNaN(memberExpMs) && memberExpMs > now) {
-      targetExpiryMs = Math.min(targetExpiryMs, memberExpMs);
-    }
-  }
+  const targetExpiryMs = now + durationMs;
 
   return {
     activatedAt: new Date(now).toISOString(),
@@ -187,11 +178,9 @@ export function isPropertyTreasureActive(prop, authorUser = null) {
   const now = Date.now();
 
   // 1. Kiểm tra thời hạn 15 ngày của bài viết
-  if (prop.treasureHuntExpiresAt) {
-    const expMs = new Date(prop.treasureHuntExpiresAt).getTime();
-    if (!isNaN(expMs) && expMs <= now) {
-      return false; // Đã quá hạn 15 ngày
-    }
+  const expInfo = getTreasureExpirationInfo(prop);
+  if (expInfo.isExpired) {
+    return false; // Đã quá hạn 15 ngày
   }
 
   // 2. Kiểm tra gói hội viên của tác giả (nếu có cung cấp authorUser và không phải Admin)
@@ -245,10 +234,14 @@ export function getTreasureExpirationInfo(prop) {
 
   // Lấy hạn hết hạn
   let expMs = prop.treasureHuntExpiresAt ? new Date(prop.treasureHuntExpiresAt).getTime() : null;
-  if (!expMs || isNaN(expMs)) {
-    // Tự sinh hạn 15 ngày giả định nếu chưa có
-    const actTime = prop.treasureHuntActivatedAt ? new Date(prop.treasureHuntActivatedAt).getTime() : now;
+  const actTime = prop.treasureHuntActivatedAt ? new Date(prop.treasureHuntActivatedAt).getTime() : null;
+
+  // Nếu bài viết được gán nổi bật gần đây nhưng thời hạn bị giới hạn thiếu ngày (< 14 ngày kể từ lúc kích hoạt),
+  // tự động chuẩn hóa đủ 15 ngày cố định theo quy chuẩn
+  if (actTime && (!expMs || isNaN(expMs) || (expMs - actTime < (TREASURE_HUNT_DURATION_DAYS - 1) * 86400 * 1000))) {
     expMs = actTime + TREASURE_HUNT_DURATION_DAYS * 24 * 60 * 60 * 1000;
+  } else if (!expMs || isNaN(expMs)) {
+    expMs = (actTime || now) + TREASURE_HUNT_DURATION_DAYS * 24 * 60 * 60 * 1000;
   }
 
   const diffMs = expMs - now;

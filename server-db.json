@@ -2654,15 +2654,15 @@
       "isVerified": false,
       "membership": {
         "badge": "BÁN CHẠY NHẤT ★",
-        "status": "expired",
-        "expiresAt": "2026-10-21T00:00:00.000Z",
+        "status": "active",
+        "expiresAt": "2026-11-30T23:59:59.000Z",
         "packageId": "member-standard",
         "shortName": "GÓI TIÊU CHUẨN",
         "badgeColor": "bg-amber-500 text-slate-950 font-black",
         "isAutoRenew": false,
         "packageName": "Gói Hội Viên Tiêu Chuẩn",
         "durationDays": 30,
-        "subscribedAt": "2026-09-21T00:00:00.000Z"
+        "subscribedAt": "2026-10-30T00:00:00.000Z"
       },
       "primaryArea": "TP. Đà Nẵng",
       "passwordHash": "$2b$10$gkXXbhCxSHGlPIt4OpWZHOKH.jHwajkkr88lPseVQb1gbkzDmQGz2",
@@ -2697,14 +2697,14 @@
       "membership": {
         "badge": "HỘI VIÊN TIÊU CHUẨN ★",
         "status": "active",
-        "expiresAt": "2026-10-31T00:00:00.000Z",
+        "expiresAt": "2026-11-30T23:59:59.000Z",
         "packageId": "member-standard",
         "shortName": "GÓI TIÊU CHUẨN",
         "badgeColor": "bg-amber-500 text-slate-950 font-black",
         "isAutoRenew": false,
         "packageName": "Hội Viên Tiêu Chuẩn",
         "durationDays": 30,
-        "subscribedAt": "2026-10-01T00:00:00.000Z"
+        "subscribedAt": "2026-10-30T00:00:00.000Z"
       },
       "passwordHash": "$2b$10$ZViiUYfz2jaQUPt35v3Xg.1GT9Uo0hogTYcm4fiJWJutawsNdD6u2",
       "walletBalance": 4250000,
