@@ -49,6 +49,8 @@ const nextConfig = {
               "form-action 'self'",
               "frame-ancestors 'self'",
               "upgrade-insecure-requests",
+              "require-trusted-types-for 'script'",
+              "trusted-types default nextjs#bundler",
             ].join('; '),
           },
           {

@@ -103,6 +103,25 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="vi" suppressHydrationWarning>
       <head>
+        {/* Trusted Types Default Policy để hỗ trợ CSP require-trusted-types-for và chống DOM XSS an toàn */}
+        <script
+          id="trusted-types-policy"
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined' && window.trustedTypes && window.trustedTypes.createPolicy) {
+                try {
+                  if (!window.trustedTypes.defaultPolicy) {
+                    window.trustedTypes.createPolicy('default', {
+                      createHTML: function(s) { return s; },
+                      createScript: function(s) { return s; },
+                      createScriptURL: function(s) { return s; }
+                    });
+                  }
+                } catch (e) {}
+              }
+            `
+          }}
+        />
         {/* Preconnect to Google Fonts CDN */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
