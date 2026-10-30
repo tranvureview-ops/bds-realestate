@@ -74,14 +74,14 @@ export default function Footer() {
                 <div className="text-xl font-extrabold tracking-tight text-white flex items-center gap-1">
                   <span>{activeBrandName}</span>
                 </div>
-                <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">
+                <div className="text-[11px] text-slate-300 uppercase tracking-wider font-bold">
                   {systemConfig?.tagline || 'Sàn Giao Dịch Bất Động Sản & Đăng Tin VIP'}
                 </div>
               </div>
             </Link>
 
             {brandDesc && (
-              <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
+              <p className="text-xs text-slate-200 leading-relaxed max-w-sm">
                 {brandDesc}
               </p>
             )}
@@ -100,7 +100,7 @@ export default function Footer() {
                     {activeHotline}
                   </Link>
                   {activeZalo && (
-                    <span className="text-slate-400 text-[11px] ml-1.5">
+                    <span className="text-slate-300 text-xs ml-1.5">
                       (
                       <Link
                         href={`https://zalo.me/${activeZalo.replace(/\s+/g, '')}`}
@@ -170,11 +170,11 @@ export default function Footer() {
             <h4 className="text-xs font-black uppercase text-white tracking-wider mb-3">
               {col2Title}
             </h4>
-            <ul className="space-y-0.5 text-xs text-slate-400">
+            <ul className="space-y-0.5 text-xs text-slate-300">
               {col2Links.map(link => (
                 <li key={link.id || link.url}>
                   <Link to={link.url} className="py-1.5 sm:py-1 hover:text-emerald-400 transition flex items-center gap-1.5 group">
-                    <span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-emerald-400 transition shrink-0"></span>
+                    <span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-emerald-400 transition shrink-0"></span>
                     <span>{link.label}</span>
                   </Link>
                 </li>
@@ -187,7 +187,7 @@ export default function Footer() {
             <h4 className="text-xs font-black uppercase text-white tracking-wider mb-3">
               {col3Title}
             </h4>
-            <ul className="space-y-0.5 text-xs text-slate-400">
+            <ul className="space-y-0.5 text-xs text-slate-300">
               {col3Links.map(link => (
                 <li key={link.id || link.url}>
                   <Link to={link.url} className="py-1.5 sm:py-1 hover:text-amber-400 transition flex items-center gap-1.5 group">
@@ -218,7 +218,7 @@ export default function Footer() {
             <h4 className="text-xs font-black uppercase text-white tracking-wider mb-3">
               {col4Title}
             </h4>
-            <div className="space-y-2 text-xs text-slate-400">
+            <div className="space-y-2 text-xs text-slate-300">
               {badges.map(badge => {
                 const BadgeWrapper = badge.url ? Link : 'div';
                 const wrapperProps = badge.url 
@@ -234,10 +234,10 @@ export default function Footer() {
                     <div className="font-bold text-white flex items-center gap-1.5 mb-1">
                       {badge.icon && <i className={`${badge.icon} ${badge.iconColor || 'text-emerald-400'}`}></i>}
                       <span>{badge.title}</span>
-                      {badge.url && <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-400 ml-auto"></i>}
+                      {badge.url && <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-300 ml-auto"></i>}
                     </div>
                     {badge.desc && (
-                      <div className="text-[10px] leading-relaxed text-slate-400">{badge.desc}</div>
+                      <div className="text-[11px] leading-relaxed text-slate-300">{badge.desc}</div>
                     )}
                   </BadgeWrapper>
                 );
@@ -254,24 +254,24 @@ export default function Footer() {
                 <i className="fa-solid fa-sitemap text-[11px]"></i>
                 Danh Mục Bất Động Sản & Địa Giới Hành Chính Chuẩn SEO
               </h4>
-              <p className="text-[11px] text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-300 mt-0.5">
                 Tra cứu nhanh theo loại hình, tỉnh thành, quận huyện, phường xã và dự án trọng điểm
               </p>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 sm:gap-x-8 gap-y-6 text-xs text-slate-400 max-w-6xl">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 sm:gap-x-8 gap-y-6 text-xs text-slate-300 max-w-6xl">
               {/* Column 1: BĐS Bán - Nhà Ở & Căn Hộ */}
               <div className="space-y-1 sm:space-y-1.5">
                 <div className="font-bold text-white text-[11px] uppercase tracking-wider mb-2 text-emerald-300">
                   Bất Động Sản Nhà Ở & Căn Hộ
                 </div>
                 <ul className="space-y-0.5">
-                  <li><Link to="/ban-can-ho-chung-cu/" className="py-1.5 sm:py-1 hover:text-emerald-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-emerald-400 transition shrink-0"></span><span className="truncate">Bán căn hộ chung cư</span></Link></li>
-                  <li><Link to="/ban-chung-cu-mini/" className="py-1.5 sm:py-1 hover:text-emerald-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-emerald-400 transition shrink-0"></span><span className="truncate">Bán chung cư mini, căn hộ dịch vụ</span></Link></li>
-                  <li><Link to="/ban-nha-rieng/" className="py-1.5 sm:py-1 hover:text-emerald-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-emerald-400 transition shrink-0"></span><span className="truncate">Bán nhà riêng</span></Link></li>
-                  <li><Link to="/ban-nha-biet-thu-lien-ke/" className="py-1.5 sm:py-1 hover:text-emerald-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-emerald-400 transition shrink-0"></span><span className="truncate">Bán nhà biệt thự, liền kề</span></Link></li>
-                  <li><Link to="/ban-nha-mat-pho/" className="py-1.5 sm:py-1 hover:text-emerald-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-emerald-400 transition shrink-0"></span><span className="truncate">Bán nhà mặt phố</span></Link></li>
-                  <li><Link to="/ban-shophouse/" className="py-1.5 sm:py-1 hover:text-emerald-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-emerald-400 transition shrink-0"></span><span className="truncate">Bán shophouse</span></Link></li>
+                  <li><Link to="/ban-can-ho-chung-cu/" className="py-1.5 sm:py-1 hover:text-emerald-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-emerald-400 transition shrink-0"></span><span className="truncate">Bán căn hộ chung cư</span></Link></li>
+                  <li><Link to="/ban-chung-cu-mini/" className="py-1.5 sm:py-1 hover:text-emerald-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-emerald-400 transition shrink-0"></span><span className="truncate">Bán chung cư mini, căn hộ dịch vụ</span></Link></li>
+                  <li><Link to="/ban-nha-rieng/" className="py-1.5 sm:py-1 hover:text-emerald-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-emerald-400 transition shrink-0"></span><span className="truncate">Bán nhà riêng</span></Link></li>
+                  <li><Link to="/ban-nha-biet-thu-lien-ke/" className="py-1.5 sm:py-1 hover:text-emerald-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-emerald-400 transition shrink-0"></span><span className="truncate">Bán nhà biệt thự, liền kề</span></Link></li>
+                  <li><Link to="/ban-nha-mat-pho/" className="py-1.5 sm:py-1 hover:text-emerald-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-emerald-400 transition shrink-0"></span><span className="truncate">Bán nhà mặt phố</span></Link></li>
+                  <li><Link to="/ban-shophouse/" className="py-1.5 sm:py-1 hover:text-emerald-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-emerald-400 transition shrink-0"></span><span className="truncate">Bán shophouse</span></Link></li>
                 </ul>
               </div>
 
@@ -281,12 +281,12 @@ export default function Footer() {
                   Đất Nền, Nghỉ Dưỡng & Kho Xưởng
                 </div>
                 <ul className="space-y-0.5">
-                  <li><Link to="/ban-dat-nen-du-an/" className="py-1.5 sm:py-1 hover:text-amber-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-amber-400 transition shrink-0"></span><span className="truncate">Bán đất nền dự án</span></Link></li>
-                  <li><Link to="/ban-dat/" className="py-1.5 sm:py-1 hover:text-amber-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-amber-400 transition shrink-0"></span><span className="truncate">Bán đất</span></Link></li>
-                  <li><Link to="/ban-trang-trai-khu-nghi-duong/" className="py-1.5 sm:py-1 hover:text-amber-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-amber-400 transition shrink-0"></span><span className="truncate">Bán trang trại, khu nghỉ dưỡng</span></Link></li>
-                  <li><Link to="/ban-condotel/" className="py-1.5 sm:py-1 hover:text-amber-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-amber-400 transition shrink-0"></span><span className="truncate">Bán condotel</span></Link></li>
-                  <li><Link to="/ban-kho-nha-xuong/" className="py-1.5 sm:py-1 hover:text-amber-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-amber-400 transition shrink-0"></span><span className="truncate">Bán kho, nhà xưởng</span></Link></li>
-                  <li><Link to="/ban-bat-dong-san-khac/" className="py-1.5 sm:py-1 hover:text-amber-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-amber-400 transition shrink-0"></span><span className="truncate">Bán loại BĐS khác</span></Link></li>
+                  <li><Link to="/ban-dat-nen-du-an/" className="py-1.5 sm:py-1 hover:text-amber-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-amber-400 transition shrink-0"></span><span className="truncate">Bán đất nền dự án</span></Link></li>
+                  <li><Link to="/ban-dat/" className="py-1.5 sm:py-1 hover:text-amber-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-amber-400 transition shrink-0"></span><span className="truncate">Bán đất</span></Link></li>
+                  <li><Link to="/ban-trang-trai-khu-nghi-duong/" className="py-1.5 sm:py-1 hover:text-amber-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-amber-400 transition shrink-0"></span><span className="truncate">Bán trang trại, khu nghỉ dưỡng</span></Link></li>
+                  <li><Link to="/ban-condotel/" className="py-1.5 sm:py-1 hover:text-amber-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-amber-400 transition shrink-0"></span><span className="truncate">Bán condotel</span></Link></li>
+                  <li><Link to="/ban-kho-nha-xuong/" className="py-1.5 sm:py-1 hover:text-amber-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-amber-400 transition shrink-0"></span><span className="truncate">Bán kho, nhà xưởng</span></Link></li>
+                  <li><Link to="/ban-bat-dong-san-khac/" className="py-1.5 sm:py-1 hover:text-amber-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-amber-400 transition shrink-0"></span><span className="truncate">Bán loại BĐS khác</span></Link></li>
                 </ul>
               </div>
 
@@ -296,12 +296,12 @@ export default function Footer() {
                   Bất Động Sản Cho Thuê
                 </div>
                 <ul className="space-y-0.5">
-                  <li><Link to="/cho-thue-can-ho-chung-cu/" className="py-1.5 sm:py-1 hover:text-blue-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-blue-400 transition shrink-0"></span><span className="truncate">Cho thuê căn hộ chung cư</span></Link></li>
-                  <li><Link to="/cho-thue-chung-cu-mini/" className="py-1.5 sm:py-1 hover:text-blue-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-blue-400 transition shrink-0"></span><span className="truncate">Cho thuê chung cư mini, CH dịch vụ</span></Link></li>
-                  <li><Link to="/cho-thue-nha-rieng/" className="py-1.5 sm:py-1 hover:text-blue-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-blue-400 transition shrink-0"></span><span className="truncate">Cho thuê nhà riêng, nguyên căn</span></Link></li>
-                  <li><Link to="/cho-thue-nha-biet-thu-lien-ke/" className="py-1.5 sm:py-1 hover:text-blue-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-blue-400 transition shrink-0"></span><span className="truncate">Cho thuê biệt thự, liền kề</span></Link></li>
-                  <li><Link to="/cho-thue-nha-mat-pho/" className="py-1.5 sm:py-1 hover:text-blue-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-blue-400 transition shrink-0"></span><span className="truncate">Cho thuê nhà mặt phố</span></Link></li>
-                  <li><Link to="/cho-thue-kho-nha-xuong/" className="py-1.5 sm:py-1 hover:text-blue-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-blue-400 transition shrink-0"></span><span className="truncate">Cho thuê kho, nhà xưởng</span></Link></li>
+                  <li><Link to="/cho-thue-can-ho-chung-cu/" className="py-1.5 sm:py-1 hover:text-blue-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-blue-400 transition shrink-0"></span><span className="truncate">Cho thuê căn hộ chung cư</span></Link></li>
+                  <li><Link to="/cho-thue-chung-cu-mini/" className="py-1.5 sm:py-1 hover:text-blue-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-blue-400 transition shrink-0"></span><span className="truncate">Cho thuê chung cư mini, CH dịch vụ</span></Link></li>
+                  <li><Link to="/cho-thue-nha-rieng/" className="py-1.5 sm:py-1 hover:text-blue-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-blue-400 transition shrink-0"></span><span className="truncate">Cho thuê nhà riêng, nguyên căn</span></Link></li>
+                  <li><Link to="/cho-thue-nha-biet-thu-lien-ke/" className="py-1.5 sm:py-1 hover:text-blue-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-blue-400 transition shrink-0"></span><span className="truncate">Cho thuê biệt thự, liền kề</span></Link></li>
+                  <li><Link to="/cho-thue-nha-mat-pho/" className="py-1.5 sm:py-1 hover:text-blue-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-blue-400 transition shrink-0"></span><span className="truncate">Cho thuê nhà mặt phố</span></Link></li>
+                  <li><Link to="/cho-thue-kho-nha-xuong/" className="py-1.5 sm:py-1 hover:text-blue-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-blue-400 transition shrink-0"></span><span className="truncate">Cho thuê kho, nhà xưởng</span></Link></li>
                 </ul>
               </div>
 
@@ -311,12 +311,12 @@ export default function Footer() {
                   BĐS Trọng Điểm Đà Nẵng
                 </div>
                 <ul className="space-y-0.5">
-                  <li><Link to="/ban-can-ho-chung-cu-quan-son-tra/" className="py-1.5 sm:py-1 hover:text-rose-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-rose-400 transition shrink-0"></span><span className="truncate">Căn hộ Sơn Trà (The Sang)</span></Link></li>
-                  <li><Link to="/ban-nha-rieng-quan-hai-chau/" className="py-1.5 sm:py-1 hover:text-rose-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-rose-400 transition shrink-0"></span><span className="truncate">Nhà riêng Quận Hải Châu</span></Link></li>
-                  <li><Link to="/ban-dat-nen-du-an-quan-ngu-hanh-son/" className="py-1.5 sm:py-1 hover:text-rose-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-rose-400 transition shrink-0"></span><span className="truncate">Đất nền Nam Hòa Xuân</span></Link></li>
-                  <li><Link to="/ban-dat-nen-du-an-da-nang/" className="py-1.5 sm:py-1 hover:text-rose-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-rose-400 transition shrink-0"></span><span className="truncate">Đất nền dự án Đà Nẵng</span></Link></li>
-                  <li><Link to="/cho-thue-nha-biet-thu-lien-ke-quan-son-tra/" className="py-1.5 sm:py-1 hover:text-rose-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-rose-400 transition shrink-0"></span><span className="truncate">Biệt thự biển Sơn Trà</span></Link></li>
-                  <li><Link to="/ban-dat-quan-cam-le/" className="py-1.5 sm:py-1 hover:text-rose-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-rose-400 transition shrink-0"></span><span className="truncate">Đất Cẩm Lệ & Hòa Vang</span></Link></li>
+                  <li><Link to="/ban-can-ho-chung-cu-quan-son-tra/" className="py-1.5 sm:py-1 hover:text-rose-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-rose-400 transition shrink-0"></span><span className="truncate">Căn hộ Sơn Trà (The Sang)</span></Link></li>
+                  <li><Link to="/ban-nha-rieng-quan-hai-chau/" className="py-1.5 sm:py-1 hover:text-rose-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-rose-400 transition shrink-0"></span><span className="truncate">Nhà riêng Quận Hải Châu</span></Link></li>
+                  <li><Link to="/ban-dat-nen-du-an-quan-ngu-hanh-son/" className="py-1.5 sm:py-1 hover:text-rose-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-rose-400 transition shrink-0"></span><span className="truncate">Đất nền Nam Hòa Xuân</span></Link></li>
+                  <li><Link to="/ban-dat-nen-du-an-da-nang/" className="py-1.5 sm:py-1 hover:text-rose-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-rose-400 transition shrink-0"></span><span className="truncate">Đất nền dự án Đà Nẵng</span></Link></li>
+                  <li><Link to="/cho-thue-nha-biet-thu-lien-ke-quan-son-tra/" className="py-1.5 sm:py-1 hover:text-rose-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-rose-400 transition shrink-0"></span><span className="truncate">Biệt thự biển Sơn Trà</span></Link></li>
+                  <li><Link to="/ban-dat-quan-cam-le/" className="py-1.5 sm:py-1 hover:text-rose-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-rose-400 transition shrink-0"></span><span className="truncate">Đất Cẩm Lệ & Hòa Vang</span></Link></li>
                 </ul>
               </div>
             </div>
@@ -324,11 +324,11 @@ export default function Footer() {
         )}
 
         {/* Bottom copyright */}
-        <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+        <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-300">
           <div>
             {copyrightText}
           </div>
-          <nav aria-label="Chính sách và điều khoản" className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <nav aria-label="Chính sách và điều khoản" className="flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-300">
             {policyLinks.map(policy => (
               <Link key={policy.id || policy.url} to={policy.url} className="py-1.5 hover:text-emerald-400 transition inline-block">
                 {policy.label}

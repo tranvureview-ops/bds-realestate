@@ -498,7 +498,7 @@ export default function LiveChatWidget() {
           {/* Mobile: Sleek Floating Concierge Pill (Gọn gàng, sang trọng, bo viền ngọc lục bảo) */}
           <button
             onClick={handleOpenWidget}
-            className="sm:hidden flex items-center gap-2 pl-1.5 pr-3 py-1.5 h-[36px] rounded-full bg-white/95 text-slate-800 shadow-[0_8px_25px_rgba(0,0,0,0.12)] border border-slate-200/90 backdrop-blur-md active:scale-95 transition-all cursor-pointer group shrink-0"
+            className="sm:hidden flex items-center gap-2 pl-1.5 pr-3 py-1.5 h-[36px] rounded-full bg-white text-slate-900 shadow-[0_8px_25px_rgba(0,0,0,0.12)] border border-slate-200 active:scale-95 transition-all cursor-pointer group shrink-0"
             title="Chat tư vấn trực tiếp"
             style={{ contain: 'layout' }}
           >
@@ -519,7 +519,7 @@ export default function LiveChatWidget() {
                 <span>Chat tư vấn</span>
                 <i className="fa-solid fa-comment-dots text-emerald-600 text-[10px] shrink-0"></i>
               </div>
-              <div className="text-[8.5px] text-emerald-700 font-semibold mt-0.5 whitespace-nowrap">
+              <div className="text-[8.5px] text-emerald-800 font-extrabold mt-0.5 whitespace-nowrap">
                 Online 24/7
               </div>
             </div>
@@ -533,7 +533,7 @@ export default function LiveChatWidget() {
           {/* Desktop: Luxury Floating Concierge Button */}
           <button
             onClick={handleOpenWidget}
-            className="hidden sm:flex items-center gap-2.5 pl-2 pr-4 py-2 h-[44px] rounded-full bg-white/95 hover:bg-white text-slate-800 shadow-[0_10px_35px_rgba(0,0,0,0.12)] border border-slate-200 hover:border-emerald-400 hover:shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md group shrink-0"
+            className="hidden sm:flex items-center gap-2.5 pl-2 pr-4 py-2 h-[44px] rounded-full bg-white hover:bg-slate-50 text-slate-900 shadow-[0_10px_35px_rgba(0,0,0,0.14)] border border-slate-200 hover:border-emerald-500 hover:shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer group shrink-0"
             title="Live Chat tư vấn BĐS trực tiếp"
             style={{ contain: 'layout' }}
           >
@@ -554,8 +554,8 @@ export default function LiveChatWidget() {
                 <span>Tư vấn BĐS 24/7</span>
                 <i className="fa-solid fa-comment-dots text-emerald-600 text-xs shrink-0"></i>
               </div>
-              <div className="text-[10px] text-slate-500 font-medium mt-1 whitespace-nowrap">
-                {agentInfo.name} • <span className="text-emerald-700 font-bold">Online</span>
+              <div className="text-[10.5px] text-slate-700 font-semibold mt-1 whitespace-nowrap">
+                {agentInfo.name} • <span className="text-emerald-800 font-extrabold">Online</span>
               </div>
             </div>
             {unreadCount > 0 && (
