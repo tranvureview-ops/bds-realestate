@@ -57,7 +57,7 @@ export default function MembershipPage() {
     if (typeof refetchData === 'function') {
       refetchData(true);
     }
-  }, [refetchData]);
+  }, []);
 
   // Helper lấy thông tin chu kỳ thanh toán chuẩn hóa và đồng bộ tuyệt đối với giá tháng Admin
   const resolveCycle = (pkg, months) => {

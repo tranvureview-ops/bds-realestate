@@ -2555,7 +2555,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                           <i className="fa-solid fa-address-card text-rose-500"></i>
                           Thông tin người phản ánh:
                         </span>
-                        <span className="text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                        <span className="text-[11px] font-semibold text-slate-700 bg-slate-200/90 px-2 py-0.5 rounded-full inline-flex items-center gap-1 border border-slate-300/80">
                           <i className="fa-solid fa-user-secret text-[10px]"></i>
                           Khách vãng lai
                         </span>

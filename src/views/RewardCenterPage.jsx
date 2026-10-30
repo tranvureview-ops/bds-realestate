@@ -29,15 +29,17 @@ export default function RewardCenterPage() {
   const maxTreasure = Number(tConfig?.maxAmount || 20000);
   const dailyLimitTreasure = Number(tConfig?.dailyLimit || 3);
 
-  const checkInDays = rewardsConfig?.checkInConfig?.days || CHECK_IN_7_DAYS;
+  const checkInDays = Array.isArray(rewardsConfig?.checkInConfig?.days) && rewardsConfig.checkInConfig.days.length > 0
+    ? rewardsConfig.checkInConfig.days
+    : CHECK_IN_7_DAYS;
   const isCheckInEnabled = rewardsConfig?.checkInConfig?.enabled !== false;
-  const totalWeeklyCheckin = checkInDays.reduce((acc, d) => acc + Number(d.reward || 0), 0);
+  const totalWeeklyCheckin = checkInDays.reduce((acc, d) => acc + Number(d?.reward || 0), 0);
 
-  const promoList = (rewardsConfig?.promotions || PROMOTIONS_DATA).slice(0, 3);
+  const promoList = (Array.isArray(rewardsConfig?.promotions) ? rewardsConfig.promotions : PROMOTIONS_DATA).slice(0, 3);
   const allMissions = rewardsConfig?.missions || MISSIONS_DATA;
   const hotMissions = [
-    ...(allMissions['hang-ngay'] || []),
-    ...(allMissions['tan-thu'] || [])
+    ...(Array.isArray(allMissions?.['hang-ngay']) ? allMissions['hang-ngay'] : []),
+    ...(Array.isArray(allMissions?.['tan-thu']) ? allMissions['tan-thu'] : [])
   ].slice(0, 3);
 
   // 2. Trạng thái Điểm Danh trực tiếp (Chuẩn hóa từ checkInService)
@@ -75,12 +77,13 @@ export default function RewardCenterPage() {
 
   // Lấy dữ liệu gói tiền có hạn gần nhất được truyền từ API về
   useEffect(() => {
+    let isMounted = true;
     // 1. Kiểm tra LocalStorage ngay lập tức (kể cả guest hoặc khi API chưa phản hồi)
     try {
       const cachedExp = localStorage.getItem(`bds_user_bonus_exp_${userId}`);
       if (cachedExp) {
         const parsed = JSON.parse(cachedExp);
-        if (parsed?.amount && parsed?.formattedDate) {
+        if (parsed?.amount && parsed?.formattedDate && isMounted) {
           setExpiringBonusInfo(prev => {
             if (prev && prev.amount === parsed.amount && prev.expiresAt === parsed.expiresAt) return prev;
             return parsed;
@@ -89,7 +92,7 @@ export default function RewardCenterPage() {
       }
     } catch (e) {}
 
-    if (currentUser?.earliestExpiringBonus?.amount && currentUser?.earliestExpiringBonus?.expiresAt) {
+    if (currentUser?.earliestExpiringBonus?.amount && currentUser?.earliestExpiringBonus?.expiresAt && isMounted) {
       const expDate = new Date(currentUser.earliestExpiringBonus.expiresAt);
       const nextInfo = {
         amount: Number(currentUser.earliestExpiringBonus.amount),
@@ -103,14 +106,14 @@ export default function RewardCenterPage() {
     }
 
     if (!isLoggedIn || !currentUser?.id) {
-      return;
+      return () => { isMounted = false; };
     }
 
     const fetchExpiringBonus = async () => {
       try {
         const res = await fetch(`/api/wallet/expiring-bonus?userId=${currentUser.id}`);
         const data = await res.json();
-        if (data.success && data.hasExpiringBonus) {
+        if (isMounted && data.success && data.hasExpiringBonus) {
           setExpiringBonusInfo(prev => {
             if (prev && prev.amount === data.amount && prev.expiresAt === data.expiresAt) return prev;
             return {
@@ -128,6 +131,7 @@ export default function RewardCenterPage() {
     fetchExpiringBonus();
     window.addEventListener('bds_bonus_wallet_updated', fetchExpiringBonus);
     return () => {
+      isMounted = false;
       window.removeEventListener('bds_bonus_wallet_updated', fetchExpiringBonus);
     };
   }, [currentUser?.id, isLoggedIn, currentUser?.bonusWalletBalance, userId]);
@@ -239,7 +243,7 @@ export default function RewardCenterPage() {
       icon: 'fa-solid fa-calendar-check',
       color: 'from-amber-500 to-orange-500',
       badge: `+${totalWeeklyCheckin.toLocaleString('vi-VN')}đ/tuần`,
-      link: '/trung-tam-phan-thuong/diem-danh-7-ngay/'
+      link: '/trung-tam-phan-thuong/diem-danh-7-ngay'
     },
     {
       id: 'kho-bau',
@@ -248,7 +252,7 @@ export default function RewardCenterPage() {
       icon: 'fa-solid fa-gem',
       color: 'from-emerald-500 to-teal-600',
       badge: `${minTreasure.toLocaleString('vi-VN')}đ - ${maxTreasure.toLocaleString('vi-VN')}đ`,
-      link: '/trung-tam-phan-thuong/san-kho-bau-bds/'
+      link: '/trung-tam-phan-thuong/san-kho-bau-bds'
     },
     {
       id: 'du-doan',
@@ -257,7 +261,7 @@ export default function RewardCenterPage() {
       icon: 'fa-solid fa-chart-line',
       color: 'from-blue-600 to-indigo-600',
       badge: 'Quỹ thưởng tiền mặt',
-      link: '/trung-tam-phan-thuong/du-doan-gia-bds/'
+      link: '/trung-tam-phan-thuong/du-doan-gia-bds'
     },
     {
       id: 'doi-qua',
@@ -266,7 +270,7 @@ export default function RewardCenterPage() {
       icon: 'fa-solid fa-wallet',
       color: 'from-rose-500 to-pink-600',
       badge: 'Dùng ngay 0đ',
-      link: '/trung-tam-phan-thuong/doi-qua/'
+      link: '/trung-tam-phan-thuong/doi-qua'
     }
   ];
 
@@ -323,7 +327,7 @@ export default function RewardCenterPage() {
 
             <div className="flex items-center gap-3">
               <Link
-                to="/nhiem-vu/"
+                to="/nhiem-vu"
                 className="px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold text-xs transition flex items-center gap-2"
               >
                 <i className="fa-solid fa-list-check"></i>
@@ -382,7 +386,7 @@ export default function RewardCenterPage() {
                 </span>
               </button>
               <Link
-                to="/trung-tam-phan-thuong/diem-danh-7-ngay/"
+                to="/trung-tam-phan-thuong/diem-danh-7-ngay"
                 className="text-xs font-bold text-slate-500 hover:text-slate-800 transition"
               >
                 Chi tiết &rarr;
@@ -490,7 +494,7 @@ export default function RewardCenterPage() {
               </p>
             </div>
             <Link
-              to="/khuyen-mai/"
+              to="/khuyen-mai"
               className="text-xs font-bold text-rose-600 hover:text-rose-700 transition flex items-center gap-1"
             >
               <span>Xem tất cả ({rewardsConfig?.promotions?.length || promoList.length})</span>
@@ -567,7 +571,7 @@ export default function RewardCenterPage() {
                     </div>
 
                     <Link
-                      to={`/khuyen-mai/${promo.slug}/`}
+                      to={`/khuyen-mai/${promo.slug}`}
                       className={`block text-center py-2 text-[11px] font-bold rounded-xl transition ${
                         isExpired ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-slate-900 hover:bg-rose-600 text-white'
                       }`}
@@ -594,7 +598,7 @@ export default function RewardCenterPage() {
               </p>
             </div>
             <Link
-              to="/nhiem-vu/"
+              to="/nhiem-vu"
               className="text-xs font-bold text-blue-600 hover:text-blue-700 transition flex items-center gap-1"
             >
               <span>Xem tất cả nhiệm vụ</span>

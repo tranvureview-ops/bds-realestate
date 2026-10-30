@@ -392,12 +392,15 @@ export default function ListingGrid({
             </p>
           </div>
         ) : (
-          <div className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-700 shrink-0">
-            <span>Hiện có</span>
-            <span className="font-extrabold text-slate-900 text-sm sm:text-base">
-              {totalItems.toLocaleString('vi-VN')}
-            </span>
-            <span>{demandLabel}</span>
+          <div>
+            <h2 className="sr-only">Danh sách {demandLabel}</h2>
+            <div className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-700 shrink-0">
+              <span>Hiện có</span>
+              <span className="font-extrabold text-slate-900 text-sm sm:text-base">
+                {totalItems.toLocaleString('vi-VN')}
+              </span>
+              <span>{demandLabel}</span>
+            </div>
           </div>
         )}
 

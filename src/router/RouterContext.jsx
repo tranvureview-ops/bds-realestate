@@ -9,9 +9,21 @@ const RouterContext = createContext(null);
 function RouterProviderWrapper({ children }) {
   const nextRouter = useNextRouter();
   const pathname = usePathname() || '/';
+
   const navigate = (to) => {
     let target = to;
     if (!target.startsWith('/')) target = '/' + target;
+    
+    // Nếu chuyển đến chính trang hiện tại: chỉ cuộn lên đầu, không làm gián đoạn NextRouter
+    if (typeof window !== 'undefined') {
+      const currentNorm = window.location.pathname.replace(/\/+$/, '') || '/';
+      const targetNorm = target.split('?')[0].replace(/\/+$/, '') || '/';
+      if (currentNorm === targetNorm && !target.includes('?')) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
+    }
+
     try {
       nextRouter.push(target);
     } catch {
@@ -143,6 +155,19 @@ export const Link = ({ to, href, children, className = '', activeClassName = '',
       if (onClick) onClick(e);
       return;
     }
+
+    // Nếu người dùng click liên tục vào chính link trang hiện tại: chỉ cuộn mượt lên đầu, tránh abort router
+    if (!isExternal && !isHash && typeof window !== 'undefined') {
+      const currentNorm = window.location.pathname.replace(/\/+$/, '') || '/';
+      const targetNorm = targetPath.split('?')[0].replace(/\/+$/, '') || '/';
+      if (currentNorm === targetNorm && !targetPath.includes('?')) {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (onClick) onClick(e);
+        return;
+      }
+    }
+
     if (onClick) onClick(e);
   };
 

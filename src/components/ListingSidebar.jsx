@@ -563,7 +563,7 @@ export default function ListingSidebar({
                         <i className="fa-solid fa-map-pin text-[10px] text-slate-400 group-hover:text-red-500 transition-colors"></i>
                         <span className="truncate">{item.name}</span>
                       </div>
-                      <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full shrink-0 ml-2 bg-slate-200/90 text-slate-900 group-hover:bg-red-100 group-hover:text-red-700 transition-colors">
+                      <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full shrink-0 ml-2 bg-slate-200 text-slate-900 border border-slate-300/80 group-hover:bg-red-600 group-hover:text-white group-hover:border-red-600 transition-colors">
                         {count > 0 ? `${count} tin` : 'Xem tin'}
                       </span>
                     </Link>
@@ -610,7 +610,7 @@ export default function ListingSidebar({
                         <i className="fa-solid fa-map-pin text-[10px] text-slate-400 group-hover:text-red-500 transition-colors"></i>
                         <span className="truncate">{item.name}</span>
                       </div>
-                      <span className="text-[11px] font-extrabold px-2 py-0.5 rounded-full shrink-0 ml-2 bg-slate-200/90 text-slate-900 group-hover:bg-red-100 group-hover:text-red-700 transition-colors">
+                      <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full shrink-0 ml-2 bg-slate-200 text-slate-900 border border-slate-300/80 group-hover:bg-red-600 group-hover:text-white group-hover:border-red-600 transition-colors">
                         {count > 0 ? `${count} tin` : 'Xem tin'}
                       </span>
                     </Link>

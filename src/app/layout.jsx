@@ -78,16 +78,28 @@ function sanitizePublicSsrDb(db) {
   };
 }
 
+const fetchWithTimeout = (promise, ms = 800) => {
+  let timer;
+  const timeoutPromise = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      reject(new Error(`Supabase SSR fetch timed out (> ${ms}ms), fallback tức thì sang local DB`));
+    }, ms);
+  });
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    if (timer) clearTimeout(timer);
+  });
+};
+
 const getInitialDb = cache(async () => {
   try {
     if (isSupabaseConfigured()) {
       try {
-        const cloudData = await fetchFullSupabaseDb();
+        const cloudData = await fetchWithTimeout(fetchFullSupabaseDb(), 800);
         if (cloudData && (cloudData.bds_properties?.length > 0 || cloudData.bds_header_config)) {
           return sanitizePublicSsrDb(cloudData);
         }
       } catch (err) {
-        console.warn('Lỗi kết nối Supabase trong RootLayout, fallback server-db.json:', err.message);
+        console.warn('Lỗi kết nối hoặc timeout Supabase trong RootLayout, fallback tức thì server-db.json:', err.message);
       }
     }
     const dbFile = path.resolve(process.cwd(), 'server-db.json');

@@ -39,6 +39,18 @@ export function writeLocalDatabase(databasePayload) {
   }
 }
 
+const fetchWithTimeout = (promise, ms = 800) => {
+  let timer;
+  const timeoutPromise = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      reject(new Error(`Supabase request timed out (> ${ms}ms), fallback tức thì sang local DB`));
+    }, ms);
+  });
+  return Promise.race([promise, timeoutPromise]).finally(() => {
+    if (timer) clearTimeout(timer);
+  });
+};
+
 /**
  * Tải toàn bộ dữ liệu hệ thống (ưu tiên Supabase Cloud, fallback server-db.json)
  * @returns {Promise<Object>} Toàn bộ dữ liệu hệ thống
@@ -46,12 +58,12 @@ export function writeLocalDatabase(databasePayload) {
 export async function getFullSystemDatabase() {
   if (isSupabaseConfigured()) {
     try {
-      const cloudData = await fetchFullSupabaseDb();
+      const cloudData = await fetchWithTimeout(fetchFullSupabaseDb(), 800);
       if (cloudData && (cloudData.bds_properties?.length > 0 || cloudData.bds_system_config)) {
         return cloudData;
       }
     } catch (error) {
-      console.warn('Lỗi kết nối Supabase, chuyển sang server-db.json:', error.message);
+      console.warn('Lỗi kết nối hoặc timeout Supabase, chuyển ngay sang server-db.json:', error.message);
     }
   }
   return readLocalDatabase();

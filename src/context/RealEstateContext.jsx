@@ -1331,8 +1331,18 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return () => window.removeEventListener('bds_bonus_wallet_updated', handleBonusWalletEvent);
   }, [currentUser?.id, systemConfig?.bonusExpiryDays]);
 
+  // Khóa kiểm soát fetch Supabase đồng thời và giới hạn tần suất (throttle) chống race conditions
+  const isFetchingSupabaseRef = useRef(false);
+  const lastFetchTimestampRef = useRef(0);
+
   // Tải dữ liệu mới nhất trực tiếp từ Supabase qua SDK (Central Fetcher)
   const fetchLatestDataFromSupabase = useCallback(async (isSilent = true) => {
+    const now = Date.now();
+    if (isFetchingSupabaseRef.current || (now - lastFetchTimestampRef.current < 1500)) {
+      return false;
+    }
+    isFetchingSupabaseRef.current = true;
+    lastFetchTimestampRef.current = now;
     try {
       const db = await fetchFullSupabaseDb();
       if (db) {
@@ -1466,9 +1476,15 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       if (!isSilent) {
         showToast('Không thể kết nối tải dữ liệu từ Supabase', 'error');
       }
+    } finally {
+      isFetchingSupabaseRef.current = false;
     }
     return false;
   }, [showToast]);
+
+  const refetchData = useCallback((isSilent = false) => {
+    return fetchLatestDataFromSupabase(isSilent);
+  }, [fetchLatestDataFromSupabase]);
 
   // 1. One-time client rehydration from Supabase Client SDK
   useEffect(() => {
@@ -4964,7 +4980,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         setSelectedPropertyDetail,
         setSelectedPropertyForVip,
         showToast,
-        refetchData: (isSilent = false) => fetchLatestDataFromSupabase(isSilent),
+        refetchData,
         switchUserRole,
         navigateToProperty,
         toggleFavorite,
