@@ -127,10 +127,13 @@ export default function UserDashboard({ initialTab = 'listings' }) {
     return isPropertyOwner(p);
   });
 
-  // Cấu hình đặc quyền Săn Kho Báu dành cho người mua Gói Hội Viên
+  // Cấu hình đặc quyền Săn Kho Báu dành cho người mua Gói Hội Viên hoặc Quản Trị Viên (Admin)
+  const isAdmin = currentUser?.role === 'admin';
   const userPackage = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
-  const isTreasureHuntAllowed = Boolean(isMemberActive && (userPackage?.allowTreasureHunt !== false));
-  const maxTreasureArticles = isTreasureHuntAllowed ? Number(userPackage?.treasureHuntMaxArticles !== undefined ? userPackage.treasureHuntMaxArticles : 2) : 0;
+  const isTreasureHuntAllowed = isAdmin || Boolean(isMemberActive && (userPackage?.allowTreasureHunt !== false));
+  const maxTreasureArticles = isAdmin 
+    ? Infinity 
+    : (isTreasureHuntAllowed ? Number(userPackage?.treasureHuntMaxArticles !== undefined ? userPackage.treasureHuntMaxArticles : 5) : 0);
   const currentTreasureArticles = myListings.filter(p => Boolean(p.isTreasureHuntActive));
   const currentTreasureCount = currentTreasureArticles.length;
 
@@ -142,8 +145,8 @@ export default function UserDashboard({ initialTab = 'listings' }) {
     }
     const isCurrentlyActive = Boolean(prop.isTreasureHuntActive);
     if (!isCurrentlyActive) {
-      if (currentTreasureCount >= maxTreasureArticles) {
-        showToast(`Gói hội viên của bạn chỉ cho phép tối đa ${maxTreasureArticles} bài viết vào mục Săn Kho Báu. Vui lòng tắt bớt bài viết khác trước!`, 'warning');
+      if (!isAdmin && currentTreasureCount >= maxTreasureArticles) {
+        showToast(`Gói hội viên của bạn chỉ cho phép tối đa ${maxTreasureArticles} bài viết vào mục Săn Kho Báu (Hiện đang có ${currentTreasureCount}/${maxTreasureArticles} bài). Vui lòng tắt bớt bài viết khác trước!`, 'warning');
         return;
       }
       updateProperty(prop.id, { isTreasureHuntActive: true });
@@ -837,27 +840,29 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                         <span>Nâng VIP</span>
                       </button>
 
-                      {/* Nút Gắn Vào Săn Kho Báu (Dành cho người mua Gói Hội Viên) */}
+                      {/* Nút Gắn Vào Săn Kho Báu (Dành cho người mua Gói Hội Viên & Admin) */}
                       {isTreasureHuntAllowed ? (
                         prop.isTreasureHuntActive ? (
                           <button
                             type="button"
                             onClick={() => handleToggleTreasureHunt(prop)}
-                            className="px-3 py-1.5 font-black rounded-xl text-xs transition shadow-xs flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 border border-amber-600 cursor-pointer"
+                            className="px-3 py-1.5 font-black rounded-xl text-xs transition shadow-xs flex items-center gap-1.5 bg-amber-500 hover:bg-rose-500 hover:text-white text-slate-950 border border-amber-600 hover:border-rose-600 cursor-pointer group"
                             title="Bài viết đang hiển thị trong mục Săn Kho Báu BĐS. Bấm để gỡ bỏ."
                           >
-                            <i className="fa-solid fa-gift"></i>
-                            <span>Đang Săn Kho Báu</span>
+                            <i className="fa-solid fa-gift group-hover:hidden"></i>
+                            <i className="fa-solid fa-power-off hidden group-hover:inline"></i>
+                            <span className="group-hover:hidden">Đang Săn Kho Báu</span>
+                            <span className="hidden group-hover:inline">Gỡ Kho Báu</span>
                           </button>
                         ) : (
                           <button
                             type="button"
                             onClick={() => handleToggleTreasureHunt(prop)}
                             className="px-3 py-1.5 font-bold rounded-xl text-xs transition shadow-xs flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 hover:border-amber-500 cursor-pointer"
-                            title={`Gắn bài viết này vào mục Săn Kho Báu BĐS (Đã dùng: ${currentTreasureCount}/${maxTreasureArticles})`}
+                            title={isAdmin ? 'Gắn bài viết này vào mục Săn Kho Báu BĐS (Đặc quyền Quản trị)' : `Gắn bài viết này vào mục Săn Kho Báu BĐS (Đã dùng: ${currentTreasureCount}/${maxTreasureArticles})`}
                           >
                             <i className="fa-solid fa-gift text-amber-600"></i>
-                            <span>Gắn Săn Kho Báu</span>
+                            <span>Gắn Săn Kho Báu {isAdmin ? '' : `(${currentTreasureCount}/${maxTreasureArticles})`}</span>
                           </button>
                         )
                       ) : (

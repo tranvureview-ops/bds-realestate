@@ -60,7 +60,8 @@ export async function fetchSupabaseProperties() {
           isVerified: isVer,
           verification_status: vStatus,
           verificationStatus: vStatus,
-          verificationDocuments: vDocs
+          verificationDocuments: vDocs,
+          isTreasureHuntActive: Boolean(row.raw_data?.isTreasureHuntActive || row.is_treasure_hunt_active)
         };
       }
       return {
