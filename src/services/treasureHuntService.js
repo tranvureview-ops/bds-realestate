@@ -169,29 +169,17 @@ export function calculateTreasureHuntExpiry(currentUser = null) {
 /**
  * Kiểm tra trạng thái Gán Nổi Bật của bài viết:
  * - isTreasureHuntActive === true
- * - Chưa quá hạn treasureHuntExpiresAt (15 ngày hoặc theo gói hội viên)
- * - Nếu có truyền authorUser (thành viên thường): gói hội viên còn hiệu lực
+ * - Chưa quá hạn 15 ngày kể từ ngày kích hoạt
+ * - QUY TẮC ĐẶC QUYỀN: Kể cả khi gói hội viên hết hạn trước, rương/nổi bật vẫn hiển thị và
+ *   xuất hiện rương quà cho đến khi hết đủ 15 ngày thì mới gỡ!
  */
 export function isPropertyTreasureActive(prop, authorUser = null) {
   if (!prop || !prop.isTreasureHuntActive) return false;
 
-  const now = Date.now();
-
-  // 1. Kiểm tra thời hạn 15 ngày của bài viết
+  // Kiểm tra thời hạn 15 ngày của bài viết (hết đủ 15 ngày mới gỡ)
   const expInfo = getTreasureExpirationInfo(prop);
   if (expInfo.isExpired) {
     return false; // Đã quá hạn 15 ngày
-  }
-
-  // 2. Kiểm tra gói hội viên của tác giả (nếu có cung cấp authorUser và không phải Admin)
-  if (authorUser && authorUser.role !== 'admin') {
-    if (authorUser.membership?.status !== 'active') return false;
-    if (authorUser.membership?.expiresAt) {
-      const memberExpMs = new Date(authorUser.membership.expiresAt).getTime();
-      if (!isNaN(memberExpMs) && memberExpMs <= now) {
-        return false; // Gói hội viên của tác giả đã hết hạn
-      }
-    }
   }
 
   return true;
