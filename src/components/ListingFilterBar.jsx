@@ -1082,7 +1082,7 @@ export default function ListingFilterBar({
                   <button
                     type="button"
                     onClick={handleApplyAllDraftFilters}
-                    className="flex-1 py-3 bg-[#e03c31] hover:bg-red-700 text-white font-bold text-sm rounded-xl shadow-md transition cursor-pointer text-center"
+                    className="flex-1 py-3 bg-[#c93026] hover:bg-red-800 text-white font-bold text-sm rounded-xl shadow-md transition cursor-pointer text-center"
                   >
                     Xem kết quả
                   </button>
@@ -1278,7 +1278,7 @@ export default function ListingFilterBar({
                         setModalScreen('main');
                       }
                     }}
-                    className="flex-1 py-3 bg-[#e03c31] hover:bg-red-700 text-white font-bold text-sm rounded-xl shadow-md transition cursor-pointer text-center"
+                    className="flex-1 py-3 bg-[#c93026] hover:bg-red-800 text-white font-bold text-sm rounded-xl shadow-md transition cursor-pointer text-center"
                   >
                     Áp dụng
                   </button>

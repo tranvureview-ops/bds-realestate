@@ -414,7 +414,7 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
         {/* Slogan */}
         <div className="text-center mb-6 sm:mb-8 text-white">
           <h1 className="text-2xl sm:text-4xl font-black tracking-tight drop-shadow-md">
-            Tìm Kiếm Bất Động Sản <span className="text-[#e03c31]">Chính Xác & Toàn Diện</span>
+            Tìm Kiếm Bất Động Sản <span className="text-[#ff6b6b]">Chính Xác & Toàn Diện</span>
           </h1>
           <p className="mt-2 text-xs sm:text-sm text-slate-300 max-w-xl mx-auto font-medium">
             Hàng ngàn tin đăng bán & cho thuê chính chủ, căn hộ, biệt thự và đất nền trên toàn quốc
@@ -495,7 +495,7 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                 {/* Red "Tìm kiếm" Action Button */}
                 <button
                   type="submit"
-                  className="bg-[#e03c31] hover:bg-[#c93026] text-white font-bold px-4 sm:px-7 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-sm shrink-0"
+                  className="bg-[#c93026] hover:bg-[#a8231b] text-white font-bold px-4 sm:px-7 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-sm shrink-0"
                 >
                   <span>Tìm kiếm</span>
                 </button>

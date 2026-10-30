@@ -146,7 +146,7 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
           </span>
 
           {/* Demand Badge */}
-          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-sm ${property.demand === 'sale' ? 'bg-emerald-600 text-white' : 'bg-blue-600 text-white'}`}>
+          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-sm ${property.demand === 'sale' ? 'bg-emerald-700 text-white' : 'bg-blue-600 text-white'}`}>
             {property.demand === 'sale' ? 'BÁN' : 'CHO THUÊ'}
           </span>
         </div>
@@ -187,7 +187,7 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
               <span className={`text-xl font-extrabold ${isDiamond ? 'text-red-600' : isGold ? 'text-amber-600' : 'text-emerald-700'}`}>
                 {property.priceDisplay ? property.priceDisplay.replace(/Tỷ/g, 'tỷ') : ''}
               </span>
-              <span className="text-xs text-slate-400 font-medium">
+              <span className="text-xs text-slate-500 font-medium">
                 ({property.pricePerM2})
               </span>
             </div>
@@ -284,7 +284,7 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
                   )}
                 </div>
                 {safeAuthor.title ? (
-                  <div className="text-[10px] text-slate-400 truncate group-hover/broker:text-slate-500" title={safeAuthor.title}>
+                  <div className="text-[10px] text-slate-500 truncate group-hover/broker:text-slate-600" title={safeAuthor.title}>
                     {safeAuthor.title}
                   </div>
                 ) : null}
@@ -300,8 +300,8 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
                   isDiamond 
                     ? 'bg-red-600 hover:bg-red-700 text-white' 
                     : isGold
-                      ? 'bg-amber-600 hover:bg-amber-700 text-white'
-                      : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                      ? 'bg-amber-700 hover:bg-amber-800 text-white'
+                      : 'bg-emerald-700 hover:bg-emerald-800 text-white'
                 }`}
                 title={`Gọi ngay: ${safeAuthor.phone}`}
                 aria-label={`Gọi ngay: ${safeAuthor.phone}`}
@@ -316,7 +316,7 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
                 target="_blank"
                 rel="noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="px-2.5 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1 shadow-sm transition shrink-0 whitespace-nowrap"
+                className="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1 shadow-sm transition shrink-0 whitespace-nowrap"
                 title={`Chat Zalo: ${safeAuthor.zalo || safeAuthor.phone}`}
                 aria-label={`Chat Zalo: ${safeAuthor.zalo || safeAuthor.phone}`}
               >

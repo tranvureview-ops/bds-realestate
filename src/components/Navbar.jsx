@@ -261,16 +261,16 @@ export default function Navbar() {
                   <div className="flex items-center font-black text-slate-900 tracking-tight text-base sm:text-lg truncate">
                     <span className="truncate">{brandNameDisplay}</span>
                     {brandHighlightDisplay ? (
-                      <span className="text-emerald-600 shrink-0">{brandHighlightDisplay}</span>
+                      <span className="text-emerald-700 shrink-0">{brandHighlightDisplay}</span>
                     ) : null}
                     {headerConfig?.badgeText && (
-                      <span className={`hidden sm:inline-block ml-1.5 text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0 ${headerConfig?.badgeColor || 'bg-red-100 text-red-600 border border-red-200'}`}>
+                      <span className={`hidden sm:inline-block ml-1.5 text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider shrink-0 ${headerConfig?.badgeColor || 'bg-red-100 text-red-700 border border-red-300'}`}>
                         {headerConfig.badgeText}
                       </span>
                     )}
                   </div>
                   {(headerConfig?.brandTagline || systemConfig?.tagline) && (
-                    <div className="hidden sm:block text-[10px] text-slate-400 font-bold tracking-wider uppercase truncate max-w-[220px]">
+                    <div className="hidden sm:block text-[10px] text-slate-600 font-bold tracking-wider uppercase truncate max-w-[220px]">
                       {headerConfig?.brandTagline || systemConfig?.tagline}
                     </div>
                   )}
@@ -310,7 +310,7 @@ export default function Navbar() {
                       {item.icon && <i className={`${item.icon} text-xs ${isActive ? 'text-emerald-600' : 'text-slate-400'}`}></i>}
                       <span>{item.title}</span>
                       {item.badge && (
-                        <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${item.badgeColor || 'bg-red-500 text-white'}`}>
+                        <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${item.badgeColor || 'bg-red-600 text-white'}`}>
                           {item.badge}
                         </span>
                       )}
@@ -366,7 +366,7 @@ export default function Navbar() {
                   {item.icon && <i className={`${item.icon} text-xs ${isActive ? 'text-emerald-600' : 'text-slate-400'}`}></i>}
                   <span>{item.title}</span>
                   {item.badge && (
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${item.badgeColor || 'bg-red-500 text-white'}`}>
+                    <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${item.badgeColor || 'bg-red-600 text-white'}`}>
                       {item.badge}
                     </span>
                   )}
@@ -698,13 +698,13 @@ export default function Navbar() {
                   </div>
                   <div className="font-black text-slate-900 text-base flex items-center">
                     <span>{brandNameDisplay}</span>
-                    {brandHighlightDisplay ? <span className="text-emerald-600">{brandHighlightDisplay}</span> : null}
+                    {brandHighlightDisplay ? <span className="text-emerald-700">{brandHighlightDisplay}</span> : null}
                   </div>
                 </div>
               )}
               <button
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center"
+                className="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center"
               >
                 <i className="fa-solid fa-xmark text-sm"></i>
               </button>
@@ -852,7 +852,7 @@ export default function Navbar() {
                         <span>{item.title}</span>
                       </div>
                       {item.badge && (
-                        <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${item.badgeColor || 'bg-red-500 text-white'}`}>
+                        <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${item.badgeColor || 'bg-red-600 text-white'}`}>
                           {item.badge}
                         </span>
                       )}

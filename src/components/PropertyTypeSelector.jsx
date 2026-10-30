@@ -227,7 +227,7 @@ export default function PropertyTypeSelector({
                 </div>
                 <div className={`w-4 h-4 rounded-[4px] border flex items-center justify-center transition shrink-0 ml-3 ${
                   isAllChecked
-                    ? 'bg-[#e03c31] border-[#e03c31] text-white shadow-2xs'
+                    ? 'bg-[#c93026] border-[#c93026] text-white shadow-2xs'
                     : 'border-slate-300 bg-white group-hover:border-slate-400'
                 }`}>
                   {isAllChecked && <i className="fa-solid fa-check text-[10px]"></i>}
@@ -266,7 +266,7 @@ export default function PropertyTypeSelector({
                     onClick={(e) => handleToggleGroup(e, item)}
                     className={`w-4 h-4 rounded-[4px] border flex items-center justify-center transition shrink-0 ml-3 cursor-pointer ${
                       isChecked || isIndeterminate
-                        ? 'bg-[#e03c31] border-[#e03c31] text-white shadow-2xs'
+                        ? 'bg-[#c93026] border-[#c93026] text-white shadow-2xs'
                         : 'border-slate-300 bg-white group-hover:border-slate-400'
                     }`}
                     title="Chọn / Bỏ chọn toàn bộ nhóm"
@@ -292,7 +292,7 @@ export default function PropertyTypeSelector({
                           </span>
                           <div className={`w-4 h-4 rounded-[4px] border flex items-center justify-center transition shrink-0 ml-3 ${
                             isChildChecked
-                              ? 'bg-[#e03c31] border-[#e03c31] text-white shadow-2xs'
+                              ? 'bg-[#c93026] border-[#c93026] text-white shadow-2xs'
                               : 'border-slate-300 bg-white group-hover:border-slate-400'
                           }`}>
                             {isChildChecked && <i className="fa-solid fa-check text-[10px]"></i>}
@@ -322,7 +322,7 @@ export default function PropertyTypeSelector({
               </div>
               <div className={`w-4 h-4 rounded-[4px] border flex items-center justify-center transition shrink-0 ml-3 ${
                 isItemChecked
-                  ? 'bg-[#e03c31] border-[#e03c31] text-white shadow-2xs'
+                  ? 'bg-[#c93026] border-[#c93026] text-white shadow-2xs'
                   : 'border-slate-300 bg-white group-hover:border-slate-400'
               }`}>
                 {isItemChecked && <i className="fa-solid fa-check text-[10px]"></i>}
@@ -345,7 +345,7 @@ export default function PropertyTypeSelector({
         <button
           type="button"
           onClick={handleApply}
-          className="bg-[#e03c31] hover:bg-[#c9352b] text-white font-bold text-xs sm:text-sm px-6 py-2 rounded-xl transition cursor-pointer shadow-xs active:scale-95"
+          className="bg-[#c93026] hover:bg-[#a8231b] text-white font-bold text-xs sm:text-sm px-6 py-2 rounded-xl transition cursor-pointer shadow-xs active:scale-95"
         >
           Áp dụng
         </button>

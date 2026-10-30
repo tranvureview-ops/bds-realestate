@@ -746,7 +746,7 @@ export default function ListingSidebar({
 
           <Link
             to="/dang-tin"
-            className="w-full py-2.5 bg-[#e03c31] hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer block text-center"
+            className="w-full py-2.5 bg-[#c93026] hover:bg-red-800 text-white font-bold text-xs rounded-xl shadow-md transition flex items-center justify-center gap-1.5 cursor-pointer block text-center"
           >
             <i className="fa-solid fa-plus text-xs"></i>
             <span>Đăng tin ngay</span>

@@ -798,7 +798,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
                     <div className="text-xs font-black tracking-tight text-slate-900 flex items-center">
                       <span>{logoFormData.brandName || 'ĐẤT BIỂN'}</span>
                       {logoFormData.brandHighlight ? (
-                        <span className="text-emerald-600">{logoFormData.brandHighlight}</span>
+                        <span className="text-emerald-700">{logoFormData.brandHighlight}</span>
                       ) : null}
                       {logoFormData.badgeText && (
                         <span className={`ml-1 text-[8px] px-1 py-0.2 rounded font-black uppercase ${logoFormData.badgeColor || 'bg-red-100 text-red-600'}`}>

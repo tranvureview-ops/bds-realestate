@@ -226,7 +226,7 @@ export default function ListingGrid({
             hasVR360: false,
             onlyVerified: false
           })}
-          className="mt-5 px-5 py-2.5 bg-[#e03c31] hover:bg-red-700 text-white font-bold rounded-xl text-sm transition shadow-sm cursor-pointer"
+          className="mt-5 px-5 py-2.5 bg-[#c93026] hover:bg-red-800 text-white font-bold rounded-xl text-sm transition shadow-sm cursor-pointer"
         >
           <i className="fa-solid fa-rotate-left mr-2"></i>
           Xóa toàn bộ bộ lọc
@@ -304,7 +304,7 @@ export default function ListingGrid({
               return (
                 <span
                   key={`page-${p}`}
-                  className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black transition cursor-default bg-[#e03c31] text-white shadow-md shadow-red-600/30 ring-2 ring-red-600/20"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black transition cursor-default bg-[#c93026] text-white shadow-md shadow-red-600/30 ring-2 ring-red-600/20"
                   aria-current="page"
                 >
                   {p}
@@ -426,7 +426,7 @@ export default function ListingGrid({
           <div className="hidden sm:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-1.5 px-2.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${viewMode === 'grid' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+              className={`p-1.5 px-2.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${viewMode === 'grid' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
               title="Dạng lưới"
             >
               <i className="fa-solid fa-grip"></i>
@@ -434,7 +434,7 @@ export default function ListingGrid({
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-1.5 px-2.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${viewMode === 'list' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+              className={`p-1.5 px-2.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${viewMode === 'list' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
               title="Dạng danh sách"
             >
               <i className="fa-solid fa-list"></i>
@@ -442,7 +442,7 @@ export default function ListingGrid({
             </button>
             <button
               onClick={() => setViewMode('split')}
-              className={`p-1.5 px-2.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${viewMode === 'split' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+              className={`p-1.5 px-2.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${viewMode === 'split' ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
               title="Bản đồ song song"
             >
               <i className="fa-solid fa-map-location-dot"></i>

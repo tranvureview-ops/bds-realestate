@@ -205,7 +205,7 @@ export default function Footer() {
                   >
                     <i className="fa-solid fa-shield-halved text-red-500 text-[10px]"></i>
                     <span>Bàn Làm Việc CMS Admin</span>
-                    <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-500"></i>
+                    <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-400"></i>
                   </Link>
                 </li>
               )}
@@ -323,7 +323,7 @@ export default function Footer() {
         )}
 
         {/* Bottom copyright */}
-        <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+        <div className="pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
           <div>
             {copyrightText}
           </div>

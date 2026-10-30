@@ -377,7 +377,7 @@ export default function AreaRangeSelector({
         <button
           type="button"
           onClick={handleApply}
-          className="bg-[#e03c31] hover:bg-[#c9352b] text-white font-bold text-xs sm:text-sm px-6 py-2 rounded-xl transition cursor-pointer shadow-xs active:scale-95"
+          className="bg-[#c93026] hover:bg-[#a8231b] text-white font-bold text-xs sm:text-sm px-6 py-2 rounded-xl transition cursor-pointer shadow-xs active:scale-95"
         >
           Áp dụng
         </button>
