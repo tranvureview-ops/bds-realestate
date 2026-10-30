@@ -81,6 +81,19 @@ export function middleware(request) {
     }
   }
 
+  // 4. Thiết lập bộ Header An Toàn & Bảo Mật (CSP, COOP, HSTS, X-Content-Type-Options)
+  response.headers.set(
+    'Content-Security-Policy',
+    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https: http:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https: wss:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests;"
+  );
+  response.headers.set('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  response.headers.set('Cross-Origin-Resource-Policy', 'cross-origin');
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(self)');
+
   return response;
 }
 
