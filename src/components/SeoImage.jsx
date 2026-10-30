@@ -75,9 +75,10 @@ export default function SeoImage({
       sizes={rest.sizes || responsiveProps.sizes}
       alt={computedAlt}
       title={title || computedAlt}
-      loading={loading || (priority ? 'eager' : 'lazy')}
+      loading={loading || (priority ? undefined : 'lazy')}
       decoding={decoding}
-      fetchPriority={fetchPriority || (priority ? 'high' : 'auto')}
+      fetchPriority={fetchPriority || (priority ? 'high' : undefined)}
+      fetchpriority={fetchPriority || (priority ? 'high' : undefined)}
       onError={handleError}
       className={className}
       {...rest}

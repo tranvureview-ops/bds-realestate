@@ -468,23 +468,23 @@ export default function ListingGrid({
                   <InteractiveMap properties={displayedProperties} height="400px" />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {displayedProperties.map(property => (
-                    <ListingCard key={property.id} property={property} viewMode="grid" />
+                  {displayedProperties.map((property, idx) => (
+                    <ListingCard key={property.id} property={property} viewMode="grid" priority={idx === 0} />
                   ))}
                 </div>
               </div>
             ) : viewMode === 'list' ? (
               /* List View: Hiển thị thẻ dạng danh sách ngang rộng rãi */
               <div className="space-y-4">
-                {displayedProperties.map(property => (
-                  <ListingCard key={property.id} property={property} viewMode="list" />
+                {displayedProperties.map((property, idx) => (
+                  <ListingCard key={property.id} property={property} viewMode="list" priority={idx === 0} />
                 ))}
               </div>
             ) : (
               /* Grid View: 2 cột chuẩn khi có sidebar bên phải */
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                {displayedProperties.map(property => (
-                  <ListingCard key={property.id} property={property} viewMode="grid" />
+                {displayedProperties.map((property, idx) => (
+                  <ListingCard key={property.id} property={property} viewMode="grid" priority={idx === 0} />
                 ))}
               </div>
             )}
@@ -512,8 +512,8 @@ export default function ListingGrid({
           ) : viewMode === 'split' ? (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 my-6 items-start">
               <div className="lg:col-span-6 space-y-4 max-h-[800px] overflow-y-auto pr-2">
-                {displayedProperties.map(property => (
-                  <ListingCard key={property.id} property={property} viewMode="grid" />
+                {displayedProperties.map((property, idx) => (
+                  <ListingCard key={property.id} property={property} viewMode="grid" priority={idx === 0} />
                 ))}
               </div>
               <div className="lg:col-span-6 sticky top-6">
@@ -522,14 +522,14 @@ export default function ListingGrid({
             </div>
           ) : viewMode === 'list' ? (
             <div className="space-y-4 my-6">
-              {displayedProperties.map(property => (
-                <ListingCard key={property.id} property={property} viewMode="list" />
+              {displayedProperties.map((property, idx) => (
+                <ListingCard key={property.id} property={property} viewMode="list" priority={idx === 0} />
               ))}
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 my-6">
-              {displayedProperties.map(property => (
-                <ListingCard key={property.id} property={property} viewMode="grid" />
+              {displayedProperties.map((property, idx) => (
+                <ListingCard key={property.id} property={property} viewMode="grid" priority={idx === 0} />
               ))}
             </div>
           )}

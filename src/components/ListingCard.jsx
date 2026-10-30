@@ -9,7 +9,7 @@ import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 import SeoImage from './SeoImage';
 import BrokerProfileModal from './BrokerProfileModal';
 
-export default function ListingCard({ property, viewMode = 'grid' }) {
+export default function ListingCard({ property, viewMode = 'grid', priority = false }) {
   const { navigate } = useRouter();
   const [isBrokerModalOpen, setIsBrokerModalOpen] = useState(false);
   const { 
@@ -136,6 +136,7 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
             src={safeImages[0]}
             property={property}
             type="thumbnail"
+            priority={priority}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 cursor-pointer"
           />
         </Link>
