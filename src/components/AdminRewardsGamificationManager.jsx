@@ -15,7 +15,8 @@ export default function AdminRewardsGamificationManager() {
     DEFAULT_REWARDS_CONFIG, 
     showToast,
     properties = [],
-    updateProperty
+    updateProperty,
+    updateMultipleProperties
   } = useRealEstate();
 
   // Local state form
@@ -89,6 +90,7 @@ export default function AdminRewardsGamificationManager() {
     } else {
       updateProperty(prop.id, { 
         isTreasureHuntActive: false,
+        treasureHuntActivatedAt: null,
         treasureHuntExpiresAt: null
       });
       if (showToast) showToast(`[Admin] Đã tắt rương kho báu bài viết ${prop.id}`, 'info');
@@ -96,33 +98,48 @@ export default function AdminRewardsGamificationManager() {
   };
 
   const handleEnableDiamondTreasure = () => {
-    if (!updateProperty) return;
     const diamondProps = validProperties.filter(p => p.vipPackageId === 'vip-diamond' && !p.isTreasureHuntActive);
     if (diamondProps.length === 0) {
       if (showToast) showToast('Tất cả bài viết VIP Kim Cương đã được bật rương từ trước!', 'info');
       return;
     }
     const { activatedAt, expiresAt } = calculateTreasureHuntExpiry();
-    diamondProps.forEach(p => {
-      updateProperty(p.id, { 
+    const updates = diamondProps.map(p => ({
+      id: p.id,
+      data: {
         isTreasureHuntActive: true,
         treasureHuntActivatedAt: activatedAt,
         treasureHuntExpiresAt: expiresAt
-      });
-    });
+      }
+    }));
+    if (updateMultipleProperties) {
+      updateMultipleProperties(updates);
+    } else {
+      diamondProps.forEach(p => updateProperty(p.id, updates[0].data));
+    }
     if (showToast) showToast(`Đã kích hoạt rương 15 ngày cho ${diamondProps.length} bài viết VIP Kim Cương!`, 'success');
   };
 
   const handleDisableAllTreasure = () => {
-    if (!updateProperty) return;
     if (!window.confirm('Bạn có chắc chắn muốn TẮT rương kho báu trên toàn bộ bài viết không?')) return;
     const activeProps = validProperties.filter(p => Boolean(p.isTreasureHuntActive));
-    activeProps.forEach(p => {
-      updateProperty(p.id, { 
+    if (activeProps.length === 0) {
+      if (showToast) showToast('Hiện không có bài viết nào đang bật rương!', 'info');
+      return;
+    }
+    const updates = activeProps.map(p => ({
+      id: p.id,
+      data: {
         isTreasureHuntActive: false,
+        treasureHuntActivatedAt: null,
         treasureHuntExpiresAt: null
-      });
-    });
+      }
+    }));
+    if (updateMultipleProperties) {
+      updateMultipleProperties(updates);
+    } else {
+      activeProps.forEach(p => updateProperty(p.id, updates[0].data));
+    }
     if (showToast) showToast(`Đã tắt rương trên toàn bộ ${activeProps.length} bài viết!`, 'info');
   };
 

@@ -27,7 +27,7 @@ export default function ArticleTreasureBox({ property }) {
   const maxAmount = Number(tConfig?.maxAmount || 20000);
 
   const isAdmin = currentUser?.role === 'admin';
-  const isTreasureActive = isPropertyTreasureActive(property, property?.author) || ['vip-diamond', 'vip-gold', 'vip-silver'].includes(property?.vipPackageId);
+  const isTreasureActive = isPropertyTreasureActive(property, property?.author);
   const treasureExpInfo = getTreasureExpirationInfo(property);
 
   const [hasClaimedThisArticle, setHasClaimedThisArticle] = useState(false);

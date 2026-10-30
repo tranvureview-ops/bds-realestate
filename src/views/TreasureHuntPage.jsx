@@ -22,6 +22,7 @@ function getPageNumbers(currentPage, totalPages) {
 export default function TreasureHuntPage() {
   const { currentUser, properties, rewardsConfig, systemConfig, addBonusWalletBalance, showToast } = useRealEstate();
   const tConfig = rewardsConfig?.treasureHuntConfig;
+  const isFeatureEnabled = tConfig?.enabled !== false;
   const dailyLimit = Number(tConfig?.dailyLimit || 3);
   const minAmount = Number(tConfig?.minAmount || 2000);
   const maxAmount = Number(tConfig?.maxAmount || 20000);
@@ -182,16 +183,8 @@ export default function TreasureHuntPage() {
     };
 
     // Lấy toàn bộ các bài viết đã được kích hoạt cờ Săn Kho Báu (isTreasureHuntActive === true)
-    // và vẫn còn trong thời hạn 15 ngày hiệu lực
-    let treasureArticles = valid.filter(p => isPropertyTreasureActive(p, p.author));
-    // Nếu số bài viết có cờ rương ít hơn chỉ tiêu hiển thị (hoặc chưa gán rương thủ công),
-    // tự động bổ sung thêm các tin đăng VIP Kim Cương, VIP Vàng & VIP Bạc đang hoạt động
-    // để trang luôn hiển thị đầy đủ số tin (mặc định 16 tin/trang) và kích hoạt phân trang hoàn chỉnh!
-    if (treasureArticles.length < ITEMS_PER_PAGE) {
-      const activeIds = new Set(treasureArticles.map(p => String(p.id)));
-      const vipCandidates = valid.filter(p => !activeIds.has(String(p.id)) && ['vip-diamond', 'vip-gold', 'vip-silver'].includes(p.vipPackageId));
-      treasureArticles = [...treasureArticles, ...vipCandidates];
-    }
+    // và vẫn còn trong thời hạn 15 ngày hiệu lực (Phương Án 1 chuẩn xác tuyệt đối)
+    const treasureArticles = valid.filter(p => isPropertyTreasureActive(p, p.author));
     return fairSortArticles(treasureArticles);
   }, [properties, shuffleSeed, claimsToday]);
 
@@ -229,6 +222,30 @@ export default function TreasureHuntPage() {
     'description': `Khám phá các bài viết tin rao nhà đất để tìm rương kho báu, nhận tiền thưởng ngẫu nhiên từ ${minAmount.toLocaleString('vi-VN')}đ đến ${maxAmount.toLocaleString('vi-VN')}đ cộng trực tiếp vào Ví Khuyến Mãi (Tối đa ${dailyLimit} hộp/ngày).`,
     'url': `${baseUrl}/trung-tam-phan-thuong/san-kho-bau-bds/`
   };
+
+  if (!isFeatureEnabled) {
+    return (
+      <div className="min-h-screen bg-slate-50 py-16 flex items-center justify-center px-4">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-slate-200 shadow-xl text-center space-y-4">
+          <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-3xl mx-auto shadow-inner">
+            <i className="fa-solid fa-box-archive" aria-hidden="true"></i>
+          </div>
+          <h1 className="text-xl font-black text-slate-900">Tính Năng Săn Kho Báu Đang Tạm Đóng</h1>
+          <p className="text-xs text-slate-500 leading-relaxed">
+            Hệ thống Săn Kho Báu hiện đang được quản trị viên tạm tắt để bảo trì hoặc điều chỉnh hạn mức. Quý khách vui lòng quay lại sau!
+          </p>
+          <div className="pt-2 flex items-center justify-center gap-3">
+            <Link to="/trung-tam-phan-thuong" className="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs shadow-md hover:bg-emerald-700 transition">
+              Về Trung Tâm Phần Thưởng
+            </Link>
+            <Link to="/" className="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs hover:bg-slate-200 transition">
+              Trang Chủ
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">

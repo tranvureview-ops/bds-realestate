@@ -3178,43 +3178,85 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         sanitizedData.description = sanitizePhoneFromText(sanitizedData.description).text;
       }
     }
-    let updatedTarget = null;
-    let nextProperties = null;
-    setProperties(prev => {
-      nextProperties = prev.map(p => {
-        if (p.id === propertyId) {
-          updatedTarget = { 
-            ...p, 
-            ...sanitizedData,
-            updatedAt: sanitizedData.updatedAt || new Date().toISOString()
-          };
-          return updatedTarget;
-        }
-        return p;
-      });
-      return nextProperties;
-    });
 
-    if (updatedTarget) {
-      // 1. Đồng bộ lên Supabase Cloud
-      upsertSupabaseProperty(updatedTarget).catch(console.warn);
+    const currentProp = properties.find(p => p.id === propertyId);
+    const updatedTarget = currentProp ? {
+      ...currentProp,
+      ...sanitizedData,
+      updatedAt: sanitizedData.updatedAt || new Date().toISOString()
+    } : {
+      id: propertyId,
+      ...sanitizedData,
+      updatedAt: sanitizedData.updatedAt || new Date().toISOString()
+    };
 
-      // 2. Đồng bộ xuống server-db.json qua API route /api/db-sync để F5 / SSR giữ nguyên
-      if (typeof window !== 'undefined') {
-        try {
-          fetch('/api/db-sync', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              bds_properties: nextProperties || properties.map(p => p.id === propertyId ? updatedTarget : p)
-            })
-          }).catch(console.warn);
-        } catch (e) {
-          console.warn('Lỗi db-sync khi updateProperty:', e);
-        }
+    const nextProperties = properties.map(p => p.id === propertyId ? updatedTarget : p);
+    setProperties(nextProperties);
+
+    // 1. Đồng bộ lên Supabase Cloud
+    upsertSupabaseProperty(updatedTarget).catch(console.warn);
+
+    // 2. Đồng bộ xuống server-db.json qua API route /api/db-sync để F5 / SSR giữ nguyên
+    if (typeof window !== 'undefined') {
+      try {
+        fetch('/api/db-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            bds_properties: nextProperties
+          })
+        }).catch(console.warn);
+      } catch (e) {
+        console.warn('Lỗi db-sync khi updateProperty:', e);
       }
     }
     showToast(`Đã cập nhật bài đăng ${propertyId}!`, 'success');
+  };
+
+  // Cập nhật hàng loạt nhiều bài viết cùng lúc (tránh nghẽn race-condition)
+  const updateMultipleProperties = (updatesArray) => {
+    if (!Array.isArray(updatesArray) || updatesArray.length === 0) return;
+    const updateMap = new Map();
+    updatesArray.forEach(u => {
+      if (u && u.id) updateMap.set(u.id, u.data || {});
+    });
+
+    const updatedTargets = [];
+    const nextProperties = properties.map(p => {
+      if (updateMap.has(p.id)) {
+        const partialData = updateMap.get(p.id);
+        const updated = {
+          ...p,
+          ...partialData,
+          updatedAt: partialData.updatedAt || new Date().toISOString()
+        };
+        updatedTargets.push(updated);
+        return updated;
+      }
+      return p;
+    });
+
+    setProperties(nextProperties);
+
+    // 1. Đồng bộ lên Supabase Cloud hàng loạt
+    if (updatedTargets.length > 0) {
+      syncStateToSupabase({ bds_properties: nextProperties }).catch(console.warn);
+    }
+
+    // 2. Đồng bộ xuống server-db.json qua API route /api/db-sync
+    if (typeof window !== 'undefined') {
+      try {
+        fetch('/api/db-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            bds_properties: nextProperties
+          })
+        }).catch(console.warn);
+      } catch (e) {
+        console.warn('Lỗi db-sync khi updateMultipleProperties:', e);
+      }
+    }
   };
 
   // Gia hạn tin đăng (Renew / Extend Listing)
@@ -4916,6 +4958,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         emptyTrash,
         runDatabaseCleanup,
         updateProperty,
+        updateMultipleProperties,
         renewProperty,
         getPropertyExpirationInfo,
         depositWallet,

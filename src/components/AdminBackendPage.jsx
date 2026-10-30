@@ -4255,6 +4255,7 @@ export default function AdminBackendPage() {
                                           onClick={() => {
                                             updateProperty(p.id, { 
                                               isTreasureHuntActive: false,
+                                              treasureHuntActivatedAt: null,
                                               treasureHuntExpiresAt: null
                                             });
                                             showToast(`Đã tắt rương thưởng cho bài viết ${p.id}`, 'info');
