@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import Image from 'next/image';
 import { useRealEstate } from '../context/RealEstateContext';
 import { formatPhoneNumber } from '../utils/authValidation';
 
@@ -504,9 +505,9 @@ export default function LiveChatWidget() {
             style={{ contain: 'layout' }}
           >
             <div className="relative shrink-0 w-7 h-7">
-              <img
-                width="28"
-                height="28"
+              <Image
+                width={28}
+                height={28}
                 src={agentInfo.avatar || '/avatars/ai-preset-1.jpg'}
                 alt="Tư vấn"
                 className="w-7 h-7 rounded-full object-cover ring-2 ring-emerald-500 shadow-xs shrink-0"
@@ -540,9 +541,9 @@ export default function LiveChatWidget() {
             style={{ contain: 'layout' }}
           >
             <div className="relative shrink-0 w-9 h-9">
-              <img
-                width="36"
-                height="36"
+              <Image
+                width={36}
+                height={36}
                 src={agentInfo.avatar || '/avatars/ai-preset-1.jpg'}
                 alt="Chuyên viên tư vấn"
                 className="w-9 h-9 rounded-full object-cover ring-2 ring-emerald-500 shadow-xs shrink-0"
@@ -579,9 +580,11 @@ export default function LiveChatWidget() {
           <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 text-white p-3.5 flex items-center justify-between border-b border-slate-800">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="relative shrink-0">
-                <img
+                <Image
+                  width={40}
+                  height={40}
                   src={agentInfo.avatar || '/avatars/ai-preset-1.jpg'}
-                  alt={agentInfo.name}
+                  alt={agentInfo.name || 'Chuyên viên tư vấn'}
                   className="w-10 h-10 rounded-full object-cover border-2 border-emerald-500 shadow-xs"
                 />
                 <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-2 border-slate-950 rounded-full animate-pulse"></span>
@@ -757,7 +760,9 @@ export default function LiveChatWidget() {
                     >
                       <div className="flex items-end gap-1.5 max-w-[86%]">
                         {!isUser && (
-                          <img
+                          <Image
+                            width={24}
+                            height={24}
                             src={agentInfo.avatar || '/avatars/ai-preset-1.jpg'}
                             alt=""
                             className="w-6 h-6 rounded-full object-cover border border-slate-200 shrink-0 mb-1"
