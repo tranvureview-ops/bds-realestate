@@ -484,41 +484,47 @@ export default function LiveChatWidget() {
   };
 
   return (
-    <div className={`fixed z-50 select-none ${
-      isOpen 
-        ? 'inset-x-0 bottom-0 sm:bottom-5 sm:right-5 sm:left-auto flex justify-center sm:block' 
-        : 'bottom-[4.25rem] sm:bottom-6 right-3 sm:right-6'
-    }`}>
+    <div 
+      className={`fixed z-50 select-none ${
+        isOpen 
+          ? 'inset-x-0 bottom-0 sm:bottom-5 sm:right-5 sm:left-auto flex justify-center sm:block' 
+          : 'bottom-[4.25rem] sm:bottom-6 right-3 sm:right-6'
+      }`}
+      style={{ contain: 'layout paint' }}
+    >
       {/* 1. FLOATING TRIGGER BUTTON */}
       {!isOpen && (
         <>
           {/* Mobile: Sleek Floating Concierge Pill (Gọn gàng, sang trọng, bo viền ngọc lục bảo) */}
           <button
             onClick={handleOpenWidget}
-            className="sm:hidden flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full bg-white/95 text-slate-800 shadow-[0_8px_25px_rgba(0,0,0,0.12)] border border-slate-200/90 backdrop-blur-md active:scale-95 transition-all cursor-pointer group"
+            className="sm:hidden flex items-center gap-2 pl-1.5 pr-3 py-1.5 h-[36px] rounded-full bg-white/95 text-slate-800 shadow-[0_8px_25px_rgba(0,0,0,0.12)] border border-slate-200/90 backdrop-blur-md active:scale-95 transition-all cursor-pointer group shrink-0"
             title="Chat tư vấn trực tiếp"
+            style={{ contain: 'layout' }}
           >
-            <div className="relative shrink-0">
+            <div className="relative shrink-0 w-7 h-7">
               <img
+                width="28"
+                height="28"
                 src={agentInfo.avatar || '/avatars/ai-preset-1.jpg'}
                 alt="Tư vấn"
-                className="w-7 h-7 rounded-full object-cover ring-2 ring-emerald-500 shadow-xs"
+                className="w-7 h-7 rounded-full object-cover ring-2 ring-emerald-500 shadow-xs shrink-0"
               />
               <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-emerald-500 border-2 border-white rounded-full">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               </span>
             </div>
-            <div className="text-left leading-none pr-0.5">
-              <div className="text-[11px] font-bold text-slate-900 flex items-center gap-1">
+            <div className="text-left leading-none pr-0.5 min-w-[65px]">
+              <div className="text-[11px] font-bold text-slate-900 flex items-center gap-1 whitespace-nowrap">
                 <span>Chat tư vấn</span>
-                <i className="fa-solid fa-comment-dots text-emerald-600 text-[10px]"></i>
+                <i className="fa-solid fa-comment-dots text-emerald-600 text-[10px] shrink-0"></i>
               </div>
-              <div className="text-[8.5px] text-emerald-700 font-semibold mt-0.5">
+              <div className="text-[8.5px] text-emerald-700 font-semibold mt-0.5 whitespace-nowrap">
                 Online 24/7
               </div>
             </div>
             {unreadCount > 0 && (
-              <span className="w-4 h-4 bg-red-600 text-white rounded-full flex items-center justify-center text-[9px] font-black animate-bounce shadow-xs">
+              <span className="w-4 h-4 bg-red-600 text-white rounded-full flex items-center justify-center text-[9px] font-black animate-bounce shadow-xs shrink-0">
                 {unreadCount}
               </span>
             )}
@@ -527,30 +533,33 @@ export default function LiveChatWidget() {
           {/* Desktop: Luxury Floating Concierge Button */}
           <button
             onClick={handleOpenWidget}
-            className="hidden sm:flex items-center gap-2.5 pl-2 pr-4 py-2 rounded-full bg-white/95 hover:bg-white text-slate-800 shadow-[0_10px_35px_rgba(0,0,0,0.12)] border border-slate-200 hover:border-emerald-400 hover:shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md group"
+            className="hidden sm:flex items-center gap-2.5 pl-2 pr-4 py-2 h-[44px] rounded-full bg-white/95 hover:bg-white text-slate-800 shadow-[0_10px_35px_rgba(0,0,0,0.12)] border border-slate-200 hover:border-emerald-400 hover:shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer backdrop-blur-md group shrink-0"
             title="Live Chat tư vấn BĐS trực tiếp"
+            style={{ contain: 'layout' }}
           >
-            <div className="relative shrink-0">
+            <div className="relative shrink-0 w-9 h-9">
               <img
+                width="36"
+                height="36"
                 src={agentInfo.avatar || '/avatars/ai-preset-1.jpg'}
                 alt="Chuyên viên tư vấn"
-                className="w-9 h-9 rounded-full object-cover ring-2 ring-emerald-500 shadow-xs"
+                className="w-9 h-9 rounded-full object-cover ring-2 ring-emerald-500 shadow-xs shrink-0"
               />
               <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               </span>
             </div>
-            <div className="text-left leading-none">
-              <div className="text-xs font-black text-slate-900 group-hover:text-emerald-700 transition flex items-center gap-1.5">
+            <div className="text-left leading-none min-w-[105px]">
+              <div className="text-xs font-black text-slate-900 group-hover:text-emerald-700 transition flex items-center gap-1.5 whitespace-nowrap">
                 <span>Tư vấn BĐS 24/7</span>
-                <i className="fa-solid fa-comment-dots text-emerald-600 text-xs"></i>
+                <i className="fa-solid fa-comment-dots text-emerald-600 text-xs shrink-0"></i>
               </div>
-              <div className="text-[10px] text-slate-500 font-medium mt-1">
+              <div className="text-[10px] text-slate-500 font-medium mt-1 whitespace-nowrap">
                 {agentInfo.name} • <span className="text-emerald-700 font-bold">Online</span>
               </div>
             </div>
             {unreadCount > 0 && (
-              <span className="px-2 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-black animate-bounce shadow">
+              <span className="px-2 py-0.5 rounded-full bg-red-600 text-white text-[10px] font-black animate-bounce shadow shrink-0">
                 {unreadCount}
               </span>
             )}

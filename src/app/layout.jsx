@@ -144,9 +144,17 @@ export default async function RootLayout({ children }) {
           id="app-ssr-font-override"
           dangerouslySetInnerHTML={{
             __html: `
+              @font-face {
+                font-family: 'Plus Jakarta Sans Fallback';
+                src: local('Arial'), local('Helvetica'), local('sans-serif');
+                ascent-override: 96%;
+                descent-override: 24%;
+                line-gap-override: 0%;
+                size-adjust: 100%;
+              }
               :root { --font-custom-family: ${fontConfig.fontFamily}; }
               html, body {
-                font-family: var(--font-custom-family, ${fontConfig.fontFamily}), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+                font-family: var(--font-custom-family, ${fontConfig.fontFamily}), 'Plus Jakarta Sans Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
               }
@@ -154,7 +162,7 @@ export default async function RootLayout({ children }) {
                 font-family: inherit !important;
               }
               .font-mono, .font-sans {
-                font-family: var(--font-custom-family, ${fontConfig.fontFamily}), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+                font-family: var(--font-custom-family, ${fontConfig.fontFamily}), 'Plus Jakarta Sans Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
               }
               .font-mono {
                 font-variant-numeric: tabular-nums;
