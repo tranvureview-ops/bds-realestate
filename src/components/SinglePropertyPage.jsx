@@ -1573,9 +1573,9 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                     <span className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold ${badgeClass}`}>
                       <i className={discCfg.icon || 'fa-solid fa-shield-halved'}></i>
                     </span>
-                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                    <h2 className="text-xs font-black uppercase tracking-wider text-slate-800">
                       {discCfg.title || 'Thông Báo Về Nội Dung & Miễn Trừ Trách Nhiệm'}
-                    </h3>
+                    </h2>
                   </div>
 
                   <div className="flex items-center gap-2">
