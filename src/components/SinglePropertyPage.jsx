@@ -1743,41 +1743,36 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                       )}
                     </Link>
 
-                    {/* 2. Thông tin chuyên viên bọc trong thẻ <Link> có cấu trúc */}
+                    {/* 2. Thông tin chuyên viên gộp vào 1 liên kết lớn duy nhất đạt chuẩn Touch Target */}
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-1">
-                        <div className="text-[10px] font-black uppercase text-emerald-700 tracking-wider">
-                          {authorBadgeLabel}
-                        </div>
-                        <Link
-                          href={structuredBrokerLink}
-                          rel="nofollow"
-                          onClick={handleOpenBrokerModal}
-                          className="text-[10px] text-emerald-600 font-bold hover:underline flex items-center gap-1 shrink-0 cursor-pointer"
-                          title={authorTitle}
-                        >
-                          <span>Xem hồ sơ</span>
-                          <i className="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
-                        </Link>
-                      </div>
-
                       <Link
                         href={structuredBrokerLink}
                         rel="nofollow"
                         onClick={handleOpenBrokerModal}
-                        className="block cursor-pointer group-hover:text-emerald-700 transition"
+                        className="block cursor-pointer group/brokerInfo py-0.5"
                         title={authorTitle}
+                        aria-label={`Xem hồ sơ ${authorTitle}`}
                       >
-                        <div className="text-base font-extrabold text-slate-900 group-hover:text-emerald-700 transition truncate">
+                        <div className="flex items-center justify-between gap-1">
+                          <div className="text-[10px] font-black uppercase text-emerald-700 tracking-wider">
+                            {authorBadgeLabel}
+                          </div>
+                          <span className="text-[11px] text-emerald-600 font-bold group-hover/brokerInfo:underline flex items-center gap-1 shrink-0">
+                            <span>Xem hồ sơ</span>
+                            <i className="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+                          </span>
+                        </div>
+
+                        <div className="text-base font-extrabold text-slate-900 group-hover/brokerInfo:text-emerald-700 transition truncate mt-0.5">
                           {safeAuthor.name}
                         </div>
-                      </Link>
 
-                      {safeAuthor.title ? (
-                        <div className="text-xs text-slate-500 truncate" title={safeAuthor.title}>
-                          {safeAuthor.title}
-                        </div>
-                      ) : null}
+                        {safeAuthor.title ? (
+                          <div className="text-xs text-slate-500 truncate" title={safeAuthor.title}>
+                            {safeAuthor.title}
+                          </div>
+                        ) : null}
+                      </Link>
 
                       <div className="flex items-center gap-1.5 text-amber-500 text-xs mt-1">
                         <div className="flex items-center gap-1">
@@ -1785,15 +1780,9 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                           <span className="font-bold text-slate-800">{safeAuthor.rating || '5.0'}</span>
                         </div>
                         <span className="text-slate-300">•</span>
-                        <Link
-                          href={structuredBrokerLink}
-                          rel="nofollow"
-                          onClick={handleOpenBrokerModal}
-                          className="text-emerald-600 font-bold hover:underline cursor-pointer"
-                          title={`Xem tất cả ${authorListingsCount} tin đăng của ${authorTitle}`}
-                        >
+                        <span className="text-slate-600 font-medium">
                           ({authorListingsCount} tin đăng)
-                        </Link>
+                        </span>
                       </div>
                     </div>
                   </div>
