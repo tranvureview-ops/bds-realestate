@@ -62,7 +62,34 @@ export function middleware(request) {
     }
   }
 
-  const response = NextResponse.next();
+  // Sinh nonce mật mã ngẫu nhiên duy nhất cho mỗi lượt request
+  const nonce = btoa(crypto.randomUUID());
+
+  const cspHeader = [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline'`,
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "img-src 'self' data: blob: https: http:",
+    "font-src 'self' data: https://fonts.gstatic.com",
+    "connect-src 'self' https: wss:",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "frame-ancestors 'self'",
+    "upgrade-insecure-requests",
+    "require-trusted-types-for 'script'",
+    "trusted-types default nextjs#bundler"
+  ].join('; ');
+
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-nonce', nonce);
+  requestHeaders.set('Content-Security-Policy', cspHeader);
+
+  const response = NextResponse.next({
+    request: {
+      headers: requestHeaders,
+    },
+  });
 
   // 3. Xử lý Affiliate Deep Link: Nếu URL có ?ref=CODE, lưu Cookie 30 ngày
   if (searchParams.has('ref')) {
@@ -81,11 +108,8 @@ export function middleware(request) {
     }
   }
 
-  // 4. Thiết lập bộ Header An Toàn & Bảo Mật (CSP, COOP, HSTS, X-Content-Type-Options, Trusted Types)
-  response.headers.set(
-    'Content-Security-Policy',
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https: http:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https: wss:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests; require-trusted-types-for 'script'; trusted-types default nextjs#bundler;"
-  );
+  // 4. Thiết lập bộ Header An Toàn & Bảo Mật Chuẩn Cao Nhất (Strict Nonce-based CSP, COOP, HSTS, X-Content-Type-Options, Trusted Types)
+  response.headers.set('Content-Security-Policy', cspHeader);
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
   response.headers.set('Cross-Origin-Resource-Policy', 'cross-origin');
   response.headers.set('X-Content-Type-Options', 'nosniff');

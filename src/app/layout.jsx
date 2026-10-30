@@ -15,7 +15,7 @@ export const viewport = {
 import fs from 'fs';
 import path from 'path';
 import { cache } from 'react';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { MOCK_USERS, DEFAULT_GUEST_USER } from '../data/mockData';
 import { isSupabaseConfigured, fetchFullSupabaseDb } from '../lib/supabase';
 import { getFontConfig } from '../utils/fontConfig';
@@ -83,6 +83,12 @@ export async function generateMetadata() {
 export default async function RootLayout({ children }) {
   const initialDb = await getInitialDb();
 
+  let nonce = '';
+  try {
+    const headersList = await headers();
+    nonce = headersList.get('x-nonce') || '';
+  } catch (e) {}
+
   let initialUser = DEFAULT_GUEST_USER;
   try {
     const cookieStore = await cookies();
@@ -107,6 +113,7 @@ export default async function RootLayout({ children }) {
         {/* Trusted Types Default Policy để hỗ trợ CSP require-trusted-types-for và chống DOM XSS an toàn */}
         <script
           id="trusted-types-policy"
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `
               if (typeof window !== 'undefined' && window.trustedTypes && window.trustedTypes.createPolicy) {
@@ -140,6 +147,7 @@ export default async function RootLayout({ children }) {
         {/* Non-render-blocking Asynchronous Stylesheet Injector to eliminate Critical Request Chains */}
         <script
           id="server-async-styles"
+          nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
@@ -218,6 +226,7 @@ export default async function RootLayout({ children }) {
         <Script
           src="/leaflet/leaflet.js"
           strategy="lazyOnload"
+          nonce={nonce}
         />
         <ClientLayout initialDb={initialDb} initialUser={initialUser}>{children}</ClientLayout>
       </body>
