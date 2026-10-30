@@ -369,8 +369,8 @@ export default function ArticleTreasureBox({ property }) {
             </div>
 
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
-                {revealedReward.tierLabel}
+              <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
+                🎁 Tiền Thưởng Ngẫu Nhiên
               </span>
               <h3 className="text-xl font-black text-slate-900 mt-2">Mở Rương Thành Công!</h3>
               <p className="text-xs text-slate-500 mt-1">

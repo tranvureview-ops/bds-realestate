@@ -556,7 +556,7 @@ export default function AdminRewardsGamificationManager() {
                   Khoảng Tiền Thưởng Ngẫu Nhiên (Cộng Trực Tiếp Ví KM)
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Tùy chỉnh khoảng giá min (hạng thấp nhất) đến max (hạng cao nhất). Mỗi rương mở ra sẽ random số tiền trong khoảng này.
+                  Tùy chỉnh khoảng giá từ min đến max. Mỗi rương mở ra sẽ random số tiền hoàn toàn ngẫu nhiên trong khoảng này (không phân cấp).
                 </p>
               </div>
 
@@ -568,7 +568,7 @@ export default function AdminRewardsGamificationManager() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-2">
                 <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
-                  <span>Giá Min (Hạng Thấp Nhất)</span>
+                  <span>Tiền Thưởng Tối Thiểu (Min)</span>
                   <span className="text-emerald-400 text-[11px] font-mono">Tối thiểu: 1.000 đ</span>
                 </label>
                 <div className="flex items-center gap-2">
@@ -587,7 +587,7 @@ export default function AdminRewardsGamificationManager() {
 
               <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-2">
                 <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
-                  <span>Giá Max (Hạng Cao Nhất)</span>
+                  <span>Tiền Thưởng Tối Đa (Max)</span>
                   <span className="text-amber-400 text-[11px] font-mono">Ví dụ: 20.000 đ</span>
                 </label>
                 <div className="flex items-center gap-2">

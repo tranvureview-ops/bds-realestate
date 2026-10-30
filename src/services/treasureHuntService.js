@@ -75,7 +75,7 @@ export function checkCooldownStatus(userId, customCooldown = COOLDOWN_SECONDS) {
   return { canOpen: true, secondsLeft: 0 };
 }
 
-// Hàm tính ngẫu nhiên tiền thưởng từ minAmount (hạng thấp nhất) đến maxAmount (hạng cao nhất)
+// Hàm tính ngẫu nhiên tiền thưởng từ minAmount đến maxAmount (hoàn toàn ngẫu nhiên, không phân cấp hạng rương)
 export function calculateTreasureReward(tConfig = null) {
   let min = 2000;
   let max = 20000;
@@ -91,37 +91,9 @@ export function calculateTreasureReward(tConfig = null) {
     ? min + Math.floor(Math.random() * (steps + 1)) * step 
     : min;
 
-  let tier = 'tier1';
-  let tierLabel = 'Rương May Mắn';
-  let color = 'text-amber-700 bg-amber-50';
-
-  const range = max - min;
-  if (range > 0) {
-    const ratio = (amount - min) / range;
-    if (ratio >= 0.75) {
-      tier = 'tier4';
-      tierLabel = 'Rương Kim Cương Đỉnh Cao';
-      color = 'text-rose-700 bg-rose-50';
-    } else if (ratio >= 0.45) {
-      tier = 'tier3';
-      tierLabel = 'Rương Vàng Phú Quý';
-      color = 'text-amber-900 bg-amber-100';
-    } else if (ratio >= 0.20) {
-      tier = 'tier2';
-      tierLabel = 'Rương Bạc Rực Rỡ';
-      color = 'text-blue-700 bg-blue-50';
-    } else {
-      tier = 'tier1';
-      tierLabel = 'Rương Đồng May Mắn';
-      color = 'text-amber-700 bg-amber-50';
-    }
-  }
-
   return {
     amount,
-    tier,
-    tierLabel,
-    color
+    label: 'Rương May Mắn'
   };
 }
 
