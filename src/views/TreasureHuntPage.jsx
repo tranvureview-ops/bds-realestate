@@ -22,7 +22,6 @@ export default function TreasureHuntPage() {
   const [localBonusBal, setLocalBonusBal] = useState(Number(currentUser?.bonusWalletBalance || 0));
   const [expiringBonusInfo, setExpiringBonusInfo] = useState(null);
   const [shuffleSeed, setShuffleSeed] = useState(0);
-  const [isShuffling, setIsShuffling] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -92,18 +91,6 @@ export default function TreasureHuntPage() {
   }, [userId, dailyLimit, currentUser?.bonusWalletBalance]);
 
   const totalEarnedToday = claimsToday.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
-
-  // Đổi danh sách bài viết ngẫu nhiên (Fair Shuffle)
-  const handleShuffleClick = () => {
-    setIsShuffling(true);
-    setShuffleSeed(Date.now() + Math.random());
-    if (showToast) {
-      showToast('Đã xoay vòng ngẫu nhiên danh sách bài viết!', 'info');
-    }
-    setTimeout(() => {
-      setIsShuffling(false);
-    }, 400);
-  };
 
   // Định dạng chuẩn cấu trúc giá bất động sản theo tiêu chuẩn hệ thống
   const formatPropertyPrice = (p) => {
@@ -433,39 +420,19 @@ export default function TreasureHuntPage() {
 
         {/* Suggested Articles containing Gift Boxes */}
         <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200/80 shadow-xs">
+          <div className="flex items-center justify-between">
             <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-base sm:text-lg font-black text-slate-900 flex items-center gap-2">
-                  <i className="fa-solid fa-fire text-red-500"></i>
-                  <span>Danh Sách Bài Viết Đang Chứa Hộp Quà Hôm Nay</span>
-                </h3>
-                <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-300 px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs">
-                  <i className="fa-solid fa-shuffle text-[9px] text-amber-600"></i>
-                  <span>Xoay vòng công bằng</span>
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 mt-1">
-                Thứ tự bài viết được tự động xoay vòng ngẫu nhiên cho mỗi phiên truy cập nhằm phân bổ lượt xem và tương tác đồng đều cho tất cả tin đăng của Hội viên.
+              <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <i className="fa-solid fa-fire text-red-500"></i>
+                Danh Sách Bài Viết Đang Chứa Hộp Quà Hôm Nay
+              </h3>
+              <p className="text-xs text-slate-500">
+                Bấm vào từng bài viết bên dưới, cuộn xuống phần mô tả để mở rương kho báu:
               </p>
             </div>
-
-            <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-auto">
-              <button
-                type="button"
-                onClick={handleShuffleClick}
-                disabled={isShuffling}
-                className="px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center gap-2 cursor-pointer shadow-md hover:shadow-lg disabled:opacity-50"
-                title="Bấm để đảo ngẫu nhiên danh sách bài viết khác"
-              >
-                <i className={`fa-solid fa-rotate text-xs text-amber-400 ${isShuffling ? 'animate-spin' : ''}`}></i>
-                <span>{isShuffling ? 'Đang xoay...' : 'Đổi bài viết khác'}</span>
-              </button>
-
-              <Link to="/nha-dat-ban" className="text-xs font-bold text-emerald-600 hover:underline px-2 py-1">
-                Xem tất cả tin rao &rarr;
-              </Link>
-            </div>
+            <Link to="/nha-dat-ban" className="text-xs font-bold text-emerald-600 hover:underline">
+              Xem tất cả tin rao &rarr;
+            </Link>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
