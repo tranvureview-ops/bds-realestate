@@ -589,33 +589,34 @@ function withTimeout(promise, ms = 2500) {
 
 /**
  * Tải toàn bộ dữ liệu hệ thống từ Supabase Cloud để đồng bộ SSR và Client
- * Tích hợp In-memory Cache & Promise Deduplication siêu tốc
+ * Tích hợp Stale-While-Revalidate In-memory Cache & Promise Deduplication siêu tốc
  */
 export async function fetchFullSupabaseDb(options = {}) {
   const forceRefresh = typeof options === 'boolean' ? options : Boolean(options?.forceRefresh);
   if (!isSupabaseConfigured() || !supabase) return null;
 
   const now = Date.now();
-  // Nếu có cache trong RAM và không ép refresh, trả về tức thì (0ms)
+  // Nếu có cache còn trong hạn và không ép refresh, trả về tức thì (0ms)
   if (!forceRefresh && _dbCache && now < _dbCacheExpiresAt) {
     return _dbCache;
   }
 
-  // Deduplication: Nếu đang có một promise fetch đang chạy, gộp vào chung một promise
+  // Deduplication: Nếu đang có một promise fetch đang chạy ngầm, không tạo thêm request trùng lặp
   if (!forceRefresh && _pendingFetchPromise) {
+    // Nếu đã có cache cũ (stale cache), ưu tiên trả về ngay lập tức để người dùng không phải chờ
+    if (_dbCache) return _dbCache;
     return _pendingFetchPromise;
   }
 
-  _pendingFetchPromise = (async () => {
+  // Tạo tác vụ fetch từ Supabase Cloud
+  const backgroundFetchTask = (async () => {
     try {
-      const fetchTask = Promise.all([
+      const [props, settingsRes, profiles, txns] = await Promise.all([
         fetchSupabaseProperties(),
         supabase.from('platform_settings').select('key, value'),
         fetchSupabaseProfiles(),
         fetchSupabaseTransactions()
       ]);
-
-      const [props, settingsRes, profiles, txns] = await withTimeout(fetchTask, 2500);
 
       const settingsMap = {};
       if (settingsRes && Array.isArray(settingsRes.data)) {
@@ -655,23 +656,33 @@ export async function fetchFullSupabaseDb(options = {}) {
         bds_rewards_config: settingsMap['bds_rewards_config'] || undefined,
       };
 
-      // Lưu kết quả vào in-memory cache
+      // Cập nhật kết quả mới vào in-memory cache
       _dbCache = result;
       _dbCacheExpiresAt = Date.now() + CACHE_TTL_MS;
       return result;
     } catch (err) {
-      if (err?.message === 'SUPABASE_TIMEOUT') {
-        console.warn('Supabase fetch vượt quá 2.5s, chuyển nhanh sang dữ liệu local.');
-      } else {
-        console.error('Lỗi khi fetchFullSupabaseDb:', err);
-      }
+      console.error('Lỗi khi fetchFullSupabaseDb:', err);
       return null;
     } finally {
       _pendingFetchPromise = null;
     }
   })();
 
-  return _pendingFetchPromise;
+  _pendingFetchPromise = backgroundFetchTask;
+
+  // Stale-While-Revalidate: Nếu đã có cache cũ trong RAM, trả về ngay lập tức (0ms) để tải trang tức thì
+  if (_dbCache) {
+    return _dbCache;
+  }
+
+  // Nếu chưa từng có cache (lần đầu khởi động serverless cold start): chờ tối đa 800ms
+  // Nếu Supabase trả về kịp -> trả về dữ liệu Supabase; nếu quá 800ms -> trả về null để SSR fallback ngay lập tức sang local DB
+  try {
+    return await withTimeout(backgroundFetchTask, 800);
+  } catch (timeoutErr) {
+    console.warn('Supabase fetch lần đầu vượt quá 800ms, fallback tức thì sang local DB cho SSR.');
+    return null;
+  }
 }
 
 /**
