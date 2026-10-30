@@ -8,7 +8,10 @@ import {
   hasClaimedPropertyToday, 
   checkCooldownStatus, 
   calculateTreasureReward, 
-  recordTreasureClaim 
+  recordTreasureClaim,
+  isPropertyTreasureActive,
+  getTreasureExpirationInfo,
+  calculateTreasureHuntExpiry
 } from '../services/treasureHuntService';
 
 export default function ArticleTreasureBox({ property }) {
@@ -24,7 +27,8 @@ export default function ArticleTreasureBox({ property }) {
   const maxAmount = Number(tConfig?.maxAmount || 20000);
 
   const isAdmin = currentUser?.role === 'admin';
-  const isTreasureActive = Boolean(property?.isTreasureHuntActive);
+  const isTreasureActive = isPropertyTreasureActive(property, property?.author);
+  const treasureExpInfo = getTreasureExpirationInfo(property);
 
   const [hasClaimedThisArticle, setHasClaimedThisArticle] = useState(false);
   const [quota, setQuota] = useState({ count: 0, limit: dailyLimit, remaining: dailyLimit, isLimitReached: false });
@@ -132,8 +136,13 @@ export default function ArticleTreasureBox({ property }) {
             type="button"
             onClick={() => {
               if (updateProperty) {
-                updateProperty(property.id, { isTreasureHuntActive: true });
-                if (showToast) showToast(`Đã kích hoạt rương kho báu cho bài viết ${property.id}!`, 'success');
+                const { activatedAt, expiresAt } = calculateTreasureHuntExpiry(currentUser);
+                updateProperty(property.id, { 
+                  isTreasureHuntActive: true,
+                  treasureHuntActivatedAt: activatedAt,
+                  treasureHuntExpiresAt: expiresAt
+                });
+                if (showToast) showToast(`[Admin] Đã kích hoạt rương kho báu 15 ngày cho bài viết ${property.id}!`, 'success');
               }
             }}
             className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-bold transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer shrink-0"
@@ -157,15 +166,18 @@ export default function ArticleTreasureBox({ property }) {
             type="button"
             onClick={() => {
               if (updateProperty) {
-                updateProperty(property.id, { isTreasureHuntActive: false });
-                if (showToast) showToast(`Đã tắt rương kho báu cho bài viết ${property.id}`, 'info');
+                updateProperty(property.id, { 
+                  isTreasureHuntActive: false,
+                  treasureHuntExpiresAt: null
+                });
+                if (showToast) showToast(`[Admin] Đã tắt rương kho báu cho bài viết ${property.id}`, 'info');
               }
             }}
             className="px-2.5 py-1 rounded-lg bg-black/60 hover:bg-black/80 text-rose-300 border border-rose-500/30 text-[10px] font-bold transition flex items-center gap-1 shadow-sm cursor-pointer"
             title="Quản trị viên: Bấm để tắt rương bài viết này"
           >
             <i className="fa-solid fa-power-off text-[9px]"></i>
-            <span>Admin: Tắt rương</span>
+            <span>Admin: Tắt rương {treasureExpInfo.daysRemaining > 0 ? `(${treasureExpInfo.daysRemaining}d)` : ''}</span>
           </button>
         </div>
       )}

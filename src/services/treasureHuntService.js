@@ -144,3 +144,149 @@ export function recordTreasureClaim(userId, propertyId, propertyTitle, rewardAmo
     return [];
   }
 }
+
+/**
+ * Thời hạn gán nổi bật cố định: 15 ngày
+ */
+export const TREASURE_HUNT_DURATION_DAYS = 15;
+
+/**
+ * Tính toán thời gian bắt đầu và hết hạn khi Gán Nổi Bật bài viết
+ * - Thời hạn cố định: 15 ngày kể từ ngày gắn
+ * - Không vượt quá thời hạn của gói hội viên hiện tại (nếu là thành viên thường)
+ */
+export function calculateTreasureHuntExpiry(currentUser = null) {
+  const now = Date.now();
+  const durationMs = TREASURE_HUNT_DURATION_DAYS * 24 * 60 * 60 * 1000;
+  let targetExpiryMs = now + durationMs;
+
+  // Nếu là thành viên thường (không phải admin) và có hạn dùng gói hội viên
+  const isAdmin = currentUser?.role === 'admin';
+  if (!isAdmin && currentUser?.membership?.expiresAt) {
+    const memberExpMs = new Date(currentUser.membership.expiresAt).getTime();
+    if (!isNaN(memberExpMs) && memberExpMs > now) {
+      targetExpiryMs = Math.min(targetExpiryMs, memberExpMs);
+    }
+  }
+
+  return {
+    activatedAt: new Date(now).toISOString(),
+    expiresAt: new Date(targetExpiryMs).toISOString()
+  };
+}
+
+/**
+ * Kiểm tra trạng thái Gán Nổi Bật của bài viết:
+ * - isTreasureHuntActive === true
+ * - Chưa quá hạn treasureHuntExpiresAt (15 ngày hoặc theo gói hội viên)
+ * - Nếu có truyền authorUser (thành viên thường): gói hội viên còn hiệu lực
+ */
+export function isPropertyTreasureActive(prop, authorUser = null) {
+  if (!prop || !prop.isTreasureHuntActive) return false;
+
+  const now = Date.now();
+
+  // 1. Kiểm tra thời hạn 15 ngày của bài viết
+  if (prop.treasureHuntExpiresAt) {
+    const expMs = new Date(prop.treasureHuntExpiresAt).getTime();
+    if (!isNaN(expMs) && expMs <= now) {
+      return false; // Đã quá hạn 15 ngày
+    }
+  }
+
+  // 2. Kiểm tra gói hội viên của tác giả (nếu có cung cấp authorUser và không phải Admin)
+  if (authorUser && authorUser.role !== 'admin') {
+    if (authorUser.membership?.status !== 'active') return false;
+    if (authorUser.membership?.expiresAt) {
+      const memberExpMs = new Date(authorUser.membership.expiresAt).getTime();
+      if (!isNaN(memberExpMs) && memberExpMs <= now) {
+        return false; // Gói hội viên của tác giả đã hết hạn
+      }
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Lấy thông tin chi tiết về thời hạn Gán Nổi Bật của bài viết
+ */
+export function getTreasureExpirationInfo(prop) {
+  if (!prop) {
+    return {
+      isActive: false,
+      isExpired: false,
+      activatedAt: null,
+      expiresAt: null,
+      daysRemaining: 0,
+      hoursRemaining: 0,
+      formattedExpiryDate: '',
+      formattedActivatedDate: '',
+      timeRemainingText: ''
+    };
+  }
+
+  const isFlagActive = Boolean(prop.isTreasureHuntActive);
+  const now = Date.now();
+
+  if (!isFlagActive) {
+    return {
+      isActive: false,
+      isExpired: false,
+      activatedAt: prop.treasureHuntActivatedAt || null,
+      expiresAt: prop.treasureHuntExpiresAt || null,
+      daysRemaining: 0,
+      hoursRemaining: 0,
+      formattedExpiryDate: '',
+      formattedActivatedDate: '',
+      timeRemainingText: 'Chưa gán nổi bật'
+    };
+  }
+
+  // Lấy hạn hết hạn
+  let expMs = prop.treasureHuntExpiresAt ? new Date(prop.treasureHuntExpiresAt).getTime() : null;
+  if (!expMs || isNaN(expMs)) {
+    // Tự sinh hạn 15 ngày giả định nếu chưa có
+    const actTime = prop.treasureHuntActivatedAt ? new Date(prop.treasureHuntActivatedAt).getTime() : now;
+    expMs = actTime + TREASURE_HUNT_DURATION_DAYS * 24 * 60 * 60 * 1000;
+  }
+
+  const diffMs = expMs - now;
+  const isExpired = diffMs <= 0;
+  const isActive = !isExpired;
+
+  const daysRemaining = Math.max(0, Math.ceil(diffMs / (24 * 60 * 60 * 1000)));
+  const hoursRemaining = Math.max(0, Math.ceil(diffMs / (60 * 60 * 1000)));
+
+  const expDate = new Date(expMs);
+  const formattedExpiryDate = `${String(expDate.getDate()).padStart(2, '0')}/${String(expDate.getMonth() + 1).padStart(2, '0')}/${expDate.getFullYear()}`;
+
+  let formattedActivatedDate = '';
+  if (prop.treasureHuntActivatedAt) {
+    const actDate = new Date(prop.treasureHuntActivatedAt);
+    formattedActivatedDate = `${String(actDate.getDate()).padStart(2, '0')}/${String(actDate.getMonth() + 1).padStart(2, '0')}/${actDate.getFullYear()}`;
+  }
+
+  let timeRemainingText = '';
+  if (isExpired) {
+    timeRemainingText = 'Đã hết hạn';
+  } else if (daysRemaining > 1) {
+    timeRemainingText = `Còn ${daysRemaining} ngày`;
+  } else if (hoursRemaining > 0) {
+    timeRemainingText = `Còn ${hoursRemaining} giờ`;
+  } else {
+    timeRemainingText = 'Hôm nay hết hạn';
+  }
+
+  return {
+    isActive,
+    isExpired,
+    activatedAt: prop.treasureHuntActivatedAt || null,
+    expiresAt: new Date(expMs).toISOString(),
+    daysRemaining,
+    hoursRemaining,
+    formattedExpiryDate,
+    formattedActivatedDate,
+    timeRemainingText
+  };
+}

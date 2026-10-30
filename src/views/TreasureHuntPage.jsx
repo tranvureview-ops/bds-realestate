@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
-import { getDailyQuotaStatus, getDailyClaims, hasClaimedPropertyToday } from '../services/treasureHuntService';
+import { getDailyQuotaStatus, getDailyClaims, hasClaimedPropertyToday, isPropertyTreasureActive } from '../services/treasureHuntService';
 import { getPropertyPermalink, SITE_URL } from '../utils/permalink';
 
 export default function TreasureHuntPage() {
@@ -158,8 +158,8 @@ export default function TreasureHuntPage() {
     };
 
     // Phương án 1: Chỉ lấy các bài viết đã được kích hoạt cờ Săn Kho Báu (isTreasureHuntActive === true)
-    // do Hội viên chọn gắn rương hoặc Ban quản trị Admin kích hoạt
-    const treasureArticles = valid.filter(p => Boolean(p.isTreasureHuntActive));
+    // và vẫn còn trong thời hạn 15 ngày hiệu lực
+    const treasureArticles = valid.filter(p => isPropertyTreasureActive(p, p.author));
     const sortedTreasures = fairSortArticles(treasureArticles);
 
     // Trả về tối đa 8 bài để hiển thị trọn vẹn trên lưới (2 hàng x 4 cột)

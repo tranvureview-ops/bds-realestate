@@ -61,7 +61,11 @@ export async function fetchSupabaseProperties() {
           verification_status: vStatus,
           verificationStatus: vStatus,
           verificationDocuments: vDocs,
-          isTreasureHuntActive: Boolean(row.raw_data?.isTreasureHuntActive || row.is_treasure_hunt_active)
+          isTreasureHuntActive: Boolean(row.raw_data?.isTreasureHuntActive || row.is_treasure_hunt_active),
+        treasureHuntActivatedAt: row.raw_data?.treasureHuntActivatedAt || null,
+        treasureHuntExpiresAt: row.raw_data?.treasureHuntExpiresAt || null,
+          treasureHuntActivatedAt: row.raw_data?.treasureHuntActivatedAt || null,
+          treasureHuntExpiresAt: row.raw_data?.treasureHuntExpiresAt || null
         };
       }
       return {
@@ -108,6 +112,8 @@ export async function fetchSupabaseProperties() {
         autoRenew: row.auto_renew,
         isDeleted: row.is_deleted,
         isTreasureHuntActive: Boolean(row.raw_data?.isTreasureHuntActive || row.is_treasure_hunt_active),
+        treasureHuntActivatedAt: row.raw_data?.treasureHuntActivatedAt || null,
+        treasureHuntExpiresAt: row.raw_data?.treasureHuntExpiresAt || null,
         is_verified: isVer,
         isVerified: isVer,
         verification_status: vStatus,
@@ -173,6 +179,8 @@ export async function upsertSupabaseProperty(prop) {
       raw_data: {
         ...prop,
         isTreasureHuntActive: Boolean(prop.isTreasureHuntActive),
+        treasureHuntActivatedAt: prop.treasureHuntActivatedAt || null,
+        treasureHuntExpiresAt: prop.treasureHuntExpiresAt || null,
         is_verified: Boolean(prop.is_verified ?? prop.isVerified),
         isVerified: Boolean(prop.is_verified ?? prop.isVerified),
         verification_status: prop.verification_status || prop.verificationStatus || (Boolean(prop.is_verified ?? prop.isVerified) ? 'verified' : 'unverified'),

@@ -23,6 +23,7 @@ import PropertyVerificationReviewModal from './PropertyVerificationReviewModal';
 import { AVAILABLE_FONTS, getFontConfig, applyFontToDom } from '../utils/fontConfig';
 import { formatPhoneNumber } from '../utils/authValidation';
 import { isVoucherDiscountFree } from '../utils/membershipHelper';
+import { calculateTreasureHuntExpiry, isPropertyTreasureActive, getTreasureExpirationInfo } from '../services/treasureHuntService';
 
 export const VALID_ADMIN_TABS = [
   'dashboard',
@@ -4246,29 +4247,40 @@ export default function AdminBackendPage() {
                                     ) : null}
 
                                     {/* Kích hoạt Rương Kho Báu Gamification (1-Click Toggle) */}
-                                    {Boolean(p.isTreasureHuntActive) ? (
+                                    {Boolean(p.isTreasureHuntActive) ? (() => {
+                                      const pTreasureInfo = getTreasureExpirationInfo(p);
+                                      return (
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            updateProperty(p.id, { 
+                                              isTreasureHuntActive: false,
+                                              treasureHuntExpiresAt: null
+                                            });
+                                            showToast(`Đã tắt rương thưởng cho bài viết ${p.id}`, 'info');
+                                          }}
+                                          className="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/50 flex items-center gap-1 font-bold hover:bg-amber-500/30 hover:border-amber-400 transition cursor-pointer"
+                                          title={`Bài viết đang BẬT rương nổi bật đến ngày ${pTreasureInfo.formattedExpiryDate}. Bấm để tắt.`}
+                                        >
+                                          <i className="fa-solid fa-gift text-[9px] text-amber-400"></i>
+                                          <span>🎁 Có rương ({pTreasureInfo.daysRemaining > 0 ? `${pTreasureInfo.daysRemaining}d` : 'hết hạn'})</span>
+                                          <i className="fa-solid fa-xmark text-[8px] opacity-70"></i>
+                                        </button>
+                                      );
+                                    })() : (
                                       <button
                                         type="button"
                                         onClick={() => {
-                                          updateProperty(p.id, { isTreasureHuntActive: false });
-                                          showToast(`Đã tắt rương thưởng cho bài viết ${p.id}`, 'info');
-                                        }}
-                                        className="px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/50 flex items-center gap-1 font-bold hover:bg-amber-500/30 hover:border-amber-400 transition cursor-pointer"
-                                        title="Bài viết đang BẬT rương kho báu tiền thưởng. Bấm để tắt."
-                                      >
-                                        <i className="fa-solid fa-gift text-[9px] text-amber-400"></i>
-                                        <span>🎁 Có rương</span>
-                                        <i className="fa-solid fa-xmark text-[8px] opacity-70"></i>
-                                      </button>
-                                    ) : (
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          updateProperty(p.id, { isTreasureHuntActive: true });
-                                          showToast(`Đã kích hoạt rương thưởng cho bài viết ${p.id}`, 'success');
+                                          const { activatedAt, expiresAt } = calculateTreasureHuntExpiry(currentUser);
+                                          updateProperty(p.id, { 
+                                            isTreasureHuntActive: true,
+                                            treasureHuntActivatedAt: activatedAt,
+                                            treasureHuntExpiresAt: expiresAt
+                                          });
+                                          showToast(`Đã kích hoạt rương thưởng 15 ngày cho bài viết ${p.id}`, 'success');
                                         }}
                                         className="px-1.5 py-0.5 rounded text-[10px] bg-slate-900 text-slate-400 border border-slate-800 flex items-center gap-1 font-semibold hover:bg-amber-500/20 hover:text-amber-300 hover:border-amber-500/40 transition cursor-pointer"
-                                        title="Bấm để kích hoạt rương kho báu cho bài viết này"
+                                        title="Bấm để kích hoạt rương kho báu (hạn 15 ngày) cho bài viết này"
                                       >
                                         <i className="fa-solid fa-gift text-[9px] text-slate-500"></i>
                                         <span>+ Bật rương</span>

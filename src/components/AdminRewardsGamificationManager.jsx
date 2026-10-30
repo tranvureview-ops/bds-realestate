@@ -5,6 +5,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { isPromotionExpired, formatPromoDate } from '../data/rewardData';
 import { Link } from '../router/RouterContext';
 import { getPropertyPermalink } from '../utils/permalink';
+import { calculateTreasureHuntExpiry, isPropertyTreasureActive, getTreasureExpirationInfo } from '../services/treasureHuntService';
 
 export default function AdminRewardsGamificationManager() {
   const { 
@@ -76,15 +77,21 @@ export default function AdminRewardsGamificationManager() {
 
   const handleToggleTreasureArticle = (prop) => {
     if (!updateProperty) return;
-    const nextState = !prop.isTreasureHuntActive;
-    updateProperty(prop.id, { isTreasureHuntActive: nextState });
-    if (showToast) {
-      showToast(
-        nextState 
-          ? `Đã kích hoạt rương kho báu cho bài viết ${prop.id}!` 
-          : `Đã tắt rương kho báu bài viết ${prop.id}`, 
-        nextState ? 'success' : 'info'
-      );
+    const isCurrentlyActive = Boolean(prop.isTreasureHuntActive);
+    if (!isCurrentlyActive) {
+      const { activatedAt, expiresAt } = calculateTreasureHuntExpiry();
+      updateProperty(prop.id, { 
+        isTreasureHuntActive: true,
+        treasureHuntActivatedAt: activatedAt,
+        treasureHuntExpiresAt: expiresAt
+      });
+      if (showToast) showToast(`[Admin] Đã kích hoạt rương kho báu 15 ngày cho bài viết ${prop.id}!`, 'success');
+    } else {
+      updateProperty(prop.id, { 
+        isTreasureHuntActive: false,
+        treasureHuntExpiresAt: null
+      });
+      if (showToast) showToast(`[Admin] Đã tắt rương kho báu bài viết ${prop.id}`, 'info');
     }
   };
 
@@ -95,10 +102,15 @@ export default function AdminRewardsGamificationManager() {
       if (showToast) showToast('Tất cả bài viết VIP Kim Cương đã được bật rương từ trước!', 'info');
       return;
     }
+    const { activatedAt, expiresAt } = calculateTreasureHuntExpiry();
     diamondProps.forEach(p => {
-      updateProperty(p.id, { isTreasureHuntActive: true });
+      updateProperty(p.id, { 
+        isTreasureHuntActive: true,
+        treasureHuntActivatedAt: activatedAt,
+        treasureHuntExpiresAt: expiresAt
+      });
     });
-    if (showToast) showToast(`Đã kích hoạt rương cho ${diamondProps.length} bài viết VIP Kim Cương!`, 'success');
+    if (showToast) showToast(`Đã kích hoạt rương 15 ngày cho ${diamondProps.length} bài viết VIP Kim Cương!`, 'success');
   };
 
   const handleDisableAllTreasure = () => {
@@ -106,7 +118,10 @@ export default function AdminRewardsGamificationManager() {
     if (!window.confirm('Bạn có chắc chắn muốn TẮT rương kho báu trên toàn bộ bài viết không?')) return;
     const activeProps = validProperties.filter(p => Boolean(p.isTreasureHuntActive));
     activeProps.forEach(p => {
-      updateProperty(p.id, { isTreasureHuntActive: false });
+      updateProperty(p.id, { 
+        isTreasureHuntActive: false,
+        treasureHuntExpiresAt: null
+      });
     });
     if (showToast) showToast(`Đã tắt rương trên toàn bộ ${activeProps.length} bài viết!`, 'info');
   };
@@ -743,18 +758,24 @@ export default function AdminRewardsGamificationManager() {
 
                       {/* Nút Toggle Kích Hoạt Rương */}
                       <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-                        <button
-                          type="button"
-                          onClick={() => handleToggleTreasureArticle(p)}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm ${
-                            isTreasure
-                              ? 'bg-amber-500 hover:bg-rose-600 text-slate-950 hover:text-white'
-                              : 'bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-700'
-                          }`}
-                        >
-                          <i className={`fa-solid ${isTreasure ? 'fa-gift' : 'fa-plus'} text-[11px]`}></i>
-                          <span>{isTreasure ? 'Đang BẬT rương (Bấm tắt)' : 'Bật rương'}</span>
-                        </button>
+                        {(() => {
+                          const treasureInfo = getTreasureExpirationInfo(p);
+                          return (
+                            <button
+                              type="button"
+                              onClick={() => handleToggleTreasureArticle(p)}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm ${
+                                isTreasure
+                                  ? 'bg-amber-500 hover:bg-rose-600 text-slate-950 hover:text-white'
+                                  : 'bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-700'
+                              }`}
+                              title={isTreasure ? `Bài viết đang bật rương đến ngày ${treasureInfo.formattedExpiryDate}. Bấm để tắt.` : 'Kích hoạt rương kho báu 15 ngày cho bài viết này'}
+                            >
+                              <i className={`fa-solid ${isTreasure ? 'fa-gift' : 'fa-plus'} text-[11px]`}></i>
+                              <span>{isTreasure ? `Đang BẬT rương (${treasureInfo.daysRemaining > 0 ? `${treasureInfo.daysRemaining}d` : 'hết hạn'})` : 'Bật rương (15d)'}</span>
+                            </button>
+                          );
+                        })()}
                         <Link
                           to={link}
                           target="_blank"

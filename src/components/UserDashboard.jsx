@@ -10,6 +10,11 @@ import PropertyVerificationModal from './PropertyVerificationModal';
 import PropertyVerificationReviewModal from './PropertyVerificationReviewModal';
 import UserTransactionHistoryManager from './UserTransactionHistoryManager';
 import SeoImage from './SeoImage';
+import { 
+  calculateTreasureHuntExpiry, 
+  isPropertyTreasureActive, 
+  getTreasureExpirationInfo 
+} from '../services/treasureHuntService';
 
 export default function UserDashboard({ initialTab = 'listings' }) {
   const { 
@@ -134,26 +139,54 @@ export default function UserDashboard({ initialTab = 'listings' }) {
   const maxTreasureArticles = isAdmin 
     ? Infinity 
     : (isTreasureHuntAllowed ? Number(userPackage?.treasureHuntMaxArticles !== undefined ? userPackage.treasureHuntMaxArticles : 5) : 0);
-  const currentTreasureArticles = myListings.filter(p => Boolean(p.isTreasureHuntActive));
+  const currentTreasureArticles = myListings.filter(p => isPropertyTreasureActive(p, currentUser));
   const currentTreasureCount = currentTreasureArticles.length;
 
   const handleToggleTreasureHunt = (prop) => {
     if (!isTreasureHuntAllowed) {
-      showToast('Đặc quyền Gán nổi bật bài viết vào Săn Kho Báu dành riêng cho thành viên mua Gói Hội Viên! Vui lòng nâng cấp gói để mở khóa.', 'warning');
+      showToast('Đặc quyền Gán nổi bật bài viết dành riêng cho thành viên mua Gói Hội Viên! Vui lòng nâng cấp gói để mở khóa.', 'warning');
       navigate('/goi-hoi-vien');
       return;
     }
-    const isCurrentlyActive = Boolean(prop.isTreasureHuntActive);
+
+    const isCurrentlyActive = isPropertyTreasureActive(prop, currentUser);
+
     if (!isCurrentlyActive) {
       if (!isAdmin && currentTreasureCount >= maxTreasureArticles) {
-        showToast(`Gói hội viên của bạn chỉ cho phép tối đa ${maxTreasureArticles} bài viết gán nổi bật (Hiện đang có ${currentTreasureCount}/${maxTreasureArticles} bài). Vui lòng tắt bớt bài viết khác trước!`, 'warning');
+        showToast(`Gói hội viên của bạn chỉ cho phép tối đa ${maxTreasureArticles} bài viết gán nổi bật cùng lúc (Hiện đang có ${currentTreasureCount}/${maxTreasureArticles} bài). Vui lòng đợi các bài viết đang nổi bật hết hạn 15 ngày!`, 'warning');
         return;
       }
-      updateProperty(prop.id, { isTreasureHuntActive: true });
-      showToast(`Đã gán nổi bật bài viết "${prop.title}" thành công!`, 'success');
+
+      // Tính hạn 15 ngày kể từ ngày gán và trong thời hạn gói hội viên
+      const { activatedAt, expiresAt } = calculateTreasureHuntExpiry(currentUser);
+      const expInfo = getTreasureExpirationInfo({
+        ...prop,
+        isTreasureHuntActive: true,
+        treasureHuntActivatedAt: activatedAt,
+        treasureHuntExpiresAt: expiresAt
+      });
+
+      updateProperty(prop.id, { 
+        isTreasureHuntActive: true,
+        treasureHuntActivatedAt: activatedAt,
+        treasureHuntExpiresAt: expiresAt
+      });
+
+      showToast(`Đã gán nổi bật bài viết "${prop.title}" thành công! Thời hạn hiển thị cố định trong ${expInfo.daysRemaining} ngày (đến ngày ${expInfo.formattedExpiryDate}) và không thể tự ý thay đổi theo quy định.`, 'success');
     } else {
-      updateProperty(prop.id, { isTreasureHuntActive: false });
-      showToast(`Đã gỡ nổi bật bài viết "${prop.title}".`, 'info');
+      // Khi người dùng đã gán nổi bật: KHÔNG ĐƯỢC TỰ Ý THAY ĐỔI TRONG THỜI HẠN 15 NGÀY
+      if (!isAdmin) {
+        const expInfo = getTreasureExpirationInfo(prop);
+        showToast(`Bài viết đã được gán nổi bật cố định 15 ngày (đến ngày ${expInfo.formattedExpiryDate}). Theo quy định, không thể thay đổi hoặc gỡ bỏ trước hạn!`, 'warning');
+        return;
+      }
+
+      // Quản trị viên (Admin) có toàn quyền gỡ bỏ hoặc thay đổi
+      updateProperty(prop.id, { 
+        isTreasureHuntActive: false,
+        treasureHuntExpiresAt: null
+      });
+      showToast(`[Admin] Đã gỡ nổi bật bài viết "${prop.title}".`, 'info');
     }
   };
 
@@ -556,6 +589,8 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                 const isItemExpired = Boolean(expInfo?.isExpired) || prop.status === 'expired';
                 const isItemExpiringSoon = Boolean(expInfo?.isExpiringSoon) && !isItemExpired && prop.status === 'active';
                 const isScheduled = Boolean(prop.isScheduledPublish || prop.scheduledPublishAt || prop.approvalType === 'scheduled_golden_hour');
+                const treasureExpInfo = getTreasureExpirationInfo(prop);
+                const isItemTreasureActive = isPropertyTreasureActive(prop, currentUser);
 
                 return (
                   <div
@@ -606,11 +641,14 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                             </button>
                           ) : null}
 
-                          {/* Huy hiệu Gán Nổi Bật */}
-                          {Boolean(prop.isTreasureHuntActive) && (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-slate-950 border border-amber-600 flex items-center gap-1 shadow-xs animate-in zoom-in-95 duration-150" title="Bài viết này đang được gán nổi bật trong mục Săn Kho Báu BĐS">
+                          {/* Huy hiệu Gán Nổi Bật (Có thời hạn 15 ngày) */}
+                          {isItemTreasureActive && (
+                            <span 
+                              className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-500 text-slate-950 border border-amber-600 flex items-center gap-1 shadow-xs animate-in zoom-in-95 duration-150" 
+                              title={`Bài viết đang gán nổi bật cố định (Hạn hiển thị đến: ${treasureExpInfo.formattedExpiryDate})`}
+                            >
                               <i className="fa-solid fa-star text-[9px]"></i>
-                              <span>Nổi Bật</span>
+                              <span>Nổi Bật ({treasureExpInfo.daysRemaining > 0 ? `Còn ${treasureExpInfo.daysRemaining} ngày` : 'Sắp hết hạn'})</span>
                             </span>
                           )}
                           
@@ -842,23 +880,36 @@ export default function UserDashboard({ initialTab = 'listings' }) {
 
                       {/* Nút Gán Nổi Bật (Dành cho người mua Gói Hội Viên & Admin) */}
                       {isTreasureHuntAllowed ? (
-                        prop.isTreasureHuntActive ? (
-                          <button
-                            type="button"
-                            onClick={() => handleToggleTreasureHunt(prop)}
-                            className="px-3 py-1.5 font-bold rounded-xl text-xs transition-colors shadow-xs flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 border border-amber-600 cursor-pointer"
-                            title="Bài viết đang được gán nổi bật trong mục Săn Kho Báu BĐS. Bấm để tắt/gỡ bỏ."
-                          >
-                            <i className="fa-solid fa-star text-[10px]"></i>
-                            <span>Đang nổi bật</span>
-                            <i className="fa-solid fa-xmark text-[10px] opacity-70"></i>
-                          </button>
+                        isItemTreasureActive ? (
+                          isAdmin ? (
+                            <button
+                              type="button"
+                              onClick={() => handleToggleTreasureHunt(prop)}
+                              className="px-3 py-1.5 font-bold rounded-xl text-xs transition-colors shadow-xs flex items-center gap-1.5 bg-amber-500 hover:bg-amber-600 text-slate-950 border border-amber-600 cursor-pointer"
+                              title="[Admin] Bài viết đang gán nổi bật. Bấm để tắt/gỡ bỏ."
+                            >
+                              <i className="fa-solid fa-star text-[10px]"></i>
+                              <span>Đang nổi bật ({treasureExpInfo.daysRemaining > 0 ? `Còn ${treasureExpInfo.daysRemaining} ngày` : 'Sắp hết hạn'})</span>
+                              <i className="fa-solid fa-xmark text-[10px] opacity-70"></i>
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleToggleTreasureHunt(prop)}
+                              className="px-3 py-1.5 font-bold rounded-xl text-xs shadow-xs flex items-center gap-1.5 bg-amber-500 text-slate-950 border border-amber-600 cursor-pointer hover:bg-amber-400 transition"
+                              title={`Bài viết đang gán nổi bật cố định 15 ngày (đến ngày ${treasureExpInfo.formattedExpiryDate}). Theo quy định, không thể thay đổi hoặc gỡ bỏ trước hạn.`}
+                            >
+                              <i className="fa-solid fa-lock text-[10px] opacity-80"></i>
+                              <i className="fa-solid fa-star text-[10px]"></i>
+                              <span>Đang nổi bật ({treasureExpInfo.daysRemaining > 0 ? `Còn ${treasureExpInfo.daysRemaining} ngày` : 'Sắp hết hạn'})</span>
+                            </button>
+                          )
                         ) : (
                           <button
                             type="button"
                             onClick={() => handleToggleTreasureHunt(prop)}
                             className="px-3 py-1.5 font-bold rounded-xl text-xs transition shadow-xs flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 hover:border-amber-500 cursor-pointer"
-                            title={isAdmin ? 'Gán nổi bật bài viết này vào mục Săn Kho Báu BĐS (Đặc quyền Quản trị)' : `Gán nổi bật bài viết này vào mục Săn Kho Báu BĐS (Đã dùng: ${currentTreasureCount}/${maxTreasureArticles})`}
+                            title={isAdmin ? 'Gán nổi bật bài viết này vào mục Săn Kho Báu BĐS (Đặc quyền Quản trị)' : `Gán nổi bật bài viết này cố định 15 ngày (Đã dùng: ${currentTreasureCount}/${maxTreasureArticles})`}
                           >
                             <i className="fa-solid fa-star text-amber-600 text-[10px]"></i>
                             <span>Gán nổi bật {isAdmin ? '' : `(${currentTreasureCount}/${maxTreasureArticles})`}</span>
