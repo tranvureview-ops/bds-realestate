@@ -437,6 +437,7 @@ export default function Navbar() {
                   <button
                     suppressHydrationWarning
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    aria-label="Tài khoản cá nhân"
                     className="flex items-center gap-1 sm:gap-2 p-1 sm:p-1.5 sm:pl-2 sm:pr-2.5 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition"
                     title="Tài khoản cá nhân"
                   >
@@ -705,7 +706,8 @@ export default function Navbar() {
               )}
               <button
                 onClick={() => setMobileMenuOpen(false)}
-                className="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center"
+                aria-label="Đóng menu điều hướng di động"
+                className="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center cursor-pointer"
               >
                 <i className="fa-solid fa-xmark text-sm"></i>
               </button>

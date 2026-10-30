@@ -162,6 +162,7 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
           <button
             onClick={() => toggleFavorite(property.id)}
             title={isFav ? 'Bỏ lưu tin' : 'Lưu tin yêu thích'}
+            aria-label={isFav ? 'Bỏ lưu tin khỏi danh sách yêu thích' : 'Lưu tin vào danh sách yêu thích'}
             className={`w-8 h-8 rounded-full flex items-center justify-center text-xs transition shadow-md ${
               isFav 
                 ? 'bg-rose-600 text-white' 

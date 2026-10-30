@@ -500,6 +500,7 @@ export default function LiveChatWidget() {
             onClick={handleOpenWidget}
             className="sm:hidden flex items-center gap-2 pl-1.5 pr-3 py-1.5 h-[36px] rounded-full bg-white text-slate-900 shadow-[0_8px_25px_rgba(0,0,0,0.12)] border border-slate-200 active:scale-95 transition-all cursor-pointer group shrink-0"
             title="Chat tư vấn trực tiếp"
+            aria-label="Mở cửa sổ Live Chat tư vấn bất động sản"
             style={{ contain: 'layout' }}
           >
             <div className="relative shrink-0 w-7 h-7">
@@ -535,6 +536,7 @@ export default function LiveChatWidget() {
             onClick={handleOpenWidget}
             className="hidden sm:flex items-center gap-2.5 pl-2 pr-4 py-2 h-[44px] rounded-full bg-white hover:bg-slate-50 text-slate-900 shadow-[0_10px_35px_rgba(0,0,0,0.14)] border border-slate-200 hover:border-emerald-500 hover:shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer group shrink-0"
             title="Live Chat tư vấn BĐS trực tiếp"
+            aria-label="Mở cửa sổ Live Chat tư vấn bất động sản 24/7"
             style={{ contain: 'layout' }}
           >
             <div className="relative shrink-0 w-9 h-9">
@@ -607,6 +609,7 @@ export default function LiveChatWidget() {
                 onClick={handleResetChat}
                 className="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-xs transition cursor-pointer"
                 title="Bắt đầu phiên tư vấn mới"
+                aria-label="Bắt đầu phiên tư vấn mới"
               >
                 <i className="fa-solid fa-rotate-right"></i>
               </button>
@@ -614,6 +617,7 @@ export default function LiveChatWidget() {
                 onClick={handleCancelChat}
                 className="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-xs transition cursor-pointer"
                 title="Đóng khung chat"
+                aria-label="Đóng khung chat"
               >
                 <i className="fa-solid fa-xmark text-sm"></i>
               </button>
@@ -842,6 +846,7 @@ export default function LiveChatWidget() {
                         }
                       }
                     }}
+                    aria-label="Nhập nội dung tin nhắn tư vấn"
                     className="flex-1 px-3 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none text-slate-900 font-medium"
                   />
                   <button
@@ -850,6 +855,7 @@ export default function LiveChatWidget() {
                     onClick={() => handleSendMessage()}
                     className="w-9 h-9 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white flex items-center justify-center text-xs transition shadow-sm cursor-pointer shrink-0"
                     title="Gửi tin nhắn"
+                    aria-label="Gửi tin nhắn"
                   >
                     <i className={`fa-solid ${isSending ? 'fa-spinner fa-spin' : 'fa-paper-plane'}`}></i>
                   </button>

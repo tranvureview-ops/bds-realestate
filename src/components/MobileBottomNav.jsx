@@ -66,6 +66,7 @@ export default function MobileBottomNav() {
             to="/dang-tin"
             className="w-12 h-12 rounded-full bg-gradient-to-tr from-red-600 to-rose-600 text-white flex items-center justify-center shadow-lg shadow-red-500/40 border-2 border-white hover:scale-105 active:scale-95 transition-transform"
             title="Đăng tin bất động sản mới"
+            aria-label="Đăng tin bất động sản mới"
           >
             <i className="fa-solid fa-plus text-lg"></i>
           </Link>

@@ -883,6 +883,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 onClick={() => setIsShareModalOpen(true)}
                 className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
                 title="Chia sẻ tin đăng qua Facebook, Zalo, QR code..."
+                aria-label="Chia sẻ tin đăng này"
               >
                 <i className="fa-solid fa-share-nodes text-emerald-600"></i>
                 <span className="hidden sm:inline">Chia sẻ</span>
@@ -894,6 +895,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 onClick={() => window.print()}
                 className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
                 title="In tin đăng hoặc lưu file PDF"
+                aria-label="In tin đăng này"
               >
                 <i className="fa-solid fa-print text-indigo-600"></i>
                 <span className="hidden sm:inline">In tin</span>
@@ -904,6 +906,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               onClick={() => setIsReportModalOpen(true)}
               className="px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-rose-50 hover:border-rose-300 text-slate-700 hover:text-rose-700 font-semibold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
               title="Báo cáo tin rao có thông tin không đúng hoặc vi phạm"
+              aria-label="Báo cáo tin đăng vi phạm hoặc sai thông tin"
             >
               <i className="fa-solid fa-flag text-rose-500"></i>
               <span className="hidden sm:inline">Báo cáo</span>
@@ -911,6 +914,8 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
             <button
               onClick={() => toggleFavorite(property.id)}
+              aria-label={isFav ? "Bỏ lưu tin đăng khỏi danh sách yêu thích" : "Lưu tin đăng vào danh sách yêu thích"}
+              title={isFav ? "Đã lưu vào danh sách yêu thích" : "Lưu tin đăng"}
               className={`px-3 py-1.5 rounded-lg border font-semibold transition flex items-center gap-1.5 cursor-pointer shadow-sm ${
                 isFav 
                   ? 'bg-rose-600 text-white border-rose-600' 
@@ -2116,7 +2121,8 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             </span>
             <button
               onClick={() => setIsLightboxOpen(false)}
-              className="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center text-lg"
+              aria-label="Đóng thư viện ảnh"
+              className="w-9 h-9 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center text-lg cursor-pointer"
             >
               ✕
             </button>
@@ -2125,7 +2131,8 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
           <div className="flex-1 flex items-center justify-center relative my-4">
             <button
               onClick={() => setSelectedPhotoIndex(prev => prev > 0 ? prev - 1 : safeImages.length - 1)}
-              className="absolute left-2 w-12 h-12 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center text-xl"
+              aria-label="Xem ảnh trước đó"
+              className="absolute left-2 w-12 h-12 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center text-xl cursor-pointer"
             >
               ❮
             </button>
@@ -2141,7 +2148,8 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
             <button
               onClick={() => setSelectedPhotoIndex(prev => prev < safeImages.length - 1 ? prev + 1 : 0)}
-              className="absolute right-2 w-12 h-12 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center text-xl"
+              aria-label="Xem ảnh kế tiếp"
+              className="absolute right-2 w-12 h-12 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center text-xl cursor-pointer"
             >
               ❯
             </button>
@@ -2191,6 +2199,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               <button
                 type="button"
                 onClick={() => setIsShareModalOpen(false)}
+                aria-label="Đóng cửa sổ chia sẻ"
                 className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition cursor-pointer"
               >
                 ✕
@@ -2226,6 +2235,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 {/* Facebook */}
                 <button
                   type="button"
+                  aria-label="Chia sẻ bài đăng lên Facebook"
                   onClick={() => window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(currentUrl)}`, '_blank', 'width=600,height=400')}
                   className="p-2.5 rounded-2xl bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold transition flex flex-col items-center gap-1.5 border border-blue-100 cursor-pointer"
                 >
@@ -2236,6 +2246,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 {/* Zalo */}
                 <button
                   type="button"
+                  aria-label="Chia sẻ bài đăng qua Zalo"
                   onClick={() => window.open(`https://zalo.me/share?url=${encodeURIComponent(currentUrl)}`, '_blank', 'width=600,height=400')}
                   className="p-2.5 rounded-2xl bg-sky-50 hover:bg-sky-100 text-sky-600 font-bold transition flex flex-col items-center gap-1.5 border border-sky-100 cursor-pointer"
                 >
@@ -2246,6 +2257,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 {/* Telegram */}
                 <button
                   type="button"
+                  aria-label="Chia sẻ bài đăng qua Telegram"
                   onClick={() => window.open(`https://t.me/share/url?url=${encodeURIComponent(currentUrl)}&text=${encodeURIComponent(property.title)}`, '_blank')}
                   className="p-2.5 rounded-2xl bg-cyan-50 hover:bg-cyan-100 text-cyan-600 font-bold transition flex flex-col items-center gap-1.5 border border-cyan-100 cursor-pointer"
                 >
@@ -2256,6 +2268,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 {/* Messenger */}
                 <button
                   type="button"
+                  aria-label="Gửi bài đăng qua Messenger"
                   onClick={() => window.open(`https://www.facebook.com/dialog/send?link=${encodeURIComponent(currentUrl)}&app_id=291494419107518&redirect_uri=${encodeURIComponent(currentUrl)}`, '_blank')}
                   className="p-2.5 rounded-2xl bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-bold transition flex flex-col items-center gap-1.5 border border-indigo-100 cursor-pointer"
                 >
@@ -2714,10 +2727,11 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               if (el) el.scrollIntoView({ behavior: 'smooth' });
               else showToast('Mời bạn kéo xuống form đặt lịch xem nhà bên dưới', 'info');
             }}
-            className="px-2.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1 active:scale-95 transition whitespace-nowrap"
-            title="Đặt lịch xem nhà"
+            className="px-2.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs flex items-center gap-1 active:scale-95 transition whitespace-nowrap cursor-pointer"
+            title="Đặt lịch hẹn xem nhà thực tế"
+            aria-label="Đặt lịch hẹn xem nhà thực tế"
           >
-            <i className="fa-regular fa-calendar-check text-xs"></i>
+            <i className="fa-solid fa-calendar-check text-xs text-emerald-400"></i>
             <span>Hẹn Xem</span>
           </button>
         </div>
