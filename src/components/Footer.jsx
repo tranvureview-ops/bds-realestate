@@ -173,8 +173,9 @@ export default function Footer() {
             <ul className="space-y-0.5 text-xs text-slate-400">
               {col2Links.map(link => (
                 <li key={link.id || link.url}>
-                  <Link to={link.url} className="block py-2 hover:text-emerald-400 transition min-h-[40px] flex items-center">
-                    {link.label}
+                  <Link to={link.url} className="py-1.5 sm:py-1 hover:text-emerald-400 transition flex items-center gap-1.5 group">
+                    <span className="w-1 h-1 rounded-full bg-slate-600 group-hover:bg-emerald-400 transition shrink-0"></span>
+                    <span>{link.label}</span>
                   </Link>
                 </li>
               ))}
@@ -189,8 +190,8 @@ export default function Footer() {
             <ul className="space-y-0.5 text-xs text-slate-400">
               {col3Links.map(link => (
                 <li key={link.id || link.url}>
-                  <Link to={link.url} className="block py-2 hover:text-amber-400 transition flex items-center gap-1.5 min-h-[40px]">
-                    {link.icon && <i className={`${link.icon} ${link.color || 'text-amber-400'} text-[10px]`}></i>}
+                  <Link to={link.url} className="py-1.5 sm:py-1 hover:text-amber-400 transition flex items-center gap-1.5 group">
+                    {link.icon && <i className={`${link.icon} ${link.color || 'text-amber-400'} text-[11px] group-hover:scale-110 transition`}></i>}
                     <span>{link.label}</span>
                   </Link>
                 </li>
@@ -201,9 +202,9 @@ export default function Footer() {
                     to="/admin"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block py-2 hover:text-red-400 transition flex items-center gap-1.5 text-red-400 font-semibold min-h-[40px]"
+                    className="py-1.5 sm:py-1 hover:text-red-400 transition flex items-center gap-1.5 text-red-400 font-semibold"
                   >
-                    <i className="fa-solid fa-shield-halved text-red-500 text-[10px]"></i>
+                    <i className="fa-solid fa-shield-halved text-red-500 text-[11px]"></i>
                     <span>Bàn Làm Việc CMS Admin</span>
                     <i className="fa-solid fa-arrow-up-right-from-square text-[9px] text-slate-400"></i>
                   </Link>
