@@ -1172,8 +1172,8 @@ export default function UserProfilePage() {
                           <div className="p-3 bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl border border-amber-200 flex items-center justify-between">
                             <div>
                               <div className="text-[11px] text-amber-900 font-bold flex items-center gap-1">
-                                <i className="fa-solid fa-gift text-amber-500"></i>
-                                <span>Tin Nổi Bật Săn Rương</span>
+                                <i className="fa-solid fa-crown text-amber-500"></i>
+                                <span>Quyền Lợi Tin Nổi Bật</span>
                               </div>
                               <div className="text-[10px] text-amber-700">
                                 {currentPkg?.allowTreasureHunt 

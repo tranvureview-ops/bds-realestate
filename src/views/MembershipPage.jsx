@@ -284,21 +284,21 @@ export default function MembershipPage() {
                   </div>
                 </div>
 
-                {/* 4. Tin Nổi Bật (Săn Rương) */}
+                {/* 4. Tin Nổi Bật */}
                 <div className="text-center px-2 py-1 border-t border-slate-800 sm:border-t-0 sm:border-l border-slate-800">
                   <div className="text-[10px] text-amber-400 font-bold uppercase truncate flex items-center justify-center gap-1">
-                    <i className="fa-solid fa-gift text-[9px]"></i>
-                    <span>Tin Nổi Bật (Săn Rương)</span>
+                    <i className="fa-solid fa-crown text-[9px]"></i>
+                    <span>Tin Nổi Bật</span>
                   </div>
                   <div className={`text-base sm:text-lg font-black mt-0.5 ${isMemberExpired ? 'text-rose-400 font-mono' : 'text-amber-400'}`}>
                     {isMemberExpired ? 0 : (isTreasureAllowed ? (currentUser?.role === 'admin' ? 'Không giới hạn' : `${maxTreasureCount} tin`) : 0)}{' '}
-                    <span className="text-[11px] sm:text-xs text-slate-500 font-normal">
+                    <span className="text-[11px] sm:text-xs text-slate-400 font-normal">
                       {isMemberExpired
                         ? '(hết hạn)'
                         : (isTreasureAllowed
                           ? (currentUser?.role === 'admin'
-                            ? `(${myActiveTreasureCount} đang bật)`
-                            : `(${myActiveTreasureCount}/${maxTreasureCount} đang bật)`)
+                            ? `(${myActiveTreasureCount})`
+                            : `(${myActiveTreasureCount}/${maxTreasureCount})`)
                           : 'Chưa hỗ trợ')}
                     </span>
                   </div>
@@ -531,14 +531,14 @@ export default function MembershipPage() {
                         </div>
                       )}
 
-                      {/* Tin Nổi Bật Săn Rương */}
+                      {/* Tin Nổi Bật */}
                       {pkg.allowTreasureHunt ? (
                         <div className="p-2.5 rounded-xl bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 flex items-center justify-between text-xs">
                           <div className="flex items-center gap-2">
                             <span className="w-6 h-6 rounded-lg bg-gradient-to-tr from-amber-500 to-orange-500 text-slate-950 flex items-center justify-center text-[10px] font-black">
                               {pkg.treasureHuntMaxArticles || 2}
                             </span>
-                            <span className="font-bold text-amber-950">Tin Nổi Bật Săn Rương</span>
+                            <span className="font-bold text-amber-950">Quyền Lợi Tin Nổi Bật</span>
                           </div>
                           <span className="text-orange-700 font-black text-[11px]">
                             Tối đa {pkg.treasureHuntMaxArticles || 2} tin (15 ngày/lần)
@@ -546,7 +546,7 @@ export default function MembershipPage() {
                         </div>
                       ) : (
                         <div className="p-2 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs text-slate-400">
-                          <span>Tin Nổi Bật Săn Rương:</span>
+                          <span>Quyền Lợi Tin Nổi Bật:</span>
                           <span className="text-[11px]">Không áp dụng</span>
                         </div>
                       )}
@@ -700,8 +700,8 @@ export default function MembershipPage() {
                 <tr>
                   <td className="p-4 font-bold text-slate-800">
                     <div className="flex items-center gap-1.5">
-                      <i className="fa-solid fa-gift text-amber-500 text-xs"></i>
-                      <span>Gán tin nổi bật Săn Kho Báu (15 ngày/lần)</span>
+                      <i className="fa-solid fa-crown text-amber-500 text-xs"></i>
+                      <span>Đặc quyền gán tin nổi bật (15 ngày/lần)</span>
                     </div>
                   </td>
                   {(membershipPackages || []).map(p => (
