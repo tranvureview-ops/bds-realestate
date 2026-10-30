@@ -60,6 +60,7 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 
       areaRange: taxonomyInfo.areaRange || prev.areaRange,
       minArea: taxonomyInfo.minArea ? Number(taxonomyInfo.minArea) : prev.minArea,
       maxArea: taxonomyInfo.maxArea ? Number(taxonomyInfo.maxArea) : prev.maxArea,
+      bedroom: taxonomyInfo.bedroom || prev.bedroom,
     }));
   }, [taxonomyInfo]);
 
@@ -79,6 +80,7 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 
           areaRange: parsed.areaRange || 'all',
           minArea: parsed.minArea || null,
           maxArea: parsed.maxArea || null,
+          bedroom: parsed.bedroom || 'all',
           propertyType: parsed.propertyType || 'all'
         }));
       }

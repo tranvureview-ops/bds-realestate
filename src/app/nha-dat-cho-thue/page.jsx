@@ -1,6 +1,6 @@
 import { permanentRedirect } from 'next/navigation';
 import RentListingsPage from '../../views/RentListingsPage';
-import { generateCategoryMetadata, getCanonicalUrl } from '../../utils/permalink';
+import { generateCategoryMetadata, getCanonicalUrl, buildSeoUrl } from '../../utils/permalink';
 
 export async function generateMetadata() {
   const { title, description } = generateCategoryMetadata({ demand: 'rent' }, 2026, 1);
@@ -20,6 +20,21 @@ export async function generateMetadata() {
 
 export default async function Page({ searchParams }) {
   const sp = (await searchParams) || {};
+
+  // 301 Redirect nếu URL có query param ?bedroom=... sang Clean URL
+  if (sp.bedroom && sp.bedroom !== 'all') {
+    const extra = {};
+    for (const [k, v] of Object.entries(sp)) {
+      if (k !== 'bedroom' && k !== 'page' && v) extra[k] = v;
+    }
+    const targetUrl = buildSeoUrl({
+      demand: 'rent',
+      bedroom: sp.bedroom,
+      extraParams: extra
+    });
+    permanentRedirect(targetUrl);
+  }
+
   if (sp.page) {
     const p = parseInt(sp.page, 10);
     const params = new URLSearchParams();

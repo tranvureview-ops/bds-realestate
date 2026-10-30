@@ -582,26 +582,31 @@ export const buildSeoUrl = ({
     }
   }
 
+  let bedroomCleanSlug = '';
+  if (bedroom && bedroom !== 'all') {
+    const bedClean = String(bedroom).replace(/[^0-9]/g, '');
+    if (bedClean) {
+      bedroomCleanSlug = `${bedClean}pn`;
+    }
+  }
+
   // Kết nối theo cấu trúc thư mục sạch chuẩn Batdongsan.com.vn:
-  // 1. Cả giá và diện tích: /{base-category-and-location}/{price-slug}-{area-slug}
-  //    Ví dụ: /ban-can-ho-chung-cu/gia-tu-3-ty-den-5-ty-dt-tu-50m2-den-80m2
-  //           /nha-dat-ban/gia-tu-3-ty-den-5-ty-dt-tu-50m2-den-80m2
-  // 2. Chỉ có giá: /{base-category-and-location}/{price-slug}
-  //    Ví dụ: /ban-can-ho-chung-cu/gia-tu-3-ty-den-5-ty
-  // 3. Chỉ có diện tích: /{base-category-and-location}/{area-slug}
-  //    Ví dụ: /ban-can-ho-chung-cu/dt-tu-50m2-den-80m2
+  // 1. Kết hợp giá, diện tích và số phòng ngủ vào clean subslug:
+  //    Ví dụ: /nha-dat-cho-thue/gia-tu-5-trieu-den-10-trieu-dt-tu-30m2-den-50m2-3pn
+  //           /nha-dat-ban/gia-tu-3-ty-den-5-ty-dt-tu-100m2-den-150m2-4pn
+  //           /ban-can-ho-chung-cu/3pn
+  //           /ban-can-ho-chung-cu-da-nang/gia-duoi-2-ty-2pn
   let baseCore = `${basePath}${locationOrProjectSegment}`.replace(/\/+$/, '');
   let fullCleanPath = baseCore;
 
-  if (priceCleanSlug && areaCleanSlug) {
-    fullCleanPath = `${baseCore}/${priceCleanSlug}-${areaCleanSlug}`;
-  } else if (priceCleanSlug) {
-    fullCleanPath = `${baseCore}/${priceCleanSlug}`;
-  } else if (areaCleanSlug) {
-    fullCleanPath = `${baseCore}/${areaCleanSlug}`;
+  const facetedSegments = [priceCleanSlug, areaCleanSlug, bedroomCleanSlug].filter(Boolean);
+  if (facetedSegments.length > 0) {
+    fullCleanPath = `${baseCore}/${facetedSegments.join('-')}`;
   }
 
-  if (bedroom && bedroom !== 'all') queryParams.set('bedroom', String(bedroom));
+  if (bedroom && bedroom !== 'all' && !bedroomCleanSlug) {
+    queryParams.set('bedroom', String(bedroom));
+  }
   if (extraParams && typeof extraParams === 'object') {
     for (const [k, v] of Object.entries(extraParams)) {
       if (v !== undefined && v !== null && v !== '' && v !== 'all') {
@@ -808,7 +813,7 @@ export const parseTaxonomyUrl = (urlPath) => {
     }
 
     // Loại bỏ demand prefix và propertyType prefix để thu được remainder thuần túy
-    let remainder = raw.replace(/^(?:ban|cho-thue|nha-dat-ban|nha-dat-cho-thue|ban-nha-dat|cho-thue-nha-dat|nha-dat)-?/, '');
+    let remainder = raw.replace(/^(?:ban|cho-thue|nha-dat-ban|nha-dat-cho-thue|ban-nha-dat|cho-thue-nha-dat|nha-dat)[-/]?/, '');
     if (matchedTypeSlug && remainder.startsWith(matchedTypeSlug)) {
       remainder = remainder.slice(matchedTypeSlug.length).replace(/^[-/]+/, '');
     }
@@ -861,8 +866,10 @@ export const parseTaxonomyUrl = (urlPath) => {
 
     // F. Số phòng ngủ (PN)
     let bedroom = 'all';
-    const bedMatch = raw.match(/(?:^|-)([0-9]+(?:\+)?)-?pn(?:-|$)/i) || raw.match(/([0-9]+(?:\+)?)\s*-?pn/i);
-    if (bedMatch) bedroom = bedMatch[1];
+    const bedMatch = raw.match(/(?:^|[-/])([0-9]+(?:\+)?)-?pn(?:-|$|\/)/i) || raw.match(/([0-9]+(?:\+)?)\s*-?pn/i);
+    if (bedMatch) {
+      bedroom = bedMatch[1] === '4' ? '4+' : bedMatch[1];
+    }
 
     // G. Khoảng giá (Pricing Tier)
     let priceRange = 'all';
@@ -1711,21 +1718,32 @@ export const getAreaPresetSlug = (presetValue) => {
 };
 
 /**
+ * Chuyển đổi số phòng ngủ sang SEO URL slug chuẩn Batdongsan
+ * Ví dụ: '3' -> '3pn', '4+' -> '4pn'
+ */
+export const getBedroomPresetSlug = (bedroom) => {
+  if (!bedroom || bedroom === 'all') return '';
+  const num = String(bedroom).replace(/[^0-9]/g, '');
+  return num ? `${num}pn` : '';
+};
+
+/**
  * Xây dựng URL liên kết nội bộ thân thiện SEO cho bộ lọc Sidebar (Faceted SEO URL)
  * @param {Object} options
  * @param {string} options.basePath Đường dẫn danh mục hiện tại (ví dụ: '/nha-dat-ban-ha-noi', '/nha-dat-ban')
  * @param {string} [options.demand] 'sale' | 'rent'
  * @param {string} [options.priceRange] Mã preset giá (ví dụ: '7b-10b', 'under-1b', 'all')
  * @param {string} [options.areaRange] Mã preset diện tích (ví dụ: '200-300', 'under-30', 'all')
+ * @param {string|number} [options.bedroom] Số phòng ngủ (ví dụ: '3', '4+', 'all')
  * @returns {string} Đường dẫn SEO hoàn chỉnh (ví dụ: '/nha-dat-ban-ha-noi/gia-tu-7-ty-den-10-ty')
  */
-export const buildSeoFilterUrl = ({ basePath = '', demand = 'sale', priceRange = '', areaRange = '' }) => {
+export const buildSeoFilterUrl = ({ basePath = '', demand = 'sale', priceRange = '', areaRange = '', bedroom = '' }) => {
   // Lấy base path sạch, loại bỏ subslug filter hiện tại nếu có
   let cleanBase = (basePath || (demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban')).split('?')[0].replace(/\/+$/, '');
 
-  // Nếu base path đang kết thúc bằng filter slug cũ (gia-... hoặc dien-tich-... hoặc dt-... hoặc /page/...), bóc tách ra
+  // Nếu base path đang kết thúc bằng filter slug cũ (gia-... hoặc dien-tich-... hoặc dt-... hoặc \d+pn hoặc /page/...), bóc tách ra
   cleanBase = cleanBase.replace(/\/page\/\d+$/i, '');
-  cleanBase = cleanBase.replace(/\/(gia|dien-tich|dt)-[^/]+$/i, '');
+  cleanBase = cleanBase.replace(/\/(?:(?:gia|dien-tich|dt)-[^/]+|[0-9]+pn(?:-[^/]+)?)$/i, '');
 
   if (!cleanBase || cleanBase === '') {
     cleanBase = demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban';
@@ -1733,13 +1751,11 @@ export const buildSeoFilterUrl = ({ basePath = '', demand = 'sale', priceRange =
 
   const pSlug = priceRange && priceRange !== 'all' ? getPricePresetSlug(priceRange) : '';
   const aSlug = areaRange && areaRange !== 'all' ? getAreaPresetSlug(areaRange).replace(/^dien-tich-/, 'dt-') : '';
+  const bSlug = bedroom && bedroom !== 'all' ? getBedroomPresetSlug(bedroom) : '';
 
-  if (pSlug && aSlug) {
-    return `${cleanBase}/${pSlug}-${aSlug}`;
-  } else if (pSlug) {
-    return `${cleanBase}/${pSlug}`;
-  } else if (aSlug) {
-    return `${cleanBase}/${aSlug}`;
+  const segments = [pSlug, aSlug, bSlug].filter(Boolean);
+  if (segments.length > 0) {
+    return `${cleanBase}/${segments.join('-')}`;
   }
 
   return cleanBase;

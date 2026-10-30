@@ -210,9 +210,12 @@ export function filterProperties(properties = [], filters = {}) {
 
     // 9. Số phòng ngủ (Bedroom)
     if (filters.bedroom && filters.bedroom !== 'all') {
-      if (filters.bedroom === '4+') {
-        if (prop.bedroom < 4) return false;
-      } else if (prop.bedroom !== parseInt(filters.bedroom, 10)) {
+      const pBed = Number(prop.bedroom) || 0;
+      if (filters.bedroom === '4+' || filters.bedroom === '4' || filters.bedroom === 4) {
+        if (pBed < 4) return false;
+      } else if (filters.bedroom === '5+' || filters.bedroom === '5' || filters.bedroom === 5) {
+        if (pBed < 5) return false;
+      } else if (pBed !== parseInt(filters.bedroom, 10)) {
         return false;
       }
     }
