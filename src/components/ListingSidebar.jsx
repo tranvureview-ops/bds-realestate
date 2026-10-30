@@ -754,7 +754,12 @@ export default function ListingSidebar({
 
           <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
             <span>Hotline tư vấn 24/7:</span>
-            <a href="tel:0905467138" className="text-red-400 font-bold hover:underline">
+            <a 
+              href="tel:0905467138" 
+              className="text-red-400 font-bold hover:underline"
+              title="Hotline tư vấn đăng tin: 0905 467 138"
+              aria-label="Hotline tư vấn đăng tin: 0905 467 138"
+            >
               0905 467 138
             </a>
           </div>

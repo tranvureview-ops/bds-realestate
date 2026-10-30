@@ -304,7 +304,7 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
                       : 'bg-emerald-700 hover:bg-emerald-800 text-white'
                 }`}
                 title={`Gọi ngay: ${safeAuthor.phone}`}
-                aria-label={`Gọi ngay: ${safeAuthor.phone}`}
+                aria-label={`Gọi ngay số ${safeAuthor.phone} cho tin ${formatSentenceCase(property.title).slice(0, 45)}`}
               >
                 <i className="fa-solid fa-phone text-[11px] shrink-0" aria-hidden="true"></i>
                 <span className="hidden sm:inline whitespace-nowrap">{safeAuthor.phone}</span>
@@ -312,13 +312,13 @@ export default function ListingCard({ property, viewMode = 'grid' }) {
               </Link>
 
               <Link
-                href={`https://zalo.me/${safeAuthor.zalo}`}
+                href={`https://zalo.me/${safeAuthor.zalo || safeAuthor.phone.replace(/\s+/g, '')}`}
                 target="_blank"
                 rel="noreferrer"
                 onClick={(e) => e.stopPropagation()}
                 className="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1 shadow-sm transition shrink-0 whitespace-nowrap"
                 title={`Chat Zalo: ${safeAuthor.zalo || safeAuthor.phone}`}
-                aria-label={`Chat Zalo: ${safeAuthor.zalo || safeAuthor.phone}`}
+                aria-label={`Chat Zalo số ${safeAuthor.zalo || safeAuthor.phone} cho tin ${formatSentenceCase(property.title).slice(0, 45)}`}
               >
                 <span>Zalo</span>
               </Link>

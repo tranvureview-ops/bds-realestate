@@ -133,24 +133,24 @@ export default async function RootLayout({ children }) {
             `
           }}
         />
-        {/* Preload Font Awesome Webfonts with font-display: swap */}
+        {/* Preload Font Awesome Webfonts locally with font-display: swap */}
         <link
           rel="preload"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-solid-900.woff2"
+          href="/webfonts/fa-solid-900.woff2"
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"
         />
         <link
           rel="preload"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-regular-400.woff2"
+          href="/webfonts/fa-regular-400.woff2"
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"
         />
         <link
           rel="preload"
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/webfonts/fa-brands-400.woff2"
+          href="/webfonts/fa-brands-400.woff2"
           as="font"
           type="font/woff2"
           crossOrigin="anonymous"

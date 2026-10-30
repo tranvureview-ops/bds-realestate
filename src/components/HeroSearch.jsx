@@ -487,14 +487,16 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                     }}
                     className="w-6 h-6 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-200 flex items-center justify-center text-xs mr-2 transition cursor-pointer shrink-0"
                     title="Xóa tìm kiếm"
+                    aria-label="Xóa tìm kiếm"
                   >
-                    <i className="fa-solid fa-xmark"></i>
+                    <i className="fa-solid fa-xmark" aria-hidden="true"></i>
                   </button>
                 )}
 
                 {/* Red "Tìm kiếm" Action Button */}
                 <button
                   type="submit"
+                  aria-label="Tìm kiếm bất động sản"
                   className="bg-[#c93026] hover:bg-[#a8231b] text-white font-bold px-4 sm:px-7 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-sm shrink-0"
                 >
                   <span>Tìm kiếm</span>
@@ -527,9 +529,10 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                       type="button"
                       onClick={() => setIsMergerMode(!isMergerMode)}
                       className={`w-11 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-200 ease-in-out ${
-                        isMergerMode ? 'bg-[#e03c31]' : 'bg-slate-300'
+                        isMergerMode ? 'bg-[#c93026]' : 'bg-slate-300'
                       }`}
                       title={isMergerMode ? 'Tắt tra cứu sáp nhập' : 'Bật tra cứu sáp nhập'}
+                      aria-label={isMergerMode ? 'Tắt tra cứu sáp nhập' : 'Bật tra cứu sáp nhập'}
                     >
                       <div
                         className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${
@@ -848,13 +851,15 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
               <button
                 type="button"
                 onClick={() => setShowAdvanced(!showAdvanced)}
+                title="Lọc nâng cao"
+                aria-label="Lọc nâng cao"
                 className={`px-3 py-1.5 rounded-lg border font-semibold flex items-center gap-1.5 transition cursor-pointer ${
                   showAdvanced || (filters.bedroom && filters.bedroom !== 'all') || (filters.direction && filters.direction !== 'all')
                     ? 'border-emerald-500 bg-emerald-50 text-emerald-700 font-bold'
                     : 'border-slate-200 text-slate-700 hover:bg-slate-50'
                 }`}
               >
-                <i className="fa-solid fa-sliders text-[11px] text-emerald-600"></i>
+                <i className="fa-solid fa-sliders text-[11px] text-emerald-600" aria-hidden="true"></i>
                 <span className="hidden sm:inline">Lọc nâng cao</span>
                 {((filters.bedroom && filters.bedroom !== 'all') || (filters.direction && filters.direction !== 'all')) && (
                   <span className="w-2 h-2 rounded-full bg-emerald-600 inline-block"></span>
@@ -867,8 +872,9 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                 onClick={handleClearFilters}
                 className="w-8 h-8 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center transition cursor-pointer ml-auto"
                 title="Đặt lại bộ lọc"
+                aria-label="Đặt lại bộ lọc"
               >
-                <i className="fa-solid fa-arrow-rotate-left text-xs"></i>
+                <i className="fa-solid fa-arrow-rotate-left text-xs" aria-hidden="true"></i>
               </button>
             </div>
 

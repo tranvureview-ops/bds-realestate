@@ -8185,6 +8185,57 @@ export default function AdminBackendPage() {
                         </div>
                       </div>
 
+                      {/* 3. Số lượng tin hiển thị mỗi trang Săn Kho Báu BĐS */}
+                      <div className="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div>
+                            <div className="font-bold text-white text-xs flex items-center gap-2">
+                              <span>Số tin hiển thị mỗi trang Săn Kho Báu BĐS (Phân trang):</span>
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-950 text-amber-300 border border-amber-800">
+                                {formSystemConfig.treasureHuntPageSize || 16} tin / trang
+                              </span>
+                            </div>
+                            <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                              Áp dụng cho trang Danh sách bài viết chứa hộp quà hôm nay (/trung-tam-phan-thuong/san-kho-bau-bds). Khi số lượng bài viết vượt quá số lượng này, hệ thống sẽ tự động tạo phân trang. Mặc định là 16 sản phẩm.
+                            </p>
+                          </div>
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <select
+                              value={formSystemConfig.treasureHuntPageSize || 16}
+                              onChange={(e) => setFormSystemConfig(prev => ({ ...prev, treasureHuntPageSize: Number(e.target.value) }))}
+                              className="p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-bold text-xs outline-none focus:border-amber-500"
+                            >
+                              <option value={8}>8 tin / trang</option>
+                              <option value={12}>12 tin / trang</option>
+                              <option value={16}>16 tin / trang (Mặc định)</option>
+                              <option value={20}>20 tin / trang</option>
+                              <option value={24}>24 tin / trang</option>
+                              <option value={32}>32 tin / trang</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        {/* Preset buttons for Treasure Hunt */}
+                        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80">
+                          <span className="text-[10px] font-bold text-slate-500 uppercase">Chọn nhanh:</span>
+                          {[8, 12, 16, 20, 24, 32].map(val => (
+                            <button
+                              key={val}
+                              type="button"
+                              onClick={() => setFormSystemConfig(prev => ({ ...prev, treasureHuntPageSize: val }))}
+                              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
+                                (formSystemConfig.treasureHuntPageSize || 16) === val
+                                  ? 'bg-amber-600 text-white shadow-sm'
+                                  : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
+                              }`}
+                            >
+                              {val} tin
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
                     </div>
                   </div>
 

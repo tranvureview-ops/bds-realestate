@@ -127,7 +127,7 @@ export default function TreasureHuntPage() {
   // 3. Trong cùng cấp bậc VIP: Tự động đảo ngẫu nhiên công bằng (Fisher-Yates Fair Shuffle) theo từng phiên truy cập
   //    Đảm bảo 100% tất cả các bài của hội viên đều có cơ hội hiển thị ở vị trí hàng đầu như nhau, không bị dồn cục vào vài bài đầu!
   // 4. Ưu tiên đưa bài chưa mở hôm nay lên trước bài đã mở của người dùng.
-  const ITEMS_PER_PAGE = 16;
+  const ITEMS_PER_PAGE = Math.max(1, Number(tConfig?.itemsPerPage || systemConfig?.treasureHuntPageSize || 16));
   const [currentPage, setCurrentPage] = useState(1);
   const articlesSectionRef = useRef(null);
 
@@ -183,7 +183,15 @@ export default function TreasureHuntPage() {
 
     // Lấy toàn bộ các bài viết đã được kích hoạt cờ Săn Kho Báu (isTreasureHuntActive === true)
     // và vẫn còn trong thời hạn 15 ngày hiệu lực
-    const treasureArticles = valid.filter(p => isPropertyTreasureActive(p, p.author));
+    let treasureArticles = valid.filter(p => isPropertyTreasureActive(p, p.author));
+    // Nếu số bài viết có cờ rương ít hơn chỉ tiêu hiển thị (hoặc chưa gán rương thủ công),
+    // tự động bổ sung thêm các tin đăng VIP Kim Cương, VIP Vàng & VIP Bạc đang hoạt động
+    // để trang luôn hiển thị đầy đủ số tin (mặc định 16 tin/trang) và kích hoạt phân trang hoàn chỉnh!
+    if (treasureArticles.length < ITEMS_PER_PAGE) {
+      const activeIds = new Set(treasureArticles.map(p => String(p.id)));
+      const vipCandidates = valid.filter(p => !activeIds.has(String(p.id)) && ['vip-diamond', 'vip-gold', 'vip-silver'].includes(p.vipPackageId));
+      treasureArticles = [...treasureArticles, ...vipCandidates];
+    }
     return fairSortArticles(treasureArticles);
   }, [properties, shuffleSeed, claimsToday]);
 

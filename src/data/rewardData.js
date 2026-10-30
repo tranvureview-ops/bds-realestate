@@ -463,7 +463,8 @@ export const DEFAULT_REWARDS_CONFIG = {
     minReadingSeconds: 4,
     cooldownSeconds: 20,
     minAmount: 2000,
-    maxAmount: 20000
+    maxAmount: 20000,
+    itemsPerPage: 16
   },
 
   // E. Minigame dự đoán giá BĐS

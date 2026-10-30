@@ -617,19 +617,23 @@ export default function ListingDetailModal({ property, onClose }) {
                 <div className="py-4 space-y-2.5">
                   <Link
                     href={`tel:${safeAuthor.phone.replace(/\s+/g, '')}`}
+                    title={`Gọi ngay: ${safeAuthor.phone}`}
+                    aria-label={`Gọi ngay số ${safeAuthor.phone} cho người đăng ${safeAuthor.name || ''}`}
                     className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-black text-sm rounded-xl shadow-lg transition flex items-center justify-center gap-2 group"
                   >
-                    <i className="fa-solid fa-phone-volume group-hover:animate-bounce"></i>
+                    <i className="fa-solid fa-phone-volume group-hover:animate-bounce" aria-hidden="true"></i>
                     <span>Gọi Ngay: {safeAuthor.phone}</span>
                   </Link>
 
                   <Link
-                    href={`https://zalo.me/${safeAuthor.zalo}`}
+                    href={`https://zalo.me/${safeAuthor.zalo || safeAuthor.phone.replace(/\s+/g, '')}`}
                     target="_blank"
                     rel="noreferrer"
+                    title={`Chat Zalo: ${safeAuthor.zalo || safeAuthor.phone}`}
+                    aria-label={`Chat trực tiếp qua Zalo với ${safeAuthor.name || 'người đăng'}: ${safeAuthor.zalo || safeAuthor.phone}`}
                     className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow transition flex items-center justify-center gap-2"
                   >
-                    <i className="fa-solid fa-comment-dots"></i>
+                    <i className="fa-solid fa-comment-dots" aria-hidden="true"></i>
                     <span>Chat Trực Tiếp Qua Zalo</span>
                   </Link>
                 </div>

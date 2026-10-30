@@ -81,7 +81,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": true,
+      "treasureHuntActivatedAt": "2026-10-30T11:16:02.638Z",
+      "treasureHuntExpiresAt": "2026-11-14T11:16:02.638Z"
     },
     {
       "id": "BDS-027",
@@ -167,7 +170,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": true,
+      "treasureHuntActivatedAt": "2026-10-30T11:16:02.638Z",
+      "treasureHuntExpiresAt": "2026-11-14T11:16:02.638Z"
     },
     {
       "id": "BDS-031",
@@ -334,7 +340,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": true,
+      "treasureHuntActivatedAt": "2026-10-30T11:16:02.638Z",
+      "treasureHuntExpiresAt": "2026-11-14T11:16:02.638Z"
     },
     {
       "id": "BDS-026",
@@ -425,7 +434,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": true,
+      "treasureHuntActivatedAt": "2026-10-30T11:16:02.638Z",
+      "treasureHuntExpiresAt": "2026-11-14T11:16:02.638Z"
     },
     {
       "id": "BDS-029",
@@ -604,7 +616,10 @@
       "verificationStatus": "unverified",
       "verification_status": "unverified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": true,
+      "treasureHuntActivatedAt": "2026-10-30T11:16:02.638Z",
+      "treasureHuntExpiresAt": "2026-11-14T11:16:02.638Z"
     },
     {
       "id": "BDS-015",
@@ -699,7 +714,10 @@
       "verificationStatus": "unverified",
       "verification_status": "unverified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": true,
+      "treasureHuntActivatedAt": "2026-10-30T11:16:02.638Z",
+      "treasureHuntExpiresAt": "2026-11-14T11:16:02.638Z"
     },
     {
       "id": "BDS-014",
@@ -764,7 +782,10 @@
       "verificationStatus": "unverified",
       "verification_status": "unverified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": true,
+      "treasureHuntActivatedAt": "2026-10-30T11:16:02.638Z",
+      "treasureHuntExpiresAt": "2026-11-14T11:16:02.638Z"
     },
     {
       "id": "BDS-013",
@@ -894,7 +915,10 @@
       "verificationStatus": "unverified",
       "verification_status": "unverified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": true,
+      "treasureHuntActivatedAt": "2026-10-30T11:16:02.638Z",
+      "treasureHuntExpiresAt": "2026-11-14T11:16:02.638Z"
     },
     {
       "id": "BDS-011",
@@ -1154,7 +1178,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": true,
+      "treasureHuntActivatedAt": "2026-10-30T11:16:02.638Z",
+      "treasureHuntExpiresAt": "2026-11-14T11:16:02.638Z"
     },
     {
       "id": "BDS-003",
@@ -1249,7 +1276,10 @@
         "frontImage": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80",
         "submittedAt": "2026-10-28T04:30:00.000Z"
       },
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": true,
+      "treasureHuntActivatedAt": "2026-10-30T11:16:02.638Z",
+      "treasureHuntExpiresAt": "2026-11-14T11:16:02.638Z"
     },
     {
       "id": "BDS-024",
@@ -1334,7 +1364,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": true,
+      "treasureHuntActivatedAt": "2026-10-30T11:16:02.638Z",
+      "treasureHuntExpiresAt": "2026-11-14T11:16:02.638Z"
     },
     {
       "id": "BDS-010",
@@ -1399,7 +1432,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": true,
+      "treasureHuntActivatedAt": "2026-10-30T11:16:02.638Z",
+      "treasureHuntExpiresAt": "2026-11-14T11:16:02.638Z"
     },
     {
       "id": "BDS-017",
@@ -1494,7 +1530,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": true,
+      "treasureHuntActivatedAt": "2026-10-30T11:16:02.638Z",
+      "treasureHuntExpiresAt": "2026-11-14T11:16:02.638Z"
     },
     {
       "id": "BDS-016",
@@ -1578,7 +1617,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": true,
+      "treasureHuntActivatedAt": "2026-10-30T11:16:02.638Z",
+      "treasureHuntExpiresAt": "2026-11-14T11:16:02.638Z"
     },
     {
       "id": "BDS-019",
@@ -1666,7 +1708,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": true,
+      "treasureHuntActivatedAt": "2026-10-30T11:16:02.638Z",
+      "treasureHuntExpiresAt": "2026-11-14T11:16:02.638Z"
     },
     {
       "id": "BDS-009",
@@ -1846,7 +1891,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": true,
+      "treasureHuntActivatedAt": "2026-10-30T11:16:02.638Z",
+      "treasureHuntExpiresAt": "2026-11-14T11:16:02.638Z"
     },
     {
       "id": "BDS-004",
@@ -1943,7 +1991,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": true,
+      "treasureHuntActivatedAt": "2026-10-30T11:16:02.638Z",
+      "treasureHuntExpiresAt": "2026-11-14T11:16:02.638Z"
     },
     {
       "id": "BDS-021",
@@ -2031,7 +2082,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": true,
+      "treasureHuntActivatedAt": "2026-10-30T11:16:02.638Z",
+      "treasureHuntExpiresAt": "2026-11-14T11:16:02.638Z"
     },
     {
       "id": "BDS-020",
@@ -4592,7 +4646,8 @@
       "minReadingSeconds": 20,
       "cooldownSeconds": 20,
       "minAmount": 2000,
-      "maxAmount": 20000
+      "maxAmount": 20000,
+      "itemsPerPage": 16
     },
     "predictionGames": [
       {

@@ -489,8 +489,8 @@ export default function AdminRewardsGamificationManager() {
               </div>
             </div>
 
-            {/* Anti-spam inputs */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Anti-spam & Phân trang inputs */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
                 <label className="text-xs font-bold text-slate-300">
                   Hạn mức rương / ngày / tài khoản
@@ -507,6 +507,25 @@ export default function AdminRewardsGamificationManager() {
                   <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">Hộp</span>
                 </div>
                 <div className="text-[10px] text-slate-500">Người dùng chỉ được nhận tối đa số hộp này trong 1 ngày.</div>
+              </div>
+
+              <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                <label className="text-xs font-bold text-slate-300">
+                  Số tin hiển thị / trang (Săn rương)
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="4"
+                    max="60"
+                    step="4"
+                    value={formData.treasureHuntConfig?.itemsPerPage ?? 16}
+                    onChange={(e) => handleTreasureConfigChange('itemsPerPage', Math.max(1, Number(e.target.value) || 16))}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm"
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">Tin/trang</span>
+                </div>
+                <div className="text-[10px] text-slate-500">Số lượng tin hiển thị trước khi phân trang (Mặc định: 16).</div>
               </div>
 
               <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">

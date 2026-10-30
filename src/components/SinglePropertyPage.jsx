@@ -1779,19 +1779,23 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   <div className="space-y-2">
                     <Link
                       href={`tel:${safeAuthor.phone.replace(/\s+/g, '')}`}
+                      title={`Gọi ngay: ${safeAuthor.phone}`}
+                      aria-label={`Gọi ngay số ${safeAuthor.phone} cho người đăng ${safeAuthor.name || ''}`}
                       className="w-full py-3.5 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-black text-sm rounded-2xl shadow-xl transition flex items-center justify-center gap-2 group"
                     >
-                      <i className="fa-solid fa-phone-volume group-hover:animate-bounce text-base"></i>
+                      <i className="fa-solid fa-phone-volume group-hover:animate-bounce text-base" aria-hidden="true"></i>
                       <span>GỌI NGAY: {safeAuthor.phone}</span>
                     </Link>
 
                     <Link
-                      href={`https://zalo.me/${safeAuthor.zalo}`}
+                      href={`https://zalo.me/${safeAuthor.zalo || safeAuthor.phone.replace(/\s+/g, '')}`}
                       target="_blank"
                       rel="noreferrer"
+                      title={`Chat Zalo: ${safeAuthor.zalo || safeAuthor.phone}`}
+                      aria-label={`Chat trực tiếp qua Zalo với ${safeAuthor.name || 'người đăng'}: ${safeAuthor.zalo || safeAuthor.phone}`}
                       className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm rounded-xl transition flex items-center justify-center gap-2"
                     >
-                      <i className="fa-solid fa-comment-dots"></i>
+                      <i className="fa-solid fa-comment-dots" aria-hidden="true"></i>
                       <span>Chat Trực Tiếp Qua Zalo</span>
                     </Link>
                   </div>
@@ -2652,19 +2656,19 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             href={`tel:${safeAuthor.phone.replace(/\s+/g, '')}`}
             className="px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-md shadow-emerald-600/30 active:scale-95 transition whitespace-nowrap"
             title={`Gọi ngay: ${safeAuthor.phone}`}
-            aria-label={`Gọi ngay: ${safeAuthor.phone}`}
+            aria-label={`Gọi ngay số ${safeAuthor.phone} cho tin ${formatSentenceCase(property.title).slice(0, 45)}`}
           >
             <i className="fa-solid fa-phone text-xs animate-pulse" aria-hidden="true"></i>
             <span>Gọi Ngay</span>
           </Link>
 
           <Link
-            href={`https://zalo.me/${safeAuthor.zalo}`}
+            href={`https://zalo.me/${safeAuthor.zalo || safeAuthor.phone.replace(/\s+/g, '')}`}
             target="_blank"
             rel="noreferrer"
             className="px-3 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs flex items-center gap-1 shadow-md shadow-blue-600/30 active:scale-95 transition whitespace-nowrap"
             title={`Chat Zalo: ${safeAuthor.zalo || safeAuthor.phone}`}
-            aria-label={`Chat Zalo: ${safeAuthor.zalo || safeAuthor.phone}`}
+            aria-label={`Nhắn tin Zalo số ${safeAuthor.zalo || safeAuthor.phone} cho tin ${formatSentenceCase(property.title).slice(0, 45)}`}
           >
             <i className="fa-solid fa-comment-dots text-xs" aria-hidden="true"></i>
             <span>Zalo</span>

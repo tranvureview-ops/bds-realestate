@@ -94,8 +94,8 @@ export default function Footer() {
                   <Link
                     href={`tel:${activeHotline.replace(/\s+/g, '')}`}
                     className="text-white hover:text-emerald-400 font-bold font-mono transition"
-                    title={`Hotline 24/7: ${activeHotline}`}
-                    aria-label={`Hotline 24/7: ${activeHotline}`}
+                    title={`Gọi điện Hotline 24/7: ${activeHotline}`}
+                    aria-label={`Gọi điện Hotline 24/7: ${activeHotline}`}
                   >
                     {activeHotline}
                   </Link>
@@ -107,8 +107,8 @@ export default function Footer() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-emerald-400 hover:underline font-mono"
-                        title={`Nhắn tin Zalo: ${activeZalo}`}
-                        aria-label={`Nhắn tin Zalo: ${activeZalo}`}
+                        title={`Nhắn tin tư vấn Zalo: ${activeZalo}`}
+                        aria-label={`Nhắn tin tư vấn Zalo: ${activeZalo}`}
                       >
                         Zalo: {activeZalo}
                       </Link>
