@@ -12,13 +12,15 @@ import {
   upsertSupabaseProfile,
   deleteSupabaseProfile,
   insertSupabaseTransaction,
-  syncFullDbToSupabase
+  syncFullDbToSupabase,
+  invalidateSupabaseCache
 } from '../lib/supabase';
 import { getEarliestExpiringBonus, deductBatchesFifo } from '../utils/bonusExpiryUtils';
 
 // Helper bất đồng bộ lưu cấu hình sàn lên Supabase SDK
 const persistSettingToSupabase = async (key, value) => {
   try {
+    invalidateSupabaseCache();
     const adminToken = typeof window !== 'undefined' ? (sessionStorage.getItem('bds_admin_token') || '') : '';
     // Với bds_email_config, nếu có mật khẩu SMTP chưa mã hóa thì ủy quyền cho /api/db-sync
     // tự động mã hóa AES-256-GCM ở tầng Server trước khi ghi vào Supabase và Database
@@ -32,13 +34,16 @@ const persistSettingToSupabase = async (key, value) => {
           },
           body: JSON.stringify({ [key]: value })
         }).catch(err => console.warn(`Lỗi db-sync khi mã hóa ${key}:`, err));
+        invalidateSupabaseCache();
         return;
       }
     }
 
     await upsertSupabaseSetting(key, value);
+    invalidateSupabaseCache();
+
     if (typeof window !== 'undefined') {
-      fetch('/api/db-sync', {
+      await fetch('/api/db-sync', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -47,6 +52,7 @@ const persistSettingToSupabase = async (key, value) => {
         body: JSON.stringify({ [key]: value })
       }).catch(err => console.warn(`Lỗi db-sync khi lưu ${key}:`, err));
     }
+    invalidateSupabaseCache();
   } catch (err) {
     console.warn(`Lỗi lưu cấu hình ${key} lên Supabase:`, err);
   }
@@ -55,14 +61,17 @@ const persistSettingToSupabase = async (key, value) => {
 // Helper bất đồng bộ xóa cấu hình sàn trên Supabase SDK
 const removeSettingFromSupabase = async (key) => {
   try {
+    invalidateSupabaseCache();
     await deleteSupabaseSetting(key);
+    invalidateSupabaseCache();
     if (typeof window !== 'undefined') {
-      fetch('/api/db-sync', {
+      await fetch('/api/db-sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ [key]: null })
       }).catch(err => console.warn(`Lỗi db-sync khi xóa ${key}:`, err));
     }
+    invalidateSupabaseCache();
   } catch (err) {
     console.warn(`Lỗi xóa cấu hình ${key} trên Supabase:`, err);
   }
@@ -1403,9 +1412,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   const lastFetchTimestampRef = useRef(0);
 
   // Tải dữ liệu mới nhất trực tiếp từ Supabase qua SDK (Central Fetcher)
-  const fetchLatestDataFromSupabase = useCallback(async (isSilent = true) => {
+  const fetchLatestDataFromSupabase = useCallback(async (isSilent = true, forceRefresh = false) => {
     const now = Date.now();
-    if (isFetchingSupabaseRef.current || (now - lastFetchTimestampRef.current < 1500)) {
+    if (!forceRefresh && (isFetchingSupabaseRef.current || (now - lastFetchTimestampRef.current < 1500))) {
       return false;
     }
     isFetchingSupabaseRef.current = true;
@@ -1415,7 +1424,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         window.location.pathname.startsWith('/admin') ||
         (currentUser && currentUser.role === 'admin')
       );
-      const db = await fetchFullSupabaseDb({ isAdmin: Boolean(isAdminRoute) });
+      const db = await fetchFullSupabaseDb({ isAdmin: Boolean(isAdminRoute), forceRefresh });
       if (db) {
         if (Array.isArray(db.bds_properties) && db.bds_properties.length > 0) {
           const validProps = db.bds_properties.filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng') || p.city === 'Quảng Nam' || p.city.includes('Quảng Nam'));
@@ -1556,8 +1565,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return false;
   }, [showToast]);
 
-  const refetchData = useCallback((isSilent = false) => {
-    return fetchLatestDataFromSupabase(isSilent);
+  const refetchData = useCallback((isSilent = false, forceRefresh = true) => {
+    return fetchLatestDataFromSupabase(isSilent, forceRefresh);
   }, [fetchLatestDataFromSupabase]);
 
   // 1. One-time client rehydration from Supabase Client SDK
@@ -1625,8 +1634,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const debouncedFetch = () => {
       if (debounceTimer) clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
-        fetchLatestDataFromSupabase(true);
-      }, 1500);
+        invalidateSupabaseCache();
+        fetchLatestDataFromSupabase(true, true);
+      }, 500);
     };
 
     const startRealtime = () => {

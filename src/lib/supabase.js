@@ -250,6 +250,7 @@ export async function fetchSupabaseSetting(key) {
 export async function upsertSupabaseSetting(key, value) {
   if (!isSupabaseConfigured() || !supabase || !key) return false;
   try {
+    invalidateSupabaseCache();
     const { error } = await supabase
       .from('platform_settings')
       .upsert({
@@ -258,6 +259,7 @@ export async function upsertSupabaseSetting(key, value) {
         updated_at: new Date().toISOString()
       }, { onConflict: 'key' });
 
+    invalidateSupabaseCache();
     return !error;
   } catch (err) {
     return false;
@@ -267,10 +269,12 @@ export async function upsertSupabaseSetting(key, value) {
 export async function deleteSupabaseSetting(key) {
   if (!isSupabaseConfigured() || !supabase || !key) return false;
   try {
+    invalidateSupabaseCache();
     const { error } = await supabase
       .from('platform_settings')
       .delete()
       .eq('key', key);
+    invalidateSupabaseCache();
     return !error;
   } catch (err) {
     return false;
@@ -652,12 +656,13 @@ export async function fetchFullSupabaseDb(options = {}) {
 
   const now = Date.now();
   // Nếu có cache còn trong hạn và không ép refresh, trả về tức thì (0ms)
-  if (!forceRefresh && _dbCache && now < _dbCacheExpiresAt) {
+  // Tuyệt đối không trả về cache cũ nếu là Admin hoặc đang ép refresh để chống race conditions
+  if (!isAdmin && !forceRefresh && _dbCache && now < _dbCacheExpiresAt) {
     return _dbCache;
   }
 
   // Deduplication: Nếu đang có một promise fetch đang chạy ngầm, không tạo thêm request trùng lặp
-  if (!forceRefresh && _pendingFetchPromise) {
+  if (!isAdmin && !forceRefresh && _pendingFetchPromise) {
     if (_dbCache) return _dbCache;
     return _pendingFetchPromise;
   }
@@ -757,17 +762,17 @@ export async function fetchFullSupabaseDb(options = {}) {
 
   _pendingFetchPromise = backgroundFetchTask;
 
-  // Stale-While-Revalidate: Nếu đã có cache cũ trong RAM, trả về ngay lập tức (0ms) để tải trang tức thì
-  if (_dbCache) {
+  // Stale-While-Revalidate: Chỉ trả về cache RAM tức thì cho người dùng công cộng (Public/Guest) khi KHÔNG phải Admin và KHÔNG ép refresh
+  if (!isAdmin && !forceRefresh && _dbCache) {
     return _dbCache;
   }
 
-  // Nếu chưa từng có cache (lần đầu khởi động serverless cold start): chờ tối đa 800ms
-  // Nếu Supabase trả về kịp -> trả về dữ liệu Supabase; nếu quá 800ms -> trả về null để SSR fallback ngay lập tức sang local DB
+  // Khi là Admin hoặc forceRefresh: Chờ backgroundFetchTask hoàn thành để trả về dữ liệu mới nhất 100%
   try {
-    return await withTimeout(backgroundFetchTask, 800);
+    return await withTimeout(backgroundFetchTask, isAdmin ? 5000 : 1200);
   } catch (timeoutErr) {
-    console.warn('Supabase fetch lần đầu vượt quá 800ms, fallback tức thì sang local DB cho SSR.');
+    if (_dbCache) return _dbCache;
+    console.warn('Supabase fetch vượt quá thời gian chờ, fallback sang local DB.');
     return null;
   }
 }
@@ -777,6 +782,7 @@ export async function fetchFullSupabaseDb(options = {}) {
  */
 export async function syncFullDbToSupabase(payload) {
   if (!isSupabaseConfigured() || !supabase || !payload) return false;
+  invalidateSupabaseCache();
   try {
     const promises = [];
 

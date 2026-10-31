@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { isSupabaseConfigured, supabase, fetchFullSupabaseDb, syncFullDbToSupabase } from '../../../lib/supabase';
+import { isSupabaseConfigured, supabase, fetchFullSupabaseDb, syncFullDbToSupabase, invalidateSupabaseCache } from '../../../lib/supabase';
 import { encryptAES256 } from '../../../utils/cryptoUtils';
 import { verifyAdminRequest } from '../../../utils/adminAuth';
 import { invalidateServerSsrCache } from '../../../utils/serverDbCache';
@@ -138,8 +138,9 @@ export async function POST(request) {
       console.warn('Không thể ghi file cục bộ (môi trường serverless read-only):', fsErr.message);
     }
 
-    // 4. Xóa bộ nhớ đệm SSR Cache tức thì để các trang Client & Admin tải mới ngay lập tức
+    // 4. Xóa bộ nhớ đệm SSR Cache & Supabase Cache tức thì để các trang Client & Admin tải mới ngay lập tức
     invalidateServerSsrCache();
+    invalidateSupabaseCache();
     try {
       revalidatePath('/', 'layout');
     } catch (_) {}
