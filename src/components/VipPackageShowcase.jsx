@@ -228,10 +228,10 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
                 if (onClose) onClose();
                 setActiveModal(null);
               }}
-              className="px-4 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-900 font-extrabold text-xs sm:text-sm rounded-xl transition shadow-md shrink-0 cursor-pointer text-center inline-flex items-center justify-center gap-1.5"
+              className="px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs sm:text-sm rounded-xl transition shadow-md shrink-0 cursor-pointer text-center inline-flex items-center justify-center gap-1.5"
             >
-              <span>Vào Quản Lý Để Đẩy Tin</span>
-              <i className="fa-solid fa-arrow-right text-xs"></i>
+              <span className="text-slate-950 font-black">Vào Quản Lý Để Đẩy Tin</span>
+              <i className="fa-solid fa-arrow-right text-xs text-slate-950"></i>
             </Link>
           </div>
         </div>
@@ -249,7 +249,7 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
               <h3 className="text-xl font-black text-slate-950">
                 Đăng Ký Gói Hội Viên — Tiết Kiệm Tới {premiumSavePercent}%
               </h3>
-              <p className="text-xs text-slate-900 font-medium mt-1 max-w-xl">
+              <p className="text-xs text-slate-950 font-semibold mt-1 max-w-xl">
                 Nhận trọn bộ kho Voucher cấp mới định kỳ 30 ngày: voucher giảm {normalPublishVoucherDiscount.toLocaleString('vi-VN')}đ đăng tin thường + voucher giảm {currentBumpPrice.toLocaleString('vi-VN')}đ đẩy tin + voucher {vipVoucherDiscount.toLocaleString('vi-VN')}đ tin VIP.
               </p>
             </div>
@@ -257,7 +257,7 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
           <Link
             to="/goi-hoi-vien"
             onClick={() => { if (onClose) onClose(); }}
-            className="px-6 py-3 bg-slate-950 hover:bg-slate-900 text-amber-400 hover:text-amber-300 font-black text-sm rounded-xl transition shadow-lg shrink-0 flex items-center gap-2"
+            className="px-6 py-3 bg-slate-950 hover:bg-slate-900 text-amber-300 hover:text-amber-200 font-black text-sm rounded-xl transition shadow-lg shrink-0 flex items-center gap-2"
           >
             <span>Khám Phá Gói Hội Viên</span>
             <i className="fa-solid fa-arrow-right text-xs"></i>

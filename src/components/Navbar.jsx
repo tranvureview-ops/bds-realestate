@@ -170,33 +170,33 @@ export default function Navbar() {
         <div suppressHydrationWarning className={`${containerWidthClass} flex items-center justify-between gap-2 sm:gap-3`}>
           {/* Left: Hotline & Slogan */}
           <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-950/90 text-emerald-400 border border-emerald-800/80 font-semibold text-[10px] sm:text-[11px] truncate">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-              <span className="hidden sm:inline truncate">Sàn BĐS {[brandNameDisplay, brandHighlightDisplay].filter(Boolean).join(' ') || 'Bất Động Sản'}</span>
-              <span className="sm:hidden truncate">{brandNameDisplay || 'Sàn BĐS'}</span>
+            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-900 text-emerald-100 border border-emerald-700 font-bold text-[10px] sm:text-[11px] truncate">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse shrink-0"></span>
+              <span className="hidden sm:inline truncate text-emerald-100 font-bold">Sàn BĐS {[brandNameDisplay, brandHighlightDisplay].filter(Boolean).join(' ') || 'Bất Động Sản'}</span>
+              <span className="sm:hidden truncate text-emerald-100 font-bold">{brandNameDisplay || 'Sàn BĐS'}</span>
             </span>
-            <span suppressHydrationWarning className="hidden md:inline-flex items-center gap-1.5 text-slate-400 shrink-0">
-              <span className="text-slate-600">|</span>
+            <span suppressHydrationWarning className="hidden md:inline-flex items-center gap-1.5 text-slate-300 shrink-0">
+              <span className="text-slate-500">|</span>
               <span>Hotline 24/7:</span>
               <Link
                 suppressHydrationWarning
                 href={`tel:${(systemConfig?.hotline || '0904 084 888').replace(/\s+/g, '')}`}
-                className="text-white hover:text-emerald-400 font-bold font-mono transition inline-flex items-center gap-1"
+                className="text-white hover:text-emerald-300 font-bold font-mono transition inline-flex items-center gap-1"
                 title={`Gọi ngay Hotline 24/7: ${systemConfig?.hotline || '0904 084 888'}`}
                 aria-label={`Gọi ngay Hotline 24/7: ${systemConfig?.hotline || '0904 084 888'}`}
               >
-                <i className="fa-solid fa-phone text-[10px] text-emerald-400" aria-hidden="true"></i>
+                <i className="fa-solid fa-phone text-[10px] text-emerald-300" aria-hidden="true"></i>
                 <span suppressHydrationWarning>{systemConfig?.hotline || '0904 084 888'}</span>
               </Link>
             </span>
           </div>
 
           {/* Right: Giờ làm việc & Mạng xã hội */}
-          <div suppressHydrationWarning className="flex items-center gap-2 sm:gap-3 text-slate-400 text-[11px] shrink-0">
+          <div suppressHydrationWarning className="flex items-center gap-2 sm:gap-3 text-slate-300 text-[11px] shrink-0">
             <span className="inline-flex items-center gap-1.5">
-              <i className="fa-regular fa-clock text-emerald-400 text-[10px]"></i>
+              <i className="fa-regular fa-clock text-emerald-300 text-[10px]"></i>
               <span className="hidden sm:inline">Giờ làm việc:</span>
-              <span className="text-slate-300 font-medium">8:00 - 21:00</span>
+              <span className="text-slate-200 font-semibold">8:00 - 21:00</span>
             </span>
 
             {/* Social Media Channels */}
@@ -248,7 +248,7 @@ export default function Navbar() {
                   onError={() => setLogoImgError(true)}
                 />
                 {headerConfig.showTaglineWithImage && (headerConfig.brandTagline || systemConfig?.tagline) && (
-                  <span className="text-[10px] text-slate-500 font-bold tracking-wider uppercase hidden md:inline-block truncate">
+                  <span className="text-[10px] text-slate-600 font-bold tracking-wider uppercase hidden md:inline-block truncate">
                     {headerConfig.brandTagline || systemConfig?.tagline}
                   </span>
                 )}
