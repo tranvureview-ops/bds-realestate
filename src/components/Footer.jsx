@@ -4,6 +4,7 @@ import React from 'react';
 import { Link } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 import { DEFAULT_FOOTER_CONFIG } from '../data/mockData';
+import SocialIcon from './SocialIcon';
 
 export default function Footer() {
   const { systemConfig, headerConfig, currentUser, footerConfig } = useRealEstate();
@@ -153,11 +154,7 @@ export default function Footer() {
                       className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700/80 text-slate-300 hover:text-white flex items-center justify-center transition shadow-xs hover:border-emerald-500/50 hover:scale-105"
                       title={item.label || item.key}
                     >
-                      {item.key === 'zalo' ? (
-                        <span className="font-black text-[11px] text-sky-400 leading-none">Z</span>
-                      ) : (
-                        <i className={`${item.icon} text-xs`}></i>
-                      )}
+                      <SocialIcon item={item} className="w-3.5 h-3.5" />
                     </Link>
                   ))}
                 </div>

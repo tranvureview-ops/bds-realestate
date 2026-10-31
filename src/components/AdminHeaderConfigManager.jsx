@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRealEstate } from '../context/RealEstateContext';
 import { DEFAULT_HEADER_CONFIG, DEFAULT_SOCIAL_LINKS } from '../data/mockData';
+import SocialIcon from './SocialIcon';
 
 export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
   const {
@@ -640,7 +641,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
                       key === 'telegram' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' :
                       'bg-fuchsia-600/20 text-fuchsia-400 border border-fuchsia-500/30'
                     }`}>
-                      {key === 'zalo' ? 'Z' : <i className={item?.icon || 'fa-solid fa-share'}></i>}
+                      <SocialIcon item={{ key, ...item }} className="w-4 h-4" />
                     </span>
                     <div>
                       <div className="font-bold text-xs text-white capitalize">{item?.label || key}</div>
@@ -758,7 +759,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
                           className="w-4 h-4 rounded-full bg-slate-800 text-slate-300 flex items-center justify-center text-[8px] border border-slate-700"
                           title={i.label || k}
                         >
-                          {k === 'zalo' ? <span className="font-black text-sky-400 text-[7px]">Z</span> : <i className={i.icon}></i>}
+                          <SocialIcon item={{ key: k, ...i }} className="w-2 h-2" />
                         </span>
                       ))}
                   </div>

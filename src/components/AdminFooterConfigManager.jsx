@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { DEFAULT_FOOTER_CONFIG } from '../data/mockData';
+import SocialIcon from './SocialIcon';
 
 // Danh sách toàn bộ các đường dẫn nội bộ trong website BĐS (Đầy đủ trang chức năng, danh mục chuẩn SEO, loại trừ triệt để link sản phẩm đơn lẻ)
 export const ALL_INTERNAL_ROUTES = [
@@ -1163,7 +1164,7 @@ export default function AdminFooterConfigManager() {
                             key={s.key}
                             className="w-5 h-5 rounded bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] text-slate-300"
                           >
-                            {s.key === 'zalo' ? 'Z' : <i className={s.icon}></i>}
+                            <SocialIcon item={s} className="w-2.5 h-2.5" />
                           </span>
                         ))}
                       </div>

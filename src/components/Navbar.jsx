@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter, Link } from '../router/RouterContext';
 import { getPremiumPackageSavePercent } from '../utils/membershipHelper';
+import SocialIcon from './SocialIcon';
 
 const cleanUserName = (name) => {
   if (!name) return 'Khách vãng lai';
@@ -215,11 +216,7 @@ export default function Navbar() {
                       title={item.label || item.key}
                       style={{ contain: 'layout paint' }}
                     >
-                      {item.key === 'zalo' ? (
-                        <span className="font-black text-[9px] text-sky-400 leading-none select-none">Z</span>
-                      ) : (
-                        <i className={`${item.icon} text-[10px] w-3 h-3 flex items-center justify-center shrink-0`}></i>
-                      )}
+                      <SocialIcon item={item} className="w-2.5 h-2.5" />
                     </Link>
                   ))}
                 </div>
