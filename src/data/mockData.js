@@ -3055,8 +3055,6 @@ export const DEFAULT_HEADER_CONFIG = {
     badgeColor: 'emerald', // 'emerald' | 'amber' | 'red' | 'blue' | 'purple' | 'slate'
     hotlineLabel: 'Hotline 24/7:',
     hotline: '', // Để trống sẽ fallback theo systemConfig.hotline
-    workingHours: '8:00 - 21:00',
-    showWorkingHours: true,
     showSocial: true,
     bgColor: 'bg-slate-900' // 'bg-slate-900' | 'bg-slate-950' | 'bg-emerald-950' | 'bg-blue-950' | 'bg-slate-800'
   }

@@ -2841,8 +2841,7 @@
       "showSocial": true,
       "showTopbar": true,
       "hotlineLabel": "Hotline 24/7:",
-      "workingHours": "8:00 - 21:00",
-      "showWorkingHours": true
+      "showWorkingHours": false
     },
     "logoAlt": "KÊNH NHÀ ĐẤT 24H Logo",
     "logoType": "text",

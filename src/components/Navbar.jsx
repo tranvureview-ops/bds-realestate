@@ -245,37 +245,26 @@ export default function Navbar() {
               </span>
             </div>
 
-            {/* Right: Giờ làm việc & Mạng xã hội */}
+            {/* Right: Mạng xã hội */}
             <div suppressHydrationWarning className="flex items-center gap-2 sm:gap-3 text-slate-300 text-[11px] shrink-0">
-              {showWorkingHours && (
-                <span className="inline-flex items-center gap-1.5">
-                  <i className="fa-regular fa-clock text-emerald-300 text-[10px]"></i>
-                  <span className="hidden sm:inline">Giờ làm việc:</span>
-                  <span className="text-slate-200 font-semibold">{topbarWorkingHours}</span>
-                </span>
-              )}
-
               {/* Social Media Channels */}
               {showSocial && activeSocialList.length > 0 && (
-                <>
-                  {showWorkingHours && <span className="text-slate-700 hidden sm:inline select-none">|</span>}
-                  <div className="flex items-center gap-1 sm:gap-1.5 shrink-0" style={{ contain: 'layout' }}>
-                    <span className="hidden lg:inline text-slate-400 text-[10px] font-medium mr-0.5 shrink-0">Mạng xã hội:</span>
-                    {activeSocialList.map(item => (
-                      <Link
-                        key={item.key}
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={`w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:scale-110 border border-slate-700/80 flex items-center justify-center transition shadow-xs shrink-0 aspect-square ${item.hoverColor || 'hover:text-white'}`}
-                        title={item.label || item.key}
-                        style={{ contain: 'layout paint' }}
-                      >
-                        <SocialIcon item={item} className="w-2.5 h-2.5" />
-                      </Link>
-                    ))}
-                  </div>
-                </>
+                <div className="flex items-center gap-1 sm:gap-1.5 shrink-0" style={{ contain: 'layout' }}>
+                  <span className="hidden lg:inline text-slate-400 text-[10px] font-medium mr-0.5 shrink-0">Mạng xã hội:</span>
+                  {activeSocialList.map(item => (
+                    <Link
+                      key={item.key}
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:scale-110 border border-slate-700/80 flex items-center justify-center transition shadow-xs shrink-0 aspect-square ${item.hoverColor || 'hover:text-white'}`}
+                      title={item.label || item.key}
+                      style={{ contain: 'layout paint' }}
+                    >
+                      <SocialIcon item={item} className="w-2.5 h-2.5" />
+                    </Link>
+                  ))}
+                </div>
               )}
             </div>
           </div>

@@ -640,7 +640,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
               </h3>
             </div>
             <p className="text-xs text-slate-400 mt-1">
-              Tùy biến hiển thị thanh tiện ích đen trên cùng: Huy hiệu khẩu hiệu (Slogan Pill), Hotline 24/7, Giờ làm việc và biểu tượng mạng xã hội.
+              Tùy biến hiển thị thanh tiện ích đen trên cùng: Huy hiệu khẩu hiệu (Slogan Pill), Hotline 24/7 và biểu tượng mạng xã hội.
             </p>
           </div>
 
@@ -704,12 +704,6 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
                 </div>
 
                 <div className="flex items-center gap-3 text-[11px] text-slate-400">
-                  {logoFormData.topbar?.showWorkingHours !== false && (
-                    <span className="inline-flex items-center gap-1.5">
-                      <i className="fa-regular fa-clock text-emerald-400 text-[10px]"></i>
-                      <span className="text-slate-300 font-semibold">{logoFormData.topbar?.workingHours || '8:00 - 21:00'}</span>
-                    </span>
-                  )}
                   {logoFormData.topbar?.showSocial !== false && (
                     <span className="text-xs text-slate-500 bg-slate-800/80 px-2 py-0.5 rounded-full">
                       Mạng xã hội (Bật)
@@ -789,11 +783,11 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
             </div>
           </div>
 
-          {/* Cột 2: Hotline & Giờ làm việc & Màu nền */}
+          {/* Cột 2: Hotline & Màu nền Topbar */}
           <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3.5">
             <span className="text-xs font-bold text-white flex items-center gap-1.5">
               <i className="fa-solid fa-phone text-emerald-400"></i>
-              <span>Hotline & Giờ Làm Việc Trên Topbar</span>
+              <span>Hotline & Màu Nền Trên Topbar</span>
             </span>
 
             <div className="grid grid-cols-2 gap-2.5">
@@ -824,31 +818,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5 pt-1">
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <label className="block text-[11px] font-medium text-slate-300">
-                    Giờ làm việc:
-                  </label>
-                  <label className="flex items-center gap-1 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={logoFormData.topbar?.showWorkingHours !== false}
-                      onChange={(e) => handleUpdateTopbar('showWorkingHours', e.target.checked)}
-                      className="rounded bg-slate-800 border-slate-700 text-emerald-600 focus:ring-0"
-                    />
-                    <span className="text-[10px] text-slate-400">Hiện</span>
-                  </label>
-                </div>
-                <input
-                  type="text"
-                  value={logoFormData.topbar?.workingHours || '8:00 - 21:00'}
-                  onChange={(e) => handleUpdateTopbar('workingHours', e.target.value)}
-                  placeholder="8:00 - 21:00"
-                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
-                />
-              </div>
-
+            <div className="pt-1">
               <div className="space-y-1">
                 <label className="block text-[11px] font-medium text-slate-300">
                   Màu nền Topbar:
