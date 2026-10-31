@@ -12,7 +12,8 @@ import {
   getMonthlyTreasureBudgetStatus,
   DEFAULT_TREASURE_REWARD_TIERS,
   DEFAULT_BASIC_MEMBER_REWARD_TIERS,
-  DEFAULT_STANDARD_MEMBER_REWARD_TIERS
+  DEFAULT_STANDARD_MEMBER_REWARD_TIERS,
+  DEFAULT_PREMIUM_MEMBER_REWARD_TIERS
 } from '../services/treasureHuntService';
 
 export default function AdminRewardsGamificationManager() {
@@ -209,6 +210,73 @@ export default function AdminRewardsGamificationManager() {
     if (showToast) showToast('Đã khôi phục 3 mốc phần thưởng Hội Viên Tiêu Chuẩn về tỷ lệ chuẩn!', 'info');
   };
 
+  // State và xử lý riêng cho 4. CẤU HÌNH HỆ THỐNG (HỘI VIÊN CAO CẤP)
+  const premiumMonthlyBudgetVal = Number(formData.treasureHuntConfig?.premiumMemberConfig?.monthlyBudget ?? 1000000);
+  const currentPremiumRewardTiers = useMemo(() => {
+    const raw = formData.treasureHuntConfig?.premiumMemberConfig?.rewardTiers;
+    return Array.isArray(raw) && raw.length > 0 ? raw : DEFAULT_PREMIUM_MEMBER_REWARD_TIERS;
+  }, [formData.treasureHuntConfig?.premiumMemberConfig?.rewardTiers]);
+
+  const totalPremiumTierPercentage = useMemo(() => {
+    return currentPremiumRewardTiers.reduce((sum, t) => sum + (Number(t.percentage) || 0), 0);
+  }, [currentPremiumRewardTiers]);
+
+  const handleUpdatePremiumTier = (index, field, value) => {
+    isDirtyRef.current = true;
+    setIsDirty(true);
+    const updated = currentPremiumRewardTiers.map((t, idx) => {
+      if (idx !== index) return t;
+      return {
+        ...t,
+        [field]: field === 'label' ? value : Math.max(0, Number(value) || 0)
+      };
+    });
+    setFormData(prev => ({
+      ...prev,
+      treasureHuntConfig: {
+        ...prev.treasureHuntConfig,
+        premiumMemberConfig: {
+          ...prev.treasureHuntConfig?.premiumMemberConfig,
+          monthlyBudget: premiumMonthlyBudgetVal,
+          rewardTiers: updated
+        }
+      }
+    }));
+  };
+
+  const handlePremiumMonthlyBudgetChange = (val) => {
+    isDirtyRef.current = true;
+    setIsDirty(true);
+    setFormData(prev => ({
+      ...prev,
+      treasureHuntConfig: {
+        ...prev.treasureHuntConfig,
+        premiumMemberConfig: {
+          ...prev.treasureHuntConfig?.premiumMemberConfig,
+          monthlyBudget: Math.max(0, Number(val) || 0),
+          rewardTiers: currentPremiumRewardTiers
+        }
+      }
+    }));
+  };
+
+  const handleResetDefaultPremiumTiers = () => {
+    isDirtyRef.current = true;
+    setIsDirty(true);
+    setFormData(prev => ({
+      ...prev,
+      treasureHuntConfig: {
+        ...prev.treasureHuntConfig,
+        premiumMemberConfig: {
+          ...prev.treasureHuntConfig?.premiumMemberConfig,
+          monthlyBudget: 1000000,
+          rewardTiers: DEFAULT_PREMIUM_MEMBER_REWARD_TIERS
+        }
+      }
+    }));
+    if (showToast) showToast('Đã khôi phục 4 mốc phần thưởng Hội Viên Cao Cấp về tỷ lệ chuẩn!', 'info');
+  };
+
   // Sync when context changes - TUYỆT ĐỐI KHÔNG GHI ĐÈ NẾU ADMIN ĐANG NHẬP DỞ (isDirty)
   useEffect(() => {
     if (rewardsConfig && !isDirtyRef.current) {
@@ -371,6 +439,19 @@ export default function AdminRewardsGamificationManager() {
       }
     }
 
+    // Chuẩn hóa cấu hình Hội Viên Cao Cấp
+    const premiumCfg = tCfg.premiumMemberConfig || {};
+    const premiumMonthlyBudget = Math.max(0, Number(premiumCfg.monthlyBudget ?? 1000000));
+    const premiumTiers = Array.isArray(premiumCfg.rewardTiers) && premiumCfg.rewardTiers.length > 0
+      ? premiumCfg.rewardTiers
+      : DEFAULT_PREMIUM_MEMBER_REWARD_TIERS;
+    const totalPremiumPercent = premiumTiers.reduce((sum, t) => sum + (Number(t.percentage) || 0), 0);
+    if (totalPremiumPercent !== 100) {
+      if (showToast) {
+        showToast(`Cảnh báo: Tổng tỷ lệ 4 mốc Hội Viên Cao Cấp là ${totalPremiumPercent}% (Khuyến nghị đúng 100%)!`, 'warning');
+      }
+    }
+
     // Chuẩn hóa dữ liệu cấu hình rương đảm bảo luôn là kiểu chuẩn
     const sanitizedData = {
       ...targetConfig,
@@ -404,6 +485,16 @@ export default function AdminRewardsGamificationManager() {
           minAmount: 8000,
           maxAmount: 35000,
           rewardTiers: standardTiers.map(t => ({
+            ...t,
+            amount: Math.max(0, Number(t.amount) || 0),
+            percentage: Math.max(0, Number(t.percentage) || 0)
+          }))
+        },
+        premiumMemberConfig: {
+          monthlyBudget: premiumMonthlyBudget,
+          minAmount: 20000,
+          maxAmount: 100000,
+          rewardTiers: premiumTiers.map(t => ({
             ...t,
             amount: Math.max(0, Number(t.amount) || 0),
             percentage: Math.max(0, Number(t.percentage) || 0)
@@ -1265,6 +1356,144 @@ export default function AdminRewardsGamificationManager() {
                 <li>Dành riêng cho tài khoản đăng ký <strong>Gói Hội Viên Tiêu Chuẩn</strong> (mỗi chu kỳ nhận tỷ lệ trúng thưởng vượt trội).</li>
                 <li><strong>100% trúng thưởng</strong> (không có mốc rỗng 0đ Chúc May Mắn): Mức nhận gồm <strong>8.000đ (40%)</strong>, <strong>12.000đ (50%)</strong> hoặc <strong>35.000đ (10%)</strong>.</li>
                 <li>Tổng ngân sách mở rương riêng cho Hội Viên Tiêu Chuẩn: <strong>{standardMonthlyBudgetVal.toLocaleString('vi-VN')}đ / tháng</strong>.</li>
+              </ul>
+            </div>
+          </div>
+
+          {/* 4. CẤU HÌNH HỆ THỐNG (HỘI VIÊN CAO CẤP) */}
+          <div className="bg-slate-900 border border-purple-500/40 hover:border-purple-500/60 transition rounded-3xl p-6 space-y-5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <i className="fa-solid fa-gem text-purple-400"></i>
+                  <span>4. Cấu hình Hệ thống (Hội Viên Cao Cấp)</span>
+                  <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-xs font-mono font-bold">
+                    VIP Premium
+                  </span>
+                </h3>
+                <p className="text-xs text-slate-400 mt-0.5">
+                  Thiết lập hạn mức ngân sách tháng và 4 mốc phần thưởng độc quyền (bao gồm Siêu Jackpot 100.000đ) dành cho Hội Viên Cao Cấp.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className={`text-xs font-mono font-bold px-2.5 py-1 rounded-xl border flex items-center gap-1.5 ${
+                  totalPremiumTierPercentage === 100
+                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                    : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                }`}>
+                  <i className={`fa-solid ${totalPremiumTierPercentage === 100 ? 'fa-check' : 'fa-triangle-exclamation'}`}></i>
+                  <span>Tổng tỷ lệ: {totalPremiumTierPercentage}% {totalPremiumTierPercentage === 100 ? '(Chuẩn)' : '(Chưa chuẩn)'}</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={handleResetDefaultPremiumTiers}
+                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border border-slate-700"
+                  title="Khôi phục 4 mốc mặc định"
+                >
+                  <i className="fa-solid fa-rotate-left"></i>
+                  <span>Khôi phục mặc định</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Ô nhập Tổng Ngân Sách Mở Rương / Tháng cho Hội Viên Cao Cấp */}
+            <div className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <label className="text-xs font-bold text-white flex items-center gap-2">
+                    <i className="fa-solid fa-vault text-purple-400"></i>
+                    <span>Tổng Ngân Sách Mở Rương / Tháng (Hội Viên Cao Cấp)</span>
+                  </label>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Hạn mức quỹ tiền thưởng tối đa mở rương dành riêng cho các tài khoản Gói Hội Viên Cao Cấp trong 1 tháng dương lịch.
+                  </p>
+                </div>
+                <span className="text-purple-400 text-xs font-mono font-bold bg-purple-500/10 px-2.5 py-1 rounded-lg border border-purple-500/20 self-start sm:self-auto">
+                  Quỹ Hội Viên Cao Cấp
+                </span>
+              </div>
+
+              <div className="relative max-w-md">
+                <input
+                  type="number"
+                  min="0"
+                  step="50000"
+                  value={formData.treasureHuntConfig?.premiumMemberConfig?.monthlyBudget ?? 1000000}
+                  onChange={(e) => handlePremiumMonthlyBudgetChange(e.target.value)}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono font-bold text-sm focus:border-purple-400 focus:outline-none"
+                />
+                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">VNĐ</span>
+              </div>
+            </div>
+
+            {/* Bảng chỉnh sửa 4 mốc phần thưởng cho Hội Viên Cao Cấp */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-slate-800 text-slate-400 uppercase text-[11px] font-bold">
+                    <th className="py-2.5 px-3">Mốc phần thưởng</th>
+                    <th className="py-2.5 px-3">Số tiền nhận (đ)</th>
+                    <th className="py-2.5 px-3 text-right">Tỷ lệ xuất hiện (%)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60 font-medium">
+                  {currentPremiumRewardTiers.map((tier, idx) => (
+                    <tr key={tier.id || idx} className="hover:bg-slate-950/40 transition">
+                      <td className="py-2.5 px-3">
+                        <div className="flex items-center gap-2">
+                          <span className={`w-2 h-2 rounded-full shrink-0 ${idx === 3 ? 'bg-amber-400' : 'bg-purple-400'}`}></span>
+                          <input
+                            type="text"
+                            value={tier.label || ''}
+                            onChange={(e) => handleUpdatePremiumTier(idx, 'label', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-white font-bold text-xs focus:border-purple-400 focus:outline-none"
+                            placeholder="Tên mốc phần thưởng..."
+                          />
+                        </div>
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <div className="flex items-center gap-1.5 max-w-[200px]">
+                          <input
+                            type="number"
+                            min="0"
+                            step="1000"
+                            value={tier.amount ?? 0}
+                            onChange={(e) => handleUpdatePremiumTier(idx, 'amount', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-purple-300 font-mono font-bold text-xs focus:border-purple-400 focus:outline-none"
+                          />
+                          <span className="text-slate-400 text-xs font-mono font-bold shrink-0">đ</span>
+                        </div>
+                      </td>
+                      <td className="py-2.5 px-3 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={tier.percentage ?? 0}
+                            onChange={(e) => handleUpdatePremiumTier(idx, 'percentage', e.target.value)}
+                            className="w-20 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-right text-emerald-400 font-mono font-bold text-xs focus:border-emerald-400 focus:outline-none"
+                          />
+                          <span className="text-slate-400 text-xs font-mono font-bold shrink-0">%</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Ghi chú giải thích cơ chế Hội Viên Cao Cấp */}
+            <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 text-xs text-slate-400 leading-relaxed space-y-1">
+              <div className="text-slate-300 font-bold flex items-center gap-1.5">
+                <i className="fa-solid fa-circle-info text-purple-400 text-[11px]"></i>
+                <span>Quy tắc vận hành mốc thưởng Hội Viên Cao Cấp:</span>
+              </div>
+              <ul className="list-disc list-inside space-y-0.5 text-[11px] text-slate-400 pl-1">
+                <li>Dành riêng cho tài khoản đăng ký <strong>Gói Hội Viên Cao Cấp (VIP Premium)</strong> với giá trị mở rương lớn nhất sàn.</li>
+                <li><strong>100% trúng thưởng</strong>: Mức nhận gồm <strong>20.000đ (40%)</strong>, <strong>30.000đ (30%)</strong>, <strong>55.000đ (25%)</strong> và cơ hội nổ <strong>Siêu Jackpot 100.000đ (5%)</strong>.</li>
+                <li>Tổng ngân sách mở rương riêng cho Hội Viên Cao Cấp: <strong>{premiumMonthlyBudgetVal.toLocaleString('vi-VN')}đ / tháng</strong>.</li>
               </ul>
             </div>
           </div>

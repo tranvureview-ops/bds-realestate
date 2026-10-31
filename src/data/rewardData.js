@@ -369,6 +369,14 @@ export const DEFAULT_STANDARD_MEMBER_REWARD_TIERS = [
   { id: 'tier_standard_max', label: 'Thưởng Tối Đa (Lớn)', amount: 35000, percentage: 10 }
 ];
 
+// 4d. MỐC PHẦN THƯỞNG CHO HỘI VIÊN CAO CẤP (CHỈNH SỬA ĐƯỢC TRONG CMS)
+export const DEFAULT_PREMIUM_MEMBER_REWARD_TIERS = [
+  { id: 'tier_premium_min', label: 'Thưởng Tối Thiểu (Nhỏ)', amount: 20000, percentage: 40 },
+  { id: 'tier_premium_common', label: 'Thưởng Phổ Biến (Vừa)', amount: 30000, percentage: 30 },
+  { id: 'tier_premium_max', label: 'Thưởng Tối Đa (Lớn)', amount: 55000, percentage: 25 },
+  { id: 'tier_premium_jackpot', label: 'Siêu Jackpot (Cực Lớn)', amount: 100000, percentage: 5 }
+];
+
 // 5. DỮ LIỆU DỰ ĐOÁN GIÁ BĐS CỘNG ĐỒNG (QUỸ THƯỞNG TIỀN MẶT VÍ KM)
 export const PRICE_PREDICTION_GAMES = [
   {
@@ -499,6 +507,13 @@ export const DEFAULT_REWARDS_CONFIG = {
       rewardTiers: DEFAULT_STANDARD_MEMBER_REWARD_TIERS,
       minAmount: 8000,
       maxAmount: 35000
+    },
+    // 4/ Cấu hình Hệ thống (Hội Viên Cao Cấp): Ngân sách 1.000.000đ/tháng
+    premiumMemberConfig: {
+      monthlyBudget: 1000000,
+      rewardTiers: DEFAULT_PREMIUM_MEMBER_REWARD_TIERS,
+      minAmount: 20000,
+      maxAmount: 100000
     }
   },
 

@@ -4863,6 +4863,37 @@
             "percentage": 10
           }
         ]
+      },
+      "premiumMemberConfig": {
+        "monthlyBudget": 1000000,
+        "minAmount": 20000,
+        "maxAmount": 100000,
+        "rewardTiers": [
+          {
+            "id": "tier_premium_min",
+            "label": "Thưởng Tối Thiểu (Nhỏ)",
+            "amount": 20000,
+            "percentage": 40
+          },
+          {
+            "id": "tier_premium_common",
+            "label": "Thưởng Phổ Biến (Vừa)",
+            "amount": 30000,
+            "percentage": 30
+          },
+          {
+            "id": "tier_premium_max",
+            "label": "Thưởng Tối Đa (Lớn)",
+            "amount": 55000,
+            "percentage": 25
+          },
+          {
+            "id": "tier_premium_jackpot",
+            "label": "Siêu Jackpot (Cực Lớn)",
+            "amount": 100000,
+            "percentage": 5
+          }
+        ]
       }
     }
   },

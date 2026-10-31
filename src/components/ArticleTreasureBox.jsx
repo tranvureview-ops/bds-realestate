@@ -15,6 +15,7 @@ import {
   isUserMembershipActive,
   isUserBasicMember,
   isUserStandardMember,
+  isUserPremiumMember,
   getMonthlyTreasureBudgetStatus
 } from '../services/treasureHuntService';
 
@@ -42,12 +43,15 @@ export default function ArticleTreasureBox({ property }) {
   const minReadingSeconds = Number(tConfig?.minReadingSeconds || 4);
   const cooldownSeconds = Number(tConfig?.cooldownSeconds || 20);
 
-  // Phân loại đối tượng: Hội Viên Tiêu Chuẩn vs Hội Viên Cơ Bản vs Thành viên thường
-  const isStandardMember = isUserStandardMember(currentUser);
-  const isBasicMember = !isStandardMember && isUserBasicMember(currentUser);
+  // Phân loại đối tượng: Hội Viên Cao Cấp vs Hội Viên Tiêu Chuẩn vs Hội Viên Cơ Bản vs Thành viên thường
+  const isPremiumMember = isUserPremiumMember(currentUser);
+  const isStandardMember = !isPremiumMember && isUserStandardMember(currentUser);
+  const isBasicMember = !isPremiumMember && !isStandardMember && isUserBasicMember(currentUser);
 
   // Tổng ngân sách tháng theo từng nhóm đối tượng
-  const effectiveMonthlyBudget = isStandardMember
+  const effectiveMonthlyBudget = isPremiumMember
+    ? Number(tConfig?.premiumMemberConfig?.monthlyBudget || 1000000)
+    : isStandardMember
     ? Number(tConfig?.standardMemberConfig?.monthlyBudget || 370000)
     : isBasicMember 
     ? Number(tConfig?.basicMemberConfig?.monthlyBudget || 120000)
@@ -427,7 +431,12 @@ export default function ArticleTreasureBox({ property }) {
 
           {!hasClaimedThisArticle && !quota.isLimitReached && !budgetStatus.isBudgetExceeded && (
             <div className="text-[10px] text-white/90 mt-1.5 font-medium">
-              {isStandardMember ? (
+              {isPremiumMember ? (
+                <span className="text-purple-200 font-bold flex items-center justify-center sm:justify-start gap-1">
+                  <i className="fa-solid fa-gem text-[9px] text-purple-300"></i>
+                  <span>Hội Viên Cao Cấp: 20.000đ (40%) • 30.000đ (30%) • 55.000đ (25%) • Jackpot 100.000đ (5%)</span>
+                </span>
+              ) : isStandardMember ? (
                 <span className="text-orange-200 font-bold flex items-center justify-center sm:justify-start gap-1">
                   <i className="fa-solid fa-award text-[9px] text-orange-300"></i>
                   <span>Hội Viên Tiêu Chuẩn: 8.000đ (40%) • 12.000đ (50%) • 35.000đ (10%)</span>
@@ -484,13 +493,15 @@ export default function ArticleTreasureBox({ property }) {
 
                 <div>
                   <span className={`text-[11px] font-bold uppercase tracking-wider px-3 py-1 rounded-full ${
-                    revealedReward.isStandardMember
+                    revealedReward.isPremiumMember
+                      ? 'text-purple-800 bg-purple-100 border border-purple-300'
+                      : revealedReward.isStandardMember
                       ? 'text-orange-800 bg-orange-100 border border-orange-300'
                       : revealedReward.isBasicMember
                       ? 'text-amber-800 bg-amber-100 border border-amber-300'
                       : 'text-emerald-700 bg-emerald-50 border border-emerald-200'
                   }`}>
-                    {revealedReward.isStandardMember ? '🎖️ ' : revealedReward.isBasicMember ? '👑 ' : '🎁 '}
+                    {revealedReward.isPremiumMember ? '💎 ' : revealedReward.isStandardMember ? '🎖️ ' : revealedReward.isBasicMember ? '👑 ' : '🎁 '}
                     {revealedReward.label || 'Tiền Thưởng May Mắn'}
                   </span>
                   <h3 className="text-xl font-black text-slate-900 mt-2">Mở Rương Thành Công!</h3>
