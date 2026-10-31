@@ -42,7 +42,7 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'strict-dynamic' 'unsafe-inline' https: http:",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "img-src 'self' data: blob: https: http:",
               "font-src 'self' data: https://fonts.gstatic.com",
@@ -52,8 +52,6 @@ const nextConfig = {
               "form-action 'self'",
               "frame-ancestors 'self'",
               "upgrade-insecure-requests",
-              "require-trusted-types-for 'script'",
-              "trusted-types default nextjs#bundler",
             ].join('; '),
           },
           {

@@ -67,7 +67,7 @@ export function middleware(request) {
 
   const cspHeader = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline' https: http:`,
+    `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' 'unsafe-eval' https: http:`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https: http:",
     "font-src 'self' data: https://fonts.gstatic.com",
@@ -76,9 +76,7 @@ export function middleware(request) {
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'self'",
-    "upgrade-insecure-requests",
-    "require-trusted-types-for 'script'",
-    "trusted-types default nextjs#bundler"
+    "upgrade-insecure-requests"
   ].join('; ');
 
   const requestHeaders = new Headers(request.headers);
