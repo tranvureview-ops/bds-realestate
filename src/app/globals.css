@@ -277,26 +277,13 @@ select.bg-slate-800 option {
 }
 
 /* ==========================================================================
-   Tối ưu hóa Style & Layout (Skip rendering for offscreen elements):
-   Giảm tải 60-70% thời gian tính toán Style Recalculation & Reflow trên luồng chính
+   Tối ưu hóa Style & Layout:
+   Đảm bảo cây DOM và tọa độ bounding box chính xác 100% cho Accessibility & SEO
    ========================================================================== */
-.content-visibility-auto {
-  content-visibility: auto;
-  contain-intrinsic-size: 1px 400px;
-}
-
-.content-visibility-card {
-  content-visibility: auto;
-  contain-intrinsic-size: 1px 360px;
-}
-
-.content-visibility-footer {
-  content-visibility: auto;
-  contain-intrinsic-size: 1px 480px;
-}
-
+.content-visibility-auto,
+.content-visibility-card,
+.content-visibility-footer,
 .content-visibility-sidebar {
-  content-visibility: auto;
-  contain-intrinsic-size: 1px 500px;
+  content-visibility: visible;
 }
 

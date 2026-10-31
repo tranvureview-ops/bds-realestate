@@ -81,7 +81,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-027",
@@ -167,7 +170,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-031",
@@ -250,7 +256,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-028",
@@ -334,7 +343,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-026",
@@ -425,7 +437,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-029",
@@ -509,7 +524,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-023",
@@ -604,7 +622,10 @@
       "verificationStatus": "unverified",
       "verification_status": "unverified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-015",
@@ -699,7 +720,10 @@
       "verificationStatus": "unverified",
       "verification_status": "unverified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-014",
@@ -764,7 +788,10 @@
       "verificationStatus": "unverified",
       "verification_status": "unverified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-013",
@@ -829,7 +856,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-012",
@@ -894,7 +924,10 @@
       "verificationStatus": "unverified",
       "verification_status": "unverified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-011",
@@ -959,7 +992,10 @@
       "verificationStatus": "unverified",
       "verification_status": "unverified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-025",
@@ -1043,7 +1079,10 @@
       "verificationStatus": "unverified",
       "verification_status": "unverified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-001",
@@ -1154,7 +1193,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-003",
@@ -1249,7 +1291,10 @@
         "frontImage": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80",
         "submittedAt": "2026-10-28T04:30:00.000Z"
       },
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-024",
@@ -1334,7 +1379,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-010",
@@ -1399,7 +1447,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-017",
@@ -1494,7 +1545,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-016",
@@ -1578,7 +1632,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-019",
@@ -1666,7 +1723,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-009",
@@ -1747,7 +1807,10 @@
       "verificationStatus": "unverified",
       "verification_status": "unverified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-002",
@@ -1846,7 +1909,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-004",
@@ -1943,7 +2009,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-021",
@@ -2031,7 +2100,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-020",
@@ -2115,7 +2187,10 @@
       "verificationStatus": "unverified",
       "verification_status": "unverified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-018",
@@ -2164,7 +2239,7 @@
       ],
       "autoRenew": false,
       "direction": "Bắc",
-      "expiresAt": "2026-12-28T08:00:00.000Z",
+      "expiresAt": "2026-12-28T08:00:00+00:00",
       "furniture": "Nội thất dát vàng đẳng cấp, bồn tắm nằm, smart home",
       "isDeleted": false,
       "updatedAt": "2026-10-27T23:22:18.455Z",
@@ -2202,7 +2277,10 @@
       "verificationStatus": "unverified",
       "verification_status": "unverified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-022",
@@ -2285,7 +2363,10 @@
       "verificationStatus": "unverified",
       "verification_status": "unverified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-005",
@@ -2369,7 +2450,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-006",
@@ -2416,7 +2500,7 @@
       ],
       "autoRenew": false,
       "direction": "Đông Nam",
-      "expiresAt": "2026-10-30T14:35:45.775Z",
+      "expiresAt": "2026-10-30T14:35:45.775+00:00",
       "furniture": "Đầy đủ nội thất và thiết bị từng phòng ngủ",
       "isDeleted": false,
       "updatedAt": "2026-10-27T23:22:18.455Z",
@@ -2452,7 +2536,10 @@
       "verificationStatus": "unverified",
       "verification_status": "unverified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-007",
@@ -2539,7 +2626,10 @@
       "verificationStatus": "verified",
       "verification_status": "verified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     },
     {
       "id": "BDS-008",
@@ -2629,7 +2719,10 @@
       "verificationStatus": "unverified",
       "verification_status": "unverified",
       "verificationDocuments": null,
-      "verificationRejectReason": null
+      "verificationRejectReason": null,
+      "isTreasureHuntActive": false,
+      "treasureHuntActivatedAt": null,
+      "treasureHuntExpiresAt": null
     }
   ],
   "bds_users_list": [
@@ -4481,20 +4574,6 @@
           "rewardFormatted": "+150.000đ vào Ví KM"
         },
         {
-          "id": "m-ach-02",
-          "icon": "fa-solid fa-fire",
-          "link": "/trung-tam-phan-thuong/diem-danh-7-ngay/",
-          "title": "Đạt chuỗi điểm danh 30 ngày",
-          "reward": 200000,
-          "status": "in_progress",
-          "progress": {
-            "total": 30,
-            "current": 12
-          },
-          "description": "Duy trì đăng nhập liên tục suốt 1 tháng thưởng ngay 200.000đ ví KM.",
-          "rewardFormatted": "+200.000đ vào Ví KM"
-        },
-        {
           "id": "m-ach-03",
           "icon": "fa-solid fa-users",
           "link": "/r/",
@@ -4600,55 +4679,6 @@
         "discountValue": "50%"
       }
     ],
-    "checkInConfig": {
-      "days": [
-        {
-          "day": 1,
-          "icon": "fa-solid fa-money-bill-wave",
-          "label": "+1.000đ vào Ví KM",
-          "reward": 1000
-        },
-        {
-          "day": 2,
-          "icon": "fa-solid fa-money-bill-wave",
-          "label": "+2.000đ vào Ví KM",
-          "reward": 2000
-        },
-        {
-          "day": 3,
-          "icon": "fa-solid fa-gift",
-          "label": "+4.000đ vào Ví KM",
-          "reward": 4000,
-          "highlight": true
-        },
-        {
-          "day": 4,
-          "icon": "fa-solid fa-money-bill-wave",
-          "label": "+4.000đ vào Ví KM",
-          "reward": 4000
-        },
-        {
-          "day": 5,
-          "icon": "fa-solid fa-money-bill-wave",
-          "label": "+4.000đ vào Ví KM",
-          "reward": 4000
-        },
-        {
-          "day": 6,
-          "icon": "fa-solid fa-money-bill-wave",
-          "label": "+5.000đ vào Ví KM",
-          "reward": 5000
-        },
-        {
-          "day": 7,
-          "icon": "fa-solid fa-crown",
-          "label": "+10.000đ vào Ví KM",
-          "super": true,
-          "reward": 10000
-        }
-      ],
-      "enabled": true
-    },
     "predictionGames": [
       {
         "id": "pred-01",
@@ -4754,10 +4784,10 @@
       "dailyLimit": 2,
       "itemsPerPage": 16,
       "cooldownSeconds": 20,
+      "memberMaxAmount": 20000,
+      "memberMinAmount": 8000,
       "minReadingSeconds": 20,
       "memberBonusEnabled": true,
-      "memberMinAmount": 8000,
-      "memberMaxAmount": 20000,
       "memberHighTierChance": 80
     }
   },
