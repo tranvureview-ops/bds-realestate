@@ -555,11 +555,11 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
                         {m.title}
                       </h3>
                       <span className="inline-flex items-center gap-1 text-[11px] font-black px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
-                        <i className="fa-solid fa-money-bill-wave text-emerald-600"></i>
+                        <i className="fa-solid fa-money-bill-wave text-emerald-800"></i>
                         +{Number(m.reward || 0).toLocaleString('vi-VN')}đ vào Ví KM
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 leading-relaxed">
+                    <p className="text-xs text-slate-600 leading-relaxed">
                       {m.description}
                     </p>
 
@@ -572,7 +572,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
                             style={{ width: `${Math.min(100, (m.dynamicProgress.current / m.dynamicProgress.total) * 100)}%` }}
                           ></div>
                         </div>
-                        <span className="text-[11px] font-bold text-slate-500">
+                        <span className="text-[11px] font-bold text-slate-700">
                           {m.dynamicProgress.current}/{m.dynamicProgress.total}
                         </span>
                       </div>
@@ -585,15 +585,15 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
                   {isClaimed ? (
                     <button
                       disabled
-                      className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed border border-slate-200"
+                      className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed border border-slate-200"
                     >
-                      <i className="fa-solid fa-check text-emerald-600"></i>
+                      <i className="fa-solid fa-check text-emerald-700"></i>
                       <span>Đã cộng vào Ví KM</span>
                     </button>
                   ) : isClaimable ? (
                     <button
                       onClick={() => handleClaim(m.id, m.reward, m.title, m.currentMilestoneId)}
-                      className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-200 cursor-pointer animate-pulse"
+                      className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white font-black text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-200 cursor-pointer animate-pulse"
                     >
                       <i className="fa-solid fa-hand-holding-dollar"></i>
                       <span>Nhận +{Number(m.reward || 0).toLocaleString('vi-VN')}đ</span>
