@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
+import { loadLeaflet } from '../utils/leafletLoader';
 
 // Tọa độ trung tâm mặc định TP. Đà Nẵng
 const DEFAULT_CENTER = { lat: 16.0544, lng: 108.2022, zoom: 15 };
@@ -77,10 +78,7 @@ export default function ListingLocationMap({
     let timerId = null;
 
     const initMap = () => {
-      if (!window.L || !mapContainerRef.current) {
-        timerId = setTimeout(initMap, 200);
-        return;
-      }
+      if (!window.L || !mapContainerRef.current) return;
       if (!isMounted) return;
 
       if (mapInstanceRef.current) {
@@ -146,7 +144,11 @@ export default function ListingLocationMap({
       }
     };
 
-    initMap();
+    loadLeaflet().then((L) => {
+      if (L && isMounted) {
+        initMap();
+      }
+    });
 
     return () => {
       isMounted = false;

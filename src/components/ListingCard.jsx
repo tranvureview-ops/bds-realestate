@@ -122,6 +122,8 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
     <div 
       onClick={handleCardClick}
       className={`relative isolate bg-white rounded-2xl overflow-hidden transition-all duration-300 group cursor-pointer ${
+        !priority ? 'content-visibility-card' : ''
+      } ${
         isDiamond 
           ? 'vip-diamond-border hover:shadow-2xl' 
           : isGold 

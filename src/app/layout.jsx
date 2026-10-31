@@ -205,11 +205,6 @@ export default async function RootLayout({ children }) {
           as="style"
           href={fontConfig.googleFontUrl}
         />
-        <link
-          rel="preload"
-          as="style"
-          href="/leaflet/leaflet.css"
-        />
         {/* Non-render-blocking Asynchronous Stylesheet Injector to eliminate Critical Request Chains */}
         <script
           id="server-async-styles"
@@ -225,14 +220,12 @@ export default async function RootLayout({ children }) {
                   document.head.appendChild(l);
                 }
                 loadCSS('${fontConfig.googleFontUrl}', 'server-google-font-link');
-                loadCSS('/leaflet/leaflet.css', 'server-leaflet-css');
               })();
             `
           }}
         />
         <noscript>
           <link rel="stylesheet" href={fontConfig.googleFontUrl} />
-          <link rel="stylesheet" href="/leaflet/leaflet.css" />
         </noscript>
         <style
           id="app-ssr-font-override"
@@ -264,7 +257,7 @@ export default async function RootLayout({ children }) {
             `
           }}
         />
-        {/* Preload Font Awesome Webfonts locally with font-display: swap */}
+        {/* Preload critical Font Awesome Solid Webfont locally with font-display: swap */}
         <link
           rel="preload"
           href="/webfonts/fa-solid-900.woff2"
@@ -272,28 +265,8 @@ export default async function RootLayout({ children }) {
           type="font/woff2"
           crossOrigin="anonymous"
         />
-        <link
-          rel="preload"
-          href="/webfonts/fa-regular-400.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="/webfonts/fa-brands-400.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
       </head>
       <body suppressHydrationWarning>
-        {/* Leaflet JS (Self-hosted locally & lazy loaded on idle) */}
-        <Script
-          src="/leaflet/leaflet.js"
-          strategy="lazyOnload"
-          nonce={nonce}
-        />
         <ClientLayout initialDb={initialDb} initialUser={initialUser}>{children}</ClientLayout>
       </body>
     </html>

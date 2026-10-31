@@ -131,9 +131,9 @@ export default function LiveChatWidget() {
     }
   }, [isUserLoggedIn, currentUser?.name, currentUser?.phone, currentUser?.email]);
 
-  // Lấy cấu hình chuyên viên tư vấn & lịch sử tin nhắn từ server
+  // Lấy cấu hình chuyên viên tư vấn & lịch sử tin nhắn từ server khi mở khung chat (Lazy-fetch on open)
   useEffect(() => {
-    if (!sessionId) return;
+    if (!isOpen || !sessionId) return;
 
     fetch(`/api/chat/messages?sessionId=${encodeURIComponent(sessionId)}`)
       .then(res => res.json())
@@ -185,7 +185,7 @@ export default function LiveChatWidget() {
         }
       })
       .catch(console.warn);
-  }, [sessionId, hasStartedChat]);
+  }, [isOpen, sessionId, hasStartedChat]);
 
   // Realtime Polling: Kiểm tra tin nhắn trả lời từ nhân viên (Telegram Webhook) mỗi 2.5 giây khi chat đang mở
   useEffect(() => {

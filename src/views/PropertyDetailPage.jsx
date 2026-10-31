@@ -148,7 +148,7 @@ export default function PropertyDetailPage({ initialProperty = null, slug = '', 
 
         {/* Gợi ý bất động sản nổi bật dành cho người dùng */}
         {suggestedProperties.length > 0 && (
-          <div className="space-y-4 pt-4 border-t border-slate-200">
+          <div className="space-y-4 pt-4 border-t border-slate-200 content-visibility-auto">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">

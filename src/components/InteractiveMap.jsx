@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
+import { loadLeaflet } from '../utils/leafletLoader';
 
 export default function InteractiveMap({ properties, activePropertyId = null, height = '500px' }) {
   const mapContainerRef = useRef(null);
@@ -132,17 +133,15 @@ export default function InteractiveMap({ properties, activePropertyId = null, he
       return true;
     };
 
-    if (!initMap()) {
-      intervalId = setInterval(() => {
-        if (initMap()) {
-          clearInterval(intervalId);
-          intervalId = null;
-        }
-      }, 200);
-    }
+    loadLeaflet().then((L) => {
+      if (L && !isCancelled) {
+        initMap();
+      }
+    });
 
     return () => {
       isCancelled = true;
+      if (intervalId) clearInterval(intervalId);
       if (intervalId) clearInterval(intervalId);
       if (mapInstanceRef.current) {
         try {

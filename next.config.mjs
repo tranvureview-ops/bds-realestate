@@ -9,6 +9,7 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['@supabase/supabase-js', 'qrcode', 'bcryptjs'],
   },
+  serverExternalPackages: ['nodemailer'],
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 2592000,

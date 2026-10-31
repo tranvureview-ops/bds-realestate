@@ -406,7 +406,7 @@ export default function ListingSidebar({
   const displayedDistricts = showAllDistricts ? cityDistricts : cityDistricts.slice(0, 7);
 
   return (
-    <div className="w-full space-y-5">
+    <div className="w-full space-y-5 content-visibility-sidebar">
       {/* ========================================================
           WIDGET 1: LỌC THEO KHOẢNG GIÁ (CHUẨN BATDONGSAN.COM.VN)
          ======================================================== */}

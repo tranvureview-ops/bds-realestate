@@ -614,7 +614,7 @@ export default function VipPricingPage() {
         </div>
 
         {/* 4. FEATURE COMPARISON MATRIX (BẢNG SO SÁNH QUYỀN LỢI CHI TIẾT) */}
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden space-y-4 p-6 sm:p-8">
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden space-y-4 p-6 sm:p-8 content-visibility-auto">
           <div className="text-center max-w-2xl mx-auto space-y-2 mb-6">
             <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-black uppercase">
               Minh Bạch & Chuẩn Hóa
@@ -805,7 +805,7 @@ export default function VipPricingPage() {
         </div>
 
         {/* 6. BUMP SERVICE & GOLDEN HOURS GUIDE */}
-        <div className="bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 text-white rounded-3xl p-6 sm:p-8 lg:p-10 shadow-2xl border border-slate-800 space-y-6">
+        <div className="bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 text-white rounded-3xl p-6 sm:p-8 lg:p-10 shadow-2xl border border-slate-800 space-y-6 content-visibility-auto">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-slate-950 text-2xl shadow-xl shrink-0">
@@ -878,7 +878,7 @@ export default function VipPricingPage() {
         </div>
 
         {/* 7. MEMBERSHIP PACKAGE BENEFIT COMPARISON (MUA LẺ VS GÓI HỘI VIÊN) */}
-        <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 rounded-3xl p-6 sm:p-8 lg:p-10 text-slate-950 shadow-2xl space-y-6">
+        <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 rounded-3xl p-6 sm:p-8 lg:p-10 text-slate-950 shadow-2xl space-y-6 content-visibility-auto">
           <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-2xl bg-slate-950 text-amber-400 flex items-center justify-center text-3xl shadow-xl shrink-0">
@@ -954,7 +954,7 @@ export default function VipPricingPage() {
         </div>
 
         {/* 8. FAQ SECTION */}
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-xl p-6 sm:p-8 space-y-6">
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-xl p-6 sm:p-8 space-y-6 content-visibility-auto">
           <div className="text-center max-w-2xl mx-auto space-y-2">
             <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-black uppercase">
               Hỏi Đáp Dịch Vụ

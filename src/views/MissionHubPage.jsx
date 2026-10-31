@@ -535,7 +535,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
         </div>
 
         {/* Missions List */}
-        <div className="space-y-4">
+        <div className="space-y-4 content-visibility-auto">
           {displayMissions.map(m => {
             const isClaimed = m.dynamicStatus === 'claimed';
             const isClaimable = m.dynamicStatus === 'claimable';

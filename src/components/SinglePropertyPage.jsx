@@ -1393,7 +1393,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
           {/* C. SATELLITE GIS MAP & NEARBY FACILITIES */}
           {singleConfig?.features?.showInteractiveMap !== false && (
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4 content-visibility-auto">
               <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
                 <span className="w-2 h-5 bg-blue-600 rounded-full"></span>
                 Vị Trí Bản Đồ & Tiện Ích Xung Quanh (Bán Kính 1km)
@@ -2032,7 +2032,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
       {/* 3b. TIN ĐĂNG CÙNG CHUYÊN VIÊN TƯ VẤN (AUTHOR OTHER LISTINGS) */}
       {otherAuthorProperties.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 mb-4">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 mb-4 content-visibility-auto">
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
               <div>
@@ -2067,7 +2067,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
       {/* 4. BẤT ĐỘNG SẢN TƯƠNG TỰ CÙNG PHÂN KHÚC (FULL WIDTH CONTAINER) */}
       {singleConfig?.features?.showSimilarProperties !== false && similarProperties.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 mb-8">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 mb-8 content-visibility-auto">
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
               <div>

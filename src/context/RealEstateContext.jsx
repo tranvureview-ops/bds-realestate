@@ -1684,9 +1684,17 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       });
     };
 
-    processAutoApprovals();
-    const autoApproveTimer = setInterval(processAutoApprovals, 3000);
-    return () => clearInterval(autoApproveTimer);
+    // Trì hoãn xử lý ngầm sau khi trang đã render & hydrate xong (giải phóng Main Thread cho LCP & Hydration)
+    let autoApproveTimer = null;
+    const initialDelay = setTimeout(() => {
+      processAutoApprovals();
+      autoApproveTimer = setInterval(processAutoApprovals, 30000);
+    }, 8000);
+
+    return () => {
+      clearTimeout(initialDelay);
+      if (autoApproveTimer) clearInterval(autoApproveTimer);
+    };
   }, []);
 
   // Background Listing Expiration & Auto-Renewal Processor
@@ -1784,9 +1792,17 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       });
     };
 
-    processExpirations();
-    const expireTimer = setInterval(processExpirations, 5000);
-    return () => clearInterval(expireTimer);
+    // Trì hoãn xử lý kiểm tra hạn tin ngầm sau khi trang đã tải xong
+    let expireTimer = null;
+    const initialDelay = setTimeout(() => {
+      processExpirations();
+      expireTimer = setInterval(processExpirations, 30000);
+    }, 10000);
+
+    return () => {
+      clearTimeout(initialDelay);
+      if (expireTimer) clearInterval(expireTimer);
+    };
   }, [showToast]);
 
   // Bộ xử lý tự động quét & dọn dẹp Database ngầm khi bật autoCleanupEnabled
@@ -1806,9 +1822,16 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       }
     };
 
-    runAutoCleanupCheck();
-    const cleanupInterval = setInterval(runAutoCleanupCheck, 60 * 1000);
-    return () => clearInterval(cleanupInterval);
+    let cleanupInterval = null;
+    const initialDelay = setTimeout(() => {
+      runAutoCleanupCheck();
+      cleanupInterval = setInterval(runAutoCleanupCheck, 60 * 1000);
+    }, 15000);
+
+    return () => {
+      clearTimeout(initialDelay);
+      if (cleanupInterval) clearInterval(cleanupInterval);
+    };
   }, [isHydrated, systemConfig?.autoCleanupEnabled, systemConfig?.expiredRetentionDays, systemConfig?.expiredCleanupAction]);
 
   // Kiểm tra gói hội viên có còn hiệu lực không (Active & Chưa hết hạn)
@@ -2021,9 +2044,17 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       });
     };
 
-    processMembershipExpirations();
-    const membershipTimer = setInterval(processMembershipExpirations, 5000);
-    return () => clearInterval(membershipTimer);
+    // Trì hoãn xử lý hạn gói hội viên ngầm sau khi trang tải xong
+    let membershipTimer = null;
+    const initialDelay = setTimeout(() => {
+      processMembershipExpirations();
+      membershipTimer = setInterval(processMembershipExpirations, 30000);
+    }, 12000);
+
+    return () => {
+      clearTimeout(initialDelay);
+      if (membershipTimer) clearInterval(membershipTimer);
+    };
   }, [showToast]);
 
   // Switch role helper
