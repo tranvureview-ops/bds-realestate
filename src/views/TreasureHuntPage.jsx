@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
-import { getDailyQuotaStatus, getDailyClaims, hasClaimedPropertyToday, isPropertyTreasureActive } from '../services/treasureHuntService';
+import { getDailyQuotaStatus, getDailyClaims, hasClaimedPropertyToday, isPropertyTreasureActive, isUserMembershipActive } from '../services/treasureHuntService';
 import { getPropertyPermalink, SITE_URL } from '../utils/permalink';
 
 function getPageNumbers(currentPage, totalPages) {
@@ -20,12 +20,16 @@ function getPageNumbers(currentPage, totalPages) {
 }
 
 export default function TreasureHuntPage() {
-  const { currentUser, properties, rewardsConfig, systemConfig, addBonusWalletBalance, showToast } = useRealEstate();
+  const { currentUser, properties, rewardsConfig, systemConfig, addBonusWalletBalance, showToast, isMembershipActive } = useRealEstate();
+  const isMember = isMembershipActive ? isMembershipActive(currentUser) : isUserMembershipActive(currentUser);
+
   const tConfig = rewardsConfig?.treasureHuntConfig;
   const isFeatureEnabled = tConfig?.enabled !== false;
   const dailyLimit = Number(tConfig?.dailyLimit || 3);
   const minAmount = Number(tConfig?.minAmount || 2000);
   const maxAmount = Number(tConfig?.maxAmount || 20000);
+  const memberMinAmount = Number(tConfig?.memberMinAmount || 8000);
+  const memberMaxAmount = Number(tConfig?.memberMaxAmount || maxAmount);
   const minReadingSeconds = Number(tConfig?.minReadingSeconds || 4);
   const cooldownSeconds = Number(tConfig?.cooldownSeconds || 20);
 
@@ -384,6 +388,45 @@ export default function TreasureHuntPage() {
           </div>
         </div>
 
+        {/* Banner Đặc Quyền Hội Viên */}
+        <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 rounded-3xl p-5 sm:p-6 text-white shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl text-amber-200 shrink-0 shadow-inner">
+              <i className="fa-solid fa-crown"></i>
+            </div>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-black/20 text-amber-200">
+                  Đặc quyền Hội Viên
+                </span>
+                {isMember && (
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500 text-white flex items-center gap-1">
+                    <i className="fa-solid fa-circle-check text-[9px]"></i>
+                    Đang kích hoạt ({currentUser.membership?.packageName || 'VIP'})
+                  </span>
+                )}
+              </div>
+              <h3 className="text-base sm:text-lg font-black mt-0.5">
+                {isMember 
+                  ? 'Bạn đang được kích hoạt tỷ lệ nhận tiền thưởng cao nhất khi mở rương!' 
+                  : 'Mua bất kỳ Gói Hội Viên nào: Mở rương nhận tỷ lệ tiền cao hơn!'}
+              </h3>
+              <p className="text-xs text-white/90 mt-0.5 max-w-2xl leading-relaxed">
+                Tài khoản có Gói Hội Viên khi mở rương được đảm bảo mức tiền thưởng tối thiểu cao hơn ({memberMinAmount.toLocaleString('vi-VN')}đ - {memberMaxAmount.toLocaleString('vi-VN')}đ) và có đến 80% xác suất trúng các mốc tiền lớn nhất so với người không mua gói.
+              </p>
+            </div>
+          </div>
+          {!isMember && (
+            <Link
+              href="/goi-hoi-vien"
+              className="px-5 py-2.5 rounded-xl bg-white hover:bg-amber-50 text-slate-900 font-bold text-xs shadow-md transition shrink-0 flex items-center gap-1.5"
+            >
+              <span>Xem Gói Hội Viên</span>
+              <i className="fa-solid fa-arrow-right text-[10px]"></i>
+            </Link>
+          )}
+        </div>
+
         {/* Showcase cơ chế tiền thưởng ngẫu nhiên */}
         <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
@@ -410,7 +453,7 @@ export default function TreasureHuntPage() {
                 {minAmount.toLocaleString('vi-VN')}đ - {maxAmount.toLocaleString('vi-VN')}đ
               </div>
               <div className="text-[11px] text-slate-500">
-                Random ngẫu nhiên (bước 1.000đ) cộng thẳng Ví KM
+                Hội viên có tỷ lệ trúng thưởng mốc tiền lớn vượt trội
               </div>
             </div>
 
@@ -474,8 +517,16 @@ export default function TreasureHuntPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="text-xs font-black text-emerald-600 font-mono shrink-0">
-                    +{Number(c.amount).toLocaleString('vi-VN')} đ vào Ví KM
+                  <div className="flex items-center gap-2 shrink-0">
+                    {c.isMemberBonus && (
+                      <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold flex items-center gap-1 border border-amber-200">
+                        <i className="fa-solid fa-crown text-[9px] text-amber-600"></i>
+                        <span>Hội Viên</span>
+                      </span>
+                    )}
+                    <span className="text-xs font-black text-emerald-600 font-mono">
+                      +{Number(c.amount).toLocaleString('vi-VN')} đ vào Ví KM
+                    </span>
                   </div>
                 </div>
               ))}

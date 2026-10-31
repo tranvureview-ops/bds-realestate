@@ -4755,7 +4755,11 @@
       "dailyLimit": 2,
       "itemsPerPage": 16,
       "cooldownSeconds": 20,
-      "minReadingSeconds": 20
+      "minReadingSeconds": 20,
+      "memberBonusEnabled": true,
+      "memberMinAmount": 8000,
+      "memberMaxAmount": 20000,
+      "memberHighTierChance": 80
     }
   },
   "bds_transactions": [

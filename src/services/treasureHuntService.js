@@ -75,30 +75,115 @@ export function checkCooldownStatus(userId, customCooldown = COOLDOWN_SECONDS) {
   return { canOpen: true, secondsLeft: 0 };
 }
 
-// Hàm tính ngẫu nhiên tiền thưởng từ minAmount đến maxAmount (hoàn toàn ngẫu nhiên, không phân cấp hạng rương)
-export function calculateTreasureReward(tConfig = null) {
-  let min = 2000;
-  let max = 20000;
+// Kiểm tra tài khoản có đang sở hữu bất kỳ Gói Hội Viên nào còn hiệu lực không
+export function isUserMembershipActive(user) {
+  if (!user || user.id === 'guest' || user.role === 'guest') return false;
+  if (!user.membership || !user.membership.packageId || user.membership.packageId === 'none') return false;
+  if (user.membership.status === 'expired') return false;
+  if (user.membership.expiresAt && new Date(user.membership.expiresAt).getTime() <= Date.now()) return false;
+  return true;
+}
+
+/**
+ * Hàm tính ngẫu nhiên tiền thưởng mở rương:
+ * - Người KHÔNG mua gói: Nhận tiền theo tỷ lệ cơ bản (chủ yếu tập trung ở mốc tiền phổ thông).
+ * - Người CÓ MUA BẤT KỲ GÓI HỘI VIÊN NÀO:
+ *   + Tỷ lệ giá trị tiền cao hơn rõ rệt (mức tối thiểu cao hơn & 80% cơ hội trúng các mốc tiền lớn nhất).
+ */
+export function calculateTreasureReward(tConfig = null, user = null, isMemberExplicit = null) {
+  const isMember = typeof isMemberExplicit === 'boolean' 
+    ? isMemberExplicit 
+    : isUserMembershipActive(user);
+
+  let baseMin = 2000;
+  let baseMax = 20000;
 
   if (tConfig && typeof tConfig === 'object') {
-    if (tConfig.minAmount !== undefined) min = Math.max(1000, Number(tConfig.minAmount) || 2000);
-    if (tConfig.maxAmount !== undefined) max = Math.max(min, Number(tConfig.maxAmount) || 20000);
+    if (tConfig.minAmount !== undefined) baseMin = Math.max(1000, Number(tConfig.minAmount) || 2000);
+    if (tConfig.maxAmount !== undefined) baseMax = Math.max(baseMin, Number(tConfig.maxAmount) || 20000);
   }
 
   const step = 1000;
-  const steps = Math.floor((max - min) / step);
-  const amount = steps > 0 
-    ? min + Math.floor(Math.random() * (steps + 1)) * step 
-    : min;
+
+  // 1. Trường hợp: Người dùng CÓ MUA BẤT KỲ GÓI HỘI VIÊN NÀO
+  if (isMember) {
+    let memberMin = tConfig?.memberMinAmount !== undefined
+      ? Math.max(baseMin, Number(tConfig.memberMinAmount) || 8000)
+      : Math.max(baseMin, Math.min(baseMax, 8000));
+
+    let memberMax = tConfig?.memberMaxAmount !== undefined
+      ? Math.max(memberMin, Number(tConfig.memberMaxAmount) || baseMax)
+      : baseMax;
+
+    if (memberMin > memberMax) memberMin = memberMax;
+
+    // Tỷ lệ trúng mốc tiền cao (High Tier Chance, mặc định 80%)
+    const highTierChance = Number(tConfig?.memberHighTierChance ?? 80);
+    const isHighTierRoll = Math.random() * 100 < highTierChance;
+
+    let selectedAmount = memberMin;
+
+    if (isHighTierRoll) {
+      // 80% cơ hội trúng thưởng ở khoảng cao nhất (từ 65% đến 100% của khoảng memberMin -> memberMax)
+      const highCutoff = memberMin + Math.floor((memberMax - memberMin) * 0.65 / step) * step;
+      const highSteps = Math.floor((memberMax - highCutoff) / step);
+      selectedAmount = highSteps > 0
+        ? highCutoff + Math.floor(Math.random() * (highSteps + 1)) * step
+        : memberMax;
+    } else {
+      // 20% cơ hội rơi ngẫu nhiên trong toàn dải của Hội Viên
+      const totalSteps = Math.floor((memberMax - memberMin) / step);
+      selectedAmount = totalSteps > 0
+        ? memberMin + Math.floor(Math.random() * (totalSteps + 1)) * step
+        : memberMin;
+    }
+
+    selectedAmount = Math.round(selectedAmount / step) * step;
+
+    return {
+      amount: selectedAmount,
+      isMemberBonus: true,
+      memberPackageName: user?.membership?.packageName || 'Hội Viên VIP',
+      label: 'Rương Đặc Quyền Hội Viên',
+      minPossible: memberMin,
+      maxPossible: memberMax
+    };
+  }
+
+  // 2. Trường hợp: Người dùng KHÔNG mua gói hội viên (Người thường / Khách)
+  // Tỷ lệ phân phối lệch về các mốc tiền nhỏ (75% rơi vào nửa dưới)
+  const isLowerTierRoll = Math.random() * 100 < 75;
+  let selectedAmount = baseMin;
+
+  if (isLowerTierRoll) {
+    // 75% cơ hội rơi vào mốc nhỏ (từ baseMin đến 45% của khoảng thưởng)
+    const lowerMax = baseMin + Math.floor((baseMax - baseMin) * 0.45 / step) * step;
+    const lowerSteps = Math.floor((lowerMax - baseMin) / step);
+    selectedAmount = lowerSteps > 0
+      ? baseMin + Math.floor(Math.random() * (lowerSteps + 1)) * step
+      : baseMin;
+  } else {
+    // 25% cơ hội may mắn rơi vào nửa trên
+    const upperMin = baseMin + Math.floor((baseMax - baseMin) * 0.45 / step) * step;
+    const upperSteps = Math.floor((baseMax - upperMin) / step);
+    selectedAmount = upperSteps > 0
+      ? upperMin + Math.floor(Math.random() * (upperSteps + 1)) * step
+      : baseMax;
+  }
+
+  selectedAmount = Math.round(selectedAmount / step) * step;
 
   return {
-    amount,
-    label: 'Rương May Mắn'
+    amount: selectedAmount,
+    isMemberBonus: false,
+    label: 'Rương May Mắn',
+    minPossible: baseMin,
+    maxPossible: baseMax
   };
 }
 
 // Lưu lượt nhận thưởng vào Storage
-export function recordTreasureClaim(userId, propertyId, propertyTitle, rewardAmount) {
+export function recordTreasureClaim(userId, propertyId, propertyTitle, rewardAmount, isMemberBonus = false) {
   if (typeof window === 'undefined') return [];
   try {
     const key = getStorageKey(userId);
@@ -107,6 +192,7 @@ export function recordTreasureClaim(userId, propertyId, propertyTitle, rewardAmo
       propertyId: String(propertyId),
       propertyTitle: propertyTitle || 'Tin đăng BĐS',
       amount: rewardAmount,
+      isMemberBonus: Boolean(isMemberBonus),
       timestamp: new Date().toISOString()
     };
     const updated = [...current, newClaim];

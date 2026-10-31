@@ -496,7 +496,12 @@ export const DEFAULT_REWARDS_CONFIG = {
     cooldownSeconds: 20,
     minAmount: 2000,
     maxAmount: 20000,
-    itemsPerPage: 16
+    itemsPerPage: 16,
+    // Đặc quyền Hội Viên mở rương: tỷ lệ & giá trị tiền thưởng cao hơn người không mua gói
+    memberBonusEnabled: true,
+    memberMinAmount: 8000,
+    memberMaxAmount: 20000,
+    memberHighTierChance: 80 // 80% cơ hội trúng các mốc tiền lớn nhất
   },
 
   // E. Minigame dự đoán giá BĐS
