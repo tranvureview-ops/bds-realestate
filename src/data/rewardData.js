@@ -472,12 +472,7 @@ export const DEFAULT_REWARDS_CONFIG = {
     // 4 Mốc phần thưởng tùy chỉnh (Chúc may mắn 0đ 25%, Tối thiểu 1.200đ 45%, Phổ biến 2.500đ 25%, Tối đa 12.000đ 5%)
     rewardTiers: DEFAULT_TREASURE_REWARD_TIERS,
     minAmount: 1200,
-    maxAmount: 12000,
-    // Đặc quyền Hội Viên mở rương: tỷ lệ & giá trị tiền thưởng cao hơn người không mua gói
-    memberBonusEnabled: true,
-    memberMinAmount: 8000,
-    memberMaxAmount: 20000,
-    memberHighTierChance: 80 // 80% cơ hội trúng các mốc tiền lớn nhất
+    maxAmount: 12000
   },
 
   // E. Minigame dự đoán giá BĐS

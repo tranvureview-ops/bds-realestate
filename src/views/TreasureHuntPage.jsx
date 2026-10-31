@@ -65,8 +65,6 @@ export default function TreasureHuntPage() {
 
   const minAmount = Number(tConfig?.minAmount || 1200);
   const maxAmount = Number(tConfig?.maxAmount || 12000);
-  const memberMinAmount = Number(tConfig?.memberMinAmount || 8000);
-  const memberMaxAmount = Number(tConfig?.memberMaxAmount || 20000);
 
   const [quota, setQuota] = useState({ count: 0, limit: effectiveDailyLimit, remaining: effectiveDailyLimit, isLimitReached: false });
   const [claimsToday, setClaimsToday] = useState([]);
@@ -480,11 +478,11 @@ export default function TreasureHuntPage() {
               </div>
               <h3 className="text-base sm:text-lg font-black mt-0.5">
                 {isMember 
-                  ? 'Bạn đang được kích hoạt tỷ lệ nhận tiền thưởng cao nhất khi mở rương!' 
-                  : 'Mua bất kỳ Gói Hội Viên nào: Mở rương nhận tỷ lệ tiền cao hơn!'}
+                  ? `Bạn đang được mở tối đa ${memberDailyLimit} rương mỗi ngày!` 
+                  : `Mua bất kỳ Gói Hội Viên nào: Mở tối đa ${memberDailyLimit} rương mỗi ngày!`}
               </h3>
               <p className="text-xs text-white/90 mt-0.5 max-w-2xl leading-relaxed">
-                Tài khoản có Gói Hội Viên khi mở rương được đảm bảo mức tiền thưởng tối thiểu cao hơn ({memberMinAmount.toLocaleString('vi-VN')}đ - {memberMaxAmount.toLocaleString('vi-VN')}đ) và có đến 80% xác suất trúng các mốc tiền lớn nhất so với người không mua gói.
+                Tài khoản có Gói Hội Viên được mở tối đa {memberDailyLimit} rương mỗi ngày (gấp 3 lần thành viên thường), nhân ba cơ hội nhận tiền thưởng vào Ví Khuyến Mãi để đăng và đẩy tin VIP.
               </p>
             </div>
           </div>

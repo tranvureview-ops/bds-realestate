@@ -48,11 +48,6 @@ export default function ArticleTreasureBox({ property }) {
   const monthlyBudget = Number(tConfig?.monthlyBudget || 50000);
   const budgetStatus = getMonthlyTreasureBudgetStatus(monthlyBudget, transactions);
 
-  const minAmount = Number(tConfig?.minAmount || 1200);
-  const maxAmount = Number(tConfig?.maxAmount || 12000);
-  const memberMinAmount = Number(tConfig?.memberMinAmount || 8000);
-  const memberMaxAmount = Number(tConfig?.memberMaxAmount || 20000);
-
   const isAdmin = currentUser?.role === 'admin';
   const isTreasureActive = isPropertyTreasureActive(property, property?.author);
   const treasureExpInfo = getTreasureExpirationInfo(property);
@@ -374,8 +369,8 @@ export default function ArticleTreasureBox({ property }) {
                 : !timeReady
                 ? `Vui lòng xem bài viết trong ${readingSecondsLeft} giây nữa để chống bot và mở khóa nhận thưởng vào Ví Khuyến Mãi.`
                 : isMember
-                ? `👑 Đặc quyền Hội Viên: Bạn được kích hoạt tỷ lệ nhận tiền thưởng cao nhất (từ ${memberMinAmount.toLocaleString('vi-VN')}đ đến ${memberMaxAmount.toLocaleString('vi-VN')}đ, 80% cơ hội trúng tiền lớn) cộng thẳng vào Ví Khuyến Mãi!`
-                : `Thành viên mở rương ngẫu nhiên nhận thưởng từ ${minAmount.toLocaleString('vi-VN')}đ đến ${maxAmount.toLocaleString('vi-VN')}đ hoặc quà may mắn cộng thẳng vào Ví Khuyến Mãi.`}
+                ? `👑 Đặc quyền Hội Viên: Bạn được mở tối đa ${effectiveDailyLimit} rương mỗi ngày để nhận thưởng trực tiếp vào Ví Khuyến Mãi!`
+                : 'Mở rương ngẫu nhiên nhận thưởng từ các mốc tiền thưởng may mắn cộng thẳng vào Ví Khuyến Mãi.'}
             </p>
 
             {/* Thanh tiến trình đếm ngược thời gian đọc tin */}
@@ -455,7 +450,7 @@ export default function ArticleTreasureBox({ property }) {
             <div className="text-[10px] text-white/90 mt-1.5 font-medium">
               {isMember ? (
                 <span className="text-amber-100 font-bold">
-                  👑 Thưởng Hội Viên: {memberMinAmount.toLocaleString('vi-VN')}đ - {memberMaxAmount.toLocaleString('vi-VN')}đ / rương (Tỷ lệ cao)
+                  👑 Đặc quyền Hội Viên: Hạn mức mở {memberDailyLimit} rương / ngày
                 </span>
               ) : (
                 <span>
@@ -550,7 +545,7 @@ export default function ArticleTreasureBox({ property }) {
                   <span>Đặc quyền Gói Hội Viên VIP</span>
                 </div>
                 <div className="text-[11px] text-amber-800 leading-relaxed">
-                  Tài khoản Hội Viên mở tối đa <strong>{memberDailyLimit} rương/ngày</strong> và luôn nhận thưởng cao (tối thiểu từ {memberMinAmount.toLocaleString('vi-VN')}đ, không bao giờ trúng rương 0đ).
+                  Tài khoản Hội Viên VIP được mở tối đa <strong>{memberDailyLimit} rương/ngày</strong> (gấp 3 lần thành viên thường) và tích lũy số dư Ví Khuyến Mãi nhanh chóng.
                 </div>
                 <Link
                   href="/goi-hoi-vien"

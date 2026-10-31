@@ -209,10 +209,6 @@ export default function AdminRewardsGamificationManager() {
       }
     }
 
-    const memberMin = Math.max(1000, Number(tCfg.memberMinAmount ?? 8000));
-    const memberMax = Math.max(memberMin, Number(tCfg.memberMaxAmount ?? 20000));
-    const memberChance = Math.min(100, Math.max(10, Number(tCfg.memberHighTierChance ?? 80)));
-
     // Chuẩn hóa dữ liệu cấu hình rương đảm bảo luôn là kiểu chuẩn
     const sanitizedData = {
       ...targetConfig,
@@ -231,11 +227,7 @@ export default function AdminRewardsGamificationManager() {
           ...t,
           amount: Math.max(0, Number(t.amount) || 0),
           percentage: Math.max(0, Number(t.percentage) || 0)
-        })),
-        memberMinAmount: memberMin,
-        memberMaxAmount: memberMax,
-        memberHighTierChance: memberChance,
-        memberBonusEnabled: tCfg.memberBonusEnabled !== false
+        }))
       }
     };
 
@@ -818,135 +810,14 @@ export default function AdminRewardsGamificationManager() {
             <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 text-xs text-slate-400 leading-relaxed space-y-1">
               <div className="text-slate-300 font-bold flex items-center gap-1.5">
                 <i className="fa-solid fa-circle-info text-amber-400 text-[11px]"></i>
-                <span>Quy tắc vận hành 4 mốc:</span>
+                <span>Quy tắc vận hành 4 mốc phần thưởng:</span>
               </div>
               <ul className="list-disc list-inside space-y-0.5 text-[11px] text-slate-400 pl-1">
-                <li>Khi quay vào mốc <strong>Chúc may mắn (0đ)</strong>, hệ thống sẽ hiển thị thông báo popup "Chúc bạn may mắn lần sau", không cộng tiền nhưng vẫn tính 1 lượt mở rương hôm nay.</li>
-                <li>Khi quay vào các mốc <strong>1.200đ</strong>, <strong>2.500đ</strong> hoặc <strong>12.000đ</strong>, tiền được cộng thẳng vào Ví Khuyến Mãi của người dùng.</li>
-                <li>Nếu ngân sách tháng vượt ngưỡng {monthlyBudgetVal.toLocaleString('vi-VN')}đ, hệ thống tự động khóa nhận tiền và thông báo hết ngân sách tháng.</li>
+                <li>Khi quay vào mốc <strong>Chúc may mắn (0đ)</strong>: Hiển thị popup "Chúc bạn may mắn lần sau", không cộng tiền nhưng vẫn tính 1 lượt mở rương hôm nay.</li>
+                <li>Khi quay vào các mốc <strong>1.200đ</strong>, <strong>2.500đ</strong> hoặc <strong>12.000đ</strong>: Tiền thưởng được cộng thẳng vào Ví Khuyến Mãi của người dùng.</li>
+                <li>Hội viên VIP có quyền lợi mở <strong>{formData.treasureHuntConfig?.memberDailyLimit ?? 3} rương / ngày</strong> (Thành viên thường: <strong>{formData.treasureHuntConfig?.regularDailyLimit ?? 1} rương / ngày</strong>).</li>
+                <li>Nếu ngân sách tháng đạt ngưỡng {monthlyBudgetVal.toLocaleString('vi-VN')}đ, hệ thống tự động khóa nhận tiền và thông báo hết ngân sách tháng.</li>
               </ul>
-            </div>
-
-            {/* Phân hệ Đặc Quyền Hội Viên Khi Mở Rương */}
-            <div className="pt-4 border-t border-slate-800 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <h4 className="text-sm font-black text-amber-300 flex items-center gap-2">
-                    <i className="fa-solid fa-crown text-amber-400"></i>
-                    <span>Đặc Quyền Mở Rương Cho Người Mua Gói Hội Viên (Tỷ Lệ Tiền Cao Hơn)</span>
-                  </h4>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    Bất kỳ tài khoản nào sở hữu gói hội viên (Basic, Standard, Premium...) khi mở rương sẽ nhận tỷ lệ giá trị tiền cao hơn người không mua gói.
-                  </p>
-                </div>
-                <span className="px-3 py-1 rounded-full text-[11px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/40 shrink-0">
-                  👑 Đặc quyền VIP Hội Viên
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-slate-950 p-4 rounded-2xl border border-amber-500/30 space-y-2">
-                  <label className="text-xs font-bold text-amber-300 flex items-center justify-between">
-                    <span>Mức Thưởng Tối Thiểu Hội Viên</span>
-                    <span className="text-amber-400 text-[10px] font-mono">Đảm bảo &gt; thường</span>
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min="1000"
-                      step="1000"
-                      value={formData.treasureHuntConfig?.memberMinAmount ?? 8000}
-                      onChange={(e) => {
-                        isDirtyRef.current = true;
-                        setIsDirty(true);
-                        handleTreasureConfigChange('memberMinAmount', Math.max(1000, Number(e.target.value) || 8000));
-                      }}
-                      className="w-full bg-slate-900 border border-amber-500/40 rounded-xl px-3 py-2 text-white font-bold text-sm focus:border-amber-400 focus:outline-none"
-                    />
-                    <span className="text-xs text-amber-400 font-bold shrink-0">VNĐ</span>
-                  </div>
-                  <div className="text-[10px] text-slate-500">Mức tối thiểu Hội viên nhận được (Mặc định: 8.000 đ, không bao giờ nhận 2k bèo bọt).</div>
-                </div>
-
-                <div className="bg-slate-950 p-4 rounded-2xl border border-amber-500/30 space-y-2">
-                  <label className="text-xs font-bold text-amber-300 flex items-center justify-between">
-                    <span>Mức Thưởng Tối Đa Hội Viên</span>
-                    <span className="text-amber-400 text-[10px] font-mono">Tối đa</span>
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min="1000"
-                      step="1000"
-                      value={formData.treasureHuntConfig?.memberMaxAmount ?? 20000}
-                      onChange={(e) => {
-                        isDirtyRef.current = true;
-                        setIsDirty(true);
-                        handleTreasureConfigChange('memberMaxAmount', Math.max(1000, Number(e.target.value) || 20000));
-                      }}
-                      className="w-full bg-slate-900 border border-amber-500/40 rounded-xl px-3 py-2 text-white font-bold text-sm focus:border-amber-400 focus:outline-none"
-                    />
-                    <span className="text-xs text-amber-400 font-bold shrink-0">VNĐ</span>
-                  </div>
-                  <div className="text-[10px] text-slate-500">Mức tiền trần tối đa Hội viên có thể nhận (Mặc định: 20.000 đ).</div>
-                </div>
-
-                <div className="bg-slate-950 p-4 rounded-2xl border border-amber-500/30 space-y-2">
-                  <label className="text-xs font-bold text-amber-300 flex items-center justify-between">
-                    <span>Tỷ Lệ Trúng Mốc Tiền Lớn</span>
-                    <span className="text-amber-400 text-[10px] font-mono">Xác suất cao</span>
-                  </label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      min="10"
-                      max="100"
-                      step="5"
-                      value={formData.treasureHuntConfig?.memberHighTierChance ?? 80}
-                      onChange={(e) => {
-                        isDirtyRef.current = true;
-                        setIsDirty(true);
-                        handleTreasureConfigChange('memberHighTierChance', Math.min(100, Math.max(10, Number(e.target.value) || 80)));
-                      }}
-                      className="w-full bg-slate-900 border border-amber-500/40 rounded-xl px-3 py-2 text-white font-bold text-sm focus:border-amber-400 focus:outline-none"
-                    />
-                    <span className="text-xs text-amber-400 font-bold shrink-0">%</span>
-                  </div>
-                  <div className="text-[10px] text-slate-500">Cơ hội rơi vào các mốc tiền cao nhất trong dải thưởng (Mặc định: 80%).</div>
-                </div>
-              </div>
-
-              {/* Bảng so sánh trực quan Hội Viên vs Thường */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-                <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-1.5 text-xs">
-                  <div className="flex items-center justify-between text-slate-300 font-bold">
-                    <span className="flex items-center gap-1.5">
-                      <i className="fa-solid fa-user text-slate-400"></i>
-                      <span>Người Không Mua Gói (Thường)</span>
-                    </span>
-                    <span className="text-slate-400 font-mono">{(Number(formData.treasureHuntConfig?.minAmount || 2000)).toLocaleString('vi-VN')}đ - {(Number(formData.treasureHuntConfig?.maxAmount || 20000)).toLocaleString('vi-VN')}đ</span>
-                  </div>
-                  <div className="text-[11px] text-slate-400 leading-relaxed">
-                    • 75% cơ hội rơi vào mốc nhỏ (2.000đ - 9.000đ).<br/>
-                    • Giá trị trung bình kỳ vọng: ~4.500 đ / rương.
-                  </div>
-                </div>
-
-                <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-1.5 text-xs">
-                  <div className="flex items-center justify-between text-amber-300 font-bold">
-                    <span className="flex items-center gap-1.5">
-                      <i className="fa-solid fa-crown text-amber-400"></i>
-                      <span>Người Mua Gói Hội Viên Bất Kỳ</span>
-                    </span>
-                    <span className="text-amber-400 font-mono font-black">{(Number(formData.treasureHuntConfig?.memberMinAmount ?? 8000)).toLocaleString('vi-VN')}đ - {(Number(formData.treasureHuntConfig?.memberMaxAmount ?? 20000)).toLocaleString('vi-VN')}đ</span>
-                  </div>
-                  <div className="text-[11px] text-amber-200/90 leading-relaxed">
-                    • Đảm bảo tối thiểu từ {(Number(formData.treasureHuntConfig?.memberMinAmount ?? 8000)).toLocaleString('vi-VN')}đ.<br/>
-                    • <strong>{formData.treasureHuntConfig?.memberHighTierChance ?? 80}% cơ hội</strong> trúng các mốc tiền lớn nhất (15.000đ - 20.000đ).<br/>
-                    • Giá trị trung bình kỳ vọng: <strong>~17.000 đ / rương (Cao hơn gấp ~3.5 lần)</strong>.
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
