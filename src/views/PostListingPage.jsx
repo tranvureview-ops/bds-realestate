@@ -8,10 +8,32 @@ import PostListingModal from '../components/PostListingModal';
 
 export default function PostListingPage() {
   const { navigate } = useRouter();
-  const { currentUser, systemConfig, vipPackages } = useRealEstate();
+  const { currentUser, systemConfig, vipPackages, checkDailyFreeListingQuota, properties } = useRealEstate();
+
+  // Kiểm tra hạn mức đăng tin miễn phí trong ngày (3-5 tin/ngày theo cấu hình admin)
+  const dailyQuotaInfo = React.useMemo(() => {
+    if (checkDailyFreeListingQuota) {
+      return checkDailyFreeListingQuota(currentUser);
+    }
+    return { allowed: true, count: 0, limit: 3, remaining: 3, unlimited: false };
+  }, [checkDailyFreeListingQuota, currentUser, properties]);
+
+  const hasFreeQuota = Boolean(
+    !dailyQuotaInfo || 
+    dailyQuotaInfo.unlimited || 
+    dailyQuotaInfo.remaining === undefined || 
+    dailyQuotaInfo.remaining > 0 || 
+    currentUser?.role === 'admin'
+  );
+
   const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
-  const normalPrice = Number(normalPkg?.rates?.[60] !== undefined ? normalPkg.rates[60] : (normalPkg?.publishPrice ?? 0));
-  const isNormalFree = normalPrice === 0;
+  const configuredNormalRate = Number(normalPkg?.rates?.[60] !== undefined && Number(normalPkg.rates[60]) > 0
+    ? normalPkg.rates[60]
+    : (Number(normalPkg?.publishPrice) || 5000));
+
+  // Tin Thường: Mặc định hiển thị Miễn phí (60 ngày), chỉ hiện thu phí khi đã dùng hết hạn mức trong ngày
+  const isNormalFree = hasFreeQuota;
+  const normalPrice = isNormalFree ? 0 : configuredNormalRate;
 
   return (
     <div className="min-h-screen bg-slate-100 py-6 px-4 sm:px-6 lg:px-8">

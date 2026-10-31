@@ -500,10 +500,10 @@ export default function VipPricingPage() {
                       </div>
                       <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-0.5">
                         {isNormal ? (
-                          <>
-                            {normalPeriodPrice.toLocaleString('vi-VN')} <span className="text-xs font-normal text-slate-700">đ/60 ngày</span>
-                            <div className="text-[11px] text-slate-700 font-normal mt-0.5">(~{Math.round(normalPeriodPrice / 60)} đ/ngày)</div>
-                          </>
+                          <div>
+                            <span className="text-emerald-700 font-black uppercase text-2xl sm:text-3xl">Miễn Phí</span>
+                            <div className="text-[11px] text-slate-700 font-normal mt-0.5">Thời hạn hiển thị 60 ngày</div>
+                          </div>
                         ) : currentDailyRate === 0 ? (
                           <span className="text-emerald-700 font-black uppercase">Miễn Phí</span>
                         ) : (
@@ -515,11 +515,11 @@ export default function VipPricingPage() {
 
                       <div className="mt-2 pt-2 border-t border-slate-200/60 text-xs">
                         <div className="text-slate-700 font-medium">
-                          Tổng {cardDuration} ngày: <b className="text-slate-900">{grossPeriodPrice === 0 ? '0 đ (Miễn phí)' : `${grossPeriodPrice.toLocaleString('vi-VN')} đ`}</b>
+                          Tổng {cardDuration} ngày: <b className={isNormal || grossPeriodPrice === 0 ? "text-emerald-700" : "text-slate-900"}>{isNormal || grossPeriodPrice === 0 ? '0 đ (Miễn phí)' : `${grossPeriodPrice.toLocaleString('vi-VN')} đ`}</b>
                         </div>
                         {isNormal ? (
-                          <div className="text-[10px] text-slate-700 font-medium mt-0.5">
-                            Gói tiêu chuẩn 60 ngày
+                          <div className="text-[10px] text-emerald-700 font-bold mt-0.5">
+                            Đăng tin tiếp cận khách hàng miễn phí 100%
                           </div>
                         ) : discountPercent > 0 ? (
                           <div className="text-[10px] text-emerald-700 font-bold mt-0.5">
@@ -657,11 +657,7 @@ export default function VipPricingPage() {
                       Tin Thường
                     </span>
                     <div className="font-bold text-slate-700 text-xs mt-1">
-                      {ratesConfig?.['normal']?.rates?.[60] === 0 ? (
-                        <span className="text-emerald-700 font-black">Miễn phí</span>
-                      ) : (
-                        `5.000 đ / 60 ngày`
-                      )}
+                      <span className="text-emerald-700 font-black">Miễn phí (60 ngày)</span>
                     </div>
                   </th>
                 </tr>
