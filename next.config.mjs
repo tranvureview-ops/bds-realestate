@@ -7,9 +7,9 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
   },
   experimental: {
-    optimizePackageImports: ['@supabase/supabase-js', 'qrcode', 'bcryptjs'],
+    optimizePackageImports: ['@supabase/supabase-js'],
   },
-  serverExternalPackages: ['nodemailer'],
+  serverExternalPackages: ['nodemailer', 'bcryptjs'],
   images: {
     formats: ['image/avif', 'image/webp'],
     minimumCacheTTL: 2592000,

@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
-import { VIP_PACKAGES, MOCK_USERS, LOCATIONS } from '../data/mockData';
+import { VIP_PACKAGES, MOCK_USERS } from '../data/mockData';
+import { VIETNAM_ADMINISTRATIVE_DATA as LOCATIONS } from '../data/vietnamAdministrativeData';
 import AdminReportsManager from './AdminReportsManager';
 import AdminSingleConfigManager from './AdminSingleConfigManager';
 import AdminAppointmentsManager from './AdminAppointmentsManager';

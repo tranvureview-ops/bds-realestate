@@ -332,11 +332,6 @@ export const AREA_PRESETS = [
   { value: 'over-3000', label: 'Trên 3.000 m²', min: 3000, max: null }
 ];
 
-
-import { VIETNAM_ADMINISTRATIVE_DATA } from './vietnamAdministrativeData.js';
-
-export const LOCATIONS = VIETNAM_ADMINISTRATIVE_DATA;
-
 export const INITIAL_PROPERTIES = [
   {
     "id": "BDS-001",
