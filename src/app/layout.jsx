@@ -88,23 +88,38 @@ const fetchWithTimeout = (promise, ms = 800) => {
   });
 };
 
-const getInitialDb = cache(async () => {
+let serverSsrDbCache = null;
+let serverSsrDbTimestamp = 0;
+const SSR_CACHE_TTL_MS = 60 * 1000; // 60s in-memory server cache to eliminate 800ms cold start latency
+
+export const getInitialDb = cache(async () => {
+  const now = Date.now();
+  if (serverSsrDbCache && (now - serverSsrDbTimestamp < SSR_CACHE_TTL_MS)) {
+    return serverSsrDbCache;
+  }
+
   try {
     if (isSupabaseConfigured()) {
       try {
-        const cloudData = await fetchWithTimeout(fetchFullSupabaseDb(), 800);
+        const cloudData = await fetchWithTimeout(fetchFullSupabaseDb(), 250);
         if (cloudData && (cloudData.bds_properties?.length > 0 || cloudData.bds_header_config)) {
-          return sanitizePublicSsrDb(cloudData);
+          const sanitized = sanitizePublicSsrDb(cloudData);
+          serverSsrDbCache = sanitized;
+          serverSsrDbTimestamp = now;
+          return sanitized;
         }
       } catch (err) {
-        console.warn('Lỗi kết nối hoặc timeout Supabase trong RootLayout, fallback tức thì server-db.json:', err.message);
+        // Fallback tức thì sang local DB khi Supabase chậm hoặc timeout (> 250ms)
       }
     }
     const dbFile = path.resolve(process.cwd(), 'server-db.json');
     if (fs.existsSync(dbFile)) {
       const content = fs.readFileSync(dbFile, 'utf8');
       const parsed = JSON.parse(content || '{}');
-      return sanitizePublicSsrDb(parsed);
+      const sanitized = sanitizePublicSsrDb(parsed);
+      serverSsrDbCache = sanitized;
+      serverSsrDbTimestamp = now;
+      return sanitized;
     }
   } catch (e) {
     console.error('Error reading server-db.json in layout:', e);
