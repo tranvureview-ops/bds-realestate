@@ -492,49 +492,85 @@ export default function ListingTierSelector({
                   }
                 }
               }}
-              className={`p-4 sm:p-4.5 rounded-2xl flex flex-col justify-between cursor-pointer border-2 transition-all duration-150 relative bg-white ${
+              className={`p-3.5 sm:p-4.5 rounded-2xl flex flex-col justify-between cursor-pointer border-2 transition-all duration-150 relative bg-white ${
                 isSelected
                   ? 'border-slate-900 shadow-sm ring-1 ring-slate-900/10'
                   : 'border-slate-200/90 hover:border-slate-300 hover:shadow-2xs'
               }`}
             >
               <div>
-                {/* Icon đầu thẻ */}
-                <div className="mb-2">
-                  <ListingTypeIcon type={item.id} />
+                {/* Header thẻ: Trên mobile hiển thị ngang gọn gàng (Icon + Tên + Mô tả bên trái, Giá bên phải) */}
+                <div className="flex sm:block items-center justify-between gap-2.5">
+                  <div className="flex items-center sm:block gap-2.5 min-w-0">
+                    <div className="sm:mb-2 shrink-0">
+                      <ListingTypeIcon type={item.id} />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <h3 className="text-sm sm:text-base font-bold text-slate-900 truncate">
+                          {item.name}
+                        </h3>
+                        {isSelected && (
+                          <span className="w-3.5 h-3.5 rounded-full bg-slate-900 text-white inline-flex items-center justify-center text-[8px] shrink-0 sm:hidden">
+                            <i className="fa-solid fa-check"></i>
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-slate-600 sm:text-slate-700 sm:mt-0.5 font-normal truncate">
+                        {item.positionDesc}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Giá trên mobile: đặt góc phải hàng đầu tiên cực kỳ gọn */}
+                  <div className="block sm:hidden text-right shrink-0">
+                    {isNormalItem ? (
+                      (item?.rates?.[60] === 0) ? (
+                        <span className="text-emerald-700 font-black text-xs uppercase bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200/80">Miễn phí</span>
+                      ) : (
+                        <div className="flex items-baseline gap-0.5 justify-end">
+                          <span className="text-sm font-black text-slate-900">
+                            {(item?.rates?.[60] ?? 5000).toLocaleString('vi-VN')} đ
+                          </span>
+                          <span className="text-[10px] text-slate-500">/60ng</span>
+                        </div>
+                      )
+                    ) : (
+                      <div className="flex items-baseline gap-0.5 justify-end">
+                        <span className="text-sm font-black text-slate-900">
+                          {effectiveDailyRate.toLocaleString('vi-VN')} đ
+                        </span>
+                        <span className="text-[10px] text-slate-500">/ngày</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                {/* Tiêu đề & mô tả vị trí */}
-                <h3 className="text-sm sm:text-base font-bold text-slate-900">
-                  {item.name}
-                </h3>
-                <p className="text-[11px] text-slate-700 mt-0.5 font-normal">
-                  {item.positionDesc}
-                </p>
-
-                {/* Cơ chế phê duyệt theo cấp độ tin đăng */}
-                <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold border my-1.5 ${item.approvalColor}`}>
+                {/* Cơ chế phê duyệt theo cấp độ tin đăng: Ẩn trên mobile theo yêu cầu, chỉ hiện trên tablet/desktop */}
+                <div className={`hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-bold border my-1.5 ${item.approvalColor}`}>
                   <i className={`${item.approvalIcon} text-[9px]`}></i>
                   <span>{item.approvalBadge}</span>
                 </div>
 
                 {/* Badge tỷ lệ tiếp cận (nếu có) */}
                 {item.multiplierText ? (
-                  <div className={`inline-flex items-center rounded-lg overflow-hidden border text-[11px] mb-2 ${item.tagBg}`}>
-                    <span className={`font-black px-1.5 py-0.5 text-[10px] ${item.tagBadgeBg}`}>
-                      {item.multiplierText}
-                    </span>
-                    <span className="px-2 py-0.5 font-medium leading-none">
-                      {item.tagText}
-                    </span>
+                  <div className="mt-2 sm:mt-0">
+                    <div className={`inline-flex items-center rounded-lg overflow-hidden border text-[10px] sm:text-[11px] sm:mb-2 ${item.tagBg}`}>
+                      <span className={`font-black px-1.5 py-0.5 text-[9px] sm:text-[10px] ${item.tagBadgeBg}`}>
+                        {item.multiplierText}
+                      </span>
+                      <span className="px-2 py-0.5 font-medium leading-none">
+                        {item.tagText}
+                      </span>
+                    </div>
                   </div>
                 ) : (
-                  <div className="h-6 mb-2"></div> // Giữ chiều cao đều giữa các thẻ
+                  <div className="hidden sm:block h-6 mb-2"></div> // Giữ chiều cao đều giữa các thẻ trên desktop
                 )}
               </div>
 
-              {/* Đơn giá niêm yết theo ngày tinh giản */}
-              <div className="pt-2 text-sm font-bold tracking-tight">
+              {/* Đơn giá niêm yết theo ngày (Hiện ở đáy thẻ trên Tablet/Desktop) */}
+              <div className="hidden sm:block pt-2 text-sm font-bold tracking-tight">
                 {isNormalItem ? (
                   (item?.rates?.[60] === 0) ? (
                     <span className="text-emerald-700 font-black uppercase">Miễn phí</span>
