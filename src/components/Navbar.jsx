@@ -74,24 +74,36 @@ export default function Navbar() {
   }, [headerConfig?.logoImageUrl, headerConfig?.logoType]);
 
   const { brandNameDisplay, brandHighlightDisplay } = useMemo(() => {
-    const hasHeaderBrand = Boolean(headerConfig?.brandName?.trim() || headerConfig?.brandHighlight?.trim());
-    if (hasHeaderBrand) {
-      return {
-        brandNameDisplay: headerConfig?.brandName?.trim() || '',
-        brandHighlightDisplay: headerConfig?.brandHighlight?.trim() || ''
-      };
+    let bName = headerConfig?.brandName?.trim() || '';
+    let bHighlight = headerConfig?.brandHighlight?.trim() || '';
+
+    if (!bName && !bHighlight) {
+      const fullText = (systemConfig?.brandShortName || 'ĐẤT BIỂN ĐÀ NẴNG').trim();
+      const domainMatch = fullText.match(/^(.+?)(\.(?:com\.vn|vn|com|net|org))$/i);
+      if (domainMatch) {
+        bName = domainMatch[1];
+        bHighlight = domainMatch[2];
+      } else {
+        const words = fullText.split(/\s+/).filter(Boolean);
+        if (words.length <= 1) {
+          bName = words[0] || 'BẤT ĐỘNG SẢN';
+          bHighlight = '';
+        } else {
+          bName = words.slice(0, -1).join(' ');
+          bHighlight = words[words.length - 1];
+        }
+      }
+    } else if (!bHighlight) {
+      const domainMatch = bName.match(/^(.+?)(\.(?:com\.vn|vn|com|net|org))$/i);
+      if (domainMatch) {
+        bName = domainMatch[1];
+        bHighlight = domainMatch[2];
+      }
     }
-    const fullText = systemConfig?.brandShortName?.trim() || 'ĐẤT BIỂN ĐÀ NẴNG';
-    const words = fullText.split(/\s+/).filter(Boolean);
-    if (words.length <= 1) {
-      return {
-        brandNameDisplay: words[0] || 'BẤT ĐỘNG SẢN',
-        brandHighlightDisplay: ''
-      };
-    }
+
     return {
-      brandNameDisplay: words.slice(0, -1).join(' '),
-      brandHighlightDisplay: words[words.length - 1]
+      brandNameDisplay: bName,
+      brandHighlightDisplay: bHighlight
     };
   }, [headerConfig?.brandName, headerConfig?.brandHighlight, systemConfig?.brandShortName]);
 

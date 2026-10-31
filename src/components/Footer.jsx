@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 import { DEFAULT_FOOTER_CONFIG } from '../data/mockData';
@@ -18,7 +18,41 @@ export default function Footer() {
       ...item
     }));
 
-  const activeBrandName = systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN';
+  const { brandNameDisplay, brandHighlightDisplay } = useMemo(() => {
+    let bName = headerConfig?.brandName?.trim() || '';
+    let bHighlight = headerConfig?.brandHighlight?.trim() || '';
+
+    if (!bName && !bHighlight) {
+      const fullText = (systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN').trim();
+      const domainMatch = fullText.match(/^(.+?)(\.(?:com\.vn|vn|com|net|org))$/i);
+      if (domainMatch) {
+        bName = domainMatch[1];
+        bHighlight = domainMatch[2];
+      } else {
+        const words = fullText.split(/\s+/).filter(Boolean);
+        if (words.length <= 1) {
+          bName = words[0] || 'BẤT ĐỘNG SẢN';
+          bHighlight = '';
+        } else {
+          bName = words.slice(0, -1).join(' ');
+          bHighlight = words[words.length - 1];
+        }
+      }
+    } else if (!bHighlight) {
+      const domainMatch = bName.match(/^(.+?)(\.(?:com\.vn|vn|com|net|org))$/i);
+      if (domainMatch) {
+        bName = domainMatch[1];
+        bHighlight = domainMatch[2];
+      }
+    }
+
+    return {
+      brandNameDisplay: bName,
+      brandHighlightDisplay: bHighlight
+    };
+  }, [headerConfig?.brandName, headerConfig?.brandHighlight, systemConfig?.brandShortName]);
+
+  const activeBrandName = [brandNameDisplay, brandHighlightDisplay].filter(Boolean).join('') || systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN';
   const activePlatformName = systemConfig?.platformName || `${activeBrandName} - Sàn Giao Dịch Bất Động Sản`;
 
   const activeHotline = footerConfig?.hotline || systemConfig?.hotline || '0898 246 607';
@@ -72,8 +106,11 @@ export default function Footer() {
                 <i className="fa-solid fa-building"></i>
               </div>
               <div>
-                <div className="text-xl font-extrabold tracking-tight text-white flex items-center gap-1">
-                  <span>{activeBrandName}</span>
+                <div className="text-xl font-extrabold tracking-tight text-white flex items-center">
+                  <span>{brandNameDisplay}</span>
+                  {brandHighlightDisplay ? (
+                    <span className="text-emerald-400 font-black">{brandHighlightDisplay}</span>
+                  ) : null}
                 </div>
                 <div className="text-[11px] text-slate-300 uppercase tracking-wider font-bold">
                   {systemConfig?.tagline || 'Sàn Giao Dịch Bất Động Sản & Đăng Tin VIP'}
