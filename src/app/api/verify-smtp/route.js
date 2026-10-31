@@ -1,9 +1,18 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import { decryptAES256 } from '../../../utils/cryptoUtils';
+import { verifyAdminRequest } from '../../../utils/adminAuth';
 
 export async function POST(request) {
   try {
+    const adminAuth = verifyAdminRequest(request);
+    if (!adminAuth.valid) {
+      return NextResponse.json({ 
+        success: false, 
+        error: 'Unauthorized: Quyền Quản trị viên không hợp lệ' 
+      }, { status: 401 });
+    }
+
     const data = await request.json();
     const { smtp } = data || {};
 

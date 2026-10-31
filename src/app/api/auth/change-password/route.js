@@ -84,8 +84,7 @@ export async function POST(request) {
     } else if (user.password) {
       isCurrentPasswordCorrect = (user.password === currentPassword);
     } else {
-      // Fallback tài khoản demo mặc định ban đầu
-      isCurrentPasswordCorrect = (currentPassword === '123456') || (user.role === 'admin' && currentPassword === 'admin123');
+      isCurrentPasswordCorrect = user.role !== 'admin' && (currentPassword === '123456');
     }
 
     if (!isCurrentPasswordCorrect) {
@@ -95,11 +94,10 @@ export async function POST(request) {
       }, { status: 401 });
     }
 
-    // 5. Mã hóa mật khẩu mới và lưu vào cơ sở dữ liệu
+    // 5. Mã hóa mật khẩu mới và lưu vào cơ sở dữ liệu (chỉ lưu bcrypt hash)
     const newPasswordHash = hashPassword(newPassword);
     const updatedUser = await updateUserById(user.id, {
       passwordHash: newPasswordHash,
-      password: newPassword, // Lưu dự phòng cho các logic cũ nếu cần
       updatedAt: new Date().toISOString()
     });
 

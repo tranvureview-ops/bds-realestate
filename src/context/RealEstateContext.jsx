@@ -1109,10 +1109,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   // 1. Kiểm tra thông số kết nối máy chủ SMTP (Ping / Verify)
   const verifySmtpConnection = async (customSmtp = null) => {
     const smtp = customSmtp || emailConfig.smtp;
+    const adminToken = typeof window !== 'undefined' ? (sessionStorage.getItem('bds_admin_token') || '') : '';
     try {
       const response = await fetch('/api/verify-smtp', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-admin-token': adminToken
+        },
         body: JSON.stringify({ smtp })
       });
       const data = await response.json().catch(() => ({}));
@@ -1155,9 +1159,13 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     let messageId = null;
 
     try {
+      const adminToken = typeof window !== 'undefined' ? (sessionStorage.getItem('bds_admin_token') || '') : '';
       const response = await fetch('/api/send-email', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-admin-token': adminToken
+        },
         body: JSON.stringify({
           smtp: emailConfig.smtp,
           from: fromSender,
@@ -4309,9 +4317,13 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   // Cập nhật trạng thái lịch hẹn (pending, confirmed, completed, cancelled)
   const updateAppointmentStatus = async (appointmentId, newStatus, adminNote = '') => {
     try {
+      const adminToken = typeof window !== 'undefined' ? (sessionStorage.getItem('bds_admin_token') || '') : '';
       const res = await fetch(`/api/appointments/${appointmentId}`, {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-admin-token': adminToken
+        },
         body: JSON.stringify({ status: newStatus, adminNote })
       });
       const data = await res.json();

@@ -83,11 +83,14 @@ export async function POST(request) {
 
     const maskedEmail = user.email.replace(/^(.)(.*)(@.*)$/, (_, a, b, c) => `${a}***${c}`);
 
+    // BẢO MẬT: Tuyệt đối KHÔNG trả về resetUrl ở môi trường production để chống đánh cắp tài khoản (Account Takeover)
+    const isDev = process.env.NODE_ENV === 'development';
+
     return NextResponse.json({
       success: true,
       message: `Hệ thống đã gửi hướng dẫn đặt lại mật khẩu đến email ${maskedEmail}. Vui lòng kiểm tra hộp thư đến (hoặc thư mục Spam/Rác).`,
-      email: user.email,
-      resetUrl: mailResult.resetUrl || null,
+      email: maskedEmail,
+      resetUrl: isDev ? (mailResult.resetUrl || null) : null,
       emailSent: mailResult.emailSent
     });
   } catch (error) {

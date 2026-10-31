@@ -71,14 +71,14 @@ export default function ForgotPasswordPage() {
             </p>
           </div>
 
-          {sentResult.resetUrl && (
+          {process.env.NODE_ENV === 'development' && sentResult.resetUrl && (
             <div className="pt-1">
               <Link
                 href={sentResult.resetUrl}
                 className="inline-flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-white font-black text-xs uppercase tracking-wider hover:from-red-700 hover:to-rose-700 transition shadow-md cursor-pointer"
               >
                 <i className="fa-solid fa-key" />
-                <span>👉 Đổi Mật Khẩu Ngay (Thử Nghiệm Nhanh)</span>
+                <span>👉 Đổi Mật Khẩu Ngay (Chỉ hiển thị môi trường Dev)</span>
               </Link>
             </div>
           )}

@@ -3,6 +3,7 @@ import { getAllAppointments, saveAppointment } from '../../../services/serverDbS
 import { dispatchAppointmentNotifications } from '../../../services/notificationService';
 import { resolveServerOrigin } from '../../../services/mailerService';
 import { validatePhoneNumber, normalizePhone } from '../../../utils/authValidation';
+import { verifyAdminRequest } from '../../../utils/adminAuth';
 
 /**
  * GET /api/appointments
@@ -14,6 +15,17 @@ export async function GET(request) {
     const brokerId = searchParams.get('brokerId');
     const customerPhone = searchParams.get('customerPhone');
     const status = searchParams.get('status');
+
+    // BẢO MẬT: Nếu truy vấn toàn bộ danh sách lịch hẹn (không lọc theo môi giới hay khách hàng), bắt buộc phải có quyền Admin
+    if (!brokerId && !customerPhone) {
+      const adminAuth = verifyAdminRequest(request);
+      if (!adminAuth.valid) {
+        return NextResponse.json({
+          success: false,
+          message: 'Unauthorized: Cần quyền Quản trị viên để xem toàn bộ lịch hẹn hệ thống.'
+        }, { status: 401 });
+      }
+    }
 
     let appointments = await getAllAppointments();
 

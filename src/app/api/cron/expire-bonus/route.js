@@ -1,6 +1,17 @@
 import { NextResponse } from 'next/server';
 import { scanAndExpireBonuses } from '../../../../services/bonusCampaignService';
 import { getFullSystemDatabase, persistDatabaseSlice } from '../../../../services/serverDbService';
+import { verifyAdminRequest } from '../../../../utils/adminAuth';
+
+function isAuthorizedCron(req) {
+  const authHeader = req.headers.get('authorization') || '';
+  if (process.env.CRON_SECRET && authHeader === `Bearer ${process.env.CRON_SECRET}`) {
+    return true;
+  }
+  const adminCheck = verifyAdminRequest(req);
+  if (adminCheck.valid) return true;
+  return process.env.NODE_ENV !== 'production' && !process.env.CRON_SECRET;
+}
 
 /**
  * Lưu trữ danh sách người dùng đã thu hồi thưởng và ghi nhận các bản ghi giao dịch
@@ -33,8 +44,11 @@ export async function executeBonusClawback() {
 /**
  * Endpoint GET cho Cron Job tự động chạy định kỳ hàng ngày
  */
-export async function GET() {
+export async function GET(req) {
   try {
+    if (!isAuthorizedCron(req)) {
+      return NextResponse.json({ success: false, message: 'Unauthorized Cron Request' }, { status: 401 });
+    }
     const result = await executeBonusClawback();
     return NextResponse.json({
       success: true,
@@ -49,8 +63,11 @@ export async function GET() {
 /**
  * Endpoint POST cho Admin kích hoạt quét thu hồi thủ công từ bảng quản trị
  */
-export async function POST() {
+export async function POST(req) {
   try {
+    if (!isAuthorizedCron(req)) {
+      return NextResponse.json({ success: false, message: 'Unauthorized Cron Request' }, { status: 401 });
+    }
     const result = await executeBonusClawback();
     return NextResponse.json({
       success: true,

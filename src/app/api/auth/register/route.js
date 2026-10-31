@@ -32,7 +32,6 @@ export function buildPendingUserRecord(input, clientIp) {
     name: (input.name || '').trim(),
     email: cleanEmail,
     phone: cleanPhone,
-    password: input.password || '',
     passwordHash: hashPassword(input.password),
     role: selectedRole,
     roleName: roleName,
@@ -83,14 +82,15 @@ export async function executeRegistration(newUser, tokenRecord, request) {
 }
 
 export function buildRegistrationSuccessResponse(newUser, bonusAmount, mailResult) {
+  const isDev = process.env.NODE_ENV === 'development';
   return NextResponse.json({
     success: true,
     message: mailResult?.emailSent
       ? 'Đăng ký thành công! Vui lòng kiểm tra email kích hoạt và nhận thưởng.'
-      : 'Đăng ký thành công! Bạn có thể kích hoạt tài khoản ngay bằng liên kết bên dưới.',
+      : 'Đăng ký thành công! Vui lòng kiểm tra hộp thư email để kích hoạt tài khoản.',
     user: { id: newUser.id, name: newUser.name, email: newUser.email },
     bonusAmount,
-    verificationUrl: mailResult?.verificationUrl || null,
+    verificationUrl: isDev ? (mailResult?.verificationUrl || null) : null,
     emailSent: Boolean(mailResult?.emailSent)
   });
 }

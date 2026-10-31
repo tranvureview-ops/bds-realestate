@@ -621,13 +621,13 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
                   </p>
                 </div>
 
-                {forgotResult.resetUrl && (
+                {process.env.NODE_ENV === 'development' && forgotResult.resetUrl && (
                   <Link
                     href={forgotResult.resetUrl}
                     className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold text-xs uppercase tracking-wider hover:from-red-700 transition shadow cursor-pointer text-center"
                   >
                     <i className="fa-solid fa-key" />
-                    <span>👉 Đổi Mật Khẩu Ngay (Thử Nghiệm Nhanh)</span>
+                    <span>👉 Đổi Mật Khẩu Ngay (Chỉ hiển thị môi trường Dev)</span>
                   </Link>
                 )}
 

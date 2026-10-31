@@ -8,6 +8,14 @@ import { verifyAdminRequest } from '../../../../utils/adminAuth';
  */
 export async function PATCH(request, { params }) {
   try {
+    const adminAuth = verifyAdminRequest(request);
+    if (!adminAuth.valid) {
+      return NextResponse.json({ 
+        success: false, 
+        message: 'Unauthorized: Cần quyền Quản trị viên để cập nhật lịch hẹn.' 
+      }, { status: 401 });
+    }
+
     const { id } = await params;
     if (!id) {
       return NextResponse.json({ success: false, message: 'Thiếu mã lịch hẹn cần cập nhật.' }, { status: 400 });

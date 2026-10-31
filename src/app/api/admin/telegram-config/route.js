@@ -6,6 +6,7 @@ import {
   setTelegramWebhook,
   getAllChatSessions
 } from '../../../../lib/telegramService';
+import { verifyAdminRequest } from '../../../../utils/adminAuth';
 
 /**
  * API QUẢN TRỊ CẤU HÌNH TELEGRAM BOT & PHIÊN LIVE CHAT
@@ -13,6 +14,11 @@ import {
  */
 export async function GET(req) {
   try {
+    const adminAuth = verifyAdminRequest(req);
+    if (!adminAuth.valid) {
+      return NextResponse.json({ success: false, error: 'Unauthorized: Quyền Quản trị viên không hợp lệ' }, { status: 401 });
+    }
+
     const config = await getTelegramConfig(true); // Trả về dạng mask token
     const sessions = await getAllChatSessions(30);
 
@@ -50,6 +56,11 @@ export async function GET(req) {
 
 export async function POST(req) {
   try {
+    const adminAuth = verifyAdminRequest(req);
+    if (!adminAuth.valid) {
+      return NextResponse.json({ success: false, error: 'Unauthorized: Quyền Quản trị viên không hợp lệ' }, { status: 401 });
+    }
+
     const body = await req.json();
     const { action } = body || {};
 

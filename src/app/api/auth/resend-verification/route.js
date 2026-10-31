@@ -48,13 +48,14 @@ export async function POST(request) {
 
     const mailResult = await issueFreshVerificationToken(user, campaign, request);
 
+    const isDev = process.env.NODE_ENV === 'development';
     return NextResponse.json({
       success: true,
       message: mailResult?.emailSent
         ? 'Email kích hoạt mới đã được gửi. Vui lòng kiểm tra hộp thư của bạn.'
-        : 'Đã tạo liên kết kích hoạt mới. Bạn có thể kích hoạt trực tiếp bằng liên kết bên dưới.',
+        : 'Yêu cầu gửi lại email kích hoạt thành công. Vui lòng kiểm tra hộp thư đến (hoặc thư mục Spam/Rác).',
       email: user.email,
-      verificationUrl: mailResult?.verificationUrl || null,
+      verificationUrl: isDev ? (mailResult?.verificationUrl || null) : null,
       emailSent: Boolean(mailResult?.emailSent)
     });
   } catch (err) {

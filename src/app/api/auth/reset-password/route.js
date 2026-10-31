@@ -109,10 +109,9 @@ export async function POST(request) {
       }, { status: 400 });
     }
 
-    // 4. Mã hóa mật khẩu và cập nhật vào cơ sở dữ liệu
+    // 4. Mã hóa mật khẩu và cập nhật vào cơ sở dữ liệu (chỉ lưu bcrypt hash)
     const passwordHash = hashPassword(newPassword);
     await updateUserById(check.user.id, {
-      password: newPassword,
       passwordHash: passwordHash,
       passwordUpdatedAt: new Date().toISOString()
     });
