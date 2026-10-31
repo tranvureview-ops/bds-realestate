@@ -118,6 +118,17 @@ export function getResponsiveImageProps(src, type = 'gallery') {
         };
       }
 
+      // Trường hợp xem ảnh phóng to toàn màn hình (Lightbox / Fullscreen Modal)
+      if (type === 'lightbox' || type === 'fullscreen') {
+        const src768 = `${cleanBase}${connector}auto=format&fit=crop&w=768&q=80`;
+        const src1200 = `${cleanBase}${connector}auto=format&fit=crop&w=1200&q=85`;
+        const src1600 = `${cleanBase}${connector}auto=format&fit=crop&w=1600&q=85`;
+        return {
+          srcSet: `${src768} 768w, ${src1200} 1200w, ${src1600} 1600w`,
+          sizes: '(max-width: 768px) 95vw, (max-width: 1200px) 90vw, 1400px'
+        };
+      }
+
       // Trường hợp ảnh chính chi tiết bài đăng (Hero / Main photo)
       if (type === 'main') {
         const src480 = `${cleanBase}${connector}auto=format&fit=crop&w=480&q=75`;
@@ -134,7 +145,7 @@ export function getResponsiveImageProps(src, type = 'gallery') {
       const src600 = `${cleanBase}${connector}auto=format&fit=crop&w=600&q=75`;
       const src800 = `${cleanBase}${connector}auto=format&fit=crop&w=800&q=75`;
 
-      let sizes = '(max-width: 640px) 50vw, 240px';
+      let sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 480px';
       if (type === 'thumbnail') {
         sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 360px';
       }

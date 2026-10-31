@@ -80,6 +80,9 @@ export default function SeoImage({
       if (type === 'agent') {
         return `${cleanBase}${connector}auto=format&fit=crop&w=128&q=80`;
       }
+      if (type === 'lightbox' || type === 'fullscreen') {
+        return `${cleanBase}${connector}auto=format&fit=crop&w=1600&q=85`;
+      }
       if (type === 'main') {
         return `${cleanBase}${connector}auto=format&fit=crop&w=800&q=75`;
       }

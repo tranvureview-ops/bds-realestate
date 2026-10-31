@@ -2117,11 +2117,11 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             </button>
           </div>
 
-          <div className="flex-1 flex items-center justify-center relative my-4">
+          <div className="flex-1 w-full flex items-center justify-center relative my-2 px-10 sm:px-16 overflow-hidden">
             <button
               onClick={() => setSelectedPhotoIndex(prev => prev > 0 ? prev - 1 : safeImages.length - 1)}
               aria-label="Xem ảnh trước đó"
-              className="absolute left-2 w-12 h-12 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center text-xl cursor-pointer"
+              className="absolute left-2 sm:left-4 z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center text-xl transition cursor-pointer shadow-lg backdrop-blur-xs border border-white/20"
             >
               ❮
             </button>
@@ -2131,14 +2131,14 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               property={property}
               index={selectedPhotoIndex}
               total={safeImages.length}
-              type="gallery"
-              className="max-h-[75vh] max-w-[90vw] object-contain rounded-xl shadow-2xl"
+              type="lightbox"
+              className="w-auto h-auto max-h-[75vh] sm:max-h-[82vh] max-w-[92vw] sm:max-w-[85vw] object-contain rounded-2xl shadow-2xl select-none mx-auto transition-all duration-200"
             />
 
             <button
               onClick={() => setSelectedPhotoIndex(prev => prev < safeImages.length - 1 ? prev + 1 : 0)}
               aria-label="Xem ảnh kế tiếp"
-              className="absolute right-2 w-12 h-12 rounded-full bg-white/20 hover:bg-white/40 text-white flex items-center justify-center text-xl cursor-pointer"
+              className="absolute right-2 sm:right-4 z-20 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center text-xl transition cursor-pointer shadow-lg backdrop-blur-xs border border-white/20"
             >
               ❯
             </button>
@@ -2152,7 +2152,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 property={property}
                 index={idx}
                 total={safeImages.length}
-                type="gallery"
+                type="thumbnail"
                 onClick={() => setSelectedPhotoIndex(idx)}
                 className={`w-16 h-12 object-cover rounded-lg cursor-pointer border-2 transition ${selectedPhotoIndex === idx ? 'border-emerald-500 scale-105' : 'border-transparent opacity-60 hover:opacity-100'}`}
               />
