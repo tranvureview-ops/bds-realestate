@@ -5,7 +5,13 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { isPromotionExpired, formatPromoDate } from '../data/rewardData';
 import { Link } from '../router/RouterContext';
 import { getPropertyPermalink } from '../utils/permalink';
-import { calculateTreasureHuntExpiry, isPropertyTreasureActive, getTreasureExpirationInfo } from '../services/treasureHuntService';
+import { 
+  calculateTreasureHuntExpiry, 
+  isPropertyTreasureActive, 
+  getTreasureExpirationInfo,
+  getMonthlyTreasureBudgetStatus,
+  DEFAULT_TREASURE_REWARD_TIERS
+} from '../services/treasureHuntService';
 
 export default function AdminRewardsGamificationManager() {
   const { 
@@ -16,7 +22,8 @@ export default function AdminRewardsGamificationManager() {
     showToast,
     properties = [],
     updateProperty,
-    updateMultipleProperties
+    updateMultipleProperties,
+    transactions = []
   } = useRealEstate();
 
   // Local state form
@@ -30,6 +37,41 @@ export default function AdminRewardsGamificationManager() {
   // States quản lý bài viết kích hoạt rương kho báu (Phương án 1)
   const [treasureSearchTerm, setTreasureSearchTerm] = useState('');
   const [treasureViewMode, setTreasureViewMode] = useState('active_only'); // 'active_only', 'all', 'inactive_only'
+
+  // Tính trạng thái ngân sách tháng và 4 mốc phần thưởng
+  const monthlyBudgetVal = Number(formData.treasureHuntConfig?.monthlyBudget ?? 50000);
+  const budgetStatus = useMemo(() => {
+    return getMonthlyTreasureBudgetStatus(monthlyBudgetVal, transactions);
+  }, [monthlyBudgetVal, transactions]);
+
+  const currentRewardTiers = useMemo(() => {
+    const raw = formData.treasureHuntConfig?.rewardTiers;
+    return Array.isArray(raw) && raw.length > 0 ? raw : DEFAULT_TREASURE_REWARD_TIERS;
+  }, [formData.treasureHuntConfig?.rewardTiers]);
+
+  const totalTierPercentage = useMemo(() => {
+    return currentRewardTiers.reduce((sum, t) => sum + (Number(t.percentage) || 0), 0);
+  }, [currentRewardTiers]);
+
+  const handleUpdateTier = (index, field, value) => {
+    isDirtyRef.current = true;
+    setIsDirty(true);
+    const updated = currentRewardTiers.map((t, idx) => {
+      if (idx !== index) return t;
+      return {
+        ...t,
+        [field]: field === 'label' ? value : Math.max(0, Number(value) || 0)
+      };
+    });
+    handleTreasureConfigChange('rewardTiers', updated);
+  };
+
+  const handleResetDefaultTiers = () => {
+    isDirtyRef.current = true;
+    setIsDirty(true);
+    handleTreasureConfigChange('rewardTiers', DEFAULT_TREASURE_REWARD_TIERS);
+    if (showToast) showToast('Đã khôi phục 4 mốc phần thưởng về tỷ lệ chuẩn!', 'info');
+  };
 
   // Sync when context changes - TUYỆT ĐỐI KHÔNG GHI ĐÈ NẾU ADMIN ĐANG NHẬP DỞ (isDirty)
   useEffect(() => {
@@ -146,28 +188,54 @@ export default function AdminRewardsGamificationManager() {
   // 1. Lưu toàn bộ cấu hình
   const handleSaveAll = async (customConfig = null) => {
     const targetConfig = customConfig || formData;
-    const minAmt = Number(targetConfig.treasureHuntConfig?.minAmount || 2000);
-    const maxAmt = Number(targetConfig.treasureHuntConfig?.maxAmount || 20000);
-    if (minAmt > maxAmt) {
-      if (showToast) showToast('Cảnh báo: Tiền thưởng Min không được lớn hơn Max!', 'warning');
-      return;
+    const tCfg = targetConfig.treasureHuntConfig || {};
+
+    const regularLimit = Math.max(1, Number(tCfg.regularDailyLimit ?? 1));
+    const memberLimit = Math.max(1, Number(tCfg.memberDailyLimit ?? 3));
+    const monthlyBudget = Math.max(0, Number(tCfg.monthlyBudget ?? 50000));
+    const minReading = Math.max(0, Number(tCfg.minReadingSeconds ?? 4));
+    const cooldown = Math.max(0, Number(tCfg.cooldownSeconds ?? 20));
+    const itemsPerPg = Math.max(1, Number(tCfg.itemsPerPage ?? 16));
+
+    const tiers = Array.isArray(tCfg.rewardTiers) && tCfg.rewardTiers.length > 0
+      ? tCfg.rewardTiers
+      : DEFAULT_TREASURE_REWARD_TIERS;
+
+    // Kiểm tra tổng tỷ lệ 4 mốc
+    const totalPercent = tiers.reduce((sum, t) => sum + (Number(t.percentage) || 0), 0);
+    if (totalPercent !== 100) {
+      if (showToast) {
+        showToast(`Cảnh báo: Tổng tỷ lệ 4 mốc phần thưởng là ${totalPercent}% (Khuyến nghị đúng 100%)!`, 'warning');
+      }
     }
 
-    const memberMin = Math.max(1000, Number(targetConfig.treasureHuntConfig?.memberMinAmount ?? 8000));
-    const memberMax = Math.max(memberMin, Number(targetConfig.treasureHuntConfig?.memberMaxAmount ?? maxAmt));
-    const memberChance = Math.min(100, Math.max(10, Number(targetConfig.treasureHuntConfig?.memberHighTierChance ?? 80)));
+    const memberMin = Math.max(1000, Number(tCfg.memberMinAmount ?? 8000));
+    const memberMax = Math.max(memberMin, Number(tCfg.memberMaxAmount ?? 20000));
+    const memberChance = Math.min(100, Math.max(10, Number(tCfg.memberHighTierChance ?? 80)));
 
-    // Chuẩn hóa dữ liệu cấu hình rương đảm bảo luôn là kiểu Number
+    // Chuẩn hóa dữ liệu cấu hình rương đảm bảo luôn là kiểu chuẩn
     const sanitizedData = {
       ...targetConfig,
       treasureHuntConfig: {
-        ...targetConfig.treasureHuntConfig,
-        minAmount: minAmt,
-        maxAmount: maxAmt,
+        ...tCfg,
+        enabled: tCfg.enabled !== false,
+        requireLogin: tCfg.requireLogin !== false,
+        regularDailyLimit: regularLimit,
+        memberDailyLimit: memberLimit,
+        dailyLimit: regularLimit,
+        monthlyBudget,
+        minReadingSeconds: minReading,
+        cooldownSeconds: cooldown,
+        itemsPerPage: itemsPerPg,
+        rewardTiers: tiers.map(t => ({
+          ...t,
+          amount: Math.max(0, Number(t.amount) || 0),
+          percentage: Math.max(0, Number(t.percentage) || 0)
+        })),
         memberMinAmount: memberMin,
         memberMaxAmount: memberMax,
         memberHighTierChance: memberChance,
-        memberBonusEnabled: targetConfig.treasureHuntConfig?.memberBonusEnabled !== false
+        memberBonusEnabled: tCfg.memberBonusEnabled !== false
       }
     };
 
@@ -484,149 +552,279 @@ export default function AdminRewardsGamificationManager() {
               </div>
             </div>
 
-            {/* Anti-spam & Phân trang inputs */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                <label className="text-xs font-bold text-slate-300">
-                  Hạn mức rương / ngày / tài khoản
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={formData.treasureHuntConfig?.dailyLimit ?? 3}
-                    onChange={(e) => handleTreasureConfigChange('dailyLimit', Number(e.target.value))}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">Hộp</span>
+            {/* 1. QUY TẮC MỞ RƯƠNG & CHỐNG BOT (CHUNG TẤT CẢ ĐỐI TƯỢNG) */}
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                <div className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                  <i className="fa-solid fa-sliders text-amber-400"></i>
+                  <span>Quy Tắc Đối Tượng, Hạn Mức & Chống Bot</span>
                 </div>
-                <div className="text-[10px] text-slate-500">Người dùng chỉ được nhận tối đa số hộp này trong 1 ngày.</div>
+                {/* Toggle Yêu cầu đăng nhập */}
+                <label className="flex items-center gap-2.5 cursor-pointer bg-slate-950 px-3.5 py-1.5 rounded-xl border border-slate-800 hover:border-slate-700 transition">
+                  <span className="text-xs font-bold text-slate-300">
+                    Bắt buộc đăng nhập (Khách vãng lai):
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={formData.treasureHuntConfig?.requireLogin !== false}
+                    onChange={(e) => handleTreasureConfigChange('requireLogin', e.target.checked)}
+                    className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                  />
+                  <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${
+                    formData.treasureHuntConfig?.requireLogin !== false 
+                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' 
+                      : 'bg-slate-800 text-slate-400'
+                  }`}>
+                    {formData.treasureHuntConfig?.requireLogin !== false ? 'Yêu cầu đăng nhập' : 'Cho phép khách'}
+                  </span>
+                </label>
               </div>
 
-              <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                <label className="text-xs font-bold text-slate-300">
-                  Số tin hiển thị / trang (Săn rương)
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    min="4"
-                    max="60"
-                    step="4"
-                    value={formData.treasureHuntConfig?.itemsPerPage ?? 16}
-                    onChange={(e) => handleTreasureConfigChange('itemsPerPage', Math.max(1, Number(e.target.value) || 16))}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">Tin/trang</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Hạn mức Thành viên thường */}
+                <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
+                    <span>Hạn mức Thành Viên Thường</span>
+                    <span className="text-amber-400 text-[10px] font-mono">1 ngày / user</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={formData.treasureHuntConfig?.regularDailyLimit ?? 1}
+                      onChange={(e) => {
+                        const val = Math.max(1, Number(e.target.value) || 1);
+                        handleTreasureConfigChange('regularDailyLimit', val);
+                        handleTreasureConfigChange('dailyLimit', val);
+                      }}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm focus:border-amber-400 focus:outline-none"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">Rương / ngày</span>
+                  </div>
+                  <div className="text-[10px] text-slate-500">Mặc định: 1 rương / ngày đối với người chưa mua gói.</div>
                 </div>
-                <div className="text-[10px] text-slate-500">Số lượng tin hiển thị trước khi phân trang (Mặc định: 16).</div>
-              </div>
 
-              <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                <label className="text-xs font-bold text-slate-300">
-                  Thời gian đọc bài tối thiểu (Anti-bot)
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    min="1"
-                    max="60"
-                    value={formData.treasureHuntConfig?.minReadingSeconds ?? 4}
-                    onChange={(e) => handleTreasureConfigChange('minReadingSeconds', Number(e.target.value))}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">Giây</span>
+                {/* Hạn mức Hội viên VIP */}
+                <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-amber-500/30">
+                  <label className="text-xs font-bold text-amber-300 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <i className="fa-solid fa-crown text-amber-400 text-[10px]"></i>
+                      <span>Hạn mức Hội Viên VIP</span>
+                    </span>
+                    <span className="text-amber-400 text-[10px] font-mono">Đặc quyền VIP</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="1"
+                      max="20"
+                      value={formData.treasureHuntConfig?.memberDailyLimit ?? 3}
+                      onChange={(e) => handleTreasureConfigChange('memberDailyLimit', Math.max(1, Number(e.target.value) || 3))}
+                      className="w-full bg-slate-900 border border-amber-500/40 rounded-xl px-3 py-2 text-white font-bold text-sm focus:border-amber-400 focus:outline-none"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-amber-400">Rương / ngày</span>
+                  </div>
+                  <div className="text-[10px] text-slate-500">Mặc định: 3 rương / ngày đối với tài khoản mua Gói Hội Viên.</div>
                 </div>
-                <div className="text-[10px] text-slate-500">Phải xem bài viết đủ số giây này mới cho phép bấm mở rương.</div>
-              </div>
 
-              <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                <label className="text-xs font-bold text-slate-300">
-                  Thời gian hồi chiêu (Cooldown)
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    min="5"
-                    max="120"
-                    value={formData.treasureHuntConfig?.cooldownSeconds ?? 20}
-                    onChange={(e) => handleTreasureConfigChange('cooldownSeconds', Number(e.target.value))}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm"
-                  />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">Giây</span>
+                {/* Tổng ngân sách tháng */}
+                <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
+                    <span>Tổng Ngân Sách Mở Rương / Tháng</span>
+                    <span className="text-emerald-400 text-[10px] font-mono">Quỹ tối đa</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="0"
+                      step="5000"
+                      value={formData.treasureHuntConfig?.monthlyBudget ?? 50000}
+                      onChange={(e) => handleTreasureConfigChange('monthlyBudget', Math.max(0, Number(e.target.value) || 0))}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm focus:border-emerald-400 focus:outline-none"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">VNĐ</span>
+                  </div>
+                  {/* Thanh tiến độ ngân sách tháng */}
+                  <div className="pt-1 space-y-1">
+                    <div className="flex items-center justify-between text-[10px] text-slate-400">
+                      <span>Đã chi tháng này: <strong className="text-emerald-400 font-mono">{budgetStatus.currentSpent.toLocaleString('vi-VN')}đ</strong></span>
+                      <span className="font-mono">{budgetStatus.percentUsed}%</span>
+                    </div>
+                    <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all duration-300 ${budgetStatus.isBudgetExceeded ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                        style={{ width: `${budgetStatus.percentUsed}%` }}
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="text-[10px] text-slate-500">Giãn cách tối thiểu giữa 2 lần mở hộp quà khác nhau.</div>
+
+                {/* Thời gian đọc bài chống bot */}
+                <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
+                    <span>Thời gian đọc chống bot (Chung)</span>
+                    <span className="text-blue-400 text-[10px] font-mono">Anti-bot</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="0"
+                      max="120"
+                      value={formData.treasureHuntConfig?.minReadingSeconds ?? 4}
+                      onChange={(e) => handleTreasureConfigChange('minReadingSeconds', Math.max(0, Number(e.target.value)))}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm focus:border-blue-400 focus:outline-none"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">Giây</span>
+                  </div>
+                  <div className="text-[10px] text-slate-500">Phải xem bài viết đủ số giây này mới cho phép bấm mở rương (chung tất cả).</div>
+                </div>
+
+                {/* Thời gian hồi chiêu Cooldown */}
+                <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
+                    <span>Thời gian chờ Cooldown (Chung)</span>
+                    <span className="text-purple-400 text-[10px] font-mono">Giãn cách</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="0"
+                      max="300"
+                      value={formData.treasureHuntConfig?.cooldownSeconds ?? 20}
+                      onChange={(e) => handleTreasureConfigChange('cooldownSeconds', Math.max(0, Number(e.target.value)))}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm focus:border-purple-400 focus:outline-none"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">Giây</span>
+                  </div>
+                  <div className="text-[10px] text-slate-500">Thời gian nghỉ tối thiểu giữa 2 lần mở hộp quà khác nhau (chung tất cả).</div>
+                </div>
+
+                {/* Số tin hiển thị / trang */}
+                <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <label className="text-xs font-bold text-slate-300">
+                    Số tin hiển thị / trang (Săn rương)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="4"
+                      max="60"
+                      step="4"
+                      value={formData.treasureHuntConfig?.itemsPerPage ?? 16}
+                      onChange={(e) => handleTreasureConfigChange('itemsPerPage', Math.max(1, Number(e.target.value) || 16))}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm focus:border-amber-400 focus:outline-none"
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">Tin/trang</span>
+                  </div>
+                  <div className="text-[10px] text-slate-500">Số lượng tin hiển thị trước khi phân trang (Mặc định: 16).</div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Cấu hình Khoảng Tiền Thưởng Ngẫu Nhiên */}
+          {/* 2. CẤU HÌNH 4 MỐC PHẦN THƯỞNG THEO HÌNH THIẾT KẾ */}
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
               <div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <i className="fa-solid fa-coins text-amber-400"></i>
-                  Khoảng Tiền Thưởng Ngẫu Nhiên (Cộng Trực Tiếp Ví KM)
+                  <i className="fa-solid fa-table-list text-amber-400"></i>
+                  Cấu Hình 4 Mốc Phần Thưởng (Tỷ Lệ Xuất Hiện %)
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Tùy chỉnh khoảng giá từ min đến max. Mỗi rương mở ra sẽ random số tiền hoàn toàn ngẫu nhiên trong khoảng này (không phân cấp).
+                  Tùy chỉnh 4 mốc phần thưởng, số tiền và tỷ lệ xuất hiện theo bảng chuẩn. Tổng tỷ lệ phải bằng đúng 100%.
                 </p>
               </div>
 
-              <div className="px-3 py-1 rounded-full text-xs font-black bg-amber-500/20 text-amber-300 border border-amber-500/30">
-                {(Number(formData.treasureHuntConfig?.minAmount || 2000)).toLocaleString('vi-VN')} đ ➔ {(Number(formData.treasureHuntConfig?.maxAmount || 20000)).toLocaleString('vi-VN')} đ
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={`px-3 py-1 rounded-full text-xs font-mono font-bold border flex items-center gap-1.5 ${
+                  totalTierPercentage === 100
+                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                    : 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
+                }`}>
+                  <i className={`fa-solid ${totalTierPercentage === 100 ? 'fa-circle-check text-emerald-400' : 'fa-triangle-exclamation text-rose-400'}`}></i>
+                  <span>Tổng tỷ lệ: {totalTierPercentage}% {totalTierPercentage === 100 ? '(Chuẩn)' : '(Chưa đủ/vượt 100%)'}</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={handleResetDefaultTiers}
+                  className="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                  title="Khôi phục về 4 mốc mặc định: 0đ (25%), 1.200đ (45%), 2.500đ (25%), 12.000đ (5%)"
+                >
+                  <i className="fa-solid fa-rotate-left text-[10px]"></i>
+                  <span>Khôi phục mặc định</span>
+                </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-2">
-                <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
-                  <span>Tiền Thưởng Tối Thiểu (Min)</span>
-                  <span className="text-emerald-400 text-[11px] font-mono">Tối thiểu: 1.000 đ</span>
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min="1000"
-                    step="1000"
-                    value={formData.treasureHuntConfig?.minAmount ?? 2000}
-                    onChange={(e) => handleTreasureConfigChange('minAmount', Math.max(1000, Number(e.target.value) || 1000))}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm focus:border-amber-500 focus:outline-none"
-                  />
-                  <span className="text-xs text-slate-400 font-bold shrink-0">VNĐ</span>
-                </div>
-                <div className="text-[10px] text-slate-500">Mức tiền tối thiểu người dùng nhận được khi mở rương (Mặc định: 2.000 đ).</div>
-              </div>
-
-              <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-2">
-                <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
-                  <span>Tiền Thưởng Tối Đa (Max)</span>
-                  <span className="text-amber-400 text-[11px] font-mono">Ví dụ: 20.000 đ</span>
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min="1000"
-                    step="1000"
-                    value={formData.treasureHuntConfig?.maxAmount ?? 20000}
-                    onChange={(e) => handleTreasureConfigChange('maxAmount', Math.max(1000, Number(e.target.value) || 20000))}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm focus:border-amber-500 focus:outline-none"
-                  />
-                  <span className="text-xs text-slate-400 font-bold shrink-0">VNĐ</span>
-                </div>
-                <div className="text-[10px] text-slate-500">Mức tiền tối đa người dùng có thể nhận được khi mở rương (Mặc định: 20.000 đ).</div>
-              </div>
+            {/* Bảng chỉnh sửa 4 mốc phần thưởng */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-slate-800 text-slate-400 uppercase text-[11px] font-bold">
+                    <th className="py-2.5 px-3">Mốc phần thưởng</th>
+                    <th className="py-2.5 px-3">Số tiền nhận (đ)</th>
+                    <th className="py-2.5 px-3 text-right">Tỷ lệ xuất hiện (%)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/60 font-medium">
+                  {currentRewardTiers.map((tier, idx) => (
+                    <tr key={tier.id || idx} className="hover:bg-slate-950/40 transition">
+                      <td className="py-2.5 px-3">
+                        <div className="flex items-center gap-2">
+                          <span className={`w-2 h-2 rounded-full shrink-0 ${Number(tier.amount) === 0 ? 'bg-slate-500' : 'bg-amber-400'}`}></span>
+                          <input
+                            type="text"
+                            value={tier.label || ''}
+                            onChange={(e) => handleUpdateTier(idx, 'label', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-white font-bold text-xs focus:border-amber-400 focus:outline-none"
+                            placeholder="Tên mốc phần thưởng..."
+                          />
+                        </div>
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <div className="flex items-center gap-1.5 max-w-[200px]">
+                          <input
+                            type="number"
+                            min="0"
+                            step="100"
+                            value={tier.amount ?? 0}
+                            onChange={(e) => handleUpdateTier(idx, 'amount', e.target.value)}
+                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-amber-300 font-mono font-bold text-xs focus:border-amber-400 focus:outline-none"
+                          />
+                          <span className="text-slate-400 text-xs font-mono font-bold shrink-0">đ</span>
+                        </div>
+                      </td>
+                      <td className="py-2.5 px-3 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={tier.percentage ?? 0}
+                            onChange={(e) => handleUpdateTier(idx, 'percentage', e.target.value)}
+                            className="w-20 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-right text-emerald-400 font-mono font-bold text-xs focus:border-emerald-400 focus:outline-none"
+                          />
+                          <span className="text-slate-400 text-xs font-mono font-bold shrink-0">%</span>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
-            {/* Xem trước trực quan người thường */}
-            <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 text-xs text-slate-300 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-slate-800 text-slate-400 flex items-center justify-center text-lg shrink-0">
-                <i className="fa-solid fa-user"></i>
+            {/* Ghi chú giải thích cơ chế 4 mốc */}
+            <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 text-xs text-slate-400 leading-relaxed space-y-1">
+              <div className="text-slate-300 font-bold flex items-center gap-1.5">
+                <i className="fa-solid fa-circle-info text-amber-400 text-[11px]"></i>
+                <span>Quy tắc vận hành 4 mốc:</span>
               </div>
-              <div className="leading-relaxed">
-                <strong className="text-white">Người dùng thông thường (chưa mua gói):</strong> Mở rương sẽ nhận ngẫu nhiên từ <strong className="text-emerald-400">{(Number(formData.treasureHuntConfig?.minAmount || 2000)).toLocaleString('vi-VN')} đ</strong> đến <strong className="text-amber-400">{(Number(formData.treasureHuntConfig?.maxAmount || 20000)).toLocaleString('vi-VN')} đ</strong> (75% xác suất rơi vào các mốc tiền nhỏ phổ thông).
-              </div>
+              <ul className="list-disc list-inside space-y-0.5 text-[11px] text-slate-400 pl-1">
+                <li>Khi quay vào mốc <strong>Chúc may mắn (0đ)</strong>, hệ thống sẽ hiển thị thông báo popup "Chúc bạn may mắn lần sau", không cộng tiền nhưng vẫn tính 1 lượt mở rương hôm nay.</li>
+                <li>Khi quay vào các mốc <strong>1.200đ</strong>, <strong>2.500đ</strong> hoặc <strong>12.000đ</strong>, tiền được cộng thẳng vào Ví Khuyến Mãi của người dùng.</li>
+                <li>Nếu ngân sách tháng vượt ngưỡng {monthlyBudgetVal.toLocaleString('vi-VN')}đ, hệ thống tự động khóa nhận tiền và thông báo hết ngân sách tháng.</li>
+              </ul>
             </div>
 
             {/* Phân hệ Đặc Quyền Hội Viên Khi Mở Rương */}

@@ -2990,7 +2990,7 @@
     "brandTagline": "",
     "logoImageUrl": "",
     "brandHighlight": ".com.vn",
-    "containerWidth": "boxed",
+    "containerWidth": "wide",
     "showTaglineWithImage": false
   },
   "bds_system_config": {
@@ -3610,7 +3610,7 @@
         "normalPublishDiscount": 5000,
         "normalPublishVouchers": 30
       },
-      "allowTreasureHunt": false,
+      "allowTreasureHunt": true,
       "allowFutureStartDate": false,
       "treasureHuntMaxArticles": 1,
       "allowScheduledPublishing": false
@@ -3670,7 +3670,7 @@
       },
       "allowTreasureHunt": true,
       "allowFutureStartDate": true,
-      "treasureHuntMaxArticles": 1,
+      "treasureHuntMaxArticles": 2,
       "allowScheduledPublishing": true
     },
     {
@@ -3729,7 +3729,7 @@
       },
       "allowTreasureHunt": true,
       "allowFutureStartDate": true,
-      "treasureHuntMaxArticles": 3,
+      "treasureHuntMaxArticles": 2,
       "allowScheduledPublishing": true
     }
   ],
@@ -4781,14 +4781,44 @@
       "enabled": true,
       "maxAmount": 20000,
       "minAmount": 2000,
-      "dailyLimit": 2,
+      "dailyLimit": 1,
       "itemsPerPage": 16,
       "cooldownSeconds": 20,
       "memberMaxAmount": 20000,
       "memberMinAmount": 8000,
-      "minReadingSeconds": 20,
+      "minReadingSeconds": 4,
       "memberBonusEnabled": true,
-      "memberHighTierChance": 80
+      "memberHighTierChance": 80,
+      "requireLogin": true,
+      "regularDailyLimit": 1,
+      "memberDailyLimit": 3,
+      "monthlyBudget": 50000,
+      "rewardTiers": [
+        {
+          "id": "tier_empty",
+          "label": "Chúc may mắn (Rỗng)",
+          "amount": 0,
+          "percentage": 25
+        },
+        {
+          "id": "tier_min",
+          "label": "Thưởng Tối Thiểu (Nhỏ)",
+          "amount": 1200,
+          "percentage": 45
+        },
+        {
+          "id": "tier_common",
+          "label": "Thưởng Phổ Biến (Vừa)",
+          "amount": 2500,
+          "percentage": 25
+        },
+        {
+          "id": "tier_max",
+          "label": "Thưởng Tối Đa (Lớn)",
+          "amount": 12000,
+          "percentage": 5
+        }
+      ]
     }
   },
   "bds_transactions": [

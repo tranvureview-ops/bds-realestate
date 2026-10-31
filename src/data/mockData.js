@@ -2753,6 +2753,7 @@ export const MOCK_USERS = [
     "role": "broker",
     "roleName": "Môi Giới",
     "walletBalance": 2966000,
+    "bonusWalletBalance": 0,
     "phone": "0905467138",
     "avatar": "/avatars/user-tran-van-vu.jpg",
     "membership": {
@@ -3046,7 +3047,7 @@ export const DEFAULT_HEADER_CONFIG = {
   logoHeight: 40,
   logoAlt: 'KÊNH NHÀ ĐẤT 24H Logo',
   showTaglineWithImage: false,
-  containerWidth: 'boxed', // 'boxed' (max-w-7xl) | 'wide' (max-w-screen-2xl) | 'full' (w-full 100%)
+  containerWidth: 'wide', // 'boxed' (max-w-7xl) | 'wide' (max-w-screen-2xl) | 'full' (w-full 100%)
   socialLinks: DEFAULT_SOCIAL_LINKS,
   topbar: {
     showTopbar: true,

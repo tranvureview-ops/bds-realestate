@@ -12,38 +12,60 @@ import {
   isPropertyTreasureActive,
   getTreasureExpirationInfo,
   calculateTreasureHuntExpiry,
-  isUserMembershipActive
+  isUserMembershipActive,
+  getMonthlyTreasureBudgetStatus
 } from '../services/treasureHuntService';
 
 export default function ArticleTreasureBox({ property }) {
-  const { currentUser, showToast, addBonusWalletBalance, rewardsConfig, updateProperty, isMembershipActive } = useRealEstate();
+  const { 
+    currentUser, 
+    showToast, 
+    addBonusWalletBalance, 
+    rewardsConfig, 
+    updateProperty, 
+    isMembershipActive,
+    transactions,
+    setActiveModal
+  } = useRealEstate();
   const { navigate } = useRouter();
 
   const isMember = isMembershipActive ? isMembershipActive(currentUser) : isUserMembershipActive(currentUser);
 
   const tConfig = rewardsConfig?.treasureHuntConfig;
   const isFeatureEnabled = tConfig?.enabled !== false;
-  const dailyLimit = Number(tConfig?.dailyLimit || 3);
+  const requireLogin = tConfig?.requireLogin !== false;
+
+  // Hạn mức mở rương theo đối tượng: Thành viên thường (mặc định 1) vs Hội viên VIP (mặc định 3)
+  const regularDailyLimit = Number(tConfig?.regularDailyLimit || 1);
+  const memberDailyLimit = Number(tConfig?.memberDailyLimit || 3);
+  const effectiveDailyLimit = isMember ? memberDailyLimit : regularDailyLimit;
+
+  // Thời gian đọc chống bot & cooldown dùng chung cho tất cả đối tượng
   const minReadingSeconds = Number(tConfig?.minReadingSeconds || 4);
   const cooldownSeconds = Number(tConfig?.cooldownSeconds || 20);
-  const minAmount = Number(tConfig?.minAmount || 2000);
-  const maxAmount = Number(tConfig?.maxAmount || 20000);
+
+  // Tổng ngân sách tháng
+  const monthlyBudget = Number(tConfig?.monthlyBudget || 50000);
+  const budgetStatus = getMonthlyTreasureBudgetStatus(monthlyBudget, transactions);
+
+  const minAmount = Number(tConfig?.minAmount || 1200);
+  const maxAmount = Number(tConfig?.maxAmount || 12000);
   const memberMinAmount = Number(tConfig?.memberMinAmount || 8000);
-  const memberMaxAmount = Number(tConfig?.memberMaxAmount || maxAmount);
+  const memberMaxAmount = Number(tConfig?.memberMaxAmount || 20000);
 
   const isAdmin = currentUser?.role === 'admin';
   const isTreasureActive = isPropertyTreasureActive(property, property?.author);
   const treasureExpInfo = getTreasureExpirationInfo(property);
 
+  const isGuest = !currentUser || currentUser.role === 'guest' || !currentUser.id;
+  const effectiveUserId = (!isGuest ? currentUser.id : null) || 'guest';
+
   const [hasClaimedThisArticle, setHasClaimedThisArticle] = useState(false);
-  const [quota, setQuota] = useState({ count: 0, limit: dailyLimit, remaining: dailyLimit, isLimitReached: false });
+  const [quota, setQuota] = useState({ count: 0, limit: effectiveDailyLimit, remaining: effectiveDailyLimit, isLimitReached: false });
   const [readingSecondsLeft, setReadingSecondsLeft] = useState(minReadingSeconds > 0 ? minReadingSeconds : 0);
   const [timeReady, setTimeReady] = useState(minReadingSeconds <= 0);
   const [isOpening, setIsOpening] = useState(false);
   const [revealedReward, setRevealedReward] = useState(null);
-
-  const effectiveUserId = (currentUser && currentUser.role !== 'guest' ? currentUser.id : null) || 'guest';
-  const isGuest = effectiveUserId === 'guest';
 
   // 1. Kiểm tra trạng thái rương & đồng hồ đếm ngược xem bài viết (Anti-bot)
   useEffect(() => {
@@ -53,7 +75,7 @@ export default function ArticleTreasureBox({ property }) {
 
     if (property?.id) {
       const claimed = hasClaimedPropertyToday(effectiveUserId, property.id);
-      const quotaStatus = getDailyQuotaStatus(effectiveUserId, dailyLimit);
+      const quotaStatus = getDailyQuotaStatus(effectiveUserId, effectiveDailyLimit);
       setHasClaimedThisArticle(claimed);
       setQuota(quotaStatus);
 
@@ -89,11 +111,32 @@ export default function ArticleTreasureBox({ property }) {
     return () => {
       if (timer) clearInterval(timer);
     };
-  }, [effectiveUserId, property?.id, dailyLimit, minReadingSeconds]);
+  }, [effectiveUserId, property?.id, effectiveDailyLimit, minReadingSeconds]);
 
   // 2. Thao tác Mở Hộp Quà
   const handleOpenChest = () => {
-    // 0. Chống bot/spam: Phải xem bài viết ít nhất X giây mới sẵn sàng mở hộp
+    // 0. Khách vãng lai: Yêu cầu đăng nhập mới được mở rương
+    if (isGuest && requireLogin) {
+      if (showToast) {
+        showToast('🔑 Vui lòng đăng nhập để mở rương và nhận tiền thưởng vào Ví Khuyến Mãi!', 'info');
+      }
+      if (typeof setActiveModal === 'function') {
+        setActiveModal('auth');
+      } else if (navigate) {
+        navigate('/dang-nhap?redirect=' + encodeURIComponent(window.location.pathname));
+      }
+      return;
+    }
+
+    // A. Kiểm tra ngân sách tháng
+    if (budgetStatus.isBudgetExceeded) {
+      if (showToast) {
+        showToast('🎁 Ngân sách mở rương tháng này đã đạt giới hạn tối đa. Hẹn gặp lại bạn vào đầu tháng sau!', 'warning');
+      }
+      return;
+    }
+
+    // B. Chống bot/spam: Phải xem bài viết ít nhất X giây mới sẵn sàng mở hộp
     if (!timeReady || readingSecondsLeft > 0) {
       if (showToast) {
         showToast(`🛡️ Vui lòng xem tin đăng thêm ${readingSecondsLeft}s nữa để mở khóa rương (Chống bot gian lận)!`, 'warning');
@@ -101,16 +144,16 @@ export default function ArticleTreasureBox({ property }) {
       return;
     }
 
-    // A. Kiểm tra giới hạn N hộp / ngày
-    const currentQuota = getDailyQuotaStatus(effectiveUserId, dailyLimit);
+    // C. Kiểm tra giới hạn N hộp / ngày theo loại tài khoản (Thành viên thường: 1, VIP: 3)
+    const currentQuota = getDailyQuotaStatus(effectiveUserId, effectiveDailyLimit);
     if (currentQuota.isLimitReached) {
       if (showToast) {
-        showToast(`Hôm nay bạn đã mở đủ ${dailyLimit}/${dailyLimit} rương kho báu! Hãy quay lại vào ngày mai nhé.`, 'warning');
+        showToast(`Hôm nay bạn đã mở đủ ${effectiveDailyLimit}/${effectiveDailyLimit} rương kho báu! Hãy quay lại vào ngày mai nhé.`, 'warning');
       }
       return;
     }
 
-    // B. Kiểm tra đã mở bài viết này chưa
+    // D. Kiểm tra đã mở bài viết này chưa
     if (hasClaimedPropertyToday(effectiveUserId, property?.id)) {
       if (showToast) {
         showToast('Bạn đã nhận rương từ tin đăng này hôm nay. Hãy khám phá tin khác!', 'info');
@@ -118,7 +161,7 @@ export default function ArticleTreasureBox({ property }) {
       return;
     }
 
-    // C. Kiểm tra Cooldown chống spam
+    // E. Kiểm tra Cooldown chống spam
     const cooldown = checkCooldownStatus(effectiveUserId, cooldownSeconds);
     if (!cooldown.canOpen) {
       if (showToast) {
@@ -131,25 +174,34 @@ export default function ArticleTreasureBox({ property }) {
     setIsOpening(true);
 
     setTimeout(() => {
-      // Tính ngẫu nhiên tiền thưởng: Hội viên có tỷ lệ và giá trị tiền cao hơn người không mua gói
-      const reward = calculateTreasureReward(tConfig, currentUser, isMember);
+      // Tính tiền thưởng theo 4 mốc cấu hình (Thường: 0đ/25%, 1.200đ/45%, 2.500đ/25%, 12.000đ/5%; VIP hưởng mốc cao)
+      const reward = calculateTreasureReward(tConfig, currentUser, isMember, budgetStatus.remainingBudget);
 
-      // Cộng tiền trực tiếp vào Ví Khuyến Mãi
-      if (addBonusWalletBalance) {
+      // Nếu trúng mốc có tiền: cộng tiền vào Ví Khuyến Mãi
+      if (!reward.isEmpty && reward.amount > 0 && addBonusWalletBalance) {
         addBonusWalletBalance(reward.amount, `Rương bài viết (${reward.label}): ${property?.title || property?.id}`);
       }
 
-      // Lưu lịch sử claim
-      recordTreasureClaim(effectiveUserId, property?.id, property?.title, reward.amount, reward.isMemberBonus);
+      // Lưu lịch sử claim (kể cả khi 0đ vẫn tính là 1 lượt mở hôm nay)
+      recordTreasureClaim(
+        effectiveUserId, 
+        property?.id, 
+        property?.title, 
+        reward.amount, 
+        reward.isMemberBonus, 
+        { isEmpty: Boolean(reward.isEmpty), label: reward.label }
+      );
 
       setRevealedReward(reward);
       setHasClaimedThisArticle(true);
-      setQuota(getDailyQuotaStatus(effectiveUserId, dailyLimit));
+      setQuota(getDailyQuotaStatus(effectiveUserId, effectiveDailyLimit));
       setIsOpening(false);
 
       if (showToast) {
-        if (reward.isMemberBonus) {
-          showToast(`👑 Đặc quyền Hội Viên! Đã cộng +${reward.amount.toLocaleString('vi-VN')}đ (tỷ lệ thưởng cao) vào Ví Khuyến Mãi của bạn!`, 'success');
+        if (reward.isEmpty) {
+          showToast('🍀 Bạn trúng mốc Chúc May Mắn. Hẹn gặp lại bạn vào ngày mai để thử vận may nhé!', 'info');
+        } else if (reward.isMemberBonus) {
+          showToast(`👑 Đặc quyền Hội Viên! Đã cộng +${reward.amount.toLocaleString('vi-VN')}đ vào Ví Khuyến Mãi của bạn!`, 'success');
         } else {
           showToast(`🎉 Chúc mừng! Đã cộng +${reward.amount.toLocaleString('vi-VN')}đ vào Ví Khuyến Mãi của bạn!`, 'success');
         }
@@ -271,9 +323,15 @@ export default function ArticleTreasureBox({ property }) {
                 </span>
               )}
               <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white/20 text-white">
-                Hạn mức hôm nay: <strong>{quota.count}/{dailyLimit} rương</strong>
+                Hạn mức hôm nay: <strong>{quota.count}/{effectiveDailyLimit} rương</strong>
               </span>
-              {!hasClaimedThisArticle && !quota.isLimitReached && (
+              {budgetStatus.isBudgetExceeded && (
+                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-rose-600/80 text-white flex items-center gap-1 shadow-xs">
+                  <i className="fa-solid fa-circle-exclamation text-[10px]"></i>
+                  <span>Ngân sách tháng đã hết</span>
+                </span>
+              )}
+              {!hasClaimedThisArticle && !quota.isLimitReached && !budgetStatus.isBudgetExceeded && (
                 !timeReady ? (
                   <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-950/70 text-amber-300 border border-amber-400/40 flex items-center gap-1.5 shadow-xs">
                     <i className="fa-solid fa-hourglass-half animate-spin text-[10px] text-amber-400"></i>
@@ -291,29 +349,37 @@ export default function ArticleTreasureBox({ property }) {
             <h4 className="text-base sm:text-lg font-black leading-snug">
               {hasClaimedThisArticle 
                 ? 'Bạn đã mở rương bài viết này thành công!'
+                : budgetStatus.isBudgetExceeded
+                ? 'Ngân sách thưởng mở rương tháng này đã đạt giới hạn!'
                 : quota.isLimitReached
-                ? `Bạn đã nhận đủ ${dailyLimit}/${dailyLimit} rương kho báu hôm nay!`
+                ? `Bạn đã nhận đủ ${effectiveDailyLimit}/${effectiveDailyLimit} rương kho báu hôm nay!`
                 : !timeReady
                 ? `Rương Kho Báu Đang Mở Khóa (${readingSecondsLeft}s)`
                 : isMember
-                ? `Rương Đặc Quyền Hội Viên (${currentUser.membership?.packageName || 'VIP'})`
+                ? `Rương Đặc Quyền Hội Viên (${currentUser?.membership?.packageName || 'VIP'})`
+                : isGuest && requireLogin
+                ? 'Đăng nhập để mở Rương Kho Báu trong bài viết này!'
                 : 'Bạn vừa tìm thấy 1 Rương Kho Báu trong bài viết này!'}
             </h4>
 
             <p className="text-xs text-white/90 leading-relaxed max-w-xl">
               {hasClaimedThisArticle
                 ? 'Tiền thưởng đã được cộng vào Ví Khuyến Mãi. Hãy tiếp tục xem tin khác để săn rương tiếp theo!'
+                : budgetStatus.isBudgetExceeded
+                ? 'Tổng quỹ tiền thưởng mở rương tháng này đã được trao hết. Hệ thống sẽ làm mới quỹ vào đầu tháng sau.'
                 : quota.isLimitReached
-                ? `Hẹn gặp lại bạn vào ngày mai để tiếp tục săn ${dailyLimit} rương nhận tiền vào Ví Khuyến Mãi nhé.`
+                ? `Hẹn gặp lại bạn vào ngày mai để tiếp tục săn ${effectiveDailyLimit} rương nhận tiền vào Ví Khuyến Mãi nhé.`
+                : isGuest && requireLogin
+                ? 'Quý khách vui lòng đăng nhập tài khoản để mở rương nhận thưởng trực tiếp vào Ví Khuyến Mãi.'
                 : !timeReady
                 ? `Vui lòng xem bài viết trong ${readingSecondsLeft} giây nữa để chống bot và mở khóa nhận thưởng vào Ví Khuyến Mãi.`
                 : isMember
                 ? `👑 Đặc quyền Hội Viên: Bạn được kích hoạt tỷ lệ nhận tiền thưởng cao nhất (từ ${memberMinAmount.toLocaleString('vi-VN')}đ đến ${memberMaxAmount.toLocaleString('vi-VN')}đ, 80% cơ hội trúng tiền lớn) cộng thẳng vào Ví Khuyến Mãi!`
-                : `Mở rương ngẫu nhiên nhận từ ${minAmount.toLocaleString('vi-VN')}đ đến ${maxAmount.toLocaleString('vi-VN')}đ tiền tươi cộng thẳng vào Ví Khuyến Mãi.`}
+                : `Thành viên mở rương ngẫu nhiên nhận thưởng từ ${minAmount.toLocaleString('vi-VN')}đ đến ${maxAmount.toLocaleString('vi-VN')}đ hoặc quà may mắn cộng thẳng vào Ví Khuyến Mãi.`}
             </p>
 
             {/* Thanh tiến trình đếm ngược thời gian đọc tin */}
-            {!hasClaimedThisArticle && !quota.isLimitReached && !timeReady && minReadingSeconds > 0 && (
+            {!hasClaimedThisArticle && !quota.isLimitReached && !budgetStatus.isBudgetExceeded && !timeReady && minReadingSeconds > 0 && (
               <div className="w-full max-w-md bg-black/30 rounded-full h-1.5 overflow-hidden mt-2 p-0.5 border border-white/20">
                 <div 
                   className="bg-gradient-to-r from-amber-300 to-yellow-200 h-full rounded-full transition-all duration-1000 ease-linear shadow"
@@ -331,11 +397,25 @@ export default function ArticleTreasureBox({ property }) {
               <i className="fa-solid fa-circle-check text-amber-300"></i>
               <span>Đã nhận thưởng</span>
             </div>
+          ) : budgetStatus.isBudgetExceeded ? (
+            <div className="px-5 py-2.5 rounded-2xl bg-black/30 backdrop-blur-md border border-white/20 text-rose-200 text-xs font-bold flex items-center justify-center gap-2">
+              <i className="fa-solid fa-circle-exclamation text-rose-300"></i>
+              <span>Hết ngân sách tháng</span>
+            </div>
           ) : quota.isLimitReached ? (
             <div className="px-5 py-2.5 rounded-2xl bg-black/20 backdrop-blur-md border border-white/20 text-white text-xs font-bold flex items-center justify-center gap-2">
               <i className="fa-solid fa-lock"></i>
               <span>Đã hết lượt hôm nay</span>
             </div>
+          ) : isGuest && requireLogin ? (
+            <button
+              type="button"
+              onClick={handleOpenChest}
+              className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-white hover:bg-amber-50 text-slate-900 font-black text-xs sm:text-sm shadow-xl transition-transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <i className="fa-solid fa-right-to-bracket text-amber-600"></i>
+              <span>Đăng nhập để mở rương</span>
+            </button>
           ) : !timeReady ? (
             <button
               type="button"
@@ -371,7 +451,7 @@ export default function ArticleTreasureBox({ property }) {
             </button>
           )}
 
-          {!hasClaimedThisArticle && !quota.isLimitReached && (
+          {!hasClaimedThisArticle && !quota.isLimitReached && !budgetStatus.isBudgetExceeded && (
             <div className="text-[10px] text-white/90 mt-1.5 font-medium">
               {isMember ? (
                 <span className="text-amber-100 font-bold">
@@ -379,7 +459,7 @@ export default function ArticleTreasureBox({ property }) {
                 </span>
               ) : (
                 <span>
-                  🎁 Thưởng ngẫu nhiên: {minAmount.toLocaleString('vi-VN')}đ - {maxAmount.toLocaleString('vi-VN')}đ / rương
+                  🎁 Thưởng theo 4 mốc: 0đ (25%) • 1.200đ (45%) • 2.500đ (25%) • 12.000đ (5%)
                 </span>
               )}
             </div>
@@ -387,61 +467,90 @@ export default function ArticleTreasureBox({ property }) {
         </div>
       </div>
 
-      {/* Modal Popup chúc mừng nhận quà */}
+      {/* Modal Popup chúc mừng nhận quà / Chúc may mắn lần sau */}
       {revealedReward && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center space-y-4 shadow-2xl text-slate-800">
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto text-4xl shadow-inner animate-bounce ${
-              revealedReward.isMemberBonus ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'
-            }`}>
-              <i className={`fa-solid ${revealedReward.isMemberBonus ? 'fa-crown' : 'fa-hand-holding-dollar'}`}></i>
-            </div>
+            {revealedReward.isEmpty ? (
+              // Trường hợp 1: Trúng mốc 0đ (Chúc may mắn - Rỗng)
+              <>
+                <div className="w-20 h-20 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center mx-auto text-4xl shadow-inner">
+                  <i className="fa-solid fa-face-smile-wink text-amber-500"></i>
+                </div>
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 bg-slate-100 border border-slate-200 px-3 py-1 rounded-full">
+                    🍀 Chúc May Mắn
+                  </span>
+                  <h3 className="text-xl font-black text-slate-900 mt-2">Chúc Bạn May Mắn Lần Sau!</h3>
+                  <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                    Rất tiếc rương này chưa có tiền thưởng (Mốc Chúc may mắn 0đ). Đừng nản lòng nhé!
+                  </p>
+                </div>
+                <div className="p-4 rounded-2xl border-2 border-dashed bg-slate-50 border-slate-300">
+                  <div className="text-2xl font-black font-mono text-slate-600">
+                    0 đ
+                  </div>
+                  <div className="text-[11px] font-semibold text-slate-500 mt-1">
+                    Đã tính 1 lượt mở rương hôm nay
+                  </div>
+                </div>
+              </>
+            ) : (
+              // Trường hợp 2: Trúng mốc có tiền thưởng
+              <>
+                <div className={`w-20 h-20 rounded-full flex items-center justify-center mx-auto text-4xl shadow-inner animate-bounce ${
+                  revealedReward.isMemberBonus ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'
+                }`}>
+                  <i className={`fa-solid ${revealedReward.isMemberBonus ? 'fa-crown' : 'fa-hand-holding-dollar'}`}></i>
+                </div>
 
-            <div>
-              {revealedReward.isMemberBonus ? (
-                <span className="text-[11px] font-black uppercase tracking-wider text-amber-800 bg-amber-100 border border-amber-300 px-3 py-1 rounded-full inline-flex items-center gap-1.5">
-                  <i className="fa-solid fa-crown text-amber-600"></i>
-                  <span>Đặc Quyền Hội Viên: {revealedReward.memberPackageName || 'VIP'}</span>
-                </span>
-              ) : (
-                <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
-                  🎁 Tiền Thưởng Ngẫu Nhiên
-                </span>
-              )}
-              <h3 className="text-xl font-black text-slate-900 mt-2">Mở Rương Thành Công!</h3>
-              <p className="text-xs text-slate-500 mt-1">
-                {revealedReward.isMemberBonus
-                  ? 'Nhờ sở hữu Gói Hội Viên, bạn nhận được mức tiền thưởng tỷ lệ cao vào Ví Khuyến Mãi:'
-                  : 'Tiền thưởng đã được cộng trực tiếp vào Ví Khuyến Mãi của bạn:'}
-              </p>
-            </div>
+                <div>
+                  {revealedReward.isMemberBonus ? (
+                    <span className="text-[11px] font-black uppercase tracking-wider text-amber-800 bg-amber-100 border border-amber-300 px-3 py-1 rounded-full inline-flex items-center gap-1.5">
+                      <i className="fa-solid fa-crown text-amber-600"></i>
+                      <span>Đặc Quyền Hội Viên: {revealedReward.memberPackageName || 'VIP'}</span>
+                    </span>
+                  ) : (
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
+                      🎁 {revealedReward.label || 'Tiền Thưởng Ngẫu Nhiên'}
+                    </span>
+                  )}
+                  <h3 className="text-xl font-black text-slate-900 mt-2">Mở Rương Thành Công!</h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {revealedReward.isMemberBonus
+                      ? 'Nhờ sở hữu Gói Hội Viên, bạn nhận được mức tiền thưởng tỷ lệ cao vào Ví Khuyến Mãi:'
+                      : 'Tiền thưởng đã được cộng trực tiếp vào Ví Khuyến Mãi của bạn:'}
+                  </p>
+                </div>
 
-            <div className={`p-4 rounded-2xl border-2 border-dashed ${
-              revealedReward.isMemberBonus ? 'bg-amber-50/80 border-amber-300' : 'bg-emerald-50 border-emerald-300'
-            }`}>
-              <div className={`text-2xl font-black font-mono ${
-                revealedReward.isMemberBonus ? 'text-amber-700' : 'text-emerald-700'
-              }`}>
-                +{revealedReward.amount.toLocaleString('vi-VN')} đ
-              </div>
-              <div className={`text-[11px] font-semibold mt-1 ${
-                revealedReward.isMemberBonus ? 'text-amber-800' : 'text-emerald-800'
-              }`}>
-                {revealedReward.isMemberBonus
-                  ? '👑 Rương VIP Hội Viên • Tỷ lệ tiền thưởng vượt trội'
-                  : 'Sử dụng ngay để đăng tin hoặc đẩy tin TOP 1'}
-              </div>
-            </div>
+                <div className={`p-4 rounded-2xl border-2 border-dashed ${
+                  revealedReward.isMemberBonus ? 'bg-amber-50/80 border-amber-300' : 'bg-emerald-50 border-emerald-300'
+                }`}>
+                  <div className={`text-2xl font-black font-mono ${
+                    revealedReward.isMemberBonus ? 'text-amber-700' : 'text-emerald-700'
+                  }`}>
+                    +{revealedReward.amount.toLocaleString('vi-VN')} đ
+                  </div>
+                  <div className={`text-[11px] font-semibold mt-1 ${
+                    revealedReward.isMemberBonus ? 'text-amber-800' : 'text-emerald-800'
+                  }`}>
+                    {revealedReward.isMemberBonus
+                      ? '👑 Rương VIP Hội Viên • Tỷ lệ tiền thưởng vượt trội'
+                      : 'Sử dụng ngay để đăng tin hoặc đẩy tin TOP 1'}
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Mẹo nâng cấp nếu chưa có gói */}
             {!revealedReward.isMemberBonus && (
               <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-left text-xs space-y-1">
                 <div className="font-bold text-amber-900 flex items-center gap-1.5">
                   <i className="fa-solid fa-crown text-amber-600"></i>
-                  <span>Đặc quyền Gói Hội Viên</span>
+                  <span>Đặc quyền Gói Hội Viên VIP</span>
                 </div>
                 <div className="text-[11px] text-amber-800 leading-relaxed">
-                  Tài khoản mua bất kỳ Gói Hội Viên nào khi mở rương sẽ nhận tỷ lệ tiền thưởng cao vượt trội (tối thiểu từ {memberMinAmount.toLocaleString('vi-VN')}đ, 80% cơ hội trúng mức tiền lớn nhất).
+                  Tài khoản Hội Viên mở tối đa <strong>{memberDailyLimit} rương/ngày</strong> và luôn nhận thưởng cao (tối thiểu từ {memberMinAmount.toLocaleString('vi-VN')}đ, không bao giờ trúng rương 0đ).
                 </div>
                 <Link
                   href="/goi-hoi-vien"
@@ -454,14 +563,14 @@ export default function ArticleTreasureBox({ property }) {
             )}
 
             <div className="text-xs text-slate-500">
-              Tiến độ hôm nay: <strong>{quota.count}/{dailyLimit} rương</strong>
+              Tiến độ hôm nay: <strong>{quota.count}/{effectiveDailyLimit} rương</strong>
             </div>
 
             <button
               onClick={() => setRevealedReward(null)}
               className="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition cursor-pointer"
             >
-              Tuyệt vời, tiếp tục xem tin
+              {revealedReward.isEmpty ? 'Đóng' : 'Tuyệt vời, tiếp tục xem tin'}
             </button>
           </div>
         </div>

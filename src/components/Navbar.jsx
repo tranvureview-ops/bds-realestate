@@ -115,9 +115,9 @@ export default function Navbar() {
   // - Full: 100% toàn màn hình (w-full) tràn viền Edge-to-Edge
   const containerWidthClass = useMemo(() => {
     const widthType = headerConfig?.containerWidth || 'boxed';
-    if (widthType === 'full') return 'w-full px-4 sm:px-6 lg:px-8 transition-all duration-300';
-    if (widthType === 'wide') return 'w-full max-w-[94vw] 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300';
-    return 'w-full max-w-7xl mx-auto px-4 sm:px-8 transition-all duration-300';
+    if (widthType === 'full') return 'w-full px-3 sm:px-6 lg:px-8';
+    if (widthType === 'wide') return 'w-full max-w-[94vw] 2xl:max-w-[1536px] mx-auto px-3 sm:px-6 lg:px-8';
+    return 'w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8';
   }, [headerConfig?.containerWidth]);
 
   // Lấy toàn bộ các mục menu trực tiếp từ Cấu Hình Menu trong Trang Quản Trị
@@ -273,13 +273,15 @@ export default function Navbar() {
 
       {/* 2. MAIN NAVBAR BAR */}
       <div className="bg-white">
-        <div suppressHydrationWarning className={`${containerWidthClass} min-h-[60px] sm:min-h-[72px] py-2 flex items-center justify-between gap-2 sm:gap-4`}>
-          {/* Left: Brand Logo */}
-          <Link 
-            to="/" 
-            suppressHydrationWarning
-            className="flex items-center gap-2 sm:gap-3 cursor-pointer select-none group min-w-0 shrink"
-          >
+        <div suppressHydrationWarning className={`${containerWidthClass} min-h-[60px] sm:min-h-[72px] py-2 flex items-center gap-2 sm:gap-4`}>
+          {/* Left: Brand Logo & Desktop Navigation (Cố định vị trí, chống giật nhảy menu khi ví KM hoặc user tải) */}
+          <div className="flex items-center gap-2 lg:gap-3 xl:gap-5 min-w-0">
+            {/* Left: Brand Logo */}
+            <Link 
+              to="/" 
+              suppressHydrationWarning
+              className="flex items-center gap-2 sm:gap-3 cursor-pointer select-none group shrink-0"
+            >
             {isImageLogo ? (
               <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
                 <img 
@@ -323,7 +325,7 @@ export default function Navbar() {
           </Link>
 
           {/* Center: Desktop Navigation Links (Khớp 100% Cấu Hình Menu từ Admin) */}
-          <nav aria-label="Thanh điều hướng chính" suppressHydrationWarning className="hidden lg:flex items-center gap-1 xl:gap-1.5 font-semibold text-[13.5px] text-slate-700 shrink-0">
+          <nav aria-label="Thanh điều hướng chính" suppressHydrationWarning className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 font-semibold text-xs xl:text-[13.5px] text-slate-700 shrink-0">
             {menuItems.map(item => {
               const hasChildren = item.children && item.children.length > 0;
               const isChildActive = hasChildren && item.children.some(c => c.path === currentRoute);
@@ -344,7 +346,7 @@ export default function Navbar() {
                       target={item.target || '_self'}
                       rel={isBlank ? 'noopener noreferrer' : undefined}
                       onClick={() => setActiveDropdown(null)}
-                      className={`px-3 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap ${
+                      className={`px-2 xl:px-3 py-1.5 xl:py-2 rounded-xl transition flex items-center gap-1 xl:gap-1.5 whitespace-nowrap ${
                         isActive 
                           ? 'bg-emerald-50 text-emerald-700 font-bold' 
                           : 'hover:bg-slate-50 text-slate-700 hover:text-emerald-700'
@@ -400,7 +402,7 @@ export default function Navbar() {
                   to={item.path}
                   target={item.target || '_self'}
                   rel={isBlank ? 'noopener noreferrer' : undefined}
-                  className={`px-3 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap ${
+                  className={`px-2 xl:px-3 py-1.5 xl:py-2 rounded-xl transition flex items-center gap-1 xl:gap-1.5 whitespace-nowrap ${
                     isActive 
                       ? 'bg-emerald-50 text-emerald-700 font-bold' 
                       : 'hover:bg-slate-50 text-slate-700 hover:text-emerald-700'
@@ -417,14 +419,15 @@ export default function Navbar() {
               );
             })}
           </nav>
+        </div>
 
-          {/* Right: Actions, User Menu, Post Listing CTA */}
-          <div suppressHydrationWarning className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-            {/* Yêu thích (Tin đã lưu) Link - Chỉ hiển thị từ tablet/desktop (sm:), trên mobile được dời vào drawer & mobile bottom nav */}
+        {/* Right: Actions, User Menu, Post Listing CTA (ml-auto để luôn neo cố định sát lề phải, không bao giờ ảnh hưởng đến vị trí menu bên trái) */}
+        <div suppressHydrationWarning className="flex items-center gap-1.5 sm:gap-2 xl:gap-2.5 shrink-0 ml-auto">
+            {/* Yêu thích (Tin đã lưu) Link - Hiển thị từ 2xl: (1536px+), trên màn hình thường dời vào drawer & mobile bottom nav */}
             <Link
               to="/tin-da-luu"
               suppressHydrationWarning
-              className={`hidden sm:flex relative p-1.5 sm:p-2 rounded-xl border transition ${
+              className={`hidden 2xl:flex relative p-1.5 sm:p-2 rounded-xl border transition ${
                 currentRoute === '/tin-da-luu' 
                   ? 'bg-rose-50 border-rose-200 text-rose-600' 
                   : 'border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-rose-600'
@@ -439,11 +442,11 @@ export default function Navbar() {
               )}
             </Link>
 
-            {/* Trung tâm phần thưởng Quick Link (Hộp quà với nhãn HOT nổi bật trên CẢ mobile và desktop) */}
+            {/* Trung tâm phần thưởng Quick Link - Hiển thị từ 2xl: (1536px+), trên màn hình thường đã có trong drawer & bottom nav */}
             <Link
               to="/trung-tam-phan-thuong"
               suppressHydrationWarning
-              className={`flex relative p-1.5 sm:p-2 rounded-xl border transition items-center justify-center shrink-0 ${
+              className={`hidden 2xl:flex relative p-1.5 sm:p-2 rounded-xl border transition items-center justify-center shrink-0 ${
                 currentRoute.startsWith('/trung-tam-phan-thuong')
                   ? 'bg-purple-50 border-purple-200 text-purple-700'
                   : 'border-slate-200 text-slate-700 hover:bg-purple-50/50 hover:border-purple-200 hover:text-purple-600 bg-white shadow-2xs'
@@ -459,17 +462,17 @@ export default function Navbar() {
             {/* User Account Dropdown / Login Links - Ẩn trên mobile (người dùng thao tác qua MobileBottomNav & Menu drawer) */}
             <div suppressHydrationWarning className="hidden sm:block">
               {isGuest ? (
-                <div suppressHydrationWarning className="hidden sm:flex items-center gap-2">
+                <div suppressHydrationWarning className="hidden sm:flex items-center gap-1.5 sm:gap-2">
                   <Link
                     to="/dang-nhap"
-                    className="px-3 py-2 rounded-xl text-slate-700 hover:text-emerald-700 hover:bg-slate-100 font-bold text-xs sm:text-sm transition flex items-center gap-1.5"
+                    className="px-2.5 xl:px-3 py-2 rounded-xl text-slate-700 hover:text-emerald-700 hover:bg-slate-100 font-bold text-xs sm:text-sm transition flex items-center gap-1.5"
                   >
                     <i className="fa-solid fa-arrow-right-to-bracket text-emerald-600"></i>
                     <span>Đăng Nhập</span>
                   </Link>
                   <Link
                     to="/dang-ky"
-                    className="hidden sm:flex px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm transition items-center gap-1.5 shadow-sm"
+                    className="hidden xl:flex px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm transition items-center gap-1.5 shadow-sm"
                   >
                     <span>Đăng Ký</span>
                   </Link>
@@ -480,10 +483,10 @@ export default function Navbar() {
                     suppressHydrationWarning
                     onClick={() => setUserMenuOpen(!userMenuOpen)}
                     aria-label="Tài khoản cá nhân"
-                    className="flex items-center gap-1 sm:gap-2 p-1 sm:p-1.5 sm:pl-2 sm:pr-2.5 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition"
+                    className="flex items-center gap-1.5 sm:gap-2 p-1 sm:p-1.5 sm:pl-2 sm:pr-2.5 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition min-h-[38px] sm:min-h-[42px]"
                     title="Tài khoản cá nhân"
                   >
-                    <div className="relative">
+                    <div className="relative shrink-0">
                       <img
                         src={currentUser.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80'}
                         alt={currentUser.name}
@@ -495,22 +498,22 @@ export default function Navbar() {
                         </span>
                       )}
                     </div>
-                    <div suppressHydrationWarning className="hidden md:block text-left">
-                      <div suppressHydrationWarning className="text-xs font-bold text-slate-800 flex items-center gap-1.5 max-w-[140px] truncate">
-                        <span>{cleanUserName(currentUser.name)}</span>
-                        {currentUser.role === 'admin' && <span className="text-[9px] px-1.5 py-0.5 bg-red-100 text-red-600 rounded font-bold shrink-0">Admin</span>}
+                    <div suppressHydrationWarning className="hidden md:flex flex-col justify-center text-left">
+                      <div suppressHydrationWarning className="text-xs font-bold text-slate-800 flex items-center gap-1.5 max-w-[110px] 2xl:max-w-[150px] truncate leading-tight">
+                        <span className="truncate">{cleanUserName(currentUser.name)}</span>
+                        {currentUser.role === 'admin' && <span className="text-[9px] px-1.5 py-0.2 bg-red-100 text-red-600 rounded font-bold shrink-0">Admin</span>}
                       </div>
-                      <div suppressHydrationWarning className="text-[10px] text-slate-500 font-medium flex items-center gap-1.5 flex-wrap">
-                        <span>{currentUser.walletBalance?.toLocaleString('vi-VN')} đ</span>
+                      <div suppressHydrationWarning className="text-[10px] text-slate-500 font-medium flex items-center gap-1.5 whitespace-nowrap leading-tight mt-0.5">
+                        <span className="font-semibold text-slate-600">{currentUser.walletBalance?.toLocaleString('vi-VN')} đ</span>
                         {Number(currentUser.bonusWalletBalance) > 0 && (
-                          <span className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-1 py-0.2 rounded font-bold text-[9px] flex items-center gap-0.5">
+                          <span className="hidden xl:inline-flex text-emerald-700 bg-emerald-50 border border-emerald-200 px-1 py-0.2 rounded font-bold text-[9px] items-center gap-0.5 shrink-0">
                             <i className="fa-solid fa-gift text-emerald-600 text-[8px]"></i>
                             +{Number(currentUser.bonusWalletBalance).toLocaleString('vi-VN')}đ KM
                           </span>
                         )}
                       </div>
                     </div>
-                    <i className="fa-solid fa-chevron-down text-[9px] text-slate-400"></i>
+                    <i className="fa-solid fa-chevron-down text-[9px] text-slate-400 shrink-0"></i>
                   </button>
 
                   {/* User Profile Dropdown Panel */}
@@ -696,11 +699,11 @@ export default function Navbar() {
             {/* Button: ĐĂNG TIN MỚI (High-impact CTA) */}
             <Link
               to="/dang-tin"
-              className="flex items-center gap-1 sm:gap-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl shadow-md shadow-red-500/20 hover:shadow-lg transition transform active:scale-95 whitespace-nowrap shrink-0"
+              className="flex items-center gap-1 sm:gap-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold text-xs sm:text-sm px-2.5 sm:px-3.5 xl:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl shadow-md shadow-red-500/20 hover:shadow-lg transition transform active:scale-95 whitespace-nowrap shrink-0"
             >
               <i className="fa-solid fa-circle-plus text-xs sm:text-base"></i>
-              <span className="hidden sm:inline">Đăng Tin Ngay</span>
-              <span className="sm:hidden text-[11px]">Đăng tin</span>
+              <span className="hidden xl:inline">Đăng Tin Ngay</span>
+              <span className="xl:hidden text-[11px] sm:text-xs">Đăng tin</span>
             </Link>
 
             {/* Mobile Menu Hamburger Toggle */}

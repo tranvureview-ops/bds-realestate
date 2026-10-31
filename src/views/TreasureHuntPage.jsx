@@ -3,7 +3,15 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
-import { getDailyQuotaStatus, getDailyClaims, hasClaimedPropertyToday, isPropertyTreasureActive, isUserMembershipActive } from '../services/treasureHuntService';
+import { 
+  getDailyQuotaStatus, 
+  getDailyClaims, 
+  hasClaimedPropertyToday, 
+  isPropertyTreasureActive, 
+  isUserMembershipActive,
+  getMonthlyTreasureBudgetStatus,
+  DEFAULT_TREASURE_REWARD_TIERS
+} from '../services/treasureHuntService';
 import { getPropertyPermalink, SITE_URL } from '../utils/permalink';
 
 function getPageNumbers(currentPage, totalPages) {
@@ -20,23 +28,51 @@ function getPageNumbers(currentPage, totalPages) {
 }
 
 export default function TreasureHuntPage() {
-  const { currentUser, properties, rewardsConfig, systemConfig, addBonusWalletBalance, showToast, isMembershipActive } = useRealEstate();
+  const { 
+    currentUser, 
+    properties, 
+    rewardsConfig, 
+    systemConfig, 
+    addBonusWalletBalance, 
+    showToast, 
+    isMembershipActive,
+    transactions,
+    setActiveModal
+  } = useRealEstate();
   const isMember = isMembershipActive ? isMembershipActive(currentUser) : isUserMembershipActive(currentUser);
 
   const tConfig = rewardsConfig?.treasureHuntConfig;
   const isFeatureEnabled = tConfig?.enabled !== false;
-  const dailyLimit = Number(tConfig?.dailyLimit || 3);
-  const minAmount = Number(tConfig?.minAmount || 2000);
-  const maxAmount = Number(tConfig?.maxAmount || 20000);
-  const memberMinAmount = Number(tConfig?.memberMinAmount || 8000);
-  const memberMaxAmount = Number(tConfig?.memberMaxAmount || maxAmount);
+  const requireLogin = tConfig?.requireLogin !== false;
+
+  // Hạn mức mở rương theo đối tượng: Thành viên thường (1) vs Hội viên VIP (3)
+  const regularDailyLimit = Number(tConfig?.regularDailyLimit || 1);
+  const memberDailyLimit = Number(tConfig?.memberDailyLimit || 3);
+  const effectiveDailyLimit = isMember ? memberDailyLimit : regularDailyLimit;
+
+  // Thời gian đọc chống bot & cooldown dùng chung cho tất cả đối tượng
   const minReadingSeconds = Number(tConfig?.minReadingSeconds || 4);
   const cooldownSeconds = Number(tConfig?.cooldownSeconds || 20);
 
-  const [quota, setQuota] = useState({ count: 0, limit: dailyLimit, remaining: dailyLimit, isLimitReached: false });
+  // Tổng ngân sách tháng
+  const monthlyBudget = Number(tConfig?.monthlyBudget || 50000);
+  const budgetStatus = getMonthlyTreasureBudgetStatus(monthlyBudget, transactions);
+
+  // 4 Mốc phần thưởng
+  const rewardTiers = Array.isArray(tConfig?.rewardTiers) && tConfig.rewardTiers.length > 0
+    ? tConfig.rewardTiers
+    : DEFAULT_TREASURE_REWARD_TIERS;
+
+  const minAmount = Number(tConfig?.minAmount || 1200);
+  const maxAmount = Number(tConfig?.maxAmount || 12000);
+  const memberMinAmount = Number(tConfig?.memberMinAmount || 8000);
+  const memberMaxAmount = Number(tConfig?.memberMaxAmount || 20000);
+
+  const [quota, setQuota] = useState({ count: 0, limit: effectiveDailyLimit, remaining: effectiveDailyLimit, isLimitReached: false });
   const [claimsToday, setClaimsToday] = useState([]);
 
-  const userId = (currentUser && currentUser.role !== 'guest' ? currentUser.id : null) || 'guest';
+  const isGuest = !currentUser || currentUser.role === 'guest' || !currentUser.id;
+  const userId = (!isGuest ? currentUser.id : null) || 'guest';
   const [localBonusBal, setLocalBonusBal] = useState(Number(currentUser?.bonusWalletBalance || 0));
   const [expiringBonusInfo, setExpiringBonusInfo] = useState(null);
   const [shuffleSeed, setShuffleSeed] = useState(0);
@@ -52,7 +88,7 @@ export default function TreasureHuntPage() {
         claims = guestClaims;
       }
     }
-    setQuota(getDailyQuotaStatus(userId, dailyLimit));
+    setQuota(getDailyQuotaStatus(userId, effectiveDailyLimit));
     setClaimsToday(claims);
 
     const earnedToday = claims.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
@@ -106,7 +142,7 @@ export default function TreasureHuntPage() {
       window.removeEventListener('bds_bonus_wallet_updated', handleWalletUpdated);
       window.removeEventListener('storage', handleWalletUpdated);
     };
-  }, [userId, dailyLimit, currentUser?.bonusWalletBalance]);
+  }, [userId, effectiveDailyLimit, currentUser?.bonusWalletBalance]);
 
   const totalEarnedToday = claimsToday.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
 
@@ -316,37 +352,41 @@ export default function TreasureHuntPage() {
         </div>
 
         {/* Progress & Quota Tracker */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6">
           {/* Card 1: Daily Limit */}
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm space-y-3">
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl">
                 <i className="fa-solid fa-box-open"></i>
               </div>
               <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800">
-                1 Ngày {dailyLimit} Hộp
+                {isMember ? 'Hội Viên' : 'Thành Viên'}
               </span>
             </div>
             <div>
               <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tiến độ hôm nay</div>
               <div className="text-2xl font-black text-slate-900 mt-0.5">
-                {quota.count} / {dailyLimit} <span className="text-sm font-semibold text-slate-500">hộp</span>
+                {quota.count} / {effectiveDailyLimit} <span className="text-sm font-semibold text-slate-500">hộp</span>
               </div>
             </div>
             {/* Progress bar */}
             <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-500"
-                style={{ width: `${dailyLimit > 0 ? Math.min(100, (quota.count / dailyLimit) * 100) : 0}%` }}
+                style={{ width: `${effectiveDailyLimit > 0 ? Math.min(100, (quota.count / effectiveDailyLimit) * 100) : 0}%` }}
               ></div>
             </div>
             <div className="text-[11px] text-slate-500">
-              {quota.isLimitReached ? `🎉 Bạn đã săn đủ ${dailyLimit} hộp quà hôm nay!` : `Còn lại ${quota.remaining} hộp quà có thể mở hôm nay.`}
+              {quota.isLimitReached 
+                ? `🎉 Bạn đã mở đủ ${effectiveDailyLimit} hộp hôm nay!` 
+                : isGuest && requireLogin
+                ? '🔑 Vui lòng đăng nhập để mở rương nhận thưởng.'
+                : `Còn lại ${quota.remaining} hộp có thể mở hôm nay.`}
             </div>
           </div>
 
           {/* Card 2: Earned Today */}
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm space-y-3">
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <div className="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl">
                 <i className="fa-solid fa-hand-holding-dollar"></i>
@@ -366,24 +406,56 @@ export default function TreasureHuntPage() {
             </p>
           </div>
 
-          {/* Card 3: Anti-Spam & Fair Play */}
-          <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm space-y-3">
+          {/* Card 3: Monthly Budget */}
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${
+                budgetStatus.isBudgetExceeded ? 'bg-rose-100 text-rose-600' : 'bg-indigo-100 text-indigo-600'
+              }`}>
+                <i className={`fa-solid ${budgetStatus.isBudgetExceeded ? 'fa-battery-empty' : 'fa-vault'}`}></i>
+              </div>
+              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                budgetStatus.isBudgetExceeded ? 'bg-rose-50 text-rose-700' : 'bg-indigo-50 text-indigo-700'
+              }`}>
+                Quỹ Tháng: {monthlyBudget.toLocaleString('vi-VN')}đ
+              </span>
+            </div>
+            <div>
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Ngân sách tháng này</div>
+              <div className={`text-2xl font-black font-mono mt-0.5 ${budgetStatus.isBudgetExceeded ? 'text-rose-600' : 'text-slate-900'}`}>
+                {budgetStatus.currentSpent.toLocaleString('vi-VN')} <span className="text-xs font-semibold text-slate-500">/ {monthlyBudget.toLocaleString('vi-VN')}đ</span>
+              </div>
+            </div>
+            {/* Progress bar */}
+            <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-500 ${budgetStatus.isBudgetExceeded ? 'bg-rose-500' : 'bg-indigo-500'}`}
+                style={{ width: `${budgetStatus.percentUsed}%` }}
+              ></div>
+            </div>
+            <div className="text-[11px] text-slate-500">
+              {budgetStatus.isBudgetExceeded ? '⚠️ Đã hết ngân sách tháng này.' : `Còn lại ${budgetStatus.remainingBudget.toLocaleString('vi-VN')}đ tiền thưởng.`}
+            </div>
+          </div>
+
+          {/* Card 4: Anti-Bot & Fair Play */}
+          <div className="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-sm space-y-3">
             <div className="flex items-center justify-between">
               <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center text-xl">
                 <i className="fa-solid fa-shield-halved"></i>
               </div>
               <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800">
-                Chống Spam 100%
+                Chống Bot 100%
               </span>
             </div>
             <div>
-              <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Cơ chế công bằng</div>
-              <div className="text-sm font-black text-slate-800 mt-0.5">
-                1 Hộp / 1 Bài Viết
+              <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Thời gian xem tin</div>
+              <div className="text-2xl font-black text-slate-900 mt-0.5">
+                {minReadingSeconds}s • {cooldownSeconds}s
               </div>
             </div>
             <p className="text-[11px] text-slate-500 leading-relaxed">
-              Mỗi tin đăng chỉ nhận 1 lần/ngày. Thời gian đọc tin tối thiểu {minReadingSeconds}s và giãn cách {cooldownSeconds}s để bảo vệ hệ thống.
+              Đọc tối thiểu {minReadingSeconds}s và giãn cách {cooldownSeconds}s giữa 2 lần mở. Áp dụng chung cho tất cả đối tượng.
             </p>
           </div>
         </div>
@@ -427,69 +499,86 @@ export default function TreasureHuntPage() {
           )}
         </div>
 
-        {/* Showcase cơ chế tiền thưởng ngẫu nhiên */}
-        <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-5">
+        {/* Showcase cơ chế tiền thưởng ngẫu nhiên & Bảng 4 mốc */}
+        <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
             <div>
               <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
                 <i className="fa-solid fa-gift text-orange-500"></i>
-                Cơ Chế Tiền Thưởng Ngẫu Nhiên & Quyền Lợi
+                Bảng Tỷ Lệ & Các Mốc Phần Thưởng Mở Rương
               </h2>
               <p className="text-xs text-slate-500 mt-1">
-                Tiền thưởng ngẫu nhiên cộng trực tiếp vào Ví Khuyến Mãi ngay khi bấm mở rương bài viết:
+                Quy tắc tỷ lệ ngẫu nhiên minh bạch dành cho thành viên thường (Tổng ngân sách tháng: <strong>{monthlyBudget.toLocaleString('vi-VN')}đ</strong>):
               </p>
             </div>
             <span className="text-xs font-bold px-3 py-1 bg-amber-100 text-amber-900 rounded-full shrink-0">
-              {minAmount.toLocaleString('vi-VN')}đ - {maxAmount.toLocaleString('vi-VN')}đ / hộp
+              Hạn mức: {effectiveDailyLimit} rương / ngày
             </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Bảng 4 mốc phần thưởng chuẩn xác theo ảnh thiết kế */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs sm:text-sm">
+              <thead>
+                <tr className="border-b border-slate-200 text-slate-500 font-bold uppercase text-[11px] tracking-wider">
+                  <th className="py-3 px-4">Mốc phần thưởng</th>
+                  <th className="py-3 px-4">Số tiền nhận (đ)</th>
+                  <th className="py-3 px-4 text-right">Tỷ lệ xuất hiện (%)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-medium">
+                {rewardTiers.map((tier, idx) => (
+                  <tr key={tier.id || idx} className="hover:bg-slate-50/80 transition">
+                    <td className="py-3.5 px-4 font-bold text-slate-900 flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${Number(tier.amount) === 0 ? 'bg-slate-400' : 'bg-amber-500'}`}></span>
+                      <span>{tier.label}</span>
+                    </td>
+                    <td className="py-3.5 px-4 font-mono font-black text-slate-900">
+                      {Number(tier.amount) === 0 ? '0đ' : `${Number(tier.amount).toLocaleString('vi-VN')}đ`}
+                    </td>
+                    <td className="py-3.5 px-4 text-right font-bold text-amber-600 font-mono">
+                      {tier.percentage}%
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-100">
             <div className="p-4 rounded-2xl border bg-amber-50/60 border-amber-200 space-y-1">
               <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700">
-                Khoảng Thưởng Ngẫu Nhiên
+                Hạn Mức Thành Viên Thường
               </div>
               <div className="text-xl font-black text-slate-900">
-                {minAmount.toLocaleString('vi-VN')}đ - {maxAmount.toLocaleString('vi-VN')}đ
+                {regularDailyLimit} Rương / Ngày
               </div>
               <div className="text-[11px] text-slate-500">
-                Hội viên có tỷ lệ trúng thưởng mốc tiền lớn vượt trội
-              </div>
-            </div>
-
-            <div className="p-4 rounded-2xl border bg-blue-50/60 border-blue-200 space-y-1">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-blue-700">
-                Hạn Mức Mỗi Ngày
-              </div>
-              <div className="text-xl font-black text-slate-900">
-                {dailyLimit} Rương / Ngày
-              </div>
-              <div className="text-[11px] text-slate-500">
-                Mỗi tin mở 1 rương/ngày, tối đa {dailyLimit} rương/tài khoản
+                Mở 1 rương mỗi ngày. Yêu cầu đăng nhập tài khoản.
               </div>
             </div>
 
             <div className="p-4 rounded-2xl border bg-purple-50/60 border-purple-200 space-y-1">
               <div className="text-[10px] font-bold uppercase tracking-wider text-purple-700">
-                Chống Bot & Gian Lận
+                Chống Bot & Spam Chung
               </div>
               <div className="text-xl font-black text-slate-900">
-                Xem {minReadingSeconds}s • Chờ {cooldownSeconds}s
+                Xem {minReadingSeconds}s • Cooldown {cooldownSeconds}s
               </div>
               <div className="text-[11px] text-slate-500">
-                Bảo vệ tương tác thật cho chủ tin đăng BĐS
+                Áp dụng chung cho tất cả đối tượng xem bài viết.
               </div>
             </div>
 
             <div className="p-4 rounded-2xl border bg-rose-50/60 border-rose-200 space-y-1">
               <div className="text-[10px] font-bold uppercase tracking-wider text-rose-700">
-                Tiêu Dùng Tiền Thưởng
+                Quỹ Ngân Sách Tháng
               </div>
               <div className="text-xl font-black text-slate-900">
-                Đăng & Đẩy Tin
+                {monthlyBudget.toLocaleString('vi-VN')} đ / Tháng
               </div>
               <div className="text-[11px] text-slate-500">
-                Dùng ngay tiền thưởng trong Ví KM để Đẩy tin lên TOP hoặc đăng tin VIP
+                Đã giải ngân {budgetStatus.currentSpent.toLocaleString('vi-VN')}đ ({budgetStatus.percentUsed}%).
               </div>
             </div>
           </div>

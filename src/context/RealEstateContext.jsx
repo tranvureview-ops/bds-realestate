@@ -1319,11 +1319,13 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   const [selectedPropertyForVip, setSelectedPropertyForVip] = useState(null);
   const [preselectedListingType, setPreselectedListingType] = useState('normal');
 
-  // Đồng bộ cookie session cho SSR
+  // Đồng bộ cookie session cho SSR (User ID & Bonus Wallet Balance để SSR khớp 100% với Client)
   useEffect(() => {
     if (typeof document !== 'undefined') {
       const val = currentUser?.id || 'guest';
       document.cookie = `bds_session_user=${encodeURIComponent(val)}; path=/; max-age=31536000; SameSite=Lax`;
+      const bonusVal = Number(currentUser?.bonusWalletBalance) || 0;
+      document.cookie = `bds_session_bonus=${encodeURIComponent(bonusVal)}; path=/; max-age=31536000; SameSite=Lax`;
     }
   }, [currentUser]);
 

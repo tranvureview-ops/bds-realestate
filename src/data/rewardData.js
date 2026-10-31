@@ -347,6 +347,14 @@ export const TREASURE_LOCATIONS = [
   }
 ];
 
+// 4. DANH SÁCH 4 MỐC PHẦN THƯỞNG MẶC ĐỊNH CHO RƯƠNG KHO BÁU (CHỈNH SỬA ĐƯỢC TRONG CMS)
+export const DEFAULT_TREASURE_REWARD_TIERS = [
+  { id: 'tier_empty', label: 'Chúc may mắn (Rỗng)', amount: 0, percentage: 25 },
+  { id: 'tier_min', label: 'Thưởng Tối Thiểu (Nhỏ)', amount: 1200, percentage: 45 },
+  { id: 'tier_common', label: 'Thưởng Phổ Biến (Vừa)', amount: 2500, percentage: 25 },
+  { id: 'tier_max', label: 'Thưởng Tối Đa (Lớn)', amount: 12000, percentage: 5 }
+];
+
 // 5. DỮ LIỆU DỰ ĐOÁN GIÁ BĐS CỘNG ĐỒNG (QUỸ THƯỞNG TIỀN MẶT VÍ KM)
 export const PRICE_PREDICTION_GAMES = [
   {
@@ -453,12 +461,18 @@ export const DEFAULT_REWARDS_CONFIG = {
   // C. Săn kho báu bài viết (Treasure Hunt & Anti-Spam)
   treasureHuntConfig: {
     enabled: true,
-    dailyLimit: 3,
-    minReadingSeconds: 4,
-    cooldownSeconds: 20,
-    minAmount: 2000,
-    maxAmount: 20000,
+    requireLogin: true, // Khách vãng lai bắt buộc đăng nhập mới được mở rương
+    regularDailyLimit: 1, // Hạn mức mở rương Thành viên thường: 1 rương / ngày
+    memberDailyLimit: 3, // Hạn mức mở rương Hội viên VIP: 3 rương / ngày
+    dailyLimit: 1, // Fallback chung
+    monthlyBudget: 50000, // Tổng ngân sách mở rương tối đa 1 tháng: 50.000đ
+    minReadingSeconds: 4, // Thời gian đọc chống bot (giây) - chung tất cả đối tượng
+    cooldownSeconds: 20, // Thời gian chờ Cooldown (giây) - chung tất cả đối tượng
     itemsPerPage: 16,
+    // 4 Mốc phần thưởng tùy chỉnh (Chúc may mắn 0đ 25%, Tối thiểu 1.200đ 45%, Phổ biến 2.500đ 25%, Tối đa 12.000đ 5%)
+    rewardTiers: DEFAULT_TREASURE_REWARD_TIERS,
+    minAmount: 1200,
+    maxAmount: 12000,
     // Đặc quyền Hội Viên mở rương: tỷ lệ & giá trị tiền thưởng cao hơn người không mua gói
     memberBonusEnabled: true,
     memberMinAmount: 8000,

@@ -178,14 +178,21 @@ export default async function RootLayout({ children }) {
   try {
     const cookieStore = await cookies();
     const sessionUserId = cookieStore.get('bds_session_user')?.value;
+    const sessionBonus = cookieStore.get('bds_session_bonus')?.value;
     if (sessionUserId && sessionUserId !== 'guest') {
       const foundMock = MOCK_USERS.find(u => u.id === sessionUserId);
       if (foundMock) {
-        initialUser = foundMock;
+        initialUser = { ...foundMock };
       } else if (isSupabaseConfigured()) {
         const userProfile = await fetchSupabaseProfile(sessionUserId);
-        if (userProfile) initialUser = userProfile;
+        if (userProfile) initialUser = { ...userProfile };
       }
+    }
+    if (sessionBonus !== undefined && sessionBonus !== '' && !isNaN(Number(sessionBonus))) {
+      initialUser = {
+        ...initialUser,
+        bonusWalletBalance: Number(sessionBonus)
+      };
     }
   } catch (e) {
     // fallback if cookies() not available

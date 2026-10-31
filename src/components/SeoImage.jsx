@@ -102,7 +102,6 @@ export default function SeoImage({
       loading={priority ? 'eager' : (loading || 'lazy')}
       decoding={priority ? 'sync' : decoding}
       fetchPriority={priority ? 'high' : (fetchPriority || undefined)}
-      fetchpriority={priority ? 'high' : (fetchPriority || undefined)}
       onError={handleError}
       className={className}
     />
