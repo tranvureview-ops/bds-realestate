@@ -564,25 +564,9 @@ export default function UserProfilePage() {
                 </div>
                 <div className="text-[10px] mt-0.5 flex items-center gap-1.5">
                   {hasMembership ? (
-                    <>
-                      <span className={daysDiff > 0 ? 'text-slate-600' : 'text-rose-600 font-bold'}>
-                        {daysDiff > 0 ? `Còn ${daysDiff} ngày` : 'Đã hết hạn'}
-                      </span>
-                      <span>•</span>
-                      <button
-                        type="button"
-                        onClick={() => toggleMembershipAutoRenew()}
-                        className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-bold cursor-pointer transition ${
-                          isAutoRenew 
-                            ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' 
-                            : 'bg-slate-200/80 text-slate-600 hover:bg-slate-300'
-                        }`}
-                        title="Click để bật/tắt tự động gia hạn"
-                      >
-                        <i className={`fa-solid fa-arrows-rotate text-[8px] ${isAutoRenew ? 'animate-spin' : ''}`}></i>
-                        <span>Tự gia hạn: {isAutoRenew ? 'BẬT' : 'TẮT'}</span>
-                      </button>
-                    </>
+                    <span className={daysDiff > 0 ? 'text-slate-600' : 'text-rose-600 font-bold'}>
+                      {daysDiff > 0 ? `Còn ${daysDiff} ngày` : 'Đã hết hạn'}
+                    </span>
                   ) : (
                     <span className="text-slate-500">Tiết kiệm {premiumSavePercent}% chi phí</span>
                   )}
