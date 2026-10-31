@@ -1572,9 +1572,12 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   }, [fetchLatestDataFromSupabase]);
 
   // 3. Supabase Realtime Subscription (Lắng nghe tức thì khi có thay đổi trên Database Supabase)
+  // Chuẩn hóa hỗ trợ bfcache (Back/Forward Cache): Đóng kênh WebSocket khi pagehide, tự động kết nối lại khi pageshow
   useEffect(() => {
     if (!isSupabaseConfigured() || !supabase) return;
     let debounceTimer = null;
+    let activeChannel = null;
+
     const debouncedFetch = () => {
       if (debounceTimer) clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
@@ -1582,16 +1585,44 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       }, 1500);
     };
 
-    const channel = supabase
-      .channel('realestate-realtime-live-sync')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, debouncedFetch)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'properties' }, debouncedFetch)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'platform_settings' }, debouncedFetch)
-      .subscribe();
+    const startRealtime = () => {
+      if (activeChannel) return;
+      activeChannel = supabase
+        .channel('realestate-realtime-live-sync')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, debouncedFetch)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'properties' }, debouncedFetch)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'platform_settings' }, debouncedFetch)
+        .subscribe();
+    };
+
+    const stopRealtime = () => {
+      if (activeChannel) {
+        supabase.removeChannel(activeChannel);
+        activeChannel = null;
+      }
+    };
+
+    startRealtime();
+
+    const handlePageHide = () => {
+      stopRealtime();
+    };
+
+    const handlePageShow = (e) => {
+      if (e.persisted) {
+        startRealtime();
+        fetchLatestDataFromSupabase(true);
+      }
+    };
+
+    window.addEventListener('pagehide', handlePageHide);
+    window.addEventListener('pageshow', handlePageShow);
 
     return () => {
       if (debounceTimer) clearTimeout(debounceTimer);
-      supabase.removeChannel(channel);
+      window.removeEventListener('pagehide', handlePageHide);
+      window.removeEventListener('pageshow', handlePageShow);
+      stopRealtime();
     };
   }, [fetchLatestDataFromSupabase]);
 
