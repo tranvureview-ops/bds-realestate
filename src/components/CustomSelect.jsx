@@ -176,8 +176,8 @@ export default function CustomSelect({
               aria-expanded={isOpen}
             >
               <i
-                className={`fa-solid fa-chevron-down text-[10px] text-slate-400 shrink-0 transition-transform duration-200 ${
-                  isOpen ? 'rotate-180 text-red-500' : ''
+                className={`fa-solid fa-chevron-down text-[10px] text-slate-600 shrink-0 transition-transform duration-200 ${
+                  isOpen ? 'rotate-180 text-red-600' : ''
                 }`}
                 aria-hidden="true"
               ></i>
@@ -212,8 +212,8 @@ export default function CustomSelect({
           </span>
 
           <i
-            className={`fa-solid fa-chevron-down text-[10px] text-slate-400 shrink-0 transition-transform duration-200 ${
-              isOpen ? 'rotate-180 text-red-500' : ''
+            className={`fa-solid fa-chevron-down text-[10px] text-slate-600 shrink-0 transition-transform duration-200 ${
+              isOpen ? 'rotate-180 text-red-600' : ''
             }`}
           ></i>
         </button>
