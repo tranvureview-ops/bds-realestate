@@ -49,8 +49,8 @@ function sanitizePublicSsrDb(db) {
         sanitizedAuthor = {
           ...p.author,
           avatar: (typeof rawAvatar === 'string' && rawAvatar.startsWith('data:image') && rawAvatar.length > 1024)
-            ? '/avatars/ai-preset-2.jpg'
-            : rawAvatar
+            ? '/avatars/user-tran-van-vu.jpg'
+            : (rawAvatar || '/avatars/user-tran-van-vu.jpg')
         };
       }
 

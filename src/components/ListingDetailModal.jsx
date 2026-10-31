@@ -6,7 +6,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import dynamic from 'next/dynamic';
 import { VIP_PACKAGES } from '../data/mockData';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
-import { formatSentenceCase, getPropertyPermalink, toVietnameseSlug, getBrokerPermalink } from '../utils/permalink';
+import { formatSentenceCase, formatTitleCase, getPropertyPermalink, toVietnameseSlug, getBrokerPermalink } from '../utils/permalink';
 import SeoImage from './SeoImage';
 import BrokerProfileModal from './BrokerProfileModal';
 const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
@@ -59,7 +59,8 @@ export default function ListingDetailModal({ property, onClose }) {
   );
 
   const authorRolePrefix = isBroker ? 'Môi Giới' : 'Khách tìm mua';
-  const authorName = authorUser?.name || property?.author?.name || property?.contactName || 'Người đăng tin';
+  const rawAuthorName = authorUser?.name || property?.author?.name || property?.contactName || 'Người đăng tin';
+  const authorName = formatTitleCase(rawAuthorName);
   const authorTitle = `${authorRolePrefix} ${authorName}`;
   const authorRoleLabel = isBroker ? 'Môi Giới BĐS' : 'Khách Tìm Mua';
   const authorBadgeLabel = isBroker ? 'Chuyên viên tư vấn' : 'Khách tìm mua';
@@ -73,6 +74,11 @@ export default function ListingDetailModal({ property, onClose }) {
     false
   );
 
+  const rawAvatar = authorUser?.avatar || property?.author?.avatar || '/avatars/user-tran-van-vu.jpg';
+  const cleanAvatar = (typeof rawAvatar === 'string' && rawAvatar.startsWith('data:image') && rawAvatar.length > 1024)
+    ? '/avatars/user-tran-van-vu.jpg'
+    : (rawAvatar || '/avatars/user-tran-van-vu.jpg');
+
   const safeAuthor = {
     id: authorUser?.id || property?.author?.id || null,
     name: authorName,
@@ -81,7 +87,7 @@ export default function ListingDetailModal({ property, onClose }) {
     isBroker,
     phone: formatPhoneNumber(authorUser?.phone || property?.author?.phone || property?.contactPhone || '0908 123 456'),
     zalo: (authorUser?.phone || property?.author?.zalo || property?.author?.phone || property?.contactPhone || '0908123456').replace(/\s+/g, ''),
-    avatar: authorUser?.avatar || property?.author?.avatar || '/avatars/ai-preset-2.jpg',
+    avatar: cleanAvatar,
     title: isVerifiedAuthor ? 'Môi giới chuyên nghiệp' : '',
     isVerified: isVerifiedAuthor,
     rating: property?.author?.rating || '5.0',
@@ -558,11 +564,6 @@ export default function ListingDetailModal({ property, onClose }) {
                       className="w-14 h-14 rounded-2xl object-cover border-2 border-emerald-500 shadow-md group-hover:scale-105 group-hover:border-emerald-600 transition-all"
                       itemProp="image"
                     />
-                    {safeAuthor.isVerified && (
-                      <span className="absolute -bottom-1 -right-1 bg-blue-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow" title={`${authorTitle} đã xác thực`}>
-                        <i className="fa-solid fa-check"></i>
-                      </span>
-                    )}
                   </Link>
 
                   {/* 2. Thông tin chuyên viên gộp vào 1 liên kết lớn duy nhất đạt chuẩn Touch Target */}
@@ -585,8 +586,11 @@ export default function ListingDetailModal({ property, onClose }) {
                         </span>
                       </div>
 
-                      <h4 className="text-base font-extrabold text-slate-900 group-hover/brokerInfo:text-emerald-700 transition truncate mt-0.5">
-                        {safeAuthor.name}
+                      <h4 className="text-base font-extrabold text-slate-900 group-hover/brokerInfo:text-emerald-700 transition truncate mt-0.5 flex items-center gap-1.5">
+                        <span>{safeAuthor.name}</span>
+                        {safeAuthor.isVerified && (
+                          <i className="fa-solid fa-circle-check text-blue-500 text-sm shrink-0" title={`${authorTitle} đã xác thực`}></i>
+                        )}
                       </h4>
 
                       {safeAuthor.title ? (

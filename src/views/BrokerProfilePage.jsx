@@ -4,7 +4,7 @@ import React, { useState, useMemo } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link } from '../router/RouterContext';
 import ListingCard from '../components/ListingCard';
-import { toVietnameseSlug, resolveBrokerFromSlug } from '../utils/permalink';
+import { toVietnameseSlug, resolveBrokerFromSlug, formatTitleCase } from '../utils/permalink';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 
 export default function BrokerProfilePage({ slug = '', initialProperties = [] }) {
@@ -30,7 +30,7 @@ export default function BrokerProfilePage({ slug = '', initialProperties = [] })
       .join(' ');
   }, [slug]);
 
-  const authorName = matchedBroker?.name || fallbackName;
+  const authorName = formatTitleCase(matchedBroker?.name || fallbackName);
   const rawRole = (matchedBroker?.role || '').toLowerCase();
   const rawRoleName = (matchedBroker?.roleName || matchedBroker?.title || '').toLowerCase();
   const isExplicitCustomer = rawRole === 'user' || rawRole === 'customer' || rawRole === 'buyer' ||
@@ -50,7 +50,7 @@ export default function BrokerProfilePage({ slug = '', initialProperties = [] })
   const displayPhone = formatPhoneNumber(rawPhone);
   const cleanPhone = rawPhone.replace(/\s+/g, '');
   const zaloNumber = matchedBroker?.zalo || matchedBroker?.phone || cleanPhone;
-  const avatarUrl = matchedBroker?.avatar || '/avatars/ai-preset-2.jpg';
+  const avatarUrl = matchedBroker?.avatar || '/avatars/user-tran-van-vu.jpg';
   const brokerTitle = isVerified ? 'Môi giới chuyên nghiệp' : '';
   const rating = matchedBroker?.rating || '5.0';
 

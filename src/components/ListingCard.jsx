@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link, useRouter } from '../router/RouterContext';
 import { VIP_PACKAGES } from '../data/mockData';
-import { getPropertyPermalink, formatSentenceCase, toVietnameseSlug, getBrokerPermalink } from '../utils/permalink';
+import { getPropertyPermalink, formatSentenceCase, formatTitleCase, toVietnameseSlug, getBrokerPermalink } from '../utils/permalink';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 import SeoImage from './SeoImage';
 import BrokerProfileModal from './BrokerProfileModal';
@@ -49,7 +49,8 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
   );
 
   const authorRolePrefix = isBroker ? 'Môi Giới' : 'Khách tìm mua';
-  const authorName = authorUser?.name || property.author?.name || property.contactName || 'Người đăng tin';
+  const rawAuthorName = authorUser?.name || property.author?.name || property.contactName || 'Người đăng tin';
+  const authorName = formatTitleCase(rawAuthorName);
   const authorTitle = `${authorRolePrefix} ${authorName}`;
 
   const isVerifiedAuthor = Boolean(
@@ -60,10 +61,10 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
     false
   );
 
-  const rawAvatar = authorUser?.avatar || property.author?.avatar || '/avatars/ai-preset-2.jpg';
+  const rawAvatar = authorUser?.avatar || property.author?.avatar || '/avatars/user-tran-van-vu.jpg';
   const cleanAvatar = (typeof rawAvatar === 'string' && rawAvatar.startsWith('data:image') && rawAvatar.length > 1024)
-    ? '/avatars/ai-preset-2.jpg'
-    : rawAvatar;
+    ? '/avatars/user-tran-van-vu.jpg'
+    : (rawAvatar || '/avatars/user-tran-van-vu.jpg');
 
   const safeAuthor = {
     id: authorUser?.id || property.author?.id || null,
@@ -280,11 +281,6 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
                   customContext={safeAuthor.name}
                   className="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0 group-hover/broker:border-emerald-500 group-hover/broker:scale-105 transition"
                 />
-                {safeAuthor.isVerified && (
-                  <span className="absolute -bottom-0.5 -right-0.5 bg-blue-600 text-white rounded-full w-3.5 h-3.5 flex items-center justify-center text-[8px] shadow-xs border border-white">
-                    <i className="fa-solid fa-check"></i>
-                  </span>
-                )}
               </div>
               <div className="leading-tight min-w-0 flex-1">
                 <div className="text-xs font-bold text-slate-800 flex items-center gap-1 min-w-0 group-hover/broker:text-emerald-700 transition">

@@ -41,6 +41,21 @@ export const formatSentenceCase = (str) => {
   return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
 };
 
+/**
+ * Chuẩn hóa họ tên / danh từ riêng: Chữ cái đầu mỗi từ viết hoa (Title Case / Capitalize Each Word)
+ * Ví dụ: "TRAN VAN VU" -> "Tran Van Vu", "nguyễn văn tuấn" -> "Nguyễn Văn Tuấn"
+ * @param {string} str Chuỗi cần chuẩn hóa
+ * @returns {string} Chuỗi sau chuẩn hóa
+ */
+export const formatTitleCase = (str) => {
+  if (!str || typeof str !== 'string') return '';
+  const trimmed = str.trim();
+  if (!trimmed) return '';
+  return trimmed
+    .toLowerCase()
+    .replace(/(?:^|\s|\/|-)\S/g, (char) => char.toUpperCase());
+};
+
 // Cấu hình Base Domain chuẩn SEO
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://bds-realestate.vercel.app';
 

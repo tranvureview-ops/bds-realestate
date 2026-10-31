@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link, useRouter } from '../router/RouterContext';
-import { getPropertyPermalink } from '../utils/permalink';
+import { getPropertyPermalink, formatTitleCase } from '../utils/permalink';
 import { normalizePhone } from '../utils/authValidation';
 
 export default function BrokerProfileModal({
@@ -50,12 +50,13 @@ export default function BrokerProfileModal({
 
   // Chuẩn hóa thông tin tác giả
   const safeAuthor = author || {};
-  const authorName = safeAuthor.name || 'Người đăng tin';
+  const rawAuthorName = safeAuthor.name || 'Người đăng tin';
+  const authorName = formatTitleCase(rawAuthorName);
   const authorTitle = safeAuthor.fullNameWithRole || (safeAuthor.rolePrefix ? `${safeAuthor.rolePrefix} ${authorName}` : authorName);
   const isBroker = safeAuthor.isBroker !== false;
   const isVerified = Boolean(safeAuthor.isVerified);
   const rating = safeAuthor.rating || '5.0';
-  const avatar = safeAuthor.avatar || '/avatars/ai-preset-2.jpg';
+  const avatar = safeAuthor.avatar || '/avatars/user-tran-van-vu.jpg';
   const phone = safeAuthor.phone || '0908 123 456';
   const cleanPhone = phone.replace(/\s+/g, '');
   const zalo = safeAuthor.zalo || cleanPhone;

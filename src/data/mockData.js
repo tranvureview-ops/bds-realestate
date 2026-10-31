@@ -764,11 +764,11 @@ export const INITIAL_PROPERTIES = [
     ],
     "author": {
       "id": "user-1792645437733-545",
-      "name": "TRAN VAN VU",
+      "name": "Tran Van Vu",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905467138",
       "zalo": "0905467138",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
       "isVerified": true
@@ -782,7 +782,7 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_silver",
     "is_verified": true,
     "isVerified": true,
-    "contactName": "TRAN VAN VU",
+    "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
     "updatedAt": "2026-10-27T23:22:18.455Z",
     "userId": "user-1792645437733-545"
@@ -920,11 +920,11 @@ export const INITIAL_PROPERTIES = [
     ],
     "author": {
       "id": "user-1792645437733-545",
-      "name": "TRAN VAN VU",
+      "name": "Tran Van Vu",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905467138",
       "zalo": "0905467138",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
       "isVerified": true
@@ -938,7 +938,7 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_silver",
     "is_verified": true,
     "isVerified": true,
-    "contactName": "TRAN VAN VU",
+    "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
     "updatedAt": "2026-10-27T23:22:18.455Z",
     "userId": "user-1792645437733-545"
@@ -998,11 +998,11 @@ export const INITIAL_PROPERTIES = [
     ],
     "author": {
       "id": "user-1792645437733-545",
-      "name": "TRAN VAN VU",
+      "name": "Tran Van Vu",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905467138",
       "zalo": "0905467138",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
       "isVerified": true
@@ -1016,7 +1016,7 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "standard_fifo",
     "is_verified": false,
     "isVerified": false,
-    "contactName": "TRAN VAN VU",
+    "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
     "updatedAt": "2026-10-27T23:22:18.455Z",
     "userId": "user-1792645437733-545"
@@ -1072,11 +1072,11 @@ export const INITIAL_PROPERTIES = [
     ],
     "author": {
       "id": "user-1792645437733-545",
-      "name": "TRAN VAN VU",
+      "name": "Tran Van Vu",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905467138",
       "zalo": "0905467138",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
       "isVerified": true
@@ -1090,7 +1090,7 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "standard_fifo",
     "is_verified": false,
     "isVerified": false,
-    "contactName": "TRAN VAN VU",
+    "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
     "updatedAt": "2026-10-27T23:22:18.455Z",
     "userId": "user-1792645437733-545"
@@ -1190,11 +1190,11 @@ export const INITIAL_PROPERTIES = [
     "hasVR360": false,
     "author": {
       "id": "user-1792645437733-545",
-      "name": "TRAN VAN VU",
+      "name": "Tran Van Vu",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905467138",
       "zalo": "0905467138",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
       "isVerified": true
@@ -1204,7 +1204,7 @@ export const INITIAL_PROPERTIES = [
     "expiresAt": "2027-04-30T23:59:59.000Z",
     "autoRenew": false,
     "queuePriority": "priority_silver",
-    "contactName": "TRAN VAN VU",
+    "contactName": "Tran Van Vu",
     "is_verified": false,
     "isVerified": false,
     "contactPhone": "0905467138",
@@ -1306,11 +1306,11 @@ export const INITIAL_PROPERTIES = [
     "hasVR360": false,
     "author": {
       "id": "user-1792645437733-545",
-      "name": "TRAN VAN VU",
+      "name": "Tran Van Vu",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905467138",
       "zalo": "0905467138",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
       "isVerified": true
@@ -1322,7 +1322,7 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "standard_fifo",
     "is_verified": true,
     "isVerified": true,
-    "contactName": "TRAN VAN VU",
+    "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
     "updatedAt": "2026-10-27T23:22:18.455Z",
     "userId": "user-1792645437733-545"
@@ -1364,11 +1364,11 @@ export const INITIAL_PROPERTIES = [
     "hasVR360": false,
     "author": {
       "id": "user-1792645437733-545",
-      "name": "TRAN VAN VU",
+      "name": "Tran Van Vu",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905467138",
       "zalo": "0905467138",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
       "isVerified": true
@@ -1378,7 +1378,7 @@ export const INITIAL_PROPERTIES = [
     "expiresAt": "2027-04-30T23:59:59.000Z",
     "autoRenew": false,
     "queuePriority": "priority_gold",
-    "contactName": "TRAN VAN VU",
+    "contactName": "Tran Van Vu",
     "is_verified": false,
     "isVerified": false,
     "contactPhone": "0905467138",
@@ -1450,11 +1450,11 @@ export const INITIAL_PROPERTIES = [
     ],
     "author": {
       "id": "user-1792645437733-545",
-      "name": "TRAN VAN VU",
+      "name": "Tran Van Vu",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905467138",
       "zalo": "0905467138",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
       "isVerified": true
@@ -1468,7 +1468,7 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_diamond",
     "is_verified": false,
     "isVerified": false,
-    "contactName": "TRAN VAN VU",
+    "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
     "updatedAt": "2026-10-27T23:22:18.455Z",
     "userId": "user-1792645437733-545"
@@ -1615,11 +1615,11 @@ export const INITIAL_PROPERTIES = [
     ],
     "author": {
       "id": "user-1792645437733-545",
-      "name": "TRAN VAN VU",
+      "name": "Tran Van Vu",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905467138",
       "zalo": "0905467138",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
       "isVerified": true
@@ -1633,7 +1633,7 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_diamond",
     "is_verified": true,
     "isVerified": true,
-    "contactName": "TRAN VAN VU",
+    "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
     "updatedAt": "2026-10-27T23:22:18.455Z",
     "userId": "user-1792645437733-545"
@@ -1774,11 +1774,11 @@ export const INITIAL_PROPERTIES = [
     ],
     "author": {
       "id": "user-1792645437733-545",
-      "name": "TRAN VAN VU",
+      "name": "Tran Van Vu",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905467138",
       "zalo": "0905467138",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
       "isVerified": true
@@ -1792,7 +1792,7 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_gold",
     "is_verified": true,
     "isVerified": true,
-    "contactName": "TRAN VAN VU",
+    "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
     "updatedAt": "2026-10-27T23:22:18.455Z",
     "userId": "user-1792645437733-545"
@@ -1851,11 +1851,11 @@ export const INITIAL_PROPERTIES = [
     ],
     "author": {
       "id": "user-1792645437733-545",
-      "name": "TRAN VAN VU",
+      "name": "Tran Van Vu",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905467138",
       "zalo": "0905467138",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
       "isVerified": true
@@ -1869,7 +1869,7 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_silver",
     "is_verified": false,
     "isVerified": false,
-    "contactName": "TRAN VAN VU",
+    "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
     "updatedAt": "2026-10-27T23:22:18.455Z",
     "userId": "user-1792645437733-545"
@@ -1932,11 +1932,11 @@ export const INITIAL_PROPERTIES = [
     ],
     "author": {
       "id": "user-1792645437733-545",
-      "name": "TRAN VAN VU",
+      "name": "Tran Van Vu",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905467138",
       "zalo": "0905467138",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
       "isVerified": true
@@ -1950,7 +1950,7 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_gold",
     "is_verified": true,
     "isVerified": true,
-    "contactName": "TRAN VAN VU",
+    "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
     "updatedAt": "2026-10-27T23:22:18.455Z",
     "userId": "user-1792645437733-545"
@@ -2096,11 +2096,11 @@ export const INITIAL_PROPERTIES = [
     ],
     "author": {
       "id": "user-1792645437733-545",
-      "name": "TRAN VAN VU",
+      "name": "Tran Van Vu",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905467138",
       "zalo": "0905467138",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
       "isVerified": true
@@ -2114,7 +2114,7 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_diamond",
     "is_verified": false,
     "isVerified": false,
-    "contactName": "TRAN VAN VU",
+    "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
     "updatedAt": "2026-10-27T23:22:18.455Z",
     "userId": "user-1792645437733-545"
@@ -2174,11 +2174,11 @@ export const INITIAL_PROPERTIES = [
     ],
     "author": {
       "id": "user-1792645437733-545",
-      "name": "TRAN VAN VU",
+      "name": "Tran Van Vu",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905467138",
       "zalo": "0905467138",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
       "isVerified": true
@@ -2192,7 +2192,7 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "priority_gold",
     "is_verified": true,
     "isVerified": true,
-    "contactName": "TRAN VAN VU",
+    "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
     "updatedAt": "2026-10-27T23:22:18.455Z",
     "userId": "user-1792645437733-545"
@@ -2251,11 +2251,11 @@ export const INITIAL_PROPERTIES = [
     ],
     "author": {
       "id": "user-1792645437733-545",
-      "name": "TRAN VAN VU",
+      "name": "Tran Van Vu",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905467138",
       "zalo": "0905467138",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
       "isVerified": true
@@ -2269,7 +2269,7 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": "standard_fifo",
     "is_verified": false,
     "isVerified": false,
-    "contactName": "TRAN VAN VU",
+    "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
     "updatedAt": "2026-10-27T23:22:18.455Z",
     "userId": "user-1792645437733-545"
@@ -2335,11 +2335,11 @@ export const INITIAL_PROPERTIES = [
     ],
     "author": {
       "id": "user-1792645437733-545",
-      "name": "TRAN VAN VU",
+      "name": "Tran Van Vu",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905467138",
       "zalo": "0905467138",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
       "isVerified": true
@@ -2353,7 +2353,7 @@ export const INITIAL_PROPERTIES = [
     "queuePriority": 2,
     "is_verified": true,
     "isVerified": true,
-    "contactName": "TRAN VAN VU",
+    "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
     "updatedAt": "2026-10-27T23:22:18.455Z",
     "userId": "user-1792645437733-545"
@@ -2491,16 +2491,16 @@ export const INITIAL_PROPERTIES = [
     ],
     "author": {
       "id": "user-1792645437733-545",
-      "name": "TRAN VAN VU",
+      "name": "Tran Van Vu",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905467138",
       "zalo": "0905467138",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
       "isVerified": true
     },
-    "contactName": "TRAN VAN VU",
+    "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
     "publishedAt": "2026-10-25T14:00:00.000Z",
     "viewsCount": 180,
@@ -2568,16 +2568,16 @@ export const INITIAL_PROPERTIES = [
     ],
     "author": {
       "id": "user-1792645437733-545",
-      "name": "TRAN VAN VU",
+      "name": "Tran Van Vu",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905467138",
       "zalo": "0905467138",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
       "isVerified": true
     },
-    "contactName": "TRAN VAN VU",
+    "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
     "publishedAt": "2026-10-24T10:00:00.000Z",
     "viewsCount": 310,
@@ -2720,16 +2720,16 @@ export const INITIAL_PROPERTIES = [
     ],
     "author": {
       "id": "user-1792645437733-545",
-      "name": "TRAN VAN VU",
+      "name": "Tran Van Vu",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905467138",
       "zalo": "0905467138",
-      "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "title": "Môi Giới Chuyên Nghiệp",
       "role": "broker",
       "isVerified": true
     },
-    "contactName": "TRAN VAN VU",
+    "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
     "publishedAt": "2026-10-25T15:00:00.000Z",
     "viewsCount": 165,
@@ -2748,13 +2748,13 @@ export const INITIAL_PROPERTIES = [
 export const MOCK_USERS = [
   {
     "id": "user-1792645437733-545",
-    "name": "TRAN VAN VU",
+    "name": "Tran Van Vu",
     "email": "tranvanvu.dev@gmail.com",
     "role": "broker",
     "roleName": "Môi Giới Chuyên Nghiệp",
     "walletBalance": 2966000,
     "phone": "0905467138",
-    "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=256&q=80",
+    "avatar": "/avatars/user-tran-van-vu.jpg",
     "membership": {
       "packageId": "member-standard",
       "packageName": "Gói Hội Viên Tiêu Chuẩn",
