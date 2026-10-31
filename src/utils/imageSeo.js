@@ -4,7 +4,7 @@
  */
 
 export const DEFAULT_PROPERTY_FALLBACK_IMAGE =
-  'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80';
+  'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=75';
 
 export const DEFAULT_AVATAR_FALLBACK_IMAGE =
   '/avatars/ai-preset-1.jpg';
@@ -107,21 +107,40 @@ export function getResponsiveImageProps(src, type = 'gallery') {
         .replace(/[?&]auto=[^&]+/g, '');
       const connector = cleanBase.includes('?') ? '&' : '?';
 
-      const src480 = `${cleanBase}${connector}auto=format&fit=crop&w=480&q=75`;
-      const src768 = `${cleanBase}${connector}auto=format&fit=crop&w=768&q=80`;
-      const src1200 = `${cleanBase}${connector}auto=format&fit=crop&w=1200&q=80`;
+      // Trường hợp ảnh đại diện chuyên viên / avatar (kích thước hiển thị ~64x64px)
+      if (type === 'agent') {
+        const src64 = `${cleanBase}${connector}auto=format&fit=crop&w=64&q=75`;
+        const src128 = `${cleanBase}${connector}auto=format&fit=crop&w=128&q=80`;
+        const src192 = `${cleanBase}${connector}auto=format&fit=crop&w=192&q=80`;
+        return {
+          srcSet: `${src64} 64w, ${src128} 128w, ${src192} 192w`,
+          sizes: '64px'
+        };
+      }
 
-      let sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 600px';
+      // Trường hợp ảnh chính chi tiết bài đăng (Hero / Main photo)
       if (type === 'main') {
-        sizes = '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px';
-      } else if (type === 'thumbnail') {
-        sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 380px';
-      } else if (type === 'gallery') {
-        sizes = '(max-width: 640px) 50vw, 250px';
+        const src480 = `${cleanBase}${connector}auto=format&fit=crop&w=480&q=75`;
+        const src768 = `${cleanBase}${connector}auto=format&fit=crop&w=768&q=75`;
+        const src1024 = `${cleanBase}${connector}auto=format&fit=crop&w=1024&q=75`;
+        return {
+          srcSet: `${src480} 480w, ${src768} 768w, ${src1024} 1024w`,
+          sizes: '(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 640px'
+        };
+      }
+
+      // Trường hợp ảnh thẻ bài đăng (Thumbnail) hoặc Gallery
+      const src360 = `${cleanBase}${connector}auto=format&fit=crop&w=360&q=75`;
+      const src600 = `${cleanBase}${connector}auto=format&fit=crop&w=600&q=75`;
+      const src800 = `${cleanBase}${connector}auto=format&fit=crop&w=800&q=75`;
+
+      let sizes = '(max-width: 640px) 50vw, 240px';
+      if (type === 'thumbnail') {
+        sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 360px';
       }
 
       return {
-        srcSet: `${src480} 480w, ${src768} 768w, ${src1200} 1200w`,
+        srcSet: `${src360} 360w, ${src600} 600w, ${src800} 800w`,
         sizes
       };
     } catch (e) {

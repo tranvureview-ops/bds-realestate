@@ -68,10 +68,30 @@ export default function SeoImage({
     return getResponsiveImageProps(imgSrc, type);
   }, [imgSrc, type]);
 
+  // Chuẩn hóa kích thước src fallback tránh tải ảnh quá cỡ cho Lighthouse
+  const optimizedSrc = useMemo(() => {
+    if (imgSrc && imgSrc.includes('images.unsplash.com')) {
+      const cleanBase = imgSrc
+        .replace(/[?&]w=\d+/g, '')
+        .replace(/[?&]q=\d+/g, '')
+        .replace(/[?&]fit=[^&]+/g, '')
+        .replace(/[?&]auto=[^&]+/g, '');
+      const connector = cleanBase.includes('?') ? '&' : '?';
+      if (type === 'agent') {
+        return `${cleanBase}${connector}auto=format&fit=crop&w=128&q=80`;
+      }
+      if (type === 'main') {
+        return `${cleanBase}${connector}auto=format&fit=crop&w=800&q=75`;
+      }
+      return `${cleanBase}${connector}auto=format&fit=crop&w=600&q=75`;
+    }
+    return imgSrc;
+  }, [imgSrc, type]);
+
   return (
     <img
       {...rest}
-      src={imgSrc}
+      src={optimizedSrc}
       srcSet={rest.srcSet || responsiveProps.srcSet}
       sizes={rest.sizes || responsiveProps.sizes}
       alt={computedAlt}
