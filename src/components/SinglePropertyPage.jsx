@@ -1579,31 +1579,6 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {/* Nút Xác thực tin ở phần hành động nếu tin chưa xác thực (Ẩn khi tin đã xác thực) */}
-                    {!Boolean(property.is_verified || property.isVerified) && (
-                      (property.verification_status === 'pending' || property.verificationStatus === 'pending') ? (
-                        <button
-                          type="button"
-                          onClick={() => setIsReviewDocModalOpen(true)}
-                          className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-300 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer"
-                          title="Hồ sơ Sổ đỏ 2 mặt đang chờ Ban quản trị duyệt. Bấm để xem lại."
-                        >
-                          <i className="fa-solid fa-file-shield text-xs text-amber-600"></i>
-                          <span>Đang duyệt sổ đỏ</span>
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => setIsVerifyModalOpen(true)}
-                          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer"
-                          title="Tải lên Sổ đỏ 2 mặt để yêu cầu Ban quản trị xác thực tin"
-                        >
-                          <i className="fa-solid fa-circle-check text-xs"></i>
-                          <span>Xác thực tin</span>
-                        </button>
-                      )
-                    )}
-
                     {discCfg.showReportButton !== false && (
                       <button
                         type="button"

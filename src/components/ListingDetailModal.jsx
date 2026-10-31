@@ -26,7 +26,8 @@ export default function ListingDetailModal({ property, onClose }) {
     setActiveModal, 
     showToast,
     usersList,
-    verifyProperty
+    verifyProperty,
+    currentUser
   } = useRealEstate();
 
   const [activeMediaTab, setActiveMediaTab] = useState('photos'); // 'photos', 'vr360', 'video', 'map'
@@ -194,8 +195,8 @@ export default function ListingDetailModal({ property, onClose }) {
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Nút Xác thực tin ở phần hành động nếu tin chưa xác thực (Ẩn khi tin đã xác thực) */}
-            {!Boolean(property.is_verified || property.isVerified) && (
+            {/* Nút Xác thực tin chỉ hiển thị cho Quản trị viên (Admin) nếu tin chưa xác thực */}
+            {currentUser?.role === 'admin' && !Boolean(property.is_verified || property.isVerified) && (
               <button
                 type="button"
                 onClick={async () => {
