@@ -110,14 +110,14 @@ export default function Navbar() {
   const isImageLogo = headerConfig?.logoType === 'image' && Boolean(headerConfig?.logoImageUrl) && !logoImgError;
 
   // Chuẩn hóa chiều rộng container đồng nhất với toàn bộ trang:
-  // - Boxed: 1152px (max-w-6xl) trên laptop, 1280px (xl:max-w-7xl) trên màn lớn (canh giữa)
+  // - Boxed: 1280px (max-w-7xl) chuẩn mực canh giữa màn hình
   // - Wide: 94% chiều rộng màn hình (max-w-[94vw]) đến 1536px (2xl:max-w-[1536px])
   // - Full: 100% toàn màn hình (w-full) tràn viền Edge-to-Edge
   const containerWidthClass = useMemo(() => {
     const widthType = headerConfig?.containerWidth || 'boxed';
     if (widthType === 'full') return 'w-full px-4 sm:px-6 lg:px-8 transition-all duration-300';
     if (widthType === 'wide') return 'w-full max-w-[94vw] 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300';
-    return 'w-full max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300';
+    return 'w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300';
   }, [headerConfig?.containerWidth]);
 
   // Lấy toàn bộ các mục menu trực tiếp từ Cấu Hình Menu trong Trang Quản Trị

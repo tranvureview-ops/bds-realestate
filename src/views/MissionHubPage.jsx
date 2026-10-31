@@ -35,7 +35,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
     const widthType = headerConfig?.containerWidth || 'boxed';
     if (widthType === 'full') return 'w-full px-4 sm:px-6 lg:px-8 transition-all duration-300';
     if (widthType === 'wide') return 'w-full max-w-[94vw] 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300';
-    return 'w-full max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300';
+    return 'w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300';
   }, [headerConfig?.containerWidth]);
 
   const userId = currentUser && currentUser.role !== 'guest' ? currentUser.id : 'guest';
