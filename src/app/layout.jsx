@@ -1,5 +1,4 @@
 import './globals.css';
-import './fontawesome.css';
 import Script from 'next/script';
 import ClientLayout from './ClientLayout';
 
@@ -205,6 +204,11 @@ export default async function RootLayout({ children }) {
           as="style"
           href={fontConfig.googleFontUrl}
         />
+        <link
+          rel="preload"
+          as="style"
+          href="/fontawesome.min.css"
+        />
         {/* Non-render-blocking Asynchronous Stylesheet Injector to eliminate Critical Request Chains */}
         <script
           id="server-async-styles"
@@ -220,12 +224,14 @@ export default async function RootLayout({ children }) {
                   document.head.appendChild(l);
                 }
                 loadCSS('${fontConfig.googleFontUrl}', 'server-google-font-link');
+                loadCSS('/fontawesome.min.css', 'server-fa-link');
               })();
             `
           }}
         />
         <noscript>
           <link rel="stylesheet" href={fontConfig.googleFontUrl} />
+          <link rel="stylesheet" href="/fontawesome.min.css" />
         </noscript>
         <style
           id="app-ssr-font-override"
