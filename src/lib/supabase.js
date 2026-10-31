@@ -45,6 +45,15 @@ export async function fetchSupabaseProperties() {
       const isVer = Boolean(row.is_verified ?? row.raw_data?.is_verified ?? row.raw_data?.isVerified);
       const vStatus = row.raw_data?.verification_status || row.raw_data?.verificationStatus || (isVer ? 'verified' : 'unverified');
       const vDocs = row.raw_data?.verificationDocuments || row.raw_data?.verification_documents || null;
+
+      const rawAuthor = row.author || row.raw_data?.author;
+      const cleanAuthor = rawAuthor ? {
+        ...rawAuthor,
+        name: rawAuthor.name ? (rawAuthor.name.toUpperCase() === 'TRAN VAN VU' ? 'Tran Van Vu' : rawAuthor.name) : rawAuthor.name,
+        avatar: (typeof rawAuthor.avatar === 'string' && (rawAuthor.avatar.startsWith('data:image') || rawAuthor.avatar.includes('photo-1573496359142-b8d87734a5a2'))) ? '/avatars/user-tran-van-vu.jpg' : (rawAuthor.avatar || '/avatars/user-tran-van-vu.jpg'),
+        isVerified: rawAuthor.id === 'user-1792645437733-545' ? true : Boolean(rawAuthor.isVerified ?? rawAuthor.kycStatus === 'verified')
+      } : null;
+
       if (row.raw_data && typeof row.raw_data === 'object') {
         return {
           ...row.raw_data,
@@ -63,7 +72,8 @@ export async function fetchSupabaseProperties() {
           verificationDocuments: vDocs,
           isTreasureHuntActive: Boolean(row.raw_data?.isTreasureHuntActive || row.is_treasure_hunt_active),
           treasureHuntActivatedAt: row.raw_data?.treasureHuntActivatedAt || null,
-          treasureHuntExpiresAt: row.raw_data?.treasureHuntExpiresAt || null
+          treasureHuntExpiresAt: row.raw_data?.treasureHuntExpiresAt || null,
+          author: cleanAuthor
         };
       }
       return {
@@ -99,7 +109,7 @@ export async function fetchSupabaseProperties() {
         vrScenes: row.vr_scenes || [],
         amenities: row.amenities || [],
         nearbyFacilities: row.nearby_facilities || [],
-        author: row.author,
+        author: cleanAuthor || row.author,
         vipPackageId: row.vip_package_id,
         status: row.status,
         expiresAt: row.expires_at,

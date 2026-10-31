@@ -2652,7 +2652,7 @@
       "deletedAt": null,
       "isDeleted": false,
       "updatedAt": "2026-10-22T12:32:19.768Z",
-      "isVerified": false,
+      "isVerified": true,
       "membership": {
         "badge": "BÁN CHẠY NHẤT ★",
         "status": "expired",

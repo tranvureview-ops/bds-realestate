@@ -261,17 +261,18 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   const brokerUrl = getBrokerPermalink({ id: authorUser?.id || property?.author?.id, name: authorName, phone: authorUser?.phone || property?.author?.phone || property?.contactPhone }, usersList);
 
   const isVerifiedAuthor = Boolean(
-    authorUser?.isVerified ?? 
-    property?.author?.isVerified ?? 
-    authorUser?.kycStatus === 'verified' ?? 
-    property?.author?.kycStatus === 'verified' ?? 
-    false
+    authorUser?.isVerified || 
+    property?.author?.isVerified || 
+    authorUser?.kycStatus === 'verified' || 
+    property?.author?.kycStatus === 'verified'
   );
 
   const rawAvatar = authorUser?.avatar || property?.author?.avatar || '/avatars/user-tran-van-vu.jpg';
-  const cleanAvatar = (typeof rawAvatar === 'string' && rawAvatar.startsWith('data:image') && rawAvatar.length > 1024)
+  const cleanAvatar = (typeof rawAvatar === 'string' && (rawAvatar.startsWith('data:image') || rawAvatar.includes('photo-1573496359142-b8d87734a5a2')))
     ? '/avatars/user-tran-van-vu.jpg'
     : (rawAvatar || '/avatars/user-tran-van-vu.jpg');
+
+  const safeAuthorTitle = property?.author?.title || authorUser?.title || authorUser?.roleName || (isBroker ? 'Môi giới chuyên nghiệp' : '');
 
   const safeAuthor = {
     id: authorUser?.id || property?.author?.id || null,
@@ -282,7 +283,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     phone: formatPhoneNumber(authorUser?.phone || property?.author?.phone || property?.contactPhone || '0908 123 456'),
     zalo: (authorUser?.phone || property?.author?.zalo || property?.author?.phone || property?.contactPhone || '0908123456').replace(/\s+/g, ''),
     avatar: cleanAvatar,
-    title: isVerifiedAuthor ? 'Môi giới chuyên nghiệp' : '',
+    title: safeAuthorTitle,
     isVerified: isVerifiedAuthor,
     rating: property?.author?.rating || '5.0',
     reviewCount: property?.author?.reviewCount || 1,

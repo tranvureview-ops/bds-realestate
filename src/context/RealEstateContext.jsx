@@ -442,6 +442,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         contactPhone: norm.contactPhone ? formatPhoneNumber(norm.contactPhone) : norm.contactPhone,
         author: norm.author ? {
           ...norm.author,
+          name: norm.author.name ? (norm.author.name.toUpperCase() === 'TRAN VAN VU' ? 'Tran Van Vu' : norm.author.name) : norm.author.name,
+          avatar: (typeof norm.author.avatar === 'string' && (norm.author.avatar.startsWith('data:image') || norm.author.avatar.includes('photo-1573496359142-b8d87734a5a2'))) ? '/avatars/user-tran-van-vu.jpg' : (norm.author.avatar || '/avatars/user-tran-van-vu.jpg'),
+          isVerified: norm.author.id === 'user-1792645437733-545' ? true : Boolean(norm.author.isVerified),
           phone: norm.author.phone ? formatPhoneNumber(norm.author.phone) : norm.author.phone
         } : norm.author
       };
@@ -480,6 +483,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       : MOCK_USERS;
     return list.map(u => ({
       ...u,
+      name: u.name ? (u.name.toUpperCase() === 'TRAN VAN VU' ? 'Tran Van Vu' : u.name) : u.name,
+      avatar: (typeof u.avatar === 'string' && (u.avatar.startsWith('data:image') || u.avatar.includes('photo-1573496359142-b8d87734a5a2'))) ? '/avatars/user-tran-van-vu.jpg' : (u.avatar || '/avatars/user-tran-van-vu.jpg'),
+      isVerified: u.id === 'user-1792645437733-545' ? true : Boolean(u.isVerified),
       phone: u.phone ? formatPhoneNumber(u.phone) : u.phone
     }));
   });
@@ -1431,10 +1437,29 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       if (db) {
         if (Array.isArray(db.bds_properties) && db.bds_properties.length > 0) {
           const validProps = db.bds_properties.filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng') || p.city === 'Quảng Nam' || p.city.includes('Quảng Nam'));
-          setProperties(validProps.map(normalizePropertyExpiration));
+          setProperties(validProps.map(p => {
+            const norm = normalizePropertyExpiration(p);
+            return {
+              ...norm,
+              contactPhone: norm.contactPhone ? formatPhoneNumber(norm.contactPhone) : norm.contactPhone,
+              author: norm.author ? {
+                ...norm.author,
+                name: norm.author.name ? (norm.author.name.toUpperCase() === 'TRAN VAN VU' ? 'Tran Van Vu' : norm.author.name) : norm.author.name,
+                avatar: (typeof norm.author.avatar === 'string' && (norm.author.avatar.startsWith('data:image') || norm.author.avatar.includes('photo-1573496359142-b8d87734a5a2'))) ? '/avatars/user-tran-van-vu.jpg' : (norm.author.avatar || '/avatars/user-tran-van-vu.jpg'),
+                isVerified: norm.author.id === 'user-1792645437733-545' ? true : Boolean(norm.author.isVerified),
+                phone: norm.author.phone ? formatPhoneNumber(norm.author.phone) : norm.author.phone
+              } : norm.author
+            };
+          }));
         }
         if (Array.isArray(db.bds_users_list) && db.bds_users_list.length > 0) {
-          setUsersList(db.bds_users_list);
+          setUsersList(db.bds_users_list.map(u => ({
+            ...u,
+            name: u.name ? (u.name.toUpperCase() === 'TRAN VAN VU' ? 'Tran Van Vu' : u.name) : u.name,
+            avatar: (typeof u.avatar === 'string' && (u.avatar.startsWith('data:image') || u.avatar.includes('photo-1573496359142-b8d87734a5a2'))) ? '/avatars/user-tran-van-vu.jpg' : (u.avatar || '/avatars/user-tran-van-vu.jpg'),
+            isVerified: u.id === 'user-1792645437733-545' ? true : Boolean(u.isVerified),
+            phone: u.phone ? formatPhoneNumber(u.phone) : u.phone
+          })));
         }
         if (Array.isArray(db.bds_transactions) && db.bds_transactions.length > 0) {
           setTransactions(db.bds_transactions);

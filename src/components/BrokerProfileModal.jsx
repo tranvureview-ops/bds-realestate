@@ -56,11 +56,13 @@ export default function BrokerProfileModal({
   const isBroker = safeAuthor.isBroker !== false;
   const isVerified = Boolean(safeAuthor.isVerified);
   const rating = safeAuthor.rating || '5.0';
-  const avatar = safeAuthor.avatar || '/avatars/user-tran-van-vu.jpg';
+  const avatar = (typeof safeAuthor.avatar === 'string' && (safeAuthor.avatar.startsWith('data:image') || safeAuthor.avatar.includes('photo-1573496359142-b8d87734a5a2')))
+    ? '/avatars/user-tran-van-vu.jpg'
+    : (safeAuthor.avatar || '/avatars/user-tran-van-vu.jpg');
   const phone = safeAuthor.phone || '0908 123 456';
   const cleanPhone = phone.replace(/\s+/g, '');
   const zalo = safeAuthor.zalo || cleanPhone;
-  const authorTitleRole = safeAuthor.title || (isVerified ? 'Môi giới chuyên nghiệp' : '');
+  const authorTitleRole = safeAuthor.title || (isBroker ? 'Môi giới chuyên nghiệp' : '');
 
   // Lấy toàn bộ danh sách tin đăng thực tế của chuyên viên / môi giới này trên sàn
   const authorProperties = useMemo(() => {

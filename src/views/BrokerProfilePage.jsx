@@ -41,17 +41,18 @@ export default function BrokerProfilePage({ slug = '', initialProperties = [] })
   const authorTitle = `${authorRolePrefix} ${authorName}`;
 
   const isVerified = Boolean(
-    matchedBroker?.isVerified ?? 
-    matchedBroker?.kycStatus === 'verified' ?? 
-    false
+    matchedBroker?.isVerified || 
+    matchedBroker?.kycStatus === 'verified'
   );
 
   const rawPhone = matchedBroker?.phone || '0908 123 456';
   const displayPhone = formatPhoneNumber(rawPhone);
   const cleanPhone = rawPhone.replace(/\s+/g, '');
   const zaloNumber = matchedBroker?.zalo || matchedBroker?.phone || cleanPhone;
-  const avatarUrl = matchedBroker?.avatar || '/avatars/user-tran-van-vu.jpg';
-  const brokerTitle = isVerified ? 'Môi giới chuyên nghiệp' : '';
+  const avatarUrl = (typeof matchedBroker?.avatar === 'string' && (matchedBroker.avatar.startsWith('data:image') || matchedBroker.avatar.includes('photo-1573496359142-b8d87734a5a2')))
+    ? '/avatars/user-tran-van-vu.jpg'
+    : (matchedBroker?.avatar || '/avatars/user-tran-van-vu.jpg');
+  const brokerTitle = matchedBroker?.title || matchedBroker?.roleName || (isBroker ? 'Môi giới chuyên nghiệp' : '');
   const rating = matchedBroker?.rating || '5.0';
 
   // Lọc toàn bộ danh sách bất động sản của môi giới này
