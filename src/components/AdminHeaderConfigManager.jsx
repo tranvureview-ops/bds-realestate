@@ -6,6 +6,15 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { DEFAULT_HEADER_CONFIG, DEFAULT_SOCIAL_LINKS } from '../data/mockData';
 import SocialIcon from './SocialIcon';
 
+const topbarColorClasses = {
+  emerald: { badge: 'bg-emerald-900 text-emerald-100 border-emerald-700', dot: 'bg-emerald-300' },
+  amber: { badge: 'bg-amber-900/80 text-amber-100 border-amber-600', dot: 'bg-amber-400' },
+  red: { badge: 'bg-red-900/80 text-red-100 border-red-600', dot: 'bg-red-400' },
+  blue: { badge: 'bg-blue-900/80 text-blue-100 border-blue-600', dot: 'bg-blue-400' },
+  purple: { badge: 'bg-purple-900/80 text-purple-100 border-purple-600', dot: 'bg-purple-400' },
+  slate: { badge: 'bg-slate-800 text-slate-200 border-slate-700', dot: 'bg-slate-400' }
+};
+
 export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
   const {
     headerConfig,
@@ -30,7 +39,20 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
     logoAlt: headerConfig?.logoAlt || `${systemConfig?.brandShortName || 'Sàn BĐS'} Logo`,
     showTaglineWithImage: headerConfig?.showTaglineWithImage || false,
     containerWidth: headerConfig?.containerWidth || 'boxed',
-    socialLinks: headerConfig?.socialLinks || DEFAULT_SOCIAL_LINKS
+    socialLinks: headerConfig?.socialLinks || DEFAULT_SOCIAL_LINKS,
+    topbar: {
+      showTopbar: true,
+      showBadge: true,
+      badgeText: '',
+      badgeColor: 'emerald',
+      hotlineLabel: 'Hotline 24/7:',
+      hotline: '',
+      workingHours: '8:00 - 21:00',
+      showWorkingHours: true,
+      showSocial: true,
+      bgColor: 'bg-slate-900',
+      ...(headerConfig?.topbar || {})
+    }
   }));
 
   // Sync when headerConfig changes
@@ -42,12 +64,35 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
         socialLinks: {
           ...DEFAULT_SOCIAL_LINKS,
           ...(headerConfig.socialLinks || {})
+        },
+        topbar: {
+          showTopbar: true,
+          showBadge: true,
+          badgeText: '',
+          badgeColor: 'emerald',
+          hotlineLabel: 'Hotline 24/7:',
+          hotline: '',
+          workingHours: '8:00 - 21:00',
+          showWorkingHours: true,
+          showSocial: true,
+          bgColor: 'bg-slate-900',
+          ...(headerConfig.topbar || {})
         }
       }));
     }
   }, [headerConfig]);
 
   const [isSavingHeader, setIsSavingHeader] = useState(false);
+
+  const handleUpdateTopbar = (field, value) => {
+    setLogoFormData(prev => ({
+      ...prev,
+      topbar: {
+        ...(prev.topbar || {}),
+        [field]: value
+      }
+    }));
+  };
 
   // Xử lý bật/tắt từng mạng xã hội
   const handleToggleSocial = (key) => {
@@ -577,6 +622,262 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. CẤU HÌNH THANH TIỆN ÍCH TRÊN CÙNG (TOPBAR & SLOGAN PILL) */}
+      <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800/80 gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center text-sm">
+                <i className="fa-solid fa-bars-staggered"></i>
+              </span>
+              <h3 className="text-sm font-black text-white uppercase tracking-wider">
+                2. Thanh Tiện Ích Trên Cùng (TopBar & Khẩu Hiệu Sàn BĐS)
+              </h3>
+            </div>
+            <p className="text-xs text-slate-400 mt-1">
+              Tùy biến hiển thị thanh tiện ích đen trên cùng: Huy hiệu khẩu hiệu (Slogan Pill), Hotline 24/7, Giờ làm việc và biểu tượng mạng xã hội.
+            </p>
+          </div>
+
+          {/* Toggle Bật/Tắt Toàn Bộ Topbar */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-slate-400 font-bold">Hiển thị Topbar:</span>
+            <button
+              type="button"
+              onClick={() => handleUpdateTopbar('showTopbar', !logoFormData.topbar?.showTopbar)}
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
+                logoFormData.topbar?.showTopbar !== false ? 'bg-emerald-600' : 'bg-slate-800'
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                  logoFormData.topbar?.showTopbar !== false ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+
+        {/* Live Preview của Topbar */}
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+              <i className="fa-regular fa-eye text-emerald-400"></i>
+              <span>Xem Trước Thanh TopBar Thực Tế:</span>
+            </span>
+            <span className="text-[10px] text-slate-500">Hiển thị ngay trên website</span>
+          </div>
+
+          <div className="rounded-2xl overflow-hidden border border-slate-800 bg-slate-900 shadow-md">
+            {logoFormData.topbar?.showTopbar === false ? (
+              <div className="p-4 text-center text-xs text-slate-500 italic">
+                Thanh TopBar hiện đang TẮT (Không hiển thị trên trang chủ)
+              </div>
+            ) : (
+              <div className={`${logoFormData.topbar?.bgColor || 'bg-slate-900'} py-2 px-4 text-xs text-slate-300 flex flex-wrap items-center justify-between gap-3 transition-colors`}>
+                <div className="flex items-center gap-3 min-w-0">
+                  {logoFormData.topbar?.showBadge !== false && (
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border font-bold text-[11px] truncate ${
+                      topbarColorClasses[logoFormData.topbar?.badgeColor || 'emerald']?.badge || 'bg-emerald-900 text-emerald-100 border-emerald-700'
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${
+                        topbarColorClasses[logoFormData.topbar?.badgeColor || 'emerald']?.dot || 'bg-emerald-300'
+                      } animate-pulse shrink-0`}></span>
+                      <span className="truncate">
+                        {logoFormData.topbar?.badgeText?.trim() || `Sàn BĐS ${logoFormData.brandName || 'KENHNHADAT24H'}${logoFormData.brandHighlight || '.com.vn'}`}
+                      </span>
+                    </span>
+                  )}
+                  <div className="hidden sm:inline-flex items-center gap-1.5 text-slate-300">
+                    {logoFormData.topbar?.showBadge !== false && <span className="text-slate-600">|</span>}
+                    <span className="text-slate-400">{logoFormData.topbar?.hotlineLabel || 'Hotline 24/7:'}</span>
+                    <span className="text-white font-bold font-mono flex items-center gap-1">
+                      <i className="fa-solid fa-phone text-[10px] text-emerald-400"></i>
+                      <span>{logoFormData.topbar?.hotline?.trim() || systemConfig?.hotline || '0904 084 888'}</span>
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 text-[11px] text-slate-400">
+                  {logoFormData.topbar?.showWorkingHours !== false && (
+                    <span className="inline-flex items-center gap-1.5">
+                      <i className="fa-regular fa-clock text-emerald-400 text-[10px]"></i>
+                      <span className="text-slate-300 font-semibold">{logoFormData.topbar?.workingHours || '8:00 - 21:00'}</span>
+                    </span>
+                  )}
+                  {logoFormData.topbar?.showSocial !== false && (
+                    <span className="text-xs text-slate-500 bg-slate-800/80 px-2 py-0.5 rounded-full">
+                      Mạng xã hội (Bật)
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Các Form Điều Khiển Chi Tiết */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          {/* Cột 1: Tùy biến Huy hiệu / Khẩu hiệu (Pill Badge) */}
+          <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                <i className="fa-solid fa-certificate text-emerald-400"></i>
+                <span>Huy Hiệu Khẩu Hiệu (Slogan Pill)</span>
+              </span>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <span className="text-[11px] text-slate-400">Bật huy hiệu:</span>
+                <input
+                  type="checkbox"
+                  checked={logoFormData.topbar?.showBadge !== false}
+                  onChange={(e) => handleUpdateTopbar('showBadge', e.target.checked)}
+                  className="rounded bg-slate-800 border-slate-700 text-emerald-600 focus:ring-0"
+                />
+              </label>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-xs font-medium text-slate-300">
+                Nội dung Huy hiệu Topbar:
+              </label>
+              <input
+                type="text"
+                value={logoFormData.topbar?.badgeText || ''}
+                onChange={(e) => handleUpdateTopbar('badgeText', e.target.value)}
+                placeholder={`Mặc định: Sàn BĐS ${logoFormData.brandName || 'KENHNHADAT24H'}${logoFormData.brandHighlight || '.com.vn'}`}
+                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none placeholder:text-slate-500"
+              />
+              <p className="text-[11px] text-slate-400">
+                Để trống ô này để hệ thống tự động hiển thị tên sàn BĐS. Hoặc tự do nhập khẩu hiệu riêng (VD: <span className="text-emerald-400 font-bold">Sàn BĐS KENHNHADAT24H.com.vn</span>).
+              </p>
+            </div>
+
+            <div className="space-y-1.5 pt-1">
+              <label className="block text-xs font-medium text-slate-300">
+                Màu sắc Huy hiệu:
+              </label>
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                {[
+                  { id: 'emerald', label: 'Xanh Ngọc', bg: 'bg-emerald-900 border-emerald-600 text-emerald-200' },
+                  { id: 'amber', label: 'Vàng Kim', bg: 'bg-amber-900 border-amber-600 text-amber-200' },
+                  { id: 'red', label: 'Đỏ Ruby', bg: 'bg-red-900 border-red-600 text-red-200' },
+                  { id: 'blue', label: 'Xanh Biển', bg: 'bg-blue-900 border-blue-600 text-blue-200' },
+                  { id: 'purple', label: 'Tím', bg: 'bg-purple-900 border-purple-600 text-purple-200' },
+                  { id: 'slate', label: 'Xám Đậm', bg: 'bg-slate-800 border-slate-600 text-slate-200' }
+                ].map(c => {
+                  const isCur = (logoFormData.topbar?.badgeColor || 'emerald') === c.id;
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => handleUpdateTopbar('badgeColor', c.id)}
+                      className={`p-2 rounded-xl border text-[11px] font-bold flex flex-col items-center gap-1 transition ${c.bg} ${
+                        isCur ? 'ring-2 ring-white scale-102 shadow-md' : 'opacity-70 hover:opacity-100'
+                      }`}
+                    >
+                      <span>{c.label}</span>
+                      {isCur && <i className="fa-solid fa-check text-[9px]"></i>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Cột 2: Hotline & Giờ làm việc & Màu nền */}
+          <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-3.5">
+            <span className="text-xs font-bold text-white flex items-center gap-1.5">
+              <i className="fa-solid fa-phone text-emerald-400"></i>
+              <span>Hotline & Giờ Làm Việc Trên Topbar</span>
+            </span>
+
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="space-y-1">
+                <label className="block text-[11px] font-medium text-slate-300">
+                  Nhãn Hotline:
+                </label>
+                <input
+                  type="text"
+                  value={logoFormData.topbar?.hotlineLabel || 'Hotline 24/7:'}
+                  onChange={(e) => handleUpdateTopbar('hotlineLabel', e.target.value)}
+                  placeholder="Hotline 24/7:"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-[11px] font-medium text-slate-300">
+                  Số điện thoại Hotline:
+                </label>
+                <input
+                  type="text"
+                  value={logoFormData.topbar?.hotline || ''}
+                  onChange={(e) => handleUpdateTopbar('hotline', e.target.value)}
+                  placeholder={systemConfig?.hotline || '0904 084 888'}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none font-mono"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2.5 pt-1">
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <label className="block text-[11px] font-medium text-slate-300">
+                    Giờ làm việc:
+                  </label>
+                  <label className="flex items-center gap-1 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={logoFormData.topbar?.showWorkingHours !== false}
+                      onChange={(e) => handleUpdateTopbar('showWorkingHours', e.target.checked)}
+                      className="rounded bg-slate-800 border-slate-700 text-emerald-600 focus:ring-0"
+                    />
+                    <span className="text-[10px] text-slate-400">Hiện</span>
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={logoFormData.topbar?.workingHours || '8:00 - 21:00'}
+                  onChange={(e) => handleUpdateTopbar('workingHours', e.target.value)}
+                  placeholder="8:00 - 21:00"
+                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="block text-[11px] font-medium text-slate-300">
+                  Màu nền Topbar:
+                </label>
+                <select
+                  value={logoFormData.topbar?.bgColor || 'bg-slate-900'}
+                  onChange={(e) => handleUpdateTopbar('bgColor', e.target.value)}
+                  className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none"
+                >
+                  <option value="bg-slate-900">Đen Slate Chuẩn (bg-slate-900)</option>
+                  <option value="bg-slate-950">Đen Sâu Tuyệt Đối (bg-slate-950)</option>
+                  <option value="bg-emerald-950">Xanh Ngọc Đậm Sang Trọng (bg-emerald-950)</option>
+                  <option value="bg-blue-950">Xanh Navy Đại Dương (bg-blue-950)</option>
+                  <option value="bg-slate-800">Xám Đậm Hiện Đại (bg-slate-800)</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="pt-1 flex items-center justify-between">
+              <span className="text-xs text-slate-300">Biểu tượng Mạng xã hội trên Topbar:</span>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={logoFormData.topbar?.showSocial !== false}
+                  onChange={(e) => handleUpdateTopbar('showSocial', e.target.checked)}
+                  className="rounded bg-slate-800 border-slate-700 text-emerald-600 focus:ring-0"
+                />
+                <span className="text-xs text-slate-300">Hiển thị các icon mạng xã hội</span>
+              </label>
             </div>
           </div>
         </div>

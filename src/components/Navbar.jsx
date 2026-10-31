@@ -176,67 +176,111 @@ export default function Navbar() {
       }));
   }, [headerConfig?.socialLinks, systemConfig?.socialLinks]);
 
+  // Cấu hình thanh Topbar tiện ích trên cùng (đồng bộ từ headerConfig.topbar)
+  const topbarConfig = headerConfig?.topbar || {};
+  const showTopbar = topbarConfig.showTopbar !== false;
+  const showBadge = topbarConfig.showBadge !== false;
+
+  // Xử lý tên thương hiệu đầy đủ cho topbar, tránh khoảng trắng thừa trước dấu chấm (.com.vn)
+  const defaultFullBrandName = brandHighlightDisplay?.startsWith('.')
+    ? `${brandNameDisplay}${brandHighlightDisplay}`
+    : [brandNameDisplay, brandHighlightDisplay].filter(Boolean).join(' ');
+
+  const topbarBadgeText = (topbarConfig.badgeText && topbarConfig.badgeText.trim())
+    ? topbarConfig.badgeText.trim()
+    : `Sàn BĐS ${defaultFullBrandName || 'Bất Động Sản'}`;
+
+  const topbarBadgeColorClass = {
+    emerald: 'bg-emerald-900 text-emerald-100 border-emerald-700',
+    amber: 'bg-amber-900/80 text-amber-100 border-amber-600',
+    red: 'bg-red-900/80 text-red-100 border-red-600',
+    blue: 'bg-blue-900/80 text-blue-100 border-blue-600',
+    purple: 'bg-purple-900/80 text-purple-100 border-purple-600',
+    slate: 'bg-slate-800 text-slate-200 border-slate-700'
+  }[topbarConfig.badgeColor] || 'bg-emerald-900 text-emerald-100 border-emerald-700';
+
+  const topbarDotColorClass = {
+    emerald: 'bg-emerald-300',
+    amber: 'bg-amber-400',
+    red: 'bg-red-400',
+    blue: 'bg-blue-400',
+    purple: 'bg-purple-400',
+    slate: 'bg-slate-400'
+  }[topbarConfig.badgeColor] || 'bg-emerald-300';
+
+  const topbarBgClass = topbarConfig.bgColor || 'bg-slate-900';
+  const topbarHotline = topbarConfig.hotline?.trim() || systemConfig?.hotline || '0904 084 888';
+  const topbarHotlineLabel = topbarConfig.hotlineLabel?.trim() || 'Hotline 24/7:';
+  const topbarWorkingHours = topbarConfig.workingHours?.trim() || '8:00 - 21:00';
+  const showWorkingHours = topbarConfig.showWorkingHours !== false;
+  const showSocial = topbarConfig.showSocial !== false;
+
   return (
     <header className="relative w-full z-50 bg-white border-b border-slate-200/80 shadow-xs">
       {/* 1. TOP UTILITY BAR (Hotline, Demo Switcher, Reset) */}
-      <div className="bg-slate-900 text-slate-300 text-xs py-1.5 border-b border-slate-800">
-        <div suppressHydrationWarning className={`${containerWidthClass} flex items-center justify-between gap-2 sm:gap-3`}>
-          {/* Left: Hotline & Slogan */}
-          <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
-            <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-900 text-emerald-100 border border-emerald-700 font-bold text-[10px] sm:text-[11px] truncate">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse shrink-0"></span>
-              <span className="hidden sm:inline truncate text-emerald-100 font-bold">Sàn BĐS {[brandNameDisplay, brandHighlightDisplay].filter(Boolean).join(' ') || 'Bất Động Sản'}</span>
-              <span className="sm:hidden truncate text-emerald-100 font-bold">{brandNameDisplay || 'Sàn BĐS'}</span>
-            </span>
-            <span suppressHydrationWarning className="hidden md:inline-flex items-center gap-1.5 text-slate-300 shrink-0">
-              <span className="text-slate-500">|</span>
-              <span>Hotline 24/7:</span>
-              <Link
-                suppressHydrationWarning
-                href={`tel:${(systemConfig?.hotline || '0904 084 888').replace(/\s+/g, '')}`}
-                className="text-white hover:text-emerald-300 font-bold font-mono transition inline-flex items-center gap-1"
-                title={`Gọi ngay Hotline 24/7: ${systemConfig?.hotline || '0904 084 888'}`}
-                aria-label={`Gọi ngay Hotline 24/7: ${systemConfig?.hotline || '0904 084 888'}`}
-              >
-                <i className="fa-solid fa-phone text-[10px] text-emerald-300" aria-hidden="true"></i>
-                <span suppressHydrationWarning>{systemConfig?.hotline || '0904 084 888'}</span>
-              </Link>
-            </span>
-          </div>
+      {showTopbar && (
+        <div className={`${topbarBgClass} text-slate-300 text-xs py-1.5 border-b border-slate-800/80 transition-colors`}>
+          <div suppressHydrationWarning className={`${containerWidthClass} flex items-center justify-between gap-2 sm:gap-3`}>
+            {/* Left: Hotline & Slogan */}
+            <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
+              {showBadge && (
+                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border font-bold text-[10px] sm:text-[11px] truncate ${topbarBadgeColorClass}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${topbarDotColorClass} animate-pulse shrink-0`}></span>
+                  <span className="truncate">{topbarBadgeText}</span>
+                </span>
+              )}
+              <span suppressHydrationWarning className="hidden md:inline-flex items-center gap-1.5 text-slate-300 shrink-0">
+                {showBadge && <span className="text-slate-500">|</span>}
+                <span>{topbarHotlineLabel}</span>
+                <Link
+                  suppressHydrationWarning
+                  href={`tel:${topbarHotline.replace(/\s+/g, '')}`}
+                  className="text-white hover:text-emerald-300 font-bold font-mono transition inline-flex items-center gap-1"
+                  title={`Gọi ngay ${topbarHotlineLabel} ${topbarHotline}`}
+                  aria-label={`Gọi ngay ${topbarHotlineLabel} ${topbarHotline}`}
+                >
+                  <i className="fa-solid fa-phone text-[10px] text-emerald-300" aria-hidden="true"></i>
+                  <span suppressHydrationWarning>{topbarHotline}</span>
+                </Link>
+              </span>
+            </div>
 
-          {/* Right: Giờ làm việc & Mạng xã hội */}
-          <div suppressHydrationWarning className="flex items-center gap-2 sm:gap-3 text-slate-300 text-[11px] shrink-0">
-            <span className="inline-flex items-center gap-1.5">
-              <i className="fa-regular fa-clock text-emerald-300 text-[10px]"></i>
-              <span className="hidden sm:inline">Giờ làm việc:</span>
-              <span className="text-slate-200 font-semibold">8:00 - 21:00</span>
-            </span>
+            {/* Right: Giờ làm việc & Mạng xã hội */}
+            <div suppressHydrationWarning className="flex items-center gap-2 sm:gap-3 text-slate-300 text-[11px] shrink-0">
+              {showWorkingHours && (
+                <span className="inline-flex items-center gap-1.5">
+                  <i className="fa-regular fa-clock text-emerald-300 text-[10px]"></i>
+                  <span className="hidden sm:inline">Giờ làm việc:</span>
+                  <span className="text-slate-200 font-semibold">{topbarWorkingHours}</span>
+                </span>
+              )}
 
-            {/* Social Media Channels */}
-            {activeSocialList.length > 0 && (
-              <>
-                <span className="text-slate-700 hidden sm:inline select-none">|</span>
-                <div className="flex items-center gap-1 sm:gap-1.5 shrink-0" style={{ contain: 'layout' }}>
-                  <span className="hidden lg:inline text-slate-400 text-[10px] font-medium mr-0.5 shrink-0">Mạng xã hội:</span>
-                  {activeSocialList.map(item => (
-                    <Link
-                      key={item.key}
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={`w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:scale-110 border border-slate-700/80 flex items-center justify-center transition shadow-xs shrink-0 aspect-square ${item.hoverColor || 'hover:text-white'}`}
-                      title={item.label || item.key}
-                      style={{ contain: 'layout paint' }}
-                    >
-                      <SocialIcon item={item} className="w-2.5 h-2.5" />
-                    </Link>
-                  ))}
-                </div>
-              </>
-            )}
+              {/* Social Media Channels */}
+              {showSocial && activeSocialList.length > 0 && (
+                <>
+                  {showWorkingHours && <span className="text-slate-700 hidden sm:inline select-none">|</span>}
+                  <div className="flex items-center gap-1 sm:gap-1.5 shrink-0" style={{ contain: 'layout' }}>
+                    <span className="hidden lg:inline text-slate-400 text-[10px] font-medium mr-0.5 shrink-0">Mạng xã hội:</span>
+                    {activeSocialList.map(item => (
+                      <Link
+                        key={item.key}
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:scale-110 border border-slate-700/80 flex items-center justify-center transition shadow-xs shrink-0 aspect-square ${item.hoverColor || 'hover:text-white'}`}
+                        title={item.label || item.key}
+                        style={{ contain: 'layout paint' }}
+                      >
+                        <SocialIcon item={item} className="w-2.5 h-2.5" />
+                      </Link>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 2. MAIN NAVBAR BAR */}
       <div className="bg-white">
@@ -956,11 +1000,7 @@ export default function Navbar() {
                         className="w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-700 hover:text-emerald-600 hover:border-emerald-500 flex items-center justify-center transition shadow-xs text-xs"
                         title={item.label || item.key}
                       >
-                        {item.key === 'zalo' ? (
-                          <span className="font-black text-[11px] text-sky-600 leading-none">Z</span>
-                        ) : (
-                          <i className={`${item.icon} text-xs`}></i>
-                        )}
+                        <SocialIcon item={item} className="w-3.5 h-3.5" />
                       </Link>
                     ))}
                   </div>

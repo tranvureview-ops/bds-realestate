@@ -220,9 +220,22 @@ export default async function RootLayout({ children }) {
           href={fontConfig.googleFontUrl}
         />
         <link
-          rel="preload"
-          as="style"
+          rel="stylesheet"
           href="/fontawesome.min.css"
+        />
+        <link
+          rel="preload"
+          href="/webfonts/fa-solid-900.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/webfonts/fa-brands-400.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
         />
         {/* Non-render-blocking Asynchronous Stylesheet Injector to eliminate Critical Request Chains */}
         <script

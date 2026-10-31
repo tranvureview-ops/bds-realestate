@@ -3047,7 +3047,19 @@ export const DEFAULT_HEADER_CONFIG = {
   logoAlt: 'Đất Biển Đà Nẵng Logo',
   showTaglineWithImage: false,
   containerWidth: 'boxed', // 'boxed' (max-w-7xl) | 'wide' (max-w-screen-2xl) | 'full' (w-full 100%)
-  socialLinks: DEFAULT_SOCIAL_LINKS
+  socialLinks: DEFAULT_SOCIAL_LINKS,
+  topbar: {
+    showTopbar: true,
+    showBadge: true,
+    badgeText: '', // Để trống sẽ tự động lấy: "Sàn BĐS [Tên Thương Hiệu]"
+    badgeColor: 'emerald', // 'emerald' | 'amber' | 'red' | 'blue' | 'purple' | 'slate'
+    hotlineLabel: 'Hotline 24/7:',
+    hotline: '', // Để trống sẽ fallback theo systemConfig.hotline
+    workingHours: '8:00 - 21:00',
+    showWorkingHours: true,
+    showSocial: true,
+    bgColor: 'bg-slate-900' // 'bg-slate-900' | 'bg-slate-950' | 'bg-emerald-950' | 'bg-blue-950' | 'bg-slate-800'
+  }
 };
 
 // Cấu hình Chân trang Website (Footer Settings)
