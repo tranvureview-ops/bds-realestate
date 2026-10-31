@@ -4916,10 +4916,10 @@ export default function AdminBackendPage() {
                                     onClick={() => toggleUserVerification(u.id)}
                                     className={`px-2.5 py-1 rounded-xl text-[10px] font-bold transition flex items-center gap-1 mx-auto cursor-pointer ${
                                       u.isVerified 
-                                        ? 'bg-blue-600 text-white shadow' 
-                                        : 'bg-slate-800 text-slate-500 hover:text-white'
+                                        ? 'bg-blue-600 hover:bg-rose-600 text-white shadow' 
+                                        : 'bg-slate-800 text-slate-500 hover:text-white hover:bg-blue-600'
                                     }`}
-                                    title="Bấm để bật/tắt tích xanh KYC"
+                                    title={u.isVerified ? 'Bấm để thu hồi tích xanh' : 'Bấm để cấp tích xanh KYC'}
                                   >
                                     <i className="fa-solid fa-circle-check"></i>
                                     <span>{u.isVerified ? 'Đã cấp' : 'Chưa cấp'}</span>

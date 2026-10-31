@@ -66,12 +66,9 @@ export default function ListingDetailModal({ property, onClose }) {
   const authorBadgeLabel = isBroker ? 'Chuyên viên tư vấn' : 'Khách tìm mua';
   const brokerUrl = getBrokerPermalink({ id: authorUser?.id || property?.author?.id, name: authorName, phone: authorUser?.phone || property?.author?.phone || property?.contactPhone }, usersList);
 
-  const isVerifiedAuthor = Boolean(
-    authorUser?.isVerified || 
-    property?.author?.isVerified || 
-    authorUser?.kycStatus === 'verified' || 
-    property?.author?.kycStatus === 'verified'
-  );
+  const isVerifiedAuthor = authorUser
+    ? Boolean(authorUser.isVerified || authorUser.kycStatus === 'verified')
+    : Boolean(property?.author?.isVerified || property?.author?.kycStatus === 'verified');
 
   const rawAvatar = authorUser?.avatar || property?.author?.avatar || '/avatars/user-tran-van-vu.jpg';
   const cleanAvatar = (typeof rawAvatar === 'string' && (rawAvatar.startsWith('data:image') || rawAvatar.includes('photo-1573496359142-b8d87734a5a2')))

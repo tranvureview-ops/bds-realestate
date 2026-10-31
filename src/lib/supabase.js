@@ -51,7 +51,7 @@ export async function fetchSupabaseProperties() {
         ...rawAuthor,
         name: rawAuthor.name ? (rawAuthor.name.toUpperCase() === 'TRAN VAN VU' ? 'Tran Van Vu' : rawAuthor.name) : rawAuthor.name,
         avatar: (typeof rawAuthor.avatar === 'string' && (rawAuthor.avatar.startsWith('data:image') || rawAuthor.avatar.includes('photo-1573496359142-b8d87734a5a2'))) ? '/avatars/user-tran-van-vu.jpg' : (rawAuthor.avatar || '/avatars/user-tran-van-vu.jpg'),
-        isVerified: rawAuthor.id === 'user-1792645437733-545' ? true : Boolean(rawAuthor.isVerified ?? rawAuthor.kycStatus === 'verified')
+        isVerified: Boolean(rawAuthor.isVerified ?? rawAuthor.kycStatus === 'verified')
       } : null;
 
       if (row.raw_data && typeof row.raw_data === 'object') {

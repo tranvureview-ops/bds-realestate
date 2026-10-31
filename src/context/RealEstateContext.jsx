@@ -444,7 +444,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           ...norm.author,
           name: norm.author.name ? (norm.author.name.toUpperCase() === 'TRAN VAN VU' ? 'Tran Van Vu' : norm.author.name) : norm.author.name,
           avatar: (typeof norm.author.avatar === 'string' && (norm.author.avatar.startsWith('data:image') || norm.author.avatar.includes('photo-1573496359142-b8d87734a5a2'))) ? '/avatars/user-tran-van-vu.jpg' : (norm.author.avatar || '/avatars/user-tran-van-vu.jpg'),
-          isVerified: norm.author.id === 'user-1792645437733-545' ? true : Boolean(norm.author.isVerified),
+          isVerified: Boolean(norm.author.isVerified ?? norm.author.kycStatus === 'verified'),
           phone: norm.author.phone ? formatPhoneNumber(norm.author.phone) : norm.author.phone
         } : norm.author
       };
@@ -485,7 +485,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       ...u,
       name: u.name ? (u.name.toUpperCase() === 'TRAN VAN VU' ? 'Tran Van Vu' : u.name) : u.name,
       avatar: (typeof u.avatar === 'string' && (u.avatar.startsWith('data:image') || u.avatar.includes('photo-1573496359142-b8d87734a5a2'))) ? '/avatars/user-tran-van-vu.jpg' : (u.avatar || '/avatars/user-tran-van-vu.jpg'),
-      isVerified: u.id === 'user-1792645437733-545' ? true : Boolean(u.isVerified),
+      isVerified: Boolean(u.isVerified ?? u.kycStatus === 'verified'),
       phone: u.phone ? formatPhoneNumber(u.phone) : u.phone
     }));
   });
@@ -1446,7 +1446,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
                 ...norm.author,
                 name: norm.author.name ? (norm.author.name.toUpperCase() === 'TRAN VAN VU' ? 'Tran Van Vu' : norm.author.name) : norm.author.name,
                 avatar: (typeof norm.author.avatar === 'string' && (norm.author.avatar.startsWith('data:image') || norm.author.avatar.includes('photo-1573496359142-b8d87734a5a2'))) ? '/avatars/user-tran-van-vu.jpg' : (norm.author.avatar || '/avatars/user-tran-van-vu.jpg'),
-                isVerified: norm.author.id === 'user-1792645437733-545' ? true : Boolean(norm.author.isVerified),
+                isVerified: Boolean(norm.author.isVerified ?? norm.author.kycStatus === 'verified'),
                 phone: norm.author.phone ? formatPhoneNumber(norm.author.phone) : norm.author.phone
               } : norm.author
             };
@@ -1457,7 +1457,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
             ...u,
             name: u.name ? (u.name.toUpperCase() === 'TRAN VAN VU' ? 'Tran Van Vu' : u.name) : u.name,
             avatar: (typeof u.avatar === 'string' && (u.avatar.startsWith('data:image') || u.avatar.includes('photo-1573496359142-b8d87734a5a2'))) ? '/avatars/user-tran-van-vu.jpg' : (u.avatar || '/avatars/user-tran-van-vu.jpg'),
-            isVerified: u.id === 'user-1792645437733-545' ? true : Boolean(u.isVerified),
+            isVerified: Boolean(u.isVerified ?? u.kycStatus === 'verified'),
             phone: u.phone ? formatPhoneNumber(u.phone) : u.phone
           })));
         }
@@ -3674,29 +3674,79 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     showToast(`Đã điều chỉnh ví user ${userId}: ${numAmount > 0 ? '+' : ''}${numAmount.toLocaleString('vi-VN')} đ`, 'success');
   };
 
-  // Admin Toggle User Verification
-  const toggleUserVerification = (userId) => {
+  // Admin Toggle User Verification (Cấp hoặc Thu hồi tích xanh)
+  const toggleUserVerification = async (userId) => {
     let updatedTarget = null;
-    const nextUsers = usersList.map(u => {
-      if (u.id === userId) {
-        const nextState = !u.isVerified;
-        showToast(`${nextState ? 'Đã duyệt cấp tích xanh' : 'Đã thu hồi tích xanh'} cho ${u.name}`, 'info');
-        if (currentUser.id === userId) {
-          setCurrentUser(curr => ({ ...curr, isVerified: nextState, kycStatus: nextState ? 'verified' : 'unverified' }));
-        }
-        updatedTarget = { 
-          ...u, 
-          isVerified: nextState, 
-          kycStatus: nextState ? 'verified' : (u.idCardNumber ? 'pending' : 'unverified') 
-        };
-        return updatedTarget;
-      }
-      return u;
-    });
+    let nextState = false;
+    const target = usersList.find(u => u.id === userId);
+    if (!target) return;
+
+    nextState = !target.isVerified;
+    updatedTarget = { 
+      ...target, 
+      isVerified: nextState, 
+      kycStatus: nextState ? 'verified' : (target.idCardNumber ? 'pending' : 'unverified'),
+      updatedAt: new Date().toISOString()
+    };
+
+    const nextUsers = usersList.map(u => u.id === userId ? updatedTarget : u);
     setUsersList(nextUsers);
-    if (updatedTarget) {
-      upsertSupabaseProfile(updatedTarget).catch(console.warn);
-      persistSettingToSupabase('bds_users_list', nextUsers).catch(console.warn);
+
+    if (currentUser?.id === userId) {
+      setCurrentUser(curr => ({ ...curr, isVerified: nextState, kycStatus: nextState ? 'verified' : 'unverified' }));
+    }
+
+    // Cập nhật đồng bộ toàn bộ tin đăng của người dùng này
+    const nextProperties = properties.map(p => {
+      const isOwner = Boolean(
+        (p.author?.id && String(p.author.id) === String(userId)) ||
+        (p.author?.email && target.email && p.author.email.toLowerCase() === target.email.toLowerCase()) ||
+        (p.author?.phone && target.phone && normalizePhone(p.author.phone) === normalizePhone(target.phone))
+      );
+      if (isOwner) {
+        return {
+          ...p,
+          author: {
+            ...p.author,
+            isVerified: nextState
+          }
+        };
+      }
+      return p;
+    });
+    setProperties(nextProperties);
+
+    showToast(`${nextState ? 'Đã duyệt cấp tích xanh' : 'Đã thu hồi tích xanh'} cho ${target.name}`, 'info');
+
+    // Đồng bộ ngay lên Supabase Cloud và Server DB
+    try {
+      await Promise.all([
+        upsertSupabaseProfile(updatedTarget),
+        persistSettingToSupabase('bds_users_list', nextUsers),
+        persistSettingToSupabase('bds_properties', nextProperties)
+      ]);
+
+      if (isSupabaseConfigured() && supabase) {
+        const ownerPropIds = nextProperties.filter(p => 
+          (p.author?.id && String(p.author.id) === String(userId)) ||
+          (p.author?.email && target.email && p.author.email.toLowerCase() === target.email.toLowerCase()) ||
+          (p.author?.phone && target.phone && normalizePhone(p.author.phone) === normalizePhone(target.phone))
+        ).map(p => p.id);
+
+        if (ownerPropIds.length > 0) {
+          for (const pid of ownerPropIds) {
+            const propObj = nextProperties.find(p => p.id === pid);
+            if (propObj) {
+              await supabase.from('properties').update({
+                author: propObj.author,
+                raw_data: { ...propObj }
+              }).eq('id', pid);
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('Lỗi khi đồng bộ toggleUserVerification lên Supabase:', err);
     }
   };
 
@@ -3733,7 +3783,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
             ...p.author,
             name: updatedTarget.name || p.author?.name,
             phone: updatedTarget.phone || p.author?.phone,
-            zalo: updatedTarget.phone ? normalizePhone(updatedTarget.phone) : p.author?.zalo
+            zalo: updatedTarget.phone ? normalizePhone(updatedTarget.phone) : p.author?.zalo,
+            isVerified: updatedTarget.isVerified !== undefined ? Boolean(updatedTarget.isVerified) : p.author?.isVerified
           }
         };
       }
