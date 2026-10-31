@@ -198,9 +198,9 @@ export default function VipPricingPage() {
 
         <div className="max-w-7xl mx-auto space-y-6 relative z-10">
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-xs text-slate-400">
+          <div className="flex items-center gap-2 text-xs text-slate-300">
             <Link to="/" className="hover:text-amber-400 font-medium transition flex items-center gap-1">
-              <i className="fa-solid fa-house text-slate-500"></i>
+              <i className="fa-solid fa-house text-slate-400"></i>
               <span>Trang chủ</span>
             </Link>
             <i className="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
@@ -287,7 +287,7 @@ export default function VipPricingPage() {
                 <span className="px-2.5 py-1 rounded-full bg-red-100 text-red-700 font-black text-[10px] uppercase">
                   1. Phân Loại Tin Đăng (Loại Tin)
                 </span>
-                <span className="font-bold text-slate-500 text-[11px]">Áp dụng từng bài viết</span>
+                <span className="font-bold text-slate-700 text-[11px]">Áp dụng từng bài viết</span>
               </div>
               <h3 className="text-sm font-black text-slate-900">
                 VIP Kim Cương, VIP Vàng, VIP Bạc & Tin Thường
@@ -298,7 +298,7 @@ export default function VipPricingPage() {
                 • <b>Cơ chế:</b> <b>KHÔNG PHẢI ĐĂNG KÝ GÓI THUÊ BAO</b>. Đăng bài nào tính tiền bài đó theo ngày.
               </p>
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-[10px] text-slate-400">Chọn khi tạo bài đăng</span>
+                <span className="text-[10px] text-slate-600 font-medium">Chọn khi tạo bài đăng</span>
                 <Link to="/dang-tin" className="text-red-600 font-bold hover:underline flex items-center gap-1">
                   <span>Đăng tin ngay</span>
                   <i className="fa-solid fa-arrow-right text-[10px]"></i>
@@ -323,7 +323,7 @@ export default function VipPricingPage() {
                 • <b>Cách dùng:</b> Khi đăng bài ở mục 1, bạn dùng Voucher trong Gói Hội Viên này để thanh toán!
               </p>
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                <span className="text-[10px] text-slate-400">Thuê bao theo tháng</span>
+                <span className="text-[10px] text-slate-600 font-medium">Thuê bao theo tháng</span>
                 <Link to="/goi-hoi-vien" className="text-amber-800 font-bold hover:underline flex items-center gap-1">
                   <span>Xem Gói Hội Viên</span>
                   <i className="fa-solid fa-arrow-right text-[10px]"></i>
@@ -344,7 +344,7 @@ export default function VipPricingPage() {
               <h2 className="text-xl sm:text-2xl font-black text-slate-900">
                 Chọn Phân Loại Tin Đăng & Thời Hạn Hiển Thị
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-600 font-medium">
                 Bấm chọn thẻ và thời hạn để mô phỏng biểu phí niêm yết
               </p>
             </div>
@@ -488,46 +488,46 @@ export default function VipPricingPage() {
                       <h3 className="text-lg font-black text-slate-900">
                         {pkg.name}
                       </h3>
-                      <div className="text-[11px] text-slate-500 font-medium">
+                      <div className="text-[11px] text-slate-700 font-medium">
                         {activeRates.positionDesc}
                       </div>
                     </div>
 
                     {/* Pricing Display */}
                     <div className="text-center py-4 bg-slate-50/70 rounded-2xl my-3 border border-slate-100">
-                      <div className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">
+                      <div className="text-[11px] text-slate-700 font-semibold uppercase tracking-wider">
                         {isNormal ? 'Trọn gói 60 ngày' : `Đơn giá theo ngày (${cardDuration} ngày)`}
                       </div>
                       <div className="text-2xl sm:text-3xl font-black text-slate-900 mt-0.5">
                         {isNormal ? (
                           <>
-                            {normalPeriodPrice.toLocaleString('vi-VN')} <span className="text-xs font-normal text-slate-500">đ/60 ngày</span>
-                            <div className="text-[11px] text-slate-400 font-normal mt-0.5">(~{Math.round(normalPeriodPrice / 60)} đ/ngày)</div>
+                            {normalPeriodPrice.toLocaleString('vi-VN')} <span className="text-xs font-normal text-slate-700">đ/60 ngày</span>
+                            <div className="text-[11px] text-slate-700 font-normal mt-0.5">(~{Math.round(normalPeriodPrice / 60)} đ/ngày)</div>
                           </>
                         ) : currentDailyRate === 0 ? (
                           <span className="text-emerald-600 font-extrabold uppercase">Miễn Phí</span>
                         ) : (
                           <>
-                            {currentDailyRate.toLocaleString('vi-VN')} <span className="text-xs font-normal text-slate-500">đ/ngày</span>
+                            {currentDailyRate.toLocaleString('vi-VN')} <span className="text-xs font-normal text-slate-700">đ/ngày</span>
                           </>
                         )}
                       </div>
 
                       <div className="mt-2 pt-2 border-t border-slate-200/60 text-xs">
-                        <div className="text-slate-600 font-medium">
+                        <div className="text-slate-700 font-medium">
                           Tổng {cardDuration} ngày: <b className="text-slate-900">{grossPeriodPrice === 0 ? '0 đ (Miễn phí)' : `${grossPeriodPrice.toLocaleString('vi-VN')} đ`}</b>
                         </div>
                         {isNormal ? (
-                          <div className="text-[10px] text-slate-400 mt-0.5">
+                          <div className="text-[10px] text-slate-700 font-medium mt-0.5">
                             Gói tiêu chuẩn 60 ngày
                           </div>
                         ) : discountPercent > 0 ? (
-                          <div className="text-[10px] text-emerald-600 font-bold mt-0.5">
-                            <span className="line-through text-slate-400 mr-1">{(baseRate * cardDuration).toLocaleString('vi-VN')} đ</span>
+                          <div className="text-[10px] text-emerald-700 font-bold mt-0.5">
+                            <span className="line-through text-slate-500 mr-1">{(baseRate * cardDuration).toLocaleString('vi-VN')} đ</span>
                             Tiết kiệm {discountPercent}%
                           </div>
                         ) : (
-                          <div className="text-[10px] text-slate-400 mt-0.5">
+                          <div className="text-[10px] text-slate-700 font-medium mt-0.5">
                             {cardDuration === 7 ? 'Mặc định (7 ngày)' : 'Đơn giá chuẩn'}
                           </div>
                         )}
@@ -576,7 +576,7 @@ export default function VipPricingPage() {
                         .map((feat, idx) => (
                           <li key={idx} className="flex items-start gap-2 leading-relaxed">
                             <i className={`fa-solid fa-circle-check text-xs mt-0.5 shrink-0 ${
-                              isDiamond ? 'text-red-600' : isGold ? 'text-amber-500' : isSilver ? 'text-blue-500' : 'text-slate-400'
+                              isDiamond ? 'text-red-700' : isGold ? 'text-amber-600' : isSilver ? 'text-blue-600' : 'text-slate-600'
                             }`}></i>
                             <span className={idx === 0 ? 'font-bold text-slate-900' : ''}>{feat}</span>
                           </li>
@@ -681,7 +681,7 @@ export default function VipPricingPage() {
                   <td className="py-3 px-3 text-center text-slate-700 bg-teal-50/30 border-r border-teal-100">
                     Nằm trên toàn bộ Tin Thường
                   </td>
-                  <td className="py-3 px-3 text-center text-slate-500 bg-slate-50/30">
+                  <td className="py-3 px-3 text-center text-slate-700 bg-slate-50/30">
                     Nằm sau tất cả các tin VIP
                   </td>
                 </tr>
@@ -700,7 +700,7 @@ export default function VipPricingPage() {
                   <td className="py-3 px-3 text-center font-bold text-teal-700 bg-teal-50/30 border-r border-teal-100">
                     Gấp 8 lần (x8)
                   </td>
-                  <td className="py-3 px-3 text-center text-slate-500 bg-slate-50/30">
+                  <td className="py-3 px-3 text-center text-slate-700 bg-slate-50/30">
                     Tiêu chuẩn (1x)
                   </td>
                 </tr>
@@ -716,10 +716,10 @@ export default function VipPricingPage() {
                   <td className="py-3 px-3 text-center font-bold text-emerald-600 bg-amber-50/30 border-r border-amber-100">
                     ✓ CÓ
                   </td>
-                  <td className="py-3 px-3 text-center text-slate-400 bg-blue-50/30 border-r border-blue-100">
+                  <td className="py-3 px-3 text-center text-slate-600 font-medium bg-blue-50/30 border-r border-blue-100">
                     ✗ Không
                   </td>
-                  <td className="py-3 px-3 text-center text-slate-400 bg-slate-50/30">
+                  <td className="py-3 px-3 text-center text-slate-600 font-medium bg-slate-50/30">
                     ✗ Không
                   </td>
                 </tr>
@@ -826,9 +826,9 @@ export default function VipPricingPage() {
 
             <div className="flex items-center gap-4 shrink-0 bg-slate-950/80 p-4 rounded-2xl border border-slate-800">
               <div className="text-right">
-                <div className="text-xs text-slate-400">Chi phí tiêu chuẩn</div>
+                <div className="text-xs text-slate-300">Chi phí tiêu chuẩn</div>
                 <div className="text-2xl font-black text-amber-400">
-                  {currentBumpPrice.toLocaleString('vi-VN')} đ <span className="text-xs text-slate-400 font-normal">/ lần</span>
+                  {currentBumpPrice.toLocaleString('vi-VN')} đ <span className="text-xs text-slate-300 font-normal">/ lần</span>
                 </div>
                 <div className="text-[10px] text-emerald-400 font-semibold">
                   Hội viên dùng Voucher = 0 đ
@@ -845,7 +845,7 @@ export default function VipPricingPage() {
 
           {/* Golden Hours Schedule */}
           <div className="pt-6 border-t border-slate-800">
-            <div className="text-xs font-bold text-slate-400 uppercase mb-3 flex items-center gap-2">
+            <div className="text-xs font-bold text-slate-300 uppercase mb-3 flex items-center gap-2">
               <i className="fa-solid fa-clock text-amber-400"></i>
               4 Khung Giờ Vàng Đẩy Tin Hiệu Quả Nhất (Lượng Khách Xem BĐS Cao Nhất):
             </div>
@@ -853,25 +853,25 @@ export default function VipPricingPage() {
               <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1">
                 <div className="font-black text-amber-300 text-sm">08:00 - 09:30</div>
                 <div className="font-bold text-white text-xs">Giờ Đầu Ngày Làm Việc</div>
-                <div className="text-[11px] text-slate-400">Khách hàng mở điện thoại cập nhật tin thị trường trước giờ làm.</div>
+                <div className="text-[11px] text-slate-300">Khách hàng mở điện thoại cập nhật tin thị trường trước giờ làm.</div>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1">
                 <div className="font-black text-amber-300 text-sm">11:30 - 13:00</div>
                 <div className="font-bold text-white text-xs">Giờ Nghỉ Trưa Cao Điểm</div>
-                <div className="text-[11px] text-slate-400">Thời gian nghỉ ngơi, lướt web xem căn hộ và gọi điện hỏi giá.</div>
+                <div className="text-[11px] text-slate-300">Thời gian nghỉ ngơi, lướt web xem căn hộ và gọi điện hỏi giá.</div>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1">
                 <div className="font-black text-amber-300 text-sm">14:00 - 15:30</div>
                 <div className="font-bold text-white text-xs">Giờ Giao Dịch Chiều</div>
-                <div className="text-[11px] text-slate-400">Các nhà đầu tư và môi giới lọc danh sách BĐS để đi xem thực tế.</div>
+                <div className="text-[11px] text-slate-300">Các nhà đầu tư và môi giới lọc danh sách BĐS để đi xem thực tế.</div>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1">
                 <div className="font-black text-amber-300 text-sm">19:30 - 21:30</div>
                 <div className="font-bold text-white text-xs">Giờ Vàng Gia Đình</div>
-                <div className="text-[11px] text-slate-400">Khung giờ vàng có lượt xem trang và gửi yêu cầu tư vấn cao nhất.</div>
+                <div className="text-[11px] text-slate-300">Khung giờ vàng có lượt xem trang và gửi yêu cầu tư vấn cao nhất.</div>
               </div>
             </div>
           </div>
@@ -1004,7 +1004,7 @@ export default function VipPricingPage() {
             </div>
             <div>
               <h3 className="font-black text-base text-white">Bạn Cần Tư Vấn Phân Loại Tin Đăng Phù Hợp Cho Bất Động Sản?</h3>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-slate-300 mt-0.5">
                 Chuyên viên tư vấn VIP sẵn sàng hỗ trợ bạn 24/7 qua Zalo & Tổng đài Hotline.
               </p>
             </div>

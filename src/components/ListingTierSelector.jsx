@@ -21,7 +21,7 @@ export const LISTING_RATES = {
     tagBadgeBg: 'bg-red-600 text-white',
     approvalBadge: 'Duyệt tức thì (0s)',
     approvalIcon: 'fa-solid fa-bolt',
-    approvalColor: 'text-red-600 bg-red-50 border-red-200',
+    approvalColor: 'text-red-800 bg-red-50 border-red-200',
     allowedDurations: [5, 7, 10, 15, 30],
     rates: {
       5: 32000,
@@ -38,10 +38,10 @@ export const LISTING_RATES = {
     multiplierText: 'x15',
     tagText: 'lượt liên hệ so với tin thường',
     tagBg: 'bg-amber-50 text-amber-900 border-amber-200',
-    tagBadgeBg: 'bg-amber-600 text-white',
+    tagBadgeBg: 'bg-amber-800 text-white',
     approvalBadge: 'Duyệt tức thì (0s)',
     approvalIcon: 'fa-solid fa-bolt',
-    approvalColor: 'text-amber-700 bg-amber-50 border-amber-200',
+    approvalColor: 'text-amber-900 bg-amber-50 border-amber-200',
     allowedDurations: [5, 7, 10, 15, 30],
     rates: {
       5: 15000,
@@ -61,7 +61,7 @@ export const LISTING_RATES = {
     tagBadgeBg: 'bg-teal-700 text-white',
     approvalBadge: 'Duyệt tức thì (0s)',
     approvalIcon: 'fa-solid fa-bolt',
-    approvalColor: 'text-teal-700 bg-teal-50 border-teal-200',
+    approvalColor: 'text-teal-900 bg-teal-50 border-teal-200',
     allowedDurations: [5, 7, 10, 15, 30],
     rates: {
       5: 8000,
@@ -79,7 +79,7 @@ export const LISTING_RATES = {
     tagText: null,
     approvalBadge: 'Duyệt tự động (5 - 15 phút)',
     approvalIcon: 'fa-solid fa-clock-rotate-left',
-    approvalColor: 'text-slate-600 bg-slate-100 border-slate-200',
+    approvalColor: 'text-slate-800 bg-slate-100 border-slate-200',
     allowedDurations: [60],
     rates: {
       15: 0,   // Base
@@ -138,26 +138,26 @@ export function getEffectiveListingRates(customVipPackages, paymentConfig = null
     // VIP Kim Cương, VIP Vàng, VIP Bạc: Luôn là Duyệt tức thì (0s)
     let approvalBadge = 'Duyệt tức thì (0s)';
     let approvalIcon = 'fa-solid fa-bolt';
-    let approvalColor = 'text-red-600 bg-red-50 border-red-200';
+    let approvalColor = 'text-red-800 bg-red-50 border-red-200';
 
     if (pkg.id === 'vip-diamond') {
       approvalBadge = 'Duyệt tức thì (0s)';
       approvalIcon = 'fa-solid fa-bolt';
-      approvalColor = 'text-red-600 bg-red-50 border-red-200';
+      approvalColor = 'text-red-800 bg-red-50 border-red-200';
     } else if (pkg.id === 'vip-gold') {
       approvalBadge = 'Duyệt tức thì (0s)';
       approvalIcon = 'fa-solid fa-bolt';
-      approvalColor = 'text-amber-700 bg-amber-50 border-amber-200';
+      approvalColor = 'text-amber-900 bg-amber-50 border-amber-200';
     } else if (pkg.id === 'vip-silver') {
       approvalBadge = 'Duyệt tức thì (0s)';
       approvalIcon = 'fa-solid fa-bolt';
-      approvalColor = 'text-teal-700 bg-teal-50 border-teal-200';
+      approvalColor = 'text-teal-900 bg-teal-50 border-teal-200';
     } else if (pkg.id === 'normal') {
       const min = tier?.delayMinMinutes ?? pkg?.approvalMinMinutes ?? 5;
       const max = tier?.delayMaxMinutes ?? pkg?.approvalMaxMinutes ?? 15;
       approvalBadge = `Duyệt tự động (${min} - ${max} phút)`;
       approvalIcon = 'fa-solid fa-clock-rotate-left';
-      approvalColor = 'text-slate-600 bg-slate-100 border-slate-200';
+      approvalColor = 'text-slate-800 bg-slate-100 border-slate-200';
     }
 
     result[pkg.id] = {
@@ -505,7 +505,7 @@ export default function ListingTierSelector({
                 <h3 className="text-sm sm:text-base font-bold text-slate-900">
                   {item.name}
                 </h3>
-                <p className="text-[11px] text-slate-500 mt-0.5 font-normal">
+                <p className="text-[11px] text-slate-700 mt-0.5 font-normal">
                   {item.positionDesc}
                 </p>
 
@@ -540,7 +540,7 @@ export default function ListingTierSelector({
                       <span className="text-sm sm:text-base font-black text-slate-900">
                         {(item?.rates?.[60] ?? 5000).toLocaleString('vi-VN')} đ
                       </span>
-                      <span className="text-[11px] text-slate-500 font-normal">/60 ngày</span>
+                      <span className="text-[11px] text-slate-700 font-normal">/60 ngày</span>
                     </div>
                   )
                 ) : (
@@ -548,7 +548,7 @@ export default function ListingTierSelector({
                     <span className="text-sm sm:text-base font-black text-slate-900">
                       {effectiveDailyRate.toLocaleString('vi-VN')} đ
                     </span>
-                    <span className="text-[11px] text-slate-500 font-normal">/ngày</span>
+                    <span className="text-[11px] text-slate-700 font-normal">/ngày</span>
                   </div>
                 )}
               </div>
@@ -581,7 +581,7 @@ export default function ListingTierSelector({
             </div>
           )}
           {!isNormal && (
-            <span className="text-[11px] font-semibold text-slate-500 hidden sm:inline-block">
+            <span className="text-[11px] font-semibold text-slate-700 hidden sm:inline-block">
               Đăng từ 30 ngày tiết kiệm {discount30Percent}%
             </span>
           )}
@@ -615,12 +615,12 @@ export default function ListingTierSelector({
                     </span>
                   )}
                   {dailyQuotaInfo && !dailyQuotaInfo.unlimited && (
-                    <span className="text-[10px] font-semibold text-slate-500">
+                    <span className="text-[10px] font-semibold text-slate-700">
                       • Còn {dailyQuotaInfo.remaining}/{dailyQuotaInfo.limit} tin hôm nay
                     </span>
                   )}
                 </div>
-                <div className="text-[11px] text-slate-500">
+                <div className="text-[11px] text-slate-700">
                   Tin đăng hiển thị tối đa 60 ngày trên toàn sàn
                 </div>
               </div>
@@ -628,7 +628,7 @@ export default function ListingTierSelector({
             <div className="text-right shrink-0">
               {voucherDiscount >= normal60Price && normal60Price > 0 ? (
                 <div>
-                  <span className="text-xs text-slate-400 line-through mr-1.5">{normal60Price.toLocaleString('vi-VN')} đ</span>
+                  <span className="text-xs text-slate-500 line-through mr-1.5">{normal60Price.toLocaleString('vi-VN')} đ</span>
                   <span className="text-sm font-black text-emerald-600">0 đ</span>
                 </div>
               ) : (
@@ -668,7 +668,7 @@ export default function ListingTierSelector({
                       </span>
                     )}
                     {days === 30 && (
-                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-red-600 bg-red-100 border border-red-200 px-1.5 py-0.2 rounded-full whitespace-nowrap shadow-2xs">
+                      <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-bold text-red-800 bg-red-100 border border-red-200 px-1.5 py-0.2 rounded-full whitespace-nowrap shadow-2xs">
                         -{discount30Percent}%
                       </span>
                     )}
@@ -694,11 +694,11 @@ export default function ListingTierSelector({
                 </span>
               </div>
               <div className="text-left sm:text-right shrink-0 flex items-baseline gap-1.5 sm:justify-end">
-                <span className="text-xs text-slate-500 font-medium">Tổng:</span>
+                <span className="text-xs text-slate-700 font-medium">Tổng:</span>
                 <span className="text-sm sm:text-base font-black text-emerald-700">
                   {grossCost.toLocaleString('vi-VN')} đ
                 </span>
-                <span className="text-[11px] text-slate-400 font-normal">
+                <span className="text-[11px] text-slate-600 font-normal">
                   ({currentDailyRate.toLocaleString('vi-VN')} đ/ng)
                 </span>
               </div>
@@ -772,7 +772,7 @@ export default function ListingTierSelector({
               </div>
             )}
           </div>
-          <div className="text-[11px] text-slate-500 font-medium">
+          <div className="text-[11px] text-slate-700 font-medium">
             {isNormal ? (
               <span>Kết thúc ngày <b className="text-slate-800 font-semibold">{endDateFormatted}</b></span>
             ) : (
@@ -801,8 +801,8 @@ export default function ListingTierSelector({
           </label>
 
           {!enableScheduledPublishing ? (
-            <div className="p-3 bg-slate-100 rounded-xl border border-slate-200 text-xs text-slate-500 flex items-center gap-2">
-              <i className="fa-solid fa-circle-info text-slate-400 text-sm shrink-0"></i>
+            <div className="p-3 bg-slate-100 rounded-xl border border-slate-200 text-xs text-slate-700 flex items-center gap-2">
+              <i className="fa-solid fa-circle-info text-slate-600 text-sm shrink-0"></i>
               <span className="text-[11px] leading-tight">Tính năng Hẹn Giờ Đăng Tin đang tạm tắt bởi Ban Quản Trị. Bài viết sẽ xuất bản ngay sau khi duyệt.</span>
             </div>
           ) : (
@@ -815,7 +815,7 @@ export default function ListingTierSelector({
                   placeholder="Chọn khung giờ đăng tin"
                 />
               </div>
-              <div className="text-[11px] text-slate-500 font-medium">
+              <div className="text-[11px] text-slate-700 font-medium">
                 <span>Tự động xuất bản đúng khung giờ có lượt tương tác cao nhất</span>
               </div>
             </>
@@ -850,7 +850,7 @@ export default function ListingTierSelector({
       {showFullSummary && (
         <div className="mt-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
           <div>
-            <div className="text-slate-500">
+            <div className="text-slate-700 font-medium">
               Phân loại: <strong className="text-slate-900">{currentConfig?.name || 'Tin đăng'}</strong> • Thời hạn: <strong className="text-slate-900">{selectedDays} ngày</strong>
               {!isNormal && (
                 <span className="text-emerald-700 font-bold ml-1.5">(+60 ngày Tin Thường miễn phí sau khi hết VIP)</span>
