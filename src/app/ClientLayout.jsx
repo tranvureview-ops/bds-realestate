@@ -22,7 +22,7 @@ const ListingDetailModal = dynamic(() => import('../components/ListingDetailModa
 const PostListingModal = dynamic(() => import('../components/PostListingModal'), { ssr: false });
 const MortgageCalculatorModal = dynamic(() => import('../components/MortgageCalculatorModal'), { ssr: false });
 const WalletDepositModal = dynamic(() => import('../components/WalletDepositModal'), { ssr: false });
-import MaintenanceScreen from '../components/MaintenanceScreen';
+const MaintenanceScreen = dynamic(() => import('../components/MaintenanceScreen'), { ssr: false });
 
 function AppContent({ children }) {
   const pathname = usePathname() || '/';

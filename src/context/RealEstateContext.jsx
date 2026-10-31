@@ -92,17 +92,16 @@ import { getPropertyPermalink, parsePropertyUrl, toVietnameseSlug, formatSentenc
 import { DEFAULT_REWARDS_CONFIG } from '../data/rewardData';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 import { sanitizePhoneFromText } from '../utils/textSanitizer';
-import {
-  getEmailLogs,
-  dispatchEmail,
-  generateAdminReportAlertEmailHtml,
-  generateReporterConfirmationEmailHtml,
-  generateAuthorWarningEmailHtml,
-  generateResolutionEmailToReporterHtml,
-  generateTestEmailHtml,
-  renderEmailTemplateString,
-  REPORT_REASONS
-} from '../utils/emailService';
+// Danh mục lý do vi phạm tiếng Việt chuẩn hóa (nhẹ gọn, không kéo theo emailService)
+export const REPORT_REASONS = {
+  address_wrong: { label: 'Địa chỉ không có thật hoặc sai vị trí', severity: 'high', color: 'rose' },
+  price_wrong: { label: 'Giá không đúng thực tế (kê giá, giá ảo, câu view)', severity: 'high', color: 'amber' },
+  already_sold: { label: 'Bất động sản đã bán hoặc đã cho thuê', severity: 'medium', color: 'blue' },
+  fake_images: { label: 'Hình ảnh không đúng thực tế, ảnh cắt ghép giả mạo', severity: 'high', color: 'purple' },
+  duplicate: { label: 'Tin đăng trùng lặp nhiều lần gây nhiễu sàn', severity: 'low', color: 'indigo' },
+  unreachable: { label: 'Không liên hệ được với người đăng (SĐT ảo/thuê bao)', severity: 'medium', color: 'slate' },
+  other: { label: 'Dấu hiệu lừa đảo, tranh chấp pháp lý hoặc nội dung xấu', severity: 'critical', color: 'red' }
+};
 import { syncFeaturesWithVouchers } from '../utils/membershipHelper';
 
 // Hàm tạo Slug Tiêu Đề chuẩn tiếng Việt không dấu (SEO-friendly)
@@ -1137,6 +1136,13 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // 2. Gửi email thử nghiệm kiểm tra kết nối SMTP thực tế
   const sendTestEmail = async (recipientEmail) => {
+    const { 
+      generateTestEmailHtml, 
+      renderEmailTemplateString, 
+      dispatchEmail, 
+      getEmailLogs 
+    } = await import('../utils/emailService');
+
     const to = (recipientEmail || emailConfig.adminAlertEmail || 'tranvu.review@gmail.com').trim();
     if (!to || !to.includes('@')) {
       showToast('Vui lòng nhập địa chỉ email người nhận hợp lệ!', 'warning');
@@ -4673,7 +4679,15 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       }));
     }
 
-    // Gửi email thông báo cho Ban Kiểm Duyệt Sàn (Admin)
+    // Gửi email thông báo cho Ban Kiểm Duyệt Sàn (Admin) & Người Báo Cáo
+    const { 
+      generateAdminReportAlertEmailHtml, 
+      generateReporterConfirmationEmailHtml, 
+      renderEmailTemplateString, 
+      dispatchEmail, 
+      getEmailLogs 
+    } = await import('../utils/emailService');
+
     if (emailConfig?.notifyAdminOnReport !== false) {
       const adminEmail = emailConfig?.adminAlertEmail || systemConfig?.supportEmail || 'ban-kiem-duyet@datbiendanang.vn';
       const adminHtml = generateAdminReportAlertEmailHtml({ report: newReport, property: targetProp });
@@ -4742,6 +4756,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     }));
 
     if (!affectedReport) return;
+    const { 
+      generateAuthorWarningEmailHtml, 
+      generateResolutionEmailToReporterHtml, 
+      renderEmailTemplateString, 
+      dispatchEmail, 
+      getEmailLogs 
+    } = await import('../utils/emailService');
+
     const targetProperty = properties.find(p => p.id === affectedReport.propertyId);
 
     // Nếu chọn hạ tin (Delist) -> Tạm ẩn / Đổi trạng thái tin sang 'rejected'
@@ -4850,6 +4872,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // Gửi Email thủ công từ Quản trị viên
   const sendCustomEmail = async (emailData) => {
+    const { dispatchEmail, getEmailLogs } = await import('../utils/emailService');
     const res = await dispatchEmail({
       from: emailConfig?.fromEmail || 'kiemduyet@datbiendanang.vn',
       fromName: emailConfig?.fromName || 'Ban Quản Trị Sàn Đất Biển Đà Nẵng',
@@ -4888,6 +4911,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       });
     }
 
+    const { generateReporterConfirmationEmailHtml, dispatchEmail, getEmailLogs } = await import('../utils/emailService');
+
     const reporterHtml = generateReporterConfirmationEmailHtml({
       report: { ...report, reporterEmail: recipientEmail },
       property: targetProp
@@ -4916,6 +4941,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // Phát lại bất kỳ email nào trong Email Logs
   const resendEmail = async (emailId) => {
+    const { dispatchEmail, getEmailLogs } = await import('../utils/emailService');
     const logs = getEmailLogs();
     const targetEmail = logs.find(m => m.id === emailId);
     if (!targetEmail) {
