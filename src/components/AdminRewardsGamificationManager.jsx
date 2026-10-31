@@ -179,62 +179,72 @@ export default function AdminRewardsGamificationManager() {
     }
   };
 
-  // === XỬ LÝ KHUYẾN MÃI ===
-  const handleSavePromo = (e) => {
+  // === XỬ LÝ KHUYẾN MÃI (Tự động đồng bộ và lưu tức thì vào Database/Supabase) ===
+  const handleSavePromo = async (e) => {
     e.preventDefault();
     if (!editingPromo?.title || !editingPromo?.slug) {
       if (showToast) showToast('Vui lòng nhập tiêu đề và slug khuyến mãi!', 'warning');
       return;
     }
 
-    isDirtyRef.current = true;
-    setIsDirty(true);
-    setFormData(prev => {
-      const exists = prev.promotions?.some(p => p.id === editingPromo.id);
-      let updatedPromos = [];
-      if (exists) {
-        updatedPromos = prev.promotions.map(p => p.id === editingPromo.id ? editingPromo : p);
-      } else {
-        const newPromo = {
-          ...editingPromo,
-          id: editingPromo.id || `km-${Date.now()}`
-        };
-        updatedPromos = [...(prev.promotions || []), newPromo];
-      }
-      return { ...prev, promotions: updatedPromos };
-    });
+    const currentPromos = formData.promotions || [];
+    const exists = currentPromos.some(p => p.id === editingPromo.id);
+    let updatedPromos = [];
+    if (exists) {
+      updatedPromos = currentPromos.map(p => p.id === editingPromo.id ? editingPromo : p);
+    } else {
+      const newPromo = {
+        ...editingPromo,
+        id: editingPromo.id || `km-${Date.now()}`
+      };
+      updatedPromos = [...currentPromos, newPromo];
+    }
 
+    const newConfig = { ...formData, promotions: updatedPromos };
+    setFormData(newConfig);
     setPromoModalOpen(false);
     setEditingPromo(null);
-    if (showToast) showToast('Đã cập nhật chương trình khuyến mãi trong bản nháp. Nhớ bấm "Lưu Cấu Hình"!', 'info');
+
+    // Lưu tự động ngay lập tức lên Supabase & hệ thống để Client thấy thay đổi tức thì
+    await handleSaveAll(newConfig);
+    if (showToast) showToast('Đã lưu và cập nhật khuyến mãi lên hệ thống thành công!', 'success');
   };
 
-  const handleDeletePromo = (promoId) => {
+  const handleDeletePromo = async (promoId) => {
     if (confirm('Xóa chương trình khuyến mãi này?')) {
-      isDirtyRef.current = true;
-      setIsDirty(true);
-      setFormData(prev => ({
-        ...prev,
-        promotions: (prev.promotions || []).filter(p => p.id !== promoId)
-      }));
+      const updatedPromos = (formData.promotions || []).filter(p => p.id !== promoId);
+      const newConfig = { ...formData, promotions: updatedPromos };
+      setFormData(newConfig);
+      await handleSaveAll(newConfig);
+      if (showToast) showToast('Đã xóa chương trình khuyến mãi thành công!', 'info');
     }
   };
 
-  const handleTogglePromoExpired = (promoId) => {
-    isDirtyRef.current = true;
-    setIsDirty(true);
-    setFormData(prev => {
-      const updated = (prev.promotions || []).map(p => {
-        if (p.id !== promoId) return p;
-        const currentExpired = isPromotionExpired(p);
-        return {
-          ...p,
-          isExpired: !currentExpired
-        };
-      });
-      return { ...prev, promotions: updated };
+  const handleTogglePromoExpired = async (promoId) => {
+    const updatedPromos = (formData.promotions || []).map(p => {
+      if (p.id !== promoId) return p;
+      const currentExpired = isPromotionExpired(p);
+      return {
+        ...p,
+        isExpired: !currentExpired
+      };
     });
-    if (showToast) showToast('Đã đổi trạng thái hết hạn trong bản nháp. Bấm "Lưu Cấu Hình" để kích hoạt!', 'info');
+
+    const newConfig = { ...formData, promotions: updatedPromos };
+    setFormData(newConfig);
+    
+    // Lưu tự động ngay lập tức lên Supabase & hệ thống
+    await handleSaveAll(newConfig);
+    const target = updatedPromos.find(p => p.id === promoId);
+    const nowExpired = isPromotionExpired(target);
+    if (showToast) {
+      showToast(
+        nowExpired 
+          ? `Đã chuyển mã [${target?.discountCode || target?.title}] sang trạng thái ĐÃ HẾT HẠN và lưu thành công!` 
+          : `Đã mở lại mã [${target?.discountCode || target?.title}] (Đang diễn ra) và lưu thành công!`,
+        nowExpired ? 'warning' : 'success'
+      );
+    }
   };
 
   const PROMO_CONTENT_TEMPLATES = {
@@ -852,32 +862,44 @@ export default function AdminRewardsGamificationManager() {
               </p>
             </div>
 
-            <button
-              onClick={() => {
-                setEditingPromo({
-                  id: `km-${Date.now()}`,
-                  title: '',
-                  slug: '',
-                  category: 'nap-tien',
-                  categoryLabel: 'Nạp tiền ví',
-                  badge: 'Mới',
-                  badgeColor: 'bg-red-500 text-white',
-                  discountCode: '',
-                  discountValue: '50.000đ',
-                  validUntil: '2026-12-31',
-                  isExpired: false,
-                  isEvergreen: false,
-                  thumbnail: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80',
-                  description: '',
-                  content: PROMO_CONTENT_TEMPLATES.standard
-                });
-                setPromoModalOpen(true);
-              }}
-              className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-md shadow-red-900/30"
-            >
-              <i className="fa-solid fa-plus text-[10px]"></i>
-              <span>Thêm Khuyến Mãi Mới</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleSaveAll()}
+                disabled={isSaving}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs shadow-md shadow-emerald-900/30 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                <i className={`fa-solid ${isSaving ? 'fa-spinner fa-spin' : 'fa-floppy-disk'}`}></i>
+                <span>{isSaving ? 'Đang lưu...' : 'Lưu Khuyến Mãi'}</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setEditingPromo({
+                    id: `km-${Date.now()}`,
+                    title: '',
+                    slug: '',
+                    category: 'nap-tien',
+                    categoryLabel: 'Nạp tiền ví',
+                    badge: 'Mới',
+                    badgeColor: 'bg-red-500 text-white',
+                    discountCode: '',
+                    discountValue: '50.000đ',
+                    validUntil: '2026-12-31',
+                    isExpired: false,
+                    isEvergreen: false,
+                    thumbnail: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80',
+                    description: '',
+                    content: PROMO_CONTENT_TEMPLATES.standard
+                  });
+                  setPromoModalOpen(true);
+                }}
+                className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-md shadow-red-900/30"
+              >
+                <i className="fa-solid fa-plus text-[10px]"></i>
+                <span>Thêm Khuyến Mãi Mới</span>
+              </button>
+            </div>
           </div>
 
           {/* Filter Status: Tất cả / Đang diễn ra / Đã hết hạn */}

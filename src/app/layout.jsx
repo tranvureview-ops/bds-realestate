@@ -17,6 +17,7 @@ import { cookies, headers } from 'next/headers';
 import { MOCK_USERS, DEFAULT_GUEST_USER } from '../data/mockData';
 import { isSupabaseConfigured, fetchFullSupabaseDb, fetchSupabaseProfile } from '../lib/supabase';
 import { getFontConfig } from '../utils/fontConfig';
+import { getServerSsrDbCache, setServerSsrDbCache } from '../utils/serverDbCache';
 
 /**
  * Tinh gọn dữ liệu Database cho SSR công khai (Public SSR DB)
@@ -88,14 +89,10 @@ const fetchWithTimeout = (promise, ms = 800) => {
   });
 };
 
-let serverSsrDbCache = null;
-let serverSsrDbTimestamp = 0;
-const SSR_CACHE_TTL_MS = 60 * 1000; // 60s in-memory server cache to eliminate 800ms cold start latency
-
 export const getInitialDb = cache(async () => {
-  const now = Date.now();
-  if (serverSsrDbCache && (now - serverSsrDbTimestamp < SSR_CACHE_TTL_MS)) {
-    return serverSsrDbCache;
+  const cached = getServerSsrDbCache();
+  if (cached) {
+    return cached;
   }
 
   try {
@@ -104,8 +101,7 @@ export const getInitialDb = cache(async () => {
         const cloudData = await fetchWithTimeout(fetchFullSupabaseDb(), 250);
         if (cloudData && (cloudData.bds_properties?.length > 0 || cloudData.bds_header_config)) {
           const sanitized = sanitizePublicSsrDb(cloudData);
-          serverSsrDbCache = sanitized;
-          serverSsrDbTimestamp = now;
+          setServerSsrDbCache(sanitized);
           return sanitized;
         }
       } catch (err) {
@@ -117,8 +113,7 @@ export const getInitialDb = cache(async () => {
       const content = fs.readFileSync(dbFile, 'utf8');
       const parsed = JSON.parse(content || '{}');
       const sanitized = sanitizePublicSsrDb(parsed);
-      serverSsrDbCache = sanitized;
-      serverSsrDbTimestamp = now;
+      setServerSsrDbCache(sanitized);
       return sanitized;
     }
   } catch (e) {

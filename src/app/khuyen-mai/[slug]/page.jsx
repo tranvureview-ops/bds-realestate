@@ -1,6 +1,7 @@
 import PromotionDetailPage from '../../../views/PromotionDetailPage';
 import { PROMOTIONS_DATA } from '../../../data/rewardData';
 import { SITE_URL } from '../../../utils/permalink';
+import { getServerSsrDbCache } from '../../../utils/serverDbCache';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -10,7 +11,9 @@ const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;
   const slug = resolvedParams?.slug;
-  const promo = PROMOTIONS_DATA.find(p => p.slug === slug);
+  const db = getServerSsrDbCache();
+  const allPromos = db?.bds_rewards_config?.promotions || PROMOTIONS_DATA;
+  const promo = allPromos.find(p => p.slug === slug);
 
   if (!promo) {
     return {

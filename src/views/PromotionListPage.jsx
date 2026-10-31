@@ -95,11 +95,17 @@ export default function PromotionListPage() {
 
     const matched = promoList.find(p => p.discountCode?.toUpperCase() === clean);
     if (matched) {
-      setTestedVoucher({ valid: true, data: matched });
-      if (showToast) showToast(`Mã ${clean} hợp lệ! ${matched.discountValue}`, 'success');
+      const expired = isPromotionExpired(matched);
+      if (expired) {
+        setTestedVoucher({ valid: false, isExpired: true, code: clean, data: matched });
+        if (showToast) showToast(`Mã ưu đãi "${clean}" đã hết hạn vào ngày ${formatPromoDate(matched.validUntil)}!`, 'error');
+      } else {
+        setTestedVoucher({ valid: true, data: matched });
+        if (showToast) showToast(`Mã ${clean} hợp lệ! ${matched.discountValue}`, 'success');
+      }
     } else {
       setTestedVoucher({ valid: false, code: clean });
-      if (showToast) showToast(`Mã ưu đãi "${clean}" không tồn tại hoặc đã hết hạn!`, 'warning');
+      if (showToast) showToast(`Mã ưu đãi "${clean}" không tồn tại trên hệ thống!`, 'warning');
     }
   };
 
@@ -210,7 +216,7 @@ export default function PromotionListPage() {
                       <span>Mã [{testedVoucher.data.discountCode}] hợp lệ: {testedVoucher.data.title}</span>
                     </div>
                     <div className="text-[11px] text-emerald-800 mt-1">
-                      Giảm giá: <strong className="font-bold">{testedVoucher.data.discountValue}</strong> • Hạn dùng: <strong>{testedVoucher.data.validUntil}</strong>
+                      Giảm giá: <strong className="font-bold">{testedVoucher.data.discountValue}</strong> • Hạn dùng: <strong>{formatPromoDate(testedVoucher.data.validUntil)}</strong>
                     </div>
                   </div>
                   <button
@@ -223,7 +229,11 @@ export default function PromotionListPage() {
               ) : (
                 <div className="flex items-center gap-2 text-rose-700 font-bold">
                   <i className="fa-solid fa-circle-xmark"></i>
-                  <span>Mã "{testedVoucher.code}" không tồn tại hoặc đã hết hiệu lực. Vui lòng chọn một mã trong danh sách bên dưới!</span>
+                  <span>
+                    {testedVoucher.isExpired 
+                      ? `Mã ưu đãi "${testedVoucher.code}" đã hết hạn vào ngày ${formatPromoDate(testedVoucher.data?.validUntil)} và không còn hiệu lực!` 
+                      : `Mã ưu đãi "${testedVoucher.code}" không tồn tại trên hệ thống. Vui lòng chọn một mã trong danh sách bên dưới!`}
+                  </span>
                 </div>
               )}
             </div>

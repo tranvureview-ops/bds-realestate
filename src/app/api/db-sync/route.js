@@ -4,6 +4,8 @@ import { NextResponse } from 'next/server';
 import { isSupabaseConfigured, supabase, fetchFullSupabaseDb, syncFullDbToSupabase } from '../../../lib/supabase';
 import { encryptAES256 } from '../../../utils/cryptoUtils';
 import { verifyAdminRequest } from '../../../utils/adminAuth';
+import { invalidateServerSsrCache } from '../../../utils/serverDbCache';
+import { revalidatePath } from 'next/cache';
 
 const DB_FILE = path.resolve(process.cwd(), 'server-db.json');
 
@@ -135,6 +137,12 @@ export async function POST(request) {
       // Bỏ qua lỗi EROFS trên môi trường serverless (như Vercel có hệ thống tệp chỉ đọc)
       console.warn('Không thể ghi file cục bộ (môi trường serverless read-only):', fsErr.message);
     }
+
+    // 4. Xóa bộ nhớ đệm SSR Cache tức thì để các trang Client & Admin tải mới ngay lập tức
+    invalidateServerSsrCache();
+    try {
+      revalidatePath('/', 'layout');
+    } catch (_) {}
 
     return NextResponse.json({ 
       success: true, 

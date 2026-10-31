@@ -129,26 +129,57 @@ export const PROMOTIONS_DATA = [
   }
 ];
 
+// Helper phân tích chuỗi ngày bất kỳ (YYYY-MM-DD, DD/MM/YYYY, DD-MM-YYYY, ISO) thành Date object chuẩn xác
+export const parsePromoDate = (dateVal) => {
+  if (!dateVal) return null;
+  if (dateVal instanceof Date) return isNaN(dateVal.getTime()) ? null : dateVal;
+  
+  const str = String(dateVal).trim();
+  if (!str) return null;
+
+  // 1. Dạng DD/MM/YYYY hoặc DD-MM-YYYY
+  const dmyMatch = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if (dmyMatch) {
+    const day = parseInt(dmyMatch[1], 10);
+    const month = parseInt(dmyMatch[2], 10) - 1;
+    const year = parseInt(dmyMatch[3], 10);
+    const d = new Date(year, month, day);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  // 2. Dạng YYYY-MM-DD hoặc YYYY/MM/DD
+  const ymdMatch = str.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+  if (ymdMatch) {
+    const year = parseInt(ymdMatch[1], 10);
+    const month = parseInt(ymdMatch[2], 10) - 1;
+    const day = parseInt(ymdMatch[3], 10);
+    const d = new Date(year, month, day);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  // 3. Fallback new Date() chuẩn
+  const d = new Date(str);
+  return isNaN(d.getTime()) ? null : d;
+};
+
 // Helper kiểm tra một chương trình khuyến mãi đã hết hạn chưa (dựa theo ngày hoặc cờ isExpired)
 export const isPromotionExpired = (promo) => {
   if (!promo) return false;
-  if (promo.isExpired === true) return true;
-  if (promo.isEvergreen === true) return false;
+  // Ưu tiên cờ hết hạn tường minh (boolean hoặc chuỗi)
+  if (promo.isExpired === true || promo.isExpired === 'true' || promo.status === 'expired') return true;
+  if (promo.isEvergreen === true || promo.isEvergreen === 'true') return false;
   if (!promo.validUntil) return false;
+
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const parts = String(promo.validUntil).split('-');
-    if (parts.length === 3) {
-      const year = parseInt(parts[0], 10);
-      const month = parseInt(parts[1], 10) - 1;
-      const day = parseInt(parts[2], 10);
-      const expireDate = new Date(year, month, day, 23, 59, 59, 999);
-      return expireDate.getTime() < today.getTime();
-    }
-    const expireDate = new Date(promo.validUntil);
-    expireDate.setHours(23, 59, 59, 999);
-    return expireDate.getTime() < today.getTime();
+
+    const parsed = parsePromoDate(promo.validUntil);
+    if (!parsed) return false;
+
+    // Hạn dùng tính đến hết 23:59:59 của ngày kết thúc
+    parsed.setHours(23, 59, 59, 999);
+    return parsed.getTime() < today.getTime();
   } catch (e) {
     return false;
   }
@@ -157,11 +188,12 @@ export const isPromotionExpired = (promo) => {
 // Helper định dạng ngày hiển thị dd/mm/yyyy
 export const formatPromoDate = (dateStr) => {
   if (!dateStr) return '';
-  const parts = String(dateStr).split('-');
-  if (parts.length === 3) {
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
-  }
-  return dateStr;
+  const parsed = parsePromoDate(dateStr);
+  if (!parsed) return String(dateStr);
+  const day = String(parsed.getDate()).padStart(2, '0');
+  const month = String(parsed.getMonth() + 1).padStart(2, '0');
+  const year = parsed.getFullYear();
+  return `${day}/${month}/${year}`;
 };
 
 // 2. DANH SÁCH NHIỆM VỤ (TIỀN THƯỞNG CỘNG TRỰC TIẾP VÀO VÍ KHUYẾN MÃI)

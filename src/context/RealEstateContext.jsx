@@ -1365,6 +1365,32 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return () => window.removeEventListener('bds_bonus_wallet_updated', handleBonusWalletEvent);
   }, [currentUser?.id, systemConfig?.bonusExpiryDays]);
 
+  // Đồng bộ thời gian thực cấu hình Khuyến mãi & Trung tâm phần thưởng giữa các tab/cửa sổ
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleRewardsUpdate = (e) => {
+      if (e.detail && typeof e.detail === 'object') {
+        setRewardsConfig(e.detail);
+      }
+    };
+    const handleStorageEvent = (e) => {
+      if (e.key === 'bds_rewards_config' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (parsed && typeof parsed === 'object') {
+            setRewardsConfig(parsed);
+          }
+        } catch (_) {}
+      }
+    };
+    window.addEventListener('bds_rewards_config_updated', handleRewardsUpdate);
+    window.addEventListener('storage', handleStorageEvent);
+    return () => {
+      window.removeEventListener('bds_rewards_config_updated', handleRewardsUpdate);
+      window.removeEventListener('storage', handleStorageEvent);
+    };
+  }, []);
+
   // Khóa kiểm soát fetch Supabase đồng thời và giới hạn tần suất (throttle) chống race conditions
   const isFetchingSupabaseRef = useRef(false);
   const lastFetchTimestampRef = useRef(0);
