@@ -100,11 +100,12 @@ export async function POST(request) {
       }, { status: 401 });
     }
 
-    // Đăng nhập thành công
+    // Đăng nhập thành công - Loại bỏ triệt để các trường nhạy cảm trước khi trả về client
+    const { password: _p, passwordHash: _ph, twoFactorSecret: _tfs, ...safeUser } = found;
     return NextResponse.json({
       success: true,
       message: `Đăng nhập thành công! Chào mừng ${found.name}`,
-      user: found
+      user: safeUser
     });
   } catch (error) {
     return NextResponse.json({

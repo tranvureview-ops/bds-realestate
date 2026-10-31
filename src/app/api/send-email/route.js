@@ -13,7 +13,8 @@ export async function POST(request) {
     const host = (smtp?.host || '').trim();
     const port = Number(smtp?.port) || 587;
     const user = (smtp?.username || '').trim();
-    const pass = (smtp?.password || '').replace(/\s+/g, '');
+    const envPass = process.env.SMTP_PASSWORD || process.env.EMAIL_SMTP_PASSWORD || '';
+    const pass = (smtp?.password || envPass || '').replace(/\s+/g, '');
     const isSecure = port === 465 || smtp?.encryption === 'ssl';
 
     if (!host) {

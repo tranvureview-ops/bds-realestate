@@ -1344,7 +1344,11 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     isFetchingSupabaseRef.current = true;
     lastFetchTimestampRef.current = now;
     try {
-      const db = await fetchFullSupabaseDb();
+      const isAdminRoute = typeof window !== 'undefined' && (
+        window.location.pathname.startsWith('/admin') ||
+        (currentUser && currentUser.role === 'admin')
+      );
+      const db = await fetchFullSupabaseDb({ isAdmin: Boolean(isAdminRoute) });
       if (db) {
         if (Array.isArray(db.bds_properties) && db.bds_properties.length > 0) {
           const validProps = db.bds_properties.filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng') || p.city === 'Quảng Nam' || p.city.includes('Quảng Nam'));

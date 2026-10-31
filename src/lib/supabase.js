@@ -621,11 +621,29 @@ function withTimeout(promise, ms = 2500) {
 }
 
 /**
+ * Danh sách các key cài đặt công khai (Public Settings) an toàn để hiển thị trên giao diện và SSR
+ */
+export const PUBLIC_SETTINGS_KEYS = [
+  'bds_header_config',
+  'bds_footer_config',
+  'bds_system_config',
+  'bds_payment_config',
+  'bds_nav_menu',
+  'bds_vip_packages',
+  'bds_membership_packages',
+  'bds_single_config',
+  'bds_rewards_config',
+  'bds_bump_service_price'
+];
+
+/**
  * Tải toàn bộ dữ liệu hệ thống từ Supabase Cloud để đồng bộ SSR và Client
  * Tích hợp Stale-While-Revalidate In-memory Cache & Promise Deduplication siêu tốc
+ * ÁP DỤNG CƠ CHẾ BẢO MẬT: Mặc định (Public/SSR) chỉ tải dữ liệu công khai, tuyệt đối không lộ Users, Email Config, Tokens.
  */
 export async function fetchFullSupabaseDb(options = {}) {
   const forceRefresh = typeof options === 'boolean' ? options : Boolean(options?.forceRefresh);
+  const isAdmin = Boolean(options?.isAdmin);
   if (!isSupabaseConfigured() || !supabase) return null;
 
   const now = Date.now();
@@ -636,20 +654,33 @@ export async function fetchFullSupabaseDb(options = {}) {
 
   // Deduplication: Nếu đang có một promise fetch đang chạy ngầm, không tạo thêm request trùng lặp
   if (!forceRefresh && _pendingFetchPromise) {
-    // Nếu đã có cache cũ (stale cache), ưu tiên trả về ngay lập tức để người dùng không phải chờ
     if (_dbCache) return _dbCache;
     return _pendingFetchPromise;
   }
 
-  // Tạo tác vụ fetch từ Supabase Cloud
+  // Tạo tác vụ fetch từ Supabase Cloud (phân quyền dữ liệu theo vai trò)
   const backgroundFetchTask = (async () => {
     try {
-      const [props, settingsRes, profiles, txns] = await Promise.all([
-        fetchSupabaseProperties(),
-        supabase.from('platform_settings').select('key, value'),
-        fetchSupabaseProfiles(),
-        fetchSupabaseTransactions()
-      ]);
+      let props = null;
+      let settingsRes = null;
+      let profiles = [];
+      let txns = [];
+
+      if (isAdmin) {
+        // Chỉ khi quản trị viên đã xác thực vào trang /admin mới tải toàn bộ để quản lý
+        [props, settingsRes, profiles, txns] = await Promise.all([
+          fetchSupabaseProperties(),
+          supabase.from('platform_settings').select('key, value'),
+          fetchSupabaseProfiles(),
+          fetchSupabaseTransactions()
+        ]);
+      } else {
+        // Mặc định cho Khách vãng lai, Người dùng công cộng & SSR: CHỈ tải Properties & Public Settings an toàn
+        [props, settingsRes] = await Promise.all([
+          fetchSupabaseProperties(),
+          supabase.from('platform_settings').select('key, value').in('key', PUBLIC_SETTINGS_KEYS)
+        ]);
+      }
 
       const settingsMap = {};
       if (settingsRes && Array.isArray(settingsRes.data)) {
@@ -665,7 +696,26 @@ export async function fetchFullSupabaseDb(options = {}) {
         return null;
       }
 
-      const mergedUsers = mergeProfilesWithSettingsUsers(profiles, settingsMap['bds_users_list']);
+      // Xử lý làm sạch danh sách users (nếu có - chỉ khi admin)
+      let mergedUsers = [];
+      if (isAdmin) {
+        mergedUsers = mergeProfilesWithSettingsUsers(profiles, settingsMap['bds_users_list']).map(u => {
+          const { password: _p, twoFactorSecret: _tfs, ...safeU } = u;
+          return safeU;
+        });
+      }
+
+      // Làm sạch email config nếu có: Không bao giờ trả về mật khẩu SMTP thô
+      let safeEmailConfig = undefined;
+      if (isAdmin && settingsMap['bds_email_config']) {
+        safeEmailConfig = {
+          ...settingsMap['bds_email_config'],
+          smtp: {
+            ...settingsMap['bds_email_config']?.smtp,
+            password: '' // Luôn để rỗng trên client, server tự đọc từ env
+          }
+        };
+      }
 
       const result = {
         bds_properties: props && props.length > 0 ? props : undefined,
@@ -679,11 +729,11 @@ export async function fetchFullSupabaseDb(options = {}) {
         bds_vip_packages: settingsMap['bds_vip_packages'] || undefined,
         bds_membership_packages: settingsMap['bds_membership_packages'] || undefined,
         bds_single_config: settingsMap['bds_single_config'] || undefined,
-        bds_email_config: settingsMap['bds_email_config'] || undefined,
-        bds_reported_listings: settingsMap['bds_reported_listings'] || undefined,
-        bds_email_logs: settingsMap['bds_email_logs'] || undefined,
-        bds_verification_tokens: settingsMap['bds_verification_tokens'] || undefined,
-        bds_appointments: settingsMap['bds_appointments'] || undefined,
+        bds_email_config: safeEmailConfig,
+        bds_reported_listings: isAdmin ? (settingsMap['bds_reported_listings'] || undefined) : undefined,
+        bds_email_logs: isAdmin ? (settingsMap['bds_email_logs'] || undefined) : undefined,
+        bds_verification_tokens: undefined, // Tuyệt đối không trả về token xác thực
+        bds_appointments: isAdmin ? (settingsMap['bds_appointments'] || undefined) : undefined,
         bds_notifications: settingsMap['bds_notifications'] || undefined,
         bds_bump_service_price: settingsMap['bds_bump_service_price'] !== undefined ? settingsMap['bds_bump_service_price'] : undefined,
         bds_rewards_config: settingsMap['bds_rewards_config'] || undefined,
