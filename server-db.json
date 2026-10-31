@@ -4838,6 +4838,31 @@
             "percentage": 10
           }
         ]
+      },
+      "standardMemberConfig": {
+        "monthlyBudget": 370000,
+        "minAmount": 8000,
+        "maxAmount": 35000,
+        "rewardTiers": [
+          {
+            "id": "tier_standard_min",
+            "label": "Thưởng Tối Thiểu (Nhỏ)",
+            "amount": 8000,
+            "percentage": 40
+          },
+          {
+            "id": "tier_standard_common",
+            "label": "Thưởng Phổ Biến (Vừa)",
+            "amount": 12000,
+            "percentage": 50
+          },
+          {
+            "id": "tier_standard_max",
+            "label": "Thưởng Tối Đa (Lớn)",
+            "amount": 35000,
+            "percentage": 10
+          }
+        ]
       }
     }
   },

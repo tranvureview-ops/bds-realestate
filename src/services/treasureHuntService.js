@@ -30,6 +30,15 @@ export const DEFAULT_BASIC_MEMBER_REWARD_TIERS = [
 
 export const DEFAULT_BASIC_MEMBER_MONTHLY_BUDGET = 120000;
 
+// 3. Mốc phần thưởng cho Hội Viên Tiêu Chuẩn (Không có mốc 0đ, tổng 100%)
+export const DEFAULT_STANDARD_MEMBER_REWARD_TIERS = [
+  { id: 'tier_standard_min', label: 'Thưởng Tối Thiểu (Nhỏ)', amount: 8000, percentage: 40 },
+  { id: 'tier_standard_common', label: 'Thưởng Phổ Biến (Vừa)', amount: 12000, percentage: 50 },
+  { id: 'tier_standard_max', label: 'Thưởng Tối Đa (Lớn)', amount: 35000, percentage: 10 }
+];
+
+export const DEFAULT_STANDARD_MEMBER_MONTHLY_BUDGET = 370000;
+
 const DEFAULT_DAILY_LIMIT = 1;
 const COOLDOWN_SECONDS = 20;
 
@@ -156,8 +165,17 @@ export function isUserBasicMember(user) {
   return pkgId === 'member-basic' || pkgName.includes('cơ bản') || pkgName.includes('basic');
 }
 
+// Kiểm tra tài khoản có đang là Hội Viên Tiêu Chuẩn còn hiệu lực không
+export function isUserStandardMember(user) {
+  if (!isUserMembershipActive(user)) return false;
+  const pkgId = String(user.membership?.packageId || '').toLowerCase();
+  const pkgName = String(user.membership?.packageName || '').toLowerCase();
+  return pkgId === 'member-standard' || pkgName.includes('tiêu chuẩn') || pkgName.includes('standard');
+}
+
 /**
  * Hàm tính tiền thưởng mở rương:
+ * - Nếu là Hội Viên Tiêu Chuẩn: áp dụng bảng 3 mốc (8.000đ/40%, 12.000đ/50%, 35.000đ/10%)
  * - Nếu là Hội Viên Cơ Bản: áp dụng bảng 3 mốc (2.500đ/40%, 4.000đ/50%, 10.000đ/10%)
  * - Nếu là Khách Vãng Lai / Thành Viên Thường: áp dụng bảng 4 mốc (0đ/25%, 1.200đ/45%, 2.500đ/25%, 12.000đ/5%)
  * Ràng buộc trần ngân sách tháng (remainingBudget): Không vượt quá ngân sách còn lại trong tháng.
@@ -174,11 +192,15 @@ export function calculateTreasureReward(tConfig = null, user = null, remainingBu
     };
   }
 
-  const isBasic = isUserBasicMember(user);
+  const isStandard = isUserStandardMember(user);
+  const isBasic = !isStandard && isUserBasicMember(user);
 
-  // Chọn danh sách mốc theo đối tượng: Hội Viên Cơ Bản vs Thành viên thường
+  // Chọn danh sách mốc theo đối tượng: Hội Viên Tiêu Chuẩn vs Hội Viên Cơ Bản vs Thành viên thường
   let tiers;
-  if (isBasic) {
+  if (isStandard) {
+    const rawStandard = tConfig?.standardMemberConfig?.rewardTiers;
+    tiers = Array.isArray(rawStandard) && rawStandard.length > 0 ? rawStandard : DEFAULT_STANDARD_MEMBER_REWARD_TIERS;
+  } else if (isBasic) {
     const rawBasic = tConfig?.basicMemberConfig?.rewardTiers;
     tiers = Array.isArray(rawBasic) && rawBasic.length > 0 ? rawBasic : DEFAULT_BASIC_MEMBER_REWARD_TIERS;
   } else {
@@ -216,6 +238,7 @@ export function calculateTreasureReward(tConfig = null, user = null, remainingBu
     isEmpty,
     tierId: selectedTier.id,
     label: selectedTier.label || (isEmpty ? 'Chúc may mắn (Rỗng)' : 'Thưởng May Mắn'),
+    isStandardMember: Boolean(isStandard),
     isBasicMember: Boolean(isBasic)
   };
 }

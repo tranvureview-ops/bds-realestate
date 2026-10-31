@@ -10,9 +10,11 @@ import {
   isPropertyTreasureActive, 
   isUserMembershipActive,
   isUserBasicMember,
+  isUserStandardMember,
   getMonthlyTreasureBudgetStatus,
   DEFAULT_TREASURE_REWARD_TIERS,
-  DEFAULT_BASIC_MEMBER_REWARD_TIERS
+  DEFAULT_BASIC_MEMBER_REWARD_TIERS,
+  DEFAULT_STANDARD_MEMBER_REWARD_TIERS
 } from '../services/treasureHuntService';
 import { getPropertyPermalink, SITE_URL } from '../utils/permalink';
 
@@ -42,7 +44,8 @@ export default function TreasureHuntPage() {
     setActiveModal
   } = useRealEstate();
   const isMember = isMembershipActive ? isMembershipActive(currentUser) : isUserMembershipActive(currentUser);
-  const isBasicMember = isUserBasicMember(currentUser);
+  const isStandardMember = isUserStandardMember(currentUser);
+  const isBasicMember = !isStandardMember && isUserBasicMember(currentUser);
 
   const tConfig = rewardsConfig?.treasureHuntConfig;
   const isFeatureEnabled = tConfig?.enabled !== false;
@@ -57,12 +60,19 @@ export default function TreasureHuntPage() {
   const cooldownSeconds = Number(tConfig?.cooldownSeconds || 20);
 
   // Tab đang xem bảng tỷ lệ (mặc định ưu tiên theo loại tài khoản hiện tại)
-  const [viewingTierGroup, setViewingTierGroup] = useState(isBasicMember ? 'basic' : 'regular');
+  const [viewingTierGroup, setViewingTierGroup] = useState(
+    isStandardMember ? 'standard' : isBasicMember ? 'basic' : 'regular'
+  );
 
   // Tổng ngân sách tháng
   const regularMonthlyBudget = Number(tConfig?.monthlyBudget || 50000);
   const basicMonthlyBudget = Number(tConfig?.basicMemberConfig?.monthlyBudget || 120000);
-  const effectiveMonthlyBudget = isBasicMember ? basicMonthlyBudget : regularMonthlyBudget;
+  const standardMonthlyBudget = Number(tConfig?.standardMemberConfig?.monthlyBudget || 370000);
+  const effectiveMonthlyBudget = isStandardMember
+    ? standardMonthlyBudget
+    : isBasicMember
+      ? basicMonthlyBudget
+      : regularMonthlyBudget;
   const budgetStatus = getMonthlyTreasureBudgetStatus(effectiveMonthlyBudget, transactions);
 
   // Mốc phần thưởng Khách & Thành viên thường
@@ -75,8 +85,21 @@ export default function TreasureHuntPage() {
     ? tConfig.basicMemberConfig.rewardTiers
     : DEFAULT_BASIC_MEMBER_REWARD_TIERS;
 
-  const activeRewardTiers = viewingTierGroup === 'basic' ? basicRewardTiers : regularRewardTiers;
-  const activeMonthlyBudget = viewingTierGroup === 'basic' ? basicMonthlyBudget : regularMonthlyBudget;
+  // Mốc phần thưởng Hội Viên Tiêu Chuẩn
+  const standardRewardTiers = Array.isArray(tConfig?.standardMemberConfig?.rewardTiers) && tConfig.standardMemberConfig.rewardTiers.length > 0
+    ? tConfig.standardMemberConfig.rewardTiers
+    : DEFAULT_STANDARD_MEMBER_REWARD_TIERS;
+
+  const activeRewardTiers = viewingTierGroup === 'standard'
+    ? standardRewardTiers
+    : viewingTierGroup === 'basic'
+      ? basicRewardTiers
+      : regularRewardTiers;
+  const activeMonthlyBudget = viewingTierGroup === 'standard'
+    ? standardMonthlyBudget
+    : viewingTierGroup === 'basic'
+      ? basicMonthlyBudget
+      : regularMonthlyBudget;
 
   const [quota, setQuota] = useState({ count: 0, limit: dailyLimit, remaining: dailyLimit, isLimitReached: false });
   const [claimsToday, setClaimsToday] = useState([]);
@@ -518,12 +541,12 @@ export default function TreasureHuntPage() {
               </p>
             </div>
 
-            {/* Tab chuyển đổi xem giữa Thành viên thường vs Hội Viên Cơ Bản */}
-            <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-2xl shrink-0">
+            {/* Tab chuyển đổi xem giữa Thành viên thường vs Hội Viên Cơ Bản vs Hội Viên Tiêu Chuẩn */}
+            <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-2xl shrink-0 overflow-x-auto">
               <button
                 type="button"
                 onClick={() => setViewingTierGroup('regular')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
                   viewingTierGroup === 'regular'
                     ? 'bg-white text-slate-900 shadow-sm'
                     : 'text-slate-600 hover:text-slate-900'
@@ -535,7 +558,7 @@ export default function TreasureHuntPage() {
               <button
                 type="button"
                 onClick={() => setViewingTierGroup('basic')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
                   viewingTierGroup === 'basic'
                     ? 'bg-amber-500 text-slate-950 font-black shadow-sm'
                     : 'text-slate-600 hover:text-slate-900'
@@ -544,22 +567,50 @@ export default function TreasureHuntPage() {
                 <i className="fa-solid fa-crown text-[10px]"></i>
                 <span>Hội Viên Cơ Bản</span>
               </button>
+              <button
+                type="button"
+                onClick={() => setViewingTierGroup('standard')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer whitespace-nowrap ${
+                  viewingTierGroup === 'standard'
+                    ? 'bg-orange-500 text-white font-black shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                <i className="fa-solid fa-medal text-[10px]"></i>
+                <span>Hội Viên Tiêu Chuẩn</span>
+              </button>
             </div>
           </div>
 
           {/* Banner thông báo nhóm đang xem */}
           <div className={`p-3.5 rounded-2xl border text-xs flex items-center justify-between gap-3 ${
-            viewingTierGroup === 'basic'
-              ? 'bg-amber-50/80 border-amber-300 text-amber-900'
-              : 'bg-slate-50 border-slate-200 text-slate-700'
+            viewingTierGroup === 'standard'
+              ? 'bg-orange-50/80 border-orange-300 text-orange-950'
+              : viewingTierGroup === 'basic'
+                ? 'bg-amber-50/80 border-amber-300 text-amber-900'
+                : 'bg-slate-50 border-slate-200 text-slate-700'
           }`}>
             <div className="flex items-center gap-2">
-              <i className={`fa-solid ${viewingTierGroup === 'basic' ? 'fa-crown text-amber-600 text-sm' : 'fa-circle-info text-slate-500 text-sm'}`}></i>
+              <i className={`fa-solid ${
+                viewingTierGroup === 'standard'
+                  ? 'fa-medal text-orange-600 text-sm'
+                  : viewingTierGroup === 'basic'
+                    ? 'fa-crown text-amber-600 text-sm'
+                    : 'fa-circle-info text-slate-500 text-sm'
+              }`}></i>
               <div>
-                <strong>{viewingTierGroup === 'basic' ? '2/ Cấu hình Hệ thống (Hội Viên Cơ Bản):' : '1/ Khách Vãng Lai & Thành Viên Thường:'}</strong>{' '}
-                {viewingTierGroup === 'basic' 
-                  ? '100% trúng thưởng (không có mốc rỗng), tỷ lệ nhận mốc 2.500đ, 4.000đ và 10.000đ.' 
-                  : 'Yêu cầu đăng nhập, gồm 4 mốc tỷ lệ chuẩn (0đ 25%, 1.200đ 45%, 2.500đ 25%, 12.000đ 5%).'}
+                <strong>
+                  {viewingTierGroup === 'standard'
+                    ? '3/ Cấu hình Hệ thống (Hội Viên Tiêu Chuẩn):'
+                    : viewingTierGroup === 'basic'
+                      ? '2/ Cấu hình Hệ thống (Hội Viên Cơ Bản):'
+                      : '1/ Khách Vãng Lai & Thành Viên Thường:'}
+                </strong>{' '}
+                {viewingTierGroup === 'standard'
+                  ? '100% trúng thưởng mốc cao (không có mốc rỗng), tỷ lệ nhận mốc 8.000đ (40%), 12.000đ (50%) và 35.000đ (10%).'
+                  : viewingTierGroup === 'basic' 
+                    ? '100% trúng thưởng (không có mốc rỗng), tỷ lệ nhận mốc 2.500đ (40%), 4.000đ (50%) và 10.000đ (10%).' 
+                    : 'Yêu cầu đăng nhập, gồm 4 mốc tỷ lệ chuẩn (0đ 25%, 1.200đ 45%, 2.500đ 25%, 12.000đ 5%).'}
               </div>
             </div>
             <span className="text-[11px] font-bold px-2.5 py-1 bg-white rounded-xl shadow-xs border border-slate-200 shrink-0">
@@ -581,7 +632,13 @@ export default function TreasureHuntPage() {
                 {activeRewardTiers.map((tier, idx) => (
                   <tr key={tier.id || idx} className="hover:bg-slate-50/80 transition">
                     <td className="py-3.5 px-4 font-bold text-slate-900 flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${Number(tier.amount) === 0 ? 'bg-slate-400' : 'bg-amber-500'}`}></span>
+                      <span className={`w-2 h-2 rounded-full ${
+                        Number(tier.amount) === 0 
+                          ? 'bg-slate-400' 
+                          : viewingTierGroup === 'standard' 
+                            ? 'bg-orange-500' 
+                            : 'bg-amber-500'
+                      }`}></span>
                       <span>{tier.label}</span>
                     </td>
                     <td className="py-3.5 px-4 font-mono font-black text-slate-900">
@@ -597,15 +654,33 @@ export default function TreasureHuntPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-100">
-            <div className="p-4 rounded-2xl border bg-amber-50/60 border-amber-200 space-y-1">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-amber-700">
-                {viewingTierGroup === 'basic' ? 'Hội Viên Cơ Bản' : 'Hạn Mức Mở Rương'}
+            <div className={`p-4 rounded-2xl border space-y-1 ${
+              viewingTierGroup === 'standard'
+                ? 'bg-orange-50/60 border-orange-200'
+                : viewingTierGroup === 'basic'
+                  ? 'bg-amber-50/60 border-amber-200'
+                  : 'bg-amber-50/60 border-amber-200'
+            }`}>
+              <div className={`text-[10px] font-bold uppercase tracking-wider ${
+                viewingTierGroup === 'standard'
+                  ? 'text-orange-700'
+                  : 'text-amber-700'
+              }`}>
+                {viewingTierGroup === 'standard'
+                  ? 'Hội Viên Tiêu Chuẩn'
+                  : viewingTierGroup === 'basic' 
+                    ? 'Hội Viên Cơ Bản' 
+                    : 'Hạn Mức Mở Rương'}
               </div>
               <div className="text-xl font-black text-slate-900">
                 {dailyLimit} Rương / Ngày
               </div>
               <div className="text-[11px] text-slate-500">
-                {viewingTierGroup === 'basic' ? 'Tài khoản Hội Viên Cơ Bản mở 1 rương/ngày nhận tiền lớn.' : 'Mở 1 rương mỗi ngày. Yêu cầu đăng nhập tài khoản.'}
+                {viewingTierGroup === 'standard'
+                  ? 'Tài khoản Hội Viên Tiêu Chuẩn mở 1 rương/ngày nhận tiền thưởng lớn (8k - 35k).'
+                  : viewingTierGroup === 'basic' 
+                    ? 'Tài khoản Hội Viên Cơ Bản mở 1 rương/ngày nhận tiền lớn (2.5k - 10k).' 
+                    : 'Mở 1 rương mỗi ngày. Yêu cầu đăng nhập tài khoản.'}
               </div>
             </div>
 
@@ -629,7 +704,11 @@ export default function TreasureHuntPage() {
                 {activeMonthlyBudget.toLocaleString('vi-VN')} đ / Tháng
               </div>
               <div className="text-[11px] text-slate-500">
-                {viewingTierGroup === 'basic' ? 'Tổng ngân sách mở rương riêng cho Hội Viên Cơ Bản.' : 'Tổng ngân sách chung cho khách và thành viên thường.'}
+                {viewingTierGroup === 'standard'
+                  ? 'Tổng ngân sách mở rương riêng cho Hội Viên Tiêu Chuẩn.'
+                  : viewingTierGroup === 'basic' 
+                    ? 'Tổng ngân sách mở rương riêng cho Hội Viên Cơ Bản.' 
+                    : 'Tổng ngân sách chung cho khách và thành viên thường.'}
               </div>
             </div>
           </div>

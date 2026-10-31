@@ -362,6 +362,13 @@ export const DEFAULT_BASIC_MEMBER_REWARD_TIERS = [
   { id: 'tier_basic_max', label: 'Thưởng Tối Đa (Lớn)', amount: 10000, percentage: 10 }
 ];
 
+// 4c. MỐC PHẦN THƯỞNG CHO HỘI VIÊN TIÊU CHUẨN (CHỈNH SỬA ĐƯỢC TRONG CMS)
+export const DEFAULT_STANDARD_MEMBER_REWARD_TIERS = [
+  { id: 'tier_standard_min', label: 'Thưởng Tối Thiểu (Nhỏ)', amount: 8000, percentage: 40 },
+  { id: 'tier_standard_common', label: 'Thưởng Phổ Biến (Vừa)', amount: 12000, percentage: 50 },
+  { id: 'tier_standard_max', label: 'Thưởng Tối Đa (Lớn)', amount: 35000, percentage: 10 }
+];
+
 // 5. DỮ LIỆU DỰ ĐOÁN GIÁ BĐS CỘNG ĐỒNG (QUỸ THƯỞNG TIỀN MẶT VÍ KM)
 export const PRICE_PREDICTION_GAMES = [
   {
@@ -485,6 +492,13 @@ export const DEFAULT_REWARDS_CONFIG = {
       rewardTiers: DEFAULT_BASIC_MEMBER_REWARD_TIERS,
       minAmount: 2500,
       maxAmount: 10000
+    },
+    // 3/ Cấu hình Hệ thống (Hội Viên Tiêu Chuẩn): Ngân sách 370.000đ/tháng
+    standardMemberConfig: {
+      monthlyBudget: 370000,
+      rewardTiers: DEFAULT_STANDARD_MEMBER_REWARD_TIERS,
+      minAmount: 8000,
+      maxAmount: 35000
     }
   },
 
