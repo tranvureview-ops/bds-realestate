@@ -27,5 +27,12 @@
     "@types/react-dom": "^19.2.7",
     "oxlint": "^1.81.0",
     "typescript": "7.0.2"
-  }
+  },
+  "browserslist": [
+    "Chrome >= 93",
+    "Firefox >= 92",
+    "Safari >= 15.4",
+    "Edge >= 93",
+    "not dead"
+  ]
 }
