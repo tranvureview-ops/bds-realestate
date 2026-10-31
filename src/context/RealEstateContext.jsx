@@ -19,13 +19,17 @@ import { getEarliestExpiringBonus, deductBatchesFifo } from '../utils/bonusExpir
 // Helper bất đồng bộ lưu cấu hình sàn lên Supabase SDK
 const persistSettingToSupabase = async (key, value) => {
   try {
+    const adminToken = typeof window !== 'undefined' ? (sessionStorage.getItem('bds_admin_token') || '') : '';
     // Với bds_email_config, nếu có mật khẩu SMTP chưa mã hóa thì ủy quyền cho /api/db-sync
     // tự động mã hóa AES-256-GCM ở tầng Server trước khi ghi vào Supabase và Database
     if (key === 'bds_email_config' && value?.smtp?.password && String(value.smtp.password).split(':').length !== 3) {
       if (typeof window !== 'undefined') {
         await fetch('/api/db-sync', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'x-admin-token': adminToken
+          },
           body: JSON.stringify({ [key]: value })
         }).catch(err => console.warn(`Lỗi db-sync khi mã hóa ${key}:`, err));
         return;
@@ -36,7 +40,10 @@ const persistSettingToSupabase = async (key, value) => {
     if (typeof window !== 'undefined') {
       fetch('/api/db-sync', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-admin-token': adminToken
+        },
         body: JSON.stringify({ [key]: value })
       }).catch(err => console.warn(`Lỗi db-sync khi lưu ${key}:`, err));
     }
@@ -4022,6 +4029,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
       const found = data.user;
       setCurrentUser(found);
+      if (typeof window !== 'undefined' && data.adminToken) {
+        sessionStorage.setItem('bds_admin_token', data.adminToken);
+      }
       if (typeof document !== 'undefined') {
         document.cookie = `bds_session_user=${encodeURIComponent(found.id)}; path=/; max-age=31536000; SameSite=Lax`;
       }
@@ -4068,7 +4078,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       if (found.password) {
         isMatch = (found.password === password);
       } else {
-        isMatch = (password === '123456') || (found.role === 'admin' && password === 'admin123');
+        isMatch = found.role !== 'admin' && (password === '123456');
       }
 
       if (!isMatch) {
@@ -4267,10 +4277,12 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     setCurrentUser(DEFAULT_GUEST_USER);
     if (typeof document !== 'undefined') {
       document.cookie = `bds_session_user=guest; path=/; max-age=31536000; SameSite=Lax`;
+      document.cookie = `bds_admin_token=; path=/; max-age=0; SameSite=Lax`;
     }
     if (typeof window !== 'undefined' && window.sessionStorage) {
       window.sessionStorage.removeItem('bds_admin_2fa_verified');
       window.sessionStorage.removeItem('bds_admin_2fa_time');
+      window.sessionStorage.removeItem('bds_admin_token');
     }
     showToast('Đã đăng xuất khỏi tài khoản!', 'info');
   };

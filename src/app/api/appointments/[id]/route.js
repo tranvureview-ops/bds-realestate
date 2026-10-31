@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { updateAppointmentById, deleteAppointmentById } from '../../../../services/serverDbService';
+import { verifyAdminRequest } from '../../../../utils/adminAuth';
 
 /**
  * PATCH /api/appointments/[id]
@@ -44,6 +45,14 @@ export async function PATCH(request, { params }) {
  */
 export async function DELETE(request, { params }) {
   try {
+    const adminAuth = verifyAdminRequest(request);
+    if (!adminAuth.valid) {
+      return NextResponse.json({ 
+        success: false, 
+        message: 'Unauthorized: Chỉ Quản trị viên mới có quyền xóa lịch hẹn!' 
+      }, { status: 401 });
+    }
+
     const { id } = await params;
     if (!id) {
       return NextResponse.json({ success: false, message: 'Thiếu mã lịch hẹn cần xóa.' }, { status: 400 });

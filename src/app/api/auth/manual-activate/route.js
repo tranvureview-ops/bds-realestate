@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getCampaignSettings } from '../../../../services/bonusCampaignService';
 import { getFullSystemDatabase, updateUserById, persistDatabaseSlice } from '../../../../services/serverDbService';
+import { verifyAdminRequest } from '../../../../utils/adminAuth';
 
 export function calculateBonusExpiration(bonusExpiryDays) {
   const days = Number(bonusExpiryDays) || 30;
@@ -76,11 +77,26 @@ export async function resolveUserFromDb(userId) {
 
 export async function POST(request) {
   try {
+    const adminAuth = verifyAdminRequest(request);
+    if (!adminAuth.valid) {
+      return NextResponse.json({ 
+        success: false, 
+        message: 'Unauthorized: Chỉ Quản trị viên đã đăng nhập mới có quyền kích hoạt tài khoản thủ công!' 
+      }, { status: 401 });
+    }
+
     const { userId } = await request.json();
     if (!userId) return NextResponse.json({ success: false, message: 'Thiếu mã người dùng (userId).' }, { status: 400 });
 
     const { db, user } = await resolveUserFromDb(userId);
     if (!user) return NextResponse.json({ success: false, message: 'Không tìm thấy người dùng.' }, { status: 404 });
+
+    if (user.status === 'active' && user.bonusActivatedAt) {
+      return NextResponse.json({ 
+        success: false, 
+        message: 'Tài khoản này đã được kích hoạt thành công từ trước, không thể kích hoạt lại nhiều lần!' 
+      }, { status: 400 });
+    }
 
     const campaign = getCampaignSettings(db.bds_system_config);
     const updatedUser = await executeManualActivation(user, campaign);

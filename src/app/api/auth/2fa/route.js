@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getFullSystemDatabase, updateUserById } from '../../../../services/serverDbService';
+import { verifyPassword } from '../../../../services/authService';
+import { generateAdminToken, verifyAdminRequest } from '../../../../utils/adminAuth';
 import {
   generateBase32Secret,
   formatSecret,
@@ -10,7 +12,7 @@ import {
 
 /**
  * GET /api/auth/2fa
- * Lấy thông tin thiết lập 2FA (Secret, Mã QR, trạng thái kích hoạt)
+ * Lấy thông tin thiết lập 2FA (BẢO VỆ CHẶT CHẼ: Không lộ Secret nếu 2FA đã được kích hoạt)
  */
 export async function GET(request) {
   try {
@@ -29,15 +31,36 @@ export async function GET(request) {
       return NextResponse.json({ success: false, message: 'Tính năng 2FA chỉ áp dụng cho Quản Trị Viên (Admin)!' }, { status: 403 });
     }
 
-    // Nếu đã có secret chuẩn 32 ký tự thì dùng lại, nếu chưa có hoặc không chuẩn thì sinh mới
+    const email = user.email || 'tranvu.review@gmail.com';
+    const isAlreadyEnabled = Boolean(user.twoFactorEnabled);
+
+    // NGUYÊN TẮC BẢO MẬT: Nếu 2FA ĐANG BẬT, TUYỆT ĐỐI KHÔNG trả về Secret/QR cho yêu cầu GET thông thường
+    // Trình duyệt chỉ cần biết 2FA đang bật để hiện ô nhập mã 6 số
+    if (isAlreadyEnabled) {
+      return NextResponse.json({
+        success: true,
+        userId: user.id,
+        email,
+        twoFactorEnabled: true
+      });
+    }
+
+    // Trường hợp 2FA chưa bật (cần cài đặt lần đầu):
+    // Chỉ cấp Secret & QR Code nếu request có token xác thực Admin hợp lệ
+    const adminAuth = verifyAdminRequest(request);
+    if (!adminAuth.valid) {
+      return NextResponse.json({
+        success: false,
+        message: 'Bạn cần đăng nhập với quyền Quản trị viên để lấy mã QR thiết lập 2FA!'
+      }, { status: 401 });
+    }
+
     let secret = user.twoFactorSecret;
     if (!secret || secret.length !== 32) {
       secret = generateBase32Secret(32);
-      // Lưu tạm secret vào database để chuẩn bị xác minh kích hoạt
       await updateUserById(user.id, { twoFactorSecret: secret });
     }
 
-    const email = user.email || 'tranvu.review@gmail.com';
     const otpAuthUrl = getOtpAuthUrl(secret, email, 'DatBienDaNang-Admin');
     const qrCodeUrl = await getQrCodeUrl(otpAuthUrl, 240);
 
@@ -45,7 +68,7 @@ export async function GET(request) {
       success: true,
       userId: user.id,
       email,
-      twoFactorEnabled: !!user.twoFactorEnabled,
+      twoFactorEnabled: false,
       secret,
       formattedSecret: formatSecret(secret),
       otpAuthUrl,
@@ -66,7 +89,7 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const { action = 'validate', userId = 'admin-01', token, secret } = body || {};
+    const { action = 'validate', userId = 'admin-01', token, secret, password } = body || {};
 
     const db = await getFullSystemDatabase();
     const users = Array.isArray(db.bds_users_list) ? db.bds_users_list : [];
@@ -98,11 +121,25 @@ export async function POST(request) {
         twoFactorVerifiedAt: new Date().toISOString()
       });
 
-      return NextResponse.json({
+      const adminToken = generateAdminToken(updatedUser);
+      const res = NextResponse.json({
         success: true,
         message: 'Kích hoạt xác thực 2FA Google Authenticator thành công!',
-        user: updatedUser
+        user: updatedUser,
+        adminToken
       });
+
+      if (adminToken) {
+        res.cookies.set('bds_admin_token', adminToken, {
+          httpOnly: false,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 24 * 60 * 60,
+          path: '/'
+        });
+      }
+
+      return res;
     }
 
     // B. XÁC THỰC 2FA KHI ĐĂNG NHẬP HOẶC VÀO TRANG ADMIN
@@ -124,15 +161,38 @@ export async function POST(request) {
         }, { status: 400 });
       }
 
-      return NextResponse.json({
+      // Cấp mới Admin Token có chữ ký bảo mật sau khi vượt qua lớp 2FA
+      const adminToken = generateAdminToken(user);
+      const res = NextResponse.json({
         success: true,
         message: 'Xác thực 2FA thành công! Đang chuyển hướng vào Bàn làm việc CMS...',
-        verifiedAt: new Date().toISOString()
+        verifiedAt: new Date().toISOString(),
+        adminToken
       });
+
+      if (adminToken) {
+        res.cookies.set('bds_admin_token', adminToken, {
+          httpOnly: false,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 24 * 60 * 60,
+          path: '/'
+        });
+      }
+
+      return res;
     }
 
-    // C. RESET / TẠO LẠI MÃ QR 2FA
+    // C. RESET / TẠO LẠI MÃ QR 2FA (BẮT BUỘC XÁC THỰC QUYỀN ADMIN)
     if (action === 'reset') {
+      const adminAuth = verifyAdminRequest(request);
+      if (!adminAuth.valid) {
+        return NextResponse.json({
+          success: false,
+          message: 'Chỉ Quản trị viên đã đăng nhập mới có quyền đặt lại mã 2FA!'
+        }, { status: 401 });
+      }
+
       const newSecret = generateBase32Secret(32);
       await updateUserById(user.id, {
         twoFactorEnabled: false,
@@ -154,8 +214,27 @@ export async function POST(request) {
       });
     }
 
-    // D. TẮT TÍNH NĂNG 2FA (DISABLE 2FA)
+    // D. TẮT TÍNH NĂNG 2FA (BẮT BUỘC XÁC THỰC QUYỀN ADMIN VÀ MẬT KHẨU HOẶC MÃ OTP)
     if (action === 'disable') {
+      const adminAuth = verifyAdminRequest(request);
+      if (!adminAuth.valid) {
+        return NextResponse.json({
+          success: false,
+          message: 'Bạn không có quyền tắt 2FA (Yêu cầu phiên làm việc Quản trị viên).'
+        }, { status: 401 });
+      }
+
+      // Xác minh mật khẩu hoặc mã OTP hiện tại trước khi cho phép tắt
+      const isOtpValid = token && user.twoFactorSecret && verifyTOTP(token, user.twoFactorSecret, 1);
+      const isPassValid = password && user.passwordHash && verifyPassword(password, user.passwordHash);
+
+      if (!isOtpValid && !isPassValid) {
+        return NextResponse.json({
+          success: false,
+          message: 'Vui lòng cung cấp mã OTP 6 số hiện tại hoặc mật khẩu Admin để xác nhận tắt 2FA!'
+        }, { status: 403 });
+      }
+
       const updatedUser = await updateUserById(user.id, {
         twoFactorEnabled: false
       });
@@ -168,8 +247,16 @@ export async function POST(request) {
       });
     }
 
-    // E. BẬT LẠI TÍNH NĂNG 2FA (ENABLE 2FA)
+    // E. BẬT LẠI TÍNH NĂNG 2FA
     if (action === 'enable') {
+      const adminAuth = verifyAdminRequest(request);
+      if (!adminAuth.valid) {
+        return NextResponse.json({
+          success: false,
+          message: 'Bạn không có quyền kích hoạt 2FA (Yêu cầu phiên làm việc Quản trị viên).'
+        }, { status: 401 });
+      }
+
       const updatedUser = await updateUserById(user.id, {
         twoFactorEnabled: true,
         twoFactorVerifiedAt: new Date().toISOString()

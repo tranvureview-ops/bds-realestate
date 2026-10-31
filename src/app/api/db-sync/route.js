@@ -3,6 +3,7 @@ import path from 'path';
 import { NextResponse } from 'next/server';
 import { isSupabaseConfigured, supabase, fetchFullSupabaseDb, syncFullDbToSupabase } from '../../../lib/supabase';
 import { encryptAES256 } from '../../../utils/cryptoUtils';
+import { verifyAdminRequest } from '../../../utils/adminAuth';
 
 const DB_FILE = path.resolve(process.cwd(), 'server-db.json');
 
@@ -41,6 +42,20 @@ export async function POST(request) {
   try {
     const rawText = await request.text();
     const payload = JSON.parse(rawText || '{}');
+
+    // 0. BẢO VỆ ĐẶC QUYỀN ADMIN: Ngăn chặn kẻ xấu giả mạo gọi API ghi đè cấu hình sàn hoặc leo thang đặc quyền
+    const sensitiveAdminKeys = ['bds_system_config', 'bds_payment_config', 'bds_email_config', 'bds_vip_packages', 'bds_membership_packages'];
+    const touchesSensitiveKey = sensitiveAdminKeys.some(k => k in payload);
+    const touchesAdminUsers = Array.isArray(payload.bds_users_list) && payload.bds_users_list.some(u => u && u.role === 'admin');
+
+    if (touchesSensitiveKey || touchesAdminUsers) {
+      const adminAuth = verifyAdminRequest(request);
+      if (!adminAuth.valid) {
+        return NextResponse.json({ 
+          error: 'Unauthorized: Thao tác cập nhật cấu hình quản trị hệ thống yêu cầu quyền Quản trị viên!' 
+        }, { status: 401 });
+      }
+    }
 
     // 1. Tải các cấu hình hiện có để hợp nhất sâu (Deep Merge) tránh việc lưu từng phần làm mất các trường khác
     let existingSettings = {};

@@ -2,11 +2,19 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import fs from 'fs';
 import path from 'path';
+import { verifyAdminRequest } from '../../../../../utils/adminAuth';
 
 const DB_FILE = path.resolve(process.cwd(), 'server-db.json');
 
 export async function POST(request) {
   try {
+    const adminAuth = verifyAdminRequest(request);
+    if (!adminAuth.valid) {
+      return NextResponse.json({ 
+        error: 'Unauthorized: Yêu cầu quyền Quản trị viên để thực hiện thao tác xóa tài khoản!' 
+      }, { status: 401 });
+    }
+
     const { userId } = await request.json();
     if (!userId) {
       return NextResponse.json({ error: 'Missing userId' }, { status: 400 });

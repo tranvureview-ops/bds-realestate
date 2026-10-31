@@ -393,9 +393,13 @@ export async function deleteSupabaseProfile(userId) {
     // 1. Nếu đang ở trình duyệt, gọi API route máy chủ để hỗ trợ service_role key xóa vật lý triệt để
     if (typeof window !== 'undefined') {
       try {
+        const adminToken = typeof window !== 'undefined' ? (sessionStorage.getItem('bds_admin_token') || '') : '';
         await fetch('/api/admin/users/delete', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'x-admin-token': adminToken
+          },
           body: JSON.stringify({ userId })
         });
       } catch (apiErr) {

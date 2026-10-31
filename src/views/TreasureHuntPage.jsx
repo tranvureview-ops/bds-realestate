@@ -636,7 +636,7 @@ export default function TreasureHuntPage() {
                     {/* Nút Trang Trước */}
                     {safePage === 1 ? (
                       <span
-                        className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-slate-100 text-slate-600 cursor-not-allowed select-none"
+                        className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-slate-100 text-slate-700 cursor-not-allowed select-none"
                         title="Đang ở trang đầu"
                         aria-disabled="true"
                       >
@@ -661,7 +661,7 @@ export default function TreasureHuntPage() {
                         return (
                           <span 
                             key={`ellipsis-${idx}`} 
-                            className="w-8 h-9 flex items-center justify-center text-slate-600 font-bold text-xs select-none"
+                            className="w-8 h-9 flex items-center justify-center text-slate-700 font-bold text-xs select-none"
                           >
                             ...
                           </span>
@@ -694,7 +694,7 @@ export default function TreasureHuntPage() {
                     {/* Nút Trang Sau */}
                     {safePage === totalPages ? (
                       <span
-                        className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-slate-100 text-slate-600 cursor-not-allowed select-none"
+                        className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-slate-100 text-slate-700 cursor-not-allowed select-none"
                         title="Đang ở trang cuối"
                         aria-disabled="true"
                       >

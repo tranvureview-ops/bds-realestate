@@ -241,7 +241,7 @@ export default function ListingGrid({
     return (
       <div className="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
         {/* Thông tin số lượng tin đang hiển thị */}
-        <div className="text-xs sm:text-sm text-slate-500 font-medium text-center sm:text-left">
+        <div className="text-xs sm:text-sm text-slate-700 font-medium text-center sm:text-left">
           Đang hiển thị <span className="font-bold text-slate-900">{startIndex + 1}</span> - <span className="font-bold text-slate-900">{endIndex}</span> trong tổng số <span className="font-bold text-red-600">{totalItems}</span> bất động sản
         </div>
 
@@ -270,7 +270,7 @@ export default function ListingGrid({
           {/* Nút Trang Trước */}
           {safePage === 1 ? (
             <span
-              className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-slate-100 text-slate-600 cursor-not-allowed shadow-2xs select-none"
+              className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-slate-100 text-slate-700 cursor-not-allowed shadow-2xs select-none"
               title="Đang ở trang đầu"
               aria-disabled="true"
             >
@@ -281,7 +281,7 @@ export default function ListingGrid({
             <Link
               href={getPageUrl(safePage - 1)}
               onClick={scrollToGridTop}
-              className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer shadow-2xs"
+              className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 cursor-pointer shadow-2xs"
               title="Trang trước"
             >
               <i className="fa-solid fa-angle-left"></i>
@@ -295,7 +295,7 @@ export default function ListingGrid({
               return (
                 <span 
                   key={`ellipsis-${idx}`} 
-                  className="w-8 h-9 flex items-center justify-center text-slate-600 font-bold text-xs select-none"
+                  className="w-8 h-9 flex items-center justify-center text-slate-700 font-bold text-xs select-none"
                 >
                   ...
                 </span>
@@ -328,7 +328,7 @@ export default function ListingGrid({
           {/* Nút Trang Sau */}
           {safePage === totalPages ? (
             <span
-              className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-slate-100 text-slate-600 cursor-not-allowed shadow-2xs select-none"
+              className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-slate-100 text-slate-700 cursor-not-allowed shadow-2xs select-none"
               title="Đang ở trang cuối"
               aria-disabled="true"
             >
@@ -339,7 +339,7 @@ export default function ListingGrid({
             <Link
               href={getPageUrl(safePage + 1)}
               onClick={scrollToGridTop}
-              className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer shadow-2xs"
+              className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 cursor-pointer shadow-2xs"
               title="Trang kế tiếp"
             >
               <span className="hidden sm:inline">Sau</span>
@@ -350,7 +350,7 @@ export default function ListingGrid({
           {/* Nút Đến Trang Cuối */}
           {safePage === totalPages ? (
             <span
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition border border-slate-200 bg-slate-100 text-slate-600 cursor-not-allowed shadow-2xs select-none"
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition border border-slate-200 bg-slate-100 text-slate-700 cursor-not-allowed shadow-2xs select-none"
               title="Đang ở trang cuối"
               aria-disabled="true"
             >

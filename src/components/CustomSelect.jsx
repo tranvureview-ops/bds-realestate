@@ -155,6 +155,7 @@ export default function CustomSelect({
                 aria-label="Xóa lựa chọn"
               >
                 <i className="fa-solid fa-xmark text-[11px]" aria-hidden="true"></i>
+                <span className="sr-only">Xóa lựa chọn</span>
               </button>
             )}
 
@@ -180,6 +181,9 @@ export default function CustomSelect({
                 }`}
                 aria-hidden="true"
               ></i>
+              <span className="sr-only">
+                {placeholder ? `Mở rộng danh sách ${placeholder}` : 'Mở rộng danh sách lựa chọn'}
+              </span>
             </button>
           </div>
         </div>

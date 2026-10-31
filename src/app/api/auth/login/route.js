@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { verifyPassword } from '../../../../services/authService';
 import { getFullSystemDatabase } from '../../../../services/serverDbService';
+import { generateAdminToken } from '../../../../utils/adminAuth';
 
 /**
  * Trích xuất chỉ các chữ số trong số điện thoại để so sánh chính xác
@@ -83,14 +84,14 @@ export async function POST(request) {
       }, { status: 403 });
     }
 
-    // Kiểm tra mật khẩu (so khớp bcrypt hash, mật khẩu thường, hoặc mật khẩu mặc định của tài khoản demo)
+    // Kiểm tra mật khẩu (so khớp bcrypt hash hoặc mật khẩu thường, TUYỆT ĐỐI KHÔNG dùng fallback mặc định)
     let isPasswordValid = false;
     if (found.passwordHash) {
       isPasswordValid = verifyPassword(password, found.passwordHash);
     } else if (found.password) {
       isPasswordValid = (found.password === password);
     } else {
-      isPasswordValid = (password === '123456') || (found.role === 'admin' && password === 'admin123');
+      isPasswordValid = false;
     }
 
     if (!isPasswordValid) {
@@ -102,11 +103,29 @@ export async function POST(request) {
 
     // Đăng nhập thành công - Loại bỏ triệt để các trường nhạy cảm trước khi trả về client
     const { password: _p, passwordHash: _ph, twoFactorSecret: _tfs, ...safeUser } = found;
-    return NextResponse.json({
+
+    // Sinh Token quản trị có chữ ký số bí mật nếu là Admin
+    const adminToken = found.role === 'admin' ? generateAdminToken(found) : null;
+
+    const response = NextResponse.json({
       success: true,
       message: `Đăng nhập thành công! Chào mừng ${found.name}`,
-      user: safeUser
+      user: safeUser,
+      adminToken: adminToken || undefined
     });
+
+    // Thiết lập cookie an toàn cho phiên làm việc Admin
+    if (adminToken) {
+      response.cookies.set('bds_admin_token', adminToken, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 24 * 60 * 60,
+        path: '/'
+      });
+    }
+
+    return response;
   } catch (error) {
     return NextResponse.json({
       success: false,

@@ -116,16 +116,23 @@ export default function AdminTwoFactorScreen({
 
   // Tắt tính năng 2FA
   const handleDisable2FA = async () => {
-    if (!window.confirm('Bạn có chắc chắn muốn TẮT tính năng xác thực 2 bước (2FA)? Sau khi tắt, tài khoản Admin có thể đăng nhập trực tiếp bằng mật khẩu mà không cần mã Google Authenticator.')) return;
+    const confirmation = window.prompt('Để đảm bảo an toàn, vui lòng nhập mã OTP 6 số từ Google Authenticator (hoặc mật khẩu Admin) để xác nhận TẮT 2FA:');
+    if (!confirmation) return;
     setToggling(true);
     setErrorMsg('');
     try {
+      const tokenHeader = typeof window !== 'undefined' ? (sessionStorage.getItem('bds_admin_token') || '') : '';
       const res = await fetch('/api/auth/2fa', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-admin-token': tokenHeader
+        },
         body: JSON.stringify({
           action: 'disable',
-          userId: adminUser?.id || 'admin-01'
+          userId: adminUser?.id || 'admin-01',
+          token: /^\d{6}$/.test(confirmation.trim()) ? confirmation.trim() : undefined,
+          password: !/^\d{6}$/.test(confirmation.trim()) ? confirmation.trim() : undefined
         })
       });
       const data = await res.json();
@@ -164,9 +171,13 @@ export default function AdminTwoFactorScreen({
 
     try {
       const action = mode === 'setup' ? 'verify-setup' : 'validate';
+      const tokenHeader = typeof window !== 'undefined' ? (sessionStorage.getItem('bds_admin_token') || '') : '';
       const res = await fetch('/api/auth/2fa', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-admin-token': tokenHeader
+        },
         body: JSON.stringify({
           action,
           userId: adminUser?.id || 'admin-01',
@@ -177,10 +188,13 @@ export default function AdminTwoFactorScreen({
       const data = await res.json();
 
       if (data.success) {
-        // Lưu cờ xác thực vào sessionStorage
+        // Lưu cờ xác thực và Admin Token vào sessionStorage
         if (typeof window !== 'undefined') {
           sessionStorage.setItem('bds_admin_2fa_verified', 'true');
           sessionStorage.setItem('bds_admin_2fa_time', Date.now().toString());
+          if (data.adminToken) {
+            sessionStorage.setItem('bds_admin_token', data.adminToken);
+          }
         }
         if (onSuccess) onSuccess(data);
       } else {
