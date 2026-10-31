@@ -40,11 +40,12 @@ export default function InteractiveMap({ properties, activePropertyId = null, he
         scrollWheelZoom: true
       });
 
-      // Google Maps Roadmap tile layer
+      // Google Maps Roadmap tile layer (crossOrigin: true để triệt tiêu cảnh báo cookie bên thứ ba trong Chrome DevTools Issues)
       window.L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
         maxZoom: 20,
         subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-        attribution: 'Dữ liệu bản đồ &copy; Google Maps'
+        attribution: 'Dữ liệu bản đồ &copy; Google Maps',
+        crossOrigin: true
       }).addTo(map);
 
       mapInstanceRef.current = map;

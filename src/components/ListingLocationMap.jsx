@@ -103,7 +103,8 @@ export default function ListingLocationMap({
         const currentUrl = GOOGLE_MAP_LAYERS[mapType]?.url || GOOGLE_MAP_LAYERS.roadmap.url;
         const tileLayer = window.L.tileLayer(currentUrl, {
           maxZoom: 20,
-          subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+          subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+          crossOrigin: true
         }).addTo(map);
 
         tileLayerRef.current = tileLayer;
