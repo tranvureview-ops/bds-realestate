@@ -3046,7 +3046,7 @@ export const DEFAULT_HEADER_CONFIG = {
   logoHeight: 40,
   logoAlt: 'KÊNH NHÀ ĐẤT 24H Logo',
   showTaglineWithImage: false,
-  containerWidth: 'wide', // 'boxed' (max-w-7xl) | 'wide' (max-w-screen-2xl) | 'full' (w-full 100%)
+  containerWidth: 'boxed', // 'boxed' (max-w-7xl) | 'wide' (max-w-screen-2xl) | 'full' (w-full 100%)
   socialLinks: DEFAULT_SOCIAL_LINKS,
   topbar: {
     showTopbar: true,

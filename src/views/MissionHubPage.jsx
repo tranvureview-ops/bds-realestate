@@ -31,13 +31,6 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
   const router = useRouter();
   const pathname = router?.pathname || '';
 
-  const containerWidthClass = useMemo(() => {
-    const widthType = headerConfig?.containerWidth || 'boxed';
-    if (widthType === 'full') return 'w-full px-4 sm:px-6 lg:px-8 transition-all duration-300';
-    if (widthType === 'wide') return 'w-full max-w-[94vw] 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300';
-    return 'w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300';
-  }, [headerConfig?.containerWidth]);
-
   const userId = currentUser && currentUser.role !== 'guest' ? currentUser.id : 'guest';
   const [localRewardsConfig, setLocalRewardsConfig] = useState(rewardsConfig);
   const [localBonusBal, setLocalBonusBal] = useState(Number(currentUser?.bonusWalletBalance || 0));
@@ -457,7 +450,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
-      <div className={`${containerWidthClass} space-y-6 sm:space-y-8`}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6 sm:space-y-8">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-500 font-medium">
           <Link to="/" className="hover:text-emerald-700 transition">Trang chủ</Link>
