@@ -1000,15 +1000,8 @@ export default function UserProfilePage() {
                     </div>
 
                     <div className="p-3 bg-white/90 rounded-2xl border border-slate-200/90 space-y-1">
-                      <div className="text-[11px] font-bold text-slate-500 uppercase flex items-center justify-between">
+                      <div className="text-[11px] font-bold text-slate-500 uppercase">
                         <span>Số dư ví khả dụng:</span>
-                        <button
-                          type="button"
-                          onClick={() => setActiveModal('wallet-deposit')}
-                          className="text-emerald-700 hover:underline font-bold text-[10px] flex items-center gap-0.5 cursor-pointer"
-                        >
-                          <i className="fa-solid fa-plus-circle text-[9px]"></i> Nạp ví
-                        </button>
                       </div>
                       <div className="text-base font-black text-slate-900">
                         {walletBalance.toLocaleString('vi-VN')} đ
