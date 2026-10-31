@@ -372,7 +372,7 @@ export default function ListingGrid({
   };
 
   return (
-    <div ref={gridContainerRef} className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${className ? className : (isHomePage ? 'pt-2 pb-3' : 'pt-4 sm:pt-6 pb-8')}`}>
+    <div ref={gridContainerRef} className={`max-w-7xl mx-auto px-4 sm:px-8 ${className ? className : (isHomePage ? 'pt-2 pb-3' : 'pt-4 sm:pt-6 pb-8')}`}>
       {/* View Controls & Sorting Bar */}
       <div className={`flex ${title || isHomePage ? 'flex-col sm:flex-row items-start sm:items-center' : 'flex-row items-center'} justify-between gap-2.5 sm:gap-4 pb-3 sm:pb-5 border-b border-slate-200`}>
         {title ? (
