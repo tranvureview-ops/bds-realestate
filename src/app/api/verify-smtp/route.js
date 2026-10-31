@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
+import { decryptAES256 } from '../../../utils/cryptoUtils';
 
 export async function POST(request) {
   try {
@@ -10,7 +11,8 @@ export async function POST(request) {
     const port = Number(smtp?.port) || 587;
     const user = (smtp?.username || '').trim();
     const envPass = process.env.SMTP_PASSWORD || process.env.EMAIL_SMTP_PASSWORD || '';
-    const pass = (smtp?.password || envPass || '').replace(/\s+/g, '');
+    const rawPass = (smtp?.password || envPass || '').trim();
+    const pass = decryptAES256(rawPass).replace(/\s+/g, '');
     const isSecure = port === 465 || smtp?.encryption === 'ssl';
 
     if (!host) {

@@ -696,9 +696,12 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                         <i className={`fa-solid ${showPassword ? 'fa-eye-slash' : 'fa-eye'} text-sm`}></i>
                       </button>
                     </div>
-                    <p className="text-[10px] text-slate-500 mt-1">
-                      Khuyến nghị: Với tài khoản Google, hãy sử dụng <strong>Mật khẩu ứng dụng (App Password)</strong> thay cho mật khẩu tài khoản chính để bảo mật tối đa.
-                    </p>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[10px] text-slate-500 mt-1 gap-1">
+                      <span>Khuyến nghị: Với Google, hãy dùng <strong>Mật khẩu ứng dụng (App Password)</strong>.</span>
+                      <span className="text-emerald-400 font-semibold flex items-center gap-1 shrink-0">
+                        <i className="fa-solid fa-shield-halved text-xs"></i> Tự động mã hóa AES-256 cấp quân sự khi lưu vào Database
+                      </span>
+                    </div>
 
                     {showGuide && (
                       <div className="mt-3 p-4 bg-slate-900/90 border border-teal-500/30 rounded-2xl text-[11px] text-slate-300 space-y-2 animate-in fade-in duration-200">

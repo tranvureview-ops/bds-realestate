@@ -19,6 +19,19 @@ import { getEarliestExpiringBonus, deductBatchesFifo } from '../utils/bonusExpir
 // Helper bất đồng bộ lưu cấu hình sàn lên Supabase SDK
 const persistSettingToSupabase = async (key, value) => {
   try {
+    // Với bds_email_config, nếu có mật khẩu SMTP chưa mã hóa thì ủy quyền cho /api/db-sync
+    // tự động mã hóa AES-256-GCM ở tầng Server trước khi ghi vào Supabase và Database
+    if (key === 'bds_email_config' && value?.smtp?.password && String(value.smtp.password).split(':').length !== 3) {
+      if (typeof window !== 'undefined') {
+        await fetch('/api/db-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ [key]: value })
+        }).catch(err => console.warn(`Lỗi db-sync khi mã hóa ${key}:`, err));
+        return;
+      }
+    }
+
     await upsertSupabaseSetting(key, value);
     if (typeof window !== 'undefined') {
       fetch('/api/db-sync', {

@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { NextResponse } from 'next/server';
 import { isSupabaseConfigured, supabase, fetchFullSupabaseDb, syncFullDbToSupabase } from '../../../lib/supabase';
+import { encryptAES256 } from '../../../utils/cryptoUtils';
 
 const DB_FILE = path.resolve(process.cwd(), 'server-db.json');
 
@@ -85,6 +86,14 @@ export async function POST(request) {
       mergedPayload.bds_users_list = payload.bds_users_list.filter(
         u => u && u.id && u.status !== 'deleted' && u.roleName !== 'deleted' && u.name !== '[Đã xóa]'
       );
+    }
+
+    // Tự động mã hóa mật khẩu SMTP bằng thuật toán AES-256-GCM trước khi ghi vào Database
+    if (mergedPayload.bds_email_config?.smtp?.password) {
+      const rawPass = String(mergedPayload.bds_email_config.smtp.password).trim();
+      if (rawPass && rawPass.split(':').length !== 3) {
+        mergedPayload.bds_email_config.smtp.password = encryptAES256(rawPass);
+      }
     }
 
     // 2. Đồng bộ lên đám mây Supabase trước (đặc biệt quan trọng trên Vercel Serverless Function)
