@@ -310,8 +310,11 @@ export default function ListingTierSelector({
       if (typeof e.preventDefault === 'function') e.preventDefault();
       if (typeof e.stopPropagation === 'function') e.stopPropagation();
     }
+    const msg = `🔒 Tiện ích Chọn Ngày Bắt Đầu trong tương lai là đặc quyền dành riêng cho ${eligibleStartDatePackagesText}. Quý khách vui lòng nâng cấp gói hội viên!`;
     if (showToast) {
-      showToast(`🔒 Tiện ích Chọn Ngày Bắt Đầu trong tương lai là đặc quyền dành riêng cho ${eligibleStartDatePackagesText}. Quý khách vui lòng nâng cấp gói hội viên!`, 'warning');
+      showToast(msg, 'warning');
+    } else {
+      alert(msg);
     }
   }, [showToast, eligibleStartDatePackagesText]);
 
@@ -714,13 +717,13 @@ export default function ListingTierSelector({
         {/* Cột 1: Ngày bắt đầu */}
         <div className="space-y-1.5">
           <label 
-            htmlFor="bds-start-date"
+            htmlFor={hasStartDateAccess ? "bds-start-date" : undefined}
             onClick={hasStartDateAccess ? () => {
               try {
                 dateInputRef.current?.showPicker();
               } catch (err) {}
             } : handleLockedStartDateClick}
-            className="block text-xs font-bold text-slate-800 cursor-pointer"
+            className={`block text-xs font-bold text-slate-800 ${hasStartDateAccess ? 'cursor-pointer' : 'cursor-not-allowed'}`}
           >
             Ngày bắt đầu
           </label>
@@ -730,7 +733,7 @@ export default function ListingTierSelector({
                 dateInputRef.current?.showPicker();
               } catch (err) {}
             } : handleLockedStartDateClick}
-            className="relative cursor-pointer"
+            className={`relative ${hasStartDateAccess ? 'cursor-pointer' : 'cursor-not-allowed'}`}
           >
             <input
               ref={dateInputRef}
@@ -738,7 +741,17 @@ export default function ListingTierSelector({
               type="date"
               min={todayStr}
               max={!hasStartDateAccess ? todayStr : undefined}
+              disabled={!hasStartDateAccess}
               readOnly={!hasStartDateAccess}
+              tabIndex={!hasStartDateAccess ? -1 : 0}
+              aria-disabled={!hasStartDateAccess}
+              onFocus={(e) => {
+                if (!hasStartDateAccess) {
+                  try {
+                    e.target.blur();
+                  } catch (err) {}
+                }
+              }}
               value={startDate || internalStartDate}
               onClick={(e) => {
                 if (!hasStartDateAccess) {
@@ -758,17 +771,26 @@ export default function ListingTierSelector({
               }}
               className={`w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none transition ${
                 !hasStartDateAccess 
-                  ? 'bg-slate-50 text-slate-600 cursor-not-allowed hover:border-slate-400 pr-9' 
+                  ? 'bg-slate-50 text-slate-700 cursor-not-allowed pr-9 select-none pointer-events-none' 
                   : 'focus:ring-2 focus:ring-slate-900 cursor-pointer hover:border-slate-400'
               }`}
             />
             {!hasStartDateAccess && (
               <div 
+                role="button"
+                tabIndex={0}
                 onClick={handleLockedStartDateClick}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
-                title="Đã khóa: Bắt buộc xuất bản ngày hiện tại"
+                onTouchEnd={(e) => {
+                  try {
+                    e.preventDefault();
+                    e.stopPropagation();
+                  } catch (err) {}
+                  handleLockedStartDateClick(e);
+                }}
+                className="absolute inset-0 z-20 cursor-not-allowed select-none flex items-center justify-end pr-3.5 bg-transparent rounded-xl"
+                title={`Đã khóa: Bắt buộc xuất bản ngày hiện tại. Nâng cấp ${eligibleStartDatePackagesText} để chọn ngày bắt đầu tương lai.`}
               >
-                <i className="fa-solid fa-lock text-xs"></i>
+                <i className="fa-solid fa-lock text-slate-400 text-xs pointer-events-none"></i>
               </div>
             )}
           </div>

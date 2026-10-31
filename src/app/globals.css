@@ -141,6 +141,22 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   background-color: rgba(0, 0, 0, 0.06);
 }
 
+input[type="date"]:disabled,
+input[type="date"][readonly].pointer-events-none {
+  cursor: not-allowed !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  pointer-events: none !important;
+  -webkit-text-fill-color: #334155;
+  opacity: 0.9;
+}
+
+input[type="date"]:disabled::-webkit-calendar-picker-indicator,
+input[type="date"][readonly].pointer-events-none::-webkit-calendar-picker-indicator {
+  display: none !important;
+  pointer-events: none !important;
+}
+
 /* Enhanced Modern Select */
 select:not(.appearance-none) {
   appearance: none;
