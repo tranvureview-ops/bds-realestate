@@ -413,8 +413,8 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
       <div className="max-w-4xl mx-auto relative z-20" ref={containerRef}>
         {/* Slogan */}
         <div className="text-center mb-6 sm:mb-8 text-white">
-          <h1 className="text-2xl sm:text-4xl font-black tracking-tight drop-shadow-md">
-            Tìm Kiếm Bất Động Sản <span className="text-[#ff6b6b]">Chính Xác & Toàn Diện</span>
+          <h1 className="text-2xl sm:text-4xl font-black tracking-tight drop-shadow-md min-h-[36px] sm:min-h-[48px] leading-tight">
+            Tìm Kiếm Bất Động Sản <span className="text-[#ff6b6b] inline-block">Chính Xác & Toàn Diện</span>
           </h1>
           <p className="mt-2 text-xs sm:text-sm text-slate-300 max-w-xl mx-auto font-medium">
             Hàng ngàn tin đăng bán & cho thuê chính chủ, căn hộ, biệt thự và đất nền trên toàn quốc

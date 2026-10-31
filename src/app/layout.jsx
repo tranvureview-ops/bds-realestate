@@ -241,10 +241,10 @@ export default async function RootLayout({ children }) {
               @font-face {
                 font-family: 'Plus Jakarta Sans Fallback';
                 src: local('Arial'), local('Helvetica'), local('sans-serif');
-                ascent-override: 96%;
-                descent-override: 24%;
+                ascent-override: 100.8%;
+                descent-override: 26.6%;
                 line-gap-override: 0%;
-                size-adjust: 100%;
+                size-adjust: 99.4%;
               }
               :root { --font-custom-family: ${fontConfig.fontFamily}; }
               html, body {
