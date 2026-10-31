@@ -18,7 +18,7 @@ export const LISTING_RATES = {
     multiplierText: 'x30',
     tagText: 'lượt liên hệ so với tin thường',
     tagBg: 'bg-red-50 text-red-900 border-red-200',
-    tagBadgeBg: 'bg-red-600 text-white',
+    tagBadgeBg: 'bg-red-700 text-white',
     approvalBadge: 'Duyệt tức thì (0s)',
     approvalIcon: 'fa-solid fa-bolt',
     approvalColor: 'text-red-800 bg-red-50 border-red-200',
@@ -534,7 +534,7 @@ export default function ListingTierSelector({
               <div className="pt-2 text-sm font-bold tracking-tight">
                 {isNormalItem ? (
                   (item?.rates?.[60] === 0) ? (
-                    <span className="text-emerald-600 font-extrabold uppercase">Miễn phí</span>
+                    <span className="text-emerald-700 font-black uppercase">Miễn phí</span>
                   ) : (
                     <div className="flex items-baseline gap-1">
                       <span className="text-sm sm:text-base font-black text-slate-900">
@@ -629,7 +629,7 @@ export default function ListingTierSelector({
               {voucherDiscount >= normal60Price && normal60Price > 0 ? (
                 <div>
                   <span className="text-xs text-slate-500 line-through mr-1.5">{normal60Price.toLocaleString('vi-VN')} đ</span>
-                  <span className="text-sm font-black text-emerald-600">0 đ</span>
+                  <span className="text-sm font-black text-emerald-700">0 đ</span>
                 </div>
               ) : (
                 <div className="text-sm font-black text-slate-900">
@@ -857,9 +857,9 @@ export default function ListingTierSelector({
               )}
             </div>
             <div className="text-base font-black text-slate-900 mt-0.5">
-              Tổng thanh toán: <span className="text-red-600">{finalCost === 0 ? '0 đ (Miễn phí)' : `${finalCost.toLocaleString('vi-VN')} đ`}</span>
+              Tổng thanh toán: <span className="text-red-700">{finalCost === 0 ? '0 đ (Miễn phí)' : `${finalCost.toLocaleString('vi-VN')} đ`}</span>
               {voucherDiscount > 0 && (
-                <span className="text-xs font-normal text-emerald-600 ml-2">
+                <span className="text-xs font-medium text-emerald-700 ml-2">
                   (Đã giảm voucher -{voucherDiscount.toLocaleString('vi-VN')} đ)
                 </span>
               )}

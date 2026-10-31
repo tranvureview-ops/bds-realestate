@@ -471,7 +471,7 @@ export default function VipPricingPage() {
                     </div>
                   )}
                   {isNormal && (currentUser?.vouchers?.normalPublish || 0) > 0 && (
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-md whitespace-nowrap animate-pulse">
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-emerald-700 text-white text-[10px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full shadow-md whitespace-nowrap animate-pulse">
                       ✓ CÓ VOUCHER HỘI VIÊN (0 Đ)
                     </div>
                   )}
@@ -505,7 +505,7 @@ export default function VipPricingPage() {
                             <div className="text-[11px] text-slate-700 font-normal mt-0.5">(~{Math.round(normalPeriodPrice / 60)} đ/ngày)</div>
                           </>
                         ) : currentDailyRate === 0 ? (
-                          <span className="text-emerald-600 font-extrabold uppercase">Miễn Phí</span>
+                          <span className="text-emerald-700 font-black uppercase">Miễn Phí</span>
                         ) : (
                           <>
                             {currentDailyRate.toLocaleString('vi-VN')} <span className="text-xs font-normal text-slate-700">đ/ngày</span>
@@ -710,10 +710,10 @@ export default function VipPricingPage() {
                   <td className="py-3 px-4 font-bold text-slate-900">
                     Không hiển thị quảng cáo bên thứ 3
                   </td>
-                  <td className="py-3 px-3 text-center font-bold text-emerald-600 bg-red-50/30 border-x border-red-100">
+                  <td className="py-3 px-3 text-center font-bold text-emerald-800 bg-red-50/30 border-x border-red-100">
                     ✓ CÓ (Trang chi tiết sạch 100%)
                   </td>
-                  <td className="py-3 px-3 text-center font-bold text-emerald-600 bg-amber-50/30 border-r border-amber-100">
+                  <td className="py-3 px-3 text-center font-bold text-emerald-800 bg-amber-50/30 border-r border-amber-100">
                     ✓ CÓ
                   </td>
                   <td className="py-3 px-3 text-center text-slate-600 font-medium bg-blue-50/30 border-r border-blue-100">
@@ -767,10 +767,10 @@ export default function VipPricingPage() {
                   <td className="py-3 px-4 font-bold text-slate-900">
                     Màu sắc & Định dạng tiêu đề
                   </td>
-                  <td className="py-3 px-3 text-center font-black text-red-600 bg-red-50/30 border-x border-red-100">
+                  <td className="py-3 px-3 text-center font-black text-red-800 bg-red-50/30 border-x border-red-100">
                     Chữ Đậm Đỏ Ruby
                   </td>
-                  <td className="py-3 px-3 text-center font-bold text-amber-600 bg-amber-50/30 border-r border-amber-100">
+                  <td className="py-3 px-3 text-center font-black text-amber-900 bg-amber-50/30 border-r border-amber-100">
                     Chữ Đậm Cam Vàng
                   </td>
                   <td className="py-3 px-3 text-center font-bold text-blue-700 bg-blue-50/30 border-r border-blue-100">
@@ -937,7 +937,7 @@ export default function VipPricingPage() {
             <div className="bg-slate-950 text-white p-5 rounded-2xl shadow-lg border border-slate-800 space-y-2">
               <div className="font-extrabold text-sm text-amber-400 flex items-center justify-between">
                 <span>Phương Án 2: Đăng Ký Gói Hội Viên Tiêu Chuẩn</span>
-                <span className="bg-emerald-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">Tiết Kiệm {standardSavePercent}%</span>
+                <span className="bg-emerald-700 text-white text-[10px] font-black px-2 py-0.5 rounded-full">Tiết Kiệm {standardSavePercent}%</span>
               </div>
               <ul className="space-y-1 text-slate-300 text-[11px]">
                 <li>• Cấp {economicData.normalCount} voucher đăng tin thường (<b>Miễn phí 0 đ</b>)</li>
@@ -1013,7 +1013,7 @@ export default function VipPricingPage() {
           <div className="flex items-center gap-3 shrink-0 flex-wrap">
             <Link
               href={`tel:${(systemConfig?.hotline || '0898 246 607').replace(/\s+/g, '')}`}
-              className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl transition flex items-center gap-2 shadow-lg"
+              className="px-4 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl transition flex items-center gap-2 shadow-lg"
               title="Gọi ngay Hotline tư vấn VIP"
             >
               <i className="fa-solid fa-phone"></i>
@@ -1024,7 +1024,7 @@ export default function VipPricingPage() {
                 href={`https://zalo.me/${systemConfig.zalo.replace(/\s+/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl transition flex items-center gap-2 shadow-lg"
+                className="px-4 py-2.5 bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs rounded-xl transition flex items-center gap-2 shadow-lg"
                 title="Chat Zalo Tư Vấn Nhanh"
               >
                 <i className="fa-solid fa-comment-dots"></i>
