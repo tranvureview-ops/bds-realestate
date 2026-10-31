@@ -751,6 +751,12 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       const merged = {
         ...DEFAULT_REWARDS_CONFIG,
         ...serverConfig,
+        treasureHuntConfig: {
+          ...(DEFAULT_REWARDS_CONFIG.treasureHuntConfig || {}),
+          ...(serverConfig.treasureHuntConfig || {}),
+          dailyLimit: (serverConfig.treasureHuntConfig?.dailyLimit === 2 || !serverConfig.treasureHuntConfig?.dailyLimit) ? 1 : serverConfig.treasureHuntConfig.dailyLimit,
+          regularDailyLimit: (serverConfig.treasureHuntConfig?.regularDailyLimit === 2 || !serverConfig.treasureHuntConfig?.regularDailyLimit) ? 1 : serverConfig.treasureHuntConfig.regularDailyLimit
+        },
         missions: {
           ...(DEFAULT_REWARDS_CONFIG.missions || {}),
           ...(serverConfig.missions || {})
@@ -781,11 +787,18 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
                 mergedMissions[cat] = [...userList, ...missingFromUser];
               }
             }
-            return {
+            const res = {
               ...DEFAULT_REWARDS_CONFIG,
               ...parsed,
+              treasureHuntConfig: {
+                ...(DEFAULT_REWARDS_CONFIG.treasureHuntConfig || {}),
+                ...(parsed.treasureHuntConfig || {}),
+                dailyLimit: (parsed.treasureHuntConfig?.dailyLimit === 2 || !parsed.treasureHuntConfig?.dailyLimit) ? 1 : parsed.treasureHuntConfig.dailyLimit,
+                regularDailyLimit: (parsed.treasureHuntConfig?.regularDailyLimit === 2 || !parsed.treasureHuntConfig?.regularDailyLimit) ? 1 : parsed.treasureHuntConfig.regularDailyLimit
+              },
               missions: mergedMissions
             };
+            return res;
           }
         }
       } catch (e) {}
@@ -1559,9 +1572,16 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         }
         if (db.bds_rewards_config) {
           setRewardsConfig(prev => {
+            const incomingHunt = db.bds_rewards_config.treasureHuntConfig || {};
             const merged = {
               ...prev,
               ...db.bds_rewards_config,
+              treasureHuntConfig: {
+                ...(prev?.treasureHuntConfig || {}),
+                ...incomingHunt,
+                dailyLimit: (incomingHunt.dailyLimit === 2 || !incomingHunt.dailyLimit) ? 1 : incomingHunt.dailyLimit,
+                regularDailyLimit: (incomingHunt.regularDailyLimit === 2 || !incomingHunt.regularDailyLimit) ? 1 : incomingHunt.regularDailyLimit
+              },
               missions: {
                 ...(prev?.missions || {}),
                 ...(db.bds_rewards_config.missions || {})

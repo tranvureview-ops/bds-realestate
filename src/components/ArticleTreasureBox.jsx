@@ -33,8 +33,9 @@ export default function ArticleTreasureBox({ property }) {
   const isFeatureEnabled = tConfig?.enabled !== false;
   const requireLogin = tConfig?.requireLogin !== false;
 
-  // Hạn mức mở rương: Cấu hình trong quản trị (mặc định 1 rương / ngày)
-  const dailyLimit = Number(tConfig?.dailyLimit || tConfig?.regularDailyLimit || 1);
+  // Hạn mức mở rương: Khách vãng lai & Thành viên thường chuẩn 1 rương / ngày (loại bỏ cache 2 cũ)
+  const rawDailyLimit = Number(tConfig?.dailyLimit ?? tConfig?.regularDailyLimit ?? 1);
+  const dailyLimit = (rawDailyLimit === 2 || rawDailyLimit < 1) ? 1 : rawDailyLimit;
 
   // Thời gian đọc chống bot & cooldown dùng chung cho tất cả đối tượng
   const minReadingSeconds = Number(tConfig?.minReadingSeconds || 4);
@@ -288,14 +289,6 @@ export default function ArticleTreasureBox({ property }) {
             }`}>
               <i className={`fa-solid ${hasClaimedThisArticle ? 'fa-box-open text-white/80' : timeReady ? 'fa-box-open' : 'fa-box'}`}></i>
             </div>
-            
-            {/* Huy hiệu đếm ngược trên góc icon */}
-            {!hasClaimedThisArticle && !quota.isLimitReached && !timeReady && (
-              <span className="absolute -top-2 -right-2 px-2 py-0.5 rounded-full bg-slate-950 text-amber-300 font-mono text-[11px] font-black border border-amber-400 shadow-md flex items-center gap-1">
-                <i className="fa-solid fa-lock text-[9px] text-amber-400"></i>
-                <span>{readingSecondsLeft}s</span>
-              </span>
-            )}
 
             {!hasClaimedThisArticle && !quota.isLimitReached && timeReady && (
               <span className="absolute -top-1.5 -right-1.5 flex h-4 w-4">
@@ -319,18 +312,11 @@ export default function ArticleTreasureBox({ property }) {
                   <span>Ngân sách tháng đã hết</span>
                 </span>
               )}
-              {!hasClaimedThisArticle && !quota.isLimitReached && !budgetStatus.isBudgetExceeded && (
-                !timeReady ? (
-                  <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-950/70 text-amber-300 border border-amber-400/40 flex items-center gap-1.5 shadow-xs">
-                    <i className="fa-solid fa-hourglass-half animate-spin text-[10px] text-amber-400"></i>
-                    <span>Đang đọc bài: <strong>còn {readingSecondsLeft}s</strong></span>
-                  </span>
-                ) : (
-                  <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/30 text-emerald-100 border border-emerald-300/40 flex items-center gap-1.5 shadow-xs">
-                    <i className="fa-solid fa-unlock-keyhole text-[10px] text-emerald-300"></i>
-                    <span>Đã mở khóa</span>
-                  </span>
-                )
+              {!hasClaimedThisArticle && !quota.isLimitReached && !budgetStatus.isBudgetExceeded && timeReady && (
+                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/30 text-emerald-100 border border-emerald-300/40 flex items-center gap-1.5 shadow-xs">
+                  <i className="fa-solid fa-unlock-keyhole text-[10px] text-emerald-300"></i>
+                  <span>Đã mở khóa</span>
+                </span>
               )}
             </div>
 

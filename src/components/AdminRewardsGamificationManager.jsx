@@ -259,6 +259,7 @@ export default function AdminRewardsGamificationManager() {
     const tCfg = targetConfig.treasureHuntConfig || {};
 
     const regularLimit = Math.max(1, Number(tCfg.regularDailyLimit ?? tCfg.dailyLimit ?? 1));
+    const safeRegularLimit = regularLimit === 2 ? 1 : regularLimit;
     const monthlyBudget = Math.max(0, Number(tCfg.monthlyBudget ?? 50000));
     const minReading = Math.max(0, Number(tCfg.minReadingSeconds ?? 4));
     const cooldown = Math.max(0, Number(tCfg.cooldownSeconds ?? 20));
@@ -296,8 +297,8 @@ export default function AdminRewardsGamificationManager() {
         ...tCfg,
         enabled: tCfg.enabled !== false,
         requireLogin: tCfg.requireLogin !== false,
-        regularDailyLimit: regularLimit,
-        dailyLimit: regularLimit,
+        regularDailyLimit: safeRegularLimit,
+        dailyLimit: safeRegularLimit,
         monthlyBudget,
         minReadingSeconds: minReading,
         cooldownSeconds: cooldown,
@@ -673,7 +674,7 @@ export default function AdminRewardsGamificationManager() {
                       type="number"
                       min="1"
                       max="10"
-                      value={formData.treasureHuntConfig?.dailyLimit ?? formData.treasureHuntConfig?.regularDailyLimit ?? 1}
+                      value={formData.treasureHuntConfig?.dailyLimit === 2 ? 1 : (formData.treasureHuntConfig?.dailyLimit ?? formData.treasureHuntConfig?.regularDailyLimit ?? 1)}
                       onChange={(e) => {
                         const val = Math.max(1, Number(e.target.value) || 1);
                         handleTreasureConfigChange('dailyLimit', val);
