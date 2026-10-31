@@ -250,8 +250,9 @@ export default function ListingGrid({
           {/* Nút Về Trang Đầu */}
           {safePage === 1 ? (
             <span
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition border border-slate-200 bg-white text-slate-300 opacity-40 cursor-not-allowed shadow-2xs select-none"
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition border border-slate-200 bg-slate-100 text-slate-600 cursor-not-allowed shadow-2xs select-none"
               title="Đang ở trang đầu tiên"
+              aria-disabled="true"
             >
               <i className="fa-solid fa-angles-left"></i>
             </span>
@@ -269,8 +270,9 @@ export default function ListingGrid({
           {/* Nút Trang Trước */}
           {safePage === 1 ? (
             <span
-              className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-300 opacity-40 cursor-not-allowed shadow-2xs select-none"
+              className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-slate-100 text-slate-600 cursor-not-allowed shadow-2xs select-none"
               title="Đang ở trang đầu"
+              aria-disabled="true"
             >
               <i className="fa-solid fa-angle-left"></i>
               <span className="hidden sm:inline">Trước</span>
@@ -293,7 +295,7 @@ export default function ListingGrid({
               return (
                 <span 
                   key={`ellipsis-${idx}`} 
-                  className="w-8 h-9 flex items-center justify-center text-slate-400 font-bold text-xs select-none"
+                  className="w-8 h-9 flex items-center justify-center text-slate-600 font-bold text-xs select-none"
                 >
                   ...
                 </span>
@@ -326,8 +328,9 @@ export default function ListingGrid({
           {/* Nút Trang Sau */}
           {safePage === totalPages ? (
             <span
-              className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-300 opacity-40 cursor-not-allowed shadow-2xs select-none"
+              className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-slate-100 text-slate-600 cursor-not-allowed shadow-2xs select-none"
               title="Đang ở trang cuối"
+              aria-disabled="true"
             >
               <span className="hidden sm:inline">Sau</span>
               <i className="fa-solid fa-angle-right"></i>
@@ -347,8 +350,9 @@ export default function ListingGrid({
           {/* Nút Đến Trang Cuối */}
           {safePage === totalPages ? (
             <span
-              className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition border border-slate-200 bg-white text-slate-300 opacity-40 cursor-not-allowed shadow-2xs select-none"
+              className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition border border-slate-200 bg-slate-100 text-slate-600 cursor-not-allowed shadow-2xs select-none"
               title="Đang ở trang cuối"
+              aria-disabled="true"
             >
               <i className="fa-solid fa-angles-right"></i>
             </span>

@@ -81,7 +81,7 @@ function AppContent({ children }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 antialiased selection:bg-emerald-500 selection:text-white overflow-x-hidden w-full">
+    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-800 antialiased selection:bg-emerald-700 selection:text-white overflow-x-hidden w-full">
       {/* Skip to Main Content Link for Keyboard & Screen Reader Accessibility */}
       <a
         href="#main-content"

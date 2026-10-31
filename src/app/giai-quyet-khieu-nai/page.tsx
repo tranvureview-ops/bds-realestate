@@ -77,7 +77,7 @@ export default function DisputeResolutionPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdData) }}
       />
 
-      <div className="min-h-screen bg-slate-50 text-slate-800 antialiased selection:bg-blue-500 selection:text-white">
+      <div className="min-h-screen bg-slate-50 text-slate-800 antialiased selection:bg-blue-700 selection:text-white">
         {/* Header Trang & Breadcrumb */}
         <header className="border-b border-slate-200 bg-white shadow-sm">
           <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
