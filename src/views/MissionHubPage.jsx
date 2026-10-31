@@ -23,12 +23,20 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
     addBonusWalletBalance, 
     rewardsConfig, 
     systemConfig,
+    headerConfig,
     properties,
     usersList,
     transactions
   } = useRealEstate();
   const router = useRouter();
   const pathname = router?.pathname || '';
+
+  const containerWidthClass = useMemo(() => {
+    const widthType = headerConfig?.containerWidth || 'boxed';
+    if (widthType === 'full') return 'w-full px-4 sm:px-6 lg:px-8 transition-all duration-300';
+    if (widthType === 'wide') return 'w-full max-w-[94vw] 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300';
+    return 'w-full max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300';
+  }, [headerConfig?.containerWidth]);
 
   const userId = currentUser && currentUser.role !== 'guest' ? currentUser.id : 'guest';
   const [localRewardsConfig, setLocalRewardsConfig] = useState(rewardsConfig);
@@ -343,6 +351,26 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
     };
   });
 
+  // Thống kê nhanh nhiệm vụ
+  const missionStats = useMemo(() => {
+    const total = displayMissions.length;
+    const claimable = displayMissions.filter(m => m.dynamicStatus === 'claimable').length;
+    const claimed = displayMissions.filter(m => m.dynamicStatus === 'claimed').length;
+    const totalReward = displayMissions.reduce((acc, m) => acc + (Number(m.reward) || 0), 0);
+    return { total, claimable, claimed, totalReward };
+  }, [displayMissions]);
+
+  // Sắp xếp thông minh: Nhiệm vụ có thể nhận đưa lên đầu -> Đang làm -> Đã nhận
+  const sortedMissions = useMemo(() => {
+    return [...displayMissions].sort((a, b) => {
+      if (a.dynamicStatus === 'claimable' && b.dynamicStatus !== 'claimable') return -1;
+      if (b.dynamicStatus === 'claimable' && a.dynamicStatus !== 'claimable') return 1;
+      if (a.dynamicStatus !== 'claimed' && b.dynamicStatus === 'claimed') return -1;
+      if (b.dynamicStatus !== 'claimed' && a.dynamicStatus === 'claimed') return 1;
+      return 0;
+    });
+  }, [displayMissions]);
+
   const handleNavigate = (url) => {
     if (router?.navigate) {
       router.navigate(url);
@@ -429,7 +457,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div className={`${containerWidthClass} space-y-6 sm:space-y-8`}>
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-500 font-medium">
           <Link to="/" className="hover:text-emerald-700 transition">Trang chủ</Link>
@@ -439,126 +467,213 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
           <span className="text-slate-800 font-bold">Hệ thống nhiệm vụ</span>
         </nav>
 
-        {/* Hero Banner with User Ví Khuyến Mãi Balance */}
-        <div className="rounded-3xl bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 text-white p-6 sm:p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 min-h-[170px] sm:min-h-[190px]">
-          <div className="space-y-3 text-center md:text-left flex-1 min-w-0">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider">
-              <i className="fa-solid fa-gift text-amber-300"></i>
-              Nhiệm Vụ Nhận Tiền Vào Ví Khuyến Mãi {brandName}
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-black leading-tight">
-              Làm Nhiệm Vụ - Tiền Tươi Vào Ví Khuyến Mãi
+        {/* Hero Header & Wallet Balance Card */}
+        <div className="rounded-3xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-slate-800 text-white p-6 sm:p-8 shadow-xl flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
+          <div className="space-y-2.5 flex-1 min-w-0">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-bold text-amber-300 border border-white/10">
+              <i className="fa-solid fa-list-check text-amber-400"></i>
+              <span>Trung Tâm Nhiệm Vụ {brandName}</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+              Làm Nhiệm Vụ — Nhận Tiền Ví Khuyến Mãi
             </h1>
-            <p className="text-white/80 text-xs sm:text-sm max-w-xl">
-              Không tích điểm rườm rà. Hoàn thành nhiệm vụ nhận tiền thưởng <strong>cộng trực tiếp vào Ví Khuyến Mãi</strong> để đăng tin và nâng cấp tin VIP ngay.
+            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+              Hoàn thành các nhiệm vụ bên dưới để nhận tiền thưởng <strong>cộng trực tiếp vào Ví Khuyến Mãi</strong>. Dùng ngay để đăng tin và đẩy tin VIP hoàn toàn miễn phí.
             </p>
           </div>
 
           {/* User Bonus Wallet Box */}
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center gap-5 shrink-0 w-full md:w-auto justify-between md:justify-start min-h-[96px]">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-emerald-400 text-slate-950 flex items-center justify-center text-2xl shadow-lg shrink-0">
+          <div className="bg-slate-800/80 backdrop-blur-md border border-slate-700/80 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shrink-0 shadow-lg lg:min-w-[380px]">
+            <div className="flex items-center gap-3.5">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center text-xl shadow-md shrink-0">
                 <i className="fa-solid fa-wallet"></i>
               </div>
               <div className="min-w-0">
-                <div className="text-[11px] uppercase tracking-wider text-white/70 font-bold">Ví Khuyến Mãi của bạn</div>
-                <div className="text-2xl font-black text-amber-300 font-mono tracking-tight tabular-nums">
-                  +{localBonusBal.toLocaleString('vi-VN')} <span className="text-xs text-white">VNĐ</span>
+                <div className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">Số dư Ví Khuyến Mãi</div>
+                <div className="text-2xl font-black text-amber-400 font-mono tracking-tight tabular-nums">
+                  +{localBonusBal.toLocaleString('vi-VN')} <span className="text-xs text-white font-sans">VNĐ</span>
                 </div>
-                {/* Dòng cảnh báo nhỏ kèm icon đồng hồ cát */}
-                <div className="text-[11px] text-amber-200 font-semibold flex items-center gap-1.5 mt-0.5 min-h-[18px]">
-                  <i className="fa-solid fa-hourglass-half text-amber-300 animate-pulse shrink-0"></i>
-                  <span className="truncate max-w-[280px] sm:max-w-[340px]">
-                    {localBonusBal > 0 && expiringBonusInfo?.amount > 0 && expiringBonusInfo?.formattedDate
-                      ? `(Có ${Number(expiringBonusInfo.amount).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${expiringBonusInfo.formattedDate})`
-                      : localBonusBal > 0
-                      ? `(Có ${localBonusBal.toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${new Date(Date.now() + (Number(systemConfig?.bonusExpiryDays) || 30) * 24 * 60 * 60 * 1000).toLocaleDateString('vi-VN')})`
-                      : `(Tiền thưởng nhiệm vụ có hạn dùng ${Number(systemConfig?.bonusExpiryDays) || 30} ngày kể từ ngày nhận)`}
-                  </span>
-                </div>
+                {expiringBonusInfo?.amount > 0 && expiringBonusInfo?.formattedDate ? (
+                  <div className="text-[11px] text-amber-200/90 font-medium flex items-center gap-1.5 mt-0.5">
+                    <i className="fa-solid fa-hourglass-half text-amber-400 animate-pulse text-[10px]"></i>
+                    <span>Có {Number(expiringBonusInfo.amount).toLocaleString('vi-VN')}đ hết hạn {expiringBonusInfo.formattedDate}</span>
+                  </div>
+                ) : (
+                  <div className="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5">
+                    <i className="fa-solid fa-shield-halved text-emerald-400 text-[10px]"></i>
+                    <span>Hạn dùng {Number(systemConfig?.bonusExpiryDays) || 30} ngày/lần nhận</span>
+                  </div>
+                )}
               </div>
             </div>
 
-            <Link
-              to="/dang-tin"
-              className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs transition shadow-md whitespace-nowrap flex items-center gap-1.5 shrink-0"
-            >
-              <span>Dùng ví đăng tin</span>
-              <i className="fa-solid fa-arrow-right text-[10px]"></i>
-            </Link>
+            <div className="flex sm:flex-col gap-2 w-full sm:w-auto shrink-0">
+              <Link
+                to="/dang-tin"
+                className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition shadow-md flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer"
+              >
+                <span>Đăng tin bằng ví</span>
+                <i className="fa-solid fa-arrow-right text-[10px]"></i>
+              </Link>
+              <button
+                type="button"
+                onClick={() => setShowAffiliateModal(true)}
+                className="flex-1 sm:flex-none px-4 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 whitespace-nowrap cursor-pointer border border-slate-600"
+              >
+                <i className="fa-solid fa-share-nodes text-blue-400"></i>
+                <span>Mời bạn bè</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Category Tabs */}
-        <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
-          {categories.map(cat => {
-            const count = cat.id === 'all'
-              ? [
-                  ...(allMissions['tan-thu'] || []),
-                  ...(allMissions['hang-ngay'] || []),
-                  ...(allMissions['thanh-tuu'] || [])
-                ].length
-              : (allMissions[cat.id] || []).length;
+        {/* Quick Stats Strip */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-base shrink-0 font-bold">
+              <i className="fa-solid fa-list-check"></i>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-slate-500 font-medium">Tổng nhiệm vụ</div>
+              <div className="text-base sm:text-lg font-black text-slate-900 font-mono">{missionStats.total} nhiệm vụ</div>
+            </div>
+          </div>
 
-            return (
-              <button
-                key={cat.id}
-                onClick={() => handleTabClick(cat.id)}
-                className={`px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer whitespace-nowrap shadow-xs ${
-                  activeCategory === cat.id
-                    ? 'bg-blue-600 text-white shadow-blue-200'
-                    : 'bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900 border border-slate-200'
-                }`}
-              >
-                <i className={`${cat.icon} text-xs`}></i>
-                <span>{cat.label}</span>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] ${activeCategory === cat.id ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}`}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+          <div className={`rounded-2xl p-4 border shadow-xs flex items-center gap-3 transition-all ${
+            missionStats.claimable > 0 
+              ? 'bg-emerald-50/70 border-emerald-300 ring-2 ring-emerald-200 shadow-emerald-100' 
+              : 'bg-white border-slate-200/80'
+          }`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-base shrink-0 font-bold ${
+              missionStats.claimable > 0 ? 'bg-emerald-600 text-white animate-bounce' : 'bg-emerald-50 text-emerald-600'
+            }`}>
+              <i className="fa-solid fa-hand-holding-dollar"></i>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-slate-500 font-medium">Chờ nhận thưởng</div>
+              <div className={`text-base sm:text-lg font-black font-mono ${missionStats.claimable > 0 ? 'text-emerald-700' : 'text-slate-900'}`}>
+                {missionStats.claimable} nhiệm vụ
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-base shrink-0 font-bold">
+              <i className="fa-solid fa-circle-check"></i>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-slate-500 font-medium">Đã hoàn thành</div>
+              <div className="text-base sm:text-lg font-black text-slate-900 font-mono">
+                {missionStats.claimed}/{missionStats.total}
+              </div>
+            </div>
+          </div>
+
+          <div 
+            onClick={() => setShowAffiliateModal(true)}
+            className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs flex items-center gap-3 cursor-pointer hover:border-blue-300 transition group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-base shrink-0 font-bold group-hover:scale-105 transition-transform">
+              <i className="fa-solid fa-users"></i>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-slate-500 font-medium">Chiêu mộ (Affiliate)</div>
+              <div className="text-base sm:text-lg font-black text-blue-700 font-mono">{realRefSuccess} bạn đạt chuẩn</div>
+            </div>
+          </div>
         </div>
 
-        {/* Missions List */}
-        <div className="space-y-4 content-visibility-auto">
-          {displayMissions.map(m => {
+        {/* Category Tabs & Subtitle */}
+        <div className="flex items-center justify-between gap-3 flex-wrap pt-1">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {categories.map(cat => {
+              const count = cat.id === 'all'
+                ? [
+                    ...(allMissions['tan-thu'] || []),
+                    ...(allMissions['hang-ngay'] || []),
+                    ...(allMissions['thanh-tuu'] || [])
+                  ].length
+                : (allMissions[cat.id] || []).length;
+
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => handleTabClick(cat.id)}
+                  className={`px-4 py-2 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer whitespace-nowrap shadow-xs ${
+                    activeCategory === cat.id
+                      ? 'bg-blue-600 text-white shadow-blue-200'
+                      : 'bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900 border border-slate-200'
+                  }`}
+                >
+                  <i className={`${cat.icon} text-xs`}></i>
+                  <span>{cat.label}</span>
+                  <span className={`px-2 py-0.2 rounded-full text-[10px] ${activeCategory === cat.id ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="text-[11px] text-slate-500 font-medium hidden md:flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span>Tự động sắp xếp: Nhiệm vụ sẵn sàng nhận tiền luôn ưu tiên hiển thị đầu tiên</span>
+          </div>
+        </div>
+
+        {/* Missions Grid (Responsive 2-column layout on Desktop, streamlined cards) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {sortedMissions.map(m => {
             const isClaimed = m.dynamicStatus === 'claimed';
             const isClaimable = m.dynamicStatus === 'claimable';
 
             return (
               <div
                 key={m.id}
-                className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200/80 hover:border-blue-400 shadow-xs hover:shadow-md transition flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                className={`p-5 rounded-2xl border transition-all flex flex-col justify-between gap-4 ${
+                  isClaimable
+                    ? 'bg-gradient-to-r from-emerald-50/80 via-teal-50/40 to-white border-emerald-300 ring-2 ring-emerald-200/80 shadow-md'
+                    : isClaimed
+                    ? 'bg-slate-50/80 border-slate-200/70 opacity-75'
+                    : 'bg-white border-slate-200/80 hover:border-blue-300 hover:shadow-md'
+                }`}
               >
-                <div className="flex items-start gap-4 flex-1">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl shrink-0 border border-blue-100 shadow-inner">
-                    <i className={m.icon}></i>
+                <div className="flex items-start gap-3.5">
+                  <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-lg shrink-0 ${
+                    isClaimable
+                      ? 'bg-emerald-600 text-white shadow-md shadow-emerald-200'
+                      : isClaimed
+                      ? 'bg-slate-200 text-slate-600'
+                      : 'bg-blue-50 text-blue-600 border border-blue-100 shadow-inner'
+                  }`}>
+                    <i className={m.icon || 'fa-solid fa-gift'}></i>
                   </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="font-bold text-sm sm:text-base text-slate-900">
+
+                  <div className="space-y-1.5 flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <h3 className="font-bold text-sm sm:text-base text-slate-900 leading-snug">
                         {m.title}
                       </h3>
-                      <span className="inline-flex items-center gap-1 text-[11px] font-black px-2.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
-                        <i className="fa-solid fa-money-bill-wave text-emerald-800"></i>
-                        +{Number(m.reward || 0).toLocaleString('vi-VN')}đ vào Ví KM
+                      <span className="inline-flex items-center gap-1 text-[11px] font-black px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 font-mono shrink-0">
+                        <i className="fa-solid fa-money-bill-wave text-emerald-700 text-[10px]"></i>
+                        +{Number(m.reward || 0).toLocaleString('vi-VN')}đ
                       </span>
                     </div>
-                    <p className="text-xs text-slate-600 leading-relaxed">
+
+                    <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
                       {m.description}
                     </p>
 
                     {/* Dynamic Progress bar if present */}
                     {m.dynamicProgress && (
-                      <div className="pt-2 flex items-center gap-3">
-                        <div className="w-36 sm:w-48 h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className="pt-1 flex items-center gap-2.5">
+                        <div className="flex-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-blue-600 rounded-full transition-all"
+                            className={`h-full rounded-full transition-all ${isClaimable ? 'bg-emerald-500' : 'bg-blue-600'}`}
                             style={{ width: `${Math.min(100, (m.dynamicProgress.current / m.dynamicProgress.total) * 100)}%` }}
                           ></div>
                         </div>
-                        <span className="text-[11px] font-bold text-slate-700">
+                        <span className="text-[11px] font-bold text-slate-600 font-mono shrink-0">
                           {m.dynamicProgress.current}/{m.dynamicProgress.total}
                         </span>
                       </div>
@@ -566,33 +681,56 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
                   </div>
                 </div>
 
-                {/* Action CTA */}
-                <div className="shrink-0 w-full sm:w-auto">
-                  {isClaimed ? (
-                    <button
-                      disabled
-                      className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs flex items-center justify-center gap-1.5 cursor-not-allowed border border-slate-200"
-                    >
-                      <i className="fa-solid fa-check text-emerald-700"></i>
-                      <span>Đã cộng vào Ví KM</span>
-                    </button>
-                  ) : isClaimable ? (
-                    <button
-                      onClick={() => handleClaim(m.id, m.reward, m.title, m.currentMilestoneId)}
-                      className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-700 to-teal-700 hover:from-emerald-800 hover:to-teal-800 text-white font-black text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-200 cursor-pointer animate-pulse"
-                    >
-                      <i className="fa-solid fa-hand-holding-dollar"></i>
-                      <span>Nhận +{Number(m.reward || 0).toLocaleString('vi-VN')}đ</span>
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleActionClick(m)}
-                      className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs transition flex items-center justify-center gap-1.5 shadow-xs cursor-pointer"
-                    >
-                      <span>Thực hiện ngay</span>
-                      <i className="fa-solid fa-arrow-right text-[10px]"></i>
-                    </button>
-                  )}
+                {/* Bottom Action Footer */}
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                  <div className="text-[11px] font-medium text-slate-500 flex items-center gap-1.5">
+                    {isClaimable ? (
+                      <span className="text-emerald-700 font-bold flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                        Đã đạt điều kiện nhận tiền
+                      </span>
+                    ) : isClaimed ? (
+                      <span className="text-slate-400 flex items-center gap-1">
+                        <i className="fa-solid fa-circle-check text-emerald-600"></i>
+                        Đã cộng vào Ví Khuyến Mãi
+                      </span>
+                    ) : (
+                      <span className="text-slate-500 flex items-center gap-1">
+                        <i className="fa-regular fa-clock text-blue-500"></i>
+                        Đang thực hiện
+                      </span>
+                    )}
+                  </div>
+
+                  <div>
+                    {isClaimed ? (
+                      <button
+                        disabled
+                        className="px-4 py-1.5 rounded-xl bg-slate-100 text-slate-400 font-bold text-xs flex items-center gap-1.5 cursor-not-allowed border border-slate-200"
+                      >
+                        <i className="fa-solid fa-check text-emerald-600"></i>
+                        <span>Đã nhận</span>
+                      </button>
+                    ) : isClaimable ? (
+                      <button
+                        type="button"
+                        onClick={() => handleClaim(m.id, m.reward, m.title, m.currentMilestoneId)}
+                        className="px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs transition shadow-md shadow-emerald-200 cursor-pointer flex items-center gap-1.5 active:scale-95 animate-pulse"
+                      >
+                        <i className="fa-solid fa-hand-holding-dollar"></i>
+                        <span>Nhận +{Number(m.reward || 0).toLocaleString('vi-VN')}đ</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => handleActionClick(m)}
+                        className="px-4 py-1.5 rounded-xl bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs transition shadow-xs cursor-pointer flex items-center gap-1"
+                      >
+                        <span>Thực hiện</span>
+                        <i className="fa-solid fa-arrow-right text-[10px]"></i>
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             );

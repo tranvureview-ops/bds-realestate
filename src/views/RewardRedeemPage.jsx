@@ -1,14 +1,21 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { PROMO_WALLET_SERVICES } from '../data/rewardData';
 import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 import { SITE_URL } from '../utils/permalink';
 
 export default function RewardRedeemPage() {
-  const { currentUser } = useRealEstate();
+  const { currentUser, headerConfig } = useRealEstate();
   const { navigate } = useRouter();
+
+  const containerWidthClass = useMemo(() => {
+    const widthType = headerConfig?.containerWidth || 'boxed';
+    if (widthType === 'full') return 'w-full px-4 sm:px-6 lg:px-8 transition-all duration-300';
+    if (widthType === 'wide') return 'w-full max-w-[94vw] 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300';
+    return 'w-full max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300';
+  }, [headerConfig?.containerWidth]);
 
   const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
 
@@ -27,7 +34,7 @@ export default function RewardRedeemPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      <div className={`${containerWidthClass} space-y-8`}>
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-500 font-medium">
           <Link to="/" className="hover:text-emerald-700 transition">Trang chủ</Link>

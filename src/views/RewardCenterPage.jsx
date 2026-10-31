@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { PROMOTIONS_DATA, MISSIONS_DATA, PRICE_PREDICTION_GAMES, isPromotionExpired, formatPromoDate } from '../data/rewardData';
 import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
@@ -10,6 +10,7 @@ export default function RewardCenterPage() {
   const { 
     currentUser, 
     systemConfig, 
+    headerConfig,
     rewardsConfig, 
     showToast, 
     addBonusWalletBalance,
@@ -17,6 +18,13 @@ export default function RewardCenterPage() {
     setActiveModal
   } = useRealEstate();
   const { navigate } = useRouter();
+
+  const containerWidthClass = useMemo(() => {
+    const widthType = headerConfig?.containerWidth || 'boxed';
+    if (widthType === 'full') return 'w-full px-4 sm:px-6 lg:px-8 transition-all duration-300';
+    if (widthType === 'wide') return 'w-full max-w-[94vw] 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300';
+    return 'w-full max-w-6xl xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 transition-all duration-300';
+  }, [headerConfig?.containerWidth]);
 
   const isLoggedIn = Boolean(currentUser && currentUser.role !== 'guest' && currentUser.id);
   const userId = isLoggedIn ? currentUser.id : 'guest';
@@ -187,7 +195,7 @@ export default function RewardCenterPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+      <div className={`${containerWidthClass} space-y-8 sm:space-y-10`}>
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-500 font-medium">
           <Link to="/" className="hover:text-emerald-700 transition">Trang chủ</Link>
@@ -263,7 +271,7 @@ export default function RewardCenterPage() {
             <span className="text-xs text-slate-500">Cập nhật trực tiếp theo thời gian thực</span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {features.map(f => (
               <Link
                 key={f.id}
