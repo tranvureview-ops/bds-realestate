@@ -620,7 +620,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // 9. Header, Logo & Menu Width Configuration State
   const [headerConfig, setHeaderConfig] = useState(() => {
-    const raw = initialData?.bds_header_config || {};
+    let localSaved = null;
+    if (typeof window !== 'undefined') {
+      try {
+        const rawLocal = window.localStorage.getItem('bds_header_config_client');
+        if (rawLocal) localSaved = JSON.parse(rawLocal);
+      } catch (e) {}
+    }
+    const raw = localSaved || initialData?.bds_header_config || {};
     return {
       ...DEFAULT_HEADER_CONFIG,
       ...raw,
@@ -1425,6 +1432,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         }
         if (db.bds_header_config) {
           setHeaderConfig(prev => ({ ...prev, ...db.bds_header_config }));
+          if (typeof window !== 'undefined') {
+            try { window.localStorage.setItem('bds_header_config_client', JSON.stringify(db.bds_header_config)); } catch (e) {}
+          }
         }
         if (db.bds_footer_config) {
           setFooterConfig(prev => ({ ...prev, ...db.bds_footer_config }));
@@ -1578,12 +1588,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     // Ngay khi mount ở client, kích hoạt hydrated ngay vì đã có dữ liệu SSR đầy đủ
     if (isMounted) setIsHydrated(true);
 
-    // Nếu người dùng đã đăng nhập (Thành viên / Môi giới / Quản trị) hoặc đang truy cập trang /admin, tự động kéo dữ liệu đồng bộ
-    if ((currentUser && currentUser.role !== 'guest' && currentUser.id !== 'guest') || (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin'))) {
-      fetchLatestDataFromSupabase(true);
-    } else if (!initialData || !initialData.bds_properties || initialData.bds_properties.length === 0) {
-      fetchLatestDataFromSupabase(true);
-    }
+    // Luôn luôn tự động kéo dữ liệu đồng bộ ngầm ở Client để đảm bảo cấu hình Header, Logo, System luôn mới nhất
+    fetchLatestDataFromSupabase(true);
 
     return () => { isMounted = false; };
   }, [fetchLatestDataFromSupabase, initialData]);
@@ -4574,6 +4580,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     };
 
     setHeaderConfig(toSave);
+    if (typeof window !== 'undefined') {
+      try { window.localStorage.setItem('bds_header_config_client', JSON.stringify(toSave)); } catch (e) {}
+    }
 
     // Đồng bộ 2 chiều: Khi cập nhật Tên thương hiệu ở Header, tự động đồng bộ sang systemConfig
     const fullBrandName = [toSave.brandName, toSave.brandHighlight].filter(Boolean).join(' ').trim();

@@ -3036,22 +3036,22 @@ export const DEFAULT_SOCIAL_LINKS = {
 // Cấu hình Header, Logo & Độ Rộng Menu (Header & Logo Settings)
 export const DEFAULT_HEADER_CONFIG = {
   logoType: 'text', // 'text' | 'image'
-  brandName: 'ĐẤT BIỂN',
-  brandHighlight: 'ĐÀ NẴNG',
+  brandName: 'KENHNHADAT24H',
+  brandHighlight: '.com.vn',
   brandTagline: 'Sàn Giao Dịch Bất Động Sản & Đăng Tin VIP',
   brandIcon: 'fa-solid fa-water',
   badgeText: '',
   badgeColor: 'bg-red-100 text-red-600 border border-red-200',
-  logoImageUrl: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" fill="none"><rect width="240" height="60" rx="12" fill="%230f172a"/><path d="M22 45V22L36 12L50 22V45H40V30H32V45H22Z" fill="%230284c7"/><circle cx="36" cy="20" r="4" fill="%2338bdf8"/><text x="60" y="34" font-family="Arial, sans-serif" font-weight="900" font-size="16" fill="white">ĐẤT BIỂN <tspan fill="%2338bdf8">ĐÀ NẴNG</tspan></text><text x="60" y="47" font-family="Arial, sans-serif" font-weight="600" font-size="9" fill="%2394a3b8" letter-spacing="2">BẤT ĐỘNG SẢN BIỂN</text></svg>',
+  logoImageUrl: '',
   logoHeight: 40,
-  logoAlt: 'Đất Biển Đà Nẵng Logo',
+  logoAlt: 'KÊNH NHÀ ĐẤT 24H Logo',
   showTaglineWithImage: false,
-  containerWidth: 'boxed', // 'boxed' (max-w-7xl) | 'wide' (max-w-screen-2xl) | 'full' (w-full 100%)
+  containerWidth: 'wide', // 'boxed' (max-w-7xl) | 'wide' (max-w-screen-2xl) | 'full' (w-full 100%)
   socialLinks: DEFAULT_SOCIAL_LINKS,
   topbar: {
     showTopbar: true,
     showBadge: true,
-    badgeText: '', // Để trống sẽ tự động lấy: "Sàn BĐS [Tên Thương Hiệu]"
+    badgeText: 'Kênh mua bán nhà đất uy tín 24H',
     badgeColor: 'emerald', // 'emerald' | 'amber' | 'red' | 'blue' | 'purple' | 'slate'
     hotlineLabel: 'Hotline 24/7:',
     hotline: '', // Để trống sẽ fallback theo systemConfig.hotline
@@ -3248,11 +3248,11 @@ export const DEFAULT_PAYMENT_CONFIG = {
 
 // Cấu hình Vận Hành Hệ Thống Sàn BĐS (Platform Operating Settings)
 export const DEFAULT_SYSTEM_CONFIG = {
-  platformName: 'SÀN GIAO DỊCH BẤT ĐỘNG SẢN ĐẤT BIỂN ĐÀ NẴNG',
-  brandShortName: 'ĐẤT BIỂN ĐÀ NẴNG',
+  platformName: 'KENHNHADAT24H.com.vn',
+  brandShortName: 'KENHNHADAT24H.com.vn',
   tagline: 'Sàn Giao Dịch Bất Động Sản & Đăng Tin VIP',
-  hotline: '0904 084 888',
-  zalo: '0904 084 888',
+  hotline: '0905467138',
+  zalo: '0905467138',
   email: 'tranvanvu.dev@gmail.com',
   address: 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng',
   fontFamily: 'Roboto',

@@ -98,7 +98,7 @@ export const getInitialDb = cache(async () => {
   try {
     if (isSupabaseConfigured()) {
       try {
-        const cloudData = await fetchWithTimeout(fetchFullSupabaseDb(), 250);
+        const cloudData = await fetchWithTimeout(fetchFullSupabaseDb(), 1200);
         if (cloudData && (cloudData.bds_properties?.length > 0 || cloudData.bds_header_config)) {
           const sanitized = sanitizePublicSsrDb(cloudData);
           setServerSsrDbCache(sanitized);
