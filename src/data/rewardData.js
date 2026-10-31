@@ -355,6 +355,13 @@ export const DEFAULT_TREASURE_REWARD_TIERS = [
   { id: 'tier_max', label: 'Thưởng Tối Đa (Lớn)', amount: 12000, percentage: 5 }
 ];
 
+// 4b. MỐC PHẦN THƯỞNG CHO HỘI VIÊN CƠ BẢN (CHỈNH SỬA ĐƯỢC TRONG CMS)
+export const DEFAULT_BASIC_MEMBER_REWARD_TIERS = [
+  { id: 'tier_basic_min', label: 'Thưởng Tối Thiểu (Nhỏ)', amount: 2500, percentage: 40 },
+  { id: 'tier_basic_common', label: 'Thưởng Phổ Biến (Vừa)', amount: 4000, percentage: 50 },
+  { id: 'tier_basic_max', label: 'Thưởng Tối Đa (Lớn)', amount: 10000, percentage: 10 }
+];
+
 // 5. DỮ LIỆU DỰ ĐOÁN GIÁ BĐS CỘNG ĐỒNG (QUỸ THƯỞNG TIỀN MẶT VÍ KM)
 export const PRICE_PREDICTION_GAMES = [
   {
@@ -471,7 +478,14 @@ export const DEFAULT_REWARDS_CONFIG = {
     // 4 Mốc phần thưởng tùy chỉnh (Chúc may mắn 0đ 25%, Tối thiểu 1.200đ 45%, Phổ biến 2.500đ 25%, Tối đa 12.000đ 5%)
     rewardTiers: DEFAULT_TREASURE_REWARD_TIERS,
     minAmount: 1200,
-    maxAmount: 12000
+    maxAmount: 12000,
+    // 2/ Cấu hình Hệ thống (Hội Viên Cơ Bản): Ngân sách 120.000đ/tháng
+    basicMemberConfig: {
+      monthlyBudget: 120000,
+      rewardTiers: DEFAULT_BASIC_MEMBER_REWARD_TIERS,
+      minAmount: 2500,
+      maxAmount: 10000
+    }
   },
 
   // E. Minigame dự đoán giá BĐS

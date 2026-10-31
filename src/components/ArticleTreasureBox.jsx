@@ -13,6 +13,7 @@ import {
   getTreasureExpirationInfo,
   calculateTreasureHuntExpiry,
   isUserMembershipActive,
+  isUserBasicMember,
   getMonthlyTreasureBudgetStatus
 } from '../services/treasureHuntService';
 
@@ -39,9 +40,14 @@ export default function ArticleTreasureBox({ property }) {
   const minReadingSeconds = Number(tConfig?.minReadingSeconds || 4);
   const cooldownSeconds = Number(tConfig?.cooldownSeconds || 20);
 
-  // Tổng ngân sách tháng
-  const monthlyBudget = Number(tConfig?.monthlyBudget || 50000);
-  const budgetStatus = getMonthlyTreasureBudgetStatus(monthlyBudget, transactions);
+  // Phân loại đối tượng: Hội Viên Cơ Bản vs Thành viên thường
+  const isBasicMember = isUserBasicMember(currentUser);
+
+  // Tổng ngân sách tháng theo từng nhóm đối tượng
+  const effectiveMonthlyBudget = isBasicMember 
+    ? Number(tConfig?.basicMemberConfig?.monthlyBudget || 120000)
+    : Number(tConfig?.monthlyBudget || 50000);
+  const budgetStatus = getMonthlyTreasureBudgetStatus(effectiveMonthlyBudget, transactions);
 
   const isAdmin = currentUser?.role === 'admin';
   const isTreasureActive = isPropertyTreasureActive(property, property?.author);
@@ -431,9 +437,16 @@ export default function ArticleTreasureBox({ property }) {
 
           {!hasClaimedThisArticle && !quota.isLimitReached && !budgetStatus.isBudgetExceeded && (
             <div className="text-[10px] text-white/90 mt-1.5 font-medium">
-              <span>
-                🎁 Thưởng theo 4 mốc: 0đ (25%) • 1.200đ (45%) • 2.500đ (25%) • 12.000đ (5%)
-              </span>
+              {isBasicMember ? (
+                <span className="text-amber-200 font-bold flex items-center justify-center sm:justify-start gap-1">
+                  <i className="fa-solid fa-crown text-[9px] text-amber-300"></i>
+                  <span>Hội Viên Cơ Bản: 2.500đ (40%) • 4.000đ (50%) • 10.000đ (10%)</span>
+                </span>
+              ) : (
+                <span>
+                  🎁 Thưởng theo 4 mốc: 0đ (25%) • 1.200đ (45%) • 2.500đ (25%) • 12.000đ (5%)
+                </span>
+              )}
             </div>
           )}
         </div>
