@@ -21,7 +21,7 @@ import { getEarliestExpiringBonus, deductBatchesFifo } from '../utils/bonusExpir
 const persistSettingToSupabase = async (key, value) => {
   try {
     invalidateSupabaseCache();
-    const adminToken = typeof window !== 'undefined' ? (sessionStorage.getItem('bds_admin_token') || '') : '';
+    const adminToken = typeof window !== 'undefined' ? (sessionStorage.getItem('bds_admin_token') || localStorage.getItem('bds_admin_token') || '') : '';
     // Với bds_email_config, nếu có mật khẩu SMTP chưa mã hóa thì ủy quyền cho /api/db-sync
     // tự động mã hóa AES-256-GCM ở tầng Server trước khi ghi vào Supabase và Database
     if (key === 'bds_email_config' && value?.smtp?.password && String(value.smtp.password).split(':').length !== 3) {
@@ -636,7 +636,10 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         if (rawLocal) localSaved = JSON.parse(rawLocal);
       } catch (e) {}
     }
-    const raw = localSaved || initialData?.bds_header_config || {};
+    // Ưu tiên dữ liệu mới nhất từ Server SSR để đồng nhất 100% giữa HTML và Client, triệt tiêu hiện tượng giật dữ liệu khi tải lại
+    const raw = (initialData?.bds_header_config && Object.keys(initialData.bds_header_config).length > 0)
+      ? initialData.bds_header_config
+      : (localSaved || {});
     return {
       ...DEFAULT_HEADER_CONFIG,
       ...raw,
@@ -4155,6 +4158,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       setCurrentUser(found);
       if (typeof window !== 'undefined' && data.adminToken) {
         sessionStorage.setItem('bds_admin_token', data.adminToken);
+        localStorage.setItem('bds_admin_token', data.adminToken);
       }
       if (typeof document !== 'undefined') {
         document.cookie = `bds_session_user=${encodeURIComponent(found.id)}; path=/; max-age=31536000; SameSite=Lax`;

@@ -607,7 +607,7 @@ export function mergeProfilesWithSettingsUsers(profiles, settingsUsers) {
 let _dbCache = null;
 let _dbCacheExpiresAt = 0;
 let _pendingFetchPromise = null;
-const CACHE_TTL_MS = 25000; // 25 giây cache trên RAM serverless/client
+const CACHE_TTL_MS = 1500; // 1.5 giây cache ngắn trên RAM (tránh race conditions, không giữ dữ liệu cũ khi reload)
 
 /**
  * Xóa cache Supabase khi có thao tác ghi hoặc đồng bộ dữ liệu mới
@@ -767,9 +767,9 @@ export async function fetchFullSupabaseDb(options = {}) {
     return _dbCache;
   }
 
-  // Khi là Admin hoặc forceRefresh: Chờ backgroundFetchTask hoàn thành để trả về dữ liệu mới nhất 100%
+  // Chờ backgroundFetchTask hoàn thành để trả về dữ liệu mới nhất 100%
   try {
-    return await withTimeout(backgroundFetchTask, isAdmin ? 5000 : 1200);
+    return await withTimeout(backgroundFetchTask, 5000);
   } catch (timeoutErr) {
     if (_dbCache) return _dbCache;
     console.warn('Supabase fetch vượt quá thời gian chờ, fallback sang local DB.');

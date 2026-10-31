@@ -6,7 +6,7 @@
 
 let serverSsrDbCache = null;
 let serverSsrDbTimestamp = 0;
-const SSR_CACHE_TTL_MS = 60 * 1000; // 60s fallback TTL
+const SSR_CACHE_TTL_MS = 1000; // 1s deduplication TTL (chống race conditions khi reload)
 
 export function getServerSsrDbCache() {
   const now = Date.now();

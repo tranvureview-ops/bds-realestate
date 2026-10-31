@@ -2,7 +2,8 @@ import './globals.css';
 import Script from 'next/script';
 import ClientLayout from './ClientLayout';
 
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export const viewport = {
   width: 'device-width',
@@ -77,7 +78,7 @@ function sanitizePublicSsrDb(db) {
   };
 }
 
-const fetchWithTimeout = (promise, ms = 800) => {
+const fetchWithTimeout = (promise, ms = 4500) => {
   let timer;
   const timeoutPromise = new Promise((_, reject) => {
     timer = setTimeout(() => {
@@ -98,14 +99,26 @@ export const getInitialDb = cache(async () => {
   try {
     if (isSupabaseConfigured()) {
       try {
-        const cloudData = await fetchWithTimeout(fetchFullSupabaseDb(), 1200);
+        const cloudData = await fetchWithTimeout(fetchFullSupabaseDb({ forceRefresh: true }), 4500);
         if (cloudData && (cloudData.bds_properties?.length > 0 || cloudData.bds_header_config)) {
           const sanitized = sanitizePublicSsrDb(cloudData);
           setServerSsrDbCache(sanitized);
+
+          // Cập nhật ngầm file server-db.json cục bộ (cho môi trường localhost / VPS) để luôn khớp 100% với Cloud
+          try {
+            const dbFile = path.resolve(process.cwd(), 'server-db.json');
+            if (fs.existsSync(dbFile)) {
+              const currentContent = fs.readFileSync(dbFile, 'utf8');
+              const currentLocal = JSON.parse(currentContent || '{}');
+              const merged = { ...currentLocal, ...sanitized };
+              fs.writeFileSync(dbFile, JSON.stringify(merged, null, 2), 'utf8');
+            }
+          } catch (_) {}
+
           return sanitized;
         }
       } catch (err) {
-        // Fallback tức thì sang local DB khi Supabase chậm hoặc timeout (> 250ms)
+        // Fallback sang local DB khi Supabase chậm hoặc timeout
       }
     }
     const dbFile = path.resolve(process.cwd(), 'server-db.json');

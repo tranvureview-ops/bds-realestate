@@ -1,4 +1,6 @@
 import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 
 /**
  * adminAuth.js
@@ -112,6 +114,22 @@ export function verifyAdminRequest(request) {
     const token = decodeURIComponent(match[1]);
     const result = verifyAdminToken(token);
     if (result.valid) return result;
+  }
+
+  // 4. Lấy từ Cookie phiên đăng nhập bds_session_user
+  const sessionMatch = cookieHeader.match(/bds_session_user=([^;]+)/);
+  if (sessionMatch && sessionMatch[1]) {
+    const userId = decodeURIComponent(sessionMatch[1]);
+    try {
+      const dbPath = path.resolve(process.cwd(), 'server-db.json');
+      if (fs.existsSync(dbPath)) {
+        const db = JSON.parse(fs.readFileSync(dbPath, 'utf8') || '{}');
+        const user = (db.bds_users_list || []).find(u => String(u.id) === String(userId));
+        if (user && user.role === 'admin') {
+          return { valid: true, user };
+        }
+      }
+    } catch (_) {}
   }
 
   return { valid: false, reason: 'Bạn không có quyền truy cập API quản trị này (Thiếu hoặc sai mã xác thực Admin).' };

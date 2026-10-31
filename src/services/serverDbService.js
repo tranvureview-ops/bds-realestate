@@ -39,7 +39,7 @@ export function writeLocalDatabase(databasePayload) {
   }
 }
 
-const fetchWithTimeout = (promise, ms = 800) => {
+const fetchWithTimeout = (promise, ms = 4500) => {
   let timer;
   const timeoutPromise = new Promise((_, reject) => {
     timer = setTimeout(() => {
@@ -58,7 +58,7 @@ const fetchWithTimeout = (promise, ms = 800) => {
 export async function getFullSystemDatabase() {
   if (isSupabaseConfigured()) {
     try {
-      const cloudData = await fetchWithTimeout(fetchFullSupabaseDb(), 800);
+      const cloudData = await fetchWithTimeout(fetchFullSupabaseDb({ forceRefresh: true }), 4500);
       if (cloudData && (cloudData.bds_properties?.length > 0 || cloudData.bds_system_config)) {
         return cloudData;
       }
