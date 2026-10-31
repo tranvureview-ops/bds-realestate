@@ -528,6 +528,16 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
 
   const projectList = currentDistrictObj?.projects?.length ? currentDistrictObj.projects : (formData.city ? (MOCK_PROJECTS[formData.city] || []) : []);
 
+  // Kiểm tra hạn mức đăng tin miễn phí trong ngày (3-5 tin/ngày theo cấu hình admin)
+  const dailyQuotaInfo = useMemo(() => {
+    if (checkDailyFreeListingQuota) {
+      return checkDailyFreeListingQuota(currentUser || { phone: formData.contactPhone });
+    }
+    return { allowed: true, count: 0, limit: 3, remaining: 3, unlimited: false };
+  }, [checkDailyFreeListingQuota, currentUser, formData.contactPhone, properties]);
+
+  const hasFreeNormalQuota = Boolean(dailyQuotaInfo ? (dailyQuotaInfo.unlimited || (dailyQuotaInfo.allowed && (dailyQuotaInfo.remaining === undefined || dailyQuotaInfo.remaining > 0)) || currentUser?.role === 'admin') : true);
+
   // Selected package details
   const activeVipPackages = (vipPackages && vipPackages.length > 0) ? vipPackages : VIP_PACKAGES;
   const defaultPkg = activeVipPackages.find(p => p.id === 'normal') || activeVipPackages[activeVipPackages.length - 1];
@@ -535,9 +545,14 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const ratesConfig = useMemo(() => getEffectiveListingRates(activeVipPackages, paymentConfig, systemConfig), [activeVipPackages, paymentConfig, systemConfig]);
   const bdsConfig = ratesConfig?.[selectedVipId] || ratesConfig?.['normal'] || LISTING_RATES['normal'];
   const isNormal60 = selectedVipId === 'normal' && listingDays === 60;
-  const normal60Price = bdsConfig?.rates?.[60] !== undefined
-    ? Number(bdsConfig.rates[60])
-    : (Number(bdsConfig?.publishPrice) || 0);
+  
+  const configuredNormalRate = Number(bdsConfig?.rates?.[60] !== undefined && Number(bdsConfig.rates[60]) > 0
+    ? bdsConfig.rates[60]
+    : (Number(bdsConfig?.publishPrice) || 5000));
+  const normal60Price = (selectedVipId === 'normal' && isNormal60)
+    ? (hasFreeNormalQuota ? 0 : configuredNormalRate)
+    : (bdsConfig?.rates?.[60] !== undefined ? Number(bdsConfig.rates[60]) : 0);
+
   const dailyRate = isNormal60
     ? Math.round(normal60Price / 60)
     : (bdsConfig?.rates?.[listingDays] ?? bdsConfig?.rates?.[15] ?? bdsConfig?.pricePerDay ?? 0);
@@ -576,14 +591,6 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     return Math.min(totalCost, discount);
   }, [appliedVoucher, hasNormalVoucher, hasVipVoucher, totalCost, listingCost, selectedVipId, normalPublishVoucherDiscount, vipVoucherDiscount]);
   const finalCost = Math.max(0, totalCost - voucherDiscount);
-
-  // Kiểm tra hạn mức đăng tin miễn phí trong ngày (5 tin/ngày theo cấu hình admin)
-  const dailyQuotaInfo = useMemo(() => {
-    if (checkDailyFreeListingQuota) {
-      return checkDailyFreeListingQuota(currentUser || { phone: formData.contactPhone });
-    }
-    return { allowed: true, count: 0, limit: 5, remaining: 5, unlimited: false };
-  }, [checkDailyFreeListingQuota, currentUser, formData.contactPhone, properties]);
 
   // Tính toán và định dạng giá theo Nhu cầu (Bán / Thuê)
   const updatePriceCalculations = (newPrice, newPriceType, currentArea, currentDemand = formData.demand) => {
@@ -2579,17 +2586,17 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   dailyQuotaInfo={dailyQuotaInfo}
                 />
 
-                {/* Cảnh báo khi đã hết hạn mức đăng tin miễn phí trong ngày */}
-                {selectedVipId === 'normal' && !dailyQuotaInfo.allowed && (
-                  <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 flex items-center justify-between text-xs animate-in fade-in">
+                {/* Thông báo khi đã hết hạn mức đăng tin miễn phí trong ngày */}
+                {selectedVipId === 'normal' && !hasFreeNormalQuota && (
+                  <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 flex items-center justify-between text-xs animate-in fade-in">
                     <div className="flex items-center gap-2">
-                      <i className="fa-solid fa-circle-exclamation text-rose-600 text-sm shrink-0"></i>
+                      <i className="fa-solid fa-circle-info text-amber-600 text-sm shrink-0"></i>
                       <span>
-                        Bạn đã sử dụng hết <b>{dailyQuotaInfo.limit}/{dailyQuotaInfo.limit}</b> lượt đăng tin miễn phí hôm nay. Vui lòng chọn gói Tin VIP để tiếp tục đăng!
+                        Bạn đã sử dụng hết <b>{dailyQuotaInfo.limit}/{dailyQuotaInfo.limit}</b> lượt đăng tin miễn phí hôm nay. Tin thường tiếp theo sẽ áp dụng mức phí niêm yết <b>{configuredNormalRate.toLocaleString('vi-VN')} đ</b> (hoặc nâng cấp VIP).
                       </span>
                     </div>
-                    <span className="px-2.5 py-1 rounded-lg bg-rose-600 text-white text-[10px] font-bold shrink-0 uppercase">
-                      Hết lượt hôm nay
+                    <span className="px-2.5 py-1 rounded-lg bg-amber-600 text-white text-[10px] font-bold shrink-0 uppercase">
+                      Thu phí {configuredNormalRate.toLocaleString('vi-VN')} đ
                     </span>
                   </div>
                 )}
@@ -3205,17 +3212,10 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
               ) : (
                 <button
                   type="submit"
-                  disabled={selectedVipId === 'normal' && !dailyQuotaInfo.allowed && currentUser?.role !== 'admin'}
-                  className={`px-7 py-3 rounded-xl text-sm font-black transition shadow-xl flex items-center gap-2 ${
-                    selectedVipId === 'normal' && !dailyQuotaInfo.allowed && currentUser?.role !== 'admin'
-                      ? 'bg-slate-400 text-slate-200 cursor-not-allowed opacity-70'
-                      : 'bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-700 hover:to-rose-800 text-white cursor-pointer'
-                  }`}
+                  className="px-7 py-3 rounded-xl text-sm font-black transition shadow-xl flex items-center gap-2 bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-700 hover:to-rose-800 text-white cursor-pointer"
                 >
-                  <i className={`fa-solid ${selectedVipId === 'normal' && !dailyQuotaInfo.allowed && currentUser?.role !== 'admin' ? 'fa-ban' : 'fa-check-circle'} text-base`}></i>
-                  {selectedVipId === 'normal' && !dailyQuotaInfo.allowed && currentUser?.role !== 'admin'
-                    ? `Đã Hết Hạn Mức ${dailyQuotaInfo.limit} Tin/Ngày (Chọn VIP)`
-                    : finalCost === 0 
+                  <i className="fa-solid fa-check-circle text-base"></i>
+                  {finalCost === 0 
                     ? 'Xác Nhận Xuất Bản Tin Miễn Phí (0 đ)' 
                     : `Xác Nhận Thanh Toán & Đăng Tin (${finalCost.toLocaleString('vi-VN')} đ)`}
                 </button>
