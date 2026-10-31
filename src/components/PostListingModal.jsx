@@ -1503,11 +1503,11 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
           type="button"
           onClick={() => setStep(1)}
           className={`py-3 px-2 flex items-center justify-center gap-1.5 transition cursor-pointer ${
-            step === 1 ? 'bg-white text-red-600 border-b-2 border-red-600 shadow-sm font-black' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50'
+            step === 1 ? 'bg-white text-red-700 border-b-2 border-red-700 shadow-sm font-black' : 'text-slate-700 hover:text-slate-950 hover:bg-slate-200/60'
           }`}
         >
           <span className={`w-5 h-5 rounded-full text-[10px] flex items-center justify-center font-bold ${
-            step === 1 ? 'bg-red-600 text-white' : 'bg-slate-200 text-slate-700'
+            step === 1 ? 'bg-red-700 text-white' : 'bg-slate-200 text-slate-800'
           }`}>1</span>
           <span className="hidden sm:inline">Vị Trí & Loại Hình</span>
         </button>
@@ -1515,11 +1515,11 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
           type="button"
           onClick={() => setStep(2)}
           className={`py-3 px-2 flex items-center justify-center gap-1.5 transition cursor-pointer ${
-            step === 2 ? 'bg-white text-red-600 border-b-2 border-red-600 shadow-sm font-black' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50'
+            step === 2 ? 'bg-white text-red-700 border-b-2 border-red-700 shadow-sm font-black' : 'text-slate-700 hover:text-slate-950 hover:bg-slate-200/60'
           }`}
         >
           <span className={`w-5 h-5 rounded-full text-[10px] flex items-center justify-center font-bold ${
-            step === 2 ? 'bg-red-600 text-white' : 'bg-slate-200 text-slate-700'
+            step === 2 ? 'bg-red-700 text-white' : 'bg-slate-200 text-slate-800'
           }`}>2</span>
           <span className="hidden sm:inline">Bài Viết & Thông Số</span>
         </button>
@@ -1527,11 +1527,11 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
           type="button"
           onClick={() => setStep(3)}
           className={`py-3 px-2 flex items-center justify-center gap-1.5 transition cursor-pointer ${
-            step === 3 ? 'bg-white text-red-600 border-b-2 border-red-600 shadow-sm font-black' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50'
+            step === 3 ? 'bg-white text-red-700 border-b-2 border-red-700 shadow-sm font-black' : 'text-slate-700 hover:text-slate-950 hover:bg-slate-200/60'
           }`}
         >
           <span className={`w-5 h-5 rounded-full text-[10px] flex items-center justify-center font-bold ${
-            step === 3 ? 'bg-red-600 text-white' : 'bg-slate-200 text-slate-700'
+            step === 3 ? 'bg-red-700 text-white' : 'bg-slate-200 text-slate-800'
           }`}>3</span>
           <span className="hidden sm:inline">Hình Ảnh & VR 360°</span>
         </button>
@@ -1539,11 +1539,11 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
           type="button"
           onClick={() => setStep(4)}
           className={`py-3 px-2 flex items-center justify-center gap-1.5 transition cursor-pointer ${
-            step === 4 ? 'bg-white text-red-600 border-b-2 border-red-600 shadow-sm font-black' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-200/50'
+            step === 4 ? 'bg-white text-red-700 border-b-2 border-red-700 shadow-sm font-black' : 'text-slate-700 hover:text-slate-950 hover:bg-slate-200/60'
           }`}
         >
           <span className={`w-5 h-5 rounded-full text-[10px] flex items-center justify-center font-bold ${
-            step === 4 ? 'bg-red-600 text-white' : 'bg-slate-200 text-slate-700'
+            step === 4 ? 'bg-red-700 text-white' : 'bg-slate-200 text-slate-800'
           }`}>4</span>
           <span className="hidden sm:inline">Loại Tin & Lịch Đăng</span>
         </button>

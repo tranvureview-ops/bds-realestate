@@ -163,11 +163,11 @@ export default function PostListingPage() {
             <div className="p-4 bg-white rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between text-xs">
               <div>
                 <div className="font-bold text-slate-900">Hỗ Trợ Đăng Tin VIP 24/7</div>
-                <div className="text-[11px] text-slate-500">Tư vấn chọn gói & nạp tiền ví</div>
+                <div className="text-[11px] text-slate-700 font-medium">Tư vấn chọn gói & nạp tiền ví</div>
               </div>
               <Link
                 href={`tel:${(systemConfig?.hotline || '0898 246 607').replace(/\s+/g, '')}`}
-                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition flex items-center gap-1.5 shadow"
+                className="px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl transition flex items-center gap-1.5 shadow"
                 title="Gọi Hotline hỗ trợ đăng tin"
               >
                 <i className="fa-solid fa-phone text-xs"></i>
