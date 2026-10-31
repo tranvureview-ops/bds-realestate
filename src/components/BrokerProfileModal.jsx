@@ -62,7 +62,7 @@ export default function BrokerProfileModal({
   const phone = safeAuthor.phone || '0908 123 456';
   const cleanPhone = phone.replace(/\s+/g, '');
   const zalo = safeAuthor.zalo || cleanPhone;
-  const authorTitleRole = safeAuthor.title || (isBroker ? 'Môi giới chuyên nghiệp' : '');
+  const authorTitleRole = isBroker ? (isVerified ? 'Môi giới chuyên nghiệp' : 'Môi Giới') : 'Khách tìm mua';
 
   // Lấy toàn bộ danh sách tin đăng thực tế của chuyên viên / môi giới này trên sàn
   const authorProperties = useMemo(() => {

@@ -62,7 +62,9 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
     ? '/avatars/user-tran-van-vu.jpg'
     : (rawAvatar || '/avatars/user-tran-van-vu.jpg');
 
-  const safeAuthorTitle = property.author?.title || authorUser?.title || authorUser?.roleName || (isBroker ? 'Môi giới chuyên nghiệp' : '');
+  const safeAuthorTitle = isBroker
+    ? (isVerifiedAuthor ? 'Môi giới chuyên nghiệp' : 'Môi Giới')
+    : (authorUser?.roleName || property.author?.title || 'Khách tìm mua');
 
   const safeAuthor = {
     id: authorUser?.id || property.author?.id || null,

@@ -3708,7 +3708,10 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           ...p,
           author: {
             ...p.author,
-            isVerified: nextState
+            isVerified: nextState,
+            title: (p.author?.role === 'broker' || (!p.author?.role && !p.isGuest))
+              ? (nextState ? 'Môi Giới Chuyên Nghiệp' : 'Môi Giới')
+              : p.author?.title
           }
         };
       }
@@ -3784,7 +3787,10 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
             name: updatedTarget.name || p.author?.name,
             phone: updatedTarget.phone || p.author?.phone,
             zalo: updatedTarget.phone ? normalizePhone(updatedTarget.phone) : p.author?.zalo,
-            isVerified: updatedTarget.isVerified !== undefined ? Boolean(updatedTarget.isVerified) : p.author?.isVerified
+            isVerified: updatedTarget.isVerified !== undefined ? Boolean(updatedTarget.isVerified) : p.author?.isVerified,
+            title: (p.author?.role === 'broker' || (!p.author?.role && !p.isGuest))
+              ? (updatedTarget.isVerified ? 'Môi Giới Chuyên Nghiệp' : 'Môi Giới')
+              : p.author?.title
           }
         };
       }

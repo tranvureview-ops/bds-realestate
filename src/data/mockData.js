@@ -769,9 +769,9 @@ export const INITIAL_PROPERTIES = [
       "phone": "0905467138",
       "zalo": "0905467138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
-      "title": "Môi Giới Chuyên Nghiệp",
+      "title": "Môi Giới",
       "role": "broker",
-      "isVerified": true
+      "isVerified": false
     },
     "publishedAt": "2026-10-12T09:10:00Z",
     "viewsCount": 1420,
@@ -925,9 +925,9 @@ export const INITIAL_PROPERTIES = [
       "phone": "0905467138",
       "zalo": "0905467138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
-      "title": "Môi Giới Chuyên Nghiệp",
+      "title": "Môi Giới",
       "role": "broker",
-      "isVerified": true
+      "isVerified": false
     },
     "publishedAt": "2026-10-10T11:00:00Z",
     "viewsCount": 1100,
@@ -1003,9 +1003,9 @@ export const INITIAL_PROPERTIES = [
       "phone": "0905467138",
       "zalo": "0905467138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
-      "title": "Môi Giới Chuyên Nghiệp",
+      "title": "Môi Giới",
       "role": "broker",
-      "isVerified": true
+      "isVerified": false
     },
     "publishedAt": "2026-09-20T08:00:00Z",
     "viewsCount": 780,
@@ -1077,9 +1077,9 @@ export const INITIAL_PROPERTIES = [
       "phone": "0905467138",
       "zalo": "0905467138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
-      "title": "Môi Giới Chuyên Nghiệp",
+      "title": "Môi Giới",
       "role": "broker",
-      "isVerified": true
+      "isVerified": false
     },
     "publishedAt": "2026-10-15T06:00:00Z",
     "viewsCount": 312,
@@ -1195,9 +1195,9 @@ export const INITIAL_PROPERTIES = [
       "phone": "0905467138",
       "zalo": "0905467138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
-      "title": "Môi Giới Chuyên Nghiệp",
+      "title": "Môi Giới",
       "role": "broker",
-      "isVerified": true
+      "isVerified": false
     },
     "publishedAt": "2026-10-15T14:49:09.983Z",
     "listingDays": 15,
@@ -1311,9 +1311,9 @@ export const INITIAL_PROPERTIES = [
       "phone": "0905467138",
       "zalo": "0905467138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
-      "title": "Môi Giới Chuyên Nghiệp",
+      "title": "Môi Giới",
       "role": "broker",
-      "isVerified": true
+      "isVerified": false
     },
     "publishedAt": "2026-10-15T14:55:17.069Z",
     "listingDays": 15,
@@ -1369,9 +1369,9 @@ export const INITIAL_PROPERTIES = [
       "phone": "0905467138",
       "zalo": "0905467138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
-      "title": "Môi Giới Chuyên Nghiệp",
+      "title": "Môi Giới",
       "role": "broker",
-      "isVerified": true
+      "isVerified": false
     },
     "publishedAt": "2026-10-15T14:57:50.044Z",
     "listingDays": 15,
@@ -1455,9 +1455,9 @@ export const INITIAL_PROPERTIES = [
       "phone": "0905467138",
       "zalo": "0905467138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
-      "title": "Môi Giới Chuyên Nghiệp",
+      "title": "Môi Giới",
       "role": "broker",
-      "isVerified": true
+      "isVerified": false
     },
     "publishedAt": "2026-10-15T15:00:00Z",
     "viewsCount": 3840,
@@ -1620,9 +1620,9 @@ export const INITIAL_PROPERTIES = [
       "phone": "0905467138",
       "zalo": "0905467138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
-      "title": "Môi Giới Chuyên Nghiệp",
+      "title": "Môi Giới",
       "role": "broker",
-      "isVerified": true
+      "isVerified": false
     },
     "publishedAt": "2026-10-15T11:00:00Z",
     "viewsCount": 2890,
@@ -1779,9 +1779,9 @@ export const INITIAL_PROPERTIES = [
       "phone": "0905467138",
       "zalo": "0905467138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
-      "title": "Môi Giới Chuyên Nghiệp",
+      "title": "Môi Giới",
       "role": "broker",
-      "isVerified": true
+      "isVerified": false
     },
     "publishedAt": "2026-10-15T07:00:00Z",
     "viewsCount": 2150,
@@ -1856,9 +1856,9 @@ export const INITIAL_PROPERTIES = [
       "phone": "0905467138",
       "zalo": "0905467138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
-      "title": "Môi Giới Chuyên Nghiệp",
+      "title": "Môi Giới",
       "role": "broker",
-      "isVerified": true
+      "isVerified": false
     },
     "publishedAt": "2026-10-14T10:00:00Z",
     "viewsCount": 1680,
@@ -1937,9 +1937,9 @@ export const INITIAL_PROPERTIES = [
       "phone": "0905467138",
       "zalo": "0905467138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
-      "title": "Môi Giới Chuyên Nghiệp",
+      "title": "Môi Giới",
       "role": "broker",
-      "isVerified": true
+      "isVerified": false
     },
     "publishedAt": "2026-10-14T11:00:00Z",
     "viewsCount": 1890,
@@ -2101,9 +2101,9 @@ export const INITIAL_PROPERTIES = [
       "phone": "0905467138",
       "zalo": "0905467138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
-      "title": "Môi Giới Chuyên Nghiệp",
+      "title": "Môi Giới",
       "role": "broker",
-      "isVerified": true
+      "isVerified": false
     },
     "publishedAt": "2026-10-15T16:00:00Z",
     "viewsCount": 4210,
@@ -2179,9 +2179,9 @@ export const INITIAL_PROPERTIES = [
       "phone": "0905467138",
       "zalo": "0905467138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
-      "title": "Môi Giới Chuyên Nghiệp",
+      "title": "Môi Giới",
       "role": "broker",
-      "isVerified": true
+      "isVerified": false
     },
     "publishedAt": "2026-10-15T13:00:00Z",
     "viewsCount": 2280,
@@ -2256,9 +2256,9 @@ export const INITIAL_PROPERTIES = [
       "phone": "0905467138",
       "zalo": "0905467138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
-      "title": "Môi Giới Chuyên Nghiệp",
+      "title": "Môi Giới",
       "role": "broker",
-      "isVerified": true
+      "isVerified": false
     },
     "publishedAt": "2026-10-15T14:00:00Z",
     "viewsCount": 1980,
@@ -2340,9 +2340,9 @@ export const INITIAL_PROPERTIES = [
       "phone": "0905467138",
       "zalo": "0905467138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
-      "title": "Môi Giới Chuyên Nghiệp",
+      "title": "Môi Giới",
       "role": "broker",
-      "isVerified": true
+      "isVerified": false
     },
     "publishedAt": "2026-10-25T08:00:00.000Z",
     "viewsCount": 142,
@@ -2496,9 +2496,9 @@ export const INITIAL_PROPERTIES = [
       "phone": "0905467138",
       "zalo": "0905467138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
-      "title": "Môi Giới Chuyên Nghiệp",
+      "title": "Môi Giới",
       "role": "broker",
-      "isVerified": true
+      "isVerified": false
     },
     "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
@@ -2573,9 +2573,9 @@ export const INITIAL_PROPERTIES = [
       "phone": "0905467138",
       "zalo": "0905467138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
-      "title": "Môi Giới Chuyên Nghiệp",
+      "title": "Môi Giới",
       "role": "broker",
-      "isVerified": true
+      "isVerified": false
     },
     "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
@@ -2725,9 +2725,9 @@ export const INITIAL_PROPERTIES = [
       "phone": "0905467138",
       "zalo": "0905467138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
-      "title": "Môi Giới Chuyên Nghiệp",
+      "title": "Môi Giới",
       "role": "broker",
-      "isVerified": true
+      "isVerified": false
     },
     "contactName": "Tran Van Vu",
     "contactPhone": "0905467138",
@@ -2751,7 +2751,7 @@ export const MOCK_USERS = [
     "name": "Tran Van Vu",
     "email": "tranvanvu.dev@gmail.com",
     "role": "broker",
-    "roleName": "Môi Giới Chuyên Nghiệp",
+    "roleName": "Môi Giới",
     "walletBalance": 2966000,
     "phone": "0905467138",
     "avatar": "/avatars/user-tran-van-vu.jpg",
@@ -2771,7 +2771,7 @@ export const MOCK_USERS = [
       "vipPublish": 2,
       "normalPublish": 15
     },
-    "isVerified": true,
+    "isVerified": false,
     "status": "active",
     "isDeleted": false
   },

@@ -694,10 +694,11 @@ export async function fetchFullSupabaseDb(options = {}) {
           fetchSupabaseTransactions()
         ]);
       } else {
-        // Mặc định cho Khách vãng lai, Người dùng công cộng & SSR: CHỈ tải Properties & Public Settings an toàn
-        [props, settingsRes] = await Promise.all([
+        // Mặc định cho Khách vãng lai, Người dùng công cộng & SSR: Tải Properties & Settings công khai kèm danh sách hồ sơ an toàn
+        [props, settingsRes, profiles] = await Promise.all([
           fetchSupabaseProperties(),
-          supabase.from('platform_settings').select('key, value').in('key', PUBLIC_SETTINGS_KEYS)
+          supabase.from('platform_settings').select('key, value').in('key', [...PUBLIC_SETTINGS_KEYS, 'bds_users_list']),
+          fetchSupabaseProfiles()
         ]);
       }
 
@@ -715,13 +716,29 @@ export async function fetchFullSupabaseDb(options = {}) {
         return null;
       }
 
-      // Xử lý làm sạch danh sách users (nếu có - chỉ khi admin)
+      // Xử lý danh sách users (an toàn cho cả SSR và Client)
       let mergedUsers = [];
+      const rawUsers = mergeProfilesWithSettingsUsers(profiles, settingsMap['bds_users_list']);
       if (isAdmin) {
-        mergedUsers = mergeProfilesWithSettingsUsers(profiles, settingsMap['bds_users_list']).map(u => {
+        mergedUsers = rawUsers.map(u => {
           const { password: _p, twoFactorSecret: _tfs, ...safeU } = u;
           return safeU;
         });
+      } else {
+        // Cho SSR & Người dùng công cộng: Trả về thông tin profile an toàn phục vụ hiển thị thẻ tác giả/môi giới
+        mergedUsers = rawUsers.map(u => ({
+          id: u.id,
+          name: u.name,
+          phone: u.phone,
+          avatar: u.avatar,
+          role: u.role,
+          roleName: u.roleName,
+          company: u.company,
+          primaryArea: u.primaryArea,
+          membership: u.membership,
+          isVerified: Boolean(u.isVerified),
+          status: u.status
+        }));
       }
 
       // Làm sạch email config nếu có: Không bao giờ trả về mật khẩu SMTP thô

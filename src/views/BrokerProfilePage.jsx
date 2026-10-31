@@ -52,7 +52,7 @@ export default function BrokerProfilePage({ slug = '', initialProperties = [] })
   const avatarUrl = (typeof matchedBroker?.avatar === 'string' && (matchedBroker.avatar.startsWith('data:image') || matchedBroker.avatar.includes('photo-1573496359142-b8d87734a5a2')))
     ? '/avatars/user-tran-van-vu.jpg'
     : (matchedBroker?.avatar || '/avatars/user-tran-van-vu.jpg');
-  const brokerTitle = matchedBroker?.title || matchedBroker?.roleName || (isBroker ? 'Môi giới chuyên nghiệp' : '');
+  const brokerTitle = isBroker ? (isVerified ? 'Môi giới chuyên nghiệp' : 'Môi Giới') : 'Khách tìm mua';
   const rating = matchedBroker?.rating || '5.0';
 
   // Lọc toàn bộ danh sách bất động sản của môi giới này
