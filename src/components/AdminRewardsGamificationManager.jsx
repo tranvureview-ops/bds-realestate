@@ -620,38 +620,6 @@ export default function AdminRewardsGamificationManager() {
                   <div className="text-[10px] text-slate-500">Mặc định: 3 rương / ngày đối với tài khoản mua Gói Hội Viên.</div>
                 </div>
 
-                {/* Tổng ngân sách tháng */}
-                <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                  <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
-                    <span>Tổng Ngân Sách Mở Rương / Tháng</span>
-                    <span className="text-emerald-400 text-[10px] font-mono">Quỹ tối đa</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      min="0"
-                      step="5000"
-                      value={formData.treasureHuntConfig?.monthlyBudget ?? 50000}
-                      onChange={(e) => handleTreasureConfigChange('monthlyBudget', Math.max(0, Number(e.target.value) || 0))}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm focus:border-emerald-400 focus:outline-none"
-                    />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">VNĐ</span>
-                  </div>
-                  {/* Thanh tiến độ ngân sách tháng */}
-                  <div className="pt-1 space-y-1">
-                    <div className="flex items-center justify-between text-[10px] text-slate-400">
-                      <span>Đã chi tháng này: <strong className="text-emerald-400 font-mono">{budgetStatus.currentSpent.toLocaleString('vi-VN')}đ</strong></span>
-                      <span className="font-mono">{budgetStatus.percentUsed}%</span>
-                    </div>
-                    <div className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full rounded-full transition-all duration-300 ${budgetStatus.isBudgetExceeded ? 'bg-rose-500' : 'bg-emerald-500'}`}
-                        style={{ width: `${budgetStatus.percentUsed}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-
                 {/* Thời gian đọc bài chống bot */}
                 <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
                   <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
@@ -715,16 +683,16 @@ export default function AdminRewardsGamificationManager() {
             </div>
           </div>
 
-          {/* 2. CẤU HÌNH 4 MỐC PHẦN THƯỞNG THEO HÌNH THIẾT KẾ */}
+          {/* 2. CẤU HÌNH TỶ LỆ KHÁCH VÃNG LAI VÀ THÀNH VIÊN THƯỜNG */}
           <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
               <div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
                   <i className="fa-solid fa-table-list text-amber-400"></i>
-                  Cấu Hình 4 Mốc Phần Thưởng (Tỷ Lệ Xuất Hiện %)
+                  Cấu hình tỷ lệ Khách Vãng Lai và Thành Viên Thường
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Tùy chỉnh 4 mốc phần thưởng, số tiền và tỷ lệ xuất hiện theo bảng chuẩn. Tổng tỷ lệ phải bằng đúng 100%.
+                  Tùy chỉnh ngân sách tháng, 4 mốc phần thưởng, số tiền và tỷ lệ xuất hiện theo bảng chuẩn. Tổng tỷ lệ phải bằng đúng 100%.
                 </p>
               </div>
 
@@ -746,6 +714,52 @@ export default function AdminRewardsGamificationManager() {
                   <i className="fa-solid fa-rotate-left text-[10px]"></i>
                   <span>Khôi phục mặc định</span>
                 </button>
+              </div>
+            </div>
+
+            {/* Ô nhập Tổng Ngân Sách Mở Rương / Tháng (Chuyển xuống đây theo yêu cầu) */}
+            <div className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <label className="text-xs font-bold text-white flex items-center gap-2">
+                    <i className="fa-solid fa-vault text-amber-400"></i>
+                    <span>Tổng Ngân Sách Mở Rương / Tháng</span>
+                  </label>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Hạn mức quỹ tiền thưởng tối đa mở rương được phát trong 1 tháng dương lịch.
+                  </p>
+                </div>
+                <span className="text-emerald-400 text-xs font-mono font-bold bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 self-start sm:self-auto">
+                  Quỹ tối đa
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0"
+                    step="5000"
+                    value={formData.treasureHuntConfig?.monthlyBudget ?? 50000}
+                    onChange={(e) => handleTreasureConfigChange('monthlyBudget', Math.max(0, Number(e.target.value) || 0))}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono font-bold text-sm focus:border-emerald-400 focus:outline-none"
+                  />
+                  <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">VNĐ</span>
+                </div>
+
+                {/* Thanh tiến độ ngân sách tháng */}
+                <div className="space-y-1.5 bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                  <div className="flex items-center justify-between text-[11px] text-slate-400">
+                    <span>Đã chi tháng này: <strong className="text-emerald-400 font-mono">{budgetStatus.currentSpent.toLocaleString('vi-VN')}đ</strong></span>
+                    <span className="font-mono font-bold text-slate-300">{budgetStatus.percentUsed}%</span>
+                  </div>
+                  <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div 
+                      className={`h-full rounded-full transition-all duration-300 ${budgetStatus.isBudgetExceeded ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                      style={{ width: `${budgetStatus.percentUsed}%` }}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
