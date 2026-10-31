@@ -375,11 +375,11 @@ export default function Navbar() {
 
           {/* Right: Actions, User Menu, Post Listing CTA */}
           <div suppressHydrationWarning className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-            {/* Yêu thích (Tin đã lưu) Link - Thu gọn padding trên mobile */}
+            {/* Yêu thích (Tin đã lưu) Link - Chỉ hiển thị từ tablet/desktop (sm:), trên mobile được dời vào drawer & mobile bottom nav */}
             <Link
               to="/tin-da-luu"
               suppressHydrationWarning
-              className={`relative p-1.5 sm:p-2 rounded-xl border transition ${
+              className={`hidden sm:flex relative p-1.5 sm:p-2 rounded-xl border transition ${
                 currentRoute === '/tin-da-luu' 
                   ? 'bg-rose-50 border-rose-200 text-rose-600' 
                   : 'border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-rose-600'
@@ -394,25 +394,25 @@ export default function Navbar() {
               )}
             </Link>
 
-            {/* Trung tâm phần thưởng Quick Link */}
+            {/* Trung tâm phần thưởng Quick Link (Hộp quà với nhãn HOT nổi bật trên CẢ mobile và desktop) */}
             <Link
               to="/trung-tam-phan-thuong"
               suppressHydrationWarning
-              className={`hidden sm:flex relative p-2 rounded-xl border transition ${
+              className={`flex relative p-1.5 sm:p-2 rounded-xl border transition items-center justify-center shrink-0 ${
                 currentRoute.startsWith('/trung-tam-phan-thuong')
                   ? 'bg-purple-50 border-purple-200 text-purple-700'
-                  : 'border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-purple-600'
+                  : 'border-slate-200 text-slate-700 hover:bg-purple-50/50 hover:border-purple-200 hover:text-purple-600 bg-white shadow-2xs'
               }`}
               title="Trung tâm phần thưởng & Minigame"
             >
-              <i className="fa-solid fa-gift text-sm text-purple-600"></i>
-              <span className="absolute -top-1.5 -right-1.5 bg-amber-400 text-slate-950 text-[8px] font-black px-1 rounded-full flex items-center justify-center shadow-xs">
+              <i className="fa-solid fa-gift text-sm sm:text-base text-purple-600"></i>
+              <span className="absolute -top-1.5 -right-1.5 bg-amber-400 text-slate-950 text-[8px] font-black px-1 sm:px-1.5 py-0.2 rounded-full flex items-center justify-center shadow-xs uppercase leading-none">
                 HOT
               </span>
             </Link>
 
-            {/* User Account Dropdown / Login Links */}
-            <div suppressHydrationWarning>
+            {/* User Account Dropdown / Login Links - Ẩn trên mobile (người dùng thao tác qua MobileBottomNav & Menu drawer) */}
+            <div suppressHydrationWarning className="hidden sm:block">
               {isGuest ? (
                 <div suppressHydrationWarning className="hidden sm:flex items-center gap-2">
                   <Link
