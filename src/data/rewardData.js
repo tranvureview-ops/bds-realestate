@@ -462,9 +462,8 @@ export const DEFAULT_REWARDS_CONFIG = {
   treasureHuntConfig: {
     enabled: true,
     requireLogin: true, // Khách vãng lai bắt buộc đăng nhập mới được mở rương
-    regularDailyLimit: 1, // Hạn mức mở rương Thành viên thường: 1 rương / ngày
-    memberDailyLimit: 3, // Hạn mức mở rương Hội viên VIP: 3 rương / ngày
-    dailyLimit: 1, // Fallback chung
+    dailyLimit: 1, // Hạn mức mở rương chung cho thành viên: 1 rương / ngày
+    regularDailyLimit: 1, // Tương thích ngược
     monthlyBudget: 50000, // Tổng ngân sách mở rương tối đa 1 tháng: 50.000đ
     minReadingSeconds: 4, // Thời gian đọc chống bot (giây) - chung tất cả đối tượng
     cooldownSeconds: 20, // Thời gian chờ Cooldown (giây) - chung tất cả đối tượng

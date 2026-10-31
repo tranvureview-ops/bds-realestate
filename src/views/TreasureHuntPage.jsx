@@ -45,10 +45,8 @@ export default function TreasureHuntPage() {
   const isFeatureEnabled = tConfig?.enabled !== false;
   const requireLogin = tConfig?.requireLogin !== false;
 
-  // Hạn mức mở rương theo đối tượng: Thành viên thường (1) vs Hội viên VIP (3)
-  const regularDailyLimit = Number(tConfig?.regularDailyLimit || 1);
-  const memberDailyLimit = Number(tConfig?.memberDailyLimit || 3);
-  const effectiveDailyLimit = isMember ? memberDailyLimit : regularDailyLimit;
+  // Hạn mức mở rương: Cấu hình chung trong quản trị (mặc định 1 rương / ngày)
+  const dailyLimit = Number(tConfig?.dailyLimit || tConfig?.regularDailyLimit || 1);
 
   // Thời gian đọc chống bot & cooldown dùng chung cho tất cả đối tượng
   const minReadingSeconds = Number(tConfig?.minReadingSeconds || 4);
@@ -66,7 +64,7 @@ export default function TreasureHuntPage() {
   const minAmount = Number(tConfig?.minAmount || 1200);
   const maxAmount = Number(tConfig?.maxAmount || 12000);
 
-  const [quota, setQuota] = useState({ count: 0, limit: effectiveDailyLimit, remaining: effectiveDailyLimit, isLimitReached: false });
+  const [quota, setQuota] = useState({ count: 0, limit: dailyLimit, remaining: dailyLimit, isLimitReached: false });
   const [claimsToday, setClaimsToday] = useState([]);
 
   const isGuest = !currentUser || currentUser.role === 'guest' || !currentUser.id;
@@ -86,7 +84,7 @@ export default function TreasureHuntPage() {
         claims = guestClaims;
       }
     }
-    setQuota(getDailyQuotaStatus(userId, effectiveDailyLimit));
+    setQuota(getDailyQuotaStatus(userId, dailyLimit));
     setClaimsToday(claims);
 
     const earnedToday = claims.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
@@ -140,7 +138,7 @@ export default function TreasureHuntPage() {
       window.removeEventListener('bds_bonus_wallet_updated', handleWalletUpdated);
       window.removeEventListener('storage', handleWalletUpdated);
     };
-  }, [userId, effectiveDailyLimit, currentUser?.bonusWalletBalance]);
+  }, [userId, dailyLimit, currentUser?.bonusWalletBalance]);
 
   const totalEarnedToday = claimsToday.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
 
@@ -358,25 +356,25 @@ export default function TreasureHuntPage() {
                 <i className="fa-solid fa-box-open"></i>
               </div>
               <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800">
-                {isMember ? 'Hội Viên' : 'Thành Viên'}
+                1 rương / ngày
               </span>
             </div>
             <div>
               <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tiến độ hôm nay</div>
               <div className="text-2xl font-black text-slate-900 mt-0.5">
-                {quota.count} / {effectiveDailyLimit} <span className="text-sm font-semibold text-slate-500">hộp</span>
+                {quota.count} / {dailyLimit} <span className="text-sm font-semibold text-slate-500">hộp</span>
               </div>
             </div>
             {/* Progress bar */}
             <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
               <div
                 className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-500"
-                style={{ width: `${effectiveDailyLimit > 0 ? Math.min(100, (quota.count / effectiveDailyLimit) * 100) : 0}%` }}
+                style={{ width: `${dailyLimit > 0 ? Math.min(100, (quota.count / dailyLimit) * 100) : 0}%` }}
               ></div>
             </div>
             <div className="text-[11px] text-slate-500">
               {quota.isLimitReached 
-                ? `🎉 Bạn đã mở đủ ${effectiveDailyLimit} hộp hôm nay!` 
+                ? `🎉 Bạn đã mở đủ ${dailyLimit} hộp hôm nay!` 
                 : isGuest && requireLogin
                 ? '🔑 Vui lòng đăng nhập để mở rương nhận thưởng.'
                 : `Còn lại ${quota.remaining} hộp có thể mở hôm nay.`}
@@ -458,7 +456,7 @@ export default function TreasureHuntPage() {
           </div>
         </div>
 
-        {/* Banner Đặc Quyền Hội Viên */}
+        {/* Banner Quyền Lợi Gói Hội Viên */}
         <div className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 rounded-3xl p-5 sm:p-6 text-white shadow-md flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
             <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-2xl text-amber-200 shrink-0 shadow-inner">
@@ -467,34 +465,30 @@ export default function TreasureHuntPage() {
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-black/20 text-amber-200">
-                  Đặc quyền Hội Viên
+                  Đặc quyền Gói Hội Viên
                 </span>
                 {isMember && (
                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500 text-white flex items-center gap-1">
                     <i className="fa-solid fa-circle-check text-[9px]"></i>
-                    Đang kích hoạt ({currentUser.membership?.packageName || 'VIP'})
+                    Đang sở hữu ({currentUser?.membership?.packageName || 'VIP'})
                   </span>
                 )}
               </div>
               <h3 className="text-base sm:text-lg font-black mt-0.5">
-                {isMember 
-                  ? `Bạn đang được mở tối đa ${memberDailyLimit} rương mỗi ngày!` 
-                  : `Mua bất kỳ Gói Hội Viên nào: Mở tối đa ${memberDailyLimit} rương mỗi ngày!`}
+                Ưu tiên gán bài viết BĐS vào Săn Kho Báu
               </h3>
               <p className="text-xs text-white/90 mt-0.5 max-w-2xl leading-relaxed">
-                Tài khoản có Gói Hội Viên được mở tối đa {memberDailyLimit} rương mỗi ngày (gấp 3 lần thành viên thường), nhân ba cơ hội nhận tiền thưởng vào Ví Khuyến Mãi để đăng và đẩy tin VIP.
+                Tài khoản sở hữu Gói Hội Viên được quyền ưu tiên gán nổi bật bài viết vào khu vực Săn Kho Báu, giúp tin đăng tiếp cận độc giả nhanh chóng và hiệu quả hơn.
               </p>
             </div>
           </div>
-          {!isMember && (
-            <Link
-              href="/goi-hoi-vien"
-              className="px-5 py-2.5 rounded-xl bg-white hover:bg-amber-50 text-slate-900 font-bold text-xs shadow-md transition shrink-0 flex items-center gap-1.5"
-            >
-              <span>Xem Gói Hội Viên</span>
-              <i className="fa-solid fa-arrow-right text-[10px]"></i>
-            </Link>
-          )}
+          <Link
+            to="/goi-hoi-vien"
+            className="px-5 py-2.5 rounded-xl bg-white hover:bg-amber-50 text-slate-900 font-bold text-xs shadow-md transition shrink-0 flex items-center gap-1.5"
+          >
+            <span>{isMember ? 'Nâng cấp gói' : 'Khám phá Gói Hội Viên'}</span>
+            <i className="fa-solid fa-arrow-right text-[10px]"></i>
+          </Link>
         </div>
 
         {/* Showcase cơ chế tiền thưởng ngẫu nhiên & Bảng 4 mốc */}
@@ -510,7 +504,7 @@ export default function TreasureHuntPage() {
               </p>
             </div>
             <span className="text-xs font-bold px-3 py-1 bg-amber-100 text-amber-900 rounded-full shrink-0">
-              Hạn mức: {effectiveDailyLimit} rương / ngày
+              Hạn mức: {dailyLimit} rương / ngày
             </span>
           </div>
 
@@ -605,12 +599,6 @@ export default function TreasureHuntPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    {c.isMemberBonus && (
-                      <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold flex items-center gap-1 border border-amber-200">
-                        <i className="fa-solid fa-crown text-[9px] text-amber-600"></i>
-                        <span>Hội Viên</span>
-                      </span>
-                    )}
                     <span className="text-xs font-black text-emerald-600 font-mono">
                       +{Number(c.amount).toLocaleString('vi-VN')} đ vào Ví KM
                     </span>

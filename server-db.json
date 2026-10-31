@@ -4787,7 +4787,6 @@
       "minReadingSeconds": 4,
       "requireLogin": true,
       "regularDailyLimit": 1,
-      "memberDailyLimit": 3,
       "monthlyBudget": 50000,
       "rewardTiers": [
         {

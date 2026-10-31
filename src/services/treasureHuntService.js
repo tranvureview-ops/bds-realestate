@@ -2,12 +2,11 @@
  * Service quản lý tính năng Săn Rương Kho Báu trong bài viết BĐS
  * Cơ chế quy tắc:
  * 1. Khách vãng lai: Bắt buộc đăng nhập mới được mở rương (requireLogin).
- * 2. Thành viên thường: 1 rương / ngày (regularDailyLimit).
- * 3. Hội viên VIP: 3 rương / ngày (memberDailyLimit).
- * 4. 1 tin đăng chỉ mở được 1 lần / ngày.
- * 5. Thời gian đọc chống bot (minReadingSeconds) & Thời gian chờ Cooldown (cooldownSeconds) dùng chung cho tất cả đối tượng.
- * 6. Tổng ngân sách mở rương tối đa 1 tháng (monthlyBudget) cấu hình trong CMS.
- * 7. 4 Mốc phần thưởng theo tỷ lệ cấu hình:
+ * 2. Hạn mức mở rương: 1 rương / ngày / tài khoản (dailyLimit).
+ * 3. 1 tin đăng chỉ mở được 1 lần / ngày.
+ * 4. Thời gian đọc chống bot (minReadingSeconds) & Thời gian chờ Cooldown (cooldownSeconds) dùng chung cho tất cả đối tượng.
+ * 5. Tổng ngân sách mở rương tối đa 1 tháng (monthlyBudget) cấu hình trong CMS.
+ * 6. 4 Mốc phần thưởng theo tỷ lệ cấu hình:
  *    - Chúc may mắn (Rỗng): 0đ | 25%
  *    - Thưởng Tối Thiểu (Nhỏ): 1.200đ | 45%
  *    - Thưởng Phổ Biến (Vừa): 2.500đ | 25%
@@ -21,8 +20,7 @@ export const DEFAULT_TREASURE_REWARD_TIERS = [
   { id: 'tier_max', label: 'Thưởng Tối Đa (Lớn)', amount: 12000, percentage: 5 }
 ];
 
-const DEFAULT_REGULAR_DAILY_LIMIT = 1;
-const DEFAULT_MEMBER_DAILY_LIMIT = 3;
+const DEFAULT_DAILY_LIMIT = 1;
 const COOLDOWN_SECONDS = 20;
 
 // Lấy key lưu trữ theo ngày và user
@@ -53,10 +51,10 @@ export function hasClaimedPropertyToday(userId, propertyId) {
 }
 
 // Kiểm tra user đã đạt hạn mức số hộp hôm nay chưa
-export function getDailyQuotaStatus(userId, customLimit = DEFAULT_REGULAR_DAILY_LIMIT) {
+export function getDailyQuotaStatus(userId, customLimit = DEFAULT_DAILY_LIMIT) {
   const claims = getDailyClaims(userId);
   const count = claims.length;
-  const limit = Math.max(1, Number(customLimit || DEFAULT_REGULAR_DAILY_LIMIT));
+  const limit = Math.max(1, Number(customLimit || DEFAULT_DAILY_LIMIT));
   const remaining = Math.max(0, limit - count);
   const isLimitReached = count >= limit;
 
@@ -147,15 +145,9 @@ export function isUserMembershipActive(user) {
  * - Thưởng Phổ Biến (Vừa): 2.500đ | 25%
  * - Thưởng Tối Đa (Lớn): 12.000đ | 5%
  * Ràng buộc trần ngân sách tháng (remainingBudget): Không vượt quá ngân sách còn lại trong tháng.
- * Phân quyền đối tượng:
- * - Hội Viên VIP: Hạn mức mở 3 rương / ngày.
- * - Thành Viên Thường: Hạn mức mở 1 rương / ngày.
+ * Áp dụng hạn mức chung cho mọi tài khoản thành viên: 1 rương / ngày (hoặc theo cấu hình dailyLimit trong CMS).
  */
-export function calculateTreasureReward(tConfig = null, user = null, isMemberExplicit = null, remainingBudget = null) {
-  const isMember = typeof isMemberExplicit === 'boolean' 
-    ? isMemberExplicit 
-    : isUserMembershipActive(user);
-
+export function calculateTreasureReward(tConfig = null, user = null, remainingBudget = null) {
   // Nếu ngân sách tháng đã hết hoặc bằng 0
   if (remainingBudget !== null && remainingBudget <= 0) {
     return {
@@ -201,9 +193,7 @@ export function calculateTreasureReward(tConfig = null, user = null, isMemberExp
     amount: finalAmount,
     isEmpty,
     tierId: selectedTier.id,
-    label: selectedTier.label || (isEmpty ? 'Chúc may mắn (Rỗng)' : 'Thưởng May Mắn'),
-    isMemberBonus: isMember,
-    memberPackageName: isMember ? (user?.membership?.packageName || 'VIP') : null
+    label: selectedTier.label || (isEmpty ? 'Chúc may mắn (Rỗng)' : 'Thưởng May Mắn')
   };
 }
 
