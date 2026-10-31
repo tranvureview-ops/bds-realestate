@@ -377,6 +377,20 @@ export default function ListingTierSelector({
   const [internalStartDate, setInternalStartDate] = useState(initialStartDate);
   const dateInputRef = useRef(null);
 
+  const currentStartDateValue = startDate || internalStartDate || todayStr;
+  const startDateFormatted = useMemo(() => {
+    try {
+      if (!currentStartDateValue) return '';
+      const [y, m, d] = currentStartDateValue.split('-');
+      if (y && m && d) return `${d}/${m}/${y}`;
+      return currentStartDateValue;
+    } catch {
+      return currentStartDateValue;
+    }
+  }, [currentStartDateValue]);
+
+  const isStartDateToday = currentStartDateValue === todayStr;
+
   // Nếu người dùng không có quyền chọn ngày tương lai, bắt buộc ngày bắt đầu luôn là ngày hiện tại
   useEffect(() => {
     if (!hasStartDateAccess) {
@@ -784,75 +798,86 @@ export default function ListingTierSelector({
                 dateInputRef.current?.showPicker();
               } catch (err) {}
             } : handleLockedStartDateClick}
-            className={`block text-xs font-bold text-slate-800 ${hasStartDateAccess ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+            className={`block text-xs font-bold text-slate-800 flex items-center justify-between ${hasStartDateAccess ? 'cursor-pointer' : 'cursor-not-allowed'}`}
           >
-            Ngày bắt đầu
+            <span className="flex items-center gap-1.5">
+              <i className="fa-regular fa-calendar-days text-amber-500"></i>
+              <span>Ngày bắt đầu</span>
+            </span>
+            {hasStartDateAccess && !isStartDateToday && (
+              <span className="text-[10px] bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                <i className="fa-regular fa-clock text-[9px]"></i>
+                <span>Đặt trước</span>
+              </span>
+            )}
           </label>
+
           <div 
-            onClick={hasStartDateAccess ? () => {
+            onClick={!hasStartDateAccess ? handleLockedStartDateClick : () => {
               try {
                 dateInputRef.current?.showPicker();
               } catch (err) {}
-            } : handleLockedStartDateClick}
-            className={`relative ${hasStartDateAccess ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+            }}
+            className={`relative w-full rounded-xl transition ${
+              !hasStartDateAccess ? 'cursor-not-allowed' : 'cursor-pointer group'
+            }`}
           >
-            <input
-              ref={dateInputRef}
-              id="bds-start-date"
-              type="date"
-              min={todayStr}
-              max={!hasStartDateAccess ? todayStr : undefined}
-              disabled={!hasStartDateAccess}
-              readOnly={!hasStartDateAccess}
-              tabIndex={!hasStartDateAccess ? -1 : 0}
-              aria-disabled={!hasStartDateAccess}
-              onFocus={(e) => {
-                if (!hasStartDateAccess) {
-                  try {
-                    e.target.blur();
-                  } catch (err) {}
-                }
-              }}
-              value={startDate || internalStartDate}
-              onClick={(e) => {
-                if (!hasStartDateAccess) {
-                  handleLockedStartDateClick(e);
-                  return;
-                }
-                try {
-                  if (typeof e.currentTarget.showPicker === 'function') {
-                    e.currentTarget.showPicker();
-                  }
-                } catch (err) {}
-              }}
-              onChange={(e) => {
-                if (!hasStartDateAccess) return;
-                setInternalStartDate(e.target.value);
-                if (onStartDateChange) onStartDateChange(e.target.value);
-              }}
-              className={`w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-800 focus:outline-none transition ${
-                !hasStartDateAccess 
-                  ? 'bg-slate-50 text-slate-700 cursor-not-allowed pr-9 select-none pointer-events-none' 
-                  : 'focus:ring-2 focus:ring-slate-900 cursor-pointer hover:border-slate-400'
+            {/* Hộp hiển thị chuẩn hoá 100% đồng bộ với CustomSelect (khắc phục hoàn toàn lỗi vỡ layout/định dạng US trên mobile) */}
+            <div
+              className={`w-full min-h-[42px] px-3.5 py-2 flex items-center justify-between gap-2 border rounded-xl text-xs font-bold transition shadow-sm select-none ${
+                !hasStartDateAccess
+                  ? 'bg-slate-50 border-slate-200 text-slate-700 cursor-not-allowed'
+                  : 'bg-white border-slate-300 group-hover:border-slate-400 text-slate-800'
               }`}
-            />
-            {!hasStartDateAccess && (
-              <div 
-                role="button"
-                tabIndex={0}
-                onClick={handleLockedStartDateClick}
-                onTouchEnd={(e) => {
-                  try {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  } catch (err) {}
-                  handleLockedStartDateClick(e);
-                }}
-                className="absolute inset-0 z-20 cursor-not-allowed select-none flex items-center justify-end pr-3.5 bg-transparent rounded-xl"
-                title={`Đã khóa: Bắt buộc xuất bản ngày hiện tại. Nâng cấp ${eligibleStartDatePackagesText} để chọn ngày bắt đầu tương lai.`}
-              >
-                <i className="fa-solid fa-lock text-slate-400 text-xs pointer-events-none"></i>
+            >
+              <div className="flex items-center gap-2 truncate">
+                <span className="text-xs font-bold tracking-wide text-slate-900">{startDateFormatted}</span>
+                {isStartDateToday ? (
+                  <span className="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md font-bold border border-emerald-200 shrink-0">
+                    Hôm nay
+                  </span>
+                ) : (
+                  <span className="text-[10px] bg-amber-50 text-amber-700 px-2 py-0.5 rounded-md font-bold border border-amber-200 shrink-0">
+                    Tương lai
+                  </span>
+                )}
               </div>
+
+              <div className="flex items-center gap-1.5 shrink-0">
+                {!hasStartDateAccess ? (
+                  <span className="flex items-center gap-1 text-[11px] text-slate-600 font-semibold bg-slate-100 px-2 py-0.5 rounded-lg border border-slate-200">
+                    <i className="fa-solid fa-lock text-slate-500 text-[10px]"></i>
+                    <span>Khóa</span>
+                  </span>
+                ) : (
+                  <i className="fa-solid fa-calendar-days text-slate-500 group-hover:text-amber-600 text-xs transition"></i>
+                )}
+              </div>
+            </div>
+
+            {/* Native input che phủ toàn bộ vùng khi có quyền - Tự động kích hoạt Date Picker gốc của iOS/Android/Chrome */}
+            {hasStartDateAccess && (
+              <input
+                ref={dateInputRef}
+                id="bds-start-date"
+                type="date"
+                min={todayStr}
+                value={currentStartDateValue}
+                onClick={(e) => {
+                  try {
+                    if (typeof e.currentTarget.showPicker === 'function') {
+                      e.currentTarget.showPicker();
+                    }
+                  } catch (err) {}
+                }}
+                onChange={(e) => {
+                  if (!e.target.value) return;
+                  setInternalStartDate(e.target.value);
+                  if (onStartDateChange) onStartDateChange(e.target.value);
+                }}
+                aria-label="Chọn ngày bắt đầu đăng tin"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+              />
             )}
           </div>
           <div className="text-[11px] text-slate-700 font-medium">
