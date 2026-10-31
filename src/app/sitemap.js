@@ -65,12 +65,6 @@ export default async function sitemap() {
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/trung-tam-phan-thuong/diem-danh-7-ngay/`,
-      lastModified: now,
-      changeFrequency: 'daily',
-      priority: 0.7,
-    },
-    {
       url: `${baseUrl}/trung-tam-phan-thuong/san-kho-bau-bds/`,
       lastModified: now,
       changeFrequency: 'daily',

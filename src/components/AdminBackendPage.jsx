@@ -8015,7 +8015,7 @@ export default function AdminBackendPage() {
                           </div>
 
                           <p className="text-[10px] text-slate-400 leading-relaxed">
-                            💡 Áp dụng cho mọi nguồn thưởng (Đăng ký, Nhiệm vụ, Điểm danh, Rương báu, Affiliate). Tiền sắp hết hạn ưu tiên hiển thị ngày gần nhất, sau đó tự động chuyển sang mốc tiếp theo.
+                            💡 Áp dụng cho mọi nguồn thưởng (Đăng ký, Nhiệm vụ, Rương báu, Affiliate). Tiền sắp hết hạn ưu tiên hiển thị ngày gần nhất, sau đó tự động chuyển sang mốc tiếp theo.
                           </p>
                         </div>
                       </div>

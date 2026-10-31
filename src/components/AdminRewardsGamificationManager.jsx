@@ -157,17 +157,9 @@ export default function AdminRewardsGamificationManager() {
     const memberMax = Math.max(memberMin, Number(targetConfig.treasureHuntConfig?.memberMaxAmount ?? maxAmt));
     const memberChance = Math.min(100, Math.max(10, Number(targetConfig.treasureHuntConfig?.memberHighTierChance ?? 80)));
 
-    // Chuẩn hóa dữ liệu ngày điểm danh & cấu hình rương đảm bảo luôn là kiểu Number
+    // Chuẩn hóa dữ liệu cấu hình rương đảm bảo luôn là kiểu Number
     const sanitizedData = {
       ...targetConfig,
-      checkInConfig: {
-        ...targetConfig.checkInConfig,
-        days: (targetConfig.checkInConfig?.days || []).map(d => ({
-          ...d,
-          reward: Number(d.reward) || 0,
-          label: `+${Number(d.reward || 0).toLocaleString('vi-VN')}đ vào Ví KM`
-        }))
-      },
       treasureHuntConfig: {
         ...targetConfig.treasureHuntConfig,
         minAmount: minAmt,
@@ -347,31 +339,6 @@ export default function AdminRewardsGamificationManager() {
     }
   };
 
-  // === XỬ LÝ ĐIỂM DANH 7 NGÀY ===
-  const handleDayRewardChange = (dayNum, amount) => {
-    isDirtyRef.current = true;
-    setIsDirty(true);
-    setFormData(prev => {
-      const days = (prev.checkInConfig?.days || []).map(d => {
-        if (d.day === dayNum) {
-          return {
-            ...d,
-            reward: amount === '' ? '' : (isNaN(Number(amount)) ? 0 : Number(amount)),
-            label: `+${Number(amount || 0).toLocaleString('vi-VN')}đ vào Ví KM`
-          };
-        }
-        return d;
-      });
-      return {
-        ...prev,
-        checkInConfig: {
-          ...prev.checkInConfig,
-          days
-        }
-      };
-    });
-  };
-
   // === XỬ LÝ SĂN KHO BÁU BÀI VIẾT ===
   const handleTreasureConfigChange = (field, value) => {
     isDirtyRef.current = true;
@@ -401,7 +368,7 @@ export default function AdminRewardsGamificationManager() {
               </span>
             </h1>
             <p className="text-xs text-slate-400 mt-1">
-              Tùy chỉnh chương trình ưu đãi, nhiệm vụ, mốc thưởng điểm danh 7 ngày và cơ chế rương kho báu bài viết.
+              Tùy chỉnh chương trình ưu đãi, nhiệm vụ và cơ chế rương kho báu bài viết.
             </p>
           </div>
         </div>
@@ -465,18 +432,6 @@ export default function AdminRewardsGamificationManager() {
         >
           <i className="fa-solid fa-list-check text-xs"></i>
           <span>Hệ Thống Nhiệm Vụ</span>
-        </button>
-
-        <button
-          onClick={() => setActiveSubTab('checkin')}
-          className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 cursor-pointer whitespace-nowrap ${
-            activeSubTab === 'checkin'
-              ? 'bg-purple-600 text-white font-black shadow-md shadow-purple-600/20'
-              : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
-          }`}
-        >
-          <i className="fa-solid fa-calendar-check text-xs"></i>
-          <span>Điểm Danh 7 Ngày</span>
         </button>
       </div>
 
@@ -1266,83 +1221,7 @@ export default function AdminRewardsGamificationManager() {
         </div>
       )}
 
-      {/* ==============================================================
-          TAB 4: ĐIỂM DANH 7 NGÀY (CHECK-IN)
-         ============================================================== */}
-      {activeSubTab === 'checkin' && (
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-            <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <i className="fa-solid fa-calendar-check text-purple-400"></i>
-                Cấu Hình Tiền Thưởng Chuỗi Điểm Danh 7 Ngày
-              </h3>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Chỉnh sửa số tiền thưởng cộng vào Ví Khuyến Mãi cho từng ngày từ Ngày 1 đến Ngày 7.
-              </p>
-            </div>
 
-            <div className="flex items-center gap-3">
-              {isDirty && (
-                <span className="text-[11px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg flex items-center gap-1.5 animate-pulse">
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                  Chưa lưu
-                </span>
-              )}
-              <button
-                type="button"
-                onClick={() => handleSaveAll()}
-                disabled={isSaving}
-                className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs shadow-md shadow-emerald-900/30 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
-              >
-                <i className={`fa-solid ${isSaving ? 'fa-spinner fa-spin' : 'fa-floppy-disk'}`}></i>
-                <span>{isSaving ? 'Đang lưu...' : 'Lưu Điểm Danh'}</span>
-              </button>
-              <label className="flex items-center gap-2 cursor-pointer bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700">
-                <span className="text-xs font-bold text-slate-300">
-                  {formData.checkInConfig?.enabled ? 'Đang Bật' : 'Đang Tắt'}
-                </span>
-                <input
-                  type="checkbox"
-                  checked={formData.checkInConfig?.enabled ?? true}
-                  onChange={(e) => {
-                    isDirtyRef.current = true;
-                    setIsDirty(true);
-                    setFormData(prev => ({
-                      ...prev,
-                      checkInConfig: { ...prev.checkInConfig, enabled: e.target.checked }
-                    }));
-                  }}
-                  className="w-4 h-4 accent-emerald-500 rounded cursor-pointer"
-                />
-              </label>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-            {(formData.checkInConfig?.days || []).map(d => (
-              <div key={d.day} className="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-center space-y-2">
-                <span className="text-[11px] font-black uppercase text-purple-400">
-                  Ngày {d.day}
-                </span>
-                <div className="w-10 h-10 rounded-xl bg-purple-600/20 text-purple-300 flex items-center justify-center mx-auto text-sm">
-                  <i className={d.icon}></i>
-                </div>
-                <div>
-                  <label className="text-[10px] text-slate-400 font-bold block mb-1">Tiền Thưởng (VNĐ)</label>
-                  <input
-                    type="number"
-                    step="1000"
-                    value={d.reward}
-                    onChange={(e) => handleDayRewardChange(d.day, e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-center text-white font-bold text-xs"
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* MODAL: CHỈNH SỬA / THÊM KHUYẾN MÃI */}
       {promoModalOpen && editingPromo && (

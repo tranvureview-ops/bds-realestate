@@ -48,7 +48,7 @@ export default function RewardRedeemPage() {
               Đặc Quyền Sử Dụng Ví Khuyến Mãi
             </h1>
             <p className="text-white/80 text-xs sm:text-sm max-w-xl">
-              Toàn bộ tiền thưởng từ Điểm danh và Nhiệm vụ nằm sẵn trong <strong>Ví Khuyến Mãi</strong> của bạn. Bạn có thể sử dụng ngay để thanh toán các dịch vụ dưới đây:
+              Toàn bộ tiền thưởng từ Săn kho báu và Nhiệm vụ nằm sẵn trong <strong>Ví Khuyến Mãi</strong> của bạn. Bạn có thể sử dụng ngay để thanh toán các dịch vụ dưới đây:
             </p>
           </div>
 
@@ -109,7 +109,7 @@ export default function RewardRedeemPage() {
           <div className="space-y-1">
             <div className="font-bold">Mẹo tối ưu chi phí quảng cáo tin rao:</div>
             <p className="text-amber-800/90 leading-relaxed">
-              Bạn có thể làm nhiệm vụ hàng ngày và điểm danh đều đặn để tích lũy tiền vào Ví Khuyến Mãi. Khi đăng tin mới hoặc mua gói đẩy tin TOP 1, hệ thống sẽ tự động ưu tiên khấu trừ từ <strong>Ví Khuyến Mãi trước</strong> rồi mới đến Ví Chính của bạn!
+              Bạn có thể làm nhiệm vụ hàng ngày và săn kho báu bài viết đều đặn để tích lũy tiền vào Ví Khuyến Mãi. Khi đăng tin mới hoặc mua gói đẩy tin TOP 1, hệ thống sẽ tự động ưu tiên khấu trừ từ <strong>Ví Khuyến Mãi trước</strong> rồi mới đến Ví Chính của bạn!
             </p>
           </div>
         </div>

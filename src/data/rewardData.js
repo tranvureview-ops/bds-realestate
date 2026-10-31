@@ -242,16 +242,6 @@ export const MISSIONS_DATA = {
   ],
   'hang-ngay': [
     {
-      id: 'm-day-01',
-      title: 'Điểm danh ngày mới',
-      reward: 5000,
-      rewardFormatted: '+5.000đ vào Ví KM',
-      icon: 'fa-solid fa-calendar-check',
-      status: 'claimable',
-      description: 'Mỗi ngày đăng nhập nhận ngay 5.000đ tiền tươi vào ví khuyến mãi.',
-      link: '/trung-tam-phan-thuong/diem-danh-7-ngay/'
-    },
-    {
       id: 'm-day-02',
       title: 'Xem 5 tin bất động sản nổi bật',
       reward: 5000,
@@ -296,17 +286,6 @@ export const MISSIONS_DATA = {
       link: '/dang-tin'
     },
     {
-      id: 'm-ach-02',
-      title: 'Đạt chuỗi điểm danh 30 ngày',
-      reward: 200000,
-      rewardFormatted: '+200.000đ vào Ví KM',
-      icon: 'fa-solid fa-fire',
-      progress: { current: 12, total: 30 },
-      status: 'in_progress',
-      description: 'Duy trì đăng nhập liên tục suốt 1 tháng thưởng ngay 200.000đ ví KM.',
-      link: '/trung-tam-phan-thuong/diem-danh-7-ngay/'
-    },
-    {
       id: 'm-ach-03',
       title: 'Chiêu mộ 5 người bạn đăng ký (Affiliate)',
       reward: 300000,
@@ -320,18 +299,7 @@ export const MISSIONS_DATA = {
   ]
 };
 
-// 3. DỮ LIỆU ĐIỂM DANH 7 NGÀY (CỘNG TIỀN VÀO VÍ KHUYẾN MÃI)
-export const CHECK_IN_7_DAYS = [
-  { day: 1, reward: 5000, label: '+5.000đ vào Ví KM', icon: 'fa-solid fa-money-bill-wave' },
-  { day: 2, reward: 10000, label: '+10.000đ vào Ví KM', icon: 'fa-solid fa-money-bill-wave' },
-  { day: 3, reward: 15000, label: '+15.000đ + Đẩy Tin', icon: 'fa-solid fa-gift', highlight: true },
-  { day: 4, reward: 10000, label: '+10.000đ vào Ví KM', icon: 'fa-solid fa-money-bill-wave' },
-  { day: 5, reward: 15000, label: '+15.000đ vào Ví KM', icon: 'fa-solid fa-money-bill-wave' },
-  { day: 6, reward: 20000, label: '+20.000đ vào Ví KM', icon: 'fa-solid fa-money-bill-wave' },
-  { day: 7, reward: 50000, label: '+50.000đ Thưởng Tuần', icon: 'fa-solid fa-crown', super: true }
-];
-
-// 4. DỮ LIỆU SĂN KHO BÁU BĐS (MỞ RƯƠNG NHẬN TIỀN VÍ KM)
+// 3. DỮ LIỆU SĂN KHO BÁU BĐS (MỞ RƯƠNG NHẬN TIỀN VÍ KM)
 export const TREASURE_LOCATIONS = [
   {
     id: 'loc-01',
@@ -482,13 +450,7 @@ export const DEFAULT_REWARDS_CONFIG = {
   // B. Danh sách Nhiệm vụ
   missions: MISSIONS_DATA,
 
-  // C. Điểm danh 7 ngày
-  checkInConfig: {
-    enabled: true,
-    days: CHECK_IN_7_DAYS
-  },
-
-  // D. Săn kho báu bài viết (Treasure Hunt & Anti-Spam)
+  // C. Săn kho báu bài viết (Treasure Hunt & Anti-Spam)
   treasureHuntConfig: {
     enabled: true,
     dailyLimit: 3,

@@ -24,7 +24,6 @@ export const ALL_INTERNAL_ROUTES = [
     routes: [
       { label: 'Trung Tâm Phần Thưởng', url: '/trung-tam-phan-thuong' },
       { label: 'Săn Kho Báu BĐS', url: '/trung-tam-phan-thuong/san-kho-bau-bds' },
-      { label: 'Điểm Danh 7 Ngày', url: '/trung-tam-phan-thuong/diem-danh-7-ngay' },
       { label: 'Minigame Dự Đoán Giá BĐS', url: '/trung-tam-phan-thuong/du-doan-gia-bds' },
       { label: 'Đổi Quà & Thẻ Cào', url: '/trung-tam-phan-thuong/doi-qua' },
     ]

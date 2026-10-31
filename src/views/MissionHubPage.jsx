@@ -5,7 +5,6 @@ import { MISSIONS_DATA } from '../data/rewardData';
 import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 import { getDailyClaims } from '../services/treasureHuntService';
-import { getCheckInStatus } from '../services/checkInService';
 import { normalizePhone } from '../utils/authValidation';
 import { 
   getAffiliateReport, 
@@ -248,15 +247,12 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
            (p.authorId && p.authorId === currentUser.id);
   }).length;
 
-  const checkInStatus = getCheckInStatus(userId);
-  const isCheckedInToday = checkInStatus.checkedToday;
   const treasureCountToday = typeof window !== 'undefined'
     ? getDailyClaims(userId).length
     : 0;
   const hasVotedPrediction = typeof window !== 'undefined'
     ? Boolean(localStorage.getItem(`bds_prediction_votes_${userId}`))
     : false;
-  const streakDays = checkInStatus.continuousStreak ?? checkInStatus.streak ?? 0;
 
   const displayMissions = rawMissions.map(m => {
     const isClaimed = Boolean(claimedMissions[m.id]);
@@ -285,11 +281,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
       dynamicProgress = { current: Math.min(userPropertiesCount, 1), total: 1 };
       dynamicStatus = userPropertiesCount >= 1 ? 'claimable' : 'in-progress';
     } 
-    // 5. Điểm danh ngày mới
-    else if (m.id === 'm-day-01' || m.title?.toLowerCase().includes('điểm danh ngày mới')) {
-      dynamicStatus = isCheckedInToday ? 'claimable' : 'in-progress';
-    } 
-    // 6. Xem tin hoặc mở rương
+    // 5. Xem tin hoặc mở rương
     else if (m.id === 'm-day-02' || m.title?.toLowerCase().includes('xem 5 tin') || m.title?.toLowerCase().includes('kho báu') || m.title?.toLowerCase().includes('rương')) {
       const views = Math.max(treasureCountToday * 2, 3);
       dynamicProgress = { current: Math.min(views, 5), total: 5 };
@@ -315,13 +307,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
       dynamicProgress = { current: Math.min(userPropertiesCount, targetTin), total: targetTin };
       dynamicStatus = userPropertiesCount >= targetTin ? 'claimable' : 'in-progress';
     } 
-    // 9. Thành tựu chuỗi ngày điểm danh (30 ngày liên tục)
-    else if (m.id === 'm-ach-02' || m.title?.toLowerCase().includes('chuỗi') || m.title?.toLowerCase().includes('điểm danh 30')) {
-      const targetDays = parseTarget(m, 30);
-      dynamicProgress = { current: Math.min(streakDays, targetDays), total: targetDays };
-      dynamicStatus = streakDays >= targetDays ? 'claimable' : 'in-progress';
-    }
-    // 10. Thành tựu giới thiệu bạn bè (Affiliate / Chiêu mộ bạn bè theo từng mốc cấu hình)
+    // 7. Thành tựu giới thiệu bạn bè (Affiliate / Chiêu mộ bạn bè theo từng mốc cấu hình)
     else if (m.id === 'm-ach-03' || m.title?.toLowerCase().includes('chiêu mộ') || m.title?.toLowerCase().includes('affiliate') || m.title?.toLowerCase().includes('giới thiệu')) {
       const curTarget = Number(currentMilestone?.target || 5);
       const curReward = Number(currentMilestone?.reward || 150000);

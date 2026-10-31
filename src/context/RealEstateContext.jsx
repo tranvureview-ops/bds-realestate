@@ -1000,10 +1000,6 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       ...newConfig,
       promotions: newConfig.promotions || current.promotions || [],
       missions: newConfig.missions || current.missions || {},
-      checkInConfig: {
-        ...(current.checkInConfig || {}),
-        ...(newConfig.checkInConfig || {})
-      },
       treasureHuntConfig: {
         ...(current.treasureHuntConfig || {}),
         ...(newConfig.treasureHuntConfig || {})

@@ -1,11 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { CHECK_IN_7_DAYS, PROMOTIONS_DATA, MISSIONS_DATA, PRICE_PREDICTION_GAMES, isPromotionExpired, formatPromoDate } from '../data/rewardData';
+import { PROMOTIONS_DATA, MISSIONS_DATA, PRICE_PREDICTION_GAMES, isPromotionExpired, formatPromoDate } from '../data/rewardData';
 import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 import { getDailyClaims } from '../services/treasureHuntService';
-import { getCheckInStatus, executeCheckIn } from '../services/checkInService';
 
 export default function RewardCenterPage() {
   const { 
@@ -29,12 +28,6 @@ export default function RewardCenterPage() {
   const maxTreasure = Number(tConfig?.maxAmount || 20000);
   const dailyLimitTreasure = Number(tConfig?.dailyLimit || 3);
 
-  const checkInDays = Array.isArray(rewardsConfig?.checkInConfig?.days) && rewardsConfig.checkInConfig.days.length > 0
-    ? rewardsConfig.checkInConfig.days
-    : CHECK_IN_7_DAYS;
-  const isCheckInEnabled = rewardsConfig?.checkInConfig?.enabled !== false;
-  const totalWeeklyCheckin = checkInDays.reduce((acc, d) => acc + Number(d?.reward || 0), 0);
-
   const promoList = (Array.isArray(rewardsConfig?.promotions) ? rewardsConfig.promotions : PROMOTIONS_DATA).slice(0, 3);
   const allMissions = rewardsConfig?.missions || MISSIONS_DATA;
   const hotMissions = [
@@ -42,38 +35,9 @@ export default function RewardCenterPage() {
     ...(Array.isArray(allMissions?.['tan-thu']) ? allMissions['tan-thu'] : [])
   ].slice(0, 3);
 
-  // 2. Trạng thái Điểm Danh trực tiếp (Chuẩn hóa từ checkInService)
-  const [currentStreak, setCurrentStreak] = useState(0);
-  const [checkedToday, setCheckedToday] = useState(false);
-  const [isMissed, setIsMissed] = useState(false);
   const [expiringBonusInfo, setExpiringBonusInfo] = useState(null);
   const [copiedCode, setCopiedCode] = useState(null);
   const [claimedMissions, setClaimedMissions] = useState({});
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const syncCheckInStatus = () => {
-      if (isLoggedIn) {
-        const status = getCheckInStatus(currentUser.id);
-        setCurrentStreak(status.streak);
-        setCheckedToday(status.checkedToday);
-        setIsMissed(Boolean(status.isMissed));
-      } else {
-        setCurrentStreak(0);
-        setCheckedToday(false);
-        setIsMissed(false);
-      }
-    };
-
-    syncCheckInStatus();
-    window.addEventListener('bds_checkin_updated', syncCheckInStatus);
-    window.addEventListener('storage', syncCheckInStatus);
-    return () => {
-      window.removeEventListener('bds_checkin_updated', syncCheckInStatus);
-      window.removeEventListener('storage', syncCheckInStatus);
-    };
-  }, [currentUser?.id, isLoggedIn]);
 
   // Lấy dữ liệu gói tiền có hạn gần nhất được truyền từ API về
   useEffect(() => {
@@ -161,52 +125,6 @@ export default function RewardCenterPage() {
     };
   }, [userId]);
 
-  // Thao tác Điểm danh ngay trên Trung Tâm Phần Thưởng
-  const handleQuickCheckIn = () => {
-    // 1. Bắt buộc đăng nhập mới có thể điểm danh
-    if (!isLoggedIn) {
-      if (showToast) showToast('Vui lòng đăng nhập tài khoản để điểm danh nhận tiền vào Ví Khuyến Mãi!', 'warning');
-      if (setActiveModal) {
-        setActiveModal('auth');
-      } else {
-        navigate('/dang-nhap');
-      }
-      return;
-    }
-
-    if (checkedToday || !isCheckInEnabled) return;
-
-    // 2. Thực hiện điểm danh đúng ngày trong chuỗi (tuyệt đối không nhảy số)
-    const expiryDays = Number(systemConfig?.bonusExpiryDays) || 30;
-    const res = executeCheckIn(currentUser, checkInDays, expiryDays);
-    if (!res.success) {
-      if (showToast) showToast(res.message, 'warning');
-      return;
-    }
-
-    setCurrentStreak(res.streak);
-    setCheckedToday(true);
-    setIsMissed(false);
-
-    // Cập nhật gói sắp hết hạn ngay lập tức
-    setExpiringBonusInfo({
-      amount: res.reward,
-      expiresAt: res.expiresAt,
-      formattedDate: res.formattedExpiryDate
-    });
-
-    if (addBonusWalletBalance) {
-      addBonusWalletBalance(res.reward, `Điểm danh ${res.dayLabel} (Trung tâm phần thưởng)`, {
-        expiryDays,
-        expiresAt: res.expiresAt
-      });
-    }
-
-    if (showToast) {
-      showToast(res.message, 'success');
-    }
-  };
-
   const handleCopyCode = (code, e) => {
     e.preventDefault();
     e.stopPropagation();
@@ -234,17 +152,8 @@ export default function RewardCenterPage() {
     }
   };
 
-  // 4 Trụ Cột Tính Năng (Tự động cập nhật số liệu động theo cấu hình)
+  // 3 Trụ Cột Tính Năng (Tự động cập nhật số liệu động theo cấu hình)
   const features = [
-    {
-      id: 'diem-danh',
-      title: 'Điểm Danh 7 Ngày',
-      description: `Đăng nhập mỗi ngày nhận tiền thưởng trực tiếp vào Ví Khuyến Mãi lên đến ${totalWeeklyCheckin.toLocaleString('vi-VN')}đ/tuần.`,
-      icon: 'fa-solid fa-calendar-check',
-      color: 'from-amber-500 to-orange-500',
-      badge: `+${totalWeeklyCheckin.toLocaleString('vi-VN')}đ/tuần`,
-      link: '/trung-tam-phan-thuong/diem-danh-7-ngay'
-    },
     {
       id: 'kho-bau',
       title: 'Săn Kho Báu BĐS',
@@ -297,7 +206,7 @@ export default function RewardCenterPage() {
               Trung Tâm Phần Thưởng {brandName}
             </h1>
             <p className="text-white/80 text-sm leading-relaxed">
-              Nhận tiền thưởng <strong>cộng trực tiếp vào Ví Khuyến Mãi</strong> qua Điểm danh mỗi ngày, Săn rương bài viết và Dự đoán giá thị trường. Sử dụng để đăng tin và đẩy tin VIP hoàn toàn miễn phí.
+              Nhận tiền thưởng <strong>cộng trực tiếp vào Ví Khuyến Mãi</strong> qua Săn rương bài viết, Hoàn thành nhiệm vụ và Dự đoán giá thị trường. Sử dụng để đăng tin và đẩy tin VIP hoàn toàn miễn phí.
             </p>
           </div>
 
@@ -344,98 +253,7 @@ export default function RewardCenterPage() {
           </div>
         </div>
 
-        {/* 1. WIDGET ĐIỂM DANH 7 NGÀY TRỰC TIẾP (DỰA THEO CẤU HÌNH CMS) */}
-        <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-5">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <h2 className="text-lg font-black text-slate-900">
-                  Chuỗi Điểm Danh 7 Ngày Nhận Thưởng
-                </h2>
-              </div>
-              <p className="text-xs text-slate-500 mt-0.5">
-                Đăng nhập điểm danh mỗi ngày để tích lũy lên tới <strong className="text-emerald-600 font-bold">{totalWeeklyCheckin.toLocaleString('vi-VN')}đ</strong> vào Ví Khuyến Mãi (Hạn dùng {Number(systemConfig?.bonusExpiryDays) || 30} ngày/lần nhận, bỏ lỡ 1 ngày sẽ quay lại Ngày 1).
-              </p>
-              {isMissed && !checkedToday && (
-                <div className="inline-flex items-center gap-1.5 mt-2 text-[11px] font-bold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">
-                  <i className="fa-solid fa-clock-rotate-left text-rose-600"></i>
-                  <span>Bạn đã bỏ lỡ ngày hôm qua! Chuỗi điểm danh quay lại từ Ngày 1.</span>
-                </div>
-              )}
-            </div>
-            <div className="flex items-center gap-3">
-              <button
-                disabled={isLoggedIn && checkedToday}
-                onClick={handleQuickCheckIn}
-                className={`px-5 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm ${
-                  !isLoggedIn
-                    ? 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer shadow-blue-200'
-                    : checkedToday 
-                    ? 'bg-emerald-50 text-emerald-800 border border-emerald-200/90 cursor-default font-semibold'
-                    : 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-emerald-200 hover:scale-102'
-                }`}
-              >
-                <i className={`fa-solid ${!isLoggedIn ? 'fa-arrow-right-to-bracket' : checkedToday ? 'fa-circle-check text-emerald-600' : 'fa-calendar-check'}`}></i>
-                <span>
-                  {!isLoggedIn 
-                    ? 'Đăng nhập để điểm danh' 
-                    : checkedToday 
-                    ? 'Đã điểm danh hôm nay' 
-                    : 'Điểm danh nhận tiền ngay'}
-                </span>
-              </button>
-              <Link
-                to="/trung-tam-phan-thuong/diem-danh-7-ngay"
-                className="text-xs font-bold text-slate-500 hover:text-slate-800 transition"
-              >
-                Chi tiết &rarr;
-              </Link>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
-            {checkInDays.map((d, idx) => {
-              const dayNum = idx + 1;
-              const isChecked = dayNum <= currentStreak;
-              const isCurrent = !checkedToday && dayNum === (currentStreak + 1);
-
-              return (
-                <div
-                  key={dayNum}
-                  className={`p-3.5 rounded-2xl border text-center transition-all ${
-                    isChecked
-                      ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-bold'
-                      : isCurrent
-                      ? 'bg-amber-50 border-amber-400 text-amber-950 ring-2 ring-amber-300 shadow-md scale-102 font-bold'
-                      : 'bg-slate-50 border-slate-200 text-slate-500 opacity-75'
-                  }`}
-                >
-                  <div className="text-[10px] font-black uppercase tracking-wider mb-1 flex items-center justify-center gap-1">
-                    <span>Ngày {dayNum}</span>
-                    {isCurrent && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
-                    )}
-                  </div>
-                  <div className="w-8 h-8 rounded-full mx-auto flex items-center justify-center text-sm font-black mb-1 bg-white shadow-xs">
-                    {isChecked ? (
-                      <i className="fa-solid fa-check text-emerald-600 text-base"></i>
-                    ) : isCurrent ? (
-                      <i className="fa-solid fa-hand-holding-dollar text-amber-500 text-base"></i>
-                    ) : (
-                      <i className="fa-solid fa-gift text-slate-400"></i>
-                    )}
-                  </div>
-                  <div className="text-xs font-black font-mono">
-                    +{Number(d.reward || 0).toLocaleString('vi-VN')}đ
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* 2. CÁC KHU VỰC THƯỞNG CHÍNH (4 Cards) */}
+        {/* CÁC KHU VỰC THƯỞNG CHÍNH */}
         <div>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
