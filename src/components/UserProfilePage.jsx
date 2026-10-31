@@ -1042,7 +1042,7 @@ export default function UserProfilePage() {
                           {safeUser.membership?.packageName}
                         </div>
                         <div className="text-[11px] text-slate-500">
-                          Mã gói: <span className="font-mono">{safeUser.membership?.packageId}</span> • Chu kỳ: <span className="font-bold text-slate-700">{billingMonths} tháng</span>
+                          Thời hạn: <span className="font-bold text-slate-700">{daysDiff > 0 ? `Còn ${daysDiff} ngày` : 'Đã hết hạn'}</span> • Chu kỳ: <span className="font-bold text-slate-700">{billingMonths} tháng</span>
                         </div>
                       </div>
                     </div>
