@@ -2608,35 +2608,35 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                 className="p-3 sm:p-3.5 bg-slate-50 border border-slate-200/90 rounded-2xl relative space-y-2.5 shadow-2xs"
               >
                 {/* Header tinh gọn: Tiêu đề + Giá + Tổng tạm tính */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="w-5 h-5 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs">
+                <div className="flex items-center justify-between gap-1.5 flex-wrap">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-5 h-5 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs shrink-0">
                       <i className="fa-solid fa-arrow-up-right-dots"></i>
                     </span>
                     <span className="text-xs font-bold text-slate-900">Đẩy tin tự động</span>
-                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
                       +{effectiveBumpPrice.toLocaleString('vi-VN')} đ/lần
                     </span>
                   </div>
 
                   {autoBumpHours.length > 0 && (
-                    <div className="text-left sm:text-right shrink-0">
+                    <div className="text-right shrink-0">
                       <span className="text-xs font-black text-emerald-700">
                         +{autoBumpFee.toLocaleString('vi-VN')} đ
                       </span>
-                      <span className="text-[10px] text-slate-500 ml-1.5 font-medium">
+                      <span className="text-[10px] text-slate-500 ml-1 font-medium">
                         ({autoBumpHours.length} mốc x {bumpDays} ngày{bumpDays > 1 ? ' đầu' : ''})
                       </span>
                     </div>
                   )}
                 </div>
 
-                {/* Dropdown Multi-Select Trigger */}
+                {/* Dropdown Multi-Select Trigger (Tối ưu siêu gọn gàng trên mobile, không bị vỡ dòng) */}
                 <div className="relative">
                   <button
                     type="button"
                     onClick={() => setIsBumpDropdownOpen(prev => !prev)}
-                    className={`w-full px-3 py-2 rounded-xl border text-left text-xs font-medium flex items-center justify-between gap-2 transition bg-white shadow-2xs cursor-pointer ${
+                    className={`w-full min-h-[38px] sm:min-h-[42px] px-3 py-1.5 sm:py-2 rounded-xl border text-left text-xs font-medium flex items-center justify-between gap-2 transition bg-white shadow-2xs cursor-pointer ${
                       isBumpDropdownOpen
                         ? 'border-emerald-500 ring-2 ring-emerald-500/20'
                         : autoBumpHours.length > 0
@@ -2644,23 +2644,28 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         : 'border-slate-300 text-slate-500 hover:border-slate-400'
                     }`}
                   >
-                    <div className="flex items-center gap-2 flex-wrap flex-1 min-w-0">
-                      <i className={`fa-solid ${autoBumpHours.length > 0 ? 'fa-calendar-check text-emerald-600' : 'fa-clock text-slate-400'} text-xs`}></i>
+                    <div className="flex items-center gap-2 flex-nowrap flex-1 min-w-0 overflow-hidden">
+                      <i className={`fa-solid ${autoBumpHours.length > 0 ? 'fa-calendar-check text-emerald-600' : 'fa-clock text-slate-400'} text-xs shrink-0`}></i>
                       {autoBumpHours.length === 0 ? (
-                        <span className="text-slate-400 text-xs">Chọn khung giờ vàng hoặc chọn giờ & phút cụ thể...</span>
+                        <>
+                          <span className="text-slate-400 text-xs truncate sm:hidden">Chọn giờ đẩy tin tự động...</span>
+                          <span className="text-slate-400 text-xs hidden sm:inline truncate">Chọn khung giờ vàng hoặc chọn giờ & phút cụ thể...</span>
+                        </>
                       ) : (
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="font-bold text-slate-800 text-xs">
+                        <div className="flex items-center gap-1.5 flex-nowrap min-w-0 overflow-hidden">
+                          <span className="font-bold text-slate-800 text-xs shrink-0 whitespace-nowrap">
                             Đã chọn {autoBumpHours.length} mốc:
                           </span>
-                          {autoBumpHours.map(h => (
-                            <span 
-                              key={h}
-                              className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-900 border border-emerald-200 font-mono font-bold text-[11px]"
-                            >
-                              {h}
-                            </span>
-                          ))}
+                          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5 min-w-0">
+                            {autoBumpHours.map(h => (
+                              <span 
+                                key={h}
+                                className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-900 border border-emerald-200 font-mono font-bold text-[10px] sm:text-[11px] shrink-0"
+                              >
+                                {h}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>
@@ -2670,7 +2675,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                           {autoBumpHours.length}
                         </span>
                       )}
-                      <i className={`fa-solid fa-chevron-down text-[11px] transition-transform duration-200 ${isBumpDropdownOpen ? 'rotate-180 text-emerald-600' : ''}`}></i>
+                      <i className={`fa-solid fa-chevron-down text-[11px] transition-transform duration-200 shrink-0 ${isBumpDropdownOpen ? 'rotate-180 text-emerald-600' : ''}`}></i>
                     </div>
                   </button>
 
