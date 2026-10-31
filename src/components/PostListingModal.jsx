@@ -1383,10 +1383,11 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
             <button
               type="button"
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-sm transition"
+              className="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-sm transition cursor-pointer"
               title="Đóng cửa sổ"
+              aria-label="Đóng cửa sổ"
             >
-              <i className="fa-solid fa-xmark"></i>
+              <i className="fa-solid fa-xmark" aria-hidden="true"></i>
             </button>
           )}
         </div>

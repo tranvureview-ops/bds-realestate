@@ -150,10 +150,11 @@ export default function CustomSelect({
                   setSearchTerm('');
                   if (comboboxInputRef.current) comboboxInputRef.current.focus();
                 }}
-                className="text-slate-300 hover:text-slate-500 p-0.5 rounded transition"
-                title="Xóa"
+                className="text-slate-300 hover:text-slate-500 p-0.5 rounded transition cursor-pointer"
+                title="Xóa lựa chọn"
+                aria-label="Xóa lựa chọn"
               >
-                <i className="fa-solid fa-xmark text-[11px]"></i>
+                <i className="fa-solid fa-xmark text-[11px]" aria-hidden="true"></i>
               </button>
             )}
 
@@ -168,12 +169,16 @@ export default function CustomSelect({
                   setIsOpen(!isOpen);
                 }
               }}
-              className="text-slate-400 hover:text-slate-600 p-0.5 focus:outline-none transition cursor-pointer"
+              className="text-slate-400 hover:text-slate-600 p-0.5 focus:outline-none transition cursor-pointer disabled:cursor-not-allowed"
+              title={placeholder ? `Mở rộng danh sách ${placeholder}` : 'Mở rộng danh sách lựa chọn'}
+              aria-label={placeholder ? `Mở rộng danh sách ${placeholder}` : 'Mở rộng danh sách lựa chọn'}
+              aria-expanded={isOpen}
             >
               <i
                 className={`fa-solid fa-chevron-down text-[10px] text-slate-400 shrink-0 transition-transform duration-200 ${
                   isOpen ? 'rotate-180 text-red-500' : ''
                 }`}
+                aria-hidden="true"
               ></i>
             </button>
           </div>
@@ -191,6 +196,8 @@ export default function CustomSelect({
               ? 'border-red-500 ring-2 ring-red-500/20'
               : 'border-slate-300 hover:border-slate-400'
           } ${className}`}
+          aria-label={selectedOption ? `${placeholder || 'Chọn'}: ${selectedOption.label}` : (placeholder || 'Chọn một mục')}
+          aria-expanded={isOpen}
         >
           <span className="flex items-center gap-2 truncate">
             {icon && <span className="text-slate-400 shrink-0">{icon}</span>}
