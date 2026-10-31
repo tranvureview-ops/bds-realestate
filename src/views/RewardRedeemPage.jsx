@@ -38,13 +38,13 @@ export default function RewardRedeemPage() {
         </nav>
 
         {/* Header with Real Bonus Wallet Balance */}
-        <div className="rounded-3xl bg-gradient-to-r from-emerald-800 via-teal-800 to-cyan-900 text-white p-6 sm:p-10 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 text-center sm:text-left">
+        <div className="rounded-3xl bg-gradient-to-r from-emerald-800 via-teal-800 to-cyan-900 text-white p-6 sm:p-10 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6 min-h-[160px]">
+          <div className="space-y-2 text-center sm:text-left flex-1 min-w-0">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider">
               <i className="fa-solid fa-wallet text-amber-300"></i>
               Sử Dụng Tiền Thưởng Trực Tiếp
             </span>
-            <h1 className="text-2xl sm:text-3xl font-black">
+            <h1 className="text-2xl sm:text-3xl font-black leading-tight">
               Đặc Quyền Sử Dụng Ví Khuyến Mãi
             </h1>
             <p className="text-white/80 text-xs sm:text-sm max-w-xl">
@@ -52,13 +52,13 @@ export default function RewardRedeemPage() {
             </p>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-2xl flex items-center gap-4 shrink-0 shadow-lg">
-            <div className="w-12 h-12 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center text-2xl font-bold">
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-2xl flex items-center gap-4 shrink-0 shadow-lg min-h-[96px]">
+            <div className="w-12 h-12 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center text-2xl font-bold shrink-0">
               <i className="fa-solid fa-money-bill-wave"></i>
             </div>
             <div>
               <div className="text-[10px] text-white/70 uppercase tracking-wider font-bold">Số dư Ví Khuyến Mãi</div>
-              <div className="text-2xl font-black text-amber-300 font-mono">
+              <div className="text-2xl font-black text-amber-300 font-mono tracking-tight tabular-nums">
                 +{bonusBal.toLocaleString('vi-VN')} <span className="text-xs text-white">VNĐ</span>
               </div>
             </div>

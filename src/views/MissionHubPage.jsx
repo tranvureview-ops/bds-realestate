@@ -452,13 +452,13 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
         </nav>
 
         {/* Hero Banner with User Ví Khuyến Mãi Balance */}
-        <div className="rounded-3xl bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 text-white p-6 sm:p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-3 text-center md:text-left">
+        <div className="rounded-3xl bg-gradient-to-r from-blue-700 via-indigo-700 to-purple-700 text-white p-6 sm:p-8 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6 min-h-[170px] sm:min-h-[190px]">
+          <div className="space-y-3 text-center md:text-left flex-1 min-w-0">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider">
               <i className="fa-solid fa-gift text-amber-300"></i>
               Nhiệm Vụ Nhận Tiền Vào Ví Khuyến Mãi {brandName}
             </span>
-            <h1 className="text-2xl sm:text-3xl font-black">
+            <h1 className="text-2xl sm:text-3xl font-black leading-tight">
               Làm Nhiệm Vụ - Tiền Tươi Vào Ví Khuyến Mãi
             </h1>
             <p className="text-white/80 text-xs sm:text-sm max-w-xl">
@@ -467,20 +467,20 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
           </div>
 
           {/* User Bonus Wallet Box */}
-          <div className="bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center gap-5 shrink-0 w-full md:w-auto justify-between md:justify-start">
+          <div className="bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center gap-5 shrink-0 w-full md:w-auto justify-between md:justify-start min-h-[96px]">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-2xl bg-emerald-400 text-slate-950 flex items-center justify-center text-2xl shadow-lg shrink-0">
                 <i className="fa-solid fa-wallet"></i>
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="text-[11px] uppercase tracking-wider text-white/70 font-bold">Ví Khuyến Mãi của bạn</div>
-                <div className="text-2xl font-black text-amber-300 font-mono">
+                <div className="text-2xl font-black text-amber-300 font-mono tracking-tight tabular-nums">
                   +{localBonusBal.toLocaleString('vi-VN')} <span className="text-xs text-white">VNĐ</span>
                 </div>
                 {/* Dòng cảnh báo nhỏ kèm icon đồng hồ cát */}
-                <div className="text-[11px] text-amber-200 font-semibold flex items-center gap-1.5 mt-0.5">
-                  <i className="fa-solid fa-hourglass-half text-amber-300 animate-pulse"></i>
-                  <span>
+                <div className="text-[11px] text-amber-200 font-semibold flex items-center gap-1.5 mt-0.5 min-h-[18px]">
+                  <i className="fa-solid fa-hourglass-half text-amber-300 animate-pulse shrink-0"></i>
+                  <span className="truncate max-w-[280px] sm:max-w-[340px]">
                     {localBonusBal > 0 && expiringBonusInfo?.amount > 0 && expiringBonusInfo?.formattedDate
                       ? `(Có ${Number(expiringBonusInfo.amount).toLocaleString('vi-VN')}đ tiền thưởng sắp hết hạn vào ngày ${expiringBonusInfo.formattedDate})`
                       : localBonusBal > 0
