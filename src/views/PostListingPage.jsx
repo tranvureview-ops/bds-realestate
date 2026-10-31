@@ -3,37 +3,11 @@
 import React from 'react';
 import { useRouter, Link } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
-import { VIP_PACKAGES } from '../data/mockData';
 import PostListingModal from '../components/PostListingModal';
 
 export default function PostListingPage() {
   const { navigate } = useRouter();
-  const { currentUser, systemConfig, vipPackages, checkDailyFreeListingQuota, properties } = useRealEstate();
-
-  // Kiểm tra hạn mức đăng tin miễn phí trong ngày (3-5 tin/ngày theo cấu hình admin)
-  const dailyQuotaInfo = React.useMemo(() => {
-    if (checkDailyFreeListingQuota) {
-      return checkDailyFreeListingQuota(currentUser);
-    }
-    return { allowed: true, count: 0, limit: 3, remaining: 3, unlimited: false };
-  }, [checkDailyFreeListingQuota, currentUser, properties]);
-
-  const hasFreeQuota = Boolean(
-    !dailyQuotaInfo || 
-    dailyQuotaInfo.unlimited || 
-    dailyQuotaInfo.remaining === undefined || 
-    dailyQuotaInfo.remaining > 0 || 
-    currentUser?.role === 'admin'
-  );
-
-  const normalPkg = (vipPackages || []).find(p => p.id === 'normal');
-  const configuredNormalRate = Number(normalPkg?.rates?.[60] !== undefined && Number(normalPkg.rates[60]) > 0
-    ? normalPkg.rates[60]
-    : (Number(normalPkg?.publishPrice) || 5000));
-
-  // Tin Thường: Mặc định hiển thị Miễn phí (60 ngày), chỉ hiện thu phí khi đã dùng hết hạn mức trong ngày
-  const isNormalFree = hasFreeQuota;
-  const normalPrice = isNormalFree ? 0 : configuredNormalRate;
+  const { systemConfig } = useRealEstate();
 
   return (
     <div className="min-h-screen bg-slate-100 py-6 px-4 sm:px-6 lg:px-8">
@@ -137,12 +111,12 @@ export default function PostListingPage() {
                     <span className="px-2 py-0.5 rounded-full bg-slate-300 text-slate-700 font-bold text-[9px] uppercase">
                       Tin Thường
                     </span>
-                    <span className={`font-black text-[11px] ${isNormalFree ? 'text-emerald-600' : 'text-slate-800 font-mono'}`}>
-                      {isNormalFree ? 'Miễn phí (60 ngày)' : `${normalPrice.toLocaleString('vi-VN')} đ / 60 ngày`}
+                    <span className="font-black text-[11px] text-emerald-600">
+                      Miễn phí (60 ngày)
                     </span>
                   </div>
                   <p className="text-[11px] text-slate-600">
-                    {isNormalFree ? 'Đăng tin tiếp cận khách hàng hoàn toàn miễn phí 100%.' : 'Kinh tế, áp dụng Voucher Hội Viên chỉ 0 đ.'}
+                    Đăng tin tiếp cận khách hàng hoàn toàn miễn phí 100%.
                   </p>
                 </div>
               </div>
