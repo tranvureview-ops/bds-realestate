@@ -109,6 +109,7 @@ export function middleware(request) {
   }
 
   // 4. Thiết lập bộ Header An Toàn & Bảo Mật Chuẩn Cao Nhất (Strict Nonce-based CSP, COOP, HSTS, X-Content-Type-Options, Trusted Types)
+  response.headers.set('Cache-Control', 'private, no-cache');
   response.headers.set('Content-Security-Policy', cspHeader);
   response.headers.set('Cross-Origin-Opener-Policy', 'same-origin');
   response.headers.set('Cross-Origin-Resource-Policy', 'cross-origin');

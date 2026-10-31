@@ -7,6 +7,13 @@ export const AVAILABLE_FONTS = [
     fontFamily: "'Plus Jakarta Sans', sans-serif",
     cssValue: "'Plus Jakarta Sans', sans-serif",
     googleFontUrl: 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap',
+    fallbackMetrics: {
+      ascent: '100.8%',
+      descent: '26.6%',
+      lineGap: '0%',
+      sizeAdjust: '99.4%'
+    },
+    primaryPreloadWoff2: 'https://fonts.gstatic.com/s/plusjakartasans/v12/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko50yyygA.woff2',
     sampleHeadline: 'Sàn Bất Động Sản Đất Biển Đà Nẵng',
     sampleText: 'Nền tảng mua bán căn hộ, đất nền và biệt thự biển chuẩn pháp lý.',
     samplePrice: '4.850.000.000 ₫'
@@ -18,6 +25,12 @@ export const AVAILABLE_FONTS = [
     fontFamily: "'Be Vietnam Pro', sans-serif",
     cssValue: "'Be Vietnam Pro', sans-serif",
     googleFontUrl: 'https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&display=swap',
+    fallbackMetrics: {
+      ascent: '96%',
+      descent: '24%',
+      lineGap: '0%',
+      sizeAdjust: '100%'
+    },
     sampleHeadline: 'Quy Chế & Pháp Lý Bất Động Sản Việt Nam',
     sampleText: 'Thiết kế riêng cho hệ thống chữ Quốc ngữ, dấu thanh hiển thị chuẩn xác nhất.',
     samplePrice: '12.500.000.000 ₫'
@@ -29,6 +42,12 @@ export const AVAILABLE_FONTS = [
     fontFamily: "'Montserrat', sans-serif",
     cssValue: "'Montserrat', sans-serif",
     googleFontUrl: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap',
+    fallbackMetrics: {
+      ascent: '96.8%',
+      descent: '25.1%',
+      lineGap: '0%',
+      sizeAdjust: '100%'
+    },
     sampleHeadline: 'BIỆT THỰ BIỂN LUXURY RESORT',
     sampleText: 'Tạo dấu ấn thương hiệu mạnh mẽ, nổi bật trên các banner quảng cáo VIP.',
     samplePrice: '25.000.000.000 ₫'
@@ -40,6 +59,13 @@ export const AVAILABLE_FONTS = [
     fontFamily: "'Roboto', sans-serif",
     cssValue: "'Roboto', sans-serif",
     googleFontUrl: 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;800;900&display=swap',
+    fallbackMetrics: {
+      ascent: '92.8%',
+      descent: '24.4%',
+      lineGap: '0%',
+      sizeAdjust: '100%'
+    },
+    primaryPreloadWoff2: 'https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3OUBGEe.woff2',
     sampleHeadline: 'Bản Đồ Quy Hoạch Đất Nền Đà Nẵng 2026',
     sampleText: 'Phông chữ tiêu chuẩn của Google, hiển thị mượt mà trên tất cả thiết bị di động.',
     samplePrice: '1.850.000.000 ₫'
@@ -51,6 +77,12 @@ export const AVAILABLE_FONTS = [
     fontFamily: "'Open Sans', sans-serif",
     cssValue: "'Open Sans', sans-serif",
     googleFontUrl: 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&display=swap',
+    fallbackMetrics: {
+      ascent: '106.9%',
+      descent: '29.3%',
+      lineGap: '0%',
+      sizeAdjust: '100%'
+    },
     sampleHeadline: 'Hỗ Trợ Thủ Tục Pháp Lý & Sang Tên Sổ Đỏ',
     sampleText: 'Nét chữ tròn trịa, ấm áp, tạo cảm giác tin cậy và chuyên nghiệp.',
     samplePrice: '6.400.000.000 ₫'

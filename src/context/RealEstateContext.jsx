@@ -1578,9 +1578,15 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   }, [fetchLatestDataFromSupabase]);
 
   // 3. Supabase Realtime Subscription (Lắng nghe tức thì khi có thay đổi trên Database Supabase)
-  // Chuẩn hóa hỗ trợ bfcache (Back/Forward Cache): Đóng kênh WebSocket khi pagehide, tự động kết nối lại khi pageshow
+  // Chuẩn hóa hỗ trợ bfcache (Back/Forward Cache):
+  // Chỉ mở kênh WebSocket cho Quản trị viên (Admin) hoặc trên route /admin để giữ bfcache 100% cho người dùng công khai
   useEffect(() => {
     if (!isSupabaseConfigured() || !supabase) return;
+
+    // Khách vãng lai và người xem công khai không mở kết nối WebSocket (tránh chặn bfcache trong trình duyệt và tiết kiệm quota)
+    const isAdmin = currentUser?.role === 'admin' || (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin'));
+    if (!isAdmin) return;
+
     let debounceTimer = null;
     let activeChannel = null;
 
@@ -1630,7 +1636,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       window.removeEventListener('pageshow', handlePageShow);
       stopRealtime();
     };
-  }, [fetchLatestDataFromSupabase]);
+  }, [fetchLatestDataFromSupabase, currentUser?.role]);
 
   // Stable refs for interval background processors to completely eliminate infinite re-render loops (React Error #185)
   const vipPackagesRef = useRef(vipPackages);

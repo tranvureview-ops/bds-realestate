@@ -2,8 +2,7 @@ import './globals.css';
 import Script from 'next/script';
 import ClientLayout from './ClientLayout';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
+export const revalidate = 60;
 
 export const viewport = {
   width: 'device-width',
@@ -171,6 +170,12 @@ export default async function RootLayout({ children }) {
 
   const activeFontFamily = initialDb?.bds_system_config?.fontFamily || 'Plus Jakarta Sans';
   const fontConfig = getFontConfig(activeFontFamily);
+  const fallback = fontConfig.fallbackMetrics || {
+    ascent: '100.8%',
+    descent: '26.6%',
+    lineGap: '0%',
+    sizeAdjust: '99.4%'
+  };
 
   return (
     <html lang="vi" suppressHydrationWarning>
@@ -233,21 +238,31 @@ export default async function RootLayout({ children }) {
           <link rel="stylesheet" href={fontConfig.googleFontUrl} />
           <link rel="stylesheet" href="/fontawesome.min.css" />
         </noscript>
+        {/* Preload primary Google Font .woff2 chunk (eliminates font swap layout shift & LCP render delay) */}
+        {fontConfig.primaryPreloadWoff2 && (
+          <link
+            rel="preload"
+            href={fontConfig.primaryPreloadWoff2}
+            as="font"
+            type="font/woff2"
+            crossOrigin="anonymous"
+          />
+        )}
         <style
           id="app-ssr-font-override"
           dangerouslySetInnerHTML={{
             __html: `
               @font-face {
-                font-family: 'Plus Jakarta Sans Fallback';
+                font-family: 'App Font Fallback';
                 src: local('Arial'), local('Helvetica'), local('sans-serif');
-                ascent-override: 100.8%;
-                descent-override: 26.6%;
-                line-gap-override: 0%;
-                size-adjust: 99.4%;
+                ascent-override: ${fallback.ascent};
+                descent-override: ${fallback.descent};
+                line-gap-override: ${fallback.lineGap};
+                size-adjust: ${fallback.sizeAdjust};
               }
               :root { --font-custom-family: ${fontConfig.fontFamily}; }
               html, body {
-                font-family: var(--font-custom-family, ${fontConfig.fontFamily}), 'Plus Jakarta Sans Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+                font-family: var(--font-custom-family, ${fontConfig.fontFamily}), 'App Font Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
               }
@@ -255,7 +270,7 @@ export default async function RootLayout({ children }) {
                 font-family: inherit !important;
               }
               .font-mono, .font-sans {
-                font-family: var(--font-custom-family, ${fontConfig.fontFamily}), 'Plus Jakarta Sans Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+                font-family: var(--font-custom-family, ${fontConfig.fontFamily}), 'App Font Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
               }
               .font-mono {
                 font-variant-numeric: tabular-nums;
