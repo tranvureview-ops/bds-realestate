@@ -1437,7 +1437,7 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, year = 2026, page = 
   if (taxonomyInfo.isFacetedCleanSlug && taxonomyInfo.title) {
     const baseTitle = `${taxonomyInfo.title}${pageStr}`;
     return {
-      title: `${baseTitle} | Nhà Đất Đà Nẵng`,
+      title: `${baseTitle} | Kênh Nhà Đất 24H`,
       description: `${taxonomyInfo.title} mới nhất [${year}]${pageDescStr}, vị trí đẹp, hình ảnh thực tế, thông tin xác thực, pháp lý minh bạch.`
     };
   }
@@ -1901,7 +1901,7 @@ export const buildDynamicTaxonomyInfo = (filters = {}, baseTaxonomyInfo = null) 
     if (city) title += `, ${city}`;
   } else if (district) {
     title += ` tại ${district}`;
-    if (city && city !== 'Đà Nẵng') title += `, ${city}`;
+    if (city) title += `, ${city}`;
   } else if (city) {
     title += ` tại ${city}`;
   } else if (!project && !street && !ward && !district) {
