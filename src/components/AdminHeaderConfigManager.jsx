@@ -364,28 +364,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-slate-400 font-bold mb-1">Slogan / Tagline (Mô tả phụ):</label>
-                    <input
-                      type="text"
-                      value={logoFormData.brandTagline}
-                      onChange={(e) => setLogoFormData({ ...logoFormData, brandTagline: e.target.value })}
-                      placeholder="Ví dụ: Sàn Đăng Tin BĐS Đa Trang"
-                      className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-slate-300 font-semibold outline-none focus:border-emerald-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-slate-400 font-bold mb-1">Huy Hiệu Tag (Badge):</label>
-                    <input
-                      type="text"
-                      value={logoFormData.badgeText}
-                      onChange={(e) => setLogoFormData({ ...logoFormData, badgeText: e.target.value })}
-                      placeholder="VIP, PRO, 24/7..."
-                      className="w-full p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-red-400 font-bold outline-none focus:border-emerald-500 uppercase"
-                    />
-                  </div>
-                </div>
+
 
                 <div>
                   <label className="block text-slate-400 font-bold mb-1">Biểu Tượng FontAwesome Logo:</label>
