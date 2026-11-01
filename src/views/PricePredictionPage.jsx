@@ -132,27 +132,27 @@ export default function PricePredictionPage({ projectSlug = null }) {
         </div>
 
         {/* Prediction Cards */}
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
           {displayGames.map(game => {
             const hasVoted = Boolean(userVotes[game.id]);
 
             return (
               <div
                 key={game.id}
-                className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-6"
+                className="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-sm flex flex-col justify-between gap-5 hover:border-slate-300 transition"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
-                  <div className="flex items-start gap-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                  <div className="flex items-start gap-3.5 min-w-0">
                     <img
                       src={game.image}
                       alt={game.projectName}
-                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover shrink-0 border border-slate-100 shadow-xs"
+                      className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl object-cover shrink-0 border border-slate-100 shadow-xs"
                     />
-                    <div>
-                      <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">
+                    <div className="min-w-0">
+                      <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider block truncate">
                         {game.location}
                       </span>
-                      <h2 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
+                      <h2 className="text-base font-bold text-slate-900 mt-0.5 line-clamp-1" title={game.projectName}>
                         {game.projectName}
                       </h2>
                       <div className="text-xs text-slate-500 mt-1">
@@ -161,25 +161,25 @@ export default function PricePredictionPage({ projectSlug = null }) {
                     </div>
                   </div>
 
-                  <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-center sm:text-right shrink-0">
+                  <div className="p-2.5 sm:p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-left sm:text-right shrink-0">
                     <div className="text-[10px] text-emerald-800 font-bold uppercase tracking-wider">Quỹ thưởng vòng này</div>
-                    <div className="text-lg font-black text-emerald-600 font-mono">{game.totalPool}</div>
+                    <div className="text-base sm:text-lg font-black text-emerald-600 font-mono">{game.totalPool}</div>
                     <div className="text-[10px] text-slate-500 mt-0.5">{(game.totalVotes || 0).toLocaleString('vi-VN')} người tham gia</div>
                   </div>
                 </div>
 
                 {/* Voting Options */}
                 <div className="space-y-3">
-                  <div className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
-                    <span>{hasVoted ? 'Kết quả bình chọn cộng đồng:' : 'Chọn mức giá dự đoán của bạn (Nhận ngay +10.000đ):'}</span>
+                  <div className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between gap-2">
+                    <span className="truncate">{hasVoted ? 'Kết quả bình chọn cộng đồng:' : 'Chọn mức giá dự đoán của bạn:'}</span>
                     {!hasVoted && (
-                      <span className="text-[11px] text-emerald-600 font-bold">
+                      <span className="text-[11px] text-emerald-600 font-bold shrink-0">
                         +10.000đ vào Ví KM
                       </span>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                     {game.options.map(opt => {
                       const isUserChoice = userVotes[game.id] === opt.id;
                       return (
@@ -187,7 +187,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
                           key={opt.id}
                           onClick={() => handleVote(game.id, opt.id, opt.label)}
                           disabled={hasVoted}
-                          className={`p-4 rounded-2xl border text-left transition-all relative overflow-hidden cursor-pointer ${
+                          className={`p-3.5 sm:p-4 rounded-2xl border text-left transition-all relative overflow-hidden cursor-pointer ${
                             isUserChoice
                               ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-300'
                               : hasVoted
@@ -195,22 +195,22 @@ export default function PricePredictionPage({ projectSlug = null }) {
                               : 'border-slate-200 hover:border-blue-400 hover:bg-slate-50'
                           }`}
                         >
-                          <div className="relative z-10 flex items-center justify-between">
-                            <span className="text-xs font-bold text-slate-900">{opt.label}</span>
+                          <div className="relative z-10 flex items-center justify-between gap-1">
+                            <span className="text-xs font-bold text-slate-900 line-clamp-1">{opt.label}</span>
                             {isUserChoice && (
-                              <span className="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px]">
+                              <span className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px] shrink-0">
                                 <i className="fa-solid fa-check"></i>
                               </span>
                             )}
                           </div>
 
                           {hasVoted && (
-                            <div className="mt-3 relative z-10">
+                            <div className="mt-2.5 relative z-10">
                               <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 mb-1">
                                 <span>{opt.percent || 0}%</span>
                                 <span>{opt.votes || 0} lượt</span>
                               </div>
-                              <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+                              <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
                                 <div
                                   className={`h-full rounded-full ${isUserChoice ? 'bg-blue-600' : 'bg-slate-400'}`}
                                   style={{ width: `${opt.percent || 0}%` }}
