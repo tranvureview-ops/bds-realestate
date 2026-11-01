@@ -40,6 +40,7 @@ export default function AdminRewardsGamificationManager() {
   // States quản lý bài viết kích hoạt rương kho báu (Phương án 1)
   const [treasureSearchTerm, setTreasureSearchTerm] = useState('');
   const [treasureViewMode, setTreasureViewMode] = useState('active_only'); // 'active_only', 'all', 'inactive_only'
+  const [adminTierTab, setAdminTierTab] = useState('regular'); // 'regular' | 'basic' | 'standard' | 'premium'
 
   // Tính trạng thái ngân sách tháng và 4 mốc phần thưởng
   const monthlyBudgetVal = Number(formData.treasureHuntConfig?.monthlyBudget ?? 50000);
@@ -932,570 +933,709 @@ export default function AdminRewardsGamificationManager() {
             </div>
           </div>
 
-          {/* 1. CẤU HÌNH TỶ LỆ KHÁCH VÃNG LAI VÀ THÀNH VIÊN THƯỜNG */}
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
-              <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <i className="fa-solid fa-table-list text-amber-400"></i>
-                  1. Cấu hình tỷ lệ Khách Vãng Lai và Thành Viên Thường
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Tùy chỉnh ngân sách tháng, 4 mốc phần thưởng, số tiền và tỷ lệ xuất hiện theo bảng chuẩn. Tổng tỷ lệ phải bằng đúng 100%.
-                </p>
+          {/* HỆ THỐNG CẤU HÌNH TỶ LỆ & NGÂN SÁCH MỞ RƯƠNG 4 NHÓM HỘI VIÊN (TINH CHỈNH GỌN GÀNG THEO TAB) */}
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-6">
+            {/* Header chung & Thanh Sub-Tabs chọn nhóm đối tượng */}
+            <div className="space-y-4 border-b border-slate-800 pb-5">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <i className="fa-solid fa-table-list text-amber-400"></i>
+                    <span>Cấu Hình Tỷ Lệ & Ngân Sách Theo Nhóm Đối Tượng</span>
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Chọn nhóm đối tượng bên dưới để tinh chỉnh ngân sách tháng và bảng tỷ lệ phần thưởng mở rương tương ứng (Tổng tỷ lệ mỗi nhóm phải bằng đúng 100%).
+                  </p>
+                </div>
+
+                <div className="text-xs font-mono font-bold text-slate-400 flex items-center gap-2 self-start lg:self-auto">
+                  <span>Hệ thống phân tầng:</span>
+                  <span className="px-2 py-0.5 bg-slate-800 text-slate-300 rounded-lg">Khách/Thường</span>
+                  <span className="text-slate-600">→</span>
+                  <span className="px-2 py-0.5 bg-amber-500/10 text-amber-300 rounded-lg">Cơ Bản</span>
+                  <span className="text-slate-600">→</span>
+                  <span className="px-2 py-0.5 bg-orange-500/10 text-orange-300 rounded-lg">Tiêu Chuẩn</span>
+                  <span className="text-slate-600">→</span>
+                  <span className="px-2 py-0.5 bg-purple-500/10 text-purple-300 rounded-lg">Cao Cấp</span>
+                </div>
               </div>
 
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className={`px-3 py-1 rounded-full text-xs font-mono font-bold border flex items-center gap-1.5 ${
-                  totalTierPercentage === 100
-                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                    : 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
-                }`}>
-                  <i className={`fa-solid ${totalTierPercentage === 100 ? 'fa-circle-check text-emerald-400' : 'fa-triangle-exclamation text-rose-400'}`}></i>
-                  <span>Tổng tỷ lệ: {totalTierPercentage}% {totalTierPercentage === 100 ? '(Chuẩn)' : '(Chưa đủ/vượt 100%)'}</span>
-                </span>
+              {/* 4 Nút Tab chuyển đổi trực quan kèm badge trạng thái % */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 bg-slate-950 p-2 rounded-2xl border border-slate-800">
                 <button
                   type="button"
-                  onClick={handleResetDefaultTiers}
-                  className="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
-                  title="Khôi phục về 4 mốc mặc định: 0đ (25%), 1.200đ (45%), 2.500đ (25%), 12.000đ (5%)"
+                  onClick={() => setAdminTierTab('regular')}
+                  className={`p-3 rounded-xl text-left transition cursor-pointer flex flex-col justify-between gap-1.5 ${
+                    adminTierTab === 'regular'
+                      ? 'bg-slate-800 text-white shadow-md border border-slate-700'
+                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                  }`}
                 >
-                  <i className="fa-solid fa-rotate-left text-[10px]"></i>
-                  <span>Khôi phục mặc định</span>
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="font-bold text-xs flex items-center gap-1.5">
+                      <i className="fa-solid fa-user text-[11px] text-slate-400"></i>
+                      <span>1. Khách & Thường</span>
+                    </span>
+                    <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                      totalTierPercentage === 100 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'
+                    }`}>
+                      {totalTierPercentage}%
+                    </span>
+                  </div>
+                  <div className="text-[11px] font-mono text-slate-400">
+                    Quỹ: {Number(formData.treasureHuntConfig?.monthlyBudget ?? 50000).toLocaleString('vi-VN')}đ / tháng
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setAdminTierTab('basic')}
+                  className={`p-3 rounded-xl text-left transition cursor-pointer flex flex-col justify-between gap-1.5 ${
+                    adminTierTab === 'basic'
+                      ? 'bg-amber-950/40 text-amber-200 shadow-md border border-amber-500/40'
+                      : 'text-slate-400 hover:text-amber-300 hover:bg-slate-900/60'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="font-bold text-xs flex items-center gap-1.5">
+                      <i className="fa-solid fa-crown text-[11px] text-amber-400"></i>
+                      <span>2. Hội Viên Cơ Bản</span>
+                    </span>
+                    <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                      totalBasicTierPercentage === 100 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'
+                    }`}>
+                      {totalBasicTierPercentage}%
+                    </span>
+                  </div>
+                  <div className="text-[11px] font-mono text-amber-400/80">
+                    Quỹ: {basicMonthlyBudgetVal.toLocaleString('vi-VN')}đ / tháng
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setAdminTierTab('standard')}
+                  className={`p-3 rounded-xl text-left transition cursor-pointer flex flex-col justify-between gap-1.5 ${
+                    adminTierTab === 'standard'
+                      ? 'bg-orange-950/40 text-orange-200 shadow-md border border-orange-500/40'
+                      : 'text-slate-400 hover:text-orange-300 hover:bg-slate-900/60'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="font-bold text-xs flex items-center gap-1.5">
+                      <i className="fa-solid fa-award text-[11px] text-orange-400"></i>
+                      <span>3. Hội Viên Tiêu Chuẩn</span>
+                    </span>
+                    <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                      totalStandardTierPercentage === 100 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'
+                    }`}>
+                      {totalStandardTierPercentage}%
+                    </span>
+                  </div>
+                  <div className="text-[11px] font-mono text-orange-400/80">
+                    Quỹ: {standardMonthlyBudgetVal.toLocaleString('vi-VN')}đ / tháng
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setAdminTierTab('premium')}
+                  className={`p-3 rounded-xl text-left transition cursor-pointer flex flex-col justify-between gap-1.5 ${
+                    adminTierTab === 'premium'
+                      ? 'bg-purple-950/40 text-purple-200 shadow-md border border-purple-500/40'
+                      : 'text-slate-400 hover:text-purple-300 hover:bg-slate-900/60'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="font-bold text-xs flex items-center gap-1.5">
+                      <i className="fa-solid fa-gem text-[11px] text-purple-400"></i>
+                      <span>4. Hội Viên Cao Cấp</span>
+                    </span>
+                    <span className={`text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                      totalPremiumTierPercentage === 100 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'
+                    }`}>
+                      {totalPremiumTierPercentage}%
+                    </span>
+                  </div>
+                  <div className="text-[11px] font-mono text-purple-400/80">
+                    Quỹ: {premiumMonthlyBudgetVal.toLocaleString('vi-VN')}đ / tháng
+                  </div>
                 </button>
               </div>
             </div>
 
-            {/* Ô nhập Tổng Ngân Sách Mở Rương / Tháng (Chuyển xuống đây theo yêu cầu) */}
-            <div className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <label className="text-xs font-bold text-white flex items-center gap-2">
-                    <i className="fa-solid fa-vault text-amber-400"></i>
-                    <span>Tổng Ngân Sách Mở Rương / Tháng</span>
-                  </label>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    Hạn mức quỹ tiền thưởng tối đa mở rương được phát trong 1 tháng dương lịch.
-                  </p>
-                </div>
-                <span className="text-emerald-400 text-xs font-mono font-bold bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 self-start sm:self-auto">
-                  Quỹ tối đa
-                </span>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-                <div className="relative">
-                  <input
-                    type="number"
-                    min="0"
-                    step="5000"
-                    value={formData.treasureHuntConfig?.monthlyBudget ?? 50000}
-                    onChange={(e) => handleTreasureConfigChange('monthlyBudget', Math.max(0, Number(e.target.value) || 0))}
-                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono font-bold text-sm focus:border-emerald-400 focus:outline-none"
-                  />
-                  <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">VNĐ</span>
-                </div>
-
-                {/* Thanh tiến độ ngân sách tháng */}
-                <div className="space-y-1.5 bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
-                  <div className="flex items-center justify-between text-[11px] text-slate-400">
-                    <span>Đã chi tháng này: <strong className="text-emerald-400 font-mono">{budgetStatus.currentSpent.toLocaleString('vi-VN')}đ</strong></span>
-                    <span className="font-mono font-bold text-slate-300">{budgetStatus.percentUsed}%</span>
+            {/* TAB 1: KHÁCH VÃNG LAI VÀ THÀNH VIÊN THƯỜNG */}
+            {adminTierTab === 'regular' && (
+              <div className="space-y-5 animate-in fade-in duration-150">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                  <div>
+                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                      <i className="fa-solid fa-user text-slate-400"></i>
+                      <span>1. Cấu hình tỷ lệ Khách Vãng Lai và Thành Viên Thường</span>
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Gồm 4 mốc phần thưởng tiêu chuẩn, số tiền và tỷ lệ xuất hiện (yêu cầu đăng nhập, hạn mức 1 rương/ngày).
+                    </p>
                   </div>
-                  <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full rounded-full transition-all duration-300 ${budgetStatus.isBudgetExceeded ? 'bg-rose-500' : 'bg-emerald-500'}`}
-                      style={{ width: `${budgetStatus.percentUsed}%` }}
+
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`px-3 py-1 rounded-full text-xs font-mono font-bold border flex items-center gap-1.5 ${
+                      totalTierPercentage === 100
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                        : 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
+                    }`}>
+                      <i className={`fa-solid ${totalTierPercentage === 100 ? 'fa-circle-check text-emerald-400' : 'fa-triangle-exclamation text-rose-400'}`}></i>
+                      <span>Tổng tỷ lệ: {totalTierPercentage}% {totalTierPercentage === 100 ? '(Chuẩn)' : '(Chưa chuẩn)'}</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleResetDefaultTiers}
+                      className="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                      title="Khôi phục về 4 mốc mặc định: 0đ (25%), 1.200đ (45%), 2.500đ (25%), 12.000đ (5%)"
+                    >
+                      <i className="fa-solid fa-rotate-left text-[10px]"></i>
+                      <span>Khôi phục mặc định</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Ô nhập Tổng Ngân Sách Mở Rương / Tháng */}
+                <div className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <label className="text-xs font-bold text-white flex items-center gap-2">
+                        <i className="fa-solid fa-vault text-amber-400"></i>
+                        <span>Tổng Ngân Sách Mở Rương / Tháng (Khách & Thường)</span>
+                      </label>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Hạn mức quỹ tiền thưởng tối đa mở rương được phát trong 1 tháng dương lịch cho khách vãng lai và thành viên thường.
+                      </p>
+                    </div>
+                    <span className="text-emerald-400 text-xs font-mono font-bold bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 self-start sm:self-auto">
+                      Quỹ tối đa: 50.000đ
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min="0"
+                        step="5000"
+                        value={formData.treasureHuntConfig?.monthlyBudget ?? 50000}
+                        onChange={(e) => handleTreasureConfigChange('monthlyBudget', Math.max(0, Number(e.target.value) || 0))}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono font-bold text-sm focus:border-emerald-400 focus:outline-none"
+                      />
+                      <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">VNĐ</span>
+                    </div>
+
+                    <div className="space-y-1.5 bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                      <div className="flex items-center justify-between text-[11px] text-slate-400">
+                        <span>Đã chi tháng này: <strong className="text-emerald-400 font-mono">{budgetStatus.currentSpent.toLocaleString('vi-VN')}đ</strong></span>
+                        <span className="font-mono font-bold text-slate-300">{budgetStatus.percentUsed}%</span>
+                      </div>
+                      <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full transition-all duration-300 ${budgetStatus.isBudgetExceeded ? 'bg-rose-500' : 'bg-emerald-500'}`}
+                          style={{ width: `${budgetStatus.percentUsed}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bảng chỉnh sửa 4 mốc phần thưởng */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-800 text-slate-400 uppercase text-[11px] font-bold">
+                        <th className="py-2.5 px-3">Mốc phần thưởng</th>
+                        <th className="py-2.5 px-3">Số tiền nhận (đ)</th>
+                        <th className="py-2.5 px-3 text-right">Tỷ lệ xuất hiện (%)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60 font-medium">
+                      {currentRewardTiers.map((tier, idx) => (
+                        <tr key={tier.id || idx} className="hover:bg-slate-950/40 transition">
+                          <td className="py-2.5 px-3">
+                            <div className="flex items-center gap-2">
+                              <span className={`w-2 h-2 rounded-full shrink-0 ${Number(tier.amount) === 0 ? 'bg-slate-500' : 'bg-amber-400'}`}></span>
+                              <input
+                                type="text"
+                                value={tier.label || ''}
+                                onChange={(e) => handleUpdateTier(idx, 'label', e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-white font-bold text-xs focus:border-amber-400 focus:outline-none"
+                                placeholder="Tên mốc phần thưởng..."
+                              />
+                            </div>
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <div className="flex items-center gap-1.5 max-w-[200px]">
+                              <input
+                                type="number"
+                                min="0"
+                                step="100"
+                                value={tier.amount ?? 0}
+                                onChange={(e) => handleUpdateTier(idx, 'amount', e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-amber-300 font-mono font-bold text-xs focus:border-amber-400 focus:outline-none"
+                              />
+                              <span className="text-slate-400 text-xs font-mono font-bold shrink-0">đ</span>
+                            </div>
+                          </td>
+                          <td className="py-2.5 px-3 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                value={tier.percentage ?? 0}
+                                onChange={(e) => handleUpdateTier(idx, 'percentage', e.target.value)}
+                                className="w-20 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-right text-emerald-400 font-mono font-bold text-xs focus:border-emerald-400 focus:outline-none"
+                              />
+                              <span className="text-slate-400 text-xs font-mono font-bold shrink-0">%</span>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Ghi chú giải thích cơ chế 4 mốc */}
+                <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 text-xs text-slate-400 leading-relaxed space-y-1">
+                  <div className="text-slate-300 font-bold flex items-center gap-1.5">
+                    <i className="fa-solid fa-circle-info text-amber-400 text-[11px]"></i>
+                    <span>Quy tắc vận hành 4 mốc phần thưởng:</span>
+                  </div>
+                  <ul className="list-disc list-inside space-y-0.5 text-[11px] text-slate-400 pl-1">
+                    <li>Khi quay vào mốc <strong>Chúc may mắn (0đ)</strong>: Hiển thị popup "Chúc bạn may mắn lần sau", không cộng tiền nhưng vẫn tính 1 lượt mở rương hôm nay.</li>
+                    <li>Khi quay vào các mốc <strong>1.200đ</strong>, <strong>2.500đ</strong> hoặc <strong>12.000đ</strong>: Tiền thưởng được cộng thẳng vào Ví Khuyến Mãi của người dùng.</li>
+                    <li>Hạn mức mở rương mặc định: <strong>{formData.treasureHuntConfig?.dailyLimit ?? formData.treasureHuntConfig?.regularDailyLimit ?? 1} rương / ngày / tài khoản</strong> (Khách vãng lai yêu cầu đăng nhập).</li>
+                    <li>Nếu ngân sách tháng đạt ngưỡng {monthlyBudgetVal.toLocaleString('vi-VN')}đ, hệ thống tự động khóa nhận tiền và thông báo hết ngân sách tháng.</li>
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: HỘI VIÊN CƠ BẢN */}
+            {adminTierTab === 'basic' && (
+              <div className="space-y-5 animate-in fade-in duration-150">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                  <div>
+                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                      <i className="fa-solid fa-crown text-amber-400"></i>
+                      <span>2. Cấu hình Hệ thống (Hội Viên Cơ Bản)</span>
+                      <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[10px] font-bold">
+                        100% Trúng Thưởng
+                      </span>
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Tùy chỉnh ngân sách tháng, các mốc phần thưởng và tỷ lệ xuất hiện dành riêng cho Hội Viên Cơ Bản khi mở rương.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`px-3 py-1 rounded-full text-xs font-mono font-bold border flex items-center gap-1.5 ${
+                      totalBasicTierPercentage === 100
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                        : 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
+                    }`}>
+                      <i className={`fa-solid ${totalBasicTierPercentage === 100 ? 'fa-circle-check text-emerald-400' : 'fa-triangle-exclamation text-rose-400'}`}></i>
+                      <span>Tổng tỷ lệ: {totalBasicTierPercentage}% {totalBasicTierPercentage === 100 ? '(Chuẩn)' : '(Chưa chuẩn)'}</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleResetDefaultBasicTiers}
+                      className="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                      title="Khôi phục về 3 mốc mặc định: 2.500đ (40%), 4.000đ (50%), 10.000đ (10%)"
+                    >
+                      <i className="fa-solid fa-rotate-left text-[10px]"></i>
+                      <span>Khôi phục mặc định</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Ô nhập Tổng Ngân Sách Mở Rương / Tháng cho Hội Viên Cơ Bản */}
+                <div className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <label className="text-xs font-bold text-white flex items-center gap-2">
+                        <i className="fa-solid fa-vault text-amber-400"></i>
+                        <span>Tổng Ngân Sách Mở Rương / Tháng (Hội Viên Cơ Bản)</span>
+                      </label>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Hạn mức quỹ tiền thưởng tối đa mở rương dành riêng cho các tài khoản Gói Hội Viên Cơ Bản trong 1 tháng dương lịch.
+                      </p>
+                    </div>
+                    <span className="text-amber-400 text-xs font-mono font-bold bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20 self-start sm:self-auto">
+                      Quỹ Hội Viên Cơ Bản
+                    </span>
+                  </div>
+
+                  <div className="relative max-w-md">
+                    <input
+                      type="number"
+                      min="0"
+                      step="10000"
+                      value={formData.treasureHuntConfig?.basicMemberConfig?.monthlyBudget ?? 120000}
+                      onChange={(e) => handleBasicMonthlyBudgetChange(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono font-bold text-sm focus:border-amber-400 focus:outline-none"
                     />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">VNĐ</span>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Bảng chỉnh sửa 4 mốc phần thưởng */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="border-b border-slate-800 text-slate-400 uppercase text-[11px] font-bold">
-                    <th className="py-2.5 px-3">Mốc phần thưởng</th>
-                    <th className="py-2.5 px-3">Số tiền nhận (đ)</th>
-                    <th className="py-2.5 px-3 text-right">Tỷ lệ xuất hiện (%)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/60 font-medium">
-                  {currentRewardTiers.map((tier, idx) => (
-                    <tr key={tier.id || idx} className="hover:bg-slate-950/40 transition">
-                      <td className="py-2.5 px-3">
-                        <div className="flex items-center gap-2">
-                          <span className={`w-2 h-2 rounded-full shrink-0 ${Number(tier.amount) === 0 ? 'bg-slate-500' : 'bg-amber-400'}`}></span>
-                          <input
-                            type="text"
-                            value={tier.label || ''}
-                            onChange={(e) => handleUpdateTier(idx, 'label', e.target.value)}
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-white font-bold text-xs focus:border-amber-400 focus:outline-none"
-                            placeholder="Tên mốc phần thưởng..."
-                          />
-                        </div>
-                      </td>
-                      <td className="py-2.5 px-3">
-                        <div className="flex items-center gap-1.5 max-w-[200px]">
-                          <input
-                            type="number"
-                            min="0"
-                            step="100"
-                            value={tier.amount ?? 0}
-                            onChange={(e) => handleUpdateTier(idx, 'amount', e.target.value)}
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-amber-300 font-mono font-bold text-xs focus:border-amber-400 focus:outline-none"
-                          />
-                          <span className="text-slate-400 text-xs font-mono font-bold shrink-0">đ</span>
-                        </div>
-                      </td>
-                      <td className="py-2.5 px-3 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            value={tier.percentage ?? 0}
-                            onChange={(e) => handleUpdateTier(idx, 'percentage', e.target.value)}
-                            className="w-20 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-right text-emerald-400 font-mono font-bold text-xs focus:border-emerald-400 focus:outline-none"
-                          />
-                          <span className="text-slate-400 text-xs font-mono font-bold shrink-0">%</span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Ghi chú giải thích cơ chế 4 mốc */}
-            <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 text-xs text-slate-400 leading-relaxed space-y-1">
-              <div className="text-slate-300 font-bold flex items-center gap-1.5">
-                <i className="fa-solid fa-circle-info text-amber-400 text-[11px]"></i>
-                <span>Quy tắc vận hành 4 mốc phần thưởng:</span>
-              </div>
-              <ul className="list-disc list-inside space-y-0.5 text-[11px] text-slate-400 pl-1">
-                <li>Khi quay vào mốc <strong>Chúc may mắn (0đ)</strong>: Hiển thị popup "Chúc bạn may mắn lần sau", không cộng tiền nhưng vẫn tính 1 lượt mở rương hôm nay.</li>
-                <li>Khi quay vào các mốc <strong>1.200đ</strong>, <strong>2.500đ</strong> hoặc <strong>12.000đ</strong>: Tiền thưởng được cộng thẳng vào Ví Khuyến Mãi của người dùng.</li>
-                <li>Hạn mức mở rương mặc định: <strong>{formData.treasureHuntConfig?.dailyLimit ?? formData.treasureHuntConfig?.regularDailyLimit ?? 1} rương / ngày / tài khoản</strong> (Khách vãng lai yêu cầu đăng nhập).</li>
-                <li>Nếu ngân sách tháng đạt ngưỡng {monthlyBudgetVal.toLocaleString('vi-VN')}đ, hệ thống tự động khóa nhận tiền và thông báo hết ngân sách tháng.</li>
-              </ul>
-            </div>
-          </div>
-
-          {/* 2. CẤU HÌNH HỆ THỐNG (HỘI VIÊN CƠ BẢN) */}
-          <div className="bg-slate-900 border border-amber-500/30 rounded-3xl p-6 space-y-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
-              <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <i className="fa-solid fa-crown text-amber-400"></i>
-                  <span>2. Cấu hình Hệ thống (Hội Viên Cơ Bản)</span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 text-[11px] font-bold">
-                    100% Trúng Thưởng
-                  </span>
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Tùy chỉnh ngân sách tháng, các mốc phần thưởng và tỷ lệ xuất hiện dành riêng cho Hội Viên Cơ Bản khi mở rương. Tổng tỷ lệ phải bằng đúng 100%.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className={`px-3 py-1 rounded-full text-xs font-mono font-bold border flex items-center gap-1.5 ${
-                  totalBasicTierPercentage === 100
-                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                    : 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
-                }`}>
-                  <i className={`fa-solid ${totalBasicTierPercentage === 100 ? 'fa-circle-check text-emerald-400' : 'fa-triangle-exclamation text-rose-400'}`}></i>
-                  <span>Tổng tỷ lệ: {totalBasicTierPercentage}% {totalBasicTierPercentage === 100 ? '(Chuẩn)' : '(Chưa đủ/vượt 100%)'}</span>
-                </span>
-                <button
-                  type="button"
-                  onClick={handleResetDefaultBasicTiers}
-                  className="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
-                  title="Khôi phục về 3 mốc mặc định: 2.500đ (40%), 4.000đ (50%), 10.000đ (10%)"
-                >
-                  <i className="fa-solid fa-rotate-left text-[10px]"></i>
-                  <span>Khôi phục mặc định</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Ô nhập Tổng Ngân Sách Mở Rương / Tháng cho Hội Viên Cơ Bản */}
-            <div className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <label className="text-xs font-bold text-white flex items-center gap-2">
-                    <i className="fa-solid fa-vault text-amber-400"></i>
-                    <span>Tổng Ngân Sách Mở Rương / Tháng (Hội Viên Cơ Bản)</span>
-                  </label>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    Hạn mức quỹ tiền thưởng tối đa mở rương dành riêng cho các tài khoản Gói Hội Viên Cơ Bản trong 1 tháng dương lịch.
-                  </p>
+                {/* Bảng chỉnh sửa 3 mốc phần thưởng cho Hội Viên Cơ Bản */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-800 text-slate-400 uppercase text-[11px] font-bold">
+                        <th className="py-2.5 px-3">Mốc phần thưởng</th>
+                        <th className="py-2.5 px-3">Số tiền nhận (đ)</th>
+                        <th className="py-2.5 px-3 text-right">Tỷ lệ xuất hiện (%)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60 font-medium">
+                      {currentBasicRewardTiers.map((tier, idx) => (
+                        <tr key={tier.id || idx} className="hover:bg-slate-950/40 transition">
+                          <td className="py-2.5 px-3">
+                            <div className="flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full shrink-0 bg-amber-400"></span>
+                              <input
+                                type="text"
+                                value={tier.label || ''}
+                                onChange={(e) => handleUpdateBasicTier(idx, 'label', e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-white font-bold text-xs focus:border-amber-400 focus:outline-none"
+                                placeholder="Tên mốc phần thưởng..."
+                              />
+                            </div>
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <div className="flex items-center gap-1.5 max-w-[200px]">
+                              <input
+                                type="number"
+                                min="0"
+                                step="100"
+                                value={tier.amount ?? 0}
+                                onChange={(e) => handleUpdateBasicTier(idx, 'amount', e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-amber-300 font-mono font-bold text-xs focus:border-amber-400 focus:outline-none"
+                              />
+                              <span className="text-slate-400 text-xs font-mono font-bold shrink-0">đ</span>
+                            </div>
+                          </td>
+                          <td className="py-2.5 px-3 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                value={tier.percentage ?? 0}
+                                onChange={(e) => handleUpdateBasicTier(idx, 'percentage', e.target.value)}
+                                className="w-20 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-right text-emerald-400 font-mono font-bold text-xs focus:border-emerald-400 focus:outline-none"
+                              />
+                              <span className="text-slate-400 text-xs font-mono font-bold shrink-0">%</span>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-                <span className="text-amber-400 text-xs font-mono font-bold bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20 self-start sm:self-auto">
-                  Quỹ Hội Viên Cơ Bản
-                </span>
-              </div>
 
-              <div className="relative max-w-md">
-                <input
-                  type="number"
-                  min="0"
-                  step="10000"
-                  value={formData.treasureHuntConfig?.basicMemberConfig?.monthlyBudget ?? 120000}
-                  onChange={(e) => handleBasicMonthlyBudgetChange(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono font-bold text-sm focus:border-amber-400 focus:outline-none"
-                />
-                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">VNĐ</span>
-              </div>
-            </div>
-
-            {/* Bảng chỉnh sửa 3 mốc phần thưởng cho Hội Viên Cơ Bản */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="border-b border-slate-800 text-slate-400 uppercase text-[11px] font-bold">
-                    <th className="py-2.5 px-3">Mốc phần thưởng</th>
-                    <th className="py-2.5 px-3">Số tiền nhận (đ)</th>
-                    <th className="py-2.5 px-3 text-right">Tỷ lệ xuất hiện (%)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/60 font-medium">
-                  {currentBasicRewardTiers.map((tier, idx) => (
-                    <tr key={tier.id || idx} className="hover:bg-slate-950/40 transition">
-                      <td className="py-2.5 px-3">
-                        <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full shrink-0 bg-amber-400"></span>
-                          <input
-                            type="text"
-                            value={tier.label || ''}
-                            onChange={(e) => handleUpdateBasicTier(idx, 'label', e.target.value)}
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-white font-bold text-xs focus:border-amber-400 focus:outline-none"
-                            placeholder="Tên mốc phần thưởng..."
-                          />
-                        </div>
-                      </td>
-                      <td className="py-2.5 px-3">
-                        <div className="flex items-center gap-1.5 max-w-[200px]">
-                          <input
-                            type="number"
-                            min="0"
-                            step="100"
-                            value={tier.amount ?? 0}
-                            onChange={(e) => handleUpdateBasicTier(idx, 'amount', e.target.value)}
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-amber-300 font-mono font-bold text-xs focus:border-amber-400 focus:outline-none"
-                          />
-                          <span className="text-slate-400 text-xs font-mono font-bold shrink-0">đ</span>
-                        </div>
-                      </td>
-                      <td className="py-2.5 px-3 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            value={tier.percentage ?? 0}
-                            onChange={(e) => handleUpdateBasicTier(idx, 'percentage', e.target.value)}
-                            className="w-20 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-right text-emerald-400 font-mono font-bold text-xs focus:border-emerald-400 focus:outline-none"
-                          />
-                          <span className="text-slate-400 text-xs font-mono font-bold shrink-0">%</span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Ghi chú giải thích cơ chế Hội Viên Cơ Bản */}
-            <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 text-xs text-slate-400 leading-relaxed space-y-1">
-              <div className="text-slate-300 font-bold flex items-center gap-1.5">
-                <i className="fa-solid fa-circle-info text-amber-400 text-[11px]"></i>
-                <span>Quy tắc vận hành mốc thưởng Hội Viên Cơ Bản:</span>
-              </div>
-              <ul className="list-disc list-inside space-y-0.5 text-[11px] text-slate-400 pl-1">
-                <li>Dành riêng cho tài khoản đăng ký <strong>Gói Hội Viên Cơ Bản</strong> (mỗi chu kỳ nhận tỷ lệ trúng thưởng cao hơn).</li>
-                <li><strong>100% trúng thưởng</strong> (không có mốc rỗng 0đ Chúc May Mắn): Mức nhận gồm <strong>2.500đ (40%)</strong>, <strong>4.000đ (50%)</strong> hoặc <strong>10.000đ (10%)</strong>.</li>
-                <li>Tổng ngân sách mở rương riêng cho Hội Viên Cơ Bản: <strong>{basicMonthlyBudgetVal.toLocaleString('vi-VN')}đ / tháng</strong>.</li>
-              </ul>
-            </div>
-          </div>
-
-          {/* 3. CẤU HÌNH HỆ THỐNG (HỘI VIÊN TIÊU CHUẨN) */}
-          <div className="bg-slate-900 border border-orange-500/30 rounded-3xl p-6 space-y-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
-              <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <i className="fa-solid fa-award text-orange-400"></i>
-                  <span>3. Cấu hình Hệ thống (Hội Viên Tiêu Chuẩn)</span>
-                  <span className="px-2.5 py-0.5 rounded-full bg-orange-500/20 text-orange-300 text-[11px] font-bold">
-                    100% Trúng Thưởng (Mức Cao)
-                  </span>
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Tùy chỉnh ngân sách tháng, các mốc phần thưởng và tỷ lệ xuất hiện dành riêng cho Hội Viên Tiêu Chuẩn khi mở rương. Tổng tỷ lệ phải bằng đúng 100%.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className={`px-3 py-1 rounded-full text-xs font-mono font-bold border flex items-center gap-1.5 ${
-                  totalStandardTierPercentage === 100
-                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                    : 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
-                }`}>
-                  <i className={`fa-solid ${totalStandardTierPercentage === 100 ? 'fa-circle-check text-emerald-400' : 'fa-triangle-exclamation text-rose-400'}`}></i>
-                  <span>Tổng tỷ lệ: {totalStandardTierPercentage}% {totalStandardTierPercentage === 100 ? '(Chuẩn)' : '(Chưa đủ/vượt 100%)'}</span>
-                </span>
-                <button
-                  type="button"
-                  onClick={handleResetDefaultStandardTiers}
-                  className="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
-                  title="Khôi phục về 3 mốc mặc định: 8.000đ (40%), 12.000đ (50%), 35.000đ (10%)"
-                >
-                  <i className="fa-solid fa-rotate-left text-[10px]"></i>
-                  <span>Khôi phục mặc định</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Ô nhập Tổng Ngân Sách Mở Rương / Tháng cho Hội Viên Tiêu Chuẩn */}
-            <div className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <label className="text-xs font-bold text-white flex items-center gap-2">
-                    <i className="fa-solid fa-vault text-orange-400"></i>
-                    <span>Tổng Ngân Sách Mở Rương / Tháng (Hội Viên Tiêu Chuẩn)</span>
-                  </label>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    Hạn mức quỹ tiền thưởng tối đa mở rương dành riêng cho các tài khoản Gói Hội Viên Tiêu Chuẩn trong 1 tháng dương lịch.
-                  </p>
+                {/* Ghi chú giải thích cơ chế Hội Viên Cơ Bản */}
+                <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 text-xs text-slate-400 leading-relaxed space-y-1">
+                  <div className="text-slate-300 font-bold flex items-center gap-1.5">
+                    <i className="fa-solid fa-circle-info text-amber-400 text-[11px]"></i>
+                    <span>Quy tắc vận hành mốc thưởng Hội Viên Cơ Bản:</span>
+                  </div>
+                  <ul className="list-disc list-inside space-y-0.5 text-[11px] text-slate-400 pl-1">
+                    <li>Dành riêng cho tài khoản đăng ký <strong>Gói Hội Viên Cơ Bản</strong> (mỗi chu kỳ nhận tỷ lệ trúng thưởng cao hơn).</li>
+                    <li><strong>100% trúng thưởng</strong> (không có mốc rỗng 0đ Chúc May Mắn): Mức nhận gồm <strong>2.500đ (40%)</strong>, <strong>4.000đ (50%)</strong> hoặc <strong>10.000đ (10%)</strong>.</li>
+                    <li>Tổng ngân sách mở rương riêng cho Hội Viên Cơ Bản: <strong>{basicMonthlyBudgetVal.toLocaleString('vi-VN')}đ / tháng</strong>.</li>
+                  </ul>
                 </div>
-                <span className="text-orange-400 text-xs font-mono font-bold bg-orange-500/10 px-2.5 py-1 rounded-lg border border-orange-500/20 self-start sm:self-auto">
-                  Quỹ Hội Viên Tiêu Chuẩn
-                </span>
               </div>
+            )}
 
-              <div className="relative max-w-md">
-                <input
-                  type="number"
-                  min="0"
-                  step="10000"
-                  value={formData.treasureHuntConfig?.standardMemberConfig?.monthlyBudget ?? 370000}
-                  onChange={(e) => handleStandardMonthlyBudgetChange(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono font-bold text-sm focus:border-orange-400 focus:outline-none"
-                />
-                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">VNĐ</span>
-              </div>
-            </div>
+            {/* TAB 3: HỘI VIÊN TIÊU CHUẨN */}
+            {adminTierTab === 'standard' && (
+              <div className="space-y-5 animate-in fade-in duration-150">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                  <div>
+                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                      <i className="fa-solid fa-award text-orange-400"></i>
+                      <span>3. Cấu hình Hệ thống (Hội Viên Tiêu Chuẩn)</span>
+                      <span className="px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-300 text-[10px] font-bold">
+                        100% Trúng Thưởng (Mức Cao)
+                      </span>
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Tùy chỉnh ngân sách tháng, các mốc phần thưởng và tỷ lệ xuất hiện dành riêng cho Hội Viên Tiêu Chuẩn khi mở rương.
+                    </p>
+                  </div>
 
-            {/* Bảng chỉnh sửa 3 mốc phần thưởng cho Hội Viên Tiêu Chuẩn */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="border-b border-slate-800 text-slate-400 uppercase text-[11px] font-bold">
-                    <th className="py-2.5 px-3">Mốc phần thưởng</th>
-                    <th className="py-2.5 px-3">Số tiền nhận (đ)</th>
-                    <th className="py-2.5 px-3 text-right">Tỷ lệ xuất hiện (%)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/60 font-medium">
-                  {currentStandardRewardTiers.map((tier, idx) => (
-                    <tr key={tier.id || idx} className="hover:bg-slate-950/40 transition">
-                      <td className="py-2.5 px-3">
-                        <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full shrink-0 bg-orange-400"></span>
-                          <input
-                            type="text"
-                            value={tier.label || ''}
-                            onChange={(e) => handleUpdateStandardTier(idx, 'label', e.target.value)}
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-white font-bold text-xs focus:border-orange-400 focus:outline-none"
-                            placeholder="Tên mốc phần thưởng..."
-                          />
-                        </div>
-                      </td>
-                      <td className="py-2.5 px-3">
-                        <div className="flex items-center gap-1.5 max-w-[200px]">
-                          <input
-                            type="number"
-                            min="0"
-                            step="1000"
-                            value={tier.amount ?? 0}
-                            onChange={(e) => handleUpdateStandardTier(idx, 'amount', e.target.value)}
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-orange-300 font-mono font-bold text-xs focus:border-orange-400 focus:outline-none"
-                          />
-                          <span className="text-slate-400 text-xs font-mono font-bold shrink-0">đ</span>
-                        </div>
-                      </td>
-                      <td className="py-2.5 px-3 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            value={tier.percentage ?? 0}
-                            onChange={(e) => handleUpdateStandardTier(idx, 'percentage', e.target.value)}
-                            className="w-20 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-right text-emerald-400 font-mono font-bold text-xs focus:border-emerald-400 focus:outline-none"
-                          />
-                          <span className="text-slate-400 text-xs font-mono font-bold shrink-0">%</span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Ghi chú giải thích cơ chế Hội Viên Tiêu Chuẩn */}
-            <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 text-xs text-slate-400 leading-relaxed space-y-1">
-              <div className="text-slate-300 font-bold flex items-center gap-1.5">
-                <i className="fa-solid fa-circle-info text-orange-400 text-[11px]"></i>
-                <span>Quy tắc vận hành mốc thưởng Hội Viên Tiêu Chuẩn:</span>
-              </div>
-              <ul className="list-disc list-inside space-y-0.5 text-[11px] text-slate-400 pl-1">
-                <li>Dành riêng cho tài khoản đăng ký <strong>Gói Hội Viên Tiêu Chuẩn</strong> (mỗi chu kỳ nhận tỷ lệ trúng thưởng vượt trội).</li>
-                <li><strong>100% trúng thưởng</strong> (không có mốc rỗng 0đ Chúc May Mắn): Mức nhận gồm <strong>8.000đ (40%)</strong>, <strong>12.000đ (50%)</strong> hoặc <strong>35.000đ (10%)</strong>.</li>
-                <li>Tổng ngân sách mở rương riêng cho Hội Viên Tiêu Chuẩn: <strong>{standardMonthlyBudgetVal.toLocaleString('vi-VN')}đ / tháng</strong>.</li>
-              </ul>
-            </div>
-          </div>
-
-          {/* 4. CẤU HÌNH HỆ THỐNG (HỘI VIÊN CAO CẤP) */}
-          <div className="bg-slate-900 border border-purple-500/40 hover:border-purple-500/60 transition rounded-3xl p-6 space-y-5">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
-              <div>
-                <h3 className="text-base font-bold text-white flex items-center gap-2">
-                  <i className="fa-solid fa-gem text-purple-400"></i>
-                  <span>4. Cấu hình Hệ thống (Hội Viên Cao Cấp)</span>
-                  <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-xs font-mono font-bold">
-                    VIP Premium
-                  </span>
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  Thiết lập hạn mức ngân sách tháng và 4 mốc phần thưởng độc quyền (bao gồm Siêu Jackpot 100.000đ) dành cho Hội Viên Cao Cấp.
-                </p>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className={`text-xs font-mono font-bold px-2.5 py-1 rounded-xl border flex items-center gap-1.5 ${
-                  totalPremiumTierPercentage === 100
-                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
-                    : 'bg-rose-500/10 text-rose-400 border-rose-500/20'
-                }`}>
-                  <i className={`fa-solid ${totalPremiumTierPercentage === 100 ? 'fa-check' : 'fa-triangle-exclamation'}`}></i>
-                  <span>Tổng tỷ lệ: {totalPremiumTierPercentage}% {totalPremiumTierPercentage === 100 ? '(Chuẩn)' : '(Chưa chuẩn)'}</span>
-                </span>
-                <button
-                  type="button"
-                  onClick={handleResetDefaultPremiumTiers}
-                  className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border border-slate-700"
-                  title="Khôi phục 4 mốc mặc định"
-                >
-                  <i className="fa-solid fa-rotate-left"></i>
-                  <span>Khôi phục mặc định</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Ô nhập Tổng Ngân Sách Mở Rương / Tháng cho Hội Viên Cao Cấp */}
-            <div className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div>
-                  <label className="text-xs font-bold text-white flex items-center gap-2">
-                    <i className="fa-solid fa-vault text-purple-400"></i>
-                    <span>Tổng Ngân Sách Mở Rương / Tháng (Hội Viên Cao Cấp)</span>
-                  </label>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    Hạn mức quỹ tiền thưởng tối đa mở rương dành riêng cho các tài khoản Gói Hội Viên Cao Cấp trong 1 tháng dương lịch.
-                  </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`px-3 py-1 rounded-full text-xs font-mono font-bold border flex items-center gap-1.5 ${
+                      totalStandardTierPercentage === 100
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                        : 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
+                    }`}>
+                      <i className={`fa-solid ${totalStandardTierPercentage === 100 ? 'fa-circle-check text-emerald-400' : 'fa-triangle-exclamation text-rose-400'}`}></i>
+                      <span>Tổng tỷ lệ: {totalStandardTierPercentage}% {totalStandardTierPercentage === 100 ? '(Chuẩn)' : '(Chưa chuẩn)'}</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleResetDefaultStandardTiers}
+                      className="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                      title="Khôi phục về 3 mốc mặc định: 8.000đ (40%), 12.000đ (50%), 35.000đ (10%)"
+                    >
+                      <i className="fa-solid fa-rotate-left text-[10px]"></i>
+                      <span>Khôi phục mặc định</span>
+                    </button>
+                  </div>
                 </div>
-                <span className="text-purple-400 text-xs font-mono font-bold bg-purple-500/10 px-2.5 py-1 rounded-lg border border-purple-500/20 self-start sm:self-auto">
-                  Quỹ Hội Viên Cao Cấp
-                </span>
-              </div>
 
-              <div className="relative max-w-md">
-                <input
-                  type="number"
-                  min="0"
-                  step="50000"
-                  value={formData.treasureHuntConfig?.premiumMemberConfig?.monthlyBudget ?? 1000000}
-                  onChange={(e) => handlePremiumMonthlyBudgetChange(e.target.value)}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono font-bold text-sm focus:border-purple-400 focus:outline-none"
-                />
-                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">VNĐ</span>
-              </div>
-            </div>
+                {/* Ô nhập Tổng Ngân Sách Mở Rương / Tháng cho Hội Viên Tiêu Chuẩn */}
+                <div className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <label className="text-xs font-bold text-white flex items-center gap-2">
+                        <i className="fa-solid fa-vault text-orange-400"></i>
+                        <span>Tổng Ngân Sách Mở Rương / Tháng (Hội Viên Tiêu Chuẩn)</span>
+                      </label>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Hạn mức quỹ tiền thưởng tối đa mở rương dành riêng cho các tài khoản Gói Hội Viên Tiêu Chuẩn trong 1 tháng dương lịch.
+                      </p>
+                    </div>
+                    <span className="text-orange-400 text-xs font-mono font-bold bg-orange-500/10 px-2.5 py-1 rounded-lg border border-orange-500/20 self-start sm:self-auto">
+                      Quỹ Hội Viên Tiêu Chuẩn
+                    </span>
+                  </div>
 
-            {/* Bảng chỉnh sửa 4 mốc phần thưởng cho Hội Viên Cao Cấp */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr className="border-b border-slate-800 text-slate-400 uppercase text-[11px] font-bold">
-                    <th className="py-2.5 px-3">Mốc phần thưởng</th>
-                    <th className="py-2.5 px-3">Số tiền nhận (đ)</th>
-                    <th className="py-2.5 px-3 text-right">Tỷ lệ xuất hiện (%)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-800/60 font-medium">
-                  {currentPremiumRewardTiers.map((tier, idx) => (
-                    <tr key={tier.id || idx} className="hover:bg-slate-950/40 transition">
-                      <td className="py-2.5 px-3">
-                        <div className="flex items-center gap-2">
-                          <span className={`w-2 h-2 rounded-full shrink-0 ${idx === 3 ? 'bg-amber-400' : 'bg-purple-400'}`}></span>
-                          <input
-                            type="text"
-                            value={tier.label || ''}
-                            onChange={(e) => handleUpdatePremiumTier(idx, 'label', e.target.value)}
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-white font-bold text-xs focus:border-purple-400 focus:outline-none"
-                            placeholder="Tên mốc phần thưởng..."
-                          />
-                        </div>
-                      </td>
-                      <td className="py-2.5 px-3">
-                        <div className="flex items-center gap-1.5 max-w-[200px]">
-                          <input
-                            type="number"
-                            min="0"
-                            step="1000"
-                            value={tier.amount ?? 0}
-                            onChange={(e) => handleUpdatePremiumTier(idx, 'amount', e.target.value)}
-                            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-purple-300 font-mono font-bold text-xs focus:border-purple-400 focus:outline-none"
-                          />
-                          <span className="text-slate-400 text-xs font-mono font-bold shrink-0">đ</span>
-                        </div>
-                      </td>
-                      <td className="py-2.5 px-3 text-right">
-                        <div className="flex items-center justify-end gap-1.5">
-                          <input
-                            type="number"
-                            min="0"
-                            max="100"
-                            value={tier.percentage ?? 0}
-                            onChange={(e) => handleUpdatePremiumTier(idx, 'percentage', e.target.value)}
-                            className="w-20 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-right text-emerald-400 font-mono font-bold text-xs focus:border-emerald-400 focus:outline-none"
-                          />
-                          <span className="text-slate-400 text-xs font-mono font-bold shrink-0">%</span>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  <div className="relative max-w-md">
+                    <input
+                      type="number"
+                      min="0"
+                      step="10000"
+                      value={formData.treasureHuntConfig?.standardMemberConfig?.monthlyBudget ?? 370000}
+                      onChange={(e) => handleStandardMonthlyBudgetChange(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono font-bold text-sm focus:border-orange-400 focus:outline-none"
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">VNĐ</span>
+                  </div>
+                </div>
 
-            {/* Ghi chú giải thích cơ chế Hội Viên Cao Cấp */}
-            <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 text-xs text-slate-400 leading-relaxed space-y-1">
-              <div className="text-slate-300 font-bold flex items-center gap-1.5">
-                <i className="fa-solid fa-circle-info text-purple-400 text-[11px]"></i>
-                <span>Quy tắc vận hành mốc thưởng Hội Viên Cao Cấp:</span>
+                {/* Bảng chỉnh sửa 3 mốc phần thưởng cho Hội Viên Tiêu Chuẩn */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-800 text-slate-400 uppercase text-[11px] font-bold">
+                        <th className="py-2.5 px-3">Mốc phần thưởng</th>
+                        <th className="py-2.5 px-3">Số tiền nhận (đ)</th>
+                        <th className="py-2.5 px-3 text-right">Tỷ lệ xuất hiện (%)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60 font-medium">
+                      {currentStandardRewardTiers.map((tier, idx) => (
+                        <tr key={tier.id || idx} className="hover:bg-slate-950/40 transition">
+                          <td className="py-2.5 px-3">
+                            <div className="flex items-center gap-2">
+                              <span className="w-2 h-2 rounded-full shrink-0 bg-orange-400"></span>
+                              <input
+                                type="text"
+                                value={tier.label || ''}
+                                onChange={(e) => handleUpdateStandardTier(idx, 'label', e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-white font-bold text-xs focus:border-orange-400 focus:outline-none"
+                                placeholder="Tên mốc phần thưởng..."
+                              />
+                            </div>
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <div className="flex items-center gap-1.5 max-w-[200px]">
+                              <input
+                                type="number"
+                                min="0"
+                                step="1000"
+                                value={tier.amount ?? 0}
+                                onChange={(e) => handleUpdateStandardTier(idx, 'amount', e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-orange-300 font-mono font-bold text-xs focus:border-orange-400 focus:outline-none"
+                              />
+                              <span className="text-slate-400 text-xs font-mono font-bold shrink-0">đ</span>
+                            </div>
+                          </td>
+                          <td className="py-2.5 px-3 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                value={tier.percentage ?? 0}
+                                onChange={(e) => handleUpdateStandardTier(idx, 'percentage', e.target.value)}
+                                className="w-20 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-right text-emerald-400 font-mono font-bold text-xs focus:border-emerald-400 focus:outline-none"
+                              />
+                              <span className="text-slate-400 text-xs font-mono font-bold shrink-0">%</span>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Ghi chú giải thích cơ chế Hội Viên Tiêu Chuẩn */}
+                <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 text-xs text-slate-400 leading-relaxed space-y-1">
+                  <div className="text-slate-300 font-bold flex items-center gap-1.5">
+                    <i className="fa-solid fa-circle-info text-orange-400 text-[11px]"></i>
+                    <span>Quy tắc vận hành mốc thưởng Hội Viên Tiêu Chuẩn:</span>
+                  </div>
+                  <ul className="list-disc list-inside space-y-0.5 text-[11px] text-slate-400 pl-1">
+                    <li>Dành riêng cho tài khoản đăng ký <strong>Gói Hội Viên Tiêu Chuẩn</strong> (mỗi chu kỳ nhận tỷ lệ trúng thưởng vượt trội).</li>
+                    <li><strong>100% trúng thưởng</strong> (không có mốc rỗng 0đ Chúc May Mắn): Mức nhận gồm <strong>8.000đ (40%)</strong>, <strong>12.000đ (50%)</strong> hoặc <strong>35.000đ (10%)</strong>.</li>
+                    <li>Tổng ngân sách mở rương riêng cho Hội Viên Tiêu Chuẩn: <strong>{standardMonthlyBudgetVal.toLocaleString('vi-VN')}đ / tháng</strong>.</li>
+                  </ul>
+                </div>
               </div>
-              <ul className="list-disc list-inside space-y-0.5 text-[11px] text-slate-400 pl-1">
-                <li>Dành riêng cho tài khoản đăng ký <strong>Gói Hội Viên Cao Cấp (VIP Premium)</strong> với giá trị mở rương lớn nhất sàn.</li>
-                <li><strong>100% trúng thưởng</strong>: Mức nhận gồm <strong>20.000đ (40%)</strong>, <strong>30.000đ (30%)</strong>, <strong>55.000đ (25%)</strong> và cơ hội nổ <strong>Siêu Jackpot 100.000đ (5%)</strong>.</li>
-                <li>Tổng ngân sách mở rương riêng cho Hội Viên Cao Cấp: <strong>{premiumMonthlyBudgetVal.toLocaleString('vi-VN')}đ / tháng</strong>.</li>
-              </ul>
-            </div>
+            )}
+
+            {/* TAB 4: HỘI VIÊN CAO CẤP */}
+            {adminTierTab === 'premium' && (
+              <div className="space-y-5 animate-in fade-in duration-150">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                  <div>
+                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                      <i className="fa-solid fa-gem text-purple-400"></i>
+                      <span>4. Cấu hình Hệ thống (Hội Viên Cao Cấp)</span>
+                      <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[10px] font-bold">
+                        VIP Premium (Có Jackpot)
+                      </span>
+                    </h4>
+                    <p className="text-xs text-slate-400 mt-0.5">
+                      Thiết lập hạn mức ngân sách tháng và 4 mốc phần thưởng độc quyền (bao gồm Siêu Jackpot 100.000đ) dành cho Hội Viên Cao Cấp.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`px-3 py-1 rounded-full text-xs font-mono font-bold border flex items-center gap-1.5 ${
+                      totalPremiumTierPercentage === 100
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                        : 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
+                    }`}>
+                      <i className={`fa-solid ${totalPremiumTierPercentage === 100 ? 'fa-circle-check text-emerald-400' : 'fa-triangle-exclamation text-rose-400'}`}></i>
+                      <span>Tổng tỷ lệ: {totalPremiumTierPercentage}% {totalPremiumTierPercentage === 100 ? '(Chuẩn)' : '(Chưa chuẩn)'}</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={handleResetDefaultPremiumTiers}
+                      className="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                      title="Khôi phục 4 mốc mặc định: 20k (40%), 30k (30%), 55k (25%), Jackpot 100k (5%)"
+                    >
+                      <i className="fa-solid fa-rotate-left text-[10px]"></i>
+                      <span>Khôi phục mặc định</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Ô nhập Tổng Ngân Sách Mở Rương / Tháng cho Hội Viên Cao Cấp */}
+                <div className="bg-slate-950 p-4 sm:p-5 rounded-2xl border border-slate-800 space-y-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <label className="text-xs font-bold text-white flex items-center gap-2">
+                        <i className="fa-solid fa-vault text-purple-400"></i>
+                        <span>Tổng Ngân Sách Mở Rương / Tháng (Hội Viên Cao Cấp)</span>
+                      </label>
+                      <p className="text-[11px] text-slate-400 mt-0.5">
+                        Hạn mức quỹ tiền thưởng tối đa mở rương dành riêng cho các tài khoản Gói Hội Viên Cao Cấp trong 1 tháng dương lịch.
+                      </p>
+                    </div>
+                    <span className="text-purple-400 text-xs font-mono font-bold bg-purple-500/10 px-2.5 py-1 rounded-lg border border-purple-500/20 self-start sm:self-auto">
+                      Quỹ Hội Viên Cao Cấp
+                    </span>
+                  </div>
+
+                  <div className="relative max-w-md">
+                    <input
+                      type="number"
+                      min="0"
+                      step="50000"
+                      value={formData.treasureHuntConfig?.premiumMemberConfig?.monthlyBudget ?? 1000000}
+                      onChange={(e) => handlePremiumMonthlyBudgetChange(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono font-bold text-sm focus:border-purple-400 focus:outline-none"
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">VNĐ</span>
+                  </div>
+                </div>
+
+                {/* Bảng chỉnh sửa 4 mốc phần thưởng cho Hội Viên Cao Cấp */}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-slate-800 text-slate-400 uppercase text-[11px] font-bold">
+                        <th className="py-2.5 px-3">Mốc phần thưởng</th>
+                        <th className="py-2.5 px-3">Số tiền nhận (đ)</th>
+                        <th className="py-2.5 px-3 text-right">Tỷ lệ xuất hiện (%)</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-800/60 font-medium">
+                      {currentPremiumRewardTiers.map((tier, idx) => (
+                        <tr key={tier.id || idx} className="hover:bg-slate-950/40 transition">
+                          <td className="py-2.5 px-3">
+                            <div className="flex items-center gap-2">
+                              <span className={`w-2 h-2 rounded-full shrink-0 ${idx === 3 ? 'bg-amber-400' : 'bg-purple-400'}`}></span>
+                              <input
+                                type="text"
+                                value={tier.label || ''}
+                                onChange={(e) => handleUpdatePremiumTier(idx, 'label', e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-white font-bold text-xs focus:border-purple-400 focus:outline-none"
+                                placeholder="Tên mốc phần thưởng..."
+                              />
+                            </div>
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <div className="flex items-center gap-1.5 max-w-[200px]">
+                              <input
+                                type="number"
+                                min="0"
+                                step="1000"
+                                value={tier.amount ?? 0}
+                                onChange={(e) => handleUpdatePremiumTier(idx, 'amount', e.target.value)}
+                                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-purple-300 font-mono font-bold text-xs focus:border-purple-400 focus:outline-none"
+                              />
+                              <span className="text-slate-400 text-xs font-mono font-bold shrink-0">đ</span>
+                            </div>
+                          </td>
+                          <td className="py-2.5 px-3 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                value={tier.percentage ?? 0}
+                                onChange={(e) => handleUpdatePremiumTier(idx, 'percentage', e.target.value)}
+                                className="w-20 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-right text-emerald-400 font-mono font-bold text-xs focus:border-emerald-400 focus:outline-none"
+                              />
+                              <span className="text-slate-400 text-xs font-mono font-bold shrink-0">%</span>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Ghi chú giải thích cơ chế Hội Viên Cao Cấp */}
+                <div className="p-3.5 rounded-2xl bg-slate-950/90 border border-slate-800 text-xs text-slate-400 leading-relaxed space-y-1">
+                  <div className="text-slate-300 font-bold flex items-center gap-1.5">
+                    <i className="fa-solid fa-circle-info text-purple-400 text-[11px]"></i>
+                    <span>Quy tắc vận hành mốc thưởng Hội Viên Cao Cấp:</span>
+                  </div>
+                  <ul className="list-disc list-inside space-y-0.5 text-[11px] text-slate-400 pl-1">
+                    <li>Dành riêng cho tài khoản đăng ký <strong>Gói Hội Viên Cao Cấp (VIP Premium)</strong> với giá trị mở rương lớn nhất sàn.</li>
+                    <li><strong>100% trúng thưởng</strong>: Mức nhận gồm <strong>20.000đ (40%)</strong>, <strong>30.000đ (30%)</strong>, <strong>55.000đ (25%)</strong> và cơ hội nổ <strong>Siêu Jackpot 100.000đ (5%)</strong>.</li>
+                    <li>Tổng ngân sách mở rương riêng cho Hội Viên Cao Cấp: <strong>{premiumMonthlyBudgetVal.toLocaleString('vi-VN')}đ / tháng</strong>.</li>
+                  </ul>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* PHÂN HỆ QUẢN LÝ BÀI VIẾT KÍCH HOẠT RƯƠNG (PHƯƠNG ÁN 1) */}
