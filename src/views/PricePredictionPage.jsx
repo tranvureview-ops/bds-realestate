@@ -1100,9 +1100,6 @@ export default function PricePredictionPage({ projectSlug = null }) {
               <span>Các Kỳ Mở Dự Đoán Giá</span>
             </a>
           </div>
-          <div className="text-xs text-slate-500 font-semibold hidden sm:block">
-            Cập nhật kết quả trao giải thực tế từ hội đồng thẩm định
-          </div>
         </div>
 
         {/* ========================================================================= */}
