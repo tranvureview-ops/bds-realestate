@@ -1155,8 +1155,10 @@ export default function UserDashboard({ initialTab = 'listings' }) {
         }
 
         const totalCost = Math.max(0, rawCost - discountAmount);
-        const userWallet = currentUser?.walletBalance || 0;
-        const isInsufficient = userWallet < totalCost;
+        const mainWallet = Number(currentUser?.walletBalance) || 0;
+        const bonusWallet = Number(currentUser?.bonusWalletBalance) || 0;
+        const totalAvailable = mainWallet + bonusWallet;
+        const isInsufficient = totalAvailable < totalCost;
 
         const now = Date.now();
         const currentExp = renewModalProp.expiresAt ? new Date(renewModalProp.expiresAt).getTime() : 0;
@@ -1588,9 +1590,17 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                     </span>
                   </div>
                   {(!isNormal || !isFreeQuotaAvailable) && (
-                    <div className="flex items-center justify-between">
-                      <span>Số dư ví hiện có:</span>
-                      <span className="font-bold text-slate-800">{userWallet.toLocaleString('vi-VN')} đ</span>
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span>Tổng số dư ví khả dụng:</span>
+                        <span className="font-bold text-slate-900 font-mono">{totalAvailable.toLocaleString('vi-VN')} đ</span>
+                      </div>
+                      {bonusWallet > 0 && (
+                        <div className="flex items-center justify-between text-[10px] text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/60">
+                          <span>Ví chính: <b>{mainWallet.toLocaleString('vi-VN')} đ</b> • Ví KM: <b>{bonusWallet.toLocaleString('vi-VN')} đ</b></span>
+                          <span className="font-bold text-emerald-700">✓ Ưu tiên trừ Ví KM</span>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -1600,7 +1610,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
               <div className="bg-white border-t border-slate-200 p-3 sm:p-4 shrink-0 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] space-y-2">
                 {isInsufficient && (
                   <div className="p-2 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-between gap-2 text-xs">
-                    <span className="truncate">Số dư ví không đủ (thiếu {(totalCost - userWallet).toLocaleString('vi-VN')} đ)</span>
+                    <span className="truncate">Số dư ví không đủ (thiếu {(totalCost - totalAvailable).toLocaleString('vi-VN')} đ)</span>
                     <button
                       type="button"
                       onClick={() => {

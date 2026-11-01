@@ -3565,21 +3565,58 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
     const totalCost = Math.max(0, initialCost - discountAmount);
 
+    const totalAvailable = (Number(currentUser?.walletBalance) || 0) + (Number(currentUser?.bonusWalletBalance) || 0);
     if (!isAdmin && !isFreeAdmin && totalCost > 0) {
-      if ((currentUser.walletBalance || 0) < totalCost) {
-        showToast(`Số dư ví (${(currentUser.walletBalance || 0).toLocaleString('vi-VN')} đ) không đủ để gia hạn ${pkg.name} (${totalCost.toLocaleString('vi-VN')} đ). Vui lòng nạp thêm!`, 'error');
+      if (totalAvailable < totalCost) {
+        showToast(`Tổng số dư ví (${totalAvailable.toLocaleString('vi-VN')} đ) không đủ để gia hạn ${pkg.name} (${totalCost.toLocaleString('vi-VN')} đ). Vui lòng nạp thêm!`, 'error');
         setActiveModal('wallet-deposit');
         return false;
       }
     }
 
-    // Trừ ví và trừ Voucher của User
+    // Trừ ví (Ưu tiên Ví Khuyến Mãi trước theo FIFO, sau đó trừ Ví Chính) và trừ Voucher của User
     let updatedUser = { ...currentUser };
     let didChangeUser = false;
+    let bonusUsed = 0;
+    let mainUsed = 0;
 
     if (!isAdmin && !isFreeAdmin && totalCost > 0) {
-      const newBal = (currentUser.walletBalance || 0) - totalCost;
+      let newBal = Number(currentUser?.walletBalance) || 0;
+      let newBonusBal = Number(currentUser?.bonusWalletBalance) || 0;
+      let updatedBatches = Array.isArray(currentUser?.bonusBatches) ? [...currentUser.bonusBatches] : [];
+      let updatedEarliest = currentUser?.earliestExpiringBonus;
+
+      let remaining = totalCost;
+      if (newBonusBal >= remaining) {
+        bonusUsed = remaining;
+        newBonusBal -= remaining;
+        remaining = 0;
+      } else {
+        bonusUsed = newBonusBal;
+        remaining -= newBonusBal;
+        newBonusBal = 0;
+        mainUsed = remaining;
+        newBal = Math.max(0, newBal - remaining);
+      }
+
+      // Khấu trừ theo nguyên tắc FIFO nếu dùng ví khuyến mãi
+      if (bonusUsed > 0 && updatedBatches.length > 0) {
+        const deductRes = deductBatchesFifo(updatedBatches, bonusUsed);
+        updatedBatches = deductRes.updatedBatches;
+      }
+
+      // Cập nhật lại mốc hết hạn khuyến mãi gần nhất
+      updatedEarliest = getEarliestExpiringBonus({
+        ...currentUser,
+        bonusWalletBalance: newBonusBal,
+        bonusBatches: updatedBatches
+      }, systemConfig);
+
       updatedUser.walletBalance = newBal;
+      updatedUser.bonusWalletBalance = newBonusBal;
+      updatedUser.bonusBatches = updatedBatches;
+      updatedUser.earliestExpiringBonus = updatedEarliest;
+      updatedUser.bonusExpiresAt = updatedEarliest?.expiresAt || null;
       didChangeUser = true;
     }
 
@@ -3595,18 +3632,30 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       setCurrentUser(updatedUser);
       setUsersList(prev => prev.map(u => u.id === currentUser.id ? updatedUser : u));
 
+      // Xác định phương thức thanh toán hiển thị trong lịch sử giao dịch
+      let payMethodText = 'Ví tài khoản';
+      if (totalCost === 0 && usedVoucherType) {
+        payMethodText = 'Voucher Hội Viên';
+      } else if (bonusUsed > 0 && mainUsed > 0) {
+        payMethodText = `Ví KM (${bonusUsed.toLocaleString('vi-VN')} đ) + Ví Chính (${mainUsed.toLocaleString('vi-VN')} đ)`;
+      } else if (bonusUsed > 0) {
+        payMethodText = 'Ví Khuyến Mãi (100%)';
+      } else {
+        payMethodText = 'Ví Chính';
+      }
+
       // Record transaction
       const newTxn = {
         id: `TXN-${Math.floor(1000 + Math.random() * 9000)}`,
         userId: currentUser.id,
         userName: currentUser.name,
         type: 'renew_listing',
-        title: `Gia hạn tin ${prop.id} (${pkg.name} - ${days} ngày)${usedVoucherType ? ` [Áp dụng Voucher -${discountAmount.toLocaleString('vi-VN')} đ]` : ''}`,
+        title: `Gia hạn tin ${prop.id} (${pkg.name} - ${days} ngày)${usedVoucherType ? ` [Áp dụng Voucher -${discountAmount.toLocaleString('vi-VN')} đ]` : ''}${bonusUsed > 0 ? ` (Ưu tiên trừ ${bonusUsed.toLocaleString('vi-VN')} đ Ví KM)` : ''}`,
         amount: -totalCost,
-        balanceAfter: updatedUser.walletBalance || 0,
+        balanceAfter: (updatedUser.walletBalance || 0) + (updatedUser.bonusWalletBalance || 0),
         status: 'success',
         createdAt: new Date().toISOString(),
-        paymentMethod: totalCost === 0 && usedVoucherType ? 'Voucher Hội Viên' : 'Ví tài khoản'
+        paymentMethod: payMethodText
       };
       setTransactions(prev => [newTxn, ...prev]);
     }
