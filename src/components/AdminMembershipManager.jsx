@@ -820,7 +820,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                     </div>
                     <div className="min-w-0">
                       <div className="text-xs font-bold text-white flex items-center gap-1.5 flex-wrap">
-                        <span>Săn Kho Báu:</span>
+                        <span>Tin nổi bật:</span>
                         {pkg.allowTreasureHunt ? (
                           <div className="flex items-center gap-1.5">
                             <span className="text-[10px] text-amber-400 font-bold bg-amber-950/80 border border-amber-800/80 px-1.5 py-0.2 rounded-full">
@@ -864,7 +864,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                         )}
                       </div>
                       <div className="text-[10px] text-slate-400 truncate">
-                        {pkg.allowTreasureHunt ? `Ưu tiên gán nổi bật tối đa ${pkg.treasureHuntMaxArticles || 2} bài vào Săn Kho Báu` : 'Không có quyền gán tin nổi bật'}
+                        {pkg.allowTreasureHunt ? `Ưu tiên gán nổi bật tối đa ${pkg.treasureHuntMaxArticles || 2} bài đăng` : 'Không có quyền gán tin nổi bật'}
                       </div>
                     </div>
                   </div>
@@ -875,7 +875,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                     className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                       pkg.allowTreasureHunt ? 'bg-amber-500' : 'bg-slate-700'
                     }`}
-                    title={pkg.allowTreasureHunt ? `Bấm để TẮT quyền Săn Kho Báu cho ${pkg.name}` : `Bấm để BẬT quyền Săn Kho Báu cho ${pkg.name}`}
+                    title={pkg.allowTreasureHunt ? `Bấm để TẮT quyền Tin nổi bật cho ${pkg.name}` : `Bấm để BẬT quyền Tin nổi bật cho ${pkg.name}`}
                   >
                     <span
                       className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
