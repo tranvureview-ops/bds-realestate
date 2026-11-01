@@ -261,28 +261,6 @@ export default function ArticleTreasureBox({ property }) {
 
   return (
     <div className="relative overflow-hidden bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 rounded-3xl p-5 sm:p-7 text-white shadow-lg border border-amber-300/40 my-6">
-      {/* Nút Admin Tắt rương nhanh */}
-      {isAdmin && (
-        <div className="absolute top-3 right-3 z-20">
-          <button
-            type="button"
-            onClick={() => {
-              if (updateProperty) {
-                updateProperty(property.id, { 
-                  isTreasureHuntActive: false,
-                  treasureHuntExpiresAt: null
-                });
-                if (showToast) showToast(`[Admin] Đã tắt rương kho báu cho bài viết ${property.id}`, 'info');
-              }
-            }}
-            className="px-2.5 py-1 rounded-lg bg-black/60 hover:bg-black/80 text-rose-300 border border-rose-500/30 text-[10px] font-bold transition flex items-center gap-1 shadow-sm cursor-pointer"
-            title="Quản trị viên: Bấm để tắt rương bài viết này"
-          >
-            <i className="fa-solid fa-power-off text-[9px]"></i>
-            <span>Admin: Tắt rương {treasureExpInfo.daysRemaining > 0 ? `(${treasureExpInfo.daysRemaining}d)` : ''}</span>
-          </button>
-        </div>
-      )}
       {/* Decorative background icons */}
       <div className="absolute right-[-15px] bottom-[-20px] opacity-15 pointer-events-none">
         <i className="fa-solid fa-gem text-9xl"></i>
@@ -312,7 +290,7 @@ export default function ArticleTreasureBox({ property }) {
                 Săn Kho Báu BĐS
               </span>
               <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-white/20 text-white">
-                Hạn mức hôm nay: <strong>{quota.count}/{dailyLimit} rương</strong>
+                Hôm nay: <strong>{quota.count}/{dailyLimit} rương</strong>
               </span>
               {budgetStatus.isBudgetExceeded && (
                 <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-rose-600/80 text-white flex items-center gap-1 shadow-xs">
