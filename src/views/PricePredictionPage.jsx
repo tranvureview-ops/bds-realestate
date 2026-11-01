@@ -141,7 +141,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
     setSlotSuccessModal({
       game,
       predictedPrice: priceToSubmit,
-      rewardAmount: 10000
+      rewardAmount: 0
     });
 
     setTimeout(() => {
@@ -151,16 +151,11 @@ export default function PricePredictionPage({ projectSlug = null }) {
       // Lưu bản ghi vào Storage (is_bot = 0)
       recordUserPrediction(game.id, currentUser, priceToSubmit, userInputs[game.id]?.chosenOption);
 
-      // Thưởng ngay 10.000đ vào Ví Khuyến Mãi
-      if (addBonusWalletBalance) {
-        addBonusWalletBalance(10000, `Thưởng dự đoán giá BĐS: ${game.projectName || game.title}`);
-      }
-
       // Cập nhật lại state chương trình
       setPrograms(getStoredPredictionPrograms());
 
       if (showToast) {
-        showToast(`🎯 Đã ghi nhận dự đoán ${priceToSubmit} tỷ! Nhận ngay +10.000đ vào Ví Khuyến Mãi!`, 'success');
+        showToast(`🎯 Đã ghi nhận dự đoán ${priceToSubmit} tỷ thành công!`, 'success');
       }
     }, 1200);
   };
@@ -212,7 +207,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
               Dự Đoán Giá BĐS - Chia Thưởng Triệu Đồng Vào Ví
             </h1>
             <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
-              Trổ tài thẩm định giá nhà đất Đà Nẵng & Miền Trung. Nhận ngay <strong>+10.000đ vào Ví KM</strong> mỗi lượt dự đoán và cùng chia quỹ tiền mặt lên tới <strong>8.000.000đ</strong> khi chốt kết quả!
+              Trổ tài thẩm định giá nhà đất và cùng nhận cơ hội chia đều tổng quỹ giải thưởng hấp dẫn khi Admin chốt kết quả sự kiện!
             </p>
           </div>
 
@@ -387,8 +382,8 @@ export default function PricePredictionPage({ projectSlug = null }) {
                             </div>
                           </div>
                         </div>
-                        <span className="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-xl font-bold shadow-xs">
-                          Đã Nhận +10K Ví KM
+                        <span className="text-xs bg-emerald-100 text-emerald-800 px-3 py-1 rounded-xl font-bold border border-emerald-200">
+                          Đã ghi nhận
                         </span>
                       </div>
                     ) : (
@@ -423,7 +418,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
                             className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
                           >
                             <i className="fa-solid fa-paper-plane"></i>
-                            <span>Xác Nhận (+10K)</span>
+                            <span>Xác Nhận Dự Đoán</span>
                           </button>
                         </div>
 
@@ -528,11 +523,8 @@ export default function PricePredictionPage({ projectSlug = null }) {
                   <div className="text-2xl font-black font-mono text-emerald-700">
                     {slotSuccessModal.predictedPrice} tỷ VNĐ
                   </div>
-                  <div className="pt-2 border-t border-emerald-200/70 flex items-center justify-between text-xs font-bold text-emerald-800">
-                    <span>Phần thưởng nóng:</span>
-                    <span className="text-sm font-mono font-extrabold text-emerald-600">
-                      +{slotSuccessModal.rewardAmount.toLocaleString('vi-VN')}đ Ví KM
-                    </span>
+                  <div className="pt-2 border-t border-emerald-200/70 text-center text-xs font-bold text-emerald-800">
+                    Kết quả và giải thưởng sẽ được xét trao khi sự kiện kết thúc!
                   </div>
                 </div>
 
