@@ -82,6 +82,30 @@ export default function PricePredictionPage({ projectSlug = null }) {
   });
   const [selectedGameId, setSelectedGameId] = useState(null);
   
+  // Quản lý Bảng Vinh Danh Người Trúng Thưởng Các Kỳ
+  const [selectedHonorRoundId, setSelectedHonorRoundId] = useState(() => {
+    const defaultPrograms = Array.isArray(predictionPrograms) && predictionPrograms.length > 0
+      ? predictionPrograms
+      : getStoredPredictionPrograms();
+    const settled = defaultPrograms.find(p => p.status === 'settled' || Boolean(p.settledResult));
+    return settled ? settled.id : (defaultPrograms[0]?.id || null);
+  });
+
+  const currentHonorGame = useMemo(() => {
+    return programs.find(p => p.id === selectedHonorRoundId) 
+      || programs.find(p => p.status === 'settled' || Boolean(p.settledResult))
+      || programs[0];
+  }, [programs, selectedHonorRoundId]);
+
+  const currentWinners = useMemo(() => {
+    if (!currentHonorGame?.settledResult?.winners) return [];
+    return [...currentHonorGame.settledResult.winners].sort((a, b) => (a.rank || 99) - (b.rank || 99));
+  }, [currentHonorGame]);
+
+  const top1Winner = currentWinners.find(w => w.rank === 1) || currentWinners[0];
+  const top2Winner = currentWinners.find(w => w.rank === 2) || currentWinners[1];
+  const top3Winner = currentWinners.find(w => w.rank === 3) || currentWinners[2];
+  
   // Dữ liệu lượt dự đoán của user hiện tại
   const [userInputs, setUserInputs] = useState({});
   const [activeLeaderboardGame, setActiveLeaderboardGame] = useState(null);
@@ -446,6 +470,491 @@ export default function PricePredictionPage({ projectSlug = null }) {
           </div>
         </div>
 
+        {/* Nút điều hướng nhanh */}
+        <div className="flex items-center justify-between flex-wrap gap-2.5 pt-1">
+          <div className="flex items-center gap-2">
+            <a
+              href="#bang-vinh-danh"
+              className="px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-slate-950 font-black text-xs transition shadow-md flex items-center gap-2 cursor-pointer active:scale-95"
+            >
+              <i className="fa-solid fa-trophy"></i>
+              <span>🏆 Bảng Vinh Danh Trúng Thưởng</span>
+            </a>
+            <a
+              href="#cac-ky-du-doan"
+              className="px-4 py-2 rounded-2xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs transition border border-slate-200 shadow-2xs flex items-center gap-2 cursor-pointer active:scale-95"
+            >
+              <i className="fa-solid fa-chart-line text-indigo-600"></i>
+              <span>Các Kỳ Mở Dự Đoán Giá</span>
+            </a>
+          </div>
+          <div className="text-xs text-slate-500 font-semibold hidden sm:block">
+            Cập nhật kết quả trao giải thực tế từ hội đồng thẩm định
+          </div>
+        </div>
+
+        {/* ========================================================================= */}
+        {/* 🏆 BẢNG VINH DANH NGƯỜI TRÚNG THƯỞNG CÁC KỲ (HALL OF FAME & WINNERS PODIUM) */}
+        {/* ========================================================================= */}
+        <section id="bang-vinh-danh" className="relative overflow-hidden rounded-3xl bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-950 text-white p-5 sm:p-8 shadow-2xl border border-amber-500/30 space-y-6">
+          {/* Ánh kim trang trí mờ ảo */}
+          <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+          {/* Section Header */}
+          <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-5">
+            <div className="space-y-1.5 max-w-2xl">
+              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-yellow-500/20 text-amber-300 border border-amber-400/30 text-[11px] font-black uppercase tracking-wider">
+                <i className="fa-solid fa-crown text-amber-400"></i>
+                Bảng Vinh Danh Danh Dự • Hall of Fame
+              </span>
+              <h2 className="text-xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-2.5">
+                <span>Vinh Danh Người Trúng Thưởng Các Giải Của Kỳ</span>
+              </h2>
+              <p className="text-slate-300 text-xs sm:text-sm">
+                Tôn vinh các thẩm định viên tài ba có mức giá dự đoán sát với giá chuẩn thực tế nhất của từng kỳ. Tiền thưởng được giải ngân 100% vào Ví Khuyến Mãi.
+              </p>
+            </div>
+
+            {/* Thống kê giải ngân nhanh */}
+            <div className="flex items-center gap-2 bg-slate-900/80 border border-amber-500/30 rounded-2xl px-4 py-2.5 shrink-0">
+              <div className="w-8 h-8 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center text-sm">
+                <i className="fa-solid fa-wallet"></i>
+              </div>
+              <div>
+                <div className="text-[10px] text-slate-400 font-semibold uppercase">Tổng Thưởng Đã Trao</div>
+                <div className="text-sm sm:text-base font-black text-amber-300 font-mono">
+                  +2.000.000 đ Ví KM
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Tab chọn Kỳ Dự Đoán (Round Switcher) */}
+          <div className="relative z-10 space-y-2">
+            <div className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+              <i className="fa-solid fa-calendar-check text-amber-400"></i>
+              <span>Chọn Kỳ Dự Đoán Để Xem Vinh Danh:</span>
+            </div>
+
+            <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar scrollbar-none pb-1">
+              {programs.map((prog, pIdx) => {
+                const isSelected = prog.id === currentHonorGame?.id;
+                const isSettled = prog.status === 'settled' || Boolean(prog.settledResult);
+                return (
+                  <button
+                    key={prog.id}
+                    type="button"
+                    onClick={() => setSelectedHonorRoundId(prog.id)}
+                    className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2.5 shrink-0 cursor-pointer border ${
+                      isSelected
+                        ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 border-amber-300 shadow-md ring-2 ring-amber-400/40 font-black'
+                        : 'bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 border-slate-700/80'
+                    }`}
+                  >
+                    <span className={`w-5 h-5 rounded-full text-[10px] flex items-center justify-center font-mono font-black ${
+                      isSelected ? 'bg-slate-950 text-amber-400' : 'bg-slate-700 text-slate-300'
+                    }`}>
+                      {pIdx + 1}
+                    </span>
+                    <span className="truncate max-w-[180px] sm:max-w-[220px]">
+                      {prog.title || prog.projectName}
+                    </span>
+                    <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider ${
+                      isSettled
+                        ? isSelected ? 'bg-slate-950/30 text-slate-950' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                        : isSelected ? 'bg-slate-950/30 text-slate-950' : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                    }`}>
+                      {isSettled ? 'Đã Trao Thưởng' : 'Đang Mở'}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Nội dung Kỳ đang chọn */}
+          {currentHonorGame && (
+            <div className="relative z-10 space-y-6">
+              
+              {/* Thống kê Tổng Kết Của Kỳ Đang Xem */}
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-1">
+                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                    <i className="fa-solid fa-bullseye text-emerald-400"></i>
+                    <span>Giá Chốt Thực Tế</span>
+                  </div>
+                  <div className="text-base sm:text-xl font-black text-emerald-400 font-mono">
+                    {currentHonorGame.settledResult?.targetPrice || currentHonorGame.targetPrice || currentHonorGame.basePrice} tỷ VNĐ
+                  </div>
+                  <div className="text-[10px] text-slate-400">
+                    {currentHonorGame.settledResult ? 'Trung vị người thật thẩm định' : 'Mức giá tham chiếu dự kiến'}
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-1">
+                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                    <i className="fa-solid fa-gift text-amber-400"></i>
+                    <span>Tổng Quỹ Giải Thưởng</span>
+                  </div>
+                  <div className="text-base sm:text-xl font-black text-amber-300 font-mono">
+                    {(Number(currentHonorGame.totalPrize) || 2000000).toLocaleString('vi-VN')} đ Ví KM
+                  </div>
+                  <div className="text-[10px] text-slate-400">
+                    {currentHonorGame.settledResult ? 'Đã giải ngân 100% vào Ví' : 'Chờ trao khi kết thúc sự kiện'}
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-1">
+                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                    <i className="fa-solid fa-users text-indigo-400"></i>
+                    <span>Lượt Người Tham Gia</span>
+                  </div>
+                  <div className="text-base sm:text-xl font-black text-white font-mono">
+                    {(currentHonorGame.settledResult?.totalParticipants || getStoredPredictions(currentHonorGame.id).length || 1420).toLocaleString('vi-VN')} lượt
+                  </div>
+                  <div className="text-[10px] text-slate-400">
+                    Cộng đồng thẩm định BĐS
+                  </div>
+                </div>
+
+                <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-white/10 space-y-1">
+                  <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
+                    <i className="fa-solid fa-clock-rotate-left text-cyan-400"></i>
+                    <span>Trạng Thái Kỳ</span>
+                  </div>
+                  <div className="text-sm sm:text-base font-black font-mono">
+                    {currentHonorGame.settledResult ? (
+                      <span className="text-emerald-400 flex items-center gap-1.5">
+                        <i className="fa-solid fa-circle-check text-xs"></i>
+                        Đã Trao Giải
+                      </span>
+                    ) : (
+                      <span className="text-indigo-400 flex items-center gap-1.5">
+                        <i className="fa-solid fa-spinner fa-spin text-xs"></i>
+                        Đang Bình Chọn
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-[10px] text-slate-400">
+                    {currentHonorGame.settledResult
+                      ? `Chốt ngày ${new Date(currentHonorGame.settledResult.settledAt || '2026-10-31').toLocaleDateString('vi-VN')}`
+                      : 'Kết quả sẽ được công bố sớm'}
+                  </div>
+                </div>
+              </div>
+
+              {/* NẾU KỲ ĐÃ CHỐT: BỤC VINH DANH TOP 3 & BẢNG CHI TIẾT */}
+              {currentHonorGame.settledResult && currentWinners.length > 0 ? (
+                <div className="space-y-8 pt-2">
+                  
+                  {/* BỤC VINH DANH TOP 3 (PODIUM) */}
+                  <div className="p-6 rounded-3xl bg-slate-950/60 border border-amber-500/20 backdrop-blur-md">
+                    <div className="text-center space-y-1 mb-8">
+                      <h3 className="text-base sm:text-lg font-black text-amber-300 uppercase tracking-wider flex items-center justify-center gap-2">
+                        <i className="fa-solid fa-medal text-amber-400"></i>
+                        <span>Bục Vinh Danh Top 3 Bậc Thầy Thẩm Định Giá</span>
+                        <i className="fa-solid fa-medal text-amber-400"></i>
+                      </h3>
+                      <p className="text-xs text-slate-400">
+                        Top 3 người dự đoán có độ sai số thấp nhất so với giá chốt thẩm định thực tế ({currentHonorGame.settledResult.targetPrice} tỷ)
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 items-end max-w-4xl mx-auto">
+                      
+                      {/* #2: Á QUÂN (GIẢI NHÌ) - BÊN TRÁI */}
+                      {top2Winner && (
+                        <div className="order-2 sm:order-1 flex flex-col items-center text-center space-y-3">
+                          <div className="relative">
+                            <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-full border-3 border-slate-300 p-0.5 bg-gradient-to-tr from-slate-400 to-slate-200 shadow-lg shadow-slate-400/20 mx-auto flex items-center justify-center overflow-hidden">
+                              <img src={top2Winner.userAvatar || '/avatars/ai-preset-2.jpg'} alt={top2Winner.userName} className="w-full h-full object-cover rounded-full" />
+                            </div>
+                            <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-slate-300 text-slate-950 font-black text-[10px] shadow-sm uppercase">
+                              #2 Á Quân
+                            </span>
+                          </div>
+
+                          <div className="space-y-0.5">
+                            <div className="font-black text-sm text-white truncate max-w-[200px]" title={top2Winner.userName}>
+                              {top2Winner.userName}
+                            </div>
+                            <div className="text-[11px] text-slate-300">
+                              Đoán: <strong className="text-slate-100 font-mono font-black">{top2Winner.predictedPrice} tỷ</strong>
+                            </div>
+                            <div className="text-[10px] text-slate-400">
+                              Lệch: {top2Winner.diff !== undefined ? `${top2Winner.diff} tỷ` : '0.01 tỷ'}
+                            </div>
+                          </div>
+
+                          {/* Bục Á Quân */}
+                          <div className="w-full h-28 sm:h-32 rounded-t-2xl bg-gradient-to-b from-slate-400/20 via-slate-500/10 to-slate-900 border-t-2 border-x border-slate-400/50 flex flex-col items-center justify-center p-3 shadow-inner space-y-1">
+                            <span className="text-xs font-black text-slate-300">GIẢI NHÌ</span>
+                            <div className="text-base sm:text-lg font-black text-amber-300 font-mono">
+                              +{top2Winner.rewardAmount?.toLocaleString('vi-VN')} đ
+                            </div>
+                            <span className="text-[9px] text-slate-400">Ví Khuyến Mãi</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* #1: QUÁN QUÂN (GIẢI NHẤT) - Ở GIỮA, CAO NHẤT */}
+                      {top1Winner && (
+                        <div className="order-1 sm:order-2 flex flex-col items-center text-center space-y-3">
+                          <div className="relative">
+                            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 border-amber-400 p-0.5 bg-gradient-to-tr from-amber-400 via-yellow-200 to-amber-500 shadow-xl shadow-amber-500/40 mx-auto flex items-center justify-center overflow-hidden animate-pulse">
+                              <img src={top1Winner.userAvatar || '/avatars/ai-preset-1.jpg'} alt={top1Winner.userName} className="w-full h-full object-cover rounded-full" />
+                            </div>
+                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-2xl sm:text-3xl text-amber-300 drop-shadow-lg animate-bounce">
+                              <i className="fa-solid fa-crown"></i>
+                            </div>
+                            <span className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 px-2.5 py-0.5 rounded-full bg-gradient-to-r from-amber-400 to-yellow-300 text-slate-950 font-black text-[11px] shadow-md uppercase tracking-wider">
+                              #1 Quán Quân
+                            </span>
+                          </div>
+
+                          <div className="space-y-0.5 pt-1">
+                            <div className="font-black text-base text-amber-300 truncate max-w-[220px]" title={top1Winner.userName}>
+                              {top1Winner.userName}
+                            </div>
+                            <div className="text-xs text-slate-200">
+                              Đoán: <strong className="text-amber-300 font-mono font-black text-sm">{top1Winner.predictedPrice} tỷ</strong>
+                            </div>
+                            <div className="text-[10px] text-emerald-400 font-bold flex items-center justify-center gap-1">
+                              <i className="fa-solid fa-check"></i>
+                              <span>Chính xác 100% (Lệch: 0.00 tỷ)</span>
+                            </div>
+                          </div>
+
+                          {/* Bục Quán Quân Cao Nhất */}
+                          <div className="w-full h-36 sm:h-44 rounded-t-3xl bg-gradient-to-b from-amber-500/30 via-amber-600/15 to-slate-900 border-t-3 border-x-2 border-amber-400 flex flex-col items-center justify-center p-3 shadow-xl shadow-amber-500/10 space-y-1.5">
+                            <div className="flex items-center gap-1 text-xs font-black text-amber-300">
+                              <i className="fa-solid fa-trophy"></i>
+                              <span>QUÁN QUÂN</span>
+                            </div>
+                            <div className="text-lg sm:text-2xl font-black text-amber-300 font-mono">
+                              +{top1Winner.rewardAmount?.toLocaleString('vi-VN')} đ
+                            </div>
+                            <span className="text-[10px] font-bold text-amber-400/80 bg-amber-400/10 px-2 py-0.5 rounded-full border border-amber-400/20">
+                              {top1Winner.rewardBadge || 'Thần Phán Đoán BĐS ★'}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* #3: GIẢI BA (QUÝ QUÂN) - BÊN PHẢI */}
+                      {top3Winner && (
+                        <div className="order-3 flex flex-col items-center text-center space-y-3">
+                          <div className="relative">
+                            <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-full border-3 border-orange-400 p-0.5 bg-gradient-to-tr from-amber-700 via-orange-500 to-amber-600 shadow-lg shadow-orange-500/20 mx-auto flex items-center justify-center overflow-hidden">
+                              <img src={top3Winner.userAvatar || '/avatars/ai-preset-1.jpg'} alt={top3Winner.userName} className="w-full h-full object-cover rounded-full" />
+                            </div>
+                            <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-600 to-orange-500 text-white font-black text-[10px] shadow-sm uppercase">
+                              #3 Giải Ba
+                            </span>
+                          </div>
+
+                          <div className="space-y-0.5">
+                            <div className="font-black text-sm text-white truncate max-w-[200px]" title={top3Winner.userName}>
+                              {top3Winner.userName}
+                            </div>
+                            <div className="text-[11px] text-slate-300">
+                              Đoán: <strong className="text-slate-100 font-mono font-black">{top3Winner.predictedPrice} tỷ</strong>
+                            </div>
+                            <div className="text-[10px] text-slate-400">
+                              Lệch: {top3Winner.diff !== undefined ? `${top3Winner.diff} tỷ` : '0.01 tỷ'}
+                            </div>
+                          </div>
+
+                          {/* Bục Giải Ba */}
+                          <div className="w-full h-24 sm:h-28 rounded-t-2xl bg-gradient-to-b from-orange-600/20 via-orange-700/10 to-slate-900 border-t-2 border-x border-orange-500/50 flex flex-col items-center justify-center p-3 shadow-inner space-y-1">
+                            <span className="text-xs font-black text-orange-300">GIẢI BA</span>
+                            <div className="text-base sm:text-lg font-black text-amber-300 font-mono">
+                              +{top3Winner.rewardAmount?.toLocaleString('vi-VN')} đ
+                            </div>
+                            <span className="text-[9px] text-slate-400">Ví Khuyến Mãi</span>
+                          </div>
+                        </div>
+                      )}
+
+                    </div>
+                  </div>
+
+                  {/* BẢNG CHI TIẾT TẤT CẢ NGƯỜI TRÚNG THƯỞNG CỦA KỲ */}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                        <i className="fa-solid fa-list-ol text-amber-400"></i>
+                        <span>Chi Tiết Toàn Bộ Danh Sách Trúng Giải:</span>
+                      </div>
+                      <span className="text-xs text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+                        <i className="fa-solid fa-circle-check"></i>
+                        <span>Đã cộng ví 100%</span>
+                      </span>
+                    </div>
+
+                    <div className="overflow-x-auto rounded-2xl border border-white/10 bg-slate-950/70">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="border-b border-white/10 bg-white/5 text-[11px] text-slate-400 uppercase tracking-wider">
+                            <th className="py-3 px-4 font-bold">Thứ Hạng</th>
+                            <th className="py-3 px-4 font-bold">Người Trúng Giải</th>
+                            <th className="py-3 px-4 font-bold text-center">Giá Dự Đoán</th>
+                            <th className="py-3 px-4 font-bold text-center">Độ Lệch</th>
+                            <th className="py-3 px-4 font-bold text-right">Tiền Thưởng Ví KM</th>
+                            <th className="py-3 px-4 font-bold text-center">Danh Hiệu Vinh Danh</th>
+                            <th className="py-3 px-4 font-bold text-center">Trạng Thái</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                          {currentWinners.map((winner, wIdx) => {
+                            const isFirst = winner.rank === 1;
+                            const isSecond = winner.rank === 2;
+                            const isThird = winner.rank === 3;
+
+                            return (
+                              <tr key={wIdx} className={`hover:bg-white/5 transition ${
+                                isFirst ? 'bg-amber-500/10 font-medium' : ''
+                              }`}>
+                                <td className="py-3.5 px-4">
+                                  <span className={`inline-flex items-center justify-center w-7 h-7 rounded-xl font-mono text-xs font-black shadow-xs ${
+                                    isFirst
+                                      ? 'bg-amber-400 text-slate-950 ring-2 ring-amber-300'
+                                      : isSecond
+                                      ? 'bg-slate-300 text-slate-950'
+                                      : isThird
+                                      ? 'bg-orange-500 text-white'
+                                      : 'bg-slate-800 text-slate-300'
+                                  }`}>
+                                    #{winner.rank || wIdx + 1}
+                                  </span>
+                                </td>
+
+                                <td className="py-3.5 px-4">
+                                  <div className="flex items-center gap-2.5">
+                                    <div className="w-7 h-7 rounded-full overflow-hidden bg-slate-800 shrink-0 border border-white/10">
+                                      <img
+                                        src={winner.userAvatar || '/avatars/ai-preset-1.jpg'}
+                                        alt={winner.userName}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </div>
+                                    <div>
+                                      <div className={`font-bold text-xs ${isFirst ? 'text-amber-300 font-black' : 'text-white'}`}>
+                                        {winner.userName}
+                                      </div>
+                                      <div className="text-[10px] text-slate-400">
+                                        {winner.awardedAt || '31/10/2026 20:00'}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </td>
+
+                                <td className="py-3.5 px-4 text-center">
+                                  <span className="font-mono font-bold text-amber-300 text-sm">
+                                    {winner.predictedPrice} tỷ
+                                  </span>
+                                </td>
+
+                                <td className="py-3.5 px-4 text-center">
+                                  <span className={`text-[11px] font-mono font-bold ${
+                                    winner.diff === 0 || winner.diff === 0.00
+                                      ? 'text-emerald-400'
+                                      : 'text-slate-300'
+                                  }`}>
+                                    {winner.diff !== undefined ? `${winner.diff} tỷ` : '0.00 tỷ'}
+                                  </span>
+                                </td>
+
+                                <td className="py-3.5 px-4 text-right">
+                                  <div className="font-mono font-black text-amber-300 text-sm">
+                                    +{winner.rewardAmount?.toLocaleString('vi-VN')} đ
+                                  </div>
+                                  <div className="text-[9px] text-slate-400">Cộng trực tiếp Ví KM</div>
+                                </td>
+
+                                <td className="py-3.5 px-4 text-center">
+                                  <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${
+                                    isFirst
+                                      ? 'bg-amber-400/20 text-amber-300 border-amber-400/30'
+                                      : isSecond
+                                      ? 'bg-slate-300/20 text-slate-200 border-slate-300/30'
+                                      : 'bg-orange-500/20 text-orange-300 border-orange-500/30'
+                                  }`}>
+                                    {isFirst && <i className="fa-solid fa-crown text-[9px] text-amber-400"></i>}
+                                    <span>{winner.rewardBadge || 'Thần Phán Đoán BĐS ★'}</span>
+                                  </span>
+                                </td>
+
+                                <td className="py-3.5 px-4 text-center">
+                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold border border-emerald-500/30">
+                                    <i className="fa-solid fa-circle-check text-[9px]"></i>
+                                    <span>Đã nhận ví</span>
+                                  </span>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                </div>
+              ) : (
+                /* NẾU KỲ CHƯA CHỐT KẾT QUẢ (ĐANG MỞ BÌNH CHỌN) */
+                <div className="p-8 rounded-3xl bg-slate-950/70 border border-indigo-500/30 text-center space-y-4">
+                  <div className="w-16 h-16 mx-auto rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-2xl border border-indigo-500/30 animate-pulse">
+                    <i className="fa-solid fa-hourglass-half"></i>
+                  </div>
+                  <div className="space-y-1.5 max-w-md mx-auto">
+                    <h3 className="text-lg font-black text-white">
+                      Kỳ Này Đang Mở Bình Chọn & Thẩm Định Giá
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      Hệ thống đang mở cổng để cộng đồng tham gia dự đoán mức giá chuẩn. Bảng vinh danh người chiến thắng sẽ được công bố ngay khi Admin kết thúc sự kiện!
+                    </p>
+                  </div>
+
+                  <div className="inline-flex items-center gap-2 p-3 rounded-2xl bg-slate-900 border border-white/10 text-xs">
+                    <span className="text-slate-400">Tổng giải thưởng đang đón chờ:</span>
+                    <strong className="text-amber-300 font-mono font-black text-sm">
+                      {(Number(currentHonorGame.totalPrize) || 2000000).toLocaleString('vi-VN')} đ Ví KM
+                    </strong>
+                  </div>
+
+                  <div className="pt-2">
+                    <a
+                      href={`#game-${currentHonorGame.id}`}
+                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs transition shadow-md cursor-pointer active:scale-95"
+                    >
+                      <i className="fa-solid fa-paper-plane"></i>
+                      <span>Dự Đoán Mức Giá Kỳ Này Ngay</span>
+                    </a>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          )}
+        </section>
+
+        {/* Tiêu đề Section 2: Danh sách các kỳ đang mở dự đoán */}
+        <div id="cac-ky-du-doan" className="pt-4 flex items-center justify-between flex-wrap gap-2">
+          <div className="space-y-0.5">
+            <h2 className="text-lg sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+              <i className="fa-solid fa-fire text-amber-500"></i>
+              <span>Các Kỳ Thẩm Định Giá Đang Mở</span>
+            </h2>
+            <p className="text-xs text-slate-500">
+              Nhập mức giá thẩm định chuẩn xác để có cơ hội vinh danh và nhận thưởng vào Ví Khuyến Mãi
+            </p>
+          </div>
+          <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold">
+            {displayGames.length} chương trình
+          </span>
+        </div>
+
         {/* 3. DANH SÁCH GAME DỰ ĐOÁN (BỐ CỤC LƯỚI 2 CỘT) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
           {displayGames.map(game => {
@@ -458,6 +967,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
             return (
               <div
                 key={game.id}
+                id={`game-${game.id}`}
                 className={`bg-white rounded-3xl border shadow-sm flex flex-col justify-between gap-5 transition overflow-hidden relative ${
                   isSettled ? 'border-amber-400/80 bg-amber-50/10' : 'border-slate-200/80 hover:border-indigo-300'
                 } p-5 sm:p-6`}

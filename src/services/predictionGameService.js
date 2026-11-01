@@ -128,6 +128,85 @@ export const DEFAULT_PREDICTION_PROGRAMS = [
       { id: 'opt-b', label: 'Chốt từ 16 - 16.5 tỷ', min: 16.0, max: 16.5 },
       { id: 'opt-c', label: 'Chốt trên 16.5 tỷ', min: 16.5, max: 99.0 }
     ]
+  },
+  {
+    id: 'pred-monarchy',
+    slug: 'the-monarchy-da-nang',
+    title: 'Dự đoán giá Căn hộ The Monarchy Block B Sông Hàn (Kỳ 01)',
+    projectName: 'Căn hộ 2PN The Monarchy Block B View Sông Hàn (PR025)',
+    location: 'Sơn Trà, Đà Nẵng',
+    image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80',
+    currentEstimate: '3.65 - 3.85 tỷ',
+    startDate: '2026-10-10T00:00:00Z',
+    endDate: '2026-10-31T20:00:00Z',
+    totalPrize: 2000000, // 2.000.000 đ Ví KM
+    basePrice: 3.75,
+    spreadPercent: 5,
+    targetPrice: 3.75, // Giá chốt thẩm định thực tế: 3.75 tỷ
+    requireMembership: false,
+    status: 'settled',
+    botConfig: {
+      isEnabled: true,
+      botCount: 1420,
+      basePrice: 3.75,
+      spreadPercent: 5
+    },
+    settledResult: {
+      settledAt: '2026-10-31T20:00:00Z',
+      targetPrice: 3.75,
+      isMedianMethod: true,
+      totalPrize: 2000000,
+      totalParticipants: 1420,
+      realParticipantsCount: 42,
+      isSplitPrize: false,
+      rewardPerWinner: null,
+      winners: [
+        {
+          userId: 'user-winner-1',
+          userName: 'Nguyễn Hoàng Nam (091***882)',
+          userAvatar: '/avatars/ai-preset-1.jpg',
+          predictedPrice: 3.75,
+          diff: 0.00,
+          rank: 1,
+          rewardAmount: 1000000,
+          rewardBadge: 'Thần Phán Đoán BĐS (Quán Quân) ★',
+          isTied: false,
+          payoutStatus: 'Đã giải ngân Ví KM',
+          awardedAt: '31/10/2026 20:00'
+        },
+        {
+          userId: 'user-winner-2',
+          userName: 'Lê Thị Thu Hà (093***415)',
+          userAvatar: '/avatars/ai-preset-2.jpg',
+          predictedPrice: 3.74,
+          diff: 0.01,
+          rank: 2,
+          rewardAmount: 600000,
+          rewardBadge: 'Chuyên Gia Định Giá BĐS (Á Quân)',
+          isTied: false,
+          payoutStatus: 'Đã giải ngân Ví KM',
+          awardedAt: '31/10/2026 20:00'
+        },
+        {
+          userId: 'user-winner-3',
+          userName: 'Trần Đức Minh (098***926)',
+          userAvatar: '/avatars/ai-preset-1.jpg',
+          predictedPrice: 3.76,
+          diff: 0.01,
+          rank: 3,
+          rewardAmount: 400000,
+          rewardBadge: 'Thẩm Định Viên Xuất Sắc (Giải Ba)',
+          isTied: false,
+          payoutStatus: 'Đã giải ngân Ví KM',
+          awardedAt: '31/10/2026 20:00'
+        }
+      ]
+    },
+    options: [
+      { id: 'opt-a', label: 'Dưới 3.6 tỷ', min: 0, max: 3.6 },
+      { id: 'opt-b', label: 'Từ 3.6 - 3.8 tỷ', min: 3.6, max: 3.8 },
+      { id: 'opt-c', label: 'Trên 3.8 tỷ', min: 3.8, max: 99.0 }
+    ]
   }
 ];
 
@@ -354,7 +433,17 @@ export function getStoredPredictionPrograms() {
     const raw = localStorage.getItem(PREDICTION_STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        // Tự động bổ sung các kỳ mặc định (như Kỳ 01 đã chốt trao giải) nếu trong local chưa có
+        const existingIds = new Set(parsed.map(p => p.id));
+        const missing = DEFAULT_PREDICTION_PROGRAMS.filter(p => !existingIds.has(p.id));
+        if (missing.length > 0) {
+          const merged = [...parsed, ...missing];
+          try { localStorage.setItem(PREDICTION_STORAGE_KEY, JSON.stringify(merged)); } catch (e) {}
+          return merged;
+        }
+        return parsed;
+      }
     }
   } catch (e) {}
   return DEFAULT_PREDICTION_PROGRAMS;
