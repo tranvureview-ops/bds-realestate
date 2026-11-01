@@ -654,26 +654,13 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                             {pkg.shortName}
                           </span>
 
-                          {/* Trạng thái xác thực:
-                              - Tin đã xác thực: Badge màu xanh lục
-                              - Đang chờ duyệt sổ đỏ: Badge màu vàng cam
-                              - Chưa xác thực: KHÔNG hiển thị badge */}
-                          {Boolean(prop.is_verified || prop.isVerified) ? (
+                          {/* Trạng thái xác thực: Chỉ hiển thị khi Tin đã xác thực */}
+                          {Boolean(prop.is_verified || prop.isVerified) && (
                             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1 shadow-xs">
                               <i className="fa-solid fa-circle-check text-emerald-600"></i>
                               <span>Tin xác thực</span>
                             </span>
-                          ) : (prop.verification_status === 'pending' || prop.verificationStatus === 'pending') ? (
-                            <button
-                              type="button"
-                              onClick={() => setReviewingDocProperty(prop)}
-                              className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1 shadow-xs hover:bg-amber-200 transition cursor-pointer"
-                              title="Hồ sơ Sổ đỏ 2 mặt đang chờ Ban quản trị duyệt. Bấm để xem lại."
-                            >
-                              <i className="fa-solid fa-file-shield text-amber-600"></i>
-                              <span>⏳ Chờ duyệt sổ đỏ</span>
-                            </button>
-                          ) : null}
+                          )}
 
                           {/* Huy hiệu Gán Nổi Bật (Có thời hạn 15 ngày) */}
                           {isItemTreasureActive && (
