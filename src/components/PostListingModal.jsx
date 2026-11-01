@@ -1625,7 +1625,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                 <div className="flex items-center justify-between">
                   <div className="font-bold text-xs text-slate-800 uppercase flex items-center gap-2">
                     <i className="fa-solid fa-map-location-dot text-red-600 text-sm"></i>
-                    <span>3. Địa Chỉ Bất Động Sản (Địa giới hành chính) <span className="text-red-500">*</span></span>
+                    <span>3. Địa Chỉ Nhà Đất <span className="text-red-500">*</span></span>
                   </div>
                 </div>
 
