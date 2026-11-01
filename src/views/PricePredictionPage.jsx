@@ -1426,7 +1426,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
                   <span>Chưa có lượt dự đoán nào theo bộ lọc này.</span>
                 </div>
               ) : (
-                activeLeaderboardData.slice(0, 30).map((record, rIdx) => {
+                activeLeaderboardData.slice(0, 10).map((record, rIdx) => {
                   const isCurrentUserRecord = record.is_bot === 0 && String(record.userId) === userId;
                   const rankNum = rIdx + 1;
 
@@ -1485,7 +1485,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
             </div>
 
             <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-slate-400 text-[11px]">
-              <span>Hiển thị tối đa 30 lượt tham gia mới nhất</span>
+              <span>Hiển thị Top 10 lượt tham gia mới nhất</span>
               <button
                 type="button"
                 onClick={() => setActiveLeaderboardGame(null)}
