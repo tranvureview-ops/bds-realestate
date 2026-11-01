@@ -80,11 +80,15 @@ export default function UserTransactionHistoryManager() {
       const isBonus = t.walletType === 'bonus' || 
                       t.type === 'bonus_reward' || 
                       t.type === 'bonus_expired' || 
+                      t.type === 'affiliate_commission' ||
                       t.title?.toLowerCase().includes('khuyến mãi') || 
                       t.title?.toLowerCase().includes('ví km') ||
                       t.title?.toLowerCase().includes('điểm danh') ||
                       t.title?.toLowerCase().includes('nhiệm vụ') ||
                       t.title?.toLowerCase().includes('rương') ||
+                      t.title?.toLowerCase().includes('dự đoán') ||
+                      t.title?.toLowerCase().includes('hoa hồng') ||
+                      t.title?.toLowerCase().includes('affiliate') ||
                       t.title?.toLowerCase().includes('thu hồi');
 
       if (t.type === 'deposit' && amt > 0) {
@@ -98,13 +102,20 @@ export default function UserTransactionHistoryManager() {
       }
     });
 
+    // Đồng bộ với các gói thưởng và số dư Ví Khuyến Mãi thực tế của user nếu chưa có lịch sử giao dịch tương ứng
+    const bonusFromBatches = Array.isArray(currentUser?.bonusBatches)
+      ? currentUser.bonusBatches.reduce((acc, b) => acc + (Number(b.amount) || 0), 0)
+      : 0;
+    const currentBonusBalance = Number(currentUser?.bonusWalletBalance || 0);
+    const effectiveBonusReceived = Math.max(totalBonusReceived, bonusFromBatches, currentBonusBalance);
+
     return {
       totalDeposited,
-      totalBonusReceived,
+      totalBonusReceived: effectiveBonusReceived,
       totalBonusClawback,
       totalSpent
     };
-  }, [userTransactions]);
+  }, [userTransactions, currentUser]);
 
   // 3. Phân loại và lọc danh sách giao dịch chi tiết
   const filteredTransactions = useMemo(() => {
@@ -115,11 +126,15 @@ export default function UserTransactionHistoryManager() {
       const isBonus = t.walletType === 'bonus' || 
                       t.type === 'bonus_reward' || 
                       t.type === 'bonus_expired' || 
+                      t.type === 'affiliate_commission' ||
                       t.title?.toLowerCase().includes('khuyến mãi') || 
                       t.title?.toLowerCase().includes('ví km') ||
                       t.title?.toLowerCase().includes('điểm danh') ||
                       t.title?.toLowerCase().includes('nhiệm vụ') ||
                       t.title?.toLowerCase().includes('rương') ||
+                      t.title?.toLowerCase().includes('dự đoán') ||
+                      t.title?.toLowerCase().includes('hoa hồng') ||
+                      t.title?.toLowerCase().includes('affiliate') ||
                       t.title?.toLowerCase().includes('thu hồi');
 
       const isClawback = t.type === 'bonus_expired' || (t.title?.toLowerCase().includes('thu hồi') && Number(t.amount) < 0);
@@ -332,7 +347,7 @@ export default function UserTransactionHistoryManager() {
             +{stats.totalBonusReceived.toLocaleString('vi-VN')} đ
           </div>
           <p className="text-[11px] text-slate-400 leading-relaxed">
-            Điểm danh 7 ngày, hoàn thành nhiệm vụ và săn kho báu.
+            Điểm danh 7 ngày, nhiệm vụ, săn kho báu và dự đoán giá BĐS.
           </p>
         </div>
 
