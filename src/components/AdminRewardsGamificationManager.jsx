@@ -1008,13 +1008,13 @@ export default function AdminRewardsGamificationManager() {
       return;
     }
 
-    // Trao tiền thưởng Ví KM cho các User Thật thắng cuộc
+    // Trao tiền thưởng Ví KM cho các User Thật thắng cuộc (chỉ cộng tiền cho User thật is_bot === 0)
     res.winners.forEach(w => {
-      if (addBonusWalletBalance && w.rewardAmount > 0) {
+      if (w.is_bot === 0 && addBonusWalletBalance && w.rewardAmount > 0) {
         addBonusWalletBalance(w.rewardAmount, `Giải thưởng Dự Đoán Giá BĐS (#${w.rank}): ${settleModalProgram.projectName || settleModalProgram.title}`);
       }
-      // Trao huy hiệu vinh danh "Thần Phán Đoán" vào User
-      if (currentUser && String(currentUser.id) === String(w.userId)) {
+      // Trao huy hiệu vinh danh "Thần Phán Đoán" vào User thật
+      if (w.is_bot === 0 && currentUser && String(currentUser.id) === String(w.userId)) {
         awardBadgeToUser(currentUser, w.rewardBadge || 'Thần Phán Đoán BĐS ★');
       }
     });
@@ -3253,9 +3253,17 @@ export default function AdminRewardsGamificationManager() {
                       </div>
                     </div>
 
-                    <div className="text-[11px] text-slate-400 border-t border-slate-800 pt-2 flex items-center gap-1.5">
-                      <i className="fa-solid fa-circle-check text-emerald-400"></i>
-                      <span>Hệ thống tự động lấy giá trị trung vị của toàn bộ người dùng thật (<code className="text-emerald-300 font-mono">is_bot = 0</code>) làm giá chuẩn xét giải khách quan nhất.</span>
+                    <div className="text-[11px] text-slate-400 border-t border-slate-800 pt-2 space-y-1.5">
+                      <div className="flex items-center gap-1.5">
+                        <i className="fa-solid fa-circle-check text-emerald-400"></i>
+                        <span>Hệ thống tự động lấy giá trị trung vị của toàn bộ người dùng thật (<code className="text-emerald-300 font-mono">is_bot = 0</code>) làm giá chuẩn xét giải.</span>
+                      </div>
+                      {realUsers.length < 3 && (
+                        <div className="flex items-start gap-1.5 text-amber-300 bg-amber-500/10 border border-amber-500/30 p-2 rounded-xl text-[10px] leading-relaxed">
+                          <i className="fa-solid fa-wand-magic-sparkles text-amber-400 mt-0.5"></i>
+                          <span>Khi có ít hơn 3 user thật ({realUsers.length} người): Hệ thống sẽ tự động bổ sung random 2 - 5 bot có mức giá gần trung vị, ưu tiên người thật nhận Giải 1 & Giải 2, Giải 3 chia đều cho hệ thống bot.</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );

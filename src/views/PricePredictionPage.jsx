@@ -359,24 +359,31 @@ export default function PricePredictionPage({ projectSlug = null }) {
                     </div>
 
                     <div className="space-y-1.5 pt-1">
-                      <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
-                        Danh sách User Thật chiến thắng:
+                      <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+                        <span>Bảng Vinh Danh Người Thắng Giải:</span>
+                        <span className="text-[10px] text-slate-500 font-semibold">{game.settledResult.winners?.length || 0} người nhận thưởng</span>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                        {game.settledResult.winners?.slice(0, 4).map((w, wIdx) => (
-                          <div key={wIdx} className="p-2 bg-white rounded-xl border border-amber-200 flex items-center justify-between text-xs">
-                            <div className="flex items-center gap-2">
-                              <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 font-black text-[10px] flex items-center justify-center">
-                                #{w.rank || wIdx + 1}
-                              </span>
-                              <span className="font-bold text-slate-900 truncate max-w-[110px]">{w.userName}</span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-0.5">
+                        {game.settledResult.winners?.map((w, wIdx) => {
+                          const rankColor = w.rank === 1 ? 'bg-amber-500 text-slate-950 font-black' : w.rank === 2 ? 'bg-slate-300 text-slate-800 font-bold' : 'bg-orange-200 text-orange-950 font-bold';
+                          return (
+                            <div key={wIdx} className="p-2 bg-white rounded-xl border border-amber-200 flex items-center justify-between text-xs">
+                              <div className="flex items-center gap-2">
+                                <span className={`w-5 h-5 rounded-full text-[10px] flex items-center justify-center shrink-0 ${rankColor}`}>
+                                  #{w.rank || wIdx + 1}
+                                </span>
+                                <div className="truncate max-w-[115px]">
+                                  <div className="font-bold text-slate-900 truncate">{w.userName}</div>
+                                  <div className="text-[9px] text-slate-400 truncate">{w.rewardBadge?.split('(')[0] || 'Trúng giải'}</div>
+                                </div>
+                              </div>
+                              <div className="text-right font-mono shrink-0">
+                                <div className="font-bold text-emerald-600">+{w.rewardAmount?.toLocaleString('vi-VN')}đ</div>
+                                <div className="text-[9px] text-slate-400">Đoán: {w.predictedPrice} tỷ</div>
+                              </div>
                             </div>
-                            <div className="text-right font-mono">
-                              <div className="font-bold text-emerald-600">+{w.rewardAmount?.toLocaleString('vi-VN')}đ</div>
-                              <div className="text-[9px] text-slate-400">Đoán: {w.predictedPrice} tỷ</div>
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   </div>

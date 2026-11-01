@@ -418,13 +418,13 @@ export function calculateMedianPrice(realUsers = []) {
 /**
  * BACKEND & LOGIC KHI KẾT THÚC SỰ KIỆN: CHỐT KẾT QUẢ & XẾP HẠNG
  * 
- * Bước 1: LỌC DỮ LIỆU - Loại bỏ toàn bộ Bot (is_bot = 1), chỉ giữ lại User thật (is_bot = 0).
- * Bước 2: TỰ ĐỘNG TÍNH GIÁ CHUẨN THEO TRUNG VỊ (MEDIAN) CỦA NGƯỜI THẬT.
- * Bước 3: TÍNH TOÁN SAI SỐ SO VỚI GIÁ TRUNG VỊ - Sắp xếp sai số tăng dần.
- * Bước 4: XÉT THƯỞNG & VINH DANH:
- *   - Nếu >3 người đồng hạng ở Top: Chia đều tổng giải thưởng (Ví dụ 2.000.000đ).
- *   - Nếu không đồng hạng: Top 1 (50%), Top 2 (30%), Top 3 (20%).
- *   - Cấp Huy hiệu vinh danh "Thần Phán Đoán" cho User trúng giải.
+ * Bước 1: Tính Giá Chuẩn theo Trung Vị (Median) của người thật (hoặc cấu hình nếu chưa có user thật).
+ * Bước 2: Chấm điểm & tính sai số cho User thật so với Giá Trung Vị.
+ * Bước 3: Xét cơ cấu giải thưởng:
+ *   - Nếu >= 3 user thật: Phân bổ Quán Quân (50%), Á Quân (30%), Giải Ba (20%) hoặc chia đều nếu >3 đồng hạng.
+ *   - Nếu < 3 user thật: Bổ sung thêm random 2 - 5 bot vào hệ thống trúng thưởng với giá sát trung vị.
+ *     Ưu tiên người thật nhận Giải Nhất và Giải Nhì, Giải Ba chia đều cho hệ thống bot.
+ * Bước 4: Trao thưởng Ví KM cho User thật và cấp Huy hiệu vinh danh "Thần Phán Đoán".
  */
 export function settlePredictionGame({
   gameId,
@@ -433,27 +433,23 @@ export function settlePredictionGame({
   currentUser = null
 }) {
   const allRecords = getStoredPredictions(gameId);
-
-  // BƯỚC 1: LỌC DỮ LIỆU - LOẠI BỎ TOÀN BỘ BOT (is_bot = 1), CHỈ GIỮ USER THẬT (is_bot = 0)
   const realUsers = allRecords.filter(r => !r.is_bot && r.is_bot !== 1);
+  const botRecords = allRecords.filter(r => r.is_bot === 1);
 
-  if (realUsers.length === 0) {
-    return {
-      success: false,
-      message: 'Chưa có người dùng thật (is_bot = 0) nào tham gia dự đoán chương trình này để tính Giá Trung Vị!',
-      winners: [],
-      payouts: [],
-      splitPrize: false
-    };
+  // BƯỚC 1: XÁC ĐỊNH GIÁ CHUẨN TRUNG VỊ
+  let numTargetPrice = 0;
+  if (targetPrice !== null && !isNaN(targetPrice) && Number(targetPrice) > 0) {
+    numTargetPrice = Number(targetPrice);
+  } else if (realUsers.length > 0) {
+    numTargetPrice = calculateMedianPrice(realUsers);
+  } else {
+    const progs = getStoredPredictionPrograms();
+    const p = progs?.find(x => x.id === gameId);
+    numTargetPrice = Number(p?.targetPrice || p?.basePrice || 15.5);
   }
 
-  // BƯỚC 2: TỰ ĐỘNG TÍNH GIÁ CHUẨN THEO TRUNG VỊ CỦA NGƯỜI THẬT (nếu không truyền thủ công)
-  const numTargetPrice = (targetPrice !== null && !isNaN(targetPrice) && Number(targetPrice) > 0)
-    ? Number(targetPrice)
-    : calculateMedianPrice(realUsers);
-
-  // BƯỚC 3: TÍNH TOÁN SAI SỐ VÀ XẾP HẠNG THEO GIÁ TRUNG VỊ
-  const scoredUsers = realUsers.map(u => {
+  // BƯỚC 2: CHẤM ĐIỂM VÀ TÍNH SAI SỐ CHO USER THẬT
+  const scoredRealUsers = realUsers.map(u => {
     const diff = Math.abs(Number(u.predictedPrice) - numTargetPrice);
     return {
       ...u,
@@ -465,43 +461,174 @@ export function settlePredictionGame({
     return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(); // Dự đoán sớm hơn xếp trước
   });
 
-  const bestDiff = scoredUsers[0].diff;
-  // Tìm nhóm những người đồng hạng sai số thấp nhất
-  const tiedAtTop = scoredUsers.filter(u => Math.abs(u.diff - bestDiff) <= 0.0001);
-
+  const totalPrizeNum = Number(totalPrize) || 2000000;
   let winners = [];
   let isSplitPrize = false;
   let rewardPerWinner = 0;
 
-  // BƯỚC 4: XÉT THƯỞNG & VINH DANH
-  if (tiedAtTop.length > 3) {
-    // TRƯỜNG HỢP >3 NGƯỜI ĐỒNG HẠNG Ở TOP: Áp dụng cơ chế CHIA ĐỀU TỔNG GIẢI THƯỞNG
-    isSplitPrize = true;
-    rewardPerWinner = Math.floor(Number(totalPrize) / tiedAtTop.length);
+  // BƯỚC 3: XÉT CƠ CẤU GIẢI THƯỞNG
+  if (scoredRealUsers.length >= 3) {
+    // Trường hợp >= 3 User thật:
+    const bestDiff = scoredRealUsers[0].diff;
+    const tiedAtTop = scoredRealUsers.filter(u => Math.abs(u.diff - bestDiff) <= 0.0001);
 
-    winners = tiedAtTop.map((u, idx) => ({
-      ...u,
-      rank: idx + 1,
-      isTied: true,
-      rewardAmount: rewardPerWinner,
-      rewardBadge: 'Thần Phán Đoán BĐS ★'
-    }));
-  } else {
-    // Dưới hoặc bằng 3 người: Phân chia Top 1, Top 2, Top 3
-    const topCount = Math.min(scoredUsers.length, 3);
-    const shares = [0.5, 0.3, 0.2]; // 50%, 30%, 20%
-    
-    winners = scoredUsers.slice(0, topCount).map((u, idx) => {
-      const share = shares[idx] || 0.1;
-      const amt = Math.floor(Number(totalPrize) * share);
-      return {
+    if (tiedAtTop.length > 3) {
+      // > 3 người đồng hạng: Chia đều tổng giải thưởng
+      isSplitPrize = true;
+      rewardPerWinner = Math.floor(totalPrizeNum / tiedAtTop.length);
+      winners = tiedAtTop.map((u, idx) => ({
+        ...u,
+        rank: idx + 1,
+        isTied: true,
+        rewardAmount: rewardPerWinner,
+        rewardBadge: 'Thần Phán Đoán BĐS ★'
+      }));
+    } else {
+      // Phân chia Top 1 (50%), Top 2 (30%), Top 3 (20%)
+      const shares = [0.5, 0.3, 0.2];
+      winners = scoredRealUsers.slice(0, 3).map((u, idx) => ({
         ...u,
         rank: idx + 1,
         isTied: false,
-        rewardAmount: amt,
+        rewardAmount: Math.floor(totalPrizeNum * shares[idx]),
         rewardBadge: idx === 0 ? 'Thần Phán Đoán BĐS (Quán Quân) ★' : `Chuyên Gia Định Giá BĐS (Top ${idx + 1})`
-      };
-    });
+      }));
+    }
+  } else {
+    // Trường hợp khi ít hơn 3 User thật (< 3 người):
+    // Bổ sung thêm random 2 - 5 bot vào hệ thống trúng thưởng, giá gần trung vị để chia cơ cấu giải thưởng.
+    // Ưu tiên người thật nhận giải 1 và 2, giải 3 chia đều cho hệ thống bot.
+    const botCountToAdd = Math.floor(Math.random() * 4) + 2; // Random 2, 3, 4 hoặc 5 bot
+    const giai1Amount = Math.floor(totalPrizeNum * 0.5); // 50%
+    const giai2Amount = Math.floor(totalPrizeNum * 0.3); // 30%
+    const giai3Total = Math.floor(totalPrizeNum * 0.2);  // 20%
+    const rewardPerBotGiai3 = Math.floor(giai3Total / botCountToAdd);
+
+    // Tạo danh sách bot có giá sát trung vị (độ lệch cực nhỏ quanh targetPrice)
+    const offsets = [-0.02, 0.01, -0.01, 0.03, -0.03, 0.02, 0.04];
+    const botsForPrize = [];
+
+    for (let i = 0; i < botCountToAdd; i++) {
+      const offset = offsets[i % offsets.length];
+      const botPrice = Number((numTargetPrice + offset).toFixed(2));
+      const diff = Math.abs(Number((botPrice - numTargetPrice).toFixed(4)));
+      const candidate = botRecords[i] || {};
+
+      botsForPrize.push({
+        id: candidate.id || `bot-winner-${Date.now()}-${i}`,
+        gameId,
+        userId: candidate.userId || `bot-win-${i}`,
+        userName: candidate.userName || generateRealisticParticipantName(),
+        predictedPrice: botPrice,
+        diff,
+        diffPercent: Number(((diff / numTargetPrice) * 100).toFixed(2)),
+        is_bot: 1,
+        createdAt: candidate.createdAt || new Date().toISOString()
+      });
+    }
+
+    // Sắp xếp các bot theo sai số tăng dần
+    botsForPrize.sort((a, b) => a.diff - b.diff);
+
+    if (scoredRealUsers.length === 2) {
+      // 2 User thật:
+      // Người thật 1 -> Giải Nhất (50%)
+      winners.push({
+        ...scoredRealUsers[0],
+        rank: 1,
+        isTied: false,
+        rewardAmount: giai1Amount,
+        rewardBadge: 'Thần Phán Đoán BĐS (Giải Nhất) ★'
+      });
+      // Người thật 2 -> Giải Nhì (30%)
+      winners.push({
+        ...scoredRealUsers[1],
+        rank: 2,
+        isTied: false,
+        rewardAmount: giai2Amount,
+        rewardBadge: 'Chuyên Gia Định Giá BĐS (Giải Nhì)'
+      });
+      // 2 - 5 bot -> Đồng Hạng Giải Ba (chia đều 20% giải thưởng)
+      botsForPrize.forEach(bot => {
+        winners.push({
+          ...bot,
+          rank: 3,
+          isTied: true,
+          rewardAmount: rewardPerBotGiai3,
+          rewardBadge: 'Đồng Hạng Giải Ba (Dự Đoán Chuẩn Xác)'
+        });
+      });
+    } else if (scoredRealUsers.length === 1) {
+      // 1 User thật:
+      // Người thật duy nhất -> Giải Nhất (50%)
+      winners.push({
+        ...scoredRealUsers[0],
+        rank: 1,
+        isTied: false,
+        rewardAmount: giai1Amount,
+        rewardBadge: 'Thần Phán Đoán BĐS (Giải Nhất) ★'
+      });
+      // 1 Bot tốt nhất -> Giải Nhì (30%)
+      winners.push({
+        ...botsForPrize[0],
+        rank: 2,
+        isTied: false,
+        rewardAmount: giai2Amount,
+        rewardBadge: 'Chuyên Gia Định Giá BĐS (Giải Nhì)'
+      });
+      // Các bot còn lại (đảm bảo ít nhất 2 bot) -> Chia đều 20% Giải Ba
+      const remainingBots = botsForPrize.slice(1);
+      if (remainingBots.length < 2) {
+        remainingBots.push({
+          id: `bot-extra-${Date.now()}`,
+          gameId,
+          userId: `bot-win-extra`,
+          userName: generateRealisticParticipantName(),
+          predictedPrice: Number((numTargetPrice + 0.04).toFixed(2)),
+          diff: 0.04,
+          diffPercent: Number(((0.04 / numTargetPrice) * 100).toFixed(2)),
+          is_bot: 1,
+          createdAt: new Date().toISOString()
+        });
+      }
+      const rewardEachBot = Math.floor(giai3Total / remainingBots.length);
+      remainingBots.forEach(bot => {
+        winners.push({
+          ...bot,
+          rank: 3,
+          isTied: true,
+          rewardAmount: rewardEachBot,
+          rewardBadge: 'Đồng Hạng Giải Ba (Dự Đoán Chuẩn Xác)'
+        });
+      });
+    } else {
+      // 0 User thật: Phân bổ mẫu cho bot để admin chốt test mượt mà
+      winners.push({
+        ...botsForPrize[0],
+        rank: 1,
+        isTied: false,
+        rewardAmount: giai1Amount,
+        rewardBadge: 'Thần Phán Đoán BĐS (Giải Nhất) ★'
+      });
+      winners.push({
+        ...botsForPrize[1],
+        rank: 2,
+        isTied: false,
+        rewardAmount: giai2Amount,
+        rewardBadge: 'Chuyên Gia Định Giá BĐS (Giải Nhì)'
+      });
+      const remainingBots = botsForPrize.slice(2);
+      const rewardEachBot = Math.floor(giai3Total / Math.max(remainingBots.length, 1));
+      remainingBots.forEach(bot => {
+        winners.push({
+          ...bot,
+          rank: 3,
+          isTied: true,
+          rewardAmount: rewardEachBot,
+          rewardBadge: 'Đồng Hạng Giải Ba (Dự Đoán Chuẩn Xác)'
+        });
+      });
+    }
   }
 
   // Kết quả lưu lại
@@ -509,8 +636,9 @@ export function settlePredictionGame({
     settledAt: new Date().toISOString(),
     targetPrice: numTargetPrice,
     isMedianMethod: true,
-    totalPrize: Number(totalPrize),
-    totalParticipants: realUsers.length,
+    totalPrize: totalPrizeNum,
+    totalParticipants: allRecords.length,
+    realParticipantsCount: realUsers.length,
     isSplitPrize,
     rewardPerWinner,
     winners
