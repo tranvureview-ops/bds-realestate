@@ -617,26 +617,6 @@ export default function PricePredictionPage({ projectSlug = null }) {
           </div>
         </div>
 
-        {/* 2. DÒNG TICKER CHẠY THÔNG BÁO LIÊN TỤC (TẠO HIỆU ỨNG FOMO - CỐ ĐỊNH CHIỀU CAO CHỐNG NHẢY TRANG) */}
-        <div className="bg-gradient-to-r from-blue-900/10 via-indigo-900/10 to-purple-900/10 border border-indigo-200/60 rounded-2xl p-2.5 overflow-hidden flex items-center gap-3 shadow-xs min-h-[48px]">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-indigo-600 text-white font-extrabold text-[11px] shrink-0 uppercase tracking-wider shadow-xs">
-            <i className="fa-solid fa-bolt-lightning text-amber-300 animate-bounce"></i>
-            <span>Live Ticker</span>
-          </div>
-          <div className="overflow-x-auto no-scrollbar scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] whitespace-nowrap flex items-center gap-4 text-xs text-slate-700 py-0.5 w-full">
-            {tickerEvents.map((evt, idx) => (
-              <div key={evt.id || `${evt.userName}-${idx}`} className="inline-flex items-center gap-2 shrink-0 bg-white px-3.5 py-1.5 rounded-xl border border-slate-200/80 shadow-2xs">
-                <div className="w-5 h-5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center text-[10px] shrink-0">
-                  <i className="fa-solid fa-user"></i>
-                </div>
-                <span className="font-bold text-slate-900">{evt.userName}</span>
-                <span>vừa tham gia <strong className="text-slate-900 font-bold">Dự đoán giá BĐS</strong> với mức giá <strong className="text-indigo-600 font-mono font-black">{evt.price} tỷ</strong>!</span>
-                <span className="text-amber-800 font-medium">Tổng giải thưởng <strong className="text-emerald-700 font-mono font-black">{evt.totalPrize || '2.000.000 đ Ví KM'}</strong> đang rung lắc dữ dội!</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Nút điều hướng nhanh */}
         <div className="flex items-center justify-between flex-wrap gap-2.5 pt-1">
           <div className="flex items-center gap-2">

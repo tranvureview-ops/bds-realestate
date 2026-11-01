@@ -5,6 +5,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter, Link } from '../router/RouterContext';
 import { getPremiumPackageSavePercent } from '../utils/membershipHelper';
 import SocialIcon from './SocialIcon';
+import { getLivePredictionTickerEvents } from '../services/predictionGameService';
 
 const cleanUserName = (name) => {
   if (!name) return 'Khách vãng lai';
@@ -66,6 +67,65 @@ export default function Navbar() {
 
   const userMenuRef = useRef(null);
   const isGuest = !currentUser || currentUser.role === 'guest';
+
+  // Quản lý Live Ticker trên thanh Topbar
+  const [topbarTickerEvents, setTopbarTickerEvents] = useState(() => [
+    { id: 'def-1', userName: '090***240', price: '5.65', totalPrize: '2.000.000 đ Ví KM' },
+    { id: 'def-2', userName: 'Dương K***', price: '5.36', totalPrize: '2.000.000 đ Ví KM' },
+    { id: 'def-3', userName: 'Nguyễn Văn T***', price: '15.6', totalPrize: '2.000.000 đ Ví KM' },
+    { id: 'def-4', userName: '098***342', price: '15.7', totalPrize: '2.000.000 đ Ví KM' },
+    { id: 'def-5', userName: 'Trần Thị M***', price: '15.5', totalPrize: '2.000.000 đ Ví KM' },
+    { id: 'def-6', userName: '097***471', price: '6.01', totalPrize: '2.000.000 đ Ví KM' }
+  ]);
+
+  const tickerContainerRef = useRef(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const events = getLivePredictionTickerEvents();
+        if (Array.isArray(events) && events.length > 0) {
+          setTopbarTickerEvents(events);
+        }
+      } catch (e) {}
+    }
+  }, []);
+
+  // Ticker Auto-scroll mượt mà trên Topbar (tạm dừng khi rê chuột vào để đọc/click)
+  useEffect(() => {
+    const el = tickerContainerRef.current;
+    if (!el) return;
+
+    let animId;
+    let isHovered = false;
+
+    const onMouseEnter = () => { isHovered = true; };
+    const onMouseLeave = () => { isHovered = false; };
+
+    el.addEventListener('mouseenter', onMouseEnter);
+    el.addEventListener('mouseleave', onMouseLeave);
+
+    const step = () => {
+      if (!isHovered && el) {
+        if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 2) {
+          el.scrollLeft = 0;
+        } else {
+          el.scrollLeft += 0.8;
+        }
+      }
+      animId = requestAnimationFrame(step);
+    };
+
+    animId = requestAnimationFrame(step);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      if (el) {
+        el.removeEventListener('mouseenter', onMouseEnter);
+        el.removeEventListener('mouseleave', onMouseLeave);
+      }
+    };
+  }, [topbarTickerEvents]);
 
   // Quản lý fallback ảnh logo và định dạng hiển thị thương hiệu
   const [logoImgError, setLogoImgError] = useState(false);
@@ -217,12 +277,12 @@ export default function Navbar() {
 
   return (
     <header className="relative w-full z-50 bg-white border-b border-slate-200/80 shadow-xs">
-      {/* 1. TOP UTILITY BAR (Hotline, Demo Switcher, Reset) */}
+      {/* 1. TOP UTILITY BAR (Live Ticker Dự Đoán BĐS, Badge & Social) */}
       {showTopbar && (
         <div className={`${topbarBgClass} text-slate-300 text-xs py-1.5 border-b border-slate-800/80 transition-colors`}>
-          <div suppressHydrationWarning className={`${containerWidthClass} flex items-center justify-between gap-2 sm:gap-3`}>
-            {/* Left: Hotline & Slogan */}
-            <div className="flex items-center gap-1.5 sm:gap-3 min-w-0">
+          <div suppressHydrationWarning className={`${containerWidthClass} flex items-center justify-between gap-2 sm:gap-4 overflow-hidden`}>
+            {/* Left: Hotline & Slogan Badge */}
+            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
               {showBadge && (
                 <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border font-bold text-[10px] sm:text-[11px] truncate ${topbarBadgeColorClass}`}>
                   <span className={`w-1.5 h-1.5 rounded-full ${topbarDotColorClass} animate-pulse shrink-0`}></span>
@@ -231,8 +291,39 @@ export default function Navbar() {
               )}
             </div>
 
+            {/* Center: LIVE TICKER DỰ ĐOÁN GIÁ BĐS (Đã đưa lên Topbar) */}
+            <div className="flex-1 min-w-0 mx-1 sm:mx-3 overflow-hidden">
+              <Link
+                to="/trung-tam-phan-thuong/du-doan-gia-bds"
+                className="flex items-center gap-2 overflow-hidden hover:opacity-95 transition cursor-pointer group"
+                title="Bấm để vào tham gia Dự đoán giá BĐS ngay"
+              >
+                <div className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-indigo-600 text-white font-extrabold text-[10px] shrink-0 uppercase tracking-wider shadow-xs border border-indigo-400/30 group-hover:bg-indigo-500 transition">
+                  <i className="fa-solid fa-bolt-lightning text-amber-300 animate-bounce text-[9px]"></i>
+                  <span className="hidden sm:inline">LIVE TICKER</span>
+                  <span className="sm:hidden">LIVE</span>
+                </div>
+
+                <div 
+                  ref={tickerContainerRef}
+                  className="overflow-x-auto no-scrollbar scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] whitespace-nowrap flex items-center gap-4 text-[11px] text-slate-300 py-0.5 w-full"
+                >
+                  {topbarTickerEvents.map((evt, idx) => (
+                    <div key={evt.id || idx} className="inline-flex items-center gap-1.5 shrink-0 bg-slate-800/80 hover:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-slate-700/60 transition">
+                      <div className="w-3.5 h-3.5 rounded-full bg-indigo-500/30 text-indigo-300 flex items-center justify-center text-[8px] shrink-0">
+                        <i className="fa-solid fa-user"></i>
+                      </div>
+                      <strong className="text-white font-bold">{evt.userName}</strong>
+                      <span className="text-slate-300">vừa tham gia <strong className="text-white font-semibold">Dự đoán giá BĐS</strong> với mức giá <strong className="text-indigo-400 font-mono font-black">{evt.price} tỷ</strong>!</span>
+                      <span className="text-amber-300/90 font-medium">Tổng giải thưởng <strong className="text-amber-300 font-mono font-black">{evt.totalPrize || '2.000.000 đ Ví KM'}</strong> đang rung lắc dữ dội!</span>
+                    </div>
+                  ))}
+                </div>
+              </Link>
+            </div>
+
             {/* Right: Mạng xã hội */}
-            <div suppressHydrationWarning className="flex items-center justify-end gap-2 sm:gap-3 text-slate-300 text-[11px] shrink-0 min-w-[100px] lg:min-w-[180px]">
+            <div suppressHydrationWarning className="flex items-center justify-end gap-2 sm:gap-3 text-slate-300 text-[11px] shrink-0">
               {/* Social Media Channels */}
               {showSocial && activeSocialList.length > 0 && (
                 <div className="flex items-center gap-1 sm:gap-1.5 shrink-0" style={{ contain: 'layout' }}>
