@@ -1433,12 +1433,26 @@ export default function UserProfilePage() {
               <button
                 type="submit"
                 disabled={isSubmittingKyc}
-                className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-60 text-white font-bold rounded-xl text-xs shadow-md transition flex items-center gap-2 cursor-pointer"
+                className={`px-6 py-2.5 font-bold rounded-xl text-xs shadow-md transition flex items-center gap-2 cursor-pointer ${
+                  safeUser.isVerified 
+                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white' 
+                    : 'bg-blue-600 hover:bg-blue-700 text-white'
+                } disabled:opacity-60`}
               >
                 {isSubmittingKyc ? (
                   <>
                     <i className="fa-solid fa-spinner fa-spin"></i>
-                    <span>Đang gửi hồ sơ xét duyệt...</span>
+                    <span>Đang cập nhật hồ sơ...</span>
+                  </>
+                ) : safeUser.isVerified ? (
+                  <>
+                    <i className="fa-solid fa-circle-check"></i>
+                    <span>Cập Nhật Bổ Sung Hồ Sơ Xác Thực</span>
+                  </>
+                ) : safeUser.kycStatus === 'pending' ? (
+                  <>
+                    <i className="fa-solid fa-arrows-rotate"></i>
+                    <span>Cập Nhật Lại Hồ Sơ Đang Chờ Duyệt</span>
                   </>
                 ) : (
                   <>

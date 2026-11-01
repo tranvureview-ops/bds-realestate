@@ -2808,6 +2808,17 @@ export const MOCK_USERS = [
       "normalPublish": 26
     },
     "isVerified": true,
+    "kycStatus": "verified",
+    "idCardNumber": "048092008899",
+    "licenseNumber": "BDS-CCHN-2024-88",
+    "idCardFront": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=600&q=80",
+    "idCardBack": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80",
+    "certificateImage": "https://images.unsplash.com/photo-1589330694653-dad6d3240a2b?auto=format&fit=crop&w=600&q=80",
+    "kycImages": {
+      "idCardFront": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=600&q=80",
+      "idCardBack": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=600&q=80",
+      "certificateImage": "https://images.unsplash.com/photo-1589330694653-dad6d3240a2b?auto=format&fit=crop&w=600&q=80"
+    },
     "status": "active",
     "isDeleted": false
   },
