@@ -847,21 +847,17 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                         </button>
                       )}
 
-                      {/* Gia Hạn Tin */}
-                      <button
-                        onClick={() => handleOpenRenewModal(prop)}
-                        className={`px-3 py-1.5 font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1 ${
-                          isItemExpired 
-                            ? 'bg-rose-600 hover:bg-rose-700 text-white animate-pulse' 
-                            : isItemExpiringSoon 
-                            ? 'bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold' 
-                            : 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                        }`}
-                        title="Gia hạn thời gian hiển thị bài viết"
-                      >
-                        <i className="fa-solid fa-arrows-rotate"></i>
-                        <span>Gia Hạn</span>
-                      </button>
+                      {/* Gia Hạn Tin (Chỉ hiển thị khi tin đã hết hạn) */}
+                      {isItemExpired && (
+                        <button
+                          onClick={() => handleOpenRenewModal(prop)}
+                          className="px-3 py-1.5 font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1 bg-rose-600 hover:bg-rose-700 text-white animate-pulse cursor-pointer"
+                          title="Tin đăng đã hết hạn. Bấm để gia hạn thời gian hiển thị"
+                        >
+                          <i className="fa-solid fa-arrows-rotate"></i>
+                          <span>Gia Hạn</span>
+                        </button>
+                      )}
 
                       {/* Bump button */}
                       {(() => {
