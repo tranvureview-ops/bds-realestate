@@ -28,13 +28,13 @@ function broadcastPredictionMessage(msg) {
 // Lấy danh sách sự kiện Ticker thời gian thực (Dùng cho Topbar và Trang Dự Đoán)
 export function getLivePredictionTickerEvents() {
   const DEFAULT_ITEMS = [
-    { id: 'def-1', userName: '090***240', price: '5.65', totalPrize: '2.000.000 đ' },
-    { id: 'def-2', userName: 'Dương K***', price: '5.36', totalPrize: '2.000.000 đ' },
-    { id: 'def-3', userName: 'Nguyễn Văn T***', price: '15.6', totalPrize: '2.000.000 đ' },
-    { id: 'def-4', userName: '098***342', price: '15.7', totalPrize: '2.000.000 đ' },
-    { id: 'def-5', userName: 'Trần Thị M***', price: '15.5', totalPrize: '2.000.000 đ' },
-    { id: 'def-6', userName: 'Lê Hoàng D***', price: '15.8', totalPrize: '2.000.000 đ' },
-    { id: 'def-7', userName: '097***471', price: '6.01', totalPrize: '2.000.000 đ' }
+    { id: 'def-1', userName: '090***240', price: '5.65', totalPrize: '2.000.000 đ', timeText: 'Vừa xong' },
+    { id: 'def-2', userName: 'Dương K***', price: '5.36', totalPrize: '2.000.000 đ', timeText: '1 phút trước' },
+    { id: 'def-3', userName: 'Bùi Đức T***', price: '5.43', totalPrize: '2.000.000 đ', timeText: '2 phút trước' },
+    { id: 'def-4', userName: 'Nguyễn Văn T***', price: '15.6', totalPrize: '2.000.000 đ', timeText: '3 phút trước' },
+    { id: 'def-5', userName: '098***342', price: '15.7', totalPrize: '2.000.000 đ', timeText: '4 phút trước' },
+    { id: 'def-6', userName: 'Trần Thị M***', price: '15.5', totalPrize: '2.000.000 đ', timeText: '5 phút trước' },
+    { id: 'def-7', userName: '097***471', price: '6.01', totalPrize: '2.000.000 đ', timeText: '7 phút trước' }
   ];
 
   try {
@@ -50,6 +50,7 @@ export function getLivePredictionTickerEvents() {
           isBot: Boolean(r.is_bot),
           programTitle: prog.projectName || prog.title,
           totalPrize: (Number(prog.totalPrize) || 2000000).toLocaleString('vi-VN') + ' đ',
+          timeText: formatRelativeTime(r.createdAt) || 'Vừa xong',
           createdAt: r.createdAt || new Date().toISOString()
         });
       });

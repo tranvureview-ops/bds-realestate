@@ -5,7 +5,7 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter, Link } from '../router/RouterContext';
 import { getPremiumPackageSavePercent } from '../utils/membershipHelper';
 import SocialIcon from './SocialIcon';
-import { getLivePredictionTickerEvents } from '../services/predictionGameService';
+import { getLivePredictionTickerEvents, formatRelativeTime } from '../services/predictionGameService';
 
 const cleanUserName = (name) => {
   if (!name) return 'Khách vãng lai';
@@ -70,12 +70,13 @@ export default function Navbar() {
 
   // Quản lý Live Ticker trên thanh Topbar
   const [topbarTickerEvents, setTopbarTickerEvents] = useState(() => [
-    { id: 'def-1', userName: '090***240', price: '5.65', totalPrize: '2.000.000 đ' },
-    { id: 'def-2', userName: 'Dương K***', price: '5.36', totalPrize: '2.000.000 đ' },
-    { id: 'def-3', userName: 'Nguyễn Văn T***', price: '15.6', totalPrize: '2.000.000 đ' },
-    { id: 'def-4', userName: '098***342', price: '15.7', totalPrize: '2.000.000 đ' },
-    { id: 'def-5', userName: 'Trần Thị M***', price: '15.5', totalPrize: '2.000.000 đ' },
-    { id: 'def-6', userName: '097***471', price: '6.01', totalPrize: '2.000.000 đ' }
+    { id: 'def-1', userName: '090***240', price: '5.65', totalPrize: '2.000.000 đ', timeText: 'Vừa xong' },
+    { id: 'def-2', userName: 'Dương K***', price: '5.36', totalPrize: '2.000.000 đ', timeText: '1 phút trước' },
+    { id: 'def-3', userName: 'Bùi Đức T***', price: '5.43', totalPrize: '2.000.000 đ', timeText: '2 phút trước' },
+    { id: 'def-4', userName: 'Nguyễn Văn T***', price: '15.6', totalPrize: '2.000.000 đ', timeText: '3 phút trước' },
+    { id: 'def-5', userName: '098***342', price: '15.7', totalPrize: '2.000.000 đ', timeText: '4 phút trước' },
+    { id: 'def-6', userName: 'Trần Thị M***', price: '15.5', totalPrize: '2.000.000 đ', timeText: '5 phút trước' },
+    { id: 'def-7', userName: '097***471', price: '6.01', totalPrize: '2.000.000 đ', timeText: '7 phút trước' }
   ]);
 
   const tickerContainerRef = useRef(null);
@@ -316,6 +317,10 @@ export default function Navbar() {
                       <strong className="text-white font-bold">{evt.userName}</strong>
                       <span className="text-slate-300"><strong className="text-white font-semibold">Dự đoán giá BĐS</strong> với mức giá <strong className="text-indigo-400 font-mono font-black">{evt.price} tỷ</strong>!</span>
                       <span className="text-amber-300/90 font-medium">Tổng giải thưởng <strong className="text-amber-300 font-mono font-black">{String(evt.totalPrize || '2.000.000 đ').replace(/\s*Ví\s*KM/gi, '').trim()}</strong></span>
+                      <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1 pl-1 border-l border-slate-700/80">
+                        <i className="fa-regular fa-clock text-[9px] text-slate-400"></i>
+                        <span>{evt.timeText || (evt.createdAt ? formatRelativeTime(evt.createdAt) : 'Vừa xong')}</span>
+                      </span>
                     </div>
                   ))}
                 </div>
