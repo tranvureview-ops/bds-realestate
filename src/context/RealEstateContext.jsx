@@ -3517,8 +3517,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const isNormal = vipId === 'normal';
     const pkg = (vipPackages || []).find(v => v.id === vipId) || { name: isNormal ? 'Tin Thường' : 'Tin VIP', pricePerDay: 0 };
     
-    // Tin Thường hiển thị 60 ngày
-    const days = isNormal ? 60 : (Number(extendDays) || 15);
+    // Tin Thường hiển thị theo số ngày gia hạn (mặc định lấy từ cấu hình hoặc 60 ngày)
+    const days = isNormal ? (Number(extendDays) || 60) : (Number(extendDays) || 15);
     const isAdmin = currentUser?.role === 'admin';
     const isMemberActive = isMembershipActive(currentUser);
 

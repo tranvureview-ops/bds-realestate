@@ -73,9 +73,13 @@ export default function UserDashboard({ initialTab = 'listings' }) {
     setRenewVipId(targetVip);
     setRenewAutoRenew(Boolean(prop.autoRenew));
     if (targetVip === 'normal') {
-      setRenewDays(60);
+      const normalPkgObj = (activeVipPackages || []).find(p => p.id === 'normal');
+      const normalAllowed = Array.isArray(normalPkgObj?.allowedDurations) && normalPkgObj.allowedDurations.length > 0
+        ? normalPkgObj.allowedDurations
+        : [60];
+      const defaultDays = normalAllowed.includes(60) ? 60 : normalAllowed[0];
+      setRenewDays(defaultDays);
       const quota = checkDailyFreeListingQuota ? checkDailyFreeListingQuota(currentUser) : { allowed: true };
-      // Nếu đã hết 3 tin miễn phí trong ngày và có voucher hội viên thì áp dụng voucher
       if (!quota.allowed && isMemberActive && (currentUser?.vouchers?.normalPublish || 0) > 0) {
         setRenewAppliedVoucher('normalPublish');
       } else {
@@ -1166,7 +1170,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
         const now = Date.now();
         const currentExp = renewModalProp.expiresAt ? new Date(renewModalProp.expiresAt).getTime() : 0;
         const isCurrentlyExpired = renewModalProp.status === 'expired' || currentExp <= now;
-        const activeDays = isNormal ? 60 : renewDays;
+        const activeDays = renewDays;
         const newExpDate = isCurrentlyExpired 
           ? new Date(now + activeDays * 86400 * 1000) 
           : new Date(currentExp + activeDays * 86400 * 1000);
@@ -1244,7 +1248,11 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                           onClick={() => {
                             setRenewVipId(pkg.id);
                             if (isPkgNormal) {
-                              setRenewDays(60);
+                              const normalAllowed = Array.isArray(pkg?.allowedDurations) && pkg.allowedDurations.length > 0
+                                ? pkg.allowedDurations
+                                : [60];
+                              const defaultDays = normalAllowed.includes(60) ? 60 : normalAllowed[0];
+                              setRenewDays(defaultDays);
                               if (!isFreeQuotaAvailable && isMemberActive && (currentUser?.vouchers?.normalPublish || 0) > 0) {
                                 setRenewAppliedVoucher('normalPublish');
                               } else {
@@ -1295,38 +1303,70 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                   </label>
 
                   {isNormal ? (
-                    // Tin Thường: 60 ngày
-                    isFreeQuotaAvailable ? (
-                      <div className="p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50/70 flex items-center justify-between">
-                        <div className="space-y-0.5">
-                          <div className="flex items-center gap-2">
-                            <span className="font-black text-slate-900 text-sm">60 ngày</span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white">
-                              Miễn Phí Sàn (Còn {dailyQuota.remaining}/{dailyQuota.limit} tin hôm nay)
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-slate-600">
-                            Chính sách sàn: Miễn phí {dailyQuota.limit} tin thường/ngày (thời hạn 60 ngày). Bạn đang được áp dụng miễn phí 0 đ.
-                          </p>
+                    (() => {
+                      const normalPkgObj = (activeVipPackages || []).find(p => p.id === 'normal');
+                      const normalAllowed = Array.isArray(normalPkgObj?.allowedDurations) && normalPkgObj.allowedDurations.length > 0
+                        ? normalPkgObj.allowedDurations
+                        : [60];
+
+                      return (
+                        <div className="space-y-2">
+                          {normalAllowed.length > 1 ? (
+                            <div className="grid grid-cols-3 gap-2">
+                              {normalAllowed.map(d => (
+                                <button
+                                  key={d}
+                                  type="button"
+                                  onClick={() => setRenewDays(d)}
+                                  className={`py-2 px-1.5 rounded-xl border text-center transition cursor-pointer flex flex-col items-center justify-center ${
+                                    renewDays === d 
+                                      ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-black ring-2 ring-emerald-500/20' 
+                                      : 'border-slate-200 hover:bg-slate-50 text-slate-700'
+                                  }`}
+                                >
+                                  <div className="text-xs sm:text-sm font-black">{d} ngày</div>
+                                  <div className="text-[9px] text-emerald-700 font-bold mt-0.5">
+                                    {isFreeQuotaAvailable ? 'Miễn phí' : (d === 60 ? '5.000 đ' : `${d * 500} đ`)}
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          ) : null}
+
+                          {isFreeQuotaAvailable ? (
+                            <div className="p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50/70 flex items-center justify-between">
+                              <div className="space-y-0.5">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-black text-slate-900 text-sm">{renewDays} ngày</span>
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white">
+                                    Miễn Phí Sàn (Còn {dailyQuota.remaining}/{dailyQuota.limit} tin hôm nay)
+                                  </span>
+                                </div>
+                                <p className="text-[11px] text-slate-600">
+                                  Chính sách sàn: Miễn phí {dailyQuota.limit} tin thường/ngày (thời hạn {renewDays} ngày). Bạn đang được áp dụng miễn phí 0 đ.
+                                </p>
+                              </div>
+                              <i className="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
+                            </div>
+                          ) : (
+                            <div className="p-3 rounded-xl border-2 border-amber-500 bg-amber-50/80 flex items-center justify-between">
+                              <div className="space-y-0.5">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-black text-slate-900 text-sm">{renewDays} ngày</span>
+                                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-600 text-white">
+                                    Đã hết {dailyQuota.limit} tin miễn phí hôm nay (5.000 đ / {renewDays} ngày)
+                                  </span>
+                                </div>
+                                <p className="text-[11px] text-amber-900">
+                                  Bạn đã dùng hết {dailyQuota.limit} tin miễn phí trong ngày. Phí gia hạn là 5.000 đ cho {renewDays} ngày (hoặc dùng Voucher Hội Viên để miễn phí 0 đ).
+                                </p>
+                              </div>
+                              <i className="fa-solid fa-clock text-amber-600 text-lg"></i>
+                            </div>
+                          )}
                         </div>
-                        <i className="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
-                      </div>
-                    ) : (
-                      <div className="p-3 rounded-xl border-2 border-amber-500 bg-amber-50/80 flex items-center justify-between">
-                        <div className="space-y-0.5">
-                          <div className="flex items-center gap-2">
-                            <span className="font-black text-slate-900 text-sm">60 ngày</span>
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-600 text-white">
-                              Đã hết {dailyQuota.limit} tin miễn phí hôm nay (5.000 đ / 60 ngày)
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-amber-900">
-                            Bạn đã dùng hết {dailyQuota.limit} tin miễn phí trong ngày. Phí gia hạn là 5.000 đ cho 60 ngày (hoặc dùng Voucher Hội Viên để miễn phí 0 đ).
-                          </p>
-                        </div>
-                        <i className="fa-solid fa-clock text-amber-600 text-lg"></i>
-                      </div>
-                    )
+                      );
+                    })()
                   ) : (
                     // Tin VIP: 5 mốc ngày chuẩn [5, 7, 10, 15, 30]
                     <div className="grid grid-cols-5 gap-1.5">
@@ -1668,7 +1708,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                       onClick={() => {
                         const success = renewProperty({
                           propertyId: renewModalProp.id,
-                          extendDays: isNormal ? 60 : renewDays,
+                          extendDays: renewDays,
                           newVipPackageId: renewVipId,
                           autoRenew: renewAutoRenew,
                           isFreeAdmin: isNormal && isFreeQuotaAvailable,
