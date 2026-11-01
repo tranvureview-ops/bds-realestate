@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { MEMBERSHIP_PACKAGES } from '../data/mockData';
 import { syncFeaturesWithVouchers, getResolvedFeatures, isVoucherDiscountFree } from '../utils/membershipHelper';
