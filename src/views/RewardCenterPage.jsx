@@ -256,12 +256,11 @@ export default function RewardCenterPage() {
 
         {/* CÁC KHU VỰC THƯỞNG CHÍNH */}
         <div>
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4">
             <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
               <i className="fa-solid fa-cubes text-indigo-600"></i>
               Danh Mục Tính Năng Tương Tác
             </h2>
-            <span className="text-xs text-slate-500">Cập nhật trực tiếp theo thời gian thực</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
