@@ -879,35 +879,8 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
               </div>
             </div>
 
-            {/* Referral Code & Referral Link */}
+            {/* Referral Link */}
             <div className="space-y-3">
-              {/* Mã giới thiệu */}
-              <div>
-                <label className="block text-[11px] font-black uppercase text-slate-600 mb-1.5">
-                  Mã giới thiệu của bạn
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    readOnly
-                    value={userRefCode || 'Chưa cập nhật'}
-                    className="flex-1 bg-slate-50 border border-slate-200 text-slate-900 font-mono font-bold text-sm px-3.5 py-2.5 rounded-xl outline-none"
-                  />
-                  <button
-                    onClick={() => {
-                      if (typeof navigator !== 'undefined' && navigator.clipboard && userRefCode) {
-                        navigator.clipboard.writeText(userRefCode);
-                        if (showToast) showToast('Đã sao chép mã giới thiệu!', 'success');
-                      }
-                    }}
-                    className="px-4 py-2.5 bg-slate-900 hover:bg-blue-600 text-white font-bold text-xs rounded-xl transition flex items-center gap-1.5 shrink-0 cursor-pointer"
-                  >
-                    <i className="fa-regular fa-copy"></i>
-                    <span>Sao chép mã</span>
-                  </button>
-                </div>
-              </div>
-
               {/* Link giới thiệu */}
               <div>
                 <label className="block text-[11px] font-black uppercase text-slate-600 mb-1.5">
