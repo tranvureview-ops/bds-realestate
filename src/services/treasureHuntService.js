@@ -381,7 +381,15 @@ export function getTreasureExpirationInfo(prop) {
   const isExpired = diffMs <= 0;
   const isActive = !isExpired;
 
-  const daysRemaining = Math.max(0, Math.ceil(diffMs / (24 * 60 * 60 * 1000)));
+  // Tính số ngày còn lại theo ngày lịch chuẩn (Calendar Days):
+  // So khớp giữa ngày hôm nay (0h00) và ngày hết hạn (0h00) để khi bước sang ngày mới số ngày tự động trừ 1 ngày
+  const todayZero = new Date(now);
+  todayZero.setHours(0, 0, 0, 0);
+  const expZero = new Date(expMs);
+  expZero.setHours(0, 0, 0, 0);
+  const calendarDays = Math.max(0, Math.round((expZero.getTime() - todayZero.getTime()) / (24 * 60 * 60 * 1000)));
+
+  const daysRemaining = calendarDays;
   const hoursRemaining = Math.max(0, Math.ceil(diffMs / (60 * 60 * 1000)));
 
   const expDate = new Date(expMs);
