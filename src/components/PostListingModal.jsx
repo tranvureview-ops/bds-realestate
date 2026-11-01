@@ -118,7 +118,7 @@ const DESCRIPTION_TEMPLATES = {
 };
 
 // Hàm chuyển đổi số tiền thành chữ Tiếng Việt
-function formatPriceToVietnameseText(num, isRent = false) {
+export function formatPriceToVietnameseText(num, isRent = false) {
   if (!num || num <= 0) return 'Thỏa thuận';
   let text = '';
   if (num >= 1000000000) {

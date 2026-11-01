@@ -5,6 +5,11 @@ import { Link } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 import PredictionConfetti from '../components/PredictionConfetti';
 import {
+  formatPriceToVietnameseText,
+  formatSummaryPrice,
+  getPriceSuggestions
+} from '../components/PostListingModal';
+import {
   getStoredPredictionPrograms,
   getStoredPredictions,
   recordUserPrediction,
@@ -17,56 +22,39 @@ import {
   PREDICTION_MEMBERSHIP_KEY
 } from '../services/predictionGameService';
 
-// Đọc số tiền ra chữ Tiếng Việt chuẩn xác cho tính năng Dự đoán giá BĐS (Tự động nhận diện Tỷ hoặc VNĐ)
+// Quy đổi và format mức giá theo đúng chuẩn giao diện phần Đăng Tin
 function getPriceInterpretation(rawVal) {
   if (!rawVal) return null;
   const cleanStr = String(rawVal).trim().replace(',', '.');
   const num = Number(cleanStr);
   if (isNaN(num) || num <= 0) return null;
 
-  // Nếu người dùng nhập số tiền VNĐ đầy đủ (>= 1.000.000 đ)
-  let tyVal = num;
   let totalVnd = 0;
+  let tyVal = 0;
 
-  if (num >= 1_000_000) {
-    tyVal = +(num / 1e9).toFixed(3);
-    totalVnd = Math.round(num);
-  } else {
+  if (cleanStr.includes('.') || num <= 500) {
+    // Nhập dạng tỷ (ví dụ 3.4, 7.5, 15.65)
     tyVal = num;
-    totalVnd = Math.round(tyVal * 1e9);
-  }
-
-  let textWords = '';
-  if (totalVnd >= 1e9) {
-    const ty = Math.floor(totalVnd / 1e9);
-    const trieu = Math.round((totalVnd % 1e9) / 1e6);
-    const tyText = ty >= 1000 ? ty.toLocaleString('vi-VN') : String(ty);
-    if (trieu > 0) {
-      textWords = `${tyText} tỷ ${trieu.toLocaleString('vi-VN')} triệu đồng`;
-    } else {
-      textWords = `${tyText} tỷ đồng`;
-    }
-  } else if (totalVnd >= 1e6) {
-    const trieu = Math.floor(totalVnd / 1e6);
-    const nghin = Math.round((totalVnd % 1e6) / 1e3);
-    if (nghin > 0) {
-      textWords = `${trieu.toLocaleString('vi-VN')} triệu ${nghin.toLocaleString('vi-VN')} nghìn đồng`;
-    } else {
-      textWords = `${trieu.toLocaleString('vi-VN')} triệu đồng`;
-    }
+    totalVnd = Math.round(num * 1e9);
+  } else if (num < 100_000) {
+    // Nhập số triệu (ví dụ 3500 triệu = 3.5 tỷ)
+    totalVnd = Math.round(num * 1e6);
+    tyVal = +(totalVnd / 1e9).toFixed(3);
   } else {
-    textWords = `${totalVnd.toLocaleString('vi-VN')} đồng`;
+    // Nhập số tiền VNĐ đầy đủ (ví dụ 3400000000)
+    totalVnd = Math.round(num);
+    tyVal = +(totalVnd / 1e9).toFixed(3);
   }
 
-  // Format số hiển thị
-  const formattedTy = num >= 1_000_000
-    ? `${totalVnd.toLocaleString('vi-VN')} đ (~${String(tyVal).replace('.', ',')} tỷ)`
-    : `${cleanStr.replace('.', ',')} tỷ VNĐ`;
+  // Sử dụng chuẩn hàm của phần Đăng Tin
+  const summaryText = formatSummaryPrice(totalVnd); // Ví dụ: "3,4 tỷ"
+  const fullText = formatPriceToVietnameseText(totalVnd); // Ví dụ: "3 tỷ 400 triệu"
 
   return {
+    totalVnd,
     tyVal,
-    formattedTy,
-    textWords
+    summaryText,
+    fullText
   };
 }
 
@@ -1186,17 +1174,61 @@ export default function PricePredictionPage({ projectSlug = null }) {
                           )}
                         </div>
 
-                        {/* Dòng chữ quy đổi mức giá dự đoán trực quan giống Đăng Tin */}
+                        {/* Gợi ý các mức giá chuẩn (Suggestion Pills giống phần Đăng Tin) */}
+                        {(() => {
+                          const currentVal = userInputs[game.id]?.price;
+                          const suggestions = getPriceSuggestions(currentVal);
+                          if (!suggestions || suggestions.length === 0) return null;
+
+                          const interpretation = getPriceInterpretation(currentVal);
+                          const currentTotalVnd = interpretation?.totalVnd || 0;
+
+                          return (
+                            <div className="flex flex-wrap items-center gap-1.5 pt-1 animate-in fade-in duration-150">
+                              {suggestions.map((item) => {
+                                const isSelected = Math.abs(currentTotalVnd - item.value) < 1000;
+                                return (
+                                  <button
+                                    key={item.value}
+                                    type="button"
+                                    onClick={() => {
+                                      const ty = +(item.value / 1e9).toFixed(3);
+                                      const formattedVal = ty >= 1 ? String(ty) : String(item.value);
+                                      setUserInputs(prev => ({
+                                        ...prev,
+                                        [game.id]: {
+                                          ...prev[game.id],
+                                          price: formattedVal
+                                        }
+                                      }));
+                                    }}
+                                    className={`px-3 py-1 rounded-full text-xs font-bold transition flex items-center gap-1.5 border shadow-2xs cursor-pointer ${
+                                      isSelected
+                                        ? 'bg-slate-900 text-white border-slate-900 ring-2 ring-slate-900/20'
+                                        : 'bg-white text-slate-800 border-slate-200 hover:border-slate-400 hover:bg-slate-50'
+                                    }`}
+                                  >
+                                    <span>{item.label}</span>
+                                    {isSelected && <i className="fa-solid fa-check text-[10px] text-emerald-400"></i>}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
+
+                        {/* Dòng chữ quy đổi tổng trị giá giống hệt phần Đăng Tin */}
                         {(() => {
                           const interpretation = getPriceInterpretation(userInputs[game.id]?.price);
                           if (!interpretation) return null;
 
                           return (
-                            <div className="text-xs text-slate-600 pt-0.5 animate-in fade-in duration-150">
-                              Mức giá dự đoán: <strong className="font-bold text-slate-900">{interpretation.formattedTy}</strong>
-                              {interpretation.textWords && (
-                                <span className="text-emerald-700 font-semibold ml-1.5">
-                                  ({interpretation.textWords})
+                            <div className="text-xs text-slate-700 pt-1 animate-in fade-in duration-150 flex flex-wrap items-center gap-1.5">
+                              <span>Mức giá dự đoán:</span>
+                              <strong className="font-bold text-slate-900">{interpretation.summaryText}</strong>
+                              {interpretation.fullText && interpretation.fullText !== interpretation.summaryText && (
+                                <span className="text-emerald-700 font-semibold">
+                                  ({interpretation.fullText})
                                 </span>
                               )}
                             </div>
