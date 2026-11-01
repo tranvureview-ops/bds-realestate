@@ -3512,25 +3512,23 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     }
 
     const vipId = newVipPackageId || prop.vipPackageId || 'normal';
-    const pkg = (vipPackages || []).find(v => v.id === vipId) || { name: 'Tin Thường', pricePerDay: 5000 };
-    const days = Number(extendDays) || 15;
-    const dailyRate = pkg.rates?.[days] || pkg.rates?.[15] || pkg.pricePerDay || 5000;
-    const initialCost = isFreeAdmin ? 0 : dailyRate * days;
+    const isNormal = vipId === 'normal';
+    const pkg = (vipPackages || []).find(v => v.id === vipId) || { name: isNormal ? 'Tin Thường' : 'Tin VIP', pricePerDay: 0 };
+    
+    // Tin Thường theo quy chuẩn sàn là hiển thị 60 ngày hoàn toàn Miễn Phí (0 đ)
+    const days = isNormal ? 60 : (Number(extendDays) || 15);
+    const dailyRate = isNormal ? 0 : (pkg.rates?.[days] || pkg.rates?.[15] || pkg.pricePerDay || 0);
+    const initialCost = (isFreeAdmin || isNormal) ? 0 : dailyRate * days;
 
     const isAdmin = currentUser?.role === 'admin';
     const isMemberActive = isMembershipActive(currentUser);
 
-    // Tính toán chiết khấu Voucher Gói Hội Viên
+    // Tính toán chiết khấu Voucher Gói Hội Viên (Áp dụng cho Tin VIP)
     let discountAmount = 0;
     let usedVoucherType = null;
 
     if (!isAdmin && isMemberActive && appliedVoucher) {
-      if (appliedVoucher === 'normalPublish' && (currentUser?.vouchers?.normalPublish || 0) > 0 && vipId === 'normal') {
-        const userPkg = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
-        const normalVoucherVal = Number(userPkg?.vouchersPerCycle?.normalPublishDiscount);
-        discountAmount = (normalVoucherVal && normalVoucherVal > 0) ? Math.min(initialCost, normalVoucherVal) : initialCost;
-        usedVoucherType = 'normalPublish';
-      } else if (appliedVoucher === 'vipPublish' && (currentUser?.vouchers?.vipPublish || 0) > 0 && vipId !== 'normal') {
+      if (appliedVoucher === 'vipPublish' && (currentUser?.vouchers?.vipPublish || 0) > 0 && !isNormal) {
         const userPkg = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
         const vipVoucherDiscount = Number(userPkg?.vouchersPerCycle?.vipDiscount) || 400000;
         discountAmount = Math.min(initialCost, vipVoucherDiscount);
