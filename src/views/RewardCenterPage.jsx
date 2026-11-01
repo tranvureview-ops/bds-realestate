@@ -156,13 +156,16 @@ export default function RewardCenterPage() {
 
   // Kiểm tra cấu hình có yêu cầu Gói Hội Viên cho Dự Đoán Giá BĐS hay không
   const isPredictionForMembers = useMemo(() => {
+    if (systemConfig?.predictionRequireMembership !== undefined) {
+      return Boolean(systemConfig.predictionRequireMembership);
+    }
     try {
       const progs = getStoredPredictionPrograms();
       return progs.some(p => p.requireMembership !== false);
     } catch (e) {
       return true;
     }
-  }, []);
+  }, [systemConfig?.predictionRequireMembership]);
 
   // 3 Trụ Cột Tính Năng (Tự động cập nhật số liệu động theo cấu hình)
   const features = [

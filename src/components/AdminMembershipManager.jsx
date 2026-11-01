@@ -5,6 +5,10 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { MEMBERSHIP_PACKAGES } from '../data/mockData';
 import { syncFeaturesWithVouchers, getResolvedFeatures, isVoucherDiscountFree } from '../utils/membershipHelper';
 import AdminCommonVoucherPricing from './AdminCommonVoucherPricing';
+import {
+  getStoredPredictionPrograms,
+  savePredictionPrograms
+} from '../services/predictionGameService';
 
 // Preset color options for package badges
 const BADGE_COLOR_PRESETS = [
@@ -63,6 +67,47 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
   const [previewCycle, setPreviewCycle] = useState(1); // 1 | 3 | 6
   const [newFeatureInput, setNewFeatureInput] = useState('');
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+
+  // State Bật/Tắt Đặc Quyền Gói Hội Viên cho tính năng Dự Đoán Giá BĐS
+  const [predictionRequireMembership, setPredictionRequireMembership] = useState(() => {
+    if (systemConfig?.predictionRequireMembership !== undefined) {
+      return Boolean(systemConfig.predictionRequireMembership);
+    }
+    try {
+      const progs = getStoredPredictionPrograms();
+      return progs.some(p => p.requireMembership !== false);
+    } catch (e) {
+      return true;
+    }
+  });
+
+  const handleTogglePredictionMembership = (checked) => {
+    setPredictionRequireMembership(checked);
+
+    if (updateSystemConfig) {
+      updateSystemConfig({
+        predictionRequireMembership: checked
+      });
+    }
+
+    try {
+      const progs = getStoredPredictionPrograms();
+      const updatedProgs = progs.map(p => ({
+        ...p,
+        requireMembership: checked
+      }));
+      savePredictionPrograms(updatedProgs);
+    } catch (e) {}
+
+    if (showToast) {
+      showToast(
+        checked
+          ? '👑 Đã BẬT Đặc Quyền Gói Hội Viên! Chỉ thành viên có Gói Hội Viên mới được gửi dự đoán.'
+          : '🔓 Đã TẮT Đặc Quyền Gói Hội Viên: Mở quyền dự đoán giá cho tất cả người dùng!',
+        'success'
+      );
+    }
+  };
 
   // Quick package template for new package
   const createNewTemplate = () => ({
@@ -515,6 +560,36 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
 
       {/* ================= 1.5. CẤU HÌNH ĐƠN GIÁ CHUNG CHO 3 LOẠI VOUCHER HỘI VIÊN ================= */}
       <AdminCommonVoucherPricing />
+
+      {/* ================= 1.6. CÔNG TẮC ĐẶC QUYỀN GÓI HỘI VIÊN (DỰ ĐOÁN GIÁ BĐS) ================= */}
+      <div className="p-4 sm:p-5 bg-slate-950 rounded-3xl border border-purple-500/30 flex items-center justify-between gap-4 shadow-sm">
+        <div className="space-y-1">
+          <div className="text-xs sm:text-sm font-black text-purple-300 flex items-center gap-2 uppercase tracking-wide">
+            <i className="fa-solid fa-crown text-amber-400"></i>
+            <span>ĐẶC QUYỀN DÀNH CHO GÓI HỘI VIÊN</span>
+            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
+              predictionRequireMembership
+                ? 'bg-purple-500/20 text-purple-300 border-purple-500/40'
+                : 'bg-slate-800 text-slate-400 border-slate-700'
+            }`}>
+              {predictionRequireMembership ? '● ĐANG BẬT' : '○ ĐANG TẮT'}
+            </span>
+          </div>
+          <p className="text-xs text-slate-400">
+            Chỉ thành viên đang kích hoạt Gói Hội Viên còn hạn mới được gửi dự đoán.
+          </p>
+        </div>
+
+        <label className="relative inline-flex items-center cursor-pointer shrink-0">
+          <input
+            type="checkbox"
+            checked={predictionRequireMembership}
+            onChange={(e) => handleTogglePredictionMembership(e.target.checked)}
+            className="sr-only peer"
+          />
+          <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+        </label>
+      </div>
 
       {/* ================= 2. QUICK STATS SUMMARY ================= */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

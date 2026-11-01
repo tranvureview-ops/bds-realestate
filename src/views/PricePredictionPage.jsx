@@ -70,6 +70,14 @@ export default function PricePredictionPage({ projectSlug = null }) {
   const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Sàn Nhà Đất';
   const isMemberActive = Boolean(currentUser?.membership?.packageId && new Date(currentUser?.membership?.expiresAt || 0) > new Date());
 
+  // Kiểm tra cấu hình Đặc Quyền Gói Hội Viên (Ưu tiên cấu hình từ Menu Gói Hội Viên toàn sàn)
+  const isGameMembershipRequired = (game) => {
+    if (systemConfig?.predictionRequireMembership !== undefined) {
+      return Boolean(systemConfig.predictionRequireMembership);
+    }
+    return game?.requireMembership !== false;
+  };
+
   // Khởi tạo và đồng bộ bot nếu chưa có dữ liệu trong storage (phân bổ thời gian như thật)
   useEffect(() => {
     const loadedPrograms = getStoredPredictionPrograms();
@@ -132,7 +140,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
     }
 
     // Kiểm tra nếu chương trình yêu cầu Gói Hội Viên
-    if (game.requireMembership !== false && !isMemberActive) {
+    if (isGameMembershipRequired(game) && !isMemberActive) {
       if (showToast) showToast('Tính năng này là Đặc Quyền dành riêng cho Gói Hội Viên! Vui lòng đăng ký Gói Hội Viên để tham gia.', 'warning');
       return;
     }
@@ -295,7 +303,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
                       <i className={`fa-solid ${isSettled ? 'fa-flag-checkered' : 'fa-circle-dot animate-pulse text-emerald-600'}`}></i>
                       <span>{isSettled ? 'Đã Chốt Kết Quả' : 'Đang Mở Dự Đoán'}</span>
                     </span>
-                    {game.requireMembership !== false && (
+                    {isGameMembershipRequired(game) && (
                       <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-700 border border-purple-300 flex items-center gap-1">
                         <i className="fa-solid fa-crown text-amber-500 text-[9px]"></i>
                         <span>Đặc quyền Hội Viên</span>
@@ -436,7 +444,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
                             </span>
                           </div>
 
-                          {game.requireMembership !== false && !isMemberActive ? (
+                          {isGameMembershipRequired(game) && !isMemberActive ? (
                             <Link
                               to="/goi-hoi-vien"
                               className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
