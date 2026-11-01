@@ -761,7 +761,7 @@ export default function UserProfilePage() {
                       </button>
                     </div>
                     <div className="text-[10.5px] text-slate-500 leading-relaxed">
-                      Hỗ trợ JPG, PNG, WEBP (Tối đa 10MB). Ảnh được tự động cắt vuông chuẩn 1:1 và nén tối ưu hiển thị nhanh.
+                      Hỗ trợ JPG, PNG, WEBP (Tối đa 10MB).
                     </div>
                   </div>
                 </div>
