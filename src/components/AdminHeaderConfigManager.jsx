@@ -672,14 +672,6 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
                       </span>
                     </span>
                   )}
-                  <div className="hidden sm:inline-flex items-center gap-1.5 text-slate-300">
-                    {logoFormData.topbar?.showBadge !== false && <span className="text-slate-600">|</span>}
-                    <span className="text-slate-400">{logoFormData.topbar?.hotlineLabel || 'Hotline 24/7:'}</span>
-                    <span className="text-white font-bold font-mono flex items-center gap-1">
-                      <i className="fa-solid fa-phone text-[10px] text-emerald-400"></i>
-                      <span>{logoFormData.topbar?.hotline?.trim() || systemConfig?.hotline || '0904 084 888'}</span>
-                    </span>
-                  </div>
                 </div>
 
                 <div className="flex items-center gap-3 text-[11px] text-slate-400">

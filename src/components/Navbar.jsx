@@ -229,20 +229,6 @@ export default function Navbar() {
                   <span className="truncate">{topbarBadgeText}</span>
                 </span>
               )}
-              <span suppressHydrationWarning className="hidden md:inline-flex items-center gap-1.5 text-slate-300 shrink-0">
-                {showBadge && <span className="text-slate-500">|</span>}
-                <span>{topbarHotlineLabel}</span>
-                <Link
-                  suppressHydrationWarning
-                  href={`tel:${topbarHotline.replace(/\s+/g, '')}`}
-                  className="text-white hover:text-emerald-300 font-bold font-mono transition inline-flex items-center gap-1"
-                  title={`Gọi ngay ${topbarHotlineLabel} ${topbarHotline}`}
-                  aria-label={`Gọi ngay ${topbarHotlineLabel} ${topbarHotline}`}
-                >
-                  <i className="fa-solid fa-phone text-[10px] text-emerald-300" aria-hidden="true"></i>
-                  <span suppressHydrationWarning>{topbarHotline}</span>
-                </Link>
-              </span>
             </div>
 
             {/* Right: Mạng xã hội */}
