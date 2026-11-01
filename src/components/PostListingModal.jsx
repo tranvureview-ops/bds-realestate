@@ -1603,7 +1603,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
               {/* Loại hình BĐS */}
               <div>
                 <label className="block text-xs font-bold text-slate-800 uppercase mb-1.5">
-                  2. Loại Hình Bất Động Sản <span className="text-red-500">*</span>
+                  2. Loại Hình Nhà Đất <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {PROPERTY_TYPES.map(t => (
