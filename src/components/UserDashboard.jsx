@@ -67,6 +67,9 @@ export default function UserDashboard({ initialTab = 'listings' }) {
   const [renewAutoRenew, setRenewAutoRenew] = useState(false);
   const [renewAppliedVoucher, setRenewAppliedVoucher] = useState(null);
 
+  // Bump confirmation modal state
+  const [bumpConfirmData, setBumpConfirmData] = useState(null);
+
   const handleOpenRenewModal = (prop) => {
     setRenewModalProp(prop);
     const targetVip = prop.vipPackageId || 'normal';
@@ -884,8 +887,8 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                         return (
                           <div className="flex items-center gap-1">
                             <button
-                              onClick={() => bumpListing(prop.id, hasBumpVoucher)}
-                              className={`px-3 py-1.5 font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1 ${
+                              onClick={() => setBumpConfirmData({ prop, hasBumpVoucher })}
+                              className={`px-3 py-1.5 font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1 cursor-pointer ${
                                 hasBumpVoucher 
                                   ? 'bg-emerald-600 hover:bg-emerald-700 text-white' 
                                   : 'bg-amber-500 hover:bg-amber-600 text-slate-900'
@@ -1769,6 +1772,91 @@ export default function UserDashboard({ initialTab = 'listings' }) {
           property={reviewingDocProperty}
           isAdmin={false}
         />
+      )}
+
+      {/* Modal Xác Nhận Đẩy Tin */}
+      {bumpConfirmData && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl p-6 sm:p-7 max-w-md w-full shadow-2xl border border-slate-200 space-y-4 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
+              <div className={`w-10 h-10 rounded-2xl flex items-center justify-center text-lg ${
+                bumpConfirmData.hasBumpVoucher ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
+              }`}>
+                <i className="fa-solid fa-arrow-up"></i>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-base font-black text-slate-900">Xác Nhận Đẩy Tin Lên Đầu</h3>
+                <p className="text-[11px] text-slate-500">Đưa tin đăng lên vị trí ưu tiên trang chủ & danh mục tìm kiếm</p>
+              </div>
+              <button 
+                onClick={() => setBumpConfirmData(null)}
+                className="w-8 h-8 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center cursor-pointer transition"
+              >
+                <i className="fa-solid fa-xmark text-sm"></i>
+              </button>
+            </div>
+
+            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2.5 text-xs">
+              <div>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">Tin đăng áp dụng:</span>
+                <div className="font-bold text-slate-800 line-clamp-2 leading-relaxed">
+                  {bumpConfirmData.prop.title}
+                </div>
+              </div>
+              
+              <div className="pt-2 border-t border-slate-200 flex items-center justify-between text-slate-600">
+                <span>Hình thức & Chi phí:</span>
+                <span className="font-bold text-sm">
+                  {bumpConfirmData.hasBumpVoucher ? (
+                    <span className="text-emerald-600 font-mono flex items-center gap-1">
+                      <i className="fa-solid fa-ticket text-xs"></i> 0 đ (Voucher Hội Viên)
+                    </span>
+                  ) : (
+                    <span className="text-amber-600 font-mono">{(bumpServicePrice || BUMP_SERVICE_PRICE || 10000).toLocaleString('vi-VN')} đ</span>
+                  )}
+                </span>
+              </div>
+
+              {bumpConfirmData.hasBumpVoucher ? (
+                <div className="text-[11px] text-emerald-700 bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-emerald-100 font-medium flex items-center justify-between">
+                  <span>Kho voucher hiện có:</span>
+                  <strong>{currentUser?.vouchers?.normalBump || 0} lượt đẩy tin</strong>
+                </div>
+              ) : (
+                <div className="text-[11px] text-slate-500 bg-slate-100 px-2.5 py-1.5 rounded-xl border border-slate-200/80 flex items-center justify-between">
+                  <span>Số dư ví chính:</span>
+                  <strong className="text-slate-800 font-mono">{(currentUser?.balance || 0).toLocaleString('vi-VN')} đ</strong>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-1">
+              <button
+                type="button"
+                onClick={() => setBumpConfirmData(null)}
+                className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs cursor-pointer transition"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const { prop, hasBumpVoucher } = bumpConfirmData;
+                  setBumpConfirmData(null);
+                  bumpListing(prop.id, hasBumpVoucher);
+                }}
+                className={`px-5 py-2.5 rounded-xl font-extrabold text-xs shadow-md transition cursor-pointer flex items-center gap-1.5 ${
+                  bumpConfirmData.hasBumpVoucher 
+                    ? 'bg-emerald-600 hover:bg-emerald-700 text-white' 
+                    : 'bg-amber-500 hover:bg-amber-600 text-slate-950'
+                }`}
+              >
+                <i className="fa-solid fa-arrow-up"></i>
+                <span>Xác Nhận Đẩy Tin Ngay</span>
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
