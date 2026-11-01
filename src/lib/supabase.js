@@ -542,7 +542,9 @@ export function mergeProfilesWithSettingsUsers(profiles, settingsUsers) {
     const rawWallet = p.walletBalance !== undefined ? p.walletBalance : p.wallet_balance;
     const rawBonus = p.bonusWalletBalance !== undefined ? p.bonusWalletBalance : (p.bonus_wallet_balance || p.promoBalance);
     let rawRoleName = p.roleName || p.role_name;
-    if (p.role === 'broker' || (rawRoleName && (rawRoleName.includes('Môi giới') || rawRoleName.includes('Môi Giới')))) {
+    if (p.role === 'admin') {
+      rawRoleName = (rawRoleName && rawRoleName.includes('Tổng Quản Trị')) ? rawRoleName : 'Quản Trị Viên';
+    } else if (p.role === 'broker' || (rawRoleName && (rawRoleName.includes('Môi giới') || rawRoleName.includes('Môi Giới')))) {
       rawRoleName = 'Môi Giới';
     }
     const rawVerified = p.isVerified !== undefined ? p.isVerified : p.is_verified;
@@ -575,8 +577,11 @@ export function mergeProfilesWithSettingsUsers(profiles, settingsUsers) {
     settingsUsers.forEach(u => {
       if (u && u.id && map.has(u.id)) {
         const prev = map.get(u.id);
+        const effectiveRole = u.role || prev.role || 'user';
         let normalizedRoleName = u.roleName || prev.roleName;
-        if (u.role === 'broker' || prev.role === 'broker' || (normalizedRoleName && (normalizedRoleName.includes('Môi giới') || normalizedRoleName.includes('Môi Giới')))) {
+        if (effectiveRole === 'admin') {
+          normalizedRoleName = (normalizedRoleName && normalizedRoleName.includes('Tổng Quản Trị')) ? normalizedRoleName : 'Quản Trị Viên';
+        } else if (effectiveRole === 'broker' || (normalizedRoleName && (normalizedRoleName.includes('Môi giới') || normalizedRoleName.includes('Môi Giới')))) {
           normalizedRoleName = 'Môi Giới';
         }
         map.set(u.id, {
@@ -587,7 +592,7 @@ export function mergeProfilesWithSettingsUsers(profiles, settingsUsers) {
           email: prev.email || u.email || '',
           walletBalance: Number(u.walletBalance !== undefined ? u.walletBalance : prev.walletBalance),
           bonusWalletBalance: Number(u.bonusWalletBalance !== undefined ? u.bonusWalletBalance : prev.bonusWalletBalance),
-          role: u.role || prev.role,
+          role: effectiveRole,
           roleName: normalizedRoleName,
           status: u.status || prev.status || 'active',
           isDeleted: Boolean(u.isDeleted !== undefined ? u.isDeleted : prev.isDeleted),
@@ -727,10 +732,11 @@ export async function fetchFullSupabaseDb(options = {}) {
           return safeU;
         });
       } else {
-        // Cho SSR & Người dùng công cộng: Trả về thông tin profile an toàn phục vụ hiển thị thẻ tác giả/môi giới
+        // Cho SSR & Người dùng công cộng: Trả về thông tin profile an toàn phục vụ hiển thị thẻ tác giả/môi giới và số dư ví
         mergedUsers = rawUsers.map(u => ({
           id: u.id,
           name: u.name,
+          email: u.email || '',
           phone: u.phone,
           avatar: u.avatar,
           role: u.role,
@@ -738,6 +744,9 @@ export async function fetchFullSupabaseDb(options = {}) {
           company: u.company,
           primaryArea: u.primaryArea,
           membership: u.membership,
+          vouchers: u.vouchers,
+          walletBalance: Number(u.walletBalance || 0),
+          bonusWalletBalance: Number(u.bonusWalletBalance || 0),
           isVerified: Boolean(u.isVerified),
           status: u.status
         }));

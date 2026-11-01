@@ -4842,7 +4842,11 @@ export default function AdminBackendPage() {
                                   u.role === 'broker' ? 'bg-amber-950 text-amber-400 border border-amber-800' :
                                   'bg-blue-950 text-blue-400 border border-blue-800'
                                 }`}>
-                                  {(u.role === 'broker' || u.roleName?.includes('Môi giới') || u.roleName?.includes('Môi Giới')) ? 'Môi Giới' : (u.roleName || (u.role === 'admin' ? 'Quản Trị Viên' : 'Khách Hàng'))}
+                                  {u.role === 'admin'
+                                    ? (u.roleName && u.roleName.includes('Tổng Quản Trị') ? u.roleName : 'Quản Trị Viên')
+                                    : (u.role === 'broker' || u.roleName?.includes('Môi giới') || u.roleName?.includes('Môi Giới'))
+                                    ? 'Môi Giới'
+                                    : (u.roleName || 'Khách Hàng')}
                                 </span>
                               </td>
                               <td className="p-3 text-center">

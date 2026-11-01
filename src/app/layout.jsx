@@ -75,6 +75,12 @@ function sanitizePublicSsrDb(db) {
     bds_bump_service_price: db.bds_bump_service_price,
     bds_prediction_programs: db.bds_prediction_programs,
     bds_prediction_membership_required: db.bds_prediction_membership_required,
+    bds_users_list: Array.isArray(db.bds_users_list)
+      ? db.bds_users_list.map(u => {
+          const { password: _p, passwordHash: _ph, twoFactorSecret: _tfs, ...safeU } = u;
+          return safeU;
+        })
+      : []
   };
 }
 
@@ -188,15 +194,27 @@ export default async function RootLayout({ children }) {
           if (userProfile) resolvedUser = { ...userProfile };
         } catch (e) {}
       }
-      if (!resolvedUser) {
-        const dbFile = path.resolve(process.cwd(), 'server-db.json');
-        if (fs.existsSync(dbFile)) {
-          try {
-            const raw = JSON.parse(fs.readFileSync(dbFile, 'utf8') || '{}');
-            const u = (raw.bds_users_list || []).find(x => x.id === sessionUserId || x.email === sessionUserId);
-            if (u) resolvedUser = { ...u };
-          } catch (e) {}
-        }
+      // Đồng bộ làm giàu số dư ví KM và quyền chuẩn từ danh sách người dùng hệ thống (chống giật khi tải trang)
+      const dbFile = path.resolve(process.cwd(), 'server-db.json');
+      let dbUser = null;
+      if (initialDb?.bds_users_list && Array.isArray(initialDb.bds_users_list)) {
+        dbUser = initialDb.bds_users_list.find(x => x.id === sessionUserId || x.email === sessionUserId);
+      }
+      if (!dbUser && fs.existsSync(dbFile)) {
+        try {
+          const raw = JSON.parse(fs.readFileSync(dbFile, 'utf8') || '{}');
+          dbUser = (raw.bds_users_list || []).find(x => x.id === sessionUserId || x.email === sessionUserId);
+        } catch (e) {}
+      }
+      if (dbUser) {
+        resolvedUser = {
+          ...dbUser,
+          ...(resolvedUser || {}),
+          role: dbUser.role || resolvedUser?.role || 'admin',
+          roleName: dbUser.roleName || resolvedUser?.roleName || 'Quản Trị Viên',
+          bonusWalletBalance: dbUser.bonusWalletBalance !== undefined ? dbUser.bonusWalletBalance : (resolvedUser?.bonusWalletBalance || 0),
+          walletBalance: dbUser.walletBalance !== undefined ? dbUser.walletBalance : (resolvedUser?.walletBalance || 0)
+        };
       }
       if (!resolvedUser) {
         const foundMock = MOCK_USERS.find(u => u.id === sessionUserId);
