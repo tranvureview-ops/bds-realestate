@@ -106,7 +106,6 @@ export default function PricePredictionPage({ projectSlug = null }) {
       records.slice(0, 8).forEach(r => {
         events.push({
           userName: r.userName,
-          avatar: r.userAvatar,
           price: r.predictedPrice,
           isBot: Boolean(r.is_bot),
           programTitle: prog.projectName || prog.title,
@@ -255,12 +254,15 @@ export default function PricePredictionPage({ projectSlug = null }) {
             <div className="overflow-x-auto scrollbar-none whitespace-nowrap flex items-center gap-6 text-xs text-slate-700 py-0.5">
               {tickerEvents.map((evt, idx) => (
                 <div key={idx} className="inline-flex items-center gap-2 shrink-0 bg-white px-3 py-1 rounded-xl border border-slate-200/80 shadow-2xs">
-                  <img src={evt.avatar} alt={evt.userName} className="w-5 h-5 rounded-full object-cover" />
+                  <div className="w-5 h-5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center text-[10px]">
+                    <i className="fa-solid fa-user"></i>
+                  </div>
                   <span className="font-bold text-slate-900">{evt.userName}</span>
                   <span className="text-slate-400">•</span>
                   <span>Dự đoán: <strong className="text-indigo-600 font-mono font-bold">{evt.price} tỷ</strong></span>
-                  <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded">
-                    +10.000đ
+                  <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-1">
+                    <i className="fa-solid fa-check text-[9px]"></i>
+                    <span>Đã ghi nhận</span>
                   </span>
                 </div>
               ))}
@@ -588,8 +590,19 @@ export default function PricePredictionPage({ projectSlug = null }) {
                   <span>Chưa có lượt dự đoán nào theo bộ lọc này.</span>
                 </div>
               ) : (
-                activeLeaderboardData.slice(0, 100).map((record, rIdx) => {
+                activeLeaderboardData.slice(0, 30).map((record, rIdx) => {
                   const isCurrentUserRecord = record.is_bot === 0 && String(record.userId) === userId;
+                  const rankNum = rIdx + 1;
+
+                  // Màu huy hiệu thứ hạng
+                  let rankBadgeClass = 'bg-slate-100 text-slate-600 border-slate-200';
+                  if (rankNum === 1) {
+                    rankBadgeClass = 'bg-amber-100 text-amber-900 border-amber-300 font-black ring-1 ring-amber-200';
+                  } else if (rankNum === 2) {
+                    rankBadgeClass = 'bg-slate-200 text-slate-800 border-slate-300 font-bold';
+                  } else if (rankNum === 3) {
+                    rankBadgeClass = 'bg-orange-100 text-orange-900 border-orange-300 font-bold';
+                  }
 
                   return (
                     <div
@@ -601,14 +614,9 @@ export default function PricePredictionPage({ projectSlug = null }) {
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <span className="w-6 text-center font-bold text-slate-400 font-mono">
-                          #{rIdx + 1}
+                        <span className={`w-7 h-7 rounded-xl border flex items-center justify-center font-mono text-xs shrink-0 ${rankBadgeClass}`}>
+                          #{rankNum}
                         </span>
-                        <img
-                          src={record.userAvatar || '/avatars/ai-preset-2.jpg'}
-                          alt={record.userName}
-                          className="w-8 h-8 rounded-full object-cover border border-slate-200"
-                        />
                         <div>
                           <div className="font-bold text-slate-900 flex items-center gap-1.5">
                             <span>{record.userName}</span>
@@ -641,7 +649,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
             </div>
 
             <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-slate-400 text-[11px]">
-              <span>Hiển thị tối đa 100 lượt tham gia mới nhất</span>
+              <span>Hiển thị tối đa 30 lượt tham gia mới nhất</span>
               <button
                 type="button"
                 onClick={() => setActiveLeaderboardGame(null)}

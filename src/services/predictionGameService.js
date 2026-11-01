@@ -8,22 +8,18 @@
  */
 
 export const PREDICTION_STORAGE_KEY = 'bds_prediction_programs';
-export const PREDICTION_VOTES_KEY = 'bds_prediction_votes_store';
+export const PREDICTION_VOTES_KEY = 'bds_prediction_votes_store_v2';
+const OLD_PREDICTION_VOTES_KEY = 'bds_prediction_votes_store';
 
-// Danh sách họ tên Việt Nam tự nhiên để sinh Bot ảo chân thực
+// Danh sách họ tên và đầu số di động để sinh danh tính chân thực như thật:
+const VN_PHONE_PREFIXES = ['090', '091', '093', '094', '096', '097', '098', '086', '088', '089', '077', '079', '038', '039', '036', '035'];
 const VN_FIRST_NAMES = ['Nguyễn', 'Trần', 'Lê', 'Phạm', 'Hoàng', 'Phan', 'Vũ', 'Đặng', 'Bùi', 'Đỗ', 'Hồ', 'Ngô', 'Dương', 'Lý', 'Đinh', 'Đoàn'];
 const VN_MIDDLE_NAMES = ['Văn', 'Thị', 'Minh', 'Tuấn', 'Đức', 'Hoàng', 'Ngọc', 'Quang', 'Quốc', 'Thanh', 'Hữu', 'Anh', 'Bảo', 'Gia'];
 const VN_LAST_NAMES = ['Nam', 'Tuấn', 'Hùng', 'Long', 'Cường', 'Anh', 'Thảo', 'Linh', 'Hương', 'My', 'Trang', 'Dũng', 'Khánh', 'Huy', 'Quân', 'Sơn', 'Giang', 'Hiếu', 'Hải', 'Phúc', 'Kiên', 'Thành', 'Trung', 'Bình'];
-
-const BOT_AVATARS = [
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&q=80',
-  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80',
-  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&q=80',
-  'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=120&q=80',
-  'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=120&q=80',
-  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=120&q=80',
-  'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=120&q=80'
+const VN_REAL_NICKNAMES = [
+  'Hải Long', 'Minh Trang', 'Quốc Đạt Land', 'Thanh Tùng', 'Bảo Ngọc', 'Hoàng Yến', 
+  'Khánh Linh', 'Đức Huy', 'Ngọc Mai', 'Văn Hùng Land', 'Thùy Dương', 'Anh Tuấn Land',
+  'Phương Thảo', 'Gia Huy', 'Trọng Nghĩa', 'Bảo Trâm', 'Đình Trọng BĐS', 'Kim Ngân'
 ];
 
 export const DEFAULT_PREDICTION_PROGRAMS = [
@@ -95,13 +91,37 @@ function randomGaussian(mean, stdev) {
   return mean + z * stdev;
 }
 
-// Sinh ngẫu nhiên tên người Việt
-export function generateRandomVnName() {
-  const f = VN_FIRST_NAMES[Math.floor(Math.random() * VN_FIRST_NAMES.length)];
-  const m = VN_MIDDLE_NAMES[Math.floor(Math.random() * VN_MIDDLE_NAMES.length)];
-  const l = VN_LAST_NAMES[Math.floor(Math.random() * VN_LAST_NAMES.length)];
-  return `${f} ${m} ${l}`;
+// Sinh danh tính người tham gia chân thực như người thật trên sàn (SĐT che, Họ tên che bảo mật, Nickname)
+export function generateRealisticParticipantName() {
+  const rand = Math.random();
+  // 1. Dạng Số Điện Thoại che 3 số giữa (~40%): ví dụ 098***412, 090***839
+  if (rand < 0.40) {
+    const prefix = VN_PHONE_PREFIXES[Math.floor(Math.random() * VN_PHONE_PREFIXES.length)];
+    const suffix = String(Math.floor(Math.random() * 900) + 100);
+    return `${prefix}***${suffix}`;
+  }
+  
+  // 2. Dạng Họ Tên che sao bảo mật (Privacy Masking) (~45%): ví dụ Nguyễn V. T***, Trần Minh H***, Lê T. P***
+  if (rand < 0.85) {
+    const f = VN_FIRST_NAMES[Math.floor(Math.random() * VN_FIRST_NAMES.length)];
+    const m = VN_MIDDLE_NAMES[Math.floor(Math.random() * VN_MIDDLE_NAMES.length)];
+    const l = VN_LAST_NAMES[Math.floor(Math.random() * VN_LAST_NAMES.length)];
+    const style = Math.random();
+    if (style < 0.5) {
+      return `${f} ${m.charAt(0)}. ${l.charAt(0)}***`;
+    } else if (style < 0.8) {
+      return `${f} ${m} ${l.charAt(0)}***`;
+    } else {
+      return `${f} ${l.charAt(0)}***`;
+    }
+  }
+
+  // 3. Dạng Tên ngắn / Nickname quen thuộc của dân BĐS (~15%): ví dụ Hải Long, Anh Tuấn Land, Minh Trang
+  return VN_REAL_NICKNAMES[Math.floor(Math.random() * VN_REAL_NICKNAMES.length)];
 }
+
+// Giữ lại alias để tương thích ngược nếu có code gọi generateRandomVnName
+export const generateRandomVnName = generateRealisticParticipantName;
 
 /**
  * ĐỊNH DẠNG THỜI GIAN TƯƠNG ĐỐI TỰ NHIÊN NHƯ THẬT
@@ -178,7 +198,7 @@ export function generateRealisticTimestamps(count, startDateStr = null, endDateS
   return timestamps;
 }
 
-// Sinh danh sách bản ghi Bot Ảo (is_bot = 1) phân bổ thời gian như thật
+// Sinh danh sách bản ghi Bot Ảo (is_bot = 1) phân bổ thời gian như thật (không dùng ảnh avatar AI)
 export function generateBotRecords(gameId, botCount = 2000, basePrice = 7.8, spreadPercent = 6, startDate = null, endDate = null) {
   const records = [];
   const count = Math.min(Math.max(Number(botCount) || 50, 10), 3000);
@@ -199,8 +219,7 @@ export function generateBotRecords(gameId, botCount = 2000, basePrice = 7.8, spr
       id: `bot-${gameId}-${i + 1}`,
       gameId,
       userId: `bot-user-${i + 1}`,
-      userName: generateRandomVnName(),
-      userAvatar: BOT_AVATARS[i % BOT_AVATARS.length],
+      userName: generateRealisticParticipantName(),
       predictedPrice: price,
       is_bot: 1, // ĐÁNH DẤU CHÍNH XÁC LÀ BOT ẢO
       createdAt
@@ -210,7 +229,7 @@ export function generateBotRecords(gameId, botCount = 2000, basePrice = 7.8, spr
   return records;
 }
 
-// Sinh 1 lượt dự đoán bot mới trực tiếp (Real-time Live Injection)
+// Sinh 1 lượt dự đoán bot mới trực tiếp (Real-time Live Injection) không dùng avatar AI
 export function generateSingleBotPrediction(gameId, basePrice = 15.5, spreadPercent = 8) {
   const spreadDelta = basePrice * (Number(spreadPercent) / 100);
   const stdev = spreadDelta / 2;
@@ -221,8 +240,7 @@ export function generateSingleBotPrediction(gameId, basePrice = 15.5, spreadPerc
     id: `bot-${gameId}-live-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     gameId,
     userId: `bot-live-${Date.now()}`,
-    userName: generateRandomVnName(),
-    userAvatar: BOT_AVATARS[Math.floor(Math.random() * BOT_AVATARS.length)],
+    userName: generateRealisticParticipantName(),
     predictedPrice: price,
     is_bot: 1,
     createdAt: new Date().toISOString()
@@ -269,7 +287,36 @@ export function getStoredPredictions(gameId) {
     const raw = localStorage.getItem(`${PREDICTION_VOTES_KEY}_${gameId}`);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+
+    // Tự động nâng cấp dữ liệu từ phiên bản cũ (v1) sang (v2):
+    // Giữ nguyên toàn bộ User Thật đã tham gia và tạo lại dàn Bot siêu thực không avatar
+    const oldRaw = localStorage.getItem(`${OLD_PREDICTION_VOTES_KEY}_${gameId}`);
+    const progs = getStoredPredictionPrograms();
+    const prog = progs?.find(p => p.id === gameId);
+    let realUsers = [];
+
+    if (oldRaw) {
+      try {
+        const oldParsed = JSON.parse(oldRaw);
+        if (Array.isArray(oldParsed)) {
+          realUsers = oldParsed.filter(r => r.is_bot === 0 || (!r.is_bot && r.userId && !String(r.userId).startsWith('bot-')));
+        }
+      } catch (e) {}
+    }
+
+    if (prog && prog.botConfig?.isEnabled !== false) {
+      const count = Number(prog.botConfig.botCount || 2000);
+      const base = Number(prog.botConfig.basePrice || prog.basePrice || 15.5);
+      const spread = Number(prog.botConfig.spreadPercent || prog.spreadPercent || 8);
+      const bots = generateBotRecords(gameId, count, base, spread, prog.startDate, prog.endDate);
+      const merged = [...realUsers, ...bots].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      saveStoredPredictions(gameId, merged);
+      return merged;
+    } else if (realUsers.length > 0) {
+      saveStoredPredictions(gameId, realUsers);
+      return realUsers;
     }
   } catch (e) {}
   return [];
