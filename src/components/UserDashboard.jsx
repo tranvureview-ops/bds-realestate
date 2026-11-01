@@ -1143,6 +1143,9 @@ export default function UserDashboard({ initialTab = 'listings' }) {
         // Chi phí gốc: Tin Thường hết 3 tin miễn phí trong ngày thì 5.000 đ / 60 ngày
         const rawCost = isNormal ? (isFreeQuotaAvailable ? 0 : 5000) : (dailyRate * renewDays);
 
+        const userPackageObj = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
+        const vipDiscountVal = Number(userPackageObj?.vouchersPerCycle?.vipDiscount !== undefined ? userPackageObj.vouchersPerCycle.vipDiscount : (commonVipDiscount || 0));
+
         let discountAmount = 0;
         if (isNormal) {
           if (!isFreeQuotaAvailable && renewAppliedVoucher === 'normalPublish') {
@@ -1150,7 +1153,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
           }
         } else {
           if (isMemberActive && renewAppliedVoucher === 'vipPublish') {
-            discountAmount = Math.min(rawCost, 400000);
+            discountAmount = Math.min(rawCost, vipDiscountVal);
           }
         }
 
@@ -1525,7 +1528,9 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                             <div className="flex items-center gap-2">
                               <i className="fa-solid fa-crown text-amber-800 text-sm"></i>
                               <div>
-                                <div className="font-bold text-xs">Voucher Tin VIP (-400.000 đ)</div>
+                                <div className="font-bold text-xs">
+                                  Voucher Tin VIP {vipDiscountVal > 0 ? `(-${vipDiscountVal.toLocaleString('vi-VN')} đ)` : ''}
+                                </div>
                                 <div className={`text-[10px] ${isVoucherApplied ? 'text-slate-950 font-medium' : 'text-slate-500'}`}>
                                   Khả dụng: <b>{vipVoucherCount}</b> voucher trong chu kỳ
                                 </div>
@@ -1547,7 +1552,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                     ) : (
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-900 bg-white/90 p-2.5 rounded-xl border border-amber-200">
                         <p className="text-[10px] sm:text-[11px] leading-relaxed">
-                          👑 Đăng ký <b>Gói Hội Viên</b> nhận ngay Voucher giảm <b>-400.000 đ</b> cho Tin VIP và đặc quyền duyệt tức thì!
+                          👑 Đăng ký <b>Gói Hội Viên</b> nhận ngay Voucher giảm giá cho Tin VIP và đặc quyền duyệt tức thì!
                         </p>
                         <Link
                           to="/goi-hoi-vien"

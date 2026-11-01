@@ -2439,7 +2439,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         discountAmount = (normalVoucherVal && normalVoucherVal > 0) ? Math.min(listingCost, normalVoucherVal) : listingCost;
         usedVoucherType = 'normalPublish';
       } else if (isMemberActive && appliedVoucher === 'vipPublish' && (currentUser.vouchers?.vipPublish || 0) > 0 && vipPackageId !== 'normal') {
-        discountAmount = Math.min(listingCost, 400000);
+        const memberPackageObj = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
+        const configuredVipDiscount = Number(memberPackageObj?.vouchersPerCycle?.vipDiscount || 0);
+        discountAmount = Math.min(listingCost, configuredVipDiscount);
         usedVoucherType = 'vipPublish';
       }
     }
@@ -3557,7 +3559,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         }
       } else if (appliedVoucher === 'vipPublish' && (currentUser?.vouchers?.vipPublish || 0) > 0 && !isNormal) {
         const userPkg = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
-        const vipVoucherDiscount = Number(userPkg?.vouchersPerCycle?.vipDiscount) || 400000;
+        const vipVoucherDiscount = Number(userPkg?.vouchersPerCycle?.vipDiscount !== undefined ? userPkg.vouchersPerCycle.vipDiscount : 0);
         discountAmount = Math.min(initialCost, vipVoucherDiscount);
         usedVoucherType = 'vipPublish';
       }
