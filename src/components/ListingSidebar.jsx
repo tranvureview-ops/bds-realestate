@@ -736,10 +736,6 @@ export default function ListingSidebar({
         <div className="absolute top-0 right-0 -mr-6 -mt-6 w-24 h-24 bg-red-600/20 rounded-full blur-xl pointer-events-none" />
 
         <div className="relative z-10 space-y-2.5">
-          <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-600/30 border border-red-500/40 text-[10px] font-bold text-red-300">
-            <i className="fa-solid fa-fire text-red-400"></i> Đăng tin hiệu quả
-          </div>
-
           <h3 className="text-sm font-black text-white leading-snug">
             Bạn có nhà đất cần bán hoặc cho thuê?
           </h3>
