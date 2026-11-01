@@ -196,9 +196,9 @@ export default function ListingGrid({
 
   // Nhãn phân loại nhu cầu hiển thị trên thanh công cụ
   const demandLabel = useMemo(() => {
-    if (filters?.demand === 'rent') return 'bất động sản cho thuê';
-    if (filters?.demand === 'sale') return 'bất động sản đang bán';
-    return 'bất động sản';
+    if (filters?.demand === 'rent') return 'nhà đất cho thuê';
+    if (filters?.demand === 'sale') return 'nhà đất đang bán';
+    return 'nhà đất';
   }, [filters?.demand]);
 
   // Render Trạng thái rỗng khi không có kết quả phù hợp
@@ -466,7 +466,7 @@ export default function ListingGrid({
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start my-5 sm:my-6">
           {/* CỘT TRÁI: DANH SÁCH BẤT ĐỘNG SẢN CHÍNH (~70% Chiều ngang desktop) */}
           <div className="w-full lg:flex-1 min-w-0 min-h-[550px] transition-opacity duration-200">
-            <h2 className="sr-only">Danh sách bất động sản {demandLabel}</h2>
+            <h2 className="sr-only">Danh sách {demandLabel}</h2>
             {sortedProperties.length === 0 ? (
               renderEmptyState()
             ) : viewMode === 'split' ? (
