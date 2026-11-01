@@ -435,7 +435,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const raw = (initialData?.bds_properties && Array.isArray(initialData.bds_properties) && initialData.bds_properties.length > 0)
       ? initialData.bds_properties
       : INITIAL_PROPERTIES;
-    return raw.filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng') || p.city === 'Quảng Nam' || p.city.includes('Quảng Nam')).map(p => {
+    return raw.map(p => {
       const norm = normalizePropertyExpiration(p);
       return {
         ...norm,
@@ -1447,8 +1447,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       const db = await fetchFullSupabaseDb({ isAdmin: Boolean(isAdminRoute), forceRefresh });
       if (db) {
         if (Array.isArray(db.bds_properties) && db.bds_properties.length > 0) {
-          const validProps = db.bds_properties.filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng') || p.city === 'Quảng Nam' || p.city.includes('Quảng Nam'));
-          setProperties(validProps.map(p => {
+          setProperties(db.bds_properties.map(p => {
             const norm = normalizePropertyExpiration(p);
             return {
               ...norm,

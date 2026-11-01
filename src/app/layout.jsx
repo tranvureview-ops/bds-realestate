@@ -30,9 +30,7 @@ function sanitizePublicSsrDb(db) {
   if (!db) return null;
 
   const rawProps = Array.isArray(db.bds_properties) ? db.bds_properties : [];
-  const cleanProperties = rawProps
-    .filter(p => !p.city || p.city === 'Đà Nẵng' || p.city.includes('Đà Nẵng') || p.city === 'Quảng Nam' || p.city.includes('Quảng Nam'))
-    .map(p => {
+  const cleanProperties = rawProps.map(p => {
       // Làm sạch ảnh nếu có ai upload base64 trực tiếp vào database
       let sanitizedImages = p.images;
       if (Array.isArray(p.images)) {

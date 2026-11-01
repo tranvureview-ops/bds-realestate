@@ -3336,6 +3336,2605 @@ export const VIETNAM_ADMINISTRATIVE_DATA = [
     }
   ]
 }
+,
+  // =========================================================================
+  // HẢI PHÒNG (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "hp",
+      "name": "Hải Phòng",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "hp-hb",
+              "name": "Quận Hồng Bàng",
+              "wards": [
+                  "Phường Hoàng Văn Thụ",
+                  "Phường Minh Khai",
+                  "Phường Phan Bội Châu",
+                  "Phường Hạ Lý"
+              ],
+              "streets": [
+                  "Quang Trung",
+                  "Đinh Tiên Hoàng",
+                  "Trần Hưng Đạo",
+                  "Bạch Đằng",
+                  "Điện Biên Phủ"
+              ]
+          },
+          {
+              "id": "hp-lc",
+              "name": "Quận Lê Chân",
+              "wards": [
+                  "Phường An Biên",
+                  "Phường Cát Dài",
+                  "Phường Niệm Nghĩa",
+                  "Phường Vĩnh Niệm"
+              ],
+              "streets": [
+                  "Tô Hiệu",
+                  "Trần Nguyên Hãn",
+                  "Nguyễn Đức Cảnh",
+                  "Hai Bà Trưng",
+                  "Hồ Sen"
+              ]
+          },
+          {
+              "id": "hp-nq",
+              "name": "Quận Ngô Quyền",
+              "wards": [
+                  "Phường Cầu Đất",
+                  "Phường Máy Tơ",
+                  "Phường Lạch Tray",
+                  "Phường Đằng Giang"
+              ],
+              "streets": [
+                  "Lạch Tray",
+                  "Lê Lợi",
+                  "Đà Nẵng",
+                  "Trần Phú",
+                  "Nguyễn Bỉnh Khiêm"
+              ]
+          },
+          {
+              "id": "hp-ha",
+              "name": "Quận Hải An",
+              "wards": [
+                  "Phường Đông Hải 1",
+                  "Phường Đông Hải 2",
+                  "Phường Đằng Hải",
+                  "Phường Nam Hải"
+              ],
+              "streets": [
+                  "Lê Hồng Phong",
+                  "Nguyễn Bỉnh Khiêm",
+                  "Bùi Viện",
+                  "Ngô Gia Tự"
+              ]
+          },
+          {
+              "id": "hp-ka",
+              "name": "Quận Kiến An",
+              "wards": [
+                  "Phường Bắc Sơn",
+                  "Phường Trần Thành Ngọ",
+                  "Phường Quán Trữ"
+              ],
+              "streets": [
+                  "Trần Nhân Tông",
+                  "Phan Đăng Lưu",
+                  "Lê Duẩn"
+              ]
+          },
+          {
+              "id": "hp-ds",
+              "name": "Quận Đồ Sơn",
+              "wards": [
+                  "Phường Vạn Hương",
+                  "Phường Bàng La",
+                  "Phường Hải Sơn"
+              ],
+              "streets": [
+                  "Lý Thánh Tông",
+                  "Vạn Hương",
+                  "Phạm Văn Đồng"
+              ]
+          },
+          {
+              "id": "hp-tn",
+              "name": "Huyện Thủy Nguyên",
+              "wards": [
+                  "Thị trấn Núi Đèo",
+                  "Xã Thủy Đường",
+                  "Xã Lâm Động",
+                  "Xã Hoa Động"
+              ],
+              "streets": [
+                  "Bạch Đằng",
+                  "Tỉnh lộ 359",
+                  "Quốc lộ 10"
+              ]
+          },
+          {
+              "id": "hp-an",
+              "name": "Huyện An Dương",
+              "wards": [
+                  "Thị trấn An Dương",
+                  "Xã An Hưng",
+                  "Xã An Đồng"
+              ],
+              "streets": [
+                  "Quốc lộ 5",
+                  "Quốc lộ 10"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // QUẢNG NINH (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "qninh",
+      "name": "Quảng Ninh",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "qn-hl",
+              "name": "Thành phố Hạ Long",
+              "wards": [
+                  "Phường Bãi Cháy",
+                  "Phường Hòn Gai",
+                  "Phường Hồng Gai",
+                  "Phường Bạch Đằng",
+                  "Phường Cao Xanh",
+                  "Phường Hùng Thắng",
+                  "Phường Tuần Châu"
+              ],
+              "streets": [
+                  "Trần Quốc Nghiễn",
+                  "Hạ Long",
+                  "Lê Thánh Tông",
+                  "Hoàng Quốc Việt"
+              ]
+          },
+          {
+              "id": "qn-cp",
+              "name": "Thành phố Cẩm Phả",
+              "wards": [
+                  "Phường Cẩm Trung",
+                  "Phường Cẩm Thành",
+                  "Phường Cửa Ông",
+                  "Phường Quang Hanh"
+              ],
+              "streets": [
+                  "Trần Phú",
+                  "Bái Tử Long"
+              ]
+          },
+          {
+              "id": "qn-ub",
+              "name": "Thành phố Uông Bí",
+              "wards": [
+                  "Phường Quang Trung",
+                  "Phường Thanh Sơn",
+                  "Phường Yên Thanh"
+              ],
+              "streets": [
+                  "Quang Trung",
+                  "Trần Hưng Đạo"
+              ]
+          },
+          {
+              "id": "qn-mc",
+              "name": "Thành phố Móng Cái",
+              "wards": [
+                  "Phường Ka Long",
+                  "Phường Trần Phú",
+                  "Phường Trà Cổ"
+              ],
+              "streets": [
+                  "Hùng Vương",
+                  "Trần Phú"
+              ]
+          },
+          {
+              "id": "qn-tx",
+              "name": "Thị xã Quảng Yên",
+              "wards": [
+                  "Phường Quảng Yên",
+                  "Phường Yên Giang",
+                  "Phường Cộng Hòa"
+              ],
+              "streets": [
+                  "Lê Lợi",
+                  "Nguyễn Du"
+              ]
+          },
+          {
+              "id": "qn-vd",
+              "name": "Huyện Vân Đồn",
+              "wards": [
+                  "Thị trấn Cái Rồng",
+                  "Xã Hạ Long",
+                  "Xã Đông Xá"
+              ],
+              "streets": [
+                  "Lý Anh Tông",
+                  "Tỉnh lộ 334"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // BẮC NINH (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "bn",
+      "name": "Bắc Ninh",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "bn-tp",
+              "name": "Thành phố Bắc Ninh",
+              "wards": [
+                  "Phường Suối Hoa",
+                  "Phường Đại Phúc",
+                  "Phường Ninh Xá",
+                  "Phường Võ Cường"
+              ],
+              "streets": [
+                  "Trần Hưng Đạo",
+                  "Lý Thái Tổ",
+                  "Nguyễn Trãi",
+                  "Huyền Quang"
+              ]
+          },
+          {
+              "id": "bn-ts",
+              "name": "Thành phố Từ Sơn",
+              "wards": [
+                  "Phường Đông Ngàn",
+                  "Phường Đồng Nguyên",
+                  "Phường Tân Hồng",
+                  "Phường Trang Hạ"
+              ],
+              "streets": [
+                  "Trần Phú",
+                  "Lý Thánh Tông"
+              ]
+          },
+          {
+              "id": "bn-yp",
+              "name": "Huyện Yên Phong",
+              "wards": [
+                  "Thị trấn Chờ",
+                  "Xã Yên Trung",
+                  "Xã Tam Đa"
+              ],
+              "streets": [
+                  "Tỉnh lộ 286",
+                  "KCN Yên Phong"
+              ]
+          },
+          {
+              "id": "bn-qv",
+              "name": "Thị xã Quế Võ",
+              "wards": [
+                  "Phường Phố Mới",
+                  "Phường Phương Liễu"
+              ],
+              "streets": [
+                  "Quốc lộ 18"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // HẢI DƯƠNG (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "hd",
+      "name": "Hải Dương",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "hd-tp",
+              "name": "Thành phố Hải Dương",
+              "wards": [
+                  "Phường Lê Thanh Nghị",
+                  "Phường Hải Tân",
+                  "Phường Bình Hàn",
+                  "Phường Trần Phú"
+              ],
+              "streets": [
+                  "Nguyễn Lương Bằng",
+                  "Trường Chinh",
+                  "Bạch Đằng"
+              ]
+          },
+          {
+              "id": "hd-cl",
+              "name": "Thành phố Chí Linh",
+              "wards": [
+                  "Phường Sao Đỏ",
+                  "Phường Cộng Hòa"
+              ],
+              "streets": [
+                  "Nguyễn Trãi",
+                  "Trần Hưng Đạo"
+              ]
+          },
+          {
+              "id": "hd-km",
+              "name": "Thị xã Kinh Môn",
+              "wards": [
+                  "Phường An Lưu",
+                  "Phường Hiệp An"
+              ],
+              "streets": [
+                  "Nguyễn Đại Năng"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // HƯNG YÊN (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "hy",
+      "name": "Hưng Yên",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "hy-tp",
+              "name": "Thành phố Hưng Yên",
+              "wards": [
+                  "Phường Hiến Nam",
+                  "Phường Lê Lợi",
+                  "Phường Lam Sơn"
+              ],
+              "streets": [
+                  "Bãi Sậy",
+                  "Điện Biên",
+                  "Chùa Chuông"
+              ]
+          },
+          {
+              "id": "hy-vg",
+              "name": "Huyện Văn Giang",
+              "wards": [
+                  "Thị trấn Văn Giang",
+                  "Xã Xuân Quan",
+                  "Xã Phụng Công",
+                  "KĐT Ecopark",
+                  "KĐT Vinhomes Ocean Park 2-3"
+              ],
+              "streets": [
+                  "Đường Vành đai 3.5",
+                  "Cao tốc Hà Nội - Hải Phòng"
+              ]
+          },
+          {
+              "id": "hy-ml",
+              "name": "Huyện Mỹ Hào",
+              "wards": [
+                  "Phường Bần Yên Nhân",
+                  "Phường Nhân Hòa"
+              ],
+              "streets": [
+                  "Quốc lộ 5"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // VĨNH PHÚC (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "vp",
+      "name": "Vĩnh Phúc",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "vp-vy",
+              "name": "Thành phố Vĩnh Yên",
+              "wards": [
+                  "Phường Liên Bảo",
+                  "Phường Tích Sơn",
+                  "Phường Khai Quang"
+              ],
+              "streets": [
+                  "Mê Linh",
+                  "Tôn Đức Thắng"
+              ]
+          },
+          {
+              "id": "vp-py",
+              "name": "Thành phố Phúc Yên",
+              "wards": [
+                  "Phường Trưng Trắc",
+                  "Phường Hùng Vương"
+              ],
+              "streets": [
+                  "Trần Phú",
+                  "Hai Bà Trưng"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // THÁI NGUYÊN (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "tn",
+      "name": "Thái Nguyên",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "tn-tp",
+              "name": "Thành phố Thái Nguyên",
+              "wards": [
+                  "Phường Phan Đình Phùng",
+                  "Phường Hoàng Văn Thụ",
+                  "Phường Quang Trung"
+              ],
+              "streets": [
+                  "Lương Ngọc Quyến",
+                  "Hoàng Văn Thụ"
+              ]
+          },
+          {
+              "id": "tn-sy",
+              "name": "Thành phố Sông Công",
+              "wards": [
+                  "Phường Thắng Lợi",
+                  "Phường Cải Đan"
+              ],
+              "streets": [
+                  "Cách Mạng Tháng 8"
+              ]
+          },
+          {
+              "id": "tn-py",
+              "name": "Thành phố Phổ Yên",
+              "wards": [
+                  "Phường Ba Hàng",
+                  "Phường Đồng Tiến"
+              ],
+              "streets": [
+                  "Lý Nam Đế"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // BẮC GIANG (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "bg",
+      "name": "Bắc Giang",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "bg-tp",
+              "name": "Thành phố Bắc Giang",
+              "wards": [
+                  "Phường Ngô Quyền",
+                  "Phường Trần Phú",
+                  "Phường Hoàng Văn Thụ"
+              ],
+              "streets": [
+                  "Hùng Vương",
+                  "Xương Giang"
+              ]
+          },
+          {
+              "id": "bg-vy",
+              "name": "Thị xã Việt Yên",
+              "wards": [
+                  "Phường Bích Động",
+                  "Phường Nếnh"
+              ],
+              "streets": [
+                  "Quốc lộ 1A"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // NINH BÌNH (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "nb",
+      "name": "Ninh Bình",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "nb-tp",
+              "name": "Thành phố Ninh Bình",
+              "wards": [
+                  "Phường Vân Giang",
+                  "Phường Nam Thành",
+                  "Phường Đông Thành"
+              ],
+              "streets": [
+                  "Trần Hưng Đạo",
+                  "Lê Hồng Phong"
+              ]
+          },
+          {
+              "id": "nb-td",
+              "name": "Thành phố Tam Điệp",
+              "wards": [
+                  "Phường Bắc Sơn",
+                  "Phường Trung Sơn"
+              ],
+              "streets": [
+                  "Quang Trung"
+              ]
+          },
+          {
+              "id": "nb-hd",
+              "name": "Huyện Hoa Lư",
+              "wards": [
+                  "Thị trấn Thiên Tôn",
+                  "Xã Ninh Xuân",
+                  "Xã Ninh Hải"
+              ],
+              "streets": [
+                  "Tràng An"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // NAM ĐỊNH (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "nd",
+      "name": "Nam Định",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "nd-tp",
+              "name": "Thành phố Nam Định",
+              "wards": [
+                  "Phường Vị Hoàng",
+                  "Phường Trần Hưng Đạo",
+                  "Phường Lộc Vượng"
+              ],
+              "streets": [
+                  "Trần Hưng Đạo",
+                  "Lê Hồng Phong"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // THÁI BÌNH (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "tb",
+      "name": "Thái Bình",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "tb-tp",
+              "name": "Thành phố Thái Bình",
+              "wards": [
+                  "Phường Lê Hồng Phong",
+                  "Phường Bồ Xuyên",
+                  "Phường Kỳ Bá"
+              ],
+              "streets": [
+                  "Lý Thường Kiệt",
+                  "Lê Lợi"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // HÀ NAM (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "hn-am",
+      "name": "Hà Nam",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "hn-pl",
+              "name": "Thành phố Phủ Lý",
+              "wards": [
+                  "Phường Minh Khai",
+                  "Phường Lương Khánh Thiện",
+                  "Phường Trần Hưng Đạo"
+              ],
+              "streets": [
+                  "Biên Hòa",
+                  "Lê Hoàn"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // PHÚ THỌ (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "pt",
+      "name": "Phú Thọ",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "pt-vt",
+              "name": "Thành phố Việt Trì",
+              "wards": [
+                  "Phường Gia Cẩm",
+                  "Phường Nông Trang",
+                  "Phường Tân Dân"
+              ],
+              "streets": [
+                  "Hùng Vương",
+                  "Nguyễn Tất Thành"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // LẠNG SƠN (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "ls",
+      "name": "Lạng Sơn",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "ls-tp",
+              "name": "Thành phố Lạng Sơn",
+              "wards": [
+                  "Phường Hoàng Văn Thụ",
+                  "Phường Tam Thanh",
+                  "Phường Vĩnh Trại"
+              ],
+              "streets": [
+                  "Lê Lợi",
+                  "Trần Đăng Ninh"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // LÀO CAI (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "lc",
+      "name": "Lào Cai",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "lc-tp",
+              "name": "Thành phố Lào Cai",
+              "wards": [
+                  "Phường Kim Tân",
+                  "Phường Cốc Lếu",
+                  "Phường Bắc Cường"
+              ],
+              "streets": [
+                  "Hoàng Liên",
+                  "Nguyễn Huệ"
+              ]
+          },
+          {
+              "id": "lc-sp",
+              "name": "Thị xã Sa Pa",
+              "wards": [
+                  "Phường Sa Pa",
+                  "Phường Hàm Rồng",
+                  "Phường Fansipan"
+              ],
+              "streets": [
+                  "Cầu Mây",
+                  "Mường Hoa"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // HÒA BÌNH (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "hb",
+      "name": "Hòa Bình",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "hb-tp",
+              "name": "Thành phố Hòa Bình",
+              "wards": [
+                  "Phường Phương Lâm",
+                  "Phường Đồng Tiến",
+                  "Phường Tân Thịnh"
+              ],
+              "streets": [
+                  "Cù Chính Lan",
+                  "Chi Lăng"
+              ]
+          },
+          {
+              "id": "hb-ls",
+              "name": "Huyện Lương Sơn",
+              "wards": [
+                  "Thị trấn Lương Sơn",
+                  "Xã Cư Yên",
+                  "Xã Nhuận Trạch"
+              ],
+              "streets": [
+                  "Quốc lộ 6"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // SƠN LA (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "sl",
+      "name": "Sơn La",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "sl-tp",
+              "name": "Thành phố Sơn La",
+              "wards": [
+                  "Phường Quyết Thắng",
+                  "Phường Tô Hiệu"
+              ],
+              "streets": [
+                  "Tô Hiệu",
+                  "Chu Văn Thịnh"
+              ]
+          },
+          {
+              "id": "sl-mc",
+              "name": "Huyện Mộc Châu",
+              "wards": [
+                  "Thị trấn Mộc Châu",
+                  "Thị trấn Nông trường Mộc Châu"
+              ],
+              "streets": [
+                  "Quốc lộ 6"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // YÊN BÁI (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "yb",
+      "name": "Yên Bái",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "yb-tp",
+              "name": "Thành phố Yên Bái",
+              "wards": [
+                  "Phường Yên Thịnh",
+                  "Phường Đồng Tâm"
+              ],
+              "streets": [
+                  "Điện Biên",
+                  "Đinh Tiên Hoàng"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // TUYÊN QUANG (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "tq",
+      "name": "Tuyên Quang",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "tq-tp",
+              "name": "Thành phố Tuyên Quang",
+              "wards": [
+                  "Phường Tân Quang",
+                  "Phường Minh Xuân"
+              ],
+              "streets": [
+                  "Bình Thuận",
+                  "Quang Trung"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // HÀ GIANG (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "hg",
+      "name": "Hà Giang",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "hg-tp",
+              "name": "Thành phố Hà Giang",
+              "wards": [
+                  "Phường Trần Phú",
+                  "Phường Nguyễn Trãi"
+              ],
+              "streets": [
+                  "Nguyễn Trãi",
+                  "Trần Hưng Đạo"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // CAO BẰNG (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "cb",
+      "name": "Cao Bằng",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "cb-tp",
+              "name": "Thành phố Cao Bằng",
+              "wards": [
+                  "Phường Hợp Giang",
+                  "Phường Sông Bằng"
+              ],
+              "streets": [
+                  "Kim Đồng",
+                  "Hoàng Đình Giong"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // BẮC KẠN (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "bk",
+      "name": "Bắc Kạn",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "bk-tp",
+              "name": "Thành phố Bắc Kạn",
+              "wards": [
+                  "Phường Đức Xuân",
+                  "Phường Sông Cầu"
+              ],
+              "streets": [
+                  "Trường Chinh",
+                  "Đội Kỳ"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // ĐIỆN BIÊN (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "db",
+      "name": "Điện Biên",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "db-tp",
+              "name": "Thành phố Điện Biên Phủ",
+              "wards": [
+                  "Phường Mường Thanh",
+                  "Phường Tân Thanh"
+              ],
+              "streets": [
+                  "Võ Nguyên Giáp",
+                  "Trần Đăng Ninh"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // LAI CHÂU (Miền Bắc)
+  // =========================================================================
+  {
+      "id": "lc-chau",
+      "name": "Lai Châu",
+      "region": "Miền Bắc",
+      "districts": [
+          {
+              "id": "lc-tp2",
+              "name": "Thành phố Lai Châu",
+              "wards": [
+                  "Phường Tân Phong",
+                  "Phường Đoàn Kết"
+              ],
+              "streets": [
+                  "Trần Phú",
+                  "Lê Lợi"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // THỪA THIÊN HUẾ (Miền Trung)
+  // =========================================================================
+  {
+      "id": "tth",
+      "name": "Thừa Thiên Huế",
+      "region": "Miền Trung",
+      "districts": [
+          {
+              "id": "tth-tp",
+              "name": "Thành phố Huế",
+              "wards": [
+                  "Phường Vĩnh Ninh",
+                  "Phường Phú Nhuận",
+                  "Phường Thuận Thành",
+                  "Phường Vỹ Dạ",
+                  "Phường Xuân Phú"
+              ],
+              "streets": [
+                  "Lê Lợi",
+                  "Hùng Vương",
+                  "Nguyễn Huệ",
+                  "Trần Hưng Đạo",
+                  "Bà Triệu"
+              ]
+          },
+          {
+              "id": "tth-ht",
+              "name": "Thị xã Hương Thủy",
+              "wards": [
+                  "Phường Phú Bài",
+                  "Phường Thủy Dương"
+              ],
+              "streets": [
+                  "Nguyễn Tất Thành"
+              ]
+          },
+          {
+              "id": "tth-htr",
+              "name": "Thị xã Hương Trà",
+              "wards": [
+                  "Phường Tứ Hạ",
+                  "Phường Hương Văn"
+              ],
+              "streets": [
+                  "Cách Mạng Tháng 8"
+              ]
+          },
+          {
+              "id": "tth-pl",
+              "name": "Huyện Phú Lộc",
+              "wards": [
+                  "Thị trấn Lăng Cô",
+                  "Thị trấn Phú Lộc"
+              ],
+              "streets": [
+                  "Nguyễn Văn",
+                  "Quốc lộ 1A"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // THANH HÓA (Miền Trung)
+  // =========================================================================
+  {
+      "id": "th",
+      "name": "Thanh Hóa",
+      "region": "Miền Trung",
+      "districts": [
+          {
+              "id": "th-tp",
+              "name": "Thành phố Thanh Hóa",
+              "wards": [
+                  "Phường Điện Biên",
+                  "Phường Lam Sơn",
+                  "Phường Ba Đình",
+                  "Phường Đông Hương",
+                  "Phường Đông Hải"
+              ],
+              "streets": [
+                  "Lê Hoàn",
+                  "Trần Phú",
+                  "Đại lộ Lê Lợi",
+                  "Nguyễn Trãi"
+              ]
+          },
+          {
+              "id": "th-ss",
+              "name": "Thành phố Sầm Sơn",
+              "wards": [
+                  "Phường Bắc Sơn",
+                  "Phường Trung Sơn",
+                  "Phường Trường Sơn",
+                  "Phường Quảng Cư"
+              ],
+              "streets": [
+                  "Hồ Xuân Hương",
+                  "Thanh Niên"
+              ]
+          },
+          {
+              "id": "th-bs",
+              "name": "Thị xã Bỉm Sơn",
+              "wards": [
+                  "Phường Ba Đình",
+                  "Phường Ngọc Trạo"
+              ],
+              "streets": [
+                  "Trần Phú"
+              ]
+          },
+          {
+              "id": "th-ns",
+              "name": "Thị xã Nghi Sơn",
+              "wards": [
+                  "Phường Hải Hòa",
+                  "Phường Bình Minh"
+              ],
+              "streets": [
+                  "Quốc lộ 1A"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // NGHỆ AN (Miền Trung)
+  // =========================================================================
+  {
+      "id": "na",
+      "name": "Nghệ An",
+      "region": "Miền Trung",
+      "districts": [
+          {
+              "id": "na-tp",
+              "name": "Thành phố Vinh",
+              "wards": [
+                  "Phường Trường Thi",
+                  "Phường Quang Trung",
+                  "Phường Lê Mao",
+                  "Phường Hưng Dũng",
+                  "Phường Hà Huy Tập"
+              ],
+              "streets": [
+                  "Nguyễn Thị Minh Khai",
+                  "Lê Lợi",
+                  "Trần Phú",
+                  "Quang Trung"
+              ]
+          },
+          {
+              "id": "na-cl",
+              "name": "Thị xã Cửa Lò",
+              "wards": [
+                  "Phường Nghi Hương",
+                  "Phường Nghi Thu",
+                  "Phường Thu Thủy"
+              ],
+              "streets": [
+                  "Bình Minh",
+                  "Nguyễn Sinh Cung"
+              ]
+          },
+          {
+              "id": "na-th",
+              "name": "Thị xã Thái Hòa",
+              "wards": [
+                  "Phường Hòa Hiếu",
+                  "Phường Quang Tiến"
+              ],
+              "streets": [
+                  "Trần Hưng Đạo"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // HÀ TĨNH (Miền Trung)
+  // =========================================================================
+  {
+      "id": "ht",
+      "name": "Hà Tĩnh",
+      "region": "Miền Trung",
+      "districts": [
+          {
+              "id": "ht-tp",
+              "name": "Thành phố Hà Tĩnh",
+              "wards": [
+                  "Phường Bắc Hà",
+                  "Phường Nam Hà",
+                  "Phường Trần Phú"
+              ],
+              "streets": [
+                  "Hà Huy Tập",
+                  "Trần Phú",
+                  "Phan Đình Phùng"
+              ]
+          },
+          {
+              "id": "ht-ha",
+              "name": "Thị xã Hồng Lĩnh",
+              "wards": [
+                  "Phường Bắc Hồng",
+                  "Phường Nam Hồng"
+              ],
+              "streets": [
+                  "Quang Trung"
+              ]
+          },
+          {
+              "id": "ht-ka",
+              "name": "Thị xã Kỳ Anh",
+              "wards": [
+                  "Phường Sông Trí",
+                  "Phường Kỳ Long"
+              ],
+              "streets": [
+                  "Quốc lộ 1A"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // QUẢNG BÌNH (Miền Trung)
+  // =========================================================================
+  {
+      "id": "qb",
+      "name": "Quảng Bình",
+      "region": "Miền Trung",
+      "districts": [
+          {
+              "id": "qb-tp",
+              "name": "Thành phố Đồng Hới",
+              "wards": [
+                  "Phường Đồng Hải",
+                  "Phường Hải Đình",
+                  "Phường Bắc Lý"
+              ],
+              "streets": [
+                  "Quang Trung",
+                  "Trần Hưng Đạo",
+                  "Lý Thường Kiệt"
+              ]
+          },
+          {
+              "id": "qb-bd",
+              "name": "Thị xã Ba Đồn",
+              "wards": [
+                  "Phường Ba Đồn",
+                  "Phường Quảng Thọ"
+              ],
+              "streets": [
+                  "Quang Trung"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // QUẢNG TRỊ (Miền Trung)
+  // =========================================================================
+  {
+      "id": "qt",
+      "name": "Quảng Trị",
+      "region": "Miền Trung",
+      "districts": [
+          {
+              "id": "qt-tp",
+              "name": "Thành phố Đông Hà",
+              "wards": [
+                  "Phường 1",
+                  "Phường 2",
+                  "Phường 5",
+                  "Phường Đông Lễ"
+              ],
+              "streets": [
+                  "Lê Duẩn",
+                  "Hùng Vương",
+                  "Quốc lộ 9"
+              ]
+          },
+          {
+              "id": "qt-tx",
+              "name": "Thị xã Quảng Trị",
+              "wards": [
+                  "Phường 1",
+                  "Phường 2",
+                  "Phường 3"
+              ],
+              "streets": [
+                  "Trần Hưng Đạo"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // QUẢNG NGÃI (Miền Trung)
+  // =========================================================================
+  {
+      "id": "qng",
+      "name": "Quảng Ngãi",
+      "region": "Miền Trung",
+      "districts": [
+          {
+              "id": "qng-tp",
+              "name": "Thành phố Quảng Ngãi",
+              "wards": [
+                  "Phường Trần Phú",
+                  "Phường Lê Hồng Phong",
+                  "Phường Nghĩa Chánh"
+              ],
+              "streets": [
+                  "Quang Trung",
+                  "Hùng Vương",
+                  "Phan Đình Phùng"
+              ]
+          },
+          {
+              "id": "qng-dp",
+              "name": "Thị xã Đức Phổ",
+              "wards": [
+                  "Phường Nguyễn Nghiêm",
+                  "Phường Phổ Thạnh"
+              ],
+              "streets": [
+                  "Nguyễn Nghiêm"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // BÌNH ĐỊNH (Miền Trung)
+  // =========================================================================
+  {
+      "id": "bd-dinh",
+      "name": "Bình Định",
+      "region": "Miền Trung",
+      "districts": [
+          {
+              "id": "bd-qn",
+              "name": "Thành phố Quy Nhơn",
+              "wards": [
+                  "Phường Lê Lợi",
+                  "Phường Trần Phú",
+                  "Phường Nguyễn Văn Cừ",
+                  "Phường Ghềnh Ráng",
+                  "Xã Nhơn Lý"
+              ],
+              "streets": [
+                  "Xuân Diệu",
+                  "An Dương Vương",
+                  "Nguyễn Tất Thành",
+                  "Trần Hưng Đạo"
+              ]
+          },
+          {
+              "id": "bd-an",
+              "name": "Thị xã An Nhơn",
+              "wards": [
+                  "Phường Bình Định",
+                  "Phường Đập Đá"
+              ],
+              "streets": [
+                  "Lê Hồng Phong"
+              ]
+          },
+          {
+              "id": "bd-hc",
+              "name": "Thị xã Hoài Nhơn",
+              "wards": [
+                  "Phường Bồng Sơn",
+                  "Phường Tam Quan"
+              ],
+              "streets": [
+                  "Quang Trung"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // PHÚ YÊN (Miền Trung)
+  // =========================================================================
+  {
+      "id": "py",
+      "name": "Phú Yên",
+      "region": "Miền Trung",
+      "districts": [
+          {
+              "id": "py-tp",
+              "name": "Thành phố Tuy Hòa",
+              "wards": [
+                  "Phường 1",
+                  "Phường 2",
+                  "Phường 7",
+                  "Phường 9"
+              ],
+              "streets": [
+                  "Hùng Vương",
+                  "Trần Hưng Đạo",
+                  "Lê Duẩn",
+                  "Độc Lập"
+              ]
+          },
+          {
+              "id": "py-sh",
+              "name": "Thị xã Sông Cầu",
+              "wards": [
+                  "Phường Xuân Phú",
+                  "Phường Xuân Yên"
+              ],
+              "streets": [
+                  "Phạm Văn Đồng"
+              ]
+          },
+          {
+              "id": "py-dh",
+              "name": "Thị xã Đông Hòa",
+              "wards": [
+                  "Phường Hòa Hiệp Bắc",
+                  "Phường Hòa Hiệp Trung"
+              ],
+              "streets": [
+                  "Quốc lộ 1A"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // NINH THUẬN (Miền Trung)
+  // =========================================================================
+  {
+      "id": "nt",
+      "name": "Ninh Thuận",
+      "region": "Miền Trung",
+      "districts": [
+          {
+              "id": "nt-tp",
+              "name": "Thành phố Phan Rang - Tháp Chàm",
+              "wards": [
+                  "Phường Kinh Dinh",
+                  "Phường Thanh Sơn",
+                  "Phường Mỹ Hải"
+              ],
+              "streets": [
+                  "Thống Nhất",
+                  "21 Tháng 8",
+                  "Yên Ninh"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // BÌNH THUẬN (Miền Trung)
+  // =========================================================================
+  {
+      "id": "bth",
+      "name": "Bình Thuận",
+      "region": "Miền Trung",
+      "districts": [
+          {
+              "id": "bth-tp",
+              "name": "Thành phố Phan Thiết",
+              "wards": [
+                  "Phường Phú Thủy",
+                  "Phường Hàm Tiến",
+                  "Phường Mũi Né",
+                  "Phường Xuân An"
+              ],
+              "streets": [
+                  "Nguyễn Tất Thành",
+                  "Trần Hưng Đạo",
+                  "Huỳnh Thúc Kháng",
+                  "Nguyễn Đình Chiểu"
+              ]
+          },
+          {
+              "id": "bth-lg",
+              "name": "Thị xã La Gi",
+              "wards": [
+                  "Phường Tân An",
+                  "Phường Phước Hội"
+              ],
+              "streets": [
+                  "Thống Nhất",
+                  "Lê Lợi"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // LÂM ĐỒNG (Tây Nguyên)
+  // =========================================================================
+  {
+      "id": "ld",
+      "name": "Lâm Đồng",
+      "region": "Tây Nguyên",
+      "districts": [
+          {
+              "id": "ld-dl",
+              "name": "Thành phố Đà Lạt",
+              "wards": [
+                  "Phường 1",
+                  "Phường 2",
+                  "Phường 3",
+                  "Phường 8",
+                  "Phường 9",
+                  "Phường 10"
+              ],
+              "streets": [
+                  "Trần Phú",
+                  "Nguyễn Thị Minh Khai",
+                  "Phan Đình Phùng",
+                  "Trần Hưng Đạo",
+                  "Bùi Thị Xuân"
+              ]
+          },
+          {
+              "id": "ld-bl",
+              "name": "Thành phố Bảo Lộc",
+              "wards": [
+                  "Phường 1",
+                  "Phường 2",
+                  "Phường B’Lao",
+                  "Phường Lộc Phát"
+              ],
+              "streets": [
+                  "Trần Phú",
+                  "Nguyễn Công Trứ",
+                  "Lê Hồng Phong"
+              ]
+          },
+          {
+              "id": "ld-dd",
+              "name": "Huyện Đơn Dương",
+              "wards": [
+                  "Thị trấn Thạnh Mỹ",
+                  "Thị trấn D'Ran"
+              ],
+              "streets": [
+                  "Quốc lộ 27"
+              ]
+          },
+          {
+              "id": "ld-dh",
+              "name": "Huyện Đức Trọng",
+              "wards": [
+                  "Thị trấn Liên Nghĩa"
+              ],
+              "streets": [
+                  "Quốc lộ 20"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // ĐẮK LẮK (Tây Nguyên)
+  // =========================================================================
+  {
+      "id": "dl",
+      "name": "Đắk Lắk",
+      "region": "Tây Nguyên",
+      "districts": [
+          {
+              "id": "dl-tp",
+              "name": "Thành phố Buôn Ma Thuột",
+              "wards": [
+                  "Phường Thắng Lợi",
+                  "Phường Tân Lợi",
+                  "Phường Tân Lập",
+                  "Phường Tự An"
+              ],
+              "streets": [
+                  "Lê Duẩn",
+                  "Nguyễn Tất Thành",
+                  "Phan Chu Trinh",
+                  "Y Moan"
+              ]
+          },
+          {
+              "id": "dl-ba",
+              "name": "Thị xã Buôn Hồ",
+              "wards": [
+                  "Phường An Lạc",
+                  "Phường Thiện An"
+              ],
+              "streets": [
+                  "Hùng Vương"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // GIA LAI (Tây Nguyên)
+  // =========================================================================
+  {
+      "id": "gl",
+      "name": "Gia Lai",
+      "region": "Tây Nguyên",
+      "districts": [
+          {
+              "id": "gl-tp",
+              "name": "Thành phố Pleiku",
+              "wards": [
+                  "Phường Diên Hồng",
+                  "Phường Hoa Lư",
+                  "Phường Tây Sơn"
+              ],
+              "streets": [
+                  "Hùng Vương",
+                  "Trần Phú",
+                  "Lê Duẩn"
+              ]
+          },
+          {
+              "id": "gl-ay",
+              "name": "Thị xã Ayun Pa",
+              "wards": [
+                  "Phường Đoàn Kết",
+                  "Phường Sông Bờ"
+              ],
+              "streets": [
+                  "Trần Hưng Đạo"
+              ]
+          },
+          {
+              "id": "gl-ab",
+              "name": "Thị xã An Khê",
+              "wards": [
+                  "Phường Tây Sơn",
+                  "Phường An Phú"
+              ],
+              "streets": [
+                  "Quang Trung"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // ĐẮK NÔNG (Tây Nguyên)
+  // =========================================================================
+  {
+      "id": "dn-nong",
+      "name": "Đắk Nông",
+      "region": "Tây Nguyên",
+      "districts": [
+          {
+              "id": "dn-gn",
+              "name": "Thành phố Gia Nghĩa",
+              "wards": [
+                  "Phường Nghĩa Thành",
+                  "Phường Nghĩa Đức"
+              ],
+              "streets": [
+                  "23 Tháng 3",
+                  "Hùng Vương"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // KON TUM (Tây Nguyên)
+  // =========================================================================
+  {
+      "id": "kt",
+      "name": "Kon Tum",
+      "region": "Tây Nguyên",
+      "districts": [
+          {
+              "id": "kt-tp",
+              "name": "Thành phố Kon Tum",
+              "wards": [
+                  "Phường Quyết Thắng",
+                  "Phường Thắng Lợi"
+              ],
+              "streets": [
+                  "Phan Đình Phùng",
+                  "Trần Phú"
+              ]
+          },
+          {
+              "id": "kt-mp",
+              "name": "Huyện Măng Đen (Kon Plông)",
+              "wards": [
+                  "Thị trấn Măng Đen"
+              ],
+              "streets": [
+                  "Quốc lộ 24"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // BÌNH DƯƠNG (Đông Nam Bộ)
+  // =========================================================================
+  {
+      "id": "bd",
+      "name": "Bình Dương",
+      "region": "Đông Nam Bộ",
+      "districts": [
+          {
+              "id": "bd-tdm",
+              "name": "Thành phố Thủ Dầu Một",
+              "wards": [
+                  "Phường Phú Hòa",
+                  "Phường Phú Cường",
+                  "Phường Hiệp Thành",
+                  "Phường Định Hòa"
+              ],
+              "streets": [
+                  "Đại lộ Bình Dương",
+                  "Yersin",
+                  "Cách Mạng Tháng 8",
+                  "Phạm Ngọc Thạch"
+              ]
+          },
+          {
+              "id": "bd-ta",
+              "name": "Thành phố Thuận An",
+              "wards": [
+                  "Phường Lái Thiêu",
+                  "Phường An Phú",
+                  "Phường Thuận Giao",
+                  "Phường Vĩnh Phú"
+              ],
+              "streets": [
+                  "Quốc lộ 13",
+                  "ĐT 743",
+                  "Nguyễn Trãi"
+              ]
+          },
+          {
+              "id": "bd-da",
+              "name": "Thành phố Dĩ An",
+              "wards": [
+                  "Phường Dĩ An",
+                  "Phường Tân Đông Hiệp",
+                  "Phường Đông Hòa",
+                  "Phường An Bình"
+              ],
+              "streets": [
+                  "DT 743",
+                  "Trần Hưng Đạo",
+                  "Nguyễn An Ninh"
+              ]
+          },
+          {
+              "id": "bd-bu",
+              "name": "Thành phố Bến Cát",
+              "wards": [
+                  "Phường Mỹ Phước",
+                  "Phường Thới Hòa",
+                  "Phường Tân Định"
+              ],
+              "streets": [
+                  "Quốc lộ 13",
+                  "Đại lộ Hùng Vương"
+              ]
+          },
+          {
+              "id": "bd-tu",
+              "name": "Thành phố Tân Uyên",
+              "wards": [
+                  "Phường Uyên Hưng",
+                  "Phường Tân Phước Khánh",
+                  "Phường Thái Hòa"
+              ],
+              "streets": [
+                  "ĐT 746",
+                  "ĐT 747"
+              ]
+          },
+          {
+              "id": "bd-bg",
+              "name": "Huyện Bàu Bàng",
+              "wards": [
+                  "Thị trấn Lai Uyên"
+              ],
+              "streets": [
+                  "Quốc lộ 13"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // ĐỒNG NAI (Đông Nam Bộ)
+  // =========================================================================
+  {
+      "id": "dna",
+      "name": "Đồng Nai",
+      "region": "Đông Nam Bộ",
+      "districts": [
+          {
+              "id": "dna-bh",
+              "name": "Thành phố Biên Hòa",
+              "wards": [
+                  "Phường Quyết Thắng",
+                  "Phường Trung Dũng",
+                  "Phường Tân Tiến",
+                  "Phường Thống Nhất",
+                  "Phường Trảng Dài"
+              ],
+              "streets": [
+                  "Nguyễn Ái Quốc",
+                  "Phạm Văn Thuận",
+                  "Đồng Khởi",
+                  "Võ Thị Sáu"
+              ]
+          },
+          {
+              "id": "dna-lk",
+              "name": "Thành phố Long Khánh",
+              "wards": [
+                  "Phường Xuân An",
+                  "Phường Xuân Trung",
+                  "Phường Xuân Bình"
+              ],
+              "streets": [
+                  "Hùng Vương",
+                  "Cách Mạng Tháng 8"
+              ]
+          },
+          {
+              "id": "dna-lt",
+              "name": "Huyện Long Thành",
+              "wards": [
+                  "Thị trấn Long Thành",
+                  "Xã Bình Sơn",
+                  "Khu vực Sân bay Long Thành"
+              ],
+              "streets": [
+                  "Quốc lộ 51",
+                  "Đường tỉnh 769"
+              ]
+          },
+          {
+              "id": "dna-nt",
+              "name": "Huyện Nhơn Trạch",
+              "wards": [
+                  "Xã Hiệp Phước",
+                  "Xã Phước Thiền",
+                  "Xã Đại Phước"
+              ],
+              "streets": [
+                  "Đường 25B",
+                  "Lý Thái Tổ"
+              ]
+          },
+          {
+              "id": "dna-tb",
+              "name": "Huyện Trảng Bom",
+              "wards": [
+                  "Thị trấn Trảng Bom",
+                  "Xã Hố Nai 3"
+              ],
+              "streets": [
+                  "Quốc lộ 1A"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // BÀ RỊA - VŨNG TÀU (Đông Nam Bộ)
+  // =========================================================================
+  {
+      "id": "brvt",
+      "name": "Bà Rịa - Vũng Tàu",
+      "region": "Đông Nam Bộ",
+      "districts": [
+          {
+              "id": "brvt-vt",
+              "name": "Thành phố Vũng Tàu",
+              "wards": [
+                  "Phường 1",
+                  "Phường 2",
+                  "Phường 7",
+                  "Phường 8",
+                  "Phường Thắng Tam"
+              ],
+              "streets": [
+                  "Thùy Vân",
+                  "Hạ Long",
+                  "Trần Phú",
+                  "Lê Hồng Phong",
+                  "Ba Cu"
+              ]
+          },
+          {
+              "id": "brvt-br",
+              "name": "Thành phố Bà Rịa",
+              "wards": [
+                  "Phường Phước Trung",
+                  "Phường Phước Hưng"
+              ],
+              "streets": [
+                  "Cách Mạng Tháng 8",
+                  "Bạch Đằng"
+              ]
+          },
+          {
+              "id": "brvt-pm",
+              "name": "Thị xã Phú Mỹ",
+              "wards": [
+                  "Phường Phú Mỹ",
+                  "Phường Tân Phước",
+                  "Phường Mỹ Xuân"
+              ],
+              "streets": [
+                  "Quốc lộ 51",
+                  "Trần Hưng Đạo"
+              ]
+          },
+          {
+              "id": "brvt-xd",
+              "name": "Huyện Xuyên Mộc",
+              "wards": [
+                  "Thị trấn Phước Bửu",
+                  "Xã Hồ Tràm",
+                  "Xã Bình Châu"
+              ],
+              "streets": [
+                  "Đường ven biển Hồ Tràm"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // BÌNH PHƯỚC (Đông Nam Bộ)
+  // =========================================================================
+  {
+      "id": "bp",
+      "name": "Bình Phước",
+      "region": "Đông Nam Bộ",
+      "districts": [
+          {
+              "id": "bp-dx",
+              "name": "Thành phố Đồng Xoài",
+              "wards": [
+                  "Phường Tân Phú",
+                  "Phường Tân Bình",
+                  "Phường Tân Đồng"
+              ],
+              "streets": [
+                  "Hùng Vương",
+                  "Phú Riềng Đỏ"
+              ]
+          },
+          {
+              "id": "bp-bl",
+              "name": "Thị xã Bình Long",
+              "wards": [
+                  "Phường An Lộc",
+                  "Phường Phú Thịnh"
+              ],
+              "streets": [
+                  "Nguyễn Huệ"
+              ]
+          },
+          {
+              "id": "bp-pt",
+              "name": "Thị xã Phước Long",
+              "wards": [
+                  "Phường Long Phước",
+                  "Phường Thác Mơ"
+              ],
+              "streets": [
+                  "Cách Mạng Tháng 8"
+              ]
+          },
+          {
+              "id": "bp-ct",
+              "name": "Thị xã Chơn Thành",
+              "wards": [
+                  "Phường Hưng Long",
+                  "Phường Thành Tâm"
+              ],
+              "streets": [
+                  "Quốc lộ 13",
+                  "Quốc lộ 14"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // TÂY NINH (Đông Nam Bộ)
+  // =========================================================================
+  {
+      "id": "tninh",
+      "name": "Tây Ninh",
+      "region": "Đông Nam Bộ",
+      "districts": [
+          {
+              "id": "tninh-tp",
+              "name": "Thành phố Tây Ninh",
+              "wards": [
+                  "Phường 1",
+                  "Phường 2",
+                  "Phường 3",
+                  "Phường Hiệp Ninh"
+              ],
+              "streets": [
+                  "Cách Mạng Tháng 8",
+                  "30 Tháng 4",
+                  "Đại lộ 30/4"
+              ]
+          },
+          {
+              "id": "tninh-ht",
+              "name": "Thị xã Hòa Thành",
+              "wards": [
+                  "Phường Long Hoa",
+                  "Phường Hiệp Tân"
+              ],
+              "streets": [
+                  "Hùng Vương"
+              ]
+          },
+          {
+              "id": "tninh-tb",
+              "name": "Thị xã Trảng Bàng",
+              "wards": [
+                  "Phường Trảng Bàng",
+                  "Phường An Tịnh"
+              ],
+              "streets": [
+                  "Quốc lộ 22"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // CẦN THƠ (Đồng Bằng Sông Cửu Long)
+  // =========================================================================
+  {
+      "id": "ct",
+      "name": "Cần Thơ",
+      "region": "Đồng Bằng Sông Cửu Long",
+      "districts": [
+          {
+              "id": "ct-nk",
+              "name": "Quận Ninh Kiều",
+              "wards": [
+                  "Phường Tân An",
+                  "Phường An Cư",
+                  "Phường An Khánh",
+                  "Phường Xuân Khánh",
+                  "Phường Cái Khế"
+              ],
+              "streets": [
+                  "Đại lộ Hòa Bình",
+                  "30 Tháng 4",
+                  "3 Tháng 2",
+                  "Nguyễn Văn Cừ",
+                  "Hai Bà Trưng"
+              ]
+          },
+          {
+              "id": "ct-cr",
+              "name": "Quận Cái Răng",
+              "wards": [
+                  "Phường Lê Bình",
+                  "Phường Hưng Phú",
+                  "Phường Phú Thứ"
+              ],
+              "streets": [
+                  "Võ Nguyên Giáp",
+                  "Phạm Hùng",
+                  "Trần Hưng Đạo"
+              ]
+          },
+          {
+              "id": "ct-bt",
+              "name": "Quận Bình Thủy",
+              "wards": [
+                  "Phường Bình Thủy",
+                  "Phường An Thới",
+                  "Phường Trà An"
+              ],
+              "streets": [
+                  "Cách Mạng Tháng 8",
+                  "Lê Hồng Phong"
+              ]
+          },
+          {
+              "id": "ct-om",
+              "name": "Quận Ô Môn",
+              "wards": [
+                  "Phường Châu Văn Liêm",
+                  "Phường Thới Hòa"
+              ],
+              "streets": [
+                  "Quốc lộ 91"
+              ]
+          },
+          {
+              "id": "ct-tn",
+              "name": "Quận Thốt Nốt",
+              "wards": [
+                  "Phường Thốt Nốt",
+                  "Phường Trung Kiên"
+              ],
+              "streets": [
+                  "Lê Thị Tạo"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // LONG AN (Đồng Bằng Sông Cửu Long)
+  // =========================================================================
+  {
+      "id": "la",
+      "name": "Long An",
+      "region": "Đồng Bằng Sông Cửu Long",
+      "districts": [
+          {
+              "id": "la-ta",
+              "name": "Thành phố Tân An",
+              "wards": [
+                  "Phường 1",
+                  "Phường 2",
+                  "Phường 3",
+                  "Phường 4"
+              ],
+              "streets": [
+                  "Hùng Vương",
+                  "Quốc lộ 1A"
+              ]
+          },
+          {
+              "id": "la-bl",
+              "name": "Huyện Bến Lức",
+              "wards": [
+                  "Thị trấn Bến Lức",
+                  "Xã An Thạnh",
+                  "KĐT Waterpoint"
+              ],
+              "streets": [
+                  "Quốc lộ 1A",
+                  "Đường tỉnh 830"
+              ]
+          },
+          {
+              "id": "la-ch",
+              "name": "Huyện Cần Giuộc",
+              "wards": [
+                  "Thị trấn Cần Giuộc",
+                  "Xã Long Hậu"
+              ],
+              "streets": [
+                  "Quốc lộ 50",
+                  "Đường tỉnh 826"
+              ]
+          },
+          {
+              "id": "la-cd",
+              "name": "Huyện Cần Đước",
+              "wards": [
+                  "Thị trấn Cần Đước",
+                  "Xã Long Trạch"
+              ],
+              "streets": [
+                  "Quốc lộ 50"
+              ]
+          },
+          {
+              "id": "la-dh",
+              "name": "Huyện Đức Hòa",
+              "wards": [
+                  "Thị trấn Hậu Nghĩa",
+                  "Thị trấn Đức Hòa",
+                  "Xã Mỹ Hạnh Nam"
+              ],
+              "streets": [
+                  "Tỉnh lộ 824",
+                  "Tỉnh lộ 10"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // TIỀN GIANG (Đồng Bằng Sông Cửu Long)
+  // =========================================================================
+  {
+      "id": "tg",
+      "name": "Tiền Giang",
+      "region": "Đồng Bằng Sông Cửu Long",
+      "districts": [
+          {
+              "id": "tg-my",
+              "name": "Thành phố Mỹ Tho",
+              "wards": [
+                  "Phường 1",
+                  "Phường 4",
+                  "Phường 5",
+                  "Phường 7"
+              ],
+              "streets": [
+                  "Ấp Bắc",
+                  "Lý Thường Kiệt",
+                  "Hùng Vương"
+              ]
+          },
+          {
+              "id": "tg-gc",
+              "name": "Thành phố Gò Công",
+              "wards": [
+                  "Phường 1",
+                  "Phường 2"
+              ],
+              "streets": [
+                  "Trần Hưng Đạo"
+              ]
+          },
+          {
+              "id": "tg-cl",
+              "name": "Thị xã Cai Lậy",
+              "wards": [
+                  "Phường 1",
+                  "Phường 4"
+              ],
+              "streets": [
+                  "Quốc lộ 1A"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // KIÊN GIANG (Đồng Bằng Sông Cửu Long)
+  // =========================================================================
+  {
+      "id": "kg",
+      "name": "Kiên Giang",
+      "region": "Đồng Bằng Sông Cửu Long",
+      "districts": [
+          {
+              "id": "kg-pq",
+              "name": "Thành phố Phú Quốc",
+              "wards": [
+                  "Phường Dương Đông",
+                  "Phường An Thới",
+                  "Xã Gành Dầu",
+                  "Xã Cửa Cạn",
+                  "Xã Hàm Ninh",
+                  "Xã Dương Tơ",
+                  "Xã Bãi Thơm"
+              ],
+              "streets": [
+                  "Trần Hưng Đạo",
+                  "30 Tháng 4",
+                  "Nguyễn Trung Trực",
+                  "Đường Bào"
+              ]
+          },
+          {
+              "id": "kg-rg",
+              "name": "Thành phố Rạch Giá",
+              "wards": [
+                  "Phường Vĩnh Thanh Vân",
+                  "Phường Vĩnh Lạc",
+                  "Phường An Hòa"
+              ],
+              "streets": [
+                  "Nguyễn Trung Trực",
+                  "Trần Phú",
+                  "3 Tháng 2"
+              ]
+          },
+          {
+              "id": "kg-ht",
+              "name": "Thành phố Hà Tiên",
+              "wards": [
+                  "Phường Đông Hồ",
+                  "Phường Bình San",
+                  "Phường Pháo Đài"
+              ],
+              "streets": [
+                  "Mạc Cửu",
+                  "Chi Lăng"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // AN GIANG (Đồng Bằng Sông Cửu Long)
+  // =========================================================================
+  {
+      "id": "ag",
+      "name": "An Giang",
+      "region": "Đồng Bằng Sông Cửu Long",
+      "districts": [
+          {
+              "id": "ag-lx",
+              "name": "Thành phố Long Xuyên",
+              "wards": [
+                  "Phường Mỹ Long",
+                  "Phường Mỹ Bình",
+                  "Phường Mỹ Xuyên"
+              ],
+              "streets": [
+                  "Trần Hưng Đạo",
+                  "Hà Hoàng Hổ"
+              ]
+          },
+          {
+              "id": "ag-cd",
+              "name": "Thành phố Châu Đốc",
+              "wards": [
+                  "Phường Châu Phú A",
+                  "Phường Châu Phú B",
+                  "Phường Núi Sam"
+              ],
+              "streets": [
+                  "Lê Lợi",
+                  "Thủ Khoa Nghĩa"
+              ]
+          },
+          {
+              "id": "ag-tc",
+              "name": "Thị xã Tân Châu",
+              "wards": [
+                  "Phường Long Thạnh",
+                  "Phường Long Hưng"
+              ],
+              "streets": [
+                  "Trần Hưng Đạo"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // BẾN TRE (Đồng Bằng Sông Cửu Long)
+  // =========================================================================
+  {
+      "id": "btre",
+      "name": "Bến Tre",
+      "region": "Đồng Bằng Sông Cửu Long",
+      "districts": [
+          {
+              "id": "btre-tp",
+              "name": "Thành phố Bến Tre",
+              "wards": [
+                  "Phường An Hội",
+                  "Phường Phú Khương",
+                  "Phường Phú Tân"
+              ],
+              "streets": [
+                  "Đồng Khởi",
+                  "Nguyễn Huệ",
+                  "Đại lộ Đồng Khởi"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // ĐỒNG THÁP (Đồng Bằng Sông Cửu Long)
+  // =========================================================================
+  {
+      "id": "dt",
+      "name": "Đồng Tháp",
+      "region": "Đồng Bằng Sông Cửu Long",
+      "districts": [
+          {
+              "id": "dt-cl",
+              "name": "Thành phố Cao Lãnh",
+              "wards": [
+                  "Phường 1",
+                  "Phường 2",
+                  "Phường 4"
+              ],
+              "streets": [
+                  "Nguyễn Huệ",
+                  "Lý Thường Kiệt"
+              ]
+          },
+          {
+              "id": "dt-sd",
+              "name": "Thành phố Sa Đéc",
+              "wards": [
+                  "Phường 1",
+                  "Phường 2",
+                  "Phường An Hòa"
+              ],
+              "streets": [
+                  "Hùng Vương",
+                  "Nguyễn Sinh Sắc"
+              ]
+          },
+          {
+              "id": "dt-hn",
+              "name": "Thành phố Hồng Ngự",
+              "wards": [
+                  "Phường An Lộc",
+                  "Phường An Thạnh"
+              ],
+              "streets": [
+                  "Trần Hưng Đạo"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // VĨNH LONG (Đồng Bằng Sông Cửu Long)
+  // =========================================================================
+  {
+      "id": "vl",
+      "name": "Vĩnh Long",
+      "region": "Đồng Bằng Sông Cửu Long",
+      "districts": [
+          {
+              "id": "vl-tp",
+              "name": "Thành phố Vĩnh Long",
+              "wards": [
+                  "Phường 1",
+                  "Phường 2",
+                  "Phường 9"
+              ],
+              "streets": [
+                  "Lê Thái Tổ",
+                  "Phạm Thái Bường"
+              ]
+          },
+          {
+              "id": "vl-bm",
+              "name": "Thị xã Bình Minh",
+              "wards": [
+                  "Phường Cái Vồn",
+                  "Phường Thành Phước"
+              ],
+              "streets": [
+                  "Ngô Quyền"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // TRÀ VINH (Đồng Bằng Sông Cửu Long)
+  // =========================================================================
+  {
+      "id": "tv",
+      "name": "Trà Vinh",
+      "region": "Đồng Bằng Sông Cửu Long",
+      "districts": [
+          {
+              "id": "tv-tp",
+              "name": "Thành phố Trà Vinh",
+              "wards": [
+                  "Phường 1",
+                  "Phường 2",
+                  "Phường 7"
+              ],
+              "streets": [
+                  "Phạm Ngũ Lão",
+                  "Nguyễn Thị Minh Khai"
+              ]
+          },
+          {
+              "id": "tv-dh",
+              "name": "Thị xã Duyên Hải",
+              "wards": [
+                  "Phường 1",
+                  "Phường 2"
+              ],
+              "streets": [
+                  "Lý Tự Trọng"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // HẬU GIANG (Đồng Bằng Sông Cửu Long)
+  // =========================================================================
+  {
+      "id": "hg-giang",
+      "name": "Hậu Giang",
+      "region": "Đồng Bằng Sông Cửu Long",
+      "districts": [
+          {
+              "id": "hg-vt",
+              "name": "Thành phố Vị Thanh",
+              "wards": [
+                  "Phường 1",
+                  "Phường 3",
+                  "Phường 5"
+              ],
+              "streets": [
+                  "Trần Hưng Đạo",
+                  "Nguyễn Huệ"
+              ]
+          },
+          {
+              "id": "hg-nb",
+              "name": "Thành phố Ngã Bảy",
+              "wards": [
+                  "Phường Ngã Bảy",
+                  "Phường Lái Hiếu"
+              ],
+              "streets": [
+                  "Hùng Vương"
+              ]
+          },
+          {
+              "id": "hg-lm",
+              "name": "Thị xã Long Mỹ",
+              "wards": [
+                  "Phường Thuận An",
+                  "Phường Bình Thạnh"
+              ],
+              "streets": [
+                  "30 Tháng 4"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // SÓC TRĂNG (Đồng Bằng Sông Cửu Long)
+  // =========================================================================
+  {
+      "id": "st",
+      "name": "Sóc Trăng",
+      "region": "Đồng Bằng Sông Cửu Long",
+      "districts": [
+          {
+              "id": "st-tp",
+              "name": "Thành phố Sóc Trăng",
+              "wards": [
+                  "Phường 1",
+                  "Phường 2",
+                  "Phường 3"
+              ],
+              "streets": [
+                  "Hai Bà Trưng",
+                  "Lê Hồng Phong"
+              ]
+          },
+          {
+              "id": "st-vn",
+              "name": "Thị xã Vĩnh Châu",
+              "wards": [
+                  "Phường 1",
+                  "Phường 2"
+              ],
+              "streets": [
+                  "Trần Hưng Đạo"
+              ]
+          },
+          {
+              "id": "st-nn",
+              "name": "Thị xã Ngã Năm",
+              "wards": [
+                  "Phường 1",
+                  "Phường 2"
+              ],
+              "streets": [
+                  "Mai Thanh Thế"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // BẠC LIÊU (Đồng Bằng Sông Cửu Long)
+  // =========================================================================
+  {
+      "id": "bl",
+      "name": "Bạc Liêu",
+      "region": "Đồng Bằng Sông Cửu Long",
+      "districts": [
+          {
+              "id": "bl-tp",
+              "name": "Thành phố Bạc Liêu",
+              "wards": [
+                  "Phường 1",
+                  "Phường 2",
+                  "Phường 3",
+                  "Phường 7"
+              ],
+              "streets": [
+                  "Trần Phú",
+                  "Hai Bà Trưng"
+              ]
+          },
+          {
+              "id": "bl-gr",
+              "name": "Thị xã Giá Rai",
+              "wards": [
+                  "Phường 1",
+                  "Phường Hộ Phòng"
+              ],
+              "streets": [
+                  "Quốc lộ 1A"
+              ]
+          }
+      ]
+  },
+
+  // =========================================================================
+  // CÀ MAU (Đồng Bằng Sông Cửu Long)
+  // =========================================================================
+  {
+      "id": "cm",
+      "name": "Cà Mau",
+      "region": "Đồng Bằng Sông Cửu Long",
+      "districts": [
+          {
+              "id": "cm-tp",
+              "name": "Thành phố Cà Mau",
+              "wards": [
+                  "Phường 1",
+                  "Phường 2",
+                  "Phường 5",
+                  "Phường 8"
+              ],
+              "streets": [
+                  "Phan Ngọc Hiển",
+                  "Trần Hưng Đạo",
+                  "Nguyễn Tất Thành"
+              ]
+          }
+      ]
+  },
+
 ];
 export const DEFAULT_HCM_STREETS = [
   'Nguyễn Huệ',
