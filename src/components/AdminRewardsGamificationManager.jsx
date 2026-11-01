@@ -1008,7 +1008,7 @@ export default function AdminRewardsGamificationManager() {
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">Rương / ngày</span>
                   </div>
-                  <div className="text-[10px] text-slate-500">Mặc định: 1 rương / ngày đối với mỗi tài khoản thành viên.</div>
+                  <div className="text-[10px] text-slate-500">Mặc định: 1 rương / ngày với mỗi tài khoản khách và tk thường.</div>
                 </div>
 
                 {/* Thời gian đọc bài chống bot */}
