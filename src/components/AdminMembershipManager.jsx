@@ -616,12 +616,12 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                     -{pkg.savePercent}%
                   </span>
                 </h4>
-                <p className="text-xs text-slate-400 mt-1 min-h-[32px] line-clamp-2">
+                <p className="text-xs text-slate-400 mt-1 line-clamp-2">
                   {pkg.targetAudience}
                 </p>
 
                 {/* Price Display */}
-                <div className="my-4 p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
+                <div className="mt-2.5 mb-3.5 p-4 rounded-2xl bg-slate-900/80 border border-slate-800">
                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                     Đơn giá niêm yết:
                   </div>
@@ -1709,12 +1709,12 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                         </div>
 
                         <h4 className="text-xl font-black text-slate-900">{editingPkg.name || 'Tên Gói Hội Viên'}</h4>
-                        <p className="text-xs text-slate-500 mt-1 min-h-[32px] line-clamp-2">
+                        <p className="text-xs text-slate-500 mt-1 line-clamp-2">
                           {editingPkg.targetAudience || 'Mô tả đối tượng khách hàng phù hợp...'}
                         </p>
 
                         {/* Price box */}
-                        <div className="my-4 p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+                        <div className="mt-2.5 mb-3.5 p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
                           <div className="flex items-baseline gap-1">
                             <span className="text-2xl font-black text-slate-900 tracking-tight font-mono">
                               {Number(activeCycle.price || 0).toLocaleString('vi-VN')}

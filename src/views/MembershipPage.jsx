@@ -433,12 +433,12 @@ export default function MembershipPage() {
                   </div>
 
                   <h3 className="text-xl font-black text-slate-900">{pkg.name}</h3>
-                  <p className="text-xs text-slate-500 mt-1 min-h-[36px]">
+                  <p className="text-xs text-slate-500 mt-1">
                     {pkg.targetAudience}
                   </p>
 
                   {/* Price display */}
-                  <div className="my-5 p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                  <div className="mt-2.5 mb-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
                     <div className="flex items-baseline gap-1">
                       <span className="text-3xl font-black text-slate-900 tracking-tight">
                         {cycle.price.toLocaleString('vi-VN')}
