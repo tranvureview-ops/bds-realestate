@@ -1139,9 +1139,6 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                     {vipPkg.shortName}
                   </span>
                 )}
-                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800">
-                  {property.demand === 'sale' ? 'Đang Mở Bán' : 'Cho Thuê'}
-                </span>
 
                 {/* Tin đã xác thực: Badge màu xanh lục (Ẩn hoàn toàn khi chưa xác thực) */}
                 {Boolean(property.is_verified || property.isVerified) && (
