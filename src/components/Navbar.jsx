@@ -78,7 +78,7 @@ export default function Navbar() {
     let bHighlight = headerConfig?.brandHighlight?.trim() || '';
 
     if (!bName && !bHighlight) {
-      const fullText = (systemConfig?.brandShortName || 'ĐẤT BIỂN ĐÀ NẴNG').trim();
+      const fullText = (systemConfig?.brandShortName || 'KÊNH NHÀ ĐẤT 24H').trim();
       const domainMatch = fullText.match(/^(.+?)(\.(?:com\.vn|vn|com|net|org))$/i);
       if (domainMatch) {
         bName = domainMatch[1];

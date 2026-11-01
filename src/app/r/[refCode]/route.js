@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 /**
  * Route Handler xử lý Shortlink Tiếp thị liên kết (Affiliate Shortlink)
- * Định dạng: https://datbiendanang.vn/r/[refCode]
+ * Định dạng: https://kenhnhadat24h.com.vn/r/[refCode]
  * Quy trình:
  * 1. Trích xuất và chuẩn hóa refCode
  * 2. Thiết lập Cookie 30 ngày (bds_aff_ref)

@@ -17,7 +17,7 @@
         "name": "Nguyễn Văn Tuấn",
         "role": "broker",
         "zalo": "0908123456",
-        "email": "tuan.batdongsan@datbiendanang.vn",
+        "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
         "phone": "0908 123 456",
         "title": "Môi Giới Chuyên Nghiệp",
         "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -80,11 +80,11 @@
       "downgradedFromVip": null,
       "verificationStatus": "verified",
       "verification_status": "verified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-027",
@@ -103,7 +103,7 @@
         "name": "Nguyễn Văn Tuấn",
         "role": "broker",
         "zalo": "0908123456",
-        "email": "tuan.batdongsan@datbiendanang.vn",
+        "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
         "phone": "0908 123 456",
         "title": "Môi Giới Chuyên Nghiệp",
         "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -169,11 +169,11 @@
       "downgradedFromVip": null,
       "verificationStatus": "verified",
       "verification_status": "verified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-031",
@@ -255,11 +255,11 @@
       "downgradedFromVip": null,
       "verificationStatus": "verified",
       "verification_status": "verified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-028",
@@ -342,11 +342,11 @@
       "downgradedFromVip": null,
       "verificationStatus": "verified",
       "verification_status": "verified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-026",
@@ -436,11 +436,11 @@
       "downgradedFromVip": null,
       "verificationStatus": "verified",
       "verification_status": "verified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-029",
@@ -523,11 +523,11 @@
       "downgradedFromVip": null,
       "verificationStatus": "verified",
       "verification_status": "verified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-023",
@@ -621,11 +621,11 @@
       "downgradedFromVip": null,
       "verificationStatus": "unverified",
       "verification_status": "unverified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-015",
@@ -683,7 +683,7 @@
       "expiresAt": "2026-11-15T15:00:00+00:00",
       "furniture": "Full nội thất từng căn studio hiện đại, thang máy thẻ từ",
       "isDeleted": false,
-      "updatedAt": "2026-10-27T23:22:18.455Z",
+      "updatedAt": "2026-10-31T13:28:52.607Z",
       "callsCount": 95,
       "isVerified": false,
       "pricePerM2": "168.2 triệu/m²",
@@ -719,11 +719,11 @@
       "downgradedFromVip": null,
       "verificationStatus": "unverified",
       "verification_status": "unverified",
+      "isTreasureHuntActive": true,
+      "treasureHuntExpiresAt": "2026-11-15T13:28:52.607Z",
       "verificationDocuments": null,
-      "verificationRejectReason": null,
-      "isTreasureHuntActive": false,
-      "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "treasureHuntActivatedAt": "2026-10-31T13:28:52.607Z",
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-014",
@@ -764,34 +764,36 @@
       "roadType": "car_pass",
       "autoRenew": false,
       "direction": "Đông Nam",
-      "expiresAt": "2026-10-30T14:57:50.043+00:00",
+      "expiresAt": "2026-12-29T14:57:50.043+00:00",
       "furniture": "Full nội thất cao cấp",
       "isDeleted": false,
       "updatedAt": "2026-10-27T23:22:18.455Z",
+      "isFeatured": false,
       "isVerified": false,
       "pricePerM2": "73.3 tr/m²",
       "contactName": "Tran Van Vu",
       "description": "Chính chủ cần bán căn hộ cao cấp The Filmore mặt đường Bạch Đằng ven sông Hàn:\n- Tầm nhìn triệu đô trực diện Cầu Rồng và Cầu Trần Thị Lý.\n- Tiện ích chuẩn khách sạn 5 sao: Hồ bơi vô cực nước ấm, phòng tiệc cigar & rượu vang, gym trên không.",
       "is_verified": false,
-      "listingDays": 15,
+      "listingDays": 60,
       "publishedAt": "2026-10-15T14:57:50.044+00:00",
       "contactPhone": "0905 467 138",
       "entranceRoad": 20,
       "priceDisplay": "5.5 tỷ",
       "propertyType": "apartment",
-      "vipExpiredAt": null,
-      "vipPackageId": "vip-gold",
+      "vipExpiredAt": "2026-10-30T14:57:50.043+00:00",
+      "vipPackageId": "normal",
       "queuePriority": "priority_gold",
+      "hasDualListing": false,
       "balconyDirection": "Đông",
       "propertyTypeName": "Căn hộ chung cư",
-      "downgradedFromVip": null,
+      "downgradedFromVip": "vip-gold",
       "verificationStatus": "unverified",
       "verification_status": "unverified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-013",
@@ -820,7 +822,7 @@
         "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
         "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80"
       ],
-      "status": "active",
+      "status": "expired",
       "street": "Võ Nguyên Giáp",
       "userId": "user-1792645437733-545",
       "address": "Võ Nguyên Giáp, (Dự án: The Sang Residence), Phường Phước Mỹ, Quận Sơn Trà, Đà Nẵng",
@@ -855,11 +857,11 @@
       "downgradedFromVip": null,
       "verificationStatus": "verified",
       "verification_status": "verified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-012",
@@ -876,7 +878,7 @@
         "name": "Nguyễn Văn Tuấn",
         "role": "broker",
         "zalo": "0908123456",
-        "email": "tuan.batdongsan@datbiendanang.vn",
+        "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
         "phone": "0908 123 456",
         "title": "Môi Giới Chuyên Nghiệp",
         "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -900,34 +902,36 @@
       "roadType": "car_pass",
       "autoRenew": false,
       "direction": "Đông Nam",
-      "expiresAt": "2026-10-30T15:05:24.756+00:00",
+      "expiresAt": "2026-12-29T15:05:24.756+00:00",
       "furniture": "Full nội thất cao cấp",
       "isDeleted": false,
       "updatedAt": "2026-10-27T23:22:18.455Z",
+      "isFeatured": false,
       "isVerified": false,
       "pricePerM2": "64.0 tr/m²",
       "contactName": "Nguyễn Văn Tuấn",
       "description": "Chính chủ cần bán gấp căn hộ cao cấp view sông Hàn thoáng đẹp:\n- Diện tích thông thủy: 75m2, thiết kế tối ưu 2 phòng ngủ, 2 WC riêng biệt.\n- Cửa chính hướng Tây, ban công hướng Đông ngắm trực diện Cầu Sông Hàn thơ mộng.\n- Đầy đủ nội thất cao cấp: Tủ bếp gỗ An Cường, bếp từ Bosch, điều hòa âm trần Daikin, sàn gỗ nhập khẩu, khóa cửa thông minh Hafele.",
       "is_verified": false,
-      "listingDays": 15,
+      "listingDays": 60,
       "publishedAt": "2026-10-15T14:49:35.321+00:00",
       "contactPhone": "0908 123 456",
       "entranceRoad": 18,
       "priceDisplay": "4.8 tỷ",
       "propertyType": "apartment",
-      "vipExpiredAt": null,
-      "vipPackageId": "vip-gold",
+      "vipExpiredAt": "2026-10-30T15:05:24.756+00:00",
+      "vipPackageId": "normal",
       "queuePriority": "priority_gold",
+      "hasDualListing": false,
       "balconyDirection": "Đông",
       "propertyTypeName": "Căn hộ chung cư",
-      "downgradedFromVip": null,
+      "downgradedFromVip": "vip-gold",
       "verificationStatus": "unverified",
       "verification_status": "unverified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-011",
@@ -968,34 +972,36 @@
       "roadType": "car_pass",
       "autoRenew": false,
       "direction": "Đông Nam",
-      "expiresAt": "2026-10-30T14:49:09.983+00:00",
+      "expiresAt": "2026-12-29T14:49:09.983+00:00",
       "furniture": "Full nội thất cao cấp",
       "isDeleted": false,
       "updatedAt": "2026-10-27T23:22:18.455Z",
+      "isFeatured": false,
       "isVerified": false,
       "pricePerM2": "29.3 tr/m²",
       "contactName": "Tran Van Vu",
       "description": "Chính chủ cần bán gấp căn hộ FPT Plaza 2 khu đô thị FPT City Đà Nẵng:\n- Diện tích thông thủy: 75m2, thiết kế tối ưu 2 phòng ngủ, 2 WC riêng biệt.\n- Cửa chính hướng Tây, ban công hướng Đông Nam thoáng mát nhìn về sông Cổ Cò.\n- Đầy đủ nội thất: Tủ bếp, bếp từ, điều hòa, sàn gạch bóng kiếng, khóa cửa thông minh.\n- Tiện ích nội khu đồng bộ: Công viên FPT, hồ bơi, trường quốc tế FPT School, đại học FPT, an ninh 24/7.",
       "is_verified": false,
-      "listingDays": 15,
+      "listingDays": 60,
       "publishedAt": "2026-10-15T14:49:09.983+00:00",
       "contactPhone": "0905 467 138",
       "entranceRoad": 15,
       "priceDisplay": "2.2 tỷ",
       "propertyType": "apartment",
-      "vipExpiredAt": null,
-      "vipPackageId": "vip-silver",
+      "vipExpiredAt": "2026-10-30T14:49:09.983+00:00",
+      "vipPackageId": "normal",
       "queuePriority": "priority_silver",
+      "hasDualListing": false,
       "balconyDirection": "Đông Nam",
       "propertyTypeName": "Căn hộ chung cư",
-      "downgradedFromVip": null,
+      "downgradedFromVip": "vip-silver",
       "verificationStatus": "unverified",
       "verification_status": "unverified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-025",
@@ -1026,7 +1032,7 @@
         "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
         "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1200&q=80"
       ],
-      "status": "active",
+      "status": "expired",
       "street": "Hồ Nghinh",
       "userId": "user-1792645437733-545",
       "address": "Đường Hồ Nghinh, Phường Phước Mỹ, Quận Sơn Trà, Đà Nẵng",
@@ -1078,11 +1084,11 @@
       "downgradedFromVip": null,
       "verificationStatus": "unverified",
       "verification_status": "unverified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-001",
@@ -1101,7 +1107,7 @@
         "name": "Nguyễn Văn Tuấn",
         "role": "broker",
         "zalo": "0908123456",
-        "email": "tuan.batdongsan@datbiendanang.vn",
+        "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
         "phone": "0908 123 456",
         "title": "Môi Giới Chuyên Nghiệp",
         "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -1192,11 +1198,11 @@
       "downgradedFromVip": null,
       "verificationStatus": "verified",
       "verification_status": "verified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-003",
@@ -1215,7 +1221,7 @@
         "name": "Nguyễn Văn Tuấn",
         "role": "broker",
         "zalo": "0908123456",
-        "email": "tuan.batdongsan@datbiendanang.vn",
+        "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
         "phone": "0908 123 456",
         "title": "Môi Giới Chuyên Nghiệp",
         "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -1245,26 +1251,28 @@
       ],
       "autoRenew": false,
       "direction": "Tây Bắc",
-      "expiresAt": "2026-10-30T10:00:00+00:00",
+      "expiresAt": "2026-12-29T10:00:00+00:00",
       "furniture": "Full điều hòa âm trần Daikin, hệ thống PCCC kiểm định chuẩn",
       "isDeleted": false,
       "updatedAt": "2026-10-27T23:22:18.454Z",
       "callsCount": 84,
+      "isFeatured": false,
       "isVerified": false,
       "pricePerM2": "412.5 triệu/m²",
       "viewsCount": 2915,
       "contactName": "Nguyễn Văn Tuấn",
       "description": "Vị trí kim cương ngay trục đường tài chính huyết mạch Nguyễn Văn Linh - Cầu Rồng.\n- Mặt tiền khủng 7.2m vỉa hè rộng 8m thênh thang, ô tô đỗ thoải mái ngày đêm.\n- Xây 8 tầng kiên cố khung bê tông cốt thép, thang máy nhập khẩu tốc độ cao tải trọng 1000kg.\n- Hiện đang cho Ngân hàng và Thẩm mỹ viện quốc tế thuê hợp đồng dài hạn 180 triệu/tháng (dòng tiền sinh lời 4.5%/năm).",
       "is_verified": false,
-      "listingDays": 15,
+      "listingDays": 60,
       "publishedAt": "2026-10-15T13:03:41.203+00:00",
       "contactPhone": "0908 123 456",
       "entranceRoad": 24,
       "priceDisplay": "49.5 tỷ",
       "propertyType": "street-house",
-      "vipExpiredAt": null,
-      "vipPackageId": "vip-gold",
+      "vipExpiredAt": "2026-10-30T10:00:00+00:00",
+      "vipPackageId": "normal",
       "queuePriority": "priority_gold",
+      "hasDualListing": false,
       "balconyDirection": "Tây Bắc",
       "nearbyFacilities": [
         {
@@ -1281,9 +1289,11 @@
         }
       ],
       "propertyTypeName": "Nhà mặt phố",
-      "downgradedFromVip": null,
+      "downgradedFromVip": "vip-gold",
       "verificationStatus": "pending",
       "verification_status": "pending",
+      "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
       "verificationDocuments": {
         "notes": "Sổ hồng chính chủ 8 tầng mặt phố Nguyễn Văn Linh Hải Châu, đã công chứng sao y bản chính.",
         "backImage": "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&w=1200&q=80",
@@ -1291,10 +1301,8 @@
         "frontImage": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=1200&q=80",
         "submittedAt": "2026-10-28T04:30:00.000Z"
       },
-      "verificationRejectReason": null,
-      "isTreasureHuntActive": false,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-024",
@@ -1343,26 +1351,28 @@
       ],
       "autoRenew": false,
       "direction": "Đông",
-      "expiresAt": "2026-10-30T13:00:00+00:00",
+      "expiresAt": "2026-12-29T13:00:00+00:00",
       "furniture": "Hoàn thiện 4 tầng cao cấp, có ô chờ thang máy",
       "isDeleted": false,
       "updatedAt": "2026-10-27T23:22:18.455Z",
       "callsCount": 64,
+      "isFeatured": false,
       "isVerified": true,
       "pricePerM2": "74.7 triệu/m²",
       "viewsCount": 2280,
       "contactName": "Tran Van Vu",
       "description": "Bán căn Shophouse thương mại trục đại lộ lớn nhất Hòa Xuân - đường Nguyễn Phước Lan rộng 30m:\n- Vị trí buôn bán kinh doanh đắc địa nhất khu vực, vỉa hè rộng 6m đỗ xe thênh thang.\n- Nhà xây dựng 4 tầng kiến trúc tân cổ điển, phù hợp mở phòng khám, spa, văn phòng công ty hoặc ngân hàng.",
       "is_verified": true,
-      "listingDays": 15,
+      "listingDays": 60,
       "publishedAt": "2026-10-15T13:00:00+00:00",
       "contactPhone": "0905 467 138",
       "entranceRoad": 30,
       "priceDisplay": "11.2 tỷ",
       "propertyType": "shophouse",
-      "vipExpiredAt": null,
-      "vipPackageId": "vip-gold",
+      "vipExpiredAt": "2026-10-30T13:00:00+00:00",
+      "vipPackageId": "normal",
       "queuePriority": "priority_gold",
+      "hasDualListing": false,
       "balconyDirection": "Đông",
       "nearbyFacilities": [
         {
@@ -1375,14 +1385,14 @@
         }
       ],
       "propertyTypeName": "Shophouse",
-      "downgradedFromVip": null,
+      "downgradedFromVip": "vip-gold",
       "verificationStatus": "verified",
       "verification_status": "verified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-010",
@@ -1399,7 +1409,7 @@
         "name": "Nguyễn Văn Tuấn",
         "role": "broker",
         "zalo": "0908123456",
-        "email": "tuan.batdongsan@datbiendanang.vn",
+        "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
         "phone": "0908 123 456",
         "title": "Môi Giới Chuyên Nghiệp",
         "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -1423,34 +1433,36 @@
       "roadType": "car_pass",
       "autoRenew": false,
       "direction": "Đông Nam",
-      "expiresAt": "2026-10-30T12:04:10.754+00:00",
+      "expiresAt": "2026-12-29T12:04:10.754+00:00",
       "furniture": "Full nội thất cao cấp",
       "isDeleted": false,
       "updatedAt": "2026-10-27T23:22:18.455Z",
+      "isFeatured": false,
       "isVerified": true,
       "pricePerM2": "46.7 tr/m²",
       "contactName": "Nguyễn Văn Tuấn",
       "description": "Chính chủ cần bán gấp căn hộ cao cấp The Monarchy view sông Hàn tuyệt đẹp:\n- Diện tích thông thủy: 75m2, thiết kế tối ưu 2 phòng ngủ, 2 WC riêng biệt.\n- Cửa chính hướng Đông, ban công hướng Tây ngắm cầu Rồng phun lửa và pháo hoa sông Hàn.\n- Đầy đủ nội thất cao cấp: Tủ bếp gỗ An Cường, bếp từ Bosch, điều hòa âm trần Daikin, sàn gỗ nhập khẩu, khóa cửa thông minh Hafele.",
       "is_verified": true,
-      "listingDays": 15,
+      "listingDays": 60,
       "publishedAt": "2026-10-15T12:04:10.754+00:00",
       "contactPhone": "0908 123 456",
       "entranceRoad": 15,
       "priceDisplay": "3.5 tỷ",
       "propertyType": "apartment",
-      "vipExpiredAt": null,
-      "vipPackageId": "vip-gold",
+      "vipExpiredAt": "2026-10-30T12:04:10.754+00:00",
+      "vipPackageId": "normal",
       "queuePriority": "priority_gold",
+      "hasDualListing": false,
       "balconyDirection": "Tây",
       "propertyTypeName": "Căn hộ chung cư",
-      "downgradedFromVip": null,
+      "downgradedFromVip": "vip-gold",
       "verificationStatus": "verified",
       "verification_status": "verified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-017",
@@ -1544,11 +1556,11 @@
       "downgradedFromVip": null,
       "verificationStatus": "verified",
       "verification_status": "verified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-016",
@@ -1567,7 +1579,7 @@
         "name": "Nguyễn Văn Tuấn",
         "role": "broker",
         "zalo": "0908123456",
-        "email": "tuan.batdongsan@datbiendanang.vn",
+        "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
         "phone": "0908 123 456",
         "title": "Môi Giới Chuyên Nghiệp",
         "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -1596,26 +1608,28 @@
       ],
       "autoRenew": false,
       "direction": "Đông Nam",
-      "expiresAt": "2026-10-30T09:30:00+00:00",
+      "expiresAt": "2026-12-29T09:30:00+00:00",
       "furniture": "Full nội thất cao cấp: Giường nệm xịn, sofa, smart TV, máy giặt riêng, bếp từ",
       "isDeleted": false,
       "updatedAt": "2026-10-27T23:22:18.455Z",
       "callsCount": 48,
+      "isFeatured": false,
       "isVerified": true,
       "pricePerM2": "128.5 nghìn/m²",
       "viewsCount": 1540,
       "contactName": "Nguyễn Văn Tuấn",
       "description": "Căn hộ dịch vụ mới 100% cách bãi biển Mỹ Khê chỉ 3 phút đi bộ:\n- Tòa nhà có thang máy, bảo vệ 24/7, camera an ninh, hầm để xe máy rộng rãi.\n- Miễn phí dọn phòng 1 lần/tuần, nước sinh hoạt, wifi tốc độ cao.\n- Phù hợp khách nước ngoài, chuyên gia làm việc tại Đà Nẵng hoặc người đi công tác dài hạn.",
       "is_verified": true,
-      "listingDays": 15,
+      "listingDays": 60,
       "publishedAt": "2026-10-15T09:30:00+00:00",
       "contactPhone": "0908 123 456",
       "entranceRoad": 6,
       "priceDisplay": "4.5 Triệu/tháng",
       "propertyType": "mini-apartment",
-      "vipExpiredAt": null,
-      "vipPackageId": "vip-gold",
+      "vipExpiredAt": "2026-10-30T09:30:00+00:00",
+      "vipPackageId": "normal",
       "queuePriority": "priority_gold",
+      "hasDualListing": false,
       "balconyDirection": "Đông",
       "nearbyFacilities": [
         {
@@ -1628,14 +1642,14 @@
         }
       ],
       "propertyTypeName": "Chung cư mini, căn hộ dịch vụ",
-      "downgradedFromVip": null,
+      "downgradedFromVip": "vip-gold",
       "verificationStatus": "verified",
       "verification_status": "verified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-019",
@@ -1683,26 +1697,28 @@
       ],
       "autoRenew": false,
       "direction": "Đông",
-      "expiresAt": "2026-10-30T07:00:00+00:00",
+      "expiresAt": "2026-12-29T07:00:00+00:00",
       "furniture": "Đầy đủ nhà gỗ mộc mạc, ao cá, vườn bưởi da xanh và cây ăn trái",
       "isDeleted": false,
       "updatedAt": "2026-10-27T23:22:18.455Z",
       "callsCount": 56,
+      "isFeatured": false,
       "isVerified": true,
       "pricePerM2": "3.56 triệu/m²",
       "viewsCount": 2150,
       "contactName": "Tran Van Vu",
       "description": "Cần bán khu trang trại nghỉ dưỡng sinh thái tâm huyết ven suối mát lành tại Hòa Ninh, Hòa Vang Đà Nẵng:\n- Diện tích 2.500m2 thế đất tựa sơn nghinh thủy, lưng tựa núi, mặt trước suối đá róc rách quanh năm.\n- Đã xây dựng sẵn căn nhà gỗ phong cách Bắc Âu tiện nghi, ao nuôi cá Koi, vườn cây ăn quả đang thu hoạch.\n- Khí hậu mát mẻ như Đà Lạt, chỉ cách khu du lịch Bà Nà Hills 10 phút lái xe.",
       "is_verified": true,
-      "listingDays": 15,
+      "listingDays": 60,
       "publishedAt": "2026-10-15T07:00:00+00:00",
       "contactPhone": "0905 467 138",
       "entranceRoad": 7.5,
       "priceDisplay": "8.9 tỷ",
       "propertyType": "farm-resort",
-      "vipExpiredAt": null,
-      "vipPackageId": "vip-gold",
+      "vipExpiredAt": "2026-10-30T07:00:00+00:00",
+      "vipPackageId": "normal",
       "queuePriority": "priority_gold",
+      "hasDualListing": false,
       "balconyDirection": "Đông",
       "nearbyFacilities": [
         {
@@ -1719,14 +1735,14 @@
         }
       ],
       "propertyTypeName": "Trang trại, khu nghỉ dưỡng",
-      "downgradedFromVip": null,
+      "downgradedFromVip": "vip-gold",
       "verificationStatus": "verified",
       "verification_status": "verified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-009",
@@ -1756,7 +1772,7 @@
       "images": [
         "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80"
       ],
-      "status": "active",
+      "status": "expired",
       "street": "Cách Mạng Tháng 8",
       "userId": "user-1792645437733-545",
       "address": "Đường Cách Mạng Tháng 8, Phường Khuê Trung, Quận Cẩm Lệ, Đà Nẵng",
@@ -1806,11 +1822,11 @@
       "downgradedFromVip": null,
       "verificationStatus": "unverified",
       "verification_status": "unverified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-002",
@@ -1829,7 +1845,7 @@
         "name": "Nguyễn Văn Tuấn",
         "role": "broker",
         "zalo": "0908123456",
-        "email": "tuan.batdongsan@datbiendanang.vn",
+        "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
         "phone": "0908 123 456",
         "title": "Môi Giới Chuyên Nghiệp",
         "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -1908,11 +1924,11 @@
       "downgradedFromVip": null,
       "verificationStatus": "verified",
       "verification_status": "verified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-004",
@@ -1931,7 +1947,7 @@
         "name": "Nguyễn Văn Tuấn",
         "role": "broker",
         "zalo": "0908123456",
-        "email": "tuan.batdongsan@datbiendanang.vn",
+        "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
         "phone": "0908 123 456",
         "title": "Môi Giới Chuyên Nghiệp",
         "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -1969,26 +1985,28 @@
       ],
       "autoRenew": false,
       "direction": "Đông Bắc",
-      "expiresAt": "2026-10-29T14:20:00+00:00",
+      "expiresAt": "2026-12-28T14:20:00+00:00",
       "furniture": "Nội thất hiện đại gỗ An Cường cao cấp, đồ điện tử Samsung",
       "isDeleted": false,
       "updatedAt": "2026-10-27T23:22:18.455Z",
       "callsCount": 65,
+      "isFeatured": false,
       "isVerified": true,
       "pricePerM2": "72.3 triệu/m²",
       "viewsCount": 1980,
       "contactName": "Nguyễn Văn Tuấn",
       "description": "Cần bán gấp căn hộ Sun Ponte Residence tháp The Ponte ven bờ sông Hàn, view trực diện Cầu Rồng và Cầu Tình Yêu xanh mát, cực kỳ đẳng cấp.\n- Diện tích 94m² thiết kế 3 phòng ngủ thoáng sáng đón gió sông trong lành.\n- Kết nối trực tiếp trung tâm Hải Châu qua Cầu Rồng chỉ 2 phút di chuyển.\n- Tiện ích nội khu đẳng cấp: Bến du thuyền Sun Group, hồ bơi vô cực view pháo hoa quốc tế, phòng gym tiêu chuẩn 5 sao.",
       "is_verified": true,
-      "listingDays": 15,
+      "listingDays": 60,
       "publishedAt": "2026-10-14T14:20:00+00:00",
       "contactPhone": "0908 123 456",
       "entranceRoad": 20,
       "priceDisplay": "6.8 tỷ",
       "propertyType": "apartment",
-      "vipExpiredAt": null,
-      "vipPackageId": "vip-gold",
+      "vipExpiredAt": "2026-10-29T14:20:00+00:00",
+      "vipPackageId": "normal",
       "queuePriority": "priority_gold",
+      "hasDualListing": false,
       "balconyDirection": "Tây",
       "nearbyFacilities": [
         {
@@ -2005,14 +2023,14 @@
         }
       ],
       "propertyTypeName": "Căn hộ chung cư",
-      "downgradedFromVip": null,
+      "downgradedFromVip": "vip-gold",
       "verificationStatus": "verified",
       "verification_status": "verified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-021",
@@ -2060,26 +2078,28 @@
       ],
       "autoRenew": false,
       "direction": "Đông Bắc",
-      "expiresAt": "2026-10-29T11:00:00+00:00",
+      "expiresAt": "2026-12-28T11:00:00+00:00",
       "furniture": "Khung thép tiền chế zamil kiên cố, nền bê tông chịu tải 5 tấn/m2, trạm điện 250kVA",
       "isDeleted": false,
       "updatedAt": "2026-10-27T23:22:18.455Z",
       "callsCount": 52,
+      "isFeatured": false,
       "isVerified": true,
       "pricePerM2": "12.1 triệu/m²",
       "viewsCount": 1890,
       "contactName": "Tran Van Vu",
       "description": "Chính chủ cần bán kho xưởng tiêu chuẩn hiện đại tại Khu Công Nghiệp Hòa Khánh, Liên Chiểu Đà Nẵng:\n- Diện tích đất 1.200m2, trần cao 8.5m thoáng mát, mái cách nhiệt chống nóng.\n- Có văn phòng điều hành 2 tầng khép kín, bảo vệ, nhà ăn cho công nhân.\n- Đầy đủ trạm biến áp riêng 250kVA, hệ thống PCCC tự động đã nghiệm thu.",
       "is_verified": true,
-      "listingDays": 15,
+      "listingDays": 60,
       "publishedAt": "2026-10-14T11:00:00+00:00",
       "contactPhone": "0905 467 138",
       "entranceRoad": 15,
       "priceDisplay": "14.5 tỷ",
       "propertyType": "warehouse",
-      "vipExpiredAt": null,
-      "vipPackageId": "vip-gold",
+      "vipExpiredAt": "2026-10-29T11:00:00+00:00",
+      "vipPackageId": "normal",
       "queuePriority": "priority_gold",
+      "hasDualListing": false,
       "balconyDirection": "Đông Bắc",
       "nearbyFacilities": [
         {
@@ -2096,14 +2116,14 @@
         }
       ],
       "propertyTypeName": "Kho, nhà xưởng",
-      "downgradedFromVip": null,
+      "downgradedFromVip": "vip-gold",
       "verificationStatus": "verified",
       "verification_status": "verified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-020",
@@ -2151,26 +2171,28 @@
       ],
       "autoRenew": false,
       "direction": "Đông Nam",
-      "expiresAt": "2026-10-29T10:00:00+00:00",
+      "expiresAt": "2026-12-28T10:00:00+00:00",
       "furniture": "Đầy đủ lều glamping cao cấp, khu BBQ ngoài trời, nhà điều hành",
       "isDeleted": false,
       "updatedAt": "2026-10-27T23:22:18.455Z",
       "callsCount": 39,
+      "isFeatured": false,
       "isVerified": false,
       "pricePerM2": "7.000 đ/m²",
       "viewsCount": 1680,
       "contactName": "Tran Van Vu",
       "description": "Cho thuê lại toàn bộ mô hình Glamping & Camping dã ngoại sinh thái đang vận hành có lượng khách ổn định:\n- Diện tích 5.000m2 bãi cỏ xanh mướt trải dài ven suối nước tự nhiên.\n- Đầy đủ 8 lều Glamping safari chống nước, quầy bar cafe, khu vệ sinh sạch sẽ, hệ thống điện chiếu sáng năng lượng mặt trời.\n- Vào kinh doanh khai thác dòng tiền ngay không cần đầu tư thêm.",
       "is_verified": false,
-      "listingDays": 15,
+      "listingDays": 60,
       "publishedAt": "2026-10-14T10:00:00+00:00",
       "contactPhone": "0905 467 138",
       "entranceRoad": 10,
       "priceDisplay": "35 Triệu/tháng",
       "propertyType": "farm-resort",
-      "vipExpiredAt": null,
-      "vipPackageId": "vip-silver",
+      "vipExpiredAt": "2026-10-29T10:00:00+00:00",
+      "vipPackageId": "normal",
       "queuePriority": "priority_silver",
+      "hasDualListing": false,
       "balconyDirection": "Đông Nam",
       "nearbyFacilities": [
         {
@@ -2183,14 +2205,14 @@
         }
       ],
       "propertyTypeName": "Trang trại, khu nghỉ dưỡng",
-      "downgradedFromVip": null,
+      "downgradedFromVip": "vip-silver",
       "verificationStatus": "unverified",
       "verification_status": "unverified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-018",
@@ -2209,7 +2231,7 @@
         "name": "Nguyễn Văn Tuấn",
         "role": "broker",
         "zalo": "0908123456",
-        "email": "tuan.batdongsan@datbiendanang.vn",
+        "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
         "phone": "0908 123 456",
         "title": "Môi Giới Chuyên Nghiệp",
         "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -2276,11 +2298,11 @@
       "downgradedFromVip": "vip-silver",
       "verificationStatus": "unverified",
       "verification_status": "unverified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-022",
@@ -2299,7 +2321,7 @@
         "name": "Nguyễn Văn Tuấn",
         "role": "broker",
         "zalo": "0908123456",
-        "email": "tuan.batdongsan@datbiendanang.vn",
+        "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
         "phone": "0908 123 456",
         "title": "Môi Giới Chuyên Nghiệp",
         "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -2362,11 +2384,11 @@
       "downgradedFromVip": null,
       "verificationStatus": "unverified",
       "verification_status": "unverified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-005",
@@ -2449,11 +2471,11 @@
       "downgradedFromVip": null,
       "verificationStatus": "verified",
       "verification_status": "verified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-006",
@@ -2472,7 +2494,7 @@
         "name": "Nguyễn Văn Tuấn",
         "role": "broker",
         "zalo": "0908123456",
-        "email": "tuan.batdongsan@datbiendanang.vn",
+        "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
         "phone": "0908 123 456",
         "title": "Môi Giới Chuyên Nghiệp",
         "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -2500,7 +2522,7 @@
       ],
       "autoRenew": false,
       "direction": "Đông Nam",
-      "expiresAt": "2026-10-30T14:35:45.775+00:00",
+      "expiresAt": "2026-11-01T19:28:45.11+00:00",
       "furniture": "Đầy đủ nội thất và thiết bị từng phòng ngủ",
       "isDeleted": false,
       "updatedAt": "2026-10-27T23:22:18.455Z",
@@ -2535,11 +2557,11 @@
       "downgradedFromVip": null,
       "verificationStatus": "unverified",
       "verification_status": "unverified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-007",
@@ -2586,7 +2608,7 @@
       ],
       "autoRenew": false,
       "direction": "Tây Nam",
-      "expiresAt": "2026-10-30T02:21:34.538+00:00",
+      "expiresAt": "2026-11-02T17:28:45.11+00:00",
       "furniture": "Cơ bản, sàn gỗ, tủ bếp hiện đại",
       "isDeleted": false,
       "updatedAt": "2026-10-27T23:22:18.455Z",
@@ -2625,11 +2647,11 @@
       "downgradedFromVip": null,
       "verificationStatus": "verified",
       "verification_status": "verified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-008",
@@ -2718,11 +2740,11 @@
       "downgradedFromVip": null,
       "verificationStatus": "unverified",
       "verification_status": "unverified",
-      "verificationDocuments": null,
-      "verificationRejectReason": null,
       "isTreasureHuntActive": false,
+      "treasureHuntExpiresAt": null,
+      "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "treasureHuntExpiresAt": null
+      "verificationRejectReason": null
     }
   ],
   "bds_users_list": [
@@ -2734,7 +2756,7 @@
       "phone": "0905 467 138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
       "status": "active",
-      "company": "Đất Biển Đà Nẵng",
+      "company": "Kênh Nhà Đất 24H",
       "roleName": "Môi Giới",
       "vouchers": {
         "normalBump": 0,
@@ -2788,7 +2810,7 @@
       "id": "broker-01",
       "name": "Nguyễn Văn Tuấn",
       "role": "broker",
-      "email": "tuan.batdongsan@datbiendanang.vn",
+      "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
       "phone": "0908 123 456",
       "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
       "status": "active",
@@ -2848,7 +2870,7 @@
       "avatar": "/avatars/ai-preset-2.jpg",
       "status": "active",
       "address": "Góc Võ Nguyên Giáp & Phạm Văn Đồng, P. Phước Mỹ, Q. Sơn Trà, TP. Đà Nẵng",
-      "company": "Đất Biển Đà Nẵng Partner",
+      "company": "Kênh Nhà Đất 24H Partner",
       "roleName": "Tổng Quản Trị Viên (CMS Admin)",
       "vouchers": {
         "normalBump": 20,
@@ -2936,11 +2958,11 @@
       "hotlineLabel": "Hotline 24/7:",
       "showWorkingHours": false
     },
-    "logoAlt": "KÊNH NHÀ ĐẤT 24H Logo",
+    "logoAlt": "Kênh Nhà Đất 24H Logo",
     "logoType": "text",
     "badgeText": "",
     "brandIcon": "fa-solid fa-water",
-    "brandName": "KENHNHADAT24H",
+    "brandName": "Kênh Nhà Đất",
     "badgeColor": "bg-red-100 text-red-600 border border-red-200",
     "logoHeight": 40,
     "socialLinks": {
@@ -2989,7 +3011,7 @@
     },
     "brandTagline": "",
     "logoImageUrl": "",
-    "brandHighlight": ".com.vn",
+    "brandHighlight": "24H",
     "containerWidth": "wide",
     "showTaglineWithImage": false
   },
@@ -3045,8 +3067,8 @@
       }
     },
     "homePageSize": 18,
-    "platformName": "KENHNHADAT24H.com.vn",
-    "brandShortName": "KENHNHADAT24H.com.vn",
+    "platformName": "Kênh Nhà Đất 24H",
+    "brandShortName": "Kênh Nhà Đất 24H",
     "dailyFreeLimit": 3,
     "bonusExpiryDays": 30,
     "maintenanceMode": false,
@@ -3091,7 +3113,9 @@
     "autoFilterPhoneInContent": true,
     "enableScheduledPublishing": true,
     "maxRegistrationsPerIpPerDay": 3,
-    "requireMembershipForSchedule": true
+    "requireMembershipForSchedule": true,
+    "domain": "kenhnhadat24h.com.vn",
+    "siteUrl": "https://kenhnhadat24h.com.vn"
   },
   "bds_payment_config": {
     "momo": {
@@ -3776,7 +3800,7 @@
       "timeoutSeconds": 15
     },
     "driver": "smtp",
-    "fromName": "Ban Quản Trị Sàn ĐẤT BIỂN ĐÀ NẴNG",
+    "fromName": "Ban Quản Trị Sàn KÊNH NHÀ ĐẤT 24H",
     "sendgrid": {
       "apiKey": ""
     },
@@ -3785,8 +3809,8 @@
       "zalo": "0904 084 888",
       "address": "Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng",
       "hotline": "0904 084 888",
-      "websiteUrl": "https://bds-realestate.vercel.app/",
-      "companyName": "ĐẤT BIỂN ĐÀ NẴNG"
+      "websiteUrl": "https://kenhnhadat24h.com.vn/",
+      "companyName": "KÊNH NHÀ ĐẤT 24H"
     },
     "templates": {
       "smtp_test": {
@@ -4077,7 +4101,7 @@
       "messages": [
         {
           "id": "msg_welcome",
-          "text": "Xin chào quý khách! Tôi là trợ lý tư vấn Đất Biển Đà Nẵng. Quý khách đang gặp vấn đề nào cần hỗ trợ thông tin?",
+          "text": "Xin chào quý khách! Tôi là trợ lý tư vấn Kênh Nhà Đất 24H. Quý khách đang gặp vấn đề nào cần hỗ trợ thông tin?",
           "time": "01:10",
           "sender": "agent",
           "timestamp": 1792717806284
@@ -4395,15 +4419,15 @@
     },
     {
       "id": "MAIL-1729012301001",
-      "to": "ban-kiem-duyet@datbiendanang.vn",
-      "from": "system-alerts@datbiendanang.vn",
+      "to": "ban-kiem-duyet@kenhnhadat24h.com.vn",
+      "from": "system-alerts@kenhnhadat24h.com.vn",
       "type": "report_admin_alert",
       "sentAt": "2026-10-16T14:47:10.571Z",
       "status": "delivered",
-      "toName": "Ban Kiểm Duyệt Sàn Đất Biển Đà Nẵng",
+      "toName": "Ban Kiểm Duyệt Sàn Kênh Nhà Đất 24H",
       "subject": "⚠️ [CẢNH BÁO VI PHẠM] Tin rao #BDS-003 bị báo cáo: Giá không đúng thực tế",
       "fromName": "Hệ Thống Kiểm Duyệt Tự Động",
-      "htmlBody": "\n    <div style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 650px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06);\">\n      <!-- Header -->\n      <div style=\"background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); padding: 24px 32px; border-bottom: 3px solid rgba(0,0,0,0.2);\">\n        <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n          <tr>\n            <td>\n              <span style=\"display: inline-block; background: rgba(255,255,255,0.2); color: #ffffff; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;\">Cảnh Báo Kiểm Duyệt</span>\n              <h1 style=\"color: #ffffff; font-size: 20px; font-weight: 800; margin: 10px 0 4px 0;\">Có Tin Rao Bị Người Dùng Báo Cáo Vi Phạm</h1>\n              <p style=\"color: #f8fafc; opacity: 0.85; font-size: 13px; margin: 0;\">Mã hồ sơ báo cáo: <strong style=\"font-family: monospace;\">#REP-1729012300001</strong></p>\n            </td>\n          </tr>\n        </table>\n      </div>\n\n      <!-- Main Body -->\n      <div style=\"padding: 32px; color: #334155; font-size: 14px; line-height: 1.6;\">\n        <p style=\"margin-top: 0; font-weight: 700; color: #0f172a;\">Kính gửi Ban Quản Trị & Đội Ngũ Kiểm Duyệt Đất Biển Đà Nẵng,</p>\n        <p>Hệ thống tự động ghi nhận một phản ánh vi phạm mới từ người dùng trên sàn. Vui lòng đối chiếu hồ sơ và kiểm tra tính xác thực để có biện pháp xử lý kịp thời.</p>\n\n        <!-- Thông tin Tin Đăng Bị Báo Cáo -->\n        <div style=\"background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin: 20px 0;\">\n          <h3 style=\"margin: 0 0 12px 0; font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;\">Thông tin tin đăng bị phản ánh:</h3>\n          <table width=\"100%\" cellpadding=\"6\" cellspacing=\"0\" style=\"font-size: 13px;\">\n            <tr>\n              <td width=\"30%\" style=\"color: #64748b; font-weight: 600;\">Mã tin đăng:</td>\n              <td><strong style=\"color: #0f172a; font-family: monospace; background: #e2e8f0; padding: 2px 6px; border-radius: 4px;\">#BDS-003</strong></td>\n            </tr>\n            <tr>\n              <td style=\"color: #64748b; font-weight: 600;\">Tiêu đề tin:</td>\n              <td style=\"color: #0f172a; font-weight: 700;\">Cắt lỗ 2 tỷ căn hoa hậu 3PN Masterise Park Place</td>\n            </tr>\n            <tr>\n              <td style=\"color: #64748b; font-weight: 600;\">Mức giá niêm yết:</td>\n              <td style=\"color: #e11d48; font-weight: 700;\">2 Tỷ</td>\n            </tr>\n            <tr>\n              <td style=\"color: #64748b; font-weight: 600;\">Địa chỉ:</td>\n              <td style=\"color: #334155;\">Võ Nguyên Giáp, Quận Long Biên, Hà Nội, , </td>\n            </tr>\n            <tr>\n              <td style=\"color: #64748b; font-weight: 600;\">Người đăng tin:</td>\n              <td style=\"color: #334155;\">Người đăng - SĐT: N/A</td>\n            </tr>\n          </table>\n        </div>\n\n        <!-- Chi Tiết Phản Ánh Vi Phạm -->\n        <div style=\"background: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; padding: 18px; margin: 20px 0;\">\n          <h3 style=\"margin: 0 0 12px 0; font-size: 13px; color: #be123c; text-transform: uppercase; letter-spacing: 0.5px;\">Nội dung phản ánh từ người dùng:</h3>\n          <table width=\"100%\" cellpadding=\"6\" cellspacing=\"0\" style=\"font-size: 13px;\">\n            <tr>\n              <td width=\"30%\" style=\"color: #9f1239; font-weight: 600;\">Lý do vi phạm:</td>\n              <td>\n                <span style=\"display: inline-block; background: #e11d48; color: #ffffff; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px;\">\n                  Giá không đúng thực tế (kê giá, giá ảo, câu view)\n                </span>\n              </td>\n            </tr>\n            <tr>\n              <td style=\"color: #9f1239; font-weight: 600;\">Mô tả cụ thể:</td>\n              <td style=\"color: #881337; font-weight: 500; font-style: italic; background: #ffffff; padding: 10px; border-radius: 8px; border: 1px dashed #fca5a5;\">\n                \"Tiêu đề ghi cắt lỗ 2 tỷ nhưng gọi điện môi giới báo giá 4.2 tỷ, báo giá ảo để kéo khách xem.\"\n              </td>\n            </tr>\n            <tr>\n              <td style=\"color: #9f1239; font-weight: 600;\">Người gửi phản ánh:</td>\n              <td style=\"color: #0f172a; font-weight: 600;\">\n                Trần Hoàng Nam (0918 882 199 (hoangnam.tran@gmail.com))\n              </td>\n            </tr>\n            <tr>\n              <td style=\"color: #9f1239; font-weight: 600;\">Thời gian gửi:</td>\n              <td style=\"color: #475569;\">14:47:10 16/10/2026</td>\n            </tr>\n          </table>\n        </div>\n\n        <!-- CTA Action Buttons -->\n        <div style=\"text-align: center; margin: 30px 0 15px 0;\">\n          <a href=\"https://bds-realestate-6d6wip7wy-datbien.vercel.app/cat-lo-2-ty-can-hoa-hau-3pn-masterise-park-place-pr003\" target=\"_blank\" style=\"display: inline-block; background: #e11d48; color: #ffffff; text-decoration: none; font-weight: 700; font-size: 14px; padding: 12px 24px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0, 0.15); margin-right: 10px;\">\n            🔍 Xem Tin Rao Trên Web\n          </a>\n          <a href=\"https://bds-realestate-6d6wip7wy-datbien.vercel.app/admin\" target=\"_blank\" style=\"display: inline-block; background: #0f172a; color: #ffffff; text-decoration: none; font-weight: 700; font-size: 14px; padding: 12px 24px; border-radius: 10px;\">\n            ⚙️ Mở Backend Xử Lý\n          </a>\n        </div>\n\n        <p style=\"color: #64748b; font-size: 13px; text-align: center; margin: 15px 0 0 0;\">Vui lòng truy cập trang Quản Trị Hệ Thống để thẩm định và ra quyết định xử lý.</p>\n        <p style=\"margin: 15px 0 0 0; text-align: right; color: #64748b; font-size: 12px;\">Trân trọng,<br><strong style=\"color: #0f172a;\">Hệ Thống Giám Sát Tự Động • Đất Biển Đà Nẵng</strong></p>\n      </div>\n\n      <!-- Footer -->\n      <div style=\"background: #f1f5f9; padding: 18px 32px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b; text-align: center;\">\n        <p style=\"margin: 0 0 4px 0;\">Đất Biển Đà Nẵng • Hệ thống kiểm duyệt tự động</p>\n        <p style=\"margin: 0;\">Hotline tiếp nhận khiếu nại: <strong>0898 246 607</strong> • Website: <a href=\"https://datbiendanang.vn\" style=\"color: #0284c7; text-decoration: none;\">datbiendanang.vn</a></p>\n      </div>\n    </div>\n  ",
+      "htmlBody": "\n    <div style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 650px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06);\">\n      <!-- Header -->\n      <div style=\"background: linear-gradient(135deg, #e11d48 0%, #be123c 100%); padding: 24px 32px; border-bottom: 3px solid rgba(0,0,0,0.2);\">\n        <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n          <tr>\n            <td>\n              <span style=\"display: inline-block; background: rgba(255,255,255,0.2); color: #ffffff; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px;\">Cảnh Báo Kiểm Duyệt</span>\n              <h1 style=\"color: #ffffff; font-size: 20px; font-weight: 800; margin: 10px 0 4px 0;\">Có Tin Rao Bị Người Dùng Báo Cáo Vi Phạm</h1>\n              <p style=\"color: #f8fafc; opacity: 0.85; font-size: 13px; margin: 0;\">Mã hồ sơ báo cáo: <strong style=\"font-family: monospace;\">#REP-1729012300001</strong></p>\n            </td>\n          </tr>\n        </table>\n      </div>\n\n      <!-- Main Body -->\n      <div style=\"padding: 32px; color: #334155; font-size: 14px; line-height: 1.6;\">\n        <p style=\"margin-top: 0; font-weight: 700; color: #0f172a;\">Kính gửi Ban Quản Trị & Đội Ngũ Kiểm Duyệt Kênh Nhà Đất 24H,</p>\n        <p>Hệ thống tự động ghi nhận một phản ánh vi phạm mới từ người dùng trên sàn. Vui lòng đối chiếu hồ sơ và kiểm tra tính xác thực để có biện pháp xử lý kịp thời.</p>\n\n        <!-- Thông tin Tin Đăng Bị Báo Cáo -->\n        <div style=\"background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin: 20px 0;\">\n          <h3 style=\"margin: 0 0 12px 0; font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;\">Thông tin tin đăng bị phản ánh:</h3>\n          <table width=\"100%\" cellpadding=\"6\" cellspacing=\"0\" style=\"font-size: 13px;\">\n            <tr>\n              <td width=\"30%\" style=\"color: #64748b; font-weight: 600;\">Mã tin đăng:</td>\n              <td><strong style=\"color: #0f172a; font-family: monospace; background: #e2e8f0; padding: 2px 6px; border-radius: 4px;\">#BDS-003</strong></td>\n            </tr>\n            <tr>\n              <td style=\"color: #64748b; font-weight: 600;\">Tiêu đề tin:</td>\n              <td style=\"color: #0f172a; font-weight: 700;\">Cắt lỗ 2 tỷ căn hoa hậu 3PN Masterise Park Place</td>\n            </tr>\n            <tr>\n              <td style=\"color: #64748b; font-weight: 600;\">Mức giá niêm yết:</td>\n              <td style=\"color: #e11d48; font-weight: 700;\">2 Tỷ</td>\n            </tr>\n            <tr>\n              <td style=\"color: #64748b; font-weight: 600;\">Địa chỉ:</td>\n              <td style=\"color: #334155;\">Võ Nguyên Giáp, Quận Long Biên, Hà Nội, , </td>\n            </tr>\n            <tr>\n              <td style=\"color: #64748b; font-weight: 600;\">Người đăng tin:</td>\n              <td style=\"color: #334155;\">Người đăng - SĐT: N/A</td>\n            </tr>\n          </table>\n        </div>\n\n        <!-- Chi Tiết Phản Ánh Vi Phạm -->\n        <div style=\"background: #fff1f2; border: 1px solid #fecdd3; border-radius: 12px; padding: 18px; margin: 20px 0;\">\n          <h3 style=\"margin: 0 0 12px 0; font-size: 13px; color: #be123c; text-transform: uppercase; letter-spacing: 0.5px;\">Nội dung phản ánh từ người dùng:</h3>\n          <table width=\"100%\" cellpadding=\"6\" cellspacing=\"0\" style=\"font-size: 13px;\">\n            <tr>\n              <td width=\"30%\" style=\"color: #9f1239; font-weight: 600;\">Lý do vi phạm:</td>\n              <td>\n                <span style=\"display: inline-block; background: #e11d48; color: #ffffff; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 6px;\">\n                  Giá không đúng thực tế (kê giá, giá ảo, câu view)\n                </span>\n              </td>\n            </tr>\n            <tr>\n              <td style=\"color: #9f1239; font-weight: 600;\">Mô tả cụ thể:</td>\n              <td style=\"color: #881337; font-weight: 500; font-style: italic; background: #ffffff; padding: 10px; border-radius: 8px; border: 1px dashed #fca5a5;\">\n                \"Tiêu đề ghi cắt lỗ 2 tỷ nhưng gọi điện môi giới báo giá 4.2 tỷ, báo giá ảo để kéo khách xem.\"\n              </td>\n            </tr>\n            <tr>\n              <td style=\"color: #9f1239; font-weight: 600;\">Người gửi phản ánh:</td>\n              <td style=\"color: #0f172a; font-weight: 600;\">\n                Trần Hoàng Nam (0918 882 199 (hoangnam.tran@gmail.com))\n              </td>\n            </tr>\n            <tr>\n              <td style=\"color: #9f1239; font-weight: 600;\">Thời gian gửi:</td>\n              <td style=\"color: #475569;\">14:47:10 16/10/2026</td>\n            </tr>\n          </table>\n        </div>\n\n        <!-- CTA Action Buttons -->\n        <div style=\"text-align: center; margin: 30px 0 15px 0;\">\n          <a href=\"https://bds-realestate-6d6wip7wy-datbien.vercel.app/cat-lo-2-ty-can-hoa-hau-3pn-masterise-park-place-pr003\" target=\"_blank\" style=\"display: inline-block; background: #e11d48; color: #ffffff; text-decoration: none; font-weight: 700; font-size: 14px; padding: 12px 24px; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0, 0.15); margin-right: 10px;\">\n            🔍 Xem Tin Rao Trên Web\n          </a>\n          <a href=\"https://bds-realestate-6d6wip7wy-datbien.vercel.app/admin\" target=\"_blank\" style=\"display: inline-block; background: #0f172a; color: #ffffff; text-decoration: none; font-weight: 700; font-size: 14px; padding: 12px 24px; border-radius: 10px;\">\n            ⚙️ Mở Backend Xử Lý\n          </a>\n        </div>\n\n        <p style=\"color: #64748b; font-size: 13px; text-align: center; margin: 15px 0 0 0;\">Vui lòng truy cập trang Quản Trị Hệ Thống để thẩm định và ra quyết định xử lý.</p>\n        <p style=\"margin: 15px 0 0 0; text-align: right; color: #64748b; font-size: 12px;\">Trân trọng,<br><strong style=\"color: #0f172a;\">Hệ Thống Giám Sát Tự Động • Kênh Nhà Đất 24H</strong></p>\n      </div>\n\n      <!-- Footer -->\n      <div style=\"background: #f1f5f9; padding: 18px 32px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b; text-align: center;\">\n        <p style=\"margin: 0 0 4px 0;\">Kênh Nhà Đất 24H • Hệ thống kiểm duyệt tự động</p>\n        <p style=\"margin: 0;\">Hotline tiếp nhận khiếu nại: <strong>0898 246 607</strong> • Website: <a href=\"https://kenhnhadat24h.com.vn\" style=\"color: #0284c7; text-decoration: none;\">kenhnhadat24h.com.vn</a></p>\n      </div>\n    </div>\n  ",
       "reportId": "REP-1729012300001",
       "propertyId": "BDS-003",
       "previewText": "Người dùng Trần Hoàng Nam vừa gửi phản ánh vi phạm về tin rao BDS-003..."
@@ -4411,14 +4435,14 @@
     {
       "id": "MAIL-1729012301002",
       "to": "hoangnam.tran@gmail.com",
-      "from": "cskh@datbiendanang.vn",
+      "from": "cskh@kenhnhadat24h.com.vn",
       "type": "report_confirmation_reporter",
       "sentAt": "2026-10-16T14:47:10.578Z",
       "status": "delivered",
       "toName": "Trần Hoàng Nam",
-      "subject": "✅ Tiếp nhận phản ánh vi phạm tin rao #BDS-003 • Đất Biển Đà Nẵng",
-      "fromName": "Đất Biển Đà Nẵng CSKH",
-      "htmlBody": "\n    <div style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06);\">\n      <!-- Header -->\n      <div style=\"background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 24px 32px; color: #ffffff;\">\n        <span style=\"display: inline-block; background: rgba(255,255,255,0.2); color: #ffffff; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px; text-transform: uppercase;\">Tiếp Nhận Phản Ánh</span>\n        <h1 style=\"font-size: 20px; font-weight: 800; margin: 8px 0 6px 0;\">Đã Tiếp Nhận Báo Cáo Vi Phạm</h1>\n        <p style=\"font-size: 13px; margin: 0; opacity: 0.95;\">Mã phản ánh: <strong style=\"font-family: monospace; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px;\">#REP-1729012300001</strong></p>\n      </div>\n\n      <!-- Body -->\n      <div style=\"padding: 28px 32px; color: #334155; font-size: 14px; line-height: 1.6;\">\n        <p style=\"margin-top: 0; font-weight: 700; color: #0f172a;\">Kính gửi Trần Hoàng Nam,</p>\n        <p>Cảm ơn Quý khách đã gửi phản ánh vi phạm về tin rao bất động sản trên sàn giao dịch Đất Biển Đà Nẵng. Sự đóng góp của Quý khách có ý nghĩa rất lớn giúp xây dựng một môi trường giao dịch bất động sản minh bạch, chính xác và an toàn.</p>\n\n        <div style=\"background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin: 20px 0; font-size: 13px;\">\n          <h4 style=\"margin: 0 0 10px 0; color: #0f172a;\">Chi tiết phản ánh Quý khách đã gửi:</h4>\n          <ul style=\"margin: 0; padding-left: 20px; color: #475569;\">\n            <li style=\"margin-bottom: 6px;\">Mã tin phản ánh: <strong>#BDS-003</strong></li>\n            <li style=\"margin-bottom: 6px;\">Tiêu đề tin: <strong>Cắt lỗ 2 tỷ căn hoa hậu 3PN Masterise Park Place</strong></li>\n            <li style=\"margin-bottom: 6px;\">Lý do phản ánh: <strong style=\"color: #e11d48;\">Giá không đúng thực tế (kê giá, giá ảo, câu view)</strong></li>\n            <li>Thời gian ghi nhận: <strong>14:47:10 16/10/2026</strong></li>\n          </ul>\n        </div>\n\n        <div style=\"background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 16px; margin: 20px 0; font-size: 13px; color: #065f46;\">\n          <strong>Quy trình xử lý của Ban Kiểm Duyệt:</strong>\n          <p style=\"margin: 6px 0 0 0;\">Trong vòng 24 giờ làm việc, đội ngũ thẩm định nội dung sẽ liên hệ trực tiếp với người đăng tin để kiểm tra, yêu cầu xác minh sổ đỏ/giấy tờ pháp lý hoặc mức giá thực tế. Nếu phát hiện vi phạm, tin đăng sẽ bị hạ lập tức.</p>\n        </div>\n\n        <p>Chúng tôi sẽ gửi email thông báo kết quả giải quyết khi hoàn tất thẩm định.</p>\n        <p style=\"margin-bottom: 0;\">Trân trọng,<br><strong style=\"color: #0f172a;\">Đội Ngũ Kiểm Soát Chất Lượng Sàn Đất Biển Đà Nẵng</strong></p>\n      </div>\n\n      <!-- Footer -->\n      <div style=\"background: #f8fafc; padding: 16px 32px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; text-align: center;\">\n        Hotline hỗ trợ: <strong>0898 246 607</strong> • Website: <a href=\"https://datbiendanang.vn\" style=\"color: #059669; text-decoration: none;\">datbiendanang.vn</a>\n      </div>\n    </div>\n  ",
+      "subject": "✅ Tiếp nhận phản ánh vi phạm tin rao #BDS-003 • Kênh Nhà Đất 24H",
+      "fromName": "Kênh Nhà Đất 24H CSKH",
+      "htmlBody": "\n    <div style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.06);\">\n      <!-- Header -->\n      <div style=\"background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 24px 32px; color: #ffffff;\">\n        <span style=\"display: inline-block; background: rgba(255,255,255,0.2); color: #ffffff; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 6px; text-transform: uppercase;\">Tiếp Nhận Phản Ánh</span>\n        <h1 style=\"font-size: 20px; font-weight: 800; margin: 8px 0 6px 0;\">Đã Tiếp Nhận Báo Cáo Vi Phạm</h1>\n        <p style=\"font-size: 13px; margin: 0; opacity: 0.95;\">Mã phản ánh: <strong style=\"font-family: monospace; background: rgba(255,255,255,0.2); padding: 2px 6px; border-radius: 4px;\">#REP-1729012300001</strong></p>\n      </div>\n\n      <!-- Body -->\n      <div style=\"padding: 28px 32px; color: #334155; font-size: 14px; line-height: 1.6;\">\n        <p style=\"margin-top: 0; font-weight: 700; color: #0f172a;\">Kính gửi Trần Hoàng Nam,</p>\n        <p>Cảm ơn Quý khách đã gửi phản ánh vi phạm về tin rao bất động sản trên sàn giao dịch Kênh Nhà Đất 24H. Sự đóng góp của Quý khách có ý nghĩa rất lớn giúp xây dựng một môi trường giao dịch bất động sản minh bạch, chính xác và an toàn.</p>\n\n        <div style=\"background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin: 20px 0; font-size: 13px;\">\n          <h4 style=\"margin: 0 0 10px 0; color: #0f172a;\">Chi tiết phản ánh Quý khách đã gửi:</h4>\n          <ul style=\"margin: 0; padding-left: 20px; color: #475569;\">\n            <li style=\"margin-bottom: 6px;\">Mã tin phản ánh: <strong>#BDS-003</strong></li>\n            <li style=\"margin-bottom: 6px;\">Tiêu đề tin: <strong>Cắt lỗ 2 tỷ căn hoa hậu 3PN Masterise Park Place</strong></li>\n            <li style=\"margin-bottom: 6px;\">Lý do phản ánh: <strong style=\"color: #e11d48;\">Giá không đúng thực tế (kê giá, giá ảo, câu view)</strong></li>\n            <li>Thời gian ghi nhận: <strong>14:47:10 16/10/2026</strong></li>\n          </ul>\n        </div>\n\n        <div style=\"background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 16px; margin: 20px 0; font-size: 13px; color: #065f46;\">\n          <strong>Quy trình xử lý của Ban Kiểm Duyệt:</strong>\n          <p style=\"margin: 6px 0 0 0;\">Trong vòng 24 giờ làm việc, đội ngũ thẩm định nội dung sẽ liên hệ trực tiếp với người đăng tin để kiểm tra, yêu cầu xác minh sổ đỏ/giấy tờ pháp lý hoặc mức giá thực tế. Nếu phát hiện vi phạm, tin đăng sẽ bị hạ lập tức.</p>\n        </div>\n\n        <p>Chúng tôi sẽ gửi email thông báo kết quả giải quyết khi hoàn tất thẩm định.</p>\n        <p style=\"margin-bottom: 0;\">Trân trọng,<br><strong style=\"color: #0f172a;\">Đội Ngũ Kiểm Soát Chất Lượng Sàn Kênh Nhà Đất 24H</strong></p>\n      </div>\n\n      <!-- Footer -->\n      <div style=\"background: #f8fafc; padding: 16px 32px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; text-align: center;\">\n        Hotline hỗ trợ: <strong>0898 246 607</strong> • Website: <a href=\"https://kenhnhadat24h.com.vn\" style=\"color: #059669; text-decoration: none;\">kenhnhadat24h.com.vn</a>\n      </div>\n    </div>\n  ",
       "reportId": "REP-1729012300001",
       "propertyId": "BDS-003",
       "previewText": "Kính gửi Quý khách Trần Hoàng Nam, chúng tôi đã tiếp nhận báo cáo của bạn..."
@@ -4781,120 +4805,14 @@
       "enabled": true,
       "maxAmount": 20000,
       "minAmount": 2000,
-      "dailyLimit": 1,
+      "dailyLimit": 2,
       "itemsPerPage": 16,
       "cooldownSeconds": 20,
-      "minReadingSeconds": 4,
-      "requireLogin": true,
-      "regularDailyLimit": 1,
-      "monthlyBudget": 50000,
-      "rewardTiers": [
-        {
-          "id": "tier_empty",
-          "label": "Chúc may mắn (Rỗng)",
-          "amount": 0,
-          "percentage": 25
-        },
-        {
-          "id": "tier_min",
-          "label": "Thưởng Tối Thiểu (Nhỏ)",
-          "amount": 1200,
-          "percentage": 45
-        },
-        {
-          "id": "tier_common",
-          "label": "Thưởng Phổ Biến (Vừa)",
-          "amount": 2500,
-          "percentage": 25
-        },
-        {
-          "id": "tier_max",
-          "label": "Thưởng Tối Đa (Lớn)",
-          "amount": 12000,
-          "percentage": 5
-        }
-      ],
-      "basicMemberConfig": {
-        "monthlyBudget": 120000,
-        "minAmount": 2500,
-        "maxAmount": 10000,
-        "rewardTiers": [
-          {
-            "id": "tier_basic_min",
-            "label": "Thưởng Tối Thiểu (Nhỏ)",
-            "amount": 2500,
-            "percentage": 40
-          },
-          {
-            "id": "tier_basic_common",
-            "label": "Thưởng Phổ Biến (Vừa)",
-            "amount": 4000,
-            "percentage": 50
-          },
-          {
-            "id": "tier_basic_max",
-            "label": "Thưởng Tối Đa (Lớn)",
-            "amount": 10000,
-            "percentage": 10
-          }
-        ]
-      },
-      "standardMemberConfig": {
-        "monthlyBudget": 370000,
-        "minAmount": 8000,
-        "maxAmount": 35000,
-        "rewardTiers": [
-          {
-            "id": "tier_standard_min",
-            "label": "Thưởng Tối Thiểu (Nhỏ)",
-            "amount": 8000,
-            "percentage": 40
-          },
-          {
-            "id": "tier_standard_common",
-            "label": "Thưởng Phổ Biến (Vừa)",
-            "amount": 12000,
-            "percentage": 50
-          },
-          {
-            "id": "tier_standard_max",
-            "label": "Thưởng Tối Đa (Lớn)",
-            "amount": 35000,
-            "percentage": 10
-          }
-        ]
-      },
-      "premiumMemberConfig": {
-        "monthlyBudget": 1000000,
-        "minAmount": 20000,
-        "maxAmount": 100000,
-        "rewardTiers": [
-          {
-            "id": "tier_premium_min",
-            "label": "Thưởng Tối Thiểu (Nhỏ)",
-            "amount": 20000,
-            "percentage": 40
-          },
-          {
-            "id": "tier_premium_common",
-            "label": "Thưởng Phổ Biến (Vừa)",
-            "amount": 30000,
-            "percentage": 30
-          },
-          {
-            "id": "tier_premium_max",
-            "label": "Thưởng Tối Đa (Lớn)",
-            "amount": 55000,
-            "percentage": 25
-          },
-          {
-            "id": "tier_premium_jackpot",
-            "label": "Siêu Jackpot (Cực Lớn)",
-            "amount": 100000,
-            "percentage": 5
-          }
-        ]
-      }
+      "memberMaxAmount": 20000,
+      "memberMinAmount": 8000,
+      "minReadingSeconds": 20,
+      "memberBonusEnabled": true,
+      "memberHighTierChance": 80
     }
   },
   "bds_transactions": [

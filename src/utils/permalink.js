@@ -57,7 +57,7 @@ export const formatTitleCase = (str) => {
 };
 
 // Cấu hình Base Domain chuẩn SEO
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://bds-realestate.vercel.app';
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://kenhnhadat24h.com.vn';
 
 // Tối ưu hóa SEO hình ảnh & tự động tạo thẻ ALT theo tiêu đề
 import { buildImageAlt, DEFAULT_PROPERTY_FALLBACK_IMAGE, DEFAULT_AVATAR_FALLBACK_IMAGE } from './imageSeo.js';
@@ -84,7 +84,7 @@ export const getPaginationPath = (basePath, page = 1) => {
 
 /**
  * Tạo thẻ Canonical tuyệt đối tự tham chiếu chuẩn SEO
- * Ví dụ: https://bds-realestate.vercel.app/nha-dat-ban/page/2/
+ * Ví dụ: https://kenhnhadat24h.com.vn/nha-dat-ban/page/2/
  */
 export const getCanonicalUrl = (basePath, page = 1, siteUrl = SITE_URL) => {
   const path = getPaginationPath(basePath, page);
@@ -1252,7 +1252,7 @@ export const buildFacetedUrl = ({
 /**
  * Sinh Schema.org JSON-LD Structured Data chuẩn SEO cho Nhà Đất (Google Search Rich Results)
  */
-export const generatePropertyJsonLd = (property, siteUrl = 'https://datbiendanang.vn') => {
+export const generatePropertyJsonLd = (property, siteUrl = 'https://kenhnhadat24h.com.vn') => {
   if (!property) return null;
 
   const permalink = getPropertyPermalink(property);
@@ -1367,7 +1367,7 @@ export const generatePropertyJsonLd = (property, siteUrl = 'https://datbiendanan
 /**
  * Sinh Schema.org JSON-LD CollectionPage/ItemList cho trang chuyên mục BĐS
  */
-export const generateCategoryJsonLd = (categoryInfo, properties = [], siteUrl = 'https://datbiendanang.vn') => {
+export const generateCategoryJsonLd = (categoryInfo, properties = [], siteUrl = 'https://kenhnhadat24h.com.vn') => {
   if (!categoryInfo) return null;
 
   const fullUrl = `${siteUrl}${categoryInfo.canonicalUrl || (categoryInfo.demand === 'sale' ? '/nha-dat-ban' : '/nha-dat-cho-thue')}`;

@@ -1,5 +1,5 @@
 /**
- * emailService.js - Hệ Thống Gửi Email & Xử Lý Thông Báo Sàn Đất Biển Đà Nẵng
+ * emailService.js - Hệ Thống Gửi Email & Xử Lý Thông Báo Sàn Kênh Nhà Đất 24H
  * Hỗ trợ tạo mẫu HTML Email chuyên nghiệp, mô phỏng gửi email thực tế,
  * lưu trữ Outbox vào localStorage và cung cấp API xem trước (Preview).
  */
@@ -74,13 +74,13 @@ export const dispatchEmail = async ({
   // 1. from được chỉ định riêng và khác giá trị mặc định cũ
   // 2. fromEmail đã được lưu trong Cấu Hình Email Website
   // 3. Fallback mặc định
-  const resolvedFrom = (from && from !== 'cskh@landmark.vn' && from !== 'kiemduyet@landmark.vn' && from !== 'cskh@datbiendanang.vn' && from !== 'kiemduyet@datbiendanang.vn')
+  const resolvedFrom = (from && from !== 'cskh@landmark.vn' && from !== 'kiemduyet@landmark.vn' && from !== 'cskh@kenhnhadat24h.com.vn' && from !== 'kiemduyet@kenhnhadat24h.com.vn')
     ? from
-    : (activeEmailConfig?.fromEmail || from || 'cskh@datbiendanang.vn');
+    : (activeEmailConfig?.fromEmail || from || 'cskh@kenhnhadat24h.com.vn');
 
-  const resolvedFromName = (fromName && !fromName.includes('Landmark') && fromName !== 'Ban Quản Trị Sàn Đất Biển Đà Nẵng' && fromName !== 'Đất Biển Đà Nẵng CSKH' && fromName !== 'Ban Kiểm Duyệt Đất Biển Đà Nẵng')
+  const resolvedFromName = (fromName && !fromName.includes('Landmark') && fromName !== 'Ban Quản Trị Sàn Kênh Nhà Đất 24H' && fromName !== 'Kênh Nhà Đất 24H CSKH' && fromName !== 'Ban Kiểm Duyệt Kênh Nhà Đất 24H')
     ? fromName
-    : (activeEmailConfig?.fromName || fromName || 'Ban Quản Trị Sàn Đất Biển Đà Nẵng');
+    : (activeEmailConfig?.fromName || fromName || 'Ban Quản Trị Sàn Kênh Nhà Đất 24H');
 
   let realDeliveryStatus = 'delivered';
   let messageId = null;
@@ -204,11 +204,11 @@ export function generateAdminReportAlertEmailHtml({ report, property, customConf
   const permalink = getPropertyPermalink(property);
   const propertyUrl = typeof window !== 'undefined' 
     ? `${window.location.origin}${permalink}`
-    : `https://datbiendanang.vn${permalink}`;
+    : `https://kenhnhadat24h.com.vn${permalink}`;
 
-  const siteName = activeConfig?.signature?.companyName || 'Đất Biển Đà Nẵng';
+  const siteName = activeConfig?.signature?.companyName || 'Kênh Nhà Đất 24H';
   const hotline = (activeConfig?.signature?.hotline && activeConfig.signature.hotline !== '1900 1881') ? activeConfig.signature.hotline : getSystemHotlineFallback();
-  const websiteUrl = activeConfig?.signature?.websiteUrl || 'https://datbiendanang.vn';
+  const websiteUrl = activeConfig?.signature?.websiteUrl || 'https://kenhnhadat24h.com.vn';
 
   const vars = {
     siteName,
@@ -326,7 +326,7 @@ export function generateAdminReportAlertEmailHtml({ report, property, customConf
       <!-- Footer -->
       <div style="background: #f1f5f9; padding: 18px 32px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b; text-align: center;">
         <p style="margin: 0 0 4px 0;">${siteName} • Hệ thống kiểm duyệt tự động</p>
-        <p style="margin: 0;">Hotline tiếp nhận khiếu nại: <strong>${hotline}</strong> • Website: <a href="${activeConfig?.signature?.websiteUrl || 'https://datbiendanang.vn'}" style="color: #0284c7; text-decoration: none;">${activeConfig?.signature?.websiteUrl || 'datbiendanang.vn'}</a></p>
+        <p style="margin: 0;">Hotline tiếp nhận khiếu nại: <strong>${hotline}</strong> • Website: <a href="${activeConfig?.signature?.websiteUrl || 'https://kenhnhadat24h.com.vn'}" style="color: #0284c7; text-decoration: none;">${activeConfig?.signature?.websiteUrl || 'kenhnhadat24h.com.vn'}</a></p>
       </div>
     </div>
   `;
@@ -339,9 +339,9 @@ export function generateReporterConfirmationEmailHtml({ report, property, custom
   const activeConfig = customConfig || getActiveEmailConfig();
   const tpl = activeConfig?.templates?.report_confirmation || {};
   const reasonObj = REPORT_REASONS[report.reason] || { label: report.reason };
-  const siteName = activeConfig?.signature?.companyName || 'Đất Biển Đà Nẵng';
+  const siteName = activeConfig?.signature?.companyName || 'Kênh Nhà Đất 24H';
   const hotline = (activeConfig?.signature?.hotline && activeConfig.signature.hotline !== '1900 1881') ? activeConfig.signature.hotline : getSystemHotlineFallback();
-  const websiteUrl = activeConfig?.signature?.websiteUrl || 'https://datbiendanang.vn';
+  const websiteUrl = activeConfig?.signature?.websiteUrl || 'https://kenhnhadat24h.com.vn';
 
   const vars = {
     siteName,
@@ -399,7 +399,7 @@ export function generateReporterConfirmationEmailHtml({ report, property, custom
 
       <!-- Footer -->
       <div style="background: #f8fafc; padding: 16px 32px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; text-align: center;">
-        Hotline hỗ trợ: <strong>${hotline}</strong> • Website: <a href="${activeConfig?.signature?.websiteUrl || 'https://datbiendanang.vn'}" style="color: ${theme.accentColor}; text-decoration: none;">${activeConfig?.signature?.websiteUrl || 'datbiendanang.vn'}</a>
+        Hotline hỗ trợ: <strong>${hotline}</strong> • Website: <a href="${activeConfig?.signature?.websiteUrl || 'https://kenhnhadat24h.com.vn'}" style="color: ${theme.accentColor}; text-decoration: none;">${activeConfig?.signature?.websiteUrl || 'kenhnhadat24h.com.vn'}</a>
       </div>
     </div>
   `;
@@ -412,9 +412,9 @@ export function generateAuthorWarningEmailHtml({ property, report: _report, acti
   const activeConfig = customConfig || getActiveEmailConfig();
   const tpl = activeConfig?.templates?.author_warning || {};
   const isDelisted = actionType === 'delisted';
-  const siteName = activeConfig?.signature?.companyName || 'Đất Biển Đà Nẵng';
+  const siteName = activeConfig?.signature?.companyName || 'Kênh Nhà Đất 24H';
   const hotline = (activeConfig?.signature?.hotline && activeConfig.signature.hotline !== '1900 1881') ? activeConfig.signature.hotline : getSystemHotlineFallback();
-  const websiteUrl = activeConfig?.signature?.websiteUrl || 'https://datbiendanang.vn';
+  const websiteUrl = activeConfig?.signature?.websiteUrl || 'https://kenhnhadat24h.com.vn';
 
   const vars = {
     siteName,
@@ -479,9 +479,9 @@ export function generateAuthorWarningEmailHtml({ property, report: _report, acti
 export function generateResolutionEmailToReporterHtml({ report, property, actionTaken, adminNote, customConfig = null }) {
   const activeConfig = customConfig || getActiveEmailConfig();
   const tpl = activeConfig?.templates?.report_resolution || {};
-  const siteName = activeConfig?.signature?.companyName || 'Đất Biển Đà Nẵng';
+  const siteName = activeConfig?.signature?.companyName || 'Kênh Nhà Đất 24H';
   const hotline = (activeConfig?.signature?.hotline && activeConfig.signature.hotline !== '1900 1881') ? activeConfig.signature.hotline : getSystemHotlineFallback();
-  const websiteUrl = activeConfig?.signature?.websiteUrl || 'https://datbiendanang.vn';
+  const websiteUrl = activeConfig?.signature?.websiteUrl || 'https://kenhnhadat24h.com.vn';
 
   const actionText = actionTaken === 'delisted' ? '🚫 Đã hạ tin đăng khỏi sàn giao dịch' : '✅ Đã xác minh và yêu cầu người đăng đính chính thông tin';
 
@@ -545,9 +545,9 @@ export function generateTestEmailHtml({ emailConfig, testRecipient, customConfig
   const tpl = cfg?.templates?.smtp_test || {};
   const smtp = cfg.smtp || {};
   const sentTime = new Date().toLocaleString('vi-VN');
-  const siteName = cfg.signature?.companyName || 'Đất Biển Đà Nẵng';
+  const siteName = cfg.signature?.companyName || 'Kênh Nhà Đất 24H';
   const hotline = cfg.signature?.hotline || '0898 246 607';
-  const websiteUrl = cfg.signature?.websiteUrl || 'https://datbiendanang.vn';
+  const websiteUrl = cfg.signature?.websiteUrl || 'https://kenhnhadat24h.com.vn';
 
   const vars = {
     siteName,
@@ -605,11 +605,11 @@ export function generateTestEmailHtml({ emailConfig, testRecipient, customConfig
             </tr>
             <tr>
               <td style="padding: 4px 0; color: #64748b;">Tài khoản gửi (User):</td>
-              <td style="padding: 4px 0; font-family: monospace; color: #0f172a;">${smtp.username || 'support@datbiendanang.vn'}</td>
+              <td style="padding: 4px 0; font-family: monospace; color: #0f172a;">${smtp.username || 'support@kenhnhadat24h.com.vn'}</td>
             </tr>
             <tr>
               <td style="padding: 4px 0; color: #64748b;">Tên hiển thị (From):</td>
-              <td style="padding: 4px 0; font-weight: 700; color: #0f172a;">${cfg.fromName || 'Ban Quản Trị Sàn Đất Biển Đà Nẵng'} &lt;${cfg.fromEmail || 'kiemduyet@datbiendanang.vn'}&gt;</td>
+              <td style="padding: 4px 0; font-weight: 700; color: #0f172a;">${cfg.fromName || 'Ban Quản Trị Sàn Kênh Nhà Đất 24H'} &lt;${cfg.fromEmail || 'kiemduyet@kenhnhadat24h.com.vn'}&gt;</td>
             </tr>
             <tr>
               <td style="padding: 4px 0; color: #64748b;">Người nhận test:</td>
@@ -701,7 +701,7 @@ export function renderCustomEmailPreview(templateId, customTemplate, customConfi
     return generateWelcomeVerificationEmailHtml({
       userName: 'Nguyễn Văn Tuấn',
       userEmail: 'tuan.nguyen@example.com',
-      verificationUrl: 'https://datbiendanang.vn/xac-thuc-email?token=demo_verification_token_123',
+      verificationUrl: 'https://kenhnhadat24h.com.vn/xac-thuc-email?token=demo_verification_token_123',
       bonusAmount: 100000,
       expiryMinutes: 30,
       bonusExpiryDays: 30,
@@ -725,9 +725,9 @@ export function generateWelcomeVerificationEmailHtml({
 }) {
   const activeConfig = customConfig || getActiveEmailConfig();
   const tpl = activeConfig?.templates?.welcome_verification || {};
-  const siteName = activeConfig?.signature?.companyName || 'Đất Biển Đà Nẵng';
+  const siteName = activeConfig?.signature?.companyName || 'Kênh Nhà Đất 24H';
   const hotline = activeConfig?.signature?.hotline || getSystemHotlineFallback();
-  const websiteUrl = activeConfig?.signature?.websiteUrl || 'https://datbiendanang.vn';
+  const websiteUrl = activeConfig?.signature?.websiteUrl || 'https://kenhnhadat24h.com.vn';
   const formattedBonus = (Number(bonusAmount) || 100000).toLocaleString('vi-VN') + ' đ';
 
   const vars = {
@@ -806,8 +806,8 @@ export function generatePasswordResetEmailHtml({
   customConfig = null
 }) {
   const activeCfg = customConfig || getActiveEmailConfig();
-  const siteName = activeCfg?.companyName || 'Sàn Nhà Đất Đất Biển Đà Nẵng';
-  const websiteUrl = activeCfg?.siteUrl || 'https://datbiendanang.vn';
+  const siteName = activeCfg?.companyName || 'Sàn Nhà Đất Kênh Nhà Đất 24H';
+  const websiteUrl = activeCfg?.siteUrl || 'https://kenhnhadat24h.com.vn';
   const hotline = activeCfg?.hotline || getSystemHotlineFallback();
 
   return `

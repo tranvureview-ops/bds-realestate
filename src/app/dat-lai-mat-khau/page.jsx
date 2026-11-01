@@ -2,8 +2,8 @@ import { Suspense } from 'react';
 import ResetPasswordPage from '../../views/ResetPasswordPage';
 
 export const metadata = {
-  title: 'Thiết Lập Mật Khẩu Mới | Đất Biển Đà Nẵng',
-  description: 'Trang đặt lại mật khẩu an toàn cho tài khoản thành viên trên sàn giao dịch Đất Biển Đà Nẵng.'
+  title: 'Thiết Lập Mật Khẩu Mới | Kênh Nhà Đất 24H',
+  description: 'Trang đặt lại mật khẩu an toàn cho tài khoản thành viên trên sàn giao dịch Kênh Nhà Đất 24H.'
 };
 
 export default function Page() {

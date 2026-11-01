@@ -13,7 +13,7 @@ export function resolveServerOrigin(request) {
   if (host) {
     return `${proto}://${host}`;
   }
-  return process.env.NEXT_PUBLIC_SITE_URL || 'https://datbiendanang.vn';
+  return process.env.NEXT_PUBLIC_SITE_URL || 'https://kenhnhadat24h.com.vn';
 }
 
 /**
@@ -84,7 +84,7 @@ export async function deliverEmailViaSmtp(transporter, emailConfig, toEmail, sub
   try {
     const fromSender = emailConfig?.fromName
       ? `"${emailConfig.fromName}" <${emailConfig.fromEmail || emailConfig.smtp?.username}>`
-      : (emailConfig?.fromEmail || emailConfig.smtp?.username || 'cskh@datbiendanang.vn');
+      : (emailConfig?.fromEmail || emailConfig.smtp?.username || 'cskh@kenhnhadat24h.com.vn');
     const info = await transporter.sendMail({ from: fromSender, to: toEmail, subject, html: htmlBody });
     return { delivered: true, messageId: info?.messageId };
   } catch (err) {
@@ -138,7 +138,7 @@ export async function sendPasswordResetEmail({ toUser, tokenRecord, origin }) {
   const db = await getFullSystemDatabase();
   const emailConfig = db.bds_email_config || null;
   const resetUrl = `${origin}/dat-lai-mat-khau?token=${tokenRecord.token}`;
-  const subject = `[Bảo Mật] Hướng dẫn đặt lại mật khẩu tài khoản ${emailConfig?.companyName || 'Đất Biển Đà Nẵng'}`;
+  const subject = `[Bảo Mật] Hướng dẫn đặt lại mật khẩu tài khoản ${emailConfig?.companyName || 'Kênh Nhà Đất 24H'}`;
   const htmlBody = generatePasswordResetEmailHtml({
     userName: toUser.name,
     userEmail: toUser.email,

@@ -1186,13 +1186,13 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const testSubject = renderEmailTemplateString(
       emailConfig?.templates?.smtp_test?.subject || '✅ [THỬ NGHIỆM] Kết nối máy chủ gửi thư thành công • {{siteName}}',
       {
-        siteName: emailConfig?.signature?.companyName || 'Đất Biển Đà Nẵng',
+        siteName: emailConfig?.signature?.companyName || 'Kênh Nhà Đất 24H',
         currentTime: new Date().toLocaleTimeString('vi-VN')
       }
     );
     const testHtml = generateTestEmailHtml({ emailConfig, testRecipient: to });
-    const fromSender = emailConfig.fromEmail || 'kiemduyet@datbiendanang.vn';
-    const fromName = emailConfig.fromName || 'Ban Quản Trị Sàn Đất Biển Đà Nẵng';
+    const fromSender = emailConfig.fromEmail || 'kiemduyet@kenhnhadat24h.com.vn';
+    const fromName = emailConfig.fromName || 'Ban Quản Trị Sàn Kênh Nhà Đất 24H';
 
     let realDeliverySuccess = false;
     let deliveryMessage = '';
@@ -4844,20 +4844,20 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     } = await import('../utils/emailService');
 
     if (emailConfig?.notifyAdminOnReport !== false) {
-      const adminEmail = emailConfig?.adminAlertEmail || systemConfig?.supportEmail || 'ban-kiem-duyet@datbiendanang.vn';
+      const adminEmail = emailConfig?.adminAlertEmail || systemConfig?.supportEmail || 'ban-kiem-duyet@kenhnhadat24h.com.vn';
       const adminHtml = generateAdminReportAlertEmailHtml({ report: newReport, property: targetProp });
       const adminSubject = renderEmailTemplateString(
         emailConfig?.templates?.admin_alert?.subject || '🚨 [CẢNH BÁO VI PHẠM] Tin rao #{{propertyId}} bị báo cáo: {{reason}}',
         {
           propertyId: newReport.propertyId,
           reason: REPORT_REASONS[newReport.reason]?.label || newReport.reason,
-          siteName: emailConfig?.signature?.companyName || 'Đất Biển Đà Nẵng'
+          siteName: emailConfig?.signature?.companyName || 'Kênh Nhà Đất 24H'
         }
       );
       await dispatchEmail({
         to: adminEmail,
-        toName: 'Ban Kiểm Duyệt Đất Biển Đà Nẵng',
-        from: emailConfig?.fromEmail || 'system-alerts@datbiendanang.vn',
+        toName: 'Ban Kiểm Duyệt Kênh Nhà Đất 24H',
+        from: emailConfig?.fromEmail || 'system-alerts@kenhnhadat24h.com.vn',
         fromName: emailConfig?.fromName || 'Hệ Thống Kiểm Duyệt Tự Động',
         subject: adminSubject,
         htmlBody: adminHtml,
@@ -4873,14 +4873,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         emailConfig?.templates?.report_confirmation?.subject || '✅ Tiếp nhận phản ánh vi phạm tin rao #{{propertyId}} • {{siteName}}',
         {
           propertyId: newReport.propertyId,
-          siteName: emailConfig?.signature?.companyName || 'Đất Biển Đà Nẵng'
+          siteName: emailConfig?.signature?.companyName || 'Kênh Nhà Đất 24H'
         }
       );
       await dispatchEmail({
         to: newReport.reporterEmail,
         toName: newReport.reporterName,
-        from: emailConfig?.fromEmail || 'cskh@datbiendanang.vn',
-        fromName: emailConfig?.fromName || 'Đất Biển Đà Nẵng CSKH',
+        from: emailConfig?.fromEmail || 'cskh@kenhnhadat24h.com.vn',
+        fromName: emailConfig?.fromName || 'Kênh Nhà Đất 24H CSKH',
         subject: reporterSubject,
         htmlBody: reporterHtml,
         type: 'report_confirmation_reporter',
@@ -4949,14 +4949,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
             emailConfig?.templates?.author_warning?.subject || '⚠️ [THÔNG BÁO] Tin đăng #{{propertyId}} vi phạm tiêu chuẩn • {{siteName}}',
             {
               propertyId: targetProperty.id,
-              siteName: emailConfig?.signature?.companyName || 'Đất Biển Đà Nẵng'
+              siteName: emailConfig?.signature?.companyName || 'Kênh Nhà Đất 24H'
             }
           );
           await dispatchEmail({
             to: authorEmail,
             toName: targetProperty.author?.name || targetProperty.contactName || 'Người đăng tin',
-            from: emailConfig?.fromEmail || 'kiemduyet@datbiendanang.vn',
-            fromName: emailConfig?.fromName || 'Ban Kiểm Duyệt Đất Biển Đà Nẵng',
+            from: emailConfig?.fromEmail || 'kiemduyet@kenhnhadat24h.com.vn',
+            fromName: emailConfig?.fromName || 'Ban Kiểm Duyệt Kênh Nhà Đất 24H',
             subject: authorSubject,
             htmlBody: authorHtml,
             type: 'author_warning_delist',
@@ -4978,14 +4978,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         emailConfig?.templates?.report_resolution?.subject || '🎉 Kết quả xử lý phản ánh vi phạm tin rao #{{propertyId}} • {{siteName}}',
         {
           propertyId: affectedReport.propertyId,
-          siteName: emailConfig?.signature?.companyName || 'Đất Biển Đà Nẵng'
+          siteName: emailConfig?.signature?.companyName || 'Kênh Nhà Đất 24H'
         }
       );
       await dispatchEmail({
         to: affectedReport.reporterEmail,
         toName: affectedReport.reporterName,
-        from: emailConfig?.fromEmail || 'cskh@datbiendanang.vn',
-        fromName: emailConfig?.fromName || 'Đất Biển Đà Nẵng CSKH',
+        from: emailConfig?.fromEmail || 'cskh@kenhnhadat24h.com.vn',
+        fromName: emailConfig?.fromName || 'Kênh Nhà Đất 24H CSKH',
         subject: resSubject,
         htmlBody: resolutionHtml,
         type: 'report_resolution_reporter',
@@ -5029,8 +5029,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   const sendCustomEmail = async (emailData) => {
     const { dispatchEmail, getEmailLogs } = await import('../utils/emailService');
     const res = await dispatchEmail({
-      from: emailConfig?.fromEmail || 'kiemduyet@datbiendanang.vn',
-      fromName: emailConfig?.fromName || 'Ban Quản Trị Sàn Đất Biển Đà Nẵng',
+      from: emailConfig?.fromEmail || 'kiemduyet@kenhnhadat24h.com.vn',
+      fromName: emailConfig?.fromName || 'Ban Quản Trị Sàn Kênh Nhà Đất 24H',
       ...emailData
     });
     setEmailLogs(getEmailLogs());
@@ -5076,9 +5076,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const res = await dispatchEmail({
       to: recipientEmail,
       toName: report.reporterName || 'Người gửi phản ánh',
-      from: emailConfig?.fromEmail || 'cskh@datbiendanang.vn',
-      fromName: emailConfig?.fromName || 'Đất Biển Đà Nẵng CSKH',
-      subject: `✅ [PHÁT LẠI] Tiếp nhận phản ánh vi phạm tin rao #${report.propertyId} • ${emailConfig?.fromName || 'Đất Biển Đà Nẵng'}`,
+      from: emailConfig?.fromEmail || 'cskh@kenhnhadat24h.com.vn',
+      fromName: emailConfig?.fromName || 'Kênh Nhà Đất 24H CSKH',
+      subject: `✅ [PHÁT LẠI] Tiếp nhận phản ánh vi phạm tin rao #${report.propertyId} • ${emailConfig?.fromName || 'Kênh Nhà Đất 24H'}`,
       htmlBody: reporterHtml,
       type: 'report_confirmation_reporter',
       metadata: {
@@ -5107,10 +5107,10 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const res = await dispatchEmail({
       to: targetEmail.to,
       toName: targetEmail.toName,
-      from: (targetEmail.from === 'cskh@landmark.vn' || targetEmail.from === 'kiemduyet@landmark.vn' || targetEmail.from === 'cskh@datbiendanang.vn' || targetEmail.from === 'kiemduyet@datbiendanang.vn')
+      from: (targetEmail.from === 'cskh@landmark.vn' || targetEmail.from === 'kiemduyet@landmark.vn' || targetEmail.from === 'cskh@kenhnhadat24h.com.vn' || targetEmail.from === 'kiemduyet@kenhnhadat24h.com.vn')
         ? (emailConfig?.fromEmail || targetEmail.from)
         : targetEmail.from,
-      fromName: (targetEmail.fromName === 'Đất Biển Đà Nẵng CSKH' || targetEmail.fromName === 'BDS Landmark CSKH' || targetEmail.fromName === 'Ban Kiểm Duyệt Sàn Đất Biển Đà Nẵng' || targetEmail.fromName === 'Ban Kiểm Duyệt Sàn BDS Landmark' || targetEmail.fromName === 'Ban Kiểm Duyệt Đất Biển Đà Nẵng' || targetEmail.fromName === 'Ban Kiểm Duyệt BDS Landmark')
+      fromName: (targetEmail.fromName === 'Kênh Nhà Đất 24H CSKH' || targetEmail.fromName === 'BDS Landmark CSKH' || targetEmail.fromName === 'Ban Kiểm Duyệt Sàn Kênh Nhà Đất 24H' || targetEmail.fromName === 'Ban Kiểm Duyệt Sàn BDS Landmark' || targetEmail.fromName === 'Ban Kiểm Duyệt Kênh Nhà Đất 24H' || targetEmail.fromName === 'Ban Kiểm Duyệt BDS Landmark')
         ? (emailConfig?.fromName || targetEmail.fromName)
         : targetEmail.fromName,
       subject: targetEmail.subject.startsWith('✅ [PHÁT LẠI]') ? targetEmail.subject : `[PHÁT LẠI] ${targetEmail.subject}`,

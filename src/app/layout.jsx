@@ -144,6 +144,7 @@ export async function generateMetadata() {
     : 'Sàn thương mại điện tử nhà đất uy tín, mua bán cho thuê nhà đất toàn quốc, đăng tin VIP hiệu quả cao, xác thực pháp lý minh bạch.';
 
   return {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://kenhnhadat24h.com.vn'),
     title: {
       default: `${brand} - Sàn Giao Dịch Nhà Đất & Đăng Tin VIP Toàn Quốc`,
       template: `%s | ${brand}`
@@ -157,7 +158,7 @@ export async function generateMetadata() {
     openGraph: {
       title: `${brand} - Sàn Giao Dịch Nhà Đất & Đăng Tin VIP Toàn Quốc`,
       description: desc,
-      url: 'https://datbiendanang.vn',
+      url: 'https://kenhnhadat24h.com.vn',
       siteName: brand,
       locale: 'vi_VN',
       type: 'website'

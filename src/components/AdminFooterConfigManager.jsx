@@ -430,7 +430,7 @@ export default function AdminFooterConfigManager() {
   // Fallback preview values
   const previewHotline = formData.hotline || systemConfig?.hotline || '0898 246 607';
   const previewZalo = formData.zalo || systemConfig?.zalo;
-  const previewEmail = formData.email || systemConfig?.email || 'cskh@datbiendanang.vn';
+  const previewEmail = formData.email || systemConfig?.email || 'cskh@kenhnhadat24h.com.vn';
   const previewAddress = formData.address || systemConfig?.address || 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng';
   const previewBrandDesc = formData.brandDescription || DEFAULT_FOOTER_CONFIG.brandDescription;
 
@@ -555,7 +555,7 @@ export default function AdminFooterConfigManager() {
                     type="email"
                     value={formData.email || ''}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                    placeholder={systemConfig?.email || 'cskh@datbiendanang.vn'}
+                    placeholder={systemConfig?.email || 'cskh@kenhnhadat24h.com.vn'}
                     className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs outline-none focus:border-emerald-500"
                   />
                 </div>

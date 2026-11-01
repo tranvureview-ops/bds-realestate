@@ -45,7 +45,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
   useEffect(() => {
     if (emailConfig) {
       setFormData(emailConfig);
-      if (!testEmailRecipient || testEmailRecipient === 'admin@landmark.vn' || testEmailRecipient === 'admin@datbiendanang.vn' || testEmailRecipient === 'tranvu.review@gmail.com') {
+      if (!testEmailRecipient || testEmailRecipient === 'admin@landmark.vn' || testEmailRecipient === 'admin@kenhnhadat24h.com.vn' || testEmailRecipient === 'tranvu.review@gmail.com') {
         setTestEmailRecipient(emailConfig.adminAlertEmail || 'tranvu.review@gmail.com');
       }
     }
@@ -309,8 +309,8 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
   ];
 
   const AVAILABLE_TOKENS = [
-    { token: '{{siteName}}', label: 'Tên Sàn BĐS', desc: 'Tên thương hiệu website (Đất Biển Đà Nẵng)' },
-    { token: '{{websiteUrl}}', label: 'Địa chỉ Website', desc: 'Đường dẫn website sàn (https://datbiendanang.vn)' },
+    { token: '{{siteName}}', label: 'Tên Sàn BĐS', desc: 'Tên thương hiệu website (Kênh Nhà Đất 24H)' },
+    { token: '{{websiteUrl}}', label: 'Địa chỉ Website', desc: 'Đường dẫn website sàn (https://kenhnhadat24h.com.vn)' },
     { token: '{{bonusAmount}}', label: 'Số tiền thưởng chào mừng', desc: 'Số tiền tặng vào Ví Khuyến Mãi (ví dụ: 100.000 đ)' },
     { token: '{{verificationUrl}}', label: 'Link kích hoạt tài khoản', desc: 'Đường link xác thực email thành viên' },
     { token: '{{expiryMinutes}}', label: 'Thời hạn link (phút)', desc: 'Thời gian link kích hoạt có hiệu lực (ví dụ: 30)' },
@@ -467,7 +467,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
             <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 shadow-sm relative overflow-hidden">
               <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Email Gửi Đi (From)</div>
               <div className="text-sm font-black text-white mt-2 truncate font-mono" title={formData.fromEmail}>
-                {formData.fromEmail || 'kiemduyet@datbiendanang.vn'}
+                {formData.fromEmail || 'kiemduyet@kenhnhadat24h.com.vn'}
               </div>
               <div className="text-[10px] text-slate-400 mt-1 truncate" title={formData.fromName}>
                 {formData.fromName || 'Ban Quản Trị'}
@@ -478,7 +478,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
             <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 shadow-sm relative overflow-hidden">
               <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Email BQT Nhận Báo Cáo</div>
               <div className="text-sm font-black text-blue-400 mt-2 truncate font-mono" title={formData.adminAlertEmail}>
-                {formData.adminAlertEmail || 'ban-kiem-duyet@datbiendanang.vn'}
+                {formData.adminAlertEmail || 'ban-kiem-duyet@kenhnhadat24h.com.vn'}
               </div>
               <div className="text-[10px] text-slate-500 mt-1">Đã phát {(emailLogs || []).length} thư trong nhật ký</div>
               <i className="fa-solid fa-shield-halved absolute right-3 bottom-3 text-2xl text-slate-800/40 pointer-events-none"></i>
@@ -521,7 +521,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                         type="email"
                         value={formData.fromEmail || ''}
                         onChange={(e) => handleFieldChange('fromEmail', e.target.value)}
-                        placeholder="Ví dụ: kiemduyet@datbiendanang.vn"
+                        placeholder="Ví dụ: kiemduyet@kenhnhadat24h.com.vn"
                         className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono font-bold outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                       />
                       <p className="text-[10px] text-slate-500 mt-1">Địa chỉ email đại diện hệ thống gửi tự động</p>
@@ -537,7 +537,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                         type="email"
                         value={formData.replyToEmail || ''}
                         onChange={(e) => handleFieldChange('replyToEmail', e.target.value)}
-                        placeholder="Ví dụ: cskh@datbiendanang.vn"
+                        placeholder="Ví dụ: cskh@kenhnhadat24h.com.vn"
                         className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono outline-none focus:border-teal-500"
                       />
                       <p className="text-[10px] text-slate-500 mt-1">Khi khách hàng bấm "Trả lời (Reply)", thư sẽ gửi về đây</p>
@@ -648,7 +648,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                         type="text"
                         value={formData.smtp?.username || ''}
                         onChange={(e) => handleSmtpChange('username', e.target.value)}
-                        placeholder="support@datbiendanang.vn hoặc email@gmail.com"
+                        placeholder="support@kenhnhadat24h.com.vn hoặc email@gmail.com"
                         className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono outline-none focus:border-teal-500"
                       />
                     </div>
@@ -712,7 +712,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                         <ol className="list-decimal pl-5 space-y-1 text-slate-400">
                           <li>Truy cập <Link href="https://myaccount.google.com/security" target="_blank" rel="noreferrer" className="text-teal-400 underline">Tài khoản Google &gt; Bảo mật</Link> và đảm bảo đã bật <strong>Xác minh 2 bước</strong>.</li>
                           <li>Tìm mục <strong>Mật khẩu ứng dụng (App Passwords)</strong> hoặc truy cập <Link href="https://myaccount.google.com/apppasswords" target="_blank" rel="noreferrer" className="text-teal-400 underline">google.com/apppasswords</Link>.</li>
-                          <li>Đặt tên ứng dụng là "Đất Biển Đà Nẵng Website" rồi bấm Tạo. Sao chép chuỗi 16 ký tự (ví dụ: <code className="bg-slate-800 px-1 py-0.5 rounded text-amber-300 font-mono">vmsd xkzp ljwr gqae</code>) dán vào ô Mật khẩu SMTP ở trên.</li>
+                          <li>Đặt tên ứng dụng là "Kênh Nhà Đất 24H Website" rồi bấm Tạo. Sao chép chuỗi 16 ký tự (ví dụ: <code className="bg-slate-800 px-1 py-0.5 rounded text-amber-300 font-mono">vmsd xkzp ljwr gqae</code>) dán vào ô Mật khẩu SMTP ở trên.</li>
                         </ol>
                       </div>
                     )}
@@ -767,7 +767,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                         type="email"
                         value={formData.adminAlertEmail || ''}
                         onChange={(e) => handleFieldChange('adminAlertEmail', e.target.value)}
-                        placeholder="ban-kiem-duyet@datbiendanang.vn"
+                        placeholder="ban-kiem-duyet@kenhnhadat24h.com.vn"
                         className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono font-bold outline-none focus:border-teal-500"
                       />
                       <p className="text-[10px] text-slate-500 mt-1">Hệ thống gửi thư báo động đỏ tới email này ngay khi có vi phạm</p>
@@ -781,7 +781,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                         type="text"
                         value={formData.adminCcEmails || ''}
                         onChange={(e) => handleFieldChange('adminCcEmails', e.target.value)}
-                        placeholder="giam-sat@datbiendanang.vn, phap-che@datbiendanang.vn"
+                        placeholder="giam-sat@kenhnhadat24h.com.vn, phap-che@kenhnhadat24h.com.vn"
                         className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono outline-none focus:border-teal-500"
                       />
                       <p className="text-[10px] text-slate-500 mt-1">Phân cách nhiều địa chỉ bằng dấu phẩy (,)</p>
@@ -914,7 +914,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                       type="url"
                       value={formData.signature?.websiteUrl || ''}
                       onChange={(e) => handleSignatureChange('websiteUrl', e.target.value)}
-                      placeholder="https://datbiendanang.vn"
+                      placeholder="https://kenhnhadat24h.com.vn"
                       className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-teal-300 font-mono font-bold outline-none focus:border-teal-500"
                     />
                   </div>
@@ -1427,7 +1427,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                   <div className="flex items-center gap-2 truncate">
                     <span className="text-slate-500 w-16 shrink-0">Người gửi:</span>
                     <strong className="text-slate-200 truncate">{formData.fromName || `Ban Quản Trị Sàn ${systemConfig?.brandShortName || 'Nhà Đất'}`}</strong>
-                    <span className="text-slate-400 font-mono truncate">&lt;{formData.fromEmail || 'kiemduyet@datbiendanang.vn'}&gt;</span>
+                    <span className="text-slate-400 font-mono truncate">&lt;{formData.fromEmail || 'kiemduyet@kenhnhadat24h.com.vn'}&gt;</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-slate-500 w-16 shrink-0">Tiêu đề:</span>
@@ -1435,7 +1435,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                       {renderEmailTemplateString(currentTemplate.subject || '', {
                         propertyId: 'BDS-003',
                         siteName: formData.signature?.companyName || systemConfig?.brandShortName || 'Sàn BĐS',
-                        websiteUrl: formData.signature?.websiteUrl || 'https://datbiendanang.vn',
+                        websiteUrl: formData.signature?.websiteUrl || 'https://kenhnhadat24h.com.vn',
                         reason: 'Giá không đúng thực tế',
                         currentTime: new Date().toLocaleTimeString('vi-VN')
                       })}

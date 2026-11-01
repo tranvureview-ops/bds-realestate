@@ -152,7 +152,7 @@ export default function WalletDepositModal({ onClose }) {
                   className="w-full h-full object-contain"
                   onError={(e) => {
                     e.currentTarget.onerror = null;
-                    e.currentTarget.src = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://datbiendanang.vn/pay';
+                    e.currentTarget.src = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://kenhnhadat24h.com.vn/pay';
                   }}
                 />
               </div>

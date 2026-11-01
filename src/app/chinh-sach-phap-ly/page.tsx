@@ -4,12 +4,12 @@ import Link from 'next/link';
 // ============================================================================
 // HẰNG SỐ THÔNG TIN THƯƠNG HIỆU ĐỒNG BỘ CÀI ĐẶT WEBSITE
 // ============================================================================
-const BRAND_NAME = 'Đất Biển Đà Nẵng';
-const COMPANY_NAME = 'Sàn Giao Dịch Nhà Đất Đất Biển Đà Nẵng';
+const BRAND_NAME = 'Kênh Nhà Đất 24H';
+const COMPANY_NAME = 'Sàn Giao Dịch Nhà Đất Kênh Nhà Đất 24H';
 const HOTLINE = '0904 084 888';
 const EMAIL = 'tranvanvu.dev@gmail.com';
 const ADDRESS = 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng';
-const DOMAIN = 'https://bds-realestate.vercel.app';
+const DOMAIN = 'https://kenhnhadat24h.com.vn';
 
 // ============================================================================
 // 1. CẤU HÌNH METADATA API CHUẨN SEO GOOGLE (TITLE < 60 chars, DESC < 160 chars)

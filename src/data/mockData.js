@@ -414,7 +414,7 @@ export const INITIAL_PROPERTIES = [
     "author": {
       "id": "broker-01",
       "name": "Nguyễn Văn Tuấn",
-      "email": "tuan.batdongsan@datbiendanang.vn",
+      "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
       "phone": "0908 123 456",
       "zalo": "0908123456",
       "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -509,7 +509,7 @@ export const INITIAL_PROPERTIES = [
     "author": {
       "id": "broker-01",
       "name": "Nguyễn Văn Tuấn",
-      "email": "tuan.batdongsan@datbiendanang.vn",
+      "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
       "phone": "0908 123 456",
       "zalo": "0908123456",
       "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -595,7 +595,7 @@ export const INITIAL_PROPERTIES = [
     "author": {
       "id": "broker-01",
       "name": "Nguyễn Văn Tuấn",
-      "email": "tuan.batdongsan@datbiendanang.vn",
+      "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
       "phone": "0908 123 456",
       "zalo": "0908123456",
       "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -694,7 +694,7 @@ export const INITIAL_PROPERTIES = [
     "author": {
       "id": "broker-01",
       "name": "Nguyễn Văn Tuấn",
-      "email": "tuan.batdongsan@datbiendanang.vn",
+      "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
       "phone": "0908 123 456",
       "zalo": "0908123456",
       "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -847,7 +847,7 @@ export const INITIAL_PROPERTIES = [
     "author": {
       "id": "broker-01",
       "name": "Nguyễn Văn Tuấn",
-      "email": "tuan.batdongsan@datbiendanang.vn",
+      "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
       "phone": "0908 123 456",
       "zalo": "0908123456",
       "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -1139,7 +1139,7 @@ export const INITIAL_PROPERTIES = [
     "author": {
       "id": "broker-01",
       "name": "Nguyễn Văn Tuấn",
-      "email": "tuan.batdongsan@datbiendanang.vn",
+      "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
       "phone": "0908 123 456",
       "zalo": "0908123456",
       "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -1255,7 +1255,7 @@ export const INITIAL_PROPERTIES = [
     "author": {
       "id": "broker-01",
       "name": "Nguyễn Văn Tuấn",
-      "email": "tuan.batdongsan@datbiendanang.vn",
+      "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
       "phone": "0908 123 456",
       "zalo": "0908123456",
       "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -1534,7 +1534,7 @@ export const INITIAL_PROPERTIES = [
     "author": {
       "id": "broker-01",
       "name": "Nguyễn Văn Tuấn",
-      "email": "tuan.batdongsan@datbiendanang.vn",
+      "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
       "phone": "0908 123 456",
       "zalo": "0908123456",
       "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -1700,7 +1700,7 @@ export const INITIAL_PROPERTIES = [
     "author": {
       "id": "broker-01",
       "name": "Nguyễn Văn Tuấn",
-      "email": "tuan.batdongsan@datbiendanang.vn",
+      "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
       "phone": "0908 123 456",
       "zalo": "0908123456",
       "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -2015,7 +2015,7 @@ export const INITIAL_PROPERTIES = [
     "author": {
       "id": "broker-01",
       "name": "Nguyễn Văn Tuấn",
-      "email": "tuan.batdongsan@datbiendanang.vn",
+      "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
       "phone": "0908 123 456",
       "zalo": "0908123456",
       "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -2425,7 +2425,7 @@ export const INITIAL_PROPERTIES = [
     "author": {
       "id": "broker-01",
       "name": "Nguyễn Văn Tuấn",
-      "email": "tuan.batdongsan@datbiendanang.vn",
+      "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
       "phone": "0908 123 456",
       "zalo": "0908123456",
       "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -2659,7 +2659,7 @@ export const INITIAL_PROPERTIES = [
     "author": {
       "id": "broker-01",
       "name": "Nguyễn Văn Tuấn",
-      "email": "tuan.batdongsan@datbiendanang.vn",
+      "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
       "phone": "0908 123 456",
       "zalo": "0908123456",
       "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=150&q=80",
@@ -2793,7 +2793,7 @@ export const MOCK_USERS = [
   {
     "id": "broker-01",
     "name": "Nguyễn Văn Tuấn",
-    "email": "tuan.batdongsan@datbiendanang.vn",
+    "email": "tuan.batdongsan@kenhnhadat24h.com.vn",
     "role": "broker",
     "roleName": "Môi Giới",
     "walletBalance": 4250000,
@@ -3051,15 +3051,15 @@ export const DEFAULT_SOCIAL_LINKS = {
 // Cấu hình Header, Logo & Độ Rộng Menu (Header & Logo Settings)
 export const DEFAULT_HEADER_CONFIG = {
   logoType: 'text', // 'text' | 'image'
-  brandName: 'KENHNHADAT24H',
-  brandHighlight: '.com.vn',
+  brandName: 'Kênh Nhà Đất',
+  brandHighlight: '24H',
   brandTagline: 'Sàn Giao Dịch Nhà Đất & Đăng Tin VIP',
   brandIcon: 'fa-solid fa-water',
   badgeText: '',
   badgeColor: 'bg-red-100 text-red-600 border border-red-200',
   logoImageUrl: '',
   logoHeight: 40,
-  logoAlt: 'KÊNH NHÀ ĐẤT 24H Logo',
+  logoAlt: 'Kênh Nhà Đất 24H Logo',
   showTaglineWithImage: false,
   containerWidth: 'wide', // 'boxed' (max-w-7xl) | 'wide' (max-w-screen-2xl) | 'full' (w-full 100%)
   socialLinks: DEFAULT_SOCIAL_LINKS,
@@ -3142,7 +3142,7 @@ export const DEFAULT_FOOTER_CONFIG = {
 export const PRESET_LOGOS = [
   {
     id: 'preset-gold',
-    name: 'Đất Biển Đà Nẵng Luxury',
+    name: 'Kênh Nhà Đất 24H Luxury',
     url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" fill="none"><rect width="240" height="60" rx="12" fill="%230f172a"/><path d="M22 45V22L36 12L50 22V45H40V30H32V45H22Z" fill="%230284c7"/><circle cx="36" cy="20" r="4" fill="%2338bdf8"/><text x="60" y="34" font-family="Arial, sans-serif" font-weight="900" font-size="16" fill="white">ĐẤT BIỂN <tspan fill="%2338bdf8">ĐÀ NẴNG</tspan></text><text x="60" y="47" font-family="Arial, sans-serif" font-weight="600" font-size="9" fill="%2394a3b8" letter-spacing="2">NHÀ ĐẤT BIỂN</text></svg>'
   },
   {
@@ -3261,8 +3261,10 @@ export const DEFAULT_PAYMENT_CONFIG = {
 
 // Cấu hình Vận Hành Hệ Thống Sàn BĐS (Platform Operating Settings)
 export const DEFAULT_SYSTEM_CONFIG = {
-  platformName: 'KENHNHADAT24H.com.vn',
-  brandShortName: 'KENHNHADAT24H.com.vn',
+  platformName: 'Kênh Nhà Đất 24H',
+  brandShortName: 'Kênh Nhà Đất 24H',
+  domain: 'kenhnhadat24h.com.vn',
+  siteUrl: 'https://kenhnhadat24h.com.vn',
   tagline: 'Sàn Giao Dịch Nhà Đất & Đăng Tin VIP',
   hotline: '0905467138',
   zalo: '0905467138',
@@ -3321,7 +3323,7 @@ export const DEFAULT_SINGLE_CONFIG = {
     badgeColor: 'amber', // 'amber', 'rose', 'blue', 'slate', 'emerald'
     bgStyle: 'slate', // 'slate' | 'amber' | 'blue' | 'white'
     hotline: '0904 084 888',
-    platformName: 'ĐẤT BIỂN ĐÀ NẴNG',
+    platformName: 'KÊNH NHÀ ĐẤT 24H',
     contentTemplate: 'Quý vị đang xem nội dung tin rao "{title}" - Mã tin {id}. Nội dung tin đăng này do Người đăng tin cung cấp và chịu trách nhiệm về tính chính xác, đầy đủ và hợp pháp của thông tin. Với tư cách là Nền tảng thương mại điện tử trung gian, {platformName} thực hiện rà soát, kiểm duyệt trên cơ sở các thông tin được cung cấp. Quý vị vui lòng chủ động kiểm tra, thẩm định thông tin pháp lý và thực tế trước khi giao dịch. Nếu phát hiện nội dung không chính xác hoặc vi phạm, xin vui lòng thông báo qua Hotline {hotline} hoặc công cụ Báo cáo vi phạm để chúng tôi tiếp nhận và xử lý theo quy định.',
     showReportButton: true,
     reportButtonText: 'Báo cáo tin này',
@@ -3442,7 +3444,7 @@ export const DEFAULT_EMAIL_CONFIG = {
 
   // 2. Thông tin người gửi (From & Reply-to)
   fromEmail: 'tranvanvu.dev@gmail.com',
-  fromName: 'Ban Quản Trị Sàn Đất Biển Đà Nẵng',
+  fromName: 'Ban Quản Trị Sàn Kênh Nhà Đất 24H',
   replyToEmail: 'tranvanvu.dev@gmail.com',
 
   // 3. Email Quản Trị Viên / Ban Kiểm Duyệt tiếp nhận cảnh báo
@@ -3471,10 +3473,10 @@ export const DEFAULT_EMAIL_CONFIG = {
 
   // 6. Chữ ký thương hiệu & Chân trang Email (Signature / Footer)
   signature: {
-    companyName: 'SÀN GIAO DỊCH NHÀ ĐẤT ĐẤT BIỂN ĐÀ NẴNG',
+    companyName: 'SÀN GIAO DỊCH NHÀ ĐẤT KÊNH NHÀ ĐẤT 24H',
     hotline: '0904 084 888',
     address: 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng',
-    websiteUrl: 'https://datbiendanang.vn'
+    websiteUrl: 'https://kenhnhadat24h.com.vn'
   },
 
   // 7. Mẫu nội dung Email tùy chỉnh (Customizable Templates)

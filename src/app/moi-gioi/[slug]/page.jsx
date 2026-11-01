@@ -26,7 +26,7 @@ export async function generateMetadata({ params }) {
       follow: true,
     },
     openGraph: {
-      title: `Hồ Sơ Môi Giới ${formattedName} | Sàn Giao Dịch BĐS Đất Biển Đà Nẵng`,
+      title: `Hồ Sơ Môi Giới ${formattedName} | Sàn Giao Dịch BĐS Kênh Nhà Đất 24H`,
       description: `Khám phá các nhà đất bán và cho thuê đang quản lý bởi môi giới ${formattedName}.`,
       url: canonicalUrl,
       type: 'profile',

@@ -8,7 +8,7 @@ import { normalizePhone } from '../utils/authValidation';
  * @returns {string} HTML string
  */
 export function generateAppointmentEmailHtml({ appointment, broker, property, emailConfig }) {
-  const brandName = emailConfig?.companyName || emailConfig?.fromName || 'Đất Biển Đà Nẵng';
+  const brandName = emailConfig?.companyName || emailConfig?.fromName || 'Kênh Nhà Đất 24H';
   const hotline = emailConfig?.hotline || '0898 246 607';
   const logoUrl = emailConfig?.companyLogo || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=200&q=80';
   const customerPhone = appointment.customerPhone || '';
@@ -17,7 +17,7 @@ export function generateAppointmentEmailHtml({ appointment, broker, property, em
   const propertyTitle = appointment.propertyTitle || 'Nhà đất';
   const propertyPrice = appointment.propertyPrice || 'Thỏa thuận';
   const propertyAddress = appointment.propertyAddress || '';
-  const propertyUrl = appointment.propertyPermalink ? (appointment.propertyPermalink.startsWith('http') ? appointment.propertyPermalink : `https://datbiendanang.vn${appointment.propertyPermalink}`) : 'https://datbiendanang.vn';
+  const propertyUrl = appointment.propertyPermalink ? (appointment.propertyPermalink.startsWith('http') ? appointment.propertyPermalink : `https://kenhnhadat24h.com.vn${appointment.propertyPermalink}`) : 'https://kenhnhadat24h.com.vn';
   const zaloChatUrl = `https://zalo.me/${normalizePhone(customerPhone)}`;
   const callUrl = `tel:${customerPhone}`;
 
@@ -164,7 +164,7 @@ export function generateAppointmentEmailHtml({ appointment, broker, property, em
  * @param {string} [params.origin] Origin URL của server
  * @returns {Promise<Object>} Kết quả điều phối từng kênh
  */
-export async function dispatchAppointmentNotifications({ appointment, origin = 'https://datbiendanang.vn' }) {
+export async function dispatchAppointmentNotifications({ appointment, origin = 'https://kenhnhadat24h.com.vn' }) {
   const db = await getFullSystemDatabase();
   const users = Array.isArray(db.bds_users_list) ? db.bds_users_list : [];
   const emailConfig = db.bds_email_config || null;

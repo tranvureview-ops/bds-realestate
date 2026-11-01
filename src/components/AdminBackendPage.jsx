@@ -7475,7 +7475,7 @@ export default function AdminBackendPage() {
                           type="email"
                           value={formSystemConfig.email || ''}
                           onChange={(e) => setFormSystemConfig(prev => ({ ...prev, email: e.target.value }))}
-                          placeholder="Ví dụ: cskh@datbiendanang.vn"
+                          placeholder="Ví dụ: cskh@kenhnhadat24h.com.vn"
                           className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-mono font-bold outline-none focus:border-emerald-500"
                         />
                       </div>

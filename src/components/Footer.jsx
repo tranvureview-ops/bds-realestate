@@ -57,11 +57,11 @@ export default function Footer() {
 
   const activeHotline = footerConfig?.hotline || systemConfig?.hotline || '0898 246 607';
   const activeZalo = footerConfig?.zalo || systemConfig?.zalo;
-  const activeEmail = footerConfig?.email || systemConfig?.email || 'cskh@datbiendanang.vn';
+  const activeEmail = footerConfig?.email || systemConfig?.email || 'cskh@kenhnhadat24h.com.vn';
   const activeAddress = footerConfig?.address || systemConfig?.address || 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng';
   const rawBrandDesc = footerConfig?.brandDescription ?? DEFAULT_FOOTER_CONFIG.brandDescription;
   const brandDesc = rawBrandDesc
-    ? rawBrandDesc.replace(/Đất Biển Đà Nẵng/g, activeBrandName).replace(/ĐẤT BIỂN ĐÀ NẴNG/g, activeBrandName)
+    ? rawBrandDesc.replace(/Kênh Nhà Đất 24H/g, activeBrandName).replace(/KÊNH NHÀ ĐẤT 24H/g, activeBrandName)
     : `${activeBrandName} là sàn thương mại điện tử chuyên biệt về nhà đất, đất nền dự án, biệt thự nghỉ dưỡng và căn hộ cao cấp toàn quốc.`;
 
   const col2Title = footerConfig?.col2Title || DEFAULT_FOOTER_CONFIG.col2Title;
@@ -85,9 +85,9 @@ export default function Footer() {
 
   const copyrightText = footerConfig?.copyrightCustomText?.trim() 
     ? footerConfig.copyrightCustomText
-        .replace(/ĐẤT BIỂN ĐÀ NẴNG/g, activeBrandName)
-        .replace(/Đất Biển Đà Nẵng/g, activeBrandName)
-        .replace(/Công ty Cổ phần Nhà Đất Đất Biển Đà Nẵng/g, activePlatformName)
+        .replace(/KÊNH NHÀ ĐẤT 24H/g, activeBrandName)
+        .replace(/Kênh Nhà Đất 24H/g, activeBrandName)
+        .replace(/Công ty Cổ phần Nhà Đất Kênh Nhà Đất 24H/g, activePlatformName)
     : `© ${new Date().getFullYear()} ${activeBrandName}. Bản quyền thuộc về ${activePlatformName}.`;
 
   const showSocial = footerConfig?.showSocialLinks !== false;

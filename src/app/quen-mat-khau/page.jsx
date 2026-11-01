@@ -2,8 +2,8 @@ import { Suspense } from 'react';
 import ForgotPasswordPage from '../../views/ForgotPasswordPage';
 
 export const metadata = {
-  title: 'Quên Mật Khẩu & Khôi Phục Tài Khoản | Đất Biển Đà Nẵng',
-  description: 'Khôi phục mật khẩu tài khoản thành viên trên sàn giao dịch Đất Biển Đà Nẵng nhanh chóng và an toàn.'
+  title: 'Quên Mật Khẩu & Khôi Phục Tài Khoản | Kênh Nhà Đất 24H',
+  description: 'Khôi phục mật khẩu tài khoản thành viên trên sàn giao dịch Kênh Nhà Đất 24H nhanh chóng và an toàn.'
 };
 
 export default function Page() {

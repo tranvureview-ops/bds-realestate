@@ -378,13 +378,13 @@ export default function AdminReportsManager({
     const htmlBody = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
         <div style="background: #0f172a; padding: 20px 24px; color: #ffffff; border-bottom: 3px solid #e11d48;">
-          <h2 style="margin: 0; font-size: 18px;">${systemConfig?.brandShortName || 'ĐẤT BIỂN ĐÀ NẴNG'} • THÔNG BÁO TỪ BAN QUẢN TRỊ</h2>
+          <h2 style="margin: 0; font-size: 18px;">${systemConfig?.brandShortName || 'KÊNH NHÀ ĐẤT 24H'} • THÔNG BÁO TỪ BAN QUẢN TRỊ</h2>
         </div>
         <div style="padding: 24px; color: #334155; font-size: 14px; line-height: 1.6; white-space: pre-line;">
           ${composeFormData.messageContent}
         </div>
         <div style="background: #f8fafc; padding: 14px 24px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b; text-align: center;">
-          Hệ thống email quản trị Sàn Giao Dịch Nhà Đất ${systemConfig?.brandShortName || 'Đất Biển Đà Nẵng'} • Hotline: ${activeHotline}
+          Hệ thống email quản trị Sàn Giao Dịch Nhà Đất ${systemConfig?.brandShortName || 'Kênh Nhà Đất 24H'} • Hotline: ${activeHotline}
         </div>
       </div>
     `;
@@ -392,7 +392,7 @@ export default function AdminReportsManager({
     await sendCustomEmail({
       to: composeFormData.to,
       toName: composeFormData.toName || composeFormData.to,
-      from: emailConfig?.fromEmail || 'kiemduyet@datbiendanang.vn',
+      from: emailConfig?.fromEmail || 'kiemduyet@kenhnhadat24h.com.vn',
       fromName: emailConfig?.fromName || `Ban Kiểm Duyệt Sàn ${systemConfig?.brandShortName || 'Nhà Đất'}`,
       subject: composeFormData.subject,
       htmlBody,

@@ -417,7 +417,7 @@ export async function testTelegramConnection(botTokenInput = null, chatIdInput =
 🟢 <b>KIỂM TRA KẾT NỐI LIVE CHAT THÀNH CÔNG!</b>
 ────────────────────────
 🤖 <b>Tên Bot:</b> @${meData.result?.username || botName}
-🏢 <b>Hệ thống:</b> Sàn BĐS Đất Biển Đà Nẵng
+🏢 <b>Hệ thống:</b> Sàn BĐS Kênh Nhà Đất 24H
 🕒 <b>Thời gian:</b> ${new Date().toLocaleString('vi-VN')}
 ✨ Hệ thống Live Chat 2 chiều đã sẵn sàng nhận tin nhắn từ khách hàng!
 `.trim();

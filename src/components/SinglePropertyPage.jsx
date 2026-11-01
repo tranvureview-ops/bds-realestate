@@ -82,7 +82,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   const [reporterName, setReporterName] = useState(() => currentUser?.name || '');
   const [reporterContact, setReporterContact] = useState(() => {
     const raw = currentUser?.email || currentUser?.phone || '';
-    return typeof raw === 'string' ? raw.replace(/@landmark\.vn/g, '@datbiendanang.vn') : '';
+    return typeof raw === 'string' ? raw.replace(/@landmark\.vn/g, '@kenhnhadat24h.com.vn') : '';
   });
   const [reportSubmitting, setReportSubmitting] = useState(false);
   const [reportSuccessData, setReportSuccessData] = useState(null);
@@ -103,7 +103,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
       if (!reporterName) {
         setReporterName(currentUser.name || '');
       }
-      const userEmail = (currentUser.email || '').replace(/@landmark\.vn/g, '@datbiendanang.vn');
+      const userEmail = (currentUser.email || '').replace(/@landmark\.vn/g, '@kenhnhadat24h.com.vn');
       if (!reporterContact || reporterContact.includes('@landmark.vn')) {
         setReporterContact(userEmail || currentUser.phone || '');
       }
@@ -476,7 +476,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
       const rawResolvedEmail = !isGuest
         ? (currentUser?.email || (isEmail ? reporterContact.trim() : ''))
         : (isEmail ? reporterContact.trim() : '');
-      const resolvedEmail = (rawResolvedEmail || '').replace(/@landmark\.vn/g, '@datbiendanang.vn');
+      const resolvedEmail = (rawResolvedEmail || '').replace(/@landmark\.vn/g, '@kenhnhadat24h.com.vn');
 
       const contactValue = !isGuest
         ? (currentUser?.email || currentUser?.phone || reporterContact || '')
@@ -495,7 +495,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
         propertyTitle: property.title,
         reason: reportReason,
         description: reportDescription || '',
-        contact: String(contactValue).replace(/@landmark\.vn/g, '@datbiendanang.vn'),
+        contact: String(contactValue).replace(/@landmark\.vn/g, '@kenhnhadat24h.com.vn'),
         reporterName: nameValue,
         reporterEmail: resolvedEmail,
         reporterPhone: phoneValue
@@ -1551,7 +1551,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
             const hotlineDisplay = (discCfg.hotline && discCfg.hotline !== '1900 1881') ? discCfg.hotline : (systemConfig?.hotline || '0898 246 607');
             const hotlineClean = hotlineDisplay.replace(/\s+/g, '');
-            const platformName = discCfg.platformName || systemConfig?.brandShortName || 'Đất Biển Đà Nẵng';
+            const platformName = discCfg.platformName || systemConfig?.brandShortName || 'Kênh Nhà Đất 24H';
 
             return (
               <div className={`rounded-3xl p-6 sm:p-7 border shadow-sm space-y-3.5 transition-all ${bgClass}`}>
@@ -2548,7 +2548,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                               type="text"
                               value={reporterContact}
                               onChange={(e) => setReporterContact(e.target.value)}
-                              placeholder="Ví dụ: 0898 246 607 hoặc email@datbiendanang.vn"
+                              placeholder="Ví dụ: 0898 246 607 hoặc email@kenhnhadat24h.com.vn"
                               className="w-full pl-8 pr-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500 shadow-xs"
                               required
                             />
@@ -2615,10 +2615,10 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
         <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3 mb-4">
           <div>
             <div className="text-xl font-black text-slate-900 uppercase">
-              {systemConfig?.platformName || 'ĐẤT BIỂN ĐÀ NẴNG • SÀN GIAO DỊCH NHÀ ĐẤT'}
+              {systemConfig?.platformName || 'KÊNH NHÀ ĐẤT 24H • SÀN GIAO DỊCH NHÀ ĐẤT'}
             </div>
             <div suppressHydrationWarning className="text-xs text-slate-600 mt-0.5">
-              Hotline kiểm định & tư vấn: <strong suppressHydrationWarning>{systemConfig?.hotline || '0904 084 888'}</strong> • Website: <strong suppressHydrationWarning>{typeof window !== 'undefined' ? window.location.host : 'datbiendanang.vn'}</strong>
+              Hotline kiểm định & tư vấn: <strong suppressHydrationWarning>{systemConfig?.hotline || '0904 084 888'}</strong> • Website: <strong suppressHydrationWarning>{typeof window !== 'undefined' ? window.location.host : 'kenhnhadat24h.com.vn'}</strong>
             </div>
           </div>
           <div suppressHydrationWarning className="text-right text-xs text-slate-600">

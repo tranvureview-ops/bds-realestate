@@ -4,7 +4,7 @@ import React from 'react';
 
 /**
  * StandardPageContainer
- * Layout container chuẩn mực đồng bộ chiều rộng cho toàn bộ trang của Sàn BĐS Đất Biển Đà Nẵng.
+ * Layout container chuẩn mực đồng bộ chiều rộng cho toàn bộ trang của Sàn BĐS Kênh Nhà Đất 24H.
  * Chiều rộng chuẩn: max-w-7xl (1280px), căn giữa, padding co giãn tự động theo màn hình di động/tablet/desktop.
  * Sử dụng wrapper này khi tạo bất kỳ trang mới nào để đảm bảo 100% đồng nhất layout với Header, Footer và toàn sàn.
  */

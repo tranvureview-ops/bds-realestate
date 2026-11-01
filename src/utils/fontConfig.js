@@ -14,7 +14,7 @@ export const AVAILABLE_FONTS = [
       sizeAdjust: '99.4%'
     },
     primaryPreloadWoff2: 'https://fonts.gstatic.com/s/plusjakartasans/v12/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko50yyygA.woff2',
-    sampleHeadline: 'Sàn Nhà Đất Đất Biển Đà Nẵng',
+    sampleHeadline: 'Sàn Nhà Đất Kênh Nhà Đất 24H',
     sampleText: 'Nền tảng mua bán căn hộ, đất nền và biệt thự biển chuẩn pháp lý.',
     samplePrice: '4.850.000.000 ₫'
   },

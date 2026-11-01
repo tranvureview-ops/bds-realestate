@@ -42,7 +42,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
   const userRefCode = currentUser?.refCode || currentUser?.phone || (currentUser?.id && currentUser.id !== 'guest' ? currentUser.id : '');
   const affiliateLink = typeof window !== 'undefined' && window.location?.origin
     ? `${window.location.origin}/dang-ky?ref=${userRefCode || 'BDS'}`
-    : `https://bds-realestate.vercel.app/dang-ky?ref=${userRefCode || 'BDS'}`;
+    : `https://kenhnhadat24h.com.vn/dang-ky?ref=${userRefCode || 'BDS'}`;
 
   // Thống kê Affiliate chuẩn hóa với cơ chế thẩm tra đạt chuẩn (Qualified) tối ưu useMemo tránh chặn luồng render
   const affiliateReport = useMemo(() => {

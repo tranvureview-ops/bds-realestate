@@ -50,7 +50,7 @@ export async function POST(request) {
     const mailOptions = {
       from: sender,
       to,
-      subject: subject || 'Thư thử nghiệm từ Đất Biển Đà Nẵng',
+      subject: subject || 'Thư thử nghiệm từ Kênh Nhà Đất 24H',
       html: html || '<p>Nội dung thử nghiệm</p>',
       text: text || 'Nội dung thử nghiệm'
     };

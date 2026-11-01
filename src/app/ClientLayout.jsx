@@ -47,10 +47,10 @@ function AppContent({ children }) {
   useEffect(() => {
     if (typeof document === 'undefined') return;
     const brand = systemConfig?.brandShortName;
-    if (brand && document.title && document.title.includes('Đất Biển Đà Nẵng') && brand !== 'Đất Biển Đà Nẵng') {
+    if (brand && document.title && document.title.includes('Kênh Nhà Đất 24H') && brand !== 'Kênh Nhà Đất 24H') {
       document.title = document.title
-        .replace(/Đất Biển Đà Nẵng/g, brand)
-        .replace(/ĐẤT BIỂN ĐÀ NẴNG/g, brand);
+        .replace(/Kênh Nhà Đất 24H/g, brand)
+        .replace(/KÊNH NHÀ ĐẤT 24H/g, brand);
     }
   }, [systemConfig?.brandShortName]);
 
