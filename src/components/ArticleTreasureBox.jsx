@@ -152,7 +152,7 @@ export default function ArticleTreasureBox({ property }) {
     // B. Chống bot/spam: Phải xem bài viết ít nhất X giây mới sẵn sàng mở hộp
     if (!timeReady || readingSecondsLeft > 0) {
       if (showToast) {
-        showToast(`🛡️ Vui lòng xem tin đăng thêm ${readingSecondsLeft}s nữa để mở khóa rương (Chống bot gian lận)!`, 'warning');
+        showToast(`🛡️ Vui lòng xem tin đăng thêm ${readingSecondsLeft}s nữa để mở khóa rương!`, 'warning');
       }
       return;
     }
@@ -338,7 +338,7 @@ export default function ArticleTreasureBox({ property }) {
                 : isGuest && requireLogin
                 ? 'Quý khách vui lòng đăng nhập tài khoản để mở rương nhận thưởng trực tiếp vào Ví Khuyến Mãi.'
                 : !timeReady
-                ? `Vui lòng xem bài viết trong ${readingSecondsLeft} giây nữa để chống bot và mở khóa nhận thưởng vào Ví Khuyến Mãi.`
+                ? `Vui lòng xem bài viết trong ${readingSecondsLeft} giây nữa để mở khóa nhận thưởng vào Ví Khuyến Mãi.`
                 : 'Mở rương ngẫu nhiên nhận thưởng từ các mốc tiền thưởng may mắn cộng thẳng vào Ví Khuyến Mãi.'}
             </p>
 
@@ -385,7 +385,7 @@ export default function ArticleTreasureBox({ property }) {
               type="button"
               onClick={() => {
                 if (showToast) {
-                  showToast(`🛡️ Vui lòng xem tin đăng thêm ${readingSecondsLeft}s nữa để mở khóa rương (Chống bot gian lận)!`, 'warning');
+                  showToast(`🛡️ Vui lòng xem tin đăng thêm ${readingSecondsLeft}s nữa để mở khóa rương!`, 'warning');
                 }
               }}
               className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-slate-950/70 hover:bg-slate-950/90 text-amber-300 font-bold text-xs sm:text-sm border border-amber-400/50 shadow-lg transition flex items-center justify-center gap-2 cursor-pointer"

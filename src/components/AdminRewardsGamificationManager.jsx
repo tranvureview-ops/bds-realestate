@@ -1014,7 +1014,7 @@ export default function AdminRewardsGamificationManager() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
                 <div className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
                   <i className="fa-solid fa-sliders text-amber-400"></i>
-                  <span>Quy Tắc Đối Tượng, Hạn Mức & Chống Bot</span>
+                  <span>Quy Tắc Đối Tượng, Hạn Mức & Bảo Mật</span>
                 </div>
                 {/* Toggle Yêu cầu đăng nhập */}
                 <label className="flex items-center gap-2.5 cursor-pointer bg-slate-950 px-3.5 py-1.5 rounded-xl border border-slate-800 hover:border-slate-700 transition">
@@ -1041,8 +1041,8 @@ export default function AdminRewardsGamificationManager() {
                 {/* Thời gian đọc bài chống bot */}
                 <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
                   <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
-                    <span>Thời gian đọc chống bot (Chung)</span>
-                    <span className="text-blue-400 text-[10px] font-mono">Anti-bot</span>
+                    <span>Thời gian đọc bài viết (Chung)</span>
+                    <span className="text-blue-400 text-[10px] font-mono">Xem tin</span>
                   </label>
                   <div className="relative">
                     <input

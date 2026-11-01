@@ -495,7 +495,7 @@ export default function TreasureHuntPage() {
                 <i className="fa-solid fa-shield-halved"></i>
               </div>
               <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-800">
-                Chống Bot 100%
+                Minh Bạch 100%
               </span>
             </div>
             <div>
