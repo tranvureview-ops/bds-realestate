@@ -181,12 +181,29 @@ export default async function RootLayout({ children }) {
     const sessionUserId = cookieStore.get('bds_session_user')?.value;
     const sessionBonus = cookieStore.get('bds_session_bonus')?.value;
     if (sessionUserId && sessionUserId !== 'guest') {
-      const foundMock = MOCK_USERS.find(u => u.id === sessionUserId);
-      if (foundMock) {
-        initialUser = { ...foundMock };
-      } else if (isSupabaseConfigured()) {
-        const userProfile = await fetchSupabaseProfile(sessionUserId);
-        if (userProfile) initialUser = { ...userProfile };
+      let resolvedUser = null;
+      if (isSupabaseConfigured()) {
+        try {
+          const userProfile = await fetchSupabaseProfile(sessionUserId);
+          if (userProfile) resolvedUser = { ...userProfile };
+        } catch (e) {}
+      }
+      if (!resolvedUser) {
+        const dbFile = path.resolve(process.cwd(), 'server-db.json');
+        if (fs.existsSync(dbFile)) {
+          try {
+            const raw = JSON.parse(fs.readFileSync(dbFile, 'utf8') || '{}');
+            const u = (raw.bds_users_list || []).find(x => x.id === sessionUserId || x.email === sessionUserId);
+            if (u) resolvedUser = { ...u };
+          } catch (e) {}
+        }
+      }
+      if (!resolvedUser) {
+        const foundMock = MOCK_USERS.find(u => u.id === sessionUserId);
+        if (foundMock) resolvedUser = { ...foundMock };
+      }
+      if (resolvedUser) {
+        initialUser = resolvedUser;
       }
     }
     if (sessionBonus !== undefined && sessionBonus !== '' && !isNaN(Number(sessionBonus))) {

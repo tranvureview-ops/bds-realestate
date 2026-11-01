@@ -75,16 +75,26 @@ export default function PricePredictionPage({ projectSlug = null }) {
   const [showConfetti, setShowConfetti] = useState(false);
 
   const userId = currentUser && currentUser.role !== 'guest' ? String(currentUser.id) : 'guest';
+  const isAdmin = currentUser?.role === 'admin';
   const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
   const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Sàn Nhà Đất';
-  const isMemberActive = Boolean(currentUser?.membership?.packageId && new Date(currentUser?.membership?.expiresAt || 0) > new Date());
+  const isMemberActive = Boolean(currentUser?.membership?.packageId && (currentUser?.membership?.status === 'active' || new Date(currentUser?.membership?.expiresAt || 0) > new Date()));
   const activeUserPkg = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
-  const isMemberPredictionAllowed = isMemberActive && (currentUser?.role === 'admin' || activeUserPkg?.allowPricePrediction !== false);
+  const isMemberPredictionAllowed = isMemberActive && activeUserPkg?.allowPricePrediction !== false;
 
   // Trạng thái yêu cầu Gói Hội Viên toàn hệ thống (Real-time Cross-tab Sync)
   const [globalMembershipRequired, setGlobalMembershipRequired] = useState(() => {
+    if (systemConfig?.predictionRequireMembership !== undefined) {
+      return Boolean(systemConfig.predictionRequireMembership);
+    }
     return getIsPredictionMembershipRequired();
   });
+
+  useEffect(() => {
+    if (systemConfig?.predictionRequireMembership !== undefined) {
+      setGlobalMembershipRequired(Boolean(systemConfig.predictionRequireMembership));
+    }
+  }, [systemConfig?.predictionRequireMembership]);
 
   // Tự động đồng bộ programs khi predictionPrograms từ context cập nhật
   useEffect(() => {
@@ -93,14 +103,23 @@ export default function PricePredictionPage({ projectSlug = null }) {
     }
   }, [predictionPrograms]);
 
-  // Kiểm tra cấu hình Đặc Quyền Gói Hội Viên (Ưu tiên cấu hình từ Menu Gói Hội Viên toàn sàn)
+  // Kiểm tra cấu hình Đặc Quyền Gói Hội Viên (Ưu tiên theo cờ toàn hệ thống)
   const isGameMembershipRequired = (game) => {
-    if (globalMembershipRequired !== undefined && globalMembershipRequired !== null) {
-      return Boolean(globalMembershipRequired);
+    // 1. Cờ toàn hệ thống từ state / localStorage / systemConfig có độ ưu tiên cao nhất
+    if (globalMembershipRequired === false || systemConfig?.predictionRequireMembership === false) {
+      return false;
     }
-    if (systemConfig?.predictionRequireMembership !== undefined) {
-      return Boolean(systemConfig.predictionRequireMembership);
+    if (globalMembershipRequired === true || systemConfig?.predictionRequireMembership === true) {
+      return true;
     }
+
+    // 2. Nếu cấu hình gói hội viên toàn sàn: có bật allowPricePrediction cho ít nhất 1 gói
+    const hasPkgPrediction = Array.isArray(membershipPackages) && membershipPackages.some(p => p.allowPricePrediction === true);
+    if (hasPkgPrediction) {
+      return true;
+    }
+
+    // 3. Fallback theo từng chương trình minigame
     return Boolean(game?.requireMembership);
   };
 
@@ -553,12 +572,43 @@ export default function PricePredictionPage({ projectSlug = null }) {
                       </div>
                     ) : (
                       <div className="w-full space-y-2">
+                        {/* Banner thông báo điều kiện tham gia nếu chưa đủ điều kiện */}
+                        {isGameMembershipRequired(game) && !isMemberActive && (
+                          <div className="p-2 px-3 rounded-xl bg-purple-50 border border-purple-200 text-purple-800 text-[11px] flex items-center justify-between gap-2 animate-in fade-in duration-200">
+                            <span className="flex items-center gap-1.5 font-bold">
+                              <i className="fa-solid fa-crown text-amber-500"></i>
+                              <span>Đặc quyền dành riêng cho thành viên kích hoạt Gói Hội Viên.</span>
+                            </span>
+                            <Link to="/goi-hoi-vien" className="text-purple-700 hover:text-purple-900 font-black underline shrink-0">
+                              Xem các gói →
+                            </Link>
+                          </div>
+                        )}
+                        {isGameMembershipRequired(game) && isMemberActive && !isMemberPredictionAllowed && (
+                          <div className="p-2 px-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-[11px] flex items-center justify-between gap-2 animate-in fade-in duration-200">
+                            <span className="flex items-center gap-1.5 font-bold">
+                              <i className="fa-solid fa-triangle-exclamation text-amber-600"></i>
+                              <span>Gói "{activeUserPkg?.name || 'hiện tại'}" của bạn chưa bao gồm quyền dự đoán giá.</span>
+                            </span>
+                            <Link to="/goi-hoi-vien" className="text-amber-800 hover:text-amber-950 font-black underline shrink-0">
+                              Nâng cấp gói →
+                            </Link>
+                          </div>
+                        )}
+
                         <div className="flex items-center gap-2">
                           <div className="relative flex-1">
                             <input
                               type="text"
                               inputMode="decimal"
-                              placeholder="VD: 7.50 hoặc 15.65"
+                              placeholder={
+                                isGameMembershipRequired(game) && !isMemberActive
+                                  ? "Yêu cầu Gói Hội Viên để dự đoán"
+                                  : isGameMembershipRequired(game) && !isMemberPredictionAllowed
+                                  ? `Gói ${activeUserPkg?.name || 'hiện tại'} không hỗ trợ`
+                                  : "VD: 7.50 hoặc 15.65"
+                              }
+                              disabled={isGameMembershipRequired(game) && (!isMemberActive || !isMemberPredictionAllowed)}
                               value={userInputs[game.id]?.price || ''}
                               onChange={(e) => {
                                 const raw = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
@@ -570,7 +620,11 @@ export default function PricePredictionPage({ projectSlug = null }) {
                                   }
                                 }));
                               }}
-                              className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-black text-slate-900 outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/10 transition pr-20 shadow-xs"
+                              className={`w-full px-3.5 py-2.5 bg-white border rounded-xl text-sm font-black text-slate-900 outline-none transition pr-20 shadow-xs ${
+                                isGameMembershipRequired(game) && (!isMemberActive || !isMemberPredictionAllowed)
+                                  ? 'border-purple-200 bg-slate-50 cursor-not-allowed opacity-80'
+                                  : 'border-slate-300 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/10'
+                              }`}
                             />
                             <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 select-none pointer-events-none">
                               tỷ VNĐ
@@ -586,7 +640,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
                               <i className="fa-solid fa-crown text-amber-300"></i>
                               <span>Đăng Ký Hội Viên Để Dự Đoán</span>
                             </Link>
-                          ) : isGameMembershipRequired(game) && !isMemberPredictionAllowed ? (
+                          ) : isGameMembershipRequired(game) && isMemberActive && !isMemberPredictionAllowed ? (
                             <Link
                               to="/goi-hoi-vien"
                               className="px-4 py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"

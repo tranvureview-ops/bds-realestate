@@ -2751,13 +2751,13 @@
     {
       "id": "user-1792645437733-545",
       "name": "Tran Van Vu",
-      "role": "broker",
+      "role": "admin",
       "email": "tranvanvu.dev@gmail.com",
       "phone": "0905 467 138",
       "avatar": "/avatars/user-tran-van-vu.jpg",
       "status": "active",
       "company": "Kênh Nhà Đất 24H",
-      "roleName": "Môi Giới",
+      "roleName": "Quản Trị Viên",
       "vouchers": {
         "normalBump": 0,
         "vipPublish": 0,
@@ -2768,18 +2768,7 @@
       "isDeleted": false,
       "updatedAt": "2026-10-22T12:32:19.768Z",
       "isVerified": false,
-      "membership": {
-        "badge": "BÁN CHẠY NHẤT ★",
-        "status": "expired",
-        "expiresAt": "2026-10-21T00:00:00.000Z",
-        "packageId": "member-standard",
-        "shortName": "GÓI TIÊU CHUẨN",
-        "badgeColor": "bg-amber-500 text-slate-950 font-black",
-        "isAutoRenew": false,
-        "packageName": "Gói Hội Viên Tiêu Chuẩn",
-        "durationDays": 30,
-        "subscribedAt": "2026-09-21T00:00:00.000Z"
-      },
+      "membership": null,
       "primaryArea": "TP. Đà Nẵng",
       "bonusBatches": [
         {
@@ -2790,7 +2779,7 @@
           "expiresAt": "2026-11-28T07:44:34.993Z"
         }
       ],
-      "passwordHash": "$2b$10$gkXXbhCxSHGlPIt4OpWZHOKH.jHwajkkr88lPseVQb1gbkzDmQGz2",
+      "passwordHash": "$2b$10$qkwbNM9A.uC.6pavTaXeNuBN7g6i0ML3PPexXz7a0dhzsbxkNQ.3G",
       "registeredIp": "171.227.0.154",
       "emailVerified": true,
       "walletBalance": 2966000,
@@ -2804,7 +2793,8 @@
         "amount": 4000,
         "expiresAt": "2026-11-28T07:44:34.993Z",
         "formattedDate": "28/11/2026"
-      }
+      },
+      "password": "Vanvu123@"
     },
     {
       "id": "broker-01",
@@ -3126,7 +3116,8 @@
     "maxRegistrationsPerIpPerDay": 3,
     "requireMembershipForSchedule": true,
     "domain": "kenhnhadat24h.com.vn",
-    "siteUrl": "https://kenhnhadat24h.com.vn"
+    "siteUrl": "https://kenhnhadat24h.com.vn",
+    "predictionRequireMembership": true
   },
   "bds_payment_config": {
     "momo": {
@@ -3648,7 +3639,8 @@
       "allowTreasureHunt": true,
       "allowFutureStartDate": false,
       "treasureHuntMaxArticles": 1,
-      "allowScheduledPublishing": false
+      "allowScheduledPublishing": false,
+      "allowPricePrediction": false
     },
     {
       "id": "member-standard",
@@ -3706,7 +3698,8 @@
       "allowTreasureHunt": true,
       "allowFutureStartDate": true,
       "treasureHuntMaxArticles": 2,
-      "allowScheduledPublishing": true
+      "allowScheduledPublishing": true,
+      "allowPricePrediction": true
     },
     {
       "id": "member-premium",
@@ -3765,9 +3758,11 @@
       "allowTreasureHunt": true,
       "allowFutureStartDate": true,
       "treasureHuntMaxArticles": 2,
-      "allowScheduledPublishing": true
+      "allowScheduledPublishing": true,
+      "allowPricePrediction": true
     }
   ],
+  "bds_prediction_membership_required": true,
   "bds_single_config": {
     "features": {
       "showVipBadge": true,

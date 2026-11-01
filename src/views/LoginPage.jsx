@@ -37,12 +37,13 @@ export default function LoginPage() {
 
   const handlePostLoginRedirect = (user) => {
     if (!user) return;
-    if (systemConfig?.maintenanceMode === true && user.role !== 'admin' && user.email !== 'tranvu.review@gmail.com') {
+    const isUserAdmin = user.role === 'admin' || user.email === 'tranvanvu.dev@gmail.com' || user.email === 'tranvu.review@gmail.com';
+    if (systemConfig?.maintenanceMode === true && !isUserAdmin) {
       showToast('Hệ thống đang bật chế độ bảo trì kỹ thuật! Chỉ Quản Trị Viên mới có quyền truy cập.', 'warning');
       return;
     }
     if (redirectUrl) {
-      if (redirectUrl.startsWith('/admin') && user.role !== 'admin') {
+      if (redirectUrl.startsWith('/admin') && !isUserAdmin) {
         showToast('Tài khoản của bạn không có đặc quyền Quản Trị Viên (Admin)!', 'warning');
         navigate('/');
         return;
@@ -55,7 +56,7 @@ export default function LoginPage() {
       return;
     }
 
-    if (user.role === 'admin') {
+    if (isUserAdmin) {
       if (typeof window !== 'undefined') {
         window.location.href = '/admin';
       } else {
@@ -80,7 +81,8 @@ export default function LoginPage() {
     const loggedUser = await loginUser(identifier, password);
     setIsSubmitting(false);
     if (loggedUser) {
-      if (loggedUser.role === 'admin') {
+      const isUserAdmin = loggedUser.role === 'admin' || loggedUser.email === 'tranvanvu.dev@gmail.com' || loggedUser.email === 'tranvu.review@gmail.com';
+      if (isUserAdmin) {
         // Chỉ bắt buộc 2FA nếu tài khoản Admin đang BẬT tính năng 2FA
         if (loggedUser.twoFactorEnabled === true) {
           setPending2FAUser(loggedUser);

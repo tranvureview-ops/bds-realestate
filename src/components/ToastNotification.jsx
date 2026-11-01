@@ -19,18 +19,19 @@ export default function ToastNotification() {
       aria-live="polite"
     >
       <div 
-        className={`pointer-events-auto flex items-center gap-2.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full shadow-2xl backdrop-blur-md border text-xs sm:text-[13px] font-semibold tracking-wide transition-all select-none ${
+        style={{ backgroundColor: '#0f172a' }}
+        className={`pointer-events-auto flex items-center gap-3 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full shadow-2xl border-2 text-xs sm:text-[13px] font-bold tracking-wide transition-all select-none text-white !bg-[#0f172a] ${
           isSuccess 
-            ? 'bg-slate-950/92 border-emerald-500/60 text-emerald-100 shadow-emerald-950/40 ring-1 ring-emerald-500/20' 
+            ? 'border-emerald-500 shadow-emerald-950/50 ring-2 ring-emerald-500/20' 
             : isError 
-            ? 'bg-slate-950/92 border-rose-500/60 text-rose-100 shadow-rose-950/40 ring-1 ring-rose-500/20' 
+            ? 'border-rose-500 shadow-rose-950/50 ring-2 ring-rose-500/20' 
             : isWarning 
-            ? 'bg-slate-950/92 border-amber-500/60 text-amber-100 shadow-amber-950/40 ring-1 ring-amber-500/20' 
-            : 'bg-slate-950/92 border-sky-500/60 text-sky-100 shadow-slate-950/40 ring-1 ring-sky-500/20'
+            ? 'border-amber-400 shadow-amber-950/50 ring-2 ring-amber-400/20' 
+            : 'border-sky-400 shadow-sky-950/50 ring-2 ring-sky-400/20'
         }`}
       >
         {/* Compact Icon */}
-        <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 font-bold ${
+        <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] shrink-0 font-black shadow-xs ${
           isSuccess 
             ? 'bg-emerald-500 text-slate-950' 
             : isError 
@@ -51,7 +52,7 @@ export default function ToastNotification() {
         </div>
 
         {/* Message Text */}
-        <span className="line-clamp-2 leading-tight">
+        <span className="line-clamp-2 leading-tight text-white font-bold drop-shadow-xs">
           {toast.message}
         </span>
 
@@ -59,7 +60,7 @@ export default function ToastNotification() {
         <button
           type="button"
           onClick={dismissToast}
-          className="ml-1 -mr-1 w-5 h-5 rounded-full hover:bg-white/15 text-white/50 hover:text-white flex items-center justify-center text-[11px] transition cursor-pointer shrink-0"
+          className="ml-1 -mr-1 w-5 h-5 rounded-full hover:bg-white/20 text-white/70 hover:text-white flex items-center justify-center text-xs transition cursor-pointer shrink-0"
           title="Đóng thông báo"
           aria-label="Đóng thông báo"
         >

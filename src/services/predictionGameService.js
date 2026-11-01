@@ -27,12 +27,12 @@ function broadcastPredictionMessage(msg) {
 
 // Lấy trạng thái Bật/Tắt Đặc Quyền Gói Hội Viên toàn hệ thống (Real-time Cross-tab Sync)
 export function getIsPredictionMembershipRequired() {
-  if (typeof window === 'undefined') return false;
+  if (typeof window === 'undefined') return true;
   try {
     const val = localStorage.getItem(PREDICTION_MEMBERSHIP_KEY);
     if (val !== null) return val === 'true';
   } catch (e) {}
-  return false;
+  return true; // Mặc định là TRUE (Đặc quyền dành riêng cho Gói Hội Viên)
 }
 
 // Lưu trạng thái Bật/Tắt Đặc Quyền Gói Hội Viên & phát sự kiện đồng bộ ngay lập tức giữa các tab

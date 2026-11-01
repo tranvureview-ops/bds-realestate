@@ -95,6 +95,16 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
       });
     }
 
+    // Đồng bộ thuộc tính allowPricePrediction của tất cả các gói hội viên
+    if (Array.isArray(membershipPackages)) {
+      membershipPackages.forEach(p => {
+        const shouldAllow = checked ? (p.id === 'member-standard' || p.id === 'member-premium') : false;
+        if (p.allowPricePrediction !== shouldAllow) {
+          updateMembershipPackage(p.id, { ...p, allowPricePrediction: shouldAllow });
+        }
+      });
+    }
+
     try {
       const progs = getStoredPredictionPrograms();
       const updatedProgs = progs.map(p => ({
@@ -103,6 +113,16 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
       }));
       savePredictionPrograms(updatedProgs);
     } catch (e) {}
+
+    // Phát BroadcastChannel và CustomEvent để Frontend đồng bộ tức thì
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('bds-prediction-membership-toggled', { detail: checked }));
+      try {
+        const bc = new BroadcastChannel('bds_prediction_sync');
+        bc.postMessage({ type: 'MEMBERSHIP_TOGGLED', isRequired: checked });
+        bc.close();
+      } catch (e) {}
+    }
 
     if (showToast) {
       showToast(
@@ -502,10 +522,22 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
   const handleTogglePackagePricePrediction = (pkgId, isEnabled) => {
     const target = membershipPackages.find(p => p.id === pkgId);
     if (!target) return;
+    const updatedPackages = (membershipPackages || []).map(p => p.id === pkgId ? { ...p, allowPricePrediction: isEnabled } : p);
     updateMembershipPackage(pkgId, { ...target, allowPricePrediction: isEnabled });
+
+    // Khi bật tiện ích này cho ít nhất 1 gói, tự động đồng bộ cờ Đặc Quyền Hội Viên toàn sàn
+    const anyAllowed = isEnabled || updatedPackages.some(p => p.allowPricePrediction === true);
+    if (anyAllowed && !predictionRequireMembership) {
+      setPredictionRequireMembership(true);
+      setIsPredictionMembershipRequired(true);
+      if (updateSystemConfig) {
+        updateSystemConfig({ predictionRequireMembership: true });
+      }
+    }
+
     showToast(
       isEnabled
-        ? `Đã BẬT quyền tham gia Dự đoán giá BĐS cho "${target.name}"!`
+        ? `Đã BẬT quyền tham gia Dự đoán giá BĐS cho "${target.name}"! Tính năng hiện là Đặc Quyền dành riêng cho Gói Hội Viên.`
         : `Đã TẮT quyền tham gia Dự đoán giá BĐS cho "${target.name}"!`,
       'success'
     );
