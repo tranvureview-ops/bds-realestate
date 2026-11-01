@@ -517,7 +517,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
   };
 
   // --------------------------------------------------------------------------
-  // HỆ THỐNG CÔNG THỨC GHÉP TỪ KHÓA TỐI ƯU HÓA SEO BẤT ĐỘNG SẢN (3 NHÓM / 6 CÔNG THỨC)
+  // HỆ THỐNG CÔNG THỨC GHÉP TỪ KHÓA TỐI ƯU HÓA SEO NHÀ ĐẤT (3 NHÓM / 6 CÔNG THỨC)
   // --------------------------------------------------------------------------
   const demandText = property.demand === 'sale' ? 'Bán' : 'Cho thuê';
   const typeText = property.propertyType === 'apartment' ? 'căn hộ chung cư'
@@ -532,7 +532,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     : property.propertyType === 'condotel' ? 'condotel'
     : property.propertyType === 'warehouse' ? 'kho, nhà xưởng'
     : property.propertyType === 'office' ? 'văn phòng'
-    : property.propertyType === 'other' ? 'bất động sản khác'
+    : property.propertyType === 'other' ? 'nhà đất khác'
     : (property.propertyTypeName || 'nhà riêng').toLowerCase();
 
   // 1. Tên Dự án (hoặc fallback tên khu vực)
@@ -1199,7 +1199,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             {/* Key Specs Matrix */}
             <div>
               <h2 className="text-xs font-black uppercase text-slate-700 tracking-wider mb-3">
-                Thông Số Kỹ Thuật Bất Động Sản
+                Thông Số Kỹ Thuật Nhà Đất
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
@@ -1448,11 +1448,11 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                     step="5"
                     value={loanRatio}
                     onChange={(e) => setLoanRatio(Number(e.target.value))}
-                    aria-label="Tỷ lệ vay ngân hàng (% giá trị bất động sản)"
+                    aria-label="Tỷ lệ vay ngân hàng (% giá trị nhà đất)"
                     aria-valuemin={20}
                     aria-valuemax={80}
                     aria-valuenow={loanRatio}
-                    aria-valuetext={`${loanRatio}% giá trị bất động sản`}
+                    aria-valuetext={`${loanRatio}% giá trị nhà đất`}
                     className="w-full accent-blue-600 cursor-pointer"
                   />
                   <div className="text-[11px] text-slate-500 mt-1">
@@ -1639,7 +1639,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                     Tìm Kiếm Theo Từ Khóa & Cụm Từ Liên Quan
                   </h2>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Khám phá các bất động sản tương tự trong khu vực {property.district}, {property.city}
+                    Khám phá các nhà đất tương tự trong khu vực {property.district}, {property.city}
                   </p>
                 </div>
               </div>
@@ -1997,7 +1997,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   <span>Tin Đăng Cùng {authorTitle}</span>
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                  Khám phá thêm các bất động sản do {authorTitle} đang đăng tải và phụ trách ({authorProperties.length} tin)
+                  Khám phá thêm các nhà đất do {authorTitle} đang đăng tải và phụ trách ({authorProperties.length} tin)
                 </p>
               </div>
               <Link
@@ -2021,7 +2021,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
         </section>
       )}
 
-      {/* 4. BẤT ĐỘNG SẢN TƯƠNG TỰ CÙNG PHÂN KHÚC (FULL WIDTH CONTAINER) */}
+      {/* 4. NHÀ ĐẤT TƯƠNG TỰ CÙNG PHÂN KHÚC (FULL WIDTH CONTAINER) */}
       {singleConfig?.features?.showSimilarProperties !== false && similarProperties.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 mb-8 content-visibility-auto">
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
@@ -2029,14 +2029,14 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               <div>
                 <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2.5">
                   <span className="w-2.5 h-6 bg-rose-600 rounded-full"></span>
-                  <span>Bất Động Sản Tương Tự Cùng Phân Khúc</span>
+                  <span>Nhà Đất Tương Tự Cùng Phân Khúc</span>
                 </h2>
                 <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                  Khám phá các bất động sản tương đồng về phân khúc hoặc khu vực {property.district ? `tại ${property.district}, ` : ''}{property.city}
+                  Khám phá các nhà đất tương đồng về phân khúc hoặc khu vực {property.district ? `tại ${property.district}, ` : ''}{property.city}
                 </p>
               </div>
               <span className="self-start sm:self-center text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 px-3.5 py-1.5 rounded-full">
-                {similarProperties.length} bất động sản gợi ý
+                {similarProperties.length} nhà đất gợi ý
               </span>
             </div>
 
@@ -2243,7 +2243,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-300 rounded-xl p-1.5 focus-within:ring-2 focus-within:ring-emerald-500">
                 <input
                   id="copy-property-share-link"
-                  aria-label="Đường dẫn liên kết bài đăng bất động sản"
+                  aria-label="Đường dẫn liên kết bài đăng nhà đất"
                   type="text"
                   readOnly
                   value={currentUrl}
@@ -2456,9 +2456,9 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                     </label>
                     <div className="space-y-2">
                       {[
-                        { id: 'address_wrong', label: 'Địa chỉ bất động sản không có thật hoặc sai vị trí', icon: 'fa-location-dot text-rose-500' },
+                        { id: 'address_wrong', label: 'Địa chỉ nhà đất không có thật hoặc sai vị trí', icon: 'fa-location-dot text-rose-500' },
                         { id: 'price_wrong', label: 'Giá bán/cho thuê không đúng thực tế (kê giá, giá ảo, báo giá một đằng bán một nẻo)', icon: 'fa-tag text-amber-500' },
-                        { id: 'already_sold', label: 'Bất động sản đã bán hoặc đã cho thuê nhưng người đăng không hạ tin', icon: 'fa-circle-check text-blue-500' },
+                        { id: 'already_sold', label: 'Nhà đất đã bán hoặc đã cho thuê nhưng người đăng không hạ tin', icon: 'fa-circle-check text-blue-500' },
                         { id: 'fake_images', label: 'Hình ảnh không đúng thực tế, cắt ghép hoặc giả mạo dự án khác', icon: 'fa-image text-purple-500' },
                         { id: 'duplicate', label: 'Tin đăng trùng lặp với nhiều bài đăng khác gây nhiễu thông tin', icon: 'fa-copy text-indigo-500' },
                         { id: 'unreachable', label: 'Không liên hệ được với người đăng tin (SĐT ảo, không nghe máy)', icon: 'fa-phone-slash text-slate-500' },
@@ -2615,7 +2615,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
         <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3 mb-4">
           <div>
             <div className="text-xl font-black text-slate-900 uppercase">
-              {systemConfig?.platformName || 'ĐẤT BIỂN ĐÀ NẴNG • SÀN GIAO DỊCH BẤT ĐỘNG SẢN'}
+              {systemConfig?.platformName || 'ĐẤT BIỂN ĐÀ NẴNG • SÀN GIAO DỊCH NHÀ ĐẤT'}
             </div>
             <div suppressHydrationWarning className="text-xs text-slate-600 mt-0.5">
               Hotline kiểm định & tư vấn: <strong suppressHydrationWarning>{systemConfig?.hotline || '0904 084 888'}</strong> • Website: <strong suppressHydrationWarning>{typeof window !== 'undefined' ? window.location.host : 'datbiendanang.vn'}</strong>

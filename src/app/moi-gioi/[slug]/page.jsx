@@ -16,8 +16,8 @@ export async function generateMetadata({ params }) {
   const canonicalUrl = `${baseUrl}/moi-gioi/${slug || ''}`;
 
   return {
-    title: `Hồ Sơ Môi Giới ${formattedName} | Bất Động Sản Đang Quản Lý`,
-    description: `Xem toàn bộ danh sách bất động sản và tin đăng nhà đất đang quản lý bởi chuyên viên môi giới ${formattedName}. Liên hệ trực tiếp xem nhà và nhận tư vấn pháp lý chính xác.`,
+    title: `Hồ Sơ Môi Giới ${formattedName} | Nhà Đất Đang Quản Lý`,
+    description: `Xem toàn bộ danh sách nhà đất và tin đăng nhà đất đang quản lý bởi chuyên viên môi giới ${formattedName}. Liên hệ trực tiếp xem nhà và nhận tư vấn pháp lý chính xác.`,
     alternates: {
       canonical: canonicalUrl,
     },
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }) {
     },
     openGraph: {
       title: `Hồ Sơ Môi Giới ${formattedName} | Sàn Giao Dịch BĐS Đất Biển Đà Nẵng`,
-      description: `Khám phá các bất động sản bán và cho thuê đang quản lý bởi môi giới ${formattedName}.`,
+      description: `Khám phá các nhà đất bán và cho thuê đang quản lý bởi môi giới ${formattedName}.`,
       url: canonicalUrl,
       type: 'profile',
     },

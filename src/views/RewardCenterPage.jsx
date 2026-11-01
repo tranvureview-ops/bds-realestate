@@ -184,7 +184,7 @@ export default function RewardCenterPage() {
     }
   ];
 
-  const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Bất Động Sản';
+  const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Nhà Đất';
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">

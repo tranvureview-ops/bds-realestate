@@ -1,5 +1,5 @@
 // Dữ liệu Địa Giới Hành Chính Thành Phố Đà Nẵng (Đất Biển Đà Nẵng)
-// Tập trung 100% thị trường Bất Động Sản Đà Nẵng: 8 Quận/Huyện, đầy đủ Phường/Xã, Tuyến Phố & Dự Án tiêu biểu
+// Tập trung 100% thị trường Nhà Đất Đà Nẵng: 8 Quận/Huyện, đầy đủ Phường/Xã, Tuyến Phố & Dự Án tiêu biểu
 
 export const VIETNAM_ADMINISTRATIVE_DATA = [
   // =========================================================================

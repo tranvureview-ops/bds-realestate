@@ -5,7 +5,7 @@ import Link from 'next/link';
 // HẰNG SỐ THÔNG TIN THƯƠNG HIỆU ĐỒNG BỘ CÀI ĐẶT WEBSITE
 // ============================================================================
 const BRAND_NAME = 'Đất Biển Đà Nẵng';
-const COMPANY_NAME = 'Sàn Giao Dịch Bất Động Sản Đất Biển Đà Nẵng';
+const COMPANY_NAME = 'Sàn Giao Dịch Nhà Đất Đất Biển Đà Nẵng';
 const HOTLINE = '0904 084 888';
 const EMAIL = 'tranvanvu.dev@gmail.com';
 const ADDRESS = 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng';
@@ -237,7 +237,7 @@ export default function PrivacyPolicyPage() {
                   Tuyên ngôn bảo vệ quyền riêng tư
                 </p>
                 <p>
-                  Sàn giao dịch bất động sản <strong>{BRAND_NAME}</strong> coi trọng việc bảo vệ dữ liệu cá nhân của người dùng như một trong những nguyên tắc cốt lõi hàng đầu. Toàn bộ hoạt động thu thập, lưu trữ và xử lý dữ liệu được thực thi nghiêm túc theo <strong>Nghị định số 13/2023/NĐ-CP</strong> của Chính phủ về Bảo vệ dữ liệu cá nhân.
+                  Sàn giao dịch nhà đất <strong>{BRAND_NAME}</strong> coi trọng việc bảo vệ dữ liệu cá nhân của người dùng như một trong những nguyên tắc cốt lõi hàng đầu. Toàn bộ hoạt động thu thập, lưu trữ và xử lý dữ liệu được thực thi nghiêm túc theo <strong>Nghị định số 13/2023/NĐ-CP</strong> của Chính phủ về Bảo vệ dữ liệu cá nhân.
                 </p>
               </div>
 
@@ -275,7 +275,7 @@ export default function PrivacyPolicyPage() {
                 <div className="mt-3 space-y-2 text-sm text-slate-600">
                   <p>Thông tin thu thập từ thành viên chỉ được sử dụng trong phạm vi nội bộ sàn <strong>{BRAND_NAME}</strong> nhằm:</p>
                   <ul className="list-disc pl-5 space-y-1.5">
-                    <li>Hiển thị thông tin liên hệ của Người Đăng Tin trên bài rao để khách hàng quan tâm có thể gọi điện, nhắn tin Zalo trao đổi bất động sản.</li>
+                    <li>Hiển thị thông tin liên hệ của Người Đăng Tin trên bài rao để khách hàng quan tâm có thể gọi điện, nhắn tin Zalo trao đổi nhà đất.</li>
                     <li>Gửi email tự động thông báo kết quả duyệt tin, biên lai thanh toán gói tin VIP và cảnh báo tin hết hạn.</li>
                     <li>Xác minh danh tính khi người dùng yêu cầu khôi phục mật khẩu hoặc xử lý khiếu nại tranh chấp tài khoản.</li>
                     <li>Nghiên cứu thị trường và tối ưu hóa tốc độ tải trang dựa trên thống kê hành vi ẩn danh.</li>
@@ -354,7 +354,7 @@ export default function PrivacyPolicyPage() {
                     <li><strong>Quyền được biết & tra cứu:</strong> Xem toàn bộ dữ liệu hồ sơ cá nhân và lịch sử tin đăng của mình bất kỳ lúc nào.</li>
                     <li><strong>Quyền chỉnh sửa:</strong> Cập nhật, điều chỉnh số điện thoại, ảnh đại diện, mật khẩu trong trang quản lý tài khoản.</li>
                     <li><strong>Quyền yêu cầu xóa bỏ dữ liệu (Right to Erasure):</strong> Yêu cầu Ban quản trị xóa vĩnh viễn tài khoản và toàn bộ thông tin cá nhân khỏi hệ thống. Chúng tôi cam kết xử lý hoàn tất trong vòng <strong>72 giờ làm việc</strong>.</li>
-                    <li><strong>Quyền rút lại sự đồng ý:</strong> Có quyền hủy đăng ký nhận bản tin quảng cáo hoặc khuyến mãi bất động sản qua email chỉ bằng một cú nhấp chuột.</li>
+                    <li><strong>Quyền rút lại sự đồng ý:</strong> Có quyền hủy đăng ký nhận bản tin quảng cáo hoặc khuyến mãi nhà đất qua email chỉ bằng một cú nhấp chuột.</li>
                   </ul>
                 </div>
               </section>

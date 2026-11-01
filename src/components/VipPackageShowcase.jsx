@@ -244,7 +244,7 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
             </div>
             <div>
               <div className="inline-block px-2 py-0.5 rounded-full bg-slate-950 text-amber-300 text-[10px] font-black uppercase mb-1">
-                Dành Riêng Cho Môi Giới Bất Động Sản
+                Dành Riêng Cho Môi Giới Nhà Đất
               </div>
               <h3 className="text-xl font-black text-slate-950">
                 Đăng Ký Gói Hội Viên — Tiết Kiệm Tới {premiumSavePercent}%

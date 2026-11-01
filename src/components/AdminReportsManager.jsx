@@ -384,7 +384,7 @@ export default function AdminReportsManager({
           ${composeFormData.messageContent}
         </div>
         <div style="background: #f8fafc; padding: 14px 24px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b; text-align: center;">
-          Hệ thống email quản trị Sàn Giao Dịch Bất Động Sản ${systemConfig?.brandShortName || 'Đất Biển Đà Nẵng'} • Hotline: ${activeHotline}
+          Hệ thống email quản trị Sàn Giao Dịch Nhà Đất ${systemConfig?.brandShortName || 'Đất Biển Đà Nẵng'} • Hotline: ${activeHotline}
         </div>
       </div>
     `;
@@ -393,7 +393,7 @@ export default function AdminReportsManager({
       to: composeFormData.to,
       toName: composeFormData.toName || composeFormData.to,
       from: emailConfig?.fromEmail || 'kiemduyet@datbiendanang.vn',
-      fromName: emailConfig?.fromName || `Ban Kiểm Duyệt Sàn ${systemConfig?.brandShortName || 'Bất Động Sản'}`,
+      fromName: emailConfig?.fromName || `Ban Kiểm Duyệt Sàn ${systemConfig?.brandShortName || 'Nhà Đất'}`,
       subject: composeFormData.subject,
       htmlBody,
       type: 'custom_admin_direct'
@@ -1373,7 +1373,7 @@ export default function AdminReportsManager({
                 </span>
                 <div>
                   <h4 className="text-base font-black text-white">Soạn Email Quản Trị Viên</h4>
-                  <div className="text-[11px] text-slate-400">Gửi email trực tiếp từ ban kiểm duyệt Sàn {systemConfig?.brandShortName || 'Bất Động Sản'}</div>
+                  <div className="text-[11px] text-slate-400">Gửi email trực tiếp từ ban kiểm duyệt Sàn {systemConfig?.brandShortName || 'Nhà Đất'}</div>
                 </div>
               </div>
 

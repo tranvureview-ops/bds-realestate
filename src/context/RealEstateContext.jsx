@@ -105,7 +105,7 @@ import { sanitizePhoneFromText } from '../utils/textSanitizer';
 export const REPORT_REASONS = {
   address_wrong: { label: 'Địa chỉ không có thật hoặc sai vị trí', severity: 'high', color: 'rose' },
   price_wrong: { label: 'Giá không đúng thực tế (kê giá, giá ảo, câu view)', severity: 'high', color: 'amber' },
-  already_sold: { label: 'Bất động sản đã bán hoặc đã cho thuê', severity: 'medium', color: 'blue' },
+  already_sold: { label: 'Nhà đất đã bán hoặc đã cho thuê', severity: 'medium', color: 'blue' },
   fake_images: { label: 'Hình ảnh không đúng thực tế, ảnh cắt ghép giả mạo', severity: 'high', color: 'purple' },
   duplicate: { label: 'Tin đăng trùng lặp nhiều lần gây nhiễu sàn', severity: 'low', color: 'indigo' },
   unreachable: { label: 'Không liên hệ được với người đăng (SĐT ảo/thuê bao)', severity: 'medium', color: 'slate' },
@@ -733,7 +733,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     };
   });
 
-  // 11b. Cấu hình Trang Chi Tiết Bất Động Sản (Single Property Page Config)
+  // 11b. Cấu hình Trang Chi Tiết Nhà Đất (Single Property Page Config)
   const [singleConfig, setSingleConfig] = useState(() => {
     return initialData?.bds_single_config || DEFAULT_SINGLE_CONFIG;
   });
@@ -907,7 +907,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         ...(newConfig.zalo ? { zalo: newConfig.zalo } : {}),
         ...(newConfig.email ? { email: newConfig.email } : {}),
         ...(newConfig.address ? { address: newConfig.address } : {}),
-        copyrightCustomText: `© ${new Date().getFullYear()} ${brandToSync || 'Sàn Bất Động Sản'}. Bản quyền thuộc về ${fullCompany || 'Ban Quản Trị Sàn'}.`,
+        copyrightCustomText: `© ${new Date().getFullYear()} ${brandToSync || 'Sàn Nhà Đất'}. Bản quyền thuộc về ${fullCompany || 'Ban Quản Trị Sàn'}.`,
         brandDescription: `${brandToSync || 'Sàn giao dịch'} là nền tảng thương mại điện tử chuyên nghiệp cung cấp thông tin mua bán, cho thuê nhà đất, dự án và đăng tin VIP hiệu quả cao trên toàn quốc.`
       };
       return updatedFooter;
@@ -3119,7 +3119,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return null;
   }, [properties, showToast]);
 
-  // Xác thực tin đăng bất động sản (Cấp / Hủy / Từ chối huy hiệu "Tin xác thực")
+  // Xác thực tin đăng nhà đất (Cấp / Hủy / Từ chối huy hiệu "Tin xác thực")
   const verifyProperty = useCallback(async (propertyId, isVerified = true, rejectReason = '') => {
     let updatedTarget = null;
     const vStatus = isVerified ? 'verified' : (rejectReason ? 'rejected' : 'unverified');
@@ -4809,7 +4809,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const newReport = {
       id: reportId,
       propertyId: reportData.propertyId,
-      propertyTitle: reportData.propertyTitle || targetProp.title || 'Bất động sản',
+      propertyTitle: reportData.propertyTitle || targetProp.title || 'Nhà đất',
       reason: reportData.reason || 'other',
       description: reportData.description || '',
       contact: reportData.contact || '',
@@ -5054,7 +5054,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
     const targetProp = (properties || []).find(p => p.id === report.propertyId) || {
       id: report.propertyId,
-      title: report.propertyTitle || 'Bất động sản'
+      title: report.propertyTitle || 'Nhà đất'
     };
 
     // Cập nhật lại email người báo cáo nếu trước đó chưa lưu

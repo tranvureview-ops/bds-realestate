@@ -250,7 +250,7 @@ export default function BrokerProfileModal({
           <div className="flex items-center gap-2">
             <h4 className="text-xs sm:text-sm font-black text-slate-800 uppercase tracking-wider flex items-center gap-2">
               <i className="fa-solid fa-house-chimney text-emerald-600"></i>
-              <span>Bất Động Sản Của {authorTitle}</span>
+              <span>Nhà Đất Của {authorTitle}</span>
             </h4>
             <span className="text-xs font-bold text-slate-500 bg-white px-2 py-0.5 rounded-full border border-slate-200">
               {authorProperties.length} tin

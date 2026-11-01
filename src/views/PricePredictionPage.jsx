@@ -13,7 +13,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
 
   const userId = currentUser && currentUser.role !== 'guest' ? currentUser.id : 'guest';
   const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
-  const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Sàn Bất Động Sản';
+  const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Sàn Nhà Đất';
 
   useEffect(() => {
     if (rewardsConfig?.predictionGames) {

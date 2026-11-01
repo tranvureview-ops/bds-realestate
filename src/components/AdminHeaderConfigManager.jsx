@@ -30,7 +30,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
     logoType: headerConfig?.logoType || 'text',
     brandName: headerConfig?.brandName || 'ĐẤT BIỂN',
     brandHighlight: headerConfig?.brandHighlight || 'ĐÀ NẴNG',
-    brandTagline: headerConfig?.brandTagline || 'Bất Động Sản Biển & Đất Nền Đà Nẵng',
+    brandTagline: headerConfig?.brandTagline || 'Nhà Đất Biển & Đất Nền Đà Nẵng',
     brandIcon: headerConfig?.brandIcon || 'fa-solid fa-water',
     badgeText: headerConfig?.badgeText || 'VIP',
     badgeColor: headerConfig?.badgeColor || 'bg-red-100 text-red-600 border border-red-200',

@@ -127,11 +127,11 @@ export default function MortgageCalculatorModal({ onClose }) {
               {/* Property Value */}
               <div>
                 <label htmlFor="modal-property-price" className="block text-xs font-bold text-slate-700 mb-1 cursor-pointer">
-                  Giá trị bất động sản: <span className="text-emerald-700 font-black">{formatVND(propertyPrice)}</span>
+                  Giá trị nhà đất: <span className="text-emerald-700 font-black">{formatVND(propertyPrice)}</span>
                 </label>
                 <input
                   id="modal-property-price"
-                  aria-label="Giá trị bất động sản"
+                  aria-label="Giá trị nhà đất"
                   type="number"
                   step="50000000"
                   value={propertyPrice}
@@ -148,7 +148,7 @@ export default function MortgageCalculatorModal({ onClose }) {
                 </div>
                 <input
                   id="modal-loan-ratio"
-                  aria-label="Tỷ lệ vay (% giá trị bất động sản)"
+                  aria-label="Tỷ lệ vay (% giá trị nhà đất)"
                   aria-valuemin={10}
                   aria-valuemax={85}
                   aria-valuenow={loanRatio}

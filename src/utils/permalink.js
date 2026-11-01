@@ -357,7 +357,7 @@ export const buildKeywordCleanSlug = (text) => {
 };
 
 /**
- * Xây dựng URL chuẩn Technical SEO Bất Động Sản (SEO URL Structure Standard)
+ * Xây dựng URL chuẩn Technical SEO Nhà Đất (SEO URL Structure Standard)
  * Hỗ trợ phân tầng: Nhu cầu -> Loại hình -> Địa lý (Tỉnh/Quận/Phường) -> Dự án -> Bộ lọc đơn -> Multi-filter
  * 
  * @param {Object} options
@@ -648,7 +648,7 @@ export const parseTaxonomyUrl = (urlPath) => {
 
   let raw = urlPath.replace(/^#/, '').split('?')[0];
 
-  // Không xử lý nếu là trang chi tiết bất động sản (có đuôi chuẩn -pr{id})
+  // Không xử lý nếu là trang chi tiết nhà đất (có đuôi chuẩn -pr{id})
   if (raw.match(/-pr[a-z0-9_.-]+$/i)) {
     return { isTaxonomy: false };
   }
@@ -1180,7 +1180,7 @@ export const formatBdsIdentifier = (rawIdNumber) => {
 };
 
 /**
- * Phân tích URL bài đăng bất động sản theo định dạng chuẩn DUY NHẤT: /{slug}-pr{id}
+ * Phân tích URL bài đăng nhà đất theo định dạng chuẩn DUY NHẤT: /{slug}-pr{id}
  * Mọi định dạng khác (/pr..., /bds-..., /bat-dong-san/..., hoặc pure slug không có -pr) đều bị xóa bỏ.
  */
 export const parsePropertyUrl = (urlPath) => {
@@ -1250,7 +1250,7 @@ export const buildFacetedUrl = ({
 };
 
 /**
- * Sinh Schema.org JSON-LD Structured Data chuẩn SEO cho Bất Động Sản (Google Search Rich Results)
+ * Sinh Schema.org JSON-LD Structured Data chuẩn SEO cho Nhà Đất (Google Search Rich Results)
  */
 export const generatePropertyJsonLd = (property, siteUrl = 'https://datbiendanang.vn') => {
   if (!property) return null;
@@ -1408,7 +1408,7 @@ export const generateCategoryJsonLd = (categoryInfo, properties = [], siteUrl = 
       {
         '@type': 'CollectionPage',
         '@id': fullUrl,
-        'name': categoryInfo.title || 'Danh sách bất động sản',
+        'name': categoryInfo.title || 'Danh sách nhà đất',
         'url': fullUrl,
         'mainEntity': {
           '@type': 'ItemList',
@@ -1437,7 +1437,7 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, year = 2026, page = 
   if (taxonomyInfo.isFacetedCleanSlug && taxonomyInfo.title) {
     const baseTitle = `${taxonomyInfo.title}${pageStr}`;
     return {
-      title: `${baseTitle} | Bất Động Sản Đà Nẵng`,
+      title: `${baseTitle} | Nhà Đất Đà Nẵng`,
       description: `${taxonomyInfo.title} mới nhất [${year}]${pageDescStr}, vị trí đẹp, hình ảnh thực tế, thông tin xác thực, pháp lý minh bạch.`
     };
   }
@@ -2027,7 +2027,7 @@ export const getBrokerPermalink = (author, allUsers = []) => {
  * Phân tích slug môi giới để tìm chính xác người dùng tương ứng (kể cả khi trùng tên)
  * @param {string} slug Slug từ URL /moi-gioi/[slug]
  * @param {Array} usersList Danh sách người dùng
- * @param {Array} properties Danh sách bất động sản
+ * @param {Array} properties Danh sách nhà đất
  * @returns {Object|null} Người dùng hoặc tác giả khớp chính xác
  */
 export const resolveBrokerFromSlug = (slug, usersList = [], properties = []) => {

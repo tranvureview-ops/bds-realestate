@@ -8,7 +8,7 @@ import { INITIAL_PROPERTIES } from '../data/mockData';
  * 1. Trang chủ
  * 2. Danh mục chính (/nha-dat-ban, /nha-dat-cho-thue)
  * 3. 12 danh mục loại hình chuẩn SEO
- * 4. Các tin đăng bất động sản đang active (không đưa trang phân trang vào sitemap)
+ * 4. Các tin đăng nhà đất đang active (không đưa trang phân trang vào sitemap)
  */
 export default async function sitemap() {
   const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '');

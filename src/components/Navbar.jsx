@@ -86,7 +86,7 @@ export default function Navbar() {
       } else {
         const words = fullText.split(/\s+/).filter(Boolean);
         if (words.length <= 1) {
-          bName = words[0] || 'BẤT ĐỘNG SẢN';
+          bName = words[0] || 'NHÀ ĐẤT';
           bHighlight = '';
         } else {
           bName = words.slice(0, -1).join(' ');
@@ -188,7 +188,7 @@ export default function Navbar() {
 
   const topbarBadgeText = (topbarConfig.badgeText && topbarConfig.badgeText.trim())
     ? topbarConfig.badgeText.trim()
-    : `Sàn BĐS ${defaultFullBrandName || 'Bất Động Sản'}`;
+    : `Sàn BĐS ${defaultFullBrandName || 'Nhà Đất'}`;
 
   const topbarBadgeColorClass = {
     emerald: 'bg-emerald-900 text-emerald-100 border-emerald-700',
@@ -965,7 +965,7 @@ export default function Navbar() {
                 className="w-full py-3 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 text-white font-bold text-sm shadow-md flex items-center justify-center gap-2"
               >
                 <i className="fa-solid fa-circle-plus"></i>
-                <span>Đăng Tin Bất Động Sản</span>
+                <span>Đăng Tin Nhà Đất</span>
               </Link>
 
               <Link

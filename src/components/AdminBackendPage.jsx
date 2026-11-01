@@ -670,7 +670,7 @@ export default function AdminBackendPage() {
     logoType: headerConfig?.logoType || 'text',
     brandName: headerConfig?.brandName || 'ĐẤT BIỂN',
     brandHighlight: headerConfig?.brandHighlight || 'ĐÀ NẴNG',
-    brandTagline: headerConfig?.brandTagline || 'Bất Động Sản Biển & Đất Nền Đà Nẵng',
+    brandTagline: headerConfig?.brandTagline || 'Nhà Đất Biển & Đất Nền Đà Nẵng',
     brandIcon: headerConfig?.brandIcon || 'fa-solid fa-water',
     badgeText: headerConfig?.badgeText || 'VIP',
     badgeColor: headerConfig?.badgeColor || 'bg-red-100 text-red-600 border border-red-200',
@@ -809,7 +809,7 @@ export default function AdminBackendPage() {
 
   const handleExportSystemConfig = () => {
     const backupData = {
-      appName: systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN',
+      appName: systemConfig?.brandShortName || 'SÀN NHÀ ĐẤT',
       version: '1.0.0',
       exportedAt: new Date().toISOString(),
       paymentConfig: formPaymentConfig || paymentConfig,
@@ -1952,7 +1952,7 @@ export default function AdminBackendPage() {
     }
   };
 
-  // Quản lý Chỉnh sửa chi tiết bài đăng Bất động sản
+  // Quản lý Chỉnh sửa chi tiết bài đăng Nhà đất
   const [editingProperty, setEditingProperty] = useState(null);
   const [editPropFormData, setEditPropFormData] = useState({});
   const [editPropTab, setEditPropTab] = useState('general'); // 'general' | 'specs' | 'media' | 'content'
@@ -2394,7 +2394,7 @@ export default function AdminBackendPage() {
             >
               <div className="flex items-center gap-3">
                 <i className="fa-solid fa-city text-sm w-5 text-center"></i>
-                <span>Bất Động Sản</span>
+                <span>Nhà Đất</span>
               </div>
               {verificationPendingCount > 0 ? (
                 <span className="px-2 py-0.5 rounded-full bg-amber-400 text-slate-950 text-[10px] font-black animate-pulse flex items-center gap-1 shadow-sm" title={`${verificationPendingCount} hồ sơ Sổ đỏ cần thẩm định`}>
@@ -3711,7 +3711,7 @@ export default function AdminBackendPage() {
           )}
 
           {/* =========================================
-              PHÂN HỆ 3: QUẢN LÝ BẤT ĐỘNG SẢN TOÀN SÀN
+              PHÂN HỆ 3: QUẢN LÝ NHÀ ĐẤT TOÀN SÀN
              ========================================= */}
           {activeMenu === 'properties' && (
             <div className="bg-slate-950 rounded-3xl border border-slate-800 overflow-hidden shadow-sm space-y-4">
@@ -3725,7 +3725,7 @@ export default function AdminBackendPage() {
                       <span className="w-7 h-7 rounded-lg bg-red-600/20 text-red-500 flex items-center justify-center text-xs">
                         <i className="fa-solid fa-city"></i>
                       </span>
-                      <span>Danh Sách Bất Động Sản Toàn Sàn ({properties.length})</span>
+                      <span>Danh Sách Nhà Đất Toàn Sàn ({properties.length})</span>
                     </h3>
                     <div className="text-[11px] text-slate-400">
                       Quản lý đầy đủ danh mục, nhu cầu Mua bán / Cho thuê, thông số kỹ thuật, hạn hiển thị & tự động gia hạn
@@ -4151,7 +4151,7 @@ export default function AdminBackendPage() {
                           <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500 text-xl mx-auto mb-2">
                             <i className="fa-solid fa-magnifying-glass"></i>
                           </div>
-                          <div className="font-bold text-white text-sm">Không tìm thấy bài viết bất động sản nào</div>
+                          <div className="font-bold text-white text-sm">Không tìm thấy bài viết nhà đất nào</div>
                           <div className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
                             Không có kết quả khớp với từ khóa tìm kiếm hoặc bộ lọc hiện tại. Vui lòng thử từ khóa khác hoặc bấm đặt lại bộ lọc.
                           </div>
@@ -7381,7 +7381,7 @@ export default function AdminBackendPage() {
                           type="text"
                           value={formSystemConfig.platformName || ''}
                           onChange={(e) => setFormSystemConfig(prev => ({ ...prev, platformName: e.target.value }))}
-                          placeholder="Ví dụ: SÀN GIAO DỊCH BẤT ĐỘNG SẢN LANDMARK VIỆT NAM"
+                          placeholder="Ví dụ: SÀN GIAO DỊCH NHÀ ĐẤT LANDMARK VIỆT NAM"
                           className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                         />
                         <p className="text-[10px] text-slate-500 mt-1">
@@ -7414,7 +7414,7 @@ export default function AdminBackendPage() {
                             type="text"
                             value={formSystemConfig.tagline || ''}
                             onChange={(e) => setFormSystemConfig(prev => ({ ...prev, tagline: e.target.value }))}
-                            placeholder="Ví dụ: Sàn Giao Dịch Bất Động Sản & Đăng Tin VIP"
+                            placeholder="Ví dụ: Sàn Giao Dịch Nhà Đất & Đăng Tin VIP"
                             className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-emerald-500"
                           />
                           <p className="text-[10px] text-slate-500 mt-1">
@@ -7585,7 +7585,7 @@ export default function AdminBackendPage() {
                         style={{ fontFamily: getFontConfig(formSystemConfig.fontFamily).fontFamily }}
                       >
                         <h3 className="text-base font-extrabold text-white">
-                          {formSystemConfig.platformName || formSystemConfig.brandShortName || 'Sàn Giao Dịch Bất Động Sản'}
+                          {formSystemConfig.platformName || formSystemConfig.brandShortName || 'Sàn Giao Dịch Nhà Đất'}
                         </h3>
                         <p className="text-xs text-slate-300 leading-relaxed">
                           Hệ thống quản lý tin đăng VIP, bản đồ số GIS và pháp lý thương mại điện tử minh bạch. Mọi giao dịch được đảm bảo tuân thủ quy chuẩn pháp luật.
@@ -8146,7 +8146,7 @@ export default function AdminBackendPage() {
                               </span>
                             </div>
                             <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                              Quy định số lượng bất động sản nổi bật hiển thị trên Trang Chủ (ưu tiên tin VIP và tin mới nhất). Mặc định là 18 sản phẩm.
+                              Quy định số lượng nhà đất nổi bật hiển thị trên Trang Chủ (ưu tiên tin VIP và tin mới nhất). Mặc định là 18 sản phẩm.
                             </p>
                           </div>
 
@@ -8197,7 +8197,7 @@ export default function AdminBackendPage() {
                               </span>
                             </div>
                             <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                              Áp dụng cho trang Danh sách bất động sản chứa hộp quà hôm nay (/trung-tam-phan-thuong/san-kho-bau-bds). Khi số lượng bất động sản vượt quá số lượng này, hệ thống sẽ tự động tạo phân trang. Mặc định là 16 sản phẩm.
+                              Áp dụng cho trang Danh sách nhà đất chứa hộp quà hôm nay (/trung-tam-phan-thuong/san-kho-bau-bds). Khi số lượng nhà đất vượt quá số lượng này, hệ thống sẽ tự động tạo phân trang. Mặc định là 16 sản phẩm.
                             </p>
                           </div>
 
@@ -8410,7 +8410,7 @@ export default function AdminBackendPage() {
                       <div className="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs text-slate-300">
                         <div className="flex items-center gap-1.5 text-[11px]">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
-                          <span className="text-emerald-400 font-bold truncate">{formSystemConfig.brandShortName || 'SÀN BẤT ĐỘNG SẢN'}</span>
+                          <span className="text-emerald-400 font-bold truncate">{formSystemConfig.brandShortName || 'SÀN NHÀ ĐẤT'}</span>
                           <span className="text-slate-500">|</span>
                           <span className="text-slate-300 truncate font-mono">
                             Hotline: <strong className="text-white">{formSystemConfig.hotline || '0904 084 888'}</strong>
@@ -8425,10 +8425,10 @@ export default function AdminBackendPage() {
                       <div className="p-4 bg-slate-900 rounded-2xl border border-slate-800 text-xs space-y-2 text-slate-300">
                         <div className="font-extrabold text-white text-sm flex items-center gap-1.5">
                           <i className="fa-solid fa-building text-emerald-400"></i>
-                          <span>{formSystemConfig.brandShortName || 'SÀN BẤT ĐỘNG SẢN'}</span>
+                          <span>{formSystemConfig.brandShortName || 'SÀN NHÀ ĐẤT'}</span>
                         </div>
                         <div className="text-[10px] text-slate-400 font-medium">
-                          {formSystemConfig.tagline || 'Sàn Giao Dịch Bất Động Sản & Đăng Tin VIP'}
+                          {formSystemConfig.tagline || 'Sàn Giao Dịch Nhà Đất & Đăng Tin VIP'}
                         </div>
                         <div className="pt-2 border-t border-slate-800 space-y-1 text-[11px]">
                           <div>📞 Hotline: <strong className="text-white font-mono">{formSystemConfig.hotline || '0904 084 888'}</strong></div>
@@ -8712,7 +8712,7 @@ export default function AdminBackendPage() {
         </div>
       )}
 
-      {/* MODAL: CHỈNH SỬA CHI TIẾT BÀI ĐĂNG BẤT ĐỘNG SẢN (ĐẦY ĐỦ TRƯỜNG & DANH MỤC THEO /dang-tin) */}
+      {/* MODAL: CHỈNH SỬA CHI TIẾT BÀI ĐĂNG NHÀ ĐẤT (ĐẦY ĐỦ TRƯỜNG & DANH MỤC THEO /dang-tin) */}
       {editingProperty && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
           <div className="bg-slate-950 border border-slate-800 rounded-3xl p-5 sm:p-6 max-w-4xl w-full space-y-4 my-6 shadow-2xl animate-in zoom-in-95 duration-150">

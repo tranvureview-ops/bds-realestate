@@ -183,7 +183,7 @@ export default function AdminAppointmentsManager() {
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-bold uppercase text-[10.5px] tracking-wider">
                   <th className="py-3.5 px-4">Mã & Ngày Đặt</th>
-                  <th className="py-3.5 px-4">Bất Động Sản</th>
+                  <th className="py-3.5 px-4">Nhà Đất</th>
                   <th className="py-3.5 px-4">Khách Hàng & Liên Hệ</th>
                   <th className="py-3.5 px-4">Môi Giới Phụ Trách</th>
                   <th className="py-3.5 px-4">Thời Gian Hẹn</th>
@@ -206,7 +206,7 @@ export default function AdminAppointmentsManager() {
                         </div>
                       </td>
 
-                      {/* Bất động sản */}
+                      {/* Nhà đất */}
                       <td className="py-4 px-4 align-top max-w-xs">
                         <div className="flex items-start gap-2.5">
                           {appt.propertyCover && (

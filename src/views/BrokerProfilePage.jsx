@@ -55,7 +55,7 @@ export default function BrokerProfilePage({ slug = '', initialProperties = [] })
   const brokerTitle = isBroker ? (isVerified ? 'Môi giới chuyên nghiệp' : 'Môi Giới') : 'Khách tìm mua';
   const rating = matchedBroker?.rating || '5.0';
 
-  // Lọc toàn bộ danh sách bất động sản của môi giới này
+  // Lọc toàn bộ danh sách nhà đất của môi giới này
   // Ưu tiên tuyệt đối ID và Số điện thoại để không bao giờ bị lẫn lộn giữa 2 người trùng tên
   const authorProperties = useMemo(() => {
     if (!allProperties || !Array.isArray(allProperties)) return [];
@@ -179,7 +179,7 @@ export default function BrokerProfilePage({ slug = '', initialProperties = [] })
                   </span>
                   <span className="text-white/40">•</span>
                   <span className="font-semibold text-emerald-200">
-                    {authorProperties.length} bất động sản đang quản lý
+                    {authorProperties.length} nhà đất đang quản lý
                   </span>
                 </div>
 
@@ -238,7 +238,7 @@ export default function BrokerProfilePage({ slug = '', initialProperties = [] })
               </div>
               <div>
                 <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-                  Danh Sách Bất Động Sản Của {authorName}
+                  Danh Sách Nhà Đất Của {authorName}
                 </h2>
                 <p className="text-xs text-slate-500">
                   Tổng hợp {authorProperties.length} tin đăng chính chủ và ký gửi đang phụ trách
@@ -301,7 +301,7 @@ export default function BrokerProfilePage({ slug = '', initialProperties = [] })
                 <i className="fa-solid fa-folder-open"></i>
               </div>
               <h3 className="text-base font-bold text-slate-700">
-                Chưa có bất động sản nào trong danh mục này
+                Chưa có nhà đất nào trong danh mục này
               </h3>
               <p className="text-xs text-slate-400 max-w-md mx-auto">
                 Chuyên viên hiện chưa đăng tải tin thuộc bộ lọc này hoặc tin đăng đã được giao dịch thành công.

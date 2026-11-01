@@ -15,7 +15,7 @@ export function removeAccents(str) {
 }
 
 /**
- * Utility hàm lọc danh sách Bất động sản chuẩn hóa dùng chung
+ * Utility hàm lọc danh sách Nhà đất chuẩn hóa dùng chung
  * Đảm bảo tính nhất quán giữa ListingGrid, SaleListingsPage, RentListingsPage, HomePage
  */
 export function filterProperties(properties = [], filters = {}) {

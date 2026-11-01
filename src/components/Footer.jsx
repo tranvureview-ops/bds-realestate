@@ -23,7 +23,7 @@ export default function Footer() {
     let bHighlight = headerConfig?.brandHighlight?.trim() || '';
 
     if (!bName && !bHighlight) {
-      const fullText = (systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN').trim();
+      const fullText = (systemConfig?.brandShortName || 'SÀN NHÀ ĐẤT').trim();
       const domainMatch = fullText.match(/^(.+?)(\.(?:com\.vn|vn|com|net|org))$/i);
       if (domainMatch) {
         bName = domainMatch[1];
@@ -31,7 +31,7 @@ export default function Footer() {
       } else {
         const words = fullText.split(/\s+/).filter(Boolean);
         if (words.length <= 1) {
-          bName = words[0] || 'BẤT ĐỘNG SẢN';
+          bName = words[0] || 'NHÀ ĐẤT';
           bHighlight = '';
         } else {
           bName = words.slice(0, -1).join(' ');
@@ -52,8 +52,8 @@ export default function Footer() {
     };
   }, [headerConfig?.brandName, headerConfig?.brandHighlight, systemConfig?.brandShortName]);
 
-  const activeBrandName = [brandNameDisplay, brandHighlightDisplay].filter(Boolean).join('') || systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN';
-  const activePlatformName = systemConfig?.platformName || `${activeBrandName} - Sàn Giao Dịch Bất Động Sản`;
+  const activeBrandName = [brandNameDisplay, brandHighlightDisplay].filter(Boolean).join('') || systemConfig?.brandShortName || 'SÀN NHÀ ĐẤT';
+  const activePlatformName = systemConfig?.platformName || `${activeBrandName} - Sàn Giao Dịch Nhà Đất`;
 
   const activeHotline = footerConfig?.hotline || systemConfig?.hotline || '0898 246 607';
   const activeZalo = footerConfig?.zalo || systemConfig?.zalo;
@@ -62,7 +62,7 @@ export default function Footer() {
   const rawBrandDesc = footerConfig?.brandDescription ?? DEFAULT_FOOTER_CONFIG.brandDescription;
   const brandDesc = rawBrandDesc
     ? rawBrandDesc.replace(/Đất Biển Đà Nẵng/g, activeBrandName).replace(/ĐẤT BIỂN ĐÀ NẴNG/g, activeBrandName)
-    : `${activeBrandName} là sàn thương mại điện tử chuyên biệt về bất động sản, đất nền dự án, biệt thự nghỉ dưỡng và căn hộ cao cấp toàn quốc.`;
+    : `${activeBrandName} là sàn thương mại điện tử chuyên biệt về nhà đất, đất nền dự án, biệt thự nghỉ dưỡng và căn hộ cao cấp toàn quốc.`;
 
   const col2Title = footerConfig?.col2Title || DEFAULT_FOOTER_CONFIG.col2Title;
   const col2Links = Array.isArray(footerConfig?.col2Links) && footerConfig.col2Links.length > 0 
@@ -87,7 +87,7 @@ export default function Footer() {
     ? footerConfig.copyrightCustomText
         .replace(/ĐẤT BIỂN ĐÀ NẴNG/g, activeBrandName)
         .replace(/Đất Biển Đà Nẵng/g, activeBrandName)
-        .replace(/Công ty Cổ phần Bất Động Sản Đất Biển Đà Nẵng/g, activePlatformName)
+        .replace(/Công ty Cổ phần Nhà Đất Đất Biển Đà Nẵng/g, activePlatformName)
     : `© ${new Date().getFullYear()} ${activeBrandName}. Bản quyền thuộc về ${activePlatformName}.`;
 
   const showSocial = footerConfig?.showSocialLinks !== false;
@@ -113,7 +113,7 @@ export default function Footer() {
                   ) : null}
                 </div>
                 <div className="text-[11px] text-slate-300 uppercase tracking-wider font-bold">
-                  {systemConfig?.tagline || 'Sàn Giao Dịch Bất Động Sản & Đăng Tin VIP'}
+                  {systemConfig?.tagline || 'Sàn Giao Dịch Nhà Đất & Đăng Tin VIP'}
                 </div>
               </div>
             </Link>
@@ -282,11 +282,11 @@ export default function Footer() {
 
         {/* SEO Category & Location Taxonomy Footer Links */}
         {showSeo && (
-          <nav aria-label="Chỉ mục danh mục bất động sản và khu vực" className="pt-8 pb-6 border-t border-slate-800/80">
+          <nav aria-label="Chỉ mục danh mục nhà đất và khu vực" className="pt-8 pb-6 border-t border-slate-800/80">
             <div className="mb-4">
               <h3 className="text-xs font-black uppercase text-emerald-400 tracking-wider flex items-center gap-2">
                 <i className="fa-solid fa-sitemap text-[11px]"></i>
-                Danh Mục Bất Động Sản & Địa Giới Hành Chính Chuẩn SEO
+                Danh Mục Nhà Đất & Địa Giới Hành Chính Chuẩn SEO
               </h3>
               <p className="text-xs text-slate-300 mt-0.5">
                 Tra cứu nhanh theo loại hình, tỉnh thành, quận huyện, phường xã và dự án trọng điểm
@@ -297,7 +297,7 @@ export default function Footer() {
               {/* Column 1: BĐS Bán - Nhà Ở & Căn Hộ */}
               <div className="space-y-1 sm:space-y-1.5">
                 <div className="font-bold text-white text-[11px] uppercase tracking-wider mb-2 text-emerald-300">
-                  Bất Động Sản Nhà Ở & Căn Hộ
+                  Nhà Đất Nhà Ở & Căn Hộ
                 </div>
                 <ul className="space-y-0.5">
                   <li><Link to="/ban-can-ho-chung-cu/" className="py-1.5 sm:py-1 hover:text-emerald-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-emerald-400 transition shrink-0"></span><span className="truncate">Bán căn hộ chung cư</span></Link></li>
@@ -327,7 +327,7 @@ export default function Footer() {
               {/* Column 3: BĐS Cho Thuê Chuẩn SEO */}
               <div className="space-y-1 sm:space-y-1.5">
                 <div className="font-bold text-white text-[11px] uppercase tracking-wider mb-2 text-blue-300">
-                  Bất Động Sản Cho Thuê
+                  Nhà Đất Cho Thuê
                 </div>
                 <ul className="space-y-0.5">
                   <li><Link to="/cho-thue-can-ho-chung-cu/" className="py-1.5 sm:py-1 hover:text-blue-400 transition flex items-center gap-1.5 group"><span className="w-1 h-1 rounded-full bg-slate-500 group-hover:bg-blue-400 transition shrink-0"></span><span className="truncate">Cho thuê căn hộ chung cư</span></Link></li>

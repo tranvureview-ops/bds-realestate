@@ -14,7 +14,7 @@ export const AVAILABLE_FONTS = [
       sizeAdjust: '99.4%'
     },
     primaryPreloadWoff2: 'https://fonts.gstatic.com/s/plusjakartasans/v12/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko50yyygA.woff2',
-    sampleHeadline: 'Sàn Bất Động Sản Đất Biển Đà Nẵng',
+    sampleHeadline: 'Sàn Nhà Đất Đất Biển Đà Nẵng',
     sampleText: 'Nền tảng mua bán căn hộ, đất nền và biệt thự biển chuẩn pháp lý.',
     samplePrice: '4.850.000.000 ₫'
   },
@@ -31,7 +31,7 @@ export const AVAILABLE_FONTS = [
       lineGap: '0%',
       sizeAdjust: '100%'
     },
-    sampleHeadline: 'Quy Chế & Pháp Lý Bất Động Sản Việt Nam',
+    sampleHeadline: 'Quy Chế & Pháp Lý Nhà Đất Việt Nam',
     sampleText: 'Thiết kế riêng cho hệ thống chữ Quốc ngữ, dấu thanh hiển thị chuẩn xác nhất.',
     samplePrice: '12.500.000.000 ₫'
   },

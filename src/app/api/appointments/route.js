@@ -83,7 +83,7 @@ export async function POST(request) {
     // 1. Kiểm tra các trường bắt buộc
     if (!propertyId || !propertyTitle) {
       return NextResponse.json(
-        { success: false, message: 'Thiếu thông tin bất động sản cần đặt lịch hẹn.' },
+        { success: false, message: 'Thiếu thông tin nhà đất cần đặt lịch hẹn.' },
         { status: 400 }
       );
     }

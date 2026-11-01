@@ -862,11 +862,11 @@ export default function ListingFilterBar({
                     </button>
                   </div>
 
-                  {/* 2. Loại bất động sản */}
+                  {/* 2. Loại nhà đất */}
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <label className="font-bold text-slate-900 text-sm">
-                        Loại bất động sản
+                        Loại nhà đất
                       </label>
                       <button
                         type="button"
@@ -1063,7 +1063,7 @@ export default function ListingFilterBar({
                           <i className="fa-solid fa-vr-cardboard text-indigo-600"></i>
                           <span>Xem nhà thực tế ảo (VR 360)</span>
                         </div>
-                        <div className="text-[11px] text-slate-500">Chỉ lọc bất động sản có tích hợp video thực tế ảo 360°</div>
+                        <div className="text-[11px] text-slate-500">Chỉ lọc nhà đất có tích hợp video thực tế ảo 360°</div>
                       </div>
                     </label>
                   </div>
@@ -1370,7 +1370,7 @@ export default function ListingFilterBar({
             )}
 
             {/* ----------------------------------------------------
-                MODAL SCREEN 5: LOẠI BẤT ĐỘNG SẢN (CHUẨN BATDONGSAN)
+                MODAL SCREEN 5: LOẠI NHÀ ĐẤT (CHUẨN BATDONGSAN)
                ---------------------------------------------------- */}
             {modalScreen === 'type' && (
               <PropertyTypeSelector

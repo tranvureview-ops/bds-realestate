@@ -63,7 +63,7 @@ export default function LiveChatWidget() {
     {
       id: 'welcome',
       sender: 'agent',
-      text: `Xin chào quý khách! Tôi là trợ lý tư vấn ${systemConfig?.brandShortName || 'Sàn Bất Động Sản'}. Quý khách đang quan tâm đến dự án nào cần hỗ trợ thông tin nhanh?`,
+      text: `Xin chào quý khách! Tôi là trợ lý tư vấn ${systemConfig?.brandShortName || 'Sàn Nhà Đất'}. Quý khách đang quan tâm đến dự án nào cần hỗ trợ thông tin nhanh?`,
       time: 'Vừa xong',
       timestamp: Date.now()
     }
@@ -90,7 +90,7 @@ export default function LiveChatWidget() {
 
   // Câu hỏi gợi ý nhanh
   const quickQuestions = useMemo(() => [
-    'Bất động sản này còn không?',
+    'Nhà đất này còn không?',
     'Giá có thương lượng thêm không?',
     'Cho tôi hẹn lịch xem nhà vào T7 này',
     'Gửi tôi pháp lý sổ đỏ/hồng'
@@ -158,7 +158,7 @@ export default function LiveChatWidget() {
           }));
         }
 
-        const activeWelcome = data.welcomeMessage || 'Xin chào quý khách! Tôi là trợ lý tư vấn. Quý khách đang quan tâm đến bất động sản nào cần hỗ trợ nhanh?';
+        const activeWelcome = data.welcomeMessage || 'Xin chào quý khách! Tôi là trợ lý tư vấn. Quý khách đang quan tâm đến nhà đất nào cần hỗ trợ nhanh?';
 
         // Cập nhật tin nhắn trong phiên
         if (Array.isArray(data.messages) && data.messages.length > 0) {
@@ -341,7 +341,7 @@ export default function LiveChatWidget() {
         {
           id: 'msg_welcome',
           sender: 'agent',
-          text: 'Xin chào quý khách! Tôi là trợ lý tư vấn. Quý khách đang quan tâm đến bất động sản nào cần hỗ trợ nhanh?',
+          text: 'Xin chào quý khách! Tôi là trợ lý tư vấn. Quý khách đang quan tâm đến nhà đất nào cần hỗ trợ nhanh?',
           time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Ho_Chi_Minh' }),
           timestamp: Date.now()
         }
@@ -397,7 +397,7 @@ export default function LiveChatWidget() {
       {
         id: 'msg_welcome',
         sender: 'agent',
-        text: agentInfo.welcomeMessage || 'Xin chào quý khách! Tôi là trợ lý tư vấn. Quý khách đang quan tâm đến bất động sản nào cần hỗ trợ nhanh?',
+        text: agentInfo.welcomeMessage || 'Xin chào quý khách! Tôi là trợ lý tư vấn. Quý khách đang quan tâm đến nhà đất nào cần hỗ trợ nhanh?',
         time: 'Vừa xong',
         timestamp: Date.now()
       }
@@ -501,7 +501,7 @@ export default function LiveChatWidget() {
             onClick={handleOpenWidget}
             className="sm:hidden flex items-center gap-2 pl-1.5 pr-3 py-1.5 h-[36px] rounded-full bg-white text-slate-900 shadow-[0_8px_25px_rgba(0,0,0,0.12)] border border-slate-200 active:scale-95 transition-all cursor-pointer group shrink-0"
             title="Chat tư vấn trực tiếp"
-            aria-label="Mở cửa sổ Live Chat tư vấn bất động sản"
+            aria-label="Mở cửa sổ Live Chat tư vấn nhà đất"
             style={{ contain: 'layout' }}
           >
             <div className="relative shrink-0 w-7 h-7">
@@ -537,7 +537,7 @@ export default function LiveChatWidget() {
             onClick={handleOpenWidget}
             className="hidden sm:flex items-center gap-2.5 pl-2 pr-4 py-2 h-[44px] rounded-full bg-white hover:bg-slate-50 text-slate-900 shadow-[0_10px_35px_rgba(0,0,0,0.14)] border border-slate-200 hover:border-emerald-500 hover:shadow-xl transition-all hover:scale-105 active:scale-95 cursor-pointer group shrink-0"
             title="Live Chat tư vấn BĐS trực tiếp"
-            aria-label="Mở cửa sổ Live Chat tư vấn bất động sản 24/7"
+            aria-label="Mở cửa sổ Live Chat tư vấn nhà đất 24/7"
             style={{ contain: 'layout' }}
           >
             <div className="relative shrink-0 w-9 h-9">

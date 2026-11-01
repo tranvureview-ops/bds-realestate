@@ -138,24 +138,24 @@ export const getInitialDb = cache(async () => {
 export async function generateMetadata() {
   const db = await getInitialDb();
   const sys = db?.bds_system_config || {};
-  const brand = sys.brandShortName || 'Sàn Bất Động Sản';
+  const brand = sys.brandShortName || 'Sàn Nhà Đất';
   const desc = sys.tagline 
-    ? `${brand} - ${sys.tagline}. Sàn thương mại điện tử bất động sản uy tín, mua bán cho thuê nhà đất và đăng tin VIP hiệu quả cao.`
-    : 'Sàn thương mại điện tử bất động sản uy tín, mua bán cho thuê nhà đất toàn quốc, đăng tin VIP hiệu quả cao, xác thực pháp lý minh bạch.';
+    ? `${brand} - ${sys.tagline}. Sàn thương mại điện tử nhà đất uy tín, mua bán cho thuê nhà đất và đăng tin VIP hiệu quả cao.`
+    : 'Sàn thương mại điện tử nhà đất uy tín, mua bán cho thuê nhà đất toàn quốc, đăng tin VIP hiệu quả cao, xác thực pháp lý minh bạch.';
 
   return {
     title: {
-      default: `${brand} - Sàn Giao Dịch Bất Động Sản & Đăng Tin VIP Toàn Quốc`,
+      default: `${brand} - Sàn Giao Dịch Nhà Đất & Đăng Tin VIP Toàn Quốc`,
       template: `%s | ${brand}`
     },
     description: desc,
-    keywords: [brand.toLowerCase(), 'bất động sản', 'mua bán nhà đất', 'cho thuê căn hộ', 'đăng tin bđs vip'],
+    keywords: [brand.toLowerCase(), 'nhà đất', 'mua bán nhà đất', 'cho thuê căn hộ', 'đăng tin bđs vip'],
     authors: [{ name: brand }],
     icons: {
       icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230284c7'><path d='M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z'/></svg>"
     },
     openGraph: {
-      title: `${brand} - Sàn Giao Dịch Bất Động Sản & Đăng Tin VIP Toàn Quốc`,
+      title: `${brand} - Sàn Giao Dịch Nhà Đất & Đăng Tin VIP Toàn Quốc`,
       description: desc,
       url: 'https://datbiendanang.vn',
       siteName: brand,

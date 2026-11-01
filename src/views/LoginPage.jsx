@@ -222,7 +222,7 @@ export default function LoginPage() {
 
         {/* Switch to Register */}
         <div className="text-center text-xs text-slate-500 pt-2 border-t border-slate-100">
-          Chưa có tài khoản {systemConfig?.brandShortName || 'Sàn Bất Động Sản'}?{' '}
+          Chưa có tài khoản {systemConfig?.brandShortName || 'Sàn Nhà Đất'}?{' '}
           <Link to="/dang-ky" className="text-emerald-600 font-bold hover:underline">
             {registerLinkText}
           </Link>

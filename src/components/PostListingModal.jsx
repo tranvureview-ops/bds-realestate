@@ -930,7 +930,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     const currentVipPkg = activeVipPackages.find(p => p.id === selectedVipId) || defaultPkg;
 
     const typeObj = PROPERTY_TYPES?.find(t => t.id === formData.type);
-    const typeName = typeObj?.name || (formData.type === 'apartment' ? 'Căn hộ chung cư' : formData.type === 'house' ? 'Nhà riêng / Nhà phố' : 'Bất động sản');
+    const typeName = typeObj?.name || (formData.type === 'apartment' ? 'Căn hộ chung cư' : formData.type === 'house' ? 'Nhà riêng / Nhà phố' : 'Nhà đất');
 
     return {
       id: 'BDS-PREVIEW',
@@ -1032,7 +1032,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
         return;
       }
       if (!formData.description || formData.description.length < 50) {
-        showToast('Mô tả bất động sản cần tối thiểu 50 ký tự (khuyên dùng mẫu có sẵn)', 'warning');
+        showToast('Mô tả nhà đất cần tối thiểu 50 ký tự (khuyên dùng mẫu có sẵn)', 'warning');
         return;
       }
       if (formData.priceType !== 'deal' && (!formData.price || formData.price <= 0)) {
@@ -1046,7 +1046,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     }
     if (step === 3) {
       if (formData.images.length === 0) {
-        showToast('Hệ thống yêu cầu tối thiểu 1 hình ảnh thật của bất động sản', 'warning');
+        showToast('Hệ thống yêu cầu tối thiểu 1 hình ảnh thật của nhà đất', 'warning');
         return;
       }
     }
@@ -1274,7 +1274,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     }
     if (!formData.description || formData.description.length < 50) {
       setStep(2);
-      showToast('Mô tả bất động sản cần tối thiểu 50 ký tự (Bước 2)!', 'warning');
+      showToast('Mô tả nhà đất cần tối thiểu 50 ký tự (Bước 2)!', 'warning');
       return;
     }
     if (formData.priceType !== 'deal' && (!formData.price || formData.price <= 0)) {
@@ -1291,7 +1291,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     // 3. Kiểm tra thông tin Bước 3
     if (!formData.images || formData.images.length === 0) {
       setStep(3);
-      showToast('Vui lòng tải lên tối thiểu 1 hình ảnh thật của bất động sản (Bước 3)!', 'warning');
+      showToast('Vui lòng tải lên tối thiểu 1 hình ảnh thật của nhà đất (Bước 3)!', 'warning');
       return;
     }
 
@@ -1373,7 +1373,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
             <i className="fa-solid fa-cloud-arrow-up"></i>
           </div>
           <div>
-            <h2 className="text-base sm:text-lg font-black text-white">Đăng Tin Bất Động Sản</h2>
+            <h2 className="text-base sm:text-lg font-black text-white">Đăng Tin Nhà Đất</h2>
             <div className="text-xs text-slate-400 mt-0.5">
               Bước {step}/4: {
                 step === 1 ? 'Loại BĐS & Địa giới hành chính' :
@@ -2162,7 +2162,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
               {/* Thông số kỹ thuật chuyên sâu theo chuẩn AloNhaDat */}
               <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
                 <span className="text-xs font-bold text-slate-800 uppercase block">
-                  4. Đặc Điểm Bất Động Sản (Mặt tiền, Lộ giới, Hướng)
+                  4. Đặc Điểm Nhà Đất (Mặt tiền, Lộ giới, Hướng)
                 </span>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
@@ -2267,7 +2267,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                 <div className="flex justify-between items-center mb-1">
                   <label className="text-xs font-bold text-slate-800 uppercase flex items-center gap-1.5">
                     <i className="fa-solid fa-camera text-red-600"></i>
-                    <span>1. Hình Ảnh Bất Động Sản (Tối thiểu 1 - 20 ảnh)</span>
+                    <span>1. Hình Ảnh Nhà Đất (Tối thiểu 1 - 20 ảnh)</span>
                     <span className="text-red-500">*</span>
                   </label>
                   <span className="text-xs font-bold text-emerald-600">{formData.images.length}/20 ảnh đã chọn</span>
@@ -2414,7 +2414,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                 ) : (
                   <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-800 text-xs flex items-center gap-2 mb-3">
                     <i className="fa-solid fa-circle-exclamation text-amber-600 text-base shrink-0"></i>
-                    <span>Chưa có ảnh nào được chọn. Vui lòng bấm vào khung trên để tải lên từ 1 đến 20 ảnh thực tế của bất động sản.</span>
+                    <span>Chưa có ảnh nào được chọn. Vui lòng bấm vào khung trên để tải lên từ 1 đến 20 ảnh thực tế của nhà đất.</span>
                   </div>
                 )}
 
@@ -3863,7 +3863,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                     <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-start gap-3">
                       <i className="fa-solid fa-circle-info text-amber-600 text-lg mt-0.5"></i>
                       <div className="text-xs text-slate-700 leading-relaxed">
-                        <strong className="text-amber-900">Giao diện hiển thị trong kết quả tìm kiếm:</strong> Khách hàng khi tìm kiếm bất động sản tại <strong>{previewProperty.location.province}</strong> sẽ nhìn thấy tin đăng của bạn với giao diện như bên dưới.
+                        <strong className="text-amber-900">Giao diện hiển thị trong kết quả tìm kiếm:</strong> Khách hàng khi tìm kiếm nhà đất tại <strong>{previewProperty.location.province}</strong> sẽ nhìn thấy tin đăng của bạn với giao diện như bên dưới.
                         {selectedVipId === 'vip-diamond' && (
                           <div className="mt-1 text-red-700 font-bold">
                             ★ Gói <strong>VIP Kim Cương</strong> của bạn có viền kim sa vàng phát sáng, huy hiệu sao kim cương và luôn ghim ở vị trí Top 1 trên website (gấp 30 lần lượt liên hệ)!
@@ -3914,7 +3914,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                   <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-4 sm:p-6 lg:p-8 space-y-6">
                     {/* Breadcrumbs */}
                     <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
-                      <span>Bất động sản</span>
+                      <span>Nhà đất</span>
                       <i className="fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
                       <span>{previewProperty.category === 'rent' ? 'Cho thuê' : 'Bán'}</span>
                       <i className="fa-solid fa-chevron-right text-[9px] text-slate-400"></i>
@@ -4070,7 +4070,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                         {/* Specs Table */}
                         <div>
                           <h3 className="text-base font-black text-slate-900 uppercase border-b border-slate-100 pb-2 mb-3">
-                            Đặc Điểm Bất Động Sản
+                            Đặc Điểm Nhà Đất
                           </h3>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
                             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">

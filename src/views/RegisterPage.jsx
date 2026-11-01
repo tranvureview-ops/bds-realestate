@@ -161,7 +161,7 @@ export default function RegisterPage() {
                 Đăng Ký Thành Viên Mới
               </h1>
               <p className="text-[11px] text-slate-500 mt-0.5">
-                Sàn Giao Dịch Bất Động Sản & Hệ Thống Tin VIP {systemConfig?.brandShortName || 'KÊNH NHÀ ĐẤT 24H'}
+                Sàn Giao Dịch Nhà Đất & Hệ Thống Tin VIP {systemConfig?.brandShortName || 'KÊNH NHÀ ĐẤT 24H'}
               </p>
             </div>
           </div>

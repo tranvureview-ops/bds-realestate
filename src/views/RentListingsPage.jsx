@@ -222,7 +222,7 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
 
           <div>
             <h1 className="text-2xl sm:text-3xl font-black text-white">
-              {dynamicTaxonomy?.title || 'Cho Thuê Bất Động Sản Toàn Quốc'}
+              {dynamicTaxonomy?.title || 'Cho Thuê Nhà Đất Toàn Quốc'}
               {activePage > 1 && (
                 <span className="text-blue-400 font-semibold text-lg sm:text-xl ml-2">
                   - Trang {activePage}

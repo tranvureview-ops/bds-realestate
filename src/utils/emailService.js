@@ -21,7 +21,7 @@ export const REPORT_REASONS = {
     color: 'amber'
   },
   already_sold: {
-    label: 'Bất động sản đã bán hoặc đã cho thuê',
+    label: 'Nhà đất đã bán hoặc đã cho thuê',
     severity: 'medium',
     color: 'blue'
   },
@@ -359,7 +359,7 @@ export function generateReporterConfirmationEmailHtml({ report, property, custom
   const badgeText = renderEmailTemplateString(tpl.headerBadge || 'Tiếp Nhận Phản Ánh', vars);
   const titleText = renderEmailTemplateString(tpl.headerTitle || 'Đã Tiếp Nhận Báo Cáo Vi Phạm', vars);
   const greetingText = renderEmailTemplateString(tpl.greeting || 'Kính gửi {{reporterName}},', vars);
-  const introText = renderEmailTemplateString(tpl.introText || 'Cảm ơn Quý khách đã gửi phản ánh vi phạm về tin rao bất động sản trên sàn giao dịch {{siteName}}. Sự đóng góp của Quý khách có ý nghĩa rất lớn giúp xây dựng một môi trường giao dịch bất động sản minh bạch, chính xác và an toàn.', vars);
+  const introText = renderEmailTemplateString(tpl.introText || 'Cảm ơn Quý khách đã gửi phản ánh vi phạm về tin rao nhà đất trên sàn giao dịch {{siteName}}. Sự đóng góp của Quý khách có ý nghĩa rất lớn giúp xây dựng một môi trường giao dịch nhà đất minh bạch, chính xác và an toàn.', vars);
   const processNoticeText = renderEmailTemplateString(tpl.processNotice || 'Trong vòng 24 giờ làm việc, đội ngũ thẩm định nội dung sẽ liên hệ trực tiếp với người đăng tin để kiểm tra, yêu cầu xác minh sổ đỏ/giấy tờ pháp lý hoặc mức giá thực tế. Nếu phát hiện vi phạm, tin đăng sẽ bị hạ lập tức.', vars);
   const closingText = renderEmailTemplateString(tpl.closingText || 'Chúng tôi sẽ gửi email thông báo kết quả giải quyết khi hoàn tất thẩm định.', vars);
   const signOffText = renderEmailTemplateString(tpl.senderSign || 'Đội Ngũ Kiểm Soát Chất Lượng Sàn {{siteName}}', vars);
@@ -422,7 +422,7 @@ export function generateAuthorWarningEmailHtml({ property, report: _report, acti
     propertyId: property.id,
     propertyTitle: property.title,
     authorName: property.author?.name || property.contactName || 'Người đăng tin',
-    adminNote: adminNote || 'Tin đăng bị báo cáo thông tin sai lệch về giá hoặc hiện trạng bất động sản.',
+    adminNote: adminNote || 'Tin đăng bị báo cáo thông tin sai lệch về giá hoặc hiện trạng nhà đất.',
     hotline,
     currentTime: new Date().toLocaleString('vi-VN')
   };
@@ -504,7 +504,7 @@ export function generateResolutionEmailToReporterHtml({ report, property, action
   const greetingText = renderEmailTemplateString(tpl.greeting || 'Kính gửi {{reporterName}},', vars);
   const introText = renderEmailTemplateString(tpl.introText || 'Ban kiểm duyệt {{siteName}} xin trân trọng thông báo kết quả xác minh phản ánh của Quý khách đối với tin đăng #{{propertyId}} - {{propertyTitle}}:', vars);
   const detailText = renderEmailTemplateString(tpl.resolutionDetail || 'Biện pháp đã thực hiện: {{actionTaken}}. {{adminNote}}', vars);
-  const closingText = renderEmailTemplateString(tpl.closingText || 'Một lần nữa xin chân thành cảm ơn Quý khách đã chung tay xây dựng cộng đồng bất động sản văn minh và an toàn!', vars);
+  const closingText = renderEmailTemplateString(tpl.closingText || 'Một lần nữa xin chân thành cảm ơn Quý khách đã chung tay xây dựng cộng đồng nhà đất văn minh và an toàn!', vars);
   const signOffText = renderEmailTemplateString(tpl.senderSign || 'Ban Quản Trị Sàn {{siteName}}', vars);
 
   return `
@@ -806,7 +806,7 @@ export function generatePasswordResetEmailHtml({
   customConfig = null
 }) {
   const activeCfg = customConfig || getActiveEmailConfig();
-  const siteName = activeCfg?.companyName || 'Sàn Bất Động Sản Đất Biển Đà Nẵng';
+  const siteName = activeCfg?.companyName || 'Sàn Nhà Đất Đất Biển Đà Nẵng';
   const websiteUrl = activeCfg?.siteUrl || 'https://datbiendanang.vn';
   const hotline = activeCfg?.hotline || getSystemHotlineFallback();
 

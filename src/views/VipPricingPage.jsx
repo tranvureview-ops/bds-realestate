@@ -168,7 +168,7 @@ export default function VipPricingPage() {
   const FAQS = [
     {
       q: 'VIP Kim Cương, VIP Vàng có phải là "Gói dịch vụ" đăng ký theo tháng không?',
-      a: 'Hoàn toàn KHÔNG. VIP Kim Cương, VIP Vàng, VIP Bạc và Tin Thường là 4 Phân Loại Tin Đăng (Listing Types) dành cho từng bài viết bất động sản riêng biệt. Người dùng lựa chọn loại tin và số ngày hiển thị khi tạo tin hoặc nâng hạng tin đang chạy. Đơn giá được tính theo ngày hiển thị của bài đăng đó. Còn khái niệm "Đăng ký gói" chỉ áp dụng cho Gói Hội Viên Môi Giới (Gói Cơ Bản, Gói Tiêu Chuẩn, Gói Cao Cấp) theo chu kỳ tháng để nhận kho voucher 30 ngày.'
+      a: 'Hoàn toàn KHÔNG. VIP Kim Cương, VIP Vàng, VIP Bạc và Tin Thường là 4 Phân Loại Tin Đăng (Listing Types) dành cho từng bài viết nhà đất riêng biệt. Người dùng lựa chọn loại tin và số ngày hiển thị khi tạo tin hoặc nâng hạng tin đang chạy. Đơn giá được tính theo ngày hiển thị của bài đăng đó. Còn khái niệm "Đăng ký gói" chỉ áp dụng cho Gói Hội Viên Môi Giới (Gói Cơ Bản, Gói Tiêu Chuẩn, Gói Cao Cấp) theo chu kỳ tháng để nhận kho voucher 30 ngày.'
     },
     {
       q: 'Mối quan hệ giữa Gói Hội Viên Môi Giới và các Loại Tin Đăng là gì?',
@@ -214,7 +214,7 @@ export default function VipPricingPage() {
                 Hệ Thống Phân Cấp Tin Đăng 4 Thứ Hạng
               </div>
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white leading-tight tracking-tight">
-                Bảng Phân Loại & Biểu Phí <span className="bg-gradient-to-r from-red-500 via-rose-400 to-amber-400 bg-clip-text text-transparent">Tin Đăng Bất Động Sản</span>
+                Bảng Phân Loại & Biểu Phí <span className="bg-gradient-to-r from-red-500 via-rose-400 to-amber-400 bg-clip-text text-transparent">Tin Đăng Nhà Đất</span>
               </h1>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
                 Cung cấp 4 phân loại hiển thị chuyên nghiệp: <b>VIP Kim Cương</b>, <b>VIP Vàng</b>, <b>VIP Bạc</b> và <b>Tin Thường</b>. Tính phí linh hoạt theo <b>số ngày hiển thị</b> cho từng bài viết cụ thể (<b>KHÔNG PHẢI GÓI THUÊ BAO ĐỊNH KỲ</b>).
@@ -956,7 +956,7 @@ export default function VipPricingPage() {
               Hỏi Đáp Dịch Vụ
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
-              Câu Hỏi Thường Gặp Về Tin Đăng Bất Động Sản
+              Câu Hỏi Thường Gặp Về Tin Đăng Nhà Đất
             </h2>
             <p className="text-xs sm:text-sm text-slate-500">
               Giải đáp thắc mắc chi tiết về cơ chế hiển thị, đẩy tin và quyền lợi hội viên.
@@ -999,7 +999,7 @@ export default function VipPricingPage() {
               <i className="fa-solid fa-headset"></i>
             </div>
             <div>
-              <h3 className="font-black text-base text-white">Bạn Cần Tư Vấn Phân Loại Tin Đăng Phù Hợp Cho Bất Động Sản?</h3>
+              <h3 className="font-black text-base text-white">Bạn Cần Tư Vấn Phân Loại Tin Đăng Phù Hợp Cho Nhà Đất?</h3>
               <p className="text-xs text-slate-300 mt-0.5">
                 Chuyên viên tư vấn VIP sẵn sàng hỗ trợ bạn 24/7 qua Zalo & Tổng đài Hotline.
               </p>

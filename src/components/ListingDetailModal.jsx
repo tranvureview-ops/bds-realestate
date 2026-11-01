@@ -449,7 +449,7 @@ export default function ListingDetailModal({ property, onClose }) {
               {/* Technical Specifications Matrix */}
               <div>
                 <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider mb-3">
-                  Đặc Điểm Bất Động Sản
+                  Đặc Điểm Nhà Đất
                 </h3>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
@@ -666,7 +666,7 @@ export default function ListingDetailModal({ property, onClose }) {
               {/* Safety notice */}
               <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-[11px] text-amber-900 leading-tight">
                 <i className="fa-solid fa-shield-halved text-amber-600 mr-1"></i>
-                <strong>Khuyến cáo an toàn:</strong> Không chuyển tiền đặt cọc trước khi trực tiếp kiểm tra giấy tờ sổ đỏ/hồng và hiện trạng thực tế của bất động sản.
+                <strong>Khuyến cáo an toàn:</strong> Không chuyển tiền đặt cọc trước khi trực tiếp kiểm tra giấy tờ sổ đỏ/hồng và hiện trạng thực tế của nhà đất.
               </div>
             </div>
           </div>

@@ -195,7 +195,7 @@ export default function MembershipPage() {
             <span>Chính Sách Gói Hội Viên {systemConfig?.brandShortName || 'Môi Giới Chuyên Nghiệp'}</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            Gói Hội Viên Bất Động Sản
+            Gói Hội Viên Nhà Đất
           </h1>
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
             Giải pháp tối ưu hóa chi phí quảng cáo và tiếp cận khách mua nhà toàn diện. Nhận kho <strong className="text-emerald-700">Voucher 30 ngày</strong> định kỳ giúp tiết kiệm tới <strong className="text-red-600">{premiumSavePercent}%</strong> so với đăng tin và đẩy tin mua lẻ.

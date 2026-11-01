@@ -508,7 +508,7 @@ export default function ListingSidebar({
       </div>
 
       {/* ========================================================
-          WIDGET 3: BẤT ĐỘNG SẢN THEO KHU VỰC
+          WIDGET 3: NHÀ ĐẤT THEO KHU VỰC
           - Ở danh mục chính (chưa chọn thành phố): Hiển thị Tỉnh / Thành phố nổi bật
           - Khi đã chọn thành phố: Hiển thị các Quận / Huyện thuộc thành phố đó
          ======================================================== */}
@@ -519,7 +519,7 @@ export default function ListingSidebar({
               <i className={`fa-solid ${isCitySelected ? 'fa-location-dot' : 'fa-map-location-dot'} text-xs`}></i>
             </div>
             <h2 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight truncate">
-              {isCitySelected ? `Khu vực tại ${activeCity}` : 'Bất động sản theo tỉnh thành'}
+              {isCitySelected ? `Khu vực tại ${activeCity}` : 'Nhà đất theo tỉnh thành'}
             </h2>
           </div>
           {isCitySelected && (
@@ -634,7 +634,7 @@ export default function ListingSidebar({
       </div>
 
       {/* ========================================================
-          WIDGET 4: DỰ ÁN BẤT ĐỘNG SẢN NỔI BẬT
+          WIDGET 4: DỰ ÁN NHÀ ĐẤT NỔI BẬT
          ======================================================== */}
       <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-2xs">
         <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">

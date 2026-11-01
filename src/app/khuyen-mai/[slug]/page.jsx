@@ -17,8 +17,8 @@ export async function generateMetadata({ params }) {
 
   if (!promo) {
     return {
-      title: 'Chương Trình Khuyến Mãi Bất Động Sản',
-      description: 'Chương trình khuyến mãi dịch vụ bất động sản.',
+      title: 'Chương Trình Khuyến Mãi Nhà Đất',
+      description: 'Chương trình khuyến mãi dịch vụ nhà đất.',
     };
   }
 

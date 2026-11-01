@@ -77,7 +77,7 @@ export default function AdminSingleConfigManager() {
   const renderedPreviewText = (formData.disclaimer?.contentTemplate || '')
     .replace(/\{title\}/g, `"${previewSampleTitle}"`)
     .replace(/\{id\}/g, previewSampleId)
-    .replace(/\{platformName\}/g, formData.disclaimer?.platformName || systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN')
+    .replace(/\{platformName\}/g, formData.disclaimer?.platformName || systemConfig?.brandShortName || 'SÀN NHÀ ĐẤT')
     .replace(/\{hotline\}/g, formData.disclaimer?.hotline || systemConfig?.hotline || '0904 084 888');
 
   // Background and color classes mapping
@@ -186,18 +186,18 @@ export default function AdminSingleConfigManager() {
                       </label>
                       <button
                         type="button"
-                        onClick={() => handleDisclaimerChange('platformName', systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN')}
+                        onClick={() => handleDisclaimerChange('platformName', systemConfig?.brandShortName || 'SÀN NHÀ ĐẤT')}
                         className="text-[10px] text-emerald-400 hover:text-emerald-300 hover:underline"
                         title="Đồng bộ từ tên thương hiệu sàn"
                       >
-                        Lấy từ Cài đặt sàn ({systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN'})
+                        Lấy từ Cài đặt sàn ({systemConfig?.brandShortName || 'SÀN NHÀ ĐẤT'})
                       </button>
                     </div>
                     <input
                       type="text"
                       value={formData.disclaimer?.platformName || ''}
                       onChange={(e) => handleDisclaimerChange('platformName', e.target.value)}
-                      placeholder={`VD: ${systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN'}`}
+                      placeholder={`VD: ${systemConfig?.brandShortName || 'SÀN NHÀ ĐẤT'}`}
                       className="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white font-semibold focus:outline-none focus:ring-1 focus:ring-red-500"
                     />
                   </div>
@@ -388,7 +388,7 @@ export default function AdminSingleConfigManager() {
                 { key: 'showPrintButton', label: 'Nút In Bản Tin / Xuất Brochure Giấy', desc: 'In tờ rơi khổ A4 chứa mã QR và hotline kiểm định', icon: 'fa-print' },
                 { key: 'showShareButton', label: 'Nút Chia Sẻ Mạng Xã Hội & Copy Link', desc: 'Chia sẻ nhanh qua Zalo, Facebook, Tin nhắn SMS', icon: 'fa-share-nodes' },
                 { key: 'showRelatedKeywords', label: 'Khối Từ Khóa Tìm Kiếm & Hashtag SEO', desc: 'Gợi ý các cụm từ khóa khu vực để tăng thứ hạng SEO', icon: 'fa-tags' },
-                { key: 'showSimilarProperties', label: 'Khối Bất Động Sản Tương Tự', desc: `Hiển thị ${formData.features?.similarPropertiesLimit || 4} bất động sản cùng phân khúc hoặc khu vực`, icon: 'fa-layer-group' },
+                { key: 'showSimilarProperties', label: 'Khối Nhà Đất Tương Tự', desc: `Hiển thị ${formData.features?.similarPropertiesLimit || 4} nhà đất cùng phân khúc hoặc khu vực`, icon: 'fa-layer-group' },
                 { key: 'showInteractiveMap', label: 'Bản Đồ Vệ Tinh & Tiện Ích Xung Quanh', desc: 'Bản đồ vị trí, bệnh viện, trường học, siêu thị lân cận', icon: 'fa-map-location-dot' },
                 { key: 'showAuthorCard', label: 'Thẻ Thông Tin Môi Giới / Chủ Nhà', desc: 'Avatar, hotline, số Zalo và đánh giá uy tín người bán', icon: 'fa-address-card' },
                 { key: 'showAdministrativeMergerAlert', label: 'Cảnh Báo Đối Chiếu ĐVHC Sáp Nhập Mới', desc: 'Hiển thị đối chiếu Địa chỉ mới vs Địa chỉ cũ (2024-2025)', icon: 'fa-map-pin' }
@@ -423,7 +423,7 @@ export default function AdminSingleConfigManager() {
               })}
             </div>
 
-            {/* Cấu hình Số lượng hiển thị Khối Bất Động Sản Tương Tự */}
+            {/* Cấu hình Số lượng hiển thị Khối Nhà Đất Tương Tự */}
             {formData.features?.showSimilarProperties !== false && (
               <div className="p-4 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -436,7 +436,7 @@ export default function AdminSingleConfigManager() {
                       </span>
                     </div>
                     <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                      Quy định số lượng tin bất động sản cùng phân khúc hoặc khu vực gợi ý cho khách hàng ở chân trang chi tiết. Mặc định là 4 sản phẩm.
+                      Quy định số lượng tin nhà đất cùng phân khúc hoặc khu vực gợi ý cho khách hàng ở chân trang chi tiết. Mặc định là 4 sản phẩm.
                     </p>
                   </div>
 

@@ -5,7 +5,7 @@ import Link from 'next/link';
 // HẰNG SỐ THÔNG TIN THƯƠNG HIỆU ĐỒNG BỘ CÀI ĐẶT WEBSITE
 // ============================================================================
 const BRAND_NAME = 'Đất Biển Đà Nẵng';
-const COMPANY_NAME = 'Sàn Giao Dịch Bất Động Sản Đất Biển Đà Nẵng';
+const COMPANY_NAME = 'Sàn Giao Dịch Nhà Đất Đất Biển Đà Nẵng';
 const HOTLINE = '0904 084 888';
 const EMAIL = 'tranvanvu.dev@gmail.com';
 const ADDRESS = 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng';
@@ -16,13 +16,13 @@ const DOMAIN = 'https://bds-realestate.vercel.app';
 // ============================================================================
 export const metadata: Metadata = {
   title: `Quy Trình Giải Quyết Khiếu Nại | ${BRAND_NAME}`,
-  description: `Cơ chế và quy trình 3 bước tiếp nhận, xử lý khiếu nại, tranh chấp giao dịch bất động sản tại ${BRAND_NAME}. Bảo vệ quyền lợi người tiêu dùng 24/7.`,
+  description: `Cơ chế và quy trình 3 bước tiếp nhận, xử lý khiếu nại, tranh chấp giao dịch nhà đất tại ${BRAND_NAME}. Bảo vệ quyền lợi người tiêu dùng 24/7.`,
   alternates: {
     canonical: `${DOMAIN}/giai-quyet-khieu-nai`,
   },
   openGraph: {
     title: `Quy Trình Giải Quyết Khiếu Nại | ${BRAND_NAME}`,
-    description: `Quy trình 3 bước tiếp nhận và xử lý khiếu nại giao dịch bất động sản minh bạch tại sàn ${BRAND_NAME}.`,
+    description: `Quy trình 3 bước tiếp nhận và xử lý khiếu nại giao dịch nhà đất minh bạch tại sàn ${BRAND_NAME}.`,
     url: `${DOMAIN}/giai-quyet-khieu-nai`,
     siteName: BRAND_NAME,
     locale: 'vi_VN',
@@ -46,7 +46,7 @@ const jsonLdData = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
   name: `Quy Trình Tiếp Nhận và Giải Quyết Khiếu Nại - ${BRAND_NAME}`,
-  description: `Cơ chế giải quyết tranh chấp giao dịch bất động sản và bảo vệ quyền lợi người tiêu dùng tại ${BRAND_NAME}.`,
+  description: `Cơ chế giải quyết tranh chấp giao dịch nhà đất và bảo vệ quyền lợi người tiêu dùng tại ${BRAND_NAME}.`,
   url: `${DOMAIN}/giai-quyet-khieu-nai`,
   inLanguage: 'vi-VN',
   datePublished: '2024-01-01',
@@ -233,7 +233,7 @@ export default function DisputeResolutionPage() {
                   Tôn chỉ phục vụ khách hàng
                 </p>
                 <p>
-                  Sàn giao dịch <strong>{BRAND_NAME}</strong> luôn coi trọng quyền lợi hợp pháp của người tiêu dùng và khách hàng tìm kiếm bất động sản. Chúng tôi thiết lập quy trình giải quyết khiếu nại minh bạch, đa kênh và cam kết xử lý rốt ráo mọi phản ánh của người dùng nhằm xây dựng môi trường giao dịch an toàn và tin cậy.
+                  Sàn giao dịch <strong>{BRAND_NAME}</strong> luôn coi trọng quyền lợi hợp pháp của người tiêu dùng và khách hàng tìm kiếm nhà đất. Chúng tôi thiết lập quy trình giải quyết khiếu nại minh bạch, đa kênh và cam kết xử lý rốt ráo mọi phản ánh của người dùng nhằm xây dựng môi trường giao dịch an toàn và tin cậy.
                 </p>
               </div>
 
@@ -279,7 +279,7 @@ export default function DisputeResolutionPage() {
                           Người khiếu nại gửi yêu cầu qua nút <strong>"Báo cáo tin vi phạm"</strong> trên bài đăng, gọi hotline <strong>{HOTLINE}</strong> hoặc gửi email tới <strong>{EMAIL}</strong>. Yêu cầu cần cung cấp:
                         </p>
                         <ul className="mt-1.5 list-disc pl-5 text-[11px] text-slate-500 space-y-0.5">
-                          <li>Mã tin đăng hoặc đường dẫn URL của bất động sản bị phản ánh.</li>
+                          <li>Mã tin đăng hoặc đường dẫn URL của nhà đất bị phản ánh.</li>
                           <li>Tóm tắt nội dung vi phạm (Tin giả, sai giá, lừa đảo cọc, dự án ma).</li>
                           <li>Tài liệu chứng minh kèm theo: Hình ảnh chụp tin nhắn, giấy biên nhận đặt cọc, file ghi âm hoặc hợp đồng thỏa thuận (nếu có).</li>
                         </ul>
@@ -384,7 +384,7 @@ export default function DisputeResolutionPage() {
                   </div>
                   <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                     <strong className="text-slate-900 block mb-1">B. Người bị khiếu nại:</strong>
-                    Có nghĩa vụ chủ động phối hợp giải trình, cung cấp chứng từ pháp lý của bất động sản khi được yêu cầu; bồi hoàn thiệt hại thỏa đáng cho khách hàng nếu có sai phạm.
+                    Có nghĩa vụ chủ động phối hợp giải trình, cung cấp chứng từ pháp lý của nhà đất khi được yêu cầu; bồi hoàn thiệt hại thỏa đáng cho khách hàng nếu có sai phạm.
                   </div>
                   <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                     <strong className="text-slate-900 block mb-1">C. Ban quản trị sàn {BRAND_NAME}:</strong>
@@ -422,7 +422,7 @@ export default function DisputeResolutionPage() {
                       Trung Tâm Chăm Sóc Khách Hàng & Giải Quyết Tranh Chấp
                     </span>
                     <h3 className="text-base font-black text-white mt-1">
-                      SÀN GIAO DỊCH BẤT ĐỘNG SẢN {BRAND_NAME}
+                      SÀN GIAO DỊCH NHÀ ĐẤT {BRAND_NAME}
                     </h3>
                   </div>
 
@@ -457,7 +457,7 @@ export default function DisputeResolutionPage() {
               {/* Lời kết cam kết */}
               <div className="mt-8 border-t border-slate-100 pt-6 text-center text-xs text-slate-400">
                 <p>
-                  Chúng tôi cam kết đồng hành cùng khách hàng xây dựng một thị trường bất động sản văn minh, an toàn và minh bạch.
+                  Chúng tôi cam kết đồng hành cùng khách hàng xây dựng một thị trường nhà đất văn minh, an toàn và minh bạch.
                 </p>
               </div>
 

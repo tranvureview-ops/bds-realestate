@@ -133,7 +133,7 @@ export default function UserProfilePage() {
     name: safeUser.name || '',
     phone: safeUser.phone || '',
     email: safeUser.email || '',
-    bio: safeUser.bio || 'Chuyên viên tư vấn bất động sản cao cấp, cam kết pháp lý minh bạch 100%.',
+    bio: safeUser.bio || 'Chuyên viên tư vấn nhà đất cao cấp, cam kết pháp lý minh bạch 100%.',
     primaryArea: safeUser.primaryArea || 'TP. Đà Nẵng',
     company: safeUser.company || `${systemConfig?.brandShortName || 'Đối tác'} Partner`,
     address: safeUser.address || 'Góc Võ Nguyên Giáp & Phạm Văn Đồng, P. Phước Mỹ, Q. Sơn Trà, TP. Đà Nẵng',

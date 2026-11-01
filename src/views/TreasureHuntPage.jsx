@@ -192,7 +192,7 @@ export default function TreasureHuntPage() {
 
   const totalEarnedToday = claimsToday.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
 
-  // Định dạng chuẩn cấu trúc giá bất động sản theo tiêu chuẩn hệ thống
+  // Định dạng chuẩn cấu trúc giá nhà đất theo tiêu chuẩn hệ thống
   const formatPropertyPrice = (p) => {
     if (p.priceDisplay) return p.priceDisplay.replace(/Tỷ/g, 'tỷ');
     if (!p.price) return 'Thỏa thuận';
@@ -583,10 +583,10 @@ export default function TreasureHuntPage() {
             <div>
               <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
                 <i className="fa-solid fa-fire text-red-500"></i>
-                Danh Sách Bất Động Sản Chứa Hộp Quà Hôm Nay {totalItems > 0 && <span className="text-sm font-bold text-amber-700">({totalItems})</span>}
+                Danh Sách Nhà Đất Chứa Hộp Quà Hôm Nay {totalItems > 0 && <span className="text-sm font-bold text-amber-700">({totalItems})</span>}
               </h3>
               <p className="text-xs text-slate-500">
-                Bấm vào từng bất động sản bên dưới, cuộn xuống phần mô tả để mở rương kho báu:
+                Bấm vào từng nhà đất bên dưới, cuộn xuống phần mô tả để mở rương kho báu:
               </p>
             </div>
             <Link to="/nha-dat-ban" className="text-xs font-bold text-emerald-700 hover:underline">
@@ -600,9 +600,9 @@ export default function TreasureHuntPage() {
                 <i className="fa-solid fa-gift"></i>
               </div>
               <div className="max-w-md mx-auto space-y-1">
-                <h4 className="text-base font-bold text-slate-800">Chưa có bất động sản nào kích hoạt rương hôm nay</h4>
+                <h4 className="text-base font-bold text-slate-800">Chưa có nhà đất nào kích hoạt rương hôm nay</h4>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  Rương kho báu là quyền lợi độc quyền dành cho bất động sản của Gói Hội Viên hoặc tin đăng được Quản trị viên kích hoạt. Các rương mới sẽ được mở thưởng trong thời gian sớm nhất!
+                  Rương kho báu là quyền lợi độc quyền dành cho nhà đất của Gói Hội Viên hoặc tin đăng được Quản trị viên kích hoạt. Các rương mới sẽ được mở thưởng trong thời gian sớm nhất!
                 </p>
               </div>
               {currentUser?.role === 'admin' ? (
@@ -702,7 +702,7 @@ export default function TreasureHuntPage() {
                 <div className="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                   {/* Thông tin số lượng tin đang hiển thị */}
                   <div className="text-xs sm:text-sm text-slate-500 font-medium text-center sm:text-left">
-                    Đang hiển thị <span className="font-bold text-slate-900">{(safePage - 1) * ITEMS_PER_PAGE + 1}</span> - <span className="font-bold text-slate-900">{Math.min(safePage * ITEMS_PER_PAGE, totalItems)}</span> trong tổng số <span className="font-bold text-amber-700">{totalItems}</span> bất động sản chứa rương
+                    Đang hiển thị <span className="font-bold text-slate-900">{(safePage - 1) * ITEMS_PER_PAGE + 1}</span> - <span className="font-bold text-slate-900">{Math.min(safePage * ITEMS_PER_PAGE, totalItems)}</span> trong tổng số <span className="font-bold text-amber-700">{totalItems}</span> nhà đất chứa rương
                   </div>
 
                   {/* Thanh chuyển trang */}

@@ -318,7 +318,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
     { token: '{{userName}}', label: 'Tên người dùng mới', desc: 'Họ tên tài khoản đăng ký' },
     { token: '{{userEmail}}', label: 'Email người dùng', desc: 'Địa chỉ email đăng ký' },
     { token: '{{propertyId}}', label: 'Mã tin đăng', desc: 'Mã tin BDS (ví dụ: BDS-003)' },
-    { token: '{{propertyTitle}}', label: 'Tiêu đề tin đăng', desc: 'Tiêu đề bài viết bất động sản' },
+    { token: '{{propertyTitle}}', label: 'Tiêu đề tin đăng', desc: 'Tiêu đề bài viết nhà đất' },
     { token: '{{reporterName}}', label: 'Tên người báo cáo', desc: 'Họ tên khách hàng phản ánh' },
     { token: '{{authorName}}', label: 'Tên chủ tin đăng', desc: 'Họ tên môi giới / chính chủ đăng bài' },
     { token: '{{reason}}', label: 'Lý do vi phạm', desc: 'Lý do báo cáo vi phạm' },
@@ -507,7 +507,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                         type="text"
                         value={formData.fromName || ''}
                         onChange={(e) => handleFieldChange('fromName', e.target.value)}
-                        placeholder={`Ví dụ: Ban Quản Trị Sàn ${systemConfig?.brandShortName || 'Bất Động Sản'}`}
+                        placeholder={`Ví dụ: Ban Quản Trị Sàn ${systemConfig?.brandShortName || 'Nhà Đất'}`}
                         className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500"
                       />
                       <p className="text-[10px] text-slate-500 mt-1">Tên xuất hiện trong hộp thư đến của khách hàng</p>
@@ -882,7 +882,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                       type="text"
                       value={formData.signature?.companyName || ''}
                       onChange={(e) => handleSignatureChange('companyName', e.target.value)}
-                      placeholder={`Ví dụ: ${systemConfig?.platformName || 'Sàn Giao Dịch Bất Động Sản'}`}
+                      placeholder={`Ví dụ: ${systemConfig?.platformName || 'Sàn Giao Dịch Nhà Đất'}`}
                       className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-teal-500"
                     />
                   </div>
@@ -1234,7 +1234,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                       value={currentTemplate.introText || ''}
                       onFocus={() => setLastFocusedField('introText')}
                       onChange={(e) => handleTemplateFieldChange('introText', e.target.value)}
-                      placeholder="Cảm ơn Quý khách đã gửi phản ánh vi phạm về tin rao bất động sản..."
+                      placeholder="Cảm ơn Quý khách đã gửi phản ánh vi phạm về tin rao nhà đất..."
                       className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white leading-relaxed outline-none focus:border-blue-500 resize-y"
                     />
                   </div>
@@ -1426,7 +1426,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                 <div className="bg-slate-900 p-3 rounded-2xl border border-slate-800 text-[11px] space-y-1">
                   <div className="flex items-center gap-2 truncate">
                     <span className="text-slate-500 w-16 shrink-0">Người gửi:</span>
-                    <strong className="text-slate-200 truncate">{formData.fromName || `Ban Quản Trị Sàn ${systemConfig?.brandShortName || 'Bất Động Sản'}`}</strong>
+                    <strong className="text-slate-200 truncate">{formData.fromName || `Ban Quản Trị Sàn ${systemConfig?.brandShortName || 'Nhà Đất'}`}</strong>
                     <span className="text-slate-400 font-mono truncate">&lt;{formData.fromEmail || 'kiemduyet@datbiendanang.vn'}&gt;</span>
                   </div>
                   <div className="flex items-center gap-2">

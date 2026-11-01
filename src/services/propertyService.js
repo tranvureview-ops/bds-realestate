@@ -10,8 +10,8 @@ let lastCacheTimestamp = 0;
 const CACHE_TTL_MS = 60 * 1000; // 60s memory cache giúp tăng tốc độ tải trang cực nhanh
 
 /**
- * Lấy danh sách bất động sản phía server từ Supabase hoặc file fallback server-db.json (kèm cache)
- * @returns {Promise<Array>} Danh sách bất động sản
+ * Lấy danh sách nhà đất phía server từ Supabase hoặc file fallback server-db.json (kèm cache)
+ * @returns {Promise<Array>} Danh sách nhà đất
  */
 async function getPropertiesInternal() {
   const now = Date.now();
@@ -55,12 +55,12 @@ async function getPropertiesInternal() {
 export const fetchServerProperties = cache(getPropertiesInternal);
 
 /**
- * Tìm bài đăng bất động sản theo tiêu chí nhận diện URL chuẩn
+ * Tìm bài đăng nhà đất theo tiêu chí nhận diện URL chuẩn
  * Ưu tiên: Mã BĐS định danh > Canonical Permalink > SEO Slug
  * @param {Array} propertyList Danh sách tin BĐS
  * @param {Object} parsedUrl Thông tin URL đã phân tích từ parsePropertyUrl
  * @param {string} currentPath Đường dẫn hiện tại
- * @returns {Object|null} Bất động sản tìm thấy hoặc null
+ * @returns {Object|null} Nhà đất tìm thấy hoặc null
  */
 export function findProperty(propertyList, parsedUrl, currentPath = '') {
   if (!propertyList || !Array.isArray(propertyList) || !parsedUrl) {

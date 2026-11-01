@@ -5,7 +5,7 @@ import Link from 'next/link';
 // HẰNG SỐ THÔNG TIN THƯƠNG HIỆU ĐỒNG BỘ CÀI ĐẶT WEBSITE
 // ============================================================================
 const BRAND_NAME = 'Đất Biển Đà Nẵng';
-const COMPANY_NAME = 'Sàn Giao Dịch Bất Động Sản Đất Biển Đà Nẵng';
+const COMPANY_NAME = 'Sàn Giao Dịch Nhà Đất Đất Biển Đà Nẵng';
 const HOTLINE = '0904 084 888';
 const EMAIL = 'tranvanvu.dev@gmail.com';
 const ADDRESS = 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng';
@@ -16,7 +16,7 @@ const DOMAIN = 'https://bds-realestate.vercel.app';
 // ============================================================================
 export const metadata: Metadata = {
   title: `Quy Chế & Chính Sách Pháp Lý | ${BRAND_NAME}`,
-  description: `Quy chế hoạt động, chính sách bảo mật dữ liệu và quy trình giải quyết khiếu nại minh bạch tại sàn bất động sản ${BRAND_NAME}. Tuân thủ pháp luật Việt Nam.`,
+  description: `Quy chế hoạt động, chính sách bảo mật dữ liệu và quy trình giải quyết khiếu nại minh bạch tại sàn nhà đất ${BRAND_NAME}. Tuân thủ pháp luật Việt Nam.`,
   alternates: {
     canonical: `${DOMAIN}/chinh-sach-phap-ly`,
   },
@@ -254,12 +254,12 @@ export default function LegalPolicyPage() {
                     I
                   </span>
                   <h2 className="text-xl font-black text-slate-900 sm:text-2xl">
-                    Quy Chế Hoạt Động Sàn Giao Dịch Bất Động Sản {BRAND_NAME}
+                    Quy Chế Hoạt Động Sàn Giao Dịch Nhà Đất {BRAND_NAME}
                   </h2>
                 </div>
 
                 <p className="mb-4 text-sm leading-relaxed">
-                  Sàn giao dịch thương mại điện tử <strong>{BRAND_NAME}</strong> (sau đây gọi tắt là <em>"Sàn"</em>) là kênh thông tin trực tuyến kết nối giữa cá nhân, tổ chức có nhu cầu mua, bán, thuê, cho thuê bất động sản (gọi chung là <strong>Người Đăng Tin / Môi Giới</strong>) và khách hàng có nhu cầu giao dịch bất động sản (gọi chung là <strong>Người Tìm Kiếm / Khách Hàng</strong>).
+                  Sàn giao dịch thương mại điện tử <strong>{BRAND_NAME}</strong> (sau đây gọi tắt là <em>"Sàn"</em>) là kênh thông tin trực tuyến kết nối giữa cá nhân, tổ chức có nhu cầu mua, bán, thuê, cho thuê nhà đất (gọi chung là <strong>Người Đăng Tin / Môi Giới</strong>) và khách hàng có nhu cầu giao dịch nhà đất (gọi chung là <strong>Người Tìm Kiếm / Khách Hàng</strong>).
                 </p>
 
                 {/* 1.1 Quyền & Nghĩa vụ thành viên */}
@@ -272,7 +272,7 @@ export default function LegalPolicyPage() {
                   <div className="rounded-xl bg-slate-50 p-4 border border-slate-100">
                     <p className="font-bold text-slate-900 mb-1">A. Quyền lợi của thành viên:</p>
                     <ul className="list-disc pl-5 space-y-1.5 text-slate-600">
-                      <li>Được cấp tài khoản người dùng an toàn để đăng tải tin rao, quản lý danh sách bất động sản và tương tác với khách hàng tiềm năng.</li>
+                      <li>Được cấp tài khoản người dùng an toàn để đăng tải tin rao, quản lý danh sách nhà đất và tương tác với khách hàng tiềm năng.</li>
                       <li>Được hưởng các quyền lợi ưu đãi, dịch vụ nâng cấp tin VIP, báo cáo lượt xem tin theo chính sách bảng giá niêm yết công khai của sàn.</li>
                       <li>Được bảo mật dữ liệu thông tin cá nhân theo đúng chính sách bảo mật quy định tại Mục II văn bản này.</li>
                       <li>Được Ban quản trị sàn hỗ trợ kỹ thuật, hướng dẫn đăng tin và giải quyết tranh chấp phát sinh trong quá trình hoạt động.</li>
@@ -282,9 +282,9 @@ export default function LegalPolicyPage() {
                   <div className="rounded-xl bg-slate-50 p-4 border border-slate-100">
                     <p className="font-bold text-slate-900 mb-1">B. Nghĩa vụ bắt buộc của thành viên:</p>
                     <ul className="list-disc pl-5 space-y-1.5 text-slate-600">
-                      <li>Cung cấp đầy đủ, chính xác, trung thực thông tin cá nhân và <strong>pháp lý bất động sản</strong> (Sổ hồng, Sổ đỏ, quy hoạch, giá trị thực) khi xuất bản tin đăng.</li>
+                      <li>Cung cấp đầy đủ, chính xác, trung thực thông tin cá nhân và <strong>pháp lý nhà đất</strong> (Sổ hồng, Sổ đỏ, quy hoạch, giá trị thực) khi xuất bản tin đăng.</li>
                       <li>Tự chịu hoàn toàn trách nhiệm trước pháp luật về tính hợp pháp, nội dung, hình ảnh và cam kết giao dịch đối với sản phẩm do mình chào bán/cho thuê.</li>
-                      <li>Tuân thủ các quy định về an toàn giao dịch, phòng chống rửa tiền và đạo đức nghề nghiệp môi giới bất động sản.</li>
+                      <li>Tuân thủ các quy định về an toàn giao dịch, phòng chống rửa tiền và đạo đức nghề nghiệp môi giới nhà đất.</li>
                       <li>Thanh toán đầy đủ các khoản phí dịch vụ hiển thị (nếu có) theo biểu giá công khai trên nền tảng.</li>
                     </ul>
                   </div>
@@ -296,12 +296,12 @@ export default function LegalPolicyPage() {
                   2. Các Hành Vi Nghiêm Cấm Tuyệt Đối Trên Sàn
                 </h3>
                 <p className="mt-2 text-sm text-slate-600">
-                  Nhằm xây dựng thị trường bất động sản văn minh và minh bạch, Ban quản trị sàn <strong>{BRAND_NAME}</strong> nghiêm cấm các hành vi sau:
+                  Nhằm xây dựng thị trường nhà đất văn minh và minh bạch, Ban quản trị sàn <strong>{BRAND_NAME}</strong> nghiêm cấm các hành vi sau:
                 </p>
                 <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-3.5">
                     <strong className="text-rose-900 block mb-1">❌ Đăng tin giả mạo / Dự án ma</strong>
-                    Đăng tải bất động sản không có thật, sai lệch vị trí, sử dụng hình ảnh của dự án khác hoặc bất động sản đang có tranh chấp, kê biên pháp lý.
+                    Đăng tải nhà đất không có thật, sai lệch vị trí, sử dụng hình ảnh của dự án khác hoặc nhà đất đang có tranh chấp, kê biên pháp lý.
                   </div>
                   <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-3.5">
                     <strong className="text-rose-900 block mb-1">❌ Kê khống giá / Lừa đảo đặt cọc</strong>
@@ -372,7 +372,7 @@ export default function LegalPolicyPage() {
                       </tr>
                       <tr>
                         <td className="p-3 font-semibold text-slate-800">Địa chỉ IP, Cookie, Lịch sử truy cập</td>
-                        <td className="p-3 text-slate-600">Ghi nhận bảo mật chống tấn công DDoS, lưu trữ cấu hình giao diện ưa thích và cá nhân hóa gợi ý bất động sản.</td>
+                        <td className="p-3 text-slate-600">Ghi nhận bảo mật chống tấn công DDoS, lưu trữ cấu hình giao diện ưa thích và cá nhân hóa gợi ý nhà đất.</td>
                       </tr>
                     </tbody>
                   </table>
@@ -424,7 +424,7 @@ export default function LegalPolicyPage() {
                 </div>
 
                 <p className="mb-4 text-sm leading-relaxed">
-                  <strong>{BRAND_NAME}</strong> luôn đề cao giải pháp thương lượng hòa giải giữa các bên nhằm đảm bảo quyền lợi tối thượng của khách hàng và uy tín lâu dài của thị trường bất động sản.
+                  <strong>{BRAND_NAME}</strong> luôn đề cao giải pháp thương lượng hòa giải giữa các bên nhằm đảm bảo quyền lợi tối thượng của khách hàng và uy tín lâu dài của thị trường nhà đất.
                 </p>
 
                 {/* 3.1 Quy trình 3 bước tiếp nhận & xử lý */}
@@ -505,7 +505,7 @@ export default function LegalPolicyPage() {
                         Bộ phận Tiếp nhận Khiếu nại & Kiểm soát chất lượng
                       </span>
                       <h4 className="text-lg font-black text-white mt-1">
-                        SÀN GIAO DỊCH BẤT ĐỘNG SẢN {BRAND_NAME}
+                        SÀN GIAO DỊCH NHÀ ĐẤT {BRAND_NAME}
                       </h4>
                     </div>
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-300 border border-slate-700">

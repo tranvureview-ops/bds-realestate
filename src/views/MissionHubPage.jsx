@@ -280,7 +280,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
       dynamicStatus = isKycVerified ? 'claimable' : 'in-progress';
     } 
     // 4. Nhiệm vụ Đăng tin đầu tiên
-    else if (m.id === 'm-new-03' || m.title?.toLowerCase().includes('đăng tin bất động sản đầu tiên') || (m.title?.toLowerCase().includes('đăng tin') && m.title?.toLowerCase().includes('đầu tiên'))) {
+    else if (m.id === 'm-new-03' || m.title?.toLowerCase().includes('đăng tin nhà đất đầu tiên') || (m.title?.toLowerCase().includes('đăng tin') && m.title?.toLowerCase().includes('đầu tiên'))) {
       dynamicProgress = { current: Math.min(userPropertiesCount, 1), total: 1 };
       dynamicStatus = userPropertiesCount >= 1 ? 'claimable' : 'in-progress';
     } 
@@ -448,7 +448,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
     }
   };
 
-  const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Sàn Bất Động Sản';
+  const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Sàn Nhà Đất';
 
   return (
     <div className="min-h-screen bg-slate-50 py-8">
@@ -848,7 +848,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
                       <button
                         type="button"
                         onClick={() => {
-                          const shareMsg = `Tham gia sàn Bất Động Sản cùng mình nhé! Đăng ký nhận ngay quà tặng vào Ví Khuyến Mãi để đăng tin VIP miễn phí: ${affiliateLink}`;
+                          const shareMsg = `Tham gia sàn Nhà Đất cùng mình nhé! Đăng ký nhận ngay quà tặng vào Ví Khuyến Mãi để đăng tin VIP miễn phí: ${affiliateLink}`;
                           if (typeof navigator !== 'undefined' && navigator.clipboard) {
                             navigator.clipboard.writeText(shareMsg);
                             if (showToast) showToast('Đã copy lời mời kèm link! Hãy dán vào Zalo để gửi cho bạn bè nhé!', 'success');

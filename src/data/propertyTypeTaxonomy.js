@@ -60,7 +60,7 @@ export const PROPERTY_TYPE_TREE_SALE = [
   },
   {
     id: 'other',
-    name: 'Bất động sản khác',
+    name: 'Nhà đất khác',
     icon: 'fa-solid fa-shapes'
   }
 ];
@@ -116,7 +116,7 @@ export const PROPERTY_TYPE_TREE_RENT = [
   },
   {
     id: 'other',
-    name: 'Bất động sản khác',
+    name: 'Nhà đất khác',
     icon: 'fa-solid fa-shapes'
   }
 ];
@@ -136,7 +136,7 @@ export const SALE_PROPERTY_TYPE_OPTIONS = [
   { value: 'farm-resort', label: 'Trang trại, khu nghỉ dưỡng', icon: 'fa-solid fa-tree' },
   { value: 'condotel', label: 'Condotel', icon: 'fa-solid fa-hotel' },
   { value: 'warehouse', label: 'Kho, nhà xưởng', icon: 'fa-solid fa-warehouse' },
-  { value: 'other', label: 'Bất động sản khác', icon: 'fa-solid fa-shapes' }
+  { value: 'other', label: 'Nhà đất khác', icon: 'fa-solid fa-shapes' }
 ];
 
 export const RENT_PROPERTY_TYPE_OPTIONS = [
@@ -152,7 +152,7 @@ export const RENT_PROPERTY_TYPE_OPTIONS = [
   { value: 'office', label: 'Văn phòng', icon: 'fa-solid fa-briefcase' },
   { value: 'commercial-space', label: 'Cửa hàng, mặt bằng bán lẻ', icon: 'fa-solid fa-store' },
   { value: 'warehouse', label: 'Kho, nhà xưởng, đất', icon: 'fa-solid fa-warehouse' },
-  { value: 'other', label: 'Bất động sản khác', icon: 'fa-solid fa-shapes' }
+  { value: 'other', label: 'Nhà đất khác', icon: 'fa-solid fa-shapes' }
 ];
 
 /**
@@ -194,7 +194,7 @@ export const PROPERTY_TYPE_NAMES = {
   'office': 'Văn phòng',
   'commercial-space': 'Cửa hàng, mặt bằng bán lẻ',
   'room': 'Nhà trọ, phòng trọ',
-  'other': 'Bất động sản khác'
+  'other': 'Nhà đất khác'
 };
 
 /**

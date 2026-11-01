@@ -15,7 +15,7 @@ export default function RewardRedeemPage() {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'OfferCatalog',
-    'name': 'Dịch Vụ Sử Dụng Ví Khuyến Mãi Bất Động Sản',
+    'name': 'Dịch Vụ Sử Dụng Ví Khuyến Mãi Nhà Đất',
     'description': 'Sử dụng tiền trong Ví Khuyến Mãi để đăng tin, mua lượt đẩy tin TOP 1 và nâng cấp tin VIP.',
     'url': `${(process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '')}/trung-tam-phan-thuong/doi-qua/`
   };

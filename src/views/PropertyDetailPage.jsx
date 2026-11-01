@@ -15,7 +15,7 @@ export default function PropertyDetailPage({ initialProperty = null, slug = '', 
   const effectivePath = propPath || (slug ? (slug.startsWith('/') ? slug : `/${slug}`) : '') || routerPath || '';
   const parsed = parsePropertyUrl(effectivePath);
 
-  // 2. Tìm bất động sản phù hợp bằng quy tắc Ưu Tiên ID Tuyệt Đối (Strict ID-First Matching)
+  // 2. Tìm nhà đất phù hợp bằng quy tắc Ưu Tiên ID Tuyệt Đối (Strict ID-First Matching)
   let targetProperty = initialProperty || null;
 
   // Tiêu chí 1: Strict ID Matching (khi URL chứa -pr{id})
@@ -114,7 +114,7 @@ export default function PropertyDetailPage({ initialProperty = null, slug = '', 
             <i className="fa-solid fa-triangle-exclamation"></i>
           </div>
           <div>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-800">Không tìm thấy bài viết bất động sản</h2>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-800">Không tìm thấy bài viết nhà đất</h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-2 leading-relaxed">
               Bài đăng có mã số hoặc đường dẫn này có thể đã được gỡ bỏ, chưa được phê duyệt, hoặc bạn truy cập bằng liên kết cũ không còn tồn tại trên sàn.
             </p>
@@ -146,14 +146,14 @@ export default function PropertyDetailPage({ initialProperty = null, slug = '', 
           </div>
         </div>
 
-        {/* Gợi ý bất động sản nổi bật dành cho người dùng */}
+        {/* Gợi ý nhà đất nổi bật dành cho người dùng */}
         {suggestedProperties.length > 0 && (
           <div className="space-y-4 pt-4 border-t border-slate-200 content-visibility-auto">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                   <i className="fa-solid fa-fire text-rose-500"></i>
-                  Gợi ý bất động sản nổi bật dành cho bạn
+                  Gợi ý nhà đất nổi bật dành cho bạn
                 </h3>
                 <p className="text-xs text-slate-500">Các tin đăng được xác thực và quan tâm nhiều nhất hôm nay</p>
               </div>

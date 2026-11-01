@@ -14,7 +14,7 @@ export function generateAppointmentEmailHtml({ appointment, broker, property, em
   const customerPhone = appointment.customerPhone || '';
   const customerName = appointment.customerName || 'Khách hàng quan tâm';
   const appointmentDate = appointment.appointmentDate || 'Thời gian theo thỏa thuận';
-  const propertyTitle = appointment.propertyTitle || 'Bất động sản';
+  const propertyTitle = appointment.propertyTitle || 'Nhà đất';
   const propertyPrice = appointment.propertyPrice || 'Thỏa thuận';
   const propertyAddress = appointment.propertyAddress || '';
   const propertyUrl = appointment.propertyPermalink ? (appointment.propertyPermalink.startsWith('http') ? appointment.propertyPermalink : `https://datbiendanang.vn${appointment.propertyPermalink}`) : 'https://datbiendanang.vn';
@@ -57,13 +57,13 @@ export function generateAppointmentEmailHtml({ appointment, broker, property, em
                 Xin chào <strong>${broker?.name || 'Đối Tác Môi Giới'}</strong>,
               </p>
               <p style="margin: 0 0 20px; font-size: 14px; line-height: 1.6; color: #334155;">
-                Hệ thống <strong>${brandName}</strong> vừa tiếp nhận một yêu cầu đặt lịch hẹn xem nhà trực tiếp từ khách hàng quan tâm đến bất động sản của bạn:
+                Hệ thống <strong>${brandName}</strong> vừa tiếp nhận một yêu cầu đặt lịch hẹn xem nhà trực tiếp từ khách hàng quan tâm đến nhà đất của bạn:
               </p>
 
               <!-- Property Box -->
               <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
                 <div style="font-size: 11px; font-weight: 700; color: #059669; text-transform: uppercase; margin-bottom: 4px;">
-                  BẤT ĐỘNG SẢN QUAN TÂM
+                  NHÀ ĐẤT QUAN TÂM
                 </div>
                 <div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 6px;">
                   ${propertyTitle}
@@ -128,7 +128,7 @@ export function generateAppointmentEmailHtml({ appointment, broker, property, em
 
               <div style="text-align: center; margin-bottom: 12px;">
                 <a href="${propertyUrl}" style="font-size: 12px; color: #64748b; text-decoration: underline;">
-                  Xem lại tin đăng bất động sản này trên website
+                  Xem lại tin đăng nhà đất này trên website
                 </a>
               </div>
 

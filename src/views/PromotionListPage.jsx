@@ -14,7 +14,7 @@ export default function PromotionListPage() {
   const { navigate } = useRouter();
 
   const promoList = rewardsConfig?.promotions || PROMOTIONS_DATA;
-  const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Sàn Bất Động Sản';
+  const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Sàn Nhà Đất';
   const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
   const [expiringBonusInfo, setExpiringBonusInfo] = useState(null);
 
@@ -129,7 +129,7 @@ export default function PromotionListPage() {
               Ưu Đãi Độc Quyền {brandName}
             </span>
             <h1 className="text-2xl sm:text-4xl font-black leading-tight">
-              Trung Tâm Khuyến Mãi & Voucher Bất Động Sản
+              Trung Tâm Khuyến Mãi & Voucher Nhà Đất
             </h1>
             <p className="text-white/90 text-sm sm:text-base leading-relaxed">
               Nhận voucher nạp tiền, chiết khấu đẩy tin VIP và các đặc quyền hội viên dành riêng cho nhà môi giới và chính chủ.

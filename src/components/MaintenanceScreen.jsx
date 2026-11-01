@@ -8,7 +8,7 @@ export default function MaintenanceScreen() {
   const { systemConfig, showToast } = useRealEstate();
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const brandName = systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN';
+  const brandName = systemConfig?.brandShortName || 'SÀN NHÀ ĐẤT';
   const hotline = systemConfig?.hotline || '0904 084 888';
   const zalo = systemConfig?.zalo || '0904 084 888';
   const email = systemConfig?.email || 'tranvanvu.dev@gmail.com';
@@ -37,7 +37,7 @@ export default function MaintenanceScreen() {
           </div>
           <div>
             <h1 className="text-base font-black tracking-wider text-white uppercase">{brandName}</h1>
-            <p className="text-[10px] text-slate-400 font-medium">Hệ Thống Sàn Thương Mại Điện Tử Bất Động Sản</p>
+            <p className="text-[10px] text-slate-400 font-medium">Hệ Thống Sàn Thương Mại Điện Tử Nhà Đất</p>
           </div>
         </div>
 
@@ -71,7 +71,7 @@ export default function MaintenanceScreen() {
         </h2>
 
         <p className="text-slate-300 text-sm sm:text-base mt-4 max-w-xl leading-relaxed">
-          Chúng tôi đang tiến hành tối ưu hóa hạ tầng cơ sở dữ liệu và bổ sung các tính năng mới để mang lại trải nghiệm giao dịch bất động sản nhanh chóng, an toàn và tối ưu nhất cho quý khách.
+          Chúng tôi đang tiến hành tối ưu hóa hạ tầng cơ sở dữ liệu và bổ sung các tính năng mới để mang lại trải nghiệm giao dịch nhà đất nhanh chóng, an toàn và tối ưu nhất cho quý khách.
         </p>
 
         {/* Contact Support Boxes */}

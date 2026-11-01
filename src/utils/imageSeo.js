@@ -41,9 +41,9 @@ export function buildImageAlt(title = '', options = {}) {
 
   // 1. Trường hợp không có tiêu đề, tự động sinh thẻ ALT mô tả theo loại hình và vị trí
   if (!cleanTitle) {
-    if (type === 'agent') return 'Chuyên viên tư vấn bất động sản - Ảnh đại diện';
-    if (type === 'project') return `Hình ảnh dự án bất động sản ${location ? `tại ${location}` : 'Việt Nam'}`;
-    const pType = propertyType || 'Bất động sản';
+    if (type === 'agent') return 'Chuyên viên tư vấn nhà đất - Ảnh đại diện';
+    if (type === 'project') return `Hình ảnh dự án nhà đất ${location ? `tại ${location}` : 'Việt Nam'}`;
+    const pType = propertyType || 'Nhà đất';
     return `Hình ảnh thực tế ${pType} ${location ? `tại ${location}` : 'chính chủ'}`;
   }
 
@@ -72,8 +72,8 @@ export function buildImageAlt(title = '', options = {}) {
   // 6. Ảnh thẻ bài đăng trong danh sách / Thumbnail (Listing Card, Grid, Drawer)
   if (type === 'thumbnail') {
     return location 
-      ? `${cleanTitle} - Bất động sản tại ${location}`
-      : `${cleanTitle} - Bất động sản chính chủ`;
+      ? `${cleanTitle} - Nhà đất tại ${location}`
+      : `${cleanTitle} - Nhà đất chính chủ`;
   }
 
   // 7. Ảnh chính / Ảnh bìa chi tiết (Hero / Main photo index 0)

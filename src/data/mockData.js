@@ -1,4 +1,4 @@
-// Bảng phân loại Tin Đăng Bất Động Sản
+// Bảng phân loại Tin Đăng Nhà Đất
 export const LISTING_TYPES = [
   {
     id: 'vip-diamond',
@@ -3053,7 +3053,7 @@ export const DEFAULT_HEADER_CONFIG = {
   logoType: 'text', // 'text' | 'image'
   brandName: 'KENHNHADAT24H',
   brandHighlight: '.com.vn',
-  brandTagline: 'Sàn Giao Dịch Bất Động Sản & Đăng Tin VIP',
+  brandTagline: 'Sàn Giao Dịch Nhà Đất & Đăng Tin VIP',
   brandIcon: 'fa-solid fa-water',
   badgeText: '',
   badgeColor: 'bg-red-100 text-red-600 border border-red-200',
@@ -3078,7 +3078,7 @@ export const DEFAULT_HEADER_CONFIG = {
 // Cấu hình Chân trang Website (Footer Settings)
 export const DEFAULT_FOOTER_CONFIG = {
   // Cột 1: Thông tin thương hiệu & liên hệ
-  brandDescription: 'Nền tảng công nghệ bất động sản đa trang tiên phong tích hợp bản đồ số GIS, tour thực tế ảo VR 360°, hệ thống phân cấp tin đăng VIP thông minh và công cụ tính toán tài chính chuẩn ngân hàng.',
+  brandDescription: 'Nền tảng công nghệ nhà đất đa trang tiên phong tích hợp bản đồ số GIS, tour thực tế ảo VR 360°, hệ thống phân cấp tin đăng VIP thông minh và công cụ tính toán tài chính chuẩn ngân hàng.',
   hotline: '', // Để trống sẽ fallback theo systemConfig.hotline
   zalo: '',    // Để trống sẽ fallback theo systemConfig.zalo
   email: '',   // Để trống sẽ fallback theo systemConfig.email
@@ -3114,7 +3114,7 @@ export const DEFAULT_FOOTER_CONFIG = {
       icon: 'fa-solid fa-shield-check',
       iconColor: 'text-emerald-400',
       title: 'Đã Đăng Ký Bộ Công Thương',
-      desc: 'Sàn TMĐT giao dịch bất động sản hợp pháp theo Nghị định 52/2013/NĐ-CP.',
+      desc: 'Sàn TMĐT giao dịch nhà đất hợp pháp theo Nghị định 52/2013/NĐ-CP.',
       url: ''
     },
     {
@@ -3143,12 +3143,12 @@ export const PRESET_LOGOS = [
   {
     id: 'preset-gold',
     name: 'Đất Biển Đà Nẵng Luxury',
-    url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" fill="none"><rect width="240" height="60" rx="12" fill="%230f172a"/><path d="M22 45V22L36 12L50 22V45H40V30H32V45H22Z" fill="%230284c7"/><circle cx="36" cy="20" r="4" fill="%2338bdf8"/><text x="60" y="34" font-family="Arial, sans-serif" font-weight="900" font-size="16" fill="white">ĐẤT BIỂN <tspan fill="%2338bdf8">ĐÀ NẴNG</tspan></text><text x="60" y="47" font-family="Arial, sans-serif" font-weight="600" font-size="9" fill="%2394a3b8" letter-spacing="2">BẤT ĐỘNG SẢN BIỂN</text></svg>'
+    url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" fill="none"><rect width="240" height="60" rx="12" fill="%230f172a"/><path d="M22 45V22L36 12L50 22V45H40V30H32V45H22Z" fill="%230284c7"/><circle cx="36" cy="20" r="4" fill="%2338bdf8"/><text x="60" y="34" font-family="Arial, sans-serif" font-weight="900" font-size="16" fill="white">ĐẤT BIỂN <tspan fill="%2338bdf8">ĐÀ NẴNG</tspan></text><text x="60" y="47" font-family="Arial, sans-serif" font-weight="600" font-size="9" fill="%2394a3b8" letter-spacing="2">NHÀ ĐẤT BIỂN</text></svg>'
   },
   {
     id: 'preset-emerald',
     name: 'Green City Eco',
-    url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" fill="none"><rect width="240" height="60" rx="12" fill="%23064e3b"/><path d="M20 44L34 16L48 44H38L34 32L30 44H20Z" fill="%2334d399"/><circle cx="34" cy="24" r="5" fill="%2310b981"/><text x="58" y="34" font-family="Arial, sans-serif" font-weight="900" font-size="18" fill="white">ECO <tspan fill="%2334d399">HOMES</tspan></text><text x="58" y="47" font-family="Arial, sans-serif" font-weight="600" font-size="9" fill="%23a7f3d0" letter-spacing="2">BẤT ĐỘNG SẢN XANH</text></svg>'
+    url: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" fill="none"><rect width="240" height="60" rx="12" fill="%23064e3b"/><path d="M20 44L34 16L48 44H38L34 32L30 44H20Z" fill="%2334d399"/><circle cx="34" cy="24" r="5" fill="%2310b981"/><text x="58" y="34" font-family="Arial, sans-serif" font-weight="900" font-size="18" fill="white">ECO <tspan fill="%2334d399">HOMES</tspan></text><text x="58" y="47" font-family="Arial, sans-serif" font-weight="600" font-size="9" fill="%23a7f3d0" letter-spacing="2">NHÀ ĐẤT XANH</text></svg>'
   },
   {
     id: 'preset-modern',
@@ -3263,7 +3263,7 @@ export const DEFAULT_PAYMENT_CONFIG = {
 export const DEFAULT_SYSTEM_CONFIG = {
   platformName: 'KENHNHADAT24H.com.vn',
   brandShortName: 'KENHNHADAT24H.com.vn',
-  tagline: 'Sàn Giao Dịch Bất Động Sản & Đăng Tin VIP',
+  tagline: 'Sàn Giao Dịch Nhà Đất & Đăng Tin VIP',
   hotline: '0905467138',
   zalo: '0905467138',
   email: 'tranvanvu.dev@gmail.com',
@@ -3311,7 +3311,7 @@ export const DEFAULT_SYSTEM_CONFIG = {
   socialLinks: DEFAULT_SOCIAL_LINKS
 };
 
-// Cấu hình Trang Chi Tiết Bất Động Sản (Single Property Page Settings)
+// Cấu hình Trang Chi Tiết Nhà Đất (Single Property Page Settings)
 export const DEFAULT_SINGLE_CONFIG = {
   // 1. Thông Báo Về Nội Dung & Miễn Trừ Trách Nhiệm
   disclaimer: {
@@ -3358,7 +3358,7 @@ export const DEFAULT_EMAIL_TEMPLATES = {
     headerBadge: 'Tiếp Nhận Phản Ánh',
     headerTitle: 'Đã Tiếp Nhận Báo Cáo Vi Phạm',
     greeting: 'Kính gửi {{reporterName}},',
-    introText: 'Cảm ơn Quý khách đã gửi phản ánh vi phạm về tin rao bất động sản trên sàn giao dịch {{siteName}}. Sự đóng góp của Quý khách có ý nghĩa rất lớn giúp xây dựng một môi trường giao dịch bất động sản minh bạch, chính xác và an toàn.',
+    introText: 'Cảm ơn Quý khách đã gửi phản ánh vi phạm về tin rao nhà đất trên sàn giao dịch {{siteName}}. Sự đóng góp của Quý khách có ý nghĩa rất lớn giúp xây dựng một môi trường giao dịch nhà đất minh bạch, chính xác và an toàn.',
     processNotice: 'Trong vòng 24 giờ làm việc, đội ngũ thẩm định nội dung sẽ liên hệ trực tiếp với người đăng tin để kiểm tra, yêu cầu xác minh sổ đỏ/giấy tờ pháp lý hoặc mức giá thực tế. Nếu phát hiện vi phạm, tin đăng sẽ bị hạ lập tức.',
     closingText: 'Chúng tôi sẽ gửi email thông báo kết quả giải quyết khi hoàn tất thẩm định.',
     senderSign: 'Đội Ngũ Kiểm Soát Chất Lượng Sàn {{siteName}}',
@@ -3388,7 +3388,7 @@ export const DEFAULT_EMAIL_TEMPLATES = {
     greeting: 'Kính gửi {{reporterName}},',
     introText: 'Ban kiểm duyệt {{siteName}} xin trân trọng thông báo kết quả xác minh phản ánh của Quý khách đối với tin đăng #{{propertyId}} - {{propertyTitle}}:',
     resolutionDetail: 'Biện pháp đã thực hiện: {{actionTaken}}. {{adminNote}}',
-    closingText: 'Một lần nữa xin chân thành cảm ơn Quý khách đã chung tay xây dựng cộng đồng bất động sản văn minh và an toàn!',
+    closingText: 'Một lần nữa xin chân thành cảm ơn Quý khách đã chung tay xây dựng cộng đồng nhà đất văn minh và an toàn!',
     senderSign: 'Ban Quản Trị Sàn {{siteName}}',
     headerTheme: 'sky'
   },
@@ -3471,7 +3471,7 @@ export const DEFAULT_EMAIL_CONFIG = {
 
   // 6. Chữ ký thương hiệu & Chân trang Email (Signature / Footer)
   signature: {
-    companyName: 'SÀN GIAO DỊCH BẤT ĐỘNG SẢN ĐẤT BIỂN ĐÀ NẴNG',
+    companyName: 'SÀN GIAO DỊCH NHÀ ĐẤT ĐẤT BIỂN ĐÀ NẴNG',
     hotline: '0904 084 888',
     address: 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng',
     websiteUrl: 'https://datbiendanang.vn'
@@ -3499,7 +3499,7 @@ export const DEFAULT_TELEGRAM_CONFIG = {
   botToken: '', // Token bot từ @BotFather (lưu trữ mã hóa AES-256)
   chatId: '', // ID nhóm / kênh Telegram nhận tin nhắn tư vấn
   botUsername: 'DatBienDaNangBot',
-  welcomeMessage: 'Xin chào quý khách! Tôi là trợ lý tư vấn Kênh Nhà Đất 24H. Quý khách đang quan tâm đến bất động sản nào cần hỗ trợ thông tin?',
+  welcomeMessage: 'Xin chào quý khách! Tôi là trợ lý tư vấn Kênh Nhà Đất 24H. Quý khách đang quan tâm đến nhà đất nào cần hỗ trợ thông tin?',
   agentName: 'Nguyễn Huyền',
   enableRandomAgentName: true,
   agentNamesList: DEFAULT_AGENT_NAMES_LIST,
@@ -3507,7 +3507,7 @@ export const DEFAULT_TELEGRAM_CONFIG = {
   agentTitle: 'Tư Vấn Viên',
   notifyNewLead: true, // Tự động thông báo Lead mới khi khách điền Form
   quickQuestions: [
-    'Bất động sản này còn không?',
+    'Nhà đất này còn không?',
     'Giá có thương lượng thêm không?',
     'Cho tôi hẹn lịch xem nhà vào T7 này',
     'Gửi tôi pháp lý sổ đỏ/hồng'

@@ -141,7 +141,7 @@ export const AVAILABLE_FOOTER_ICONS = [
   { icon: 'fa-solid fa-crown', name: 'Vương miện VIP', cat: 'user', keywords: 'crown vip vuong mien hoi vien' },
   { icon: 'fa-solid fa-shield-halved', name: 'Admin / Khiên', cat: 'user', keywords: 'shield admin quan tri' },
 
-  // Nhà cửa & Bất động sản
+  // Nhà cửa & Nhà đất
   { icon: 'fa-solid fa-house', name: 'Ngôi nhà', cat: 'property', keywords: 'house nha rieng' },
   { icon: 'fa-solid fa-house-chimney', name: 'Nhà mái ấm', cat: 'property', keywords: 'chimney nha mai' },
   { icon: 'fa-solid fa-building', name: 'Tòa nhà / Căn hộ', cat: 'property', keywords: 'building chung cu can ho toa nha' },
@@ -955,7 +955,7 @@ export default function AdminFooterConfigManager() {
                       rows={2}
                       value={badge.desc || ''}
                       onChange={(e) => handleUpdateBadge(idx, 'desc', e.target.value)}
-                      placeholder="Sàn TMĐT giao dịch bất động sản hợp pháp theo Nghị định..."
+                      placeholder="Sàn TMĐT giao dịch nhà đất hợp pháp theo Nghị định..."
                       className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-300 text-xs outline-none focus:border-blue-500"
                     />
                   </div>
@@ -1002,7 +1002,7 @@ export default function AdminFooterConfigManager() {
                 type="text"
                 value={formData.copyrightCustomText || ''}
                 onChange={(e) => setFormData(prev => ({ ...prev, copyrightCustomText: e.target.value }))}
-                placeholder={`© ${new Date().getFullYear()} ${systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN'}. Bản quyền thuộc về ${systemConfig?.platformName || 'Công ty Cổ phần BĐS'}.`}
+                placeholder={`© ${new Date().getFullYear()} ${systemConfig?.brandShortName || 'SÀN NHÀ ĐẤT'}. Bản quyền thuộc về ${systemConfig?.platformName || 'Công ty Cổ phần BĐS'}.`}
                 className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white text-xs outline-none focus:border-emerald-500"
               />
               <p className="text-[10px] text-slate-500 mt-1">Để trống sẽ tự động hiển thị theo Tên Thương Hiệu & Tên Pháp Nhân Sàn</p>
@@ -1099,7 +1099,7 @@ export default function AdminFooterConfigManager() {
               />
               <div>
                 <div className="font-bold text-white text-xs">
-                  Hiển thị khối liên kết Danh Mục Bất Động Sản & Địa Giới Hành Chính ở chân trang
+                  Hiển thị khối liên kết Danh Mục Nhà Đất & Địa Giới Hành Chính ở chân trang
                 </div>
                 <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
                   Bao gồm 4 cột liên kết chuẩn SEO: BĐS Nhà ở & Căn hộ, Đất nền & Nghỉ dưỡng, BĐS Cho thuê, BĐS Trọng điểm Đà Nẵng. Giúp Google bot index sâu toàn bộ danh mục của sàn.
@@ -1133,10 +1133,10 @@ export default function AdminFooterConfigManager() {
                     </div>
                     <div>
                       <div className="font-extrabold text-white text-xs">
-                        {systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN'}
+                        {systemConfig?.brandShortName || 'SÀN NHÀ ĐẤT'}
                       </div>
                       <div className="text-[9px] text-slate-400 uppercase">
-                        {systemConfig?.tagline || 'Sàn Giao Dịch Bất Động Sản'}
+                        {systemConfig?.tagline || 'Sàn Giao Dịch Nhà Đất'}
                       </div>
                     </div>
                   </div>
@@ -1237,7 +1237,7 @@ export default function AdminFooterConfigManager() {
                 <div className="pt-2 border-t border-slate-800 text-[9px] text-slate-500 text-center">
                   {formData.copyrightCustomText?.trim() 
                     ? formData.copyrightCustomText 
-                    : `© ${new Date().getFullYear()} ${systemConfig?.brandShortName || 'SÀN BẤT ĐỘNG SẢN'}.`}
+                    : `© ${new Date().getFullYear()} ${systemConfig?.brandShortName || 'SÀN NHÀ ĐẤT'}.`}
                 </div>
               </div>
 

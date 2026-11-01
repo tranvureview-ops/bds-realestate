@@ -565,7 +565,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
             <div className="text-center py-12 bg-white rounded-2xl border border-slate-200 p-6">
               <i className="fa-solid fa-folder-open text-3xl text-slate-300 mb-2"></i>
               <h4 className="text-sm font-bold text-slate-700">Chưa có tin đăng nào</h4>
-              <p className="text-xs text-slate-500 mt-1 mb-4">Bạn chưa đăng tin bất động sản nào trong mục này.</p>
+              <p className="text-xs text-slate-500 mt-1 mb-4">Bạn chưa đăng tin nhà đất nào trong mục này.</p>
               <button
                 onClick={() => setActiveModal('post-listing')}
                 className="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-xl"

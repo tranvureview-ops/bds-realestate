@@ -11,8 +11,8 @@ export async function generateMetadata({ params }) {
 
   if (!game) {
     return {
-      title: 'Dự Đoán Giá BĐS Dự Án | Sàn Bất Động Sản',
-      description: 'Dự đoán mức giá thị trường bất động sản.',
+      title: 'Dự Đoán Giá BĐS Dự Án | Sàn Nhà Đất',
+      description: 'Dự đoán mức giá thị trường nhà đất.',
     };
   }
 

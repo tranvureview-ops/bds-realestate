@@ -215,7 +215,7 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
           type: 'city',
           badge: 'Tỉnh / Thành',
           title: city.name,
-          subtitle: `Bất động sản tại ${city.name} (${city.districts?.length || 0} Quận/Huyện)`,
+          subtitle: `Nhà đất tại ${city.name} (${city.districts?.length || 0} Quận/Huyện)`,
           icon: 'fa-solid fa-location-dot text-red-500',
           apply: () => {
             const updatedFilters = { ...filters, city: city.name, district: '', keyword: '' };
@@ -414,7 +414,7 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
         {/* Slogan */}
         <div className="text-center mb-6 sm:mb-8 text-white">
           <h1 className="text-2xl sm:text-4xl font-black tracking-tight drop-shadow-md min-h-[36px] sm:min-h-[48px] leading-tight">
-            Tìm Kiếm Bất Động Sản <span className="text-[#ff6b6b] inline">Chính Xác & Toàn Diện</span>
+            Tìm Kiếm Nhà Đất <span className="text-[#ff6b6b] inline">Chính Xác & Toàn Diện</span>
           </h1>
           <p className="mt-2 text-xs sm:text-sm text-slate-300 max-w-xl mx-auto font-medium">
             Hàng ngàn tin đăng bán & cho thuê chính chủ, căn hộ, biệt thự và đất nền trên toàn quốc
@@ -496,7 +496,7 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                 {/* Red "Tìm kiếm" Action Button */}
                 <button
                   type="submit"
-                  aria-label="Tìm kiếm bất động sản"
+                  aria-label="Tìm kiếm nhà đất"
                   className="bg-[#c93026] hover:bg-[#a8231b] text-white font-bold px-4 sm:px-7 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm flex items-center justify-center gap-2 transition cursor-pointer shadow-sm shrink-0"
                 >
                   <span>Tìm kiếm</span>

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 
 /**
- * Middleware chuẩn Technical SEO Bất Động Sản
+ * Middleware chuẩn Technical SEO Nhà Đất
  * Xử lý 301 Redirect cho hệ thống phân trang permalink:
  * 1. Chuyển hướng URL cũ có query parameter ?page=2 sang /page/2/
  * 2. Chuyển hướng ?page=1 về URL gốc /

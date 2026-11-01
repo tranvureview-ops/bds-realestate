@@ -14,7 +14,7 @@ import {
 import CustomSelect from './CustomSelect';
 
 /**
- * AddressSelectModal - Hộp thoại Chọn Địa Chỉ Bất Động Sản
+ * AddressSelectModal - Hộp thoại Chọn Địa Chỉ Nhà Đất
  */
 export default function AddressSelectModal({
   isOpen,

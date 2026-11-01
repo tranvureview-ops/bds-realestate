@@ -207,7 +207,7 @@ export default function ListingGrid({
       <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-slate-400 text-2xl mx-auto mb-4">
         <i className="fa-solid fa-house-chimney-crack"></i>
       </div>
-      <h3 className="text-lg font-bold text-slate-800">Không tìm thấy bất động sản phù hợp</h3>
+      <h3 className="text-lg font-bold text-slate-800">Không tìm thấy nhà đất phù hợp</h3>
       <p className="text-sm text-slate-500 mt-1 max-w-md mx-auto">
         Không có kết quả nào khớp với bộ lọc hiện tại của bạn. Hãy thử thay đổi mức giá, diện tích hoặc từ khóa tìm kiếm.
       </p>
@@ -242,7 +242,7 @@ export default function ListingGrid({
       <div className="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
         {/* Thông tin số lượng tin đang hiển thị */}
         <div className="text-xs sm:text-sm text-slate-700 font-medium text-center sm:text-left">
-          Đang hiển thị <span className="font-bold text-slate-900">{startIndex + 1}</span> - <span className="font-bold text-slate-900">{endIndex}</span> trong tổng số <span className="font-bold text-red-600">{totalItems}</span> bất động sản
+          Đang hiển thị <span className="font-bold text-slate-900">{startIndex + 1}</span> - <span className="font-bold text-slate-900">{endIndex}</span> trong tổng số <span className="font-bold text-red-600">{totalItems}</span> nhà đất
         </div>
 
         {/* Các nút liên kết phân trang chuẩn thẻ <a> HTML cho Crawler & Bot SEO */}
@@ -389,7 +389,7 @@ export default function ListingGrid({
         ) : isHomePage ? (
           <div>
             <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-              Danh Sách Bất Động Sản Nổi Bật
+              Danh Sách Nhà Đất Nổi Bật
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
               {subtitle || 'Ưu tiên hiển thị tin VIP Kim Cương, VIP Vàng và tin có tương tác cao'}
@@ -464,7 +464,7 @@ export default function ListingGrid({
          ======================================================== */}
       {showSidebar ? (
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start my-5 sm:my-6">
-          {/* CỘT TRÁI: DANH SÁCH BẤT ĐỘNG SẢN CHÍNH (~70% Chiều ngang desktop) */}
+          {/* CỘT TRÁI: DANH SÁCH NHÀ ĐẤT CHÍNH (~70% Chiều ngang desktop) */}
           <div className="w-full lg:flex-1 min-w-0 min-h-[550px] transition-opacity duration-200">
             <h2 className="sr-only">Danh sách {demandLabel}</h2>
             {sortedProperties.length === 0 ? (
@@ -515,7 +515,7 @@ export default function ListingGrid({
       ) : (
         /* Khi KHÔNG có Sidebar (Chế độ Trang Chủ) */
         <>
-          <h2 className="sr-only">Danh sách bất động sản nổi bật</h2>
+          <h2 className="sr-only">Danh sách nhà đất nổi bật</h2>
           {sortedProperties.length === 0 ? (
             renderEmptyState()
           ) : viewMode === 'split' ? (
@@ -550,7 +550,7 @@ export default function ListingGrid({
                 to={filters?.demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban'}
                 className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-white border border-slate-300 hover:border-red-500 hover:bg-red-50 text-slate-800 hover:text-red-700 font-bold text-xs sm:text-sm shadow-xs transition group cursor-pointer"
               >
-                <span>Xem tất cả {sortedProperties.length} bất động sản</span>
+                <span>Xem tất cả {sortedProperties.length} nhà đất</span>
                 <i className="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition text-red-600"></i>
               </Link>
             </div>

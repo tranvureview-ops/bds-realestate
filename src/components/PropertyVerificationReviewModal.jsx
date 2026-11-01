@@ -104,7 +104,7 @@ export default function PropertyVerificationReviewModal({
           {/* Thông tin BĐS và Người gửi */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
             <div>
-              <span className="text-slate-400 font-bold uppercase text-[10px] block">Bất Động Sản</span>
+              <span className="text-slate-400 font-bold uppercase text-[10px] block">Nhà Đất</span>
               <span className="font-extrabold text-slate-900 text-sm block mt-0.5 line-clamp-1">{property.title}</span>
               <span className="text-slate-600 block mt-0.5 font-semibold text-emerald-700">{property.priceDisplay} • {property.area} m²</span>
             </div>

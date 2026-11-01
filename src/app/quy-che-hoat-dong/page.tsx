@@ -5,7 +5,7 @@ import Link from 'next/link';
 // HẰNG SỐ THÔNG TIN THƯƠNG HIỆU ĐỒNG BỘ CÀI ĐẶT WEBSITE
 // ============================================================================
 const BRAND_NAME = 'Đất Biển Đà Nẵng';
-const COMPANY_NAME = 'Sàn Giao Dịch Bất Động Sản Đất Biển Đà Nẵng';
+const COMPANY_NAME = 'Sàn Giao Dịch Nhà Đất Đất Biển Đà Nẵng';
 const HOTLINE = '0904 084 888';
 const EMAIL = 'tranvanvu.dev@gmail.com';
 const ADDRESS = 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng';
@@ -16,13 +16,13 @@ const DOMAIN = 'https://bds-realestate.vercel.app';
 // ============================================================================
 export const metadata: Metadata = {
   title: `Quy Chế Hoạt Động Sàn BĐS | ${BRAND_NAME}`,
-  description: `Quy chế hoạt động Sàn giao dịch TMĐT bất động sản ${BRAND_NAME}. Quyền và nghĩa vụ thành viên, quy định kiểm duyệt tin và chế tài xử lý vi phạm.`,
+  description: `Quy chế hoạt động Sàn giao dịch TMĐT nhà đất ${BRAND_NAME}. Quyền và nghĩa vụ thành viên, quy định kiểm duyệt tin và chế tài xử lý vi phạm.`,
   alternates: {
     canonical: `${DOMAIN}/quy-che-hoat-dong`,
   },
   openGraph: {
     title: `Quy Chế Hoạt Động Sàn BĐS | ${BRAND_NAME}`,
-    description: `Quy chế hoạt động Sàn TMĐT bất động sản ${BRAND_NAME}. Quyền và nghĩa vụ thành viên, quy định đăng tin và chế tài vi phạm.`,
+    description: `Quy chế hoạt động Sàn TMĐT nhà đất ${BRAND_NAME}. Quyền và nghĩa vụ thành viên, quy định đăng tin và chế tài vi phạm.`,
     url: `${DOMAIN}/quy-che-hoat-dong`,
     siteName: BRAND_NAME,
     locale: 'vi_VN',
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: `Quy Chế Hoạt Động Sàn BĐS | ${BRAND_NAME}`,
-    description: `Quy chế hoạt động Sàn TMĐT bất động sản ${BRAND_NAME}. Tuân thủ pháp luật Việt Nam.`,
+    description: `Quy chế hoạt động Sàn TMĐT nhà đất ${BRAND_NAME}. Tuân thủ pháp luật Việt Nam.`,
   },
   robots: {
     index: true,
@@ -45,8 +45,8 @@ export const metadata: Metadata = {
 const jsonLdData = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
-  name: `Quy Chế Hoạt Động Sàn Giao Dịch Bất Động Sản ${BRAND_NAME}`,
-  description: `Quy chế hoạt động Sàn TMĐT bất động sản ${BRAND_NAME}. Căn cứ Nghị định 52/2013/NĐ-CP và Nghị định 85/2021/NĐ-CP.`,
+  name: `Quy Chế Hoạt Động Sàn Giao Dịch Nhà Đất ${BRAND_NAME}`,
+  description: `Quy chế hoạt động Sàn TMĐT nhà đất ${BRAND_NAME}. Căn cứ Nghị định 52/2013/NĐ-CP và Nghị định 85/2021/NĐ-CP.`,
   url: `${DOMAIN}/quy-che-hoat-dong`,
   inLanguage: 'vi-VN',
   datePublished: '2024-01-01',
@@ -228,7 +228,7 @@ export default function OperatingRegulationPage() {
                   Căn cứ pháp lý áp dụng
                 </p>
                 <p>
-                  Quy chế này được xây dựng căn cứ theo quy định của <strong>Luật Giao dịch điện tử</strong>, <strong>Luật Thương mại</strong>, <strong>Luật Kinh doanh Bất động sản</strong>, <strong>Nghị định số 52/2013/NĐ-CP</strong> và <strong>Nghị định số 85/2021/NĐ-CP</strong> của Chính phủ về quản lý hoạt động thương mại điện tử.
+                  Quy chế này được xây dựng căn cứ theo quy định của <strong>Luật Giao dịch điện tử</strong>, <strong>Luật Thương mại</strong>, <strong>Luật Kinh doanh Nhà đất</strong>, <strong>Nghị định số 52/2013/NĐ-CP</strong> và <strong>Nghị định số 85/2021/NĐ-CP</strong> của Chính phủ về quản lý hoạt động thương mại điện tử.
                 </p>
               </div>
 
@@ -240,12 +240,12 @@ export default function OperatingRegulationPage() {
                 </h2>
                 <div className="mt-3 space-y-3 text-sm text-slate-600">
                   <p>
-                    Sàn giao dịch thương mại điện tử <strong>{BRAND_NAME}</strong> (sau đây gọi là <em>"Sàn TMĐT"</em>) do <strong>{COMPANY_NAME}</strong> sở hữu và vận hành, là cổng thông tin trực tuyến phục vụ nhu cầu đăng tin quảng cáo, giới thiệu, mua bán, chuyển nhượng và cho thuê bất động sản hợp pháp trên toàn lãnh thổ Việt Nam.
+                    Sàn giao dịch thương mại điện tử <strong>{BRAND_NAME}</strong> (sau đây gọi là <em>"Sàn TMĐT"</em>) do <strong>{COMPANY_NAME}</strong> sở hữu và vận hành, là cổng thông tin trực tuyến phục vụ nhu cầu đăng tin quảng cáo, giới thiệu, mua bán, chuyển nhượng và cho thuê nhà đất hợp pháp trên toàn lãnh thổ Việt Nam.
                   </p>
                   <ul className="list-disc pl-5 space-y-1.5">
-                    <li><strong>Thành viên / Người dùng:</strong> Cá nhân hoặc tổ chức đăng ký tài khoản hợp lệ trên Sàn hoặc khách vãng lai truy cập tra cứu thông tin bất động sản.</li>
-                    <li><strong>Người Đăng Tin / Môi Giới:</strong> Thương nhân, tổ chức, cá nhân có quyền sử dụng đất hoặc sở hữu nhà ở, hoặc môi giới được ủy quyền hợp pháp đăng tải thông tin bất động sản lên Sàn.</li>
-                    <li><strong>Người Tìm Kiếm / Khách Hàng:</strong> Người có nhu cầu tìm mua, thuê bất động sản và liên hệ trực tiếp với Người Đăng Tin để thỏa thuận giao dịch.</li>
+                    <li><strong>Thành viên / Người dùng:</strong> Cá nhân hoặc tổ chức đăng ký tài khoản hợp lệ trên Sàn hoặc khách vãng lai truy cập tra cứu thông tin nhà đất.</li>
+                    <li><strong>Người Đăng Tin / Môi Giới:</strong> Thương nhân, tổ chức, cá nhân có quyền sử dụng đất hoặc sở hữu nhà ở, hoặc môi giới được ủy quyền hợp pháp đăng tải thông tin nhà đất lên Sàn.</li>
+                    <li><strong>Người Tìm Kiếm / Khách Hàng:</strong> Người có nhu cầu tìm mua, thuê nhà đất và liên hệ trực tiếp với Người Đăng Tin để thỏa thuận giao dịch.</li>
                     <li><strong>Ban Quản Trị Sàn:</strong> Đội ngũ quản lý, kỹ thuật và kiểm duyệt viên thuộc đơn vị chủ quản có trách nhiệm giám sát, duy trì hệ thống và hỗ trợ người dùng.</li>
                   </ul>
                 </div>
@@ -276,7 +276,7 @@ export default function OperatingRegulationPage() {
                     </h3>
                     <ul className="space-y-1.5 text-slate-600 list-disc pl-4">
                       <li>Cung cấp chính xác thông tin cá nhân khi đăng ký và xuất trình giấy tờ chứng minh quyền sở hữu hoặc ủy quyền khi có yêu cầu.</li>
-                      <li>Cam kết thông tin bất động sản đăng tải là <strong>hoàn toàn có thật, không tranh chấp, không thuộc diện quy hoạch giải tỏa trái phép</strong>.</li>
+                      <li>Cam kết thông tin nhà đất đăng tải là <strong>hoàn toàn có thật, không tranh chấp, không thuộc diện quy hoạch giải tỏa trái phép</strong>.</li>
                       <li>Chịu trách nhiệm trực tiếp trước người mua và pháp luật về mọi thỏa thuận thanh toán, giao dịch đặt cọc và chuyển nhượng.</li>
                       <li>Bảo mật tài khoản, không chia sẻ mật khẩu hoặc cho bên thứ ba mượn tài khoản nhằm mục đích trục lợi.</li>
                     </ul>
@@ -312,7 +312,7 @@ export default function OperatingRegulationPage() {
                 <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-3.5">
                     <strong className="text-rose-900 block mb-1">❌ Rao bán "Dự án ma" / Đất chưa đủ điều kiện</strong>
-                    Đăng tin rao bán đất nông nghiệp phân lô trái phép, dự án chưa có chấp thuận chủ trương đầu tư hoặc bất động sản đang bị kê biên thi hành án.
+                    Đăng tin rao bán đất nông nghiệp phân lô trái phép, dự án chưa có chấp thuận chủ trương đầu tư hoặc nhà đất đang bị kê biên thi hành án.
                   </div>
                   <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-3.5">
                     <strong className="text-rose-900 block mb-1">❌ Thông tin sai lệch giá & Vị trí</strong>

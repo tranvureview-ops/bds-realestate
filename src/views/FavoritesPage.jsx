@@ -11,7 +11,7 @@ export default function FavoritesPage() {
         <div className="flex items-center gap-2 text-xs text-slate-500 mb-2">
           <Link to="/" className="hover:text-rose-600 font-medium">Trang chủ</Link>
           <i className="fa-solid fa-chevron-right text-[10px]"></i>
-          <span className="text-slate-800 font-bold">Tin Bất Động Sản Đã Lưu</span>
+          <span className="text-slate-800 font-bold">Tin Nhà Đất Đã Lưu</span>
         </div>
       </div>
       <FavoritesView setCurrentView={() => {}} />

@@ -64,7 +64,7 @@ export default function AdminPortal() {
               Hệ Thống Quản Trị Trung Tâm CMS
             </div>
             <h1 className="text-xl sm:text-2xl font-black">
-              {systemConfig?.brandShortName || 'Bất Động Sản'} Administration Portal
+              {systemConfig?.brandShortName || 'Nhà Đất'} Administration Portal
             </h1>
           </div>
         </div>

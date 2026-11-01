@@ -176,7 +176,7 @@ export default function AuthModal({ onClose, initialTab = 'login' }) {
                 {tab === 'login' ? 'Đăng Nhập Tài Khoản' : tab === 'register' ? 'Đăng Ký Thành Viên Mới' : 'Khôi Phục Mật Khẩu'}
               </h2>
               <p className="text-[11px] text-slate-500">
-                Sàn Giao Dịch Bất Động Sản & Hệ Thống Tin VIP {systemConfig?.brandShortName || 'Toàn Quốc'}
+                Sàn Giao Dịch Nhà Đất & Hệ Thống Tin VIP {systemConfig?.brandShortName || 'Toàn Quốc'}
               </p>
             </div>
           </div>

@@ -1,7 +1,7 @@
 /**
  * textSanitizer.js
  * Bộ tiện ích tự động phát hiện, làm sạch và loại bỏ số điện thoại (Anti-Phone Spam)
- * khỏi Tiêu đề (Title) và Nội dung mô tả (Description) tin đăng bất động sản.
+ * khỏi Tiêu đề (Title) và Nội dung mô tả (Description) tin đăng nhà đất.
  * 
  * Hỗ trợ các định dạng:
  * - Dạng liền: 0905123456, 0389999999, +84905123456, 84905123456

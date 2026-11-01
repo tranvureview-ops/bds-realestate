@@ -919,7 +919,7 @@ export default function AdminTelegramChatManager() {
                       className="w-5 h-5 rounded-full object-cover border border-slate-700 shrink-0 mt-0.5"
                     />
                     <div className="bg-white text-slate-800 p-2.5 rounded-2xl rounded-bl-xs text-xs shadow-xs leading-relaxed">
-                      {config.welcomeMessage || 'Xin chào quý khách! Tôi là trợ lý tư vấn. Quý khách đang quan tâm đến bất động sản nào cần hỗ trợ nhanh?'}
+                      {config.welcomeMessage || 'Xin chào quý khách! Tôi là trợ lý tư vấn. Quý khách đang quan tâm đến nhà đất nào cần hỗ trợ nhanh?'}
                     </div>
                   </div>
                 </div>

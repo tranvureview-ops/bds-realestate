@@ -13,7 +13,7 @@ export const metadata = {
     canonical: `${baseUrl}/trung-tam-phan-thuong`,
   },
   openGraph: {
-    title: 'Trung Tâm Phần Thưởng Bất Động Sản',
+    title: 'Trung Tâm Phần Thưởng Nhà Đất',
     description: 'Khu vực tương tác nhận tiền thưởng trực tiếp vào Ví Khuyến Mãi và đăng tin miễn phí.',
     url: `${baseUrl}/trung-tam-phan-thuong`,
     type: 'website',

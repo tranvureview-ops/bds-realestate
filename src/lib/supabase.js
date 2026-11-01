@@ -19,11 +19,11 @@ export const supabase = isSupabaseConfigured()
   : null;
 
 // ==========================================
-// 1. DỊCH VỤ BẤT ĐỘNG SẢN (PROPERTIES CRUD)
+// 1. DỊCH VỤ NHÀ ĐẤT (PROPERTIES CRUD)
 // ==========================================
 
 /**
- * Lấy danh sách bất động sản từ Supabase Cloud
+ * Lấy danh sách nhà đất từ Supabase Cloud
  */
 export async function fetchSupabaseProperties() {
   if (!isSupabaseConfigured() || !supabase) return null;

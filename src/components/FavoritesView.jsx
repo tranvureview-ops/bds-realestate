@@ -17,7 +17,7 @@ export default function FavoritesView({ setCurrentView }) {
             <span className="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center text-sm">
               <i className="fa-solid fa-heart"></i>
             </span>
-            Danh Sách Bất Động Sản Đã Lưu ({favoriteProperties.length})
+            Danh Sách Nhà Đất Đã Lưu ({favoriteProperties.length})
           </h1>
           <p className="text-xs text-slate-500 mt-1">
             Theo dõi các căn nhà đất bạn quan tâm và dễ dàng so sánh giá
@@ -38,7 +38,7 @@ export default function FavoritesView({ setCurrentView }) {
           <div className="w-16 h-16 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center text-2xl mx-auto mb-3">
             <i className="fa-regular fa-heart"></i>
           </div>
-          <h2 className="text-base font-bold text-slate-800">Bạn chưa lưu bất động sản nào</h2>
+          <h2 className="text-base font-bold text-slate-800">Bạn chưa lưu nhà đất nào</h2>
           <p className="text-xs text-slate-500 mt-1 mb-5">
             Bấm vào biểu tượng trái tim trên các thẻ tin đăng để lưu lại và xem lại tại đây bất cứ lúc nào.
           </p>
@@ -51,7 +51,7 @@ export default function FavoritesView({ setCurrentView }) {
         </div>
       ) : (
         <div>
-          <h2 className="sr-only">Danh sách bất động sản đã lưu</h2>
+          <h2 className="sr-only">Danh sách nhà đất đã lưu</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {favoriteProperties.map(property => (
               <ListingCard key={property.id} property={property} viewMode="grid" />

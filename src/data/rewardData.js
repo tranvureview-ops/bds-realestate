@@ -1,5 +1,5 @@
 /**
- * Dữ liệu Khuyến Mãi, Nhiệm Vụ & Phần Thưởng Bất Động Sản
+ * Dữ liệu Khuyến Mãi, Nhiệm Vụ & Phần Thưởng Nhà Đất
  * TẤT CẢ TIỀN THƯỞNG CỘNG TRỰC TIẾP VÀO VÍ KHUYẾN MÃI (bonusWalletBalance)
  * KHÔNG DÙNG TÍCH ĐIỂM / XU THƯỞNG
  */
@@ -48,7 +48,7 @@ export const PROMOTIONS_DATA = [
     validUntil: '2026-11-30',
     isEvergreen: false,
     thumbnail: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80',
-    description: 'Nâng tầm bất động sản lên vị trí đầu trang chủ và danh mục tìm kiếm với mức chiết khấu trừ trực tiếp số dư Ví KM.',
+    description: 'Nâng tầm nhà đất lên vị trí đầu trang chủ và danh mục tìm kiếm với mức chiết khấu trừ trực tiếp số dư Ví KM.',
     content: `
       ### Đặc quyền tin VIP Kim Cương
       - Hiển thị cố định tại **Top 1 Trang chủ** và đầu trang danh mục Nhà Đất Bán / Cho Thuê.
@@ -231,7 +231,7 @@ export const MISSIONS_DATA = {
     },
     {
       id: 'm-new-03',
-      title: 'Đăng tin bất động sản đầu tiên',
+      title: 'Đăng tin nhà đất đầu tiên',
       reward: 30000,
       rewardFormatted: '+30.000đ vào Ví KM',
       icon: 'fa-solid fa-plus-circle',
@@ -243,7 +243,7 @@ export const MISSIONS_DATA = {
   'hang-ngay': [
     {
       id: 'm-day-02',
-      title: 'Xem 5 tin bất động sản nổi bật',
+      title: 'Xem 5 tin nhà đất nổi bật',
       reward: 5000,
       rewardFormatted: '+5.000đ vào Ví KM',
       icon: 'fa-solid fa-eye',
@@ -436,7 +436,7 @@ export const PRICE_PREDICTION_GAMES = [
 export const PROMO_WALLET_SERVICES = [
   {
     id: 'srv-01',
-    title: 'Đăng Tin Rao Bất Động Sản',
+    title: 'Đăng Tin Rao Nhà Đất',
     cost: 'Miễn phí hoặc trừ Ví KM',
     icon: 'fa-solid fa-file-circle-plus text-emerald-500',
     actionText: 'Đăng tin ngay',
