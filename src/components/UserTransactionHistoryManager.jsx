@@ -347,7 +347,7 @@ export default function UserTransactionHistoryManager() {
             +{stats.totalBonusReceived.toLocaleString('vi-VN')} đ
           </div>
           <p className="text-[11px] text-slate-400 leading-relaxed">
-            Điểm danh 7 ngày, nhiệm vụ, săn kho báu và dự đoán giá BĐS.
+            Nhiệm vụ, săn kho báu và dự đoán giá BĐS.
           </p>
         </div>
 
@@ -410,7 +410,7 @@ export default function UserTransactionHistoryManager() {
             >
               <option value="all">Tất cả hoạt động</option>
               <option value="deposit">📥 Nạp tiền ví chính</option>
-              <option value="bonus_reward">🎁 Thưởng Ví KM (Điểm danh/Nhiệm vụ)</option>
+              <option value="bonus_reward">🎁 Thưởng Ví KM (Nhiệm vụ/Dự đoán)</option>
               <option value="bonus_expired">⏳ Thu hồi tiền KM quá hạn</option>
               <option value="service_payment">💳 Thanh toán tin VIP / Đẩy tin</option>
             </select>
@@ -482,7 +482,7 @@ export default function UserTransactionHistoryManager() {
                     <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
                       {searchTerm || typeFilter !== 'all' || walletFilter !== 'all' || timeFilter !== 'all'
                         ? 'Không tìm thấy giao dịch nào phù hợp với bộ lọc tìm kiếm hiện tại.'
-                        : 'Các hoạt động nạp tiền, thưởng điểm danh và chi tiêu dịch vụ sẽ được ghi nhận chi tiết tại đây.'}
+                        : 'Các hoạt động nạp tiền, thưởng khuyến mãi và chi tiêu dịch vụ sẽ được ghi nhận chi tiết tại đây.'}
                     </p>
                     {(searchTerm || typeFilter !== 'all' || walletFilter !== 'all' || timeFilter !== 'all') && (
                       <button
