@@ -1245,7 +1245,7 @@ export default function AdminRewardsGamificationManager() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
                       <label className="text-xs font-bold text-white flex items-center gap-2">
-                        <i className="fa-solid fa-vault text-amber-400"></i>
+                        <i className="fa-solid fa-sack-dollar text-amber-400"></i>
                         <span>Tổng Ngân Sách Mở Rương / Tháng (Khách & Thường)</span>
                       </label>
                       <p className="text-[11px] text-slate-400 mt-0.5">
@@ -1409,7 +1409,7 @@ export default function AdminRewardsGamificationManager() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
                       <label className="text-xs font-bold text-white flex items-center gap-2">
-                        <i className="fa-solid fa-vault text-amber-400"></i>
+                        <i className="fa-solid fa-sack-dollar text-amber-400"></i>
                         <span>Tổng Ngân Sách Mở Rương / Tháng (Hội Viên Cơ Bản)</span>
                       </label>
                       <p className="text-[11px] text-slate-400 mt-0.5">
@@ -1557,7 +1557,7 @@ export default function AdminRewardsGamificationManager() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
                       <label className="text-xs font-bold text-white flex items-center gap-2">
-                        <i className="fa-solid fa-vault text-orange-400"></i>
+                        <i className="fa-solid fa-sack-dollar text-orange-400"></i>
                         <span>Tổng Ngân Sách Mở Rương / Tháng (Hội Viên Tiêu Chuẩn)</span>
                       </label>
                       <p className="text-[11px] text-slate-400 mt-0.5">
@@ -1705,7 +1705,7 @@ export default function AdminRewardsGamificationManager() {
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
                       <label className="text-xs font-bold text-white flex items-center gap-2">
-                        <i className="fa-solid fa-vault text-purple-400"></i>
+                        <i className="fa-solid fa-sack-dollar text-purple-400"></i>
                         <span>Tổng Ngân Sách Mở Rương / Tháng (Hội Viên Cao Cấp)</span>
                       </label>
                       <p className="text-[11px] text-slate-400 mt-0.5">

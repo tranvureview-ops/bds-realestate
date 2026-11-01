@@ -454,7 +454,7 @@ export default function TreasureHuntPage() {
               <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl ${
                 budgetStatus.isBudgetExceeded ? 'bg-rose-100 text-rose-600' : 'bg-indigo-100 text-indigo-600'
               }`}>
-                <i className={`fa-solid ${budgetStatus.isBudgetExceeded ? 'fa-battery-empty' : 'fa-vault'}`}></i>
+                <i className={`fa-solid ${budgetStatus.isBudgetExceeded ? 'fa-battery-empty' : 'fa-sack-dollar'}`}></i>
               </div>
               <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
                 budgetStatus.isBudgetExceeded ? 'bg-rose-50 text-rose-700' : 'bg-indigo-50 text-indigo-700'
