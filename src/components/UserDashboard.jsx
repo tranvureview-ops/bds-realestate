@@ -656,11 +656,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                               <i className="fa-solid fa-clock text-amber-600"></i>
                               ⚠️ Sắp hết hạn ({expInfo?.daysRemaining > 0 ? `Còn ${expInfo.daysRemaining}d ${expInfo.hoursRemaining}h` : `Còn ${expInfo.hoursRemaining}h`})
                             </span>
-                          ) : prop.status === 'active' ? (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
-                              ● Còn {expInfo?.daysRemaining || 15} ngày
-                            </span>
-                          ) : prop.status === 'pending' ? (
+                          ) : prop.status === 'active' ? null : prop.status === 'pending' ? (
                             isScheduled ? (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200 flex items-center gap-1 shadow-sm">
                                 <i className="fa-solid fa-clock text-purple-600"></i>
