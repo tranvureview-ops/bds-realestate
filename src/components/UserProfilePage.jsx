@@ -497,6 +497,21 @@ export default function UserProfilePage() {
                   Tin đăng: <strong className="text-slate-900">{myListings.length} bài</strong>
                 </div>
               </div>
+
+              {/* Badges Vinh Danh Gamification (Thần Phán Đoán BĐS, ...) */}
+              {Array.isArray(safeUser.badges) && safeUser.badges.length > 0 && (
+                <div className="flex items-center gap-1.5 flex-wrap mt-2.5">
+                  {safeUser.badges.map((badge, bIdx) => (
+                    <span
+                      key={bIdx}
+                      className="px-2.5 py-1 rounded-xl text-[11px] font-black bg-gradient-to-r from-purple-500/20 via-indigo-500/20 to-amber-500/20 text-purple-900 border border-purple-300 shadow-2xs flex items-center gap-1.5"
+                    >
+                      <i className="fa-solid fa-award text-amber-500"></i>
+                      <span>{badge}</span>
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 

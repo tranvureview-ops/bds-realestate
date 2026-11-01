@@ -1,89 +1,149 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { PRICE_PREDICTION_GAMES } from '../data/rewardData';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
+import PredictionConfetti from '../components/PredictionConfetti';
+import {
+  getStoredPredictionPrograms,
+  getStoredPredictions,
+  recordUserPrediction,
+  syncBotsForGame,
+  awardBadgeToUser
+} from '../services/predictionGameService';
 
 export default function PricePredictionPage({ projectSlug = null }) {
-  const { currentUser, showToast, addBonusWalletBalance, rewardsConfig, systemConfig } = useRealEstate();
-  const initialGames = rewardsConfig?.predictionGames || PRICE_PREDICTION_GAMES;
-  const [games, setGames] = useState(initialGames);
-  const [userVotes, setUserVotes] = useState({});
+  const { currentUser, setCurrentUser, showToast, addBonusWalletBalance, systemConfig } = useRealEstate();
+  
+  // Danh sách chương trình dự đoán
+  const [programs, setPrograms] = useState(() => getStoredPredictionPrograms());
+  const [selectedGameId, setSelectedGameId] = useState(null);
+  
+  // Dữ liệu lượt dự đoán của user hiện tại
+  const [userInputs, setUserInputs] = useState({});
+  const [activeLeaderboardGame, setActiveLeaderboardGame] = useState(null);
+  const [leaderboardFilter, setLeaderboardFilter] = useState('all'); // 'all' | 'real_only' | 'my_prediction'
+  
+  // Animation Slot Machine / Thành công
+  const [slotSpinning, setSlotSpinning] = useState(false);
+  const [slotSuccessModal, setSlotSuccessModal] = useState(null);
+  const [showConfetti, setShowConfetti] = useState(false);
 
-  const userId = currentUser && currentUser.role !== 'guest' ? currentUser.id : 'guest';
+  const userId = currentUser && currentUser.role !== 'guest' ? String(currentUser.id) : 'guest';
   const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
   const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Sàn Nhà Đất';
 
+  // Khởi tạo và đồng bộ bot nếu chưa có dữ liệu trong storage
   useEffect(() => {
-    if (rewardsConfig?.predictionGames) {
-      setGames(rewardsConfig.predictionGames);
-    }
-  }, [rewardsConfig?.predictionGames]);
+    const loadedPrograms = getStoredPredictionPrograms();
+    setPrograms(loadedPrograms);
 
-  // Load user votes from localStorage
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      const saved = localStorage.getItem(`bds_prediction_votes_${userId}`);
-      if (saved) {
-        setUserVotes(JSON.parse(saved));
+    loadedPrograms.forEach(prog => {
+      const existing = getStoredPredictions(prog.id);
+      if (existing.length === 0 && prog.botConfig?.isEnabled !== false) {
+        syncBotsForGame(prog.id, prog.botConfig);
       }
-    } catch (e) {}
-  }, [userId]);
+    });
+  }, []);
 
-  const handleVote = (gameId, optionId, optionLabel) => {
-    if (!currentUser || currentUser.role === 'guest') {
-      if (showToast) showToast('Vui lòng đăng nhập để bình chọn và nhận tiền thưởng vào Ví KM!', 'info');
-      return;
-    }
-
-    if (userVotes[gameId]) {
-      if (showToast) showToast('Bạn đã bỏ phiếu cho phiên dự đoán này rồi!', 'info');
-      return;
-    }
-
-    const updatedVotes = { ...userVotes, [gameId]: optionId };
-    setUserVotes(updatedVotes);
-    try {
-      localStorage.setItem(`bds_prediction_votes_${userId}`, JSON.stringify(updatedVotes));
-    } catch (e) {}
-
-    setGames(prev => prev.map(g => {
-      if (g.id !== gameId) return g;
-      const nextTotal = (g.totalVotes || 0) + 1;
-      const nextOptions = g.options.map(o => {
-        const nextOVotes = o.id === optionId ? (o.votes || 0) + 1 : (o.votes || 0);
-        return {
-          ...o,
-          votes: nextOVotes,
-          percent: Math.round((nextOVotes / nextTotal) * 100)
-        };
+  // Ticker Live FOMO Events (Sinh động từ Bot và User thật)
+  const tickerEvents = useMemo(() => {
+    const events = [];
+    programs.forEach(prog => {
+      const records = getStoredPredictions(prog.id);
+      // Lấy 8 lượt gần nhất của mỗi chương trình
+      records.slice(0, 8).forEach(r => {
+        events.push({
+          userName: r.userName,
+          avatar: r.userAvatar,
+          price: r.predictedPrice,
+          isBot: Boolean(r.is_bot),
+          programTitle: prog.projectName || prog.title,
+          timeText: r.is_bot ? 'Vừa xong' : 'Mới tham gia'
+        });
       });
-      return {
-        ...g,
-        totalVotes: nextTotal,
-        options: nextOptions
-      };
-    }));
+    });
+    // Trộn ngẫu nhiên
+    return events.sort(() => 0.5 - Math.random()).slice(0, 15);
+  }, [programs]);
 
-    // Thưởng ngay 10.000đ vào Ví Khuyến Mãi khi tham gia bình chọn
-    if (addBonusWalletBalance) {
-      addBonusWalletBalance(10000, `Tham gia dự đoán: ${gameId}`);
+  // Kiểm tra xem User đã dự đoán cho chương trình này chưa
+  const getUserPredictionForGame = (gameId) => {
+    if (userId === 'guest') return null;
+    const records = getStoredPredictions(gameId);
+    return records.find(r => r.is_bot === 0 && String(r.userId) === userId) || null;
+  };
+
+  // Xử lý gửi dự đoán (User Thật is_bot = 0)
+  const handleSubmitPrediction = (game, customPrice = null) => {
+    if (!currentUser || currentUser.role === 'guest') {
+      if (showToast) showToast('Vui lòng đăng nhập tài khoản để tham gia dự đoán và nhận tiền thưởng!', 'warning');
+      return;
     }
 
-    if (showToast) {
-      showToast(`🎯 Dự đoán thành công "${optionLabel}"! Đã cộng +10.000đ vào Ví KM và tham gia chia quỹ thưởng!`, 'success');
+    const priceToSubmit = Number(customPrice !== null ? customPrice : userInputs[game.id]?.price);
+
+    if (!priceToSubmit || isNaN(priceToSubmit) || priceToSubmit <= 0) {
+      if (showToast) showToast('Vui lòng nhập mức giá dự đoán hợp lệ (Số tỷ VNĐ, ví dụ: 15.65)!', 'warning');
+      return;
     }
+
+    // Bắt đầu hiệu ứng Slot Machine quay số
+    setSlotSpinning(true);
+    setSlotSuccessModal({
+      game,
+      predictedPrice: priceToSubmit,
+      rewardAmount: 10000
+    });
+
+    setTimeout(() => {
+      setSlotSpinning(false);
+      setShowConfetti(true);
+
+      // Lưu bản ghi vào Storage (is_bot = 0)
+      recordUserPrediction(game.id, currentUser, priceToSubmit, userInputs[game.id]?.chosenOption);
+
+      // Thưởng ngay 10.000đ vào Ví Khuyến Mãi
+      if (addBonusWalletBalance) {
+        addBonusWalletBalance(10000, `Thưởng dự đoán giá BĐS: ${game.projectName || game.title}`);
+      }
+
+      // Cập nhật lại state chương trình
+      setPrograms(getStoredPredictionPrograms());
+
+      if (showToast) {
+        showToast(`🎯 Đã ghi nhận dự đoán ${priceToSubmit} tỷ! Nhận ngay +10.000đ vào Ví Khuyến Mãi!`, 'success');
+      }
+    }, 1200);
   };
 
   const displayGames = projectSlug
-    ? games.filter(g => g.slug === projectSlug)
-    : games;
+    ? programs.filter(g => g.slug === projectSlug)
+    : programs;
+
+  // Lấy dữ liệu Leaderboard cho Modal
+  const activeLeaderboardData = useMemo(() => {
+    if (!activeLeaderboardGame) return [];
+    const all = getStoredPredictions(activeLeaderboardGame.id);
+
+    if (leaderboardFilter === 'real_only') {
+      return all.filter(r => !r.is_bot && r.is_bot !== 1);
+    }
+    if (leaderboardFilter === 'my_prediction') {
+      return all.filter(r => r.is_bot === 0 && String(r.userId) === userId);
+    }
+    return all;
+  }, [activeLeaderboardGame, leaderboardFilter, userId]);
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-8">
+    <div className="min-h-screen bg-slate-50 py-8 relative">
+      {/* Pháo hoa Confetti khi trúng giải / xác nhận */}
+      {showConfetti && (
+        <PredictionConfetti duration={4500} onComplete={() => setShowConfetti(false)} />
+      )}
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-6">
+        
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-500 font-medium">
           <Link to="/" className="hover:text-emerald-700 transition">Trang chủ</Link>
@@ -94,66 +154,122 @@ export default function PricePredictionPage({ projectSlug = null }) {
         </nav>
 
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-900 via-indigo-900 to-violet-900 text-white p-6 sm:p-10 shadow-xl">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-blue-950 via-indigo-950 to-slate-950 text-white p-6 sm:p-10 shadow-xl border border-indigo-900/40">
           <div className="relative z-10 max-w-2xl space-y-3">
-            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider text-amber-300">
-              <i className="fa-solid fa-chart-line"></i>
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 backdrop-blur-md text-xs font-bold uppercase tracking-wider text-amber-300 border border-indigo-500/30">
+              <i className="fa-solid fa-chart-line text-amber-400"></i>
               Sân Chơi Thẩm Định Giá Cộng Đồng {brandName}
             </span>
-            <h1 className="text-2xl sm:text-4xl font-black">
+            <h1 className="text-2xl sm:text-4xl font-black tracking-tight">
               Dự Đoán Giá BĐS - Chia Thưởng Triệu Đồng Vào Ví
             </h1>
-            <p className="text-white/80 text-xs sm:text-sm leading-relaxed">
-              Dự đoán mức giá chốt thực tế các căn hộ và biệt thự. Thưởng ngay <strong>+10.000đ vào Ví KM</strong> mỗi lượt bình chọn và chia quỹ tiền mặt lên tới 8.000.000đ khi chốt phiên!
+            <p className="text-slate-300 text-xs sm:text-sm leading-relaxed">
+              Trổ tài thẩm định giá nhà đất Đà Nẵng & Miền Trung. Nhận ngay <strong>+10.000đ vào Ví KM</strong> mỗi lượt dự đoán và cùng chia quỹ tiền mặt lên tới <strong>8.000.000đ</strong> khi chốt kết quả!
             </p>
           </div>
 
           <div className="mt-6 pt-5 border-t border-white/10 flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-lg shadow-md">
+              <div className="w-10 h-10 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-lg shadow-md">
                 <i className="fa-solid fa-wallet"></i>
               </div>
               <div>
-                <div className="text-[11px] text-white/70 font-semibold">Ví Khuyến Mãi của bạn</div>
+                <div className="text-[11px] text-slate-300 font-semibold">Ví Khuyến Mãi của bạn</div>
                 <div className="text-xl font-black text-amber-300 font-mono">
                   +{bonusBal.toLocaleString('vi-VN')} đ
                 </div>
               </div>
             </div>
 
-            <Link
-              to="/dang-tin"
-              className="px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white font-bold text-xs transition flex items-center gap-2"
-            >
-              <span>Dùng ví đăng tin</span>
-              <i className="fa-solid fa-arrow-right text-[10px]"></i>
-            </Link>
+            <div className="flex items-center gap-2.5">
+              <Link
+                to="/dang-tin"
+                className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs transition flex items-center gap-2 border border-white/10"
+              >
+                <span>Dùng Ví Đăng Tin</span>
+                <i className="fa-solid fa-arrow-right text-[10px]"></i>
+              </Link>
+            </div>
           </div>
         </div>
 
-        {/* Prediction Cards */}
+        {/* 2. DÒNG TICKER CHẠY THÔNG BÁO LIÊN TỤC (TẠO HIỆU ỨNG FOMO) */}
+        {tickerEvents.length > 0 && (
+          <div className="bg-gradient-to-r from-blue-900/10 via-indigo-900/10 to-purple-900/10 border border-indigo-200/60 rounded-2xl p-2.5 overflow-hidden flex items-center gap-3 shadow-xs">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-indigo-600 text-white font-extrabold text-[11px] shrink-0 uppercase tracking-wider shadow-xs">
+              <i className="fa-solid fa-bolt-lightning text-amber-300 animate-bounce"></i>
+              <span>Live Ticker</span>
+            </div>
+            <div className="overflow-x-auto scrollbar-none whitespace-nowrap flex items-center gap-6 text-xs text-slate-700 py-0.5">
+              {tickerEvents.map((evt, idx) => (
+                <div key={idx} className="inline-flex items-center gap-2 shrink-0 bg-white px-3 py-1 rounded-xl border border-slate-200/80 shadow-2xs">
+                  <img src={evt.avatar} alt={evt.userName} className="w-5 h-5 rounded-full object-cover" />
+                  <span className="font-bold text-slate-900">{evt.userName}</span>
+                  <span className="text-slate-400">•</span>
+                  <span>Dự đoán: <strong className="text-indigo-600 font-mono font-bold">{evt.price} tỷ</strong></span>
+                  <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded">
+                    +10.000đ
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 3. DANH SÁCH GAME DỰ ĐOÁN (BỐ CỤC LƯỚI 2 CỘT) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
           {displayGames.map(game => {
-            const hasVoted = Boolean(userVotes[game.id]);
+            const userVote = getUserPredictionForGame(game.id);
+            const hasVoted = Boolean(userVote);
+            const isSettled = game.status === 'settled';
+            const allVotes = getStoredPredictions(game.id);
+            const totalParticipants = allVotes.length;
 
             return (
               <div
                 key={game.id}
-                className="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-sm flex flex-col justify-between gap-5 hover:border-slate-300 transition"
+                className={`bg-white rounded-3xl border shadow-sm flex flex-col justify-between gap-5 transition overflow-hidden relative ${
+                  isSettled ? 'border-amber-400/80 bg-amber-50/10' : 'border-slate-200/80 hover:border-indigo-300'
+                } p-5 sm:p-6`}
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+                {/* Badge trạng thái */}
+                <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1 ${
+                      isSettled ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                    }`}>
+                      <i className={`fa-solid ${isSettled ? 'fa-flag-checkered' : 'fa-circle-dot animate-pulse text-emerald-600'}`}></i>
+                      <span>{isSettled ? 'Đã Chốt Kết Quả' : 'Đang Mở Dự Đoán'}</span>
+                    </span>
+                    <span className="text-[11px] text-slate-500 font-medium">
+                      Hạn: {new Date(game.endDate).toLocaleDateString('vi-VN')}
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveLeaderboardGame(game)}
+                    className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-xl cursor-pointer"
+                  >
+                    <i className="fa-solid fa-trophy text-amber-500"></i>
+                    <span>Bảng Xếp Hạng ({totalParticipants.toLocaleString('vi-VN')})</span>
+                  </button>
+                </div>
+
+                {/* Thông tin BĐS */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-start gap-3.5 min-w-0">
                     <img
                       src={game.image}
                       alt={game.projectName}
-                      className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl object-cover shrink-0 border border-slate-100 shadow-xs"
+                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover shrink-0 border border-slate-100 shadow-xs"
                     />
                     <div className="min-w-0">
                       <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider block truncate">
                         {game.location}
                       </span>
                       <h2 className="text-base font-bold text-slate-900 mt-0.5 line-clamp-1" title={game.projectName}>
-                        {game.projectName}
+                        {game.projectName || game.title}
                       </h2>
                       <div className="text-xs text-slate-500 mt-1">
                         Khoảng giá tham chiếu: <strong className="text-emerald-700">{game.currentEstimate}</strong>
@@ -161,73 +277,347 @@ export default function PricePredictionPage({ projectSlug = null }) {
                     </div>
                   </div>
 
-                  <div className="p-2.5 sm:p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-left sm:text-right shrink-0">
-                    <div className="text-[10px] text-emerald-800 font-bold uppercase tracking-wider">Quỹ thưởng vòng này</div>
-                    <div className="text-base sm:text-lg font-black text-emerald-600 font-mono">{game.totalPool}</div>
-                    <div className="text-[10px] text-slate-500 mt-0.5">{(game.totalVotes || 0).toLocaleString('vi-VN')} người tham gia</div>
+                  <div className="p-3 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200 text-left sm:text-right shrink-0">
+                    <div className="text-[10px] text-emerald-800 font-bold uppercase tracking-wider">Tổng Giải Thưởng</div>
+                    <div className="text-lg font-black text-emerald-600 font-mono">
+                      {(Number(game.totalPrize) || 2000000).toLocaleString('vi-VN')} đ Ví KM
+                    </div>
+                    <div className="text-[10px] text-slate-500 mt-0.5">
+                      {totalParticipants.toLocaleString('vi-VN')} lượt tham gia
+                    </div>
                   </div>
                 </div>
 
-                {/* Voting Options */}
-                <div className="space-y-3">
-                  <div className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between gap-2">
-                    <span className="truncate">{hasVoted ? 'Kết quả bình chọn cộng đồng:' : 'Chọn mức giá dự đoán của bạn:'}</span>
-                    {!hasVoted && (
-                      <span className="text-[11px] text-emerald-600 font-bold shrink-0">
-                        +10.000đ vào Ví KM
+                {/* NẾU ĐÃ CHỐT KẾT QUẢ (SETTLED BANNER) */}
+                {isSettled && game.settledResult && (
+                  <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/20 border border-amber-300 text-xs space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-amber-900 flex items-center gap-1.5">
+                        <i className="fa-solid fa-crown text-amber-600"></i>
+                        <span>Giá Chốt Thực Tế: <strong className="text-base font-mono text-emerald-700">{game.settledResult.targetPrice} tỷ</strong></span>
                       </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-slate-950">
+                        {game.settledResult.isSplitPrize ? 'Chia Đều Giải Thưởng' : 'Top Chiến Thắng'}
+                      </span>
+                    </div>
+
+                    <div className="space-y-1.5 pt-1">
+                      <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">
+                        Danh sách User Thật chiến thắng:
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {game.settledResult.winners?.slice(0, 4).map((w, wIdx) => (
+                          <div key={wIdx} className="p-2 bg-white rounded-xl border border-amber-200 flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-2">
+                              <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 font-black text-[10px] flex items-center justify-center">
+                                #{w.rank || wIdx + 1}
+                              </span>
+                              <span className="font-bold text-slate-900 truncate max-w-[110px]">{w.userName}</span>
+                            </div>
+                            <div className="text-right font-mono">
+                              <div className="font-bold text-emerald-600">+{w.rewardAmount?.toLocaleString('vi-VN')}đ</div>
+                              <div className="text-[9px] text-slate-400">Đoán: {w.predictedPrice} tỷ</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* NẾU ĐANG HOẠT ĐỘNG: KHUNG NHẬP GIÁ DỰ ĐOÁN THỦ CÔNG */}
+                {!isSettled && (
+                  <div className="space-y-3 pt-2">
+                    <div className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between gap-2">
+                      <span>{hasVoted ? 'Dự đoán của bạn:' : 'Nhập mức giá dự đoán của bạn:'}</span>
+                      {!hasVoted && (
+                        <span className="text-[11px] text-emerald-600 font-bold shrink-0">
+                          +10.000đ vào Ví KM
+                        </span>
+                      )}
+                    </div>
+
+                    {/* 3 Mốc Giá Gợi Ý Nhanh */}
+                    <div className="grid grid-cols-3 gap-2">
+                      {game.options?.map(opt => {
+                        const isSelected = userInputs[game.id]?.chosenOption === opt.id;
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            disabled={hasVoted}
+                            onClick={() => {
+                              // Tự động điền giá trung bình của khoảng này vào ô input
+                              const midPrice = opt.max ? ((opt.min + opt.max) / 2).toFixed(2) : (opt.min + 0.5).toFixed(2);
+                              setUserInputs(prev => ({
+                                ...prev,
+                                [game.id]: {
+                                  price: midPrice,
+                                  chosenOption: opt.id
+                                }
+                              }));
+                            }}
+                            className={`p-2.5 rounded-xl border text-center transition text-xs font-bold ${
+                              isSelected
+                                ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
+                                : 'bg-slate-50 hover:bg-indigo-50 border-slate-200 text-slate-700'
+                            } ${hasVoted ? 'cursor-default opacity-70' : 'cursor-pointer'}`}
+                          >
+                            <span>{opt.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Ô Nhập Giá Thủ Công Chính Xác (tỷ VNĐ) */}
+                    {hasVoted ? (
+                      <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm">
+                            <i className="fa-solid fa-check"></i>
+                          </span>
+                          <div>
+                            <div className="text-[11px] text-emerald-800 font-bold">Bạn đã dự đoán thành công:</div>
+                            <div className="text-base font-black text-emerald-700 font-mono">
+                              {userVote.predictedPrice} tỷ VNĐ
+                            </div>
+                          </div>
+                        </div>
+                        <span className="text-xs bg-emerald-600 text-white px-2.5 py-1 rounded-xl font-bold">
+                          Đã Nhận +10K Ví KM
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 pt-1">
+                        <div className="relative flex-1">
+                          <input
+                            type="number"
+                            step="0.01"
+                            placeholder="Nhập giá dự đoán (Ví dụ: 15.65)"
+                            value={userInputs[game.id]?.price || ''}
+                            onChange={(e) => {
+                              setUserInputs(prev => ({
+                                ...prev,
+                                [game.id]: {
+                                  ...prev[game.id],
+                                  price: e.target.value
+                                }
+                              }));
+                            }}
+                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold font-mono text-slate-900 text-sm focus:bg-white focus:border-indigo-500 focus:outline-none"
+                          />
+                          <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                            tỷ VNĐ
+                          </span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleSubmitPrediction(game)}
+                          className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
+                        >
+                          <i className="fa-solid fa-paper-plane"></i>
+                          <span>Xác Nhận (+10K)</span>
+                        </button>
+                      </div>
                     )}
                   </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                    {game.options.map(opt => {
-                      const isUserChoice = userVotes[game.id] === opt.id;
-                      return (
-                        <button
-                          key={opt.id}
-                          onClick={() => handleVote(game.id, opt.id, opt.label)}
-                          disabled={hasVoted}
-                          className={`p-3.5 sm:p-4 rounded-2xl border text-left transition-all relative overflow-hidden cursor-pointer ${
-                            isUserChoice
-                              ? 'border-blue-600 bg-blue-50 ring-2 ring-blue-300'
-                              : hasVoted
-                              ? 'border-slate-200 bg-slate-50 cursor-default'
-                              : 'border-slate-200 hover:border-blue-400 hover:bg-slate-50'
-                          }`}
-                        >
-                          <div className="relative z-10 flex items-center justify-between gap-1">
-                            <span className="text-xs font-bold text-slate-900 line-clamp-1">{opt.label}</span>
-                            {isUserChoice && (
-                              <span className="w-4 h-4 rounded-full bg-blue-600 text-white flex items-center justify-center text-[9px] shrink-0">
-                                <i className="fa-solid fa-check"></i>
-                              </span>
-                            )}
-                          </div>
-
-                          {hasVoted && (
-                            <div className="mt-2.5 relative z-10">
-                              <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 mb-1">
-                                <span>{opt.percent || 0}%</span>
-                                <span>{opt.votes || 0} lượt</span>
-                              </div>
-                              <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden">
-                                <div
-                                  className={`h-full rounded-full ${isUserChoice ? 'bg-blue-600' : 'bg-slate-400'}`}
-                                  style={{ width: `${opt.percent || 0}%` }}
-                                ></div>
-                              </div>
-                            </div>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+                )}
               </div>
             );
           })}
         </div>
+
       </div>
+
+      {/* ========================================================================= */}
+      {/* 4. MODAL QUAY SỐ / XÁC NHẬN DỰ ĐOÁN THÀNH CÔNG (SLOT MACHINE ANIMATION) */}
+      {/* ========================================================================= */}
+      {slotSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-slate-200 text-center space-y-5 animate-in zoom-in-95 duration-200">
+            {slotSpinning ? (
+              <div className="py-8 space-y-4">
+                <div className="w-16 h-16 mx-auto rounded-full bg-indigo-50 border-4 border-indigo-600 border-t-transparent animate-spin"></div>
+                <div className="text-lg font-black text-slate-900">
+                  Đang khóa mức giá dự đoán của bạn...
+                </div>
+                <div className="text-2xl font-black font-mono text-indigo-600 animate-pulse">
+                  {slotSuccessModal.predictedPrice} tỷ VNĐ
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="w-16 h-16 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl shadow-inner animate-bounce">
+                  <i className="fa-solid fa-gift"></i>
+                </div>
+
+                <div className="space-y-1">
+                  <h3 className="text-xl font-black text-slate-900">
+                    Xác Nhận Dự Đoán Thành Công!
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Hệ thống đã ghi nhận mức giá thẩm định của bạn vào bảng xếp hạng.
+                  </p>
+                </div>
+
+                <div className="p-4 bg-gradient-to-r from-emerald-500/15 to-teal-500/15 border border-emerald-300 rounded-2xl space-y-2">
+                  <div className="text-xs text-slate-600">Mức giá bạn dự đoán:</div>
+                  <div className="text-2xl font-black font-mono text-emerald-700">
+                    {slotSuccessModal.predictedPrice} tỷ VNĐ
+                  </div>
+                  <div className="pt-2 border-t border-emerald-200/70 flex items-center justify-between text-xs font-bold text-emerald-800">
+                    <span>Phần thưởng nóng:</span>
+                    <span className="text-sm font-mono font-extrabold text-emerald-600">
+                      +{slotSuccessModal.rewardAmount.toLocaleString('vi-VN')}đ Ví KM
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setSlotSuccessModal(null)}
+                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs uppercase tracking-wider rounded-xl transition shadow-md cursor-pointer"
+                >
+                  Tuyệt Vời • Tiếp Tục Khám Phá
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 5. MODAL LIVE LEADERBOARD (BẢNG XẾP HẠNG ĐÔNG ĐÚC) */}
+      {/* ========================================================================= */}
+      {activeLeaderboardGame && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl p-6 max-w-2xl w-full shadow-2xl border border-slate-200 space-y-4 max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center text-base">
+                  <i className="fa-solid fa-trophy"></i>
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-slate-900">
+                    Bảng Xếp Hạng Trực Tiếp (Live Leaderboard)
+                  </h3>
+                  <div className="text-[11px] text-slate-500">
+                    {activeLeaderboardGame.projectName || activeLeaderboardGame.title}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveLeaderboardGame(null)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer"
+              >
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            {/* Bộ lọc Tab */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setLeaderboardFilter('all')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                  leaderboardFilter === 'all' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                Tất cả ({getStoredPredictions(activeLeaderboardGame.id).length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setLeaderboardFilter('real_only')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                  leaderboardFilter === 'real_only' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                Chỉ User Thật
+              </button>
+              <button
+                type="button"
+                onClick={() => setLeaderboardFilter('my_prediction')}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+                  leaderboardFilter === 'my_prediction' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                Dự đoán của tôi
+              </button>
+            </div>
+
+            {/* Danh sách bình chọn */}
+            <div className="overflow-y-auto space-y-2 flex-1 pr-1 text-xs">
+              {activeLeaderboardData.length === 0 ? (
+                <div className="py-12 text-center text-slate-400">
+                  <i className="fa-solid fa-inbox text-3xl mb-2 block"></i>
+                  <span>Chưa có lượt dự đoán nào theo bộ lọc này.</span>
+                </div>
+              ) : (
+                activeLeaderboardData.slice(0, 100).map((record, rIdx) => {
+                  const isCurrentUserRecord = record.is_bot === 0 && String(record.userId) === userId;
+
+                  return (
+                    <div
+                      key={record.id || rIdx}
+                      className={`p-3 rounded-2xl border flex items-center justify-between gap-3 transition ${
+                        isCurrentUserRecord
+                          ? 'bg-indigo-50/80 border-indigo-300 ring-2 ring-indigo-200'
+                          : 'bg-white border-slate-200 hover:border-slate-300'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="w-6 text-center font-bold text-slate-400 font-mono">
+                          #{rIdx + 1}
+                        </span>
+                        <img
+                          src={record.userAvatar || '/avatars/ai-preset-2.jpg'}
+                          alt={record.userName}
+                          className="w-8 h-8 rounded-full object-cover border border-slate-200"
+                        />
+                        <div>
+                          <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                            <span>{record.userName}</span>
+                            {isCurrentUserRecord && (
+                              <span className="text-[9px] bg-indigo-600 text-white font-extrabold px-1.5 py-0.2 rounded-full">
+                                BẠN
+                              </span>
+                            )}
+                          </div>
+                          <div className="text-[10px] text-slate-400">
+                            {new Date(record.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} • {new Date(record.createdAt).toLocaleDateString('vi-VN')}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <div className="font-black text-indigo-700 font-mono text-sm">
+                          {record.predictedPrice} tỷ
+                        </div>
+                        <span className="text-[9px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded">
+                          Đã khóa
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-slate-400 text-[11px]">
+              <span>Hiển thị tối đa 100 lượt tham gia mới nhất</span>
+              <button
+                type="button"
+                onClick={() => setActiveLeaderboardGame(null)}
+                className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold cursor-pointer"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

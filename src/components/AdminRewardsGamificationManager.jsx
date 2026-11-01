@@ -16,6 +16,16 @@ import {
   DEFAULT_PREMIUM_MEMBER_REWARD_TIERS,
   getSuggestedRewardTiers
 } from '../services/treasureHuntService';
+import PredictionConfetti from './PredictionConfetti';
+import {
+  getStoredPredictionPrograms,
+  savePredictionPrograms,
+  getStoredPredictions,
+  syncBotsForGame,
+  settlePredictionGame,
+  awardBadgeToUser,
+  DEFAULT_PREDICTION_PROGRAMS
+} from '../services/predictionGameService';
 
 /**
  * Component hiển thị gợi ý bảng mốc phần thưởng dựa trên Tổng Ngân Sách Mở Rương
@@ -108,7 +118,11 @@ export default function AdminRewardsGamificationManager() {
     properties = [],
     updateProperty,
     updateMultipleProperties,
-    transactions = []
+    transactions = [],
+    currentUser,
+    addBonusWalletBalance,
+    usersList = [],
+    setUsersList
   } = useRealEstate();
 
   // Local state form
@@ -118,6 +132,16 @@ export default function AdminRewardsGamificationManager() {
   const [isDirty, setIsDirty] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const isDirtyRef = useRef(false);
+
+  // States quản lý Dự Đoán Giá BĐS & Bot Ảo (TAB 4)
+  const [predictionPrograms, setPredictionPrograms] = useState(() => getStoredPredictionPrograms());
+  const [editingProgram, setEditingProgram] = useState(null);
+  const [programModalOpen, setProgramModalOpen] = useState(false);
+  const [settleModalProgram, setSettleModalProgram] = useState(null);
+  const [targetPriceInput, setTargetPriceInput] = useState('');
+  const [settledResultData, setSettledResultData] = useState(null);
+  const [showAdminConfetti, setShowAdminConfetti] = useState(false);
+  const [isSyncingBotId, setIsSyncingBotId] = useState(null);
 
   // States quản lý bài viết kích hoạt rương kho báu (Phương án 1)
   const [treasureSearchTerm, setTreasureSearchTerm] = useState('');
@@ -877,6 +901,153 @@ export default function AdminRewardsGamificationManager() {
     }));
   };
 
+  // === QUẢN LÝ DỰ ĐOÁN GIÁ BĐS & BOT ẢO (TAB 4) ===
+  const handleSyncBots = (prog) => {
+    setIsSyncingBotId(prog.id);
+    setTimeout(() => {
+      syncBotsForGame(prog.id, prog.botConfig);
+      setIsSyncingBotId(null);
+      setPredictionPrograms(getStoredPredictionPrograms());
+      if (showToast) {
+        showToast(`Đã chạy đồng bộ ${(prog.botConfig?.botCount || 2000).toLocaleString('vi-VN')} Bot ảo (is_bot = 1) cho chương trình "${prog.title}" thành công!`, 'success');
+      }
+    }, 600);
+  };
+
+  const handleOpenProgramModal = (prog = null) => {
+    if (prog) {
+      setEditingProgram({ ...prog });
+    } else {
+      setEditingProgram({
+        id: `pred-${Date.now()}`,
+        slug: `du-doan-gia-${Date.now()}`,
+        title: '',
+        projectName: '',
+        location: 'Đà Nẵng',
+        image: 'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=800&q=80',
+        currentEstimate: '5.0 - 6.0 tỷ',
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: new Date(Date.now() + 15 * 86400000).toISOString().split('T')[0],
+        totalPrize: 2000000,
+        basePrice: 5.5,
+        spreadPercent: 8,
+        targetPrice: 5.5,
+        status: 'active',
+        botConfig: {
+          isEnabled: true,
+          botCount: 2000,
+          basePrice: 5.5,
+          spreadPercent: 8
+        },
+        options: [
+          { id: 'opt-a', label: 'Dưới 5 tỷ', min: 0, max: 5.0 },
+          { id: 'opt-b', label: 'Từ 5 - 6 tỷ', min: 5.0, max: 6.0 },
+          { id: 'opt-c', label: 'Trên 6 tỷ', min: 6.0, max: 99.0 }
+        ]
+      });
+    }
+    setProgramModalOpen(true);
+  };
+
+  const handleSaveProgram = (e) => {
+    e.preventDefault();
+    if (!editingProgram.title || !editingProgram.projectName) {
+      if (showToast) showToast('Vui lòng điền tên chương trình và tên dự án BĐS!', 'warning');
+      return;
+    }
+
+    const currentList = getStoredPredictionPrograms();
+    const exists = currentList.find(p => p.id === editingProgram.id);
+    let nextList;
+    if (exists) {
+      nextList = currentList.map(p => p.id === editingProgram.id ? editingProgram : p);
+    } else {
+      nextList = [editingProgram, ...currentList];
+    }
+
+    savePredictionPrograms(nextList);
+    setPredictionPrograms(nextList);
+    setProgramModalOpen(false);
+
+    // Tự động đồng bộ bot nếu bot được bật
+    if (editingProgram.botConfig?.isEnabled) {
+      syncBotsForGame(editingProgram.id, editingProgram.botConfig);
+    }
+
+    if (showToast) showToast(`Đã lưu chương trình "${editingProgram.title}" thành công!`, 'success');
+  };
+
+  const handleDeleteProgram = (id) => {
+    if (!window.confirm('Bạn có chắc chắn muốn xóa chương trình dự đoán này không?')) return;
+    const currentList = getStoredPredictionPrograms();
+    const nextList = currentList.filter(p => p.id !== id);
+    savePredictionPrograms(nextList);
+    setPredictionPrograms(nextList);
+    if (showToast) showToast('Đã xóa chương trình dự đoán!', 'info');
+  };
+
+  const handleOpenSettleModal = (prog) => {
+    setSettleModalProgram(prog);
+    setTargetPriceInput(String(prog.targetPrice || prog.basePrice || ''));
+  };
+
+  const handleExecuteSettle = () => {
+    if (!settleModalProgram) return;
+    const targetPrice = Number(targetPriceInput);
+    if (!targetPrice || isNaN(targetPrice) || targetPrice <= 0) {
+      if (showToast) showToast('Vui lòng nhập giá chuẩn thực tế hợp lệ (Ví dụ: 15.65)!', 'warning');
+      return;
+    }
+
+    // GỌI LOGIC KẾT THÚC SỰ KIỆN: LỌC BOT (is_bot = 1) -> TÍNH SAI SỐ -> CHIA ĐỀU NẾU >3 ĐỒNG HẠNG -> TRAO THƯỞNG & HUY HIỆU
+    const res = settlePredictionGame({
+      gameId: settleModalProgram.id,
+      targetPrice,
+      totalPrize: settleModalProgram.totalPrize || 2000000,
+      currentUser
+    });
+
+    if (!res.success) {
+      if (showToast) showToast(res.message, 'warning');
+      return;
+    }
+
+    // Trao tiền thưởng Ví KM cho các User Thật thắng cuộc
+    res.winners.forEach(w => {
+      if (addBonusWalletBalance && w.rewardAmount > 0) {
+        addBonusWalletBalance(w.rewardAmount, `Giải thưởng Dự Đoán Giá BĐS (#${w.rank}): ${settleModalProgram.projectName || settleModalProgram.title}`);
+      }
+      // Trao huy hiệu vinh danh "Thần Phán Đoán" vào User
+      if (currentUser && String(currentUser.id) === String(w.userId)) {
+        awardBadgeToUser(currentUser, w.rewardBadge || 'Thần Phán Đoán BĐS ★');
+      }
+    });
+
+    // Cập nhật trạng thái chương trình sang settled
+    const currentList = getStoredPredictionPrograms();
+    const nextList = currentList.map(p => {
+      if (p.id === settleModalProgram.id) {
+        return {
+          ...p,
+          status: 'settled',
+          targetPrice,
+          settledResult: res.settledResult
+        };
+      }
+      return p;
+    });
+
+    savePredictionPrograms(nextList);
+    setPredictionPrograms(nextList);
+    setSettledResultData(res.settledResult);
+    setSettleModalProgram(null);
+    setShowAdminConfetti(true);
+
+    if (showToast) {
+      showToast(`🎯 Chốt kết quả thành công! ${res.isSplitPrize ? `Có ${res.winners.length} người đồng hạng: Đã chia đều giải thưởng!` : `Đã xét trao thưởng Top ${res.winners.length} thành công!`}`, 'success');
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Bar */}
@@ -957,6 +1128,19 @@ export default function AdminRewardsGamificationManager() {
         >
           <i className="fa-solid fa-list-check text-xs"></i>
           <span>Hệ Thống Nhiệm Vụ</span>
+        </button>
+
+        <button
+          onClick={() => setActiveSubTab('predictions')}
+          className={`px-4 py-2.5 rounded-2xl text-xs font-bold transition flex items-center gap-2 cursor-pointer whitespace-nowrap ${
+            activeSubTab === 'predictions'
+              ? 'bg-indigo-600 text-white font-black shadow-md shadow-indigo-600/20'
+              : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800'
+          }`}
+        >
+          <i className="fa-solid fa-chart-line text-xs text-amber-400"></i>
+          <span>Dự Đoán Giá BĐS</span>
+          <span className="text-[9px] bg-amber-400 text-slate-950 px-1.5 py-0.2 rounded-full font-black">AI Bot</span>
         </button>
       </div>
 
@@ -2757,6 +2941,592 @@ export default function AdminRewardsGamificationManager() {
                 className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs"
               >
                 Cập nhật
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* ==============================================================
+          TAB 4: DỰ ĐOÁN GIÁ BĐS & CẤU HÌNH BOT ẢO (AI FOMO ENGINE)
+         ============================================================== */}
+      {activeSubTab === 'predictions' && (
+        <div className="space-y-6">
+          {/* Header Card */}
+          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="w-8 h-8 rounded-xl bg-indigo-600/30 text-indigo-400 flex items-center justify-center text-sm">
+                  <i className="fa-solid fa-chart-line"></i>
+                </span>
+                <h2 className="text-base font-black text-white">
+                  Quản Lý Dự Đoán Giá BĐS & AI Bot Ảo (FOMO Engine)
+                </h2>
+              </div>
+              <p className="text-xs text-slate-400">
+                Thiết lập chương trình dự đoán giá thẩm định cộng đồng, cấu hình Bot ảo tạo hiệu ứng bảng xếp hạng đông đúc, và chốt kết quả tự động chia đều giải thưởng cho User thật.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => handleOpenProgramModal()}
+              className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-bold text-xs rounded-xl transition flex items-center gap-2 shadow-md shadow-indigo-900/40 cursor-pointer shrink-0 self-start sm:self-center"
+            >
+              <i className="fa-solid fa-circle-plus"></i>
+              <span>Tạo Chương Trình Mới</span>
+            </button>
+          </div>
+
+          {/* Danh sách các chương trình */}
+          <div className="grid grid-cols-1 gap-6">
+            {predictionPrograms.map(prog => {
+              const allVotes = getStoredPredictions(prog.id);
+              const botVotes = allVotes.filter(v => v.is_bot === 1);
+              const realVotes = allVotes.filter(v => !v.is_bot && v.is_bot !== 1);
+              const isSettled = prog.status === 'settled';
+
+              return (
+                <div
+                  key={prog.id}
+                  className="bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-5"
+                >
+                  {/* Top info */}
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+                    <div className="flex items-start gap-4">
+                      <img
+                        src={prog.image}
+                        alt={prog.projectName}
+                        className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover shrink-0 border border-slate-700"
+                      />
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                            isSettled ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                          }`}>
+                            {isSettled ? 'Đã Chốt Kết Quả' : 'Đang Hoạt Động'}
+                          </span>
+                          <span className="text-[11px] text-slate-400">
+                            {prog.location}
+                          </span>
+                        </div>
+                        <h3 className="text-base font-extrabold text-white">
+                          {prog.title || prog.projectName}
+                        </h3>
+                        <div className="text-xs text-slate-400">
+                          Khoảng tham chiếu: <strong className="text-indigo-400">{prog.currentEstimate}</strong> • Thời gian: <strong className="text-slate-200">{new Date(prog.startDate).toLocaleDateString('vi-VN')} - {new Date(prog.endDate).toLocaleDateString('vi-VN')}</strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 bg-slate-950 rounded-2xl border border-slate-800 text-right">
+                        <div className="text-[10px] text-slate-400 font-bold uppercase">Tổng Giải Thưởng</div>
+                        <div className="text-base font-black text-amber-400 font-mono">
+                          {(Number(prog.totalPrize) || 2000000).toLocaleString('vi-VN')} đ Ví KM
+                        </div>
+                      </div>
+                      <div className="p-3 bg-slate-950 rounded-2xl border border-slate-800 text-right">
+                        <div className="text-[10px] text-slate-400 font-bold uppercase">Lượt Tham Gia</div>
+                        <div className="text-base font-black text-emerald-400 font-mono">
+                          {allVotes.length.toLocaleString('vi-VN')} ({realVotes.length} thật / {botVotes.length} bot)
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Cấu hình Bot Ảo (is_bot = 1) */}
+                  <div className="p-4 bg-slate-950/80 rounded-2xl border border-slate-800/80 space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/60 pb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-xs">
+                          <i className="fa-solid fa-robot"></i>
+                        </span>
+                        <span className="text-xs font-bold text-white uppercase tracking-wider">
+                          Cấu Hình Bot Ảo Tạo Hiệu Ứng FOMO (is_bot = 1)
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-slate-400">Trạng thái Bot:</span>
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                          prog.botConfig?.isEnabled ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-400'
+                        }`}>
+                          {prog.botConfig?.isEnabled ? 'Bật Bot' : 'Tắt Bot'}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                        <div className="text-[11px] text-slate-400 font-semibold mb-1">Số lượng Bot</div>
+                        <div className="text-base font-black text-white font-mono">
+                          {(prog.botConfig?.botCount || 2000).toLocaleString('vi-VN')} bot
+                        </div>
+                      </div>
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                        <div className="text-[11px] text-slate-400 font-semibold mb-1">Giá cơ sở</div>
+                        <div className="text-base font-black text-amber-400 font-mono">
+                          {prog.botConfig?.basePrice || prog.basePrice || 7.8} tỷ
+                        </div>
+                      </div>
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                        <div className="text-[11px] text-slate-400 font-semibold mb-1">Biên độ dao động (Spread)</div>
+                        <div className="text-base font-black text-indigo-400 font-mono">
+                          ±{prog.botConfig?.spreadPercent || prog.spreadPercent || 6}%
+                        </div>
+                      </div>
+                      <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">
+                        <div className="text-[11px] text-slate-400 font-semibold mb-1">Quyền nhận thưởng</div>
+                        <div className="text-xs font-bold text-rose-400 mt-0.5">
+                          100% Không được nhận giải
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* HÀNG NÚT HÀNH ĐỘNG CỦA ADMIN */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          disabled={isSyncingBotId === prog.id}
+                          onClick={() => handleSyncBots(prog)}
+                          className="px-4 py-2 bg-slate-800 hover:bg-slate-700 active:scale-95 text-indigo-300 font-bold text-xs rounded-xl transition flex items-center gap-2 cursor-pointer border border-slate-700"
+                        >
+                          <i className={`fa-solid ${isSyncingBotId === prog.id ? 'fa-spinner fa-spin' : 'fa-arrows-rotate'}`}></i>
+                          <span>{isSyncingBotId === prog.id ? 'Đang chạy đồng bộ...' : 'Chạy / Đồng Bộ Bot'}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleOpenProgramModal(prog)}
+                          className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs rounded-xl transition flex items-center gap-1.5 cursor-pointer border border-slate-700"
+                        >
+                          <i className="fa-solid fa-pen-to-square"></i>
+                          <span>Chỉnh Sửa</span>
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          disabled={isSettled}
+                          onClick={() => handleOpenSettleModal(prog)}
+                          className={`px-5 py-2 rounded-xl text-xs font-black transition flex items-center gap-2 cursor-pointer shadow-lg ${
+                            isSettled
+                              ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+                              : 'bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-slate-950 shadow-amber-500/20'
+                          }`}
+                        >
+                          <i className="fa-solid fa-gavel"></i>
+                          <span>{isSettled ? 'Đã Chốt Kết Quả' : 'Chốt Kết Quả & Quay Thưởng'}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteProgram(prog.id)}
+                          className="px-3 py-2 bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-400 font-bold text-xs rounded-xl transition cursor-pointer border border-slate-700"
+                          title="Xóa chương trình"
+                        >
+                          <i className="fa-solid fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* NẾU ĐÃ CHỐT KẾT QUẢ: HIỂN THỊ TÓM TẮT GIẢI THƯỞNG */}
+                  {isSettled && prog.settledResult && (
+                    <div className="p-4 bg-amber-950/20 border border-amber-500/30 rounded-2xl text-xs space-y-2.5">
+                      <div className="flex items-center justify-between font-bold text-amber-300">
+                        <span>Giá Chốt Thực Tế: <strong className="font-mono text-white text-sm">{prog.settledResult.targetPrice} tỷ</strong></span>
+                        <span>{prog.settledResult.isSplitPrize ? `Chia đều ${prog.settledResult.winners.length} người thắng` : 'Xếp hạng Top 1, 2, 3'}</span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        {prog.settledResult.winners?.slice(0, 3).map((w, idx) => (
+                          <div key={idx} className="p-2.5 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
+                            <div>
+                              <div className="font-bold text-white flex items-center gap-1">
+                                <span className="text-amber-400">#{w.rank || idx + 1}</span>
+                                <span>{w.userName}</span>
+                              </div>
+                              <div className="text-[10px] text-slate-400">Đoán: {w.predictedPrice} tỷ (Lệch: {w.diff} tỷ)</div>
+                            </div>
+                            <div className="text-right font-mono font-black text-emerald-400">
+                              +{w.rewardAmount?.toLocaleString('vi-VN')}đ
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ==============================================================
+          MODAL 1: CHỐT KẾT QUẢ & QUAY THƯỞNG (ADMIN)
+         ============================================================== */}
+      {settleModalProgram && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-slate-950 border border-amber-500/40 rounded-3xl p-6 sm:p-8 max-w-lg w-full space-y-5 text-white shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <span className="w-10 h-10 rounded-2xl bg-amber-500 text-slate-950 flex items-center justify-center text-lg font-black shadow-md">
+                  <i className="fa-solid fa-gavel"></i>
+                </span>
+                <div>
+                  <h3 className="text-base font-black text-white">Chốt Kết Quả & Trao Thưởng</h3>
+                  <div className="text-[11px] text-slate-400">{settleModalProgram.title}</div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSettleModalProgram(null)}
+                className="w-8 h-8 rounded-full bg-slate-900 hover:bg-slate-800 text-slate-400 flex items-center justify-center"
+              >
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div className="p-3.5 bg-slate-900 rounded-2xl border border-slate-800 space-y-2">
+                <div className="text-slate-400 font-bold uppercase text-[10px] tracking-wider">Quy trình hệ thống xử lý tự động:</div>
+                <ul className="space-y-1.5 text-slate-300">
+                  <li className="flex items-center gap-2">
+                    <i className="fa-solid fa-filter text-amber-400"></i>
+                    <span><strong>Bước 1:</strong> Loại bỏ toàn bộ Bot ảo (<code className="text-amber-300">is_bot = 1</code>), chỉ giữ User thật (<code className="text-emerald-300">is_bot = 0</code>).</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <i className="fa-solid fa-arrow-down-short-wide text-indigo-400"></i>
+                    <span><strong>Bước 2:</strong> So sánh giá đoán với Giá chuẩn, xếp hạng sai số từ thấp đến cao.</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <i className="fa-solid fa-gift text-emerald-400"></i>
+                    <span><strong>Bước 3:</strong> Nếu &gt;3 người đồng hạng ở Top, tự động <strong>chia đều tổng giải thưởng {(settleModalProgram.totalPrize || 2000000).toLocaleString('vi-VN')}đ</strong>.</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <i className="fa-solid fa-award text-purple-400"></i>
+                    <span><strong>Bước 4:</strong> Trao Huy hiệu vinh danh <strong>"Thần Phán Đoán BĐS ★"</strong> và bắn pháo hoa vinh danh.</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div>
+                <label className="block font-black text-amber-300 mb-1.5 text-xs uppercase tracking-wider">
+                  Nhập Giá Chuẩn / Giá Chốt Thẩm Định Thực Tế (tỷ VNĐ):
+                </label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    step="0.01"
+                    required
+                    value={targetPriceInput}
+                    onChange={(e) => setTargetPriceInput(e.target.value)}
+                    placeholder="VD: 15.65"
+                    className="w-full bg-slate-900 border-2 border-amber-500/70 rounded-xl px-4 py-3 text-white font-mono text-base font-black outline-none focus:border-amber-400"
+                  />
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">
+                    tỷ VNĐ
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setSettleModalProgram(null)}
+                className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 font-bold text-xs hover:bg-slate-900"
+              >
+                Hủy bỏ
+              </button>
+              <button
+                type="button"
+                onClick={handleExecuteSettle}
+                className="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-amber-500/20 cursor-pointer flex items-center gap-2"
+              >
+                <i className="fa-solid fa-check-double"></i>
+                <span>Xác Nhận Chốt & Xét Thưởng</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==============================================================
+          MODAL 2: KẾT QUẢ XÉT THƯỞNG & VINH DANH (CONFEDTI + BANNER)
+         ============================================================== */}
+      {settledResultData && (
+        <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+          {showAdminConfetti && (
+            <PredictionConfetti duration={5000} onComplete={() => setShowAdminConfetti(false)} />
+          )}
+
+          <div className="bg-slate-950 border border-emerald-500/40 rounded-3xl p-6 sm:p-8 max-w-xl w-full space-y-5 text-white shadow-2xl relative text-center">
+            <div className="w-16 h-16 mx-auto rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-3xl shadow-inner">
+              <i className="fa-solid fa-trophy animate-bounce"></i>
+            </div>
+
+            <div className="space-y-1">
+              <h3 className="text-xl font-black text-white">
+                Chốt Kết Quả & Trao Thưởng Thành Công!
+              </h3>
+              <p className="text-xs text-slate-400">
+                Giá chuẩn: <strong className="text-emerald-400 font-mono text-sm">{settledResultData.targetPrice} tỷ</strong> • Tổng giải: <strong className="text-amber-400 font-mono">{settledResultData.totalPrize.toLocaleString('vi-VN')}đ</strong>
+              </p>
+              {settledResultData.isSplitPrize && (
+                <div className="inline-block px-3 py-1 bg-amber-500/20 text-amber-300 font-bold text-[11px] rounded-full border border-amber-500/30 mt-1">
+                  Đồng hạng &gt;3 người: Đã chia đều {settledResultData.rewardPerWinner?.toLocaleString('vi-VN')}đ / người
+                </div>
+              )}
+            </div>
+
+            {/* Bảng Danh sách Người chiến thắng */}
+            <div className="space-y-2 text-left max-h-60 overflow-y-auto pr-1">
+              {settledResultData.winners?.map((w, idx) => (
+                <div key={idx} className="p-3 bg-slate-900 border border-slate-800 rounded-2xl flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-3">
+                    <span className="w-6 h-6 rounded-lg bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center">
+                      #{w.rank || idx + 1}
+                    </span>
+                    <div>
+                      <div className="font-bold text-white flex items-center gap-1.5">
+                        <span>{w.userName}</span>
+                        <span className="text-[9px] bg-purple-500/20 text-purple-300 px-1.5 py-0.2 rounded border border-purple-500/30">
+                          {w.rewardBadge}
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-slate-400">
+                        Đoán: <strong className="text-indigo-400 font-mono">{w.predictedPrice} tỷ</strong> (Lệch: {w.diff} tỷ)
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-right font-mono font-black text-emerald-400 text-sm">
+                    +{w.rewardAmount?.toLocaleString('vi-VN')}đ
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setSettledResultData(null);
+                setShowAdminConfetti(false);
+              }}
+              className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black text-xs uppercase tracking-wider rounded-xl transition shadow-lg shadow-emerald-600/30 cursor-pointer"
+            >
+              Hoàn Tất & Đóng
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ==============================================================
+          MODAL 3: TẠO MỚI / CHỈNH SỬA CHƯƠNG TRÌNH DỰ ĐOÁN
+         ============================================================== */}
+      {programModalOpen && editingProgram && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+          <form onSubmit={handleSaveProgram} className="bg-slate-950 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-xl w-full space-y-4 text-white max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <h3 className="text-base font-black">
+                {editingProgram.id ? 'Chỉnh Sửa Chương Trình Dự Đoán' : 'Tạo Chương Trình Dự Đoán Mới'}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setProgramModalOpen(false)}
+                className="w-8 h-8 rounded-full bg-slate-900 text-slate-400 flex items-center justify-center"
+              >
+                <i className="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <div className="space-y-3.5 text-xs">
+              <div>
+                <label className="block font-bold text-slate-400 mb-1">Tên chương trình:</label>
+                <input
+                  type="text"
+                  required
+                  value={editingProgram.title}
+                  onChange={(e) => setEditingProgram({ ...editingProgram, title: e.target.value })}
+                  placeholder="VD: Dự đoán giá Penthouse Sun Ponte Residence"
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-400 mb-1">Tên BĐS / Dự án:</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingProgram.projectName}
+                    onChange={(e) => setEditingProgram({ ...editingProgram, projectName: e.target.value })}
+                    placeholder="VD: Penthouse Sun Ponte"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-400 mb-1">Vị trí (Khu vực):</label>
+                  <input
+                    type="text"
+                    value={editingProgram.location}
+                    onChange={(e) => setEditingProgram({ ...editingProgram, location: e.target.value })}
+                    placeholder="VD: Sơn Trà, Đà Nẵng"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-400 mb-1">Ngày bắt đầu:</label>
+                  <input
+                    type="date"
+                    value={editingProgram.startDate?.split('T')[0] || ''}
+                    onChange={(e) => setEditingProgram({ ...editingProgram, startDate: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-400 mb-1">Ngày kết thúc:</label>
+                  <input
+                    type="date"
+                    value={editingProgram.endDate?.split('T')[0] || ''}
+                    onChange={(e) => setEditingProgram({ ...editingProgram, endDate: e.target.value })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold text-slate-400 mb-1">Tổng giải thưởng (VNĐ Ví KM):</label>
+                  <input
+                    type="number"
+                    step="100000"
+                    value={editingProgram.totalPrize || 2000000}
+                    onChange={(e) => setEditingProgram({ ...editingProgram, totalPrize: Number(e.target.value) })}
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-amber-400 font-mono font-bold"
+                  />
+                </div>
+                <div>
+                  <label className="block font-bold text-slate-400 mb-1">Khoảng giá tham chiếu:</label>
+                  <input
+                    type="text"
+                    value={editingProgram.currentEstimate}
+                    onChange={(e) => setEditingProgram({ ...editingProgram, currentEstimate: e.target.value })}
+                    placeholder="VD: 14.5 - 16.0 tỷ"
+                    className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-400 mb-1">Ảnh BĐS (URL):</label>
+                <input
+                  type="url"
+                  value={editingProgram.image}
+                  onChange={(e) => setEditingProgram({ ...editingProgram, image: e.target.value })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-xs"
+                />
+              </div>
+
+              {/* KHỐI CẤU HÌNH BOT ẢO */}
+              <div className="p-3.5 bg-slate-900/90 rounded-2xl border border-indigo-500/30 space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <span className="font-bold text-indigo-300 flex items-center gap-1.5 uppercase text-[11px]">
+                    <i className="fa-solid fa-robot"></i>
+                    <span>Cấu hình AI Bot Ảo (is_bot = 1)</span>
+                  </span>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editingProgram.botConfig?.isEnabled !== false}
+                      onChange={(e) => setEditingProgram({
+                        ...editingProgram,
+                        botConfig: {
+                          ...(editingProgram.botConfig || {}),
+                          isEnabled: e.target.checked
+                        }
+                      })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-indigo-600"></div>
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 text-xs">
+                  <div>
+                    <label className="block text-slate-400 mb-1">Số lượng Bot:</label>
+                    <input
+                      type="number"
+                      min="10"
+                      max="3000"
+                      value={editingProgram.botConfig?.botCount || 2000}
+                      onChange={(e) => setEditingProgram({
+                        ...editingProgram,
+                        botConfig: {
+                          ...(editingProgram.botConfig || {}),
+                          botCount: Number(e.target.value)
+                        }
+                      })}
+                      className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-white font-mono font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-400 mb-1">Giá cơ sở (tỷ):</label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={editingProgram.botConfig?.basePrice || editingProgram.basePrice || 7.8}
+                      onChange={(e) => setEditingProgram({
+                        ...editingProgram,
+                        botConfig: {
+                          ...(editingProgram.botConfig || {}),
+                          basePrice: Number(e.target.value)
+                        }
+                      })}
+                      className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-amber-400 font-mono font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-400 mb-1">Biên độ dao động (%):</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="20"
+                      value={editingProgram.botConfig?.spreadPercent || editingProgram.spreadPercent || 8}
+                      onChange={(e) => setEditingProgram({
+                        ...editingProgram,
+                        botConfig: {
+                          ...(editingProgram.botConfig || {}),
+                          spreadPercent: Number(e.target.value)
+                        }
+                      })}
+                      className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-indigo-400 font-mono font-bold"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-800">
+              <button
+                type="button"
+                onClick={() => setProgramModalOpen(false)}
+                className="px-4 py-2 rounded-xl border border-slate-700 text-slate-300 font-bold text-xs"
+              >
+                Hủy
+              </button>
+              <button
+                type="submit"
+                className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs cursor-pointer shadow-md"
+              >
+                Lưu Chương Trình
               </button>
             </div>
           </form>
