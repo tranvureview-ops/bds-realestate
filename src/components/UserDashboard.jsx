@@ -1272,7 +1272,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                           <div className="font-bold text-slate-800 text-xs">{pkg.name}</div>
                           <div className="text-[11px] font-extrabold mt-0.5">
                             {isPkgNormal ? (
-                              <span className="text-emerald-700">Miễn phí 3 tin/ngày</span>
+                              <span className="text-emerald-700">Miễn phí {dailyQuota.limit} tin/ngày</span>
                             ) : (
                               <span className="text-amber-700">{displayDaily.toLocaleString('vi-VN')} đ/ngày</span>
                             )}
@@ -1301,7 +1301,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                             </span>
                           </div>
                           <p className="text-[11px] text-slate-600">
-                            Chính sách sàn: Miễn phí 3 tin thường/ngày (thời hạn 60 ngày). Bạn đang được áp dụng miễn phí 0 đ.
+                            Chính sách sàn: Miễn phí {dailyQuota.limit} tin thường/ngày (thời hạn 60 ngày). Bạn đang được áp dụng miễn phí 0 đ.
                           </p>
                         </div>
                         <i className="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
@@ -1312,11 +1312,11 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                           <div className="flex items-center gap-2">
                             <span className="font-black text-slate-900 text-sm">60 ngày</span>
                             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-600 text-white">
-                              Đã hết 3 tin miễn phí hôm nay (5.000 đ / 60 ngày)
+                              Đã hết {dailyQuota.limit} tin miễn phí hôm nay (5.000 đ / 60 ngày)
                             </span>
                           </div>
                           <p className="text-[11px] text-amber-900">
-                            Bạn đã dùng hết 3 tin miễn phí trong ngày. Phí gia hạn là 5.000 đ cho 60 ngày (hoặc dùng Voucher Hội Viên để miễn phí 0 đ).
+                            Bạn đã dùng hết {dailyQuota.limit} tin miễn phí trong ngày. Phí gia hạn là 5.000 đ cho 60 ngày (hoặc dùng Voucher Hội Viên để miễn phí 0 đ).
                           </p>
                         </div>
                         <i className="fa-solid fa-clock text-amber-600 text-lg"></i>
@@ -1383,9 +1383,9 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                         </span>
                       </div>
                       <p className="text-[11px] text-emerald-800 leading-relaxed">
-                        Hệ thống tự động áp dụng chính sách <b>Miễn Phí 3 tin/ngày</b> trước.
+                        Hệ thống tự động áp dụng chính sách <b>Miễn Phí {dailyQuota.limit} tin/ngày</b> trước.
                         {isMemberActive && (
-                          <span> Kho Voucher Hội Viên của bạn (<b>{currentUser?.vouchers?.normalPublish || 0} lượt</b>) được bảo lưu và chỉ dùng khi bạn đăng/gia hạn vượt quá 3 tin trong ngày!</span>
+                          <span> Kho Voucher Hội Viên của bạn (<b>{currentUser?.vouchers?.normalPublish || 0} lượt</b>) được bảo lưu và chỉ dùng khi bạn đăng/gia hạn vượt quá {dailyQuota.limit} tin trong ngày!</span>
                         )}
                       </p>
                     </div>
@@ -1456,7 +1456,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                       ) : (
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-900 bg-white/90 p-2.5 rounded-xl border border-amber-200">
                           <p className="text-[10px] sm:text-[11px] leading-relaxed">
-                            👑 Đăng ký <b>Gói Hội Viên</b> nhận từ <b>15 - 50 Voucher Tin Thường</b> để miễn phí khi vượt hạn mức 3 tin/ngày!
+                            👑 Đăng ký <b>Gói Hội Viên</b> nhận từ <b>15 - 50 Voucher Tin Thường</b> để miễn phí khi vượt hạn mức {dailyQuota.limit} tin/ngày!
                           </p>
                           <Link
                             to="/goi-hoi-vien"
@@ -1621,7 +1621,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                       {discountAmount > 0 ? (
                         <span className="text-emerald-700">Đã giảm -{discountAmount.toLocaleString('vi-VN')} đ</span>
                       ) : (isNormal && isFreeQuotaAvailable) ? (
-                        <span className="text-emerald-700">Chính sách sàn (3 tin/ngày)</span>
+                        <span className="text-emerald-700">Chính sách sàn ({dailyQuota.limit} tin/ngày)</span>
                       ) : (
                         <span>Tổng thanh toán</span>
                       )}
