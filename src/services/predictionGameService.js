@@ -28,13 +28,13 @@ function broadcastPredictionMessage(msg) {
 // Lấy danh sách sự kiện Ticker thời gian thực (Dùng cho Topbar và Trang Dự Đoán)
 export function getLivePredictionTickerEvents() {
   const DEFAULT_ITEMS = [
-    { id: 'def-1', userName: '090***240', price: '5.65', totalPrize: '2.000.000 đ Ví KM' },
-    { id: 'def-2', userName: 'Dương K***', price: '5.36', totalPrize: '2.000.000 đ Ví KM' },
-    { id: 'def-3', userName: 'Nguyễn Văn T***', price: '15.6', totalPrize: '2.000.000 đ Ví KM' },
-    { id: 'def-4', userName: '098***342', price: '15.7', totalPrize: '2.000.000 đ Ví KM' },
-    { id: 'def-5', userName: 'Trần Thị M***', price: '15.5', totalPrize: '2.000.000 đ Ví KM' },
-    { id: 'def-6', userName: 'Lê Hoàng D***', price: '15.8', totalPrize: '2.000.000 đ Ví KM' },
-    { id: 'def-7', userName: '097***471', price: '6.01', totalPrize: '2.000.000 đ Ví KM' }
+    { id: 'def-1', userName: '090***240', price: '5.65', totalPrize: '2.000.000 đ' },
+    { id: 'def-2', userName: 'Dương K***', price: '5.36', totalPrize: '2.000.000 đ' },
+    { id: 'def-3', userName: 'Nguyễn Văn T***', price: '15.6', totalPrize: '2.000.000 đ' },
+    { id: 'def-4', userName: '098***342', price: '15.7', totalPrize: '2.000.000 đ' },
+    { id: 'def-5', userName: 'Trần Thị M***', price: '15.5', totalPrize: '2.000.000 đ' },
+    { id: 'def-6', userName: 'Lê Hoàng D***', price: '15.8', totalPrize: '2.000.000 đ' },
+    { id: 'def-7', userName: '097***471', price: '6.01', totalPrize: '2.000.000 đ' }
   ];
 
   try {
@@ -49,7 +49,7 @@ export function getLivePredictionTickerEvents() {
           price: r.predictedPrice,
           isBot: Boolean(r.is_bot),
           programTitle: prog.projectName || prog.title,
-          totalPrize: (Number(prog.totalPrize) || 2000000).toLocaleString('vi-VN') + ' đ Ví KM',
+          totalPrize: (Number(prog.totalPrize) || 2000000).toLocaleString('vi-VN') + ' đ',
           createdAt: r.createdAt || new Date().toISOString()
         });
       });

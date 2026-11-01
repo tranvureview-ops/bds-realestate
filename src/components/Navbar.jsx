@@ -70,12 +70,12 @@ export default function Navbar() {
 
   // Quản lý Live Ticker trên thanh Topbar
   const [topbarTickerEvents, setTopbarTickerEvents] = useState(() => [
-    { id: 'def-1', userName: '090***240', price: '5.65', totalPrize: '2.000.000 đ Ví KM' },
-    { id: 'def-2', userName: 'Dương K***', price: '5.36', totalPrize: '2.000.000 đ Ví KM' },
-    { id: 'def-3', userName: 'Nguyễn Văn T***', price: '15.6', totalPrize: '2.000.000 đ Ví KM' },
-    { id: 'def-4', userName: '098***342', price: '15.7', totalPrize: '2.000.000 đ Ví KM' },
-    { id: 'def-5', userName: 'Trần Thị M***', price: '15.5', totalPrize: '2.000.000 đ Ví KM' },
-    { id: 'def-6', userName: '097***471', price: '6.01', totalPrize: '2.000.000 đ Ví KM' }
+    { id: 'def-1', userName: '090***240', price: '5.65', totalPrize: '2.000.000 đ' },
+    { id: 'def-2', userName: 'Dương K***', price: '5.36', totalPrize: '2.000.000 đ' },
+    { id: 'def-3', userName: 'Nguyễn Văn T***', price: '15.6', totalPrize: '2.000.000 đ' },
+    { id: 'def-4', userName: '098***342', price: '15.7', totalPrize: '2.000.000 đ' },
+    { id: 'def-5', userName: 'Trần Thị M***', price: '15.5', totalPrize: '2.000.000 đ' },
+    { id: 'def-6', userName: '097***471', price: '6.01', totalPrize: '2.000.000 đ' }
   ]);
 
   const tickerContainerRef = useRef(null);
@@ -314,8 +314,8 @@ export default function Navbar() {
                         <i className="fa-solid fa-user"></i>
                       </div>
                       <strong className="text-white font-bold">{evt.userName}</strong>
-                      <span className="text-slate-300">vừa tham gia <strong className="text-white font-semibold">Dự đoán giá BĐS</strong> với mức giá <strong className="text-indigo-400 font-mono font-black">{evt.price} tỷ</strong>!</span>
-                      <span className="text-amber-300/90 font-medium">Tổng giải thưởng <strong className="text-amber-300 font-mono font-black">{evt.totalPrize || '2.000.000 đ Ví KM'}</strong> đang rung lắc dữ dội!</span>
+                      <span className="text-slate-300"><strong className="text-white font-semibold">Dự đoán giá BĐS</strong> với mức giá <strong className="text-indigo-400 font-mono font-black">{evt.price} tỷ</strong>!</span>
+                      <span className="text-amber-300/90 font-medium">Tổng giải thưởng <strong className="text-amber-300 font-mono font-black">{String(evt.totalPrize || '2.000.000 đ').replace(/\s*Ví\s*KM/gi, '').trim()}</strong></span>
                     </div>
                   ))}
                 </div>
