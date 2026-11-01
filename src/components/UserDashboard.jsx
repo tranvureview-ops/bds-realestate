@@ -1339,11 +1339,11 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                                 <div className="flex items-center gap-2">
                                   <span className="font-black text-slate-900 text-sm">{renewDays} ngày</span>
                                   <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white">
-                                    Miễn Phí Sàn (Còn {dailyQuota.remaining}/{dailyQuota.limit} tin hôm nay)
+                                    Miễn Phí (Còn {dailyQuota.remaining}/{dailyQuota.limit} tin hôm nay)
                                   </span>
                                 </div>
                                 <p className="text-[11px] text-slate-600">
-                                  Chính sách sàn: Miễn phí {dailyQuota.limit} tin thường/ngày (thời hạn {renewDays} ngày). Bạn đang được áp dụng miễn phí 0 đ.
+                                  Miễn phí {dailyQuota.limit} tin thường/ngày (thời hạn {renewDays} ngày). Bạn đang được áp dụng 0 đ.
                                 </p>
                               </div>
                               <i className="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
@@ -1415,27 +1415,8 @@ export default function UserDashboard({ initialTab = 'listings' }) {
 
                 {/* Mục 3: Phân Hệ Voucher & Quyền Lợi Gói Hội Viên */}
                 {isNormal ? (
-                  isFreeQuotaAvailable ? (
-                    // Đang còn suất miễn phí của sàn
-                    <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 space-y-1.5 text-xs text-emerald-950">
-                      <div className="flex items-center justify-between font-bold">
-                        <span className="flex items-center gap-1.5">
-                          <i className="fa-solid fa-gift text-emerald-600"></i>
-                          <span>Đặc Quyền: Suất Tin Thường Miễn Phí Của Sàn (0 đ)</span>
-                        </span>
-                        <span className="text-[10px] bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-full font-bold">
-                          Còn {dailyQuota.remaining}/{dailyQuota.limit} tin hôm nay
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-emerald-800 leading-relaxed">
-                        Hệ thống tự động áp dụng chính sách <b>Miễn Phí {dailyQuota.limit} tin/ngày</b> trước.
-                        {isMemberActive && (
-                          <span> Kho Voucher Hội Viên của bạn (<b>{currentUser?.vouchers?.normalPublish || 0} lượt</b>) được bảo lưu và chỉ dùng khi bạn đăng/gia hạn vượt quá {dailyQuota.limit} tin trong ngày!</span>
-                        )}
-                      </p>
-                    </div>
-                  ) : (
-                    // Đã hết 3 tin miễn phí hôm nay: Hiển thị áp dụng voucher hội viên (5.000 đ -> 0 đ)
+                  isFreeQuotaAvailable ? null : (
+                    // Đã hết tin miễn phí hôm nay: Hiển thị áp dụng voucher hội viên (5.000 đ -> 0 đ)
                     <div className="rounded-2xl border border-amber-200/90 bg-amber-50/50 p-3 sm:p-3.5 space-y-2.5">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-1.5">
@@ -1675,8 +1656,6 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                     <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">
                       {discountAmount > 0 ? (
                         <span className="text-emerald-700">Đã giảm -{discountAmount.toLocaleString('vi-VN')} đ</span>
-                      ) : (isNormal && isFreeQuotaAvailable) ? (
-                        <span className="text-emerald-700">Chính sách sàn ({dailyQuota.limit} tin/ngày)</span>
                       ) : (
                         <span>Tổng thanh toán</span>
                       )}
@@ -1727,9 +1706,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                       <i className="fa-solid fa-arrows-rotate text-xs"></i>
                       <span>
                         {totalCost === 0
-                          ? (isNormal && isFreeQuotaAvailable
-                              ? 'Xác Nhận (0 đ • Miễn Phí Sàn)'
-                              : renewAppliedVoucher
+                          ? (renewAppliedVoucher
                               ? 'Xác Nhận (0 đ • Voucher)'
                               : 'Xác Nhận (0 đ)')
                           : `Xác Nhận (${totalCost.toLocaleString('vi-VN')} đ)`}
