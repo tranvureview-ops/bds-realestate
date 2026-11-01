@@ -327,48 +327,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
 
                 {/* NẾU ĐANG HOẠT ĐỘNG: KHUNG NHẬP GIÁ DỰ ĐOÁN THỦ CÔNG */}
                 {!isSettled && (
-                  <div className="space-y-3 pt-2">
-                    <div className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between gap-2">
-                      <span>{hasVoted ? 'Dự đoán của bạn:' : 'Nhập mức giá dự đoán của bạn:'}</span>
-                      {!hasVoted && (
-                        <span className="text-[11px] text-emerald-600 font-bold shrink-0">
-                          +10.000đ vào Ví KM
-                        </span>
-                      )}
-                    </div>
-
-                    {/* 3 Mốc Giá Gợi Ý Nhanh */}
-                    <div className="grid grid-cols-3 gap-2">
-                      {game.options?.map(opt => {
-                        const isSelected = userInputs[game.id]?.chosenOption === opt.id;
-                        return (
-                          <button
-                            key={opt.id}
-                            type="button"
-                            disabled={hasVoted}
-                            onClick={() => {
-                              // Tự động điền giá trung bình của khoảng này vào ô input
-                              const midPrice = opt.max ? ((opt.min + opt.max) / 2).toFixed(2) : (opt.min + 0.5).toFixed(2);
-                              setUserInputs(prev => ({
-                                ...prev,
-                                [game.id]: {
-                                  price: midPrice,
-                                  chosenOption: opt.id
-                                }
-                              }));
-                            }}
-                            className={`p-2.5 rounded-xl border text-center transition text-xs font-bold ${
-                              isSelected
-                                ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
-                                : 'bg-slate-50 hover:bg-indigo-50 border-slate-200 text-slate-700'
-                            } ${hasVoted ? 'cursor-default opacity-70' : 'cursor-pointer'}`}
-                          >
-                            <span>{opt.label}</span>
-                          </button>
-                        );
-                      })}
-                    </div>
-
+                  <div className="pt-2">
                     {/* Ô Nhập Giá Thủ Công Chính Xác (tỷ VNĐ) */}
                     {hasVoted ? (
                       <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between">
