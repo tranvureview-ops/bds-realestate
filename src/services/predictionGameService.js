@@ -300,10 +300,17 @@ export function generateSingleBotPrediction(gameId, basePrice = 15.5, spreadPerc
 export function appendLiveBotPrediction(gameId, botConfig = {}) {
   const base = Number(botConfig.basePrice || 15.5);
   const spread = Number(botConfig.spreadPercent || 8);
+  const maxBots = Number(botConfig.botCount || 0);
+  if (maxBots <= 0 || botConfig.isEnabled === false) return null;
+
   const singleBot = generateSingleBotPrediction(gameId, base, spread);
-  
   const existing = getStoredPredictions(gameId);
-  const updated = [singleBot, ...existing];
+  const realUsers = existing.filter(r => !r.is_bot && r.is_bot !== 1);
+  const currentBots = existing.filter(r => r.is_bot === 1);
+
+  // Giữ tổng số bot không vượt quá maxBots đã cấu hình trong Admin
+  const nextBots = [singleBot, ...currentBots].slice(0, maxBots);
+  const updated = [...realUsers, ...nextBots].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   saveStoredPredictions(gameId, updated);
   return singleBot;
 }
@@ -348,17 +355,28 @@ export function savePredictionPrograms(programs) {
 export function getStoredPredictions(gameId) {
   if (typeof window === 'undefined') return [];
   try {
+    const progs = getStoredPredictionPrograms();
+    const prog = progs?.find(p => p.id === gameId);
+
     const raw = localStorage.getItem(`${PREDICTION_VOTES_KEY}_${gameId}`);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed)) {
+        // Tự động kiểm tra tính toàn vẹn: nếu số lượng bot trong bộ nhớ lệch với cấu hình Admin, tự động đồng bộ lại
+        if (prog?.botConfig) {
+          const targetBotCount = prog.botConfig.isEnabled ? Number(prog.botConfig.botCount || 0) : 0;
+          const currentBots = parsed.filter(r => r.is_bot === 1);
+          if (currentBots.length !== targetBotCount) {
+            return syncBotsForGame(gameId, prog.botConfig, prog.startDate, prog.endDate);
+          }
+        }
+        return parsed;
+      }
     }
 
     // Tự động nâng cấp dữ liệu từ phiên bản cũ (v1) sang (v2):
     // Giữ nguyên toàn bộ User Thật đã tham gia và tạo lại dàn Bot siêu thực không avatar
     const oldRaw = localStorage.getItem(`${OLD_PREDICTION_VOTES_KEY}_${gameId}`);
-    const progs = getStoredPredictionPrograms();
-    const prog = progs?.find(p => p.id === gameId);
     let realUsers = [];
 
     if (oldRaw) {
@@ -395,6 +413,8 @@ export function saveStoredPredictions(gameId, records) {
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(`${PREDICTION_VOTES_KEY}_${gameId}`, JSON.stringify(records));
+    window.dispatchEvent(new CustomEvent('bds_prediction_votes_updated', { detail: { gameId, count: records?.length || 0 } }));
+    broadcastPredictionMessage({ type: 'VOTES_UPDATED', gameId, count: records?.length || 0 });
   } catch (e) {}
 }
 

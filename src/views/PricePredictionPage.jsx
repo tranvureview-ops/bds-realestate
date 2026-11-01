@@ -67,6 +67,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
   const [userInputs, setUserInputs] = useState({});
   const [activeLeaderboardGame, setActiveLeaderboardGame] = useState(null);
   const [leaderboardFilter, setLeaderboardFilter] = useState('all'); // 'all' | 'real_only' | 'my_prediction'
+  const [voteSyncTick, setVoteSyncTick] = useState(0);
   
   // Animation Slot Machine / Thành công
   const [slotSpinning, setSlotSpinning] = useState(false);
@@ -112,12 +113,19 @@ export default function PricePredictionPage({ projectSlug = null }) {
       setPrograms(getStoredPredictionPrograms());
     };
 
+    const handleVotesUpdate = () => {
+      setVoteSyncTick(t => t + 1);
+    };
+
     const handleStorageChange = (e) => {
       if (e.key === PREDICTION_MEMBERSHIP_KEY) {
         setGlobalMembershipRequired(e.newValue === 'true');
       }
       if (e.key === PREDICTION_STORAGE_KEY) {
         setPrograms(getStoredPredictionPrograms());
+      }
+      if (e.key && e.key.startsWith(PREDICTION_VOTES_KEY)) {
+        setVoteSyncTick(t => t + 1);
       }
     };
 
@@ -135,6 +143,8 @@ export default function PricePredictionPage({ projectSlug = null }) {
           } else if (event.data?.type === 'MEMBERSHIP_TOGGLED') {
             setGlobalMembershipRequired(Boolean(event.data.isRequired));
             setPrograms(getStoredPredictionPrograms());
+          } else if (event.data?.type === 'VOTES_UPDATED') {
+            setVoteSyncTick(t => t + 1);
           }
         };
       } catch (e) {}
@@ -142,6 +152,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
 
     window.addEventListener('bds_prediction_membership_toggled', handleMembershipToggle);
     window.addEventListener('bds_prediction_programs_updated', handleProgramsUpdate);
+    window.addEventListener('bds_prediction_votes_updated', handleVotesUpdate);
     window.addEventListener('storage', handleStorageChange);
 
     // Chủ động đồng bộ dữ liệu mới nhất từ server-db.json & Supabase Cloud qua /api/db-sync
@@ -163,6 +174,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
       if (bc) bc.close();
       window.removeEventListener('bds_prediction_membership_toggled', handleMembershipToggle);
       window.removeEventListener('bds_prediction_programs_updated', handleProgramsUpdate);
+      window.removeEventListener('bds_prediction_votes_updated', handleVotesUpdate);
       window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
@@ -302,7 +314,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
       return all.filter(r => r.is_bot === 0 && String(r.userId) === userId);
     }
     return all;
-  }, [activeLeaderboardGame, leaderboardFilter, userId]);
+  }, [activeLeaderboardGame, leaderboardFilter, userId, voteSyncTick]);
 
   return (
     <div className="min-h-screen bg-slate-50 py-8 relative">
@@ -411,6 +423,12 @@ export default function PricePredictionPage({ projectSlug = null }) {
                       <i className={`fa-solid ${isSettled ? 'fa-flag-checkered' : 'fa-circle-dot animate-pulse text-emerald-600'}`}></i>
                       <span>{isSettled ? 'Đã Chốt Kết Quả' : 'Đang Mở Dự Đoán'}</span>
                     </span>
+                    {isGameMembershipRequired(game) && (
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-700 border border-purple-300 flex items-center gap-1">
+                        <i className="fa-solid fa-crown text-amber-500 text-[9px]"></i>
+                        <span>Đặc quyền Hội Viên</span>
+                      </span>
+                    )}
                     <span className="text-[11px] text-slate-500 font-medium">
                       Hạn: {new Date(game.endDate).toLocaleDateString('vi-VN')}
                     </span>
@@ -431,16 +449,21 @@ export default function PricePredictionPage({ projectSlug = null }) {
                   <div className="flex items-start gap-3.5 min-w-0">
                     <img
                       src={game.image}
-                      alt={game.projectName}
+                      alt={game.title || game.projectName}
                       className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover shrink-0 border border-slate-100 shadow-xs"
                     />
                     <div className="min-w-0">
                       <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider block truncate">
                         {game.location}
                       </span>
-                      <h2 className="text-base font-bold text-slate-900 mt-0.5 line-clamp-1" title={game.projectName}>
-                        {game.projectName || game.title}
+                      <h2 className="text-base font-bold text-slate-900 mt-0.5 line-clamp-1" title={game.title || game.projectName}>
+                        {game.title || game.projectName}
                       </h2>
+                      {game.projectName && game.title && game.projectName !== game.title && (
+                        <div className="text-xs text-slate-500 font-medium truncate mt-0.5" title={game.projectName}>
+                          {game.projectName}
+                        </div>
+                      )}
                     </div>
                   </div>
 

@@ -73,6 +73,8 @@ function sanitizePublicSsrDb(db) {
     bds_single_config: db.bds_single_config,
     bds_rewards_config: db.bds_rewards_config,
     bds_bump_service_price: db.bds_bump_service_price,
+    bds_prediction_programs: db.bds_prediction_programs,
+    bds_prediction_membership_required: db.bds_prediction_membership_required,
   };
 }
 

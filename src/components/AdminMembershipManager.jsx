@@ -72,8 +72,17 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
 
   // State Bật/Tắt Đặc Quyền Gói Hội Viên cho tính năng Dự Đoán Giá BĐS
   const [predictionRequireMembership, setPredictionRequireMembership] = useState(() => {
+    if (systemConfig?.predictionRequireMembership !== undefined) {
+      return Boolean(systemConfig.predictionRequireMembership);
+    }
     return getIsPredictionMembershipRequired();
   });
+
+  useEffect(() => {
+    if (systemConfig?.predictionRequireMembership !== undefined) {
+      setPredictionRequireMembership(Boolean(systemConfig.predictionRequireMembership));
+    }
+  }, [systemConfig?.predictionRequireMembership]);
 
   const handleTogglePredictionMembership = (checked) => {
     setPredictionRequireMembership(checked);

@@ -775,6 +775,8 @@ export async function fetchFullSupabaseDb(options = {}) {
         bds_notifications: settingsMap['bds_notifications'] || undefined,
         bds_bump_service_price: settingsMap['bds_bump_service_price'] !== undefined ? settingsMap['bds_bump_service_price'] : undefined,
         bds_rewards_config: settingsMap['bds_rewards_config'] || undefined,
+        bds_prediction_programs: settingsMap['bds_prediction_programs'] || undefined,
+        bds_prediction_membership_required: settingsMap['bds_prediction_membership_required'] !== undefined ? settingsMap['bds_prediction_membership_required'] : undefined,
       };
 
       // Cập nhật kết quả mới vào in-memory cache
