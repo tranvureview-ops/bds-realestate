@@ -630,7 +630,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
                   <i className="fa-solid fa-user"></i>
                 </div>
                 <span className="font-bold text-slate-900">{evt.userName}</span>
-                <span>vừa gia nhập <strong className="text-slate-900 font-bold">Dự đoán giá BĐS</strong> với mức giá <strong className="text-indigo-600 font-mono font-black">{evt.price} tỷ</strong>!</span>
+                <span>vừa tham gia <strong className="text-slate-900 font-bold">Dự đoán giá BĐS</strong> với mức giá <strong className="text-indigo-600 font-mono font-black">{evt.price} tỷ</strong>!</span>
                 <span className="text-amber-800 font-medium">Tổng giải thưởng <strong className="text-emerald-700 font-mono font-black">{evt.totalPrize || '2.000.000 đ Ví KM'}</strong> đang rung lắc dữ dội!</span>
               </div>
             ))}
