@@ -1440,6 +1440,46 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     };
   }, []);
 
+  // Đồng bộ thời gian thực bài viết nhà đất (Properties) giữa các tab/cửa sổ
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handlePropsUpdate = (e) => {
+      if (Array.isArray(e.detail)) {
+        setProperties(e.detail);
+      }
+    };
+    const handleStorageEvent = (e) => {
+      if (e.key === 'bds_properties' && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (Array.isArray(parsed)) {
+            setProperties(parsed);
+          }
+        } catch (_) {}
+      }
+    };
+
+    let propsBc = null;
+    if (typeof BroadcastChannel !== 'undefined') {
+      try {
+        propsBc = new BroadcastChannel('bds_properties_sync');
+        propsBc.onmessage = (event) => {
+          if (event.data?.type === 'PROPERTIES_UPDATED' && Array.isArray(event.data.properties)) {
+            setProperties(event.data.properties);
+          }
+        };
+      } catch (e) {}
+    }
+
+    window.addEventListener('bds_properties_updated', handlePropsUpdate);
+    window.addEventListener('storage', handleStorageEvent);
+    return () => {
+      if (propsBc) propsBc.close();
+      window.removeEventListener('bds_properties_updated', handlePropsUpdate);
+      window.removeEventListener('storage', handleStorageEvent);
+    };
+  }, []);
+
   // Khóa kiểm soát fetch Supabase đồng thời và giới hạn tần suất (throttle) chống race conditions
   const isFetchingSupabaseRef = useRef(false);
   const lastFetchTimestampRef = useRef(0);
@@ -1606,6 +1646,22 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
             }
             return merged;
           });
+        }
+        if (Array.isArray(db.bds_prediction_programs) && db.bds_prediction_programs.length > 0) {
+          if (typeof window !== 'undefined') {
+            try {
+              localStorage.setItem('bds_prediction_programs', JSON.stringify(db.bds_prediction_programs));
+              window.dispatchEvent(new CustomEvent('bds_prediction_programs_updated', { detail: db.bds_prediction_programs }));
+            } catch (e) {}
+          }
+        }
+        if (db.bds_prediction_membership_required !== undefined) {
+          if (typeof window !== 'undefined') {
+            try {
+              localStorage.setItem('bds_prediction_membership_required', String(db.bds_prediction_membership_required));
+              window.dispatchEvent(new CustomEvent('bds_prediction_membership_toggled', { detail: Boolean(db.bds_prediction_membership_required) }));
+            } catch (e) {}
+          }
         }
         if (!isSilent) {
           showToast('Đã tải và đồng bộ dữ liệu mới nhất từ Supabase Cloud!', 'success');
@@ -2779,8 +2835,27 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       author: authorObj
     };
 
-    setProperties([newProp, ...properties]);
+    const nextProperties = [newProp, ...properties];
+    setProperties(nextProperties);
     upsertSupabaseProperty(newProp).catch(console.warn);
+
+    // Đồng bộ tức thì đa tab & server-db.json qua /api/db-sync
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('bds_properties', JSON.stringify(nextProperties));
+        window.dispatchEvent(new CustomEvent('bds_properties_updated', { detail: nextProperties }));
+        if (typeof BroadcastChannel !== 'undefined') {
+          const bc = new BroadcastChannel('bds_properties_sync');
+          bc.postMessage({ type: 'PROPERTIES_UPDATED', properties: nextProperties });
+          bc.close();
+        }
+        fetch('/api/db-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bds_properties: nextProperties })
+        }).catch(console.warn);
+      } catch (e) {}
+    }
 
     if (initialStatus === 'active') {
       if (vipPackageId === 'vip-diamond') {
@@ -3226,7 +3301,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   // Chuyển bài viết vào Thùng rác (Trash / Soft Delete)
   const moveToTrash = (propertyId) => {
     let trashTarget = null;
-    setProperties(prev => prev.map(p => {
+    const nextProperties = properties.map(p => {
       if (p.id === propertyId) {
         trashTarget = {
           ...p,
@@ -3238,10 +3313,27 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         return trashTarget;
       }
       return p;
-    }));
+    });
+    setProperties(nextProperties);
     setFavorites(prev => prev.filter(id => id !== propertyId));
     if (trashTarget) {
       deleteSupabaseProperty(propertyId, true).catch(console.warn);
+    }
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('bds_properties', JSON.stringify(nextProperties));
+        window.dispatchEvent(new CustomEvent('bds_properties_updated', { detail: nextProperties }));
+        if (typeof BroadcastChannel !== 'undefined') {
+          const bc = new BroadcastChannel('bds_properties_sync');
+          bc.postMessage({ type: 'PROPERTIES_UPDATED', properties: nextProperties });
+          bc.close();
+        }
+        fetch('/api/db-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bds_properties: nextProperties })
+        }).catch(console.warn);
+      } catch (e) {}
     }
     showToast(`Đã chuyển bài viết ${propertyId} vào Thùng rác! Có thể khôi phục trong tab Thùng rác.`, 'info');
     return true;
@@ -3251,7 +3343,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   const restoreProperty = (propertyId) => {
     const now = Date.now();
     let restoredTarget = null;
-    setProperties(prev => prev.map(p => {
+    const nextProperties = properties.map(p => {
       if (p.id === propertyId) {
         const isExp = p.expiresAt && new Date(p.expiresAt).getTime() <= now;
         const restoredStatus = isExp ? 'expired' : (p.previousStatus && p.previousStatus !== 'trash' ? p.previousStatus : 'active');
@@ -3265,9 +3357,26 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         return restoredTarget;
       }
       return p;
-    }));
+    });
+    setProperties(nextProperties);
     if (restoredTarget) {
       upsertSupabaseProperty(restoredTarget).catch(console.warn);
+    }
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('bds_properties', JSON.stringify(nextProperties));
+        window.dispatchEvent(new CustomEvent('bds_properties_updated', { detail: nextProperties }));
+        if (typeof BroadcastChannel !== 'undefined') {
+          const bc = new BroadcastChannel('bds_properties_sync');
+          bc.postMessage({ type: 'PROPERTIES_UPDATED', properties: nextProperties });
+          bc.close();
+        }
+        fetch('/api/db-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bds_properties: nextProperties })
+        }).catch(console.warn);
+      } catch (e) {}
     }
     showToast(`Đã khôi phục bài đăng ${propertyId} thành công!`, 'success');
     return true;
@@ -3275,9 +3384,26 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // Xóa vĩnh viễn bài đăng khỏi hệ thống database
   const permanentDeleteProperty = (propertyId) => {
-    setProperties(prev => prev.filter(p => p.id !== propertyId));
+    const nextProperties = properties.filter(p => p.id !== propertyId);
+    setProperties(nextProperties);
     setFavorites(prev => prev.filter(id => id !== propertyId));
     deleteSupabaseProperty(propertyId, false).catch(console.warn);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('bds_properties', JSON.stringify(nextProperties));
+        window.dispatchEvent(new CustomEvent('bds_properties_updated', { detail: nextProperties }));
+        if (typeof BroadcastChannel !== 'undefined') {
+          const bc = new BroadcastChannel('bds_properties_sync');
+          bc.postMessage({ type: 'PROPERTIES_UPDATED', properties: nextProperties });
+          bc.close();
+        }
+        fetch('/api/db-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bds_properties: nextProperties })
+        }).catch(console.warn);
+      } catch (e) {}
+    }
     showToast(`Đã xóa vĩnh viễn bài đăng ${propertyId} khỏi cơ sở dữ liệu!`, 'warning');
     return true;
   };
@@ -3289,8 +3415,25 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       showToast('Thùng rác hiện đang trống!', 'info');
       return 0;
     }
-    setProperties(prev => prev.filter(p => !p.isDeleted && p.status !== 'trash'));
+    const nextProperties = properties.filter(p => !p.isDeleted && p.status !== 'trash');
+    setProperties(nextProperties);
     trashItems.forEach(p => deleteSupabaseProperty(p.id, false).catch(console.warn));
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('bds_properties', JSON.stringify(nextProperties));
+        window.dispatchEvent(new CustomEvent('bds_properties_updated', { detail: nextProperties }));
+        if (typeof BroadcastChannel !== 'undefined') {
+          const bc = new BroadcastChannel('bds_properties_sync');
+          bc.postMessage({ type: 'PROPERTIES_UPDATED', properties: nextProperties });
+          bc.close();
+        }
+        fetch('/api/db-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bds_properties: nextProperties })
+        }).catch(console.warn);
+      } catch (e) {}
+    }
     showToast(`Đã dọn sạch vĩnh viễn ${trashItems.length} bài viết trong Thùng rác!`, 'success');
     return trashItems.length;
   };
@@ -3467,9 +3610,16 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     // 1. Đồng bộ lên Supabase Cloud
     upsertSupabaseProperty(updatedTarget).catch(console.warn);
 
-    // 2. Đồng bộ xuống server-db.json qua API route /api/db-sync để F5 / SSR giữ nguyên
+    // 2. Đồng bộ xuống server-db.json qua API route /api/db-sync để F5 / SSR giữ nguyên & phát tin đa tab
     if (typeof window !== 'undefined') {
       try {
+        localStorage.setItem('bds_properties', JSON.stringify(nextProperties));
+        window.dispatchEvent(new CustomEvent('bds_properties_updated', { detail: nextProperties }));
+        if (typeof BroadcastChannel !== 'undefined') {
+          const bc = new BroadcastChannel('bds_properties_sync');
+          bc.postMessage({ type: 'PROPERTIES_UPDATED', properties: nextProperties });
+          bc.close();
+        }
         fetch('/api/db-sync', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -3514,9 +3664,16 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       syncStateToSupabase({ bds_properties: nextProperties }).catch(console.warn);
     }
 
-    // 2. Đồng bộ xuống server-db.json qua API route /api/db-sync
+    // 2. Đồng bộ xuống server-db.json qua API route /api/db-sync & phát tin tức thì đa tab
     if (typeof window !== 'undefined') {
       try {
+        localStorage.setItem('bds_properties', JSON.stringify(nextProperties));
+        window.dispatchEvent(new CustomEvent('bds_properties_updated', { detail: nextProperties }));
+        if (typeof BroadcastChannel !== 'undefined') {
+          const bc = new BroadcastChannel('bds_properties_sync');
+          bc.postMessage({ type: 'PROPERTIES_UPDATED', properties: nextProperties });
+          bc.close();
+        }
         fetch('/api/db-sync', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

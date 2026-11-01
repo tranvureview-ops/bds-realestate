@@ -651,7 +651,9 @@ export const PUBLIC_SETTINGS_KEYS = [
   'bds_membership_packages',
   'bds_single_config',
   'bds_rewards_config',
-  'bds_bump_service_price'
+  'bds_bump_service_price',
+  'bds_prediction_programs',
+  'bds_prediction_membership_required'
 ];
 
 /**
@@ -831,7 +833,9 @@ export async function syncFullDbToSupabase(payload) {
       'bds_verification_tokens',
       'bds_users_list',
       'bds_appointments',
-      'bds_notifications'
+      'bds_notifications',
+      'bds_prediction_programs',
+      'bds_prediction_membership_required'
     ];
 
     const settingsToUpsert = [];

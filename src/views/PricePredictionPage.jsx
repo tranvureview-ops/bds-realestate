@@ -109,11 +109,46 @@ export default function PricePredictionPage({ projectSlug = null }) {
       }
     };
 
+    let bc = null;
+    if (typeof BroadcastChannel !== 'undefined') {
+      try {
+        bc = new BroadcastChannel('bds_prediction_sync');
+        bc.onmessage = (event) => {
+          if (event.data?.type === 'PROGRAMS_UPDATED') {
+            if (Array.isArray(event.data.programs)) {
+              setPrograms(event.data.programs);
+            } else {
+              setPrograms(getStoredPredictionPrograms());
+            }
+          } else if (event.data?.type === 'MEMBERSHIP_TOGGLED') {
+            setGlobalMembershipRequired(Boolean(event.data.isRequired));
+            setPrograms(getStoredPredictionPrograms());
+          }
+        };
+      } catch (e) {}
+    }
+
     window.addEventListener('bds_prediction_membership_toggled', handleMembershipToggle);
     window.addEventListener('bds_prediction_programs_updated', handleProgramsUpdate);
     window.addEventListener('storage', handleStorageChange);
 
+    // Chủ động đồng bộ dữ liệu mới nhất từ server-db.json & Supabase Cloud qua /api/db-sync
+    fetch('/api/db-sync')
+      .then(res => res.json())
+      .then(db => {
+        if (Array.isArray(db.bds_prediction_programs) && db.bds_prediction_programs.length > 0) {
+          try { localStorage.setItem(PREDICTION_STORAGE_KEY, JSON.stringify(db.bds_prediction_programs)); } catch (e) {}
+          setPrograms(db.bds_prediction_programs);
+        }
+        if (db.bds_prediction_membership_required !== undefined) {
+          try { localStorage.setItem(PREDICTION_MEMBERSHIP_KEY, String(db.bds_prediction_membership_required)); } catch (e) {}
+          setGlobalMembershipRequired(Boolean(db.bds_prediction_membership_required));
+        }
+      })
+      .catch(() => {});
+
     return () => {
+      if (bc) bc.close();
       window.removeEventListener('bds_prediction_membership_toggled', handleMembershipToggle);
       window.removeEventListener('bds_prediction_programs_updated', handleProgramsUpdate);
       window.removeEventListener('storage', handleStorageChange);

@@ -145,6 +145,46 @@ export default function AdminRewardsGamificationManager() {
   const [showAdminConfetti, setShowAdminConfetti] = useState(false);
   const [isSyncingBotId, setIsSyncingBotId] = useState(null);
 
+  // Lắng nghe đồng bộ chương trình dự đoán đa tab & server
+  useEffect(() => {
+    const handleUpdate = (e) => {
+      if (Array.isArray(e.detail)) {
+        setPredictionPrograms(e.detail);
+      } else {
+        setPredictionPrograms(getStoredPredictionPrograms());
+      }
+    };
+
+    let bc = null;
+    if (typeof BroadcastChannel !== 'undefined') {
+      try {
+        bc = new BroadcastChannel('bds_prediction_sync');
+        bc.onmessage = (event) => {
+          if (event.data?.type === 'PROGRAMS_UPDATED' && Array.isArray(event.data.programs)) {
+            setPredictionPrograms(event.data.programs);
+          }
+        };
+      } catch (e) {}
+    }
+
+    window.addEventListener('bds_prediction_programs_updated', handleUpdate);
+
+    fetch('/api/db-sync')
+      .then(res => res.json())
+      .then(db => {
+        if (Array.isArray(db.bds_prediction_programs) && db.bds_prediction_programs.length > 0) {
+          try { localStorage.setItem(PREDICTION_STORAGE_KEY, JSON.stringify(db.bds_prediction_programs)); } catch (e) {}
+          setPredictionPrograms(db.bds_prediction_programs);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      if (bc) bc.close();
+      window.removeEventListener('bds_prediction_programs_updated', handleUpdate);
+    };
+  }, []);
+
   // States quản lý bài viết kích hoạt rương kho báu (Phương án 1)
   const [treasureSearchTerm, setTreasureSearchTerm] = useState('');
   const [treasureViewMode, setTreasureViewMode] = useState('active_only'); // 'active_only', 'all', 'inactive_only'

@@ -7,10 +7,23 @@
  * 4. Trao thưởng Ví KM & cấp Huy hiệu vinh danh (Thần Phán Đoán)
  */
 
+import { upsertSupabaseSetting } from '../lib/supabase';
+
 export const PREDICTION_STORAGE_KEY = 'bds_prediction_programs';
 export const PREDICTION_VOTES_KEY = 'bds_prediction_votes_store_v2';
 export const PREDICTION_MEMBERSHIP_KEY = 'bds_prediction_membership_required';
 const OLD_PREDICTION_VOTES_KEY = 'bds_prediction_votes_store';
+
+// Helper phát tin đồng bộ qua BroadcastChannel (nếu trình duyệt hỗ trợ)
+function broadcastPredictionMessage(msg) {
+  if (typeof window !== 'undefined' && typeof BroadcastChannel !== 'undefined') {
+    try {
+      const bc = new BroadcastChannel('bds_prediction_sync');
+      bc.postMessage(msg);
+      bc.close();
+    } catch (e) {}
+  }
+}
 
 // Lấy trạng thái Bật/Tắt Đặc Quyền Gói Hội Viên toàn hệ thống (Real-time Cross-tab Sync)
 export function getIsPredictionMembershipRequired() {
@@ -25,9 +38,24 @@ export function getIsPredictionMembershipRequired() {
 // Lưu trạng thái Bật/Tắt Đặc Quyền Gói Hội Viên & phát sự kiện đồng bộ ngay lập tức giữa các tab
 export function setIsPredictionMembershipRequired(isRequired) {
   if (typeof window === 'undefined') return;
+  const boolVal = Boolean(isRequired);
   try {
-    localStorage.setItem(PREDICTION_MEMBERSHIP_KEY, String(Boolean(isRequired)));
-    window.dispatchEvent(new CustomEvent('bds_prediction_membership_toggled', { detail: Boolean(isRequired) }));
+    localStorage.setItem(PREDICTION_MEMBERSHIP_KEY, String(boolVal));
+    window.dispatchEvent(new CustomEvent('bds_prediction_membership_toggled', { detail: boolVal }));
+    broadcastPredictionMessage({ type: 'MEMBERSHIP_TOGGLED', isRequired: boolVal });
+
+    // Đồng bộ lên Supabase Cloud & server-db.json qua /api/db-sync
+    const adminToken = sessionStorage.getItem('bds_admin_token') || localStorage.getItem('bds_admin_token') || '';
+    fetch('/api/db-sync', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-admin-token': adminToken
+      },
+      body: JSON.stringify({ bds_prediction_membership_required: boolVal })
+    }).catch(console.warn);
+
+    upsertSupabaseSetting('bds_prediction_membership_required', boolVal).catch(console.warn);
   } catch (e) {}
 }
 
@@ -299,6 +327,20 @@ export function savePredictionPrograms(programs) {
   try {
     localStorage.setItem(PREDICTION_STORAGE_KEY, JSON.stringify(programs));
     window.dispatchEvent(new CustomEvent('bds_prediction_programs_updated', { detail: programs }));
+    broadcastPredictionMessage({ type: 'PROGRAMS_UPDATED', programs });
+
+    // Đồng bộ lên Supabase Cloud & server-db.json qua /api/db-sync
+    const adminToken = sessionStorage.getItem('bds_admin_token') || localStorage.getItem('bds_admin_token') || '';
+    fetch('/api/db-sync', {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-admin-token': adminToken
+      },
+      body: JSON.stringify({ bds_prediction_programs: programs })
+    }).catch(console.warn);
+
+    upsertSupabaseSetting('bds_prediction_programs', programs).catch(console.warn);
   } catch (e) {}
 }
 
@@ -328,8 +370,9 @@ export function getStoredPredictions(gameId) {
       } catch (e) {}
     }
 
-    if (prog && prog.botConfig?.isEnabled !== false) {
-      const count = Number(prog.botConfig.botCount || 2000);
+    const botCount = Number(prog?.botConfig?.botCount ?? 0);
+    if (prog && prog.botConfig?.isEnabled === true && botCount > 0) {
+      const count = botCount;
       const base = Number(prog.botConfig.basePrice || prog.basePrice || 15.5);
       const spread = Number(prog.botConfig.spreadPercent || prog.spreadPercent || 8);
       const bots = generateBotRecords(gameId, count, base, spread, prog.startDate, prog.endDate);
@@ -339,6 +382,9 @@ export function getStoredPredictions(gameId) {
     } else if (realUsers.length > 0) {
       saveStoredPredictions(gameId, realUsers);
       return realUsers;
+    } else {
+      saveStoredPredictions(gameId, []);
+      return [];
     }
   } catch (e) {}
   return [];
