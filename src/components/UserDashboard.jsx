@@ -39,7 +39,8 @@ export default function UserDashboard({ initialTab = 'listings' }) {
     vipPackages: contextVipPackages,
     membershipPackages = [],
     bumpServicePrice,
-    BUMP_SERVICE_PRICE
+    BUMP_SERVICE_PRICE,
+    checkDailyFreeListingQuota
   } = useRealEstate();
 
   const { navigate } = useRouter();
@@ -73,7 +74,9 @@ export default function UserDashboard({ initialTab = 'listings' }) {
     setRenewAutoRenew(Boolean(prop.autoRenew));
     if (targetVip === 'normal') {
       setRenewDays(60);
-      if (isMemberActive && (currentUser?.vouchers?.normalPublish || 0) > 0) {
+      const quota = checkDailyFreeListingQuota ? checkDailyFreeListingQuota(currentUser) : { allowed: true };
+      // Nếu đã hết 3 tin miễn phí trong ngày và có voucher hội viên thì áp dụng voucher
+      if (!quota.allowed && isMemberActive && (currentUser?.vouchers?.normalPublish || 0) > 0) {
         setRenewAppliedVoucher('normalPublish');
       } else {
         setRenewAppliedVoucher(null);
@@ -1126,484 +1129,564 @@ export default function UserDashboard({ initialTab = 'listings' }) {
       )}
 
       {/* MODAL GIA HẠN TIN ĐĂNG (RENEWAL MODAL) */}
-      {renewModalProp && (
-        <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
-          <div className="bg-white rounded-t-3xl sm:rounded-3xl max-w-lg w-full max-h-[92vh] sm:max-h-[88vh] flex flex-col shadow-2xl overflow-hidden border border-slate-200/80">
-            {/* 1. Modal Header (Sticky Top) */}
-            <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white px-4 py-3 sm:px-5 sm:py-3.5 flex items-center justify-between shrink-0">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-emerald-500 text-slate-950 flex items-center justify-center font-black text-sm shrink-0">
-                  <i className="fa-solid fa-arrows-rotate"></i>
+      {renewModalProp && (() => {
+        const isNormal = renewVipId === 'normal';
+        const dailyQuota = checkDailyFreeListingQuota 
+          ? checkDailyFreeListingQuota(currentUser) 
+          : { allowed: true, limit: 3, remaining: 3, count: 0 };
+        const isFreeQuotaAvailable = dailyQuota.allowed; // Còn suất miễn phí (tối đa 3 tin/ngày)
+
+        const selectedPkg = activeVipPackages.find(p => p.id === renewVipId) || activeVipPackages[activeVipPackages.length - 1];
+        const activeRates = selectedPkg.rates || {};
+        const dailyRate = isNormal ? 0 : (activeRates[renewDays] || activeRates[15] || selectedPkg.pricePerDay || 0);
+
+        // Chi phí gốc: Tin Thường hết 3 tin miễn phí trong ngày thì 5.000 đ / 60 ngày
+        const rawCost = isNormal ? (isFreeQuotaAvailable ? 0 : 5000) : (dailyRate * renewDays);
+
+        let discountAmount = 0;
+        if (isNormal) {
+          if (!isFreeQuotaAvailable && renewAppliedVoucher === 'normalPublish') {
+            discountAmount = rawCost; // Giảm toàn bộ 5.000 đ
+          }
+        } else {
+          if (isMemberActive && renewAppliedVoucher === 'vipPublish') {
+            discountAmount = Math.min(rawCost, 400000);
+          }
+        }
+
+        const totalCost = Math.max(0, rawCost - discountAmount);
+        const userWallet = currentUser?.walletBalance || 0;
+        const isInsufficient = userWallet < totalCost;
+
+        const now = Date.now();
+        const currentExp = renewModalProp.expiresAt ? new Date(renewModalProp.expiresAt).getTime() : 0;
+        const isCurrentlyExpired = renewModalProp.status === 'expired' || currentExp <= now;
+        const activeDays = isNormal ? 60 : renewDays;
+        const newExpDate = isCurrentlyExpired 
+          ? new Date(now + activeDays * 86400 * 1000) 
+          : new Date(currentExp + activeDays * 86400 * 1000);
+
+        return (
+          <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in">
+            <div className="bg-white rounded-t-3xl sm:rounded-3xl max-w-lg w-full max-h-[92vh] sm:max-h-[88vh] flex flex-col shadow-2xl overflow-hidden border border-slate-200/80">
+              {/* 1. Modal Header (Sticky Top) */}
+              <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white px-4 py-3 sm:px-5 sm:py-3.5 flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500 text-slate-950 flex items-center justify-center font-black text-sm shrink-0">
+                    <i className="fa-solid fa-arrows-rotate"></i>
+                  </div>
+                  <div>
+                    <h3 className="text-sm sm:text-base font-extrabold leading-tight">Gia Hạn Hiển Thị Tin Đăng</h3>
+                    <p className="text-[10px] sm:text-[11px] text-slate-300">Gia hạn thời gian hiển thị tin rao trên sàn</p>
+                  </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setRenewModalProp(null)}
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-xs sm:text-sm transition cursor-pointer shrink-0"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* 2. Property Quick Summary */}
+              <div className="px-4 py-2 sm:px-5 sm:py-2.5 border-b border-slate-100 bg-slate-50/80 flex items-center gap-2.5 shrink-0">
+                <SeoImage
+                  src={renewModalProp.images?.[0]}
+                  property={renewModalProp}
+                  type="thumbnail"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover border border-slate-200 shrink-0"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="font-mono text-[9px] px-1.5 py-0.2 bg-slate-200 rounded text-slate-700 font-bold">{renewModalProp.id}</span>
+                    {(() => {
+                      const exp = getPropertyExpirationInfo ? getPropertyExpirationInfo(renewModalProp) : null;
+                      if (exp?.isExpired || renewModalProp.status === 'expired') {
+                        return <span className="text-[9px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.2 rounded-full border border-rose-200">Đã hết hạn ({exp?.daysAgo || 1} ngày trước)</span>;
+                      }
+                      if (exp?.isExpiringSoon) {
+                        return <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded-full border border-amber-300">Sắp hết hạn ({exp?.countdownText})</span>;
+                      }
+                      return null;
+                    })()}
+                  </div>
+                  <h4 className="text-xs font-bold text-slate-800 truncate mt-0.5">{renewModalProp.title}</h4>
+                  <div className="text-[10px] text-slate-500">
+                    Hạn hiện tại: <b className="font-mono text-slate-700">{renewModalProp.expiresAt ? new Date(renewModalProp.expiresAt).toLocaleDateString('vi-VN') : 'Chưa kích hoạt'}</b>
+                  </div>
+                </div>
+              </div>
+
+              {/* 3. Modal Scrollable Body */}
+              <div className="flex-1 overflow-y-auto px-4 py-3 sm:px-5 sm:py-4 space-y-3.5 overscroll-contain text-xs">
+                {/* Mục 1: Chọn gói hiển thị (Loại tin) */}
                 <div>
-                  <h3 className="text-sm sm:text-base font-extrabold leading-tight">Gia Hạn Hiển Thị Tin Đăng</h3>
-                  <p className="text-[10px] sm:text-[11px] text-slate-300">Gia hạn thời gian hiển thị tin rao trên sàn</p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setRenewModalProp(null)}
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center text-xs sm:text-sm transition cursor-pointer shrink-0"
-              >
-                ✕
-              </button>
-            </div>
+                  <label className="block text-slate-800 font-bold mb-1.5 text-xs">
+                    1. Chọn gói hiển thị (Phân loại tin):
+                  </label>
+                  <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+                    {activeVipPackages.map(pkg => {
+                      const isPkgNormal = pkg.id === 'normal';
+                      const displayDaily = isPkgNormal 
+                        ? 0 
+                        : (pkg.rates?.[renewDays] || pkg.rates?.[15] || pkg.pricePerDay || 0);
+                      const isSelected = renewVipId === pkg.id;
 
-            {/* 2. Property Quick Summary */}
-            <div className="px-4 py-2 sm:px-5 sm:py-2.5 border-b border-slate-100 bg-slate-50/80 flex items-center gap-2.5 shrink-0">
-              <SeoImage
-                src={renewModalProp.images?.[0]}
-                property={renewModalProp}
-                type="thumbnail"
-                className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover border border-slate-200 shrink-0"
-              />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="font-mono text-[9px] px-1.5 py-0.2 bg-slate-200 rounded text-slate-700 font-bold">{renewModalProp.id}</span>
-                  {(() => {
-                    const exp = getPropertyExpirationInfo ? getPropertyExpirationInfo(renewModalProp) : null;
-                    if (exp?.isExpired || renewModalProp.status === 'expired') {
-                      return <span className="text-[9px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.2 rounded-full border border-rose-200">Đã hết hạn ({exp?.daysAgo || 1} ngày trước)</span>;
-                    }
-                    if (exp?.isExpiringSoon) {
-                      return <span className="text-[9px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded-full border border-amber-300">Sắp hết hạn ({exp?.countdownText})</span>;
-                    }
-                    return null;
-                  })()}
-                </div>
-                <h4 className="text-xs font-bold text-slate-800 truncate mt-0.5">{renewModalProp.title}</h4>
-                <div className="text-[10px] text-slate-500">
-                  Hạn hiện tại: <b className="font-mono text-slate-700">{renewModalProp.expiresAt ? new Date(renewModalProp.expiresAt).toLocaleDateString('vi-VN') : 'Chưa kích hoạt'}</b>
-                </div>
-              </div>
-            </div>
-
-            {/* 3. Modal Scrollable Body */}
-            <div className="flex-1 overflow-y-auto px-4 py-3 sm:px-5 sm:py-4 space-y-3.5 overscroll-contain text-xs">
-              {/* Mục 1: Chọn gói hiển thị (Loại tin) - Đưa lên trước để mốc ngày tương thích chính xác */}
-              <div>
-                <label className="block text-slate-800 font-bold mb-1.5 text-xs">
-                  1. Chọn gói hiển thị (Phân loại tin):
-                </label>
-                <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
-                  {activeVipPackages.map(pkg => {
-                    const isNormal = pkg.id === 'normal';
-                    const activeRates = pkg.rates || {};
-                    const displayDaily = isNormal 
-                      ? 0 
-                      : (activeRates[renewDays] || activeRates[15] || pkg.pricePerDay || 0);
-                    const isSelected = renewVipId === pkg.id;
-
-                    return (
-                      <div
-                        key={pkg.id}
-                        onClick={() => {
-                          setRenewVipId(pkg.id);
-                          if (isNormal) {
-                            setRenewDays(60);
-                            if (isMemberActive && (currentUser?.vouchers?.normalPublish || 0) > 0) {
-                              setRenewAppliedVoucher('normalPublish');
+                      return (
+                        <div
+                          key={pkg.id}
+                          onClick={() => {
+                            setRenewVipId(pkg.id);
+                            if (isPkgNormal) {
+                              setRenewDays(60);
+                              if (!isFreeQuotaAvailable && isMemberActive && (currentUser?.vouchers?.normalPublish || 0) > 0) {
+                                setRenewAppliedVoucher('normalPublish');
+                              } else {
+                                setRenewAppliedVoucher(null);
+                              }
                             } else {
-                              setRenewAppliedVoucher(null);
+                              const validVipDays = [5, 7, 10, 15, 30];
+                              if (!validVipDays.includes(renewDays)) {
+                                setRenewDays(15);
+                              }
+                              if (isMemberActive && (currentUser?.vouchers?.vipPublish || 0) > 0) {
+                                setRenewAppliedVoucher('vipPublish');
+                              } else {
+                                setRenewAppliedVoucher(null);
+                              }
                             }
-                          } else {
-                            const validVipDays = [5, 7, 10, 15, 30];
-                            if (!validVipDays.includes(renewDays)) {
-                              setRenewDays(15);
-                            }
-                            if (isMemberActive && (currentUser?.vouchers?.vipPublish || 0) > 0) {
-                              setRenewAppliedVoucher('vipPublish');
-                            } else {
-                              setRenewAppliedVoucher(null);
-                            }
-                          }
-                        }}
-                        className={`p-2.5 sm:p-3 rounded-xl border cursor-pointer transition select-none flex flex-col justify-between ${
-                          isSelected 
-                            ? 'border-emerald-600 bg-emerald-50/80 shadow-xs ring-2 ring-emerald-500/20' 
-                            : 'border-slate-200 hover:bg-slate-50'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${pkg.badgeColor}`}>
-                            {pkg.shortName}
-                          </span>
-                          {isSelected && <i className="fa-solid fa-circle-check text-emerald-600 text-xs"></i>}
+                          }}
+                          className={`p-2.5 sm:p-3 rounded-xl border cursor-pointer transition select-none flex flex-col justify-between ${
+                            isSelected 
+                              ? 'border-emerald-600 bg-emerald-50/80 shadow-xs ring-2 ring-emerald-500/20' 
+                              : 'border-slate-200 hover:bg-slate-50'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <span className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded ${pkg.badgeColor}`}>
+                              {pkg.shortName}
+                            </span>
+                            {isSelected && <i className="fa-solid fa-circle-check text-emerald-600 text-xs"></i>}
+                          </div>
+                          <div className="font-bold text-slate-800 text-xs">{pkg.name}</div>
+                          <div className="text-[11px] font-extrabold mt-0.5">
+                            {isPkgNormal ? (
+                              <span className="text-emerald-700">Miễn phí 3 tin/ngày</span>
+                            ) : (
+                              <span className="text-amber-700">{displayDaily.toLocaleString('vi-VN')} đ/ngày</span>
+                            )}
+                          </div>
                         </div>
-                        <div className="font-bold text-slate-800 text-xs">{pkg.name}</div>
-                        <div className="text-[11px] font-extrabold mt-0.5">
-                          {isNormal ? (
-                            <span className="text-emerald-700">Miễn Phí (0 đ / 60 ngày)</span>
-                          ) : (
-                            <span className="text-amber-700">{displayDaily.toLocaleString('vi-VN')} đ/ngày</span>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
 
-              {/* Mục 2: Chọn thời gian gia hạn thêm */}
-              <div>
-                <label className="block text-slate-800 font-bold mb-1.5 text-xs">
-                  2. Chọn thời gian gia hạn thêm:
-                </label>
+                {/* Mục 2: Chọn thời gian gia hạn thêm */}
+                <div>
+                  <label className="block text-slate-800 font-bold mb-1.5 text-xs">
+                    2. Chọn thời gian gia hạn thêm:
+                  </label>
 
-                {renewVipId === 'normal' ? (
-                  // Tin Thường: Hiển thị mốc chuẩn 60 ngày miễn phí
-                  <div className="p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50/70 flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <div className="flex items-center gap-2">
-                        <span className="font-black text-slate-900 text-sm">60 ngày</span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white">
-                          Mặc định sàn (Miễn Phí 0 đ)
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-slate-600">
-                        Tin Thường được gia hạn hiển thị 60 ngày hoàn toàn miễn phí theo quy chế hoạt động của sàn.
-                      </p>
-                    </div>
-                    <i className="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
-                  </div>
-                ) : (
-                  // Tin VIP: 5 mốc ngày chuẩn [5, 7, 10, 15, 30]
-                  <div className="grid grid-cols-5 gap-1.5">
-                    {[
-                      { days: 5, note: 'Tối thiểu' },
-                      { days: 7, note: 'Chuẩn VIP' },
-                      { days: 10, note: 'Tiêu chuẩn' },
-                      { days: 15, note: 'Phổ biến', highlight: true },
-                      { days: 30, note: 'Giảm 25%', discount: true }
-                    ].map(item => (
-                      <button
-                        key={item.days}
-                        type="button"
-                        onClick={() => setRenewDays(item.days)}
-                        className={`py-2 px-1 rounded-xl border text-center transition cursor-pointer flex flex-col items-center justify-center ${
-                          renewDays === item.days 
-                            ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-black shadow-xs ring-2 ring-emerald-500/20' 
-                            : 'border-slate-200 hover:bg-slate-50 text-slate-700'
-                        }`}
-                      >
-                        <div className="text-xs sm:text-sm font-black">{item.days}N</div>
-                        <div className={`text-[8px] sm:text-[9px] mt-0.5 leading-tight ${
-                          item.discount 
-                            ? 'text-emerald-700 font-bold' 
-                            : item.highlight 
-                            ? 'text-amber-700 font-bold' 
-                            : 'text-slate-400'
-                        }`}>
-                          {item.note}
+                  {isNormal ? (
+                    // Tin Thường: 60 ngày
+                    isFreeQuotaAvailable ? (
+                      <div className="p-3 rounded-xl border-2 border-emerald-500 bg-emerald-50/70 flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-black text-slate-900 text-sm">60 ngày</span>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-600 text-white">
+                              Miễn Phí Sàn (Còn {dailyQuota.remaining}/{dailyQuota.limit} tin hôm nay)
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-600">
+                            Chính sách sàn: Miễn phí 3 tin thường/ngày (thời hạn 60 ngày). Bạn đang được áp dụng miễn phí 0 đ.
+                          </p>
                         </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {/* Ghi chú đặc quyền tự động cộng 60 ngày miễn phí khi hết VIP */}
-                {renewVipId !== 'normal' && (
-                  <div className="mt-2 p-2 rounded-lg bg-blue-50/80 border border-blue-200/80 text-[10px] sm:text-[11px] text-blue-800 flex items-start gap-1.5">
-                    <i className="fa-solid fa-circle-info text-blue-600 text-xs mt-0.5 shrink-0"></i>
-                    <span>
-                      <b>Quy chế VIP:</b> Hết {renewDays} ngày VIP, tin đăng sẽ <b>tự động hạ thành Tin Thường</b> và được <b>cộng thêm 60 ngày miễn phí</b> trên sàn!
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Mục 3: Phân Hệ Voucher & Quyền Lợi Gói Hội Viên */}
-              <div className="rounded-2xl border border-amber-200/90 bg-amber-50/50 p-3 sm:p-3.5 space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-5 h-5 rounded-md bg-amber-500 text-slate-950 flex items-center justify-center text-[10px] font-bold">
-                      <i className="fa-solid fa-gift"></i>
-                    </span>
-                    <span className="font-bold text-slate-800 text-xs">
-                      Ưu Đãi & Voucher Gói Hội Viên
-                    </span>
-                  </div>
-                  {isMemberActive ? (
-                    <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-amber-500 text-slate-950">
-                      {currentUser?.membership?.shortName || 'HỘI VIÊN CHÍNH THỨC'}
-                    </span>
+                        <i className="fa-solid fa-circle-check text-emerald-600 text-lg"></i>
+                      </div>
+                    ) : (
+                      <div className="p-3 rounded-xl border-2 border-amber-500 bg-amber-50/80 flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="font-black text-slate-900 text-sm">60 ngày</span>
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-600 text-white">
+                              Đã hết 3 tin miễn phí hôm nay (5.000 đ / 60 ngày)
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-amber-900">
+                            Bạn đã dùng hết 3 tin miễn phí trong ngày. Phí gia hạn là 5.000 đ cho 60 ngày (hoặc dùng Voucher Hội Viên để miễn phí 0 đ).
+                          </p>
+                        </div>
+                        <i className="fa-solid fa-clock text-amber-600 text-lg"></i>
+                      </div>
+                    )
                   ) : (
-                    <Link
-                      to="/goi-hoi-vien"
-                      onClick={() => setRenewModalProp(null)}
-                      className="text-[10px] font-bold text-amber-700 hover:text-amber-800 hover:underline flex items-center gap-0.5"
-                    >
-                      <span>Xem Gói Hội Viên</span>
-                      <i className="fa-solid fa-arrow-right text-[9px]"></i>
-                    </Link>
+                    // Tin VIP: 5 mốc ngày chuẩn [5, 7, 10, 15, 30]
+                    <div className="grid grid-cols-5 gap-1.5">
+                      {[
+                        { days: 5, note: 'Tối thiểu' },
+                        { days: 7, note: 'Chuẩn VIP' },
+                        { days: 10, note: 'Tiêu chuẩn' },
+                        { days: 15, note: 'Phổ biến', highlight: true },
+                        { days: 30, note: 'Giảm 25%', discount: true }
+                      ].map(item => (
+                        <button
+                          key={item.days}
+                          type="button"
+                          onClick={() => setRenewDays(item.days)}
+                          className={`py-2 px-1 rounded-xl border text-center transition cursor-pointer flex flex-col items-center justify-center ${
+                            renewDays === item.days 
+                              ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-black shadow-xs ring-2 ring-emerald-500/20' 
+                              : 'border-slate-200 hover:bg-slate-50 text-slate-700'
+                          }`}
+                        >
+                          <div className="text-xs sm:text-sm font-black">{item.days}N</div>
+                          <div className={`text-[8px] sm:text-[9px] mt-0.5 leading-tight ${
+                            item.discount 
+                              ? 'text-emerald-700 font-bold' 
+                              : item.highlight 
+                              ? 'text-amber-700 font-bold' 
+                              : 'text-slate-400'
+                          }`}>
+                            {item.note}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Ghi chú đặc quyền tự động cộng 60 ngày miễn phí khi hết VIP */}
+                  {!isNormal && (
+                    <div className="mt-2 p-2 rounded-lg bg-blue-50/80 border border-blue-200/80 text-[10px] sm:text-[11px] text-blue-800 flex items-start gap-1.5">
+                      <i className="fa-solid fa-circle-info text-blue-600 text-xs mt-0.5 shrink-0"></i>
+                      <span>
+                        <b>Quy chế VIP:</b> Hết {renewDays} ngày VIP, tin đăng sẽ <b>tự động hạ thành Tin Thường</b> và được <b>cộng thêm 60 ngày miễn phí</b> trên sàn!
+                      </span>
+                    </div>
                   )}
                 </div>
 
-                {isMemberActive ? (
-                  renewVipId === 'normal' ? (
-                    // Khi chọn Tin Thường: Hiển thị Voucher Tin Thường
-                    (() => {
-                      const normalVoucherCount = currentUser?.vouchers?.normalPublish || 0;
-                      const hasNormalVoucher = normalVoucherCount > 0;
-                      const isVoucherApplied = renewAppliedVoucher === 'normalPublish';
-
-                      return (
-                        <div 
-                          onClick={() => {
-                            if (!hasNormalVoucher) {
-                              showToast('Bạn đã dùng hết Voucher Tin Thường trong chu kỳ 30 ngày này!', 'warning');
-                              return;
-                            }
-                            setRenewAppliedVoucher(isVoucherApplied ? null : 'normalPublish');
-                          }}
-                          className={`p-2.5 rounded-xl border transition cursor-pointer select-none flex items-center justify-between ${
-                            isVoucherApplied
-                              ? 'border-emerald-600 bg-emerald-600 text-white shadow-xs'
-                              : hasNormalVoucher
-                              ? 'border-emerald-300 bg-emerald-50/80 hover:bg-emerald-100 text-slate-800'
-                              : 'border-slate-200 bg-slate-50 opacity-60 text-slate-400'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <i className={`fa-solid fa-ticket text-sm ${isVoucherApplied ? 'text-white' : 'text-emerald-700'}`}></i>
-                            <div>
-                              <div className="font-bold text-xs">Voucher Tin Thường (0 đ)</div>
-                              <div className={`text-[10px] ${isVoucherApplied ? 'text-emerald-100' : 'text-slate-500'}`}>
-                                Khả dụng: <b>{normalVoucherCount}</b> lượt trong chu kỳ hội viên
-                              </div>
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            className={`px-2.5 py-1 rounded-lg text-xs font-bold transition ${
-                              isVoucherApplied 
-                                ? 'bg-white text-emerald-800' 
-                                : 'bg-emerald-200 text-emerald-900 hover:bg-emerald-300'
-                            }`}
-                          >
-                            {isVoucherApplied ? '✓ Đang áp dụng' : 'Dùng voucher'}
-                          </button>
-                        </div>
-                      );
-                    })()
+                {/* Mục 3: Phân Hệ Voucher & Quyền Lợi Gói Hội Viên */}
+                {isNormal ? (
+                  isFreeQuotaAvailable ? (
+                    // Đang còn suất miễn phí của sàn
+                    <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-3 space-y-1.5 text-xs text-emerald-950">
+                      <div className="flex items-center justify-between font-bold">
+                        <span className="flex items-center gap-1.5">
+                          <i className="fa-solid fa-gift text-emerald-600"></i>
+                          <span>Đặc Quyền: Suất Tin Thường Miễn Phí Của Sàn (0 đ)</span>
+                        </span>
+                        <span className="text-[10px] bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded-full font-bold">
+                          Còn {dailyQuota.remaining}/{dailyQuota.limit} tin hôm nay
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-emerald-800 leading-relaxed">
+                        Hệ thống tự động áp dụng chính sách <b>Miễn Phí 3 tin/ngày</b> trước.
+                        {isMemberActive && (
+                          <span> Kho Voucher Hội Viên của bạn (<b>{currentUser?.vouchers?.normalPublish || 0} lượt</b>) được bảo lưu và chỉ dùng khi bạn đăng/gia hạn vượt quá 3 tin trong ngày!</span>
+                        )}
+                      </p>
+                    </div>
                   ) : (
-                    // Khi chọn Tin VIP: Hiển thị Voucher Tin VIP
-                    (() => {
-                      const vipVoucherCount = currentUser?.vouchers?.vipPublish || 0;
-                      const hasVipVoucher = vipVoucherCount > 0;
-                      const isVoucherApplied = renewAppliedVoucher === 'vipPublish';
-
-                      return (
-                        <div 
-                          onClick={() => {
-                            if (!hasVipVoucher) {
-                              showToast('Gói hội viên của bạn chưa có Voucher giảm giá cho Tin VIP trong chu kỳ này!', 'warning');
-                              return;
-                            }
-                            setRenewAppliedVoucher(isVoucherApplied ? null : 'vipPublish');
-                          }}
-                          className={`p-2.5 rounded-xl border transition cursor-pointer select-none flex items-center justify-between ${
-                            isVoucherApplied
-                              ? 'border-amber-600 bg-amber-500 text-slate-950 shadow-xs font-bold'
-                              : hasVipVoucher
-                              ? 'border-amber-300 bg-amber-50/80 hover:bg-amber-100 text-slate-800'
-                              : 'border-slate-200 bg-slate-50 opacity-60 text-slate-400'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <i className="fa-solid fa-crown text-amber-800 text-sm"></i>
-                            <div>
-                              <div className="font-bold text-xs">Voucher Tin VIP (-400.000 đ)</div>
-                              <div className={`text-[10px] ${isVoucherApplied ? 'text-slate-950 font-medium' : 'text-slate-500'}`}>
-                                Khả dụng: <b>{vipVoucherCount}</b> voucher trong chu kỳ
-                              </div>
-                            </div>
-                          </div>
-                          <button
-                            type="button"
-                            className={`px-2.5 py-1 rounded-lg text-xs font-bold transition ${
-                              isVoucherApplied 
-                                ? 'bg-slate-950 text-amber-300' 
-                                : 'bg-amber-200 text-amber-900 hover:bg-amber-300'
-                            }`}
-                          >
-                            {isVoucherApplied ? '✓ Đang áp dụng' : 'Áp dụng voucher'}
-                          </button>
+                    // Đã hết 3 tin miễn phí hôm nay: Hiển thị áp dụng voucher hội viên (5.000 đ -> 0 đ)
+                    <div className="rounded-2xl border border-amber-200/90 bg-amber-50/50 p-3 sm:p-3.5 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-5 h-5 rounded-md bg-amber-500 text-slate-950 flex items-center justify-center text-[10px] font-bold">
+                            <i className="fa-solid fa-ticket"></i>
+                          </span>
+                          <span className="font-bold text-slate-800 text-xs">
+                            Áp Dụng Voucher Tin Thường Hội Viên
+                          </span>
                         </div>
-                      );
-                    })()
+                        {isMemberActive && (
+                          <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-amber-500 text-slate-950">
+                            {currentUser?.membership?.shortName || 'HỘI VIÊN CHÍNH THỨC'}
+                          </span>
+                        )}
+                      </div>
+
+                      {isMemberActive ? (
+                        (() => {
+                          const normalVouchers = currentUser?.vouchers?.normalPublish || 0;
+                          const hasNormalVoucher = normalVouchers > 0;
+                          const isVoucherApplied = renewAppliedVoucher === 'normalPublish';
+
+                          return (
+                            <div 
+                              onClick={() => {
+                                if (!hasNormalVoucher) {
+                                  showToast('Bạn đã hết Voucher Tin Thường trong chu kỳ 30 ngày này!', 'warning');
+                                  return;
+                                }
+                                setRenewAppliedVoucher(isVoucherApplied ? null : 'normalPublish');
+                              }}
+                              className={`p-2.5 rounded-xl border transition cursor-pointer select-none flex items-center justify-between ${
+                                isVoucherApplied
+                                  ? 'border-emerald-600 bg-emerald-600 text-white shadow-xs'
+                                  : hasNormalVoucher
+                                  ? 'border-emerald-300 bg-emerald-50/80 hover:bg-emerald-100 text-slate-800'
+                                  : 'border-slate-200 bg-slate-50 opacity-60 text-slate-400'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <i className={`fa-solid fa-ticket text-sm ${isVoucherApplied ? 'text-white' : 'text-emerald-700'}`}></i>
+                                <div>
+                                  <div className="font-bold text-xs">Voucher Tin Thường (Giảm -5.000 đ → 0 đ)</div>
+                                  <div className={`text-[10px] ${isVoucherApplied ? 'text-emerald-100' : 'text-slate-500'}`}>
+                                    Khả dụng: <b>{normalVouchers}</b> lượt trong chu kỳ
+                                  </div>
+                                </div>
+                              </div>
+                              <button
+                                type="button"
+                                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition ${
+                                  isVoucherApplied 
+                                    ? 'bg-white text-emerald-800' 
+                                    : 'bg-emerald-200 text-emerald-900 hover:bg-emerald-300'
+                                }`}
+                              >
+                                {isVoucherApplied ? '✓ Đang áp dụng' : 'Dùng voucher'}
+                              </button>
+                            </div>
+                          );
+                        })()
+                      ) : (
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-900 bg-white/90 p-2.5 rounded-xl border border-amber-200">
+                          <p className="text-[10px] sm:text-[11px] leading-relaxed">
+                            👑 Đăng ký <b>Gói Hội Viên</b> nhận từ <b>15 - 50 Voucher Tin Thường</b> để miễn phí khi vượt hạn mức 3 tin/ngày!
+                          </p>
+                          <Link
+                            to="/goi-hoi-vien"
+                            onClick={() => setRenewModalProp(null)}
+                            className="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-[11px] transition shadow-xs flex items-center gap-1 shrink-0 justify-center"
+                          >
+                            <span>Xem Gói</span>
+                          </Link>
+                        </div>
+                      )}
+                    </div>
                   )
                 ) : (
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-900 bg-white/90 p-2.5 rounded-xl border border-amber-200">
-                    <p className="text-[10px] sm:text-[11px] leading-relaxed">
-                      👑 Đăng ký <b>Gói Hội Viên</b> nhận từ <b>15 - 50 Voucher gia hạn tin 0 đ</b> và Voucher giảm <b>-400.000 đ</b> cho Tin VIP!
-                    </p>
-                    <Link
-                      to="/goi-hoi-vien"
-                      onClick={() => setRenewModalProp(null)}
-                      className="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-[11px] transition shadow-xs flex items-center gap-1 shrink-0 justify-center"
-                    >
-                      <span>Xem Gói</span>
-                    </Link>
-                  </div>
-                )}
-              </div>
-
-              {/* Mục 4: Auto Renew Toggle (Gọn gàng 1 dòng) */}
-              <div 
-                className="p-2.5 sm:p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between gap-3 cursor-pointer select-none" 
-                onClick={() => setRenewAutoRenew(!renewAutoRenew)}
-              >
-                <div className="flex items-center gap-2">
-                  <i className="fa-solid fa-arrows-rotate text-emerald-600 text-xs"></i>
-                  <div>
-                    <span className="font-bold text-slate-800 text-xs">Tự động gia hạn khi hết hạn (Auto-Renew)</span>
-                    <p className="text-[10px] text-slate-500">Tự động gia hạn thêm {renewVipId === 'normal' ? '60 ngày' : `${renewDays} ngày`} khi tin chạm mốc</p>
-                  </div>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={renewAutoRenew}
-                  onChange={(e) => setRenewAutoRenew(e.target.checked)}
-                  className="accent-emerald-600 w-4 h-4 cursor-pointer"
-                />
-              </div>
-
-              {/* Chi tiết hạn mới & số dư */}
-              {(() => {
-                const now = Date.now();
-                const currentExp = renewModalProp.expiresAt ? new Date(renewModalProp.expiresAt).getTime() : 0;
-                const isCurrentlyExpired = renewModalProp.status === 'expired' || currentExp <= now;
-                const activeDays = renewVipId === 'normal' ? 60 : renewDays;
-                const newExpDate = isCurrentlyExpired 
-                  ? new Date(now + activeDays * 86400 * 1000) 
-                  : new Date(currentExp + activeDays * 86400 * 1000);
-                const userWallet = currentUser?.walletBalance || 0;
-
-                return (
-                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 space-y-1.5 text-[11px] text-slate-600">
+                  // Tin VIP: Voucher VIP (-400.000 đ)
+                  <div className="rounded-2xl border border-amber-200/90 bg-amber-50/50 p-3 sm:p-3.5 space-y-2.5">
                     <div className="flex items-center justify-between">
-                      <span>Hạn mới sau gia hạn:</span>
-                      <span className="font-bold text-slate-900 font-mono">
-                        {newExpDate.toLocaleDateString('vi-VN')} ({isCurrentlyExpired ? 'Tính từ hôm nay' : `+${activeDays} ngày`})
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-5 h-5 rounded-md bg-amber-500 text-slate-950 flex items-center justify-center text-[10px] font-bold">
+                          <i className="fa-solid fa-crown"></i>
+                        </span>
+                        <span className="font-bold text-slate-800 text-xs">
+                          Quyền Lợi Voucher Gói Hội Viên
+                        </span>
+                      </div>
+                      {isMemberActive ? (
+                        <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded bg-amber-500 text-slate-950">
+                          {currentUser?.membership?.shortName || 'HỘI VIÊN CHÍNH THỨC'}
+                        </span>
+                      ) : (
+                        <Link
+                          to="/goi-hoi-vien"
+                          onClick={() => setRenewModalProp(null)}
+                          className="text-[10px] font-bold text-amber-700 hover:text-amber-800 hover:underline flex items-center gap-0.5"
+                        >
+                          <span>Xem Gói Hội Viên</span>
+                          <i className="fa-solid fa-arrow-right text-[9px]"></i>
+                        </Link>
+                      )}
                     </div>
-                    {renewVipId !== 'normal' && (
-                      <div className="flex items-center justify-between">
-                        <span>Số dư ví hiện có:</span>
-                        <span className="font-bold text-slate-800">{userWallet.toLocaleString('vi-VN')} đ</span>
+
+                    {isMemberActive ? (
+                      (() => {
+                        const vipVoucherCount = currentUser?.vouchers?.vipPublish || 0;
+                        const hasVipVoucher = vipVoucherCount > 0;
+                        const isVoucherApplied = renewAppliedVoucher === 'vipPublish';
+
+                        return (
+                          <div 
+                            onClick={() => {
+                              if (!hasVipVoucher) {
+                                showToast('Gói hội viên của bạn chưa có Voucher giảm giá cho Tin VIP trong chu kỳ này!', 'warning');
+                                return;
+                              }
+                              setRenewAppliedVoucher(isVoucherApplied ? null : 'vipPublish');
+                            }}
+                            className={`p-2.5 rounded-xl border transition cursor-pointer select-none flex items-center justify-between ${
+                              isVoucherApplied
+                                ? 'border-amber-600 bg-amber-500 text-slate-950 shadow-xs font-bold'
+                                : hasVipVoucher
+                                ? 'border-amber-300 bg-amber-50/80 hover:bg-amber-100 text-slate-800'
+                                : 'border-slate-200 bg-slate-50 opacity-60 text-slate-400'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <i className="fa-solid fa-crown text-amber-800 text-sm"></i>
+                              <div>
+                                <div className="font-bold text-xs">Voucher Tin VIP (-400.000 đ)</div>
+                                <div className={`text-[10px] ${isVoucherApplied ? 'text-slate-950 font-medium' : 'text-slate-500'}`}>
+                                  Khả dụng: <b>{vipVoucherCount}</b> voucher trong chu kỳ
+                                </div>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              className={`px-2.5 py-1 rounded-lg text-xs font-bold transition ${
+                                isVoucherApplied 
+                                  ? 'bg-slate-950 text-amber-300' 
+                                  : 'bg-amber-200 text-amber-900 hover:bg-amber-300'
+                              }`}
+                            >
+                              {isVoucherApplied ? '✓ Đang áp dụng' : 'Áp dụng voucher'}
+                            </button>
+                          </div>
+                        );
+                      })()
+                    ) : (
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-amber-900 bg-white/90 p-2.5 rounded-xl border border-amber-200">
+                        <p className="text-[10px] sm:text-[11px] leading-relaxed">
+                          👑 Đăng ký <b>Gói Hội Viên</b> nhận ngay Voucher giảm <b>-400.000 đ</b> cho Tin VIP và đặc quyền duyệt tức thì!
+                        </p>
+                        <Link
+                          to="/goi-hoi-vien"
+                          onClick={() => setRenewModalProp(null)}
+                          className="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-[11px] transition shadow-xs flex items-center gap-1 shrink-0 justify-center"
+                        >
+                          <span>Nâng cấp</span>
+                        </Link>
                       </div>
                     )}
                   </div>
-                );
-              })()}
-            </div>
+                )}
 
-            {/* 4. Modal Sticky Action Bar (Luôn hiển thị cố định ở chân modal, tối ưu Mobile & Desktop) */}
-            {(() => {
-              const isNormal = renewVipId === 'normal';
-              const selectedPkg = activeVipPackages.find(p => p.id === renewVipId) || activeVipPackages[activeVipPackages.length - 1];
-              const activeRates = selectedPkg.rates || {};
-              const dailyRate = isNormal ? 0 : (activeRates[renewDays] || activeRates[15] || selectedPkg.pricePerDay || 0);
-              const rawCost = isNormal ? 0 : (dailyRate * renewDays);
-
-              let discountAmount = 0;
-              if (!isNormal && isMemberActive && renewAppliedVoucher === 'vipPublish') {
-                discountAmount = Math.min(rawCost, 400000);
-              }
-
-              const totalCost = Math.max(0, rawCost - discountAmount);
-              const userWallet = currentUser?.walletBalance || 0;
-              const isInsufficient = !isNormal && userWallet < totalCost;
-
-              return (
-                <div className="bg-white border-t border-slate-200 p-3 sm:p-4 shrink-0 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] space-y-2">
-                  {isInsufficient && (
-                    <div className="p-2 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-between gap-2 text-xs">
-                      <span className="truncate">Số dư ví không đủ (thiếu {(totalCost - userWallet).toLocaleString('vi-VN')} đ)</span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setRenewModalProp(null);
-                          setActiveModal('wallet-deposit');
-                        }}
-                        className="px-2 py-0.5 bg-rose-600 text-white rounded font-bold text-[10px] hover:bg-rose-700 transition shrink-0"
-                      >
-                        Nạp Tiền Ví
-                      </button>
-                    </div>
-                  )}
-
-                  <div className="flex items-center justify-between gap-3">
-                    {/* Bên trái: Tổng tiền & Chiết khấu */}
-                    <div className="min-w-0">
-                      <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">
-                        {discountAmount > 0 ? (
-                          <span className="text-emerald-700">Đã giảm -{discountAmount.toLocaleString('vi-VN')} đ</span>
-                        ) : (renewAppliedVoucher === 'normalPublish' && isNormal) ? (
-                          <span className="text-emerald-700">Áp dụng Voucher Hội Viên (0 đ)</span>
-                        ) : (
-                          <span>Tổng thanh toán</span>
-                        )}
-                      </div>
-                      <div className="flex items-baseline gap-1.5 flex-wrap">
-                        {discountAmount > 0 && (
-                          <span className="text-xs text-slate-400 line-through">
-                            {rawCost.toLocaleString('vi-VN')} đ
-                          </span>
-                        )}
-                        <span className="text-base sm:text-lg font-black text-emerald-700">
-                          {totalCost === 0 ? '0 đ (Miễn phí)' : `${totalCost.toLocaleString('vi-VN')} đ`}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Bên phải: Nút đóng & Nút xác nhận */}
-                    <div className="flex items-center gap-2 shrink-0">
-                      <button
-                        type="button"
-                        onClick={() => setRenewModalProp(null)}
-                        className="px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs transition cursor-pointer"
-                      >
-                        Đóng
-                      </button>
-                      <button
-                        type="button"
-                        disabled={isInsufficient}
-                        onClick={() => {
-                          const success = renewProperty({
-                            propertyId: renewModalProp.id,
-                            extendDays: isNormal ? 60 : renewDays,
-                            newVipPackageId: renewVipId,
-                            autoRenew: renewAutoRenew,
-                            isFreeAdmin: isNormal,
-                            appliedVoucher: renewAppliedVoucher
-                          });
-                          if (success) {
-                            setRenewModalProp(null);
-                          }
-                        }}
-                        className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition shadow-md flex items-center gap-1.5 ${
-                          isInsufficient 
-                            ? 'bg-slate-300 text-slate-500 cursor-not-allowed' 
-                            : 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer active:scale-95'
-                        }`}
-                      >
-                        <i className="fa-solid fa-arrows-rotate text-xs"></i>
-                        <span>
-                          {totalCost === 0
-                            ? (renewAppliedVoucher === 'normalPublish' ? 'Xác Nhận (0 đ • Voucher)' : 'Xác Nhận (0 đ)')
-                            : `Xác Nhận (${totalCost.toLocaleString('vi-VN')} đ)`}
-                        </span>
-                      </button>
+                {/* Mục 4: Auto Renew Toggle (Gọn gàng 1 dòng) */}
+                <div 
+                  className="p-2.5 sm:p-3 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-between gap-3 cursor-pointer select-none" 
+                  onClick={() => setRenewAutoRenew(!renewAutoRenew)}
+                >
+                  <div className="flex items-center gap-2">
+                    <i className="fa-solid fa-arrows-rotate text-emerald-600 text-xs"></i>
+                    <div>
+                      <span className="font-bold text-slate-800 text-xs">Tự động gia hạn khi hết hạn (Auto-Renew)</span>
+                      <p className="text-[10px] text-slate-500">Tự động gia hạn thêm {isNormal ? '60 ngày' : `${renewDays} ngày`} khi tin chạm mốc</p>
                     </div>
                   </div>
+                  <input
+                    type="checkbox"
+                    checked={renewAutoRenew}
+                    onChange={(e) => setRenewAutoRenew(e.target.checked)}
+                    className="accent-emerald-600 w-4 h-4 cursor-pointer"
+                  />
                 </div>
-              );
-            })()}
+
+                {/* Chi tiết hạn mới & số dư */}
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/70 space-y-1.5 text-[11px] text-slate-600">
+                  <div className="flex items-center justify-between">
+                    <span>Hạn mới sau gia hạn:</span>
+                    <span className="font-bold text-slate-900 font-mono">
+                      {newExpDate.toLocaleDateString('vi-VN')} ({isCurrentlyExpired ? 'Tính từ hôm nay' : `+${activeDays} ngày`})
+                    </span>
+                  </div>
+                  {(!isNormal || !isFreeQuotaAvailable) && (
+                    <div className="flex items-center justify-between">
+                      <span>Số dư ví hiện có:</span>
+                      <span className="font-bold text-slate-800">{userWallet.toLocaleString('vi-VN')} đ</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* 4. Modal Sticky Action Bar */}
+              <div className="bg-white border-t border-slate-200 p-3 sm:p-4 shrink-0 shadow-[0_-4px_16px_rgba(0,0,0,0.06)] space-y-2">
+                {isInsufficient && (
+                  <div className="p-2 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-between gap-2 text-xs">
+                    <span className="truncate">Số dư ví không đủ (thiếu {(totalCost - userWallet).toLocaleString('vi-VN')} đ)</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRenewModalProp(null);
+                        setActiveModal('wallet-deposit');
+                      }}
+                      className="px-2 py-0.5 bg-rose-600 text-white rounded font-bold text-[10px] hover:bg-rose-700 transition shrink-0"
+                    >
+                      Nạp Tiền Ví
+                    </button>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between gap-3">
+                  {/* Bên trái: Tổng tiền & Chiết khấu */}
+                  <div className="min-w-0">
+                    <div className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">
+                      {discountAmount > 0 ? (
+                        <span className="text-emerald-700">Đã giảm -{discountAmount.toLocaleString('vi-VN')} đ</span>
+                      ) : (isNormal && isFreeQuotaAvailable) ? (
+                        <span className="text-emerald-700">Chính sách sàn (3 tin/ngày)</span>
+                      ) : (
+                        <span>Tổng thanh toán</span>
+                      )}
+                    </div>
+                    <div className="flex items-baseline gap-1.5 flex-wrap">
+                      {discountAmount > 0 && (
+                        <span className="text-xs text-slate-400 line-through">
+                          {rawCost.toLocaleString('vi-VN')} đ
+                        </span>
+                      )}
+                      <span className="text-base sm:text-lg font-black text-emerald-700">
+                        {totalCost === 0 ? '0 đ (Miễn phí)' : `${totalCost.toLocaleString('vi-VN')} đ`}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Bên phải: Nút đóng & Nút xác nhận */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setRenewModalProp(null)}
+                      className="px-3 py-2 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs transition cursor-pointer"
+                    >
+                      Đóng
+                    </button>
+                    <button
+                      type="button"
+                      disabled={isInsufficient}
+                      onClick={() => {
+                        const success = renewProperty({
+                          propertyId: renewModalProp.id,
+                          extendDays: isNormal ? 60 : renewDays,
+                          newVipPackageId: renewVipId,
+                          autoRenew: renewAutoRenew,
+                          isFreeAdmin: isNormal && isFreeQuotaAvailable,
+                          appliedVoucher: renewAppliedVoucher
+                        });
+                        if (success) {
+                          setRenewModalProp(null);
+                        }
+                      }}
+                      className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm transition shadow-md flex items-center gap-1.5 ${
+                        isInsufficient 
+                          ? 'bg-slate-300 text-slate-500 cursor-not-allowed' 
+                          : 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer active:scale-95'
+                      }`}
+                    >
+                      <i className="fa-solid fa-arrows-rotate text-xs"></i>
+                      <span>
+                        {totalCost === 0
+                          ? (isNormal && isFreeQuotaAvailable
+                              ? 'Xác Nhận (0 đ • Miễn Phí Sàn)'
+                              : renewAppliedVoucher
+                              ? 'Xác Nhận (0 đ • Voucher)'
+                              : 'Xác Nhận (0 đ)')
+                          : `Xác Nhận (${totalCost.toLocaleString('vi-VN')} đ)`}
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
       
       {/* Modal nộp hồ sơ Sổ đỏ 2 mặt xác thực tin */}
       {verifyingProperty && (
