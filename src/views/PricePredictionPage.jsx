@@ -271,9 +271,6 @@ export default function PricePredictionPage({ projectSlug = null }) {
                       <h2 className="text-base font-bold text-slate-900 mt-0.5 line-clamp-1" title={game.projectName}>
                         {game.projectName || game.title}
                       </h2>
-                      <div className="text-xs text-slate-500 mt-1">
-                        Khoảng giá tham chiếu: <strong className="text-emerald-700">{game.currentEstimate}</strong>
-                      </div>
                     </div>
                   </div>
 
