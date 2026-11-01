@@ -2765,29 +2765,6 @@ export default function AdminBackendPage() {
               <span>Tổng thu: {totalRevenue.toLocaleString('vi-VN')} đ</span>
             </div>
 
-            {/* Quick Button: Đồng bộ dữ liệu đám mây Supabase */}
-            <button
-              type="button"
-              onClick={() => {
-                refetchData(false, true);
-                fetch('/api/db-sync')
-                  .then(res => res.json())
-                  .then(db => {
-                    if (Array.isArray(db.bds_prediction_programs)) {
-                      try {
-                        localStorage.setItem('bds_prediction_programs', JSON.stringify(db.bds_prediction_programs));
-                        window.dispatchEvent(new CustomEvent('bds_prediction_programs_updated', { detail: db.bds_prediction_programs }));
-                      } catch (e) {}
-                    }
-                  }).catch(() => {});
-              }}
-              className="px-2.5 sm:px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-cyan-400 border border-slate-800 hover:border-slate-700 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-sm cursor-pointer"
-              title="Đồng bộ dữ liệu tức thì từ Supabase Cloud & Máy chủ"
-            >
-              <i className="fa-solid fa-arrows-rotate text-cyan-400"></i>
-              <span className="hidden sm:inline">Đồng Bộ</span>
-            </button>
-
             {/* Quick Link: View Public Site */}
             <Link
               href="/"
