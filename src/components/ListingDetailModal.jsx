@@ -576,10 +576,7 @@ export default function ListingDetailModal({ property, onClose }) {
                       title={authorTitle}
                       aria-label={`Xem hồ sơ ${authorTitle}`}
                     >
-                      <div className="flex items-center justify-between gap-1">
-                        <div className="text-[10px] font-black text-emerald-700 uppercase tracking-wider">
-                          {authorBadgeLabel}
-                        </div>
+                      <div className="flex items-center justify-end gap-1">
                         <span className="text-[11px] text-emerald-600 font-bold group-hover/brokerInfo:underline flex items-center gap-1 shrink-0">
                           <span>Xem hồ sơ</span>
                           <i className="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
