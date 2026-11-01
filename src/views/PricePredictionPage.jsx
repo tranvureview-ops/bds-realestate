@@ -591,15 +591,6 @@ export default function PricePredictionPage({ projectSlug = null }) {
               </button>
               <button
                 type="button"
-                onClick={() => setLeaderboardFilter('real_only')}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
-                  leaderboardFilter === 'real_only' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                }`}
-              >
-                Chỉ User Thật
-              </button>
-              <button
-                type="button"
                 onClick={() => setLeaderboardFilter('my_prediction')}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                   leaderboardFilter === 'my_prediction' ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
