@@ -4177,6 +4177,15 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     await upsertSupabaseProfile(updatedTarget);
     await persistSettingToSupabase('bds_users_list', nextList);
     await persistSettingToSupabase('bds_properties', nextProperties);
+    try {
+      if (typeof window !== 'undefined') {
+        fetch('/api/db-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bds_users_list: nextList, bds_properties: nextProperties })
+        }).catch(console.warn);
+      }
+    } catch (e) {}
     showToast(`Đã cập nhật thông tin người dùng "${updatedTarget.name || userId}" thành công!`, 'success');
     return { success: true, user: updatedTarget };
   };
