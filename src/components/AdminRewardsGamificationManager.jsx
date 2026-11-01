@@ -3114,7 +3114,7 @@ export default function AdminRewardsGamificationManager() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
                       <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">
-                        <div className="text-[11px] text-slate-400 font-semibold mb-1">Số lượng Bot</div>
+                        <div className="text-[11px] text-slate-400 font-semibold mb-1">Tổng Bot Tối Đa (Toàn kỳ)</div>
                         <div className="text-base font-black text-white font-mono">
                           {(prog.botConfig?.botCount !== undefined ? prog.botConfig.botCount : 0).toLocaleString('vi-VN')} bot
                         </div>
@@ -3132,16 +3132,21 @@ export default function AdminRewardsGamificationManager() {
                         </div>
                       </div>
                       <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">
-                        <div className="text-[11px] text-slate-400 font-semibold mb-1">Đã đồng bộ thực tế</div>
-                        <div className="text-base font-black text-emerald-400 font-mono">
-                          {botVotes.length.toLocaleString('vi-VN')} bot
+                        <div className="text-[11px] text-slate-400 font-semibold mb-1">Đang chạy theo tiến độ</div>
+                        <div className="text-base font-black text-emerald-400 font-mono flex items-baseline gap-1">
+                          <span>{botVotes.length.toLocaleString('vi-VN')} bot</span>
+                          {Number(prog.botConfig?.botCount) > 0 && (
+                            <span className="text-[10px] text-slate-400 font-normal">
+                              ({Math.min(100, Math.round((botVotes.length / Number(prog.botConfig.botCount)) * 100))}%)
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
 
                     <div className="text-[11px] text-indigo-300 bg-indigo-950/40 px-3 py-1.5 rounded-xl border border-indigo-900/40 flex items-center gap-2">
                       <i className="fa-solid fa-clock-rotate-left text-amber-400"></i>
-                      <span><strong>Cơ chế chia thời gian như thật:</strong> Bot ảo được phân bổ rải đều từ ngày bắt đầu ({new Date(prog.startDate).toLocaleDateString('vi-VN')}) đến hiện tại theo nhịp sinh hoạt thực tế (giờ vàng sáng/tối tham gia đông, đêm muộn thưa thớt, mốc mới nhất hiển thị "Vừa xong", "X phút trước").</span>
+                      <span><strong>Phân bổ lũy tiến theo thời gian cài đặt:</strong> Tổng số bot chạy tối đa là {Number(prog.botConfig?.botCount || 0).toLocaleString('vi-VN')} bot. Số lượng bot hiện tại tăng dần theo tiến độ thực tế từ ngày bắt đầu ({new Date(prog.startDate).toLocaleDateString('vi-VN')}) đến kết thúc ({new Date(prog.endDate).toLocaleDateString('vi-VN')}) và đạt tối đa khi sự kiện kết thúc.</span>
                     </div>
 
                     {/* HÀNG NÚT HÀNH ĐỘNG CỦA ADMIN */}
@@ -3579,11 +3584,13 @@ export default function AdminRewardsGamificationManager() {
 
                 <div className="grid grid-cols-3 gap-2 text-xs">
                   <div>
-                    <label className="block text-slate-400 mb-1">Số lượng Bot:</label>
+                    <label className="block text-slate-400 mb-1" title="Tổng số lượng bot chạy tối đa trong toàn bộ thời gian diễn ra sự kiện">
+                      Tổng Bot tối đa:
+                    </label>
                     <input
                       type="number"
                       min="0"
-                      max="3000"
+                      max="10000"
                       value={editingProgram.botConfig?.botCount ?? 0}
                       onChange={(e) => setEditingProgram({
                         ...editingProgram,
@@ -3594,6 +3601,9 @@ export default function AdminRewardsGamificationManager() {
                       })}
                       className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-white font-mono font-bold"
                     />
+                    <div className="text-[10px] text-indigo-400/80 mt-1">
+                      * Tối đa toàn kỳ
+                    </div>
                   </div>
                   <div>
                     <label className="block text-slate-400 mb-1">Giá cơ sở (tỷ):</label>

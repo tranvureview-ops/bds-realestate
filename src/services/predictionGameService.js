@@ -246,6 +246,38 @@ export function generateRealisticTimestamps(count, startDateStr = null, endDateS
   return timestamps;
 }
 
+/**
+ * TÍNH TOÁN SỐ LƯỢNG BOT CHẠY HIỆN TẠI THEO TIẾN ĐỘ THỜI GIAN
+ * - botCount trong cấu hình là TỔNG SỐ LƯỢNG BOT TỐI ĐA trong toàn bộ khoảng thời gian từ startDate đến endDate.
+ * - Tại thời điểm hiện tại (now), số lượng bot được phân bổ lũy tiến tăng dần theo tiến độ thực tế của sự kiện.
+ */
+export function calculateCurrentPacedBotCount(totalBotMax, startDateStr = null, endDateStr = null) {
+  const max = Math.max(Number(totalBotMax) || 0, 0);
+  if (max <= 0) return 0;
+  if (!startDateStr || !endDateStr) return max;
+
+  const now = Date.now();
+  const start = new Date(startDateStr).getTime();
+  const end = new Date(endDateStr).getTime();
+
+  // Sự kiện chưa tới ngày bắt đầu: 0 bot
+  if (now < start) return 0;
+  // Sự kiện đã kết thúc hoặc qua ngày kết thúc: Đạt tối đa 100% số bot cài đặt
+  if (now >= end) return max;
+
+  const totalDuration = end - start;
+  if (totalDuration <= 0) return max;
+
+  const elapsed = now - start;
+  // Tiến độ thời gian (0 -> 1)
+  const progress = Math.min(Math.max(elapsed / totalDuration, 0), 1);
+
+  // Phân bổ lũy tiến mượt mà: Giai đoạn đầu tăng vừa phải, tăng dần theo độ nóng về cuối sự kiện
+  const factor = Math.pow(progress, 1.15);
+  const pacedCount = Math.min(max, Math.max(1, Math.round(max * factor)));
+  return pacedCount;
+}
+
 // Sinh danh sách bản ghi Bot Ảo (is_bot = 1) phân bổ thời gian như thật (không dùng ảnh avatar AI)
 export function generateBotRecords(gameId, botCount = 0, basePrice = 7.8, spreadPercent = 6, startDate = null, endDate = null) {
   const records = [];
@@ -362,11 +394,17 @@ export function getStoredPredictions(gameId) {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed)) {
-        // Tự động kiểm tra tính toàn vẹn: nếu số lượng bot trong bộ nhớ lệch với cấu hình Admin, tự động đồng bộ lại
+        // Tự động kiểm tra tính toàn vẹn:
+        // - botCount là TỔNG BOT TỐI ĐA trong toàn bộ khoảng thời gian cài đặt
+        // - Số bot hiện tại không được vượt quá botCount tối đa hoặc nếu tắt bot thì đưa về 0
         if (prog?.botConfig) {
-          const targetBotCount = prog.botConfig.isEnabled ? Number(prog.botConfig.botCount || 0) : 0;
+          const totalMax = prog.botConfig.isEnabled ? Number(prog.botConfig.botCount || 0) : 0;
           const currentBots = parsed.filter(r => r.is_bot === 1);
-          if (currentBots.length !== targetBotCount) {
+          
+          if (!prog.botConfig.isEnabled && currentBots.length > 0) {
+            return syncBotsForGame(gameId, prog.botConfig, prog.startDate, prog.endDate);
+          }
+          if (currentBots.length > totalMax) {
             return syncBotsForGame(gameId, prog.botConfig, prog.startDate, prog.endDate);
           }
         }
@@ -390,10 +428,11 @@ export function getStoredPredictions(gameId) {
 
     const botCount = Number(prog?.botConfig?.botCount ?? 0);
     if (prog && prog.botConfig?.isEnabled === true && botCount > 0) {
-      const count = botCount;
+      // Phân bổ số bot hiện tại lũy tiến theo tiến độ thời gian (tối đa bằng botCount khi kết thúc)
+      const pacedCount = calculateCurrentPacedBotCount(botCount, prog.startDate, prog.endDate);
       const base = Number(prog.botConfig.basePrice || prog.basePrice || 15.5);
       const spread = Number(prog.botConfig.spreadPercent || prog.spreadPercent || 8);
-      const bots = generateBotRecords(gameId, count, base, spread, prog.startDate, prog.endDate);
+      const bots = generateBotRecords(gameId, pacedCount, base, spread, prog.startDate, prog.endDate);
       const merged = [...realUsers, ...bots].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
       saveStoredPredictions(gameId, merged);
       return merged;
@@ -420,11 +459,12 @@ export function saveStoredPredictions(gameId, records) {
 
 /**
  * ĐỒNG BỘ HOẶC KHỞI TẠO BOT ẢO CHO MỘT GAME
- * Phân bổ thời gian chân thực theo startDate -> endDate của chương trình
+ * botConfig.botCount là TỔNG SỐ LƯỢNG BOT TỐI ĐA trong toàn bộ khoảng thời gian cài đặt
+ * Số bot chạy thực tế tại thời điểm hiện tại được phân bổ lũy tiến theo tiến độ startDate -> endDate
  */
 export function syncBotsForGame(gameId, botConfig = {}, startDate = null, endDate = null) {
   const isEnabled = Boolean(botConfig?.isEnabled);
-  const count = Number(botConfig?.botCount !== undefined ? botConfig.botCount : 0);
+  const totalMax = Number(botConfig?.botCount !== undefined ? botConfig.botCount : 0);
   const base = Number(botConfig?.basePrice || 15.5);
   const spread = Number(botConfig?.spreadPercent || 8);
 
@@ -443,12 +483,14 @@ export function syncBotsForGame(gameId, botConfig = {}, startDate = null, endDat
   const realUsers = existing.filter(r => !r.is_bot && r.is_bot !== 1);
 
   let newRecords = [];
-  if (isEnabled && count > 0) {
-    const bots = generateBotRecords(gameId, count, base, spread, startDate, endDate);
+  if (isEnabled && totalMax > 0) {
+    // Phân bổ số bot hiện tại lũy tiến theo tiến độ thời gian thực tế
+    const currentPacedCount = calculateCurrentPacedBotCount(totalMax, startDate, endDate);
+    const bots = generateBotRecords(gameId, currentPacedCount, base, spread, startDate, endDate);
     // Ghép với User thật và sắp xếp giảm dần theo thời gian (mới nhất lên đầu)
     newRecords = [...realUsers, ...bots].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   } else {
-    // Nếu tắt bot hoặc count <= 0: Xóa toàn bộ bot, đưa danh sách bot về 0 (chỉ giữ người thật)
+    // Nếu tắt bot hoặc botCount <= 0: Xóa toàn bộ bot, đưa danh sách bot về 0 (chỉ giữ người thật)
     newRecords = realUsers.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }
 
