@@ -58,6 +58,135 @@ function getPriceInterpretation(rawVal) {
   };
 }
 
+// Component Bộ Giờ Đếm Ngược Thời Gian Thực (Hiển thị chi tiết Ngày / Giờ / Phút / Giây phong cách cao cấp)
+function PredictionCountdown({ targetDate }) {
+  const [timeLeft, setTimeLeft] = useState(() => {
+    if (!targetDate) return { days: 0, hours: 0, minutes: 0, seconds: 0, isExpired: true };
+    const diff = Math.max(0, new Date(targetDate).getTime() - Date.now());
+    return {
+      days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+      hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+      minutes: Math.floor((diff / (1000 * 60)) % 60),
+      seconds: Math.floor((diff / 1000) % 60),
+      isExpired: diff <= 0
+    };
+  });
+
+  useEffect(() => {
+    if (!targetDate) return;
+    const updateCountdown = () => {
+      const diff = Math.max(0, new Date(targetDate).getTime() - Date.now());
+      setTimeLeft({
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((diff / (1000 * 60)) % 60),
+        seconds: Math.floor((diff / 1000) % 60),
+        isExpired: diff <= 0
+      });
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [targetDate]);
+
+  if (timeLeft.isExpired) {
+    return (
+      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-rose-950/60 border border-rose-500/40 text-rose-300 text-xs font-bold shadow-inner">
+        <i className="fa-solid fa-lock"></i>
+        <span>Đã hết thời gian nhận dự đoán</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="py-2.5 max-w-md mx-auto space-y-2.5">
+      <div className="text-[11px] font-extrabold text-indigo-300 uppercase tracking-widest flex items-center justify-center gap-2">
+        <i className="fa-solid fa-stopwatch animate-pulse text-amber-400 text-xs"></i>
+        <span>Thời gian bình chọn còn lại</span>
+      </div>
+
+      <div className="flex items-center justify-center gap-2 sm:gap-3">
+        {/* Ngày */}
+        <div className="flex flex-col items-center">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-900/90 border border-indigo-500/40 shadow-inner flex items-center justify-center text-xl sm:text-2xl font-black font-mono text-white tracking-wider">
+            {String(timeLeft.days).padStart(2, '0')}
+          </div>
+          <span className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">Ngày</span>
+        </div>
+
+        <span className="text-xl sm:text-2xl font-black font-mono text-indigo-400 -mt-5">:</span>
+
+        {/* Giờ */}
+        <div className="flex flex-col items-center">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-900/90 border border-indigo-500/40 shadow-inner flex items-center justify-center text-xl sm:text-2xl font-black font-mono text-white tracking-wider">
+            {String(timeLeft.hours).padStart(2, '0')}
+          </div>
+          <span className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">Giờ</span>
+        </div>
+
+        <span className="text-xl sm:text-2xl font-black font-mono text-indigo-400 -mt-5">:</span>
+
+        {/* Phút */}
+        <div className="flex flex-col items-center">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-slate-900/90 border border-indigo-500/40 shadow-inner flex items-center justify-center text-xl sm:text-2xl font-black font-mono text-white tracking-wider">
+            {String(timeLeft.minutes).padStart(2, '0')}
+          </div>
+          <span className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-wider">Phút</span>
+        </div>
+
+        <span className="text-xl sm:text-2xl font-black font-mono text-indigo-400 -mt-5">:</span>
+
+        {/* Giây */}
+        <div className="flex flex-col items-center">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-indigo-950/80 border border-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.3)] flex items-center justify-center text-xl sm:text-2xl font-black font-mono text-amber-300 tracking-wider">
+            {String(timeLeft.seconds).padStart(2, '0')}
+          </div>
+          <span className="text-[10px] font-bold text-amber-300 mt-1 uppercase tracking-wider">Giây</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Component Mini Countdown hiển thị gọn gàng trên từng thẻ danh sách
+function MiniCountdown({ targetDate }) {
+  const [timeLeftStr, setTimeLeftStr] = useState('');
+
+  useEffect(() => {
+    if (!targetDate) return;
+    const calc = () => {
+      const diff = Math.max(0, new Date(targetDate).getTime() - Date.now());
+      if (diff <= 0) {
+        setTimeLeftStr('');
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      if (days > 0) {
+        setTimeLeftStr(`Còn ${days} ngày ${String(hours).padStart(2, '0')}h:${String(minutes).padStart(2, '0')}m:${String(seconds).padStart(2, '0')}s`);
+      } else {
+        setTimeLeftStr(`Còn ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`);
+      }
+    };
+    calc();
+    const interval = setInterval(calc, 1000);
+    return () => clearInterval(interval);
+  }, [targetDate]);
+
+  if (!timeLeftStr) return null;
+
+  return (
+    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+      <i className="fa-regular fa-clock text-[9px] animate-spin" style={{ animationDuration: '8s' }}></i>
+      <span>{timeLeftStr}</span>
+    </span>
+  );
+}
+
 export default function PricePredictionPage({ projectSlug = null }) {
   const { currentUser, setCurrentUser, showToast, addBonusWalletBalance, systemConfig, predictionPrograms, membershipPackages } = useRealEstate();
   
@@ -961,6 +1090,9 @@ export default function PricePredictionPage({ projectSlug = null }) {
                     </p>
                   </div>
 
+                  {/* BỘ GIỜ ĐẾM NGƯỢC THỜI GIAN THỰC */}
+                  <PredictionCountdown targetDate={currentHonorGame.endDate} />
+
                   <div className="inline-flex items-center gap-2 p-3 rounded-2xl bg-slate-900 border border-white/10 text-xs">
                     <span className="text-slate-400">Tổng giải thưởng đang đón chờ:</span>
                     <strong className="text-amber-300 font-mono font-black text-sm">
@@ -1109,6 +1241,9 @@ export default function PricePredictionPage({ projectSlug = null }) {
                     <span className={`text-[11px] font-medium ${isExpired ? 'text-rose-600 font-bold' : 'text-slate-500'}`}>
                       Hạn: {new Date(game.endDate).toLocaleDateString('vi-VN')} {isExpired && '(Đã hết hạn)'}
                     </span>
+                    {!isClosed && game.endDate && (
+                      <MiniCountdown targetDate={game.endDate} />
+                    )}
                   </div>
 
                   <button
