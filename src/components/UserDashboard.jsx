@@ -144,6 +144,18 @@ export default function UserDashboard({ initialTab = 'listings' }) {
     const isCurrentlyActive = isPropertyTreasureActive(prop, currentUser);
 
     if (!isCurrentlyActive) {
+      const propExpInfo = getPropertyExpirationInfo ? getPropertyExpirationInfo(prop) : null;
+      const isPropExpired = Boolean(propExpInfo?.isExpired) || prop.status === 'expired';
+
+      if (isPropExpired) {
+        showToast('Tin đăng này đã hết hạn hiển thị! Vui lòng Gia hạn tin trước khi Gán nổi bật.', 'warning');
+        setRenewModalProp(prop);
+        setRenewDays(prop.listingDays || 15);
+        setRenewVipId(prop.vipPackageId || 'normal');
+        setRenewAutoRenew(Boolean(prop.autoRenew));
+        return;
+      }
+
       if (!isTreasureHuntAllowed) {
         showToast('Đặc quyền Gán nổi bật bài viết dành riêng cho thành viên mua Gói Hội Viên! Vui lòng nâng cấp gói để mở khóa.', 'warning');
         navigate('/goi-hoi-vien');
@@ -892,6 +904,22 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                             <span>Đang nổi bật ({treasureExpInfo.daysRemaining > 0 ? `Còn ${treasureExpInfo.daysRemaining} ngày` : 'Sắp hết hạn'})</span>
                           </button>
                         )
+                      ) : isItemExpired ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            showToast('Tin đăng này đã hết hạn hiển thị! Vui lòng Gia hạn tin trước khi Gán nổi bật.', 'warning');
+                            setRenewModalProp(prop);
+                            setRenewDays(prop.listingDays || 15);
+                            setRenewVipId(prop.vipPackageId || 'normal');
+                            setRenewAutoRenew(Boolean(prop.autoRenew));
+                          }}
+                          className="px-3 py-1.5 font-medium rounded-xl text-xs flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-400 border border-slate-200 cursor-pointer transition"
+                          title="Tin đăng đã hết hạn. Vui lòng gia hạn tin trước khi gán nổi bật."
+                        >
+                          <i className="fa-solid fa-ban text-slate-400 text-[10px]"></i>
+                          <span>Gán nổi bật</span>
+                        </button>
                       ) : isTreasureHuntAllowed ? (
                         <button
                           type="button"
