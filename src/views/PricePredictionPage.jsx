@@ -12,6 +12,54 @@ import {
   awardBadgeToUser
 } from '../services/predictionGameService';
 
+// Đọc số tiền tỷ ra chữ Tiếng Việt giống logic phần Đăng tin
+function getPriceInterpretation(rawVal) {
+  if (!rawVal) return null;
+  const num = Number(String(rawVal).replace(',', '.'));
+  if (isNaN(num) || num <= 0) return null;
+
+  let tyVal = num;
+  if (num >= 1_000_000) {
+    tyVal = +(num / 1e9).toFixed(3);
+  } else if (num > 100 && num < 1_000_000) {
+    tyVal = +(num / 1000).toFixed(3);
+  }
+
+  const totalVnd = Math.round(tyVal * 1e9);
+  let textWords = '';
+  if (totalVnd >= 1e9) {
+    const ty = Math.floor(totalVnd / 1e9);
+    const trieu = Math.round((totalVnd % 1e9) / 1e6);
+    const tyText = ty >= 1000 ? ty.toLocaleString('vi-VN') : ty;
+    textWords = trieu > 0 ? `${tyText} tỷ ${trieu} triệu đồng` : `${tyText} tỷ đồng`;
+  } else if (totalVnd >= 1e6) {
+    const trieu = Math.round(totalVnd / 1e6);
+    textWords = `${trieu} triệu đồng`;
+  } else {
+    textWords = `${totalVnd.toLocaleString('vi-VN')} đồng`;
+  }
+
+  return {
+    tyVal,
+    formattedTy: `${tyVal.toString().replace('.', ',')} tỷ VNĐ`,
+    textWords
+  };
+}
+
+// Sinh mốc giá gợi ý Pills giống phần Đăng tin
+function getSmartPricePills(game, currentInput) {
+  const currentNum = Number(String(currentInput || '').replace(',', '.'));
+  let base = currentNum > 0 ? currentNum : (Number(game?.botConfig?.basePrice) || Number(game?.targetPrice) || 15.0);
+  if (base > 1000) base = +(base / 1e9).toFixed(2);
+  
+  const offsets = [-0.6, -0.3, 0, 0.3, 0.6];
+  const pills = offsets
+    .map(off => +(base + off).toFixed(2))
+    .filter(val => val > 0);
+  
+  return Array.from(new Set(pills));
+}
+
 export default function PricePredictionPage({ projectSlug = null }) {
   const { currentUser, setCurrentUser, showToast, addBonusWalletBalance, systemConfig } = useRealEstate();
   
@@ -325,56 +373,114 @@ export default function PricePredictionPage({ projectSlug = null }) {
                 {/* NẾU ĐANG HOẠT ĐỘNG: KHUNG NHẬP GIÁ DỰ ĐOÁN THỦ CÔNG */}
                 {!isSettled && (
                   <div className="pt-2">
-                    {/* Ô Nhập Giá Thủ Công Chính Xác (tỷ VNĐ) */}
+                    {/* Ô Nhập Giá Thủ Công Chuẩn Giống Phần Đăng Tin */}
                     {hasVoted ? (
                       <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm">
+                          <span className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm shadow-xs">
                             <i className="fa-solid fa-check"></i>
                           </span>
                           <div>
-                            <div className="text-[11px] text-emerald-800 font-bold">Bạn đã dự đoán thành công:</div>
+                            <div className="text-[11px] text-emerald-800 font-bold">Mức giá bạn đã dự đoán:</div>
                             <div className="text-base font-black text-emerald-700 font-mono">
                               {userVote.predictedPrice} tỷ VNĐ
                             </div>
                           </div>
                         </div>
-                        <span className="text-xs bg-emerald-600 text-white px-2.5 py-1 rounded-xl font-bold">
+                        <span className="text-xs bg-emerald-600 text-white px-3 py-1.5 rounded-xl font-bold shadow-xs">
                           Đã Nhận +10K Ví KM
                         </span>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2 pt-1">
-                        <div className="relative flex-1">
-                          <input
-                            type="number"
-                            step="0.01"
-                            placeholder="Nhập giá dự đoán (Ví dụ: 15.65)"
-                            value={userInputs[game.id]?.price || ''}
-                            onChange={(e) => {
-                              setUserInputs(prev => ({
-                                ...prev,
-                                [game.id]: {
-                                  ...prev[game.id],
-                                  price: e.target.value
-                                }
-                              }));
-                            }}
-                            className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold font-mono text-slate-900 text-sm focus:bg-white focus:border-indigo-500 focus:outline-none"
-                          />
-                          <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
-                            tỷ VNĐ
-                          </span>
+                      <div className="space-y-2 pt-1">
+                        <div className="flex items-center gap-2">
+                          <div className="relative flex-1">
+                            <input
+                              type="text"
+                              inputMode="decimal"
+                              placeholder="VD: 7.50 hoặc 15.65"
+                              value={userInputs[game.id]?.price || ''}
+                              onChange={(e) => {
+                                const raw = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
+                                setUserInputs(prev => ({
+                                  ...prev,
+                                  [game.id]: {
+                                    ...prev[game.id],
+                                    price: raw
+                                  }
+                                }));
+                              }}
+                              className="w-full px-3.5 py-2.5 bg-white border border-slate-300 rounded-xl text-sm font-black text-slate-900 outline-none focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/10 transition pr-20 shadow-xs"
+                            />
+                            <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 select-none pointer-events-none">
+                              tỷ VNĐ
+                            </span>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleSubmitPrediction(game)}
+                            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
+                          >
+                            <i className="fa-solid fa-paper-plane"></i>
+                            <span>Xác Nhận (+10K)</span>
+                          </button>
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => handleSubmitPrediction(game)}
-                          className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
-                        >
-                          <i className="fa-solid fa-paper-plane"></i>
-                          <span>Xác Nhận (+10K)</span>
-                        </button>
+                        {/* Gợi ý các mức giá (Suggestion Pills giống phần Đăng Tin) */}
+                        {(() => {
+                          const currentVal = userInputs[game.id]?.price;
+                          const pills = getSmartPricePills(game, currentVal);
+                          if (!pills || pills.length === 0) return null;
+
+                          return (
+                            <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                              {pills.map((val) => {
+                                const isSelected = Number(currentVal) === val;
+                                return (
+                                  <button
+                                    key={val}
+                                    type="button"
+                                    onClick={() => {
+                                      setUserInputs(prev => ({
+                                        ...prev,
+                                        [game.id]: {
+                                          ...prev[game.id],
+                                          price: String(val)
+                                        }
+                                      }));
+                                    }}
+                                    className={`px-3 py-1 rounded-full text-xs font-bold transition flex items-center gap-1 border shadow-2xs cursor-pointer ${
+                                      isSelected
+                                        ? 'bg-slate-900 text-white border-slate-900 ring-2 ring-slate-900/20'
+                                        : 'bg-white text-slate-700 border-slate-200 hover:border-slate-400 hover:bg-slate-50'
+                                    }`}
+                                  >
+                                    <span>{val} tỷ</span>
+                                    {isSelected && <i className="fa-solid fa-check text-[10px] text-emerald-400"></i>}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          );
+                        })()}
+
+                        {/* Dòng chữ quy đổi mức giá dự đoán trực quan giống Đăng Tin */}
+                        {(() => {
+                          const interpretation = getPriceInterpretation(userInputs[game.id]?.price);
+                          if (!interpretation) return null;
+
+                          return (
+                            <div className="text-xs text-slate-600 pt-0.5 animate-in fade-in duration-150">
+                              Mức giá dự đoán: <strong className="font-bold text-slate-900">{interpretation.formattedTy}</strong>
+                              {interpretation.textWords && (
+                                <span className="text-emerald-700 font-semibold ml-1.5">
+                                  ({interpretation.textWords})
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
                     )}
                   </div>
