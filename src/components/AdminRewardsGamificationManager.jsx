@@ -22,6 +22,7 @@ import {
   savePredictionPrograms,
   getStoredPredictions,
   syncBotsForGame,
+  clearBotPredictions,
   settlePredictionGame,
   calculateMedianPrice,
   awardBadgeToUser,
@@ -910,9 +911,18 @@ export default function AdminRewardsGamificationManager() {
       setIsSyncingBotId(null);
       setPredictionPrograms(getStoredPredictionPrograms());
       if (showToast) {
-        showToast(`Đã chia đều ${(prog.botConfig?.botCount || 2000).toLocaleString('vi-VN')} Bot ảo theo dòng thời gian từ ngày bắt đầu đến nay (cơ chế phân bổ như thật)!`, 'success');
+        showToast(`Đã chia đều ${(prog.botConfig?.botCount || 0).toLocaleString('vi-VN')} Bot ảo theo dòng thời gian từ ngày bắt đầu đến nay (cơ chế phân bổ như thật)!`, 'success');
       }
     }, 600);
+  };
+
+  const handleClearBots = (prog) => {
+    if (!window.confirm(`Bạn có chắc muốn xóa sạch toàn bộ bot ảo của chương trình "${prog.title || prog.projectName}" để đưa về 0 lượt bot không?`)) return;
+    clearBotPredictions(prog.id);
+    setPredictionPrograms([...getStoredPredictionPrograms()]);
+    if (showToast) {
+      showToast(`🧹 Đã xóa sạch bot ảo của chương trình "${prog.title || prog.projectName}", danh sách trở về 0 bot!`, 'success');
+    }
   };
 
   const handleOpenProgramModal = (prog = null) => {
@@ -936,8 +946,8 @@ export default function AdminRewardsGamificationManager() {
         requireMembership: true, // Mặc định bật đặc quyền Gói Hội Viên
         status: 'active',
         botConfig: {
-          isEnabled: true,
-          botCount: 2000,
+          isEnabled: false, // MẶC ĐỊNH KHÔNG BẬT BOT KHI TẠO MỚI (Bắt đầu từ 0 lượt tham gia)
+          botCount: 0,      // Mặc định 0 bot
           basePrice: 5.5,
           spreadPercent: 8
         },
@@ -971,9 +981,11 @@ export default function AdminRewardsGamificationManager() {
     setPredictionPrograms(nextList);
     setProgramModalOpen(false);
 
-    // Tự động đồng bộ bot nếu bot được bật
-    if (editingProgram.botConfig?.isEnabled) {
+    // Đồng bộ bot: Chỉ đồng bộ nếu bot được BẬT chủ động và botCount > 0. Nếu TẮT bot thì xóa sạch bot về 0!
+    if (editingProgram.botConfig?.isEnabled && Number(editingProgram.botConfig?.botCount || 0) > 0) {
       syncBotsForGame(editingProgram.id, editingProgram.botConfig, editingProgram.startDate, editingProgram.endDate);
+    } else {
+      clearBotPredictions(editingProgram.id);
     }
 
     if (showToast) showToast(`Đã lưu chương trình "${editingProgram.title}" thành công!`, 'success');
@@ -3062,7 +3074,7 @@ export default function AdminRewardsGamificationManager() {
                       <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">
                         <div className="text-[11px] text-slate-400 font-semibold mb-1">Số lượng Bot</div>
                         <div className="text-base font-black text-white font-mono">
-                          {(prog.botConfig?.botCount || 2000).toLocaleString('vi-VN')} bot
+                          {(prog.botConfig?.botCount !== undefined ? prog.botConfig.botCount : 0).toLocaleString('vi-VN')} bot
                         </div>
                       </div>
                       <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">
@@ -3078,9 +3090,9 @@ export default function AdminRewardsGamificationManager() {
                         </div>
                       </div>
                       <div className="p-3 bg-slate-900 rounded-xl border border-slate-800">
-                        <div className="text-[11px] text-slate-400 font-semibold mb-1">Quyền nhận thưởng</div>
-                        <div className="text-xs font-bold text-rose-400 mt-0.5">
-                          100% Không được nhận giải
+                        <div className="text-[11px] text-slate-400 font-semibold mb-1">Đã đồng bộ thực tế</div>
+                        <div className="text-base font-black text-emerald-400 font-mono">
+                          {botVotes.length.toLocaleString('vi-VN')} bot
                         </div>
                       </div>
                     </div>
@@ -3092,7 +3104,7 @@ export default function AdminRewardsGamificationManager() {
 
                     {/* HÀNG NÚT HÀNH ĐỘNG CỦA ADMIN */}
                     <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <button
                           type="button"
                           disabled={isSyncingBotId === prog.id}
@@ -3102,6 +3114,18 @@ export default function AdminRewardsGamificationManager() {
                           <i className={`fa-solid ${isSyncingBotId === prog.id ? 'fa-spinner fa-spin' : 'fa-arrows-rotate'}`}></i>
                           <span>{isSyncingBotId === prog.id ? 'Đang chạy đồng bộ...' : 'Chạy / Đồng Bộ Bot'}</span>
                         </button>
+
+                        {botVotes.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => handleClearBots(prog)}
+                            className="px-3.5 py-2 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 font-bold text-xs rounded-xl transition flex items-center gap-1.5 cursor-pointer border border-rose-800/60"
+                            title="Xóa sạch toàn bộ bot ảo của chương trình này, đưa về 0 lượt bot"
+                          >
+                            <i className="fa-solid fa-broom"></i>
+                            <span>Xóa Bot (Về 0)</span>
+                          </button>
+                        )}
 
                         <button
                           type="button"
@@ -3516,14 +3540,14 @@ export default function AdminRewardsGamificationManager() {
                     <label className="block text-slate-400 mb-1">Số lượng Bot:</label>
                     <input
                       type="number"
-                      min="10"
+                      min="0"
                       max="3000"
-                      value={editingProgram.botConfig?.botCount || 2000}
+                      value={editingProgram.botConfig?.botCount ?? 0}
                       onChange={(e) => setEditingProgram({
                         ...editingProgram,
                         botConfig: {
                           ...(editingProgram.botConfig || {}),
-                          botCount: Number(e.target.value)
+                          botCount: Math.max(0, parseInt(e.target.value) || 0)
                         }
                       })}
                       className="w-full bg-slate-950 border border-slate-700 rounded-xl px-2.5 py-1.5 text-white font-mono font-bold"

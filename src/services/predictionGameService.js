@@ -199,9 +199,10 @@ export function generateRealisticTimestamps(count, startDateStr = null, endDateS
 }
 
 // Sinh danh sách bản ghi Bot Ảo (is_bot = 1) phân bổ thời gian như thật (không dùng ảnh avatar AI)
-export function generateBotRecords(gameId, botCount = 2000, basePrice = 7.8, spreadPercent = 6, startDate = null, endDate = null) {
+export function generateBotRecords(gameId, botCount = 0, basePrice = 7.8, spreadPercent = 6, startDate = null, endDate = null) {
   const records = [];
-  const count = Math.min(Math.max(Number(botCount) || 50, 10), 3000);
+  const count = Math.max(Number(botCount) || 0, 0);
+  if (count <= 0) return [];
   const spreadDelta = basePrice * (Number(spreadPercent) / 100);
   const stdev = spreadDelta / 2; // ~95% giá rơi trong khoảng ±spreadDelta
 
@@ -335,10 +336,10 @@ export function saveStoredPredictions(gameId, records) {
  * Phân bổ thời gian chân thực theo startDate -> endDate của chương trình
  */
 export function syncBotsForGame(gameId, botConfig = {}, startDate = null, endDate = null) {
-  const count = Number(botConfig.botCount || 2000);
-  const base = Number(botConfig.basePrice || 15.5);
-  const spread = Number(botConfig.spreadPercent || 8);
-  const isEnabled = botConfig.isEnabled !== false;
+  const isEnabled = Boolean(botConfig?.isEnabled);
+  const count = Number(botConfig?.botCount !== undefined ? botConfig.botCount : 0);
+  const base = Number(botConfig?.basePrice || 15.5);
+  const spread = Number(botConfig?.spreadPercent || 8);
 
   // Tự động lấy startDate và endDate từ cấu hình chương trình nếu chưa có
   if (!startDate || !endDate) {
@@ -360,11 +361,37 @@ export function syncBotsForGame(gameId, botConfig = {}, startDate = null, endDat
     // Ghép với User thật và sắp xếp giảm dần theo thời gian (mới nhất lên đầu)
     newRecords = [...realUsers, ...bots].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   } else {
+    // Nếu tắt bot hoặc count <= 0: Xóa toàn bộ bot, đưa danh sách bot về 0 (chỉ giữ người thật)
     newRecords = realUsers.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }
 
   saveStoredPredictions(gameId, newRecords);
   return newRecords;
+}
+
+// Xóa toàn bộ bot ảo của 1 chương trình, đưa về 0 lượt bot
+export function clearBotPredictions(gameId) {
+  const existing = getStoredPredictions(gameId);
+  const realUsers = existing.filter(r => !r.is_bot && r.is_bot !== 1);
+  saveStoredPredictions(gameId, realUsers);
+
+  // Cập nhật cấu hình chương trình: tắt bot và đưa botCount về 0
+  const progs = getStoredPredictionPrograms();
+  const nextProgs = progs.map(p => {
+    if (p.id === gameId) {
+      return {
+        ...p,
+        botConfig: {
+          ...(p.botConfig || {}),
+          isEnabled: false,
+          botCount: 0
+        }
+      };
+    }
+    return p;
+  });
+  savePredictionPrograms(nextProgs);
+  return realUsers;
 }
 
 /**

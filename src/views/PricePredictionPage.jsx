@@ -85,7 +85,8 @@ export default function PricePredictionPage({ projectSlug = null }) {
 
     loadedPrograms.forEach(prog => {
       const existing = getStoredPredictions(prog.id);
-      if (existing.length === 0 && prog.botConfig?.isEnabled !== false) {
+      // Chỉ tự động đồng bộ bot nếu chương trình BẬT bot chủ động (isEnabled === true) VÀ botCount > 0
+      if (existing.length === 0 && prog.botConfig?.isEnabled === true && Number(prog.botConfig?.botCount || 0) > 0) {
         syncBotsForGame(prog.id, prog.botConfig, prog.startDate, prog.endDate);
       }
     });
@@ -94,7 +95,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
   // Mô phỏng dòng thời gian thực tế: Cứ mỗi 15-25 giây có thêm 1 lượt dự đoán mới tự nhiên
   useEffect(() => {
     const timer = setInterval(() => {
-      const activeProgs = programs.filter(p => p.status === 'active' && p.botConfig?.isEnabled !== false);
+      const activeProgs = programs.filter(p => p.status === 'active' && p.botConfig?.isEnabled === true && Number(p.botConfig?.botCount || 0) > 0);
       if (activeProgs.length === 0) return;
       const randomProg = activeProgs[Math.floor(Math.random() * activeProgs.length)];
       appendLiveBotPrediction(randomProg.id, randomProg.botConfig);
