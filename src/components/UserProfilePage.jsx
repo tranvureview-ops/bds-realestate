@@ -1177,6 +1177,31 @@ export default function UserProfilePage() {
                               {currentPkg?.allowTreasureHunt ? (currentPkg?.treasureHuntMaxArticles || 2) : 0}
                             </div>
                           </div>
+
+                          <div className="p-3 bg-gradient-to-br from-purple-50 to-indigo-50 rounded-2xl border border-purple-200 flex items-center justify-between">
+                            <div>
+                              <div className="text-[11px] text-purple-900 font-bold flex items-center gap-1">
+                                <i className="fa-solid fa-chart-line text-purple-600"></i>
+                                <span>Dự Đoán Giá BĐS</span>
+                              </div>
+                              <div className="text-[10px] text-purple-700">
+                                {currentPkg?.allowPricePrediction !== false
+                                  ? 'Được tham gia minigame nhận thưởng'
+                                  : 'Chưa hỗ trợ cho gói này'}
+                              </div>
+                            </div>
+                            <div>
+                              {currentPkg?.allowPricePrediction !== false ? (
+                                <span className="px-2.5 py-1 rounded-full bg-purple-100 text-purple-700 border border-purple-200 text-xs font-bold">
+                                  ✓ Mở khóa
+                                </span>
+                              ) : (
+                                <span className="px-2.5 py-1 rounded-full bg-slate-100 text-slate-500 border border-slate-200 text-xs font-bold">
+                                  Khóa
+                                </span>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       );
                     })()}

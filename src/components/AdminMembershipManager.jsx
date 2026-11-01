@@ -33,7 +33,8 @@ const SUGGESTED_FEATURES = [
   'Huy hiệu "Hội Viên Chuyên Nghiệp" tăng 80% độ tin cậy giao dịch',
   'Chuyên viên CSKH hỗ trợ kỹ thuật và tối ưu tin đăng riêng 24/7',
   'Miễn phí gắn nhãn Pháp lý chuẩn / Sổ đỏ chính chủ',
-  'Tiết kiệm tối đa chi phí quảng cáo so với mua lẻ từng tin'
+  'Tiết kiệm tối đa chi phí quảng cáo so với mua lẻ từng tin',
+  'Tham gia Minigame Dự Đoán Giá BĐS rinh tiền thưởng chia đều'
 ];
 
 export default function AdminMembershipManager({ onNavigateToPricing = null }) {
@@ -146,6 +147,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
     allowScheduledPublishing: true,
     allowFutureStartDate: true,
     allowTreasureHunt: true,
+    allowPricePrediction: true,
     treasureHuntMaxArticles: 2,
     recommended: false
   });
@@ -162,6 +164,9 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
       : (cloned.id === 'member-basic' ? false : true);
     cloned.allowTreasureHunt = typeof cloned.allowTreasureHunt === 'boolean'
       ? cloned.allowTreasureHunt
+      : (cloned.id === 'member-basic' ? false : true);
+    cloned.allowPricePrediction = typeof cloned.allowPricePrediction === 'boolean'
+      ? cloned.allowPricePrediction
       : (cloned.id === 'member-basic' ? false : true);
     cloned.treasureHuntMaxArticles = typeof cloned.treasureHuntMaxArticles === 'number'
       ? cloned.treasureHuntMaxArticles
@@ -489,6 +494,19 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
       isEnabled
         ? `Đã BẬT đặc quyền Săn Kho Báu (Tối đa ${currentMax} tin) cho "${target.name}"!`
         : `Đã TẮT đặc quyền Săn Kho Báu cho "${target.name}"!`,
+      'success'
+    );
+  };
+
+  // Quick toggle Price Prediction flag per package
+  const handleTogglePackagePricePrediction = (pkgId, isEnabled) => {
+    const target = membershipPackages.find(p => p.id === pkgId);
+    if (!target) return;
+    updateMembershipPackage(pkgId, { ...target, allowPricePrediction: isEnabled });
+    showToast(
+      isEnabled
+        ? `Đã BẬT quyền tham gia Dự đoán giá BĐS cho "${target.name}"!`
+        : `Đã TẮT quyền tham gia Dự đoán giá BĐS cho "${target.name}"!`,
       'success'
     );
   };
@@ -963,6 +981,51 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                     />
                   </button>
                 </div>
+
+                {/* Per-package Price Prediction Switch Toggle */}
+                <div className="mt-2.5 p-3 rounded-2xl bg-slate-900/90 border border-slate-800 flex items-center justify-between gap-3 shadow-inner">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                      pkg.allowPricePrediction 
+                        ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' 
+                        : 'bg-slate-800 text-slate-500 border border-slate-700'
+                    }`}>
+                      <i className="fa-solid fa-chart-line text-xs"></i>
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold text-white flex items-center gap-1.5 flex-wrap">
+                        <span>Dự đoán giá BĐS:</span>
+                        {pkg.allowPricePrediction ? (
+                          <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/80 border border-emerald-800/80 px-1.5 py-0.2 rounded-full">
+                            ● BẬT
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-slate-500 font-bold bg-slate-800 border border-slate-700 px-1.5 py-0.2 rounded-full">
+                            ○ TẮT
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-[10px] text-slate-400 truncate">
+                        {pkg.allowPricePrediction ? 'Được tham gia dự đoán giá BĐS' : 'Không có quyền dự đoán giá'}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleTogglePackagePricePrediction(pkg.id, !pkg.allowPricePrediction)}
+                    className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      pkg.allowPricePrediction ? 'bg-purple-600' : 'bg-slate-700'
+                    }`}
+                    title={pkg.allowPricePrediction ? `Bấm để TẮT dự đoán giá cho ${pkg.name}` : `Bấm để BẬT dự đoán giá cho ${pkg.name}`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                        pkg.allowPricePrediction ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
               </div>
 
               {/* Action Button: Edit Details */}
@@ -1343,6 +1406,34 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                           </div>
                         )}
                       </div>
+
+                      {/* Price Prediction Feature Toggle */}
+                      <label className="flex items-center gap-3 p-3.5 bg-slate-900/60 hover:bg-slate-900 rounded-2xl border border-slate-800 cursor-pointer transition">
+                        <input
+                          type="checkbox"
+                          checked={Boolean(editingPkg.allowPricePrediction)}
+                          onChange={(e) => handleFieldChange('allowPricePrediction', e.target.checked)}
+                          className="w-4 h-4 text-purple-500 rounded border-slate-700 bg-slate-800 focus:ring-purple-400 shrink-0"
+                        />
+                        <div>
+                          <div className="font-bold text-white text-xs flex items-center gap-2">
+                            <i className="fa-solid fa-chart-line text-purple-400"></i>
+                            <span>Bật Tiện Ích "Dự Đoán Giá BĐS" Cho Gói Này</span>
+                            {editingPkg.allowPricePrediction ? (
+                              <span className="px-2 py-0.5 rounded text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30 font-bold">
+                                ✓ Đang Bật
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded text-[10px] bg-slate-800 text-slate-400 border border-slate-700 font-bold">
+                                ○ Đang Tắt
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-slate-400 mt-0.5">
+                            Khi bật, hội viên sở hữu gói này được phép tham gia minigame Dự đoán giá BĐS nhận thưởng chia đều. Nếu tắt, người dùng gói này sẽ không có quyền gửi dự đoán giá.
+                          </p>
+                        </div>
+                      </label>
                     </div>
                   )}
 
@@ -1900,6 +1991,21 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                                 </div>
                                 <span className="text-orange-700 font-black text-[10px]">
                                   Tối đa {editingPkg.treasureHuntMaxArticles || 2} tin
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Tiện ích dự đoán giá BĐS */}
+                            {Boolean(editingPkg.allowPricePrediction) && (
+                              <div className="p-2 rounded-xl bg-purple-50/80 border border-purple-200 flex items-center justify-between text-xs">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="w-5 h-5 rounded-md bg-purple-600 text-white flex items-center justify-center text-[10px] font-black">
+                                    <i className="fa-solid fa-chart-line text-[9px]"></i>
+                                  </span>
+                                  <span className="font-bold text-purple-950 text-[11px]">Dự Đoán Giá BĐS</span>
+                                </div>
+                                <span className="text-purple-700 font-black text-[10px]">
+                                  Được tham gia
                                 </span>
                               </div>
                             )}

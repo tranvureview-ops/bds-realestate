@@ -587,6 +587,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         : (pkg.id === 'member-basic' ? false : true),
       allowFutureStartDate: typeof pkg.allowFutureStartDate === 'boolean'
         ? pkg.allowFutureStartDate
+        : (pkg.id === 'member-basic' ? false : true),
+      allowPricePrediction: typeof pkg.allowPricePrediction === 'boolean'
+        ? pkg.allowPricePrediction
         : (pkg.id === 'member-basic' ? false : true)
     }));
   });
@@ -1620,6 +1623,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
               : (pkg.id === 'member-basic' ? false : true),
             allowFutureStartDate: typeof pkg.allowFutureStartDate === 'boolean'
               ? pkg.allowFutureStartDate
+              : (pkg.id === 'member-basic' ? false : true),
+            allowPricePrediction: typeof pkg.allowPricePrediction === 'boolean'
+              ? pkg.allowPricePrediction
               : (pkg.id === 'member-basic' ? false : true)
           })));
         }

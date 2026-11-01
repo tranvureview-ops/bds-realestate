@@ -3208,19 +3208,6 @@ export default function AdminRewardsGamificationManager() {
 
                     {/* Phải: Các nút hành động cho Bot */}
                     <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-auto">
-                      {prog.botConfig?.isEnabled && (
-                        <button
-                          type="button"
-                          disabled={isSyncingBotId === prog.id}
-                          onClick={() => handleSyncBots(prog)}
-                          className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 active:scale-95 text-indigo-300 font-bold text-[11px] rounded-lg transition flex items-center gap-1 cursor-pointer border border-slate-700"
-                          title="Đồng bộ phân bổ lại bot theo tiến độ thời gian"
-                        >
-                          <i className={`fa-solid ${isSyncingBotId === prog.id ? 'fa-spinner fa-spin' : 'fa-arrows-rotate'}`}></i>
-                          <span>{isSyncingBotId === prog.id ? 'Đang chạy...' : 'Đồng bộ'}</span>
-                        </button>
-                      )}
-
                       {botVotes.length > 0 && (
                         <button
                           type="button"

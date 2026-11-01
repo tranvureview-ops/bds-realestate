@@ -562,6 +562,26 @@ export default function MembershipPage() {
                         </div>
                       )}
 
+                      {/* Tiện Ích Dự Đoán Giá BĐS */}
+                      {pkg.allowPricePrediction ? (
+                        <div className="p-2.5 rounded-xl bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2">
+                            <span className="w-6 h-6 rounded-lg bg-purple-600 text-white flex items-center justify-center text-[10px] font-black">
+                              <i className="fa-solid fa-chart-line text-[10px]"></i>
+                            </span>
+                            <span className="font-bold text-purple-950">Dự Đoán Giá BĐS</span>
+                          </div>
+                          <span className="text-purple-700 font-black text-[11px]">
+                            Được tham gia chia thưởng
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="p-2 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between text-xs text-slate-400">
+                          <span>Dự Đoán Giá BĐS:</span>
+                          <span className="text-[11px]">Không áp dụng</span>
+                        </div>
+                      )}
+
                       {/* Đặc Quyền Mở Rương Săn Kho Báu Tỷ Lệ Cao */}
                       {(() => {
                         const tCfg = rewardsConfig?.treasureHuntConfig;
@@ -805,6 +825,24 @@ export default function MembershipPage() {
                     return (
                       <td key={p.id} className={`p-4 text-center font-bold ${hasFeature ? 'text-emerald-600' : 'text-slate-400'} ${p.recommended ? 'bg-amber-50/30' : ''}`}>
                         {hasFeature ? '✓ Tự do chọn ngày' : '— (Chỉ đăng hôm nay)'}
+                      </td>
+                    );
+                  })}
+                </tr>
+                <tr>
+                  <td className="p-4 font-bold text-slate-800">
+                    <div className="flex items-center gap-1.5">
+                      <i className="fa-solid fa-chart-line text-purple-600 text-xs"></i>
+                      <span>Dự đoán giá BĐS (Minigame chia thưởng)</span>
+                    </div>
+                  </td>
+                  {(membershipPackages || []).map(p => {
+                    const hasFeature = typeof p.allowPricePrediction === 'boolean'
+                      ? p.allowPricePrediction
+                      : (p.id === 'member-basic' ? false : true);
+                    return (
+                      <td key={p.id} className={`p-4 text-center font-bold ${hasFeature ? 'text-purple-600 font-black' : 'text-slate-400'} ${p.recommended ? 'bg-amber-50/30' : ''}`}>
+                        {hasFeature ? '✓ Được tham gia' : '—'}
                       </td>
                     );
                   })}

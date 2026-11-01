@@ -178,6 +178,7 @@ export const MEMBERSHIP_PACKAGES = [
     allowFutureStartDate: false,
     allowTreasureHunt: false,
     treasureHuntMaxArticles: 0,
+    allowPricePrediction: false,
     recommended: false
   },
   {
@@ -216,6 +217,7 @@ export const MEMBERSHIP_PACKAGES = [
     allowFutureStartDate: true,
     allowTreasureHunt: true,
     treasureHuntMaxArticles: 5,
+    allowPricePrediction: true,
     recommended: true
   },
   {
@@ -255,6 +257,7 @@ export const MEMBERSHIP_PACKAGES = [
     allowFutureStartDate: true,
     allowTreasureHunt: true,
     treasureHuntMaxArticles: 10,
+    allowPricePrediction: true,
     recommended: false
   }
 ];

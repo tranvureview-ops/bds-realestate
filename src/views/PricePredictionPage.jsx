@@ -52,7 +52,7 @@ function getPriceInterpretation(rawVal) {
 }
 
 export default function PricePredictionPage({ projectSlug = null }) {
-  const { currentUser, setCurrentUser, showToast, addBonusWalletBalance, systemConfig, predictionPrograms } = useRealEstate();
+  const { currentUser, setCurrentUser, showToast, addBonusWalletBalance, systemConfig, predictionPrograms, membershipPackages } = useRealEstate();
   
   // Danh sách chương trình dự đoán (Ưu tiên đồng bộ trực tiếp từ SSR initialData để chống giật/nhảy trang)
   const [programs, setPrograms] = useState(() => {
@@ -78,6 +78,8 @@ export default function PricePredictionPage({ projectSlug = null }) {
   const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
   const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Sàn Nhà Đất';
   const isMemberActive = Boolean(currentUser?.membership?.packageId && new Date(currentUser?.membership?.expiresAt || 0) > new Date());
+  const activeUserPkg = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
+  const isMemberPredictionAllowed = isMemberActive && (currentUser?.role === 'admin' || activeUserPkg?.allowPricePrediction !== false);
 
   // Trạng thái yêu cầu Gói Hội Viên toàn hệ thống (Real-time Cross-tab Sync)
   const [globalMembershipRequired, setGlobalMembershipRequired] = useState(() => {
@@ -262,9 +264,15 @@ export default function PricePredictionPage({ projectSlug = null }) {
     }
 
     // Kiểm tra nếu chương trình yêu cầu Gói Hội Viên
-    if (isGameMembershipRequired(game) && !isMemberActive) {
-      if (showToast) showToast('Tính năng này là Đặc Quyền dành riêng cho Gói Hội Viên! Vui lòng đăng ký Gói Hội Viên để tham gia.', 'warning');
-      return;
+    if (isGameMembershipRequired(game)) {
+      if (!isMemberActive) {
+        if (showToast) showToast('Tính năng này là Đặc Quyền dành riêng cho Gói Hội Viên! Vui lòng đăng ký Gói Hội Viên để tham gia.', 'warning');
+        return;
+      }
+      if (!isMemberPredictionAllowed) {
+        if (showToast) showToast(`Gói hội viên "${activeUserPkg?.name || 'hiện tại'}" chưa hỗ trợ tiện ích Dự đoán giá BĐS. Vui lòng nâng cấp gói để tham gia!`, 'warning');
+        return;
+      }
     }
 
     const priceToSubmit = Number(customPrice !== null ? customPrice : userInputs[game.id]?.price);
@@ -577,6 +585,15 @@ export default function PricePredictionPage({ projectSlug = null }) {
                             >
                               <i className="fa-solid fa-crown text-amber-300"></i>
                               <span>Đăng Ký Hội Viên Để Dự Đoán</span>
+                            </Link>
+                          ) : isGameMembershipRequired(game) && !isMemberPredictionAllowed ? (
+                            <Link
+                              to="/goi-hoi-vien"
+                              className="px-4 py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
+                              title={`Gói "${activeUserPkg?.name || ''}" chưa hỗ trợ dự đoán giá. Bấm để nâng cấp gói!`}
+                            >
+                              <i className="fa-solid fa-arrow-up-right-from-square text-white"></i>
+                              <span>Nâng Cấp Gói Để Dự Đoán</span>
                             </Link>
                           ) : (
                             <button
