@@ -1163,7 +1163,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
                                   ? "Yêu cầu Gói Hội Viên để dự đoán"
                                   : isGameMembershipRequired(game) && !isMemberPredictionAllowed
                                   ? `Gói ${activeUserPkg?.name || 'hiện tại'} không hỗ trợ`
-                                  : "Nhập mức giá dự đoán (VD: 15.65)..."
+                                  : "Nhập mức giá dự đoán"
                               }
                               disabled={isGameMembershipRequired(game) && (!isMemberActive || !isMemberPredictionAllowed)}
                               value={userInputs[game.id]?.price || ''}
