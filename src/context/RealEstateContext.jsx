@@ -3523,12 +3523,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const isAdmin = currentUser?.role === 'admin';
     const isMemberActive = isMembershipActive(currentUser);
 
-    // Tính toán chiết khấu Voucher Gói Hội Viên (Áp dụng cho Tin VIP)
+    // Tính toán chiết khấu Voucher Gói Hội Viên (Áp dụng cho Tin Thường hoặc Tin VIP)
     let discountAmount = 0;
     let usedVoucherType = null;
 
     if (!isAdmin && isMemberActive && appliedVoucher) {
-      if (appliedVoucher === 'vipPublish' && (currentUser?.vouchers?.vipPublish || 0) > 0 && !isNormal) {
+      if (appliedVoucher === 'normalPublish' && (currentUser?.vouchers?.normalPublish || 0) > 0 && isNormal) {
+        usedVoucherType = 'normalPublish';
+      } else if (appliedVoucher === 'vipPublish' && (currentUser?.vouchers?.vipPublish || 0) > 0 && !isNormal) {
         const userPkg = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
         const vipVoucherDiscount = Number(userPkg?.vouchersPerCycle?.vipDiscount) || 400000;
         discountAmount = Math.min(initialCost, vipVoucherDiscount);
