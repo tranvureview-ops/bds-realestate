@@ -233,13 +233,13 @@ export default function PricePredictionPage({ projectSlug = null }) {
 
   // Dữ liệu mẫu Live Ticker mặc định giúp SSR & Client đồng nhất 100% không bị giật/nhảy
   const DEFAULT_TICKER_ITEMS = useMemo(() => [
-    { id: 'def-1', userName: 'Ngô B***', price: '5.54', timeText: 'vừa xong', isBot: true },
-    { id: 'def-2', userName: '096***280', price: '5.68', timeText: '1 phút trước', isBot: true },
-    { id: 'def-3', userName: 'Thùy Dương', price: '5.45', timeText: '2 phút trước', isBot: true },
-    { id: 'def-4', userName: 'Lê A. Q***', price: '15.65', timeText: '3 phút trước', isBot: true },
-    { id: 'def-5', userName: 'Đặng M***', price: '16.42', timeText: '5 phút trước', isBot: true },
-    { id: 'def-6', userName: '090***618', price: '15.80', timeText: '7 phút trước', isBot: true },
-    { id: 'def-7', userName: 'Trần Văn H***', price: '5.62', timeText: '10 phút trước', isBot: true }
+    { id: 'def-1', userName: 'Ngô B***', price: '5.54', totalPrize: '2.000.000đ', timeText: 'vừa xong', isBot: true },
+    { id: 'def-2', userName: '096***280', price: '5.68', totalPrize: '3.000.000đ', timeText: '1 phút trước', isBot: true },
+    { id: 'def-3', userName: 'Thùy Dương', price: '5.45', totalPrize: '2.000.000đ', timeText: '2 phút trước', isBot: true },
+    { id: 'def-4', userName: 'Lê A. Q***', price: '15.65', totalPrize: '2.000.000đ', timeText: '3 phút trước', isBot: true },
+    { id: 'def-5', userName: 'Đặng M***', price: '16.42', totalPrize: '3.000.000đ', timeText: '5 phút trước', isBot: true },
+    { id: 'def-6', userName: '090***618', price: '15.80', totalPrize: '2.000.000đ', timeText: '7 phút trước', isBot: true },
+    { id: 'def-7', userName: 'Trần Văn H***', price: '5.62', totalPrize: '3.000.000đ', timeText: '10 phút trước', isBot: true }
   ], []);
 
   // Khởi tạo và đồng bộ bot ngầm nếu chưa có dữ liệu trong storage (không ép re-render layout)
@@ -286,6 +286,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
           price: r.predictedPrice,
           isBot: Boolean(r.is_bot),
           programTitle: prog.projectName || prog.title,
+          totalPrize: (Number(prog.totalPrize) || 2000000).toLocaleString('vi-VN') + ' đ Ví KM',
           timeText: formatRelativeTime(r.createdAt),
           createdAt: r.createdAt || new Date().toISOString()
         });
@@ -447,16 +448,16 @@ export default function PricePredictionPage({ projectSlug = null }) {
             <i className="fa-solid fa-bolt-lightning text-amber-300 animate-bounce"></i>
             <span>Live Ticker</span>
           </div>
-          <div className="overflow-x-auto no-scrollbar scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] whitespace-nowrap flex items-center gap-6 text-xs text-slate-700 py-0.5 w-full">
+          <div className="overflow-x-auto no-scrollbar scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] whitespace-nowrap flex items-center gap-4 text-xs text-slate-700 py-0.5 w-full">
             {tickerEvents.map((evt, idx) => (
-              <div key={evt.id || `${evt.userName}-${idx}`} className="inline-flex items-center gap-2 shrink-0 bg-white px-3 py-1 rounded-xl border border-slate-200/80 shadow-2xs">
-                <div className="w-5 h-5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center text-[10px]">
+              <div key={evt.id || `${evt.userName}-${idx}`} className="inline-flex items-center gap-2 shrink-0 bg-white px-3.5 py-1.5 rounded-xl border border-slate-200/80 shadow-2xs">
+                <div className="w-5 h-5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center text-[10px] shrink-0">
                   <i className="fa-solid fa-user"></i>
                 </div>
                 <span className="font-bold text-slate-900">{evt.userName}</span>
-                <span className="text-slate-400">•</span>
-                <span>Dự đoán: <strong className="text-indigo-600 font-mono font-bold">{evt.price} tỷ</strong></span>
-                <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-1">
+                <span>vừa gia nhập <strong className="text-slate-900 font-bold">Dự đoán giá BĐS</strong> với mức giá <strong className="text-indigo-600 font-mono font-black">{evt.price} tỷ</strong>!</span>
+                <span className="text-amber-800 font-medium">Tổng giải thưởng <strong className="text-emerald-700 font-mono font-black">{evt.totalPrize || '2.000.000 đ Ví KM'}</strong> đang rung lắc dữ dội!</span>
+                <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0">
                   <i className="fa-solid fa-check text-[9px]"></i>
                   <span>Đã ghi nhận</span>
                 </span>
