@@ -236,7 +236,6 @@ export default function Navbar() {
               {/* Social Media Channels */}
               {showSocial && activeSocialList.length > 0 && (
                 <div className="flex items-center gap-1 sm:gap-1.5 shrink-0" style={{ contain: 'layout' }}>
-                  <span className="hidden lg:inline text-slate-400 text-[10px] font-medium mr-0.5 shrink-0">Mạng xã hội:</span>
                   {activeSocialList.map(item => (
                     <Link
                       key={item.key}
