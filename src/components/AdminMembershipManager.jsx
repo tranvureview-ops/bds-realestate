@@ -1692,8 +1692,9 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                           : 'border-slate-200'
                       }`}>
                         {editingPkg.recommended && (
-                          <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 font-black text-[10px] uppercase px-3.5 py-0.5 rounded-full shadow-md tracking-wider">
-                            ★ Gói Phổ Biến & Bán Chạy Nhất
+                          <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10 inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500 via-amber-400 to-orange-500 text-slate-950 font-black text-[10px] uppercase px-3.5 py-0.5 rounded-full shadow-md tracking-wider whitespace-nowrap border border-amber-300/40">
+                            <i className="fa-solid fa-star text-[8px]"></i>
+                            <span>Gói Phổ Biến Nhất</span>
                           </div>
                         )}
 
