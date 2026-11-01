@@ -115,7 +115,7 @@ export default function Navbar() {
 
     const step = () => {
       if (!isHovered && el) {
-        scrollPos += 0.5; // Lưu vị trí thực trong bộ nhớ JS, tránh việc DOM tự làm tròn 0.5 về 0
+        scrollPos += 0.22; // Tốc độ cuộn siêu chậm, êm dịu giúp người dùng đọc thoải mái mà không bị hoa mắt
         
         // Chu kỳ lặp vô tận: khi chạy hết 1 chu kỳ (1/3 tổng chiều rộng), reset về 0 hoàn toàn không giật
         const loopThreshold = el.scrollWidth / 3;
