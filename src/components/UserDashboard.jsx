@@ -809,7 +809,20 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                     {/* Action Buttons for this listing */}
                     <div className="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end pt-3 md:pt-0 border-t md:border-t-0 border-slate-100">
                       {/* Nút Xác Thực Tin / Đang Duyệt Sổ Đỏ */}
-                      {Boolean(prop.is_verified || prop.isVerified) ? null : (prop.verification_status === 'pending' || prop.verificationStatus === 'pending') ? (
+                      {Boolean(prop.is_verified || prop.isVerified) ? null : isItemExpired ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            showToast('Tin đăng này đã hết hạn hiển thị! Vui lòng Gia hạn tin trước khi gửi hồ sơ xác thực.', 'warning');
+                            handleOpenRenewModal(prop);
+                          }}
+                          className="px-3 py-1.5 font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-400 border border-slate-200 cursor-pointer"
+                          title="Tin đăng đã hết hạn hiển thị. Bắt buộc gia hạn tin trước khi xác thực"
+                        >
+                          <i className="fa-solid fa-circle-check text-slate-400"></i>
+                          <span>Xác thực tin</span>
+                        </button>
+                      ) : (prop.verification_status === 'pending' || prop.verificationStatus === 'pending') ? (
                         <button
                           type="button"
                           onClick={() => setReviewingDocProperty(prop)}
@@ -864,6 +877,23 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                         const hasBumpVoucher = (currentUser?.vouchers?.normalBump || 0) > 0;
                         const isDiamond = prop.vipPackageId === 'vip-diamond';
 
+                        if (isItemExpired) {
+                          return (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                showToast('Tin đăng này đã hết hạn hiển thị! Vui lòng Gia hạn tin trước khi Đẩy tin.', 'warning');
+                                handleOpenRenewModal(prop);
+                              }}
+                              className="px-3 py-1.5 font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-400 border border-slate-200 cursor-pointer"
+                              title="Tin đăng đã hết hạn hiển thị. Bắt buộc gia hạn tin trước khi đẩy tin"
+                            >
+                              <i className="fa-solid fa-arrow-up text-slate-400"></i>
+                              <span>{hasBumpVoucher ? 'Đẩy tin (0đ • Voucher)' : `Đẩy tin (${formatDiscountK(bumpServicePrice || BUMP_SERVICE_PRICE || 10000)})`}</span>
+                            </button>
+                          );
+                        }
+
                         return (
                           <div className="flex items-center gap-1">
                             <button
@@ -888,16 +918,31 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                       })()}
 
                       {/* Upgrade VIP button */}
-                      <button
-                        onClick={() => {
-                          setSelectedPropertyForVip(prop);
-                          navigate('/bang-gia-tin-dang');
-                        }}
-                        className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1 cursor-pointer"
-                      >
-                        <i className="fa-solid fa-crown"></i>
-                        <span>Nâng VIP</span>
-                      </button>
+                      {isItemExpired ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            showToast('Tin đăng này đã hết hạn hiển thị! Vui lòng Gia hạn tin trước khi Nâng VIP.', 'warning');
+                            handleOpenRenewModal(prop);
+                          }}
+                          className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-400 border border-slate-200 font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1 cursor-pointer"
+                          title="Tin đăng đã hết hạn hiển thị. Bắt buộc gia hạn tin trước khi nâng VIP"
+                        >
+                          <i className="fa-solid fa-crown text-slate-400"></i>
+                          <span>Nâng VIP</span>
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setSelectedPropertyForVip(prop);
+                            navigate('/bang-gia-tin-dang');
+                          }}
+                          className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1 cursor-pointer"
+                        >
+                          <i className="fa-solid fa-crown"></i>
+                          <span>Nâng VIP</span>
+                        </button>
+                      )}
 
                       {/* Nút Gán Nổi Bật (Dành cho người mua Gói Hội Viên & Admin) */}
                       {isItemTreasureActive ? (

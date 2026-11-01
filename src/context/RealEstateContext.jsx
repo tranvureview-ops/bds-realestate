@@ -2221,6 +2221,15 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   // Bump listing (Đẩy tin) - Hỗ trợ Voucher Hội viên
   const bumpListing = (propertyId, useVoucher = false) => {
     const property = properties.find(p => p.id === propertyId);
+    if (!property) return false;
+
+    const expInfo = getPropertyExpirationInfo ? getPropertyExpirationInfo(property) : null;
+    const isItemExpired = Boolean(expInfo?.isExpired) || property.status === 'expired';
+    if (isItemExpired) {
+      showToast('Tin đăng này đã hết hạn hiển thị! Vui lòng gia hạn tin trước khi đẩy tin.', 'warning');
+      return false;
+    }
+
     const isMemberActive = isMembershipActive(currentUser);
     const hasBumpVoucher = isMemberActive && (currentUser.vouchers?.normalBump || 0) > 0;
 
@@ -2300,6 +2309,16 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   const upgradeVip = (propertyId, newVipPackageId, days = 7) => {
     const pkg = vipPackages.find(p => p.id === newVipPackageId);
     if (!pkg) return false;
+
+    const property = properties.find(p => p.id === propertyId);
+    if (property) {
+      const expInfo = getPropertyExpirationInfo ? getPropertyExpirationInfo(property) : null;
+      const isItemExpired = Boolean(expInfo?.isExpired) || property.status === 'expired';
+      if (isItemExpired) {
+        showToast('Tin đăng này đã hết hạn hiển thị! Vui lòng gia hạn tin trước khi nâng cấp VIP.', 'warning');
+        return false;
+      }
+    }
 
     const totalCost = pkg.pricePerDay * days;
     if (currentUser.walletBalance < totalCost) {
