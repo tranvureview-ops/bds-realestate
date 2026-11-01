@@ -92,10 +92,8 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
 
   const isFav = favorites.includes(property.id);
 
-  // Kiểm tra bài viết có được gán nổi bật / có rương quà
+  // Kiểm tra bài viết có được gán nổi bật / có rương quà (còn thời hạn hợp lệ)
   const hasTreasure = Boolean(
-    property.isTreasureHuntActive || 
-    property.isFeatured || 
     isPropertyTreasureActive(property, authorUser || property.author)
   );
 
