@@ -577,30 +577,6 @@ export default function PricePredictionPage({ projectSlug = null }) {
                       </div>
                     ) : (
                       <div className="w-full space-y-2">
-                        {/* Banner thông báo điều kiện tham gia nếu chưa đủ điều kiện */}
-                        {isGameMembershipRequired(game) && !isMemberActive && (
-                          <div className="p-2 px-3 rounded-xl bg-purple-50 border border-purple-200 text-purple-800 text-[11px] flex items-center justify-between gap-2 animate-in fade-in duration-200">
-                            <span className="flex items-center gap-1.5 font-bold">
-                              <i className="fa-solid fa-crown text-amber-500"></i>
-                              <span>Đặc quyền dành riêng cho thành viên kích hoạt Gói Hội Viên.</span>
-                            </span>
-                            <Link to="/goi-hoi-vien" className="text-purple-700 hover:text-purple-900 font-black underline shrink-0">
-                              Xem các gói →
-                            </Link>
-                          </div>
-                        )}
-                        {isGameMembershipRequired(game) && isMemberActive && !isMemberPredictionAllowed && (
-                          <div className="p-2 px-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-[11px] flex items-center justify-between gap-2 animate-in fade-in duration-200">
-                            <span className="flex items-center gap-1.5 font-bold">
-                              <i className="fa-solid fa-triangle-exclamation text-amber-600"></i>
-                              <span>Gói "{activeUserPkg?.name || 'hiện tại'}" của bạn chưa bao gồm quyền dự đoán giá.</span>
-                            </span>
-                            <Link to="/goi-hoi-vien" className="text-amber-800 hover:text-amber-950 font-black underline shrink-0">
-                              Nâng cấp gói →
-                            </Link>
-                          </div>
-                        )}
-
                         <div className="flex items-center gap-2">
                           <div className="relative flex-1">
                             <input
