@@ -3497,7 +3497,14 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   };
 
   // Gia hạn tin đăng (Renew / Extend Listing)
-  const renewProperty = ({ propertyId, extendDays = 15, newVipPackageId = null, autoRenew = undefined, isFreeAdmin = false }) => {
+  const renewProperty = ({ 
+    propertyId, 
+    extendDays = 15, 
+    newVipPackageId = null, 
+    autoRenew = undefined, 
+    isFreeAdmin = false,
+    appliedVoucher = null 
+  }) => {
     const prop = properties.find(p => p.id === propertyId);
     if (!prop) {
       showToast('Không tìm thấy tin đăng cần gia hạn!', 'error');
@@ -3508,9 +3515,30 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     const pkg = (vipPackages || []).find(v => v.id === vipId) || { name: 'Tin Thường', pricePerDay: 5000 };
     const days = Number(extendDays) || 15;
     const dailyRate = pkg.rates?.[days] || pkg.rates?.[15] || pkg.pricePerDay || 5000;
-    const totalCost = isFreeAdmin ? 0 : dailyRate * days;
+    const initialCost = isFreeAdmin ? 0 : dailyRate * days;
 
     const isAdmin = currentUser?.role === 'admin';
+    const isMemberActive = isMembershipActive(currentUser);
+
+    // Tính toán chiết khấu Voucher Gói Hội Viên
+    let discountAmount = 0;
+    let usedVoucherType = null;
+
+    if (!isAdmin && isMemberActive && appliedVoucher) {
+      if (appliedVoucher === 'normalPublish' && (currentUser?.vouchers?.normalPublish || 0) > 0 && vipId === 'normal') {
+        const userPkg = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
+        const normalVoucherVal = Number(userPkg?.vouchersPerCycle?.normalPublishDiscount);
+        discountAmount = (normalVoucherVal && normalVoucherVal > 0) ? Math.min(initialCost, normalVoucherVal) : initialCost;
+        usedVoucherType = 'normalPublish';
+      } else if (appliedVoucher === 'vipPublish' && (currentUser?.vouchers?.vipPublish || 0) > 0 && vipId !== 'normal') {
+        const userPkg = (membershipPackages || []).find(p => p.id === currentUser?.membership?.packageId);
+        const vipVoucherDiscount = Number(userPkg?.vouchersPerCycle?.vipDiscount) || 400000;
+        discountAmount = Math.min(initialCost, vipVoucherDiscount);
+        usedVoucherType = 'vipPublish';
+      }
+    }
+
+    const totalCost = Math.max(0, initialCost - discountAmount);
 
     if (!isAdmin && !isFreeAdmin && totalCost > 0) {
       if ((currentUser.walletBalance || 0) < totalCost) {
@@ -3518,10 +3546,27 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         setActiveModal('wallet-deposit');
         return false;
       }
+    }
 
-      // Deduct wallet
+    // Trừ ví và trừ Voucher của User
+    let updatedUser = { ...currentUser };
+    let didChangeUser = false;
+
+    if (!isAdmin && !isFreeAdmin && totalCost > 0) {
       const newBal = (currentUser.walletBalance || 0) - totalCost;
-      const updatedUser = { ...currentUser, walletBalance: newBal };
+      updatedUser.walletBalance = newBal;
+      didChangeUser = true;
+    }
+
+    if (usedVoucherType) {
+      updatedUser.vouchers = {
+        ...currentUser.vouchers,
+        [usedVoucherType]: Math.max(0, (currentUser.vouchers?.[usedVoucherType] || 0) - 1)
+      };
+      didChangeUser = true;
+    }
+
+    if (didChangeUser) {
       setCurrentUser(updatedUser);
       setUsersList(prev => prev.map(u => u.id === currentUser.id ? updatedUser : u));
 
@@ -3531,12 +3576,12 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         userId: currentUser.id,
         userName: currentUser.name,
         type: 'renew_listing',
-        title: `Gia hạn tin ${prop.id} (${pkg.name} - ${days} ngày)`,
+        title: `Gia hạn tin ${prop.id} (${pkg.name} - ${days} ngày)${usedVoucherType ? ` [Áp dụng Voucher -${discountAmount.toLocaleString('vi-VN')} đ]` : ''}`,
         amount: -totalCost,
-        balanceAfter: newBal,
+        balanceAfter: updatedUser.walletBalance || 0,
         status: 'success',
         createdAt: new Date().toISOString(),
-        paymentMethod: 'Ví tài khoản'
+        paymentMethod: totalCost === 0 && usedVoucherType ? 'Voucher Hội Viên' : 'Ví tài khoản'
       };
       setTransactions(prev => [newTxn, ...prev]);
     }

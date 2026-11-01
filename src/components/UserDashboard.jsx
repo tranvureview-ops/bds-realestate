@@ -64,6 +64,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
   const [renewDays, setRenewDays] = useState(15);
   const [renewVipId, setRenewVipId] = useState('normal');
   const [renewAutoRenew, setRenewAutoRenew] = useState(false);
+  const [renewAppliedVoucher, setRenewAppliedVoucher] = useState(null);
 
   const activeVipPackages = (contextVipPackages && contextVipPackages.length > 0) ? contextVipPackages : VIP_PACKAGES;
 
@@ -151,8 +152,16 @@ export default function UserDashboard({ initialTab = 'listings' }) {
         showToast('Tin đăng này đã hết hạn hiển thị! Vui lòng Gia hạn tin trước khi Gán nổi bật.', 'warning');
         setRenewModalProp(prop);
         setRenewDays(prop.listingDays || 15);
-        setRenewVipId(prop.vipPackageId || 'normal');
+        const targetVip = prop.vipPackageId || 'normal';
+        setRenewVipId(targetVip);
         setRenewAutoRenew(Boolean(prop.autoRenew));
+        if (targetVip === 'normal' && isMemberActive && (currentUser?.vouchers?.normalPublish || 0) > 0) {
+          setRenewAppliedVoucher('normalPublish');
+        } else if (targetVip !== 'normal' && isMemberActive && (currentUser?.vouchers?.vipPublish || 0) > 0) {
+          setRenewAppliedVoucher('vipPublish');
+        } else {
+          setRenewAppliedVoucher(null);
+        }
         return;
       }
 
@@ -823,8 +832,16 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                         onClick={() => {
                           setRenewModalProp(prop);
                           setRenewDays(prop.listingDays || 15);
-                          setRenewVipId(prop.vipPackageId || 'normal');
+                          const targetVip = prop.vipPackageId || 'normal';
+                          setRenewVipId(targetVip);
                           setRenewAutoRenew(Boolean(prop.autoRenew));
+                          if (targetVip === 'normal' && isMemberActive && (currentUser?.vouchers?.normalPublish || 0) > 0) {
+                            setRenewAppliedVoucher('normalPublish');
+                          } else if (targetVip !== 'normal' && isMemberActive && (currentUser?.vouchers?.vipPublish || 0) > 0) {
+                            setRenewAppliedVoucher('vipPublish');
+                          } else {
+                            setRenewAppliedVoucher(null);
+                          }
                         }}
                         className={`px-3 py-1.5 font-bold rounded-xl text-xs transition shadow-sm flex items-center gap-1 ${
                           isItemExpired 
@@ -911,8 +928,16 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                             showToast('Tin đăng này đã hết hạn hiển thị! Vui lòng Gia hạn tin trước khi Gán nổi bật.', 'warning');
                             setRenewModalProp(prop);
                             setRenewDays(prop.listingDays || 15);
-                            setRenewVipId(prop.vipPackageId || 'normal');
+                            const targetVip = prop.vipPackageId || 'normal';
+                            setRenewVipId(targetVip);
                             setRenewAutoRenew(Boolean(prop.autoRenew));
+                            if (targetVip === 'normal' && isMemberActive && (currentUser?.vouchers?.normalPublish || 0) > 0) {
+                              setRenewAppliedVoucher('normalPublish');
+                            } else if (targetVip !== 'normal' && isMemberActive && (currentUser?.vouchers?.vipPublish || 0) > 0) {
+                              setRenewAppliedVoucher('vipPublish');
+                            } else {
+                              setRenewAppliedVoucher(null);
+                            }
                           }}
                           className="px-3 py-1.5 font-medium rounded-xl text-xs flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-400 border border-slate-200 cursor-pointer transition"
                           title="Tin đăng đã hết hạn. Vui lòng gia hạn tin trước khi gán nổi bật."
@@ -1205,7 +1230,24 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                     return (
                       <div
                         key={pkg.id}
-                        onClick={() => setRenewVipId(pkg.id)}
+                        onClick={() => {
+                          setRenewVipId(pkg.id);
+                          if (pkg.id === 'normal') {
+                            if (isMemberActive && (currentUser?.vouchers?.normalPublish || 0) > 0) {
+                              setRenewAppliedVoucher('normalPublish');
+                            } else {
+                              setRenewAppliedVoucher(null);
+                            }
+                          } else {
+                            if (renewAppliedVoucher === 'normalPublish') {
+                              if (isMemberActive && (currentUser?.vouchers?.vipPublish || 0) > 0) {
+                                setRenewAppliedVoucher('vipPublish');
+                              } else {
+                                setRenewAppliedVoucher(null);
+                              }
+                            }
+                          }
+                        }}
                         className={`p-3 rounded-2xl border cursor-pointer transition ${
                           isSelected 
                             ? 'border-emerald-600 bg-emerald-50/80 shadow-sm ring-2 ring-emerald-500/30' 
@@ -1228,7 +1270,136 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                 </div>
               </div>
 
-              {/* 3. Auto Renew Checkbox */}
+              {/* 3. Phân Hệ Voucher & Quyền Lợi Gói Hội Viên */}
+              {(() => {
+                const hasNormalVoucher = Boolean(isMemberActive && (currentUser?.vouchers?.normalPublish || 0) > 0);
+                const hasVipVoucher = Boolean(isMemberActive && (currentUser?.vouchers?.vipPublish || 0) > 0);
+
+                return (
+                  <div className="rounded-2xl border border-amber-200 bg-amber-50/50 p-3.5 sm:p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center text-xs font-bold">
+                          <i className="fa-solid fa-gift"></i>
+                        </span>
+                        <span className="font-bold text-slate-800 text-xs sm:text-sm">
+                          Ưu Đãi & Voucher Gói Hội Viên
+                        </span>
+                      </div>
+                      {isMemberActive ? (
+                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-amber-500 text-slate-950">
+                          {currentUser?.membership?.shortName || 'HỘI VIÊN CHÍNH THỨC'}
+                        </span>
+                      ) : (
+                        <Link
+                          to="/goi-hoi-vien"
+                          onClick={() => setRenewModalProp(null)}
+                          className="text-[11px] font-bold text-amber-700 hover:text-amber-800 hover:underline flex items-center gap-1"
+                        >
+                          <span>Xem Gói Hội Viên</span>
+                          <i className="fa-solid fa-arrow-right text-[10px]"></i>
+                        </Link>
+                      )}
+                    </div>
+
+                    {isMemberActive ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-0.5">
+                        {/* Thẻ Voucher Đăng Tin Thường (Áp dụng khi chọn Tin Thường) */}
+                        <div 
+                          onClick={() => {
+                            if (!hasNormalVoucher) {
+                              showToast('Bạn đã hết Voucher Đăng Tin Thường trong chu kỳ 30 ngày này!', 'warning');
+                              return;
+                            }
+                            if (renewVipId !== 'normal') {
+                              setRenewVipId('normal');
+                              setRenewAppliedVoucher('normalPublish');
+                              showToast('Đã chuyển sang Tin Thường và áp dụng Voucher Gia Hạn Miễn Phí (0 đ)!', 'success');
+                            } else {
+                              setRenewAppliedVoucher(renewAppliedVoucher === 'normalPublish' ? null : 'normalPublish');
+                            }
+                          }}
+                          className={`p-3 rounded-xl border transition cursor-pointer select-none ${
+                            renewAppliedVoucher === 'normalPublish'
+                              ? 'border-emerald-600 bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-500/30'
+                              : hasNormalVoucher
+                              ? 'border-emerald-300 bg-emerald-50/80 hover:bg-emerald-100/70 text-slate-800'
+                              : 'border-slate-200 bg-slate-50 opacity-60 text-slate-400'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-xs flex items-center gap-1.5">
+                              <i className="fa-solid fa-ticket"></i>
+                              <span>Voucher Tin Thường (0 đ)</span>
+                            </span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              renewAppliedVoucher === 'normalPublish' ? 'bg-white text-emerald-800' : 'bg-emerald-100 text-emerald-800'
+                            }`}>
+                              {renewAppliedVoucher === 'normalPublish' ? '✓ Đang dùng' : 'Dùng Voucher'}
+                            </span>
+                          </div>
+                          <div className={`text-[11px] mt-1 ${renewAppliedVoucher === 'normalPublish' ? 'text-emerald-100' : 'text-slate-600'}`}>
+                            Khả dụng: <b>{currentUser?.vouchers?.normalPublish || 0}</b> lượt
+                          </div>
+                        </div>
+
+                        {/* Thẻ Voucher Tin VIP (Áp dụng khi chọn Tin VIP) */}
+                        <div 
+                          onClick={() => {
+                            if (!hasVipVoucher) {
+                              showToast('Gói hội viên của bạn chưa có Voucher giảm giá cho Tin VIP!', 'warning');
+                              return;
+                            }
+                            if (renewVipId === 'normal') {
+                              showToast('Voucher Tin VIP chỉ áp dụng cho các Loại Tin VIP (Kim Cương, Vàng, Bạc)!', 'warning');
+                              return;
+                            }
+                            setRenewAppliedVoucher(renewAppliedVoucher === 'vipPublish' ? null : 'vipPublish');
+                          }}
+                          className={`p-3 rounded-xl border transition cursor-pointer select-none ${
+                            renewAppliedVoucher === 'vipPublish'
+                              ? 'border-amber-600 bg-amber-500 text-slate-950 shadow-sm ring-2 ring-amber-500/30 font-bold'
+                              : hasVipVoucher
+                              ? 'border-amber-300 bg-amber-50/80 hover:bg-amber-100/70 text-slate-800'
+                              : 'border-slate-200 bg-slate-50 opacity-60 text-slate-400'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-xs flex items-center gap-1.5">
+                              <i className="fa-solid fa-crown"></i>
+                              <span>Voucher Tin VIP (-400k)</span>
+                            </span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              renewAppliedVoucher === 'vipPublish' ? 'bg-slate-950 text-amber-300' : 'bg-amber-100 text-amber-900'
+                            }`}>
+                              {renewAppliedVoucher === 'vipPublish' ? '✓ Đang dùng' : 'Dùng Voucher'}
+                            </span>
+                          </div>
+                          <div className={`text-[11px] mt-1 ${renewAppliedVoucher === 'vipPublish' ? 'text-slate-900' : 'text-slate-600'}`}>
+                            Khả dụng: <b>{currentUser?.vouchers?.vipPublish || 0}</b> voucher
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-900 bg-white/80 p-3 rounded-xl border border-amber-200">
+                        <p className="text-[11px] leading-relaxed">
+                          🎁 Đăng ký <b>Gói Hội Viên</b> ngay để nhận từ <b>15 - 50 Voucher gia hạn tin 0 đ</b> mỗi chu kỳ 30 ngày và tiết kiệm tới <b>30% chi phí</b>!
+                        </p>
+                        <Link
+                          to="/goi-hoi-vien"
+                          onClick={() => setRenewModalProp(null)}
+                          className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs transition shadow-xs flex items-center gap-1 shrink-0 justify-center"
+                        >
+                          <i className="fa-solid fa-crown text-[10px]"></i>
+                          <span>Đăng ký Gói</span>
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* 4. Auto Renew Checkbox */}
               <div 
                 className="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex items-start gap-3 cursor-pointer select-none" 
                 onClick={() => setRenewAutoRenew(!renewAutoRenew)}
@@ -1247,12 +1418,23 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                 </div>
               </div>
 
-              {/* 4. Calculation Breakdown */}
+              {/* 5. Calculation Breakdown */}
               {(() => {
                 const selectedPkg = activeVipPackages.find(p => p.id === renewVipId) || activeVipPackages[activeVipPackages.length - 1];
                 const activeRates = selectedPkg.rates || { 15: selectedPkg.pricePerDay || 5000 };
                 const dailyRate = activeRates[renewDays] || activeRates[15] || selectedPkg.pricePerDay || 5000;
-                const totalCost = dailyRate * renewDays;
+                const rawCost = dailyRate * renewDays;
+
+                let discountAmount = 0;
+                if (isMemberActive && renewAppliedVoucher) {
+                  if (renewAppliedVoucher === 'normalPublish' && renewVipId === 'normal') {
+                    discountAmount = rawCost;
+                  } else if (renewAppliedVoucher === 'vipPublish' && renewVipId !== 'normal') {
+                    discountAmount = Math.min(rawCost, 400000);
+                  }
+                }
+
+                const totalCost = Math.max(0, rawCost - discountAmount);
                 const userWallet = currentUser?.walletBalance || 0;
                 const isInsufficient = userWallet < totalCost;
 
@@ -1276,15 +1458,31 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                         <span>Thời gian & Đơn giá:</span>
                         <span>{renewDays} ngày × {dailyRate.toLocaleString('vi-VN')} đ/ngày</span>
                       </div>
+                      {discountAmount > 0 && (
+                        <div className="flex items-center justify-between text-xs text-emerald-700 font-bold bg-emerald-100/60 px-2 py-1 rounded-lg">
+                          <span className="flex items-center gap-1">
+                            <i className="fa-solid fa-gift"></i>
+                            <span>Ưu đãi Voucher Hội Viên:</span>
+                          </span>
+                          <span>-{discountAmount.toLocaleString('vi-VN')} đ</span>
+                        </div>
+                      )}
                       <div className="flex items-center justify-between text-xs text-slate-600">
                         <span>Số dư ví hiện có:</span>
                         <span className="font-bold text-slate-800">{userWallet.toLocaleString('vi-VN')} đ</span>
                       </div>
                       <div className="border-t border-emerald-200/80 pt-2 flex items-center justify-between">
                         <span className="font-bold text-slate-800 text-xs uppercase">Tổng thanh toán:</span>
-                        <span className="text-lg font-black text-emerald-700">
-                          {totalCost.toLocaleString('vi-VN')} đ
-                        </span>
+                        <div className="text-right">
+                          {discountAmount > 0 && (
+                            <span className="text-xs text-slate-400 line-through mr-2">
+                              {rawCost.toLocaleString('vi-VN')} đ
+                            </span>
+                          )}
+                          <span className="text-lg font-black text-emerald-700">
+                            {totalCost === 0 ? '0 đ (Miễn phí)' : `${totalCost.toLocaleString('vi-VN')} đ`}
+                          </span>
+                        </div>
                       </div>
                     </div>
 
@@ -1325,7 +1523,8 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                             extendDays: renewDays,
                             newVipPackageId: renewVipId,
                             autoRenew: renewAutoRenew,
-                            isFreeAdmin: false
+                            isFreeAdmin: false,
+                            appliedVoucher: renewAppliedVoucher
                           });
                           if (success) {
                             setRenewModalProp(null);
@@ -1334,11 +1533,15 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                         className={`px-5 py-2.5 rounded-xl font-bold transition shadow-md flex items-center gap-2 ${
                           isInsufficient 
                             ? 'bg-slate-300 text-slate-500 cursor-not-allowed' 
-                            : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                            : 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer'
                         }`}
                       >
                         <i className="fa-solid fa-arrows-rotate"></i>
-                        <span>Xác Nhận Gia Hạn ({totalCost.toLocaleString('vi-VN')} đ)</span>
+                        <span>
+                          {totalCost === 0 && renewAppliedVoucher
+                            ? 'Xác Nhận Gia Hạn (0 đ • Voucher)'
+                            : `Xác Nhận Gia Hạn (${totalCost.toLocaleString('vi-VN')} đ)`}
+                        </span>
                       </button>
                     </div>
                   </div>
