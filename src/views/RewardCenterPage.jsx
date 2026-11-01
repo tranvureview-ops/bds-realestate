@@ -186,8 +186,8 @@ export default function RewardCenterPage() {
         : 'Trổ tài thẩm định giá thị trường các căn hộ, biệt thự để chia quỹ thưởng tiền mặt hàng triệu đồng.',
       icon: 'fa-solid fa-chart-line',
       color: 'from-blue-600 to-indigo-600',
-      badge: isPredictionForMembers ? 'Đặc quyền Hội Viên' : 'Quỹ thưởng tiền mặt',
-      badgeClass: isPredictionForMembers ? 'bg-purple-100 text-purple-700 border border-purple-200' : 'bg-slate-100 text-slate-700',
+      badge: 'Quỹ thưởng tiền mặt',
+      badgeClass: 'bg-slate-100 text-slate-700',
       link: '/trung-tam-phan-thuong/du-doan-gia-bds'
     },
     {

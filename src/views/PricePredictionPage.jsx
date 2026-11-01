@@ -304,12 +304,6 @@ export default function PricePredictionPage({ projectSlug = null }) {
                       <i className={`fa-solid ${isSettled ? 'fa-flag-checkered' : 'fa-circle-dot animate-pulse text-emerald-600'}`}></i>
                       <span>{isSettled ? 'Đã Chốt Kết Quả' : 'Đang Mở Dự Đoán'}</span>
                     </span>
-                    {isGameMembershipRequired(game) && (
-                      <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-700 border border-purple-300 flex items-center gap-1">
-                        <i className="fa-solid fa-crown text-amber-500 text-[9px]"></i>
-                        <span>Đặc quyền Hội Viên</span>
-                      </span>
-                    )}
                     <span className="text-[11px] text-slate-500 font-medium">
                       Hạn: {new Date(game.endDate).toLocaleDateString('vi-VN')}
                     </span>
