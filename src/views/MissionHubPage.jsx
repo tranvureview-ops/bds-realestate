@@ -610,10 +610,7 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
             })}
           </div>
 
-          <div className="text-[11px] text-slate-500 font-medium hidden md:flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>Tự động sắp xếp: Nhiệm vụ sẵn sàng nhận tiền luôn ưu tiên hiển thị đầu tiên</span>
-          </div>
+
         </div>
 
         {/* Missions Grid (Responsive 2-column layout on Desktop, streamlined cards) */}
