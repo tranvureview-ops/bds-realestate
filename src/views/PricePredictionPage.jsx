@@ -52,10 +52,15 @@ function getPriceInterpretation(rawVal) {
 }
 
 export default function PricePredictionPage({ projectSlug = null }) {
-  const { currentUser, setCurrentUser, showToast, addBonusWalletBalance, systemConfig } = useRealEstate();
+  const { currentUser, setCurrentUser, showToast, addBonusWalletBalance, systemConfig, predictionPrograms } = useRealEstate();
   
-  // Danh sách chương trình dự đoán
-  const [programs, setPrograms] = useState(() => getStoredPredictionPrograms());
+  // Danh sách chương trình dự đoán (Ưu tiên đồng bộ trực tiếp từ SSR initialData để chống giật/nhảy trang)
+  const [programs, setPrograms] = useState(() => {
+    if (Array.isArray(predictionPrograms) && predictionPrograms.length > 0) {
+      return predictionPrograms;
+    }
+    return getStoredPredictionPrograms();
+  });
   const [selectedGameId, setSelectedGameId] = useState(null);
   
   // Dữ liệu lượt dự đoán của user hiện tại
@@ -77,6 +82,13 @@ export default function PricePredictionPage({ projectSlug = null }) {
   const [globalMembershipRequired, setGlobalMembershipRequired] = useState(() => {
     return getIsPredictionMembershipRequired();
   });
+
+  // Tự động đồng bộ programs khi predictionPrograms từ context cập nhật
+  useEffect(() => {
+    if (Array.isArray(predictionPrograms) && predictionPrograms.length > 0) {
+      setPrograms(predictionPrograms);
+    }
+  }, [predictionPrograms]);
 
   // Kiểm tra cấu hình Đặc Quyền Gói Hội Viên (Ưu tiên cấu hình từ Menu Gói Hội Viên toàn sàn)
   const isGameMembershipRequired = (game) => {
@@ -155,53 +167,73 @@ export default function PricePredictionPage({ projectSlug = null }) {
     };
   }, []);
 
-  // Khởi tạo và đồng bộ bot nếu chưa có dữ liệu trong storage (phân bổ thời gian như thật)
+  // Dữ liệu mẫu Live Ticker mặc định giúp SSR & Client đồng nhất 100% không bị giật/nhảy
+  const DEFAULT_TICKER_ITEMS = useMemo(() => [
+    { id: 'def-1', userName: 'Ngô B***', price: '5.54', timeText: 'vừa xong', isBot: true },
+    { id: 'def-2', userName: '096***280', price: '5.68', timeText: '1 phút trước', isBot: true },
+    { id: 'def-3', userName: 'Thùy Dương', price: '5.45', timeText: '2 phút trước', isBot: true },
+    { id: 'def-4', userName: 'Lê A. Q***', price: '15.65', timeText: '3 phút trước', isBot: true },
+    { id: 'def-5', userName: 'Đặng M***', price: '16.42', timeText: '5 phút trước', isBot: true },
+    { id: 'def-6', userName: '090***618', price: '15.80', timeText: '7 phút trước', isBot: true },
+    { id: 'def-7', userName: 'Trần Văn H***', price: '5.62', timeText: '10 phút trước', isBot: true }
+  ], []);
+
+  // Khởi tạo và đồng bộ bot ngầm nếu chưa có dữ liệu trong storage (không ép re-render layout)
   useEffect(() => {
     const loadedPrograms = getStoredPredictionPrograms();
-    setPrograms(loadedPrograms);
-
     loadedPrograms.forEach(prog => {
       const existing = getStoredPredictions(prog.id);
-      // Chỉ tự động đồng bộ bot nếu chương trình BẬT bot chủ động (isEnabled === true) VÀ botCount > 0
       if (existing.length === 0 && prog.botConfig?.isEnabled === true && Number(prog.botConfig?.botCount || 0) > 0) {
         syncBotsForGame(prog.id, prog.botConfig, prog.startDate, prog.endDate);
       }
     });
   }, []);
 
-  // Mô phỏng dòng thời gian thực tế: Cứ mỗi 15-25 giây có thêm 1 lượt dự đoán mới tự nhiên
+  // Ref lưu programs cho timer để interval chạy ổn định, không bị restart gây giật trang
+  const programsRef = useRef(programs);
+  useEffect(() => {
+    programsRef.current = programs;
+  }, [programs]);
+
+  // Mô phỏng dòng thời gian thực tế: Cứ mỗi 25 giây có thêm 1 lượt dự đoán mới tự nhiên
   useEffect(() => {
     const timer = setInterval(() => {
-      const activeProgs = programs.filter(p => p.status === 'active' && p.botConfig?.isEnabled === true && Number(p.botConfig?.botCount || 0) > 0);
+      const currentProgs = programsRef.current || [];
+      const activeProgs = currentProgs.filter(p => p.status === 'active' && p.botConfig?.isEnabled === true && Number(p.botConfig?.botCount || 0) > 0);
       if (activeProgs.length === 0) return;
       const randomProg = activeProgs[Math.floor(Math.random() * activeProgs.length)];
       appendLiveBotPrediction(randomProg.id, randomProg.botConfig);
-      // Kích hoạt re-render để cập nhật số lượng và Ticker mượt mà
-      setPrograms([...getStoredPredictionPrograms()]);
-    }, 18000);
+      setPrograms(getStoredPredictionPrograms());
+    }, 25000);
 
     return () => clearInterval(timer);
-  }, [programs]);
+  }, []);
 
-  // Ticker Live FOMO Events (Sinh động từ Bot và User thật với thời gian tương đối như thật)
+  // Ticker Live FOMO Events (Sắp xếp ổn định theo thời gian, KHÔNG dùng Math.random() để triệt tiêu hiện tượng giật/nhảy)
   const tickerEvents = useMemo(() => {
     const events = [];
     programs.forEach(prog => {
       const records = getStoredPredictions(prog.id);
-      // Lấy 8 lượt gần nhất của mỗi chương trình
-      records.slice(0, 8).forEach(r => {
+      // Lấy các lượt gần nhất của mỗi chương trình
+      records.slice(0, 8).forEach((r, idx) => {
         events.push({
+          id: `${prog.id}-${r.userId || r.userName || idx}`,
           userName: r.userName,
           price: r.predictedPrice,
           isBot: Boolean(r.is_bot),
           programTitle: prog.projectName || prog.title,
-          timeText: formatRelativeTime(r.createdAt)
+          timeText: formatRelativeTime(r.createdAt),
+          createdAt: r.createdAt || new Date().toISOString()
         });
       });
     });
-    // Trộn ngẫu nhiên
-    return events.sort(() => 0.5 - Math.random()).slice(0, 15);
-  }, [programs]);
+
+    if (events.length === 0) return DEFAULT_TICKER_ITEMS;
+
+    return events
+      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+      .slice(0, 15);
+  }, [programs, DEFAULT_TICKER_ITEMS]);
 
   // Kiểm tra xem User đã dự đoán cho chương trình này chưa
   const getUserPredictionForGame = (gameId) => {
@@ -330,31 +362,29 @@ export default function PricePredictionPage({ projectSlug = null }) {
           </div>
         </div>
 
-        {/* 2. DÒNG TICKER CHẠY THÔNG BÁO LIÊN TỤC (TẠO HIỆU ỨNG FOMO) */}
-        {tickerEvents.length > 0 && (
-          <div className="bg-gradient-to-r from-blue-900/10 via-indigo-900/10 to-purple-900/10 border border-indigo-200/60 rounded-2xl p-2.5 overflow-hidden flex items-center gap-3 shadow-xs">
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-indigo-600 text-white font-extrabold text-[11px] shrink-0 uppercase tracking-wider shadow-xs">
-              <i className="fa-solid fa-bolt-lightning text-amber-300 animate-bounce"></i>
-              <span>Live Ticker</span>
-            </div>
-            <div className="overflow-x-auto scrollbar-none whitespace-nowrap flex items-center gap-6 text-xs text-slate-700 py-0.5">
-              {tickerEvents.map((evt, idx) => (
-                <div key={idx} className="inline-flex items-center gap-2 shrink-0 bg-white px-3 py-1 rounded-xl border border-slate-200/80 shadow-2xs">
-                  <div className="w-5 h-5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center text-[10px]">
-                    <i className="fa-solid fa-user"></i>
-                  </div>
-                  <span className="font-bold text-slate-900">{evt.userName}</span>
-                  <span className="text-slate-400">•</span>
-                  <span>Dự đoán: <strong className="text-indigo-600 font-mono font-bold">{evt.price} tỷ</strong></span>
-                  <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-1">
-                    <i className="fa-solid fa-check text-[9px]"></i>
-                    <span>Đã ghi nhận</span>
-                  </span>
-                </div>
-              ))}
-            </div>
+        {/* 2. DÒNG TICKER CHẠY THÔNG BÁO LIÊN TỤC (TẠO HIỆU ỨNG FOMO - CỐ ĐỊNH CHIỀU CAO CHỐNG NHẢY TRANG) */}
+        <div className="bg-gradient-to-r from-blue-900/10 via-indigo-900/10 to-purple-900/10 border border-indigo-200/60 rounded-2xl p-2.5 overflow-hidden flex items-center gap-3 shadow-xs min-h-[48px]">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-indigo-600 text-white font-extrabold text-[11px] shrink-0 uppercase tracking-wider shadow-xs">
+            <i className="fa-solid fa-bolt-lightning text-amber-300 animate-bounce"></i>
+            <span>Live Ticker</span>
           </div>
-        )}
+          <div className="overflow-x-auto no-scrollbar scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] whitespace-nowrap flex items-center gap-6 text-xs text-slate-700 py-0.5 w-full">
+            {tickerEvents.map((evt, idx) => (
+              <div key={evt.id || `${evt.userName}-${idx}`} className="inline-flex items-center gap-2 shrink-0 bg-white px-3 py-1 rounded-xl border border-slate-200/80 shadow-2xs">
+                <div className="w-5 h-5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center text-[10px]">
+                  <i className="fa-solid fa-user"></i>
+                </div>
+                <span className="font-bold text-slate-900">{evt.userName}</span>
+                <span className="text-slate-400">•</span>
+                <span>Dự đoán: <strong className="text-indigo-600 font-mono font-bold">{evt.price} tỷ</strong></span>
+                <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-1">
+                  <i className="fa-solid fa-check text-[9px]"></i>
+                  <span>Đã ghi nhận</span>
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
 
         {/* 3. DANH SÁCH GAME DỰ ĐOÁN (BỐ CỤC LƯỚI 2 CỘT) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
@@ -469,14 +499,14 @@ export default function PricePredictionPage({ projectSlug = null }) {
                   </div>
                 )}
 
-                {/* NẾU ĐANG HOẠT ĐỘNG: KHUNG NHẬP GIÁ DỰ ĐOÁN THỦ CÔNG */}
+                {/* NẾU ĐANG HOẠT ĐỘNG: KHUNG NHẬP GIÁ DỰ ĐOÁN THỦ CÔNG (CỐ ĐỊNH MIN-HEIGHT TRÁNH CO GIÃN THẺ) */}
                 {!isSettled && (
-                  <div className="pt-2">
+                  <div className="pt-2 min-h-[58px] flex items-center">
                     {/* Ô Nhập Giá Thủ Công Chuẩn Giống Phần Đăng Tin */}
                     {hasVoted ? (
-                      <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between">
+                      <div className="w-full p-2.5 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <span className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm shadow-xs">
+                          <span className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm shadow-xs shrink-0">
                             <i className="fa-solid fa-check"></i>
                           </span>
                           <div>
@@ -486,12 +516,12 @@ export default function PricePredictionPage({ projectSlug = null }) {
                             </div>
                           </div>
                         </div>
-                        <span className="text-xs bg-emerald-100 text-emerald-800 px-3 py-1 rounded-xl font-bold border border-emerald-200">
+                        <span className="text-xs bg-emerald-100 text-emerald-800 px-3 py-1 rounded-xl font-bold border border-emerald-200 shrink-0">
                           Đã ghi nhận
                         </span>
                       </div>
                     ) : (
-                      <div className="space-y-2 pt-1">
+                      <div className="w-full space-y-2">
                         <div className="flex items-center gap-2">
                           <div className="relative flex-1">
                             <input

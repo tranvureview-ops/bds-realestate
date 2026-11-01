@@ -99,6 +99,7 @@ import {
 } from '../data/mockData';
 import { getPropertyPermalink, parsePropertyUrl, toVietnameseSlug, formatSentenceCase } from '../utils/permalink';
 import { DEFAULT_REWARDS_CONFIG } from '../data/rewardData';
+import { getStoredPredictionPrograms } from '../services/predictionGameService';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 import { sanitizePhoneFromText } from '../utils/textSanitizer';
 // Danh mục lý do vi phạm tiếng Việt chuẩn hóa (nhẹ gọn, không kéo theo emailService)
@@ -804,6 +805,17 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       } catch (e) {}
     }
     return DEFAULT_REWARDS_CONFIG;
+  });
+
+  // 11c3. Danh sách Sự kiện Dự Đoán Giá BĐS (Đồng bộ SSR từ Server DB/Supabase)
+  const [predictionPrograms, setPredictionPrograms] = useState(() => {
+    if (Array.isArray(initialData?.bds_prediction_programs) && initialData.bds_prediction_programs.length > 0) {
+      if (typeof window !== 'undefined') {
+        try { localStorage.setItem('bds_prediction_programs', JSON.stringify(initialData.bds_prediction_programs)); } catch (e) {}
+      }
+      return initialData.bds_prediction_programs;
+    }
+    return getStoredPredictionPrograms();
   });
 
   // 11d. Danh sách Lịch hẹn xem nhà (Direct Property Viewing Appointments)
@@ -1648,6 +1660,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           });
         }
         if (Array.isArray(db.bds_prediction_programs) && db.bds_prediction_programs.length > 0) {
+          setPredictionPrograms(db.bds_prediction_programs);
           if (typeof window !== 'undefined') {
             try {
               localStorage.setItem('bds_prediction_programs', JSON.stringify(db.bds_prediction_programs));
@@ -5680,6 +5693,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         updateRewardsConfig,
         resetRewardsConfig,
         DEFAULT_REWARDS_CONFIG,
+        predictionPrograms,
+        setPredictionPrograms,
         emailConfig,
         updateEmailConfig,
         resetEmailConfig,
