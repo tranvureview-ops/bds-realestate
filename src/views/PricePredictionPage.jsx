@@ -17,36 +17,39 @@ import {
   PREDICTION_MEMBERSHIP_KEY
 } from '../services/predictionGameService';
 
-// Đọc số tiền tỷ ra chữ Tiếng Việt giống logic phần Đăng tin
+// Đọc số tiền tỷ ra chữ Tiếng Việt chuẩn xác cho tính năng Dự đoán giá BĐS (Đơn vị tính: Tỷ VNĐ)
 function getPriceInterpretation(rawVal) {
   if (!rawVal) return null;
-  const num = Number(String(rawVal).replace(',', '.'));
+  const cleanStr = String(rawVal).trim().replace(',', '.');
+  const num = Number(cleanStr);
   if (isNaN(num) || num <= 0) return null;
 
-  let tyVal = num;
-  if (num >= 1_000_000) {
-    tyVal = +(num / 1e9).toFixed(3);
-  } else if (num > 100 && num < 1_000_000) {
-    tyVal = +(num / 1000).toFixed(3);
-  }
-
+  const tyVal = num;
   const totalVnd = Math.round(tyVal * 1e9);
+
   let textWords = '';
   if (totalVnd >= 1e9) {
     const ty = Math.floor(totalVnd / 1e9);
     const trieu = Math.round((totalVnd % 1e9) / 1e6);
-    const tyText = ty >= 1000 ? ty.toLocaleString('vi-VN') : ty;
-    textWords = trieu > 0 ? `${tyText} tỷ ${trieu} triệu đồng` : `${tyText} tỷ đồng`;
+    const tyText = ty >= 1000 ? ty.toLocaleString('vi-VN') : String(ty);
+    if (trieu > 0) {
+      textWords = `${tyText} tỷ ${trieu.toLocaleString('vi-VN')} triệu đồng`;
+    } else {
+      textWords = `${tyText} tỷ đồng`;
+    }
   } else if (totalVnd >= 1e6) {
     const trieu = Math.round(totalVnd / 1e6);
-    textWords = `${trieu} triệu đồng`;
+    textWords = `${trieu.toLocaleString('vi-VN')} triệu đồng`;
   } else {
     textWords = `${totalVnd.toLocaleString('vi-VN')} đồng`;
   }
 
+  // Format số tỷ: giữ nguyên số nhập, đổi dấu chấm thành dấu phẩy chuẩn tiếng Việt
+  const formattedTy = `${cleanStr.replace('.', ',')} tỷ VNĐ`;
+
   return {
     tyVal,
-    formattedTy: `${tyVal.toString().replace('.', ',')} tỷ VNĐ`,
+    formattedTy,
     textWords
   };
 }
@@ -294,7 +297,9 @@ export default function PricePredictionPage({ projectSlug = null }) {
       }
     }
 
-    const priceToSubmit = Number(customPrice !== null ? customPrice : userInputs[game.id]?.price);
+    const rawVal = customPrice !== null ? customPrice : userInputs[game.id]?.price;
+    const cleanStr = String(rawVal || '').trim().replace(',', '.');
+    const priceToSubmit = Number(cleanStr);
 
     if (!priceToSubmit || isNaN(priceToSubmit) || priceToSubmit <= 0) {
       if (showToast) showToast('Vui lòng nhập mức giá dự đoán hợp lệ (Số tỷ VNĐ, ví dụ: 15.65)!', 'warning');
@@ -611,12 +616,39 @@ export default function PricePredictionPage({ projectSlug = null }) {
                               disabled={isGameMembershipRequired(game) && (!isMemberActive || !isMemberPredictionAllowed)}
                               value={userInputs[game.id]?.price || ''}
                               onChange={(e) => {
-                                const raw = e.target.value.replace(/[^0-9.,]/g, '').replace(',', '.');
+                                const inputVal = e.target.value;
+                                // Chỉ cho phép nhập số, dấu chấm (.) và dấu phẩy (,)
+                                const cleaned = inputVal.replace(/[^0-9.,]/g, '');
+                                
+                                // Đảm bảo chỉ có tối đa một dấu ngăn cách thập phân (. hoặc ,)
+                                let separatorFound = false;
+                                let formatted = '';
+                                for (let i = 0; i < cleaned.length; i++) {
+                                  const c = cleaned[i];
+                                  if (c === '.' || c === ',') {
+                                    if (!separatorFound) {
+                                      formatted += c;
+                                      separatorFound = true;
+                                    }
+                                  } else {
+                                    formatted += c;
+                                  }
+                                }
+
+                                // Giới hạn tối đa 3 chữ số sau phần thập phân
+                                if (separatorFound) {
+                                  const sep = formatted.includes(',') ? ',' : '.';
+                                  const parts = formatted.split(sep);
+                                  if (parts[1] && parts[1].length > 3) {
+                                    formatted = `${parts[0]}${sep}${parts[1].slice(0, 3)}`;
+                                  }
+                                }
+
                                 setUserInputs(prev => ({
                                   ...prev,
                                   [game.id]: {
                                     ...prev[game.id],
-                                    price: raw
+                                    price: formatted
                                   }
                                 }));
                               }}
