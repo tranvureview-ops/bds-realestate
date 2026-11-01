@@ -634,6 +634,23 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     });
   });
 
+  // Hàm hợp nhất Social Links giữ nguyên 100% thứ tự kênh từ Database, triệt tiêu lỗi nhảy lộn xộn icon khi F5 / SSR
+  const mergeSocialLinks = (rawSocial, defaultSocial = DEFAULT_SOCIAL_LINKS) => {
+    if (!rawSocial || typeof rawSocial !== 'object' || Object.keys(rawSocial).length === 0) {
+      return defaultSocial;
+    }
+    const result = {};
+    for (const [k, v] of Object.entries(rawSocial)) {
+      result[k] = { ...(defaultSocial[k] || {}), ...v };
+    }
+    for (const [k, v] of Object.entries(defaultSocial)) {
+      if (!(k in result)) {
+        result[k] = v;
+      }
+    }
+    return result;
+  };
+
   // 9. Header, Logo & Menu Width Configuration State
   const [headerConfig, setHeaderConfig] = useState(() => {
     let localSaved = null;
@@ -650,11 +667,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return {
       ...DEFAULT_HEADER_CONFIG,
       ...raw,
-      socialLinks: {
-        ...DEFAULT_SOCIAL_LINKS,
-        ...(DEFAULT_HEADER_CONFIG.socialLinks || {}),
-        ...(raw.socialLinks || {})
-      }
+      socialLinks: mergeSocialLinks(raw.socialLinks || DEFAULT_HEADER_CONFIG.socialLinks, DEFAULT_SOCIAL_LINKS)
     };
   });
 
@@ -726,11 +739,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return {
       ...DEFAULT_SYSTEM_CONFIG,
       ...raw,
-      socialLinks: {
-        ...DEFAULT_SOCIAL_LINKS,
-        ...(DEFAULT_SYSTEM_CONFIG.socialLinks || {}),
-        ...(raw.socialLinks || {})
-      }
+      socialLinks: mergeSocialLinks(raw.socialLinks || DEFAULT_SYSTEM_CONFIG.socialLinks, DEFAULT_SOCIAL_LINKS)
     };
   });
 
@@ -1543,7 +1552,13 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           setPaymentConfig(db.bds_payment_config);
         }
         if (db.bds_header_config) {
-          setHeaderConfig(prev => ({ ...prev, ...db.bds_header_config }));
+          setHeaderConfig(prev => ({
+            ...prev,
+            ...db.bds_header_config,
+            socialLinks: db.bds_header_config.socialLinks
+              ? mergeSocialLinks(db.bds_header_config.socialLinks, prev.socialLinks)
+              : prev.socialLinks
+          }));
           if (typeof window !== 'undefined') {
             try { window.localStorage.setItem('bds_header_config_client', JSON.stringify(db.bds_header_config)); } catch (e) {}
           }

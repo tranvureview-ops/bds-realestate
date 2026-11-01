@@ -3005,21 +3005,21 @@ export const INITIAL_NAV_MENU = [
   }
 ];
 
-// Cấu hình Kênh Mạng Xã Hội Mặc Định (Facebook, Zalo, YouTube, TikTok, Telegram, Instagram)
+// Cấu hình Kênh Mạng Xã Hội Mặc Định (Zalo, TikTok, YouTube, Facebook, Telegram, Instagram)
 export const DEFAULT_SOCIAL_LINKS = {
-  facebook: {
-    enabled: true,
-    url: 'https://facebook.com/datbiendanang',
-    label: 'Facebook',
-    icon: 'fa-brands fa-facebook-f',
-    hoverColor: 'hover:text-blue-400 hover:border-blue-500/50'
-  },
   zalo: {
     enabled: true,
     url: 'https://zalo.me/0904084888',
     label: 'Zalo',
     icon: 'fa-solid fa-comment-dots',
     hoverColor: 'hover:text-sky-400 hover:border-sky-500/50'
+  },
+  tiktok: {
+    enabled: true,
+    url: 'https://tiktok.com/@datbiendanang',
+    label: 'TikTok',
+    icon: 'fa-brands fa-tiktok',
+    hoverColor: 'hover:text-pink-400 hover:border-pink-500/50'
   },
   youtube: {
     enabled: true,
@@ -3028,12 +3028,12 @@ export const DEFAULT_SOCIAL_LINKS = {
     icon: 'fa-brands fa-youtube',
     hoverColor: 'hover:text-red-500 hover:border-red-500/50'
   },
-  tiktok: {
+  facebook: {
     enabled: true,
-    url: 'https://tiktok.com/@datbiendanang',
-    label: 'TikTok',
-    icon: 'fa-brands fa-tiktok',
-    hoverColor: 'hover:text-pink-400 hover:border-pink-500/50'
+    url: 'https://facebook.com/datbiendanang',
+    label: 'Facebook',
+    icon: 'fa-brands fa-facebook-f',
+    hoverColor: 'hover:text-blue-400 hover:border-blue-500/50'
   },
   telegram: {
     enabled: false,

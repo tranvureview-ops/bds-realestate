@@ -246,7 +246,7 @@ export default function Navbar() {
             </div>
 
             {/* Right: Mạng xã hội */}
-            <div suppressHydrationWarning className="flex items-center gap-2 sm:gap-3 text-slate-300 text-[11px] shrink-0">
+            <div suppressHydrationWarning className="flex items-center justify-end gap-2 sm:gap-3 text-slate-300 text-[11px] shrink-0 min-w-[100px] lg:min-w-[180px]">
               {/* Social Media Channels */}
               {showSocial && activeSocialList.length > 0 && (
                 <div className="flex items-center gap-1 sm:gap-1.5 shrink-0" style={{ contain: 'layout' }}>
@@ -257,7 +257,7 @@ export default function Navbar() {
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-full bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:scale-110 border border-slate-700/80 flex items-center justify-center transition shadow-xs shrink-0 aspect-square ${item.hoverColor || 'hover:text-white'}`}
+                      className={`w-5 h-5 sm:w-5.5 sm:h-5.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-300 hover:scale-110 border border-slate-700/80 flex items-center justify-center transition shadow-xs shrink-0 aspect-square ${item.hoverColor || 'hover:text-white'}`}
                       title={item.label || item.key}
                       style={{ contain: 'layout paint' }}
                     >
@@ -989,7 +989,7 @@ export default function Navbar() {
                         href={item.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-700 hover:text-emerald-600 hover:border-emerald-500 flex items-center justify-center transition shadow-xs text-xs"
+                        className="w-8 h-8 rounded-xl bg-white border border-slate-200 text-slate-700 hover:text-emerald-600 hover:border-emerald-500 flex items-center justify-center transition shadow-xs text-xs"
                         title={item.label || item.key}
                       >
                         <SocialIcon item={item} className="w-3.5 h-3.5" />
