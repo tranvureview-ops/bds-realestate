@@ -416,3 +416,61 @@ export function getTreasureExpirationInfo(prop) {
     timeRemainingText
   };
 }
+
+/**
+ * Gợi ý bảng Mốc Phần Thưởng tự động dựa trên Tổng Ngân Sách Mở Rương / Tháng
+ * Cung cấp phân bổ tài chính tối ưu theo chu kỳ 30 ngày cho từng nhóm thành viên.
+ * 
+ * @param {'regular'|'basic'|'standard'|'premium'} tierType Loại đối tượng hội viên
+ * @param {number} budget Tổng ngân sách tháng (VNĐ)
+ * @returns {Array<{id: string, label: string, amount: number, percentage: number}>}
+ */
+export function getSuggestedRewardTiers(tierType, budget) {
+  const b = Math.max(0, Number(budget) || 0);
+  const roundTo = (val, step = 500) => Math.max(step, Math.round(val / step) * step);
+
+  if (tierType === 'regular') {
+    // 4 mốc: Rỗng (25%), Nhỏ (45%), Vừa (25%), Lớn (5%)
+    // Chuẩn với 50.000đ: 0đ, 1.200đ, 2.500đ, 12.000đ
+    return [
+      { id: 'tier_empty', label: 'Chúc may mắn (Rỗng)', amount: 0, percentage: 25 },
+      { id: 'tier_min', label: 'Thưởng Tối Thiểu (Nhỏ)', amount: roundTo(b * 0.024, 100), percentage: 45 },
+      { id: 'tier_common', label: 'Thưởng Phổ Biến (Vừa)', amount: roundTo(b * 0.05, 100), percentage: 25 },
+      { id: 'tier_max', label: 'Thưởng Tối Đa (Lớn)', amount: roundTo(b * 0.24, 500), percentage: 5 }
+    ];
+  }
+
+  if (tierType === 'basic') {
+    // Chuẩn với 120.000đ / tháng (bình quân 4.000đ/ngày): 2.500đ (40%), 4.000đ (50%), 10.000đ (10%)
+    const dailyAvg = b / 30;
+    return [
+      { id: 'tier_basic_min', label: 'Thưởng Tối Thiểu (Nhỏ)', amount: roundTo(dailyAvg * 0.625, 500), percentage: 40 },
+      { id: 'tier_basic_common', label: 'Thưởng Phổ Biến (Vừa)', amount: roundTo(dailyAvg * 1.0, 500), percentage: 50 },
+      { id: 'tier_basic_max', label: 'Thưởng Tối Đa (Lớn)', amount: roundTo(dailyAvg * 2.5, 1000), percentage: 10 }
+    ];
+  }
+
+  if (tierType === 'standard') {
+    // Chuẩn với 370.000đ / tháng (bình quân ~12.333đ/ngày): 8.000đ (40%), 12.000đ (50%), 35.000đ (10%)
+    const dailyAvg = b / 30;
+    return [
+      { id: 'tier_standard_min', label: 'Thưởng Tối Thiểu (Nhỏ)', amount: roundTo(dailyAvg * 0.65, 1000), percentage: 40 },
+      { id: 'tier_standard_common', label: 'Thưởng Phổ Biến (Vừa)', amount: roundTo(dailyAvg * 1.0, 1000), percentage: 50 },
+      { id: 'tier_standard_max', label: 'Thưởng Tối Đa (Lớn)', amount: roundTo(dailyAvg * 2.8, 1000), percentage: 10 }
+    ];
+  }
+
+  if (tierType === 'premium') {
+    // Chuẩn với 1.000.000đ / tháng (bình quân ~33.333đ/ngày): 20.000đ (40%), 30.000đ (30%), 55.000đ (25%), Jackpot 100.000đ (5%)
+    const dailyAvg = b / 30;
+    return [
+      { id: 'tier_premium_min', label: 'Thưởng Tối Thiểu (Nhỏ)', amount: roundTo(dailyAvg * 0.6, 1000), percentage: 40 },
+      { id: 'tier_premium_common', label: 'Thưởng Phổ Biến (Vừa)', amount: roundTo(dailyAvg * 0.9, 1000), percentage: 30 },
+      { id: 'tier_premium_max', label: 'Thưởng Tối Đa (Lớn)', amount: roundTo(dailyAvg * 1.65, 1000), percentage: 25 },
+      { id: 'tier_premium_jackpot', label: 'Siêu Jackpot (Cực Lớn)', amount: roundTo(dailyAvg * 3.0, 5000), percentage: 5 }
+    ];
+  }
+
+  return [];
+}
+

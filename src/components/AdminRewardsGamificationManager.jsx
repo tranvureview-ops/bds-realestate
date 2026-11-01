@@ -13,8 +13,90 @@ import {
   DEFAULT_TREASURE_REWARD_TIERS,
   DEFAULT_BASIC_MEMBER_REWARD_TIERS,
   DEFAULT_STANDARD_MEMBER_REWARD_TIERS,
-  DEFAULT_PREMIUM_MEMBER_REWARD_TIERS
+  DEFAULT_PREMIUM_MEMBER_REWARD_TIERS,
+  getSuggestedRewardTiers
 } from '../services/treasureHuntService';
+
+/**
+ * Component hiển thị gợi ý bảng mốc phần thưởng dựa trên Tổng Ngân Sách Mở Rương
+ * Giúp Quản trị viên tham khảo phân bổ tài chính tối ưu theo chu kỳ 30 ngày (Chỉ mang tính chất gợi ý).
+ */
+function RewardTierSuggestionBox({
+  tierType,
+  tierName,
+  budget,
+  onApply
+}) {
+  const [applied, setApplied] = useState(false);
+  const suggestedTiers = useMemo(() => {
+    return getSuggestedRewardTiers(tierType, budget);
+  }, [tierType, budget]);
+
+  if (!budget || budget <= 0 || !suggestedTiers || suggestedTiers.length === 0) {
+    return null;
+  }
+
+  const handleApply = () => {
+    onApply(suggestedTiers);
+    setApplied(true);
+    setTimeout(() => setApplied(false), 2500);
+  };
+
+  return (
+    <div className="mt-3 p-3.5 sm:p-4 rounded-xl bg-gradient-to-r from-blue-950/40 via-indigo-950/30 to-purple-950/30 border border-indigo-500/30 text-xs space-y-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+        <div className="flex items-start gap-2">
+          <span className="w-6 h-6 rounded-lg bg-indigo-500/20 text-indigo-300 flex items-center justify-center shrink-0 mt-0.5 text-xs">
+            <i className="fa-solid fa-lightbulb"></i>
+          </span>
+          <div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-bold text-indigo-200">
+                Gợi ý bảng Mốc phần thưởng ({Number(budget).toLocaleString('vi-VN')}đ / tháng)
+              </span>
+              <span className="text-[10px] bg-indigo-500/20 text-indigo-300 font-bold px-2 py-0.5 rounded-full border border-indigo-500/40">
+                Chỉ gợi ý • Không tự ý thay đổi
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              Cơ cấu phần thưởng tối ưu theo chu kỳ 30 ngày cho {tierName}. Bạn có thể xem trước hoặc bấm áp dụng vào bảng mốc bên dưới.
+            </p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={handleApply}
+          className="shrink-0 self-start sm:self-center px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-sm shadow-indigo-900/50 cursor-pointer"
+        >
+          <i className={`fa-solid ${applied ? 'fa-check text-emerald-300' : 'fa-wand-magic-sparkles text-amber-300'}`}></i>
+          <span>{applied ? 'Đã áp dụng vào bảng!' : 'Áp dụng gợi ý này'}</span>
+        </button>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+        {suggestedTiers.map((t, idx) => (
+          <div
+            key={t.id || idx}
+            className="p-2.5 rounded-lg bg-slate-900/90 border border-indigo-500/20 flex flex-col justify-between gap-1 shadow-inner"
+          >
+            <div className="flex items-center justify-between gap-1">
+              <span className="text-[10px] text-slate-400 font-medium truncate" title={t.label}>
+                {t.label}
+              </span>
+              <span className="text-[10px] font-mono font-bold text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded shrink-0">
+                {t.percentage}%
+              </span>
+            </div>
+            <div className="text-sm font-mono font-extrabold text-white">
+              {Number(t.amount || 0).toLocaleString('vi-VN')}đ
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function AdminRewardsGamificationManager() {
   const { 
@@ -276,6 +358,65 @@ export default function AdminRewardsGamificationManager() {
       }
     }));
     if (showToast) showToast('Đã khôi phục 4 mốc phần thưởng Hội Viên Cao Cấp về tỷ lệ chuẩn!', 'info');
+  };
+
+  // Handlers áp dụng bảng mốc gợi ý cho 4 nhóm đối tượng
+  const handleApplySuggestedTiers = (suggested) => {
+    isDirtyRef.current = true;
+    setIsDirty(true);
+    handleTreasureConfigChange('rewardTiers', suggested);
+    if (showToast) showToast('Đã áp dụng bảng mốc gợi ý cho Khách & Thành Viên Thường!', 'success');
+  };
+
+  const handleApplySuggestedBasicTiers = (suggested) => {
+    isDirtyRef.current = true;
+    setIsDirty(true);
+    setFormData(prev => ({
+      ...prev,
+      treasureHuntConfig: {
+        ...prev.treasureHuntConfig,
+        basicMemberConfig: {
+          ...prev.treasureHuntConfig?.basicMemberConfig,
+          monthlyBudget: basicMonthlyBudgetVal,
+          rewardTiers: suggested
+        }
+      }
+    }));
+    if (showToast) showToast('Đã áp dụng bảng mốc gợi ý cho Hội Viên Cơ Bản!', 'success');
+  };
+
+  const handleApplySuggestedStandardTiers = (suggested) => {
+    isDirtyRef.current = true;
+    setIsDirty(true);
+    setFormData(prev => ({
+      ...prev,
+      treasureHuntConfig: {
+        ...prev.treasureHuntConfig,
+        standardMemberConfig: {
+          ...prev.treasureHuntConfig?.standardMemberConfig,
+          monthlyBudget: standardMonthlyBudgetVal,
+          rewardTiers: suggested
+        }
+      }
+    }));
+    if (showToast) showToast('Đã áp dụng bảng mốc gợi ý cho Hội Viên Tiêu Chuẩn!', 'success');
+  };
+
+  const handleApplySuggestedPremiumTiers = (suggested) => {
+    isDirtyRef.current = true;
+    setIsDirty(true);
+    setFormData(prev => ({
+      ...prev,
+      treasureHuntConfig: {
+        ...prev.treasureHuntConfig,
+        premiumMemberConfig: {
+          ...prev.treasureHuntConfig?.premiumMemberConfig,
+          monthlyBudget: premiumMonthlyBudgetVal,
+          rewardTiers: suggested
+        }
+      }
+    }));
+    if (showToast) showToast('Đã áp dụng bảng mốc gợi ý cho Hội Viên Cao Cấp!', 'success');
   };
 
   // Sync when context changes - TUYỆT ĐỐI KHÔNG GHI ĐÈ NẾU ADMIN ĐANG NHẬP DỞ (isDirty)
@@ -1112,7 +1253,7 @@ export default function AdminRewardsGamificationManager() {
                       </p>
                     </div>
                     <span className="text-emerald-400 text-xs font-mono font-bold bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 self-start sm:self-auto">
-                      Quỹ tối đa: 50.000đ
+                      Quỹ cấu hình: {monthlyBudgetVal.toLocaleString('vi-VN')}đ
                     </span>
                   </div>
 
@@ -1142,6 +1283,14 @@ export default function AdminRewardsGamificationManager() {
                       </div>
                     </div>
                   </div>
+
+                  {/* Khối gợi ý bảng Mốc phần thưởng theo ngân sách (Chỉ gợi ý) */}
+                  <RewardTierSuggestionBox
+                    tierType="regular"
+                    tierName="Khách Vãng Lai & Thành Viên Thường"
+                    budget={monthlyBudgetVal}
+                    onApply={handleApplySuggestedTiers}
+                  />
                 </div>
 
                 {/* Bảng chỉnh sửa 4 mốc phần thưởng */}
@@ -1268,7 +1417,7 @@ export default function AdminRewardsGamificationManager() {
                       </p>
                     </div>
                     <span className="text-amber-400 text-xs font-mono font-bold bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20 self-start sm:self-auto">
-                      Quỹ Hội Viên Cơ Bản
+                      Quỹ cấu hình: {basicMonthlyBudgetVal.toLocaleString('vi-VN')}đ
                     </span>
                   </div>
 
@@ -1283,6 +1432,14 @@ export default function AdminRewardsGamificationManager() {
                     />
                     <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">VNĐ</span>
                   </div>
+
+                  {/* Khối gợi ý bảng Mốc phần thưởng theo ngân sách (Chỉ gợi ý) */}
+                  <RewardTierSuggestionBox
+                    tierType="basic"
+                    tierName="Hội Viên Cơ Bản"
+                    budget={basicMonthlyBudgetVal}
+                    onApply={handleApplySuggestedBasicTiers}
+                  />
                 </div>
 
                 {/* Bảng chỉnh sửa 3 mốc phần thưởng cho Hội Viên Cơ Bản */}
@@ -1408,7 +1565,7 @@ export default function AdminRewardsGamificationManager() {
                       </p>
                     </div>
                     <span className="text-orange-400 text-xs font-mono font-bold bg-orange-500/10 px-2.5 py-1 rounded-lg border border-orange-500/20 self-start sm:self-auto">
-                      Quỹ Hội Viên Tiêu Chuẩn
+                      Quỹ cấu hình: {standardMonthlyBudgetVal.toLocaleString('vi-VN')}đ
                     </span>
                   </div>
 
@@ -1423,6 +1580,14 @@ export default function AdminRewardsGamificationManager() {
                     />
                     <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">VNĐ</span>
                   </div>
+
+                  {/* Khối gợi ý bảng Mốc phần thưởng theo ngân sách (Chỉ gợi ý) */}
+                  <RewardTierSuggestionBox
+                    tierType="standard"
+                    tierName="Hội Viên Tiêu Chuẩn"
+                    budget={standardMonthlyBudgetVal}
+                    onApply={handleApplySuggestedStandardTiers}
+                  />
                 </div>
 
                 {/* Bảng chỉnh sửa 3 mốc phần thưởng cho Hội Viên Tiêu Chuẩn */}
@@ -1548,7 +1713,7 @@ export default function AdminRewardsGamificationManager() {
                       </p>
                     </div>
                     <span className="text-purple-400 text-xs font-mono font-bold bg-purple-500/10 px-2.5 py-1 rounded-lg border border-purple-500/20 self-start sm:self-auto">
-                      Quỹ Hội Viên Cao Cấp
+                      Quỹ cấu hình: {premiumMonthlyBudgetVal.toLocaleString('vi-VN')}đ
                     </span>
                   </div>
 
@@ -1563,6 +1728,14 @@ export default function AdminRewardsGamificationManager() {
                     />
                     <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">VNĐ</span>
                   </div>
+
+                  {/* Khối gợi ý bảng Mốc phần thưởng theo ngân sách (Chỉ gợi ý) */}
+                  <RewardTierSuggestionBox
+                    tierType="premium"
+                    tierName="Hội Viên Cao Cấp"
+                    budget={premiumMonthlyBudgetVal}
+                    onApply={handleApplySuggestedPremiumTiers}
+                  />
                 </div>
 
                 {/* Bảng chỉnh sửa 4 mốc phần thưởng cho Hội Viên Cao Cấp */}
