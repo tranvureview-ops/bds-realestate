@@ -79,6 +79,12 @@ export default function Navbar() {
     { id: 'def-7', userName: '097***471', price: '6.01', totalPrize: '2.000.000 đ', timeText: '7 phút trước' }
   ]);
 
+  // Nhân bản danh sách 3 lần để đảm bảo cuộn vô tận (Infinite Seamless Loop) trên mọi độ phân giải
+  const displayTickerList = useMemo(() => {
+    if (!Array.isArray(topbarTickerEvents) || topbarTickerEvents.length === 0) return [];
+    return [...topbarTickerEvents, ...topbarTickerEvents, ...topbarTickerEvents];
+  }, [topbarTickerEvents]);
+
   const tickerContainerRef = useRef(null);
 
   useEffect(() => {
@@ -99,6 +105,7 @@ export default function Navbar() {
 
     let animId;
     let isHovered = false;
+    let scrollPos = el.scrollLeft || 0;
 
     const onMouseEnter = () => { isHovered = true; };
     const onMouseLeave = () => { isHovered = false; };
@@ -108,11 +115,19 @@ export default function Navbar() {
 
     const step = () => {
       if (!isHovered && el) {
-        if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 2) {
-          el.scrollLeft = 0;
-        } else {
-          el.scrollLeft += 0.5; // Tốc độ cuộn 0.5px/frame mượt mà, vừa phải
+        scrollPos += 0.5; // Lưu vị trí thực trong bộ nhớ JS, tránh việc DOM tự làm tròn 0.5 về 0
+        
+        // Chu kỳ lặp vô tận: khi chạy hết 1 chu kỳ (1/3 tổng chiều rộng), reset về 0 hoàn toàn không giật
+        const loopThreshold = el.scrollWidth / 3;
+        if (loopThreshold > 0 && scrollPos >= loopThreshold) {
+          scrollPos = 0;
+        } else if (scrollPos >= el.scrollWidth - el.clientWidth) {
+          scrollPos = 0;
         }
+        
+        el.scrollLeft = Math.floor(scrollPos);
+      } else if (el) {
+        scrollPos = el.scrollLeft;
       }
       animId = requestAnimationFrame(step);
     };
@@ -126,7 +141,7 @@ export default function Navbar() {
         el.removeEventListener('mouseleave', onMouseLeave);
       }
     };
-  }, [topbarTickerEvents]);
+  }, [displayTickerList]);
 
   // Quản lý fallback ảnh logo và định dạng hiển thị thương hiệu
   const [logoImgError, setLogoImgError] = useState(false);
@@ -309,7 +324,7 @@ export default function Navbar() {
                   ref={tickerContainerRef}
                   className="overflow-x-auto no-scrollbar scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] whitespace-nowrap flex items-center gap-4 text-[11px] text-slate-300 py-0.5 w-full"
                 >
-                  {topbarTickerEvents.map((evt, idx) => (
+                  {displayTickerList.map((evt, idx) => (
                     <div key={evt.id || idx} className="inline-flex items-center gap-1.5 shrink-0 bg-slate-800/80 hover:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-slate-700/60 transition">
                       <div className="w-3.5 h-3.5 rounded-full bg-indigo-500/30 text-indigo-300 flex items-center justify-center text-[8px] shrink-0">
                         <i className="fa-solid fa-user"></i>
