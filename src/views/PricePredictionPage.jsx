@@ -17,15 +17,24 @@ import {
   PREDICTION_MEMBERSHIP_KEY
 } from '../services/predictionGameService';
 
-// Đọc số tiền tỷ ra chữ Tiếng Việt chuẩn xác cho tính năng Dự đoán giá BĐS (Đơn vị tính: Tỷ VNĐ)
+// Đọc số tiền ra chữ Tiếng Việt chuẩn xác cho tính năng Dự đoán giá BĐS (Tự động nhận diện Tỷ hoặc VNĐ)
 function getPriceInterpretation(rawVal) {
   if (!rawVal) return null;
   const cleanStr = String(rawVal).trim().replace(',', '.');
   const num = Number(cleanStr);
   if (isNaN(num) || num <= 0) return null;
 
-  const tyVal = num;
-  const totalVnd = Math.round(tyVal * 1e9);
+  // Nếu người dùng nhập số tiền VNĐ đầy đủ (>= 1.000.000 đ)
+  let tyVal = num;
+  let totalVnd = 0;
+
+  if (num >= 1_000_000) {
+    tyVal = +(num / 1e9).toFixed(3);
+    totalVnd = Math.round(num);
+  } else {
+    tyVal = num;
+    totalVnd = Math.round(tyVal * 1e9);
+  }
 
   let textWords = '';
   if (totalVnd >= 1e9) {
@@ -38,14 +47,21 @@ function getPriceInterpretation(rawVal) {
       textWords = `${tyText} tỷ đồng`;
     }
   } else if (totalVnd >= 1e6) {
-    const trieu = Math.round(totalVnd / 1e6);
-    textWords = `${trieu.toLocaleString('vi-VN')} triệu đồng`;
+    const trieu = Math.floor(totalVnd / 1e6);
+    const nghin = Math.round((totalVnd % 1e6) / 1e3);
+    if (nghin > 0) {
+      textWords = `${trieu.toLocaleString('vi-VN')} triệu ${nghin.toLocaleString('vi-VN')} nghìn đồng`;
+    } else {
+      textWords = `${trieu.toLocaleString('vi-VN')} triệu đồng`;
+    }
   } else {
     textWords = `${totalVnd.toLocaleString('vi-VN')} đồng`;
   }
 
-  // Format số tỷ: giữ nguyên số nhập, đổi dấu chấm thành dấu phẩy chuẩn tiếng Việt
-  const formattedTy = `${cleanStr.replace('.', ',')} tỷ VNĐ`;
+  // Format số hiển thị
+  const formattedTy = num >= 1_000_000
+    ? `${totalVnd.toLocaleString('vi-VN')} đ (~${String(tyVal).replace('.', ',')} tỷ)`
+    : `${cleanStr.replace('.', ',')} tỷ VNĐ`;
 
   return {
     tyVal,
@@ -298,11 +314,11 @@ export default function PricePredictionPage({ projectSlug = null }) {
     }
 
     const rawVal = customPrice !== null ? customPrice : userInputs[game.id]?.price;
-    const cleanStr = String(rawVal || '').trim().replace(',', '.');
-    const priceToSubmit = Number(cleanStr);
+    const interpretation = getPriceInterpretation(rawVal);
+    const priceToSubmit = interpretation?.tyVal;
 
     if (!priceToSubmit || isNaN(priceToSubmit) || priceToSubmit <= 0) {
-      if (showToast) showToast('Vui lòng nhập mức giá dự đoán hợp lệ (Số tỷ VNĐ, ví dụ: 15.65)!', 'warning');
+      if (showToast) showToast('Vui lòng nhập mức giá dự đoán hợp lệ (ví dụ: 15.65)!', 'warning');
       return;
     }
 
@@ -581,7 +597,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
                                   ? "Yêu cầu Gói Hội Viên để dự đoán"
                                   : isGameMembershipRequired(game) && !isMemberPredictionAllowed
                                   ? `Gói ${activeUserPkg?.name || 'hiện tại'} không hỗ trợ`
-                                  : "VD: 7.50 hoặc 15.65"
+                                  : "Nhập mức giá dự đoán (VD: 15.65)..."
                               }
                               disabled={isGameMembershipRequired(game) && (!isMemberActive || !isMemberPredictionAllowed)}
                               value={userInputs[game.id]?.price || ''}
@@ -622,15 +638,12 @@ export default function PricePredictionPage({ projectSlug = null }) {
                                   }
                                 }));
                               }}
-                              className={`w-full px-3.5 py-2.5 bg-white border rounded-xl text-sm font-black text-slate-900 outline-none transition pr-20 shadow-xs ${
+                              className={`w-full px-3.5 py-2.5 bg-white border rounded-xl text-sm font-black text-slate-900 outline-none transition shadow-xs ${
                                 isGameMembershipRequired(game) && (!isMemberActive || !isMemberPredictionAllowed)
                                   ? 'border-purple-200 bg-slate-50 cursor-not-allowed opacity-80'
                                   : 'border-slate-300 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/10'
                               }`}
                             />
-                            <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400 select-none pointer-events-none">
-                              tỷ VNĐ
-                            </span>
                           </div>
 
                           {isGameMembershipRequired(game) && !isMemberActive ? (
