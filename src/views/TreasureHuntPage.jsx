@@ -79,6 +79,7 @@ export default function TreasureHuntPage() {
       : isBasicMember
         ? basicMonthlyBudget
         : regularMonthlyBudget;
+  const monthlyBudget = effectiveMonthlyBudget;
   const budgetStatus = getMonthlyTreasureBudgetStatus(effectiveMonthlyBudget, transactions);
 
   // Mốc phần thưởng Khách & Thành viên thường
@@ -469,13 +470,13 @@ export default function TreasureHuntPage() {
               <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
                 budgetStatus.isBudgetExceeded ? 'bg-rose-50 text-rose-700' : 'bg-indigo-50 text-indigo-700'
               }`}>
-                Quỹ Tháng: {monthlyBudget.toLocaleString('vi-VN')}đ
+                Quỹ Tháng: {effectiveMonthlyBudget.toLocaleString('vi-VN')}đ
               </span>
             </div>
             <div>
               <div className="text-xs font-bold text-slate-400 uppercase tracking-wider">Ngân sách tháng này</div>
               <div className={`text-2xl font-black font-mono mt-0.5 ${budgetStatus.isBudgetExceeded ? 'text-rose-600' : 'text-slate-900'}`}>
-                {budgetStatus.currentSpent.toLocaleString('vi-VN')} <span className="text-xs font-semibold text-slate-500">/ {monthlyBudget.toLocaleString('vi-VN')}đ</span>
+                {budgetStatus.currentSpent.toLocaleString('vi-VN')} <span className="text-xs font-semibold text-slate-500">/ {effectiveMonthlyBudget.toLocaleString('vi-VN')}đ</span>
               </div>
             </div>
             {/* Progress bar */}
