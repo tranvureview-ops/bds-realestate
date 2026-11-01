@@ -36,6 +36,8 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
   const [localBonusBal, setLocalBonusBal] = useState(Number(currentUser?.bonusWalletBalance || 0));
   const [expiringBonusInfo, setExpiringBonusInfo] = useState(null);
   const [showAffiliateModal, setShowAffiliateModal] = useState(false);
+  const [affiliateModalTab, setAffiliateModalTab] = useState('invite'); // 'invite' | 'friends'
+  const [copiedAffiliateLink, setCopiedAffiliateLink] = useState(false);
 
   const userRefCode = currentUser?.refCode || currentUser?.phone || (currentUser?.id && currentUser.id !== 'guest' ? currentUser.id : '');
   const affiliateLink = typeof window !== 'undefined' && window.location?.origin
@@ -731,261 +733,345 @@ export default function MissionHubPage({ initialCategory = 'all' }) {
         </div>
       </div>
 
-      {/* Modal Hộp thoại Giới thiệu bạn bè (Affiliate Modal) */}
+      {/* Modal Hộp thoại Giới thiệu bạn bè (Affiliate Modal) - Tối ưu Mobile Bottom Sheet & Desktop Dialog */}
       {showAffiliateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-7 shadow-2xl border border-slate-100 relative space-y-5 my-8">
-            {/* Nút đóng */}
-            <button
-              onClick={() => setShowAffiliateModal(false)}
-              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition cursor-pointer"
-            >
-              <i className="fa-solid fa-xmark text-sm"></i>
-            </button>
-
-            {/* Header */}
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center text-xl shadow-md shrink-0">
-                <i className="fa-solid fa-users"></i>
-              </div>
-              <div>
-                <span className="text-[11px] font-black uppercase text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full">
-                  Chương trình Affiliate & Chiêu Mộ
-                </span>
-                <h3 className="text-lg font-black text-slate-900">Chinh Phục Các Mốc Thưởng Chiêu Mộ</h3>
-              </div>
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm sm:p-4 overflow-hidden animate-in fade-in duration-200">
+          <div className="bg-white rounded-t-3xl sm:rounded-3xl max-w-lg w-full max-h-[92vh] sm:max-h-[88vh] shadow-2xl border border-slate-100 flex flex-col overflow-hidden animate-in slide-in-from-bottom-4 sm:slide-in-from-bottom-2 duration-200">
+            
+            {/* Mobile Drag Indicator */}
+            <div className="pt-2.5 pb-1 flex justify-center sm:hidden shrink-0 bg-white">
+              <span className="w-10 h-1 bg-slate-300 rounded-full"></span>
             </div>
 
-            {/* Overview Progress Box */}
-            <div className="p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 space-y-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-xs font-bold text-slate-700">Tiến độ bạn bè đạt chuẩn: </span>
-                  <span className="text-xs font-black text-blue-700 font-mono">
-                    {realRefSuccess} bạn bè
+            {/* Header cố định */}
+            <div className="px-4 sm:px-6 py-3.5 border-b border-slate-100 flex items-center justify-between gap-3 shrink-0 bg-white">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center text-lg shadow-sm shrink-0">
+                  <i className="fa-solid fa-users"></i>
+                </div>
+                <div className="min-w-0">
+                  <span className="text-[10px] font-black uppercase text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full inline-block">
+                    Affiliate & Chiêu Mộ
                   </span>
-                  <span className="text-[11px] text-slate-500 ml-1.5">(Tổng đã mời: {totalReferred})</span>
+                  <h3 className="text-sm sm:text-base font-black text-slate-900 truncate">
+                    Chinh Phục Mốc Thưởng Chiêu Mộ
+                  </h3>
                 </div>
-                <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                  {allMilestonesClaimed
-                    ? '🎉 Đã nhận toàn bộ các mốc!'
-                    : `Đã mở khóa: ${activeMilestones.filter(m => Boolean(claimedMilestones[m.id])).length}/${activeMilestones.length} mốc`}
-                </span>
               </div>
-              <div className="text-[11px] text-slate-600 flex items-center justify-between pt-0.5">
-                <span>🎁 Tiền thưởng: <strong>Cộng trực tiếp vào Ví KM</strong> (hạn {Number(systemConfig?.bonusExpiryDays) || 30} ngày)</span>
-                <span className="text-[10px] text-slate-500 italic">Chuẩn: Kích hoạt + tin đăng / eKYC / nạp tiền</span>
+
+              {/* Nút đóng */}
+              <button
+                type="button"
+                onClick={() => setShowAffiliateModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition cursor-pointer shrink-0"
+              >
+                <i className="fa-solid fa-xmark text-sm"></i>
+              </button>
+            </div>
+
+            {/* Tab chuyển đổi màn hình trên mobile / desktop */}
+            <div className="px-4 sm:px-6 pt-3 pb-2 bg-white border-b border-slate-100 shrink-0">
+              <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 rounded-xl text-xs font-bold">
+                <button
+                  type="button"
+                  onClick={() => setAffiliateModalTab('invite')}
+                  className={`py-2 px-3 rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                    affiliateModalTab === 'invite'
+                      ? 'bg-white text-blue-700 shadow-xs'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  <i className="fa-solid fa-gift"></i>
+                  <span>Chia sẻ & Mốc thưởng</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAffiliateModalTab('friends')}
+                  className={`py-2 px-3 rounded-lg transition flex items-center justify-center gap-1.5 cursor-pointer ${
+                    affiliateModalTab === 'friends'
+                      ? 'bg-white text-blue-700 shadow-xs'
+                      : 'text-slate-500 hover:text-slate-800'
+                  }`}
+                >
+                  <i className="fa-solid fa-user-group"></i>
+                  <span>Bạn bè ({totalReferred})</span>
+                </button>
               </div>
             </div>
 
-            {/* Danh sách các Mốc Thưởng Từng Mốc (Interactive Milestone Track) */}
-            <div className="space-y-2.5">
-              <div className="flex items-center justify-between">
-                <h4 className="text-xs font-black uppercase text-slate-800 flex items-center gap-1.5 tracking-wider">
-                  <i className="fa-solid fa-trophy text-amber-500"></i>
-                  <span>Thưởng Từng Mốc Chiêu Mộ</span>
-                </h4>
-                <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md">
-                  Nhận thưởng riêng theo từng mốc
-                </span>
-              </div>
+            {/* Nội dung cuộn mượt mà không lồng scrollbar */}
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1 overscroll-contain">
+              {affiliateModalTab === 'invite' ? (
+                <>
+                  {/* Khối chia sẻ 1 chạm (Ưu tiên hàng đầu cho user trên Mobile) */}
+                  <div className="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border border-blue-200/80 space-y-3 shadow-xs">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[11px] font-black uppercase tracking-wider text-blue-900 flex items-center gap-1.5">
+                        <i className="fa-solid fa-paper-plane text-blue-600"></i>
+                        <span>Đường dẫn giới thiệu riêng</span>
+                      </span>
+                      <span className="text-[10px] text-emerald-700 bg-emerald-100/80 font-bold px-2 py-0.5 rounded-full">
+                        1 chạm mở đăng ký
+                      </span>
+                    </div>
 
-              <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                {activeMilestones.map((m, idx) => {
-                  const isClaimed = Boolean(claimedMilestones[m.id]);
-                  const isReached = realRefSuccess >= Number(m.target);
-                  const isClaimable = isReached && !isClaimed;
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        readOnly
+                        value={affiliateLink}
+                        className="flex-1 bg-white border border-blue-200 text-slate-800 text-xs px-3 py-2.5 rounded-xl outline-none truncate font-mono shadow-inner select-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                            navigator.clipboard.writeText(affiliateLink);
+                            setCopiedAffiliateLink(true);
+                            setTimeout(() => setCopiedAffiliateLink(false), 2000);
+                            if (showToast) showToast('Đã sao chép link giới thiệu vào bộ nhớ tạm!', 'success');
+                          }
+                        }}
+                        className={`px-3.5 py-2.5 text-white font-bold text-xs rounded-xl transition flex items-center gap-1.5 shrink-0 shadow-sm cursor-pointer active:scale-95 ${
+                          copiedAffiliateLink
+                            ? 'bg-emerald-600'
+                            : 'bg-blue-600 hover:bg-blue-700'
+                        }`}
+                      >
+                        <i className={`fa-solid ${copiedAffiliateLink ? 'fa-check' : 'fa-link'}`}></i>
+                        <span>{copiedAffiliateLink ? 'Đã copy!' : 'Sao chép'}</span>
+                      </button>
+                    </div>
 
-                  return (
-                    <div
-                      key={m.id || idx}
-                      className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
-                        isClaimed
-                          ? 'bg-slate-50 border-slate-200/80 opacity-80'
-                          : isClaimable
-                          ? 'bg-gradient-to-r from-emerald-50 via-teal-50 to-green-50 border-emerald-300 shadow-sm ring-1 ring-emerald-300'
-                          : 'bg-white border-slate-200'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shrink-0 ${
-                          isClaimed
-                            ? 'bg-emerald-100 text-emerald-700'
-                            : isClaimable
-                            ? 'bg-emerald-600 text-white shadow-xs animate-bounce'
-                            : 'bg-blue-50 text-blue-700 border border-blue-200'
-                        }`}>
-                          {isClaimed ? (
-                            <i className="fa-solid fa-check"></i>
-                          ) : (
-                            <span>#{idx + 1}</span>
-                          )}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <span className="font-bold text-xs text-slate-900 truncate">
-                              {m.label || `Mốc ${idx + 1}: Kết nối ${m.target} bạn bè`}
-                            </span>
-                            <span className="text-[10px] font-black text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded font-mono">
-                              +{Number(m.reward).toLocaleString('vi-VN')}đ
-                            </span>
-                          </div>
-                          <div className="text-[11px] text-slate-500 flex items-center gap-1.5 mt-0.5">
-                            <span>Mục tiêu: <strong>{m.target} bạn đạt chuẩn</strong></span>
-                            <span>•</span>
-                            <span className={isClaimed ? 'text-slate-400' : isReached ? 'text-emerald-600 font-bold' : 'text-slate-400'}>
-                              {isClaimed ? 'Đã nhận thưởng' : isReached ? 'Đã đủ điều kiện nhận!' : `Còn thiếu ${Math.max(0, m.target - realRefSuccess)} bạn`}
-                            </span>
-                          </div>
-                        </div>
+                    {/* 2 Nút chia sẻ nhanh chuẩn touch mobile */}
+                    <div className="grid grid-cols-2 gap-2 pt-0.5">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const shareMsg = `Tham gia sàn Bất Động Sản cùng mình nhé! Đăng ký nhận ngay quà tặng vào Ví Khuyến Mãi để đăng tin VIP miễn phí: ${affiliateLink}`;
+                          if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                            navigator.clipboard.writeText(shareMsg);
+                            if (showToast) showToast('Đã copy lời mời kèm link! Hãy dán vào Zalo để gửi cho bạn bè nhé!', 'success');
+                          }
+                          window.open(`https://zalo.me/share?url=${encodeURIComponent(affiliateLink)}`, '_blank');
+                        }}
+                        className="py-2.5 px-3 rounded-xl bg-[#0068FF] hover:bg-blue-700 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-95"
+                      >
+                        <i className="fa-solid fa-comment-dots text-sm"></i>
+                        <span>Gửi qua Zalo</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(affiliateLink)}`, '_blank');
+                        }}
+                        className="py-2.5 px-3 rounded-xl bg-[#1877F2] hover:bg-blue-800 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-xs cursor-pointer active:scale-95"
+                      >
+                        <i className="fa-brands fa-facebook-f text-sm"></i>
+                        <span>Chia sẻ Facebook</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Tiến độ chiêu mộ tóm tắt */}
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <div className="text-xs text-slate-700">
+                        <span>Bạn bè đạt chuẩn: </span>
+                        <strong className="text-blue-700 font-mono text-sm">{realRefSuccess}</strong>
+                        <span className="text-slate-400 text-[11px] ml-1">/ tổng mời: {totalReferred}</span>
                       </div>
+                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded-full border border-emerald-200">
+                        {allMilestonesClaimed
+                          ? '🎉 Đã nhận toàn bộ các mốc!'
+                          : `Đã mở: ${activeMilestones.filter(m => Boolean(claimedMilestones[m.id])).length}/${activeMilestones.length} mốc`}
+                      </span>
+                    </div>
 
-                      <div className="shrink-0">
-                        {isClaimed ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg">
-                            <i className="fa-solid fa-circle-check"></i>
-                            <span>Đã nhận</span>
-                          </span>
-                        ) : isClaimable ? (
-                          <button
-                            type="button"
-                            onClick={() => handleClaimMilestone(m)}
-                            className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs shadow-md shadow-emerald-200 transition cursor-pointer flex items-center gap-1.5 active:scale-95"
+                    <div className="text-[11px] text-slate-500 flex flex-col sm:flex-row sm:items-center justify-between gap-1 pt-0.5 border-t border-slate-200/60">
+                      <span>🎁 Thưởng: <strong>Cộng Ví KM</strong> (hạn {Number(systemConfig?.bonusExpiryDays) || 30} ngày)</span>
+                      <span className="italic text-[10px] text-slate-400">Đạt chuẩn: Kích hoạt + tin đăng / nạp / KYC</span>
+                    </div>
+                  </div>
+
+                  {/* Danh sách các Mốc Thưởng (Render trực tiếp, không thanh cuộn con) */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-black uppercase text-slate-800 flex items-center gap-1.5 tracking-wider">
+                        <i className="fa-solid fa-trophy text-amber-500"></i>
+                        <span>Thưởng Từng Mốc Chiêu Mộ</span>
+                      </h4>
+                      <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md">
+                        Nhận riêng từng mốc
+                      </span>
+                    </div>
+
+                    <div className="space-y-2">
+                      {activeMilestones.map((m, idx) => {
+                        const isClaimed = Boolean(claimedMilestones[m.id]);
+                        const isReached = realRefSuccess >= Number(m.target);
+                        const isClaimable = isReached && !isClaimed;
+                        const cleanLabel = (m.label || '').replace(/^Mốc\s+\d+:\s*/i, '') || `Kết nối ${m.target} bạn bè`;
+
+                        return (
+                          <div
+                            key={m.id || idx}
+                            className={`p-3 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                              isClaimed
+                                ? 'bg-slate-50/80 border-slate-200/80 opacity-80'
+                                : isClaimable
+                                ? 'bg-gradient-to-r from-emerald-50 via-teal-50 to-green-50 border-emerald-300 shadow-sm ring-1 ring-emerald-300'
+                                : 'bg-white border-slate-200 hover:border-slate-300'
+                            }`}
                           >
-                            <i className="fa-solid fa-gift"></i>
-                            <span>Nhận +{Number(m.reward).toLocaleString('vi-VN')}đ</span>
-                          </button>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
-                            <i className="fa-solid fa-lock text-[10px]"></i>
-                            <span>{realRefSuccess}/{m.target}</span>
-                          </span>
-                        )}
-                      </div>
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-black shrink-0 ${
+                                isClaimed
+                                  ? 'bg-emerald-100 text-emerald-700'
+                                  : isClaimable
+                                  ? 'bg-emerald-600 text-white shadow-xs animate-bounce'
+                                  : 'bg-blue-50 text-blue-700 border border-blue-200'
+                              }`}>
+                                {isClaimed ? (
+                                  <i className="fa-solid fa-check"></i>
+                                ) : (
+                                  <span>#{idx + 1}</span>
+                                )}
+                              </div>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="font-bold text-xs text-slate-900 truncate">
+                                    Mốc {idx + 1}: {cleanLabel}
+                                  </span>
+                                  <span className="text-[10px] font-black text-emerald-800 bg-emerald-100 px-1.5 py-0.5 rounded font-mono">
+                                    +{Number(m.reward).toLocaleString('vi-VN')}đ
+                                  </span>
+                                </div>
+                                <div className="text-[11px] text-slate-500 flex items-center gap-1.5 mt-0.5">
+                                  <span>Mục tiêu: <strong>{m.target} bạn</strong></span>
+                                  <span>•</span>
+                                  <span className={isClaimed ? 'text-slate-400' : isReached ? 'text-emerald-600 font-bold' : 'text-slate-400'}>
+                                    {isClaimed ? 'Đã nhận thưởng' : isReached ? 'Đủ điều kiện nhận!' : `Thiếu ${Math.max(0, m.target - realRefSuccess)} bạn`}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="shrink-0">
+                              {isClaimed ? (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-1 rounded-lg">
+                                  <i className="fa-solid fa-circle-check"></i>
+                                  <span>Đã nhận</span>
+                                </span>
+                              ) : isClaimable ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleClaimMilestone(m)}
+                                  className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs shadow-md shadow-emerald-200 transition cursor-pointer flex items-center gap-1.5 active:scale-95"
+                                >
+                                  <i className="fa-solid fa-gift"></i>
+                                  <span>Nhận +{Number(m.reward).toLocaleString('vi-VN')}đ</span>
+                                </button>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+                                  <i className="fa-solid fa-lock text-[10px]"></i>
+                                  <span>{realRefSuccess}/{m.target}</span>
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                  );
-                })}
-              </div>
-            </div>
+                  </div>
 
-            {/* Revenue Share Commission Banner */}
-            <div className="p-3 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg shrink-0 shadow-sm">
-                <i className="fa-solid fa-sack-dollar"></i>
-              </div>
-              <div className="text-[11px] text-emerald-950 leading-snug">
-                <div className="font-black text-emerald-800">Hoa hồng nạp tiền {systemConfig?.affiliateCommissionRate || 7}%</div>
-                <div className="text-emerald-700">Mỗi khi bạn bè nạp tiền mua gói VIP hoặc đẩy tin, bạn nhận ngay {systemConfig?.affiliateCommissionRate || 7}% hoa hồng tiền mặt vào Ví Chính.</div>
-              </div>
-            </div>
+                  {/* Revenue Share Commission Banner */}
+                  <div className="p-3 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/80 rounded-2xl flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-base shrink-0 shadow-xs">
+                      <i className="fa-solid fa-sack-dollar"></i>
+                    </div>
+                    <div className="text-[11px] text-emerald-950 leading-snug">
+                      <div className="font-black text-emerald-800">Hoa hồng nạp tiền {systemConfig?.affiliateCommissionRate || 7}%</div>
+                      <div className="text-emerald-700">Nhận ngay {systemConfig?.affiliateCommissionRate || 7}% hoa hồng tiền mặt vào Ví Chính mỗi khi bạn bè nạp tiền mua gói VIP hoặc đẩy tin.</div>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                /* Tab Bạn bè đã tham gia */
+                <div className="space-y-3">
+                  <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
+                    <div>
+                      <span className="text-slate-500">Tổng bạn bè: </span>
+                      <strong className="text-slate-900">{totalReferred} người</strong>
+                      <span className="text-slate-400 mx-1.5">•</span>
+                      <span className="text-emerald-700 font-bold">{realRefSuccess} đạt chuẩn</span>
+                    </div>
+                    <span className="text-emerald-600 text-[11px] font-medium">
+                      {allMilestonesClaimed
+                        ? '🎉 Chinh phục toàn bộ!'
+                        : `Cần thêm ${Math.max(0, (currentMilestone?.target || 0) - realRefSuccess)} bạn`}
+                    </span>
+                  </div>
 
-            {/* Referral Link */}
-            <div className="space-y-3">
-              {/* Link giới thiệu */}
-              <div>
-                <label className="block text-[11px] font-black uppercase text-slate-600 mb-1.5">
-                  Đường dẫn giới thiệu riêng (1 chạm mở trang đăng ký)
-                </label>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    readOnly
-                    value={affiliateLink}
-                    className="flex-1 bg-slate-50 border border-slate-200 text-slate-700 text-xs px-3.5 py-2.5 rounded-xl outline-none truncate font-mono"
-                  />
-                  <button
-                    onClick={() => {
-                      if (typeof navigator !== 'undefined' && navigator.clipboard) {
-                        navigator.clipboard.writeText(affiliateLink);
-                        if (showToast) showToast('Đã sao chép link giới thiệu vào bộ nhớ tạm!', 'success');
-                      }
-                    }}
-                    className="px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition flex items-center gap-1.5 shrink-0 shadow-sm cursor-pointer"
-                  >
-                    <i className="fa-solid fa-link"></i>
-                    <span>Sao chép link</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Nút chia sẻ nhanh qua Zalo & Facebook */}
-            <div className="space-y-1.5">
-              <label className="block text-[11px] font-black uppercase text-slate-600">
-                Chia sẻ nhanh
-              </label>
-              <div className="grid grid-cols-2 gap-2.5">
-                <button
-                  onClick={() => {
-                    const shareMsg = `Tham gia sàn Bất Động Sản cùng mình nhé! Đăng ký nhận ngay quà tặng vào Ví Khuyến Mãi để đăng tin VIP miễn phí: ${affiliateLink}`;
-                    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-                      navigator.clipboard.writeText(shareMsg);
-                      if (showToast) showToast('Đã copy lời mời kèm link! Hãy dán vào Zalo để gửi cho bạn bè nhé!', 'success');
-                    }
-                    window.open(`https://zalo.me/share?url=${encodeURIComponent(affiliateLink)}`, '_blank');
-                  }}
-                  className="py-2.5 px-3 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
-                >
-                  <i className="fa-solid fa-comment-dots"></i>
-                  <span>Gửi qua Zalo</span>
-                </button>
-                <button
-                  onClick={() => {
-                    window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(affiliateLink)}`, '_blank');
-                  }}
-                  className="py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition flex items-center justify-center gap-2 shadow-xs cursor-pointer"
-                >
-                  <i className="fa-brands fa-facebook-f"></i>
-                  <span>Chia sẻ Facebook</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Danh sách bạn bè đã tham gia */}
-            <div className="space-y-2 border-t border-slate-100 pt-4">
-              <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                <span>Bạn bè đã tham gia ({totalReferred} người, {realRefSuccess} đạt chuẩn)</span>
-                <span className="text-emerald-600 text-[11px]">
-                  {allMilestonesClaimed
-                    ? '🎉 Đã chinh phục tất cả mốc!'
-                    : `Mốc tiếp theo: ${currentMilestone?.target || 0} bạn (cần thêm ${Math.max(0, (currentMilestone?.target || 0) - realRefSuccess)} bạn)`}
-                </span>
-              </div>
-              {referredFriends.length > 0 ? (
-                <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1">
-                  {referredFriends.map((f, idx) => (
-                    <div key={f.id || idx} className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs gap-2">
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <div className={`w-6 h-6 rounded-full font-bold flex items-center justify-center text-[10px] shrink-0 ${f.isQualified ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}`}>
-                          {idx + 1}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="font-bold text-slate-800 truncate">{f.name || 'Người dùng mới'}</div>
-                          <div className="text-[10px] text-slate-400 font-mono">
-                            {f.phone ? f.phone.slice(0, 4) + '***' + f.phone.slice(-3) : f.email ? f.email.replace(/(.{2})(.*)(?=@)/, '$1***') : 'Tài khoản'}
-                            {f.userListingsCount > 0 ? ` • ${f.userListingsCount} tin đăng` : ''}
+                  {referredFriends.length > 0 ? (
+                    <div className="space-y-1.5">
+                      {referredFriends.map((f, idx) => (
+                        <div key={f.id || idx} className="p-2.5 rounded-xl bg-white border border-slate-200 flex items-center justify-between text-xs gap-2">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className={`w-6 h-6 rounded-full font-bold flex items-center justify-center text-[10px] shrink-0 ${f.isQualified ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}`}>
+                              {idx + 1}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="font-bold text-slate-800 truncate">{f.name || 'Người dùng mới'}</div>
+                              <div className="text-[10px] text-slate-400 font-mono">
+                                {f.phone ? f.phone.slice(0, 4) + '***' + f.phone.slice(-3) : f.email ? f.email.replace(/(.{2})(.*)(?=@)/, '$1***') : 'Tài khoản'}
+                                {f.userListingsCount > 0 ? ` • ${f.userListingsCount} tin đăng` : ''}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="shrink-0 text-right">
+                            {f.isQualified ? (
+                              <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                <i className="fa-solid fa-circle-check text-emerald-600"></i>
+                                <span>Đạt chuẩn</span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                <i className="fa-regular fa-clock text-amber-500"></i>
+                                <span>Chờ tin/KYC</span>
+                              </span>
+                            )}
                           </div>
                         </div>
-                      </div>
-                      <div className="shrink-0 text-right">
-                        {f.isQualified ? (
-                          <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                            <i className="fa-solid fa-circle-check text-emerald-600"></i>
-                            <span>Đạt chuẩn</span>
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center gap-1 text-[10px] px-2 py-0.5 rounded-md font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                            <i className="fa-regular fa-clock text-amber-500"></i>
-                            <span>Chờ tin/KYC</span>
-                          </span>
-                        )}
-                      </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-dashed border-slate-200 text-center text-xs text-slate-400">
-                  Chưa có người bạn nào đăng ký qua mã của bạn. Hãy gửi link trên để mời đồng nghiệp ngay!
+                  ) : (
+                    <div className="p-6 rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-center space-y-3">
+                      <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl mx-auto">
+                        <i className="fa-solid fa-user-plus"></i>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="text-xs font-bold text-slate-700">Chưa có bạn bè nào tham gia</div>
+                        <p className="text-[11px] text-slate-500 max-w-xs mx-auto">
+                          Gửi đường dẫn giới thiệu riêng của bạn qua Zalo hoặc Facebook để cùng bạn bè nhận thưởng ngay hôm nay!
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                            navigator.clipboard.writeText(affiliateLink);
+                            if (showToast) showToast('Đã copy link! Hãy gửi cho bạn bè nhé!', 'success');
+                          }
+                        }}
+                        className="px-4 py-2 rounded-xl bg-blue-600 text-white font-bold text-xs shadow-xs hover:bg-blue-700 transition inline-flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <i className="fa-solid fa-copy"></i>
+                        <span>Sao chép link ngay</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
