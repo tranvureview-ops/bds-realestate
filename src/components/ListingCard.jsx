@@ -149,11 +149,6 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
 
         {/* Top Badges */}
         <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5 z-[2]">
-          {/* VIP Level Badge */}
-          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase shadow-sm tracking-wide ${vipPkg.badgeColor}`}>
-            {vipPkg.shortName}
-          </span>
-
           {/* Demand Badge */}
           <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-sm ${property.demand === 'sale' ? 'bg-emerald-700 text-white' : 'bg-blue-600 text-white'}`}>
             {property.demand === 'sale' ? 'BÁN' : 'CHO THUÊ'}
