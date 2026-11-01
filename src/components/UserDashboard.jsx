@@ -641,7 +641,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                               title={`Bài viết đang gán nổi bật cố định (Hạn hiển thị đến: ${treasureExpInfo.formattedExpiryDate})`}
                             >
                               <i className="fa-solid fa-star text-[9px]"></i>
-                              <span>Nổi Bật ({treasureExpInfo.daysRemaining > 0 ? `Còn ${treasureExpInfo.daysRemaining} ngày` : 'Sắp hết hạn'})</span>
+                              <span>Nổi Bật</span>
                             </span>
                           )}
                           
