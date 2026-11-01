@@ -325,6 +325,13 @@ export default function PricePredictionPage({ projectSlug = null }) {
       }
     }
 
+    // Kiểm tra nếu chương trình đã hết hạn hoặc đã chốt kết quả
+    const isExpired = Boolean(game.endDate && new Date(game.endDate) < new Date());
+    if (isExpired || game.status === 'settled') {
+      if (showToast) showToast('Chương trình dự đoán giá này đã hết hạn nhận bài tham gia!', 'warning');
+      return;
+    }
+
     const rawVal = customPrice !== null ? customPrice : userInputs[game.id]?.price;
     const interpretation = getPriceInterpretation(rawVal);
     const priceToSubmit = interpretation?.tyVal;
@@ -528,6 +535,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
             <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar scrollbar-none pb-1">
               {programs.map((prog, pIdx) => {
                 const isSelected = prog.id === currentHonorGame?.id;
+                const isExpired = Boolean(prog.endDate && new Date(prog.endDate) < new Date());
                 const isSettled = prog.status === 'settled' || Boolean(prog.settledResult);
                 return (
                   <button
@@ -551,9 +559,11 @@ export default function PricePredictionPage({ projectSlug = null }) {
                     <span className={`text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider ${
                       isSettled
                         ? isSelected ? 'bg-slate-950/30 text-slate-950' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                        : isExpired
+                        ? isSelected ? 'bg-slate-950/30 text-slate-950' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
                         : isSelected ? 'bg-slate-950/30 text-slate-950' : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
                     }`}>
-                      {isSettled ? 'Đã Trao Thưởng' : 'Đang Mở'}
+                      {isSettled ? 'Đã Trao Thưởng' : isExpired ? 'Đã Hết Hạn' : 'Đang Mở'}
                     </span>
                   </button>
                 );
@@ -948,7 +958,9 @@ export default function PricePredictionPage({ projectSlug = null }) {
           {displayGames.map(game => {
             const userVote = getUserPredictionForGame(game.id);
             const hasVoted = Boolean(userVote);
+            const isExpired = Boolean(game.endDate && new Date(game.endDate) < new Date());
             const isSettled = game.status === 'settled';
+            const isClosed = isSettled || isExpired;
             const allVotes = getStoredPredictions(game.id);
             const totalParticipants = allVotes.length;
 
@@ -957,20 +969,32 @@ export default function PricePredictionPage({ projectSlug = null }) {
                 key={game.id}
                 id={`game-${game.id}`}
                 className={`bg-white rounded-3xl border shadow-sm flex flex-col justify-between gap-5 transition overflow-hidden relative ${
-                  isSettled ? 'border-amber-400/80 bg-amber-50/10' : 'border-slate-200/80 hover:border-indigo-300'
+                  isSettled 
+                    ? 'border-amber-400/80 bg-amber-50/10' 
+                    : isExpired
+                    ? 'border-rose-200 bg-rose-50/15'
+                    : 'border-slate-200/80 hover:border-indigo-300'
                 } p-5 sm:p-6`}
               >
                 {/* Badge trạng thái */}
                 <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
                   <div className="flex items-center gap-2">
                     <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1 ${
-                      isSettled ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                      isSettled 
+                        ? 'bg-amber-100 text-amber-800 border border-amber-300' 
+                        : isExpired
+                        ? 'bg-rose-100 text-rose-800 border border-rose-300'
+                        : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
                     }`}>
-                      <i className={`fa-solid ${isSettled ? 'fa-flag-checkered' : 'fa-circle-dot animate-pulse text-emerald-600'}`}></i>
-                      <span>{isSettled ? 'Đã Chốt Kết Quả' : 'Đang Mở Dự Đoán'}</span>
+                      <i className={`fa-solid ${
+                        isSettled ? 'fa-flag-checkered text-amber-600' : isExpired ? 'fa-lock text-rose-600' : 'fa-circle-dot animate-pulse text-emerald-600'
+                      }`}></i>
+                      <span>
+                        {isSettled ? 'Đã Chốt Kết Quả' : isExpired ? 'Đã Hết Hạn Dự Đoán' : 'Đang Mở Dự Đoán'}
+                      </span>
                     </span>
-                    <span className="text-[11px] text-slate-500 font-medium">
-                      Hạn: {new Date(game.endDate).toLocaleDateString('vi-VN')}
+                    <span className={`text-[11px] font-medium ${isExpired ? 'text-rose-600 font-bold' : 'text-slate-500'}`}>
+                      Hạn: {new Date(game.endDate).toLocaleDateString('vi-VN')} {isExpired && '(Đã hết hạn)'}
                     </span>
                   </div>
 
@@ -1062,8 +1086,51 @@ export default function PricePredictionPage({ projectSlug = null }) {
                   </div>
                 )}
 
-                {/* NẾU ĐANG HOẠT ĐỘNG: KHUNG NHẬP GIÁ DỰ ĐOÁN THỦ CÔNG (CỐ ĐỊNH MIN-HEIGHT TRÁNH CO GIÃN THẺ) */}
-                {!isSettled && (
+                {/* NẾU ĐÃ HẾT HẠN (CHỜ ADMIN CHỐT KẾT QUẢ) */}
+                {isExpired && !isSettled && (
+                  <div className="pt-2 min-h-[58px] flex items-center">
+                    {hasVoted ? (
+                      <div className="w-full p-2.5 bg-slate-100 border border-slate-200 rounded-2xl flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="w-8 h-8 rounded-xl bg-slate-700 text-white flex items-center justify-center text-sm shadow-xs shrink-0">
+                            <i className="fa-solid fa-lock"></i>
+                          </span>
+                          <div>
+                            <div className="text-[11px] text-slate-700 font-bold">Đã hết hạn • Mức giá bạn đã dự đoán:</div>
+                            <div className="text-base font-black text-slate-800 font-mono">
+                              {userVote.predictedPrice} tỷ
+                            </div>
+                          </div>
+                        </div>
+                        <span className="text-xs bg-slate-200 text-slate-700 px-3 py-1 rounded-xl font-bold border border-slate-300 shrink-0">
+                          Chờ Chốt Giải
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="w-full p-3 bg-rose-50/70 border border-rose-200 rounded-2xl flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5 text-xs">
+                          <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-sm font-bold shrink-0">
+                            <i className="fa-solid fa-lock"></i>
+                          </div>
+                          <div>
+                            <div className="font-bold text-slate-900">Đã Hết Hạn Nhận Dự Đoán</div>
+                            <div className="text-[11px] text-slate-500">Cổng dự đoán đã đóng vào {new Date(game.endDate).toLocaleDateString('vi-VN')}. Đang chờ công bố kết quả.</div>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setActiveLeaderboardGame(game)}
+                          className="px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 font-bold text-xs rounded-xl transition shrink-0 cursor-pointer shadow-2xs"
+                        >
+                          Xem BXH
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* NẾU ĐANG HOẠT ĐỘNG VÀ CHƯA HẾT HẠN: KHUNG NHẬP GIÁ DỰ ĐOÁN THỦ CÔNG */}
+                {!isClosed && (
                   <div className="pt-2 min-h-[58px] flex items-center">
                     {/* Ô Nhập Giá Thủ Công Chuẩn Giống Phần Đăng Tin */}
                     {hasVoted ? (
@@ -1075,7 +1142,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
                           <div>
                             <div className="text-[11px] text-emerald-800 font-bold">Mức giá bạn đã dự đoán:</div>
                             <div className="text-base font-black text-emerald-700 font-mono">
-                              {userVote.predictedPrice} tỷ VNĐ
+                              {userVote.predictedPrice} tỷ
                             </div>
                           </div>
                         </div>
