@@ -10756,7 +10756,7 @@ export default function AdminBackendPage() {
 
       {/* Floating Real-time Toast Alert in Admin when new report arrives */}
       {incomingAlertToast && (
-        <div className="fixed top-20 right-6 z-50 max-w-md w-full bg-slate-950 border-2 border-rose-500 rounded-2xl p-4 shadow-2xl shadow-rose-950/80 animate-in slide-in-from-top-4 duration-300">
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-[99999] max-w-md w-[92vw] bg-slate-950/95 backdrop-blur-md border-2 border-rose-500 rounded-2xl p-3.5 shadow-2xl shadow-rose-950/80 animate-in slide-in-from-top-4 duration-300">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-lg shrink-0 animate-bounce border border-rose-500/40">
               <i className="fa-solid fa-bell"></i>

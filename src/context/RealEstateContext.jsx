@@ -1316,13 +1316,26 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // 14. Toast Notifications
   const [toast, setToast] = useState(null);
+  const toastTimerRef = useRef(null);
+
+  const dismissToast = useCallback(() => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+      toastTimerRef.current = null;
+    }
+    setToast(null);
+  }, []);
 
   // Helper show Toast
   const showToast = useCallback((message, type = 'success') => {
+    if (toastTimerRef.current) {
+      clearTimeout(toastTimerRef.current);
+    }
     setToast({ id: Date.now(), message, type });
-    setTimeout(() => {
+    toastTimerRef.current = setTimeout(() => {
       setToast(null);
-    }, 4000);
+      toastTimerRef.current = null;
+    }, 3800);
   }, []);
 
   // 9. Modals State
@@ -5394,6 +5407,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         transactions,
         navMenuItems,
         toast,
+        dismissToast,
+        setToast,
         activeModal,
         selectedPropertyDetail,
         selectedPropertyForVip,
