@@ -3221,8 +3221,8 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                 >
                   <i className="fa-solid fa-check-circle text-base"></i>
                   {finalCost === 0 
-                    ? 'Xác Nhận Xuất Bản Tin Miễn Phí (0 đ)' 
-                    : `Xác Nhận Thanh Toán & Đăng Tin (${finalCost.toLocaleString('vi-VN')} đ)`}
+                    ? 'Xuất Bản Tin Miễn Phí (0 đ)' 
+                    : `Thanh Toán & Đăng Tin (${finalCost.toLocaleString('vi-VN')} đ)`}
                 </button>
               )}
             </div>
