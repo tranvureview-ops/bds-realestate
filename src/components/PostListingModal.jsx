@@ -3202,7 +3202,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                 title="Xem trước giao diện tin rao trên website"
               >
                 <i className="fa-regular fa-eye text-indigo-600"></i>
-                <span>Xem trước tin rao</span>
+                <span>Xem trước</span>
               </button>
 
               {step < 4 ? (
