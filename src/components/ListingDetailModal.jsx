@@ -572,26 +572,25 @@ export default function ListingDetailModal({ property, onClose }) {
                       href={structuredBrokerLink}
                       rel="nofollow"
                       onClick={handleOpenBrokerModal}
-                      className="block cursor-pointer group/brokerInfo py-1.5 min-h-[44px]"
+                      className="block cursor-pointer group/brokerInfo"
                       title={authorTitle}
                       aria-label={`Xem hồ sơ ${authorTitle}`}
                     >
-                      <div className="flex items-center justify-end gap-1">
+                      <div className="flex items-center justify-between gap-2">
+                        <h4 className="text-base font-extrabold text-slate-900 group-hover/brokerInfo:text-emerald-700 transition truncate flex items-center gap-1.5 min-w-0">
+                          <span className="truncate">{safeAuthor.name}</span>
+                          {safeAuthor.isVerified && (
+                            <i className="fa-solid fa-circle-check text-blue-500 text-sm shrink-0" title={`${authorTitle} đã xác thực`}></i>
+                          )}
+                        </h4>
                         <span className="text-[11px] text-emerald-600 font-bold group-hover/brokerInfo:underline flex items-center gap-1 shrink-0">
                           <span>Xem hồ sơ</span>
                           <i className="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
                         </span>
                       </div>
 
-                      <h4 className="text-base font-extrabold text-slate-900 group-hover/brokerInfo:text-emerald-700 transition truncate mt-0.5 flex items-center gap-1.5">
-                        <span>{safeAuthor.name}</span>
-                        {safeAuthor.isVerified && (
-                          <i className="fa-solid fa-circle-check text-blue-500 text-sm shrink-0" title={`${authorTitle} đã xác thực`}></i>
-                        )}
-                      </h4>
-
                       {safeAuthor.title ? (
-                        <p className="text-xs text-slate-500 truncate" title={safeAuthor.title}>
+                        <p className="text-xs text-slate-500 truncate mt-0.5" title={safeAuthor.title}>
                           {safeAuthor.title}
                         </p>
                       ) : null}
