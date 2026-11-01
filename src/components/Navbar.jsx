@@ -110,7 +110,7 @@ export default function Navbar() {
         if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 2) {
           el.scrollLeft = 0;
         } else {
-          el.scrollLeft += 0.8;
+          el.scrollLeft += 0.35; // Giảm tốc độ chạy chậm lại để người dùng dễ đọc thoải mái
         }
       }
       animId = requestAnimationFrame(step);
