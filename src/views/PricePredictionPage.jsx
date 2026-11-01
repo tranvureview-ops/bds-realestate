@@ -11,7 +11,10 @@ import {
   syncBotsForGame,
   awardBadgeToUser,
   formatRelativeTime,
-  appendLiveBotPrediction
+  appendLiveBotPrediction,
+  getIsPredictionMembershipRequired,
+  PREDICTION_STORAGE_KEY,
+  PREDICTION_MEMBERSHIP_KEY
 } from '../services/predictionGameService';
 
 // Đọc số tiền tỷ ra chữ Tiếng Việt giống logic phần Đăng tin
@@ -70,13 +73,52 @@ export default function PricePredictionPage({ projectSlug = null }) {
   const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Sàn Nhà Đất';
   const isMemberActive = Boolean(currentUser?.membership?.packageId && new Date(currentUser?.membership?.expiresAt || 0) > new Date());
 
+  // Trạng thái yêu cầu Gói Hội Viên toàn hệ thống (Real-time Cross-tab Sync)
+  const [globalMembershipRequired, setGlobalMembershipRequired] = useState(() => {
+    return getIsPredictionMembershipRequired();
+  });
+
   // Kiểm tra cấu hình Đặc Quyền Gói Hội Viên (Ưu tiên cấu hình từ Menu Gói Hội Viên toàn sàn)
   const isGameMembershipRequired = (game) => {
+    if (globalMembershipRequired !== undefined && globalMembershipRequired !== null) {
+      return Boolean(globalMembershipRequired);
+    }
     if (systemConfig?.predictionRequireMembership !== undefined) {
       return Boolean(systemConfig.predictionRequireMembership);
     }
-    return game?.requireMembership !== false;
+    return Boolean(game?.requireMembership);
   };
+
+  // Lắng nghe sự kiện đồng bộ từ Admin (khi Admin bật/tắt Đặc quyền Hội Viên hoặc cập nhật chương trình)
+  useEffect(() => {
+    const handleMembershipToggle = (e) => {
+      setGlobalMembershipRequired(Boolean(e.detail));
+      setPrograms(getStoredPredictionPrograms());
+    };
+
+    const handleProgramsUpdate = (e) => {
+      setPrograms(getStoredPredictionPrograms());
+    };
+
+    const handleStorageChange = (e) => {
+      if (e.key === PREDICTION_MEMBERSHIP_KEY) {
+        setGlobalMembershipRequired(e.newValue === 'true');
+      }
+      if (e.key === PREDICTION_STORAGE_KEY) {
+        setPrograms(getStoredPredictionPrograms());
+      }
+    };
+
+    window.addEventListener('bds_prediction_membership_toggled', handleMembershipToggle);
+    window.addEventListener('bds_prediction_programs_updated', handleProgramsUpdate);
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('bds_prediction_membership_toggled', handleMembershipToggle);
+      window.removeEventListener('bds_prediction_programs_updated', handleProgramsUpdate);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   // Khởi tạo và đồng bộ bot nếu chưa có dữ liệu trong storage (phân bổ thời gian như thật)
   useEffect(() => {

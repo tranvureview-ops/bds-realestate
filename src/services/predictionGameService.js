@@ -9,7 +9,27 @@
 
 export const PREDICTION_STORAGE_KEY = 'bds_prediction_programs';
 export const PREDICTION_VOTES_KEY = 'bds_prediction_votes_store_v2';
+export const PREDICTION_MEMBERSHIP_KEY = 'bds_prediction_membership_required';
 const OLD_PREDICTION_VOTES_KEY = 'bds_prediction_votes_store';
+
+// Lấy trạng thái Bật/Tắt Đặc Quyền Gói Hội Viên toàn hệ thống (Real-time Cross-tab Sync)
+export function getIsPredictionMembershipRequired() {
+  if (typeof window === 'undefined') return false;
+  try {
+    const val = localStorage.getItem(PREDICTION_MEMBERSHIP_KEY);
+    if (val !== null) return val === 'true';
+  } catch (e) {}
+  return false;
+}
+
+// Lưu trạng thái Bật/Tắt Đặc Quyền Gói Hội Viên & phát sự kiện đồng bộ ngay lập tức giữa các tab
+export function setIsPredictionMembershipRequired(isRequired) {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(PREDICTION_MEMBERSHIP_KEY, String(Boolean(isRequired)));
+    window.dispatchEvent(new CustomEvent('bds_prediction_membership_toggled', { detail: Boolean(isRequired) }));
+  } catch (e) {}
+}
 
 // Danh sách họ tên và đầu số di động để sinh danh tính chân thực như thật:
 const VN_PHONE_PREFIXES = ['090', '091', '093', '094', '096', '097', '098', '086', '088', '089', '077', '079', '038', '039', '036', '035'];
@@ -278,6 +298,7 @@ export function savePredictionPrograms(programs) {
   if (typeof window === 'undefined') return;
   try {
     localStorage.setItem(PREDICTION_STORAGE_KEY, JSON.stringify(programs));
+    window.dispatchEvent(new CustomEvent('bds_prediction_programs_updated', { detail: programs }));
   } catch (e) {}
 }
 

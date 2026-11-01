@@ -7,7 +7,9 @@ import { syncFeaturesWithVouchers, getResolvedFeatures, isVoucherDiscountFree } 
 import AdminCommonVoucherPricing from './AdminCommonVoucherPricing';
 import {
   getStoredPredictionPrograms,
-  savePredictionPrograms
+  savePredictionPrograms,
+  getIsPredictionMembershipRequired,
+  setIsPredictionMembershipRequired
 } from '../services/predictionGameService';
 
 // Preset color options for package badges
@@ -70,19 +72,12 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
 
   // State Bật/Tắt Đặc Quyền Gói Hội Viên cho tính năng Dự Đoán Giá BĐS
   const [predictionRequireMembership, setPredictionRequireMembership] = useState(() => {
-    if (systemConfig?.predictionRequireMembership !== undefined) {
-      return Boolean(systemConfig.predictionRequireMembership);
-    }
-    try {
-      const progs = getStoredPredictionPrograms();
-      return progs.some(p => p.requireMembership !== false);
-    } catch (e) {
-      return true;
-    }
+    return getIsPredictionMembershipRequired();
   });
 
   const handleTogglePredictionMembership = (checked) => {
     setPredictionRequireMembership(checked);
+    setIsPredictionMembershipRequired(checked);
 
     if (updateSystemConfig) {
       updateSystemConfig({
