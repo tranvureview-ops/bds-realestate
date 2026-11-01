@@ -937,7 +937,7 @@ export default function ListingTierSelector({
           <div className="flex items-center gap-2 text-slate-700 min-w-0">
             <i className="fa-solid fa-crown text-amber-500 text-xs shrink-0"></i>
             <span className="text-[11px] truncate">
-              <b>Hẹn giờ đăng</b> & <b>Chọn ngày tương lai</b> là đặc quyền dành riêng cho <b>Hội Viên</b>
+              <b>Hẹn giờ đăng</b> & <b>Chọn ngày</b> là đặc quyền dành riêng cho <b>Hội Viên</b>
             </span>
           </div>
           <a
