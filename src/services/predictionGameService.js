@@ -346,23 +346,44 @@ export function recordUserPrediction(gameId, user, predictedPrice, chosenOption 
 }
 
 /**
+ * TÍNH GIÁ TRUNG VỊ (MEDIAN) CỦA NGƯỜI THẬT DỰ ĐOÁN (is_bot = 0)
+ * Phương pháp tính công tâm, khách quan nhất:
+ * - Sắp xếp dãy giá dự đoán tăng dần.
+ * - Lấy điểm trung vị chính giữa của cộng đồng người thật.
+ */
+export function calculateMedianPrice(realUsers = []) {
+  if (!realUsers || realUsers.length === 0) return 0;
+  const prices = realUsers
+    .map(u => Number(u.predictedPrice))
+    .filter(p => !isNaN(p) && p > 0)
+    .sort((a, b) => a - b);
+
+  if (prices.length === 0) return 0;
+  const mid = Math.floor(prices.length / 2);
+  if (prices.length % 2 !== 0) {
+    return Number(prices[mid].toFixed(2));
+  }
+  return Number(((prices[mid - 1] + prices[mid]) / 2).toFixed(2));
+}
+
+/**
  * BACKEND & LOGIC KHI KẾT THÚC SỰ KIỆN: CHỐT KẾT QUẢ & XẾP HẠNG
  * 
  * Bước 1: LỌC DỮ LIỆU - Loại bỏ toàn bộ Bot (is_bot = 1), chỉ giữ lại User thật (is_bot = 0).
- * Bước 2: TÍNH TOÁN & XẾP HẠNG - So sánh với Giá chuẩn, sắp xếp sai số tăng dần.
- * Bước 3: XÉT THƯỞNG & VINH DANH:
+ * Bước 2: TỰ ĐỘNG TÍNH GIÁ CHUẨN THEO TRUNG VỊ (MEDIAN) CỦA NGƯỜI THẬT.
+ * Bước 3: TÍNH TOÁN SAI SỐ SO VỚI GIÁ TRUNG VỊ - Sắp xếp sai số tăng dần.
+ * Bước 4: XÉT THƯỞNG & VINH DANH:
  *   - Nếu >3 người đồng hạng ở Top: Chia đều tổng giải thưởng (Ví dụ 2.000.000đ).
  *   - Nếu không đồng hạng: Top 1 (50%), Top 2 (30%), Top 3 (20%).
  *   - Cấp Huy hiệu vinh danh "Thần Phán Đoán" cho User trúng giải.
  */
 export function settlePredictionGame({
   gameId,
-  targetPrice,
+  targetPrice = null,
   totalPrize = 2000000,
   currentUser = null
 }) {
   const allRecords = getStoredPredictions(gameId);
-  const numTargetPrice = Number(targetPrice);
 
   // BƯỚC 1: LỌC DỮ LIỆU - LOẠI BỎ TOÀN BỘ BOT (is_bot = 1), CHỈ GIỮ USER THẬT (is_bot = 0)
   const realUsers = allRecords.filter(r => !r.is_bot && r.is_bot !== 1);
@@ -370,14 +391,19 @@ export function settlePredictionGame({
   if (realUsers.length === 0) {
     return {
       success: false,
-      message: 'Chưa có người dùng thật (is_bot = 0) nào tham gia dự đoán chương trình này!',
+      message: 'Chưa có người dùng thật (is_bot = 0) nào tham gia dự đoán chương trình này để tính Giá Trung Vị!',
       winners: [],
       payouts: [],
       splitPrize: false
     };
   }
 
-  // BƯỚC 2: TÍNH TOÁN SAI SỐ VÀ XẮP XẾP
+  // BƯỚC 2: TỰ ĐỘNG TÍNH GIÁ CHUẨN THEO TRUNG VỊ CỦA NGƯỜI THẬT (nếu không truyền thủ công)
+  const numTargetPrice = (targetPrice !== null && !isNaN(targetPrice) && Number(targetPrice) > 0)
+    ? Number(targetPrice)
+    : calculateMedianPrice(realUsers);
+
+  // BƯỚC 3: TÍNH TOÁN SAI SỐ VÀ XẾP HẠNG THEO GIÁ TRUNG VỊ
   const scoredUsers = realUsers.map(u => {
     const diff = Math.abs(Number(u.predictedPrice) - numTargetPrice);
     return {
@@ -398,7 +424,7 @@ export function settlePredictionGame({
   let isSplitPrize = false;
   let rewardPerWinner = 0;
 
-  // BƯỚC 3: XÉT THƯỞNG & VINH DANH
+  // BƯỚC 4: XÉT THƯỞNG & VINH DANH
   if (tiedAtTop.length > 3) {
     // TRƯỜNG HỢP >3 NGƯỜI ĐỒNG HẠNG Ở TOP: Áp dụng cơ chế CHIA ĐỀU TỔNG GIẢI THƯỞNG
     isSplitPrize = true;
@@ -433,6 +459,7 @@ export function settlePredictionGame({
   const settledResult = {
     settledAt: new Date().toISOString(),
     targetPrice: numTargetPrice,
+    isMedianMethod: true,
     totalPrize: Number(totalPrize),
     totalParticipants: realUsers.length,
     isSplitPrize,

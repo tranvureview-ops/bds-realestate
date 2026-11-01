@@ -23,6 +23,7 @@ import {
   getStoredPredictions,
   syncBotsForGame,
   settlePredictionGame,
+  calculateMedianPrice,
   awardBadgeToUser,
   DEFAULT_PREDICTION_PROGRAMS
 } from '../services/predictionGameService';
@@ -988,21 +989,15 @@ export default function AdminRewardsGamificationManager() {
 
   const handleOpenSettleModal = (prog) => {
     setSettleModalProgram(prog);
-    setTargetPriceInput(String(prog.targetPrice || prog.basePrice || ''));
   };
 
   const handleExecuteSettle = () => {
     if (!settleModalProgram) return;
-    const targetPrice = Number(targetPriceInput);
-    if (!targetPrice || isNaN(targetPrice) || targetPrice <= 0) {
-      if (showToast) showToast('Vui lòng nhập giá chuẩn thực tế hợp lệ (Ví dụ: 15.65)!', 'warning');
-      return;
-    }
 
-    // GỌI LOGIC KẾT THÚC SỰ KIỆN: LỌC BOT (is_bot = 1) -> TÍNH SAI SỐ -> CHIA ĐỀU NẾU >3 ĐỒNG HẠNG -> TRAO THƯỞNG & HUY HIỆU
+    // GỌI LOGIC KẾT THÚC SỰ KIỆN: LỌC BOT (is_bot = 1) -> TỰ ĐỘNG TÍNH GIÁ TRUNG VỊ NGƯỜI THẬT -> TÍNH SAI SỐ -> CHIA ĐỀU NẾU >3 ĐỒNG HẠNG -> TRAO THƯỞNG & HUY HIỆU
     const res = settlePredictionGame({
       gameId: settleModalProgram.id,
-      targetPrice,
+      targetPrice: null, // Tự động tính theo trung vị của người thật
       totalPrize: settleModalProgram.totalPrize || 2000000,
       currentUser
     });
@@ -1030,7 +1025,7 @@ export default function AdminRewardsGamificationManager() {
         return {
           ...p,
           status: 'settled',
-          targetPrice,
+          targetPrice: res.settledResult?.targetPrice,
           settledResult: res.settledResult
         };
       }
@@ -3204,8 +3199,8 @@ export default function AdminRewardsGamificationManager() {
                     <span><strong>Bước 1:</strong> Loại bỏ toàn bộ Bot ảo (<code className="text-amber-300">is_bot = 1</code>), chỉ giữ User thật (<code className="text-emerald-300">is_bot = 0</code>).</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <i className="fa-solid fa-arrow-down-short-wide text-indigo-400"></i>
-                    <span><strong>Bước 2:</strong> So sánh giá đoán với Giá chuẩn, xếp hạng sai số từ thấp đến cao.</span>
+                    <i className="fa-solid fa-calculator text-indigo-400"></i>
+                    <span><strong>Bước 2:</strong> Tự động tính <strong>Giá Chuẩn theo Trung Vị (Median)</strong> của người thật và xếp hạng sai số.</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <i className="fa-solid fa-gift text-emerald-400"></i>
@@ -3218,32 +3213,53 @@ export default function AdminRewardsGamificationManager() {
                 </ul>
               </div>
 
-              <div>
-                <label className="block font-black text-amber-300 mb-1.5 text-xs uppercase tracking-wider">
-                  Nhập Giá Chuẩn / Giá Chốt Thẩm Định Thực Tế (tỷ VNĐ):
-                </label>
-                <div className="relative">
-                  <input
-                    type="number"
-                    step="0.01"
-                    required
-                    value={targetPriceInput}
-                    onChange={(e) => setTargetPriceInput(e.target.value)}
-                    placeholder="VD: 15.65"
-                    className="w-full bg-slate-900 border-2 border-amber-500/70 rounded-xl px-4 py-3 text-white font-mono text-base font-black outline-none focus:border-amber-400"
-                  />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">
-                    tỷ VNĐ
-                  </span>
-                </div>
-              </div>
+              {/* KHỐI TỰ ĐỘNG TÍNH GIÁ CHUẨN THEO TRUNG VỊ NGƯỜI THẬT */}
+              {(() => {
+                const allRecords = getStoredPredictions(settleModalProgram.id);
+                const realUsers = allRecords.filter(r => !r.is_bot && r.is_bot !== 1);
+                const medianPrice = calculateMedianPrice(realUsers);
+
+                return (
+                  <div className="p-4 bg-gradient-to-br from-amber-500/10 via-amber-500/5 to-slate-900 border-2 border-amber-500/50 rounded-2xl space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                        <i className="fa-solid fa-chart-pie"></i>
+                        Phương pháp tính Giá Chuẩn:
+                      </span>
+                      <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold">
+                        Trung Vị Người Thật (Median)
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1">
+                      <div>
+                        <div className="text-[11px] text-slate-400">Số User thật tham gia:</div>
+                        <div className="text-base font-black text-white font-mono">
+                          {realUsers.length.toLocaleString('vi-VN')} người
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-[11px] text-amber-300 font-bold">Giá Chuẩn Trung Vị (Tự Động):</div>
+                        <div className="text-2xl font-black text-amber-400 font-mono">
+                          {realUsers.length > 0 ? `${medianPrice} tỷ VNĐ` : 'Chưa có người thật'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="text-[11px] text-slate-400 border-t border-slate-800 pt-2 flex items-center gap-1.5">
+                      <i className="fa-solid fa-circle-check text-emerald-400"></i>
+                      <span>Hệ thống tự động lấy giá trị trung vị của toàn bộ người dùng thật (<code className="text-emerald-300 font-mono">is_bot = 0</code>) làm giá chuẩn xét giải khách quan nhất.</span>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-800">
               <button
                 type="button"
                 onClick={() => setSettleModalProgram(null)}
-                className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 font-bold text-xs hover:bg-slate-900"
+                className="px-4 py-2.5 rounded-xl border border-slate-700 text-slate-300 font-bold text-xs hover:bg-slate-900 cursor-pointer"
               >
                 Hủy bỏ
               </button>
@@ -3253,7 +3269,7 @@ export default function AdminRewardsGamificationManager() {
                 className="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-slate-950 font-black text-xs rounded-xl shadow-lg shadow-amber-500/20 cursor-pointer flex items-center gap-2"
               >
                 <i className="fa-solid fa-check-double"></i>
-                <span>Xác Nhận Chốt & Xét Thưởng</span>
+                <span>Xác Nhận Chốt Theo Giá Trung Vị</span>
               </button>
             </div>
           </div>

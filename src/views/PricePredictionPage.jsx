@@ -350,7 +350,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-amber-900 flex items-center gap-1.5">
                         <i className="fa-solid fa-crown text-amber-600"></i>
-                        <span>Giá Chốt Thực Tế: <strong className="text-base font-mono text-emerald-700">{game.settledResult.targetPrice} tỷ</strong></span>
+                        <span>Giá Chuẩn (Trung Vị Người Thật): <strong className="text-base font-mono text-emerald-700">{game.settledResult.targetPrice} tỷ</strong></span>
                       </span>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-slate-950">
                         {game.settledResult.isSplitPrize ? 'Chia Đều Giải Thưởng' : 'Top Chiến Thắng'}
