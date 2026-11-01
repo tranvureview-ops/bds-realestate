@@ -35,18 +35,26 @@ export default function ArticleTreasureBox({ property }) {
   const isFeatureEnabled = tConfig?.enabled !== false;
   const requireLogin = tConfig?.requireLogin !== false;
 
-  // Hạn mức mở rương: Khách vãng lai & Thành viên thường chuẩn 1 rương / ngày (loại bỏ cache 2 cũ)
-  const rawDailyLimit = Number(tConfig?.dailyLimit ?? tConfig?.regularDailyLimit ?? 1);
-  const dailyLimit = (rawDailyLimit === 2 || rawDailyLimit < 1) ? 1 : rawDailyLimit;
-
-  // Thời gian đọc chống bot & cooldown dùng chung cho tất cả đối tượng
-  const minReadingSeconds = Number(tConfig?.minReadingSeconds || 4);
-  const cooldownSeconds = Number(tConfig?.cooldownSeconds || 20);
-
   // Phân loại đối tượng: Hội Viên Cao Cấp vs Hội Viên Tiêu Chuẩn vs Hội Viên Cơ Bản vs Thành viên thường
   const isPremiumMember = isUserPremiumMember(currentUser);
   const isStandardMember = !isPremiumMember && isUserStandardMember(currentUser);
   const isBasicMember = !isPremiumMember && !isStandardMember && isUserBasicMember(currentUser);
+
+  // Hạn mức mở rương: Theo từng nhóm hội viên hoặc khách vãng lai & thành viên thường
+  const defaultRegularLimit = Number(tConfig?.dailyLimit ?? tConfig?.regularDailyLimit ?? 1);
+  const safeRegularLimit = (defaultRegularLimit === 2 || defaultRegularLimit < 1) ? 1 : defaultRegularLimit;
+  const rawDailyLimit = isPremiumMember
+    ? Number(tConfig?.premiumMemberConfig?.dailyLimit ?? safeRegularLimit)
+    : isStandardMember
+    ? Number(tConfig?.standardMemberConfig?.dailyLimit ?? safeRegularLimit)
+    : isBasicMember
+    ? Number(tConfig?.basicMemberConfig?.dailyLimit ?? safeRegularLimit)
+    : safeRegularLimit;
+  const dailyLimit = Math.max(1, rawDailyLimit);
+
+  // Thời gian đọc chống bot & cooldown dùng chung cho tất cả đối tượng
+  const minReadingSeconds = Number(tConfig?.minReadingSeconds || 4);
+  const cooldownSeconds = Number(tConfig?.cooldownSeconds || 20);
 
   // Tổng ngân sách tháng theo từng nhóm đối tượng
   const effectiveMonthlyBudget = isPremiumMember

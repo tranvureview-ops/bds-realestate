@@ -54,9 +54,17 @@ export default function TreasureHuntPage() {
   const isFeatureEnabled = tConfig?.enabled !== false;
   const requireLogin = tConfig?.requireLogin !== false;
 
-  // Hạn mức mở rương: Cấu hình chung trong quản trị (chuẩn hóa 1 rương / ngày)
-  const rawDailyLimit = Number(tConfig?.dailyLimit ?? tConfig?.regularDailyLimit ?? 1);
-  const dailyLimit = (rawDailyLimit === 2 || rawDailyLimit < 1) ? 1 : rawDailyLimit;
+  // Hạn mức mở rương: Theo từng nhóm hội viên hoặc khách vãng lai & thành viên thường
+  const defaultRegularLimit = Number(tConfig?.dailyLimit ?? tConfig?.regularDailyLimit ?? 1);
+  const safeRegularLimit = (defaultRegularLimit === 2 || defaultRegularLimit < 1) ? 1 : defaultRegularLimit;
+  const rawDailyLimit = isPremiumMember
+    ? Number(tConfig?.premiumMemberConfig?.dailyLimit ?? safeRegularLimit)
+    : isStandardMember
+    ? Number(tConfig?.standardMemberConfig?.dailyLimit ?? safeRegularLimit)
+    : isBasicMember
+    ? Number(tConfig?.basicMemberConfig?.dailyLimit ?? safeRegularLimit)
+    : safeRegularLimit;
+  const dailyLimit = Math.max(1, rawDailyLimit);
 
   // Thời gian đọc chống bot & cooldown dùng chung cho tất cả đối tượng
   const minReadingSeconds = Number(tConfig?.minReadingSeconds || 4);

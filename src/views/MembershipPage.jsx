@@ -564,7 +564,14 @@ export default function MembershipPage() {
 
                       {/* Đặc Quyền Mở Rương Săn Kho Báu Tỷ Lệ Cao */}
                       {(() => {
-                        const pkgDailyLimit = Number(pkg.treasureHuntDailyLimit || treasureDailyLimit);
+                        const tCfg = rewardsConfig?.treasureHuntConfig;
+                        const pkgDailyLimit = Number(
+                          pkg.treasureHuntDailyLimit ||
+                          (pkg.id === 'member-premium' ? tCfg?.premiumMemberConfig?.dailyLimit :
+                           pkg.id === 'member-standard' ? tCfg?.standardMemberConfig?.dailyLimit :
+                           pkg.id === 'member-basic' ? tCfg?.basicMemberConfig?.dailyLimit : null) ||
+                          treasureDailyLimit
+                        );
                         const pkgChestsPerCycle = Number(pkg.vouchersPerCycle?.treasureChests || pkg.treasureChests || (pkgDailyLimit * 30));
                         return (
                           <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between text-xs">
@@ -754,7 +761,14 @@ export default function MembershipPage() {
                     </div>
                   </td>
                   {(membershipPackages || []).map(p => {
-                    const pDaily = Number(p.treasureHuntDailyLimit || treasureDailyLimit);
+                    const tCfg = rewardsConfig?.treasureHuntConfig;
+                    const pDaily = Number(
+                      p.treasureHuntDailyLimit ||
+                      (p.id === 'member-premium' ? tCfg?.premiumMemberConfig?.dailyLimit :
+                       p.id === 'member-standard' ? tCfg?.standardMemberConfig?.dailyLimit :
+                       p.id === 'member-basic' ? tCfg?.basicMemberConfig?.dailyLimit : null) ||
+                      treasureDailyLimit
+                    );
                     const pMonthly = Number(p.vouchersPerCycle?.treasureChests || p.treasureChests || (pDaily * 30));
                     return (
                       <td key={p.id} className={`p-4 text-center font-bold text-amber-700 font-black ${p.recommended ? 'bg-amber-50/30' : ''}`}>

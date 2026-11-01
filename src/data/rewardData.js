@@ -496,6 +496,7 @@ export const DEFAULT_REWARDS_CONFIG = {
     maxAmount: 12000,
     // 2/ Cấu hình Hệ thống (Hội Viên Cơ Bản): Ngân sách 120.000đ/tháng
     basicMemberConfig: {
+      dailyLimit: 1,
       monthlyBudget: 120000,
       rewardTiers: DEFAULT_BASIC_MEMBER_REWARD_TIERS,
       minAmount: 2500,
@@ -503,6 +504,7 @@ export const DEFAULT_REWARDS_CONFIG = {
     },
     // 3/ Cấu hình Hệ thống (Hội Viên Tiêu Chuẩn): Ngân sách 370.000đ/tháng
     standardMemberConfig: {
+      dailyLimit: 1,
       monthlyBudget: 370000,
       rewardTiers: DEFAULT_STANDARD_MEMBER_REWARD_TIERS,
       minAmount: 8000,
@@ -510,6 +512,7 @@ export const DEFAULT_REWARDS_CONFIG = {
     },
     // 4/ Cấu hình Hệ thống (Hội Viên Cao Cấp): Ngân sách 1.000.000đ/tháng
     premiumMemberConfig: {
+      dailyLimit: 1,
       monthlyBudget: 1000000,
       rewardTiers: DEFAULT_PREMIUM_MEMBER_REWARD_TIERS,
       minAmount: 20000,

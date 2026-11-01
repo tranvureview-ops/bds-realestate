@@ -209,6 +209,22 @@ export default function AdminRewardsGamificationManager() {
     }));
   };
 
+  const handleBasicDailyLimitChange = (val) => {
+    isDirtyRef.current = true;
+    setIsDirty(true);
+    const limit = Math.max(1, Number(val) || 1);
+    setFormData(prev => ({
+      ...prev,
+      treasureHuntConfig: {
+        ...prev.treasureHuntConfig,
+        basicMemberConfig: {
+          ...prev.treasureHuntConfig?.basicMemberConfig,
+          dailyLimit: limit
+        }
+      }
+    }));
+  };
+
   const handleResetDefaultBasicTiers = () => {
     isDirtyRef.current = true;
     setIsDirty(true);
@@ -276,6 +292,22 @@ export default function AdminRewardsGamificationManager() {
     }));
   };
 
+  const handleStandardDailyLimitChange = (val) => {
+    isDirtyRef.current = true;
+    setIsDirty(true);
+    const limit = Math.max(1, Number(val) || 1);
+    setFormData(prev => ({
+      ...prev,
+      treasureHuntConfig: {
+        ...prev.treasureHuntConfig,
+        standardMemberConfig: {
+          ...prev.treasureHuntConfig?.standardMemberConfig,
+          dailyLimit: limit
+        }
+      }
+    }));
+  };
+
   const handleResetDefaultStandardTiers = () => {
     isDirtyRef.current = true;
     setIsDirty(true);
@@ -338,6 +370,22 @@ export default function AdminRewardsGamificationManager() {
           ...prev.treasureHuntConfig?.premiumMemberConfig,
           monthlyBudget: Math.max(0, Number(val) || 0),
           rewardTiers: currentPremiumRewardTiers
+        }
+      }
+    }));
+  };
+
+  const handlePremiumDailyLimitChange = (val) => {
+    isDirtyRef.current = true;
+    setIsDirty(true);
+    const limit = Math.max(1, Number(val) || 1);
+    setFormData(prev => ({
+      ...prev,
+      treasureHuntConfig: {
+        ...prev.treasureHuntConfig,
+        premiumMemberConfig: {
+          ...prev.treasureHuntConfig?.premiumMemberConfig,
+          dailyLimit: limit
         }
       }
     }));
@@ -614,6 +662,7 @@ export default function AdminRewardsGamificationManager() {
         })),
         basicMemberConfig: {
           monthlyBudget: basicMonthlyBudget,
+          dailyLimit: Math.max(1, Number(basicCfg.dailyLimit || 1)),
           minAmount: 2500,
           maxAmount: 10000,
           rewardTiers: basicTiers.map(t => ({
@@ -624,6 +673,7 @@ export default function AdminRewardsGamificationManager() {
         },
         standardMemberConfig: {
           monthlyBudget: standardMonthlyBudget,
+          dailyLimit: Math.max(1, Number(standardCfg.dailyLimit || 1)),
           minAmount: 8000,
           maxAmount: 35000,
           rewardTiers: standardTiers.map(t => ({
@@ -634,6 +684,7 @@ export default function AdminRewardsGamificationManager() {
         },
         premiumMemberConfig: {
           monthlyBudget: premiumMonthlyBudget,
+          dailyLimit: Math.max(1, Number(premiumCfg.dailyLimit || 1)),
           minAmount: 20000,
           maxAmount: 100000,
           rewardTiers: premiumTiers.map(t => ({
@@ -986,31 +1037,7 @@ export default function AdminRewardsGamificationManager() {
                 </label>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Hạn mức mở rương / ngày / tài khoản */}
-                <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                  <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
-                    <span>Hạn mức mở rương / ngày</span>
-                    <span className="text-amber-400 text-[10px] font-mono">1 ngày / user</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      min="1"
-                      max="10"
-                      value={formData.treasureHuntConfig?.dailyLimit === 2 ? 1 : (formData.treasureHuntConfig?.dailyLimit ?? formData.treasureHuntConfig?.regularDailyLimit ?? 1)}
-                      onChange={(e) => {
-                        const val = Math.max(1, Number(e.target.value) || 1);
-                        handleTreasureConfigChange('dailyLimit', val);
-                        handleTreasureConfigChange('regularDailyLimit', val);
-                      }}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-bold text-sm focus:border-amber-400 focus:outline-none"
-                    />
-                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">Rương / ngày</span>
-                  </div>
-                  <div className="text-[10px] text-slate-500">Mặc định: 1 rương / ngày với mỗi tài khoản khách và tk thường.</div>
-                </div>
-
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {/* Thời gian đọc bài chống bot */}
                 <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
                   <label className="text-xs font-bold text-slate-300 flex items-center justify-between">
@@ -1293,6 +1320,33 @@ export default function AdminRewardsGamificationManager() {
                   />
                 </div>
 
+                {/* Hạn mức mở rương / ngày cho Khách Vãng Lai & Thành Viên Thường */}
+                <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-white flex items-center gap-2">
+                      <i className="fa-solid fa-gift text-amber-400"></i>
+                      <span>Hạn mức mở rương / ngày (Khách Vãng Lai & Thành Viên Thường)</span>
+                    </label>
+                    <span className="text-amber-400 text-[10px] font-mono">1 ngày / user</span>
+                  </div>
+                  <div className="relative max-w-md">
+                    <input
+                      type="number"
+                      min="1"
+                      max="20"
+                      value={formData.treasureHuntConfig?.dailyLimit === 2 ? 1 : (formData.treasureHuntConfig?.dailyLimit ?? formData.treasureHuntConfig?.regularDailyLimit ?? 1)}
+                      onChange={(e) => {
+                        const val = Math.max(1, Number(e.target.value) || 1);
+                        handleTreasureConfigChange('dailyLimit', val);
+                        handleTreasureConfigChange('regularDailyLimit', val);
+                      }}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono font-bold text-sm focus:border-amber-400 focus:outline-none"
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">Rương / ngày</span>
+                  </div>
+                  <div className="text-[10px] text-slate-500">Mặc định: 1 rương / ngày với mỗi tài khoản khách và tk thường.</div>
+                </div>
+
                 {/* Bảng chỉnh sửa 4 mốc phần thưởng */}
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
@@ -1440,6 +1494,29 @@ export default function AdminRewardsGamificationManager() {
                     budget={basicMonthlyBudgetVal}
                     onApply={handleApplySuggestedBasicTiers}
                   />
+                </div>
+
+                {/* Hạn mức mở rương / ngày cho Hội Viên Cơ Bản */}
+                <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-white flex items-center gap-2">
+                      <i className="fa-solid fa-gift text-amber-400"></i>
+                      <span>Hạn mức mở rương / ngày (Hội Viên Cơ Bản)</span>
+                    </label>
+                    <span className="text-amber-400 text-[10px] font-mono">Gói Cơ Bản</span>
+                  </div>
+                  <div className="relative max-w-md">
+                    <input
+                      type="number"
+                      min="1"
+                      max="20"
+                      value={formData.treasureHuntConfig?.basicMemberConfig?.dailyLimit ?? 1}
+                      onChange={(e) => handleBasicDailyLimitChange(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono font-bold text-sm focus:border-amber-400 focus:outline-none"
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">Rương / ngày</span>
+                  </div>
+                  <div className="text-[10px] text-slate-500">Số lượng rương tối đa tài khoản Gói Cơ Bản được mở mỗi ngày (mặc định: 1 rương / ngày).</div>
                 </div>
 
                 {/* Bảng chỉnh sửa 3 mốc phần thưởng cho Hội Viên Cơ Bản */}
@@ -1590,6 +1667,29 @@ export default function AdminRewardsGamificationManager() {
                   />
                 </div>
 
+                {/* Hạn mức mở rương / ngày cho Hội Viên Tiêu Chuẩn */}
+                <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-white flex items-center gap-2">
+                      <i className="fa-solid fa-gift text-orange-400"></i>
+                      <span>Hạn mức mở rương / ngày (Hội Viên Tiêu Chuẩn)</span>
+                    </label>
+                    <span className="text-orange-400 text-[10px] font-mono">Gói Tiêu Chuẩn</span>
+                  </div>
+                  <div className="relative max-w-md">
+                    <input
+                      type="number"
+                      min="1"
+                      max="20"
+                      value={formData.treasureHuntConfig?.standardMemberConfig?.dailyLimit ?? 1}
+                      onChange={(e) => handleStandardDailyLimitChange(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono font-bold text-sm focus:border-orange-400 focus:outline-none"
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">Rương / ngày</span>
+                  </div>
+                  <div className="text-[10px] text-slate-500">Số lượng rương tối đa tài khoản Gói Tiêu Chuẩn được mở mỗi ngày (mặc định: 1 rương / ngày).</div>
+                </div>
+
                 {/* Bảng chỉnh sửa 3 mốc phần thưởng cho Hội Viên Tiêu Chuẩn */}
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs">
@@ -1736,6 +1836,29 @@ export default function AdminRewardsGamificationManager() {
                     budget={premiumMonthlyBudgetVal}
                     onApply={handleApplySuggestedPremiumTiers}
                   />
+                </div>
+
+                {/* Hạn mức mở rương / ngày cho Hội Viên Cao Cấp */}
+                <div className="space-y-1.5 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-white flex items-center gap-2">
+                      <i className="fa-solid fa-gift text-purple-400"></i>
+                      <span>Hạn mức mở rương / ngày (Hội Viên Cao Cấp)</span>
+                    </label>
+                    <span className="text-purple-400 text-[10px] font-mono">Gói Cao Cấp</span>
+                  </div>
+                  <div className="relative max-w-md">
+                    <input
+                      type="number"
+                      min="1"
+                      max="20"
+                      value={formData.treasureHuntConfig?.premiumMemberConfig?.dailyLimit ?? 1}
+                      onChange={(e) => handlePremiumDailyLimitChange(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-white font-mono font-bold text-sm focus:border-purple-400 focus:outline-none"
+                    />
+                    <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 font-bold">Rương / ngày</span>
+                  </div>
+                  <div className="text-[10px] text-slate-500">Số lượng rương tối đa tài khoản Gói Cao Cấp được mở mỗi ngày (mặc định: 1 rương / ngày).</div>
                 </div>
 
                 {/* Bảng chỉnh sửa 4 mốc phần thưởng cho Hội Viên Cao Cấp */}
