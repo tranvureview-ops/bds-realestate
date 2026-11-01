@@ -782,7 +782,7 @@ export default function MembershipPage() {
                   })}
                 </tr>
                 <tr>
-                  <td className="p-4 font-bold text-slate-800">Chọn ngày bắt đầu đăng tin trong tương lai</td>
+                  <td className="p-4 font-bold text-slate-800">Chọn ngày bắt đầu đăng tin</td>
                   {(membershipPackages || []).map(p => {
                     const hasFeature = typeof p.allowFutureStartDate === 'boolean'
                       ? p.allowFutureStartDate
