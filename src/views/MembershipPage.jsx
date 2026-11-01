@@ -25,8 +25,18 @@ export default function MembershipPage() {
     setActiveModal,
     refetchData,
     systemConfig,
-    properties 
+    properties,
+    rewardsConfig
   } = useRealEstate();
+
+  const treasureDailyLimit = useMemo(() => {
+    const rawLimit = Number(
+      rewardsConfig?.treasureHuntConfig?.dailyLimit ?? 
+      rewardsConfig?.treasureHuntConfig?.regularDailyLimit ?? 
+      1
+    );
+    return (rawLimit === 2 || rawLimit < 1) ? 1 : rawLimit;
+  }, [rewardsConfig?.treasureHuntConfig?.dailyLimit, rewardsConfig?.treasureHuntConfig?.regularDailyLimit]);
 
   const pricingOptions = { vipPackages, bumpServicePrice };
 
@@ -552,18 +562,24 @@ export default function MembershipPage() {
                       )}
 
                       {/* Đặc Quyền Mở Rương Săn Kho Báu Tỷ Lệ Cao */}
-                      <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 rounded-lg bg-amber-400 text-slate-950 flex items-center justify-center text-[10px] font-black">
-                            <i className="fa-solid fa-gift text-[10px]"></i>
-                          </span>
-                          <span className="font-bold text-amber-950">Mở Rương Săn Kho Báu</span>
-                        </div>
-                        <span className="text-amber-800 font-black text-[11px] flex items-center gap-1">
-                          <i className="fa-solid fa-arrow-trend-up text-[10px] text-emerald-600"></i>
-                          <span>Tỷ lệ tiền thưởng cao</span>
-                        </span>
-                      </div>
+                      {(() => {
+                        const pkgDailyLimit = Number(pkg.treasureHuntDailyLimit || treasureDailyLimit);
+                        const pkgChestsPerCycle = Number(pkg.vouchersPerCycle?.treasureChests || pkg.treasureChests || (pkgDailyLimit * 30));
+                        return (
+                          <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-2">
+                              <span className="w-6 h-6 rounded-lg bg-amber-500 text-slate-950 flex items-center justify-center text-[10px] font-black shadow-xs">
+                                {pkgChestsPerCycle}
+                              </span>
+                              <span className="font-bold text-amber-950">Mở Rương Săn Kho Báu</span>
+                            </div>
+                            <span className="text-amber-800 font-black text-[11px] flex items-center gap-1">
+                              <i className="fa-solid fa-arrow-trend-up text-[10px] text-emerald-600"></i>
+                              <span>{pkgDailyLimit} rương/ngày (Tỷ lệ tiền thưởng cao)</span>
+                            </span>
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
 
@@ -733,18 +749,24 @@ export default function MembershipPage() {
                   <td className="p-4 font-bold text-slate-800">
                     <div className="flex items-center gap-1.5">
                       <i className="fa-solid fa-gift text-orange-500 text-xs"></i>
-                      <span>Mở rương Săn Kho Báu: Tỷ lệ tiền cao</span>
+                      <span>Mở rương Săn Kho Báu</span>
                     </div>
                   </td>
-                  {(membershipPackages || []).map(p => (
-                    <td key={p.id} className={`p-4 text-center font-bold text-amber-700 font-black ${p.recommended ? 'bg-amber-50/30' : ''}`}>
-                      <span className="inline-flex items-center gap-1 text-emerald-600 font-bold">
-                        <i className="fa-solid fa-check"></i>
-                        <span>Tỷ lệ tiền cao</span>
-                      </span>
-                      <div className="text-[10px] text-amber-800 font-semibold mt-0.5">80% trúng tiền lớn</div>
-                    </td>
-                  ))}
+                  {(membershipPackages || []).map(p => {
+                    const pDaily = Number(p.treasureHuntDailyLimit || treasureDailyLimit);
+                    const pMonthly = Number(p.vouchersPerCycle?.treasureChests || p.treasureChests || (pDaily * 30));
+                    return (
+                      <td key={p.id} className={`p-4 text-center font-bold text-amber-700 font-black ${p.recommended ? 'bg-amber-50/30' : ''}`}>
+                        <span className="inline-flex items-center gap-1 text-emerald-600 font-bold">
+                          <i className="fa-solid fa-check"></i>
+                          <span>{pMonthly} rương / 30 ngày</span>
+                        </span>
+                        <div className="text-[10px] text-amber-800 font-semibold mt-0.5">
+                          {pDaily} rương/ngày ({p.id === 'member-premium' ? 'Tỷ lệ tiền cao & Jackpot' : 'Tỷ lệ tiền cao'})
+                        </div>
+                      </td>
+                    );
+                  })}
                 </tr>
                 <tr>
                   <td className="p-4 font-bold text-slate-800">Hẹn giờ đăng tin tự động khung giờ vàng</td>

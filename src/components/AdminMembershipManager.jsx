@@ -41,6 +41,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
     resetMembershipPackages,
     systemConfig,
     updateSystemConfig,
+    rewardsConfig,
     showToast
   } = useRealEstate();
 
@@ -1807,6 +1808,46 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                                 </span>
                               </div>
                             )}
+
+                            {/* Đặc quyền gán tin nổi bật */}
+                            {Boolean(editingPkg.allowTreasureHunt) && (
+                              <div className="p-2 rounded-xl bg-orange-50/80 border border-orange-200 flex items-center justify-between text-xs">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="w-5 h-5 rounded-md bg-gradient-to-tr from-amber-500 to-orange-500 text-slate-950 flex items-center justify-center text-[10px] font-black">
+                                    {editingPkg.treasureHuntMaxArticles || 2}
+                                  </span>
+                                  <span className="font-bold text-amber-950 text-[11px]">Quyền Lợi Tin Nổi Bật</span>
+                                </div>
+                                <span className="text-orange-700 font-black text-[10px]">
+                                  Tối đa {editingPkg.treasureHuntMaxArticles || 2} tin
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Mở Rương Săn Kho Báu */}
+                            {(() => {
+                              const tDaily = Number(
+                                editingPkg.treasureHuntDailyLimit || 
+                                (rewardsConfig?.treasureHuntConfig?.dailyLimit ?? 
+                                 rewardsConfig?.treasureHuntConfig?.regularDailyLimit ?? 
+                                 1)
+                              );
+                              const safeDaily = (tDaily === 2 || tDaily < 1) ? 1 : tDaily;
+                              const tMonthly = Number(editingPkg.vouchersPerCycle?.treasureChests || editingPkg.treasureChests || (safeDaily * 30));
+                              return (
+                                <div className="p-2 rounded-xl bg-amber-50/80 border border-amber-200 flex items-center justify-between text-xs">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="w-5 h-5 rounded-md bg-amber-500 text-slate-950 flex items-center justify-center text-[10px] font-black">
+                                      {tMonthly}
+                                    </span>
+                                    <span className="font-bold text-amber-950 text-[11px]">Mở Rương Săn Kho Báu</span>
+                                  </div>
+                                  <span className="text-amber-800 font-black text-[10px]">
+                                    {safeDaily} rương/ngày (Tỷ lệ cao)
+                                  </span>
+                                </div>
+                              );
+                            })()}
                           </div>
                         </div>
 
