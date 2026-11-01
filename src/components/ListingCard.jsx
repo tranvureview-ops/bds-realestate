@@ -6,6 +6,7 @@ import { Link, useRouter } from '../router/RouterContext';
 import { VIP_PACKAGES } from '../data/mockData';
 import { getPropertyPermalink, formatSentenceCase, formatTitleCase, toVietnameseSlug, getBrokerPermalink } from '../utils/permalink';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
+import { isPropertyTreasureActive } from '../services/treasureHuntService';
 import SeoImage from './SeoImage';
 import BrokerProfileModal from './BrokerProfileModal';
 
@@ -91,6 +92,13 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
 
   const isFav = favorites.includes(property.id);
 
+  // Kiểm tra bài viết có được gán nổi bật / có rương quà
+  const hasTreasure = Boolean(
+    property.isTreasureHuntActive || 
+    property.isFeatured || 
+    isPropertyTreasureActive(property, authorUser || property.author)
+  );
+
   // Find VIP Package with robust fallback
   const defaultPkg = VIP_PACKAGES.find(p => p.id === 'normal') || VIP_PACKAGES[VIP_PACKAGES.length - 1];
   const vipPkg = VIP_PACKAGES.find(p => p.id === property.vipPackageId) || defaultPkg;
@@ -155,8 +163,25 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
           </span>
         </div>
 
-        {/* Action Buttons Top Right: Favorite */}
+        {/* Action Buttons Top Right: Featured Gift & Favorite */}
         <div className="absolute top-2.5 right-2.5 flex items-center gap-1.5 z-[2]">
+          {/* Nổi bật / Hộp quà Săn Kho Báu */}
+          {hasTreasure && (
+            <div
+              title="Tin nổi bật - Có hộp quà nhận thưởng!"
+              aria-label="Tin nổi bật có hộp quà nhận thưởng"
+              onClick={(e) => {
+                if (e) {
+                  if (typeof e.stopPropagation === 'function') e.stopPropagation();
+                }
+                navigate(getPropertyPermalink(property));
+              }}
+              className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 text-slate-950 flex items-center justify-center text-xs shadow-md border border-amber-200/60 hover:scale-110 transition-transform duration-200 cursor-pointer group/gift"
+            >
+              <i className="fa-solid fa-gift text-sm text-slate-950 drop-shadow-xs group-hover/gift:rotate-12 transition-transform"></i>
+            </div>
+          )}
+
           {/* Favorite Button */}
           <button
             onClick={() => toggleFavorite(property.id)}
