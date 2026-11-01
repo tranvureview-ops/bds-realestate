@@ -26,7 +26,8 @@ import {
   settlePredictionGame,
   calculateMedianPrice,
   awardBadgeToUser,
-  DEFAULT_PREDICTION_PROGRAMS
+  DEFAULT_PREDICTION_PROGRAMS,
+  PREDICTION_STORAGE_KEY
 } from '../services/predictionGameService';
 
 /**
@@ -122,6 +123,7 @@ export default function AdminRewardsGamificationManager() {
     updateMultipleProperties,
     transactions = [],
     currentUser,
+    systemConfig,
     addBonusWalletBalance,
     usersList = [],
     setUsersList
