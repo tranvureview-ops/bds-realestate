@@ -4,7 +4,7 @@ import {
   isSupabaseConfigured,
   fetchFullSupabaseDb,
   syncFullDbToSupabase
-} from '../lib/supabase';
+} from '../lib/supabase.js';
 
 const DB_FILE_PATH = path.resolve(process.cwd(), 'server-db.json');
 
@@ -55,10 +55,11 @@ const fetchWithTimeout = (promise, ms = 4500) => {
  * Tải toàn bộ dữ liệu hệ thống (ưu tiên Supabase Cloud, fallback server-db.json)
  * @returns {Promise<Object>} Toàn bộ dữ liệu hệ thống
  */
-export async function getFullSystemDatabase() {
+export async function getFullSystemDatabase(options = {}) {
+  const isAdmin = options.isAdmin !== undefined ? options.isAdmin : true;
   if (isSupabaseConfigured()) {
     try {
-      const cloudData = await fetchWithTimeout(fetchFullSupabaseDb({ forceRefresh: true }), 4500);
+      const cloudData = await fetchWithTimeout(fetchFullSupabaseDb({ isAdmin, forceRefresh: true }), 4500);
       if (cloudData && (cloudData.bds_properties?.length > 0 || cloudData.bds_system_config)) {
         return cloudData;
       }
