@@ -583,7 +583,7 @@ export default function MembershipPage() {
                             </div>
                             <span className="text-amber-800 font-black text-[11px] flex items-center gap-1">
                               <i className="fa-solid fa-arrow-trend-up text-[10px] text-emerald-600"></i>
-                              <span>{pkgDailyLimit} rương/ngày (Tỷ lệ tiền thưởng cao)</span>
+                              <span>{pkgDailyLimit} rương/ngày</span>
                             </span>
                           </div>
                         );
@@ -777,7 +777,7 @@ export default function MembershipPage() {
                           <span>{pMonthly} rương / 30 ngày</span>
                         </span>
                         <div className="text-[10px] text-amber-800 font-semibold mt-0.5">
-                          {pDaily} rương/ngày ({p.id === 'member-premium' ? 'Tỷ lệ tiền cao & Jackpot' : 'Tỷ lệ tiền cao'})
+                          {pDaily} rương/ngày
                         </div>
                       </td>
                     );

@@ -1844,7 +1844,7 @@ export default function AdminMembershipManager({ onNavigateToPricing = null }) {
                                     <span className="font-bold text-amber-950 text-[11px]">Mở Rương Săn Kho Báu</span>
                                   </div>
                                   <span className="text-amber-800 font-black text-[10px]">
-                                    {safeDaily} rương/ngày (Tỷ lệ cao)
+                                    {safeDaily} rương/ngày
                                   </span>
                                 </div>
                               );
