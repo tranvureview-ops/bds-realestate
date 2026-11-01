@@ -632,10 +632,6 @@ export default function PricePredictionPage({ projectSlug = null }) {
                 <span className="font-bold text-slate-900">{evt.userName}</span>
                 <span>vừa gia nhập <strong className="text-slate-900 font-bold">Dự đoán giá BĐS</strong> với mức giá <strong className="text-indigo-600 font-mono font-black">{evt.price} tỷ</strong>!</span>
                 <span className="text-amber-800 font-medium">Tổng giải thưởng <strong className="text-emerald-700 font-mono font-black">{evt.totalPrize || '2.000.000 đ Ví KM'}</strong> đang rung lắc dữ dội!</span>
-                <span className="text-[10px] text-emerald-600 font-semibold bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-1 shrink-0">
-                  <i className="fa-solid fa-check text-[9px]"></i>
-                  <span>Đã ghi nhận</span>
-                </span>
               </div>
             ))}
           </div>
