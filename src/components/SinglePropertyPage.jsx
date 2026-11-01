@@ -994,22 +994,6 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition"></div>
-                <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-                  <span className={`px-3 py-1 rounded-full text-xs font-black uppercase shadow-lg ${vipPkg.badgeColor}`}>
-                    {vipPkg.shortName}
-                  </span>
-                  {Boolean(property.is_verified || property.isVerified) && (
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-600 text-white shadow-lg flex items-center gap-1.5">
-                      <i className="fa-solid fa-circle-check"></i>
-                      <span>Tin xác thực</span>
-                    </span>
-                  )}
-                  {property.hasVR360 && (
-                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-600 text-white shadow-lg flex items-center gap-1.5">
-                      <i className="fa-solid fa-vr-cardboard"></i> VR 360°
-                    </span>
-                  )}
-                </div>
               </div>
 
               {/* Smaller Photos Column 1 */}
