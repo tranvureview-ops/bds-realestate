@@ -111,7 +111,7 @@ export default function Navbar() {
         if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 2) {
           el.scrollLeft = 0;
         } else {
-          el.scrollLeft += 0.35; // Giảm tốc độ chạy chậm lại để người dùng dễ đọc thoải mái
+          el.scrollLeft += 0.5; // Tốc độ cuộn 0.5px/frame mượt mà, vừa phải
         }
       }
       animId = requestAnimationFrame(step);
