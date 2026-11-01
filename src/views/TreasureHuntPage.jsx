@@ -303,6 +303,10 @@ export default function TreasureHuntPage() {
 
   const baseUrl = (typeof window !== 'undefined' ? window.location.origin : (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL || 'https://bds-realestate.vercel.app')).replace(/\/+$/, '');
 
+  const nonZeroTiers = (activeRewardTiers || []).filter(t => Number(t.amount) > 0);
+  const minAmount = nonZeroTiers.length > 0 ? Math.min(...nonZeroTiers.map(t => Number(t.amount))) : Number(tConfig?.minAmount || 1200);
+  const maxAmount = nonZeroTiers.length > 0 ? Math.max(...nonZeroTiers.map(t => Number(t.amount))) : Number(tConfig?.maxAmount || 100000);
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Game',

@@ -1,9 +1,6 @@
 import TreasureHuntPage from '../../../views/TreasureHuntPage';
 import { SITE_URL } from '../../../utils/permalink';
 
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
 const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '');
 
 export const metadata = {
