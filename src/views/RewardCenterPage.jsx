@@ -5,6 +5,7 @@ import { PROMOTIONS_DATA, MISSIONS_DATA, PRICE_PREDICTION_GAMES, isPromotionExpi
 import { Link, useRouter } from '../router/RouterContext';
 import { useRealEstate } from '../context/RealEstateContext';
 import { getDailyClaims } from '../services/treasureHuntService';
+import { getStoredPredictionPrograms } from '../services/predictionGameService';
 
 export default function RewardCenterPage() {
   const { 
@@ -153,6 +154,16 @@ export default function RewardCenterPage() {
     }
   };
 
+  // Kiểm tra cấu hình có yêu cầu Gói Hội Viên cho Dự Đoán Giá BĐS hay không
+  const isPredictionForMembers = useMemo(() => {
+    try {
+      const progs = getStoredPredictionPrograms();
+      return progs.some(p => p.requireMembership !== false);
+    } catch (e) {
+      return true;
+    }
+  }, []);
+
   // 3 Trụ Cột Tính Năng (Tự động cập nhật số liệu động theo cấu hình)
   const features = [
     {
@@ -167,10 +178,13 @@ export default function RewardCenterPage() {
     {
       id: 'du-doan',
       title: 'Dự Đoán Giá BĐS',
-      description: 'Trổ tài thẩm định giá thị trường các căn hộ, biệt thự để chia quỹ thưởng tiền mặt hàng triệu đồng.',
+      description: isPredictionForMembers 
+        ? 'Đặc quyền dành riêng cho Gói Hội Viên: Trổ tài thẩm định giá thị trường các căn hộ, biệt thự để cùng chia quỹ thưởng tiền mặt hàng triệu đồng.'
+        : 'Trổ tài thẩm định giá thị trường các căn hộ, biệt thự để chia quỹ thưởng tiền mặt hàng triệu đồng.',
       icon: 'fa-solid fa-chart-line',
       color: 'from-blue-600 to-indigo-600',
-      badge: 'Quỹ thưởng tiền mặt',
+      badge: isPredictionForMembers ? 'Đặc quyền Hội Viên' : 'Quỹ thưởng tiền mặt',
+      badgeClass: isPredictionForMembers ? 'bg-purple-100 text-purple-700 border border-purple-200' : 'bg-slate-100 text-slate-700',
       link: '/trung-tam-phan-thuong/du-doan-gia-bds'
     },
     {
@@ -275,7 +289,7 @@ export default function RewardCenterPage() {
                     <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${f.color} text-white flex items-center justify-center text-2xl shadow-lg group-hover:scale-105 transition-transform`}>
                       <i className={f.icon}></i>
                     </div>
-                    <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-700 uppercase tracking-wider">
+                    <span className={`text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider ${f.badgeClass || 'bg-slate-100 text-slate-700'}`}>
                       {f.badge}
                     </span>
                   </div>

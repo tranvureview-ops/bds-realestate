@@ -82,6 +82,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
   const userId = currentUser && currentUser.role !== 'guest' ? String(currentUser.id) : 'guest';
   const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
   const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Sàn Nhà Đất';
+  const isMemberActive = Boolean(currentUser?.membership?.packageId && new Date(currentUser?.membership?.expiresAt || 0) > new Date());
 
   // Khởi tạo và đồng bộ bot nếu chưa có dữ liệu trong storage (phân bổ thời gian như thật)
   useEffect(() => {
@@ -142,6 +143,12 @@ export default function PricePredictionPage({ projectSlug = null }) {
   const handleSubmitPrediction = (game, customPrice = null) => {
     if (!currentUser || currentUser.role === 'guest') {
       if (showToast) showToast('Vui lòng đăng nhập tài khoản để tham gia dự đoán và nhận tiền thưởng!', 'warning');
+      return;
+    }
+
+    // Kiểm tra nếu chương trình yêu cầu Gói Hội Viên
+    if (game.requireMembership !== false && !isMemberActive) {
+      if (showToast) showToast('Tính năng này là Đặc Quyền dành riêng cho Gói Hội Viên! Vui lòng đăng ký Gói Hội Viên để tham gia.', 'warning');
       return;
     }
 
@@ -300,6 +307,12 @@ export default function PricePredictionPage({ projectSlug = null }) {
                       <i className={`fa-solid ${isSettled ? 'fa-flag-checkered' : 'fa-circle-dot animate-pulse text-emerald-600'}`}></i>
                       <span>{isSettled ? 'Đã Chốt Kết Quả' : 'Đang Mở Dự Đoán'}</span>
                     </span>
+                    {game.requireMembership !== false && (
+                      <span className="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-700 border border-purple-300 flex items-center gap-1">
+                        <i className="fa-solid fa-crown text-amber-500 text-[9px]"></i>
+                        <span>Đặc quyền Hội Viên</span>
+                      </span>
+                    )}
                     <span className="text-[11px] text-slate-500 font-medium">
                       Hạn: {new Date(game.endDate).toLocaleDateString('vi-VN')}
                     </span>
@@ -428,14 +441,25 @@ export default function PricePredictionPage({ projectSlug = null }) {
                             </span>
                           </div>
 
-                          <button
-                            type="button"
-                            onClick={() => handleSubmitPrediction(game)}
-                            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
-                          >
-                            <i className="fa-solid fa-paper-plane"></i>
-                            <span>Xác Nhận Dự Đoán</span>
-                          </button>
+                          {game.requireMembership !== false && !isMemberActive ? (
+                            <Link
+                              to="/goi-hoi-vien"
+                              className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
+                              title="Tính năng là đặc quyền dành riêng cho Gói Hội Viên. Bấm để đăng ký ngay!"
+                            >
+                              <i className="fa-solid fa-crown text-amber-300"></i>
+                              <span>Đăng Ký Hội Viên Để Dự Đoán</span>
+                            </Link>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleSubmitPrediction(game)}
+                              className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
+                            >
+                              <i className="fa-solid fa-paper-plane"></i>
+                              <span>Xác Nhận Dự Đoán</span>
+                            </button>
+                          )}
                         </div>
 
                         {/* Gợi ý các mức giá (Suggestion Pills giống phần Đăng Tin) */}

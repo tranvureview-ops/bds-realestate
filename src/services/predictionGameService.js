@@ -41,6 +41,7 @@ export const DEFAULT_PREDICTION_PROGRAMS = [
     basePrice: 15.5, // 15.5 tỷ
     spreadPercent: 8, // ±8%
     targetPrice: 15.65, // Giá chốt thẩm định thực tế
+    requireMembership: true, // Bật/Tắt: Đặc quyền dành riêng cho Gói Hội Viên
     status: 'active', // 'active' | 'settled'
     botConfig: {
       isEnabled: true,
@@ -69,6 +70,7 @@ export const DEFAULT_PREDICTION_PROGRAMS = [
     basePrice: 16.5, // 16.5 tỷ
     spreadPercent: 6, // ±6%
     targetPrice: 16.42,
+    requireMembership: true, // Bật/Tắt: Đặc quyền dành riêng cho Gói Hội Viên
     status: 'active',
     botConfig: {
       isEnabled: true,

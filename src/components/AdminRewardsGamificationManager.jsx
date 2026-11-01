@@ -933,6 +933,7 @@ export default function AdminRewardsGamificationManager() {
         basePrice: 5.5,
         spreadPercent: 8,
         targetPrice: 5.5,
+        requireMembership: true, // Mặc định bật đặc quyền Gói Hội Viên
         status: 'active',
         botConfig: {
           isEnabled: true,
@@ -3001,6 +3002,12 @@ export default function AdminRewardsGamificationManager() {
                           }`}>
                             {isSettled ? 'Đã Chốt Kết Quả' : 'Đang Hoạt Động'}
                           </span>
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1 ${
+                            prog.requireMembership !== false ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40' : 'bg-blue-500/20 text-blue-300 border border-blue-500/40'
+                          }`}>
+                            <i className={`fa-solid ${prog.requireMembership !== false ? 'fa-crown text-amber-400' : 'fa-users'}`}></i>
+                            <span>{prog.requireMembership !== false ? 'Đặc Quyền Gói Hội Viên' : 'Mở Cho Tất Cả'}</span>
+                          </span>
                           <span className="text-[11px] text-slate-400">
                             {prog.location}
                           </span>
@@ -3454,6 +3461,31 @@ export default function AdminRewardsGamificationManager() {
                   onChange={(e) => setEditingProgram({ ...editingProgram, image: e.target.value })}
                   className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono text-xs"
                 />
+              </div>
+
+              {/* BẬT / TẮT ĐẶC QUYỀN GÓI HỘI VIÊN */}
+              <div className="p-3.5 bg-slate-900 rounded-2xl border border-purple-500/30 flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <div className="text-xs font-bold text-purple-300 flex items-center gap-1.5 uppercase">
+                    <i className="fa-solid fa-crown text-amber-400"></i>
+                    <span>Đặc Quyền Dành Cho Gói Hội Viên</span>
+                  </div>
+                  <div className="text-[11px] text-slate-400">
+                    Chỉ thành viên đang kích hoạt Gói Hội Viên còn hạn mới được gửi dự đoán.
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                  <input
+                    type="checkbox"
+                    checked={editingProgram.requireMembership !== false}
+                    onChange={(e) => setEditingProgram({
+                      ...editingProgram,
+                      requireMembership: e.target.checked
+                    })}
+                    className="sr-only peer"
+                  />
+                  <div className="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-purple-600"></div>
+                </label>
               </div>
 
               {/* KHỐI CẤU HÌNH BOT ẢO */}
