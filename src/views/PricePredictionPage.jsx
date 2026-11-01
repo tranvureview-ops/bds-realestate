@@ -9,7 +9,9 @@ import {
   getStoredPredictions,
   recordUserPrediction,
   syncBotsForGame,
-  awardBadgeToUser
+  awardBadgeToUser,
+  formatRelativeTime,
+  appendLiveBotPrediction
 } from '../services/predictionGameService';
 
 // Đọc số tiền tỷ ra chữ Tiếng Việt giống logic phần Đăng tin
@@ -81,7 +83,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
   const bonusBal = Number(currentUser?.bonusWalletBalance || 0);
   const brandName = systemConfig?.brandShortName || systemConfig?.companyName || 'Sàn Nhà Đất';
 
-  // Khởi tạo và đồng bộ bot nếu chưa có dữ liệu trong storage
+  // Khởi tạo và đồng bộ bot nếu chưa có dữ liệu trong storage (phân bổ thời gian như thật)
   useEffect(() => {
     const loadedPrograms = getStoredPredictionPrograms();
     setPrograms(loadedPrograms);
@@ -89,12 +91,26 @@ export default function PricePredictionPage({ projectSlug = null }) {
     loadedPrograms.forEach(prog => {
       const existing = getStoredPredictions(prog.id);
       if (existing.length === 0 && prog.botConfig?.isEnabled !== false) {
-        syncBotsForGame(prog.id, prog.botConfig);
+        syncBotsForGame(prog.id, prog.botConfig, prog.startDate, prog.endDate);
       }
     });
   }, []);
 
-  // Ticker Live FOMO Events (Sinh động từ Bot và User thật)
+  // Mô phỏng dòng thời gian thực tế: Cứ mỗi 15-25 giây có thêm 1 lượt dự đoán mới tự nhiên
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const activeProgs = programs.filter(p => p.status === 'active' && p.botConfig?.isEnabled !== false);
+      if (activeProgs.length === 0) return;
+      const randomProg = activeProgs[Math.floor(Math.random() * activeProgs.length)];
+      appendLiveBotPrediction(randomProg.id, randomProg.botConfig);
+      // Kích hoạt re-render để cập nhật số lượng và Ticker mượt mà
+      setPrograms([...getStoredPredictionPrograms()]);
+    }, 18000);
+
+    return () => clearInterval(timer);
+  }, [programs]);
+
+  // Ticker Live FOMO Events (Sinh động từ Bot và User thật với thời gian tương đối như thật)
   const tickerEvents = useMemo(() => {
     const events = [];
     programs.forEach(prog => {
@@ -107,7 +123,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
           price: r.predictedPrice,
           isBot: Boolean(r.is_bot),
           programTitle: prog.projectName || prog.title,
-          timeText: r.is_bot ? 'Vừa xong' : 'Mới tham gia'
+          timeText: formatRelativeTime(r.createdAt)
         });
       });
     });
@@ -630,8 +646,10 @@ export default function PricePredictionPage({ projectSlug = null }) {
                               </span>
                             )}
                           </div>
-                          <div className="text-[10px] text-slate-400">
-                            {new Date(record.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} • {new Date(record.createdAt).toLocaleDateString('vi-VN')}
+                          <div className="text-[10px] text-slate-400 flex items-center gap-1.5">
+                            <span className="font-semibold text-slate-500">{formatRelativeTime(record.createdAt)}</span>
+                            <span>•</span>
+                            <span>{new Date(record.createdAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</span>
                           </div>
                         </div>
                       </div>

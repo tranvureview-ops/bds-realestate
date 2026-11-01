@@ -905,11 +905,11 @@ export default function AdminRewardsGamificationManager() {
   const handleSyncBots = (prog) => {
     setIsSyncingBotId(prog.id);
     setTimeout(() => {
-      syncBotsForGame(prog.id, prog.botConfig);
+      syncBotsForGame(prog.id, prog.botConfig, prog.startDate, prog.endDate);
       setIsSyncingBotId(null);
       setPredictionPrograms(getStoredPredictionPrograms());
       if (showToast) {
-        showToast(`Đã chạy đồng bộ ${(prog.botConfig?.botCount || 2000).toLocaleString('vi-VN')} Bot ảo (is_bot = 1) cho chương trình "${prog.title}" thành công!`, 'success');
+        showToast(`Đã chia đều ${(prog.botConfig?.botCount || 2000).toLocaleString('vi-VN')} Bot ảo theo dòng thời gian từ ngày bắt đầu đến nay (cơ chế phân bổ như thật)!`, 'success');
       }
     }, 600);
   };
@@ -971,7 +971,7 @@ export default function AdminRewardsGamificationManager() {
 
     // Tự động đồng bộ bot nếu bot được bật
     if (editingProgram.botConfig?.isEnabled) {
-      syncBotsForGame(editingProgram.id, editingProgram.botConfig);
+      syncBotsForGame(editingProgram.id, editingProgram.botConfig, editingProgram.startDate, editingProgram.endDate);
     }
 
     if (showToast) showToast(`Đã lưu chương trình "${editingProgram.title}" thành công!`, 'success');
@@ -3081,6 +3081,11 @@ export default function AdminRewardsGamificationManager() {
                           100% Không được nhận giải
                         </div>
                       </div>
+                    </div>
+
+                    <div className="text-[11px] text-indigo-300 bg-indigo-950/40 px-3 py-1.5 rounded-xl border border-indigo-900/40 flex items-center gap-2">
+                      <i className="fa-solid fa-clock-rotate-left text-amber-400"></i>
+                      <span><strong>Cơ chế chia thời gian như thật:</strong> Bot ảo được phân bổ rải đều từ ngày bắt đầu ({new Date(prog.startDate).toLocaleDateString('vi-VN')}) đến hiện tại theo nhịp sinh hoạt thực tế (giờ vàng sáng/tối tham gia đông, đêm muộn thưa thớt, mốc mới nhất hiển thị "Vừa xong", "X phút trước").</span>
                     </div>
 
                     {/* HÀNG NÚT HÀNH ĐỘNG CỦA ADMIN */}

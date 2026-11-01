@@ -101,18 +101,93 @@ export function generateRandomVnName() {
   return `${f} ${m} ${l}`;
 }
 
-// Sinh danh sách bản ghi Bot Ảo (is_bot = 1)
-export function generateBotRecords(gameId, botCount = 2000, basePrice = 7.8, spreadPercent = 6) {
+/**
+ * ĐỊNH DẠNG THỜI GIAN TƯƠNG ĐỐI TỰ NHIÊN NHƯ THẬT
+ * Ví dụ: "Vừa xong", "3 phút trước", "2 giờ trước", "Hôm qua lúc 14:20", "28/10 lúc 09:15"
+ */
+export function formatRelativeTime(isoString) {
+  if (!isoString) return '';
+  const date = new Date(isoString);
+  const now = Date.now();
+  const diffMs = now - date.getTime();
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHour = Math.floor(diffMin / 60);
+  const diffDay = Math.floor(diffHour / 24);
+
+  if (diffSec < 60) return 'Vừa xong';
+  if (diffMin < 60) return `${diffMin} phút trước`;
+  if (diffHour < 24) return `${diffHour} giờ trước`;
+  if (diffDay === 1) {
+    return `Hôm qua lúc ${date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`;
+  }
+  if (diffDay < 7) {
+    return `${diffDay} ngày trước`;
+  }
+  return `${date.toLocaleDateString('vi-VN')} ${date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}`;
+}
+
+/**
+ * SINH DANH SÁCH MỐC THỜI GIAN NHƯ THẬT:
+ * - Trải đều từ ngày bắt đầu (startDate) đến hiện tại.
+ * - Mô phỏng biểu đồ hoạt động người dùng thực tế (giờ vàng đông người tham gia, ban đêm thưa thớt).
+ * - Sắp xếp giảm dần (mới nhất lên đầu).
+ */
+export function generateRealisticTimestamps(count, startDateStr = null, endDateStr = null) {
+  const now = Date.now();
+  const start = startDateStr ? new Date(startDateStr).getTime() : (now - 7 * 24 * 3600 * 1000);
+  const end = Math.min(now, endDateStr ? new Date(endDateStr).getTime() : now);
+  const duration = Math.max(end - start, 3600 * 1000); // Tối thiểu 1 giờ
+
+  const timestamps = [];
+
+  for (let i = 0; i < count; i++) {
+    // Phân bổ nghiêng về thời điểm gần hiện tại (số lượng tham gia tăng dần theo độ nóng của sự kiện)
+    const factor = Math.pow(Math.random(), 1.35);
+    const timeMs = start + factor * duration;
+    const date = new Date(timeMs);
+
+    // Đường cong hoạt động thực tế (Human Activity Curve):
+    // Nếu rơi vào đêm muộn 0h - 6h sáng, 85% dời sang khung giờ sôi động ban ngày (9h - 22h)
+    const hour = date.getHours();
+    if (hour >= 0 && hour <= 5 && Math.random() > 0.15) {
+      date.setHours(8 + Math.floor(Math.random() * 14));
+      date.setMinutes(Math.floor(Math.random() * 60));
+      date.setSeconds(Math.floor(Math.random() * 60));
+    }
+
+    // Đảm bảo không vượt quá thời điểm hiện tại
+    const finalMs = Math.min(date.getTime(), now - (Math.floor(Math.random() * 90) + 10) * 1000);
+    timestamps.push(finalMs);
+  }
+
+  // Sắp xếp thời gian giảm dần: Mới nhất lên đầu
+  timestamps.sort((a, b) => b - a);
+
+  // Tạo các mốc vài phút/vài chục giây gần nhất cho top đầu bảng xếp hạng
+  if (timestamps.length > 5) {
+    timestamps[0] = now - (Math.floor(Math.random() * 30) + 15) * 1000; // 15 - 45 giây trước
+    timestamps[1] = now - (Math.floor(Math.random() * 2) + 2) * 60 * 1000; // 2 - 4 phút trước
+    timestamps[2] = now - (Math.floor(Math.random() * 4) + 5) * 60 * 1000; // 5 - 9 phút trước
+    timestamps[3] = now - (Math.floor(Math.random() * 10) + 12) * 60 * 1000; // 12 - 22 phút trước
+    timestamps[4] = now - (Math.floor(Math.random() * 20) + 25) * 60 * 1000; // 25 - 45 phút trước
+  }
+
+  return timestamps;
+}
+
+// Sinh danh sách bản ghi Bot Ảo (is_bot = 1) phân bổ thời gian như thật
+export function generateBotRecords(gameId, botCount = 2000, basePrice = 7.8, spreadPercent = 6, startDate = null, endDate = null) {
   const records = [];
   const count = Math.min(Math.max(Number(botCount) || 50, 10), 3000);
   const spreadDelta = basePrice * (Number(spreadPercent) / 100);
   const stdev = spreadDelta / 2; // ~95% giá rơi trong khoảng ±spreadDelta
-  const now = Date.now();
+
+  // Sinh dải thời gian phân bổ chân thực theo thời gian diễn ra chương trình
+  const timestamps = generateRealisticTimestamps(count, startDate, endDate);
 
   for (let i = 0; i < count; i++) {
-    // Thời gian dự đoán ngẫu nhiên rải từ 3 ngày trước đến 3 phút trước
-    const minutesAgo = Math.floor(Math.random() * (3 * 24 * 60) + 2);
-    const createdAt = new Date(now - minutesAgo * 60 * 1000).toISOString();
+    const createdAt = new Date(timestamps[i]).toISOString();
     
     // Giá dự đoán làm tròn 2 chữ số thập phân
     let price = Number(randomGaussian(basePrice, stdev).toFixed(2));
@@ -131,6 +206,37 @@ export function generateBotRecords(gameId, botCount = 2000, basePrice = 7.8, spr
   }
 
   return records;
+}
+
+// Sinh 1 lượt dự đoán bot mới trực tiếp (Real-time Live Injection)
+export function generateSingleBotPrediction(gameId, basePrice = 15.5, spreadPercent = 8) {
+  const spreadDelta = basePrice * (Number(spreadPercent) / 100);
+  const stdev = spreadDelta / 2;
+  let price = Number(randomGaussian(basePrice, stdev).toFixed(2));
+  if (price <= 0) price = Number(basePrice.toFixed(2));
+
+  return {
+    id: `bot-${gameId}-live-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    gameId,
+    userId: `bot-live-${Date.now()}`,
+    userName: generateRandomVnName(),
+    userAvatar: BOT_AVATARS[Math.floor(Math.random() * BOT_AVATARS.length)],
+    predictedPrice: price,
+    is_bot: 1,
+    createdAt: new Date().toISOString()
+  };
+}
+
+// Thêm 1 bot mới vào đầu danh sách (dùng cho hiệu ứng nhảy số trực tiếp)
+export function appendLiveBotPrediction(gameId, botConfig = {}) {
+  const base = Number(botConfig.basePrice || 15.5);
+  const spread = Number(botConfig.spreadPercent || 8);
+  const singleBot = generateSingleBotPrediction(gameId, base, spread);
+  
+  const existing = getStoredPredictions(gameId);
+  const updated = [singleBot, ...existing];
+  saveStoredPredictions(gameId, updated);
+  return singleBot;
 }
 
 // Lấy danh sách chương trình dự đoán
@@ -177,12 +283,23 @@ export function saveStoredPredictions(gameId, records) {
 
 /**
  * ĐỒNG BỘ HOẶC KHỞI TẠO BOT ẢO CHO MỘT GAME
+ * Phân bổ thời gian chân thực theo startDate -> endDate của chương trình
  */
-export function syncBotsForGame(gameId, botConfig = {}) {
+export function syncBotsForGame(gameId, botConfig = {}, startDate = null, endDate = null) {
   const count = Number(botConfig.botCount || 2000);
   const base = Number(botConfig.basePrice || 15.5);
   const spread = Number(botConfig.spreadPercent || 8);
   const isEnabled = botConfig.isEnabled !== false;
+
+  // Tự động lấy startDate và endDate từ cấu hình chương trình nếu chưa có
+  if (!startDate || !endDate) {
+    const progs = getStoredPredictionPrograms();
+    const p = progs.find(x => x.id === gameId);
+    if (p) {
+      startDate = startDate || p.startDate;
+      endDate = endDate || p.endDate;
+    }
+  }
 
   const existing = getStoredPredictions(gameId);
   // Giữ lại toàn bộ User Thật (is_bot = 0)
@@ -190,10 +307,11 @@ export function syncBotsForGame(gameId, botConfig = {}) {
 
   let newRecords = [];
   if (isEnabled && count > 0) {
-    const bots = generateBotRecords(gameId, count, base, spread);
-    newRecords = [...realUsers, ...bots];
+    const bots = generateBotRecords(gameId, count, base, spread, startDate, endDate);
+    // Ghép với User thật và sắp xếp giảm dần theo thời gian (mới nhất lên đầu)
+    newRecords = [...realUsers, ...bots].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   } else {
-    newRecords = realUsers;
+    newRecords = realUsers.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   }
 
   saveStoredPredictions(gameId, newRecords);
