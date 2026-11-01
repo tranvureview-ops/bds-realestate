@@ -366,9 +366,55 @@ export default function PricePredictionPage({ projectSlug = null }) {
     }, 1200);
   };
 
-  const displayGames = projectSlug
-    ? programs.filter(g => g.slug === projectSlug)
-    : programs;
+  // Quản lý Bộ Lọc Tab và Sắp Xếp Tối Ưu cho Danh Sách Game
+  const [filterTab, setFilterTab] = useState('all'); // 'all' | 'active' | 'settled'
+
+  const activeGamesCount = useMemo(() => {
+    return programs.filter(p => p.status !== 'settled' && (!p.endDate || new Date(p.endDate) >= new Date())).length;
+  }, [programs]);
+
+  const settledGamesCount = useMemo(() => {
+    return programs.filter(p => p.status === 'settled' || (p.endDate && new Date(p.endDate) < new Date())).length;
+  }, [programs]);
+
+  // Sắp xếp tối ưu: Ghim các kỳ Đang mở dự đoán lên đầu, kỳ hết hạn/đã chốt xếp phía sau
+  const sortedAndFilteredGames = useMemo(() => {
+    let list = projectSlug ? programs.filter(g => g.slug === projectSlug) : [...programs];
+
+    list.sort((a, b) => {
+      const aExpired = Boolean(a.endDate && new Date(a.endDate) < new Date());
+      const bExpired = Boolean(b.endDate && new Date(b.endDate) < new Date());
+      const aSettled = a.status === 'settled';
+      const bSettled = b.status === 'settled';
+
+      const aActive = !aSettled && !aExpired;
+      const bActive = !bSettled && !bExpired;
+
+      // 1. Đang mở dự đoán luôn ghim lên đầu tiên
+      if (aActive && !bActive) return -1;
+      if (!aActive && bActive) return 1;
+
+      // 2. Chờ chốt (hết hạn nhưng chưa settled)
+      if (!aSettled && bSettled) return -1;
+      if (aSettled && !bSettled) return 1;
+
+      // 3. Nếu cùng đang mở: sắp xếp theo kỳ có hạn kết thúc gần nhất
+      if (aActive && bActive) {
+        return new Date(a.endDate || 0) - new Date(b.endDate || 0);
+      }
+
+      // 4. Nếu cùng đã chốt: kỳ chốt mới nhất lên trước
+      return new Date(b.settledResult?.settledAt || b.endDate || 0) - new Date(a.settledResult?.settledAt || a.endDate || 0);
+    });
+
+    if (filterTab === 'active') {
+      return list.filter(g => g.status !== 'settled' && (!g.endDate || new Date(g.endDate) >= new Date()));
+    }
+    if (filterTab === 'settled') {
+      return list.filter(g => g.status === 'settled' || (g.endDate && new Date(g.endDate) < new Date()));
+    }
+    return list;
+  }, [programs, projectSlug, filterTab]);
 
   // Lấy dữ liệu Leaderboard cho Modal
   const activeLeaderboardData = useMemo(() => {
@@ -938,25 +984,91 @@ export default function PricePredictionPage({ projectSlug = null }) {
           )}
         </section>
 
-        {/* Tiêu đề Section 2: Danh sách các kỳ đang mở dự đoán */}
-        <div id="cac-ky-du-doan" className="pt-4 flex items-center justify-between flex-wrap gap-2">
+        {/* Tiêu đề Section 2: Danh sách các kỳ thẩm định giá */}
+        <div id="cac-ky-du-doan" className="pt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-0.5">
             <h2 className="text-lg sm:text-2xl font-black text-slate-900 flex items-center gap-2">
-              <i className="fa-solid fa-fire text-amber-500"></i>
-              <span>Các Kỳ Thẩm Định Giá Đang Mở</span>
+              <i className="fa-solid fa-trophy text-amber-500"></i>
+              <span>Danh Sách Kỳ Dự Đoán Giá BĐS</span>
             </h2>
             <p className="text-xs text-slate-500">
-              Nhập mức giá thẩm định chuẩn xác để có cơ hội vinh danh và nhận thưởng vào Ví Khuyến Mãi
+              Các kỳ đang mở được ưu tiên ghim lên đầu. Thẩm định chuẩn xác để rinh thưởng Ví Khuyến Mãi!
             </p>
           </div>
-          <span className="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs font-bold">
-            {displayGames.length} chương trình
-          </span>
+
+          {/* Bộ lọc Tab Trạng Thái Tối Ưu */}
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100/90 rounded-2xl border border-slate-200 self-start md:self-auto overflow-x-auto max-w-full">
+            <button
+              type="button"
+              onClick={() => setFilterTab('all')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
+                filterTab === 'all'
+                  ? 'bg-white text-indigo-700 shadow-xs border border-slate-200/80 font-black'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+              }`}
+            >
+              <i className="fa-solid fa-list-ul text-[11px]"></i>
+              <span>Tất cả</span>
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${filterTab === 'all' ? 'bg-indigo-100 text-indigo-800' : 'bg-slate-200 text-slate-700'}`}>
+                {programs.length}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setFilterTab('active')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
+                filterTab === 'active'
+                  ? 'bg-emerald-600 text-white shadow-xs font-black'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+              }`}
+            >
+              <span className={`w-2 h-2 rounded-full ${filterTab === 'active' ? 'bg-white' : 'bg-emerald-500'} animate-pulse`}></span>
+              <span>Đang mở</span>
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${filterTab === 'active' ? 'bg-emerald-700 text-emerald-100' : 'bg-emerald-100 text-emerald-800'}`}>
+                {activeGamesCount}
+              </span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setFilterTab('settled')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap ${
+                filterTab === 'settled'
+                  ? 'bg-amber-500 text-white shadow-xs font-black'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
+              }`}
+            >
+              <i className="fa-solid fa-flag-checkered text-[11px]"></i>
+              <span>Đã chốt</span>
+              <span className={`px-1.5 py-0.5 rounded-full text-[10px] ${filterTab === 'settled' ? 'bg-amber-600 text-amber-100' : 'bg-amber-100 text-amber-800'}`}>
+                {settledGamesCount}
+              </span>
+            </button>
+          </div>
         </div>
 
-        {/* 3. DANH SÁCH GAME DỰ ĐOÁN (BỐ CỤC LƯỚI 2 CỘT) */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-          {displayGames.map(game => {
+        {/* 3. DANH SÁCH GAME DỰ ĐOÁN (BỐ CỤC LƯỚI 2 CỘT TỐI ƯU) */}
+        {sortedAndFilteredGames.length === 0 ? (
+          <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-3 shadow-xs">
+            <div className="w-14 h-14 mx-auto rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl">
+              <i className="fa-solid fa-folder-open"></i>
+            </div>
+            <h3 className="font-bold text-slate-900 text-base">Không tìm thấy kỳ dự đoán nào</h3>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+              Hiện tại không có chương trình nào phù hợp với bộ lọc đã chọn. Vui lòng bấm &quot;Tất cả&quot; để xem toàn bộ.
+            </p>
+            <button
+              type="button"
+              onClick={() => setFilterTab('all')}
+              className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-xs font-bold hover:bg-indigo-700 transition"
+            >
+              Xem tất cả ({programs.length})
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+            {sortedAndFilteredGames.map(game => {
             const userVote = getUserPredictionForGame(game.id);
             const hasVoted = Boolean(userVote);
             const isExpired = Boolean(game.endDate && new Date(game.endDate) < new Date());
@@ -1310,6 +1422,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
             );
           })}
         </div>
+        )}
 
       </div>
 
