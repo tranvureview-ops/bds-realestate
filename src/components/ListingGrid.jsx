@@ -423,7 +423,7 @@ export default function ListingGrid({
                   { value: 'newest', label: '🕒 Tin mới đăng nhất' },
                   { value: 'price-asc', label: '💵 Giá: Thấp đến Cao' },
                   { value: 'price-desc', label: '💎 Giá: Cao đến Thấp' },
-                  { value: 'area-desc', label: '📐 Diện tích: Lớn đến Bé' }
+                  { value: 'area-desc', label: '📐 Diện tích: Lớn đến Nhỏ' }
                 ]}
               />
             </div>
