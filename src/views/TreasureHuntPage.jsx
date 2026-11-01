@@ -805,10 +805,10 @@ export default function TreasureHuntPage() {
             <div>
               <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
                 <i className="fa-solid fa-fire text-red-500"></i>
-                Danh Sách Bài Viết Đang Chứa Hộp Quà Hôm Nay {totalItems > 0 && <span className="text-sm font-bold text-amber-700">({totalItems})</span>}
+                Danh Sách Bất Động Sản Chứa Hộp Quà Hôm Nay {totalItems > 0 && <span className="text-sm font-bold text-amber-700">({totalItems})</span>}
               </h3>
               <p className="text-xs text-slate-500">
-                Bấm vào từng bài viết bên dưới, cuộn xuống phần mô tả để mở rương kho báu:
+                Bấm vào từng bất động sản bên dưới, cuộn xuống phần mô tả để mở rương kho báu:
               </p>
             </div>
             <Link to="/nha-dat-ban" className="text-xs font-bold text-emerald-700 hover:underline">
@@ -822,9 +822,9 @@ export default function TreasureHuntPage() {
                 <i className="fa-solid fa-gift"></i>
               </div>
               <div className="max-w-md mx-auto space-y-1">
-                <h4 className="text-base font-bold text-slate-800">Chưa có bài viết nào kích hoạt rương hôm nay</h4>
+                <h4 className="text-base font-bold text-slate-800">Chưa có bất động sản nào kích hoạt rương hôm nay</h4>
                 <p className="text-xs text-slate-500 leading-relaxed">
-                  Rương kho báu là quyền lợi độc quyền dành cho bài viết của Gói Hội Viên hoặc bài viết được Quản trị viên kích hoạt. Các rương mới sẽ được mở thưởng trong thời gian sớm nhất!
+                  Rương kho báu là quyền lợi độc quyền dành cho bất động sản của Gói Hội Viên hoặc tin đăng được Quản trị viên kích hoạt. Các rương mới sẽ được mở thưởng trong thời gian sớm nhất!
                 </p>
               </div>
               {currentUser?.role === 'admin' ? (
@@ -924,7 +924,7 @@ export default function TreasureHuntPage() {
                 <div className="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                   {/* Thông tin số lượng tin đang hiển thị */}
                   <div className="text-xs sm:text-sm text-slate-500 font-medium text-center sm:text-left">
-                    Đang hiển thị <span className="font-bold text-slate-900">{(safePage - 1) * ITEMS_PER_PAGE + 1}</span> - <span className="font-bold text-slate-900">{Math.min(safePage * ITEMS_PER_PAGE, totalItems)}</span> trong tổng số <span className="font-bold text-amber-700">{totalItems}</span> bài viết chứa rương
+                    Đang hiển thị <span className="font-bold text-slate-900">{(safePage - 1) * ITEMS_PER_PAGE + 1}</span> - <span className="font-bold text-slate-900">{Math.min(safePage * ITEMS_PER_PAGE, totalItems)}</span> trong tổng số <span className="font-bold text-amber-700">{totalItems}</span> bất động sản chứa rương
                   </div>
 
                   {/* Thanh chuyển trang */}

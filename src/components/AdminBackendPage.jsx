@@ -8197,7 +8197,7 @@ export default function AdminBackendPage() {
                               </span>
                             </div>
                             <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                              Áp dụng cho trang Danh sách bài viết chứa hộp quà hôm nay (/trung-tam-phan-thuong/san-kho-bau-bds). Khi số lượng bài viết vượt quá số lượng này, hệ thống sẽ tự động tạo phân trang. Mặc định là 16 sản phẩm.
+                              Áp dụng cho trang Danh sách bất động sản chứa hộp quà hôm nay (/trung-tam-phan-thuong/san-kho-bau-bds). Khi số lượng bất động sản vượt quá số lượng này, hệ thống sẽ tự động tạo phân trang. Mặc định là 16 sản phẩm.
                             </p>
                           </div>
 
