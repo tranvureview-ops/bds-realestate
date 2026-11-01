@@ -559,6 +559,471 @@ export default function PricePredictionPage({ projectSlug = null }) {
     return all;
   }, [activeLeaderboardGame, leaderboardFilter, userId, voteSyncTick]);
 
+  // Phân tách danh sách thành 2 nhóm: Đang mở dự đoán vs Đã chốt kết quả
+  const activeGamesList = useMemo(() => {
+    return sortedAndFilteredGames.filter(g => g.status !== 'settled' && (!g.endDate || new Date(g.endDate) >= new Date()));
+  }, [sortedAndFilteredGames]);
+
+  const settledGamesList = useMemo(() => {
+    return sortedAndFilteredGames.filter(g => g.status === 'settled' || (g.endDate && new Date(g.endDate) < new Date()));
+  }, [sortedAndFilteredGames]);
+
+  // Xử lý thay đổi giá dự đoán
+  const handlePriceInput = (gameId, rawVal) => {
+    const cleaned = rawVal.replace(/[^0-9.,]/g, '');
+    let separatorFound = false;
+    let formatted = '';
+    for (let i = 0; i < cleaned.length; i++) {
+      const c = cleaned[i];
+      if (c === '.' || c === ',') {
+        if (!separatorFound) {
+          formatted += c;
+          separatorFound = true;
+        }
+      } else {
+        formatted += c;
+      }
+    }
+    if (separatorFound) {
+      const sep = formatted.includes(',') ? ',' : '.';
+      const parts = formatted.split(sep);
+      if (parts[1] && parts[1].length > 3) {
+        formatted = `${parts[0]}${sep}${parts[1].slice(0, 3)}`;
+      }
+    }
+    setUserInputs(prev => ({
+      ...prev,
+      [gameId]: {
+        ...prev[gameId],
+        price: formatted
+      }
+    }));
+  };
+
+  // Render cụm ô nhập giá & các nút gợi ý giá
+  const renderPredictionInputBlock = (game) => {
+    const isReq = isGameMembershipRequired(game);
+    const needPackage = isReq && !isMemberActive;
+    const upgradePackage = isReq && isMemberActive && !isMemberPredictionAllowed;
+
+    const currentVal = userInputs[game.id]?.price || '';
+    const suggestions = getPriceSuggestions(currentVal);
+    const interpretation = getPriceInterpretation(currentVal);
+    const currentTotalVnd = interpretation?.totalVnd || 0;
+
+    return (
+      <div className="w-full space-y-2">
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              inputMode="decimal"
+              placeholder={
+                needPackage
+                  ? "Yêu cầu Gói Hội Viên để dự đoán"
+                  : upgradePackage
+                  ? `Gói ${activeUserPkg?.name || 'hiện tại'} không hỗ trợ`
+                  : "Nhập mức giá dự đoán"
+              }
+              disabled={needPackage || upgradePackage}
+              value={currentVal}
+              onChange={(e) => handlePriceInput(game.id, e.target.value)}
+              className={`w-full px-3.5 py-2.5 bg-white border rounded-xl text-sm font-black text-slate-900 outline-none transition shadow-xs ${
+                needPackage || upgradePackage
+                  ? 'border-purple-200 bg-slate-50 cursor-not-allowed opacity-80'
+                  : 'border-slate-300 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/10'
+              }`}
+            />
+          </div>
+
+          {needPackage ? (
+            <Link
+              to="/goi-hoi-vien"
+              className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
+              title="Tính năng là đặc quyền dành riêng cho Gói Hội Viên. Bấm để đăng ký ngay!"
+            >
+              <i className="fa-solid fa-crown text-amber-300"></i>
+              <span>Đăng Ký Hội Viên Để Dự Đoán</span>
+            </Link>
+          ) : upgradePackage ? (
+            <Link
+              to="/goi-hoi-vien"
+              className="px-4 py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
+              title={`Gói "${activeUserPkg?.name || ''}" chưa hỗ trợ dự đoán giá. Bấm để nâng cấp gói!`}
+            >
+              <i className="fa-solid fa-arrow-up-right-from-square text-white"></i>
+              <span>Nâng Cấp Gói Để Dự Đoán</span>
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={() => handleSubmitPrediction(game)}
+              className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
+            >
+              <i className="fa-solid fa-paper-plane"></i>
+              <span>Dự Đoán</span>
+            </button>
+          )}
+        </div>
+
+        {/* Suggestion Pills */}
+        {suggestions && suggestions.length > 0 && (
+          <div className="flex flex-wrap items-center gap-1.5 pt-0.5 animate-in fade-in duration-150">
+            {suggestions.map((item) => {
+              const isSelected = Math.abs(currentTotalVnd - item.value) < 1000;
+              return (
+                <button
+                  key={item.value}
+                  type="button"
+                  onClick={() => {
+                    const ty = +(item.value / 1e9).toFixed(3);
+                    const formattedVal = ty >= 1 ? String(ty) : String(item.value);
+                    setUserInputs(prev => ({
+                      ...prev,
+                      [game.id]: {
+                        ...prev[game.id],
+                        price: formattedVal
+                      }
+                    }));
+                  }}
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition flex items-center gap-1.5 border shadow-2xs cursor-pointer ${
+                    isSelected
+                      ? 'bg-slate-900 text-white border-slate-900 ring-2 ring-slate-900/20'
+                      : 'bg-white text-slate-800 border-slate-200 hover:border-slate-400 hover:bg-slate-50'
+                  }`}
+                >
+                  <span>{item.label}</span>
+                  {isSelected && <i className="fa-solid fa-check text-[10px] text-emerald-400"></i>}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Dòng quy đổi giá */}
+        {interpretation && (
+          <div className="text-xs text-slate-700 pt-0.5 animate-in fade-in duration-150 flex flex-wrap items-center gap-1.5">
+            <span>Mức giá dự đoán:</span>
+            <strong className="font-bold text-slate-900">{interpretation.summaryText}</strong>
+            {interpretation.fullText && interpretation.fullText !== interpretation.summaryText && (
+              <span className="text-emerald-700 font-semibold">
+                ({interpretation.fullText})
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // Render thẻ dự đoán BĐS (Hỗ trợ Thẻ Điểm Nhấn Ngang Hoàn Hảo khi chỉ có 1 kỳ đang mở)
+  const renderGameCard = (game, isFeatured = false) => {
+    const userVote = getUserPredictionForGame(game.id);
+    const hasVoted = Boolean(userVote);
+    const isExpired = Boolean(game.endDate && new Date(game.endDate) < new Date());
+    const isSettled = game.status === 'settled';
+    const isClosed = isSettled || isExpired;
+    const allVotes = getStoredPredictions(game.id);
+    const totalParticipants = allVotes.length;
+
+    // THẺ NỔI BẬT TOÀN CHIỀU NGANG KHI CHỈ CÓ 1 KỲ ĐANG MỞ
+    if (isFeatured) {
+      return (
+        <div
+          key={game.id}
+          id={`game-${game.id}`}
+          className="bg-white rounded-3xl border-2 border-emerald-400/80 shadow-md p-5 sm:p-7 transition relative overflow-hidden space-y-4"
+        >
+          {/* Header Row */}
+          <div className="flex items-center justify-between gap-2.5 border-b border-slate-100 pb-3 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider flex items-center gap-1.5 bg-emerald-600 text-white shadow-xs">
+                <i className="fa-solid fa-circle-dot animate-pulse"></i>
+                <span>Đang Mở Dự Đoán</span>
+              </span>
+              <span className="text-[11px] font-semibold text-slate-600 bg-slate-100 px-2.5 py-1 rounded-full">
+                Hạn chót: {new Date(game.endDate).toLocaleDateString('vi-VN')}
+              </span>
+              {game.endDate && <MiniCountdown targetDate={game.endDate} />}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setActiveLeaderboardGame(game)}
+              className="text-xs font-bold text-indigo-700 hover:text-indigo-900 transition flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-3.5 py-1.5 rounded-xl cursor-pointer"
+            >
+              <i className="fa-solid fa-trophy text-amber-500"></i>
+              <span>Bảng Xếp Hạng ({totalParticipants.toLocaleString('vi-VN')})</span>
+            </button>
+          </div>
+
+          {/* 2 Cột Bố Cục Ngang Hoàn Hảo */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+            {/* Cột Trái: BĐS Info */}
+            <div className="lg:col-span-5 flex items-start gap-3.5">
+              <img
+                src={game.image}
+                alt={game.title || game.projectName}
+                className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover shrink-0 border border-slate-200 shadow-xs"
+              />
+              <div className="min-w-0 space-y-1">
+                <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider block truncate">
+                  <i className="fa-solid fa-location-dot mr-1"></i>
+                  {game.location}
+                </span>
+                <h2 className="text-base sm:text-lg font-black text-slate-900 line-clamp-2" title={game.title || game.projectName}>
+                  {game.title || game.projectName}
+                </h2>
+                {game.projectName && game.title && game.projectName !== game.title && (
+                  <div className="text-xs text-slate-500 font-medium truncate">
+                    {game.projectName}
+                  </div>
+                )}
+                <div className="pt-1">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-extrabold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
+                    <i className="fa-solid fa-coins text-amber-500"></i>
+                    <span>Tổng thưởng: {(Number(game.totalPrize) || 2000000).toLocaleString('vi-VN')} đ Ví KM</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Cột Phải: Form nhập giá hoặc Trạng thái đã tham gia */}
+            <div className="lg:col-span-7 bg-slate-50/80 p-4 sm:p-5 rounded-2xl border border-slate-200/80">
+              {hasVoted ? (
+                <div className="flex items-center justify-between gap-3 p-3 bg-emerald-500/10 border border-emerald-300 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <span className="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm shadow-xs shrink-0">
+                      <i className="fa-solid fa-check"></i>
+                    </span>
+                    <div>
+                      <div className="text-xs text-emerald-900 font-bold">Mức giá bạn đã dự đoán:</div>
+                      <div className="text-xl font-black text-emerald-700 font-mono">
+                        {userVote.predictedPrice} tỷ
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setActiveLeaderboardGame(game)}
+                    className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-bold transition shadow-2xs shrink-0 cursor-pointer flex items-center gap-1.5"
+                  >
+                    <i className="fa-solid fa-trophy text-amber-500 text-[11px]"></i>
+                    <span>Xem BXH</span>
+                  </button>
+                </div>
+              ) : (
+                renderPredictionInputBlock(game)
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // THẺ TIÊU CHUẨN (DÀNH CHO LƯỚI 2 CỘT)
+    return (
+      <div
+        key={game.id}
+        id={`game-${game.id}`}
+        className={`bg-white rounded-3xl border shadow-sm flex flex-col justify-between gap-4 transition overflow-hidden relative ${
+          isSettled 
+            ? 'border-amber-400/80 bg-amber-50/10' 
+            : isExpired
+            ? 'border-rose-200 bg-rose-50/15'
+            : 'border-slate-200/80 hover:border-indigo-300'
+        } p-5 sm:p-6`}
+      >
+        {/* Badge trạng thái */}
+        <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1 ${
+              isSettled 
+                ? 'bg-amber-100 text-amber-800 border border-amber-300' 
+                : isExpired
+                ? 'bg-rose-100 text-rose-800 border border-rose-300'
+                : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+            }`}>
+              <i className={`fa-solid ${
+                isSettled ? 'fa-flag-checkered text-amber-600' : isExpired ? 'fa-lock text-rose-600' : 'fa-circle-dot animate-pulse text-emerald-600'
+              }`}></i>
+              <span>
+                {isSettled ? 'Đã Chốt Kết Quả' : isExpired ? 'Đã Hết Hạn Dự Đoán' : 'Đang Mở Dự Đoán'}
+              </span>
+            </span>
+            <span className={`text-[11px] font-medium ${isExpired ? 'text-rose-600 font-bold' : 'text-slate-500'}`}>
+              Hạn: {new Date(game.endDate).toLocaleDateString('vi-VN')} {isExpired && '(Đã hết hạn)'}
+            </span>
+            {!isClosed && game.endDate && (
+              <MiniCountdown targetDate={game.endDate} />
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setActiveLeaderboardGame(game)}
+            className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-xl cursor-pointer"
+          >
+            <i className="fa-solid fa-trophy text-amber-500"></i>
+            <span>Bảng Xếp Hạng ({totalParticipants.toLocaleString('vi-VN')})</span>
+          </button>
+        </div>
+
+        {/* Thông tin BĐS */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-start gap-3.5 min-w-0">
+            <img
+              src={game.image}
+              alt={game.title || game.projectName}
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover shrink-0 border border-slate-100 shadow-xs"
+            />
+            <div className="min-w-0">
+              <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider block truncate">
+                {game.location}
+              </span>
+              <h2 className="text-base font-bold text-slate-900 mt-0.5 line-clamp-1" title={game.title || game.projectName}>
+                {game.title || game.projectName}
+              </h2>
+              {game.projectName && game.title && game.projectName !== game.title && (
+                <div className="text-xs text-slate-500 font-medium truncate mt-0.5" title={game.projectName}>
+                  {game.projectName}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="p-3 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200 text-left sm:text-right shrink-0">
+            <div className="text-[10px] text-emerald-800 font-bold uppercase tracking-wider">Tổng Giải Thưởng</div>
+            <div className="text-lg font-black text-emerald-600 font-mono">
+              {(Number(game.totalPrize) || 2000000).toLocaleString('vi-VN')} đ Ví KM
+            </div>
+            <div className="text-[10px] text-slate-500 mt-0.5">
+              {totalParticipants.toLocaleString('vi-VN')} lượt tham gia
+            </div>
+          </div>
+        </div>
+
+        {/* NẾU ĐÃ CHỐT KẾT QUẢ (SETTLED BANNER) */}
+        {isSettled && game.settledResult && (
+          <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/20 border border-amber-300 text-xs space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-amber-900 flex items-center gap-1.5">
+                <i className="fa-solid fa-crown text-amber-600"></i>
+                <span>Giá dự đoán: <strong className="text-base font-mono text-emerald-700">{game.settledResult.targetPrice} tỷ</strong></span>
+              </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-slate-950">
+                {game.settledResult.isSplitPrize ? 'Chia Đều Giải Thưởng' : 'Top Chiến Thắng'}
+              </span>
+            </div>
+
+            <div className="space-y-1.5 pt-1">
+              <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
+                <span>Bảng Vinh Danh Người Thắng Giải:</span>
+                <span className="text-[10px] text-slate-500 font-semibold">{game.settledResult.winners?.length || 0} người nhận thưởng</span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-0.5">
+                {game.settledResult.winners?.map((w, wIdx) => {
+                  const rankColor = w.rank === 1 ? 'bg-amber-500 text-slate-950 font-black' : w.rank === 2 ? 'bg-slate-300 text-slate-800 font-bold' : 'bg-orange-200 text-orange-950 font-bold';
+                  return (
+                    <div key={wIdx} className="p-2 bg-white rounded-xl border border-amber-200 flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className={`w-5 h-5 rounded-full text-[10px] flex items-center justify-center shrink-0 ${rankColor}`}>
+                          #{w.rank || wIdx + 1}
+                        </span>
+                        <div className="truncate max-w-[115px]">
+                          <div className="font-bold text-slate-900 truncate">{w.userName}</div>
+                          <div className="text-[9px] text-slate-400 truncate">{w.rewardBadge?.split('(')[0] || 'Trúng giải'}</div>
+                        </div>
+                      </div>
+                      <div className="text-right font-mono shrink-0">
+                        <div className="font-bold text-emerald-600">+{w.rewardAmount?.toLocaleString('vi-VN')}đ</div>
+                        <div className="text-[9px] text-slate-400">Đoán: {w.predictedPrice} tỷ</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* NẾU ĐÃ HẾT HẠN (CHỜ ADMIN CHỐT KẾT QUẢ) */}
+        {isExpired && !isSettled && (
+          <div className="pt-2 min-h-[58px] flex items-center">
+            {hasVoted ? (
+              <div className="w-full p-2.5 bg-slate-100 border border-slate-200 rounded-2xl flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-xl bg-slate-700 text-white flex items-center justify-center text-sm shadow-xs shrink-0">
+                    <i className="fa-solid fa-lock"></i>
+                  </span>
+                  <div>
+                    <div className="text-[11px] text-slate-700 font-bold">Đã hết hạn • Mức giá bạn đã dự đoán:</div>
+                    <div className="text-base font-black text-slate-800 font-mono">
+                      {userVote.predictedPrice} tỷ
+                    </div>
+                  </div>
+                </div>
+                <span className="text-xs bg-slate-200 text-slate-700 px-3 py-1 rounded-xl font-bold border border-slate-300 shrink-0">
+                  Chờ Chốt Giải
+                </span>
+              </div>
+            ) : (
+              <div className="w-full p-3 bg-rose-50/70 border border-rose-200 rounded-2xl flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 text-xs">
+                  <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-sm font-bold shrink-0">
+                    <i className="fa-solid fa-lock"></i>
+                  </div>
+                  <div>
+                    <div className="font-bold text-slate-900">Đã Hết Hạn Nhận Dự Đoán</div>
+                    <div className="text-[11px] text-slate-500">Cổng dự đoán đã đóng vào {new Date(game.endDate).toLocaleDateString('vi-VN')}. Đang chờ công bố kết quả.</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveLeaderboardGame(game)}
+                  className="px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 font-bold text-xs rounded-xl transition shrink-0 cursor-pointer shadow-2xs"
+                >
+                  Xem BXH
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* NẾU ĐANG HOẠT ĐỘNG VÀ CHƯA HẾT HẠN */}
+        {!isClosed && (
+          <div className="pt-2 min-h-[58px] flex items-center">
+            {hasVoted ? (
+              <div className="w-full p-2.5 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm shadow-xs shrink-0">
+                    <i className="fa-solid fa-check"></i>
+                  </span>
+                  <div>
+                    <div className="text-[11px] text-emerald-800 font-bold">Mức giá bạn đã dự đoán:</div>
+                    <div className="text-base font-black text-emerald-700 font-mono">
+                      {userVote.predictedPrice} tỷ
+                    </div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActiveLeaderboardGame(game)}
+                  className="px-3 py-1 bg-white hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold rounded-xl transition shadow-2xs shrink-0 cursor-pointer flex items-center gap-1"
+                >
+                  <i className="fa-solid fa-trophy text-amber-500 text-[10px]"></i>
+                  <span>BXH</span>
+                </button>
+              </div>
+            ) : (
+              renderPredictionInputBlock(game)
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 py-8 relative">
       {/* Pháo hoa Confetti khi trúng giải / xác nhận */}
@@ -1156,7 +1621,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
           </div>
         </div>
 
-        {/* 3. DANH SÁCH GAME DỰ ĐOÁN (BỐ CỤC LƯỚI 2 CỘT TỐI ƯU) */}
+        {/* 3. DANH SÁCH GAME DỰ ĐOÁN (BỐ CỤC PHÂN TÁCH THÔNG MINH - KHÔNG BỊ KÉO GIÃN) */}
         {sortedAndFilteredGames.length === 0 ? (
           <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-3 shadow-xs">
             <div className="w-14 h-14 mx-auto rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl">
@@ -1175,364 +1640,56 @@ export default function PricePredictionPage({ projectSlug = null }) {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-            {sortedAndFilteredGames.map(game => {
-            const userVote = getUserPredictionForGame(game.id);
-            const hasVoted = Boolean(userVote);
-            const isExpired = Boolean(game.endDate && new Date(game.endDate) < new Date());
-            const isSettled = game.status === 'settled';
-            const isClosed = isSettled || isExpired;
-            const allVotes = getStoredPredictions(game.id);
-            const totalParticipants = allVotes.length;
-
-            return (
-              <div
-                key={game.id}
-                id={`game-${game.id}`}
-                className={`bg-white rounded-3xl border shadow-sm flex flex-col justify-between gap-5 transition overflow-hidden relative ${
-                  isSettled 
-                    ? 'border-amber-400/80 bg-amber-50/10' 
-                    : isExpired
-                    ? 'border-rose-200 bg-rose-50/15'
-                    : 'border-slate-200/80 hover:border-indigo-300'
-                } p-5 sm:p-6`}
-              >
-                {/* Badge trạng thái */}
-                <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
+          <div className="space-y-8">
+            {/* KHU VỰC 1: CÁC KỲ ĐANG MỞ DỰ ĐOÁN (ƯU TIÊN HÀNG ĐẦU) */}
+            {activeGamesList.length > 0 && filterTab !== 'settled' && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-1">
                   <div className="flex items-center gap-2">
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider flex items-center gap-1 ${
-                      isSettled 
-                        ? 'bg-amber-100 text-amber-800 border border-amber-300' 
-                        : isExpired
-                        ? 'bg-rose-100 text-rose-800 border border-rose-300'
-                        : 'bg-emerald-100 text-emerald-800 border border-emerald-300'
-                    }`}>
-                      <i className={`fa-solid ${
-                        isSettled ? 'fa-flag-checkered text-amber-600' : isExpired ? 'fa-lock text-rose-600' : 'fa-circle-dot animate-pulse text-emerald-600'
-                      }`}></i>
-                      <span>
-                        {isSettled ? 'Đã Chốt Kết Quả' : isExpired ? 'Đã Hết Hạn Dự Đoán' : 'Đang Mở Dự Đoán'}
-                      </span>
-                    </span>
-                    <span className={`text-[11px] font-medium ${isExpired ? 'text-rose-600 font-bold' : 'text-slate-500'}`}>
-                      Hạn: {new Date(game.endDate).toLocaleDateString('vi-VN')} {isExpired && '(Đã hết hạn)'}
-                    </span>
-                    {!isClosed && game.endDate && (
-                      <MiniCountdown targetDate={game.endDate} />
-                    )}
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <h3 className="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">
+                      Kỳ Đang Mở Bình Chọn & Thẩm Định ({activeGamesList.length})
+                    </h3>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setActiveLeaderboardGame(game)}
-                    className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 px-3 py-1 rounded-xl cursor-pointer"
-                  >
-                    <i className="fa-solid fa-trophy text-amber-500"></i>
-                    <span>Bảng Xếp Hạng ({totalParticipants.toLocaleString('vi-VN')})</span>
-                  </button>
+                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                    🟢 Đang nhận dự đoán
+                  </span>
                 </div>
 
-                {/* Thông tin BĐS */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div className="flex items-start gap-3.5 min-w-0">
-                    <img
-                      src={game.image}
-                      alt={game.title || game.projectName}
-                      className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover shrink-0 border border-slate-100 shadow-xs"
-                    />
-                    <div className="min-w-0">
-                      <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider block truncate">
-                        {game.location}
-                      </span>
-                      <h2 className="text-base font-bold text-slate-900 mt-0.5 line-clamp-1" title={game.title || game.projectName}>
-                        {game.title || game.projectName}
-                      </h2>
-                      {game.projectName && game.title && game.projectName !== game.title && (
-                        <div className="text-xs text-slate-500 font-medium truncate mt-0.5" title={game.projectName}>
-                          {game.projectName}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="p-3 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl border border-emerald-200 text-left sm:text-right shrink-0">
-                    <div className="text-[10px] text-emerald-800 font-bold uppercase tracking-wider">Tổng Giải Thưởng</div>
-                    <div className="text-lg font-black text-emerald-600 font-mono">
-                      {(Number(game.totalPrize) || 2000000).toLocaleString('vi-VN')} đ Ví KM
-                    </div>
-                    <div className="text-[10px] text-slate-500 mt-0.5">
-                      {totalParticipants.toLocaleString('vi-VN')} lượt tham gia
-                    </div>
-                  </div>
-                </div>
-
-                {/* NẾU ĐÃ CHỐT KẾT QUẢ (SETTLED BANNER) */}
-                {isSettled && game.settledResult && (
-                  <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-amber-500/20 border border-amber-300 text-xs space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-amber-900 flex items-center gap-1.5">
-                        <i className="fa-solid fa-crown text-amber-600"></i>
-                        <span>Giá dự đoán: <strong className="text-base font-mono text-emerald-700">{game.settledResult.targetPrice} tỷ</strong></span>
-                      </span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500 text-slate-950">
-                        {game.settledResult.isSplitPrize ? 'Chia Đều Giải Thưởng' : 'Top Chiến Thắng'}
-                      </span>
-                    </div>
-
-                    <div className="space-y-1.5 pt-1">
-                      <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center justify-between">
-                        <span>Bảng Vinh Danh Người Thắng Giải:</span>
-                        <span className="text-[10px] text-slate-500 font-semibold">{game.settledResult.winners?.length || 0} người nhận thưởng</span>
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-56 overflow-y-auto pr-0.5">
-                        {game.settledResult.winners?.map((w, wIdx) => {
-                          const rankColor = w.rank === 1 ? 'bg-amber-500 text-slate-950 font-black' : w.rank === 2 ? 'bg-slate-300 text-slate-800 font-bold' : 'bg-orange-200 text-orange-950 font-bold';
-                          return (
-                            <div key={wIdx} className="p-2 bg-white rounded-xl border border-amber-200 flex items-center justify-between text-xs">
-                              <div className="flex items-center gap-2">
-                                <span className={`w-5 h-5 rounded-full text-[10px] flex items-center justify-center shrink-0 ${rankColor}`}>
-                                  #{w.rank || wIdx + 1}
-                                </span>
-                                <div className="truncate max-w-[115px]">
-                                  <div className="font-bold text-slate-900 truncate">{w.userName}</div>
-                                  <div className="text-[9px] text-slate-400 truncate">{w.rewardBadge?.split('(')[0] || 'Trúng giải'}</div>
-                                </div>
-                              </div>
-                              <div className="text-right font-mono shrink-0">
-                                <div className="font-bold text-emerald-600">+{w.rewardAmount?.toLocaleString('vi-VN')}đ</div>
-                                <div className="text-[9px] text-slate-400">Đoán: {w.predictedPrice} tỷ</div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* NẾU ĐÃ HẾT HẠN (CHỜ ADMIN CHỐT KẾT QUẢ) */}
-                {isExpired && !isSettled && (
-                  <div className="pt-2 min-h-[58px] flex items-center">
-                    {hasVoted ? (
-                      <div className="w-full p-2.5 bg-slate-100 border border-slate-200 rounded-2xl flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="w-8 h-8 rounded-xl bg-slate-700 text-white flex items-center justify-center text-sm shadow-xs shrink-0">
-                            <i className="fa-solid fa-lock"></i>
-                          </span>
-                          <div>
-                            <div className="text-[11px] text-slate-700 font-bold">Đã hết hạn • Mức giá bạn đã dự đoán:</div>
-                            <div className="text-base font-black text-slate-800 font-mono">
-                              {userVote.predictedPrice} tỷ
-                            </div>
-                          </div>
-                        </div>
-                        <span className="text-xs bg-slate-200 text-slate-700 px-3 py-1 rounded-xl font-bold border border-slate-300 shrink-0">
-                          Chờ Chốt Giải
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="w-full p-3 bg-rose-50/70 border border-rose-200 rounded-2xl flex items-center justify-between gap-3">
-                        <div className="flex items-center gap-2.5 text-xs">
-                          <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-sm font-bold shrink-0">
-                            <i className="fa-solid fa-lock"></i>
-                          </div>
-                          <div>
-                            <div className="font-bold text-slate-900">Đã Hết Hạn Nhận Dự Đoán</div>
-                            <div className="text-[11px] text-slate-500">Cổng dự đoán đã đóng vào {new Date(game.endDate).toLocaleDateString('vi-VN')}. Đang chờ công bố kết quả.</div>
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setActiveLeaderboardGame(game)}
-                          className="px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-700 border border-slate-200 font-bold text-xs rounded-xl transition shrink-0 cursor-pointer shadow-2xs"
-                        >
-                          Xem BXH
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* NẾU ĐANG HOẠT ĐỘNG VÀ CHƯA HẾT HẠN: KHUNG NHẬP GIÁ DỰ ĐOÁN THỦ CÔNG */}
-                {!isClosed && (
-                  <div className="pt-2 min-h-[58px] flex items-center">
-                    {/* Ô Nhập Giá Thủ Công Chuẩn Giống Phần Đăng Tin */}
-                    {hasVoted ? (
-                      <div className="w-full p-2.5 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-sm shadow-xs shrink-0">
-                            <i className="fa-solid fa-check"></i>
-                          </span>
-                          <div>
-                            <div className="text-[11px] text-emerald-800 font-bold">Mức giá bạn đã dự đoán:</div>
-                            <div className="text-base font-black text-emerald-700 font-mono">
-                              {userVote.predictedPrice} tỷ
-                            </div>
-                          </div>
-                        </div>
-                        <span className="text-xs bg-emerald-100 text-emerald-800 px-3 py-1 rounded-xl font-bold border border-emerald-200 shrink-0">
-                          Đã ghi nhận
-                        </span>
-                      </div>
-                    ) : (
-                      <div className="w-full space-y-2">
-                        <div className="flex items-center gap-2">
-                          <div className="relative flex-1">
-                            <input
-                              type="text"
-                              inputMode="decimal"
-                              placeholder={
-                                isGameMembershipRequired(game) && !isMemberActive
-                                  ? "Yêu cầu Gói Hội Viên để dự đoán"
-                                  : isGameMembershipRequired(game) && !isMemberPredictionAllowed
-                                  ? `Gói ${activeUserPkg?.name || 'hiện tại'} không hỗ trợ`
-                                  : "Nhập mức giá dự đoán"
-                              }
-                              disabled={isGameMembershipRequired(game) && (!isMemberActive || !isMemberPredictionAllowed)}
-                              value={userInputs[game.id]?.price || ''}
-                              onChange={(e) => {
-                                const inputVal = e.target.value;
-                                // Chỉ cho phép nhập số, dấu chấm (.) và dấu phẩy (,)
-                                const cleaned = inputVal.replace(/[^0-9.,]/g, '');
-                                
-                                // Đảm bảo chỉ có tối đa một dấu ngăn cách thập phân (. hoặc ,)
-                                let separatorFound = false;
-                                let formatted = '';
-                                for (let i = 0; i < cleaned.length; i++) {
-                                  const c = cleaned[i];
-                                  if (c === '.' || c === ',') {
-                                    if (!separatorFound) {
-                                      formatted += c;
-                                      separatorFound = true;
-                                    }
-                                  } else {
-                                    formatted += c;
-                                  }
-                                }
-
-                                // Giới hạn tối đa 3 chữ số sau phần thập phân
-                                if (separatorFound) {
-                                  const sep = formatted.includes(',') ? ',' : '.';
-                                  const parts = formatted.split(sep);
-                                  if (parts[1] && parts[1].length > 3) {
-                                    formatted = `${parts[0]}${sep}${parts[1].slice(0, 3)}`;
-                                  }
-                                }
-
-                                setUserInputs(prev => ({
-                                  ...prev,
-                                  [game.id]: {
-                                    ...prev[game.id],
-                                    price: formatted
-                                  }
-                                }));
-                              }}
-                              className={`w-full px-3.5 py-2.5 bg-white border rounded-xl text-sm font-black text-slate-900 outline-none transition shadow-xs ${
-                                isGameMembershipRequired(game) && (!isMemberActive || !isMemberPredictionAllowed)
-                                  ? 'border-purple-200 bg-slate-50 cursor-not-allowed opacity-80'
-                                  : 'border-slate-300 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-600/10'
-                              }`}
-                            />
-                          </div>
-
-                          {isGameMembershipRequired(game) && !isMemberActive ? (
-                            <Link
-                              to="/goi-hoi-vien"
-                              className="px-4 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
-                              title="Tính năng là đặc quyền dành riêng cho Gói Hội Viên. Bấm để đăng ký ngay!"
-                            >
-                              <i className="fa-solid fa-crown text-amber-300"></i>
-                              <span>Đăng Ký Hội Viên Để Dự Đoán</span>
-                            </Link>
-                          ) : isGameMembershipRequired(game) && isMemberActive && !isMemberPredictionAllowed ? (
-                            <Link
-                              to="/goi-hoi-vien"
-                              className="px-4 py-2.5 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
-                              title={`Gói "${activeUserPkg?.name || ''}" chưa hỗ trợ dự đoán giá. Bấm để nâng cấp gói!`}
-                            >
-                              <i className="fa-solid fa-arrow-up-right-from-square text-white"></i>
-                              <span>Nâng Cấp Gói Để Dự Đoán</span>
-                            </Link>
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={() => handleSubmitPrediction(game)}
-                              className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-extrabold rounded-xl text-xs transition shadow-md flex items-center gap-1.5 cursor-pointer shrink-0"
-                            >
-                              <i className="fa-solid fa-paper-plane"></i>
-                              <span>Dự Đoán</span>
-                            </button>
-                          )}
-                        </div>
-
-                        {/* Gợi ý các mức giá chuẩn (Suggestion Pills giống phần Đăng Tin) */}
-                        {(() => {
-                          const currentVal = userInputs[game.id]?.price;
-                          const suggestions = getPriceSuggestions(currentVal);
-                          if (!suggestions || suggestions.length === 0) return null;
-
-                          const interpretation = getPriceInterpretation(currentVal);
-                          const currentTotalVnd = interpretation?.totalVnd || 0;
-
-                          return (
-                            <div className="flex flex-wrap items-center gap-1.5 pt-1 animate-in fade-in duration-150">
-                              {suggestions.map((item) => {
-                                const isSelected = Math.abs(currentTotalVnd - item.value) < 1000;
-                                return (
-                                  <button
-                                    key={item.value}
-                                    type="button"
-                                    onClick={() => {
-                                      const ty = +(item.value / 1e9).toFixed(3);
-                                      const formattedVal = ty >= 1 ? String(ty) : String(item.value);
-                                      setUserInputs(prev => ({
-                                        ...prev,
-                                        [game.id]: {
-                                          ...prev[game.id],
-                                          price: formattedVal
-                                        }
-                                      }));
-                                    }}
-                                    className={`px-3 py-1 rounded-full text-xs font-bold transition flex items-center gap-1.5 border shadow-2xs cursor-pointer ${
-                                      isSelected
-                                        ? 'bg-slate-900 text-white border-slate-900 ring-2 ring-slate-900/20'
-                                        : 'bg-white text-slate-800 border-slate-200 hover:border-slate-400 hover:bg-slate-50'
-                                    }`}
-                                  >
-                                    <span>{item.label}</span>
-                                    {isSelected && <i className="fa-solid fa-check text-[10px] text-emerald-400"></i>}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          );
-                        })()}
-
-                        {/* Dòng chữ quy đổi tổng trị giá giống hệt phần Đăng Tin */}
-                        {(() => {
-                          const interpretation = getPriceInterpretation(userInputs[game.id]?.price);
-                          if (!interpretation) return null;
-
-                          return (
-                            <div className="text-xs text-slate-700 pt-1 animate-in fade-in duration-150 flex flex-wrap items-center gap-1.5">
-                              <span>Mức giá dự đoán:</span>
-                              <strong className="font-bold text-slate-900">{interpretation.summaryText}</strong>
-                              {interpretation.fullText && interpretation.fullText !== interpretation.summaryText && (
-                                <span className="text-emerald-700 font-semibold">
-                                  ({interpretation.fullText})
-                                </span>
-                              )}
-                            </div>
-                          );
-                        })()}
-                      </div>
-                    )}
+                {activeGamesList.length === 1 ? (
+                  // Nếu chỉ có 1 kỳ đang mở: Thẻ Điểm Nhấn Toàn Chiều Ngang cực kỳ cân đối và sang trọng
+                  renderGameCard(activeGamesList[0], true)
+                ) : (
+                  // Nếu có từ 2 kỳ đang mở: Lưới 2 cột items-start không bao giờ bị kéo giãn
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                    {activeGamesList.map(game => renderGameCard(game, false))}
                   </div>
                 )}
               </div>
-            );
-          })}
-        </div>
+            )}
+
+            {/* KHU VỰC 2: CÁC KỲ ĐÃ CHỐT KẾT QUẢ & TRAO GIẢI */}
+            {settledGamesList.length > 0 && filterTab !== 'active' && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between pb-1 pt-2">
+                  <div className="flex items-center gap-2">
+                    <i className="fa-solid fa-flag-checkered text-amber-500 text-sm"></i>
+                    <h3 className="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">
+                      Lịch Sử Kỳ Đã Chốt Kết Quả & Trao Thưởng ({settledGamesList.length})
+                    </h3>
+                  </div>
+                  <span className="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
+                    🏆 Đã công bố giải thưởng
+                  </span>
+                </div>
+
+                {/* Lưới 2 cột cho các kỳ đã chốt: Tất cả đều có Bảng Vinh Danh nên chiều cao bằng nhau hoàn hảo */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+                  {settledGamesList.map(game => renderGameCard(game, false))}
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
       </div>
