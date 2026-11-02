@@ -154,11 +154,19 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none"></div>
 
         {/* Top Badges */}
-        <div className="absolute top-2.5 left-2.5 flex flex-wrap gap-1.5 z-[2]">
+        <div className="absolute top-2.5 left-2.5 flex flex-wrap items-center gap-1.5 z-[2]">
           {/* Demand Badge */}
           <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow-sm ${property.demand === 'sale' ? 'bg-emerald-700 text-white' : 'bg-blue-600 text-white'}`}>
             {property.demand === 'sale' ? 'BÁN' : 'CHO THUÊ'}
           </span>
+
+          {/* Tin đã xác thực: Dời lên sau nhãn Bán / Cho thuê */}
+          {Boolean(property.is_verified || property.isVerified || property.verification_status === 'verified' || property.verificationStatus === 'verified') && (
+            <span className="px-2 py-0.5 bg-emerald-600/95 text-white rounded-full text-[10px] font-bold shadow-sm backdrop-blur-xs flex items-center gap-1 border border-emerald-400/40">
+              <i className="fa-solid fa-circle-check text-[9px]"></i>
+              <span>Xác thực</span>
+            </span>
+          )}
         </div>
 
         {/* Action Buttons Top Right: Featured Gift & Favorite */}
@@ -267,13 +275,6 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
               <span className="px-2 py-1 bg-slate-100 rounded-md flex items-center gap-1 font-medium">
                 <i className="fa-regular fa-compass text-slate-400"></i>
                 {property.direction}
-              </span>
-            )}
-            {/* Tin đã xác thực: Đặt tại hàng thông số thay thế vị trí pháp lý cũ (Chỉ hiển thị khi đã xác thực, ẩn khi chưa xác thực) */}
-            {Boolean(property.is_verified || property.isVerified || property.verification_status === 'verified' || property.verificationStatus === 'verified') && (
-              <span className="px-2 py-1 bg-emerald-50 text-emerald-700 rounded-md flex items-center gap-1 font-bold border border-emerald-200 shadow-2xs">
-                <i className="fa-solid fa-circle-check text-emerald-600"></i>
-                <span>Tin xác thực</span>
               </span>
             )}
           </div>
