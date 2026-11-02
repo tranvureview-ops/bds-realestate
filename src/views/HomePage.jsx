@@ -6,6 +6,7 @@ import { Link } from '../router/RouterContext';
 import HeroSearch from '../components/HeroSearch';
 import ListingGrid from '../components/ListingGrid';
 import VipPackageShowcase from '../components/VipPackageShowcase';
+import HomeSeoContent from '../components/HomeSeoContent';
 import { filterProperties } from '../utils/propertyFilter';
 
 
@@ -111,6 +112,9 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-8 !mt-1">
         <VipPackageShowcase className="pt-2 pb-6 bg-transparent" />
       </div>
+
+      {/* SEO On-page Content Section (H2/H3 Heading Tree + Internal Links) */}
+      <HomeSeoContent />
     </div>
   );
 }

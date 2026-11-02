@@ -389,7 +389,7 @@ export default function ListingGrid({
         ) : isHomePage ? (
           <div>
             <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-              Danh Sách Nhà Đất Nổi Bật
+              Bất Động Sản Nổi Bật Đang Giao Dịch
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
               {subtitle || 'Ưu tiên hiển thị tin VIP Kim Cương, VIP Vàng và tin có tương tác cao'}
@@ -466,7 +466,6 @@ export default function ListingGrid({
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start my-5 sm:my-6">
           {/* CỘT TRÁI: DANH SÁCH NHÀ ĐẤT CHÍNH (~70% Chiều ngang desktop) */}
           <div className="w-full lg:flex-1 min-w-0 min-h-[550px] transition-opacity duration-200">
-            <h2 className="sr-only">Danh sách {demandLabel}</h2>
             {sortedProperties.length === 0 ? (
               renderEmptyState()
             ) : viewMode === 'split' ? (
@@ -515,7 +514,6 @@ export default function ListingGrid({
       ) : (
         /* Khi KHÔNG có Sidebar (Chế độ Trang Chủ) */
         <>
-          <h2 className="sr-only">Danh sách nhà đất nổi bật</h2>
           {sortedProperties.length === 0 ? (
             renderEmptyState()
           ) : viewMode === 'split' ? (

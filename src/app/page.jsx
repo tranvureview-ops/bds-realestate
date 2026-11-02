@@ -1,18 +1,73 @@
 import HomePage from '../views/HomePage';
-import { getInitialDb } from './layout';
+
+const SITE_URL = 'https://kenhnhadat24h.com.vn';
+
+const schemaWebSite = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Kênh Nhà Đất 24H',
+  url: SITE_URL,
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: `${SITE_URL}/nha-dat-ban?q={search_term_string}`,
+    'query-input': 'required name=search_term_string',
+  },
+};
+
+const schemaOrganization = {
+  '@context': 'https://schema.org',
+  '@type': 'RealEstateAgent',
+  name: 'Kênh Nhà Đất 24H',
+  url: SITE_URL,
+  logo: `${SITE_URL}/logo.png`,
+  description: 'Cổng thông tin mua bán, cho thuê bất động sản toàn quốc: căn hộ chung cư, nhà phố, đất nền dự án, biệt thự nghỉ dưỡng.',
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'customer support',
+    availableLanguage: 'Vietnamese',
+  },
+  areaServed: {
+    '@type': 'Country',
+    name: 'Vietnam',
+  },
+};
 
 export async function generateMetadata() {
-  const db = await getInitialDb();
-  const sys = db?.bds_system_config || {};
-  const brand = sys.brandShortName || 'Sàn Nhà Đất';
   return {
     title: {
-      absolute: `${brand} - Kênh Thông Tin & Giao Dịch Nhà Đất Hàng Đầu`
+      absolute: 'Kênh Nhà Đất 24H – Mua Bán & Cho Thuê Bất Động Sản Toàn Quốc'
     },
-    description: sys.tagline ? `${brand} - ${sys.tagline}` : 'Khám phá hàng ngàn nhà đất bán và cho thuê với thông tin minh bạch, định giá chính xác và hình ảnh thực tế.',
+    description: 'Kenhnhadat24h.com.vn – Cổng thông tin mua bán, cho thuê bất động sản toàn quốc: căn hộ chung cư, nhà phố, đất nền dự án, biệt thự nghỉ dưỡng. Tin đăng chính chủ, pháp lý minh bạch, sổ hồng riêng, định giá chính xác.',
+    keywords: 'kênh nhà đất 24h, mua bán nhà đất, bất động sản toàn quốc, cho thuê nhà đất, nhà đất chính chủ, căn hộ chung cư, đất nền dự án, định giá bất động sản, pháp lý nhà đất, sổ hồng riêng',
+    robots: { index: true, follow: true },
+    alternates: {
+      canonical: SITE_URL,
+    },
+    openGraph: {
+      type: 'website',
+      url: SITE_URL,
+      siteName: 'Kênh Nhà Đất 24H',
+      title: 'Kênh Nhà Đất 24H – Mua Bán & Cho Thuê Bất Động Sản Toàn Quốc',
+      description: 'Cổng thông tin bất động sản: mua bán, cho thuê căn hộ, nhà phố, đất nền toàn quốc. Tin chính chủ, pháp lý rõ ràng, định giá chuẩn xác.',
+      locale: 'vi_VN',
+    },
   };
 }
 
 export default function Page() {
-  return <HomePage />;
+  return (
+    <>
+      {/* JSON-LD Schema Markup – WebSite + SearchAction */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaWebSite) }}
+      />
+      {/* JSON-LD Schema Markup – RealEstateAgent / Organization */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrganization) }}
+      />
+      <HomePage />
+    </>
+  );
 }
