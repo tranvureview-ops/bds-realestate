@@ -18,7 +18,7 @@
  */
 
 // Hàm loại bỏ dấu tiếng Việt chuẩn SEO
-import { formatCIdsParam, parseCIdsParam } from '../data/propertyTypeTaxonomy';
+import { formatCIdsParam, parseCIdsParam } from '../data/propertyTypeTaxonomy.js';
 
 export const toVietnameseSlug = (str) => {
   if (!str) return '';
@@ -638,7 +638,9 @@ export const buildSeoUrl = ({
   }
 
   const qs = queryParams.toString();
-  return qs ? `${fullCleanPath}?${qs}` : fullCleanPath;
+  // Giữ dấu phẩy (,) thay vì %2C trong URL để đường dẫn thân thiện & tránh pushState loop
+  const decodedQs = qs.replace(/%2C/gi, ',');
+  return decodedQs ? `${fullCleanPath}?${decodedQs}` : fullCleanPath;
 };
 
 /**

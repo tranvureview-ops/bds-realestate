@@ -157,9 +157,9 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
 
       if (targetUrl) {
         const currentUrl = window.location.pathname + (window.location.search || '');
-        const normCurrent = currentUrl.replace(/\/+(\?|$)/, '$1');
-        const normTarget = targetUrl.replace(/\/+(\?|$)/, '$1');
-        if (normCurrent !== normTarget) {
+        // Normalize: bỏ trailing slash, decode %2C → , để so sánh nhất quán
+        const normalize = (u) => decodeURIComponent(u).replace(/\/+(\?|$)/, '$1');
+        if (normalize(currentUrl) !== normalize(targetUrl)) {
           window.history.pushState(null, '', targetUrl);
         }
       }
