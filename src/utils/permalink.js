@@ -711,6 +711,7 @@ export const parseTaxonomyUrl = (urlPath) => {
       if (clean === `${group.base}-${citySlug}`) {
         return buildResult({
           isTaxonomy: true,
+          isFacetedCleanSlug: true,
           demand,
           propertyType: 'all',
           city: cityName,
@@ -756,6 +757,7 @@ export const parseTaxonomyUrl = (urlPath) => {
         if (clean === `${typeInfo.slug}-${citySlug}`) {
           return buildResult({
             isTaxonomy: true,
+            isFacetedCleanSlug: true,
             demand,
             propertyType: typeKey,
             city: cityName,
@@ -1425,24 +1427,26 @@ export const generateCategoryJsonLd = (categoryInfo, properties = [], siteUrl = 
  * Đảm bảo Title 50-60 ký tự, Description 150-160 ký tự
  * Thấu hiểu Search Intent, tích hợp mốc thời gian [2026] và hỗ trợ Local SEO linh hoạt.
  */
-export const generateCategoryMetadata = (taxonomyInfo = {}, year = 2026, page = 1) => {
+export const generateCategoryMetadata = (taxonomyInfo = {}, year = 2026, page = null) => {
   const isRent = taxonomyInfo.demand === 'rent';
   const type = taxonomyInfo.propertyType || 'all';
-  const actualPage = Number(page || taxonomyInfo.page || 1);
+  const actualPage = Number((page !== null && page !== undefined) ? page : (taxonomyInfo.page || 1));
   const isPaginated = actualPage > 1;
   const pageStr = isPaginated ? ` - Trang ${actualPage}` : '';
   const pageDescStr = isPaginated ? ` (Trang ${actualPage})` : '';
 
-  // Ưu tiên tiêu đề chuẩn xác nếu là faceted clean slug URL (có mức giá, dự án, diện tích, đường phố...)
-  if (taxonomyInfo.isFacetedCleanSlug && taxonomyInfo.title) {
-    const baseTitle = `${taxonomyInfo.title}${pageStr}`;
+  const hasSpecificLocation = Boolean(taxonomyInfo.district || taxonomyInfo.city);
+
+  // Ưu tiên tiêu đề chuẩn xác nếu là faceted clean slug URL hoặc có địa điểm / danh mục cụ thể
+  if (taxonomyInfo.title && (taxonomyInfo.isFacetedCleanSlug || hasSpecificLocation || taxonomyInfo.city || taxonomyInfo.district)) {
+    const formattedTitle = formatTitleCase(taxonomyInfo.title).replace(/\bTại\b/g, 'tại');
+    const baseTitle = `${formattedTitle}${pageStr}`;
     return {
       title: `${baseTitle} | Kênh Nhà Đất 24H`,
-      description: `${taxonomyInfo.title} mới nhất [${year}]${pageDescStr}, vị trí đẹp, hình ảnh thực tế, thông tin xác thực, pháp lý minh bạch.`
+      description: `${formattedTitle} mới nhất [${year}]${pageDescStr}, vị trí đẹp, hình ảnh thực tế, thông tin xác thực, pháp lý minh bạch.`
     };
   }
 
-  const hasSpecificLocation = Boolean(taxonomyInfo.district || taxonomyInfo.city);
   let titleLoc = taxonomyInfo.district 
     ? taxonomyInfo.district.replace(/^(?:Quận|Huyện)\s+/i, '') 
     : (taxonomyInfo.city || '');
@@ -1940,6 +1944,7 @@ export const buildDynamicTaxonomyInfo = (filters = {}, baseTaxonomyInfo = null) 
     priceLabel || 
     areaLabel || 
     bedroomLabel || 
+    city ||
     district || 
     (propertyType && propertyType !== 'all') ||
     baseTaxonomyInfo?.isFacetedCleanSlug
