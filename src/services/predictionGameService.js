@@ -248,6 +248,85 @@ export const DEFAULT_PREDICTION_PROGRAMS = [
       { id: 'opt-b', label: 'Từ 3.6 - 3.8 tỷ', min: 3.6, max: 3.8 },
       { id: 'opt-c', label: 'Trên 3.8 tỷ', min: 3.8, max: 99.0 }
     ]
+  },
+  {
+    id: 'pred-nam-hoa-xuan',
+    slug: 'dat-nen-kdt-sinh-thai-nam-hoa-xuan',
+    title: 'Dự đoán giá Đất Nền KĐT Sinh Thái Nam Hòa Xuân (Kỳ 02)',
+    projectName: 'Đất Nền KĐT Sinh Thái Nam Hòa Xuân View Công Viên (PR005)',
+    location: 'Cẩm Lệ, Đà Nẵng',
+    image: 'https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=800&q=80',
+    currentEstimate: '3.5 - 3.8 tỷ',
+    startDate: '2026-10-01T00:00:00Z',
+    endDate: '2026-10-25T20:00:00Z',
+    totalPrize: 2000000, // 2.000.000 đ Ví KM
+    basePrice: 3.65,
+    spreadPercent: 5,
+    targetPrice: 3.65, // Giá chốt thẩm định thực tế: 3.65 tỷ
+    requireMembership: false,
+    status: 'settled',
+    botConfig: {
+      isEnabled: true,
+      botCount: 1680,
+      basePrice: 3.65,
+      spreadPercent: 5
+    },
+    settledResult: {
+      settledAt: '2026-10-25T20:00:00Z',
+      targetPrice: 3.65,
+      isMedianMethod: true,
+      totalPrize: 2000000,
+      totalParticipants: 1680,
+      realParticipantsCount: 56,
+      isSplitPrize: false,
+      rewardPerWinner: null,
+      winners: [
+        {
+          userId: 'user-winner-nhx-1',
+          userName: 'Phan Văn H*** (090***678)',
+          userAvatar: '/avatars/ai-preset-1.jpg',
+          predictedPrice: 3.65,
+          diff: 0.00,
+          rank: 1,
+          rewardAmount: 1000000,
+          rewardBadge: 'Thần Phán Đoán BĐS (Quán Quân) ★',
+          isTied: false,
+          payoutStatus: 'Đã giải ngân Ví KM',
+          awardedAt: '25/10/2026 20:00'
+        },
+        {
+          userId: 'user-winner-nhx-2',
+          userName: 'Đặng Minh T*** (093***112)',
+          userAvatar: '/avatars/ai-preset-2.jpg',
+          predictedPrice: 3.64,
+          diff: 0.01,
+          rank: 2,
+          rewardAmount: 600000,
+          rewardBadge: 'Chuyên Gia Định Giá BĐS (Á Quân)',
+          isTied: false,
+          payoutStatus: 'Đã giải ngân Ví KM',
+          awardedAt: '25/10/2026 20:00'
+        },
+        {
+          userId: 'user-winner-nhx-3',
+          userName: 'Võ Thị Thanh Thảo (098***554)',
+          userAvatar: '/avatars/ai-preset-1.jpg',
+          predictedPrice: 3.66,
+          diff: 0.01,
+          rank: 3,
+          rewardAmount: 400000,
+          rewardBadge: 'Thẩm Định Viên Xuất Sắc (Giải Ba)',
+          isTied: false,
+          payoutStatus: 'Đã giải ngân Ví KM',
+          awardedAt: '25/10/2026 20:00'
+        }
+      ]
+    },
+    options: [
+      { id: 'opt-a', label: 'Dưới 3.5 tỷ', min: 0, max: 3.5 },
+      { id: 'opt-b', label: 'Từ 3.5 - 3.7 tỷ', min: 3.5, max: 3.7 },
+      { id: 'opt-c', label: 'Trên 3.7 tỷ', min: 3.7, max: 99.0 }
+    ]
   }
 ];
 

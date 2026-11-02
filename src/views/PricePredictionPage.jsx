@@ -568,6 +568,11 @@ export default function PricePredictionPage({ projectSlug = null }) {
     return sortedAndFilteredGames.filter(g => g.status === 'settled' || (g.endDate && new Date(g.endDate) < new Date()));
   }, [sortedAndFilteredGames]);
 
+  // Cố định hiển thị 4 bài gần nhất tại khu vực Lịch sử đã chốt kết quả
+  const displayedSettledGames = useMemo(() => {
+    return settledGamesList.slice(0, 4);
+  }, [settledGamesList]);
+
   // Xử lý thay đổi giá dự đoán
   const handlePriceInput = (gameId, rawVal) => {
     const cleaned = rawVal.replace(/[^0-9.,]/g, '');
@@ -1666,23 +1671,23 @@ export default function PricePredictionPage({ projectSlug = null }) {
             )}
 
             {/* KHU VỰC 2: CÁC KỲ ĐÃ CHỐT KẾT QUẢ & TRAO GIẢI */}
-            {settledGamesList.length > 0 && filterTab !== 'active' && (
+            {displayedSettledGames.length > 0 && filterTab !== 'active' && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between pb-1 pt-2">
                   <div className="flex items-center gap-2">
                     <i className="fa-solid fa-flag-checkered text-amber-500 text-sm"></i>
                     <h3 className="text-sm sm:text-base font-black text-slate-900 uppercase tracking-wider">
-                      Lịch Sử Kỳ Đã Chốt Kết Quả & Trao Thưởng ({settledGamesList.length})
+                      Lịch Sử Kỳ Đã Chốt Kết Quả & Trao Thưởng ({displayedSettledGames.length})
                     </h3>
                   </div>
                   <span className="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200">
-                    🏆 Đã công bố giải thưởng
+                    🏆 4 kỳ gần nhất đã công bố giải thưởng
                   </span>
                 </div>
 
-                {/* Lưới 2 cột cho các kỳ đã chốt: Tất cả đều có Bảng Vinh Danh nên chiều cao bằng nhau hoàn hảo */}
+                {/* Lưới 2 cột cho các kỳ đã chốt: Cố định 4 bài gần nhất cân đối hoàn hảo 2x2 */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
-                  {settledGamesList.map(game => renderGameCard(game, false))}
+                  {displayedSettledGames.map(game => renderGameCard(game, false))}
                 </div>
               </div>
             )}
