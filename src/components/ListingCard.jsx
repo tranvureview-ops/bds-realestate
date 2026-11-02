@@ -221,7 +221,7 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
           <div className="flex items-baseline justify-between gap-2 mb-1.5">
             <div className="flex items-baseline gap-1.5">
               <span className={`text-xl font-extrabold ${isDiamond ? 'text-red-700' : isGold ? 'text-amber-800' : 'text-emerald-700'}`}>
-                {property.priceDisplay ? property.priceDisplay.replace(/Tỷ/g, 'tỷ') : ''}
+                {property.priceDisplay ? property.priceDisplay.replace(/Tỷ/g, 'tỷ').replace(/Triệu\/tháng/gi, 'tr/tháng').replace(/triệu\/tháng/gi, 'tr/tháng') : ''}
               </span>
               <span className="text-xs text-slate-600 font-semibold">
                 ({property.pricePerM2})
