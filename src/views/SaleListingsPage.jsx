@@ -20,16 +20,29 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
   const queryCity = serverSearchParams?.city || searchParams?.get('city') || taxonomyInfo?.city || '';
   const queryType = serverSearchParams?.propertyType || searchParams?.get('propertyType') || taxonomyInfo?.propertyType || 'all';
 
-  // Đọc ?loai= (đa danh mục): ví dụ ?loai=apartment,mini-apartment
+  // Đọc ?loai= (đa danh mục): ví dụ ?loai=mini-apartment (kết hợp với primary category từ slug)
   const clientUrlLoai = typeof window !== 'undefined'
     ? new URLSearchParams(window.location.search).get('loai')
     : null;
   const queryLoai = serverSearchParams?.loai || searchParams?.get('loai') || clientUrlLoai || '';
   const queryLoaiTypes = queryLoai ? parseCIdsParam(queryLoai, 'sale') : null;
-  // Nếu có ?loai= → dùng mảng đó; ngược lại dùng queryType đơn
-  const initPropertyTypes = queryLoaiTypes && queryLoaiTypes.length > 0
-    ? queryLoaiTypes
-    : (queryType && queryType !== 'all' ? [queryType] : ['all']);
+
+  // Hợp nhất category chính từ slug/queryType với danh mục phụ từ ?loai=
+  const baseCategory = (queryType && queryType !== 'all')
+    ? queryType
+    : (taxonomyInfo?.propertyType && taxonomyInfo.propertyType !== 'all' ? taxonomyInfo.propertyType : null);
+
+  const initialCombinedTypes = [];
+  if (baseCategory) initialCombinedTypes.push(baseCategory);
+  if (queryLoaiTypes && queryLoaiTypes.length > 0) {
+    queryLoaiTypes.forEach(t => {
+      if (t && t !== 'all' && !initialCombinedTypes.includes(t)) {
+        initialCombinedTypes.push(t);
+      }
+    });
+  }
+
+  const initPropertyTypes = initialCombinedTypes.length > 0 ? initialCombinedTypes : ['all'];
   const initPropertyType = initPropertyTypes.includes('all') ? 'all' : initPropertyTypes[0];
   const queryKeyword = serverSearchParams?.keyword || serverSearchParams?.q || searchParams?.get('keyword') || searchParams?.get('q') || taxonomyInfo?.project || taxonomyInfo?.street || (taxonomyInfo?.ward ? taxonomyInfo.ward.replace('Phường ', '') : '') || taxonomyInfo?.keyword || '';
   const queryPrice = serverSearchParams?.priceRange || serverSearchParams?.price || searchParams?.get('priceRange') || searchParams?.get('price') || taxonomyInfo?.priceRange || 'all';
@@ -68,10 +81,19 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
     const currentLoaiTypes = currentLoai ? parseCIdsParam(currentLoai, 'sale') : null;
 
     setFilters(prev => {
-      const hasMulti = (prev.propertyTypes && prev.propertyTypes.length > 1) || (currentLoaiTypes && currentLoaiTypes.length > 0);
-      const nextTypes = currentLoaiTypes && currentLoaiTypes.length > 0
-        ? currentLoaiTypes
-        : (hasMulti ? prev.propertyTypes : (taxType !== 'all' ? [taxType] : ['all']));
+      const currentBaseType = (taxType && taxType !== 'all') ? taxType : null;
+      let nextTypes = [];
+      if (currentBaseType) nextTypes.push(currentBaseType);
+      if (currentLoaiTypes && currentLoaiTypes.length > 0) {
+        currentLoaiTypes.forEach(t => {
+          if (t && t !== 'all' && !nextTypes.includes(t)) {
+            nextTypes.push(t);
+          }
+        });
+      }
+      if (nextTypes.length === 0) {
+        nextTypes = prev.propertyTypes && prev.propertyTypes.length > 0 ? prev.propertyTypes : ['all'];
+      }
       const nextType = nextTypes.includes('all') ? 'all' : nextTypes[0];
 
       const nextCity = taxonomyInfo.city || prev.city;
@@ -122,9 +144,17 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
         const sp = new URLSearchParams(window.location.search);
         const popLoai = sp.get('loai') || '';
         const popLoaiTypes = popLoai ? parseCIdsParam(popLoai, 'sale') : null;
-        const popTypes = popLoaiTypes && popLoaiTypes.length > 0
-          ? popLoaiTypes
-          : (parsed.propertyType && parsed.propertyType !== 'all' ? [parsed.propertyType] : ['all']);
+        const popBaseType = (parsed.propertyType && parsed.propertyType !== 'all') ? parsed.propertyType : null;
+        const popCombined = [];
+        if (popBaseType) popCombined.push(popBaseType);
+        if (popLoaiTypes && popLoaiTypes.length > 0) {
+          popLoaiTypes.forEach(t => {
+            if (t && t !== 'all' && !popCombined.includes(t)) {
+              popCombined.push(t);
+            }
+          });
+        }
+        const popTypes = popCombined.length > 0 ? popCombined : ['all'];
         const popType = popTypes.includes('all') ? 'all' : popTypes[0];
 
         setFilters(prev => ({

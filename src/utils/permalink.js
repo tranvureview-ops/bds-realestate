@@ -18,7 +18,7 @@
  */
 
 // Hàm loại bỏ dấu tiếng Việt chuẩn SEO
-import { formatCIdsParam, parseCIdsParam } from '../data/propertyTypeTaxonomy.js';
+import { formatCIdsParam, parseCIdsParam, formatPropertyTypeTriggerLabel } from '../data/propertyTypeTaxonomy.js';
 
 export const toVietnameseSlug = (str) => {
   if (!str) return '';
@@ -427,10 +427,11 @@ export const buildSeoUrl = ({
     multiTypeParam = null;
   } else if (typeList.length > 1) {
     // Chuẩn Batdongsan.com.vn:
-    // Lấy loại hình đầu tiên làm đường dẫn trang chính (ví dụ /ban-can-ho-chung-cu-mini)
-    // Các danh mục kết hợp được gộp vào tham số query ?loai=can-ho,nha-rieng
+    // Lấy loại hình đầu tiên làm đường dẫn trang chính (ví dụ /ban-can-ho-chung-cu)
+    // Các danh mục kết hợp phía sau được gộp vào tham số query ?loai=... (ví dụ ?loai=mini-apartment)
     normalizedType = typeList[0];
-    multiTypeParam = formatCIdsParam(typeList, demand);
+    const secondaryTypes = typeList.slice(1);
+    multiTypeParam = formatCIdsParam(secondaryTypes, demand);
   }
 
   let basePath = '';
