@@ -8,6 +8,7 @@ import ListingGrid from '../components/ListingGrid';
 import ListingFilterBar from '../components/ListingFilterBar';
 import { generateCategoryJsonLd, generateCategoryMetadata, parseTaxonomyUrl, buildDynamicTaxonomyInfo, buildSeoUrl } from '../utils/permalink';
 import { filterProperties } from '../utils/propertyFilter';
+import { parseCIdsParam } from '../data/propertyTypeTaxonomy';
 
 export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 }) {
   const { properties } = useRealEstate();
@@ -18,6 +19,15 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
   const queryDistrict = searchParams?.get('district') || taxonomyInfo?.district || '';
   const queryCity = searchParams?.get('city') || taxonomyInfo?.city || '';
   const queryType = searchParams?.get('propertyType') || taxonomyInfo?.propertyType || 'all';
+
+  // Đọc ?loai= (đa danh mục): ví dụ ?loai=apartment,mini-apartment
+  const queryLoai = searchParams?.get('loai') || '';
+  const queryLoaiTypes = queryLoai ? parseCIdsParam(queryLoai, 'rent') : null;
+  // Nếu có ?loai= → dùng mảng đó; ngược lại dùng queryType đơn
+  const initPropertyTypes = queryLoaiTypes && queryLoaiTypes.length > 0
+    ? queryLoaiTypes
+    : (queryType && queryType !== 'all' ? [queryType] : ['all']);
+  const initPropertyType = initPropertyTypes.includes('all') ? 'all' : initPropertyTypes[0];
   const queryKeyword = searchParams?.get('keyword') || searchParams?.get('q') || taxonomyInfo?.project || taxonomyInfo?.street || (taxonomyInfo?.ward ? taxonomyInfo.ward.replace('Phường ', '') : '') || taxonomyInfo?.keyword || '';
   const queryPrice = searchParams?.get('priceRange') || searchParams?.get('price') || taxonomyInfo?.priceRange || 'all';
   const queryMinPrice = taxonomyInfo?.minPrice ? Number(taxonomyInfo.minPrice) : (searchParams?.get('minPrice') ? Number(searchParams.get('minPrice')) : null);
@@ -31,7 +41,8 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
   const [filters, setFilters] = useState(() => ({
     keyword: queryKeyword,
     demand: 'rent', // Cố định chuyên trang Cho Thuê
-    propertyType: queryType,
+    propertyType: initPropertyType,
+    propertyTypes: initPropertyTypes,
     city: queryCity,
     district: queryDistrict,
     priceRange: queryPrice,
@@ -49,11 +60,14 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
   // Đồng bộ khi prop taxonomyInfo thực sự thay đổi từ SSR routing
   useEffect(() => {
     if (!taxonomyInfo) return;
+    const taxType = taxonomyInfo.propertyType || 'all';
+    const taxTypes = taxType && taxType !== 'all' ? [taxType] : ['all'];
     setFilters(prev => ({
       ...prev,
       city: taxonomyInfo.city || prev.city,
       district: taxonomyInfo.district || prev.district,
-      propertyType: taxonomyInfo.propertyType || prev.propertyType,
+      propertyType: taxType,
+      propertyTypes: taxTypes,
       priceRange: taxonomyInfo.priceRange || prev.priceRange,
       minPrice: taxonomyInfo.minPrice ? Number(taxonomyInfo.minPrice) : prev.minPrice,
       maxPrice: taxonomyInfo.maxPrice ? Number(taxonomyInfo.maxPrice) : prev.maxPrice,
