@@ -2,34 +2,45 @@ import HomePage from '../views/HomePage';
 
 const SITE_URL = 'https://kenhnhadat24h.com.vn';
 
-const schemaWebSite = {
+const homepageSchema = {
   '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  name: 'Kênh Nhà Đất 24H',
-  url: SITE_URL,
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: `${SITE_URL}/nha-dat-ban?q={search_term_string}`,
-    'query-input': 'required name=search_term_string',
-  },
-};
-
-const schemaOrganization = {
-  '@context': 'https://schema.org',
-  '@type': 'RealEstateAgent',
-  name: 'Kênh Nhà Đất 24H',
-  url: SITE_URL,
-  logo: `${SITE_URL}/logo.png`,
-  description: 'Cổng thông tin mua bán, cho thuê bất động sản toàn quốc: căn hộ chung cư, nhà phố, đất nền dự án, biệt thự nghỉ dưỡng.',
-  contactPoint: {
-    '@type': 'ContactPoint',
-    contactType: 'customer support',
-    availableLanguage: 'Vietnamese',
-  },
-  areaServed: {
-    '@type': 'Country',
-    name: 'Vietnam',
-  },
+  '@graph': [
+    {
+      '@type': 'WebSite',
+      '@id': 'https://kenhnhadat24h.com.vn',
+      url: 'https://kenhnhadat24h.com.vn',
+      name: 'Kênh Nhà Đất 24H',
+      description: 'Cổng thông tin mua bán và cho thuê bất động sản xác thực toàn quốc',
+      publisher: {
+        '@id': 'https://kenhnhadat24h.com.vn',
+      },
+      inLanguage: 'vi-VN',
+    },
+    {
+      '@type': 'RealEstateAgent',
+      '@id': 'https://kenhnhadat24h.com.vn',
+      name: 'Kênh Nhà Đất 24H',
+      url: 'https://kenhnhadat24h.com.vn',
+      logo: {
+        '@type': 'ImageObject',
+        '@id': 'https://kenhnhadat24h.com.vno',
+        url: 'https://kenhnhadat24h.com.vn',
+        caption: 'Kênh Nhà Đất 24H',
+      },
+      image: 'https://kenhnhadat24h.com.vn',
+      telephone: '+84905467138',
+      priceRange: '$$$',
+      address: {
+        '@type': 'PostalAddress',
+        addressLocality: 'Đà Nẵng',
+        addressCountry: 'VN',
+      },
+      areaServed: {
+        '@type': 'Country',
+        name: 'Vietnam',
+      },
+    },
+  ],
 };
 
 export async function generateMetadata() {
@@ -75,15 +86,10 @@ export async function generateMetadata() {
 export default function Page() {
   return (
     <>
-      {/* JSON-LD Schema Markup – WebSite + SearchAction */}
+      {/* JSON-LD Schema Markup – WebSite & RealEstateAgent (@graph) */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaWebSite) }}
-      />
-      {/* JSON-LD Schema Markup – RealEstateAgent / Organization */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrganization) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(homepageSchema) }}
       />
       <HomePage />
     </>
