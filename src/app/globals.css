@@ -103,8 +103,15 @@ button, input, select, textarea, optgroup, option, label {
    ========================================================================== */
 .property-title-sentence,
 .property-card-title {
-  display: block;
   text-transform: lowercase !important;
+}
+
+/* Force strict multi-line clamp utility */
+.line-clamp-3 {
+  display: -webkit-box !important;
+  -webkit-box-orient: vertical !important;
+  -webkit-line-clamp: 3 !important;
+  overflow: hidden !important;
 }
 
 .property-title-sentence::first-letter,
