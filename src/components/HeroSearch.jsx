@@ -155,6 +155,64 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Khóa cuộn background khi mở Bottom Sheet trên mobile (< 768px)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && openFilterMenu) {
+      if (window.innerWidth < 768) {
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+          document.body.style.overflow = originalOverflow;
+        };
+      }
+    }
+  }, [openFilterMenu]);
+
+  // Handlers áp dụng bộ lọc nhanh
+  const handleApplyPropertyType = (selectedIds) => {
+    const cleanIds = Array.isArray(selectedIds) ? selectedIds : [selectedIds].filter(Boolean);
+    const isAll = cleanIds.includes('all') || cleanIds.length === 0;
+    const houseChildren = ['house', 'villa', 'street-house', 'shophouse'];
+    const landChildren = ['project-land', 'land'];
+    const isFullHouse = houseChildren.every(id => cleanIds.includes(id)) && cleanIds.filter(id => !houseChildren.includes(id)).length === 0;
+    const isFullLand = landChildren.every(id => cleanIds.includes(id)) && cleanIds.filter(id => !landChildren.includes(id)).length === 0;
+
+    const primaryId = isAll
+      ? 'all'
+      : isFullHouse
+        ? (currentDemand === 'rent' ? 'house-rent-group' : 'house-group')
+        : isFullLand
+          ? 'land-group'
+          : (cleanIds.length === 1 ? cleanIds[0] : cleanIds.join(','));
+
+    setFilters(prev => ({
+      ...prev,
+      propertyType: primaryId,
+      propertyTypes: isAll ? ['all'] : cleanIds
+    }));
+    setOpenFilterMenu(null);
+  };
+
+  const handleApplyPrice = ({ minPrice, maxPrice, priceRange }) => {
+    setFilters(prev => ({
+      ...prev,
+      minPrice,
+      maxPrice,
+      priceRange
+    }));
+    setOpenFilterMenu(null);
+  };
+
+  const handleApplyArea = ({ minArea, maxArea, areaRange }) => {
+    setFilters(prev => ({
+      ...prev,
+      minArea,
+      maxArea,
+      areaRange
+    }));
+    setOpenFilterMenu(null);
+  };
+
   // Current Demand
   const currentDemand = filters?.demand === 'rent' ? 'rent' : 'sale';
 
@@ -657,68 +715,158 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                 </button>
 
                 {openFilterMenu === 'city' && (
-                  <div className="absolute top-full left-0 mt-1.5 w-64 bg-white rounded-xl shadow-xl border border-slate-200 z-50 p-2 animate-fadeIn max-h-72 overflow-y-auto">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setFilters(prev => ({ ...prev, city: '', district: '' }));
-                        setOpenFilterMenu(null);
-                      }}
-                      className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${
-                        !filters.city ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-700 hover:bg-slate-50'
-                      }`}
-                    >
-                      Trên toàn quốc
-                    </button>
-                    <div className="my-1 border-t border-slate-100"></div>
-                    {VIETNAM_ADMINISTRATIVE_DATA.map(c => (
-                      <div key={c.name}>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setFilters(prev => ({ ...prev, city: c.name, district: '' }));
-                          }}
-                          className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between ${
-                            filters.city === c.name ? 'bg-red-50 text-red-600' : 'text-slate-800 hover:bg-slate-50'
-                          }`}
-                        >
-                          <span>{c.name}</span>
-                          <span className="text-[10px] text-slate-400 font-normal">({c.districts?.length || 0} quận)</span>
-                        </button>
-                        {filters.city === c.name && activeCityDistricts.length > 0 && (
-                          <div className="pl-3 pr-1 py-1 space-y-0.5 border-l-2 border-red-200 ml-3 my-1 max-h-40 overflow-y-auto">
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setFilters(prev => ({ ...prev, district: '' }));
-                                setOpenFilterMenu(null);
-                              }}
-                              className={`w-full text-left px-2 py-1 rounded text-[11px] ${
-                                !filters.district ? 'font-bold text-red-600' : 'text-slate-600 hover:bg-slate-100'
-                              }`}
-                            >
-                              Tất cả {c.name}
-                            </button>
-                            {activeCityDistricts.map(d => (
+                  <>
+                    {/* Desktop popover */}
+                    <div className="hidden md:block absolute top-full left-0 mt-1.5 w-64 bg-white rounded-xl shadow-xl border border-slate-200 z-50 p-2 animate-fadeIn max-h-72 overflow-y-auto">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFilters(prev => ({ ...prev, city: '', district: '' }));
+                          setOpenFilterMenu(null);
+                        }}
+                        className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${
+                          !filters.city ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-700 hover:bg-slate-50'
+                        }`}
+                      >
+                        Trên toàn quốc
+                      </button>
+                      <div className="my-1 border-t border-slate-100"></div>
+                      {VIETNAM_ADMINISTRATIVE_DATA.map(c => (
+                        <div key={c.name}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFilters(prev => ({ ...prev, city: c.name, district: '' }));
+                            }}
+                            className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-bold flex items-center justify-between ${
+                              filters.city === c.name ? 'bg-red-50 text-red-600' : 'text-slate-800 hover:bg-slate-50'
+                            }`}
+                          >
+                            <span>{c.name}</span>
+                            <span className="text-[10px] text-slate-400 font-normal">({c.districts?.length || 0} quận)</span>
+                          </button>
+                          {filters.city === c.name && activeCityDistricts.length > 0 && (
+                            <div className="pl-3 pr-1 py-1 space-y-0.5 border-l-2 border-red-200 ml-3 my-1 max-h-40 overflow-y-auto">
                               <button
-                                key={d.name}
                                 type="button"
                                 onClick={() => {
-                                  setFilters(prev => ({ ...prev, district: d.name }));
+                                  setFilters(prev => ({ ...prev, district: '' }));
                                   setOpenFilterMenu(null);
                                 }}
                                 className={`w-full text-left px-2 py-1 rounded text-[11px] ${
-                                  filters.district === d.name ? 'font-bold text-red-600 bg-red-50' : 'text-slate-600 hover:bg-slate-100'
+                                  !filters.district ? 'font-bold text-red-600' : 'text-slate-600 hover:bg-slate-100'
                                 }`}
                               >
-                                {d.name}
+                                Tất cả {c.name}
                               </button>
+                              {activeCityDistricts.map(d => (
+                                <button
+                                  key={d.name}
+                                  type="button"
+                                  onClick={() => {
+                                    setFilters(prev => ({ ...prev, district: d.name }));
+                                    setOpenFilterMenu(null);
+                                  }}
+                                  className={`w-full text-left px-2 py-1 rounded text-[11px] ${
+                                    filters.district === d.name ? 'font-bold text-red-600 bg-red-50' : 'text-slate-600 hover:bg-slate-100'
+                                  }`}
+                                >
+                                  {d.name}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Mobile Bottom Sheet Drawer */}
+                    <div className="md:hidden fixed inset-0 z-[100] flex items-end justify-center bg-slate-950/60 backdrop-blur-xs p-0 animate-fadeIn">
+                      <div className="fixed inset-0" onClick={() => setOpenFilterMenu(null)} />
+                      <div
+                        className="relative w-full max-w-lg bg-white rounded-t-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden z-10"
+                        onClick={e => e.stopPropagation()}
+                      >
+                        <div className="px-4 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0">
+                          <h4 className="text-sm sm:text-base font-bold text-slate-900 w-full text-center pl-6">
+                            Khu vực & Tỉnh thành
+                          </h4>
+                          <button
+                            type="button"
+                            onClick={() => setOpenFilterMenu(null)}
+                            className="w-7 h-7 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition cursor-pointer shrink-0"
+                            title="Đóng"
+                          >
+                            <i className="fa-solid fa-xmark text-sm"></i>
+                          </button>
+                        </div>
+                        <div className="p-3 overflow-y-auto flex-1 divide-y divide-slate-100">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFilters(prev => ({ ...prev, city: '', district: '' }));
+                              setOpenFilterMenu(null);
+                            }}
+                            className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-between ${
+                              !filters.city ? 'bg-red-50 text-red-600 font-bold' : 'text-slate-700 hover:bg-slate-50'
+                            }`}
+                          >
+                            <span>Trên toàn quốc</span>
+                            {!filters.city && <i className="fa-solid fa-check text-xs text-red-600"></i>}
+                          </button>
+                          <div className="pt-2">
+                            {VIETNAM_ADMINISTRATIVE_DATA.map(c => (
+                              <div key={c.name} className="py-1">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setFilters(prev => ({ ...prev, city: c.name, district: '' }));
+                                  }}
+                                  className={`w-full text-left px-3 py-2 rounded-xl text-sm font-bold flex items-center justify-between ${
+                                    filters.city === c.name ? 'bg-red-50 text-red-600' : 'text-slate-800 hover:bg-slate-50'
+                                  }`}
+                                >
+                                  <span>{c.name}</span>
+                                  <span className="text-xs text-slate-400 font-normal">({c.districts?.length || 0} quận/huyện)</span>
+                                </button>
+                                {filters.city === c.name && activeCityDistricts.length > 0 && (
+                                  <div className="pl-3 pr-1 py-1 space-y-1 border-l-2 border-red-200 ml-3 my-1.5 max-h-52 overflow-y-auto">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setFilters(prev => ({ ...prev, district: '' }));
+                                        setOpenFilterMenu(null);
+                                      }}
+                                      className={`w-full text-left px-3 py-2 rounded-lg text-xs ${
+                                        !filters.district ? 'font-bold text-red-600 bg-red-50' : 'text-slate-600 hover:bg-slate-100'
+                                      }`}
+                                    >
+                                      Tất cả {c.name}
+                                    </button>
+                                    {activeCityDistricts.map(d => (
+                                      <button
+                                        key={d.name}
+                                        type="button"
+                                        onClick={() => {
+                                          setFilters(prev => ({ ...prev, district: d.name }));
+                                          setOpenFilterMenu(null);
+                                        }}
+                                        className={`w-full text-left px-3 py-2 rounded-lg text-xs ${
+                                          filters.district === d.name ? 'font-bold text-red-600 bg-red-50' : 'text-slate-600 hover:bg-slate-100'
+                                        }`}
+                                      >
+                                        {d.name}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
                             ))}
                           </div>
-                        )}
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  </>
                 )}
               </div>
 
@@ -739,36 +887,34 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                 </button>
 
                 {openFilterMenu === 'type' && (
-                  <div className="absolute top-full left-0 mt-1.5 z-50 animate-fadeIn">
-                    <PropertyTypeSelector
-                      value={filters.propertyTypes || filters.propertyType}
-                      demand={currentDemand}
-                      onApply={(selectedIds) => {
-                        const cleanIds = Array.isArray(selectedIds) ? selectedIds : [selectedIds].filter(Boolean);
-                        const isAll = cleanIds.includes('all') || cleanIds.length === 0;
-                        const houseChildren = ['house', 'villa', 'street-house', 'shophouse'];
-                        const landChildren = ['project-land', 'land'];
-                        const isFullHouse = houseChildren.every(id => cleanIds.includes(id)) && cleanIds.filter(id => !houseChildren.includes(id)).length === 0;
-                        const isFullLand = landChildren.every(id => cleanIds.includes(id)) && cleanIds.filter(id => !landChildren.includes(id)).length === 0;
+                  <>
+                    {/* Desktop popover */}
+                    <div className="hidden md:block absolute top-full left-0 mt-1.5 z-50 animate-fadeIn">
+                      <PropertyTypeSelector
+                        value={filters.propertyTypes || filters.propertyType}
+                        demand={currentDemand}
+                        onApply={handleApplyPropertyType}
+                        onClose={() => setOpenFilterMenu(null)}
+                      />
+                    </div>
 
-                        const primaryId = isAll
-                          ? 'all'
-                          : isFullHouse
-                            ? (currentDemand === 'rent' ? 'house-rent-group' : 'house-group')
-                            : isFullLand
-                              ? 'land-group'
-                              : (cleanIds.length === 1 ? cleanIds[0] : cleanIds.join(','));
-
-                        setFilters(prev => ({
-                          ...prev,
-                          propertyType: primaryId,
-                          propertyTypes: isAll ? ['all'] : cleanIds
-                        }));
-                        setOpenFilterMenu(null);
-                      }}
-                      onClose={() => setOpenFilterMenu(null)}
-                    />
-                  </div>
+                    {/* Mobile Bottom Sheet Drawer */}
+                    <div className="md:hidden fixed inset-0 z-[100] flex items-end justify-center bg-slate-950/60 backdrop-blur-xs p-0 animate-fadeIn">
+                      <div className="fixed inset-0" onClick={() => setOpenFilterMenu(null)} />
+                      <div
+                        className="relative w-full max-w-lg bg-white rounded-t-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden z-10"
+                        onClick={e => e.stopPropagation()}
+                      >
+                        <PropertyTypeSelector
+                          isModal={true}
+                          value={filters.propertyTypes || filters.propertyType}
+                          demand={currentDemand}
+                          onApply={handleApplyPropertyType}
+                          onClose={() => setOpenFilterMenu(null)}
+                        />
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
 
@@ -789,24 +935,38 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                 </button>
 
                 {openFilterMenu === 'price' && (
-                  <div className="absolute top-full left-0 mt-1.5 z-50 animate-fadeIn">
-                    <PriceRangeSelector
-                      demand={currentDemand}
-                      minPrice={filters.minPrice}
-                      maxPrice={filters.maxPrice}
-                      priceRange={filters.priceRange}
-                      onApply={({ minPrice, maxPrice, priceRange }) => {
-                        setFilters(prev => ({
-                          ...prev,
-                          minPrice,
-                          maxPrice,
-                          priceRange
-                        }));
-                        setOpenFilterMenu(null);
-                      }}
-                      onClose={() => setOpenFilterMenu(null)}
-                    />
-                  </div>
+                  <>
+                    {/* Desktop popover */}
+                    <div className="hidden md:block absolute top-full left-0 sm:left-auto sm:right-0 md:left-0 mt-1.5 z-50 animate-fadeIn">
+                      <PriceRangeSelector
+                        demand={currentDemand}
+                        minPrice={filters.minPrice}
+                        maxPrice={filters.maxPrice}
+                        priceRange={filters.priceRange}
+                        onApply={handleApplyPrice}
+                        onClose={() => setOpenFilterMenu(null)}
+                      />
+                    </div>
+
+                    {/* Mobile Bottom Sheet Drawer */}
+                    <div className="md:hidden fixed inset-0 z-[100] flex items-end justify-center bg-slate-950/60 backdrop-blur-xs p-0 animate-fadeIn">
+                      <div className="fixed inset-0" onClick={() => setOpenFilterMenu(null)} />
+                      <div
+                        className="relative w-full max-w-lg bg-white rounded-t-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden z-10"
+                        onClick={e => e.stopPropagation()}
+                      >
+                        <PriceRangeSelector
+                          isModal={true}
+                          demand={currentDemand}
+                          minPrice={filters.minPrice}
+                          maxPrice={filters.maxPrice}
+                          priceRange={filters.priceRange}
+                          onApply={handleApplyPrice}
+                          onClose={() => setOpenFilterMenu(null)}
+                        />
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
 
@@ -827,23 +987,36 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                 </button>
 
                 {openFilterMenu === 'area' && (
-                  <div className="absolute top-full left-0 mt-1.5 z-50 animate-fadeIn">
-                    <AreaRangeSelector
-                      minArea={filters.minArea}
-                      maxArea={filters.maxArea}
-                      areaRange={filters.areaRange}
-                      onApply={({ minArea, maxArea, areaRange }) => {
-                        setFilters(prev => ({
-                          ...prev,
-                          minArea,
-                          maxArea,
-                          areaRange
-                        }));
-                        setOpenFilterMenu(null);
-                      }}
-                      onClose={() => setOpenFilterMenu(null)}
-                    />
-                  </div>
+                  <>
+                    {/* Desktop popover: right-0 để không bị tràn viền phải container */}
+                    <div className="hidden md:block absolute top-full right-0 mt-1.5 z-50 animate-fadeIn">
+                      <AreaRangeSelector
+                        minArea={filters.minArea}
+                        maxArea={filters.maxArea}
+                        areaRange={filters.areaRange}
+                        onApply={handleApplyArea}
+                        onClose={() => setOpenFilterMenu(null)}
+                      />
+                    </div>
+
+                    {/* Mobile Bottom Sheet Drawer */}
+                    <div className="md:hidden fixed inset-0 z-[100] flex items-end justify-center bg-slate-950/60 backdrop-blur-xs p-0 animate-fadeIn">
+                      <div className="fixed inset-0" onClick={() => setOpenFilterMenu(null)} />
+                      <div
+                        className="relative w-full max-w-lg bg-white rounded-t-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden z-10"
+                        onClick={e => e.stopPropagation()}
+                      >
+                        <AreaRangeSelector
+                          isModal={true}
+                          minArea={filters.minArea}
+                          maxArea={filters.maxArea}
+                          areaRange={filters.areaRange}
+                          onApply={handleApplyArea}
+                          onClose={() => setOpenFilterMenu(null)}
+                        />
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
 
