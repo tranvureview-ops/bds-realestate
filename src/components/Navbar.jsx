@@ -314,12 +314,6 @@ export default function Navbar() {
                 className="flex items-center gap-2 overflow-hidden hover:opacity-95 transition cursor-pointer group"
                 title="Bấm để vào tham gia Dự đoán giá BĐS ngay"
               >
-                <div className="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-indigo-600 text-white font-extrabold text-[10px] shrink-0 uppercase tracking-wider shadow-xs border border-indigo-400/30 group-hover:bg-indigo-500 transition">
-                  <i className="fa-solid fa-bolt-lightning text-amber-300 animate-bounce text-[9px]"></i>
-                  <span className="hidden sm:inline">LIVE TICKER</span>
-                  <span className="sm:hidden">LIVE</span>
-                </div>
-
                 <div 
                   ref={tickerContainerRef}
                   className="overflow-x-auto no-scrollbar scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] whitespace-nowrap flex items-center gap-4 text-[11px] text-slate-300 py-0.5 w-full"
