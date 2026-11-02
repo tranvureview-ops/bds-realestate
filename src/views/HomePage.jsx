@@ -59,7 +59,7 @@ export default function HomePage() {
 
       {/* VIP Package Showcase Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-8 !mt-1">
-        <VipPackageShowcase className="pt-2 pb-6 bg-transparent" />
+        <VipPackageShowcase className="pt-2 pb-2 bg-transparent" />
       </div>
 
       {/* SEO On-page Content Section (H2/H3 Heading Tree + Internal Links) */}

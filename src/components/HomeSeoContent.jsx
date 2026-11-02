@@ -10,7 +10,7 @@ import { Link } from '../router/RouterContext';
  */
 export default function HomeSeoContent() {
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-8 py-10 sm:py-14 border-t border-slate-100">
+    <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-4 pb-10 sm:pb-14 border-t border-slate-100">
       <div className="prose prose-slate max-w-none">
 
         {/* =====================================================================
