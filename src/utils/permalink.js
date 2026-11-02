@@ -18,6 +18,8 @@
  */
 
 // Hàm loại bỏ dấu tiếng Việt chuẩn SEO
+import { formatCIdsParam, parseCIdsParam } from '../data/propertyTypeTaxonomy';
+
 export const toVietnameseSlug = (str) => {
   if (!str) return '';
   let slug = str.toLowerCase();
@@ -424,7 +426,11 @@ export const buildSeoUrl = ({
     normalizedType = typeList[0];
     multiTypeParam = null;
   } else if (typeList.length > 1) {
-    multiTypeParam = typeList.join(',');
+    // Chuẩn Batdongsan.com.vn:
+    // Lấy loại hình đầu tiên làm đường dẫn trang chính (ví dụ /ban-can-ho-chung-cu-mini)
+    // Các danh mục kết hợp được gộp vào tham số query ?loai=can-ho,nha-rieng
+    normalizedType = typeList[0];
+    multiTypeParam = formatCIdsParam(typeList, demand);
   }
 
   let basePath = '';
@@ -434,9 +440,10 @@ export const buildSeoUrl = ({
       : group.types[normalizedType].slug;
   } else {
     basePath = group.base;
-    if (multiTypeParam) {
-      extraParams = { ...extraParams, type: multiTypeParam };
-    }
+  }
+
+  if (multiTypeParam) {
+    extraParams = { ...extraParams, loai: multiTypeParam };
   }
 
   // 2. Dự án (Ưu tiên cao nhất)
@@ -737,10 +744,8 @@ export const parseTaxonomyUrl = (urlPath) => {
           (typeKey === 'shophouse' && clean === '/ban-shophouse-nha-pho-thuong-mai' && demand === 'sale') ||
           (typeKey === 'shophouse' && clean === '/cho-thue-shophouse' && demand === 'rent') ||
           (typeKey === 'shophouse' && clean === '/cho-thue-shophouse-nha-pho-thuong-mai' && demand === 'rent') ||
-          (typeKey === 'mini-apartment' && clean === '/ban-chung-cu-mini' && demand === 'sale') ||
-          (typeKey === 'mini-apartment' && clean === '/ban-chung-cu-mini-can-ho-dich-vu' && demand === 'sale') ||
-          (typeKey === 'mini-apartment' && clean === '/cho-thue-chung-cu-mini' && demand === 'rent') ||
-          (typeKey === 'mini-apartment' && clean === '/cho-thue-chung-cu-mini-can-ho-dich-vu' && demand === 'rent') ||
+          (typeKey === 'mini-apartment' && (clean === '/ban-chung-cu-mini' || clean === '/ban-can-ho-chung-cu-mini' || clean === '/ban-chung-cu-mini-can-ho-dich-vu') && demand === 'sale') ||
+          (typeKey === 'mini-apartment' && (clean === '/cho-thue-chung-cu-mini' || clean === '/cho-thue-can-ho-chung-cu-mini' || clean === '/cho-thue-chung-cu-mini-can-ho-dich-vu') && demand === 'rent') ||
           (typeKey === 'warehouse' && clean === '/cho-thue-kho-nha-xuong-dat' && demand === 'rent')) {
         return buildResult({
           isTaxonomy: true,

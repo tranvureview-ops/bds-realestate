@@ -99,9 +99,17 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
 
     try {
       if (typeof window === 'undefined') return;
+      // Xử lý đa danh mục: propertyTypes (mảng) ưu tiên hơn propertyType (đơn)
+      // type đầu tiên → slug chính, các type còn lại → ?loai=apartment,mini-apartment
+      const multiTypes = filters.propertyTypes && Array.isArray(filters.propertyTypes) && filters.propertyTypes.length > 0 && !filters.propertyTypes.includes('all')
+        ? filters.propertyTypes
+        : null;
+      const singleType = filters.propertyType && filters.propertyType !== 'all' ? filters.propertyType : null;
+
       const targetUrl = buildSeoUrl({
         demand: 'rent',
-        propertyType: filters.propertyType && filters.propertyType !== 'all' ? filters.propertyType : null,
+        propertyType: multiTypes ? null : singleType,
+        propertyTypes: multiTypes,
         city: filters.city || null,
         district: filters.district || null,
         ward: filters.ward || null,

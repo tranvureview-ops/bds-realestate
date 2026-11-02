@@ -252,6 +252,121 @@ export function getFlatPropertyTypes(demand = 'sale') {
 }
 
 /**
+ * Bảng ánh xạ Category ID (cId) chuẩn Batdongsan.com.vn
+ * Ví dụ: https://batdongsan.com.vn/ban-can-ho-chung-cu-mini?cIds=362,324
+ */
+export const BATDONGSAN_CID_MAP = {
+  // Bán (Sale)
+  'apartment': 324,
+  'mini-apartment': 362,
+  'house': 41,
+  'villa': 325,
+  'street-house': 163,
+  'shophouse': 361,
+  'project-land': 40,
+  'land': 283,
+  'farm-resort': 44,
+  'condotel': 360,
+  'warehouse': 45,
+  'other': 38,
+  'office': 49,
+  'commercial-space': 42,
+  'room': 48,
+  
+  // Thuê (Rent)
+  'rent-apartment': 326,
+  'rent-mini-apartment': 577,
+  'rent-house': 43,
+  'rent-villa': 327,
+  'rent-street-house': 164,
+  'rent-shophouse': 363,
+  'rent-room': 48,
+  'rent-office': 50,
+  'rent-commercial-space': 52,
+  'rent-warehouse': 47
+};
+
+export const BATDONGSAN_ID_TO_TYPE_MAP = {
+  // Bán & Chung
+  324: 'apartment',
+  362: 'mini-apartment',
+  41: 'house',
+  325: 'villa',
+  163: 'street-house',
+  361: 'shophouse',
+  40: 'project-land',
+  283: 'land',
+  44: 'farm-resort',
+  360: 'condotel',
+  45: 'warehouse',
+  38: 'other',
+  49: 'office',
+  42: 'commercial-space',
+  
+  // Thuê
+  326: 'apartment',
+  577: 'mini-apartment',
+  43: 'house',
+  327: 'villa',
+  164: 'street-house',
+  363: 'shophouse',
+  48: 'room',
+  50: 'office',
+  52: 'commercial-space',
+  47: 'warehouse'
+};
+
+/**
+ * Chuyển chuỗi query ?loai= (ví dụ "apartment,mini-apartment" hoặc "362,324") thành danh sách type ID nội bộ
+ */
+export function parseCIdsParam(loaiStr, demand = 'sale') {
+  if (!loaiStr) return [];
+  const parts = String(loaiStr).split(',').map(s => s.trim()).filter(Boolean);
+  const types = [];
+  parts.forEach(part => {
+    if (/^\d+$/.test(part)) {
+      // Hỗ trợ backward compat với số ID cũ
+      const numId = parseInt(part, 10);
+      if (BATDONGSAN_ID_TO_TYPE_MAP[numId]) {
+        types.push(BATDONGSAN_ID_TO_TYPE_MAP[numId]);
+      }
+    } else {
+      // Slug type trực tiếp: 'apartment', 'mini-apartment', ...
+      types.push(part);
+    }
+  });
+  return Array.from(new Set(types));
+}
+
+/**
+ * Chuyển danh sách loại hình thành chuỗi slug cho param ?loai=
+ * Ví dụ: ['mini-apartment', 'apartment'] => "mini-apartment,apartment"
+ * Nhóm cha (house-group, land-group) được tự động mở rộng thành các type con
+ */
+export function formatCIdsParam(typeList, demand = 'sale') {
+  if (!typeList || typeList.length === 0) return '';
+  const cleanList = Array.isArray(typeList) ? typeList : String(typeList).split(',');
+  const slugs = [];
+  cleanList.forEach(t => {
+    if (!t || t === 'all') return;
+    if (t === 'house-group') {
+      slugs.push('house', 'villa', 'street-house', 'shophouse');
+      return;
+    }
+    if (t === 'house-rent-group') {
+      slugs.push('house', 'villa', 'street-house', 'shophouse');
+      return;
+    }
+    if (t === 'land-group') {
+      slugs.push('project-land', 'land');
+      return;
+    }
+    slugs.push(t);
+  });
+  return Array.from(new Set(slugs)).join(',');
+}
+
+/**
  * Mở rộng danh sách IDs: Nếu chứa ID nhóm (ví dụ: 'house-group'), tự động chuyển thành các ID con
  */
 export function expandPropertyTypeIds(ids = []) {
@@ -267,7 +382,8 @@ export function expandPropertyTypeIds(ids = []) {
   const HOUSE_CHILDREN = ['house', 'villa', 'street-house', 'shophouse'];
   const LAND_CHILDREN = ['project-land', 'land'];
 
-  ids.forEach(id => {
+  ids.forEach(rawId => {
+    const id = /^\d+$/.test(String(rawId)) ? (BATDONGSAN_ID_TO_TYPE_MAP[parseInt(rawId, 10)] || rawId) : rawId;
     if (id === 'house-group' || id === 'house-rent-group') {
       HOUSE_CHILDREN.forEach(c => expanded.add(c));
     } else if (id === 'land-group') {

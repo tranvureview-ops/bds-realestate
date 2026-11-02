@@ -44,8 +44,9 @@ export function buildTaxonomyMetadata(taxonomyInfo) {
   };
 }
 
-export async function generateMetadata({ params }) {
+export async function generateMetadata({ params, searchParams }) {
   const { slug } = (await params) || {};
+  const sp = (await searchParams) || {};
   const currentPath = `/${slug || ''}`;
 
   const parsedPropertyUrl = parsePropertyUrl(currentPath);
@@ -57,7 +58,14 @@ export async function generateMetadata({ params }) {
   }
 
   const taxonomyInfo = parseTaxonomyUrl(currentPath);
-  if (taxonomyInfo.isTaxonomy) return buildTaxonomyMetadata(taxonomyInfo);
+  if (taxonomyInfo.isTaxonomy) {
+    const meta = buildTaxonomyMetadata(taxonomyInfo);
+    if (sp.loai) {
+      // For multi-category pages, prevent indexing and ensure canonical without query
+      meta.robots = { index: false, follow: false };
+    }
+    return meta;
+  }
 
   return { title: 'Không tìm thấy trang', robots: { index: false, follow: false } };
 }
