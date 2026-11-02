@@ -2,47 +2,6 @@ import HomePage from '../views/HomePage';
 
 const SITE_URL = 'https://kenhnhadat24h.com.vn';
 
-const homepageSchema = {
-  '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'WebSite',
-      '@id': 'https://kenhnhadat24h.com.vn',
-      url: 'https://kenhnhadat24h.com.vn',
-      name: 'Kênh Nhà Đất 24H',
-      description: 'Cổng thông tin mua bán và cho thuê bất động sản xác thực toàn quốc',
-      publisher: {
-        '@id': 'https://kenhnhadat24h.com.vn',
-      },
-      inLanguage: 'vi-VN',
-    },
-    {
-      '@type': 'RealEstateAgent',
-      '@id': 'https://kenhnhadat24h.com.vn',
-      name: 'Kênh Nhà Đất 24H',
-      url: 'https://kenhnhadat24h.com.vn',
-      logo: {
-        '@type': 'ImageObject',
-        '@id': 'https://kenhnhadat24h.com.vno',
-        url: 'https://kenhnhadat24h.com.vn',
-        caption: 'Kênh Nhà Đất 24H',
-      },
-      image: 'https://kenhnhadat24h.com.vn',
-      telephone: '+84905467138',
-      priceRange: 'VNĐ',
-      address: {
-        '@type': 'PostalAddress',
-        addressLocality: 'Đà Nẵng',
-        addressCountry: 'VN',
-      },
-      areaServed: {
-        '@type': 'Country',
-        name: 'Vietnam',
-      },
-    },
-  ],
-};
-
 export async function generateMetadata() {
   const ogImageUrl = `${SITE_URL}/hero.png`;
   const ogTitle = 'Kênh Nhà Đất 24H - Mua Bán Nhà Đất, Cho Thuê Bất Động Sản Toàn Quốc';
@@ -84,14 +43,5 @@ export async function generateMetadata() {
 }
 
 export default function Page() {
-  return (
-    <>
-      {/* JSON-LD Schema Markup – WebSite & RealEstateAgent (@graph) */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(homepageSchema) }}
-      />
-      <HomePage />
-    </>
-  );
+  return <HomePage />;
 }

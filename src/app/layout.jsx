@@ -374,6 +374,52 @@ export default async function RootLayout({ children }) {
             `
           }}
         />
+        {/* Structured Data JSON-LD Schema (WebSite & RealEstateAgent) */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@graph': [
+                {
+                  '@type': 'WebSite',
+                  '@id': 'https://kenhnhadat24h.com.vn',
+                  url: 'https://kenhnhadat24h.com.vn',
+                  name: 'Kênh Nhà Đất 24H',
+                  description: 'Cổng thông tin mua bán và cho thuê bất động sản xác thực toàn quốc',
+                  publisher: {
+                    '@id': 'https://kenhnhadat24h.com.vn',
+                  },
+                  inLanguage: 'vi-VN',
+                },
+                {
+                  '@type': 'RealEstateAgent',
+                  '@id': 'https://kenhnhadat24h.com.vn',
+                  name: 'Kênh Nhà Đất 24H',
+                  url: 'https://kenhnhadat24h.com.vn',
+                  logo: {
+                    '@type': 'ImageObject',
+                    '@id': 'https://kenhnhadat24h.com.vno',
+                    url: 'https://kenhnhadat24h.com.vn',
+                    caption: 'Kênh Nhà Đất 24H',
+                  },
+                  image: 'https://kenhnhadat24h.com.vn',
+                  telephone: '+84905467138',
+                  priceRange: 'VNĐ',
+                  address: {
+                    '@type': 'PostalAddress',
+                    addressLocality: 'Đà Nẵng',
+                    addressCountry: 'VN',
+                  },
+                  areaServed: {
+                    '@type': 'Country',
+                    name: 'Vietnam',
+                  },
+                },
+              ],
+            }),
+          }}
+        />
         {/* Preload critical Font Awesome Solid Webfont locally with font-display: swap */}
         <link
           rel="preload"
