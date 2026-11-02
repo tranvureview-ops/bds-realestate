@@ -478,7 +478,7 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
         {/* Slogan */}
         <div className="text-center mb-4 sm:mb-5 text-white">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight drop-shadow-md leading-tight">
-            Kênh Nhà Đất 24H: <span className="text-[#ff6b6b] inline">Mua Bán & Cho Thuê Bất Động Sản Toàn Quốc</span>
+            Kênh Nhà Đất 24H - <span className="text-[#ff6b6b] inline">Mua Bán & Cho Thuê Bất Động Sản Toàn Quốc</span>
           </h1>
           <p className="mt-1.5 text-xs sm:text-sm text-slate-300 max-w-xl mx-auto font-medium">
             Dữ liệu nguồn cung xác thực, sổ hồng riêng và định giá minh bạch 24/7
