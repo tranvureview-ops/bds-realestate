@@ -1,6 +1,6 @@
 import { permanentRedirect } from 'next/navigation';
 import RentListingsPage from '../../views/RentListingsPage';
-import { generateCategoryMetadata, getCanonicalUrl, buildSeoUrl } from '../../utils/permalink';
+import { generateCategoryMetadata, getCanonicalUrl, buildSeoUrl, parseTaxonomyUrl } from '../../utils/permalink';
 
 export async function generateMetadata() {
   const { title, description } = generateCategoryMetadata({ demand: 'rent' }, 2026, 1);
@@ -49,5 +49,6 @@ export default async function Page({ searchParams }) {
     }
   }
 
-  return <RentListingsPage initialPage={1} serverSearchParams={sp} />;
+  const taxonomyInfo = parseTaxonomyUrl('/nha-dat-cho-thue');
+  return <RentListingsPage taxonomyInfo={taxonomyInfo} initialPage={1} serverSearchParams={sp} />;
 }

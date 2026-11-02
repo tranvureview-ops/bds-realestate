@@ -74,22 +74,43 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
         : (hasMulti ? prev.propertyTypes : (taxType !== 'all' ? [taxType] : ['all']));
       const nextType = nextTypes.includes('all') ? 'all' : nextTypes[0];
 
+      const nextCity = taxonomyInfo.city || prev.city;
+      const nextDistrict = taxonomyInfo.district || prev.district;
+      const nextPriceRange = taxonomyInfo.priceRange || prev.priceRange;
+      const nextAreaRange = taxonomyInfo.areaRange || prev.areaRange;
+      const nextBedroom = taxonomyInfo.bedroom || prev.bedroom;
+
+      const typesEqual = prev.propertyTypes?.length === nextTypes.length &&
+        prev.propertyTypes.every((t, i) => t === nextTypes[i]);
+
+      if (
+        prev.propertyType === nextType &&
+        typesEqual &&
+        prev.city === nextCity &&
+        prev.district === nextDistrict &&
+        prev.priceRange === nextPriceRange &&
+        prev.areaRange === nextAreaRange &&
+        prev.bedroom === nextBedroom
+      ) {
+        return prev;
+      }
+
       return {
         ...prev,
-        city: taxonomyInfo.city || prev.city,
-        district: taxonomyInfo.district || prev.district,
+        city: nextCity,
+        district: nextDistrict,
         propertyType: nextType,
         propertyTypes: nextTypes,
-        priceRange: taxonomyInfo.priceRange || prev.priceRange,
+        priceRange: nextPriceRange,
         minPrice: taxonomyInfo.minPrice ? Number(taxonomyInfo.minPrice) : prev.minPrice,
         maxPrice: taxonomyInfo.maxPrice ? Number(taxonomyInfo.maxPrice) : prev.maxPrice,
-        areaRange: taxonomyInfo.areaRange || prev.areaRange,
+        areaRange: nextAreaRange,
         minArea: taxonomyInfo.minArea ? Number(taxonomyInfo.minArea) : prev.minArea,
         maxArea: taxonomyInfo.maxArea ? Number(taxonomyInfo.maxArea) : prev.maxArea,
-        bedroom: taxonomyInfo.bedroom || prev.bedroom,
+        bedroom: nextBedroom,
       };
     });
-  }, [taxonomyInfo, serverSearchParams, searchParams]);
+  }, [taxonomyInfo?.canonicalUrl, taxonomyInfo?.propertyType, serverSearchParams?.loai]);
 
   // Lắng nghe popstate khi người dùng nhấn Back / Forward trên trình duyệt
   useEffect(() => {
@@ -171,17 +192,7 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
         // Normalize: bỏ trailing slash, decode %2C → , để so sánh nhất quán
         const normalize = (u) => decodeURIComponent(u).replace(/\/+(\?|$)/, '$1');
         if (normalize(currentUrl) !== normalize(targetUrl)) {
-          const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
-          const targetPath = targetUrl.split('?')[0].replace(/\/+$/, '') || '/';
-
-          if (currentPath !== targetPath) {
-            // Pathname thay đổi (ví dụ từ /nha-dat-cho-thue sang /cho-thue-can-ho-chung-cu)
-            // Cần navigate sang trang mới để Next.js render đúng layout & taxonomy
-            navigate(targetUrl);
-          } else {
-            // Cùng pathname (chỉ thay đổi query ?loai=...) -> pushState mượt mà tại chỗ
-            window.history.pushState(null, '', targetUrl);
-          }
+          window.history.pushState(null, '', targetUrl);
         }
       }
     } catch {
