@@ -691,11 +691,15 @@ export default function ListingFilterBar({
                           ? 'land-group'
                           : (cleanIds.length === 1 ? cleanIds[0] : cleanIds.join(','));
 
+                    const updatedTypes = isFullHouse
+                      ? [effectiveDemand === 'rent' ? 'house-rent-group' : 'house-group']
+                      : (isFullLand ? ['land-group'] : (isAll ? ['all'] : cleanIds));
+
                     if (setFilters) {
                       setFilters(prev => ({
                         ...prev,
                         propertyType: primaryId,
-                        propertyTypes: isAll ? ['all'] : cleanIds
+                        propertyTypes: updatedTypes
                       }));
                     }
                     setOpenDropdown(null);

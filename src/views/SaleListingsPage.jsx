@@ -10,33 +10,36 @@ import { generateCategoryJsonLd, generateCategoryMetadata, parseTaxonomyUrl, bui
 import { filterProperties } from '../utils/propertyFilter';
 import { parseCIdsParam } from '../data/propertyTypeTaxonomy';
 
-export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 }) {
+export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1, serverSearchParams = null }) {
   const { properties } = useRealEstate();
   const searchParams = useSearchParams();
   const { navigate } = useRouter();
 
   // Đọc các giá trị bộ lọc đa diện (Faceted Taxonomy parameters) từ URL hoặc Clean Slug taxonomyInfo
-  const queryDistrict = searchParams?.get('district') || taxonomyInfo?.district || '';
-  const queryCity = searchParams?.get('city') || taxonomyInfo?.city || '';
-  const queryType = searchParams?.get('propertyType') || taxonomyInfo?.propertyType || 'all';
+  const queryDistrict = serverSearchParams?.district || searchParams?.get('district') || taxonomyInfo?.district || '';
+  const queryCity = serverSearchParams?.city || searchParams?.get('city') || taxonomyInfo?.city || '';
+  const queryType = serverSearchParams?.propertyType || searchParams?.get('propertyType') || taxonomyInfo?.propertyType || 'all';
 
   // Đọc ?loai= (đa danh mục): ví dụ ?loai=apartment,mini-apartment
-  const queryLoai = searchParams?.get('loai') || '';
+  const clientUrlLoai = typeof window !== 'undefined'
+    ? new URLSearchParams(window.location.search).get('loai')
+    : null;
+  const queryLoai = serverSearchParams?.loai || searchParams?.get('loai') || clientUrlLoai || '';
   const queryLoaiTypes = queryLoai ? parseCIdsParam(queryLoai, 'sale') : null;
   // Nếu có ?loai= → dùng mảng đó; ngược lại dùng queryType đơn
   const initPropertyTypes = queryLoaiTypes && queryLoaiTypes.length > 0
     ? queryLoaiTypes
     : (queryType && queryType !== 'all' ? [queryType] : ['all']);
   const initPropertyType = initPropertyTypes.includes('all') ? 'all' : initPropertyTypes[0];
-  const queryKeyword = searchParams?.get('keyword') || searchParams?.get('q') || taxonomyInfo?.project || taxonomyInfo?.street || (taxonomyInfo?.ward ? taxonomyInfo.ward.replace('Phường ', '') : '') || taxonomyInfo?.keyword || '';
-  const queryPrice = searchParams?.get('priceRange') || searchParams?.get('price') || taxonomyInfo?.priceRange || 'all';
-  const queryMinPrice = taxonomyInfo?.minPrice ? Number(taxonomyInfo.minPrice) : (searchParams?.get('minPrice') ? Number(searchParams.get('minPrice')) : null);
-  const queryMaxPrice = taxonomyInfo?.maxPrice ? Number(taxonomyInfo.maxPrice) : (searchParams?.get('maxPrice') ? Number(searchParams.get('maxPrice')) : null);
-  const queryArea = searchParams?.get('areaRange') || searchParams?.get('area') || taxonomyInfo?.areaRange || 'all';
-  const queryMinArea = taxonomyInfo?.minArea ? Number(taxonomyInfo.minArea) : (searchParams?.get('minArea') ? Number(searchParams.get('minArea')) : null);
-  const queryMaxArea = taxonomyInfo?.maxArea ? Number(taxonomyInfo.maxArea) : (searchParams?.get('maxArea') ? Number(searchParams.get('maxArea')) : null);
-  const queryBedroom = searchParams?.get('bedroom') || taxonomyInfo?.bedroom || 'all';
-  const queryVerified = searchParams?.get('onlyVerified') === 'true' || taxonomyInfo?.onlyVerified || false;
+  const queryKeyword = serverSearchParams?.keyword || serverSearchParams?.q || searchParams?.get('keyword') || searchParams?.get('q') || taxonomyInfo?.project || taxonomyInfo?.street || (taxonomyInfo?.ward ? taxonomyInfo.ward.replace('Phường ', '') : '') || taxonomyInfo?.keyword || '';
+  const queryPrice = serverSearchParams?.priceRange || serverSearchParams?.price || searchParams?.get('priceRange') || searchParams?.get('price') || taxonomyInfo?.priceRange || 'all';
+  const queryMinPrice = taxonomyInfo?.minPrice ? Number(taxonomyInfo.minPrice) : ((serverSearchParams?.minPrice || searchParams?.get('minPrice')) ? Number(serverSearchParams?.minPrice || searchParams?.get('minPrice')) : null);
+  const queryMaxPrice = taxonomyInfo?.maxPrice ? Number(taxonomyInfo.maxPrice) : ((serverSearchParams?.maxPrice || searchParams?.get('maxPrice')) ? Number(serverSearchParams?.maxPrice || searchParams?.get('maxPrice')) : null);
+  const queryArea = serverSearchParams?.areaRange || serverSearchParams?.area || searchParams?.get('areaRange') || searchParams?.get('area') || taxonomyInfo?.areaRange || 'all';
+  const queryMinArea = taxonomyInfo?.minArea ? Number(taxonomyInfo.minArea) : ((serverSearchParams?.minArea || searchParams?.get('minArea')) ? Number(serverSearchParams?.minArea || searchParams?.get('minArea')) : null);
+  const queryMaxArea = taxonomyInfo?.maxArea ? Number(taxonomyInfo.maxArea) : ((serverSearchParams?.maxArea || searchParams?.get('maxArea')) ? Number(serverSearchParams?.maxArea || searchParams?.get('maxArea')) : null);
+  const queryBedroom = serverSearchParams?.bedroom || searchParams?.get('bedroom') || taxonomyInfo?.bedroom || 'all';
+  const queryVerified = (serverSearchParams?.onlyVerified === 'true' || searchParams?.get('onlyVerified') === 'true') || taxonomyInfo?.onlyVerified || false;
 
   const [filters, setFilters] = useState(() => ({
     keyword: queryKeyword,
@@ -57,28 +60,36 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 
     onlyVerified: queryVerified
   }));
 
-  // Đồng bộ khi prop taxonomyInfo thực sự thay đổi từ SSR routing
-  // Lưu ý: nếu đã có ?loai= từ URL thì ưu tiên giữ nguyên propertyTypes đó,
-  // không để taxonomyInfo (chỉ parse path) ghi đè
+  // Đồng bộ khi prop taxonomyInfo hoặc searchParams thay đổi
   useEffect(() => {
     if (!taxonomyInfo) return;
     const taxType = taxonomyInfo.propertyType || 'all';
-    setFilters(prev => ({
-      ...prev,
-      city: taxonomyInfo.city || prev.city,
-      district: taxonomyInfo.district || prev.district,
-      // Chỉ đặt lại propertyType/Types nếu chưa có ?loai= (queryLoai rỗng)
-      propertyType: queryLoai ? prev.propertyType : taxType,
-      propertyTypes: queryLoai ? prev.propertyTypes : (taxType !== 'all' ? [taxType] : ['all']),
-      priceRange: taxonomyInfo.priceRange || prev.priceRange,
-      minPrice: taxonomyInfo.minPrice ? Number(taxonomyInfo.minPrice) : prev.minPrice,
-      maxPrice: taxonomyInfo.maxPrice ? Number(taxonomyInfo.maxPrice) : prev.maxPrice,
-      areaRange: taxonomyInfo.areaRange || prev.areaRange,
-      minArea: taxonomyInfo.minArea ? Number(taxonomyInfo.minArea) : prev.minArea,
-      maxArea: taxonomyInfo.maxArea ? Number(taxonomyInfo.maxArea) : prev.maxArea,
-      bedroom: taxonomyInfo.bedroom || prev.bedroom,
-    }));
-  }, [taxonomyInfo]);
+    const currentLoai = serverSearchParams?.loai || searchParams?.get('loai') || (typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('loai') : '') || '';
+    const currentLoaiTypes = currentLoai ? parseCIdsParam(currentLoai, 'sale') : null;
+
+    setFilters(prev => {
+      const hasMulti = (prev.propertyTypes && prev.propertyTypes.length > 1) || (currentLoaiTypes && currentLoaiTypes.length > 0);
+      const nextTypes = currentLoaiTypes && currentLoaiTypes.length > 0
+        ? currentLoaiTypes
+        : (hasMulti ? prev.propertyTypes : (taxType !== 'all' ? [taxType] : ['all']));
+      const nextType = nextTypes.includes('all') ? 'all' : nextTypes[0];
+
+      return {
+        ...prev,
+        city: taxonomyInfo.city || prev.city,
+        district: taxonomyInfo.district || prev.district,
+        propertyType: nextType,
+        propertyTypes: nextTypes,
+        priceRange: taxonomyInfo.priceRange || prev.priceRange,
+        minPrice: taxonomyInfo.minPrice ? Number(taxonomyInfo.minPrice) : prev.minPrice,
+        maxPrice: taxonomyInfo.maxPrice ? Number(taxonomyInfo.maxPrice) : prev.maxPrice,
+        areaRange: taxonomyInfo.areaRange || prev.areaRange,
+        minArea: taxonomyInfo.minArea ? Number(taxonomyInfo.minArea) : prev.minArea,
+        maxArea: taxonomyInfo.maxArea ? Number(taxonomyInfo.maxArea) : prev.maxArea,
+        bedroom: taxonomyInfo.bedroom || prev.bedroom,
+      };
+    });
+  }, [taxonomyInfo, serverSearchParams, searchParams]);
 
   // Lắng nghe popstate khi người dùng nhấn Back / Forward trên trình duyệt
   useEffect(() => {
@@ -160,7 +171,17 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1 
         // Normalize: bỏ trailing slash, decode %2C → , để so sánh nhất quán
         const normalize = (u) => decodeURIComponent(u).replace(/\/+(\?|$)/, '$1');
         if (normalize(currentUrl) !== normalize(targetUrl)) {
-          window.history.pushState(null, '', targetUrl);
+          const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
+          const targetPath = targetUrl.split('?')[0].replace(/\/+$/, '') || '/';
+
+          if (currentPath !== targetPath) {
+            // Pathname thay đổi (ví dụ từ /nha-dat-ban sang /ban-can-ho-chung-cu)
+            // Cần navigate sang trang mới để Next.js render đúng layout & taxonomy
+            navigate(targetUrl);
+          } else {
+            // Cùng pathname (chỉ thay đổi query ?loai=...) -> pushState mượt mà tại chỗ
+            window.history.pushState(null, '', targetUrl);
+          }
         }
       }
     } catch {

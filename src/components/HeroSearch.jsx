@@ -71,9 +71,15 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
 
   // Điều hướng chuyển trang kết quả chuẩn SEO Batdongsan.com.vn
   const executeSearchNavigation = (targetFilters, queryStr = '') => {
+    const multiTypes = targetFilters.propertyTypes && Array.isArray(targetFilters.propertyTypes) && targetFilters.propertyTypes.length > 0 && !targetFilters.propertyTypes.includes('all')
+      ? targetFilters.propertyTypes
+      : null;
+    const singleType = targetFilters.propertyType && targetFilters.propertyType !== 'all' ? targetFilters.propertyType : null;
+
     const targetUrl = buildSeoUrl({
       demand: targetFilters.demand || 'sale',
-      propertyType: targetFilters.propertyType && targetFilters.propertyType !== 'all' ? targetFilters.propertyType : null,
+      propertyType: multiTypes ? null : singleType,
+      propertyTypes: multiTypes,
       city: targetFilters.city || null,
       district: targetFilters.district || null,
       ward: targetFilters.ward || null,

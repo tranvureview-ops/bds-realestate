@@ -49,5 +49,5 @@ export default async function Page({ searchParams }) {
     }
   }
 
-  return <RentListingsPage initialPage={1} />;
+  return <RentListingsPage initialPage={1} serverSearchParams={sp} />;
 }

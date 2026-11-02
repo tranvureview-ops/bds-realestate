@@ -70,10 +70,10 @@ export async function generateMetadata({ params, searchParams }) {
   return { title: 'Không tìm thấy trang', robots: { index: false, follow: false } };
 }
 
-export function renderTaxonomyPage(taxonomyInfo, page = 1) {
+export function renderTaxonomyPage(taxonomyInfo, page = 1, searchParams = {}) {
   return taxonomyInfo.demand === 'rent'
-    ? <RentListingsPage taxonomyInfo={taxonomyInfo} initialPage={page} />
-    : <SaleListingsPage taxonomyInfo={taxonomyInfo} initialPage={page} />;
+    ? <RentListingsPage taxonomyInfo={taxonomyInfo} initialPage={page} serverSearchParams={searchParams} />
+    : <SaleListingsPage taxonomyInfo={taxonomyInfo} initialPage={page} serverSearchParams={searchParams} />;
 }
 
 export default async function Page({ params, searchParams }) {
@@ -123,7 +123,7 @@ export default async function Page({ params, searchParams }) {
         permanentRedirect(qs ? `/${slug}/?${qs}` : `/${slug}/`);
       }
     }
-    return renderTaxonomyPage(taxonomyInfo, 1);
+    return renderTaxonomyPage(taxonomyInfo, 1, sp);
   }
 
   notFound();

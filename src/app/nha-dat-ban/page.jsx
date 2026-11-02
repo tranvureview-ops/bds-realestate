@@ -49,5 +49,5 @@ export default async function Page({ searchParams }) {
     }
   }
 
-  return <SaleListingsPage initialPage={1} />;
+  return <SaleListingsPage initialPage={1} serverSearchParams={sp} />;
 }
