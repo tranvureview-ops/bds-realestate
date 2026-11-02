@@ -39,7 +39,7 @@ function AppContent({ children }) {
 
   // Dynamic Font Family Real-time Synchronizer across all pages
   useEffect(() => {
-    const fontName = systemConfig?.fontFamily || 'Plus Jakarta Sans';
+    const fontName = systemConfig?.fontFamily || 'Roboto';
     applyFontToDom(fontName);
   }, [systemConfig?.fontFamily]);
 

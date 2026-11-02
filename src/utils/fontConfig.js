@@ -89,21 +89,21 @@ export const AVAILABLE_FONTS = [
   }
 ];
 
-export const DEFAULT_FONT_NAME = 'Plus Jakarta Sans';
+export const DEFAULT_FONT_NAME = 'Roboto';
 
 export const getFontConfig = (fontNameOrId) => {
-  if (!fontNameOrId) return AVAILABLE_FONTS[0];
+  if (!fontNameOrId) return AVAILABLE_FONTS.find(f => f.id === 'roboto') || AVAILABLE_FONTS[0];
   const query = fontNameOrId.trim().toLowerCase();
   // Tự động chuyển về font mặc định nếu là font đã gỡ bỏ (Inter hoặc Lexend)
   if (query === 'inter' || query.includes('inter') || query === 'lexend' || query.includes('lexend')) {
-    return AVAILABLE_FONTS[0];
+    return AVAILABLE_FONTS.find(f => f.id === 'roboto') || AVAILABLE_FONTS[0];
   }
   const match = AVAILABLE_FONTS.find(
     f => f.id.toLowerCase() === query || 
          f.name.toLowerCase() === query || 
          f.fontFamily.toLowerCase().includes(query)
   );
-  return match || AVAILABLE_FONTS[0];
+  return match || AVAILABLE_FONTS.find(f => f.id === 'roboto') || AVAILABLE_FONTS[0];
 };
 
 /**
@@ -112,6 +112,12 @@ export const getFontConfig = (fontNameOrId) => {
 export const applyFontToDom = (fontNameOrId) => {
   if (typeof document === 'undefined') return;
   const fontObj = getFontConfig(fontNameOrId);
+
+  // Nếu CSS variable hiện tại đã khớp chính xác font yêu cầu thì không ghi đè lại DOM để tránh trigger reflow
+  const currentVar = document.documentElement.style.getPropertyValue('--font-custom-family');
+  if (currentVar && currentVar.trim() === fontObj.fontFamily.trim()) {
+    return;
+  }
 
   // 1. Gán CSS variable & thuộc tính trực tiếp trên html, body
   document.documentElement.style.setProperty('--font-custom-family', fontObj.fontFamily);

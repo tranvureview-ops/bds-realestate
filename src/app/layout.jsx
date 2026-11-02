@@ -251,7 +251,7 @@ export default async function RootLayout({ children }) {
     // fallback if cookies() not available
   }
 
-  const activeFontFamily = initialDb?.bds_system_config?.fontFamily || 'Plus Jakarta Sans';
+  const activeFontFamily = initialDb?.bds_system_config?.fontFamily || 'Roboto';
   const fontConfig = getFontConfig(activeFontFamily);
   const fallback = fontConfig.fallbackMetrics || {
     ascent: '100.8%',
