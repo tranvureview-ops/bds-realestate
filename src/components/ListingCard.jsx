@@ -230,7 +230,7 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
 
             <div className="text-sm font-bold text-slate-700">
               <i className="fa-solid fa-vector-square mr-1 text-slate-400"></i>
-              {property.area} m²
+              {property.area}m²
             </div>
           </div>
 

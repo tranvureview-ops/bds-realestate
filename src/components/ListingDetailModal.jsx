@@ -429,7 +429,7 @@ export default function ListingDetailModal({ property, onClose }) {
                   <div className="border-l border-slate-300 pl-4">
                     <div className="text-[11px] font-bold text-slate-600 uppercase">Diện tích sử dụng</div>
                     <div className="text-base sm:text-lg font-bold text-slate-700">
-                      {property.area} m²
+                      {property.area}m²
                     </div>
                   </div>
 

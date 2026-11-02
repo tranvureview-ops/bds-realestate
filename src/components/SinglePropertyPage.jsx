@@ -1187,7 +1187,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               </div>
 
               <div className="border-t sm:border-t-0 sm:border-l border-slate-700 pt-3 sm:pt-0 sm:pl-6 text-xs text-slate-300 space-y-1">
-                <div>Diện tích: <strong className="text-white font-extrabold text-sm">{property.area} m²</strong></div>
+                <div>Diện tích: <strong className="text-white font-extrabold text-sm">{property.area}m²</strong></div>
                 <div>Phòng ngủ: <strong className="text-white font-extrabold text-sm">{property.bedroom} PN</strong> • {property.bathroom} WC</div>
                 <div className="text-emerald-400 font-bold flex items-center gap-1">
                   <i className="fa-solid fa-circle-check"></i>
@@ -1206,7 +1206,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   <div className="text-slate-600 font-bold uppercase text-[10px]">Diện tích sử dụng</div>
                   <div className="text-sm font-extrabold text-slate-800 mt-1 flex items-center gap-2">
                     <i className="fa-solid fa-vector-square text-emerald-600"></i>
-                    {property.area} m²
+                    {property.area}m²
                   </div>
                 </div>
 
