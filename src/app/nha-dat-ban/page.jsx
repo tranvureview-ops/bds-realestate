@@ -5,6 +5,7 @@ import { generateCategoryMetadata, getCanonicalUrl, buildSeoUrl, parseTaxonomyUr
 export async function generateMetadata() {
   const { title, description } = generateCategoryMetadata({ demand: 'sale' }, 2026, 1);
   const canonical = getCanonicalUrl('/nha-dat-ban', 1);
+  const ogImg = 'https://kenhnhadat24h.com.vn/hero.png';
   return {
     title: { absolute: title },
     description,
@@ -13,7 +14,21 @@ export async function generateMetadata() {
       title,
       description,
       url: canonical,
-      type: 'website'
+      type: 'website',
+      images: [
+        {
+          url: ogImg,
+          alt: title,
+          width: 1200,
+          height: 630
+        }
+      ]
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImg]
     }
   };
 }

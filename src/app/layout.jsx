@@ -149,8 +149,11 @@ export async function generateMetadata() {
     ? `${brand} - ${sys.tagline}. Sàn thương mại điện tử nhà đất uy tín, mua bán cho thuê nhà đất và đăng tin VIP hiệu quả cao.`
     : 'Sàn thương mại điện tử nhà đất uy tín, mua bán cho thuê nhà đất toàn quốc, đăng tin VIP hiệu quả cao, xác thực pháp lý minh bạch.';
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kenhnhadat24h.com.vn';
+  const ogImg = `${siteUrl.replace(/\/+$/, '')}/hero.png`;
+
   return {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://kenhnhadat24h.com.vn'),
+    metadataBase: new URL(siteUrl),
     title: {
       default: `${brand} - Sàn Giao Dịch Nhà Đất & Đăng Tin VIP Toàn Quốc`,
       template: `%s | ${brand}`
@@ -164,10 +167,24 @@ export async function generateMetadata() {
     openGraph: {
       title: `${brand} - Sàn Giao Dịch Nhà Đất & Đăng Tin VIP Toàn Quốc`,
       description: desc,
-      url: 'https://kenhnhadat24h.com.vn',
+      url: siteUrl,
       siteName: brand,
       locale: 'vi_VN',
-      type: 'website'
+      type: 'website',
+      images: [
+        {
+          url: ogImg,
+          width: 1200,
+          height: 630,
+          alt: `${brand} - Kênh Mua Bán & Cho Thuê Bất Động Sản Toàn Quốc`
+        }
+      ]
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${brand} - Sàn Giao Dịch Nhà Đất & Đăng Tin VIP Toàn Quốc`,
+      description: desc,
+      images: [ogImg]
     }
   };
 }

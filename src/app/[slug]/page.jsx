@@ -11,24 +11,44 @@ export function buildPropertyMetadata(matchedProperty) {
   const domain = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '');
   const canonicalFullUrl = `${domain}${canonicalPermalink}`;
   const formattedTitle = formatSentenceCase(matchedProperty.title);
+  const desc = matchedProperty.description?.slice(0, 160) || formattedTitle;
+  const primaryImg = matchedProperty.images?.[0] || `${domain}/hero.png`;
+
   return {
     title: formattedTitle,
-    description: matchedProperty.description?.slice(0, 160) || formattedTitle,
+    description: desc,
     alternates: { canonical: canonicalFullUrl },
     openGraph: {
       title: formattedTitle,
-      description: matchedProperty.description?.slice(0, 160) || formattedTitle,
+      description: desc,
       url: canonicalFullUrl,
-      images: matchedProperty.images?.length > 0 ? [{ url: matchedProperty.images[0] }] : []
+      type: 'article',
+      images: [
+        {
+          url: primaryImg,
+          alt: formattedTitle,
+          width: 1200,
+          height: 630
+        }
+      ]
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: formattedTitle,
+      description: desc,
+      images: [primaryImg]
     }
   };
 }
 
 export function buildTaxonomyMetadata(taxonomyInfo) {
+  const domain = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '');
   const canonicalUrl = taxonomyInfo.canonicalUrl?.startsWith('http')
     ? taxonomyInfo.canonicalUrl
-    : `${(process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '')}${taxonomyInfo.canonicalPath || taxonomyInfo.canonicalUrl || ''}`;
+    : `${domain}${taxonomyInfo.canonicalPath || taxonomyInfo.canonicalUrl || ''}`;
   const { title, description } = generateCategoryMetadata(taxonomyInfo, 2026, taxonomyInfo.page || 1);
+  const ogImg = `${domain}/hero.png`;
+
   return {
     title: { absolute: title },
     description,
@@ -39,7 +59,21 @@ export function buildTaxonomyMetadata(taxonomyInfo) {
       title,
       description,
       url: canonicalUrl,
-      type: 'website'
+      type: 'website',
+      images: [
+        {
+          url: ogImg,
+          alt: title,
+          width: 1200,
+          height: 630
+        }
+      ]
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [ogImg]
     }
   };
 }
