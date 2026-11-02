@@ -58,16 +58,18 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
   }));
 
   // Đồng bộ khi prop taxonomyInfo thực sự thay đổi từ SSR routing
+  // Lưu ý: nếu đã có ?loai= từ URL thì ưu tiên giữ nguyên propertyTypes đó,
+  // không để taxonomyInfo (chỉ parse path) ghi đè
   useEffect(() => {
     if (!taxonomyInfo) return;
     const taxType = taxonomyInfo.propertyType || 'all';
-    const taxTypes = taxType && taxType !== 'all' ? [taxType] : ['all'];
     setFilters(prev => ({
       ...prev,
       city: taxonomyInfo.city || prev.city,
       district: taxonomyInfo.district || prev.district,
-      propertyType: taxType,
-      propertyTypes: taxTypes,
+      // Chỉ đặt lại propertyType/Types nếu chưa có ?loai= (queryLoai rỗng)
+      propertyType: queryLoai ? prev.propertyType : taxType,
+      propertyTypes: queryLoai ? prev.propertyTypes : (taxType !== 'all' ? [taxType] : ['all']),
       priceRange: taxonomyInfo.priceRange || prev.priceRange,
       minPrice: taxonomyInfo.minPrice ? Number(taxonomyInfo.minPrice) : prev.minPrice,
       maxPrice: taxonomyInfo.maxPrice ? Number(taxonomyInfo.maxPrice) : prev.maxPrice,
@@ -84,6 +86,15 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
       if (typeof window === 'undefined') return;
       const parsed = parseTaxonomyUrl(window.location.pathname);
       if (parsed?.isTaxonomy) {
+        // Đọc ?loai= từ URL hiện tại sau popstate
+        const sp = new URLSearchParams(window.location.search);
+        const popLoai = sp.get('loai') || '';
+        const popLoaiTypes = popLoai ? parseCIdsParam(popLoai, 'rent') : null;
+        const popTypes = popLoaiTypes && popLoaiTypes.length > 0
+          ? popLoaiTypes
+          : (parsed.propertyType && parsed.propertyType !== 'all' ? [parsed.propertyType] : ['all']);
+        const popType = popTypes.includes('all') ? 'all' : popTypes[0];
+
         setFilters(prev => ({
           ...prev,
           district: parsed.district || '',
@@ -95,7 +106,8 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1 
           minArea: parsed.minArea || null,
           maxArea: parsed.maxArea || null,
           bedroom: parsed.bedroom || 'all',
-          propertyType: parsed.propertyType || 'all'
+          propertyType: popType,
+          propertyTypes: popTypes
         }));
       }
     };
