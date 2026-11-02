@@ -307,8 +307,8 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Center: LIVE TICKER DỰ ĐOÁN GIÁ BĐS (Đã đưa lên Topbar) */}
-            <div className="flex-1 min-w-0 mx-1 sm:mx-3 overflow-hidden">
+            {/* Center: LIVE TICKER DỰ ĐOÁN GIÁ BĐS (Đã đưa lên Topbar, ẩn trên giao diện Mobile) */}
+            <div className="hidden md:flex flex-1 min-w-0 mx-1 sm:mx-3 overflow-hidden">
               <Link
                 to="/trung-tam-phan-thuong/du-doan-gia-bds"
                 className="flex items-center gap-2 overflow-hidden hover:opacity-95 transition cursor-pointer group"
