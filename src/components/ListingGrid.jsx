@@ -392,7 +392,7 @@ export default function ListingGrid({
               Bất Động Sản Nổi Bật Đang Giao Dịch
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-              {subtitle || 'Ưu tiên hiển thị tin VIP Kim Cương, VIP Vàng và tin có tương tác cao'}
+              {subtitle || 'Khám phá các tin đăng mua bán và cho thuê bất động sản.'}
             </p>
           </div>
         ) : (
