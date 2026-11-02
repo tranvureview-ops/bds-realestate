@@ -6,6 +6,7 @@ import { useRouter, Link } from '../router/RouterContext';
 import { getPremiumPackageSavePercent } from '../utils/membershipHelper';
 import SocialIcon from './SocialIcon';
 import { getLivePredictionTickerEvents, formatRelativeTime } from '../services/predictionGameService';
+import { IconHeart, IconPlusCircle, IconMenu, IconClose } from './common/Icons';
 
 const cleanUserName = (name) => {
   if (!name) return 'Khách vãng lai';
@@ -524,7 +525,7 @@ export default function Navbar() {
               }`}
               title="Danh sách tin đã lưu yêu thích"
             >
-              <i className="fa-solid fa-heart text-sm"></i>
+              <IconHeart className="w-4 h-4" />
               {favorites.length > 0 && (
                 <span suppressHydrationWarning className="absolute -top-1.5 -right-1.5 bg-rose-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                   {favorites.length}
@@ -791,7 +792,7 @@ export default function Navbar() {
               to="/dang-tin"
               className="flex items-center gap-1 sm:gap-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-bold text-xs sm:text-sm px-2.5 sm:px-3.5 xl:px-4 py-1.5 sm:py-2.5 rounded-lg sm:rounded-xl shadow-md shadow-red-500/20 hover:shadow-lg transition transform active:scale-95 whitespace-nowrap shrink-0"
             >
-              <i className="fa-solid fa-circle-plus text-xs sm:text-base"></i>
+              <IconPlusCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               <span className="hidden xl:inline">Đăng Tin Ngay</span>
               <span className="xl:hidden text-[11px] sm:text-xs">Đăng tin</span>
             </Link>
@@ -802,7 +803,11 @@ export default function Navbar() {
               className="lg:hidden w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center p-0 rounded-lg sm:rounded-xl border border-slate-200 text-slate-700 hover:bg-slate-50 transition shrink-0"
               aria-label="Toggle mobile menu"
             >
-              <i className={`fa-solid ${mobileMenuOpen ? 'fa-xmark' : 'fa-bars'} text-sm sm:text-base`}></i>
+              {mobileMenuOpen ? (
+                <IconClose className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+              ) : (
+                <IconMenu className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+              )}
             </button>
           </div>
         </div>

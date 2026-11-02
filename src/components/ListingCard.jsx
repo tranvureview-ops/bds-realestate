@@ -9,6 +9,19 @@ import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 import { isPropertyTreasureActive } from '../services/treasureHuntService';
 import SeoImage from './SeoImage';
 import BrokerProfileModal from './BrokerProfileModal';
+import { 
+  IconHeart, 
+  IconCamera, 
+  IconClock, 
+  IconArea, 
+  IconLocation, 
+  IconBed, 
+  IconBath, 
+  IconCompass, 
+  IconVerified, 
+  IconPhone, 
+  IconZaloDots 
+} from './common/Icons';
 
 export default function ListingCard({ property, viewMode = 'grid', priority = false }) {
   const { navigate } = useRouter();
@@ -163,7 +176,7 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
           {/* Tin đã xác thực: Dời lên sau nhãn Bán / Cho thuê */}
           {Boolean(property.is_verified || property.isVerified || property.verification_status === 'verified' || property.verificationStatus === 'verified') && (
             <span className="px-2 py-0.5 bg-emerald-600/95 text-white rounded-full text-[10px] font-bold shadow-sm backdrop-blur-xs flex items-center gap-1 border border-emerald-400/40">
-              <i className="fa-solid fa-circle-check text-[9px]"></i>
+              <IconVerified className="w-3 h-3 text-white" />
               <span>Xác thực</span>
             </span>
           )}
@@ -199,17 +212,19 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
                 : 'bg-white/90 text-slate-700 hover:bg-white hover:text-rose-600'
             }`}
           >
-            <i className={`fa-solid fa-heart ${isFav ? 'text-white' : 'text-slate-600'}`}></i>
+            <IconHeart className={`w-4 h-4 ${isFav ? 'text-white' : 'text-slate-600'}`} filled={isFav} />
           </button>
         </div>
 
         {/* Bottom Image Stats (Image count, views) */}
         <div className="absolute bottom-2 left-3 right-3 flex items-center justify-between text-white text-xs pointer-events-none">
-          <span className="bg-black/50 px-2 py-0.5 rounded-md text-[11px] backdrop-blur-sm">
-            <i className="fa-solid fa-camera mr-1"></i> {safeImages.length} ảnh
+          <span className="bg-black/50 px-2 py-0.5 rounded-md text-[11px] backdrop-blur-sm flex items-center gap-1">
+            <IconCamera className="w-3 h-3 text-white" />
+            <span>{safeImages.length} ảnh</span>
           </span>
-          <span className="bg-black/50 px-2 py-0.5 rounded-md text-[11px] backdrop-blur-sm">
-            <i className="fa-regular fa-clock mr-1"></i> {timeAgo(property.publishedAt)}
+          <span className="bg-black/50 px-2 py-0.5 rounded-md text-[11px] backdrop-blur-sm flex items-center gap-1">
+            <IconClock className="w-3 h-3 text-white" />
+            <span>{timeAgo(property.publishedAt)}</span>
           </span>
         </div>
       </div>
@@ -228,9 +243,9 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
               </span>
             </div>
 
-            <div className="text-sm font-bold text-slate-700">
-              <i className="fa-solid fa-vector-square mr-1 text-slate-400"></i>
-              {property.area}m²
+            <div className="text-sm font-bold text-slate-700 flex items-center gap-1">
+              <IconArea className="w-3.5 h-3.5 text-slate-400" />
+              <span>{property.area}m²</span>
             </div>
           </div>
 
@@ -253,7 +268,7 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
           {/* Location Address */}
           <div className="text-xs text-slate-600 mb-3 flex items-center justify-between gap-1">
             <div className="flex items-center gap-1 line-clamp-1 truncate">
-              <i className="fa-solid fa-location-dot text-emerald-600 shrink-0"></i>
+              <IconLocation className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
               <span className="truncate">{property.district}, {property.city}</span>
             </div>
             {property.isAdministrativeMerged && (
@@ -267,20 +282,20 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
           <div className="flex flex-wrap items-center gap-2 mb-3 text-xs text-slate-600">
             {property.bedroom > 0 && (
               <span className="px-2 py-1 bg-slate-100 rounded-md flex items-center gap-1 font-medium">
-                <i className="fa-solid fa-bed text-slate-400"></i>
-                {property.bedroom} PN
+                <IconBed className="w-3.5 h-3.5 text-slate-400" />
+                <span>{property.bedroom} PN</span>
               </span>
             )}
             {property.bathroom > 0 && (
               <span className="px-2 py-1 bg-slate-100 rounded-md flex items-center gap-1 font-medium">
-                <i className="fa-solid fa-bath text-slate-400"></i>
-                {property.bathroom} WC
+                <IconBath className="w-3.5 h-3.5 text-slate-400" />
+                <span>{property.bathroom} WC</span>
               </span>
             )}
             {property.direction && (
               <span className="px-2 py-1 bg-slate-100 rounded-md flex items-center gap-1 font-medium">
-                <i className="fa-regular fa-compass text-slate-400"></i>
-                {property.direction}
+                <IconCompass className="w-3.5 h-3.5 text-slate-400" />
+                <span>{property.direction}</span>
               </span>
             )}
           </div>
@@ -310,7 +325,7 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
               <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5 min-w-0 group-hover/broker:text-emerald-700 transition">
                 <span className="truncate block" title={safeAuthor.fullNameWithRole}>{safeAuthor.name}</span>
                 {safeAuthor.isVerified && (
-                  <i className="fa-solid fa-circle-check text-blue-500 text-[11px] shrink-0" title={`${safeAuthor.fullNameWithRole} đã xác thực`}></i>
+                  <IconVerified className="w-3.5 h-3.5 text-blue-500 shrink-0" title={`${safeAuthor.fullNameWithRole} đã xác thực`} />
                 )}
               </div>
               {safeAuthor.title ? (
@@ -336,7 +351,7 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
               title={`Gọi ngay: ${safeAuthor.phone}`}
               aria-label={`Gọi ngay số ${safeAuthor.phone} cho tin ${formatSentenceCase(property.title).slice(0, 45)}`}
             >
-              <i className="fa-solid fa-phone text-[10px] shrink-0" aria-hidden="true"></i>
+              <IconPhone className="w-3 h-3 shrink-0" />
               <span className="truncate">{safeAuthor.phone}</span>
             </Link>
 
@@ -349,7 +364,7 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
               title={`Chat Zalo: ${safeAuthor.zalo || safeAuthor.phone}`}
               aria-label={`Chat Zalo số ${safeAuthor.zalo || safeAuthor.phone} cho tin ${formatSentenceCase(property.title).slice(0, 45)}`}
             >
-              <i className="fa-solid fa-comment-dots text-[11px]"></i>
+              <IconZaloDots className="w-3.5 h-3.5" />
               <span>Chat Zalo</span>
             </Link>
           </div>

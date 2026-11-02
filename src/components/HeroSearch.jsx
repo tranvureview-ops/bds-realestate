@@ -10,6 +10,17 @@ import PropertyTypeSelector from './PropertyTypeSelector';
 import PriceRangeSelector from './PriceRangeSelector';
 import AreaRangeSelector from './AreaRangeSelector';
 import { formatPropertyTypeTriggerLabel } from '../data/propertyTypeTaxonomy';
+import { 
+  IconSearch, 
+  IconClose, 
+  IconLocation, 
+  IconChevronDown, 
+  IconHouse, 
+  IconTag, 
+  IconRuler, 
+  IconBed, 
+  IconCompass 
+} from './common/Icons';
 
 const DEFAULT_RECENT_SEARCHES = [
   {
@@ -526,7 +537,7 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
             <form onSubmit={handleSearchSubmit} className="relative">
               <div className="flex items-center bg-slate-50 hover:bg-white border border-slate-200 hover:border-slate-300 focus-within:border-red-500 focus-within:bg-white rounded-xl px-3 sm:px-4 py-2 sm:py-2.5 transition shadow-2xs">
                 {/* Search Magnifying Glass Icon */}
-                <i className="fa-solid fa-magnifying-glass text-slate-400 text-sm sm:text-base mr-2.5 shrink-0"></i>
+                <IconSearch className="w-4 h-4 text-slate-400 mr-2.5 shrink-0" />
 
                 {/* Main Text Input */}
                 <input
@@ -553,7 +564,7 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                     title="Xóa tìm kiếm"
                     aria-label="Xóa tìm kiếm"
                   >
-                    <i className="fa-solid fa-xmark" aria-hidden="true"></i>
+                    <IconClose className="w-3.5 h-3.5" />
                   </button>
                 )}
 
@@ -715,9 +726,9 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                       : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white hover:bg-slate-50'
                   }`}
                 >
-                  <i className="fa-solid fa-location-dot text-slate-400 text-[11px]"></i>
+                  <IconLocation className="w-3.5 h-3.5 text-slate-400" />
                   <span>{getLocationLabel()}</span>
-                  <i className="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+                  <IconChevronDown className="w-2.5 h-2.5 text-slate-400" />
                 </button>
 
                 {openFilterMenu === 'city' && (
@@ -887,9 +898,9 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                       : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white hover:bg-slate-50'
                   }`}
                 >
-                  <i className="fa-solid fa-house-chimney text-slate-400 text-[11px]"></i>
+                  <IconHouse className="w-3.5 h-3.5 text-slate-400" />
                   <span>{getPropertyTypeLabel()}</span>
-                  <i className="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+                  <IconChevronDown className="w-2.5 h-2.5 text-slate-400" />
                 </button>
 
                 {openFilterMenu === 'type' && (
@@ -935,9 +946,9 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                       : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white hover:bg-slate-50'
                   }`}
                 >
-                  <i className="fa-solid fa-tag text-slate-400 text-[11px]"></i>
+                  <IconTag className="w-3.5 h-3.5 text-slate-400" />
                   <span>{getPriceLabel()}</span>
-                  <i className="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+                  <IconChevronDown className="w-2.5 h-2.5 text-slate-400" />
                 </button>
 
                 {openFilterMenu === 'price' && (
@@ -987,9 +998,9 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                       : 'border-slate-200 hover:border-slate-300 text-slate-700 bg-white hover:bg-slate-50'
                   }`}
                 >
-                  <i className="fa-solid fa-ruler-combined text-slate-400 text-[11px]"></i>
+                  <IconRuler className="w-3.5 h-3.5 text-slate-400" />
                   <span>{getAreaLabel()}</span>
-                  <i className="fa-solid fa-chevron-down text-[10px] text-slate-400"></i>
+                  <IconChevronDown className="w-2.5 h-2.5 text-slate-400" />
                 </button>
 
                 {openFilterMenu === 'area' && (
