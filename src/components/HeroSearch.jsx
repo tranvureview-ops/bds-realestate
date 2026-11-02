@@ -465,7 +465,7 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
   }, [filters.city]);
 
   return (
-    <div className="relative pt-6 pb-12 sm:pt-10 sm:pb-16 px-4 overflow-visible">
+    <div className="relative pt-5 pb-8 sm:pt-7 sm:pb-10 px-4 overflow-visible">
       {/* Background Graphic Ambient Glow & Pattern */}
       <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-slate-800 to-slate-900 pointer-events-none">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-red-900/20 via-transparent to-transparent"></div>
@@ -476,12 +476,12 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
 
       <div className="max-w-4xl mx-auto relative z-20" ref={containerRef}>
         {/* Slogan */}
-        <div className="text-center mb-6 sm:mb-8 text-white">
-          <h1 className="text-xl sm:text-3xl font-black tracking-tight drop-shadow-md min-h-[36px] sm:min-h-[48px] leading-tight">
+        <div className="text-center mb-4 sm:mb-5 text-white">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight drop-shadow-md leading-tight">
             Kênh Nhà Đất 24H: <span className="text-[#ff6b6b] inline">Mua Bán & Cho Thuê Bất Động Sản Toàn Quốc</span>
           </h1>
-          <p className="mt-2 text-xs sm:text-sm text-slate-300 max-w-xl mx-auto font-medium">
-            Tin đăng chính chủ, căn hộ chung cư, đất nền dự án, nhà phố — pháp lý minh bạch, sổ hồng riêng, định giá chuẩn xác
+          <p className="mt-1.5 text-xs sm:text-sm text-slate-300 max-w-xl mx-auto font-medium">
+            Dữ liệu nguồn cung xác thực, sổ hồng riêng và định giá minh bạch 24/7
           </p>
         </div>
 
