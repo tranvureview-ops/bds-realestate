@@ -281,76 +281,72 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
         </div>
 
         {/* Author / Broker Contact Box & Action Buttons */}
-        <div className="pt-3 border-t border-slate-100">
-          <div className="flex items-center justify-between gap-2 mb-2.5">
-            {/* Broker Avatar & Name: Bọc trong Link chuẩn SEO và mở Modal Popup khi click */}
-            <Link
-              href={brokerUrl}
-              rel="nofollow"
-              onClick={handleOpenBrokerModal}
-              className="flex items-center gap-2 min-w-0 flex-1 cursor-pointer group/broker py-1 min-h-[42px]"
-              title={`Xem hồ sơ ${safeAuthor.fullNameWithRole}`}
-              aria-label={`Xem hồ sơ môi giới ${safeAuthor.name}`}
-            >
-              <div className="relative shrink-0">
-                <SeoImage
-                  src={safeAuthor.avatar}
-                  propertyTitle={property.title}
-                  type="agent"
-                  customContext={safeAuthor.name}
-                  className="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0 group-hover/broker:border-emerald-500 group-hover/broker:scale-105 transition"
-                />
+        <div className="pt-2.5 border-t border-slate-100 flex flex-col gap-2">
+          {/* Row 1: Thông tin Môi giới / Người đăng (Đầy đủ họ tên & chức danh, không bị cắt cụt) */}
+          <Link
+            href={brokerUrl}
+            rel="nofollow"
+            onClick={handleOpenBrokerModal}
+            className="flex items-center gap-2.5 min-w-0 cursor-pointer group/broker py-0.5"
+            title={`Xem hồ sơ ${safeAuthor.fullNameWithRole}`}
+            aria-label={`Xem hồ sơ môi giới ${safeAuthor.name}`}
+          >
+            <div className="relative shrink-0">
+              <SeoImage
+                src={safeAuthor.avatar}
+                propertyTitle={property.title}
+                type="agent"
+                customContext={safeAuthor.name}
+                className="w-9 h-9 rounded-full object-cover border border-slate-200 shrink-0 group-hover/broker:border-emerald-500 group-hover/broker:scale-105 transition shadow-2xs"
+              />
+            </div>
+            <div className="leading-tight min-w-0 flex-1">
+              <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5 min-w-0 group-hover/broker:text-emerald-700 transition">
+                <span className="truncate block" title={safeAuthor.fullNameWithRole}>{safeAuthor.name}</span>
+                {safeAuthor.isVerified && (
+                  <i className="fa-solid fa-circle-check text-blue-500 text-[11px] shrink-0" title={`${safeAuthor.fullNameWithRole} đã xác thực`}></i>
+                )}
               </div>
-              <div className="leading-tight min-w-0 flex-1">
-                <div className="text-xs font-bold text-slate-800 flex items-center gap-1 min-w-0 group-hover/broker:text-emerald-700 transition">
-                  <span className="truncate block" title={safeAuthor.fullNameWithRole}>{safeAuthor.name}</span>
-                  {safeAuthor.isVerified && (
-                    <i className="fa-solid fa-circle-check text-blue-500 text-[11px] shrink-0" title={`${safeAuthor.fullNameWithRole} đã xác thực`}></i>
-                  )}
+              {safeAuthor.title ? (
+                <div className="text-[11px] text-slate-500 truncate group-hover/broker:text-slate-700 mt-0.5" title={safeAuthor.title}>
+                  {safeAuthor.title}
                 </div>
-                {safeAuthor.title ? (
-                  <div className="text-[10px] text-slate-600 truncate group-hover/broker:text-slate-700" title={safeAuthor.title}>
-                    {safeAuthor.title}
-                  </div>
-                ) : null}
-              </div>
+              ) : null}
+            </div>
+          </Link>
+
+          {/* Row 2: Nút Gọi điện & Chat Zalo bố cục gọn gàng, chia 2 cột đều đặn */}
+          <div className="grid grid-cols-2 gap-2 shrink-0">
+            <Link
+              href={`tel:${safeAuthor.phone.replace(/\s+/g, '')}`}
+              onClick={(e) => e.stopPropagation()}
+              className={`py-1.5 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs transition whitespace-nowrap ${
+                isDiamond 
+                  ? 'bg-red-700 hover:bg-red-800 text-white' 
+                  : isGold
+                    ? 'bg-amber-700 hover:bg-amber-800 text-white'
+                    : 'bg-emerald-700 hover:bg-emerald-800 text-white'
+              }`}
+              title={`Gọi ngay: ${safeAuthor.phone}`}
+              aria-label={`Gọi ngay số ${safeAuthor.phone} cho tin ${formatSentenceCase(property.title).slice(0, 45)}`}
+            >
+              <i className="fa-solid fa-phone text-[10px] shrink-0" aria-hidden="true"></i>
+              <span className="truncate">{safeAuthor.phone}</span>
             </Link>
 
-            {/* Direct Call / Zalo Buttons */}
-            <div className="flex items-center gap-1.5 shrink-0">
-              <Link
-                href={`tel:${safeAuthor.phone.replace(/\s+/g, '')}`}
-                onClick={(e) => e.stopPropagation()}
-                className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm transition shrink-0 whitespace-nowrap ${
-                  isDiamond 
-                    ? 'bg-red-700 hover:bg-red-800 text-white' 
-                    : isGold
-                      ? 'bg-amber-700 hover:bg-amber-800 text-white'
-                      : 'bg-emerald-700 hover:bg-emerald-800 text-white'
-                }`}
-                title={`Gọi ngay: ${safeAuthor.phone}`}
-                aria-label={`Gọi ngay số ${safeAuthor.phone} cho tin ${formatSentenceCase(property.title).slice(0, 45)}`}
-              >
-                <i className="fa-solid fa-phone text-[11px] shrink-0" aria-hidden="true"></i>
-                <span className="hidden sm:inline whitespace-nowrap">{safeAuthor.phone}</span>
-                <span className="sm:hidden whitespace-nowrap">Gọi</span>
-              </Link>
-
-              <Link
-                href={`https://zalo.me/${safeAuthor.zalo || safeAuthor.phone.replace(/\s+/g, '')}`}
-                target="_blank"
-                rel="noreferrer"
-                onClick={(e) => e.stopPropagation()}
-                className="px-2.5 py-1.5 bg-blue-700 hover:bg-blue-800 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1 shadow-sm transition shrink-0 whitespace-nowrap"
-                title={`Chat Zalo: ${safeAuthor.zalo || safeAuthor.phone}`}
-                aria-label={`Chat Zalo số ${safeAuthor.zalo || safeAuthor.phone} cho tin ${formatSentenceCase(property.title).slice(0, 45)}`}
-              >
-                <span>Zalo</span>
-              </Link>
-            </div>
+            <Link
+              href={`https://zalo.me/${safeAuthor.zalo || safeAuthor.phone.replace(/\s+/g, '')}`}
+              target="_blank"
+              rel="noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="py-1.5 px-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs transition whitespace-nowrap"
+              title={`Chat Zalo: ${safeAuthor.zalo || safeAuthor.phone}`}
+              aria-label={`Chat Zalo số ${safeAuthor.zalo || safeAuthor.phone} cho tin ${formatSentenceCase(property.title).slice(0, 45)}`}
+            >
+              <i className="fa-solid fa-comment-dots text-[11px]"></i>
+              <span>Chat Zalo</span>
+            </Link>
           </div>
-
-
         </div>
       </div>
 
