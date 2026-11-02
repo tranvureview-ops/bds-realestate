@@ -37,7 +37,7 @@ export async function generateMetadata() {
     title: {
       absolute: 'Kênh Nhà Đất 24H - Mua Bán Nhà Đất, Cho Thuê Bất Động Sản Toàn Quốc'
     },
-    description: 'Kenhnhadat24h.com.vn – Cổng thông tin mua bán, cho thuê bất động sản toàn quốc: căn hộ chung cư, nhà phố, đất nền dự án, biệt thự nghỉ dưỡng. Dữ liệu nguồn cung xác thực, sổ hồng riêng và định giá minh bạch 24/7.',
+    description: 'Kênh Nhà Đất 24H - Tìm kiếm nhà đất bán, căn hộ, đất nền, nhà phố, biệt thự và bất động sản cho thuê trên toàn quốc. Kết nối người mua, người bán và môi giới.',
     keywords: 'kênh nhà đất 24h, mua bán nhà đất, bất động sản toàn quốc, cho thuê nhà đất, nhà đất chính chủ, căn hộ chung cư, đất nền dự án, định giá bất động sản, pháp lý nhà đất, sổ hồng riêng',
     robots: { index: true, follow: true },
     alternates: {
@@ -48,7 +48,7 @@ export async function generateMetadata() {
       url: SITE_URL,
       siteName: 'Kênh Nhà Đất 24H',
       title: 'Kênh Nhà Đất 24H - Mua Bán Nhà Đất, Cho Thuê Bất Động Sản Toàn Quốc',
-      description: 'Cổng thông tin bất động sản: mua bán, cho thuê căn hộ, nhà phố, đất nền toàn quốc. Dữ liệu nguồn cung xác thực, sổ hồng riêng và định giá minh bạch 24/7.',
+      description: 'Kênh Nhà Đất 24H - Tìm kiếm nhà đất bán, căn hộ, đất nền, nhà phố, biệt thự và bất động sản cho thuê trên toàn quốc. Kết nối người mua, người bán và môi giới.',
       locale: 'vi_VN',
     },
   };
