@@ -29,7 +29,7 @@ const homepageSchema = {
       },
       image: 'https://kenhnhadat24h.com.vn',
       telephone: '+84905467138',
-      priceRange: '$$$',
+      priceRange: 'VNĐ',
       address: {
         '@type': 'PostalAddress',
         addressLocality: 'Đà Nẵng',
