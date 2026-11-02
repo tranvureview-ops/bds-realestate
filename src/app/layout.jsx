@@ -399,11 +399,11 @@ export default async function RootLayout({ children }) {
                   url: 'https://kenhnhadat24h.com.vn',
                   logo: {
                     '@type': 'ImageObject',
-                    '@id': 'https://kenhnhadat24h.com.vno',
-                    url: 'https://kenhnhadat24h.com.vn',
+                    '@id': 'https://kenhnhadat24h.com.vn/#logo',
+                    url: 'https://kenhnhadat24h.com.vn/hero.png',
                     caption: 'Kênh Nhà Đất 24H',
                   },
-                  image: 'https://kenhnhadat24h.com.vn',
+                  image: 'https://kenhnhadat24h.com.vn/hero.png',
                   telephone: '+84905467138',
                   priceRange: 'VNĐ',
                   address: {
