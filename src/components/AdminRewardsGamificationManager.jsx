@@ -3051,39 +3051,40 @@ export default function AdminRewardsGamificationManager() {
           </div>
 
           {/* Danh sách các chương trình */}
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-4">
             {predictionPrograms.map(prog => {
               const allVotes = getStoredPredictions(prog.id);
               const botVotes = allVotes.filter(v => v.is_bot === 1);
               const realVotes = allVotes.filter(v => !v.is_bot && v.is_bot !== 1);
               const isSettled = prog.status === 'settled';
+              const isBotExpanded = Boolean(expandedBotProgramIds[prog.id]);
 
               return (
                 <div
                   key={prog.id}
-                  className="bg-slate-900 border border-slate-800 hover:border-slate-700/80 rounded-2xl p-4 sm:p-5 transition shadow-sm space-y-3.5"
+                  className="bg-slate-900/95 border border-slate-800 hover:border-slate-700/80 rounded-2xl p-3 sm:p-4 transition shadow-sm space-y-2.5"
                 >
-                  {/* HÀNG 1: THÔNG TIN CHÍNH + GIẢI THƯỞNG + HÀNG NÚT HÀNH ĐỘNG */}
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                  {/* HÀNG 1: THÔNG TIN CHÍNH + GIẢI THƯỞNG + NÚT HÀNH ĐỘNG */}
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
                     {/* Trái: Ảnh + Tên + Badges */}
-                    <div className="flex items-start gap-3.5 min-w-0 flex-1">
+                    <div className="flex items-start gap-3 min-w-0 flex-1">
                       <img
                         src={prog.image}
                         alt={prog.projectName}
-                        className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover shrink-0 border border-slate-700 shadow-xs"
+                        className="w-11 h-11 sm:w-13 sm:h-13 rounded-xl object-cover shrink-0 border border-slate-700/80 shadow-xs"
                       />
-                      <div className="space-y-1 min-w-0 flex-1">
+                      <div className="space-y-0.5 min-w-0 flex-1">
                         <div className="flex items-center gap-1.5 flex-wrap">
                           <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
-                            isSettled ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                            isSettled ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                           }`}>
-                            {isSettled ? 'Đã Chốt Kết Quả' : 'Đang Hoạt Động'}
+                            {isSettled ? 'Đã Chốt' : 'Đang Mở'}
                           </span>
                           <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider flex items-center gap-1 ${
-                            (systemConfig?.predictionRequireMembership !== undefined ? systemConfig.predictionRequireMembership : prog.requireMembership !== false) ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40' : 'bg-blue-500/20 text-blue-300 border border-blue-500/40'
+                            (systemConfig?.predictionRequireMembership !== undefined ? systemConfig.predictionRequireMembership : prog.requireMembership !== false) ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30' : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
                           }`}>
                             <i className={`fa-solid ${(systemConfig?.predictionRequireMembership !== undefined ? systemConfig.predictionRequireMembership : prog.requireMembership !== false) ? 'fa-crown text-amber-400' : 'fa-users'}`}></i>
-                            <span>{(systemConfig?.predictionRequireMembership !== undefined ? systemConfig.predictionRequireMembership : prog.requireMembership !== false) ? 'Đặc Quyền Hội Viên' : 'Mở Cho Tất Cả'}</span>
+                            <span>{(systemConfig?.predictionRequireMembership !== undefined ? systemConfig.predictionRequireMembership : prog.requireMembership !== false) ? 'Hội Viên' : 'Tất Cả'}</span>
                           </span>
                           <span className="text-[10px] text-slate-400 font-medium">
                             <i className="fa-solid fa-location-dot text-slate-500 mr-1"></i>{prog.location}
@@ -3095,10 +3096,6 @@ export default function AdminRewardsGamificationManager() {
                         </h3>
 
                         <div className="text-[11px] text-slate-400 flex items-center gap-2 flex-wrap">
-                          {prog.projectName && prog.projectName !== prog.title && (
-                            <span className="text-slate-300 font-medium">{prog.projectName}</span>
-                          )}
-                          {prog.projectName && prog.projectName !== prog.title && <span className="text-slate-600">•</span>}
                           <span>Giá tham chiếu: <strong className="text-indigo-300 font-mono">{prog.currentEstimate}</strong></span>
                           <span className="text-slate-600">•</span>
                           <span>Thời hạn: <strong className="text-slate-300">{new Date(prog.startDate).toLocaleDateString('vi-VN')} - {new Date(prog.endDate).toLocaleDateString('vi-VN')}</strong></span>
@@ -3106,177 +3103,103 @@ export default function AdminRewardsGamificationManager() {
                       </div>
                     </div>
 
-                    {/* Giữa: Giải thưởng & Lượt tham gia */}
-                    <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-                      <div className="px-3 py-2 bg-slate-950 rounded-xl border border-slate-800 text-left sm:text-right min-w-[115px]">
-                        <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Tổng Giải Thưởng</div>
-                        <div className="text-sm font-black text-amber-400 font-mono">
-                          {(Number(prog.totalPrize) || 2000000).toLocaleString('vi-VN')} đ
+                    {/* Giữa & Phải: Giải thưởng, Lượt tham gia & Nút hành động */}
+                    <div className="flex items-center justify-between lg:justify-end gap-3 shrink-0 pt-2 lg:pt-0 border-t border-slate-800/60 lg:border-t-0">
+                      <div className="flex items-center gap-3">
+                        <div className="text-left sm:text-right">
+                          <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Giải Thưởng</div>
+                          <div className="text-sm font-black text-amber-400 font-mono leading-tight">
+                            {(Number(prog.totalPrize) || 2000000).toLocaleString('vi-VN')} đ
+                          </div>
+                        </div>
+
+                        <div className="h-6 w-px bg-slate-800 hidden sm:block"></div>
+
+                        <div className="text-left sm:text-right">
+                          <div className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Tham Gia</div>
+                          <div className="text-sm font-black text-emerald-400 font-mono leading-tight">
+                            {allVotes.length.toLocaleString('vi-VN')}
+                            <span className="text-[10px] text-slate-400 font-normal ml-1">
+                              ({realVotes.length} thật / {botVotes.length} bot)
+                            </span>
+                          </div>
                         </div>
                       </div>
 
-                      <div className="px-3 py-2 bg-slate-950 rounded-xl border border-slate-800 text-left sm:text-right min-w-[125px]">
-                        <div className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">Lượt Tham Gia</div>
-                        <div className="text-sm font-black text-emerald-400 font-mono">
-                          {allVotes.length.toLocaleString('vi-VN')}
-                          <span className="text-[10px] text-slate-400 font-normal ml-1">
-                            ({realVotes.length} thật / {botVotes.length} bot)
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Phải: Hàng nút hành động chính của Game */}
-                    <div className="flex items-center gap-1.5 shrink-0 self-end lg:self-center">
-                      <button
-                        type="button"
-                        disabled={isSettled}
-                        onClick={() => handleOpenSettleModal(prog)}
-                        className={`px-3.5 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 cursor-pointer shadow-md ${
-                          isSettled
-                            ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
-                            : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-amber-500/20'
-                        }`}
-                        title="Chốt kết quả và chia giải thưởng cho người dự đoán chuẩn nhất"
-                      >
-                        <i className="fa-solid fa-gavel"></i>
-                        <span>{isSettled ? 'Đã Chốt' : 'Chốt Giải'}</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleOpenProgramModal(prog)}
-                        className="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl transition flex items-center gap-1 cursor-pointer border border-slate-700"
-                        title="Chỉnh sửa thông tin chương trình"
-                      >
-                        <i className="fa-solid fa-pen-to-square"></i>
-                        <span className="hidden sm:inline">Sửa</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handleDeleteProgram(prog.id)}
-                        className="p-2 w-8 h-8 bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-400 font-bold text-xs rounded-xl transition flex items-center justify-center cursor-pointer border border-slate-700"
-                        title="Xóa chương trình"
-                      >
-                        <i className="fa-solid fa-trash"></i>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* HÀNG 2: THANH QUẢN LÝ BOT TINH GỌN (INLINE BOT CONTROLLER) */}
-                  <div className="p-2.5 sm:p-3 bg-slate-950/70 rounded-xl border border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                    {/* Trái: Icon bot + Switch Bật/Tắt + Thông số tóm tắt inline */}
-                    <div className="flex items-center gap-2.5 flex-wrap">
-                      <div className="flex items-center gap-1.5">
-                        <span className="w-5 h-5 rounded-md bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-[11px]">
-                          <i className="fa-solid fa-robot"></i>
-                        </span>
-                        <span className="font-bold text-slate-300">Bot FOMO:</span>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => handleToggleBot(prog)}
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-black transition cursor-pointer flex items-center gap-1 border ${
-                          prog.botConfig?.isEnabled
-                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30'
-                            : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'
-                        }`}
-                        title="Nhấp để Bật/Tắt nhanh bot ảo cho sự kiện này"
-                      >
-                        <span className={`w-1.5 h-1.5 rounded-full ${prog.botConfig?.isEnabled ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`}></span>
-                        <span>{prog.botConfig?.isEnabled ? 'ĐANG BẬT' : 'ĐANG TẮT'}</span>
-                      </button>
-
-                      {prog.botConfig?.isEnabled ? (
-                        <div className="flex items-center gap-2 text-[11px] text-slate-400 flex-wrap">
-                          <span className="bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-800">
-                            Tiến độ: <strong className="text-emerald-400 font-mono">{botVotes.length}</strong> / <strong className="text-white font-mono">{(Number(prog.botConfig?.botCount) || 0).toLocaleString('vi-VN')} bot</strong>
-                            {Number(prog.botConfig?.botCount) > 0 && (
-                              <span className="text-slate-500 ml-1">({Math.min(100, Math.round((botVotes.length / Number(prog.botConfig.botCount)) * 100))}%)</span>
-                            )}
-                          </span>
-                          <span className="bg-slate-900 px-2 py-0.5 rounded-lg border border-slate-800 hidden md:inline">
-                            Giá cơ sở: <strong className="text-amber-400 font-mono">{prog.botConfig?.basePrice || prog.basePrice || 7.8} tỷ</strong> (±{prog.botConfig?.spreadPercent || prog.spreadPercent || 6}%)
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-[11px] text-slate-500 italic">Đã tắt bot ảo (chỉ hiển thị người thật tham gia)</span>
-                      )}
-                    </div>
-
-                    {/* Phải: Các nút hành động cho Bot */}
-                    <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-auto">
-                      {botVotes.length > 0 && (
+                      {/* Hàng nút hành động */}
+                      <div className="flex items-center gap-1.5 ml-1">
                         <button
                           type="button"
-                          onClick={() => handleClearBots(prog)}
-                          className="px-2.5 py-1 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 font-bold text-[11px] rounded-lg transition flex items-center gap-1 cursor-pointer border border-rose-800/60"
-                          title="Xóa toàn bộ bot ảo về 0"
+                          disabled={isSettled}
+                          onClick={() => handleOpenSettleModal(prog)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 shadow-md ${
+                            isSettled
+                              ? 'bg-slate-800/80 text-slate-400 cursor-not-allowed border border-slate-700/60'
+                              : 'bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 shadow-amber-500/20 cursor-pointer active:scale-95'
+                          }`}
+                          title="Chốt kết quả và chia giải thưởng cho người dự đoán chuẩn nhất"
                         >
-                          <i className="fa-solid fa-broom"></i>
-                          <span>Xóa bot</span>
+                          <i className="fa-solid fa-gavel text-[11px]"></i>
+                          <span>{isSettled ? 'Đã Chốt' : 'Chốt Giải'}</span>
                         </button>
-                      )}
 
-                      <button
-                        type="button"
-                        onClick={() => setExpandedBotProgramIds(prev => ({ ...prev, [prog.id]: !prev[prog.id] }))}
-                        className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-200 text-[11px] font-bold rounded-lg transition flex items-center gap-1 cursor-pointer border border-slate-700"
-                        title={expandedBotProgramIds[prog.id] ? 'Thu gọn chi tiết' : 'Mở rộng chi tiết bot'}
-                      >
-                        <i className={`fa-solid ${expandedBotProgramIds[prog.id] ? 'fa-chevron-up' : 'fa-chevron-down'}`}></i>
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenProgramModal(prog)}
+                          className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition flex items-center justify-center cursor-pointer border border-slate-700/70"
+                          title="Chỉnh sửa thông tin chương trình"
+                        >
+                          <i className="fa-solid fa-pen-to-square text-[11px]"></i>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteProgram(prog.id)}
+                          className="w-8 h-8 rounded-xl bg-slate-800 hover:bg-rose-950/60 text-slate-400 hover:text-rose-400 text-xs font-bold transition flex items-center justify-center cursor-pointer border border-slate-700/70"
+                          title="Xóa chương trình"
+                        >
+                          <i className="fa-solid fa-trash text-[11px]"></i>
+                        </button>
+                      </div>
                     </div>
                   </div>
 
-                  {/* HÀNG 3: CHI TIẾT BOT (NẾU BẤM XỔ XUỐNG ACCORDION) */}
-                  {expandedBotProgramIds[prog.id] && (
-                    <div className="p-3 bg-indigo-950/20 border border-indigo-900/40 rounded-xl text-xs space-y-2">
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px]">
-                        <div className="p-2 bg-slate-900 rounded-lg border border-slate-800">
-                          <span className="text-slate-400 block text-[10px]">Tổng Bot Toàn Kỳ:</span>
-                          <strong className="text-white font-mono">{(Number(prog.botConfig?.botCount) || 0).toLocaleString('vi-VN')} bot</strong>
-                        </div>
-                        <div className="p-2 bg-slate-900 rounded-lg border border-slate-800">
-                          <span className="text-slate-400 block text-[10px]">Giá Cơ Sở:</span>
-                          <strong className="text-amber-400 font-mono">{prog.botConfig?.basePrice || prog.basePrice || 7.8} tỷ</strong>
-                        </div>
-                        <div className="p-2 bg-slate-900 rounded-lg border border-slate-800">
-                          <span className="text-slate-400 block text-[10px]">Biên Độ Dao Động:</span>
-                          <strong className="text-indigo-400 font-mono">±{prog.botConfig?.spreadPercent || prog.spreadPercent || 6}%</strong>
-                        </div>
-                        <div className="p-2 bg-slate-900 rounded-lg border border-slate-800">
-                          <span className="text-slate-400 block text-[10px]">Đang Chạy Thực Tế:</span>
-                          <strong className="text-emerald-400 font-mono">{botVotes.length} bot</strong>
-                        </div>
-                      </div>
-                      <div className="text-[11px] text-indigo-300 flex items-center gap-1.5 pt-0.5">
-                        <i className="fa-solid fa-clock-rotate-left text-amber-400 shrink-0"></i>
-                        <span>Phân bổ lũy tiến: Bot chạy tự động tăng dần từ <strong>{new Date(prog.startDate).toLocaleDateString('vi-VN')}</strong> đến <strong>{new Date(prog.endDate).toLocaleDateString('vi-VN')}</strong>, đạt tối đa <strong>{(Number(prog.botConfig?.botCount) || 0).toLocaleString('vi-VN')} bot</strong> khi kết thúc.</span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* NẾU ĐÃ CHỐT KẾT QUẢ: HIỂN THỊ TÓM TẮT GIẢI THƯỞNG */}
+                  {/* NẾU ĐÃ CHỐT KẾT QUẢ: HIỂN THỊ TÓM TẮT GIẢI THƯỞNG TINH GỌN */}
                   {isSettled && prog.settledResult && (
-                    <div className="p-4 bg-amber-950/20 border border-amber-500/30 rounded-2xl text-xs space-y-2.5">
-                      <div className="flex items-center justify-between font-bold text-amber-300">
-                        <span>Giá Chốt Thực Tế: <strong className="font-mono text-white text-sm">{prog.settledResult.targetPrice} tỷ</strong></span>
-                        <span>{prog.settledResult.isSplitPrize ? `Chia đều ${prog.settledResult.winners.length} người thắng` : 'Xếp hạng Top 1, 2, 3'}</span>
+                    <div className="p-2 sm:p-2.5 bg-amber-950/15 border border-amber-500/25 rounded-xl space-y-1.5">
+                      <div className="flex items-center justify-between font-bold text-xs">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-4 h-4 rounded bg-amber-500/20 text-amber-400 flex items-center justify-center text-[10px]">
+                            <i className="fa-solid fa-trophy"></i>
+                          </span>
+                          <span className="text-slate-300 text-[11px]">
+                            Giá Chốt: <strong className="font-mono text-amber-300 text-xs sm:text-sm ml-0.5">{prog.settledResult.targetPrice} tỷ</strong>
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-amber-400/90 font-medium">
+                          {prog.settledResult.isSplitPrize ? `Chia đều ${prog.settledResult.winners.length} người thắng` : 'Xếp hạng Top 1, 2, 3'}
+                        </span>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+
+                      {/* Danh sách người thắng xếp dạng chip mỏng */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5">
                         {prog.settledResult.winners?.slice(0, 3).map((w, idx) => (
-                          <div key={idx} className="p-2.5 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
-                            <div>
-                              <div className="font-bold text-white flex items-center gap-1">
-                                <span className="text-amber-400">#{w.rank || idx + 1}</span>
-                                <span>{w.userName}</span>
+                          <div
+                            key={idx}
+                            className="px-2.5 py-1 bg-slate-950/70 rounded-lg border border-slate-800/80 flex items-center justify-between gap-1.5"
+                          >
+                            <div className="min-w-0 flex items-center gap-1.5">
+                              <span className={`w-4 h-4 rounded text-[9px] font-mono font-black flex items-center justify-center shrink-0 ${
+                                idx === 0 ? 'bg-amber-500 text-slate-950' : idx === 1 ? 'bg-slate-300 text-slate-950' : 'bg-amber-700 text-white'
+                              }`}>
+                                {w.rank || idx + 1}
+                              </span>
+                              <div className="truncate">
+                                <span className="font-bold text-white text-[11px] truncate block leading-tight">{w.userName}</span>
+                                <span className="text-[9px] text-slate-400 leading-none">Đoán {w.predictedPrice}t (lệch {w.diff}t)</span>
                               </div>
-                              <div className="text-[10px] text-slate-400">Đoán: {w.predictedPrice} tỷ (Lệch: {w.diff} tỷ)</div>
                             </div>
-                            <div className="text-right font-mono font-black text-emerald-400">
+                            <div className="text-right font-mono font-black text-emerald-400 text-[11px] shrink-0">
                               +{w.rewardAmount?.toLocaleString('vi-VN')}đ
                             </div>
                           </div>
@@ -3284,6 +3207,107 @@ export default function AdminRewardsGamificationManager() {
                       </div>
                     </div>
                   )}
+
+                  {/* QUẢN LÝ BOT FOMO: THANH NGANG THU GỌN */}
+                  <div className="pt-1 border-t border-slate-800/40">
+                    <div className="flex items-center justify-between text-xs flex-wrap gap-2">
+                      {/* Trái: Trạng thái Bot */}
+                      <div className="flex items-center gap-2 flex-wrap text-[11px]">
+                        <span className="text-slate-400 flex items-center gap-1 font-semibold">
+                          <i className="fa-solid fa-robot text-indigo-400 text-[10px]"></i>
+                          <span>Bot FOMO:</span>
+                        </span>
+
+                        {!isSettled ? (
+                          <button
+                            type="button"
+                            onClick={() => handleToggleBot(prog)}
+                            className={`px-2 py-0.5 rounded-full text-[9px] font-black transition cursor-pointer flex items-center gap-1 border ${
+                              prog.botConfig?.isEnabled
+                                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 hover:bg-emerald-500/30'
+                                : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'
+                            }`}
+                            title="Bật/Tắt nhanh bot ảo"
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full ${prog.botConfig?.isEnabled ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500'}`}></span>
+                            <span>{prog.botConfig?.isEnabled ? 'BẬT' : 'TẮT'}</span>
+                          </button>
+                        ) : (
+                          <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-500 font-bold border border-slate-700/50">
+                            ĐÃ DỪNG
+                          </span>
+                        )}
+
+                        {prog.botConfig?.isEnabled && !isSettled ? (
+                          <span className="text-slate-400 text-[11px]">
+                            Tiến độ: <strong className="text-emerald-400 font-mono">{botVotes.length}</strong> / <strong className="text-white font-mono">{Number(prog.botConfig?.botCount || 0).toLocaleString('vi-VN')} bot</strong>
+                            {Number(prog.botConfig?.botCount) > 0 && (
+                              <span className="text-slate-500 ml-1">({Math.min(100, Math.round((botVotes.length / Number(prog.botConfig.botCount)) * 100))}%)</span>
+                            )}
+                            <span className="text-slate-600 mx-1.5 hidden sm:inline">•</span>
+                            <span className="hidden sm:inline">Giá cơ sở: <strong className="text-amber-400 font-mono">{prog.botConfig?.basePrice || prog.basePrice || 7.8} tỷ</strong> (±{prog.botConfig?.spreadPercent || prog.spreadPercent || 6}%)</span>
+                          </span>
+                        ) : (
+                          <span className="text-slate-500 text-[10px] italic">
+                            {isSettled ? `(Đã chạy ${botVotes.length} bot)` : 'Đã tắt bot ảo (chỉ người thật)'}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Phải: Nút Xóa Bot + Nút Mở rộng chi tiết */}
+                      <div className="flex items-center gap-1.5">
+                        {!isSettled && botVotes.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => handleClearBots(prog)}
+                            className="px-2 py-0.5 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 font-bold text-[10px] rounded-lg transition flex items-center gap-1 cursor-pointer border border-rose-800/60"
+                            title="Xóa toàn bộ bot ảo về 0"
+                          >
+                            <i className="fa-solid fa-broom text-[9px]"></i>
+                            <span>Xóa bot</span>
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => setExpandedBotProgramIds(prev => ({ ...prev, [prog.id]: !prev[prog.id] }))}
+                          className="px-2 py-0.5 bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-slate-200 text-[10px] font-bold rounded-lg transition flex items-center gap-1 cursor-pointer border border-slate-700/60"
+                          title={isBotExpanded ? 'Thu gọn' : 'Xem cấu hình bot'}
+                        >
+                          <span>{isBotExpanded ? 'Thu gọn' : 'Cấu hình bot'}</span>
+                          <i className={`fa-solid ${isBotExpanded ? 'fa-chevron-up' : 'fa-chevron-down'} text-[9px]`}></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* CHI TIẾT CẤU HÌNH BOT (KHI BẤM MỞ RỘNG) */}
+                    {isBotExpanded && (
+                      <div className="mt-2 p-2.5 bg-indigo-950/15 border border-indigo-900/30 rounded-xl text-xs space-y-1.5">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 text-[10px]">
+                          <div className="p-1.5 bg-slate-950/80 rounded-lg border border-slate-800/80">
+                            <span className="text-slate-400 block text-[9px]">Tổng Bot Toàn Kỳ:</span>
+                            <strong className="text-white font-mono text-[11px]">{(Number(prog.botConfig?.botCount) || 0).toLocaleString('vi-VN')} bot</strong>
+                          </div>
+                          <div className="p-1.5 bg-slate-950/80 rounded-lg border border-slate-800/80">
+                            <span className="text-slate-400 block text-[9px]">Giá Cơ Sở:</span>
+                            <strong className="text-amber-400 font-mono text-[11px]">{prog.botConfig?.basePrice || prog.basePrice || 7.8} tỷ</strong>
+                          </div>
+                          <div className="p-1.5 bg-slate-950/80 rounded-lg border border-slate-800/80">
+                            <span className="text-slate-400 block text-[9px]">Biên Độ Dao Động:</span>
+                            <strong className="text-indigo-400 font-mono text-[11px]">±{prog.botConfig?.spreadPercent || prog.spreadPercent || 6}%</strong>
+                          </div>
+                          <div className="p-1.5 bg-slate-950/80 rounded-lg border border-slate-800/80">
+                            <span className="text-slate-400 block text-[9px]">Đang Chạy Thực Tế:</span>
+                            <strong className="text-emerald-400 font-mono text-[11px]">{botVotes.length} bot</strong>
+                          </div>
+                        </div>
+                        <div className="text-[10px] text-indigo-300 flex items-center gap-1 pt-0.5">
+                          <i className="fa-solid fa-clock-rotate-left text-amber-400 shrink-0 text-[9px]"></i>
+                          <span>Phân bổ lũy tiến từ <strong>{new Date(prog.startDate).toLocaleDateString('vi-VN')}</strong> đến <strong>{new Date(prog.endDate).toLocaleDateString('vi-VN')}</strong>, tối đa <strong>{(Number(prog.botConfig?.botCount) || 0).toLocaleString('vi-VN')} bot</strong>.</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               );
             })}
