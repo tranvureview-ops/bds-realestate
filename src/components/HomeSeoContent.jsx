@@ -14,44 +14,6 @@ export default function HomeSeoContent() {
       <div className="prose prose-slate max-w-none">
 
         {/* =====================================================================
-            H2: Bất Động Sản Nổi Bật Đang Giao Dịch
-           ===================================================================== */}
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-3">
-          Bất Động Sản Nổi Bật Đang Giao Dịch
-        </h2>
-        <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-6">
-          Phân khúc thị trường thứ cấp và sơ cấp ghi nhận thanh khoản ổn định tập trung vào các tài sản sở hữu dòng tiền sẵn có hoặc hạ tầng kết nối hoàn chỉnh.
-        </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
-          {/* H3 – Căn Hộ */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-800 mb-2">
-              <Link to="/ban-can-ho-chung-cu" className="hover:text-red-600 transition-colors">
-                Căn Hộ Chung Cư Cao Cấp & Đất Nền Dự Án Trọng Điểm
-              </Link>
-            </h3>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Dữ liệu nguồn cung căn hộ tập trung vào các đô thị lớn với đầy đủ giấy phép xây dựng, tiến độ bàn giao đúng cam kết và hỗ trợ tài chính từ ngân hàng. Phân khúc{' '}
-              <Link to="/ban-dat-nen-du-an" className="text-red-600 hover:underline font-medium">đất nền dự án</Link>{' '}
-              được sàng lọc kỹ về quy hoạch 1/500, hạ tầng giao thông kết nối liên vùng và tiềm năng tạo thị.
-            </p>
-          </div>
-
-          {/* H3 – Nhà Phố, Biệt Thự */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
-            <h3 className="text-lg font-bold text-slate-800 mb-2">
-              <Link to="/ban-nha-rieng-nha-pho" className="hover:text-red-600 transition-colors">
-                Nhà Phố, Biệt Thự Nghỉ Dưỡng Pháp Lý Minh Bạch
-              </Link>
-            </h3>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Toàn bộ thông tin nhà mặt phố thương mại, nhà liền kề và biệt thự nghỉ dưỡng ven biển được xác thực hiện trạng: sổ đỏ/sổ hồng riêng, không vướng tranh chấp, diện tích sử dụng thực tế và chỉ giới quy hoạch đường bộ rõ ràng trước khi hiển thị.
-            </p>
-          </div>
-        </div>
-
-        {/* =====================================================================
             H2: Thị Trường Mua Bán & Cho Thuê Theo Khu Vực
            ===================================================================== */}
         <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-3">
