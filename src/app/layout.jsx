@@ -286,16 +286,7 @@ export default async function RootLayout({ children }) {
         {/* Preconnect to Google Fonts CDN */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Preload critical styling assets */}
-        <link
-          rel="preload"
-          as="style"
-          href={fontConfig.googleFontUrl}
-        />
-        <link
-          rel="stylesheet"
-          href="/fontawesome.min.css"
-        />
+        {/* Preload critical Font Awesome Solid Webfont for above-the-fold icons */}
         <link
           rel="preload"
           href="/webfonts/fa-solid-900.woff2"
@@ -303,13 +294,23 @@ export default async function RootLayout({ children }) {
           type="font/woff2"
           crossOrigin="anonymous"
         />
+        {/* Non-render-blocking Stylesheet for FontAwesome (zero render delay) */}
         <link
-          rel="preload"
-          href="/webfonts/fa-brands-400.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
+          rel="stylesheet"
+          href="/fontawesome.min.css"
+          media="print"
+          data-async-css="fontawesome"
         />
+        {/* Preload primary Google Font .woff2 chunk to eliminate font swap layout shift */}
+        {fontConfig.primaryPreloadWoff2 && (
+          <link
+            rel="preload"
+            href={fontConfig.primaryPreloadWoff2}
+            as="font"
+            type="font/woff2"
+            crossOrigin="anonymous"
+          />
+        )}
         {/* Non-render-blocking Asynchronous Stylesheet Injector to eliminate Critical Request Chains */}
         <script
           id="server-async-styles"
@@ -325,7 +326,8 @@ export default async function RootLayout({ children }) {
                   document.head.appendChild(l);
                 }
                 loadCSS('${fontConfig.googleFontUrl}', 'server-google-font-link');
-                loadCSS('/fontawesome.min.css', 'server-fa-link');
+                var fa = document.querySelector('link[data-async-css="fontawesome"]');
+                if (fa) { fa.media = 'all'; }
               })();
             `
           }}
@@ -334,16 +336,6 @@ export default async function RootLayout({ children }) {
           <link rel="stylesheet" href={fontConfig.googleFontUrl} />
           <link rel="stylesheet" href="/fontawesome.min.css" />
         </noscript>
-        {/* Preload primary Google Font .woff2 chunk (eliminates font swap layout shift & LCP render delay) */}
-        {fontConfig.primaryPreloadWoff2 && (
-          <link
-            rel="preload"
-            href={fontConfig.primaryPreloadWoff2}
-            as="font"
-            type="font/woff2"
-            crossOrigin="anonymous"
-          />
-        )}
         <style
           id="app-ssr-font-override"
           dangerouslySetInnerHTML={{
@@ -419,14 +411,6 @@ export default async function RootLayout({ children }) {
               ],
             }),
           }}
-        />
-        {/* Preload critical Font Awesome Solid Webfont locally with font-display: swap */}
-        <link
-          rel="preload"
-          href="/webfonts/fa-solid-900.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
         />
       </head>
       <body suppressHydrationWarning>
