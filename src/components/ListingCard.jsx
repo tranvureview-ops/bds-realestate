@@ -238,7 +238,7 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
           <h3 className="mb-2">
             <Link 
               to={getPropertyPermalink(property)}
-              className={`line-clamp-3 hover:underline transition property-title-sentence h-[4.2rem] overflow-hidden ${(vipPkg.titleClass || '').replace(/\btext-amber-600\b/g, 'text-amber-800')}`}
+              className={`line-clamp-3 hover:underline transition property-title-sentence leading-snug font-bold ${(vipPkg.titleClass || '').replace(/\btext-amber-600\b/g, 'text-amber-800').replace(/\btext-lg\b/g, 'text-sm sm:text-base').replace(/\bfont-extrabold\b/g, 'font-bold')}`}
               style={{
                 display: '-webkit-box',
                 WebkitLineClamp: 3,
