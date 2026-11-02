@@ -38,15 +38,15 @@ export default function HomeCategoryShowcase() {
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-2">
-      <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-6 shadow-xs">
+      <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-6 shadow-xs">
         {/* Header với Tabs Mua Bán / Cho Thuê */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 pb-3 sm:pb-4 border-b border-slate-100">
           <div>
-            <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-600 inline-block"></span>
+            <h2 className="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-red-600 inline-block"></span>
               Khám Phá Danh Mục Bất Động Sản
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            <p className="text-[11px] sm:text-sm text-slate-500 mt-0.5">
               Tra cứu nhanh theo loại hình mua bán và cho thuê trên toàn quốc
             </p>
           </div>
@@ -56,7 +56,7 @@ export default function HomeCategoryShowcase() {
             <button
               type="button"
               onClick={() => setTab('sale')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 tab === 'sale'
                   ? 'bg-white text-red-600 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -68,7 +68,7 @@ export default function HomeCategoryShowcase() {
             <button
               type="button"
               onClick={() => setTab('rent')}
-              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              className={`px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
                 tab === 'rent'
                   ? 'bg-white text-blue-600 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -80,21 +80,21 @@ export default function HomeCategoryShowcase() {
           </div>
         </div>
 
-        {/* Categories Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-3 mt-4">
+        {/* Categories Grid - Mobile: 3 cột hoặc cuộn ngang cực gọn; Desktop: 6 cột */}
+        <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 mt-3 sm:mt-4">
           {categories.map((item) => (
             <Link
               key={item.path}
               to={item.path}
-              className="p-3 rounded-xl border border-slate-100 bg-slate-50/70 hover:bg-white hover:border-red-400 hover:shadow-sm transition-all duration-200 flex flex-col items-center text-center group"
+              className="p-2 sm:p-3 rounded-xl border border-slate-100 bg-slate-50/70 hover:bg-white hover:border-red-400 hover:shadow-sm transition-all duration-200 flex flex-col items-center text-center group"
             >
-              <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-700 flex items-center justify-center text-base mb-2 group-hover:scale-110 group-hover:bg-red-50 group-hover:text-red-600 group-hover:border-red-200 transition-all">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white border border-slate-200 text-slate-700 flex items-center justify-center text-xs sm:text-base mb-1.5 sm:mb-2 group-hover:scale-110 group-hover:bg-red-50 group-hover:text-red-600 group-hover:border-red-200 transition-all shrink-0">
                 <i className={item.icon}></i>
               </div>
-              <span className="font-bold text-xs text-slate-800 group-hover:text-red-600 transition-colors line-clamp-1">
+              <span className="font-bold text-[11px] sm:text-xs text-slate-800 group-hover:text-red-600 transition-colors line-clamp-1 leading-snug">
                 {item.title}
               </span>
-              <span className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">
+              <span className="hidden sm:block text-[10px] text-slate-400 mt-0.5 line-clamp-1">
                 {item.countLabel}
               </span>
             </Link>

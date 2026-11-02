@@ -1157,7 +1157,7 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
         </div>
 
         {/* Popular Trending SEO Tags */}
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-xs text-slate-300">
+        <div className="mt-3 sm:mt-4 hidden sm:flex flex-wrap items-center justify-center gap-2 text-xs text-slate-300">
           <span className="text-slate-400 font-semibold text-[11px] flex items-center gap-1">
             <i className="fa-solid fa-fire text-amber-400 text-[10px]"></i>
             Xu hướng tìm kiếm:
