@@ -6,6 +6,7 @@ import { Link } from '../router/RouterContext';
 import HeroSearch from '../components/HeroSearch';
 import ListingGrid from '../components/ListingGrid';
 import VipPackageShowcase from '../components/VipPackageShowcase';
+import HomeCategoryShowcase from '../components/HomeCategoryShowcase';
 import HomeSeoContent from '../components/HomeSeoContent';
 import { filterProperties } from '../utils/propertyFilter';
 
@@ -97,6 +98,9 @@ export default function HomePage() {
           </Link>
         </div>
       </section>
+
+      {/* Danh mục Bất động sản Mua bán & Cho thuê (Phía trên Bất Động Sản Nổi Bật) */}
+      <HomeCategoryShowcase />
 
       {/* Core Listings Grid & Interactive Map */}
       <div id="home-listings-section" className="!mt-2 sm:!mt-3 scroll-mt-20">
