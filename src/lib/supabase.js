@@ -22,18 +22,50 @@ export const supabase = isSupabaseConfigured()
 // 1. DỊCH VỤ NHÀ ĐẤT (PROPERTIES CRUD)
 // ==========================================
 
+// Danh sách các cột tối giản phục vụ hiển thị thẻ sản phẩm (Card / Listing)
+// Tuyệt đối loại bỏ các cột siêu nặng như raw_data (50-200KB), description HTML, vr_scenes để tiết kiệm 99% Egress
+export const CARD_PROPERTY_COLUMNS = 'id, title, slug, demand, property_type, property_type_name, price, price_display, price_per_m2, area, bedroom, bathroom, address, city, district, ward, images, author, vip_package_id, status, published_at, expires_at, is_verified, is_featured';
+
 /**
- * Lấy danh sách nhà đất từ Supabase Cloud
+ * Lấy danh sách nhà đất từ Supabase Cloud (Đã tối ưu hóa Egress & Phân trang)
+ * @param {object} options Các tùy chọn truy vấn (phân trang, cột cần lấy, view)
  */
-export async function fetchSupabaseProperties() {
+export async function fetchSupabaseProperties(options = {}) {
   if (!isSupabaseConfigured() || !supabase) return null;
+  const {
+    rangeFrom = 0,
+    rangeTo,
+    columns = CARD_PROPERTY_COLUMNS,
+    isFull = false,
+    useView = false
+  } = (typeof options === 'object' && options !== null ? options : {});
+
   try {
-    const { data, error } = await supabase
-      .from('properties')
-      .select('*')
-      .order('published_at', { ascending: false });
+    let query;
+    if (useView) {
+      query = supabase
+        .from('vw_properties_card')
+        .select('*')
+        .order('published_at', { ascending: false });
+    } else {
+      query = supabase
+        .from('properties')
+        .select(isFull ? '*' : columns)
+        .order('published_at', { ascending: false });
+    }
+
+    // Áp dụng phân trang (Pagination) để khống chế băng thông Egress
+    if (typeof rangeFrom === 'number' && typeof rangeTo === 'number') {
+      query = query.range(rangeFrom, rangeTo);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
+      // Fallback: nếu gọi view thất bại do chưa tạo view thì query trực tiếp bảng properties
+      if (useView) {
+        return fetchSupabaseProperties({ ...options, useView: false });
+      }
       console.warn('Lỗi khi tải properties từ Supabase:', error.message);
       return null;
     }
@@ -622,7 +654,7 @@ export function mergeProfilesWithSettingsUsers(profiles, settingsUsers) {
 let _dbCache = null;
 let _dbCacheExpiresAt = 0;
 let _pendingFetchPromise = null;
-const CACHE_TTL_MS = 1500; // 1.5 giây cache ngắn trên RAM (tránh race conditions, không giữ dữ liệu cũ khi reload)
+const CACHE_TTL_MS = 60000; // 60 giây cache trên RAM (chống bão request/egress, tự động xóa khi có thay đổi)
 
 /**
  * Xóa cache Supabase khi có thao tác ghi hoặc đồng bộ dữ liệu mới
@@ -695,15 +727,15 @@ export async function fetchFullSupabaseDb(options = {}) {
       if (isAdmin) {
         // Chỉ khi quản trị viên đã xác thực vào trang /admin mới tải toàn bộ để quản lý
         [props, settingsRes, profiles, txns] = await Promise.all([
-          fetchSupabaseProperties(),
+          fetchSupabaseProperties({ isFull: true }),
           supabase.from('platform_settings').select('key, value'),
           fetchSupabaseProfiles(),
           fetchSupabaseTransactions()
         ]);
       } else {
-        // Mặc định cho Khách vãng lai, Người dùng công cộng & SSR: Tải Properties & Settings công khai kèm danh sách hồ sơ an toàn
+        // Mặc định cho Khách vãng lai, Người dùng công cộng & SSR: Chỉ tải các cột Card tối giản + phân trang trang đầu để bảo vệ Egress
         [props, settingsRes, profiles] = await Promise.all([
-          fetchSupabaseProperties(),
+          fetchSupabaseProperties({ rangeFrom: 0, rangeTo: 23, isFull: false, useView: true }),
           supabase.from('platform_settings').select('key, value').in('key', [...PUBLIC_SETTINGS_KEYS, 'bds_users_list']),
           fetchSupabaseProfiles()
         ]);

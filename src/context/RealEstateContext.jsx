@@ -22,6 +22,14 @@ const persistSettingToSupabase = async (key, value) => {
   try {
     invalidateSupabaseCache();
     const adminToken = typeof window !== 'undefined' ? (sessionStorage.getItem('bds_admin_token') || localStorage.getItem('bds_admin_token') || '') : '';
+
+    // Dự phòng lưu vào localStorage ngay lập tức để không bao giờ bị mất cấu hình khi reload
+    if (typeof window !== 'undefined' && key && value) {
+      try {
+        localStorage.setItem(`bds_cached_${key}`, JSON.stringify(value));
+      } catch (_) {}
+    }
+
     // Với bds_email_config, nếu có mật khẩu SMTP chưa mã hóa thì ủy quyền cho /api/db-sync
     // tự động mã hóa AES-256-GCM ở tầng Server trước khi ghi vào Supabase và Database
     if (key === 'bds_email_config' && value?.smtp?.password && String(value.smtp.password).split(':').length !== 3) {
@@ -738,7 +746,15 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // 11. Cài Đặt Vận Hành Hệ Thống Sàn BĐS (Platform Operating Settings State)
   const [systemConfig, setSystemConfig] = useState(() => {
-    const raw = initialData?.bds_system_config || {};
+    let raw = initialData?.bds_system_config || {};
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('bds_cached_bds_system_config');
+        if (cached) {
+          raw = { ...raw, ...JSON.parse(cached) };
+        }
+      } catch (_) {}
+    }
     return {
       ...DEFAULT_SYSTEM_CONFIG,
       ...raw,
@@ -846,11 +862,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
 
   // Methods for System Config with Automatic Cross-System Brand & Hotline Synchronization
   const updateSystemConfig = async (newConfig) => {
-    let updatedSystem;
-    setSystemConfig(prev => {
-      updatedSystem = { ...prev, ...newConfig };
-      return updatedSystem;
-    });
+    const updatedSystem = { ...systemConfig, ...newConfig };
+    setSystemConfig(updatedSystem);
 
     let updatedHeader;
     // 1. TỰ ĐỘNG ĐỒNG BỘ NHẬN DIỆN THƯƠNG HIỆU SANG HEADER / NAVBAR
@@ -1508,10 +1521,11 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   const isFetchingSupabaseRef = useRef(false);
   const lastFetchTimestampRef = useRef(0);
 
-  // Tải dữ liệu mới nhất trực tiếp từ Supabase qua SDK (Central Fetcher)
+  // Tải dữ liệu mới nhất trực tiếp từ Supabase qua SDK (Central Fetcher - Khống chế tần suất chống spam Egress)
   const fetchLatestDataFromSupabase = useCallback(async (isSilent = true, forceRefresh = false) => {
     const now = Date.now();
-    if (!forceRefresh && (isFetchingSupabaseRef.current || (now - lastFetchTimestampRef.current < 1500))) {
+    const minThrottleMs = forceRefresh ? 1000 : 30000; // Tối thiểu 30s giữa các lần tự động fetch ngầm
+    if (!forceRefresh && (isFetchingSupabaseRef.current || (now - lastFetchTimestampRef.current < minThrottleMs))) {
       return false;
     }
     isFetchingSupabaseRef.current = true;
@@ -1732,9 +1746,15 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return fetchLatestDataFromSupabase(isSilent, forceRefresh);
   }, [fetchLatestDataFromSupabase]);
 
-  // 1. One-time client rehydration from Supabase Client SDK
+  // 1. One-time client rehydration from Supabase Client SDK (Khống chế vòng lặp tuyệt đối với ref guard)
+  const hasRehydratedRef = useRef(false);
+
   useEffect(() => {
-    let isMounted = true;
+    if (hasRehydratedRef.current) return;
+    hasRehydratedRef.current = true;
+
+    setIsHydrated(true);
+
     if (typeof window !== 'undefined') {
       const STALE_SERVER_KEYS = [
         'bds_users_list',
@@ -1757,19 +1777,25 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       });
     }
 
-    // Ngay khi mount ở client, kích hoạt hydrated ngay vì đã có dữ liệu SSR đầy đủ
-    if (isMounted) setIsHydrated(true);
+    // Nếu SSR đã cung cấp dữ liệu đầy đủ, không gọi lại Supabase ngay khi mount để tránh lãng phí Egress
+    const isAdminRoute = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin');
+    if (!initialData || !initialData.bds_properties?.length || isAdminRoute) {
+      fetchLatestDataFromSupabase(true);
+    }
+  }, []); // MẢNG PHỤ THUỘC RỖNG TUYỆT ĐỐI [] - CHỈ CHẠY 1 LẦN DUY NHẤT KHI KHỞI TẠO
 
-    // Luôn luôn tự động kéo dữ liệu đồng bộ ngầm ở Client để đảm bảo cấu hình Header, Logo, System luôn mới nhất
-    fetchLatestDataFromSupabase(true);
-
-    return () => { isMounted = false; };
-  }, [fetchLatestDataFromSupabase, initialData]);
-
-  // 2. Window Focus / Tab Switch Auto-Fetch (Tự động kéo dữ liệu mới khi chuyển tab về web)
+  // 2. Window Focus / Tab Switch Auto-Fetch (CHỈ KÍCH HOẠT CHO ADMIN VÀ THROTTLE 10 PHÚT)
   useEffect(() => {
+    // Khách vãng lai và người dùng thông thường: TUYỆT ĐỐI KHÔNG FETCH KHI ĐỔI TAB (Triệt tiêu 100% bão request 1.700 reqs/h)
+    const isAdmin = currentUser?.role === 'admin' || (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin'));
+    if (!isAdmin) return;
+
+    let lastFocusFetchTime = Date.now();
     const handleFocusOrVisible = () => {
-      if (typeof document !== 'undefined' && document.visibilityState === 'visible') {
+      const now = Date.now();
+      // Chỉ cho phép tải lại nếu đã qua ít nhất 10 phút (600.000ms)
+      if (now - lastFocusFetchTime >= 600000 && typeof document !== 'undefined' && document.visibilityState === 'visible') {
+        lastFocusFetchTime = now;
         fetchLatestDataFromSupabase(true);
       }
     };
@@ -1779,7 +1805,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       window.removeEventListener('focus', handleFocusOrVisible);
       document.removeEventListener('visibilitychange', handleFocusOrVisible);
     };
-  }, [fetchLatestDataFromSupabase]);
+  }, [fetchLatestDataFromSupabase, currentUser?.role]);
 
   // 3. Supabase Realtime Subscription (Lắng nghe tức thì khi có thay đổi trên Database Supabase)
   // Chuẩn hóa hỗ trợ bfcache (Back/Forward Cache):
