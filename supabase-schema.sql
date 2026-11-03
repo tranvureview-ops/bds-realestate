@@ -546,3 +546,49 @@ ON CONFLICT (id) DO UPDATE SET wallet_balance = EXCLUDED.wallet_balance;
 INSERT INTO profiles (id, name, email, role, role_name, wallet_balance, phone, avatar, is_verified)
 VALUES ('user-01', 'Lê Minh Tâm', 'minhtam.le@gmail.com', 'user', 'Khách hàng cá nhân', 850000, '0912 345 678', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80', false)
 ON CONFLICT (id) DO UPDATE SET wallet_balance = EXCLUDED.wallet_balance;
+
+-- ====================================================================
+-- 9. TỐI ƯU HÓA BĂNG THÔNG DATABASE EGRESS (VIEW RÚT GỌN VÀ INDEXES)
+-- ====================================================================
+CREATE OR REPLACE VIEW public.vw_properties_card AS
+SELECT 
+  id,
+  title,
+  slug,
+  demand,
+  property_type,
+  price,
+  price_display,
+  price_per_m2,
+  area,
+  bedroom,
+  bathroom,
+  address,
+  city,
+  district,
+  ward,
+  COALESCE(address, CONCAT_WS(', ', ward, district, city)) AS location,
+  images,
+  author,
+  vip_package_id,
+  status,
+  published_at,
+  expires_at,
+  COALESCE(is_verified, false) AS is_verified,
+  COALESCE(is_featured, false) AS is_featured
+FROM public.properties
+WHERE status = 'active' AND (is_deleted IS NULL OR is_deleted = false);
+
+GRANT SELECT ON public.vw_properties_card TO anon, authenticated, service_role;
+
+CREATE INDEX IF NOT EXISTS idx_properties_card_query 
+ON public.properties (published_at DESC) 
+WHERE status = 'active' AND (is_deleted IS NULL OR is_deleted = false);
+
+CREATE INDEX IF NOT EXISTS idx_properties_demand_status 
+ON public.properties (demand, published_at DESC) 
+WHERE status = 'active' AND (is_deleted IS NULL OR is_deleted = false);
+
+CREATE INDEX IF NOT EXISTS idx_platform_settings_key 
+ON public.platform_settings (key);
+
