@@ -485,13 +485,13 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
         <div className="absolute top-1/2 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
       </div>
 
-      <div className="max-w-4xl mx-auto relative z-20" ref={containerRef}>
+      <div className="max-w-5xl mx-auto relative z-20" ref={containerRef}>
         {/* Slogan */}
         <div className="text-center mb-4 sm:mb-5 text-white flex flex-col justify-center">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight drop-shadow-md leading-normal">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight drop-shadow-md leading-normal whitespace-nowrap">
             Kênh Nhà Đất 24H - <span className="text-[#ff6b6b] inline">Mua Bán & Cho Thuê Bất Động Sản Toàn Quốc</span>
           </h1>
-          <p className="mt-1.5 text-xs sm:text-sm text-slate-300 max-w-xl mx-auto font-medium leading-normal">
+          <p className="mt-1.5 text-xs sm:text-sm text-slate-300 max-w-2xl mx-auto font-medium leading-normal">
             Dữ liệu nguồn cung xác thực, sổ hồng riêng và định giá minh bạch 24/7
           </p>
         </div>
