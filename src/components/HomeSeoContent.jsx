@@ -13,54 +13,6 @@ export default function HomeSeoContent() {
       <div className="prose prose-slate max-w-none">
 
         {/* =====================================================================
-            H2: Nền Tảng Giao Dịch Đáng Tin Cậy
-           ===================================================================== */}
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-3">
-          Nền Tảng Giao Dịch Bất Động Sản Trực Tuyến Đáng Tin Cậy
-        </h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10">
-          {/* H3 – Kiểm Duyệt */}
-          <div className="flex flex-col gap-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-red-50 text-red-600 flex items-center justify-center text-lg shrink-0">
-              <i className="fa-solid fa-shield-halved"></i>
-            </div>
-            <h3 className="text-base font-bold text-slate-800">
-              Kiểm Duyệt Tin Đăng Xác Thực & Tránh Rủi Ro Pháp Lý
-            </h3>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Hệ thống áp dụng quy trình kiểm soát tin đăng hai lớp: thuật toán tự động quét trùng lặp dữ liệu và đội ngũ kiểm duyệt thực địa xác minh tọa độ, hình ảnh thực tế và giấy tờ quyền sử dụng đất. Tiêu chí này loại bỏ tình trạng tin ảo, giá mồi hoặc sai lệch hiện trạng quy hoạch.
-            </p>
-          </div>
-
-          {/* H3 – Định Giá */}
-          <div className="flex flex-col gap-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg shrink-0">
-              <i className="fa-solid fa-chart-line"></i>
-            </div>
-            <h3 className="text-base font-bold text-slate-800">
-              Công Cụ Định Giá Bất Động Sản Và Cập Nhật Xu Hướng Đầu Tư
-            </h3>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Kenhnhadat24h.com.vn tích hợp module phân tích lịch sử giao dịch và dữ liệu so sánh giá theo từng cung đường, tuyến phố. Tính năng dự đoán và tham chiếu giá bất động sản hỗ trợ cả bên mua lẫn bên bán xác định điểm cân bằng thị trường, hạn chế tình trạng định giá lệch biên độ.
-            </p>
-          </div>
-
-          {/* H3 – Môi Giới */}
-          <div className="flex flex-col gap-2 bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg shrink-0">
-              <i className="fa-solid fa-handshake"></i>
-            </div>
-            <h3 className="text-base font-bold text-slate-800">
-              Giải Pháp Đăng Tin Mua Bán Nhà Đất Nhanh Chóng Cho Môi Giới
-            </h3>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Hệ sinh thái công cụ hỗ trợ môi giới bao gồm: quản lý giỏ hàng, đo lường lượt tiếp cận khách hàng tiềm năng theo thời gian thực và liên kết trực tiếp ứng dụng nhắn tin (Zalo, cuộc gọi thoại) với khách hàng có nhu cầu thực tế.
-            </p>
-          </div>
-        </div>
-
-        {/* =====================================================================
             H2: Cẩm Nang & Hỏi Đáp Pháp Lý
            ===================================================================== */}
         <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-5">
