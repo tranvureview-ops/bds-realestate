@@ -286,6 +286,21 @@ export default async function RootLayout({ children }) {
         {/* Preconnect to Google Fonts CDN */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        {/* Preload critical local Roboto bold font for above-the-fold H1 heading (Zero latency, zero layout shift) */}
+        <link
+          rel="preload"
+          href="/fonts/roboto/roboto-900-vietnamese.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href="/fonts/roboto/roboto-900-latin.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
         {/* Preload critical Font Awesome Solid Webfont for above-the-fold icons */}
         <link
           rel="preload"
