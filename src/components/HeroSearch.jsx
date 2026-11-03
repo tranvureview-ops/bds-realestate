@@ -487,11 +487,16 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
 
       <div className="max-w-5xl mx-auto relative z-20" ref={containerRef}>
         {/* Slogan */}
-        <div className="text-center mb-4 sm:mb-5 text-white flex flex-col justify-center">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight drop-shadow-md leading-normal">
-            Kênh Nhà Đất 24H - <span className="text-[#ff6b6b] inline">Mua Bán & Cho Thuê Bất Động Sản Toàn Quốc</span>
+        <div className="text-center mb-4 sm:mb-5 text-white flex flex-col justify-center min-h-[3.75rem] sm:min-h-[4.25rem] lg:min-h-[3.25rem]">
+          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-[32px] font-black tracking-tight drop-shadow-md leading-snug sm:leading-tight">
+            <span className="inline-block whitespace-nowrap">Kênh Nhà Đất 24H</span>
+            <span className="hidden lg:inline text-white/50 mx-2 font-normal">-</span>
+            <span className="block lg:inline text-[#ff6b6b] mt-1 lg:mt-0">
+              <span className="inline-block whitespace-nowrap">Mua Bán &amp; Cho Thuê</span>{' '}
+              <span className="inline-block whitespace-nowrap">Bất Động Sản Toàn Quốc</span>
+            </span>
           </h1>
-          <p className="mt-1.5 text-xs sm:text-sm text-slate-300 max-w-2xl mx-auto font-medium leading-normal">
+          <p className="mt-1.5 text-xs sm:text-sm text-slate-300 max-w-xl mx-auto font-medium leading-normal">
             Dữ liệu nguồn cung xác thực, sổ hồng riêng và định giá minh bạch 24/7
           </p>
         </div>
@@ -499,7 +504,7 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
         {/* ----------------------------------------------------
             BATDONGSAN.COM.VN SEARCH BOX WIDGET
            ---------------------------------------------------- */}
-        <div className="w-full">
+        <div className="w-full max-w-4xl mx-auto">
           {/* 1. TOP TABS: Mua bán / Cho thuê (Cân đối đối xứng 100%) */}
           <div className="inline-grid grid-cols-2 bg-[#2b353e]/95 backdrop-blur-md rounded-t-2xl border-b border-white/10 shadow-lg overflow-hidden">
             <button

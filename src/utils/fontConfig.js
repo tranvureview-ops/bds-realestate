@@ -58,7 +58,7 @@ export const AVAILABLE_FONTS = [
     category: 'Phổ biến, Thân thiện, Thích ứng mọi thiết bị',
     fontFamily: "'Roboto', sans-serif",
     cssValue: "'Roboto', sans-serif",
-    googleFontUrl: 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;800;900&display=swap',
+    googleFontUrl: 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;800;900&display=optional',
     fallbackMetrics: {
       ascent: '92.8%',
       descent: '24.4%',
