@@ -496,8 +496,8 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
               <span className="inline-block whitespace-nowrap">Bất Động Sản Toàn Quốc</span>
             </span>
           </h1>
-          <p className="mt-1.5 text-xs sm:text-sm text-slate-300 max-w-xl mx-auto font-medium leading-normal">
-            Dữ liệu nguồn cung xác thực, sổ hồng riêng và định giá minh bạch 24/7
+          <p className="mt-1.5 text-xs sm:text-sm text-slate-300 max-w-2xl mx-auto font-medium leading-normal">
+            Nền tảng tìm kiếm và đăng tin bất động sản trên toàn quốc, kết nối người mua, người bán, người thuê và chủ sở hữu bất động sản. Khám phá hàng loạt tin đăng nhà đất, căn hộ, đất nền, nhà phố, mặt bằng kinh doanh và các loại hình bất động sản khác theo khu vực, giá bán và nhu cầu thực tế.
           </p>
         </div>
 

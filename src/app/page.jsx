@@ -3,9 +3,9 @@ import HomePage from '../views/HomePage';
 const SITE_URL = 'https://www.kenhnhadat24h.com.vn';
 
 export async function generateMetadata() {
-  const ogImageUrl = `${SITE_URL}/hero.png`;
+  const ogImageUrl = 'https://www.kenhnhadat24h.com.vn';
   const ogTitle = 'Mua Bán Nhà Đất, Cho Thuê Bất Động Sản Toàn Quốc - Kênh Nhà Đất 24H';
-  const ogDesc = 'Cổng thông tin mua bán và cho thuê bất động sản xác thực toàn quốc. Tra cứu nhà đất chính chủ, căn hộ, đất nền pháp lý chuẩn 24/7 - Kênh Nhà Đất 24H.';
+  const ogDesc = 'Tìm mua bán nhà đất, cho thuê bất động sản trên toàn quốc. Khám phá nhà riêng, căn hộ, đất nền, dự án và đăng tin bất động sản miễn phí tại Kênh Nhà Đất 24H.';
 
   return {
     title: {
@@ -28,7 +28,7 @@ export async function generateMetadata() {
           url: ogImageUrl,
           width: 1200,
           height: 630,
-          alt: 'Cổng thông tin mua bán và cho thuê bất động sản toàn quốc - Kênh Nhà Đất 24H'
+          alt: 'Tìm mua bán nhà đất, cho thuê bất động sản trên toàn quốc. Khám phá nhà riêng, căn hộ, đất nền, dự án và đăng tin bất động sản miễn phí tại Kênh Nhà Đất 24H.'
         }
       ]
     },

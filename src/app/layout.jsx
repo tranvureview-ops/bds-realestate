@@ -153,7 +153,7 @@ export async function generateMetadata() {
   return {
     metadataBase: new URL(siteUrl),
     title: {
-      default: `Mua Bán Nhà Đất, Cho Thuê Bất Động Sản Toàn Quốc - Kênh Nhà Đất 24H`,
+      default: `Mua Bán & Cho Thuê Bất Động Sản Toàn Quốc - Kênh Nhà Đất 24H`,
       template: `%s | ${brand}`
     },
     description: desc,
@@ -162,7 +162,7 @@ export async function generateMetadata() {
       icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230284c7'><path d='M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z'/></svg>"
     },
     openGraph: {
-      title: `Mua Bán Nhà Đất, Cho Thuê Bất Động Sản Toàn Quốc - Kênh Nhà Đất 24H`,
+      title: `Mua Bán & Cho Thuê Bất Động Sản Toàn Quốc - Kênh Nhà Đất 24H`,
       description: desc,
       url: siteUrl,
       siteName: brand,
@@ -173,13 +173,13 @@ export async function generateMetadata() {
           url: ogImg,
           width: 1200,
           height: 630,
-          alt: `Mua Bán Nhà Đất, Cho Thuê Bất Động Sản Toàn Quốc - Kênh Nhà Đất 24H`
+          alt: `Mua Bán & Cho Thuê Bất Động Sản Toàn Quốc - Kênh Nhà Đất 24H`
         }
       ]
     },
     twitter: {
       card: 'summary_large_image',
-      title: `Mua Bán Nhà Đất, Cho Thuê Bất Động Sản Toàn Quốc - Kênh Nhà Đất 24H`,
+      title: `Mua Bán & Cho Thuê Bất Động Sản Toàn Quốc - Kênh Nhà Đất 24H`,
       description: desc,
       images: [ogImg]
     }
