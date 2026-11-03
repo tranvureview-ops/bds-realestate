@@ -145,27 +145,24 @@ export async function generateMetadata() {
   const db = await getInitialDb();
   const sys = db?.bds_system_config || {};
   const brand = sys.brandShortName || 'Sàn Nhà Đất';
-  const desc = sys.tagline 
-    ? `${brand} - ${sys.tagline}. Sàn thương mại điện tử nhà đất uy tín, mua bán cho thuê nhà đất và đăng tin VIP hiệu quả cao.`
-    : 'Sàn thương mại điện tử nhà đất uy tín, mua bán cho thuê nhà đất toàn quốc, đăng tin VIP hiệu quả cao, xác thực pháp lý minh bạch.';
+  const desc = 'Cổng thông tin mua bán và cho thuê bất động sản xác thực toàn quốc. Tra cứu nhà đất chính chủ, căn hộ, đất nền pháp lý chuẩn 24/7 - Kênh Nhà Đất 24H.';
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://kenhnhadat24h.com.vn';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kenhnhadat24h.com.vn';
   const ogImg = `${siteUrl.replace(/\/+$/, '')}/hero.png`;
 
   return {
     metadataBase: new URL(siteUrl),
     title: {
-      default: `${brand} - Sàn Giao Dịch Nhà Đất & Đăng Tin VIP Toàn Quốc`,
+      default: `Mua Bán Nhà Đất, Cho Thuê Bất Động Sản Toàn Quốc - Kênh Nhà Đất 24H`,
       template: `%s | ${brand}`
     },
     description: desc,
-    keywords: [brand.toLowerCase(), 'nhà đất', 'mua bán nhà đất', 'cho thuê căn hộ', 'đăng tin bđs vip'],
     authors: [{ name: brand }],
     icons: {
       icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230284c7'><path d='M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z'/></svg>"
     },
     openGraph: {
-      title: `${brand} - Sàn Giao Dịch Nhà Đất & Đăng Tin VIP Toàn Quốc`,
+      title: `Mua Bán Nhà Đất, Cho Thuê Bất Động Sản Toàn Quốc - Kênh Nhà Đất 24H`,
       description: desc,
       url: siteUrl,
       siteName: brand,
@@ -176,13 +173,13 @@ export async function generateMetadata() {
           url: ogImg,
           width: 1200,
           height: 630,
-          alt: `${brand} - Kênh Mua Bán & Cho Thuê Bất Động Sản Toàn Quốc`
+          alt: `Mua Bán Nhà Đất, Cho Thuê Bất Động Sản Toàn Quốc - Kênh Nhà Đất 24H`
         }
       ]
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${brand} - Sàn Giao Dịch Nhà Đất & Đăng Tin VIP Toàn Quốc`,
+      title: `Mua Bán Nhà Đất, Cho Thuê Bất Động Sản Toàn Quốc - Kênh Nhà Đất 24H`,
       description: desc,
       images: [ogImg]
     }
@@ -391,29 +388,29 @@ export default async function RootLayout({ children }) {
               '@graph': [
                 {
                   '@type': 'WebSite',
-                  '@id': 'https://kenhnhadat24h.com.vn',
-                  url: 'https://kenhnhadat24h.com.vn',
+                  '@id': 'https://www.kenhnhadat24h.com.vn',
+                  url: 'https://www.kenhnhadat24h.com.vn',
                   name: 'Kênh Nhà Đất 24H',
                   description: 'Cổng thông tin mua bán và cho thuê bất động sản xác thực toàn quốc',
                   publisher: {
-                    '@id': 'https://kenhnhadat24h.com.vn',
+                    '@id': 'https://www.kenhnhadat24h.com.vn',
                   },
                   inLanguage: 'vi-VN',
                 },
                 {
                   '@type': 'RealEstateAgent',
-                  '@id': 'https://kenhnhadat24h.com.vn',
+                  '@id': 'https://www.kenhnhadat24h.com.vn',
                   name: 'Kênh Nhà Đất 24H',
-                  url: 'https://kenhnhadat24h.com.vn',
+                  url: 'https://www.kenhnhadat24h.com.vn',
                   logo: {
                     '@type': 'ImageObject',
-                    '@id': 'https://kenhnhadat24h.com.vn/#logo',
-                    url: 'https://kenhnhadat24h.com.vn/hero.png',
+                    '@id': 'https://www.kenhnhadat24h.com.vn/#logo',
+                    url: 'https://www.kenhnhadat24h.com.vn/hero.png',
                     caption: 'Kênh Nhà Đất 24H',
                   },
-                  image: 'https://kenhnhadat24h.com.vn/hero.png',
+                  image: 'https://www.kenhnhadat24h.com.vn/hero.png',
                   telephone: '+84905467138',
-                  priceRange: 'VNĐ',
+                  priceRange: 'đ',
                   address: {
                     '@type': 'PostalAddress',
                     addressLocality: 'Đà Nẵng',
