@@ -113,9 +113,10 @@ export const applyFontToDom = (fontNameOrId) => {
   if (typeof document === 'undefined') return;
   const fontObj = getFontConfig(fontNameOrId);
 
-  // Nếu CSS variable hiện tại đã khớp chính xác font yêu cầu thì không ghi đè lại DOM để tránh trigger reflow
-  const currentVar = document.documentElement.style.getPropertyValue('--font-custom-family');
-  if (currentVar && currentVar.trim() === fontObj.fontFamily.trim()) {
+  // Kiểm tra font hiện tại của trang
+  const currentVar = document.documentElement.style.getPropertyValue('--font-custom-family') || 
+                     getComputedStyle(document.documentElement).getPropertyValue('--font-custom-family');
+  if (currentVar && currentVar.includes(fontObj.name)) {
     return;
   }
 

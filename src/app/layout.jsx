@@ -301,31 +301,18 @@ export default async function RootLayout({ children }) {
           media="print"
           data-async-css="fontawesome"
         />
-        {/* Preload primary Google Font .woff2 chunk to eliminate font swap layout shift */}
-        {fontConfig.primaryPreloadWoff2 && (
-          <link
-            rel="preload"
-            href={fontConfig.primaryPreloadWoff2}
-            as="font"
-            type="font/woff2"
-            crossOrigin="anonymous"
-          />
-        )}
-        {/* Non-render-blocking Asynchronous Stylesheet Injector to eliminate Critical Request Chains */}
+        {/* Google Fonts Stylesheet (Rendered synchronously so typography is styled on first paint) */}
+        <link
+          rel="stylesheet"
+          href={fontConfig.googleFontUrl}
+        />
+        {/* Asynchronous Loader for non-critical FontAwesome */}
         <script
           id="server-async-styles"
           nonce={nonce}
           dangerouslySetInnerHTML={{
             __html: `
               (function() {
-                function loadCSS(href, id) {
-                  var l = document.createElement('link');
-                  if (id) l.id = id;
-                  l.rel = 'stylesheet';
-                  l.href = href;
-                  document.head.appendChild(l);
-                }
-                loadCSS('${fontConfig.googleFontUrl}', 'server-google-font-link');
                 var fa = document.querySelector('link[data-async-css="fontawesome"]');
                 if (fa) { fa.media = 'all'; }
               })();
