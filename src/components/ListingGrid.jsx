@@ -389,7 +389,7 @@ export default function ListingGrid({
         ) : isHomePage ? (
           <div>
             <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-              Bất Động Sản Nổi Bật Đang Giao Dịch
+              Nhà Đất Bán Mới Nhất Trên Toàn Quốc
             </h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
               {subtitle || 'Khám phá các tin đăng mua bán và cho thuê bất động sản.'}
