@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { Link } from '../router/RouterContext';
 
 /**
  * HomeSeoContent – Khối nội dung On-page SEO trang chủ
@@ -12,56 +11,6 @@ export default function HomeSeoContent() {
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-4 pb-10 sm:pb-14 border-t border-slate-100">
       <div className="prose prose-slate max-w-none">
-
-        {/* =====================================================================
-            H2: Thị Trường Mua Bán & Cho Thuê Theo Khu Vực
-           ===================================================================== */}
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight mb-3">
-          Thị Trường Mua Bán & Cho Thuê Nhà Đất 24H Theo Khu Vực
-        </h2>
-        <p className="text-slate-600 text-sm sm:text-base leading-relaxed mb-6">
-          Mạng lưới dữ liệu của Kênh Nhà Đất 24h bao phủ toàn diện 63 tỉnh thành, phân tách theo động lực phát triển kinh tế từng vùng:
-        </p>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-10">
-          {/* H3 – HN & HCM */}
-          <div className="bg-gradient-to-br from-red-50 to-white rounded-2xl border border-red-100 p-5 shadow-sm">
-            <h3 className="text-base font-bold text-slate-800 mb-2">
-              <Link to="/nha-dat-ban" className="hover:text-red-600 transition-colors">
-                Giao Dịch Bất Động Sản Hà Nội & TP. Hồ Chí Minh
-              </Link>
-            </h3>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Cập nhật liên tục biến động giá bán và giá thuê tại các quận trung tâm cũng như các khu đô thị vệ tinh. Phân khúc{' '}
-              <Link to="/nha-dat-cho-thue" className="text-red-600 hover:underline font-medium">căn hộ dịch vụ, văn phòng cho thuê</Link>{' '}
-              và nhà riêng sở hữu biên độ lợi nhuận khai thác dòng tiền từ 4% – 7%/năm.
-            </p>
-          </div>
-
-          {/* H3 – Miền Trung */}
-          <div className="bg-gradient-to-br from-blue-50 to-white rounded-2xl border border-blue-100 p-5 shadow-sm">
-            <h3 className="text-base font-bold text-slate-800 mb-2">
-              <Link to="/ban-can-ho-chung-cu-da-nang" className="hover:text-blue-600 transition-colors">
-                Điểm Nóng Nhà Đất Đà Nẵng, Quảng Nam & Khu Vực Miền Trung
-              </Link>
-            </h3>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Tập trung khai thác bất động sản ven sông Hàn, đô thị Nam Hòa Xuân, căn hộ biển Sơn Trà, Ngũ Hành Sơn và{' '}
-              <Link to="/ban-dat-nen-du-an-da-nang" className="text-blue-600 hover:underline font-medium">quỹ đất thương mại dịch vụ ven sông Cổ Cò (Hội An)</Link>.{' '}
-              Đây là những khu vực có tính thanh khoản cao nhờ tốc độ phục hồi du lịch và định hướng quy hoạch trung tâm tài chính quốc tế.
-            </p>
-          </div>
-
-          {/* H3 – Tỉnh thành tiềm năng */}
-          <div className="bg-gradient-to-br from-emerald-50 to-white rounded-2xl border border-emerald-100 p-5 shadow-sm">
-            <h3 className="text-base font-bold text-slate-800 mb-2">
-              Thị Trường Tiềm Năng Tại Các Tỉnh Thành Phát Triển
-            </h3>
-            <p className="text-slate-600 text-sm leading-relaxed">
-              Theo dõi sát sao quỹ đất công nghiệp, đất vùng ven đón đầu các trục cao tốc Bắc – Nam, sân bay và các vành đai đô thị công nghiệp tại Bình Dương, Đồng Nai, Long An, Hải Phòng và Bắc Ninh.
-            </p>
-          </div>
-        </div>
 
         {/* =====================================================================
             H2: Nền Tảng Giao Dịch Đáng Tin Cậy
