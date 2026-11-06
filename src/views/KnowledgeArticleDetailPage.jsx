@@ -338,7 +338,12 @@ function formatArticleHtml(content) {
 
     // 5. Math / Formula block ($$ ... $$)
     if (/^\$\$[\s\S]*\$\$$/.test(trimmed)) {
-      const formula = trimmed.replace(/^\$\$\s*/, '').replace(/\s*\$\$$/, '');
+      let formula = trimmed.replace(/^\$\$\s*/, '').replace(/\s*\$\$$/, '');
+      formula = formula
+        .replace(/\\times/g, 'x')
+        .replace(/\\le/g, '≤')
+        .replace(/\\ge/g, '≥')
+        .replace(/\\text\{([^}]+)\}/g, '$1');
       htmlBlocks.push(
         `<div class="my-5 p-4 rounded-2xl bg-slate-900 text-amber-300 font-mono text-center text-sm sm:text-base border border-slate-800 overflow-x-auto shadow-md"><strong>${formatInline(formula)}</strong></div>`
       );
