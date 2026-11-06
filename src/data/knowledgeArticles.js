@@ -291,13 +291,17 @@ Hãy dành thời gian điều tra thực địa qua các chủ quán lân cận
 ### Tính giá trị theo dòng tiền cho thuê
 
 Giá trị của bất động sản thương mại gắn liền với khả năng sinh ra dòng tiền hàng tháng. Quy tắc kinh nghiệm thị trường:
-$$Tổng giá trị BĐS ≤ 250 đến 300 x Giá thuê thực tế hàng tháng$$
+
+> **Công thức định giá dòng tiền:** Tổng giá trị BĐS ≤ 250 đến 300 x Giá thuê thực tế hàng tháng
+
 *Ví dụ:* Nếu căn nhà mặt phố cho thuê thực tế đạt 40 triệu đồng/tháng (480 triệu/năm), mức giá hợp lý để mua vào nên dao động quanh mức **10 tỷ – 12 tỷ đồng** để đảm bảo tỷ suất dòng tiền an toàn từ 4% – 4.8%/năm.
 
 ### Đánh giá giá trị đất và công trình
 
 Áp dụng phương pháp chi phí thay thế:
-$$Giá trị BĐS = (Diện tích đất x Đơn giá đất thị trường) + (Diện tích sàn x Đơn giá xây mới x Tỷ lệ chất lượng còn lại)$$
+
+> **Công thức định giá chi phí:** Giá trị BĐS = (Diện tích đất x Đơn giá đất thị trường) + (Diện tích sàn x Đơn giá xây mới x Tỷ lệ chất lượng còn lại)
+
 - Đơn giá xây mới nhà phố tiêu chuẩn thương mại hiện nay: 7.5 – 9.5 triệu đồng/m² sàn.
 - Khấu hao công trình: Nhà dưới 5 năm tính 85% – 90% giá trị; từ 5 – 10 năm tính 70% – 80%; nhà trên 15 năm thường chỉ tính giá trị xác nhà từ 35% – 50%.
 
@@ -314,7 +318,8 @@ Những dấu hiệu cảnh báo nhà đầu tư đang bị mua với mức giá
 
 ### Doanh thu cho thuê dự kiến
 
-$$Tổng doanh thu gộp (Gross Rental Income) = Giá thuê hàng tháng x 12 tháng$$
+> **Công thức tính doanh thu:** Tổng doanh thu gộp (Gross Rental Income) = Giá thuê hàng tháng x 12 tháng
+
 Cần tính toán thêm tỷ lệ tăng giá thuê định kỳ (thường tăng 8% – 10% sau mỗi chu kỳ 2 – 3 năm theo thỏa thuận hợp đồng).
 
 ### Chi phí vận hành và thời gian trống
@@ -327,8 +332,7 @@ Lợi nhuận ròng thực tế luôn thấp hơn doanh thu gộp. Các khoản 
 
 ### Tỷ suất lợi nhuận và thời gian hoàn vốn
 
-- **Tỷ suất vốn hóa dòng tiền ròng (Cap Rate):**
-$$Cap Rate = [NOI (Thu nhập hoạt động thuần) / Tổng giá trị đầu tư ban đầu] x 100%$$
+- **Tỷ suất vốn hóa dòng tiền ròng (Cap Rate):** Cap Rate = [NOI (Thu nhập hoạt động thuần) / Tổng giá trị đầu tư ban đầu] x 100%
 *(Trong đó: NOI (Thu nhập hoạt động thuần) = Doanh thu gộp - Chi phí vận hành, thuế, phí trống)*
 - **Thời gian hoàn vốn dòng tiền:** Thời gian hoàn vốn = Tổng vốn đầu tư / NOI (Thu nhập hoạt động thuần) hàng năm (Thông thường từ 18 – 25 năm đối với nhà phố trung tâm).
 

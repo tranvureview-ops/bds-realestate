@@ -265,6 +265,7 @@ function formatArticleHtml(content) {
   // Helper hàm format inline elements (Bold, Italic, Link, Inline code)
   const formatInline = (text) => {
     return text
+      .replace(/\$\$/g, '')
       .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900">$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 text-xs font-mono">$1</code>')
