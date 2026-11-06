@@ -104,7 +104,54 @@ export default async function KnowledgeDynamicPage({ params }) {
   // 2. Kiểm tra Bài viết Flat URL
   const article = getArticleBySlug(slug);
   if (article) {
-    return <KnowledgeArticleDetailPage article={article} />;
+    const domain = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '');
+    const canonicalUrl = `${domain}/kien-thuc/${article.slug}`;
+
+    const jsonLd = {
+      '@context': 'https://schema.org',
+      '@type': 'Article',
+      '@id': `${canonicalUrl}#article`,
+      isPartOf: {
+        '@type': 'WebSite',
+        name: 'Kênh Nhà Đất 24H',
+        url: domain
+      },
+      headline: article.h1 || article.title,
+      description: article.seoDescription || article.excerpt,
+      inLanguage: 'vi-VN',
+      mainEntityOfPage: canonicalUrl,
+      datePublished: article.publishedAt ? `${article.publishedAt}T08:00:00+07:00` : undefined,
+      dateModified: `${article.publishedAt || '2026-11-06'}T08:00:00+07:00`,
+      image: article.image?.startsWith('http') ? article.image : `${domain}${article.image || '/hero.png'}`,
+      author: {
+        '@type': 'Person',
+        name: article.author || 'Nguyễn Văn Tuấn',
+        jobTitle: article.authorRole || 'Chuyên Gia Tư Vấn Định Giá & Đầu Tư BĐS Dòng Tiền',
+        worksFor: {
+          '@type': 'Organization',
+          name: 'Kênh Nhà Đất 24H'
+        }
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: 'Kênh Nhà Đất 24H',
+        url: domain,
+        logo: {
+          '@type': 'ImageObject',
+          url: `${domain}/hero.png`
+        }
+      }
+    };
+
+    return (
+      <>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <KnowledgeArticleDetailPage article={article} />
+      </>
+    );
   }
 
   // 3. Nếu không khớp cả hai
