@@ -266,6 +266,7 @@ function formatArticleHtml(content) {
   const formatInline = (text) => {
     return text
       .replace(/\$\$/g, '')
+      .replace(/!\[(.*?)\]\((.*?)\)/g, '<figure class="my-6 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-xs"><img src="$2" alt="$1" class="w-full h-auto object-cover max-h-[500px]" loading="lazy" /><figcaption class="p-3 text-center text-xs sm:text-sm text-slate-600 font-medium italic border-t border-slate-100 bg-white">$1</figcaption></figure>')
       .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900">$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 text-xs font-mono">$1</code>')
@@ -335,6 +336,22 @@ function formatArticleHtml(content) {
         `<blockquote class="p-4 sm:p-5 my-5 bg-emerald-50/70 border-l-4 border-emerald-600 rounded-r-2xl text-slate-700 text-sm sm:text-base leading-relaxed italic shadow-2xs">${formatInline(quoteLines.join(' '))}</blockquote>`
       );
       continue;
+    }
+
+    // 4b. Standalone Image (![alt](src))
+    if (/^!\[(.*?)\]\((.*?)\)$/.test(trimmed)) {
+      const match = trimmed.match(/^!\[(.*?)\]\((.*?)\)$/);
+      if (match) {
+        const alt = match[1];
+        const src = match[2];
+        htmlBlocks.push(
+          `<figure class="my-6 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-xs">
+            <img src="${src}" alt="${alt}" class="w-full h-auto object-cover max-h-[500px]" loading="lazy" />
+            ${alt ? `<figcaption class="p-3 text-center text-xs sm:text-sm text-slate-600 font-medium italic border-t border-slate-100 bg-white">${alt}</figcaption>` : ''}
+          </figure>`
+        );
+        continue;
+      }
     }
 
     // 5. Math / Formula block ($$ ... $$)

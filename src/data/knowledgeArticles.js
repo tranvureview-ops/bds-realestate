@@ -165,7 +165,7 @@ Ngoài dòng tiền cho thuê định kỳ 6%/năm, giá trị tài sản căn h
     authorRole: 'Chuyên Gia Tư Vấn Định Giá & Đầu Tư BĐS Dòng Tiền, Kênh Nhà Đất 24H',
     publishedAt: '2026-10-28',
     readTime: '12 phút đọc',
-    image: '/mua-ban-nha-dat-toan-quoc.webp',
+    image: '/images/articles/nha-mat-pho-co-mat-tien-rong-phuc-vu-kinh-doanh.jpg',
     tags: ['Nhà mặt phố', 'Kinh doanh', 'Kinh nghiệm mua nhà', 'Thẩm định giá', 'Pháp lý nhà đất', 'Dòng tiền cho thuê'],
     tableOfContents: [
       { id: 'gia-tri-va-rui-ro', title: '1. Nhà mặt phố kinh doanh có những giá trị và rủi ro gì?' },
@@ -233,12 +233,16 @@ Mặt tiền chính là "thước đo thương mại" quyết định giá trị
 - **Độ rộng mặt tiền tối thiểu:** Phải đạt từ **4m trở lên** (tối ưu nhất từ 5m – 6m). Nếu mặt tiền hẹp dưới 3.5m, khả năng nhận diện thương hiệu giảm trên 40%, gây khó khăn lớn cho việc thiết kế sảnh đón tiếp, cửa kính cường lực và quầy kệ trưng bày.
 - **Hình dáng thửa đất:** Đất vuông vức, nở hậu nhẹ là điểm cộng lớn. Tránh các thửa đất hình bình hành vát góc quá nhiều hoặc thóp hậu gây bất lợi về bố trí không gian nội thất.
 
+![Nhà mặt phố có mặt tiền rộng phục vụ kinh doanh](/images/articles/nha-mat-pho-co-mat-tien-rong-phuc-vu-kinh-doanh.jpg)
+
 ### Lưu lượng giao thông và khách hàng tiềm năng
 
 Lưu lượng xe cộ đông đúc không đồng nghĩa với doanh thu kinh doanh cao. Bạn cần khảo sát thực tế tại 3 khung giờ vàng:
 - **Giờ cao điểm sáng (7h30 – 8h30):** Đo lường lưu lượng dân cư di chuyển đi làm và hướng dòng chảy chính của giao thông.
 - **Giờ trưa (11h30 – 13h00):** Đánh giá mức độ phát sinh nhu cầu ăn uống, công chứng, giao dịch ngân hàng và mua sắm tức thì.
 - **Giờ tan tầm tối (17h30 – 19h30):** Xác định tuyến phố có phải là điểm dừng chân mua sắm, ẩm thực và dịch vụ giải trí buổi tối hay không.
+
+![Khảo sát lưu lượng giao thông tại tuyến phố thương mại](/images/articles/khao-sat-luu-luong-giao-thong-tai-tuyen-pho-thuong-mai.jpg)
 
 > **Quy tắc phân loại tuyến đường:** Cần phân biệt giữa *đường lưu thông thoát xe nhanh* (vận tốc di chuyển trên 40km/h, có dải phân cách cứng ngăn cách làn, khách rất ngại tấp xe vào lề) và *phố mua sắm thương mại* (xe di chuyển chậm dưới 25km/h, hai bên vỉa hè san sát cửa hàng, thuận tiện dừng lại ghé thăm).
 
@@ -247,6 +251,8 @@ Lưu lượng xe cộ đông đúc không đồng nghĩa với doanh thu kinh do
 Một mặt bằng kinh doanh dù nằm ở trung tâm cũng sẽ bị khách hàng quay lưng nếu không có chỗ để xe máy và ô tô thuận tiện:
 - **Độ rộng vỉa hè:** Lý tưởng từ **2.5m đến 4m**, bề mặt bằng phẳng, độ dốc vỉa hè thoai thoải để xe máy lên xuống dễ dàng.
 - **Quy định đỗ xe đô thị:** Kiểm tra tuyến đường có biển cấm dừng/cấm đỗ xe ô tô theo ngày chẵn lẻ hay không, và hè phố có được cấp phép kẻ vạch để xe máy hay không.
+
+![Vỉa hè và khu vực đỗ xe trước nhà mặt phố](/images/articles/via-he-va-khu-vuc-do-xe-truoc-nha-mat-pho.jpg)
 
 ### Vật cản và điều kiện mặt bằng
 
@@ -262,6 +268,8 @@ Quy hoạch là rủi ro tiềm ẩn lớn nhất của nhà mặt phố. Trư�
 - Kiểm tra bản đồ quy hoạch phân khu tỷ lệ 1/2000 và quy hoạch chi tiết 1/500 tại Phòng Tài nguyên và Môi trường quận/huyện.
 - Xác định rõ khoảng lùi xây dựng, mốc lộ giới đường đỏ và chỉ giới xây dựng thực tế.
 - Xem xét kỹ phần diện tích đất nằm trong quy hoạch mở đường: Có được cấp phép xây dựng tạm hay không và phương án bồi thường giải phóng mặt bằng khi dự án triển khai.
+
+![Kiểm tra thông tin quy hoạch trước khi mua nhà](/images/articles/kiem-tra-thong-tin-quy-hoach-truoc-khi-mua-nha.jpg)
 
 ### Pháp lý, kết cấu và hoàn công
 
