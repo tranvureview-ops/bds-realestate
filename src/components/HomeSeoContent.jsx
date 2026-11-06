@@ -197,23 +197,13 @@ export default function HomeSeoContent() {
             <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
             <div className="relative z-10">
-              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 pb-6 border-b border-slate-800">
-                <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-2">
-                    <i className="fa-solid fa-shield-halved text-xs"></i>
-                    <span>Quy Chuẩn Kiểm Duyệt Nội Dung & Bản Quyền</span>
-                  </div>
-                  <h3 className="text-lg sm:text-xl font-black text-white">
-                    Ban Biên Tập & Nguyên Tắc Thẩm Định Thông Tin
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-2xl">
-                    Kênh Nhà Đất 24H cam kết tính minh bạch: Mọi cẩm nang pháp lý, tin tức thị trường và kinh nghiệm giao dịch đều được tổng hợp, đối chiếu khắt khe từ văn bản pháp luật, báo chí chính thống và trải nghiệm thực tế từ thị trường bất động sản toàn quốc.
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-300 shrink-0 bg-slate-800/80 px-4 py-2.5 rounded-2xl border border-slate-700">
-                  <i className="fa-solid fa-circle-check text-emerald-400 text-sm"></i>
-                  <span>100% Minh Bạch & Độc Lập</span>
-                </div>
+              <div className="pb-6 border-b border-slate-800">
+                <h3 className="text-lg sm:text-xl font-black text-white">
+                  Ban Biên Tập & Nguyên Tắc Thẩm Định Thông Tin
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-3xl">
+                  Kênh Nhà Đất 24H cam kết tính minh bạch: Mọi cẩm nang pháp lý, tin tức thị trường và kinh nghiệm giao dịch đều được tổng hợp, đối chiếu khắt khe từ văn bản pháp luật, báo chí chính thống và trải nghiệm thực tế từ thị trường bất động sản toàn quốc.
+                </p>
               </div>
 
               {/* 3 Verification Pillars (EEAT Compliant) */}
