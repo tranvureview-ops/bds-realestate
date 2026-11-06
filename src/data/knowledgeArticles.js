@@ -404,18 +404,18 @@ Bảng kiểm tra 12 hạng mục tiêu chuẩn giúp người mua rà soát nha
 
 | STT | Hạng mục kiểm tra | Tiêu chuẩn đạt yêu cầu | Tình trạng đánh giá |
 | :---: | :--- | :--- | :---: |
-| 1 | **Chiều rộng mặt tiền** | $\ge 4.0\\text{m}$ (Lý tưởng từ $5.0\\text{m} - 6.0\\text{m}$) | [ ] Đạt / [ ] Không |
-| 2 | **Độ rộng vỉa hè** | $\ge 2.5\\text{m}$, có kẻ vạch đỗ xe máy hợp pháp | [ ] Đạt / [ ] Không |
-| 3 | **Lưu lượng khách hàng** | Khảo sát đủ 3 khung giờ (Sáng, Trưa, Tối) | [ ] Đạt / [ ] Không |
-| 4 | **Vật cản mặt tiền** | Không vướng cột điện, hố ga, cây xanh chắn cửa | [ ] Đạt / [ ] Không |
-| 5 | **Cao độ nền nhà** | Cao hơn mặt đường $\ge 20\\text{cm}$, không bị ngập | [ ] Đạt / [ ] Không |
-| 6 | **Quy hoạch lộ giới** | Đã trích lục quy hoạch 1/2000, không bị cắt xén sâu | [ ] Đạt / [ ] Không |
-| 7 | **Tình trạng hoàn công** | Đã cập nhật đủ số tầng và diện tích sàn trên sổ | [ ] Đạt / [ ] Không |
-| 8 | **Hệ thống PCCC** | Có lối thoát hiểm, đáp ứng tiêu chuẩn kinh doanh | [ ] Đạt / [ ] Không |
-| 9 | **Tỷ suất sinh lời (Cap Rate)** | $\ge 3.5\\%/\\text{năm}$ so với giá chào mua | [ ] Đạt / [ ] Không |
-| 10 | **Tình trạng tranh chấp** | Xác minh không có đơn ngăn chặn tại Văn phòng ĐKĐĐ | [ ] Đạt / [ ] Không |
-| 11 | **Chủ thể ký hợp đồng** | Đúng chính chủ trên sổ, đủ chữ ký vợ chồng | [ ] Đạt / [ ] Không |
-| 12 | **Hợp đồng khách thuê cũ** | Có biên bản thanh lý hoặc biên bản ba bên chuyển nhượng | [ ] Đạt / [ ] Không |
+| 1 | **Chiều rộng mặt tiền** | Từ 4.0m trở lên (Lý tưởng từ 5.0m – 6.0m) | Đạt / Chưa đạt |
+| 2 | **Độ rộng vỉa hè** | Rộng từ 2.5m trở lên, có kẻ vạch đỗ xe máy hợp pháp | Đạt / Chưa đạt |
+| 3 | **Lưu lượng khách hàng** | Khảo sát thực tế đủ 3 khung giờ (Sáng, Trưa, Tối) | Đạt / Chưa đạt |
+| 4 | **Vật cản mặt tiền** | Không vướng cột điện, hố ga, cây xanh chắn lối ra vào | Đạt / Chưa đạt |
+| 5 | **Cao độ nền nhà** | Cao hơn mặt đường từ 20cm trở lên, không ngập nước | Đạt / Chưa đạt |
+| 6 | **Quy hoạch lộ giới** | Đã trích lục quy hoạch 1/2000, không bị cắt xén sâu | Đạt / Chưa đạt |
+| 7 | **Tình trạng hoàn công** | Đã cập nhật đủ số tầng và diện tích sàn trên sổ hồng | Đạt / Chưa đạt |
+| 8 | **Hệ thống PCCC** | Có lối thoát hiểm thứ 2, đạt chuẩn kinh doanh dịch vụ | Đạt / Chưa đạt |
+| 9 | **Tỷ suất sinh lời (Cap Rate)** | Đạt từ 3.5%/năm trở lên so với giá mua | Đạt / Chưa đạt |
+| 10 | **Tình trạng tranh chấp** | Xác minh không có đơn ngăn chặn tại Văn phòng ĐKĐĐ | Đạt / Chưa đạt |
+| 11 | **Chủ thể ký hợp đồng** | Đúng chính chủ trên sổ, đủ chữ ký vợ và chồng | Đạt / Chưa đạt |
+| 12 | **Hợp đồng khách thuê cũ** | Có biên bản thanh lý bàn giao hoặc phụ lục 3 bên | Đạt / Chưa đạt |
 
 ## 8. Câu hỏi thường gặp khi mua nhà mặt phố {#cau-hoi-thuong-gap}
 
@@ -601,10 +601,10 @@ Hiện nay, các địa phương lớn đã số hóa dữ liệu quy hoạch ph
 
 ### 3. Cách đọc màu sắc và ký hiệu trên bản đồ quy hoạch
 
-- **Màu hồng / cam (ONT, ODT):** Đất ở nông thôn hoặc đất ở đô thị $\rightarrow$ Loại đất an toàn nhất để an cư và xây dựng nhà ở lâu dài.
-- **Màu vàng (CLN, HNK, LUC):** Đất nông nghiệp, đất trồng cây lâu năm, đất lúa $\rightarrow$ Cần kiểm tra xem có được quy hoạch chuyển đổi lên đất ở (thổ cư) hay không.
-- **Màu xanh lá cây (CX, DKV):** Đất cây xanh, công viên công cộng $\rightarrow$ **Cảnh báo nguy cơ không được phép xây dựng kiên cố**.
-- **Ký hiệu DGT kèm đường nét đứt màu đỏ:** Tuyến đường giao thông dự kiến mở rộng trong tương lai $\rightarrow$ Toàn bộ diện tích nằm trong hành lang này sẽ bị thu hồi giải tỏa khi làm đường.
+- **Màu hồng / cam (ONT, ODT):** Đất ở nông thôn hoặc đất ở đô thị → Loại đất an toàn nhất để an cư và xây dựng nhà ở lâu dài.
+- **Màu vàng (CLN, HNK, LUC):** Đất nông nghiệp, đất trồng cây lâu năm, đất lúa → Cần kiểm tra xem có được quy hoạch chuyển đổi lên đất ở (thổ cư) hay không.
+- **Màu xanh lá cây (CX, DKV):** Đất cây xanh, công viên công cộng → **Cảnh báo nguy cơ không được phép xây dựng kiên cố**.
+- **Ký hiệu DGT kèm đường nét đứt màu đỏ:** Tuyến đường giao thông dự kiến mở rộng trong tương lai → Toàn bộ diện tích nằm trong hành lang này sẽ bị thu hồi giải tỏa khi làm đường.
 
 ### 4. Khi nào cần xin Chứng chỉ quy hoạch tại cơ quan Nhà nước?
 
