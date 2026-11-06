@@ -2,7 +2,9 @@ import { Suspense } from 'react';
 import EmailVerificationPage from '../../views/EmailVerificationPage';
 
 export const metadata = {
-  title: 'Kích Hoạt Tài Khoản & Nhận Quà Tặng | Kênh Nhà Đất 24H',
+  title: {
+    absolute: 'Kích Hoạt Tài Khoản & Nhận Quà Tặng | Kênh Nhà Đất 24H'
+  },
   description: 'Trang kích hoạt tài khoản thành viên mới và nhận tiền thưởng chào mừng vào Ví Khuyến Mãi trên sàn giao dịch Kênh Nhà Đất 24H.'
 };
 

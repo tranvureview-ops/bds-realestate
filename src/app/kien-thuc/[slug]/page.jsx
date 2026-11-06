@@ -30,13 +30,16 @@ export async function generateMetadata({ params }) {
   const category = getCategoryBySlug(slug);
   if (category) {
     const canonicalUrl = `${domain}/kien-thuc/${category.slug}`;
-    const pageTitle = `${category.name} | Cẩm Nang Bất Động Sản Kênh Nhà Đất 24H`;
+    const cleanCategoryTitle = `${category.name} - Cẩm Nang Bất Động Sản`;
+    const exactTitle = `${cleanCategoryTitle} | Kênh Nhà Đất 24H`;
     return {
-      title: pageTitle,
+      title: {
+        absolute: exactTitle
+      },
       description: category.description,
       alternates: { canonical: canonicalUrl },
       openGraph: {
-        title: pageTitle,
+        title: exactTitle,
         description: category.description,
         url: canonicalUrl,
         type: 'website',
@@ -49,16 +52,20 @@ export async function generateMetadata({ params }) {
   const article = getArticleBySlug(slug);
   if (article) {
     const canonicalUrl = `${domain}/kien-thuc/${article.slug}`;
-    const pageTitle = article.seoTitle || `${article.title} | Kênh Nhà Đất 24H`;
+    // Loại bỏ hoàn toàn mọi hậu tố thương hiệu bị lặp trước đó nếu có
+    const rawTitle = article.seoTitle || article.title;
+    const cleanTitle = rawTitle.replace(/\s*\|\s*(Kênh Nhà Đất 24H|Sàn Nhà Đất).*$/i, '').trim();
+    const exactTitle = `${cleanTitle} | Kênh Nhà Đất 24H`;
     const pageDesc = article.seoDescription || article.excerpt;
+
     return {
       title: {
-        absolute: pageTitle
+        absolute: exactTitle
       },
       description: pageDesc,
       alternates: { canonical: canonicalUrl },
       openGraph: {
-        title: article.seoTitle || article.title,
+        title: exactTitle,
         description: pageDesc,
         url: canonicalUrl,
         type: 'article',
@@ -66,18 +73,18 @@ export async function generateMetadata({ params }) {
         authors: [article.author],
         images: [
           {
-            url: article.image || `${domain}/hero.png`,
+            url: article.image?.startsWith('http') ? article.image : `${domain}${article.image || '/hero.png'}`,
             width: 1200,
             height: 630,
-            alt: article.title
+            alt: cleanTitle
           }
         ]
       },
       twitter: {
         card: 'summary_large_image',
-        title: article.seoTitle || article.title,
+        title: exactTitle,
         description: pageDesc,
-        images: [article.image || `${domain}/hero.png`]
+        images: [article.image?.startsWith('http') ? article.image : `${domain}${article.image || '/hero.png'}`]
       }
     };
   }
