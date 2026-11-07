@@ -11,13 +11,13 @@ import AdminSingleConfigManager from './AdminSingleConfigManager';
 import AdminEmailConfigManager from './AdminEmailConfigManager';
 import AdminMembershipManager from './AdminMembershipManager';
 import AdminHeaderConfigManager from './AdminHeaderConfigManager';
-import AdminMenuConfigManager from './AdminMenuConfigManager';
 import AdminFooterConfigManager from './AdminFooterConfigManager';
 import AdminAppointmentsManager from './AdminAppointmentsManager';
 import AdminTwoFactorScreen from './AdminTwoFactorScreen';
 import AdminTelegramChatManager from './AdminTelegramChatManager';
 import AdminRewardsGamificationManager from './AdminRewardsGamificationManager';
 import AdminAffiliateManager from './AdminAffiliateManager';
+import AdminArticlesManager from './AdminArticlesManager';
 import MaintenanceScreen from './MaintenanceScreen';
 import PropertyVerificationReviewModal from './PropertyVerificationReviewModal';
 import { AVAILABLE_FONTS, getFontConfig, applyFontToDom } from '../utils/fontConfig';
@@ -31,6 +31,7 @@ export const VALID_ADMIN_TABS = [
   'appointments',
   'reports',
   'emails',
+  'articles',
   'properties',
   'users',
   'finance',
@@ -39,7 +40,6 @@ export const VALID_ADMIN_TABS = [
   'rewards-gamification',
   'affiliate',
   'header',
-  'menu',
   'footer',
   'payments',
   'single-config',
@@ -52,7 +52,6 @@ export const getSettingsSubTabFromHash = () => {
   if (typeof window === 'undefined') return 'system';
   const fullHash = (window.location.hash || '').replace(/^#/, '').split('?')[0].trim().toLowerCase();
   if (fullHash === 'header' || fullHash === 'settings/header' || fullHash.startsWith('settings/header') || fullHash.includes('tab=header')) return 'header';
-  if (fullHash === 'menu' || fullHash === 'settings/menu' || fullHash.startsWith('settings/menu') || fullHash.includes('tab=menu')) return 'menu';
   if (fullHash === 'footer' || fullHash === 'settings/footer' || fullHash.startsWith('settings/footer') || fullHash.includes('tab=footer')) return 'footer';
   if (fullHash === 'email-config' || fullHash === 'email' || fullHash === 'settings/email' || fullHash.startsWith('settings/email') || fullHash.includes('tab=email')) return 'email';
   if (fullHash === 'telegram' || fullHash === 'telegram-config' || fullHash === 'settings/telegram' || fullHash.startsWith('settings/telegram') || fullHash.includes('tab=telegram')) return 'telegram';
@@ -62,7 +61,7 @@ export const getSettingsSubTabFromHash = () => {
 export const getTabFromHash = () => {
   if (typeof window === 'undefined') return 'dashboard';
   const rawHash = (window.location.hash || '').replace(/^#/, '').split('?')[0].split('/')[0].trim().toLowerCase();
-  if (rawHash === 'header' || rawHash === 'menu' || rawHash === 'footer' || rawHash === 'email-config' || rawHash === 'email' || rawHash === 'telegram' || rawHash === 'telegram-config') return 'settings';
+  if (rawHash === 'header' || rawHash === 'footer' || rawHash === 'email-config' || rawHash === 'email' || rawHash === 'telegram' || rawHash === 'telegram-config') return 'settings';
   return VALID_ADMIN_TABS.includes(rawHash) ? rawHash : 'dashboard';
 };
 
@@ -136,7 +135,8 @@ export default function AdminBackendPage() {
     updateSingleConfig,
     activateUserManually,
     resendUserVerificationEmail,
-    appointmentsList
+    appointmentsList,
+    articlesList
   } = useRealEstate();
 
   // Settings sub-tab state (synced with #settings/system, #settings/header, #settings/menu)
@@ -192,9 +192,6 @@ export default function AdminBackendPage() {
     if (tab === 'header') {
       targetTab = 'settings';
       targetSubTab = 'header';
-    } else if (tab === 'menu') {
-      targetTab = 'settings';
-      targetSubTab = 'menu';
     } else if (tab === 'footer') {
       targetTab = 'settings';
       targetSubTab = 'footer';
@@ -2386,6 +2383,22 @@ export default function AdminBackendPage() {
             </Link>
 
             <Link
+              href="#articles"
+              onClick={handleNavClick('articles')}
+              className={`w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between text-left ${
+                activeMenu === 'articles' ? 'bg-sky-600 text-white shadow-lg shadow-sky-600/30 font-bold' : 'text-slate-400 hover:text-white hover:bg-slate-900'
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <i className="fa-solid fa-newspaper text-sm w-5 text-center text-sky-400"></i>
+                <span>Bài Viết & Tin Tức</span>
+              </div>
+              <span className="px-1.5 py-0.5 rounded-full bg-slate-800 text-[10px] text-sky-300 font-bold border border-slate-700">
+                {(articlesList || []).length} bài
+              </span>
+            </Link>
+
+            <Link
               href="#properties"
               onClick={handleNavClick('properties')}
               className={`w-full px-3 py-2.5 rounded-xl transition flex items-center justify-between text-left ${
@@ -2514,7 +2527,7 @@ export default function AdminBackendPage() {
                 </div>
                 <div className="flex items-center gap-1">
                   <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${activeMenu === 'settings' ? 'bg-black/30 text-white' : 'bg-slate-800 text-slate-400'}`}>
-                    6 Tab
+                    5 Tab
                   </span>
                   <i className={`fa-solid fa-chevron-${activeMenu === 'settings' ? 'down' : 'right'} text-[10px] opacity-70`}></i>
                 </div>
@@ -2557,22 +2570,6 @@ export default function AdminBackendPage() {
 
                   <button
                     type="button"
-                    onClick={() => handleSelectSettingsSubTab('menu')}
-                    className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between text-left transition ${
-                      settingsSubTab === 'menu'
-                        ? 'bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30'
-                        : 'text-slate-400 hover:text-white hover:bg-slate-900/60'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <i className="fa-solid fa-bars-staggered text-[11px] w-4 text-center"></i>
-                      <span>3. Menu</span>
-                    </div>
-                    {settingsSubTab === 'menu' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
-                  </button>
-
-                  <button
-                    type="button"
                     onClick={() => handleSelectSettingsSubTab('footer')}
                     className={`w-full px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between text-left transition ${
                       settingsSubTab === 'footer'
@@ -2582,7 +2579,7 @@ export default function AdminBackendPage() {
                   >
                     <div className="flex items-center gap-2">
                       <i className="fa-solid fa-shoe-prints text-[11px] w-4 text-center text-cyan-400"></i>
-                      <span>4. Footer</span>
+                      <span>3. Footer</span>
                     </div>
                     {settingsSubTab === 'footer' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
                   </button>
@@ -2598,7 +2595,7 @@ export default function AdminBackendPage() {
                   >
                     <div className="flex items-center gap-2">
                       <i className="fa-solid fa-envelope-open-text text-[11px] w-4 text-center text-teal-400"></i>
-                      <span>5. Email Setting</span>
+                      <span>4. Email Setting</span>
                     </div>
                     {settingsSubTab === 'email' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
                   </button>
@@ -2614,7 +2611,7 @@ export default function AdminBackendPage() {
                   >
                     <div className="flex items-center gap-2">
                       <i className="fa-brands fa-telegram text-[11px] w-4 text-center text-sky-400"></i>
-                      <span>6. Live Chat Telegram</span>
+                      <span>5. Live Chat Telegram</span>
                     </div>
                     {settingsSubTab === 'telegram' && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>}
                   </button>
@@ -2719,13 +2716,13 @@ export default function AdminBackendPage() {
               {activeMenu === 'appointments' && '🗓️ Quản Lý Lịch Hẹn Xem Nhà'}
               {activeMenu === 'reports' && '⚠️ Quản Lý Báo Cáo Vi Phạm'}
               {activeMenu === 'emails' && '📬 Nhật Ký Gửi Email'}
+              {activeMenu === 'articles' && '📰 Quản Lý Bài Viết & Tin Tức'}
               {activeMenu === 'properties' && '🏢 Danh Mục BĐS Toàn Sàn'}
               {activeMenu === 'users' && '👥 Quản Lý Người Dùng'}
               {activeMenu === 'finance' && '💳 Sổ Cái Giao Dịch & Doanh Thu'}
               {activeMenu === 'pricing' && '👑 Bảng Giá Gói Dịch Vụ VIP'}
               {activeMenu === 'membership' && '👑 Gói Hội Viên'}
               {activeMenu === 'header' && '🎨 Header & Logo'}
-              {activeMenu === 'menu' && '🧭 Menu Điều Hướng'}
               {activeMenu === 'payments' && '💳 Cấu Hình Cổng Thanh Toán'}
               {activeMenu === 'single-config' && '📄 Cấu Hình Trang Chi Tiết BĐS'}
               {activeMenu === 'email-config' && '✉️ Email Setting'}
@@ -2735,8 +2732,8 @@ export default function AdminBackendPage() {
               {activeMenu === 'settings' && (
                 settingsSubTab === 'header'
                   ? '🎨 Cài Đặt Website › Header'
-                  : settingsSubTab === 'menu'
-                  ? '🧭 Cài Đặt Website › Menu'
+                  : settingsSubTab === 'footer'
+                  ? '🦶 Cài Đặt Website › Footer'
                   : settingsSubTab === 'email'
                   ? '✉️ Cài Đặt Website › Email'
                   : settingsSubTab === 'telegram'
@@ -6383,18 +6380,11 @@ export default function AdminBackendPage() {
             <AdminMembershipManager onNavigateToPricing={() => setActiveMenu('pricing')} />
           )}
 
-                    {/* =========================================
+          {/* =========================================
               PHÂN HỆ CẤU HÌNH HEADER (FORWARD TỚI SETTINGS TAB)
              ========================================= */}
           {activeMenu === 'header' && (
-            <AdminHeaderConfigManager onSwitchToMenu={() => handleSelectSettingsSubTab('menu')} />
-          )}
-
-          {/* =========================================
-              PHÂN HỆ CẤU HÌNH MENU (FORWARD TỚI SETTINGS TAB)
-             ========================================= */}
-          {activeMenu === 'menu' && (
-            <AdminMenuConfigManager onSwitchToHeader={() => handleSelectSettingsSubTab('header')} />
+            <AdminHeaderConfigManager />
           )}
 
           {/* =========================================
@@ -7207,17 +7197,17 @@ export default function AdminBackendPage() {
                           Trung Tâm Cài Đặt Website
                         </h2>
                         <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
-                          {settingsSubTab === 'system' ? '⚙️ Hệ Thống' : settingsSubTab === 'header' ? '🎨 Header' : settingsSubTab === 'menu' ? '🧭 Menu' : settingsSubTab === 'footer' ? '🦶 Footer' : settingsSubTab === 'email' ? '✉️ Email Setting' : '💬 Live Chat Telegram'}
+                          {settingsSubTab === 'system' ? '⚙️ Hệ Thống' : settingsSubTab === 'header' ? '🎨 Header' : settingsSubTab === 'footer' ? '🦶 Footer' : settingsSubTab === 'email' ? '✉️ Email Setting' : '💬 Live Chat Telegram'}
                         </span>
                       </div>
                       <p className="text-xs text-slate-400">
-                        Quản lý toàn diện nhận diện thương hiệu, giao diện Header, danh mục menu, cấu hình Footer, Email Setting, Live Chat Telegram và vận hành hệ thống.
+                        Quản lý toàn diện nhận diện thương hiệu, giao diện Header, cấu hình Footer, Email Setting, Live Chat Telegram và vận hành hệ thống.
                       </p>
                     </div>
                   </div>
 
-                  {/* Right: 6 Segmented Options Switcher */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1.5 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 shrink-0">
+                  {/* Right: 5 Segmented Options Switcher */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-1.5 bg-slate-900/90 p-1.5 rounded-2xl border border-slate-800 shrink-0">
                     {/* Option 1: System */}
                     <button
                       type="button"
@@ -7252,26 +7242,7 @@ export default function AdminBackendPage() {
                       </div>
                     </button>
 
-                    {/* Option 3: Menu */}
-                    <button
-                      type="button"
-                      onClick={() => handleSelectSettingsSubTab('menu')}
-                      className={`px-3 py-2.5 rounded-xl font-bold text-xs transition flex items-center justify-center sm:justify-start gap-2 cursor-pointer ${
-                        settingsSubTab === 'menu'
-                          ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg shadow-emerald-900/40 ring-1 ring-emerald-400/50'
-                          : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
-                      }`}
-                    >
-                      <i className="fa-solid fa-bars-staggered text-sm"></i>
-                      <div className="text-left">
-                        <div className="leading-tight">3. Menu</div>
-                        <div className="text-[10px] font-normal opacity-80 hidden sm:block">
-                          {(navMenuItems || []).length} mục
-                        </div>
-                      </div>
-                    </button>
-
-                    {/* Option 4: Footer */}
+                    {/* Option 3: Footer */}
                     <button
                       type="button"
                       onClick={() => handleSelectSettingsSubTab('footer')}
@@ -7283,14 +7254,14 @@ export default function AdminBackendPage() {
                     >
                       <i className="fa-solid fa-shoe-prints text-sm text-cyan-400"></i>
                       <div className="text-left">
-                        <div className="leading-tight">4. Footer</div>
+                        <div className="leading-tight">3. Footer</div>
                         <div className="text-[10px] font-normal opacity-80 hidden sm:block">
                           4 Cột & Pháp Lý
                         </div>
                       </div>
                     </button>
 
-                    {/* Option 5: Email Setting */}
+                    {/* Option 4: Email Setting */}
                     <button
                       type="button"
                       onClick={() => handleSelectSettingsSubTab('email')}
@@ -7302,14 +7273,14 @@ export default function AdminBackendPage() {
                     >
                       <i className="fa-solid fa-envelope-open-text text-sm"></i>
                       <div className="text-left">
-                        <div className="leading-tight">5. Email Setting</div>
+                        <div className="leading-tight">4. Email Setting</div>
                         <div className="text-[10px] font-normal opacity-80 hidden sm:block">
                           SMTP & 5 Mẫu
                         </div>
                       </div>
                     </button>
 
-                    {/* Option 6: Live Chat Telegram */}
+                    {/* Option 5: Live Chat Telegram */}
                     <button
                       type="button"
                       onClick={() => handleSelectSettingsSubTab('telegram')}
@@ -7321,7 +7292,7 @@ export default function AdminBackendPage() {
                     >
                       <i className="fa-brands fa-telegram text-sm text-sky-400"></i>
                       <div className="text-left">
-                        <div className="leading-tight">6. Telegram</div>
+                        <div className="leading-tight">5. Telegram</div>
                         <div className="text-[10px] font-normal opacity-80 hidden sm:block">
                           Live Chat Bot
                         </div>
@@ -7515,41 +7486,27 @@ export default function AdminBackendPage() {
                     </div>
 
                     <p className="text-xs text-slate-400 leading-relaxed">
-                      Lựa chọn phông chữ chủ đạo áp dụng cho toàn bộ giao diện sàn BĐS (Header, Menu, Bộ lọc tìm kiếm, Thẻ tin đăng, Chi tiết BĐS và Trang chính sách pháp lý). Tất cả phông chữ đều được tuyển chọn chuẩn Tiếng Việt sắc nét từ Google Fonts.
+                      Phông chữ chủ đạo của toàn bộ hệ thống: <strong>Roboto (Self-hosted)</strong> tải trực tiếp từ thư viện nội bộ, đảm bảo tải trang tức thì, không phụ thuộc mạng ngoài và hiển thị sắc nét trên mọi thiết bị.
                     </p>
 
                     {/* Danh sách thẻ phông chữ trực quan */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3">
                       {AVAILABLE_FONTS.map((font) => {
-                        const currentFont = (formSystemConfig.fontFamily || 'Plus Jakarta Sans').trim().toLowerCase();
-                        const isSelected = currentFont === font.name.toLowerCase() || currentFont === font.id.toLowerCase();
                         return (
                           <div
                             key={font.id}
-                            onClick={() => {
-                              setFormSystemConfig(prev => ({ ...prev, fontFamily: font.name }));
-                              applyFontToDom(font.name);
-                            }}
-                            className={`p-4 rounded-2xl border transition-all cursor-pointer relative overflow-hidden group ${
-                              isSelected
-                                ? 'bg-violet-950/40 border-violet-500 shadow-lg shadow-violet-950/50 ring-1 ring-violet-500/50'
-                                : 'bg-slate-900/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900'
-                            }`}
+                            className="p-4 rounded-2xl border transition-all relative overflow-hidden bg-emerald-950/40 border-emerald-500 shadow-lg ring-1 ring-emerald-500/50"
                           >
                             <div className="flex items-center justify-between mb-1.5">
-                              <span className="text-xs font-bold text-white group-hover:text-violet-300 transition">
-                                {font.name}
+                              <span className="text-xs font-bold text-white">
+                                {font.name} (Chuẩn hệ thống mặc định)
                               </span>
-                              {isSelected ? (
-                                <span className="w-5 h-5 rounded-full bg-violet-500 text-white flex items-center justify-center text-[10px] shadow-sm">
-                                  <i className="fa-solid fa-check"></i>
-                                </span>
-                              ) : (
-                                <span className="w-5 h-5 rounded-full border border-slate-700 group-hover:border-slate-500"></span>
-                              )}
+                              <span className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] shadow-sm">
+                                <i className="fa-solid fa-check"></i>
+                              </span>
                             </div>
 
-                            <div className="text-[10px] text-violet-400 font-medium mb-3">
+                            <div className="text-[10px] text-emerald-400 font-medium mb-3">
                               {font.category}
                             </div>
 
@@ -8139,58 +8096,7 @@ export default function AdminBackendPage() {
                         </div>
                       </div>
 
-                      {/* 2. Số lượng tin hiển thị trên Trang Chủ */}
-                      <div className="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-3">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          <div>
-                            <div className="font-bold text-white text-xs flex items-center gap-2">
-                              <span>Số tin hiển thị trong danh sách Trang Chủ:</span>
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-blue-950 text-blue-300 border border-blue-800">
-                                {formSystemConfig.homePageSize || 18} tin
-                              </span>
-                            </div>
-                            <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                              Quy định số lượng nhà đất nổi bật hiển thị trên Trang Chủ (ưu tiên tin VIP và tin mới nhất). Mặc định là 18 sản phẩm.
-                            </p>
-                          </div>
-
-                          <div className="flex items-center gap-2 shrink-0">
-                            <select
-                              value={formSystemConfig.homePageSize || 18}
-                              onChange={(e) => setFormSystemConfig(prev => ({ ...prev, homePageSize: Number(e.target.value) }))}
-                              className="p-2.5 bg-slate-950 border border-slate-700 rounded-xl text-white font-bold text-xs outline-none focus:border-blue-500"
-                            >
-                              <option value={9}>9 tin</option>
-                              <option value={12}>12 tin</option>
-                              <option value={15}>15 tin</option>
-                              <option value={18}>18 tin (Mặc định)</option>
-                              <option value={24}>24 tin</option>
-                              <option value={30}>30 tin</option>
-                            </select>
-                          </div>
-                        </div>
-
-                        {/* Preset buttons for Home */}
-                        <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-800/80">
-                          <span className="text-[10px] font-bold text-slate-500 uppercase">Chọn nhanh:</span>
-                          {[9, 12, 18, 24, 30].map(val => (
-                            <button
-                              key={val}
-                              type="button"
-                              onClick={() => setFormSystemConfig(prev => ({ ...prev, homePageSize: val }))}
-                              className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer ${
-                                (formSystemConfig.homePageSize || 18) === val
-                                  ? 'bg-blue-600 text-white shadow-sm'
-                                  : 'bg-slate-950 text-slate-400 hover:text-white border border-slate-800'
-                              }`}
-                            >
-                              {val} tin
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* 3. Số lượng tin hiển thị mỗi trang Săn Kho Báu BĐS */}
+                      {/* 2. Số lượng tin hiển thị mỗi trang Săn Kho Báu BĐS */}
                       <div className="p-4 bg-slate-900/80 rounded-2xl border border-slate-800 space-y-3">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                           <div>
@@ -8417,7 +8323,7 @@ export default function AdminBackendPage() {
                           <span className="text-emerald-400 font-bold truncate">{formSystemConfig.brandShortName || 'SÀN NHÀ ĐẤT'}</span>
                           <span className="text-slate-500">|</span>
                           <span className="text-slate-300 truncate font-mono">
-                            Hotline: <strong className="text-white">{formSystemConfig.hotline || '0904 084 888'}</strong>
+                            Hotline: <strong className="text-white">{formSystemConfig.hotline || '0905 467 138'}</strong>
                           </span>
                         </div>
                       </div>
@@ -8435,8 +8341,8 @@ export default function AdminBackendPage() {
                           {formSystemConfig.tagline || 'Sàn Giao Dịch Nhà Đất & Đăng Tin VIP'}
                         </div>
                         <div className="pt-2 border-t border-slate-800 space-y-1 text-[11px]">
-                          <div>📞 Hotline: <strong className="text-white font-mono">{formSystemConfig.hotline || '0904 084 888'}</strong></div>
-                          <div>💬 Zalo: <strong className="text-emerald-400 font-mono">{formSystemConfig.zalo || '0904 084 888'}</strong></div>
+                          <div>📞 Hotline: <strong className="text-white font-mono">{formSystemConfig.hotline || '0905 467 138'}</strong></div>
+                          <div>💬 Zalo: <strong className="text-emerald-400 font-mono">{formSystemConfig.zalo || '0905 467 138'}</strong></div>
                           <div>✉️ Email: <strong className="text-slate-200 font-mono">{formSystemConfig.email || 'tranvanvu.dev@gmail.com'}</strong></div>
                           <div className="text-[10px] text-slate-400">📍 {formSystemConfig.address || 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng'}</div>
                         </div>
@@ -8475,10 +8381,6 @@ export default function AdminBackendPage() {
                         <span>Phân trang Danh mục:</span>
                         <span className="font-bold text-emerald-400 font-mono">{formSystemConfig.categoryPageSize || 12} tin/trang</span>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <span>Tin hiển thị Trang chủ:</span>
-                        <span className="font-bold text-blue-400 font-mono">{formSystemConfig.homePageSize || 18} tin</span>
-                      </div>
                       <div className="flex items-center justify-between pt-1 border-t border-slate-800">
                         <span>Chế độ bảo trì hệ thống:</span>
                         <span className={`font-bold px-2 py-0.5 rounded text-[10px] ${
@@ -8502,25 +8404,20 @@ export default function AdminBackendPage() {
 
               {/* TAB 2: HEADER & ĐỘ RỘNG */}
               {settingsSubTab === 'header' && (
-                <AdminHeaderConfigManager onSwitchToMenu={() => handleSelectSettingsSubTab('menu')} />
+                <AdminHeaderConfigManager />
               )}
 
-              {/* TAB 3: CẤU HÌNH MENU */}
-              {settingsSubTab === 'menu' && (
-                <AdminMenuConfigManager onSwitchToHeader={() => handleSelectSettingsSubTab('header')} />
-              )}
-
-              {/* TAB 4: CẤU HÌNH FOOTER */}
+              {/* TAB 3: CẤU HÌNH FOOTER */}
               {settingsSubTab === 'footer' && (
                 <AdminFooterConfigManager />
               )}
 
-              {/* TAB 5: EMAIL SETTING */}
+              {/* TAB 4: EMAIL SETTING */}
               {settingsSubTab === 'email' && (
                 <AdminEmailConfigManager onNavigateToEmails={() => setActiveMenu('emails')} />
               )}
 
-              {/* TAB 6: TELEGRAM LIVE CHAT */}
+              {/* TAB 5: TELEGRAM LIVE CHAT */}
               {settingsSubTab === 'telegram' && (
                 <AdminTelegramChatManager />
               )}
@@ -8545,6 +8442,13 @@ export default function AdminBackendPage() {
               initialReportId={targetReportId}
               onClearTargetReport={() => setTargetReportId(null)}
             />
+          )}
+
+          {/* =========================================
+              PHÂN HỆ: QUẢN LÝ BÀI VIẾT & TIN TỨC
+             ========================================= */}
+          {activeMenu === 'articles' && (
+            <AdminArticlesManager />
           )}
 
           {/* =========================================

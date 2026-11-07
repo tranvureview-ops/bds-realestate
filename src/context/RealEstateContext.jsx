@@ -16,6 +16,7 @@ import {
   invalidateSupabaseCache
 } from '../lib/supabase';
 import { getEarliestExpiringBonus, deductBatchesFifo } from '../utils/bonusExpiryUtils';
+import { KNOWLEDGE_ARTICLES, KNOWLEDGE_CATEGORIES } from '../data/knowledgeArticles';
 
 // Helper bất đồng bộ lưu cấu hình sàn lên Supabase SDK
 const persistSettingToSupabase = async (key, value) => {
@@ -767,6 +768,39 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     return initialData?.bds_single_config || DEFAULT_SINGLE_CONFIG;
   });
 
+  // 11b2. Quản Lý Bài Viết Kiến Thức & Tin Tức (Articles & Knowledge Base)
+  const [articlesList, setArticlesList] = useState(() => {
+    if (initialData?.bds_articles && Array.isArray(initialData.bds_articles) && initialData.bds_articles.length > 0) {
+      return initialData.bds_articles;
+    }
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('bds_cached_bds_articles');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (_) {}
+    }
+    return KNOWLEDGE_ARTICLES;
+  });
+
+  const [articleCategories, setArticleCategories] = useState(() => {
+    if (initialData?.bds_knowledge_categories && Array.isArray(initialData.bds_knowledge_categories) && initialData.bds_knowledge_categories.length > 0) {
+      return initialData.bds_knowledge_categories;
+    }
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('bds_cached_bds_knowledge_categories');
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+      } catch (_) {}
+    }
+    return KNOWLEDGE_CATEGORIES;
+  });
+
   // 11c. Cấu hình Email Website & Máy Chủ Gửi Thư (Email Website & SMTP Config)
   const [emailConfig, setEmailConfig] = useState(() => {
     return initialData?.bds_email_config || DEFAULT_EMAIL_CONFIG;
@@ -1041,6 +1075,194 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     setSingleConfig(DEFAULT_SINGLE_CONFIG);
     await removeSettingFromSupabase('bds_single_config');
     showToast('Đã khôi phục cấu hình trang Single về mặc định!', 'info');
+  };
+
+  // Quản lý CRUD Bài Viết & Danh Mục
+  const createArticle = async (newArticle) => {
+    try {
+      const articleId = newArticle.id || `art-${Date.now()}`;
+      const slug = (newArticle.slug || newArticle.title || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[đĐ]/g, 'd')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)+/g, '');
+
+      const finalized = {
+        ...newArticle,
+        id: articleId,
+        slug,
+        publishedAt: newArticle.publishedAt || new Date().toISOString().split('T')[0],
+        status: newArticle.status || 'published',
+        tags: Array.isArray(newArticle.tags) ? newArticle.tags : (newArticle.tags ? String(newArticle.tags).split(',').map(t => t.trim()).filter(Boolean) : [])
+      };
+
+      let updatedList;
+      setArticlesList(prev => {
+        updatedList = [finalized, ...(prev || [])];
+        return updatedList;
+      });
+
+      await persistSettingToSupabase('bds_articles', updatedList);
+      showToast('Đã đăng bài viết mới thành công!', 'success');
+      return finalized;
+    } catch (err) {
+      console.error('Lỗi khi tạo bài viết:', err);
+      showToast('Có lỗi xảy ra khi tạo bài viết', 'error');
+      return null;
+    }
+  };
+
+  const updateArticle = async (articleId, updatedFields) => {
+    try {
+      let updatedList;
+      setArticlesList(prev => {
+        updatedList = (prev || []).map(a => {
+          if (a.id === articleId) {
+            return {
+              ...a,
+              ...updatedFields,
+              id: articleId,
+              tags: Array.isArray(updatedFields.tags) 
+                ? updatedFields.tags 
+                : (updatedFields.tags ? String(updatedFields.tags).split(',').map(t => t.trim()).filter(Boolean) : a.tags),
+              updatedAt: new Date().toISOString()
+            };
+          }
+          return a;
+        });
+        return updatedList;
+      });
+
+      await persistSettingToSupabase('bds_articles', updatedList);
+      showToast('Đã cập nhật bài viết thành công!', 'success');
+      return true;
+    } catch (err) {
+      console.error('Lỗi khi cập nhật bài viết:', err);
+      showToast('Có lỗi xảy ra khi cập nhật bài viết', 'error');
+      return false;
+    }
+  };
+
+  const deleteArticle = async (articleId) => {
+    try {
+      let updatedList;
+      setArticlesList(prev => {
+        updatedList = (prev || []).filter(a => a.id !== articleId);
+        return updatedList;
+      });
+
+      await persistSettingToSupabase('bds_articles', updatedList);
+      showToast('Đã xóa bài viết thành công!', 'info');
+      return true;
+    } catch (err) {
+      console.error('Lỗi khi xóa bài viết:', err);
+      showToast('Có lỗi xảy ra khi xóa bài viết', 'error');
+      return false;
+    }
+  };
+
+  const toggleArticleStatus = async (articleId) => {
+    try {
+      let updatedList;
+      setArticlesList(prev => {
+        updatedList = (prev || []).map(a => {
+          if (a.id === articleId) {
+            const nextStatus = a.status === 'draft' ? 'published' : 'draft';
+            return { ...a, status: nextStatus };
+          }
+          return a;
+        });
+        return updatedList;
+      });
+
+      await persistSettingToSupabase('bds_articles', updatedList);
+      showToast('Đã cập nhật trạng thái bài viết!', 'success');
+      return true;
+    } catch (err) {
+      console.error('Lỗi khi đổi trạng thái bài viết:', err);
+      return false;
+    }
+  };
+
+  const duplicateArticle = async (articleId) => {
+    try {
+      const source = (articlesList || []).find(a => a.id === articleId);
+      if (!source) return;
+
+      const newId = `art-${Date.now()}`;
+      const newSlug = `${source.slug}-ban-sao-${Math.floor(Math.random() * 1000)}`;
+      const duplicated = {
+        ...source,
+        id: newId,
+        title: `${source.title} (Bản sao)`,
+        slug: newSlug,
+        status: 'draft',
+        publishedAt: new Date().toISOString().split('T')[0]
+      };
+
+      let updatedList;
+      setArticlesList(prev => {
+        updatedList = [duplicated, ...(prev || [])];
+        return updatedList;
+      });
+
+      await persistSettingToSupabase('bds_articles', updatedList);
+      showToast('Đã nhân bản bài viết thành công!', 'success');
+      return duplicated;
+    } catch (err) {
+      console.error('Lỗi khi nhân bản bài viết:', err);
+      showToast('Không thể nhân bản bài viết', 'error');
+    }
+  };
+
+  const resetArticlesToDefault = async () => {
+    setArticlesList(KNOWLEDGE_ARTICLES);
+    await persistSettingToSupabase('bds_articles', KNOWLEDGE_ARTICLES);
+    showToast('Đã khôi phục danh sách bài viết về mặc định!', 'info');
+  };
+
+  const createArticleCategory = async (catData) => {
+    try {
+      let updatedCats;
+      setArticleCategories(prev => {
+        updatedCats = [...(prev || []), catData];
+        return updatedCats;
+      });
+      await persistSettingToSupabase('bds_knowledge_categories', updatedCats);
+      showToast('Đã thêm danh mục mới thành công!', 'success');
+    } catch (err) {
+      showToast('Lỗi khi thêm danh mục', 'error');
+    }
+  };
+
+  const updateArticleCategory = async (slug, updatedFields) => {
+    try {
+      let updatedCats;
+      setArticleCategories(prev => {
+        updatedCats = (prev || []).map(c => c.slug === slug ? { ...c, ...updatedFields } : c);
+        return updatedCats;
+      });
+      await persistSettingToSupabase('bds_knowledge_categories', updatedCats);
+      showToast('Đã cập nhật danh mục thành công!', 'success');
+    } catch (err) {
+      showToast('Lỗi khi cập nhật danh mục', 'error');
+    }
+  };
+
+  const deleteArticleCategory = async (slug) => {
+    try {
+      let updatedCats;
+      setArticleCategories(prev => {
+        updatedCats = (prev || []).filter(c => c.slug !== slug);
+        return updatedCats;
+      });
+      await persistSettingToSupabase('bds_knowledge_categories', updatedCats);
+      showToast('Đã xóa danh mục thành công!', 'info');
+    } catch (err) {
+      showToast('Lỗi khi xóa danh mục', 'error');
+    }
   };
 
   const updateRewardsConfig = async (newConfig) => {
@@ -5836,7 +6058,18 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         markNotificationAsRead,
         footerConfig,
         updateFooterConfig,
-        DEFAULT_FOOTER_CONFIG
+        DEFAULT_FOOTER_CONFIG,
+        articlesList,
+        articleCategories,
+        createArticle,
+        updateArticle,
+        deleteArticle,
+        toggleArticleStatus,
+        duplicateArticle,
+        resetArticlesToDefault,
+        createArticleCategory,
+        updateArticleCategory,
+        deleteArticleCategory
       }}
     >
       {children}

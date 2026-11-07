@@ -1,5 +1,7 @@
 import React from 'react';
 import { notFound } from 'next/navigation';
+import fs from 'fs';
+import path from 'path';
 import KnowledgeHubPage from '../../../views/KnowledgeHubPage';
 import KnowledgeArticleDetailPage from '../../../views/KnowledgeArticleDetailPage';
 import { 
@@ -10,12 +12,40 @@ import {
 } from '../../../data/knowledgeArticles';
 import { SITE_URL } from '../../../utils/permalink';
 
+function getLiveArticles() {
+  try {
+    const dbFile = path.resolve(process.cwd(), 'server-db.json');
+    if (fs.existsSync(dbFile)) {
+      const parsed = JSON.parse(fs.readFileSync(dbFile, 'utf-8') || '{}');
+      if (Array.isArray(parsed.bds_articles) && parsed.bds_articles.length > 0) {
+        return parsed.bds_articles;
+      }
+    }
+  } catch (_) {}
+  return KNOWLEDGE_ARTICLES;
+}
+
+function getLiveCategories() {
+  try {
+    const dbFile = path.resolve(process.cwd(), 'server-db.json');
+    if (fs.existsSync(dbFile)) {
+      const parsed = JSON.parse(fs.readFileSync(dbFile, 'utf-8') || '{}');
+      if (Array.isArray(parsed.bds_knowledge_categories) && parsed.bds_knowledge_categories.length > 0) {
+        return parsed.bds_knowledge_categories;
+      }
+    }
+  } catch (_) {}
+  return KNOWLEDGE_CATEGORIES;
+}
+
 /**
  * Tự động tạo static params cho tất cả Category slugs và Article slugs
  */
 export async function generateStaticParams() {
-  const categoryParams = KNOWLEDGE_CATEGORIES.map(cat => ({ slug: cat.slug }));
-  const articleParams = KNOWLEDGE_ARTICLES.map(art => ({ slug: art.slug }));
+  const categories = getLiveCategories();
+  const articles = getLiveArticles();
+  const categoryParams = categories.map(cat => ({ slug: cat.slug }));
+  const articleParams = articles.map(art => ({ slug: art.slug }));
   return [...categoryParams, ...articleParams];
 }
 
@@ -25,9 +55,11 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }) {
   const { slug } = (await params) || {};
   const domain = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '');
+  const categories = getLiveCategories();
+  const articles = getLiveArticles();
 
   // 1. Kiểm tra nếu là Danh mục cha
-  const category = getCategoryBySlug(slug);
+  const category = categories.find(c => c.slug === slug) || getCategoryBySlug(slug);
   if (category) {
     const canonicalUrl = `${domain}/kien-thuc/${category.slug}`;
     const cleanCategoryTitle = `${category.name} - Cẩm Nang Bất Động Sản`;
@@ -49,7 +81,7 @@ export async function generateMetadata({ params }) {
   }
 
   // 2. Kiểm tra nếu là Trang bài viết Flat URL (/kien-thuc/[slug])
-  const article = getArticleBySlug(slug);
+  const article = articles.find(a => a.slug === slug) || getArticleBySlug(slug);
   if (article) {
     const canonicalUrl = `${domain}/kien-thuc/${article.slug}`;
     // Loại bỏ hoàn toàn mọi hậu tố thương hiệu bị lặp trước đó nếu có
@@ -101,15 +133,17 @@ export async function generateMetadata({ params }) {
  */
 export default async function KnowledgeDynamicPage({ params }) {
   const { slug } = (await params) || {};
+  const categories = getLiveCategories();
+  const articles = getLiveArticles();
 
   // 1. Kiểm tra Danh mục cha
-  const category = getCategoryBySlug(slug);
+  const category = categories.find(c => c.slug === slug) || getCategoryBySlug(slug);
   if (category) {
     return <KnowledgeHubPage activeCategorySlug={category.slug} />;
   }
 
   // 2. Kiểm tra Bài viết Flat URL
-  const article = getArticleBySlug(slug);
+  const article = articles.find(a => a.slug === slug) || getArticleBySlug(slug);
   if (article) {
     const domain = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '');
     const canonicalUrl = `${domain}/kien-thuc/${article.slug}`;
