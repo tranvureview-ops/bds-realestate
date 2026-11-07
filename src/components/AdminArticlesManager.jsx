@@ -1732,7 +1732,10 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
 
       {/* 5. MODAL CHỌN / TẢI / CHÈN ẢNH VÀO NỘI DUNG HOẶC BÌA */}
       {isImagePickerOpen && (
-        <div className="fixed inset-0 z-60 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+        <div 
+          className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-4"
+          style={{ zIndex: 99999 }}
+        >
           <div className="bg-slate-900 border border-slate-700 rounded-3xl max-w-3xl w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] flex flex-col">
             {/* Header Modal */}
             <div className="flex items-center justify-between border-b border-slate-800 pb-3 shrink-0">
@@ -1744,7 +1747,7 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                 </div>
                 <div>
                   <h4 className="text-base font-bold text-white flex items-center gap-2">
-                    <span>{imagePickerTarget === 'content' ? 'Chèn Hình Ảnh Vào Bài Viết' : 'Chọn Ảnh Đại Diện Bài Viết'}</span>
+                    <span>{imagePickerTarget === 'content' ? 'Thư Viện & Chèn Hình Ảnh Vào Bài Viết' : 'Chọn Ảnh Đại Diện Bài Viết'}</span>
                     <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
                       imagePickerTarget === 'content' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-sky-500/20 text-sky-300'
                     }`}>
@@ -1753,7 +1756,7 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                   </h4>
                   <p className="text-[11px] text-slate-400">
                     {imagePickerTarget === 'content'
-                      ? 'Ảnh sẽ được chèn trực tiếp tại vị trí con trỏ dưới cú pháp Markdown ![Chú thích](Đường_dẫn)'
+                      ? 'Chọn ảnh từ thư viện để chèn tự động vào bài viết tại vị trí con trỏ dưới cú pháp Markdown ![Chú thích](URL)'
                       : 'Ảnh bìa hiển thị nổi bật ở đầu bài viết và khi chia sẻ liên kết mạng xã hội'}
                   </p>
                 </div>
@@ -1814,6 +1817,11 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
               {/* TAB 1: THƯ VIỆN ẢNH CÓ SẴN */}
               {pickerTab === 'library' && (
                 <div className="space-y-4">
+                  <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 text-[11px] text-slate-300 flex items-center gap-2">
+                    <i className="fa-solid fa-circle-info text-sky-400 text-xs" />
+                    <span>Bấm nút <strong>&quot;Chèn ngay&quot;</strong> trên bất kỳ ảnh nào để thêm vào bài viết, hoặc nhấp vào ảnh để chỉnh sửa chú thích (caption).</span>
+                  </div>
+
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-h-72 overflow-y-auto p-1">
                     {allAvailableImages.map((item, idx) => {
                       const isSelected = customImageUrl === item.url || (imagePickerTarget === 'cover' && formData.image === item.url);
@@ -1828,9 +1836,9 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                               setCustomImageCaption(item.title);
                             }
                           }}
-                          className={`rounded-xl overflow-hidden border cursor-pointer group transition relative ${
+                          className={`rounded-xl overflow-hidden border cursor-pointer group transition flex flex-col justify-between ${
                             isSelected
-                              ? 'border-red-500 ring-2 ring-red-500/50 bg-slate-850'
+                              ? 'border-emerald-500 ring-2 ring-emerald-500/50 bg-slate-850'
                               : 'border-slate-800 hover:border-slate-600 bg-slate-950/60'
                           }`}
                         >
@@ -1843,27 +1851,31 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                                 e.currentTarget.src = '/hero.png';
                               }}
                             />
-                            {imagePickerTarget === 'content' && (
-                              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex items-center justify-center p-2">
-                                <button
-                                  type="button"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleApplyImage(item.url, item.title);
-                                  }}
-                                  className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold shadow flex items-center gap-1"
-                                >
-                                  <i className="fa-solid fa-plus text-[10px]" />
-                                  <span>Chèn ngay</span>
-                                </button>
-                              </div>
-                            )}
                           </div>
-                          <div className="p-2 bg-slate-950 text-[11px]">
-                            <div className="text-slate-300 font-semibold line-clamp-1 group-hover:text-amber-400 transition">
-                              {item.title}
+
+                          <div className="p-2 bg-slate-950 flex flex-col justify-between flex-1 gap-1.5 text-[11px]">
+                            <div>
+                              <div className="text-slate-200 font-semibold line-clamp-1 group-hover:text-amber-400 transition">
+                                {item.title}
+                              </div>
+                              <div className="text-[10px] text-slate-500 mt-0.5">{item.category}</div>
                             </div>
-                            <div className="text-[10px] text-slate-500 mt-0.5">{item.category}</div>
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleApplyImage(item.url, item.title);
+                              }}
+                              className={`w-full py-1.5 px-2 rounded-lg text-white font-bold text-[10px] shadow transition flex items-center justify-center gap-1 ${
+                                imagePickerTarget === 'content'
+                                  ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/30'
+                                  : 'bg-sky-600 hover:bg-sky-500 shadow-sky-600/30'
+                              }`}
+                            >
+                              <i className="fa-solid fa-plus text-[9px]" />
+                              <span>{imagePickerTarget === 'content' ? 'Chèn ảnh này' : 'Chọn làm ảnh bìa'}</span>
+                            </button>
                           </div>
                         </div>
                       );
@@ -1872,13 +1884,13 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
 
                   {/* Thanh chỉnh sửa chú thích và xác nhận chèn cho Tab Thư Viện */}
                   {imagePickerTarget === 'content' && customImageUrl && (
-                    <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row items-center gap-3">
+                    <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row items-center gap-3 shadow-lg">
                       <div className="w-16 h-12 rounded-lg overflow-hidden bg-slate-800 shrink-0 border border-slate-700">
                         <img src={customImageUrl} alt="Selected" className="w-full h-full object-cover" />
                       </div>
                       <div className="flex-1 w-full">
                         <label className="block text-[11px] font-bold text-slate-300 mb-1">
-                          Chú thích ảnh (Caption / Thẻ Alt chuẩn SEO):
+                          Chú thích ảnh tùy chỉnh (Caption / Thẻ Alt SEO):
                         </label>
                         <input
                           type="text"
@@ -2060,7 +2072,10 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
 
       {/* 6. MODAL THÊM / SỬA DANH MỤC */}
       {isCategoryModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div 
+          className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-md flex items-center justify-center p-4"
+          style={{ zIndex: 99999 }}
+        >
           <div className="bg-slate-900 border border-slate-700 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-slate-800 pb-3">
               <h4 className="text-base font-bold text-white flex items-center gap-2">
@@ -2162,7 +2177,10 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
 
       {/* 7. MODAL XÁC NHẬN XÓA BÀI VIẾT */}
       {deleteConfirmArticle && (
-        <div className="fixed inset-0 z-60 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div 
+          className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+          style={{ zIndex: 99999 }}
+        >
           <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4 text-center">
             <div className="w-14 h-14 rounded-full bg-rose-500/10 text-rose-500 flex items-center justify-center text-2xl mx-auto border border-rose-500/20">
               <i className="fa-solid fa-triangle-exclamation" />
