@@ -339,8 +339,8 @@ function formatArticleHtml(content) {
     }
 
     // 4b. Standalone Image (![alt](src))
-    if (/^!\[(.*?)\]\((.*?)\)$/.test(trimmed)) {
-      const match = trimmed.match(/^!\[(.*?)\]\((.*?)\)$/);
+    if (/^!\[(.*?)\]\((.*?)\)\s*$/.test(trimmed)) {
+      const match = trimmed.match(/^!\[(.*?)\]\((.*?)\)\s*$/);
       if (match) {
         const alt = match[1];
         const src = match[2];

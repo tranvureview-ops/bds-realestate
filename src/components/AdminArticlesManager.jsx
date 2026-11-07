@@ -48,6 +48,143 @@ const PRESET_ARTICLE_IMAGES = [
   }
 ];
 
+/**
+ * Chuyển đổi Markdown bài viết thành HTML xem trước hiển thị thời gian thực
+ */
+function formatArticlePreviewHtml(content) {
+  if (!content) return '<p class="text-slate-400 italic">Chưa có nội dung bài viết...</p>';
+
+  const formatInline = (text) => {
+    return text
+      .replace(/\$\$/g, '')
+      .replace(/!\[(.*?)\]\((.*?)\)/g, '<figure class="my-6 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm"><img src="$2" alt="$1" class="w-full h-auto object-cover max-h-[480px]" loading="lazy" /><figcaption class="p-3 text-center text-xs sm:text-sm text-slate-600 font-medium italic border-t border-slate-100 bg-white">$1</figcaption></figure>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-slate-900">$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em class="italic text-slate-800">$1</em>')
+      .replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-slate-100 text-slate-800 text-xs font-mono">$1</code>')
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-emerald-700 hover:text-emerald-800 font-semibold underline decoration-emerald-300 transition-colors">$1</a>');
+  };
+
+  const rawBlocks = content.split(/\n\s*\n/);
+  const htmlBlocks = [];
+
+  for (let block of rawBlocks) {
+    const trimmed = block.trim();
+    if (!trimmed) continue;
+
+    // Heading 2
+    if (/^##\s+/.test(trimmed)) {
+      const title = trimmed.replace(/^##\s+/, '').replace(/\s+\{#.*\}$/, '');
+      htmlBlocks.push(`<h2 class="text-xl sm:text-2xl font-black text-slate-900 mt-8 mb-4 pb-2 border-b border-slate-200 flex items-center gap-2">${formatInline(title)}</h2>`);
+      continue;
+    }
+
+    // Heading 3
+    if (/^###\s+/.test(trimmed)) {
+      const title = trimmed.replace(/^###\s+/, '').replace(/\s+\{#.*\}$/, '');
+      htmlBlocks.push(`<h3 class="text-lg sm:text-xl font-bold text-slate-800 mt-6 mb-3">${formatInline(title)}</h3>`);
+      continue;
+    }
+
+    // Heading 4
+    if (/^####\s+/.test(trimmed)) {
+      const title = trimmed.replace(/^####\s+/, '');
+      htmlBlocks.push(`<h4 class="text-base font-bold text-slate-800 mt-4 mb-2">${formatInline(title)}</h4>`);
+      continue;
+    }
+
+    // Standalone Image
+    if (/^!\[(.*?)\]\((.*?)\)\s*$/.test(trimmed)) {
+      const m = trimmed.match(/^!\[(.*?)\]\((.*?)\)\s*$/);
+      if (m) {
+        const alt = m[1];
+        const src = m[2];
+        htmlBlocks.push(
+          `<figure class="my-6 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-sm">
+            <img src="${src}" alt="${alt}" class="w-full h-auto object-cover max-h-[480px]" loading="lazy" />
+            ${alt ? `<figcaption class="p-3 text-center text-xs sm:text-sm text-slate-600 font-medium italic border-t border-slate-100 bg-white">${alt}</figcaption>` : ''}
+          </figure>`
+        );
+        continue;
+      }
+    }
+
+    // Blockquote
+    if (/^>\s+/.test(trimmed)) {
+      const quote = trimmed.split('\n').map(l => l.replace(/^>\s?/, '')).join(' ');
+      htmlBlocks.push(`<blockquote class="p-4 sm:p-5 my-5 bg-emerald-50 border-l-4 border-emerald-600 rounded-r-2xl text-slate-700 text-sm sm:text-base italic leading-relaxed">${formatInline(quote)}</blockquote>`);
+      continue;
+    }
+
+    // Markdown Table
+    if (trimmed.includes('|') && trimmed.includes('---')) {
+      const lines = trimmed.split('\n').map(l => l.trim()).filter(Boolean);
+      let tableHtml = '<div class="my-6 overflow-x-auto"><table class="w-full border-collapse border border-slate-200 rounded-xl overflow-hidden text-xs sm:text-sm">';
+      let isThead = true;
+      let hasClosedThead = false;
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (line.includes('---')) {
+          if (isThead) {
+            tableHtml += '</thead><tbody>';
+            isThead = false;
+            hasClosedThead = true;
+          }
+          continue;
+        }
+
+        const cols = line.split('|').map(c => c.trim()).filter((_, idx, arr) => idx > 0 && idx < arr.length - 1);
+        if (cols.length === 0) continue;
+
+        if (isThead) {
+          tableHtml += '<thead class="bg-slate-100 text-slate-800 font-bold border-b border-slate-200"><tr>';
+          cols.forEach(c => {
+            tableHtml += `<th class="p-3 text-left border-r border-slate-200 last:border-r-0">${formatInline(c)}</th>`;
+          });
+          tableHtml += '</tr>';
+        } else {
+          const rowBg = i % 2 === 0 ? 'bg-white' : 'bg-slate-50/70';
+          tableHtml += `<tr class="${rowBg} border-b border-slate-200/80 hover:bg-emerald-50/30 transition">`;
+          cols.forEach(c => {
+            tableHtml += `<td class="p-3 text-slate-700 border-r border-slate-200 last:border-r-0">${formatInline(c)}</td>`;
+          });
+          tableHtml += '</tr>';
+        }
+      }
+
+      if (!hasClosedThead && isThead) {
+        tableHtml += '</thead><tbody>';
+      }
+      tableHtml += '</tbody></table></div>';
+      htmlBlocks.push(tableHtml);
+      continue;
+    }
+
+    // Unordered List
+    if (/^[-*]\s+/.test(trimmed)) {
+      const items = trimmed.split('\n').filter(l => /^[-*]\s+/.test(l.trim()));
+      htmlBlocks.push(
+        `<ul class="list-disc pl-6 my-4 space-y-2 text-slate-700">${items.map(it => `<li>${formatInline(it.replace(/^[-*]\s+/, ''))}</li>`).join('')}</ul>`
+      );
+      continue;
+    }
+
+    // Ordered List
+    if (/^\d+\.\s+/.test(trimmed)) {
+      const items = trimmed.split('\n').filter(l => /^\d+\.\s+/.test(l.trim()));
+      htmlBlocks.push(
+        `<ol class="list-decimal pl-6 my-4 space-y-2 text-slate-700">${items.map(it => `<li>${formatInline(it.replace(/^\d+\.\s+/, ''))}</li>`).join('')}</ol>`
+      );
+      continue;
+    }
+
+    // Default Paragraph
+    htmlBlocks.push(`<p class="my-4 text-slate-700 leading-relaxed text-sm sm:text-base">${formatInline(trimmed)}</p>`);
+  }
+
+  return htmlBlocks.join('\n');
+}
+
 export default function AdminArticlesManager() {
   const {
     articlesList,
@@ -76,7 +213,12 @@ export default function AdminArticlesManager() {
   const [editingArticle, setEditingArticle] = useState(null);
   const [editorTab, setEditorTab] = useState('write'); // 'write' | 'preview' | 'seo'
   const [isImagePickerOpen, setIsImagePickerOpen] = useState(false);
+  const [imagePickerTarget, setImagePickerTarget] = useState('cover'); // 'cover' | 'content'
+  const [pickerTab, setPickerTab] = useState('library'); // 'library' | 'upload' | 'url'
+  const [customImageUrl, setCustomImageUrl] = useState('');
+  const [customImageCaption, setCustomImageCaption] = useState('');
   const [deleteConfirmArticle, setDeleteConfirmArticle] = useState(null);
+  const savedCursorPos = useRef(null);
 
   // Category Modal State
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -132,6 +274,39 @@ export default function AdminArticlesManager() {
     const draft = total - published;
     return { total, published, draft, categoriesCount: categories.length };
   }, [articles, categories]);
+
+  // Tập hợp danh sách ảnh có sẵn (Preset + các ảnh đã dùng trong bài viết)
+  const allAvailableImages = useMemo(() => {
+    const map = new Map();
+    PRESET_ARTICLE_IMAGES.forEach(item => {
+      map.set(item.url, item);
+    });
+    articles.forEach(art => {
+      if (art.image && !map.has(art.image)) {
+        map.set(art.image, {
+          url: art.image,
+          title: art.title,
+          category: art.categoryName || 'Bài viết'
+        });
+      }
+      if (art.content) {
+        const regex = /!\[(.*?)\]\((.*?)\)/g;
+        let m;
+        while ((m = regex.exec(art.content)) !== null) {
+          const alt = m[1] || 'Hình ảnh';
+          const url = m[2];
+          if (url && !map.has(url)) {
+            map.set(url, {
+              url,
+              title: alt,
+              category: 'Nội dung bài viết'
+            });
+          }
+        }
+      }
+    });
+    return Array.from(map.values());
+  }, [articles]);
 
   // Lọc bài viết
   const filteredArticles = useMemo(() => {
@@ -307,6 +482,73 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
       if (base64Url) {
         setFormData(prev => ({ ...prev, image: base64Url }));
         showToast?.('Đã tải ảnh đại diện thành công!', 'success');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Áp dụng ảnh từ Modal (Chèn vào nội dung bài viết hoặc đặt làm ảnh đại diện)
+  const handleApplyImage = (url, caption = '') => {
+    const chosenUrl = (url || customImageUrl || '').trim();
+    if (!chosenUrl) {
+      showToast?.('Vui lòng chọn ảnh hoặc nhập đường dẫn ảnh hợp lệ!', 'error');
+      return;
+    }
+
+    const chosenCaption = (caption || customImageCaption || '').trim();
+
+    if (imagePickerTarget === 'cover') {
+      setFormData(prev => ({ ...prev, image: chosenUrl }));
+      showToast?.('Đã chọn ảnh đại diện cho bài viết!', 'success');
+    } else {
+      // Chèn vào vị trí con trỏ trong nội dung bài viết
+      const oldContent = formData.content || '';
+      const pos = typeof savedCursorPos.current === 'number' && savedCursorPos.current <= oldContent.length
+        ? savedCursorPos.current
+        : oldContent.length;
+
+      const altText = chosenCaption || 'Hình ảnh minh họa bất động sản';
+      const markdownSnippet = `\n\n![${altText}](${chosenUrl})\n\n`;
+
+      const newContent = oldContent.substring(0, pos) + markdownSnippet + oldContent.substring(pos);
+      setFormData(prev => ({ ...prev, content: newContent }));
+
+      showToast?.('Đã chèn ảnh vào nội dung bài viết!', 'success');
+
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus();
+          const nextPos = pos + markdownSnippet.length;
+          textareaRef.current.setSelectionRange(nextPos, nextPos);
+        }
+      }, 60);
+    }
+
+    setIsImagePickerOpen(false);
+    setCustomImageUrl('');
+    setCustomImageCaption('');
+  };
+
+  // Tải ảnh từ máy tính trong modal Image Picker
+  const handleModalUploadFile = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      showToast?.('Kích thước ảnh tối đa là 5MB!', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      const base64Url = uploadEvent.target?.result;
+      if (base64Url) {
+        setCustomImageUrl(base64Url);
+        if (!customImageCaption) {
+          const autoTitle = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+          setCustomImageCaption(autoTitle);
+        }
+        showToast?.('Đã tải ảnh lên! Nhấn nút xác nhận để chèn ảnh.', 'info');
       }
     };
     reader.readAsDataURL(file);
@@ -962,11 +1204,23 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                         </button>
                         <button
                           type="button"
-                          onClick={() => setIsImagePickerOpen(true)}
-                          className="px-2.5 py-1 rounded bg-emerald-600/30 hover:bg-emerald-600 text-emerald-300 hover:text-white font-semibold transition"
-                          title="Chèn ảnh từ thư viện"
+                          onClick={() => {
+                            if (textareaRef.current) {
+                              savedCursorPos.current = textareaRef.current.selectionStart;
+                            } else {
+                              savedCursorPos.current = (formData.content || '').length;
+                            }
+                            setImagePickerTarget('content');
+                            setPickerTab('library');
+                            setCustomImageUrl('');
+                            setCustomImageCaption('');
+                            setIsImagePickerOpen(true);
+                          }}
+                          className="px-2.5 py-1 rounded bg-emerald-600/30 hover:bg-emerald-600 text-emerald-300 hover:text-white font-semibold transition flex items-center gap-1.5"
+                          title="Chèn ảnh vào vị trí con trỏ trong bài viết"
                         >
-                          <i className="fa-solid fa-image mr-1" /> Chèn Ảnh
+                          <i className="fa-solid fa-image" />
+                          <span>Chèn Ảnh</span>
                         </button>
                       </div>
 
@@ -1026,7 +1280,13 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                         </label>
                         <button
                           type="button"
-                          onClick={() => setIsImagePickerOpen(true)}
+                          onClick={() => {
+                            setImagePickerTarget('cover');
+                            setPickerTab('library');
+                            setCustomImageUrl('');
+                            setCustomImageCaption('');
+                            setIsImagePickerOpen(true);
+                          }}
                           className="text-[11px] text-sky-400 hover:underline flex items-center gap-1 font-semibold"
                         >
                           <i className="fa-solid fa-images" /> Thư viện
@@ -1046,7 +1306,13 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
                           <button
                             type="button"
-                            onClick={() => setIsImagePickerOpen(true)}
+                            onClick={() => {
+                              setImagePickerTarget('cover');
+                              setPickerTab('library');
+                              setCustomImageUrl('');
+                              setCustomImageCaption('');
+                              setIsImagePickerOpen(true);
+                            }}
                             className="px-3 py-1.5 rounded-lg bg-sky-600 text-white text-xs font-bold shadow"
                           >
                             Đổi ảnh
@@ -1191,12 +1457,11 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                     />
                   </div>
 
-                  {/* Render mô phỏng nội dung markdown */}
-                  <div className="prose prose-slate max-w-none text-slate-800 text-sm sm:text-base leading-relaxed space-y-4">
-                    <div className="whitespace-pre-line font-sans">
-                      {formData.content || 'Chưa có nội dung bài viết.'}
-                    </div>
-                  </div>
+                  {/* Render nội dung markdown trực quan chuẩn HTML */}
+                  <div 
+                    className="prose prose-slate max-w-none text-slate-800 text-sm sm:text-base leading-relaxed space-y-4"
+                    dangerouslySetInnerHTML={{ __html: formatArticlePreviewHtml(formData.content) }}
+                  />
                 </div>
               )}
 
@@ -1313,57 +1578,326 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
         </div>
       )}
 
-      {/* 5. MODAL CHỌN ẢNH TỪ THƯ VIỆN DỰ ÁN */}
+      {/* 5. MODAL CHỌN / TẢI / CHÈN ẢNH VÀO NỘI DUNG HOẶC BÌA */}
       {isImagePickerOpen && (
-        <div className="fixed inset-0 z-60 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-slate-700 rounded-3xl max-w-3xl w-full p-6 shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-              <div className="flex items-center gap-2">
-                <i className="fa-solid fa-images text-sky-400" />
-                <h4 className="text-base font-bold text-white">Thư Viện Ảnh Bất Động Sản Thực Tế</h4>
+        <div className="fixed inset-0 z-60 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl max-w-3xl w-full p-5 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] flex flex-col">
+            {/* Header Modal */}
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center shadow-inner ${
+                  imagePickerTarget === 'content' ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-sky-500/20 text-sky-400 border border-sky-500/30'
+                }`}>
+                  <i className={`fa-solid ${imagePickerTarget === 'content' ? 'fa-photo-film' : 'fa-image'} text-sm`} />
+                </div>
+                <div>
+                  <h4 className="text-base font-bold text-white flex items-center gap-2">
+                    <span>{imagePickerTarget === 'content' ? 'Chèn Hình Ảnh Vào Bài Viết' : 'Chọn Ảnh Đại Diện Bài Viết'}</span>
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
+                      imagePickerTarget === 'content' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-sky-500/20 text-sky-300'
+                    }`}>
+                      {imagePickerTarget === 'content' ? 'Vị trí con trỏ' : 'Ảnh bìa'}
+                    </span>
+                  </h4>
+                  <p className="text-[11px] text-slate-400">
+                    {imagePickerTarget === 'content'
+                      ? 'Ảnh sẽ được chèn trực tiếp tại vị trí con trỏ dưới cú pháp Markdown ![Chú thích](Đường_dẫn)'
+                      : 'Ảnh bìa hiển thị nổi bật ở đầu bài viết và khi chia sẻ liên kết mạng xã hội'}
+                  </p>
+                </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsImagePickerOpen(false)}
-                className="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center"
+                className="w-8 h-8 rounded-lg bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition"
               >
-                <i className="fa-solid fa-xmark" />
+                <i className="fa-solid fa-xmark text-sm" />
               </button>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-h-96 overflow-y-auto p-1">
-              {PRESET_ARTICLE_IMAGES.map((item, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => {
-                    setFormData(prev => ({ ...prev, image: item.url }));
-                    setIsImagePickerOpen(false);
-                    showToast?.(`Đã chọn ảnh: ${item.title}`, 'info');
-                  }}
-                  className={`rounded-xl overflow-hidden border cursor-pointer group transition relative ${
-                    formData.image === item.url ? 'border-red-500 ring-2 ring-red-500/40' : 'border-slate-800 hover:border-slate-600'
-                  }`}
-                >
-                  <div className="aspect-video bg-slate-800 overflow-hidden">
-                    <img
-                      src={item.url}
-                      alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
-                    />
-                  </div>
-                  <div className="p-2 bg-slate-950 text-[11px]">
-                    <div className="text-slate-300 font-semibold line-clamp-1">{item.title}</div>
-                    <div className="text-[10px] text-slate-500">{item.category}</div>
-                  </div>
-                </div>
-              ))}
+            {/* Navigation Tabs trong Modal */}
+            <div className="flex items-center gap-2 border-b border-slate-800 pb-2 shrink-0 overflow-x-auto">
+              <button
+                type="button"
+                onClick={() => setPickerTab('library')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 shrink-0 ${
+                  pickerTab === 'library'
+                    ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
+                    : 'bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                <i className="fa-solid fa-images" />
+                <span>Thư Viện Ảnh BĐS ({allAvailableImages.length})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPickerTab('upload')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 shrink-0 ${
+                  pickerTab === 'upload'
+                    ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
+                    : 'bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                <i className="fa-solid fa-cloud-arrow-up" />
+                <span>Tải Từ Máy Tính</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setPickerTab('url')}
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-2 shrink-0 ${
+                  pickerTab === 'url'
+                    ? 'bg-red-600 text-white shadow-lg shadow-red-600/30'
+                    : 'bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                <i className="fa-solid fa-link" />
+                <span>Nhập Đường Dẫn URL</span>
+              </button>
             </div>
 
-            <div className="pt-2 border-t border-slate-800 flex justify-end">
+            {/* Body Nội Dung Modal (Scrollable) */}
+            <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+              {/* TAB 1: THƯ VIỆN ẢNH CÓ SẴN */}
+              {pickerTab === 'library' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-h-72 overflow-y-auto p-1">
+                    {allAvailableImages.map((item, idx) => {
+                      const isSelected = customImageUrl === item.url || (imagePickerTarget === 'cover' && formData.image === item.url);
+                      return (
+                        <div
+                          key={idx}
+                          onClick={() => {
+                            if (imagePickerTarget === 'cover') {
+                              handleApplyImage(item.url, item.title);
+                            } else {
+                              setCustomImageUrl(item.url);
+                              setCustomImageCaption(item.title);
+                            }
+                          }}
+                          className={`rounded-xl overflow-hidden border cursor-pointer group transition relative ${
+                            isSelected
+                              ? 'border-red-500 ring-2 ring-red-500/50 bg-slate-850'
+                              : 'border-slate-800 hover:border-slate-600 bg-slate-950/60'
+                          }`}
+                        >
+                          <div className="aspect-video bg-slate-800 overflow-hidden relative">
+                            <img
+                              src={item.url}
+                              alt={item.title}
+                              className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                              onError={(e) => {
+                                e.currentTarget.src = '/hero.png';
+                              }}
+                            />
+                            {imagePickerTarget === 'content' && (
+                              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex items-center justify-center p-2">
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleApplyImage(item.url, item.title);
+                                  }}
+                                  className="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[11px] font-bold shadow flex items-center gap-1"
+                                >
+                                  <i className="fa-solid fa-plus text-[10px]" />
+                                  <span>Chèn ngay</span>
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          <div className="p-2 bg-slate-950 text-[11px]">
+                            <div className="text-slate-300 font-semibold line-clamp-1 group-hover:text-amber-400 transition">
+                              {item.title}
+                            </div>
+                            <div className="text-[10px] text-slate-500 mt-0.5">{item.category}</div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Thanh chỉnh sửa chú thích và xác nhận chèn cho Tab Thư Viện */}
+                  {imagePickerTarget === 'content' && customImageUrl && (
+                    <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 flex flex-col sm:flex-row items-center gap-3">
+                      <div className="w-16 h-12 rounded-lg overflow-hidden bg-slate-800 shrink-0 border border-slate-700">
+                        <img src={customImageUrl} alt="Selected" className="w-full h-full object-cover" />
+                      </div>
+                      <div className="flex-1 w-full">
+                        <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                          Chú thích ảnh (Caption / Thẻ Alt chuẩn SEO):
+                        </label>
+                        <input
+                          type="text"
+                          value={customImageCaption}
+                          onChange={(e) => setCustomImageCaption(e.target.value)}
+                          placeholder="Nhập chú thích ảnh hiển thị dưới hình..."
+                          className="w-full px-3 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-red-500"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleApplyImage(customImageUrl, customImageCaption)}
+                        className="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shrink-0 transition flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-600/30"
+                      >
+                        <i className="fa-solid fa-arrow-down-to-bracket" />
+                        <span>Chèn Vào Bài Viết</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TAB 2: TẢI ẢNH TỪ MÁY TÍNH */}
+              {pickerTab === 'upload' && (
+                <div className="space-y-4">
+                  <label className="border-2 border-dashed border-slate-700 hover:border-slate-500 rounded-2xl p-6 flex flex-col items-center justify-center gap-2 cursor-pointer bg-slate-950/40 hover:bg-slate-950/80 transition group text-center">
+                    <div className="w-12 h-12 rounded-2xl bg-slate-800 group-hover:bg-slate-700 text-slate-300 group-hover:text-emerald-400 flex items-center justify-center text-xl transition">
+                      <i className="fa-solid fa-cloud-arrow-up" />
+                    </div>
+                    <div>
+                      <span className="text-xs font-bold text-slate-200">
+                        Nhấn để chọn tệp hình ảnh từ thiết bị
+                      </span>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Hỗ trợ PNG, JPG, JPEG, WEBP (Tối đa 5MB)
+                      </p>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleModalUploadFile}
+                      className="hidden"
+                    />
+                  </label>
+
+                  {customImageUrl && (
+                    <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-3">
+                      <div className="flex items-center gap-4">
+                        <div className="w-24 h-16 rounded-xl overflow-hidden bg-slate-800 shrink-0 border border-slate-700">
+                          <img src={customImageUrl} alt="Upload preview" className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                            <i className="fa-solid fa-circle-check text-xs" />
+                            <span>Tệp ảnh đã sẵn sàng</span>
+                          </div>
+                          <p className="text-[11px] text-slate-400 truncate mt-0.5">
+                            Đã nạp vào bộ nhớ tạm để chèn vào tài liệu
+                          </p>
+                        </div>
+                      </div>
+
+                      {imagePickerTarget === 'content' && (
+                        <div>
+                          <label className="block text-xs font-bold text-slate-300 mb-1">
+                            Chú thích ảnh (Caption / Thẻ Alt SEO):
+                          </label>
+                          <input
+                            type="text"
+                            value={customImageCaption}
+                            onChange={(e) => setCustomImageCaption(e.target.value)}
+                            placeholder="Nhập chú thích ngắn gọn mô tả hình ảnh..."
+                            className="w-full px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-red-500"
+                          />
+                        </div>
+                      )}
+
+                      <div className="flex justify-end pt-1">
+                        <button
+                          type="button"
+                          onClick={() => handleApplyImage(customImageUrl, customImageCaption)}
+                          className={`px-5 py-2 rounded-xl text-white font-bold text-xs shadow-lg transition flex items-center gap-2 ${
+                            imagePickerTarget === 'content'
+                              ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/30'
+                              : 'bg-sky-600 hover:bg-sky-500 shadow-sky-600/30'
+                          }`}
+                        >
+                          <i className="fa-solid fa-check" />
+                          <span>{imagePickerTarget === 'content' ? 'Chèn Ảnh Này Vào Bài Viết' : 'Đặt Làm Ảnh Đại Diện'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TAB 3: NHẬP LINK URL TRỰC TIẾP */}
+              {pickerTab === 'url' && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                      Đường dẫn ảnh (Image URL) <span className="text-red-400">*</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="url"
+                        value={customImageUrl}
+                        onChange={(e) => setCustomImageUrl(e.target.value)}
+                        placeholder="https://example.com/hinh-anh-bat-dong-san.jpg"
+                        className="w-full pl-9 pr-4 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-red-500 font-mono"
+                      />
+                      <i className="fa-solid fa-link absolute left-3 top-3 text-slate-500 text-xs" />
+                    </div>
+                  </div>
+
+                  {imagePickerTarget === 'content' && (
+                    <div>
+                      <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                        Chú thích ảnh (Caption / Thẻ Alt SEO)
+                      </label>
+                      <input
+                        type="text"
+                        value={customImageCaption}
+                        onChange={(e) => setCustomImageCaption(e.target.value)}
+                        placeholder="VD: Bản đồ quy hoạch chi tiết 1/2000..."
+                        className="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-red-500"
+                      />
+                    </div>
+                  )}
+
+                  {customImageUrl && (
+                    <div className="rounded-2xl overflow-hidden aspect-video bg-slate-950 border border-slate-800 max-h-56 relative group">
+                      <img
+                        src={customImageUrl}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = '/hero.png';
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  <div className="flex justify-end pt-1">
+                    <button
+                      type="button"
+                      disabled={!customImageUrl.trim()}
+                      onClick={() => handleApplyImage(customImageUrl, customImageCaption)}
+                      className={`px-5 py-2.5 rounded-xl text-white font-bold text-xs shadow-lg transition flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                        imagePickerTarget === 'content'
+                          ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/30'
+                          : 'bg-sky-600 hover:bg-sky-500 shadow-sky-600/30'
+                      }`}
+                    >
+                      <i className="fa-solid fa-check" />
+                      <span>{imagePickerTarget === 'content' ? 'Chèn Ảnh Này Vào Bài Viết' : 'Đặt Làm Ảnh Đại Diện'}</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer Modal */}
+            <div className="pt-3 border-t border-slate-800 flex items-center justify-between shrink-0">
+              <span className="text-[11px] text-slate-500 hidden sm:inline">
+                * Hình ảnh chèn vào sẽ hiển thị ngay trong tab &quot;Xem trước&quot;
+              </span>
               <button
                 type="button"
                 onClick={() => setIsImagePickerOpen(false)}
-                className="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold"
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition ml-auto"
               >
                 Đóng
               </button>
