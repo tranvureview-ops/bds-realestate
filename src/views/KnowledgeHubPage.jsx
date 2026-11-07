@@ -1,9 +1,25 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Link } from '../router/RouterContext';
 import { KNOWLEDGE_CATEGORIES, KNOWLEDGE_ARTICLES } from '../data/knowledgeArticles';
 import { useRealEstate } from '../context/RealEstateContext';
+
+/**
+ * Helper tạo danh sách số trang có dấu ba chấm thông minh
+ */
+function getPageNumbers(currentPage, totalPages) {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+  if (currentPage <= 4) {
+    return [1, 2, 3, 4, 5, '...', totalPages];
+  }
+  if (currentPage >= totalPages - 3) {
+    return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+  }
+  return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+}
 
 /**
  * KnowledgeHubPage
@@ -27,6 +43,32 @@ export default function KnowledgeHubPage({ activeCategorySlug = null }) {
   const filteredArticles = activeCategorySlug
     ? allArticles.filter(a => a.categorySlug === activeCategorySlug)
     : allArticles;
+
+  // Phân trang bài viết phía độc giả (9 bài/trang tương ứng 3 hàng lưới 3 cột)
+  const ARTICLES_PER_PAGE = 9;
+  const [currentPage, setCurrentPage] = useState(1);
+  const gridTopRef = useRef(null);
+
+  // Khi chuyển đổi danh mục, reset về trang 1
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategorySlug]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredArticles.length / ARTICLES_PER_PAGE));
+  const safePage = Math.min(Math.max(1, currentPage), totalPages);
+
+  const paginatedArticles = useMemo(() => {
+    const start = (safePage - 1) * ARTICLES_PER_PAGE;
+    return filteredArticles.slice(start, start + ARTICLES_PER_PAGE);
+  }, [filteredArticles, safePage]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPages || newPage === safePage) return;
+    setCurrentPage(newPage);
+    if (gridTopRef.current) {
+      gridTopRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 pb-16">
@@ -113,79 +155,156 @@ export default function KnowledgeHubPage({ activeCategorySlug = null }) {
       </div>
 
       {/* Main Content Area */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 mt-10">
+      <div ref={gridTopRef} className="max-w-7xl mx-auto px-4 sm:px-8 mt-10 scroll-mt-24">
         {/* Article Grid - Flat URLs (/kien-thuc/[slug]) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredArticles.map(article => {
-            const cat = allCategories.find(c => c.slug === article.categorySlug);
-            const flatArticleUrl = `/kien-thuc/${article.slug}`;
+          {paginatedArticles.length === 0 ? (
+            <div className="col-span-full py-16 px-4 text-center bg-white rounded-3xl border border-slate-200 shadow-2xs">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 mx-auto flex items-center justify-center text-2xl mb-3 shadow-inner">
+                <i className="fa-solid fa-newspaper" />
+              </div>
+              <h3 className="text-base sm:text-lg font-bold text-slate-800">Chưa có bài viết nào trong chuyên mục này</h3>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-md mx-auto">
+                Các chuyên viên và chuyên gia thẩm định đang biên soạn tài liệu thực chiến cho danh mục này. Vui lòng quay lại sau!
+              </p>
+            </div>
+          ) : (
+            paginatedArticles.map(article => {
+              const cat = allCategories.find(c => c.slug === article.categorySlug);
+              const flatArticleUrl = `/kien-thuc/${article.slug}`;
 
-            return (
-              <article
-                key={article.id}
-                className="group bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xl hover:border-slate-300 transition-all duration-300 flex flex-col overflow-hidden hover:-translate-y-1"
-              >
-                {/* Article Image Cover */}
-                <Link to={flatArticleUrl} className="relative block aspect-video overflow-hidden bg-slate-100">
-                  <img
-                    src={article.image || '/hero.png'}
-                    alt={article.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                    loading="lazy"
-                  />
-                  {cat && (
-                    <span className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold border backdrop-blur-md shadow-xs ${
-                      cat.color === 'blue' ? 'bg-blue-600/90 text-white border-blue-500' :
-                      cat.color === 'amber' ? 'bg-amber-600/90 text-white border-amber-500' :
-                      'bg-red-600/90 text-white border-red-500'
-                    }`}>
-                      {cat.shortName || cat.name}
-                    </span>
-                  )}
-                </Link>
+              return (
+                <article
+                  key={article.id}
+                  className="group bg-white rounded-2xl border border-slate-200/90 shadow-2xs hover:shadow-xl hover:border-slate-300 transition-all duration-300 flex flex-col overflow-hidden hover:-translate-y-1"
+                >
+                  {/* Article Image Cover */}
+                  <Link to={flatArticleUrl} className="relative block aspect-video overflow-hidden bg-slate-100">
+                    <img
+                      src={article.image || '/hero.png'}
+                      alt={article.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                      loading="lazy"
+                    />
+                    {cat && (
+                      <span className={`absolute top-3 left-3 px-3 py-1 rounded-full text-xs font-bold border backdrop-blur-md shadow-xs ${
+                        cat.color === 'blue' ? 'bg-blue-600/90 text-white border-blue-500' :
+                        cat.color === 'amber' ? 'bg-amber-600/90 text-white border-amber-500' :
+                        'bg-red-600/90 text-white border-red-500'
+                      }`}>
+                        {cat.shortName || cat.name}
+                      </span>
+                    )}
+                  </Link>
 
-                {/* Article Body */}
-                <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between">
-                  <div>
-                    {/* Meta Info */}
-                    <div className="flex items-center gap-2 text-xs text-slate-500 mb-2.5">
-                      <span><i className="fa-regular fa-calendar mr-1"></i>{article.publishedAt}</span>
-                      <span>•</span>
-                      <span><i className="fa-regular fa-clock mr-1"></i>{article.readTime || '6 phút đọc'}</span>
+                  {/* Article Body */}
+                  <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between">
+                    <div>
+                      {/* Meta Info */}
+                      <div className="flex items-center gap-2 text-xs text-slate-500 mb-2.5">
+                        <span><i className="fa-regular fa-calendar mr-1"></i>{article.publishedAt}</span>
+                        <span>•</span>
+                        <span><i className="fa-regular fa-clock mr-1"></i>{article.readTime || '6 phút đọc'}</span>
+                      </div>
+
+                      {/* Article Title */}
+                      <h2 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-emerald-700 transition leading-snug line-clamp-2 mb-2.5">
+                        <Link to={flatArticleUrl}>
+                          {article.title}
+                        </Link>
+                      </h2>
+
+                      {/* Excerpt */}
+                      <p className="text-xs sm:text-sm text-slate-600 line-clamp-3 leading-relaxed mb-4">
+                        {article.excerpt}
+                      </p>
                     </div>
 
-                    {/* Article Title */}
-                    <h2 className="text-base sm:text-lg font-bold text-slate-900 group-hover:text-emerald-700 transition leading-snug line-clamp-2 mb-2.5">
-                      <Link to={flatArticleUrl}>
-                        {article.title}
+                    {/* Read More & Author Info */}
+                    <div className="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
+                      <div className="text-xs text-slate-500 font-medium truncate max-w-[180px]">
+                        <i className="fa-solid fa-user-pen mr-1 text-slate-400"></i>
+                        <span>{article.author}</span>
+                      </div>
+                      <Link
+                        to={flatArticleUrl}
+                        className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 group-hover:text-emerald-800 transition"
+                      >
+                        <span>Xem chi tiết</span>
+                        <i className="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
                       </Link>
-                    </h2>
-
-                    {/* Excerpt */}
-                    <p className="text-xs sm:text-sm text-slate-600 line-clamp-3 leading-relaxed mb-4">
-                      {article.excerpt}
-                    </p>
-                  </div>
-
-                  {/* Read More & Author Info */}
-                  <div className="pt-4 border-t border-slate-100 flex items-center justify-between mt-auto">
-                    <div className="text-xs text-slate-500 font-medium truncate max-w-[180px]">
-                      <i className="fa-solid fa-user-pen mr-1 text-slate-400"></i>
-                      <span>{article.author}</span>
                     </div>
-                    <Link
-                      to={flatArticleUrl}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 group-hover:text-emerald-800 transition"
-                    >
-                      <span>Xem chi tiết</span>
-                      <i className="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
-                    </Link>
                   </div>
-                </div>
-              </article>
-            );
-          })}
+                </article>
+              );
+            })
+          )}
         </div>
+
+        {/* Thanh Phân Trang Người Đọc (SEO & UX Pagination) */}
+        {totalPages > 1 && (
+          <div className="mt-12 pt-8 border-t border-slate-200/90 flex flex-col sm:flex-row items-center justify-between gap-4">
+            {/* Thông tin số lượng bài viết */}
+            <div className="text-xs text-slate-500 font-medium order-2 sm:order-1">
+              Hiển thị <strong className="text-slate-900">{(safePage - 1) * ARTICLES_PER_PAGE + 1}</strong> -{' '}
+              <strong className="text-slate-900">{Math.min(safePage * ARTICLES_PER_PAGE, filteredArticles.length)}</strong>{' '}
+              trên tổng số <strong className="text-slate-900">{filteredArticles.length}</strong> bài viết (Trang <strong className="text-slate-900">{safePage}</strong>/{totalPages})
+            </div>
+
+            {/* Bộ nút điều hướng phân trang */}
+            <div className="flex items-center gap-1.5 order-1 sm:order-2">
+              {/* Trang trước */}
+              <button
+                type="button"
+                disabled={safePage === 1}
+                onClick={() => handlePageChange(safePage - 1)}
+                className="px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed text-xs font-bold text-slate-700 transition flex items-center gap-1.5 shadow-2xs"
+                title="Trang trước"
+              >
+                <i className="fa-solid fa-chevron-left text-[10px]" />
+                <span className="hidden sm:inline">Trang trước</span>
+              </button>
+
+              {/* Danh sách các số trang */}
+              {getPageNumbers(safePage, totalPages).map((p, idx) => {
+                if (p === '...') {
+                  return (
+                    <span key={`dots-${idx}`} className="w-9 h-9 flex items-center justify-center text-slate-400 font-bold select-none">
+                      ...
+                    </span>
+                  );
+                }
+                const isActive = p === safePage;
+                return (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => handlePageChange(p)}
+                    className={`w-9 h-9 rounded-xl text-xs font-bold transition flex items-center justify-center border shadow-2xs ${
+                      isActive
+                        ? 'bg-emerald-600 border-emerald-600 text-white shadow-emerald-600/25 ring-2 ring-emerald-600/20'
+                        : 'bg-white hover:bg-slate-50 border-slate-200 text-slate-700 hover:text-slate-900'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                );
+              })}
+
+              {/* Trang sau */}
+              <button
+                type="button"
+                disabled={safePage === totalPages}
+                onClick={() => handlePageChange(safePage + 1)}
+                className="px-3.5 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed text-xs font-bold text-slate-700 transition flex items-center gap-1.5 shadow-2xs"
+                title="Trang sau"
+              >
+                <span className="hidden sm:inline">Trang sau</span>
+                <i className="fa-solid fa-chevron-right text-[10px]" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

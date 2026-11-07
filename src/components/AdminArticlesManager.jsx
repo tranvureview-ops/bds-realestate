@@ -185,6 +185,22 @@ function formatArticlePreviewHtml(content) {
   return htmlBlocks.join('\n');
 }
 
+/**
+ * Helper tạo danh sách số trang có dấu ba chấm thông minh
+ */
+function getPageNumbers(currentPage, totalPages) {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+  if (currentPage <= 4) {
+    return [1, 2, 3, 4, 5, '...', totalPages];
+  }
+  if (currentPage >= totalPages - 3) {
+    return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+  }
+  return [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+}
+
 export default function AdminArticlesManager() {
   const {
     articlesList,
@@ -207,6 +223,10 @@ export default function AdminArticlesManager() {
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState('all');
   const [activeTab, setActiveTab] = useState('articles'); // 'articles' | 'categories'
+
+  // Phân trang danh sách bài viết trong Quản trị
+  const [adminCurrentPage, setAdminCurrentPage] = useState(1);
+  const [adminItemsPerPage, setAdminItemsPerPage] = useState(10);
 
   // Modal State
   const [isEditorOpen, setIsEditorOpen] = useState(false);
@@ -327,6 +347,14 @@ export default function AdminArticlesManager() {
       return matchSearch && matchCategory && matchStatus;
     });
   }, [articles, searchTerm, selectedCategoryFilter, selectedStatusFilter]);
+
+  // Phân trang danh sách bài viết
+  const totalAdminPages = Math.max(1, Math.ceil(filteredArticles.length / adminItemsPerPage));
+  const safeAdminPage = Math.min(Math.max(1, adminCurrentPage), totalAdminPages);
+  const pagedAdminArticles = useMemo(() => {
+    const start = (safeAdminPage - 1) * adminItemsPerPage;
+    return filteredArticles.slice(start, start + adminItemsPerPage);
+  }, [filteredArticles, safeAdminPage, adminItemsPerPage]);
 
   // Helper sinh slug tự động
   const generateSlug = (text) => {
@@ -714,13 +742,19 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                 type="text"
                 placeholder="Tìm tiêu đề, slug, tác giả..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setAdminCurrentPage(1);
+                }}
                 className="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-red-500 transition"
               />
               {searchTerm && (
                 <button
                   type="button"
-                  onClick={() => setSearchTerm('')}
+                  onClick={() => {
+                    setSearchTerm('');
+                    setAdminCurrentPage(1);
+                  }}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white text-xs"
                 >
                   <i className="fa-solid fa-xmark" />
@@ -732,7 +766,10 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
               {/* Lọc danh mục */}
               <select
                 value={selectedCategoryFilter}
-                onChange={(e) => setSelectedCategoryFilter(e.target.value)}
+                onChange={(e) => {
+                  setSelectedCategoryFilter(e.target.value);
+                  setAdminCurrentPage(1);
+                }}
                 className="px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-slate-300 focus:outline-none focus:border-red-500 transition flex-1 sm:flex-initial"
               >
                 <option value="all">Tất cả danh mục ({articles.length})</option>
@@ -746,7 +783,10 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
               {/* Lọc trạng thái */}
               <select
                 value={selectedStatusFilter}
-                onChange={(e) => setSelectedStatusFilter(e.target.value)}
+                onChange={(e) => {
+                  setSelectedStatusFilter(e.target.value);
+                  setAdminCurrentPage(1);
+                }}
                 className="px-3 py-2 bg-slate-900 border border-slate-700/80 rounded-xl text-xs text-slate-300 focus:outline-none focus:border-red-500 transition"
               >
                 <option value="all">Mọi trạng thái</option>
@@ -760,6 +800,7 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                 onClick={() => {
                   if (confirm('Khôi phục danh sách bài viết về dữ liệu gốc ban đầu?')) {
                     resetArticlesToDefault();
+                    setAdminCurrentPage(1);
                   }
                 }}
                 className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white text-xs transition"
@@ -785,7 +826,7 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/80 text-slate-300">
-                {filteredArticles.length === 0 ? (
+                {pagedAdminArticles.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="py-12 text-center text-slate-500">
                       <i className="fa-regular fa-newspaper text-3xl mb-2 block opacity-40" />
@@ -793,14 +834,15 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                     </td>
                   </tr>
                 ) : (
-                  filteredArticles.map((art, index) => {
+                  pagedAdminArticles.map((art, index) => {
+                    const itemIndex = (safeAdminPage - 1) * adminItemsPerPage + index + 1;
                     const isDraft = art.status === 'draft';
                     const category = categories.find(c => c.slug === art.categorySlug);
 
                     return (
                       <tr key={art.id} className="hover:bg-slate-800/40 transition">
                         <td className="py-3.5 px-4 text-center font-mono text-slate-500 font-medium">
-                          {index + 1}
+                          {itemIndex}
                         </td>
 
                         {/* Thumbnail Ảnh */}
@@ -927,6 +969,116 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Thanh Phân Trang Quản Trị Bài Viết */}
+          <div className="p-4 border-t border-slate-800 bg-slate-950/60 flex flex-col sm:flex-row items-center justify-between gap-3.5 text-xs text-slate-400">
+            {/* Bộ chọn số lượng hiển thị & thông tin */}
+            <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+              <div className="flex items-center gap-2">
+                <span className="text-slate-400 font-medium">Hiển thị</span>
+                <select
+                  value={adminItemsPerPage}
+                  onChange={(e) => {
+                    setAdminItemsPerPage(Number(e.target.value));
+                    setAdminCurrentPage(1);
+                  }}
+                  className="px-2.5 py-1.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:border-red-500 font-semibold cursor-pointer"
+                >
+                  <option value={5}>5 bài / trang</option>
+                  <option value={10}>10 bài / trang</option>
+                  <option value={20}>20 bài / trang</option>
+                  <option value={50}>50 bài / trang</option>
+                </select>
+              </div>
+
+              <div className="text-slate-400">
+                {filteredArticles.length === 0 ? (
+                  <span>0 bài viết</span>
+                ) : (
+                  <span>
+                    Hiển thị <strong className="text-white">{(safeAdminPage - 1) * adminItemsPerPage + 1}</strong> -{' '}
+                    <strong className="text-white">{Math.min(safeAdminPage * adminItemsPerPage, filteredArticles.length)}</strong>{' '}
+                    trên tổng số <strong className="text-white">{filteredArticles.length}</strong> bài viết (Trang <strong className="text-white">{safeAdminPage}</strong>/{totalAdminPages})
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Các nút điều hướng trang */}
+            {totalAdminPages > 1 && (
+              <div className="flex items-center gap-1.5 self-center sm:self-auto">
+                {/* Về trang đầu */}
+                <button
+                  type="button"
+                  disabled={safeAdminPage === 1}
+                  onClick={() => setAdminCurrentPage(1)}
+                  className="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:opacity-25 disabled:cursor-not-allowed border border-slate-800 text-slate-300 flex items-center justify-center transition"
+                  title="Về trang đầu tiên"
+                >
+                  <i className="fa-solid fa-angles-left text-[10px]" />
+                </button>
+
+                {/* Về trang trước */}
+                <button
+                  type="button"
+                  disabled={safeAdminPage === 1}
+                  onClick={() => setAdminCurrentPage(p => Math.max(1, p - 1))}
+                  className="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:opacity-25 disabled:cursor-not-allowed border border-slate-800 text-slate-300 flex items-center justify-center transition"
+                  title="Trang trước"
+                >
+                  <i className="fa-solid fa-chevron-left text-xs" />
+                </button>
+
+                {/* Các số trang */}
+                {getPageNumbers(safeAdminPage, totalAdminPages).map((p, idx) => {
+                  if (p === '...') {
+                    return (
+                      <span key={`dots-${idx}`} className="w-8 h-8 flex items-center justify-center text-slate-600 font-bold select-none">
+                        ...
+                      </span>
+                    );
+                  }
+                  const isActive = p === safeAdminPage;
+                  return (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => setAdminCurrentPage(p)}
+                      className={`w-8 h-8 rounded-xl text-xs font-bold transition flex items-center justify-center border ${
+                        isActive
+                          ? 'bg-red-600 border-red-500 text-white shadow-lg shadow-red-600/30'
+                          : 'bg-slate-900 hover:bg-slate-800 border-slate-800 text-slate-300'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  );
+                })}
+
+                {/* Sang trang sau */}
+                <button
+                  type="button"
+                  disabled={safeAdminPage === totalAdminPages}
+                  onClick={() => setAdminCurrentPage(p => Math.min(totalAdminPages, p + 1))}
+                  className="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:opacity-25 disabled:cursor-not-allowed border border-slate-800 text-slate-300 flex items-center justify-center transition"
+                  title="Trang tiếp theo"
+                >
+                  <i className="fa-solid fa-chevron-right text-xs" />
+                </button>
+
+                {/* Đến trang cuối */}
+                <button
+                  type="button"
+                  disabled={safeAdminPage === totalAdminPages}
+                  onClick={() => setAdminCurrentPage(totalAdminPages)}
+                  className="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 disabled:opacity-25 disabled:cursor-not-allowed border border-slate-800 text-slate-300 flex items-center justify-center transition"
+                  title="Đến trang cuối cùng"
+                >
+                  <i className="fa-solid fa-angles-right text-[10px]" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       ) : (
