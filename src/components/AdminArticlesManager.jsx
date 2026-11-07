@@ -239,6 +239,8 @@ export default function AdminArticlesManager() {
   const [customImageCaption, setCustomImageCaption] = useState('');
   const [deleteConfirmArticle, setDeleteConfirmArticle] = useState(null);
   const savedCursorPos = useRef(null);
+  const savedScrollTop = useRef(0);
+  const savedFormScrollTop = useRef(0);
 
   // Category Modal State
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -543,13 +545,31 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
 
       showToast?.('Đã chèn ảnh vào nội dung bài viết!', 'success');
 
+      // Khôi phục con trỏ và vị trí cuộn chính xác, không để màn hình nhảy lung tung
+      const targetScroll = savedScrollTop.current;
+      const targetFormScroll = savedFormScrollTop.current;
+      const nextPos = pos + markdownSnippet.length;
+
       setTimeout(() => {
-        if (textareaRef.current) {
-          textareaRef.current.focus();
-          const nextPos = pos + markdownSnippet.length;
-          textareaRef.current.setSelectionRange(nextPos, nextPos);
+        const textarea = textareaRef.current;
+        if (textarea) {
+          try {
+            textarea.focus({ preventScroll: true });
+          } catch (_) {
+            textarea.focus();
+          }
+
+          textarea.setSelectionRange(nextPos, nextPos);
+
+          if (typeof targetScroll === 'number') {
+            textarea.scrollTop = targetScroll;
+          }
+          const form = textarea.closest('form');
+          if (form && typeof targetFormScroll === 'number') {
+            form.scrollTop = targetFormScroll;
+          }
         }
-      }, 60);
+      }, 50);
     }
 
     setIsImagePickerOpen(false);
@@ -589,6 +609,10 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
 
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
+    const prevScroll = textarea.scrollTop;
+    const form = textarea.closest('form');
+    const prevFormScroll = form ? form.scrollTop : 0;
+
     const oldText = formData.content || '';
     const selectedText = oldText.substring(start, end);
 
@@ -598,8 +622,14 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
     setFormData(prev => ({ ...prev, content: newText }));
 
     setTimeout(() => {
-      textarea.focus();
+      try {
+        textarea.focus({ preventScroll: true });
+      } catch (_) {
+        textarea.focus();
+      }
       textarea.setSelectionRange(start + prefix.length, start + prefix.length + (selectedText.length || 7));
+      textarea.scrollTop = prevScroll;
+      if (form) form.scrollTop = prevFormScroll;
     }, 50);
   };
 
@@ -1282,6 +1312,7 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                       <div className="bg-slate-950/80 border border-slate-700 rounded-t-xl p-2 flex flex-wrap items-center gap-1.5 border-b-0 text-xs">
                         <button
                           type="button"
+                          onMouseDown={(e) => e.preventDefault()}
                           onClick={() => insertMarkdownText('## Tiêu đề H2 {#id}\n\n')}
                           className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold"
                           title="Thêm Heading 2"
@@ -1290,6 +1321,7 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                         </button>
                         <button
                           type="button"
+                          onMouseDown={(e) => e.preventDefault()}
                           onClick={() => insertMarkdownText('### Tiêu đề H3\n\n')}
                           className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold"
                           title="Thêm Heading 3"
@@ -1298,6 +1330,7 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                         </button>
                         <button
                           type="button"
+                          onMouseDown={(e) => e.preventDefault()}
                           onClick={() => insertMarkdownText('**', '**')}
                           className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold"
                           title="In đậm (**text**)"
@@ -1306,6 +1339,7 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                         </button>
                         <button
                           type="button"
+                          onMouseDown={(e) => e.preventDefault()}
                           onClick={() => insertMarkdownText('*', '*')}
                           className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 italic"
                           title="In nghiêng (*text*)"
@@ -1315,6 +1349,7 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                         <span className="w-px h-5 bg-slate-700 mx-1" />
                         <button
                           type="button"
+                          onMouseDown={(e) => e.preventDefault()}
                           onClick={() => insertMarkdownText('> **Lưu ý quan trọng:** ')}
                           className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-emerald-400 font-semibold"
                           title="Thêm hộp chú thích trích dẫn"
@@ -1323,6 +1358,7 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                         </button>
                         <button
                           type="button"
+                          onMouseDown={(e) => e.preventDefault()}
                           onClick={() => insertMarkdownText('- Mục gạch đầu dòng 1\n- Mục gạch đầu dòng 2\n')}
                           className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200"
                           title="Danh sách gạch đầu dòng"
@@ -1331,6 +1367,7 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                         </button>
                         <button
                           type="button"
+                          onMouseDown={(e) => e.preventDefault()}
                           onClick={() => insertMarkdownText('1. Bước thứ nhất\n2. Bước thứ hai\n')}
                           className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200"
                           title="Danh sách số thứ tự"
@@ -1340,6 +1377,7 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                         <span className="w-px h-5 bg-slate-700 mx-1" />
                         <button
                           type="button"
+                          onMouseDown={(e) => e.preventDefault()}
                           onClick={() => insertMarkdownText('| STT | Hạng mục | Tiêu chuẩn |\n| :---: | :--- | :--- |\n| 1 | Mặt tiền | Rộng từ 4m trở lên |\n| 2 | Vỉa hè | Rộng từ 2.5m trở lên |\n\n')}
                           className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-amber-300 font-semibold"
                           title="Thêm bảng biểu"
@@ -1348,6 +1386,7 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                         </button>
                         <button
                           type="button"
+                          onMouseDown={(e) => e.preventDefault()}
                           onClick={() => insertMarkdownText('[Tên liên kết](/kien-thuc)')}
                           className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-sky-400"
                           title="Chèn liên kết nội bộ"
@@ -1356,9 +1395,22 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                         </button>
                         <button
                           type="button"
+                          onMouseDown={(e) => {
+                            // Ngăn mất tiêu điểm (focus) và lưu ngay lập tức vị trí con trỏ cùng vị trí cuộn
+                            e.preventDefault();
+                            if (textareaRef.current) {
+                              savedCursorPos.current = textareaRef.current.selectionStart;
+                              savedScrollTop.current = textareaRef.current.scrollTop;
+                              const form = textareaRef.current.closest('form');
+                              if (form) savedFormScrollTop.current = form.scrollTop;
+                            }
+                          }}
                           onClick={() => {
                             if (textareaRef.current) {
                               savedCursorPos.current = textareaRef.current.selectionStart;
+                              savedScrollTop.current = textareaRef.current.scrollTop;
+                              const form = textareaRef.current.closest('form');
+                              if (form) savedFormScrollTop.current = form.scrollTop;
                             } else {
                               savedCursorPos.current = (formData.content || '').length;
                             }
@@ -1381,7 +1433,30 @@ Tóm tắt các điểm lưu ý dành cho nhà đầu tư...
                         rows={16}
                         required
                         value={formData.content}
-                        onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
+                        onChange={(e) => {
+                          setFormData(prev => ({ ...prev, content: e.target.value }));
+                          savedCursorPos.current = e.target.selectionStart;
+                          savedScrollTop.current = e.target.scrollTop;
+                        }}
+                        onSelect={(e) => {
+                          savedCursorPos.current = e.target.selectionStart;
+                          savedScrollTop.current = e.target.scrollTop;
+                          const form = e.target.closest('form');
+                          if (form) savedFormScrollTop.current = form.scrollTop;
+                        }}
+                        onClick={(e) => {
+                          savedCursorPos.current = e.target.selectionStart;
+                          savedScrollTop.current = e.target.scrollTop;
+                          const form = e.target.closest('form');
+                          if (form) savedFormScrollTop.current = form.scrollTop;
+                        }}
+                        onKeyUp={(e) => {
+                          savedCursorPos.current = e.target.selectionStart;
+                          savedScrollTop.current = e.target.scrollTop;
+                        }}
+                        onScroll={(e) => {
+                          savedScrollTop.current = e.target.scrollTop;
+                        }}
                         className="w-full p-4 bg-slate-950 border border-slate-700 rounded-b-xl text-xs sm:text-sm font-mono text-slate-200 placeholder-slate-600 focus:outline-none focus:border-red-500 transition leading-relaxed resize-y"
                         placeholder="Nhập nội dung bài viết theo định dạng Markdown..."
                       />
