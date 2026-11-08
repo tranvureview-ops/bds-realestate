@@ -1,17 +1,32 @@
+import { notFound } from 'next/navigation';
 import { fetchServerProperties } from '../../../services/propertyService';
-import { SITE_URL } from '../../../utils/permalink';
+import { getAllUsers } from '../../../services/serverDbService';
+import { resolveBrokerFromSlug, SITE_URL } from '../../../utils/permalink';
 import BrokerProfilePage from '../../../views/BrokerProfilePage';
 
 export async function generateMetadata({ params }) {
   const { slug } = (await params) || {};
-  const cleanSlug = slug ? slug.replace(/-[0-9]{1,6}$/, '') : '';
-  const formattedName = cleanSlug
-    ? cleanSlug
-        .split('-')
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(' ')
-    : 'Chuyên Viên';
+  let users = [];
+  let properties = [];
+  try {
+    [users, properties] = await Promise.all([
+      getAllUsers(),
+      fetchServerProperties()
+    ]);
+  } catch (_) {}
 
+  const broker = resolveBrokerFromSlug(slug, users, properties);
+  if (!broker) {
+    return {
+      title: 'Không Tìm Thấy Môi Giới | Kênh Nhà Đất 24H',
+      robots: {
+        index: false,
+        follow: false
+      }
+    };
+  }
+
+  const formattedName = broker.name || 'Chuyên Viên';
   const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '');
   const canonicalUrl = `${baseUrl}/moi-gioi/${slug || ''}`;
 
@@ -36,12 +51,21 @@ export async function generateMetadata({ params }) {
 
 export default async function BrokerDetailPage({ params }) {
   const { slug } = (await params) || {};
+  let users = [];
   let initialProperties = [];
   try {
-    initialProperties = await fetchServerProperties();
+    [users, initialProperties] = await Promise.all([
+      getAllUsers(),
+      fetchServerProperties()
+    ]);
   } catch (_e) {
     initialProperties = [];
   }
 
-  return <BrokerProfilePage slug={slug} initialProperties={initialProperties} />;
+  const broker = resolveBrokerFromSlug(slug, users, initialProperties);
+  if (!broker) {
+    notFound();
+  }
+
+  return <BrokerProfilePage slug={slug} initialProperties={initialProperties} initialBroker={broker} />;
 }

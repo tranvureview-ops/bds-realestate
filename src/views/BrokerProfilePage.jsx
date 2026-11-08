@@ -7,7 +7,7 @@ import ListingCard from '../components/ListingCard';
 import { toVietnameseSlug, resolveBrokerFromSlug, formatTitleCase } from '../utils/permalink';
 import { normalizePhone, formatPhoneNumber } from '../utils/authValidation';
 
-export default function BrokerProfilePage({ slug = '', initialProperties = [] }) {
+export default function BrokerProfilePage({ slug = '', initialProperties = [], initialBroker = null }) {
   const { properties: contextProperties, usersList } = useRealEstate();
   const [activeTab, setActiveTab] = useState('all');
 
@@ -17,22 +17,45 @@ export default function BrokerProfilePage({ slug = '', initialProperties = [] })
 
   // Tra cứu môi giới chuẩn xác bằng resolver (hỗ trợ phân biệt trùng tên qua hậu tố SĐT hoặc ID)
   const matchedBroker = useMemo(() => {
-    return resolveBrokerFromSlug(slug, usersList, allProperties);
-  }, [slug, usersList, allProperties]);
+    return resolveBrokerFromSlug(slug, usersList, allProperties) || initialBroker;
+  }, [slug, usersList, allProperties, initialBroker]);
 
-  // Tái tạo họ tên dự phòng từ slug nếu không khớp dữ liệu tĩnh
-  const fallbackName = useMemo(() => {
-    if (!slug) return 'Chuyên Viên Môi Giới';
-    const clean = slug.replace(/-[0-9]{1,6}$/, '');
-    return clean
-      .split('-')
-      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
-      .join(' ');
-  }, [slug]);
+  // Nếu slug không tồn tại trong hệ thống -> hiển thị giao diện báo lỗi 404 thân thiện
+  if (!matchedBroker) {
+    return (
+      <div className="min-h-[65vh] bg-slate-50 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 sm:p-10 text-center border border-slate-200/90 shadow-sm space-y-4">
+          <div className="w-16 h-16 rounded-2xl bg-rose-50 text-rose-500 mx-auto flex items-center justify-center text-2xl shadow-inner border border-rose-100">
+            <i className="fa-solid fa-user-slash" />
+          </div>
+          <h2 className="text-xl font-black text-slate-900 tracking-tight">Không Tìm Thấy Môi Giới</h2>
+          <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
+            Đường dẫn chuyên viên môi giới <strong className="text-slate-700 font-mono">/moi-gioi/{slug}</strong> không tồn tại trên hệ thống hoặc đã ngừng hoạt động.
+          </p>
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Link
+              to="/"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <i className="fa-solid fa-house text-xs" />
+              <span>Về Trang Chủ</span>
+            </Link>
+            <Link
+              to="/nha-dat-ban"
+              className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <i className="fa-solid fa-magnifying-glass text-xs" />
+              <span>Khám Phá Nhà Đất</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  const authorName = formatTitleCase(matchedBroker?.name || fallbackName);
-  const rawRole = (matchedBroker?.role || '').toLowerCase();
-  const rawRoleName = (matchedBroker?.roleName || matchedBroker?.title || '').toLowerCase();
+  const authorName = formatTitleCase(matchedBroker.name || 'Chuyên Viên Môi Giới');
+  const rawRole = (matchedBroker.role || '').toLowerCase();
+  const rawRoleName = (matchedBroker.roleName || matchedBroker.title || '').toLowerCase();
   const isExplicitCustomer = rawRole === 'user' || rawRole === 'customer' || rawRole === 'buyer' ||
                              rawRoleName.includes('khách');
 
@@ -41,26 +64,26 @@ export default function BrokerProfilePage({ slug = '', initialProperties = [] })
   const authorTitle = `${authorRolePrefix} ${authorName}`;
 
   const isVerified = Boolean(
-    matchedBroker?.isVerified || 
-    matchedBroker?.kycStatus === 'verified'
+    matchedBroker.isVerified || 
+    matchedBroker.kycStatus === 'verified'
   );
 
-  const rawPhone = matchedBroker?.phone || '0908 123 456';
-  const displayPhone = formatPhoneNumber(rawPhone);
-  const cleanPhone = rawPhone.replace(/\s+/g, '');
-  const zaloNumber = matchedBroker?.zalo || matchedBroker?.phone || cleanPhone;
-  const avatarUrl = (typeof matchedBroker?.avatar === 'string' && (matchedBroker.avatar.startsWith('data:image') || matchedBroker.avatar.includes('photo-1573496359142-b8d87734a5a2')))
+  const rawPhone = matchedBroker.phone || '';
+  const displayPhone = rawPhone ? formatPhoneNumber(rawPhone) : 'Chưa cập nhật';
+  const cleanPhone = rawPhone ? rawPhone.replace(/\s+/g, '') : '';
+  const zaloNumber = matchedBroker.zalo || matchedBroker.phone || cleanPhone;
+  const avatarUrl = (typeof matchedBroker.avatar === 'string' && (matchedBroker.avatar.startsWith('data:image') || matchedBroker.avatar.includes('photo-1573496359142-b8d87734a5a2')))
     ? '/avatars/user-tran-van-vu.jpg'
-    : (matchedBroker?.avatar || '/avatars/user-tran-van-vu.jpg');
+    : (matchedBroker.avatar || '/avatars/user-tran-van-vu.jpg');
   const brokerTitle = isBroker ? (isVerified ? 'Môi giới chuyên nghiệp' : 'Môi Giới') : 'Khách tìm mua';
-  const rating = matchedBroker?.rating || '5.0';
+  const rating = matchedBroker.rating || '5.0';
 
   // Lọc toàn bộ danh sách nhà đất của môi giới này
   // Ưu tiên tuyệt đối ID và Số điện thoại để không bao giờ bị lẫn lộn giữa 2 người trùng tên
   const authorProperties = useMemo(() => {
-    if (!allProperties || !Array.isArray(allProperties)) return [];
-    const authorId = matchedBroker?.id ? String(matchedBroker.id) : null;
-    const authorPhoneNorm = normalizePhone(rawPhone);
+    if (!matchedBroker || !allProperties || !Array.isArray(allProperties)) return [];
+    const authorId = matchedBroker.id ? String(matchedBroker.id) : null;
+    const authorPhoneNorm = rawPhone ? normalizePhone(rawPhone) : '';
     const authorNameNorm = authorName.trim().toLowerCase();
 
     // Kiểm tra xem trong usersList có nhiều hơn 1 người trùng tên này không
@@ -75,15 +98,15 @@ export default function BrokerProfilePage({ slug = '', initialProperties = [] })
       // Tiêu chí 1: Khớp chính xác ID tác giả
       if (authorId && pAuthorId && authorId === pAuthorId) return true;
 
-      // Tiêu chí 2: Khớp chính xác số điện thoại (duy nhất)
-      if (authorPhoneNorm && pPhone && authorPhoneNorm.length >= 9 && authorPhoneNorm === pPhone) return true;
+      // Tiêu chí 2: Khớp chính xác số điện thoại (chỉ khi có SĐT thật của môi giới)
+      if (authorPhoneNorm && authorPhoneNorm.length >= 9 && pPhone && authorPhoneNorm === pPhone) return true;
 
       // Tiêu chí 3: Chỉ khớp theo tên nếu hệ thống KHÔNG có ai trùng tên
       if (!hasMultipleWithSameName && authorNameNorm && pName && authorNameNorm === pName) return true;
 
       return false;
     });
-  }, [allProperties, matchedBroker?.id, rawPhone, authorName, usersList]);
+  }, [allProperties, matchedBroker, rawPhone, authorName, usersList]);
 
   const isRentProperty = (p) => {
     if (!p) return false;
