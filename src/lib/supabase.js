@@ -22,9 +22,8 @@ export const supabase = isSupabaseConfigured()
 // 1. DỊCH VỤ NHÀ ĐẤT (PROPERTIES CRUD)
 // ==========================================
 
-// Danh sách các cột tối giản phục vụ hiển thị thẻ sản phẩm (Card / Listing)
-// Tuyệt đối loại bỏ các cột siêu nặng như raw_data (50-200KB), description HTML, vr_scenes để tiết kiệm 99% Egress
-export const CARD_PROPERTY_COLUMNS = 'id, title, slug, demand, property_type, property_type_name, price, price_display, price_per_m2, area, bedroom, bathroom, address, city, district, ward, images, author, vip_package_id, status, published_at, expires_at, is_verified, is_featured';
+// Danh sách các cột phục vụ hiển thị thẻ sản phẩm (Card / Listing) kèm raw_data để bảo toàn trường bumpedAt, bumpCount
+export const CARD_PROPERTY_COLUMNS = 'id, title, slug, demand, property_type, property_type_name, price, price_display, price_per_m2, area, bedroom, bathroom, address, city, district, ward, images, author, vip_package_id, status, published_at, expires_at, is_verified, is_featured, raw_data';
 
 /**
  * Lấy danh sách nhà đất từ Supabase Cloud (Đã tối ưu hóa Egress & Phân trang)
@@ -737,9 +736,9 @@ export async function fetchFullSupabaseDb(options = {}) {
           fetchSupabaseTransactions()
         ]);
       } else {
-        // Mặc định cho Khách vãng lai, Người dùng công cộng & SSR: Tải các cột Card tối giản toàn sàn (không giới hạn 24 tin)
+        // Mặc định cho Khách vãng lai, Người dùng công cộng & SSR: Tải các cột Card chuẩn hóa toàn sàn kèm raw_data
         [props, settingsRes, profiles] = await Promise.all([
-          fetchSupabaseProperties({ isFull: false, useView: true }),
+          fetchSupabaseProperties({ isFull: false, useView: false }),
           supabase.from('platform_settings').select('key, value').in('key', [...PUBLIC_SETTINGS_KEYS, 'bds_users_list']),
           fetchSupabaseProfiles()
         ]);
