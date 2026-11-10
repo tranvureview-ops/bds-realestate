@@ -116,38 +116,26 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
   const isDiamond = property.vipPackageId === 'vip-diamond';
   const isGold = property.vipPackageId === 'vip-gold';
 
-  // Format date & bump time
+  // Format date: Tin đã đẩy tính thời gian theo bumpedAt và thay icon đồng hồ bằng mũi tên đẩy lên
   const isBumped = Boolean(
     property.bumpedAt &&
     (!property.publishedAt || new Date(property.bumpedAt).getTime() > new Date(property.publishedAt).getTime())
   );
 
-  const getListingTimeDisplay = () => {
+  const timeAgo = (dateStr) => {
     try {
-      if (isBumped) {
-        const diffMs = Date.now() - new Date(property.bumpedAt).getTime();
-        const diffMinutes = Math.floor(diffMs / (1000 * 60));
-        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-        const diffDays = Math.floor(diffHours / 24);
-
-        if (diffMinutes < 1) return { text: 'Đã đẩy: Vừa xong', isBumped: true };
-        if (diffMinutes < 60) return { text: `Đã đẩy: ${diffMinutes} phút trước`, isBumped: true };
-        if (diffHours < 24) return { text: `Đã đẩy: ${diffHours} giờ trước`, isBumped: true };
-        if (diffDays === 1) return { text: 'Đã đẩy: Hôm qua', isBumped: true };
-        return { text: `Đã đẩy: ${diffDays} ngày trước`, isBumped: true };
-      }
-
-      const dateStr = property.publishedAt || property.createdAt || property.submittedAt;
       const diffMs = Date.now() - new Date(dateStr).getTime();
       const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-      if (diffHours < 1) return { text: 'Vừa mới đăng', isBumped: false };
-      if (diffHours < 24) return { text: `${diffHours} giờ trước`, isBumped: false };
+      if (diffHours < 1) return 'Vừa mới đăng';
+      if (diffHours < 24) return `${diffHours} giờ trước`;
       const diffDays = Math.floor(diffHours / 24);
-      return { text: `${diffDays} ngày trước`, isBumped: false };
+      return `${diffDays} ngày trước`;
     } catch {
-      return { text: 'Gần đây', isBumped: false };
+      return 'Gần đây';
     }
   };
+
+  const effectiveTimeStr = timeAgo(isBumped ? property.bumpedAt : (property.publishedAt || property.createdAt || property.submittedAt));
 
   const handleCardClick = (e) => {
     // If clicked on an interactive button/link, don't trigger card navigation
@@ -241,26 +229,17 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
             <IconCamera className="w-3 h-3 text-white" />
             <span>{safeImages.length} ảnh</span>
           </span>
-          {(() => {
-            const timeInfo = getListingTimeDisplay();
-            return (
-              <span 
-                className={`px-2 py-0.5 rounded-md text-[11px] backdrop-blur-sm flex items-center gap-1 ${
-                  timeInfo.isBumped
-                    ? 'bg-slate-950/80 text-amber-300 font-bold border border-amber-500/40 shadow-xs'
-                    : 'bg-black/50 text-white'
-                }`}
-                title={timeInfo.isBumped ? `Tin đăng đã được đẩy lên đầu vào lúc: ${new Date(property.bumpedAt).toLocaleString('vi-VN')}` : undefined}
-              >
-                {timeInfo.isBumped ? (
-                  <i className="fa-solid fa-arrow-up text-[10px] text-amber-400"></i>
-                ) : (
-                  <IconClock className="w-3 h-3 text-white" />
-                )}
-                <span>{timeInfo.text}</span>
-              </span>
-            );
-          })()}
+          <span 
+            className="bg-black/50 px-2 py-0.5 rounded-md text-[11px] backdrop-blur-sm flex items-center gap-1 text-white"
+            title={isBumped ? `Tin đăng đã được đẩy lên đầu vào lúc: ${new Date(property.bumpedAt).toLocaleString('vi-VN')}` : undefined}
+          >
+            {isBumped ? (
+              <i className="fa-solid fa-arrow-up text-[10px] text-white"></i>
+            ) : (
+              <IconClock className="w-3 h-3 text-white" />
+            )}
+            <span>{effectiveTimeStr}</span>
+          </span>
         </div>
       </div>
 
