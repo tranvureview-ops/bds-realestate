@@ -1424,13 +1424,15 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                     Tính toán số tiền vay dựa trên giá trị thực tế: <strong>{property.priceDisplay}</strong>
                   </p>
                 </div>
-                <button
-                  onClick={() => setActiveModal('mortgage-calc')}
-                  className="text-xs font-bold text-blue-600 hover:underline flex items-center gap-1"
+                <Link
+                  href={`/tinh-lai-vay?price=${property.price}&ratio=${loanRatio}&years=${loanYears}&rate=${loanInterest}&propertyTitle=${encodeURIComponent(property.title)}`}
+                  target="_blank"
+                  className="text-xs font-bold text-blue-600 hover:text-blue-800 hover:underline flex items-center gap-1 transition"
+                  title="Mở công cụ tính lãi suất vay mua nhà chi tiết"
                 >
                   <span>Xem lịch chi tiết</span>
                   <i className="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                </button>
+                </Link>
               </div>
 
               {/* Quick interactive sliders */}
@@ -1525,12 +1527,16 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                   </div>
                 </div>
 
-                <button
-                  onClick={() => setActiveModal('mortgage-calc')}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow"
+                <Link
+                  href={`/tinh-lai-vay?price=${property.price}&ratio=${loanRatio}&years=${loanYears}&rate=${loanInterest}&propertyTitle=${encodeURIComponent(property.title)}`}
+                  target="_blank"
+                  className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl transition shadow flex items-center gap-1.5"
+                  title="Mở bảng tính kế hoạch vay ngân hàng chi tiết"
                 >
-                  Mở Bảng Kế Hoạch Vay
-                </button>
+                  <i className="fa-solid fa-calculator text-xs"></i>
+                  <span>Mở Bảng Kế Hoạch Vay</span>
+                  <i className="fa-solid fa-arrow-up-right-from-square text-[10px] text-emerald-200"></i>
+                </Link>
               </div>
             </div>
           )}
@@ -2618,7 +2624,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               {systemConfig?.platformName || 'KÊNH NHÀ ĐẤT 24H • SÀN GIAO DỊCH NHÀ ĐẤT'}
             </div>
             <div suppressHydrationWarning className="text-xs text-slate-600 mt-0.5">
-              Hotline kiểm định & tư vấn: <strong suppressHydrationWarning>{systemConfig?.hotline || '0904 084 888'}</strong> • Website: <strong suppressHydrationWarning>{typeof window !== 'undefined' ? window.location.host : 'kenhnhadat24h.com.vn'}</strong>
+              Hotline kiểm định & tư vấn: <strong suppressHydrationWarning>{systemConfig?.hotline || '0905 467 138'}</strong> • Website: <strong suppressHydrationWarning>{typeof window !== 'undefined' ? window.location.host : 'kenhnhadat24h.com.vn'}</strong>
             </div>
           </div>
           <div suppressHydrationWarning className="text-right text-xs text-slate-600">

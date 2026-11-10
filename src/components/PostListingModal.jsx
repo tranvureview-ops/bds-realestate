@@ -227,11 +227,12 @@ export function getPriceSuggestions(rawInput, isRent = false, isPerM2 = false) {
   });
 }
 
-export default function PostListingModal({ onClose, isEmbedded = false }) {
+export default function PostListingModal({ onClose, isEmbedded = false, editProperty = null }) {
   const { 
     currentUser, 
     properties, 
     addProperty, 
+    updateProperty,
     showToast, 
     preselectedListingType, 
     setPreselectedListingType, 
@@ -278,62 +279,179 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
   const [autoDemoEnabled, setAutoDemoEnabled] = useState(true);
   const [isTriggeringWebhook, setIsTriggeringWebhook] = useState(false);
 
+  const isEditMode = Boolean(editProperty);
+
   // Form State đầy đủ theo chuẩn chuyên nghiệp & AloNhaDat
-  const [formData, setFormData] = useState({
-    // 1. Phân loại giao dịch & Vị trí địa lý
-    demand: 'sale', // 'sale' (Cần bán), 'rent' (Cho thuê)
-    propertyType: 'apartment',
-    propertyTypeName: 'Căn hộ chung cư',
-    city: '',
-    district: '',
-    ward: '',
-    street: '',
-    project: '',
-    detailedAddress: '',
-    addressDisplay: '',
-    selectedAddressType: '', // Mặc định để trống - Chỉ yêu cầu người dùng bấm chọn Địa chỉ mới
-    newAddress: '',
-    google_place_id: null,
-    lat: null,
-    lng: null,
-    
-    // 2. Thông tin bài viết
-    title: '',
-    description: '',
-    
-    // 3. Thông số kỹ thuật & Định giá
-    priceType: 'total', // 'total' (Tổng giá), 'm2' (Theo m²), 'deal' (Thỏa thuận)
-    price: '',
-    priceDisplay: '',
-    pricePerM2: '',
-    area: '',
-    facade: '', // Mặt tiền (m)
-    entranceRoad: '', // Đường vào / Lộ giới (m)
-    roadType: 'car_pass', // 'truck', 'car_pass', 'car_in', 'bike'
-    bedroom: '',
-    bathroom: '',
-    floor: '',
-    direction: '',
-    balconyDirection: '',
-    legal: '',
-    furniture: '',
-    
-    // 4. Hình ảnh & VR 360
-    images: [
-      'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80'
-    ],
-    coverImageIndex: 0,
-    videoUrl: '',
-    hasVR360: false,
-    
-    // 5. Liên hệ người đăng (Khách vãng lai hoặc Thành viên)
-    contactName: (!isGuest && currentUser?.name) ? currentUser.name : '',
-    contactPhone: (!isGuest && currentUser?.phone) ? formatPhoneNumber(currentUser.phone) : '',
-    contactEmail: (!isGuest && currentUser?.email) ? currentUser.email : '',
-    contactAddress: (!isGuest && currentUser?.address) ? currentUser.address : ''
+  const [formData, setFormData] = useState(() => {
+    if (editProperty) {
+      const rawDemand = editProperty.demand === 'rent' || editProperty.demand === 'cho-thue' ? 'rent' : 'sale';
+      const rawType = editProperty.propertyType || editProperty.type || 'apartment';
+      const typeObj = PROPERTY_TYPES.find(t => t.id === rawType || t.slug === rawType);
+
+      return {
+        // 1. Phân loại giao dịch & Vị trí địa lý
+        demand: rawDemand,
+        propertyType: rawType,
+        propertyTypeName: editProperty.propertyTypeName || typeObj?.name || 'Căn hộ chung cư',
+        city: editProperty.city || 'Đà Nẵng',
+        district: editProperty.district || '',
+        ward: editProperty.ward || '',
+        street: editProperty.street || '',
+        project: editProperty.project || '',
+        detailedAddress: editProperty.address || '',
+        addressDisplay: editProperty.address || '',
+        selectedAddressType: editProperty.selectedAddressType || 'new',
+        newAddress: editProperty.newAddress || '',
+        google_place_id: editProperty.google_place_id || null,
+        lat: editProperty.lat || null,
+        lng: editProperty.lng || null,
+        
+        // 2. Thông tin bài viết
+        title: editProperty.title || '',
+        description: editProperty.description || '',
+        
+        // 3. Thông số kỹ thuật & Định giá
+        priceType: editProperty.priceType || (editProperty.priceDisplay === 'Thỏa thuận' ? 'deal' : 'total'),
+        price: editProperty.price !== undefined ? editProperty.price : '',
+        priceDisplay: editProperty.priceDisplay || '',
+        pricePerM2: editProperty.pricePerM2 || '',
+        area: editProperty.area || '',
+        facade: editProperty.facade || '',
+        entranceRoad: editProperty.entranceRoad || '',
+        roadType: editProperty.roadType || 'car_pass',
+        bedroom: editProperty.bedroom ?? editProperty.bedrooms ?? '',
+        bathroom: editProperty.bathroom ?? editProperty.bathrooms ?? '',
+        floor: editProperty.floor ?? editProperty.floors ?? '',
+        direction: editProperty.direction || '',
+        balconyDirection: editProperty.balconyDirection || '',
+        legal: editProperty.legal || '',
+        furniture: editProperty.furniture || '',
+        
+        // 4. Hình ảnh & VR 360
+        images: Array.isArray(editProperty.images) ? [...editProperty.images] : [],
+        coverImageIndex: 0,
+        videoUrl: editProperty.videoUrl || '',
+        hasVR360: Boolean(editProperty.vrTourUrl),
+        vrTourUrl: editProperty.vrTourUrl || '',
+        
+        // 5. Liên hệ người đăng
+        contactName: editProperty.contactName || (!isGuest && currentUser?.name) || '',
+        contactPhone: editProperty.contactPhone ? formatPhoneNumber(editProperty.contactPhone) : ((!isGuest && currentUser?.phone) ? formatPhoneNumber(currentUser.phone) : ''),
+        contactEmail: editProperty.contactEmail || (!isGuest && currentUser?.email) || '',
+        contactAddress: editProperty.contactAddress || (!isGuest && currentUser?.address) || ''
+      };
+    }
+
+    return {
+      // 1. Phân loại giao dịch & Vị trí địa lý
+      demand: 'sale', // 'sale' (Cần bán), 'rent' (Cho thuê)
+      propertyType: 'apartment',
+      propertyTypeName: 'Căn hộ chung cư',
+      city: '',
+      district: '',
+      ward: '',
+      street: '',
+      project: '',
+      detailedAddress: '',
+      addressDisplay: '',
+      selectedAddressType: '', // Mặc định để trống - Chỉ yêu cầu người dùng bấm chọn Địa chỉ mới
+      newAddress: '',
+      google_place_id: null,
+      lat: null,
+      lng: null,
+      
+      // 2. Thông tin bài viết
+      title: '',
+      description: '',
+      
+      // 3. Thông số kỹ thuật & Định giá
+      priceType: 'total', // 'total' (Tổng giá), 'm2' (Theo m²), 'deal' (Thỏa thuận)
+      price: '',
+      priceDisplay: '',
+      pricePerM2: '',
+      area: '',
+      facade: '', // Mặt tiền (m)
+      entranceRoad: '', // Đường vào / Lộ giới (m)
+      roadType: 'car_pass', // 'truck', 'car_pass', 'car_in', 'bike'
+      bedroom: '',
+      bathroom: '',
+      floor: '',
+      direction: '',
+      balconyDirection: '',
+      legal: '',
+      furniture: '',
+      
+      // 4. Hình ảnh & VR 360
+      images: [
+        'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=1200&q=80',
+        'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80'
+      ],
+      coverImageIndex: 0,
+      videoUrl: '',
+      hasVR360: false,
+      
+      // 5. Liên hệ người đăng (Khách vãng lai hoặc Thành viên)
+      contactName: (!isGuest && currentUser?.name) ? currentUser.name : '',
+      contactPhone: (!isGuest && currentUser?.phone) ? formatPhoneNumber(currentUser.phone) : '',
+      contactEmail: (!isGuest && currentUser?.email) ? currentUser.email : '',
+      contactAddress: (!isGuest && currentUser?.address) ? currentUser.address : ''
+    };
   });
+
+  // Đồng bộ lại formData khi editProperty thay đổi
+  useEffect(() => {
+    if (editProperty) {
+      const rawDemand = editProperty.demand === 'rent' || editProperty.demand === 'cho-thue' ? 'rent' : 'sale';
+      const rawType = editProperty.propertyType || editProperty.type || 'apartment';
+      const typeObj = PROPERTY_TYPES.find(t => t.id === rawType || t.slug === rawType);
+
+      setFormData({
+        demand: rawDemand,
+        propertyType: rawType,
+        propertyTypeName: editProperty.propertyTypeName || typeObj?.name || 'Căn hộ chung cư',
+        city: editProperty.city || 'Đà Nẵng',
+        district: editProperty.district || '',
+        ward: editProperty.ward || '',
+        street: editProperty.street || '',
+        project: editProperty.project || '',
+        detailedAddress: editProperty.address || '',
+        addressDisplay: editProperty.address || '',
+        selectedAddressType: editProperty.selectedAddressType || 'new',
+        newAddress: editProperty.newAddress || '',
+        google_place_id: editProperty.google_place_id || null,
+        lat: editProperty.lat || null,
+        lng: editProperty.lng || null,
+        title: editProperty.title || '',
+        description: editProperty.description || '',
+        priceType: editProperty.priceType || (editProperty.priceDisplay === 'Thỏa thuận' ? 'deal' : 'total'),
+        price: editProperty.price !== undefined ? editProperty.price : '',
+        priceDisplay: editProperty.priceDisplay || '',
+        pricePerM2: editProperty.pricePerM2 || '',
+        area: editProperty.area || '',
+        facade: editProperty.facade || '',
+        entranceRoad: editProperty.entranceRoad || '',
+        roadType: editProperty.roadType || 'car_pass',
+        bedroom: editProperty.bedroom ?? editProperty.bedrooms ?? '',
+        bathroom: editProperty.bathroom ?? editProperty.bathrooms ?? '',
+        floor: editProperty.floor ?? editProperty.floors ?? '',
+        direction: editProperty.direction || '',
+        balconyDirection: editProperty.balconyDirection || '',
+        legal: editProperty.legal || '',
+        furniture: editProperty.furniture || '',
+        images: Array.isArray(editProperty.images) ? [...editProperty.images] : [],
+        coverImageIndex: 0,
+        videoUrl: editProperty.videoUrl || '',
+        hasVR360: Boolean(editProperty.vrTourUrl),
+        vrTourUrl: editProperty.vrTourUrl || '',
+        contactName: editProperty.contactName || (!isGuest && currentUser?.name) || '',
+        contactPhone: editProperty.contactPhone ? formatPhoneNumber(editProperty.contactPhone) : ((!isGuest && currentUser?.phone) ? formatPhoneNumber(currentUser.phone) : ''),
+        contactEmail: editProperty.contactEmail || (!isGuest && currentUser?.email) || '',
+        contactAddress: editProperty.contactAddress || (!isGuest && currentUser?.address) || ''
+      });
+      setStep(1);
+    }
+  }, [editProperty, currentUser, isGuest]);
 
   // Voucher discount calculation
   const hasNormalVoucher = (currentUser?.vouchers?.normalPublish || 0) > 0;
@@ -1220,6 +1338,109 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
     };
   }, [isCheckoutModalOpen, checkoutOrderId, paymentPollingState, autoDemoEnabled]);
 
+  // Lưu thay đổi khi chỉnh sửa tin đăng (Chế độ Edit)
+  const handleSaveEdit = async () => {
+    // 1. Kiểm tra thông tin Bước 1
+    if (!formData.city) {
+      setStep(1);
+      showToast('Vui lòng chọn Tỉnh / Thành phố tại Bước 1!', 'warning');
+      return;
+    }
+    if (!formData.district) {
+      setStep(1);
+      showToast('Vui lòng chọn Quận / Huyện tại Bước 1!', 'warning');
+      return;
+    }
+    if (!formData.ward) {
+      setStep(1);
+      showToast('Vui lòng chọn Phường / Xã tại Bước 1!', 'warning');
+      return;
+    }
+    if (!formData.street || !formData.street.trim()) {
+      setStep(1);
+      showToast('Vui lòng nhập Tên đường / Số nhà hoặc Địa chỉ cụ thể tại Bước 1!', 'warning');
+      return;
+    }
+
+    // 2. Tự động lọc sạch số điện thoại trong Tiêu đề & Mô tả nếu được cấu hình
+    if (systemConfig?.autoFilterPhoneInContent !== false) {
+      if (formData.title && hasPhoneNumber(formData.title)) {
+        formData.title = sanitizePhoneFromText(formData.title).text;
+      }
+      if (formData.description && hasPhoneNumber(formData.description)) {
+        formData.description = sanitizePhoneFromText(formData.description).text;
+      }
+    }
+
+    // Kiểm tra thông tin Bước 2
+    if (!formData.title || formData.title.length < 30) {
+      setStep(2);
+      showToast('Tiêu đề cần tối thiểu 30 ký tự để đạt chuẩn sàn (Bước 2)!', 'warning');
+      return;
+    }
+    if (formData.title.length > 99) {
+      setStep(2);
+      showToast('Tiêu đề không được vượt quá 99 ký tự (Bước 2)!', 'warning');
+      return;
+    }
+    if (!formData.description || formData.description.length < 50) {
+      setStep(2);
+      showToast('Mô tả nhà đất cần tối thiểu 50 ký tự (Bước 2)!', 'warning');
+      return;
+    }
+    if (formData.priceType !== 'deal' && (!formData.price || formData.price <= 0)) {
+      setStep(2);
+      showToast('Vui lòng nhập mức giá hợp lệ hoặc chọn Thỏa thuận (Bước 2)!', 'warning');
+      return;
+    }
+    if (!formData.area || formData.area <= 0) {
+      setStep(2);
+      showToast('Vui lòng nhập diện tích sử dụng lớn hơn 0 (Bước 2)!', 'warning');
+      return;
+    }
+
+    // 3. Kiểm tra thông tin Bước 3
+    if (!formData.images || formData.images.length === 0) {
+      setStep(3);
+      showToast('Vui lòng tải lên tối thiểu 1 hình ảnh thật của nhà đất (Bước 3)!', 'warning');
+      return;
+    }
+
+    // 4. Kiểm tra thông tin người liên hệ (Bước 4 nếu là Khách vãng lai)
+    if (isGuest && (!formData.contactPhone || !formData.contactPhone.trim())) {
+      setStep(4);
+      showToast('Vui lòng nhập số điện thoại người liên hệ (Bước 4)!', 'warning');
+      return;
+    }
+
+    const isNewAddrSelected = formData.selectedAddressType === 'new';
+    const payload = {
+      ...formData,
+      ward: isNewAddrSelected && mergerInfo?.newWard ? mergerInfo.newWard : formData.ward,
+      district: isNewAddrSelected && mergerInfo?.newDistrict ? mergerInfo.newDistrict : formData.district,
+      address: computedFullAddress || formData.detailedAddress || formData.addressDisplay,
+      newAddress: (isNewAddrSelected ? (formData.newAddress || computedSuggestedNewAddress) : ''),
+      lat: formData.lat || googleGeocodeInfo?.lat || mergerInfo?.lat || 16.0544,
+      lng: formData.lng || googleGeocodeInfo?.lng || mergerInfo?.lng || 108.2022,
+      google_place_id: formData.google_place_id || googleGeocodeInfo?.google_place_id || mergerInfo?.google_place_id || null,
+      price: formData.priceType === 'deal' ? 0 : Number(formData.price),
+      priceDisplay: formData.priceDisplay || (formData.priceType === 'deal' ? 'Thỏa thuận' : `${Number(formData.price).toLocaleString('vi-VN')} đ`),
+      area: Number(formData.area),
+      facade: formData.facade ? Number(formData.facade) : null,
+      entranceRoad: formData.entranceRoad ? Number(formData.entranceRoad) : null,
+      bedroom: formData.bedroom ? Number(formData.bedroom) : null,
+      bathroom: formData.bathroom ? Number(formData.bathroom) : null,
+      floor: formData.floor ? Number(formData.floor) : null,
+      updatedAt: new Date().toISOString()
+    };
+
+    if (updateProperty && editProperty?.id) {
+      updateProperty(editProperty.id, payload);
+    }
+    showToast(`Đã cập nhật bài đăng ${editProperty.id} thành công!`, 'success');
+    if (onClose) onClose();
+  };
+
   // Xác nhận đăng tin
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -1369,17 +1590,28 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
       {/* Header với Tiêu Chuẩn Chuyên Nghiệp & AloNhaDat */}
       <div className="px-6 py-4 border-b border-slate-200 bg-slate-900 text-white flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-red-600 flex items-center justify-center text-white text-base font-black shadow-lg">
-            <i className="fa-solid fa-cloud-arrow-up"></i>
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white text-base font-black shadow-lg ${
+            isEditMode ? 'bg-amber-500 text-slate-950' : 'bg-red-600'
+          }`}>
+            <i className={isEditMode ? "fa-solid fa-pen-to-square text-slate-950" : "fa-solid fa-cloud-arrow-up"}></i>
           </div>
           <div>
-            <h2 className="text-base sm:text-lg font-black text-white">Đăng Tin Nhà Đất</h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base sm:text-lg font-black text-white">
+                {isEditMode ? 'Chỉnh Sửa Tin Bất Động Sản' : 'Đăng Tin Nhà Đất'}
+              </h2>
+              {isEditMode && editProperty?.id && (
+                <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-amber-300 border border-slate-700">
+                  {editProperty.id}
+                </span>
+              )}
+            </div>
             <div className="text-xs text-slate-400 mt-0.5">
               Bước {step}/4: {
                 step === 1 ? 'Loại BĐS & Địa giới hành chính' :
                 step === 2 ? 'Tiêu đề, Mô tả & Thông số kỹ thuật' :
                 step === 3 ? 'Hình ảnh thực tế & Tour VR 360°' :
-                'Cấu hình Gói VIP & Lịch đẩy tin'
+                isEditMode ? 'Thông tin liên hệ & Xem trước' : 'Cấu hình Gói VIP & Lịch đẩy tin'
               }
             </div>
           </div>
@@ -1552,12 +1784,14 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
           <span className={`w-5 h-5 rounded-full text-[10px] flex items-center justify-center font-bold ${
             step === 4 ? 'bg-red-700 text-white' : 'bg-slate-200 text-slate-800'
           }`}>4</span>
-          <span className="hidden sm:inline">Loại Tin & Lịch Đăng</span>
+          <span className="hidden sm:inline">
+            {isEditMode ? 'Xác Nhận & Xem Trước' : 'Loại Tin & Lịch Đăng'}
+          </span>
         </button>
       </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 max-h-[72vh] overflow-y-auto space-y-5">
+        <form onSubmit={(e) => { e.preventDefault(); if (isEditMode) { handleSaveEdit(); } else { handleSubmit(e); } }} className="p-6 max-h-[72vh] overflow-y-auto space-y-5">
           {/* ========================================================
               BƯỚC 1: THÔNG TIN CƠ BẢN & ĐỊA GIỚI HÀNH CHÍNH 4 CẤP
              ======================================================== */}
@@ -2508,6 +2742,126 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
               BƯỚC 4: THÔNG TIN LIÊN HỆ, GÓI TIN VIP & LỊCH ĐẨY TIN
              ======================================================== */}
           {step === 4 && (
+            isEditMode ? (
+              <div className="space-y-4">
+                {/* 1. Thông tin người đăng & liên hệ: Chỉ hiển thị khi website CHƯA ĐĂNG NHẬP (Khách vãng lai) */}
+                {isGuest && (
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-slate-800 uppercase block">
+                        1. Thông Tin Người Đăng & Liên Hệ
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                          Tên liên hệ <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.contactName}
+                          onChange={(e) => setFormData(prev => ({ ...prev, contactName: e.target.value }))}
+                          placeholder="Vui lòng nhập họ và tên..."
+                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-bold placeholder:font-normal placeholder:text-slate-400 focus:border-slate-800 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                          Số điện thoại liên hệ <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={formData.contactPhone}
+                          onChange={(e) => setFormData(prev => ({ ...prev, contactPhone: e.target.value }))}
+                          onBlur={(e) => {
+                            if (e.target.value) {
+                              setFormData(prev => ({ ...prev, contactPhone: formatPhoneNumber(e.target.value) }));
+                            }
+                          }}
+                          placeholder="Vui lòng nhập số điện thoại..."
+                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-bold font-mono placeholder:font-normal placeholder:text-slate-400 focus:border-slate-800 focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-slate-600 mb-1">Email</label>
+                        <input
+                          type="email"
+                          value={formData.contactEmail}
+                          onChange={(e) => setFormData(prev => ({ ...prev, contactEmail: e.target.value }))}
+                          placeholder="Vui lòng nhập email..."
+                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl font-bold placeholder:font-normal placeholder:text-slate-400 focus:border-slate-800 focus:outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 2. Thông tin gói tin hiện tại */}
+                <div className="p-4 bg-blue-50/70 border border-blue-200 rounded-2xl space-y-2 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-blue-900 uppercase">
+                      {isGuest ? '2. ' : '1. '}Gói Tin & Tình Trạng Hiện Tại
+                    </span>
+                    <span className="text-[11px] font-mono font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded">
+                      {editProperty.id}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1 text-slate-700">
+                    <div>
+                      <span className="text-[10px] text-slate-500 block">Gói tin:</span>
+                      {(() => {
+                        const targetPkgId = (typeof editProperty.vipPackage === 'string' ? editProperty.vipPackage : editProperty.vipPackage?.id) || editProperty.vipPackageId || editProperty.packageId;
+                        const pkgObj = activeVipPackages.find(p => p.id === targetPkgId) || VIP_PACKAGES.find(p => p.id === targetPkgId);
+                        const pkgName = editProperty.vipPackageName || (typeof editProperty.vipPackage === 'object' && editProperty.vipPackage?.name) || pkgObj?.name || (
+                          targetPkgId === 'vip-silver' ? 'VIP Bạc' :
+                          targetPkgId === 'vip-gold' ? 'VIP Vàng' :
+                          targetPkgId === 'vip-diamond' ? 'VIP Kim Cương' : 'Tin Thường'
+                        );
+                        const badgeStyle = (
+                          targetPkgId === 'vip-diamond' ? 'bg-red-100 text-red-700 border-red-200' :
+                          targetPkgId === 'vip-gold' ? 'bg-amber-100 text-amber-800 border-amber-200' :
+                          targetPkgId === 'vip-silver' ? 'bg-blue-100 text-blue-800 border-blue-200' :
+                          'bg-slate-100 text-slate-700 border-slate-200'
+                        );
+                        return (
+                          <span className={`inline-flex items-center px-2 py-0.5 mt-0.5 rounded text-xs font-black border ${badgeStyle}`}>
+                            {pkgName}
+                          </span>
+                        );
+                      })()}
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 block">Trạng thái:</span>
+                      <strong className="text-emerald-700 capitalize">{editProperty.status === 'active' ? 'Đang hiển thị' : editProperty.status}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 block">Ngày đăng:</span>
+                      <span className="font-semibold">{editProperty.publishedAt ? new Date(editProperty.publishedAt).toLocaleDateString('vi-VN') : 'Mới đăng'}</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-slate-500 block">Lượt xem / gọi:</span>
+                      <span className="font-semibold">{editProperty.viewsCount || 0} xem • {editProperty.callsCount || 0} gọi</span>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-blue-800/80 pt-1">
+                    <i className="fa-solid fa-circle-info mr-1 text-blue-600"></i>
+                    Chỉnh sửa nội dung, hình ảnh và thông số không làm thay đổi hạn dùng của gói tin. Để gia hạn hoặc nâng cấp VIP, vui lòng sử dụng chức năng &quot;Gia Hạn&quot; hoặc &quot;Nâng VIP&quot; tại danh sách tin đăng.
+                  </p>
+                </div>
+
+                {/* 3. Xem trước tin đăng */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-slate-800 uppercase">
+                      {isGuest ? '3. ' : '2. '}Xem Trước Thẻ Tin Rao Thực Tế (Live Preview)
+                    </label>
+                  </div>
+                  <div className="max-w-md mx-auto">
+                    <ListingCard property={previewProperty} />
+                  </div>
+                </div>
+              </div>
+            ) : (
             <div className="space-y-4">
               {/* Thông tin liên hệ người đăng: Chỉ hiển thị khi website CHƯA ĐĂNG NHẬP (Khách vãng lai) */}
               {isGuest && (
@@ -3179,6 +3533,7 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                 )}
               </div>
             </div>
+            )
           )}
 
           {/* Wizard Footer Controls */}
@@ -3213,6 +3568,15 @@ export default function PostListingModal({ onClose, isEmbedded = false }) {
                 >
                   Tiếp tục bước {step + 1}
                   <i className="fa-solid fa-arrow-right text-[10px]"></i>
+                </button>
+              ) : isEditMode ? (
+                <button
+                  type="button"
+                  onClick={handleSaveEdit}
+                  className="px-7 py-3 rounded-xl text-sm font-black transition shadow-xl flex items-center gap-2 bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-700 hover:to-rose-800 text-white cursor-pointer"
+                >
+                  <i className="fa-solid fa-floppy-disk text-base"></i>
+                  Lưu Thay Đổi Bài Viết
                 </button>
               ) : (
                 <button

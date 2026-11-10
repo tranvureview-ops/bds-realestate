@@ -78,7 +78,7 @@ export default function AdminSingleConfigManager() {
     .replace(/\{title\}/g, `"${previewSampleTitle}"`)
     .replace(/\{id\}/g, previewSampleId)
     .replace(/\{platformName\}/g, formData.disclaimer?.platformName || systemConfig?.brandShortName || 'SÀN NHÀ ĐẤT')
-    .replace(/\{hotline\}/g, formData.disclaimer?.hotline || systemConfig?.hotline || '0904 084 888');
+    .replace(/\{hotline\}/g, formData.disclaimer?.hotline || systemConfig?.hotline || '0905 467 138');
 
   // Background and color classes mapping
   const bgStylesMap = {
@@ -212,11 +212,11 @@ export default function AdminSingleConfigManager() {
                       </label>
                       <button
                         type="button"
-                        onClick={() => handleDisclaimerChange('hotline', systemConfig?.hotline || '0904 084 888')}
+                        onClick={() => handleDisclaimerChange('hotline', systemConfig?.hotline || '0905 467 138')}
                         className="text-[10px] text-emerald-400 hover:text-emerald-300 hover:underline"
                         title="Đồng bộ từ Hotline hệ thống"
                       >
-                        Lấy Hotline sàn ({systemConfig?.hotline || '0904 084 888'})
+                        Lấy Hotline sàn ({systemConfig?.hotline || '0905 467 138'})
                       </button>
                     </div>
                     <div className="relative">
@@ -225,7 +225,7 @@ export default function AdminSingleConfigManager() {
                         type="text"
                         value={formData.disclaimer?.hotline || ''}
                         onChange={(e) => handleDisclaimerChange('hotline', e.target.value)}
-                        placeholder={`VD: ${systemConfig?.hotline || '0904 084 888'}`}
+                        placeholder={`VD: ${systemConfig?.hotline || '0905 467 138'}`}
                         className="w-full pl-9 pr-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-white font-mono font-bold focus:outline-none focus:ring-1 focus:ring-red-500"
                       />
                     </div>

@@ -783,7 +783,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
                   type="text"
                   value={logoFormData.topbar?.hotline || ''}
                   onChange={(e) => handleUpdateTopbar('hotline', e.target.value)}
-                  placeholder={systemConfig?.hotline || '0904 084 888'}
+                  placeholder={systemConfig?.hotline || '0905 467 138'}
                   className="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs focus:ring-2 focus:ring-emerald-500 focus:outline-none font-mono"
                 />
               </div>
@@ -924,7 +924,7 @@ export default function AdminHeaderConfigManager({ onSwitchToMenu = null }) {
                       onChange={(e) => handleUpdateSocialUrl(key, e.target.value)}
                       placeholder={
                         key === 'facebook' ? 'https://facebook.com/ten-fanpage' :
-                        key === 'zalo' ? 'https://zalo.me/0904084888' :
+                        key === 'zalo' ? 'https://zalo.me/0905467138' :
                         key === 'youtube' ? 'https://youtube.com/@kenh-bds' :
                         key === 'tiktok' ? 'https://tiktok.com/@kenh-tiktok' :
                         key === 'telegram' ? 'https://t.me/kenh-telegram' :

@@ -1699,9 +1699,38 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
     };
   }, []);
 
-  // Đồng bộ thời gian thực bài viết nhà đất (Properties) giữa các tab/cửa sổ
+  // Đồng bộ thời gian thực bài viết nhà đất (Properties) giữa các tab/cửa sổ & khôi phục trạng thái mới nhất từ localStorage
   useEffect(() => {
     if (typeof window === 'undefined') return;
+
+    // Khôi phục các cập nhật mới nhất (như bumpedAt, viewsCount) từ localStorage nếu SSR cache chưa kịp revalidate
+    try {
+      const stored = localStorage.getItem('bds_properties');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setProperties(prev => {
+            return prev.map(p => {
+              const localProp = parsed.find(x => x.id === p.id);
+              if (localProp && localProp.bumpedAt) {
+                const localBumpTime = new Date(localProp.bumpedAt).getTime();
+                const currentBumpTime = p.bumpedAt ? new Date(p.bumpedAt).getTime() : 0;
+                if (localBumpTime > currentBumpTime) {
+                  return {
+                    ...p,
+                    bumpedAt: localProp.bumpedAt,
+                    bumpCount: localProp.bumpCount || p.bumpCount,
+                    viewsCount: Math.max(p.viewsCount || 0, localProp.viewsCount || 0)
+                  };
+                }
+              }
+              return p;
+            });
+          });
+        }
+      }
+    } catch (_) {}
+
     const handlePropsUpdate = (e) => {
       if (Array.isArray(e.detail)) {
         setProperties(e.detail);
@@ -2631,20 +2660,9 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       walletBalance: newBalance,
       vouchers: updatedVouchers
     };
+    const updatedUsersList = usersList.map(u => u.id === currentUser.id ? updatedUser : u);
     setCurrentUser(updatedUser);
-    setUsersList(prev => prev.map(u => u.id === currentUser.id ? updatedUser : u));
-
-    // Update Property
-    setProperties(prev => prev.map(p => {
-      if (p.id === propertyId) {
-        return {
-          ...p,
-          publishedAt: new Date().toISOString(),
-          viewsCount: (p.viewsCount || 0) + 25
-        };
-      }
-      return p;
-    }));
+    setUsersList(updatedUsersList);
 
     // Record Transaction
     const newTxn = {
@@ -2661,7 +2679,57 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
       createdAt: new Date().toISOString(),
       paymentMethod: usedVoucher ? 'Voucher Hội Viên' : 'Ví tài khoản'
     };
-    setTransactions([newTxn, ...transactions]);
+    const updatedTransactions = [newTxn, ...transactions];
+    setTransactions(updatedTransactions);
+
+    // Update Property: Cập nhật thời điểm đẩy tin bumpedAt, giữ nguyên 100% publishedAt gốc và expiresAt
+    let bumpedTarget = null;
+    const nextProperties = properties.map(p => {
+      if (p.id === propertyId) {
+        bumpedTarget = {
+          ...p,
+          bumpedAt: new Date().toISOString(),
+          bumpCount: (p.bumpCount || 0) + 1,
+          viewsCount: (p.viewsCount || 0) + 25
+        };
+        return bumpedTarget;
+      }
+      return p;
+    });
+
+    setProperties(nextProperties);
+
+    // 1. Đồng bộ tức thì lên Supabase Cloud
+    if (bumpedTarget) {
+      upsertSupabaseProperty(bumpedTarget).catch(console.warn);
+    }
+
+    // 2. Đồng bộ xuống server-db.json qua API route /api/db-sync & lưu localStorage để F5 / SSR giữ nguyên
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('bds_properties', JSON.stringify(nextProperties));
+        localStorage.setItem('bds_current_user', JSON.stringify(updatedUser));
+        localStorage.setItem('bds_users', JSON.stringify(updatedUsersList));
+        localStorage.setItem('bds_transactions', JSON.stringify(updatedTransactions));
+        window.dispatchEvent(new CustomEvent('bds_properties_updated', { detail: nextProperties }));
+        if (typeof BroadcastChannel !== 'undefined') {
+          const bc = new BroadcastChannel('bds_properties_sync');
+          bc.postMessage({ type: 'PROPERTIES_UPDATED', properties: nextProperties });
+          bc.close();
+        }
+        fetch('/api/db-sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            bds_properties: nextProperties,
+            bds_users_list: updatedUsersList,
+            bds_transactions: updatedTransactions
+          })
+        }).catch(console.warn);
+      } catch (e) {
+        console.warn('Lỗi db-sync khi bumpListing:', e);
+      }
+    }
 
     if (usedVoucher) {
       showToast(`Đã dùng Voucher Hội viên! Đẩy tin ${propertyId} thành công (0 đ).`, 'success');

@@ -351,7 +351,7 @@ export default function AdminReportsManager({
   };
 
   // Open Compose Email with pre-filled recipient
-  const activeHotline = systemConfig?.hotline || emailConfig?.signature?.hotline || '0904 084 888';
+  const activeHotline = systemConfig?.hotline || emailConfig?.signature?.hotline || '0905 467 138';
 
   const handleOpenComposeForUser = (recipientEmail, recipientName, report = null) => {
     const activeBrand = systemConfig?.brandShortName || 'Sàn BĐS';

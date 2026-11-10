@@ -2,14 +2,18 @@
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
+import { useRouter } from '../router/RouterContext';
 import { PROPERTY_TYPES, SALE_PRICE_PRESETS, RENT_PRICE_PRESETS, AREA_PRESETS } from '../data/mockData';
 import { VIETNAM_ADMINISTRATIVE_DATA, DANANG_MERGERS_MAP } from '../data/vietnamAdministrativeData';
 import { removeAccents } from '../utils/propertyFilter';
 import { formatPriceRangeText, formatAreaRangeText, buildSeoUrl } from '../utils/permalink';
+import { getSearchQuerySuggestions, HighlightedQuery } from '../utils/searchQuerySuggestions';
+import { useRecentSearches } from '../utils/recentSearches';
 import PropertyTypeSelector from './PropertyTypeSelector';
 import PriceRangeSelector from './PriceRangeSelector';
 import AreaRangeSelector from './AreaRangeSelector';
 import { formatPropertyTypeTriggerLabel, getFlatPropertyTypes, getPropertyTypeDisplayName } from '../data/propertyTypeTaxonomy';
+import DirectionCompassSelector from './DirectionCompassSelector';
 
 const CITIES = [
   'Đà Nẵng',
@@ -38,6 +42,7 @@ export default function ListingFilterBar({
   taxonomyInfo = null,
   className = ''
 }) {
+  const router = useRouter();
   const effectiveDemand = (filters?.demand === 'rent' || taxonomyInfo?.demand === 'rent' || demand === 'rent') ? 'rent' : 'sale';
 
   const [keywordInput, setKeywordInput] = useState(filters?.keyword || '');
@@ -45,6 +50,23 @@ export default function ListingFilterBar({
   const [expandedCity, setExpandedCity] = useState(filters?.city || '');
   const [showAdvancedModal, setShowAdvancedModal] = useState(false);
   const [modalScreen, setModalScreen] = useState('main'); // 'main' | 'location' | 'price' | 'area' | 'type'
+  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
+  const [isMergerMode, setIsMergerMode] = useState(false);
+
+  const containerRef = useRef(null);
+  const searchContainerRef = useRef(null);
+  const openedFromQuickFilterRef = useRef(null); // 'location' | 'type' | 'price' | 'area' | null
+
+  // Batdongsan search placeholder
+  const searchPlaceholder = useMemo(() => {
+    if (effectiveDemand === 'rent') {
+      return 'VD: Cho thuê căn hộ studio, chung cư dưới 10 triệu';
+    }
+    return 'VD: Bán nhà Bình Thạnh dưới 5 tỷ';
+  }, [effectiveDemand]);
+
+  // Batdongsan recent / suggested searches from localStorage
+  const { recentSearches, addSearch, removeSearch, clearSearches } = useRecentSearches();
 
   // Draft filters state for modal - only applied when clicking "Xem kết quả"
   const [draftFilters, setDraftFilters] = useState({
@@ -65,6 +87,7 @@ export default function ListingFilterBar({
     maxArea: filters?.maxArea ?? null,
     bedroom: filters?.bedroom || 'all',
     direction: filters?.direction || 'all',
+    directions: filters?.directions || [],
     hasVR360: Boolean(filters?.hasVR360),
     onlyVerified: Boolean(filters?.onlyVerified)
   });
@@ -76,26 +99,14 @@ export default function ListingFilterBar({
     return raw.split(',').map(s => s.trim()).filter(id => id && id !== 'all');
   }, [draftFilters.propertyTypes, draftFilters.propertyType]);
 
-  const containerRef = useRef(null);
-  const openedFromQuickFilterRef = useRef(null); // 'location' | 'type' | 'price' | 'area' | null
-
-  // Sync keywordInput with filters.keyword
-  useEffect(() => {
-    setKeywordInput(filters?.keyword || '');
-  }, [filters?.keyword]);
-
-  // Sync expandedCity when opening location dropdown or when filters.city changes
-  useEffect(() => {
-    if (openDropdown === 'location') {
-      setExpandedCity(filters?.city || '');
-    }
-  }, [openDropdown, filters?.city]);
-
   // Click outside to close quick dropdowns
   useEffect(() => {
     const handleOutsideClick = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
         setOpenDropdown(null);
+      }
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
+        setIsSearchDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleOutsideClick);
@@ -137,6 +148,7 @@ export default function ListingFilterBar({
       maxArea: filters?.maxArea ?? null,
       bedroom: filters?.bedroom || 'all',
       direction: filters?.direction || 'all',
+      directions: filters?.directions || [],
       hasVR360: Boolean(filters?.hasVR360),
       onlyVerified: Boolean(filters?.onlyVerified)
     });
@@ -182,6 +194,7 @@ export default function ListingFilterBar({
         maxArea: draftFilters.maxArea,
         bedroom: draftFilters.bedroom,
         direction: draftFilters.direction,
+        directions: draftFilters.directions,
         hasVR360: draftFilters.hasVR360,
         onlyVerified: draftFilters.onlyVerified
       }));
@@ -210,6 +223,7 @@ export default function ListingFilterBar({
       maxArea: null,
       bedroom: 'all',
       direction: 'all',
+      directions: [],
       hasVR360: false,
       onlyVerified: false
     }));
@@ -218,11 +232,104 @@ export default function ListingFilterBar({
   // Search input submission
   const handleApplySearch = (e) => {
     if (e?.preventDefault) e.preventDefault();
+    setIsSearchDropdownOpen(false);
+    const cleanKw = keywordInput.trim();
+    if (cleanKw) {
+      addSearch({
+        title: cleanKw,
+        keyword: cleanKw,
+        filters: { demand: effectiveDemand, keyword: cleanKw }
+      });
+    }
     if (!setFilters) return;
     setFilters(prev => ({
       ...prev,
-      keyword: keywordInput.trim()
+      keyword: cleanKw
     }));
+  };
+
+  // Batdongsan Query Suggestions based on user typing
+  const querySuggestions = useMemo(() => {
+    if (!keywordInput.trim()) return [];
+    return getSearchQuerySuggestions(keywordInput, {
+      currentDemand: effectiveDemand,
+      currentCity: filters?.city || '',
+      isMergerMode
+    });
+  }, [keywordInput, effectiveDemand, filters?.city, isMergerMode]);
+
+  const handleSelectSuggestion = (sug) => {
+    setIsSearchDropdownOpen(false);
+    addSearch({
+      title: sug.query,
+      subtitle: sug.badge || '',
+      url: sug.url,
+      keyword: sug.keyword || '',
+      filters: {
+        demand: sug.demand || effectiveDemand,
+        propertyType: sug.propertyType,
+        city: sug.city,
+        district: sug.district,
+        ward: sug.ward
+      }
+    });
+    if (sug.url) {
+      router.push(sug.url);
+    } else if (setFilters) {
+      setFilters(prev => ({
+        ...prev,
+        demand: sug.demand || prev.demand,
+        propertyType: sug.propertyType || prev.propertyType,
+        city: sug.city || prev.city,
+        district: sug.district || prev.district,
+        ward: sug.ward || prev.ward,
+        street: sug.street || prev.street,
+        project: sug.project || prev.project,
+        keyword: sug.keyword || ''
+      }));
+      setKeywordInput(sug.keyword || '');
+    }
+  };
+
+  const handleSelectRecentSearch = (item) => {
+    setIsSearchDropdownOpen(false);
+    if (item.url) {
+      router.push(item.url);
+      return;
+    }
+    if (!setFilters) return;
+    setFilters(prev => ({
+      ...prev,
+      ...(item.filters || {}),
+      city: item.city || item.filters?.city || prev.city,
+      keyword: item.keyword !== undefined ? item.keyword : (item.filters?.keyword || '')
+    }));
+    setKeywordInput(item.keyword !== undefined ? item.keyword : (item.filters?.keyword || ''));
+  };
+
+  const handleToggleMergerMode = () => {
+    const nextVal = !isMergerMode;
+    setIsMergerMode(nextVal);
+    if (!setFilters) return;
+    setFilters(prev => ({
+      ...prev,
+      useMergedAddress: nextVal
+    }));
+  };
+
+  const handleOpenDetailedLocationFromSearch = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setIsSearchDropdownOpen(false);
+    handleOpenLocationModal();
+  };
+
+  const handleToggleMapView = () => {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('bds:toggle-map-view'));
+    }
   };
 
   // Quick bar toggles
@@ -467,43 +574,187 @@ export default function ListingFilterBar({
   return (
     <div ref={containerRef} className={`max-w-7xl mx-auto px-3 sm:px-8 mt-3 sm:mt-5 relative z-30 ${className}`}>
       <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 shadow-xs p-2.5 sm:p-4 relative z-30 overflow-visible">
-        {/* ROW 1: Search Input with Red "Tìm kiếm" button */}
-        <form onSubmit={handleApplySearch} className="relative flex items-center border border-slate-200 hover:border-slate-300 focus-within:border-slate-400 focus-within:ring-2 focus-within:ring-slate-100 rounded-lg sm:rounded-xl bg-white transition p-1 sm:p-1.5">
-          <i className="fa-solid fa-magnifying-glass text-slate-400 pl-2.5 sm:pl-3 pr-1.5 sm:pr-2 text-xs sm:text-sm"></i>
-          
-          <input
-            type="text"
-            value={keywordInput}
-            onChange={(e) => setKeywordInput(e.target.value)}
-            placeholder={
-              filters.propertyType && filters.propertyType !== 'all' 
-                ? `${getPropertyTypeLabel()} - Nhập từ khóa, vị trí...` 
-                : (effectiveDemand === 'rent' ? 'Căn hộ, nhà riêng, mặt bằng...' : 'Nhà riêng, căn hộ, biệt thự...')
-            }
-            className="flex-1 bg-transparent py-1 sm:py-2 px-1 text-slate-800 placeholder-slate-400 text-xs sm:text-sm focus:outline-none min-w-0"
-          />
+        {/* ROW 1: Search Input with Red "Tìm kiếm" button + "Xem bản đồ" button (Chuẩn Batdongsan.com.vn) */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div ref={searchContainerRef} className="relative flex-1 min-w-0">
+            <form onSubmit={handleApplySearch} className="flex items-center border border-slate-200 hover:border-slate-300 focus-within:border-slate-400 focus-within:ring-2 focus-within:ring-slate-100 rounded-lg sm:rounded-xl bg-white transition p-1 sm:p-1.5 shadow-2xs">
+              <i className="fa-solid fa-magnifying-glass text-slate-400 pl-2.5 sm:pl-3 pr-1.5 sm:pr-2 text-xs sm:text-sm shrink-0"></i>
+              
+              <input
+                type="text"
+                value={keywordInput}
+                onChange={(e) => {
+                  setKeywordInput(e.target.value);
+                  if (!isSearchDropdownOpen) setIsSearchDropdownOpen(true);
+                }}
+                onFocus={() => setIsSearchDropdownOpen(true)}
+                placeholder={searchPlaceholder}
+                className="flex-1 bg-transparent py-1 sm:py-2 px-1 text-slate-800 placeholder-slate-400 text-xs sm:text-sm focus:outline-none min-w-0 font-medium"
+              />
 
-          {keywordInput && (
-            <button
-              type="button"
-              onClick={() => {
-                setKeywordInput('');
-                if (setFilters) setFilters(prev => ({ ...prev, keyword: '' }));
-              }}
-              className="text-slate-400 hover:text-slate-600 p-1 mr-0.5 sm:mr-1 transition cursor-pointer"
-              title="Xóa từ khóa"
-            >
-              <i className="fa-solid fa-xmark text-xs"></i>
-            </button>
-          )}
+              {keywordInput && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setKeywordInput('');
+                    if (setFilters) setFilters(prev => ({ ...prev, keyword: '' }));
+                  }}
+                  className="w-5 h-5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center text-xs mr-1 sm:mr-1.5 transition cursor-pointer shrink-0"
+                  title="Xóa từ khóa"
+                >
+                  <i className="fa-solid fa-xmark text-[10px]"></i>
+                </button>
+              )}
 
+              <button
+                type="submit"
+                className="px-4 sm:px-7 py-1.5 sm:py-2.5 rounded-md sm:rounded-lg bg-[#e03c31] hover:bg-[#c93026] active:bg-[#a8231b] text-white font-bold text-xs sm:text-sm shadow-xs transition flex items-center justify-center shrink-0 cursor-pointer"
+              >
+                Tìm kiếm
+              </button>
+            </form>
+
+            {/* BATDONGSAN.COM.VN DROPDOWN POPUP */}
+            {isSearchDropdownOpen && (
+              <div className="absolute top-full left-0 right-0 mt-1.5 bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 overflow-hidden animate-fadeIn text-slate-800">
+                {/* 1. Tìm theo địa chỉ mới sau sáp nhập + Toggle Switch */}
+                <div className="px-4 py-3 bg-slate-50/80 border-b border-slate-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs sm:text-sm font-semibold text-slate-700">
+                      Tìm theo địa chỉ mới sau sáp nhập
+                    </span>
+                    {isMergerMode && (
+                      <span className="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1">
+                        <i className="fa-solid fa-check text-[9px]"></i> Đã kích hoạt
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={handleToggleMergerMode}
+                    className={`w-11 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-200 ease-in-out ${
+                      isMergerMode ? 'bg-[#e03c31]' : 'bg-slate-300'
+                    }`}
+                    title={isMergerMode ? 'Tắt tra cứu sáp nhập' : 'Bật tra cứu sáp nhập'}
+                  >
+                    <div
+                      className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-200 ease-in-out ${
+                        isMergerMode ? 'translate-x-5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                {/* GỢI Ý TỪ KHÓA CHUẨN BATDONGSAN.COM.VN */}
+                {keywordInput.trim().length > 0 ? (
+                  <div className="p-2 sm:p-3 max-h-[380px] overflow-y-auto">
+                    <div className="space-y-0.5">
+                      {querySuggestions.map((sug) => (
+                        <div
+                          key={sug.id || sug.query}
+                          onClick={() => handleSelectSuggestion(sug)}
+                          className="px-3 py-2.5 rounded-xl hover:bg-slate-50 flex items-center gap-3 transition cursor-pointer group"
+                        >
+                          <i className="fa-solid fa-magnifying-glass text-slate-400 text-xs sm:text-sm shrink-0 group-hover:text-red-600 transition-colors"></i>
+                          <div className="flex-1 min-w-0 flex items-center gap-2">
+                            <HighlightedQuery text={sug.query} highlight={keywordInput} />
+                            {sug.badge && (
+                              <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-full shrink-0">
+                                {sug.badge}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  /* Khi chưa nhập từ khóa: Lịch sử & Chọn địa danh chi tiết */
+                  <div className="p-2 sm:p-3">
+                    {recentSearches.length > 0 && (
+                      <div className="pb-2">
+                        <div className="flex justify-end mb-1 px-1">
+                          <button
+                            type="button"
+                            onClick={clearSearches}
+                            className="text-[11px] text-slate-400 hover:text-red-600 transition font-medium cursor-pointer"
+                          >
+                            Xóa lịch sử
+                          </button>
+                        </div>
+                        <div className="space-y-1">
+                          {recentSearches.map((item) => (
+                            <div
+                              key={item.id}
+                              onClick={() => handleSelectRecentSearch(item)}
+                              className="p-2 sm:p-2.5 rounded-xl hover:bg-slate-50 flex items-center gap-3 transition cursor-pointer group"
+                            >
+                              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-red-50 text-[#e03c31] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                                <i className="fa-solid fa-clock-rotate-left text-xs sm:text-sm"></i>
+                              </div>
+
+                              <div className="flex-1 min-w-0">
+                                <div className="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-red-600 transition truncate">
+                                  {item.title}
+                                </div>
+                                {item.subtitle && (
+                                  <div className="text-[11px] text-slate-400 truncate">
+                                    {item.subtitle}
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Nút xóa từng mục lịch sử */}
+                              <button
+                                type="button"
+                                onClick={(e) => removeSearch(item.id, e)}
+                                className="w-6 h-6 rounded-full hover:bg-slate-200 text-slate-400 hover:text-red-600 flex items-center justify-center transition shrink-0 opacity-0 group-hover:opacity-100"
+                                title="Xóa mục này khỏi lịch sử"
+                                aria-label="Xóa mục này khỏi lịch sử"
+                              >
+                                <i className="fa-solid fa-xmark text-xs"></i>
+                              </button>
+
+                              <i className="fa-solid fa-chevron-right text-slate-300 group-hover:text-slate-500 text-xs shrink-0 group-hover:translate-x-0.5 transition-transform"></i>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Bottom Action: Chọn quận huyện, phường xã, đường phố, dự án */}
+                    <div
+                      onClick={handleOpenDetailedLocationFromSearch}
+                      className={`p-2 sm:p-2.5 rounded-xl hover:bg-red-50/50 flex items-center gap-3 transition cursor-pointer group ${
+                        recentSearches.length > 0 ? 'border-t border-slate-100 pt-2.5' : ''
+                      }`}
+                    >
+                      <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#e03c31] text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+                        <i className="fa-solid fa-sliders text-xs"></i>
+                      </div>
+                      <span className="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-red-600 transition flex-1">
+                        Chọn quận huyện, phường xã, đường phố, dự án
+                      </span>
+                      <i className="fa-solid fa-chevron-right text-slate-400 group-hover:text-red-600 text-xs shrink-0 group-hover:translate-x-0.5 transition-transform"></i>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Nút Xem bản đồ chuẩn Batdongsan */}
           <button
-            type="submit"
-            className="px-3.5 sm:px-7 py-1.5 sm:py-2.5 rounded-md sm:rounded-lg bg-red-600 hover:bg-red-700 active:bg-red-800 text-white font-bold text-xs sm:text-sm shadow-xs transition flex items-center justify-center shrink-0 cursor-pointer"
+            type="button"
+            onClick={handleToggleMapView}
+            className="hidden sm:flex items-center gap-2 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl bg-[#007489] hover:bg-[#005e6f] active:bg-[#004b58] text-white font-bold text-xs sm:text-sm shadow-xs transition shrink-0 cursor-pointer"
+            title="Xem vị trí bất động sản trên bản đồ số GIS"
           >
-            Tìm kiếm
+            <i className="fa-solid fa-map-location-dot text-sm"></i>
+            <span className="whitespace-nowrap">Xem bản đồ</span>
           </button>
-        </form>
+        </div>
 
         {/* ROW 2: Horizontal Quick Filter Dropdowns & Toggles (Đầy đủ Khu vực, Loại BĐS, Giá, Diện tích) */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 mt-2 sm:mt-3 overflow-x-auto sm:overflow-visible no-scrollbar touch-pan-x pb-1 sm:pb-0 sm:flex-wrap text-xs sm:text-sm relative z-30">
@@ -1043,33 +1294,33 @@ export default function ListingFilterBar({
                       ))}
                     </div>
 
-                    {/* Hướng nhà */}
-                    <select
-                      value={draftFilters.direction || 'all'}
-                      onChange={(e) => setDraftFilters(prev => ({ ...prev, direction: e.target.value }))}
-                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-xl font-medium text-slate-800 outline-none focus:border-red-500"
-                    >
-                      {DIRECTIONS.map(dir => (
-                        <option key={dir.value} value={dir.value}>{dir.label}</option>
-                      ))}
-                    </select>
-
-                    {/* VR 360 */}
-                    <label className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 hover:bg-slate-100 transition cursor-pointer border border-slate-200">
-                      <input
-                        type="checkbox"
-                        checked={Boolean(draftFilters.hasVR360)}
-                        onChange={(e) => setDraftFilters(prev => ({ ...prev, hasVR360: e.target.checked }))}
-                        className="w-4 h-4 text-red-600 rounded border-slate-300 focus:ring-red-500"
-                      />
-                      <div>
-                        <div className="font-bold text-slate-800 flex items-center gap-1.5">
-                          <i className="fa-solid fa-vr-cardboard text-indigo-600"></i>
-                          <span>Xem nhà thực tế ảo (VR 360)</span>
-                        </div>
-                        <div className="text-[11px] text-slate-500">Chỉ lọc nhà đất có tích hợp video thực tế ảo 360°</div>
+                    {/* Hướng nhà: La bàn chọn 8 hướng phong thủy */}
+                    <div className="pt-2">
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                          <i className="fa-solid fa-compass text-[#00594c] text-sm"></i>
+                          <span>Hướng nhà phong thủy</span>
+                        </label>
+                        {draftFilters.direction && draftFilters.direction !== 'all' && (
+                          <span className="text-[11px] font-semibold text-[#00594c] bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                            {draftFilters.direction}
+                          </span>
+                        )}
                       </div>
-                    </label>
+                      
+                      <div className="p-3 sm:p-4 bg-slate-50/70 border border-slate-200 rounded-2xl flex flex-col items-center">
+                        <DirectionCompassSelector
+                          value={draftFilters.directions && draftFilters.directions.length > 0 ? draftFilters.directions : draftFilters.direction || 'all'}
+                          onChange={(newDirVal, newDirArr) => {
+                            setDraftFilters(prev => ({
+                              ...prev,
+                              direction: newDirVal,
+                              directions: newDirArr
+                            }));
+                          }}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
 

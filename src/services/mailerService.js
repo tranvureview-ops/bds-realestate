@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import { getFullSystemDatabase, persistDatabaseSlice } from './serverDbService';
 import { generateWelcomeVerificationEmailHtml, generatePasswordResetEmailHtml } from '../utils/emailService';
+import { SITE_URL } from '../utils/permalink';
 
 /**
  * Trích xuất domain gốc từ request header hoặc fallback
@@ -13,7 +14,7 @@ export function resolveServerOrigin(request) {
   if (host) {
     return `${proto}://${host}`;
   }
-  return process.env.NEXT_PUBLIC_SITE_URL || 'https://kenhnhadat24h.com.vn';
+  return (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '');
 }
 
 /**

@@ -31,6 +31,16 @@ const nextConfig = {
         destination: '/bang-gia-tin-dang',
         permanent: true,
       },
+      {
+        source: '/tinh-lai-suat',
+        destination: '/tinh-lai-vay',
+        permanent: true,
+      },
+      {
+        source: '/cong-cu-tinh-lai-vay',
+        destination: '/tinh-lai-vay',
+        permanent: true,
+      },
     ];
   },
   async headers() {

@@ -16,7 +16,9 @@ export const ALL_INTERNAL_ROUTES = [
       { label: 'Bảng Giá Tin Đăng & VIP', url: '/bang-gia-tin-dang' },
       { label: 'Gói Hội Viên Môi Giới', url: '/goi-hoi-vien' },
       { label: 'Đăng Tin BĐS Mới', url: '/dang-tin' },
+      { label: 'Hướng Dẫn Đăng Tin Chuẩn SEO', url: '/huong-dan-dang-tin' },
       { label: 'Công Cụ Tính Lãi Vay', url: '/tinh-lai-vay' },
+      { label: 'Xem Tuổi Mua Đất Xây Nhà (Phong Thủy)', url: '/xem-tuoi-mua-dat-xay-nha' },
     ]
   },
   {
@@ -721,267 +723,13 @@ export default function AdminFooterConfigManager() {
             </div>
           </div>
 
-          {/* Nhóm 3: Cột 3 - Trang Thành Viên */}
-          <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
-              <div className="flex items-center gap-2">
-                <i className="fa-solid fa-id-card-clip text-amber-400 text-sm"></i>
-                <h4 className="text-xs font-black uppercase tracking-wider text-white">
-                  3. Cột 3: Trang Thành Viên (Member Links)
-                </h4>
-              </div>
-              <button
-                type="button"
-                onClick={handleAddCol3Link}
-                className="px-2.5 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
-              >
-                <i className="fa-solid fa-plus text-[10px]"></i>
-                <span>Thêm Link</span>
-              </button>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                Tiêu Đề Cột 3:
-              </label>
-              <input
-                type="text"
-                value={formData.col3Title || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, col3Title: e.target.value }))}
-                placeholder="TRANG THÀNH VIÊN"
-                className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold text-xs uppercase"
-              />
-            </div>
-
-            {/* Danh sách liên kết Cột 3 */}
-            <div className="space-y-3 pt-1">
-              <div className="flex items-center justify-between text-xs font-bold text-slate-400">
-                <span>Danh Sách Liên Kết Thành Viên:</span>
-                <span className="text-[10px] text-amber-400 font-normal">
-                  💡 Nhấn vào Icon để mở bộ chọn biểu tượng trực quan
-                </span>
-              </div>
-
-              {(formData.col3Links || []).map((link, idx) => (
-                <div
-                  key={link.id || idx}
-                  className="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-2 hover:border-slate-700 transition"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono text-amber-400 font-bold">Mục #{idx + 1}</span>
-                      {/* Nút mở Icon Picker trực quan */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIconPickerTarget({ type: 'col3', index: idx });
-                          setIconSearchQuery('');
-                          setIconCategoryFilter('all');
-                        }}
-                        className="px-2.5 py-1 rounded-xl bg-slate-950 border border-slate-700 hover:border-amber-400/80 flex items-center gap-1.5 transition cursor-pointer group shadow-xs"
-                        title="Bấm để chọn biểu tượng & màu sắc"
-                      >
-                        <i className={`${link.icon || 'fa-solid fa-link'} ${link.color || 'text-amber-400'} text-xs`}></i>
-                        <span className="text-[10px] text-slate-300 font-semibold group-hover:text-amber-300">Đổi Icon ▾</span>
-                      </button>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteCol3Link(idx)}
-                      className="text-rose-400 hover:text-rose-300 text-xs px-2 py-0.5 rounded bg-rose-950/60 hover:bg-rose-900 border border-rose-800/60 transition cursor-pointer flex items-center gap-1"
-                      title="Xóa liên kết này"
-                    >
-                      <i className="fa-solid fa-trash-can text-[10px]"></i>
-                      <span className="text-[10px]">Xóa</span>
-                    </button>
-                  </div>
-
-                  {/* Sổ chọn nhanh toàn bộ Link trong Website */}
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 mb-1 flex items-center gap-1">
-                      <i className="fa-solid fa-list-ul text-amber-400 text-[10px]"></i>
-                      <span>Sổ danh sách trang web (Tự động điền URL & Tên):</span>
-                    </label>
-                    <select
-                      value={getRouteSelectValue(link.url)}
-                      onChange={(e) => handleSelectRouteForLink(e.target.value, (obj) => handleUpdateCol3Link(idx, obj))}
-                      className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-medium text-xs outline-none focus:border-amber-500"
-                    >
-                      <option value="">-- Bấm vào đây để chọn nhanh trong 50+ trang website --</option>
-                      {ALL_INTERNAL_ROUTES.map((group, gIdx) => (
-                        <optgroup key={gIdx} label={group.category} className="bg-slate-900 text-emerald-400 font-bold">
-                          {group.routes.map((r, rIdx) => (
-                            <option key={rIdx} value={r.url} className="bg-slate-950 text-white font-normal">
-                              {r.label} &rarr; {r.url}
-                            </option>
-                          ))}
-                        </optgroup>
-                      ))}
-                      <option value="__custom__" className="text-amber-400">✏️ Đường dẫn tùy chỉnh khác...</option>
-                    </select>
-                  </div>
-
-                  {/* Chi tiết Tên hiển thị & URL & Class Icon */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                    <div>
-                      <label className="block text-[10px] font-semibold text-slate-400 mb-1">Tên Mục Thành Viên:</label>
-                      <input
-                        type="text"
-                        value={link.label || ''}
-                        onChange={(e) => handleUpdateCol3Link(idx, 'label', e.target.value)}
-                        placeholder="Hồ Sơ Cá Nhân"
-                        className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-white text-xs font-semibold outline-none focus:border-amber-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-semibold text-slate-400 mb-1">Đường Dẫn URL:</label>
-                      <input
-                        type="text"
-                        value={link.url === '__custom__' ? '' : (link.url || '')}
-                        onChange={(e) => handleUpdateCol3Link(idx, 'url', e.target.value)}
-                        placeholder="/ho-so-ca-nhan"
-                        className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-300 font-mono text-xs outline-none focus:border-amber-500"
-                      />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Checkbox Admin CMS */}
-            <label className="flex items-center gap-2.5 pt-2 border-t border-slate-800/80 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={formData.showAdminCmsLink !== false}
-                onChange={(e) => setFormData(prev => ({ ...prev, showAdminCmsLink: e.target.checked }))}
-                className="w-4 h-4 text-amber-500 rounded border-slate-700 bg-slate-800 focus:ring-amber-500"
-              />
-              <span className="text-xs text-slate-300">
-                Hiển thị liên kết <b>"Bàn Làm Việc CMS Admin"</b> ở chân trang (chỉ hiển thị khi Admin đăng nhập)
-              </span>
-            </label>
-          </div>
-
-          {/* Nhóm 4: Cột 4 - Chứng Nhận & Bảo Mật */}
-          <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
-              <div className="flex items-center gap-2">
-                <i className="fa-solid fa-shield-halved text-blue-400 text-sm"></i>
-                <h4 className="text-xs font-black uppercase tracking-wider text-white">
-                  4. Cột 4: Chứng Nhận & Bảo Mật (Trust Badges)
-                </h4>
-              </div>
-              <button
-                type="button"
-                onClick={handleAddBadge}
-                className="px-2.5 py-1 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/30 text-[11px] font-bold transition flex items-center gap-1 cursor-pointer"
-              >
-                <i className="fa-solid fa-plus text-[10px]"></i>
-                <span>Thêm Chứng Nhận</span>
-              </button>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1.5">
-                Tiêu Đề Cột 4:
-              </label>
-              <input
-                type="text"
-                value={formData.col4Title || ''}
-                onChange={(e) => setFormData(prev => ({ ...prev, col4Title: e.target.value }))}
-                placeholder="CHỨNG NHẬN & BẢO MẬT"
-                className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold text-xs uppercase"
-              />
-            </div>
-
-            {/* Danh sách Badges */}
-            <div className="space-y-3 pt-1">
-              <div className="flex items-center justify-between text-xs font-bold text-slate-400">
-                <span>Danh Sách Huy Hiệu Chứng Nhận:</span>
-                <span className="text-[10px] text-blue-400 font-normal">
-                  💡 Bấm nút icon để chọn biểu tượng bảo mật / chứng chỉ
-                </span>
-              </div>
-
-              {(formData.badges || []).map((badge, idx) => (
-                <div
-                  key={badge.id || idx}
-                  className="p-3.5 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-2.5 hover:border-slate-700 transition"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase text-blue-400">Huy hiệu #{idx + 1}</span>
-                      {/* Nút mở Icon Picker cho Badge */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIconPickerTarget({ type: 'badge', index: idx });
-                          setIconSearchQuery('');
-                          setIconCategoryFilter('security');
-                        }}
-                        className="px-2.5 py-1 rounded-xl bg-slate-950 border border-slate-700 hover:border-blue-400/80 flex items-center gap-1.5 transition cursor-pointer group shadow-xs"
-                        title="Bấm để chọn biểu tượng & màu sắc"
-                      >
-                        <i className={`${badge.icon || 'fa-solid fa-award'} ${badge.iconColor || 'text-emerald-400'} text-xs`}></i>
-                        <span className="text-[10px] text-slate-300 font-semibold group-hover:text-blue-300">Đổi Icon ▾</span>
-                      </button>
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteBadge(idx)}
-                      className="px-2 py-0.5 rounded-lg bg-rose-950/60 hover:bg-rose-900 text-rose-400 border border-rose-800/60 text-[10px] font-bold flex items-center gap-1 transition cursor-pointer"
-                    >
-                      <i className="fa-solid fa-trash-can text-[9px]"></i>
-                      <span>Xóa</span>
-                    </button>
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-semibold text-slate-400 mb-1">Tiêu Đề Chứng Nhận:</label>
-                    <input
-                      type="text"
-                      value={badge.title || ''}
-                      onChange={(e) => handleUpdateBadge(idx, 'title', e.target.value)}
-                      placeholder="Đã Đăng Ký Bộ Công Thương"
-                      className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-white font-bold text-xs outline-none focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-semibold text-slate-400 mb-1">Mô Tả Chi Tiết / Căn Cứ Pháp Lý:</label>
-                    <textarea
-                      rows={2}
-                      value={badge.desc || ''}
-                      onChange={(e) => handleUpdateBadge(idx, 'desc', e.target.value)}
-                      placeholder="Sàn TMĐT giao dịch nhà đất hợp pháp theo Nghị định..."
-                      className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-300 text-xs outline-none focus:border-blue-500"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-semibold text-slate-400 mb-1">Đường Dẫn Xác Minh Ngoài (Tùy chọn):</label>
-                    <input
-                      type="text"
-                      value={badge.url || ''}
-                      onChange={(e) => handleUpdateBadge(idx, 'url', e.target.value)}
-                      placeholder="https://online.gov.vn/... (Để trống nếu không liên kết ngoài)"
-                      className="w-full p-2 bg-slate-950 border border-slate-700 rounded-xl text-slate-300 font-mono text-xs outline-none focus:border-blue-500"
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Nhóm 5: Bản Quyền & Chính Sách Pháp Lý (Chân Trang) */}
+          {/* Nhóm 3: Bản Quyền & Chính Sách Pháp Lý (Chân Trang) */}
           <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
               <div className="flex items-center gap-2">
                 <i className="fa-solid fa-copyright text-slate-400 text-sm"></i>
                 <h4 className="text-xs font-black uppercase tracking-wider text-white">
-                  5. Bản Quyền & Chính Sách Pháp Lý Chân Trang
+                  3. Bản Quyền & Chính Sách Pháp Lý Chân Trang
                 </h4>
               </div>
               <button
@@ -1078,35 +826,6 @@ export default function AdminFooterConfigManager() {
               ))}
             </div>
           </div>
-
-          {/* Nhóm 6: Khối SEO Danh Mục & Địa Giới Hành Chính */}
-          <div className="bg-slate-950 p-6 rounded-3xl border border-slate-800 space-y-3">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800/80">
-              <div className="flex items-center gap-2">
-                <i className="fa-solid fa-sitemap text-emerald-400 text-sm"></i>
-                <h4 className="text-xs font-black uppercase tracking-wider text-white">
-                  6. Khối SEO Danh Mục & Địa Giới Hành Chính Chuẩn SEO
-                </h4>
-              </div>
-            </div>
-
-            <label className="flex items-start gap-3 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={formData.showSeoTaxonomy !== false}
-                onChange={(e) => setFormData(prev => ({ ...prev, showSeoTaxonomy: e.target.checked }))}
-                className="w-5 h-5 text-emerald-500 rounded border-slate-700 bg-slate-800 focus:ring-emerald-500 mt-0.5 shrink-0"
-              />
-              <div>
-                <div className="font-bold text-white text-xs">
-                  Hiển thị khối liên kết Danh Mục Nhà Đất & Địa Giới Hành Chính ở chân trang
-                </div>
-                <p className="text-[11px] text-slate-400 mt-0.5 leading-relaxed">
-                  Bao gồm 4 cột liên kết chuẩn SEO: BĐS Nhà ở & Căn hộ, Đất nền & Nghỉ dưỡng, BĐS Cho thuê, BĐS Trọng điểm Đà Nẵng. Giúp Google bot index sâu toàn bộ danh mục của sàn.
-                </p>
-              </div>
-            </label>
-          </div>
         </div>
 
         {/* Right Column: Live Preview (5 cols) */}
@@ -1141,7 +860,7 @@ export default function AdminFooterConfigManager() {
                     </div>
                   </div>
 
-                  <p className="text-[11px] text-slate-400 leading-relaxed line-clamp-3">
+                  <p className="text-[11px] text-slate-400 leading-relaxed whitespace-pre-line">
                     {previewBrandDesc}
                   </p>
 
@@ -1180,23 +899,23 @@ export default function AdminFooterConfigManager() {
                     </div>
                     <ul className="space-y-1 text-slate-400 text-[10px]">
                       {(formData.col2Links || []).map((l, i) => (
-                        <li key={i} className="truncate">• {l.label}</li>
+                        <li key={i} className="truncate">{l.label}</li>
                       ))}
                     </ul>
                   </div>
 
-                  {/* Cột 3 */}
+                  {/* Cột 3: Cố định HTML */}
                   <div className="space-y-1">
                     <div className="font-black text-white uppercase text-[10px] tracking-wider text-amber-400">
-                      {formData.col3Title || 'THÀNH VIÊN'}
+                      DỊCH VỤ & TIỆN ÍCH (Cố định HTML)
                     </div>
                     <ul className="space-y-1 text-slate-400 text-[10px]">
-                      {(formData.col3Links || []).map((l, i) => (
-                        <li key={i} className="truncate flex items-center gap-1">
-                          <i className={`${l.icon || 'fa-solid fa-link'} ${l.color || 'text-amber-400'} text-[9px]`}></i>
-                          <span className="truncate">{l.label}</span>
-                        </li>
-                      ))}
+                      <li>Đăng tin bất động sản</li>
+                      <li>Bảng giá tin đăng</li>
+                      <li>Công cụ tính lãi vay</li>
+                      <li>Xem tuổi mua đất xây nhà</li>
+                      <li>Hướng dẫn đăng tin</li>
+                      <li>Tin bất động sản đã lưu</li>
                       {formData.showAdminCmsLink !== false && (
                         <li className="text-red-400 font-semibold flex items-center gap-1">
                           <i className="fa-solid fa-shield-halved text-[9px]"></i>
@@ -1205,32 +924,6 @@ export default function AdminFooterConfigManager() {
                       )}
                     </ul>
                   </div>
-                </div>
-
-                {/* Cột 4: Badges preview */}
-                <div className="space-y-1.5 pt-2 border-t border-slate-800/80">
-                  <div className="font-black text-white uppercase text-[10px] tracking-wider text-blue-400">
-                    {formData.col4Title || 'CHỨNG NHẬN & BẢO MẬT'}
-                  </div>
-                  <div className="space-y-1.5">
-                    {(formData.badges || []).map((b, i) => (
-                      <div key={i} className="p-2 bg-slate-950/80 rounded-xl border border-slate-800 text-[10px]">
-                        <div className="font-bold text-white flex items-center gap-1.5">
-                          <i className={`${b.icon || 'fa-solid fa-shield-check'} ${b.iconColor || 'text-emerald-400'} text-[10px]`}></i>
-                          <span>{b.title}</span>
-                        </div>
-                        {b.desc && <div className="text-[9px] text-slate-400 mt-0.5 line-clamp-2">{b.desc}</div>}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* SEO Block Status */}
-                <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px]">
-                  <span>Khối SEO Danh mục:</span>
-                  <span className={`font-bold ${formData.showSeoTaxonomy !== false ? 'text-emerald-400' : 'text-slate-500'}`}>
-                    {formData.showSeoTaxonomy !== false ? 'Đang bật' : 'Đã ẩn'}
-                  </span>
                 </div>
 
                 {/* Copyright preview */}

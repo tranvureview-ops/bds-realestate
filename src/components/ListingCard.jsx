@@ -23,7 +23,7 @@ import {
   IconZaloDots 
 } from './common/Icons';
 
-export default function ListingCard({ property, viewMode = 'grid', priority = false }) {
+export default function ListingCard({ property, viewMode = 'grid', priority = false, isHomePage = false }) {
   const { navigate } = useRouter();
   const [isBrokerModalOpen, setIsBrokerModalOpen] = useState(false);
   const { 
@@ -266,7 +266,7 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
           </h3>
 
           {/* Location Address */}
-          <div className="text-xs text-slate-600 mb-3 flex items-center justify-between gap-1">
+          <div className={`text-xs text-slate-600 flex items-center justify-between gap-1 ${isHomePage ? 'mb-1' : 'mb-3'}`}>
             <div className="flex items-center gap-1 line-clamp-1 truncate">
               <IconLocation className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
               <span className="truncate">{property.district}, {property.city}</span>
@@ -278,31 +278,34 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
             )}
           </div>
 
-          {/* Key Specs Pills (Bedrooms, Bathrooms, Direction, Legal) */}
-          <div className="flex flex-wrap items-center gap-2 mb-3 text-xs text-slate-600">
-            {property.bedroom > 0 && (
-              <span className="px-2 py-1 bg-slate-100 rounded-md flex items-center gap-1 font-medium">
-                <IconBed className="w-3.5 h-3.5 text-slate-400" />
-                <span>{property.bedroom} PN</span>
-              </span>
-            )}
-            {property.bathroom > 0 && (
-              <span className="px-2 py-1 bg-slate-100 rounded-md flex items-center gap-1 font-medium">
-                <IconBath className="w-3.5 h-3.5 text-slate-400" />
-                <span>{property.bathroom} WC</span>
-              </span>
-            )}
-            {property.direction && (
-              <span className="px-2 py-1 bg-slate-100 rounded-md flex items-center gap-1 font-medium">
-                <IconCompass className="w-3.5 h-3.5 text-slate-400" />
-                <span>{property.direction}</span>
-              </span>
-            )}
-          </div>
+          {/* Key Specs Pills (Bedrooms, Bathrooms, Direction, Legal) - Ẩn trên Trang Chủ theo yêu cầu */}
+          {!isHomePage && (
+            <div className="flex flex-wrap items-center gap-2 mb-3 text-xs text-slate-600">
+              {property.bedroom > 0 && (
+                <span className="px-2 py-1 bg-slate-100 rounded-md flex items-center gap-1 font-medium">
+                  <IconBed className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{property.bedroom} PN</span>
+                </span>
+              )}
+              {property.bathroom > 0 && (
+                <span className="px-2 py-1 bg-slate-100 rounded-md flex items-center gap-1 font-medium">
+                  <IconBath className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{property.bathroom} WC</span>
+                </span>
+              )}
+              {property.direction && (
+                <span className="px-2 py-1 bg-slate-100 rounded-md flex items-center gap-1 font-medium">
+                  <IconCompass className="w-3.5 h-3.5 text-slate-400" />
+                  <span>{property.direction}</span>
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Author / Broker Contact Box & Action Buttons */}
-        <div className="pt-2.5 border-t border-slate-100 flex flex-col gap-2">
+        {/* Author / Broker Contact Box & Action Buttons - Ẩn trên Trang Chủ theo yêu cầu */}
+        {!isHomePage && (
+          <div className="pt-2.5 border-t border-slate-100 flex flex-col gap-2">
           {/* Row 1: Thông tin Môi giới / Người đăng (Đầy đủ họ tên & chức danh, không bị cắt cụt) */}
           <Link
             href={brokerUrl}
@@ -369,6 +372,7 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
             </Link>
           </div>
         </div>
+        )}
       </div>
 
       {/* Modal Hồ Sơ Môi Giới Popup */}

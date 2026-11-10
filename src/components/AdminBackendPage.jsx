@@ -9930,7 +9930,7 @@ export default function AdminBackendPage() {
                   <label className="block text-slate-300 font-bold mb-1">Số dư Ví Chính (VND)</label>
                   <input
                     type="number"
-                    step="10000"
+                    step="any"
                     min="0"
                     value={editUserForm.walletBalance}
                     onChange={(e) => setEditUserForm({ ...editUserForm, walletBalance: Number(e.target.value) })}
@@ -9941,7 +9941,7 @@ export default function AdminBackendPage() {
                   <label className="block text-slate-300 font-bold mb-1">Số dư Ví Khuyến Mãi (VND)</label>
                   <input
                     type="number"
-                    step="10000"
+                    step="any"
                     min="0"
                     value={editUserForm.bonusWalletBalance}
                     onChange={(e) => setEditUserForm({ ...editUserForm, bonusWalletBalance: Number(e.target.value) })}

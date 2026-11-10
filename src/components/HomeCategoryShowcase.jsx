@@ -1,105 +1,120 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Link } from '../router/RouterContext';
 
-const SALE_CATEGORIES = [
-  { title: 'Căn hộ chung cư', path: '/ban-can-ho-chung-cu', icon: 'fa-regular fa-building', countLabel: 'Chung cư cao cấp, giá tốt' },
-  { title: 'Chung cư mini', path: '/ban-chung-cu-mini', icon: 'fa-solid fa-city', countLabel: 'Căn hộ dịch vụ, studio' },
-  { title: 'Nhà riêng, nhà phố', path: '/ban-nha-rieng', icon: 'fa-solid fa-house', countLabel: 'Sổ hồng riêng chính chủ' },
-  { title: 'Nhà biệt thự, liền kề', path: '/ban-nha-biet-thu-lien-ke', icon: 'fa-solid fa-landmark', countLabel: 'Khu đô thị, nghỉ dưỡng' },
-  { title: 'Nhà mặt phố', path: '/ban-nha-mat-pho', icon: 'fa-solid fa-shop', countLabel: 'Kinh doanh sầm uất' },
-  { title: 'Shophouse', path: '/ban-shophouse', icon: 'fa-solid fa-store', countLabel: 'Nhà phố thương mại' },
-  { title: 'Đất nền dự án', path: '/ban-dat-nen-du-an', icon: 'fa-solid fa-mountain-sun', countLabel: 'Quy hoạch 1/500 hoàn thiện' },
-  { title: 'Đất thổ cư', path: '/ban-dat', icon: 'fa-solid fa-map', countLabel: 'Đất ở xây dựng ngay' },
-  { title: 'Trang trại, nghỉ dưỡng', path: '/ban-trang-trai-khu-nghi-duong', icon: 'fa-solid fa-tree', countLabel: 'Nhà vườn, sinh thái' },
-  { title: 'Condotel', path: '/ban-condotel', icon: 'fa-solid fa-hotel', countLabel: 'Căn hộ khách sạn biển' },
-  { title: 'Kho, nhà xưởng', path: '/ban-kho-nha-xuong', icon: 'fa-solid fa-warehouse', countLabel: 'Mặt bằng sản xuất' },
-  { title: 'BĐS khác', path: '/ban-bat-dong-san-khac', icon: 'fa-solid fa-shapes', countLabel: 'Mặt bằng kinh doanh khác' }
+// 2 Mục Trọng Tâm Hàng Đầu (Trục chính thị trường)
+const PRIMARY_PILLARS = [
+  {
+    title: 'Nhà Đất Bán',
+    path: '/nha-dat-ban',
+    badge: 'Toàn Quốc',
+    icon: 'fa-solid fa-house-chimney',
+    desc: 'Mua bán nhà đất chính chủ, sổ hồng riêng, định giá minh bạch',
+    bgGradient: 'from-rose-500/10 via-red-500/5 to-transparent',
+    iconBg: 'bg-gradient-to-br from-red-500 to-rose-600 text-white shadow-md shadow-red-500/20',
+    borderColor: 'border-red-200/80 hover:border-red-400',
+    tagColor: 'bg-red-50 text-red-600 border border-red-200/60'
+  },
+  {
+    title: 'Nhà Đất Cho Thuê',
+    path: '/nha-dat-cho-thue',
+    badge: 'Giá Tốt',
+    icon: 'fa-solid fa-key',
+    desc: 'Căn hộ, nhà nguyên căn, phòng trọ & mặt bằng kinh doanh',
+    bgGradient: 'from-blue-500/10 via-sky-500/5 to-transparent',
+    iconBg: 'bg-gradient-to-br from-blue-600 to-sky-600 text-white shadow-md shadow-blue-500/20',
+    borderColor: 'border-blue-200/80 hover:border-blue-400',
+    tagColor: 'bg-blue-50 text-blue-600 border border-blue-200/60'
+  }
 ];
 
-const RENT_CATEGORIES = [
-  { title: 'Thuê căn hộ chung cư', path: '/cho-thue-can-ho-chung-cu', icon: 'fa-regular fa-building', countLabel: 'Full nội thất, ở ngay' },
-  { title: 'Thuê chung cư mini', path: '/cho-thue-chung-cu-mini', icon: 'fa-solid fa-city', countLabel: 'Giá rẻ, tiện nghi' },
-  { title: 'Thuê nhà riêng', path: '/cho-thue-nha-rieng', icon: 'fa-solid fa-house', countLabel: 'Nguyên căn cho gia đình' },
-  { title: 'Thuê biệt thự, liền kề', path: '/cho-thue-nha-biet-thu-lien-ke', icon: 'fa-solid fa-landmark', countLabel: 'Cao cấp, an ninh 24/7' },
-  { title: 'Thuê nhà mặt phố', path: '/cho-thue-nha-mat-pho', icon: 'fa-solid fa-shop', countLabel: 'Vị trí đắc địa kinh doanh' },
-  { title: 'Thuê shophouse', path: '/cho-thue-shophouse', icon: 'fa-solid fa-store', countLabel: 'Vừa ở vừa kinh doanh' },
-  { title: 'Thuê văn phòng', path: '/cho-thue-van-phong', icon: 'fa-solid fa-briefcase', countLabel: 'Tòa nhà văn phòng hiện đại' },
-  { title: 'Thuê mặt bằng bán lẻ', path: '/cho-thue-mat-bang-cua-hang', icon: 'fa-solid fa-store', countLabel: 'Cửa hàng, showroom' },
-  { title: 'Thuê phòng trọ, nhà trọ', path: '/cho-thue-nha-tro-phong-tro', icon: 'fa-solid fa-door-open', countLabel: 'Phòng trọ sinh viên, công nhân' },
-  { title: 'Thuê kho, nhà xưởng', path: '/cho-thue-kho-nha-xuong', icon: 'fa-solid fa-warehouse', countLabel: 'Xe công ra vào thuận tiện' }
+// 10 Phân Khúc Bất Động Sản Chi Tiết
+const SUB_CATEGORIES = [
+  { title: 'Căn hộ chung cư', path: '/ban-can-ho-chung-cu', icon: 'fa-regular fa-building', countLabel: 'Mua bán căn hộ, chung cư đa dạng diện tích' },
+  { title: 'Chung cư mini', path: '/ban-chung-cu-mini', icon: 'fa-solid fa-city', countLabel: 'Căn hộ mini, studio và căn hộ dịch vụ' },
+  { title: 'Nhà riêng, nhà phố', path: '/ban-nha-rieng', icon: 'fa-solid fa-house', countLabel: 'Nhà ở riêng lẻ, nhà phố tại nhiều khu vực' },
+  { title: 'Biệt thự, liền kề', path: '/ban-nha-biet-thu-lien-ke', icon: 'fa-solid fa-landmark', countLabel: 'Biệt thự và nhà liền kề trong khu đô thị' },
+  { title: 'Nhà mặt phố', path: '/ban-nha-mat-pho', icon: 'fa-solid fa-shop', countLabel: 'Nhà mặt tiền, nhà phố kinh doanh' },
+  { title: 'Shophouse', path: '/ban-shophouse', icon: 'fa-solid fa-store', countLabel: 'Nhà phố thương mại, mặt bằng đa công năng' },
+  { title: 'Đất nền dự án', path: '/ban-dat-nen-du-an', icon: 'fa-solid fa-mountain-sun', countLabel: 'Đất nền trong các khu đô thị, dự án' },
+  { title: 'Đất thổ cư', path: '/ban-dat', icon: 'fa-solid fa-map', countLabel: 'Đất ở, đất thổ cư tại các tỉnh thành' },
+  { title: 'Trang trại, nghỉ dưỡng', path: '/ban-trang-trai-khu-nghi-duong', icon: 'fa-solid fa-tree', countLabel: 'Nhà vườn, trang trại và đất nghỉ dưỡng' },
+  { title: 'Kho, nhà xưởng', path: '/ban-kho-nha-xuong', icon: 'fa-solid fa-warehouse', countLabel: 'Kho bãi, nhà xưởng và mặt bằng sản xuất' }
 ];
 
 export default function HomeCategoryShowcase() {
-  const [tab, setTab] = useState('sale');
-
-  const categories = tab === 'sale' ? SALE_CATEGORIES : RENT_CATEGORIES;
-
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-8 pt-2">
-      <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-6 shadow-xs">
-        {/* Header với Tabs Mua Bán / Cho Thuê */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 sm:gap-3 pb-3 sm:pb-4 border-b border-slate-100">
-          <div>
-            <h2 className="text-base sm:text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-red-600 inline-block"></span>
+      <div className="bg-white rounded-3xl border border-slate-200/90 p-4 sm:p-7 shadow-xs">
+        
+        {/* Header Section */}
+        <div className="text-center pb-4 border-b border-slate-100">
+          <div className="inline-flex items-center justify-center gap-2.5 mb-1.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight text-center">
               Khám Phá Danh Mục Bất Động Sản
             </h2>
-            <p className="text-[11px] sm:text-sm text-slate-500 mt-0.5">
-              Tra cứu nhanh theo loại hình mua bán và cho thuê trên toàn quốc
-            </p>
           </div>
-
-          {/* Switch tabs */}
-          <div className="inline-flex bg-slate-100 p-1 rounded-xl self-start sm:self-auto border border-slate-200/70">
-            <button
-              type="button"
-              onClick={() => setTab('sale')}
-              className={`px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                tab === 'sale'
-                  ? 'bg-white text-red-600 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <i className="fa-solid fa-house-chimney mr-1.5"></i>
-              Bất Động Sản Bán
-            </button>
-            <button
-              type="button"
-              onClick={() => setTab('rent')}
-              className={`px-3 sm:px-4 py-1 sm:py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
-                tab === 'rent'
-                  ? 'bg-white text-blue-600 shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <i className="fa-solid fa-key mr-1.5"></i>
-              Cho Thuê Nhà Đất
-            </button>
-          </div>
+          <p className="mt-1 text-xs sm:text-sm text-slate-600 leading-relaxed max-w-4xl mx-auto text-center font-normal">
+            Bạn đang tìm kiếm thông tin mua bán nhà đất hay cho thuê bất động sản? Kênh Nhà Đất 24H mang đến hệ thống danh mục phong phú và cập nhật liên tục trên toàn quốc. Các tin đăng được phân loại khoa học theo loại hình (căn hộ chung cư, nhà riêng, nhà phố, đất nền, biệt thự, văn phòng, mặt bằng kinh doanh) và mục đích giao dịch. Hãy lựa chọn ngay danh mục bên dưới để tìm được sản phẩm ưng ý với mức giá tốt nhất!
+          </p>
         </div>
 
-        {/* Categories Grid - Mobile: 3 cột hoặc cuộn ngang cực gọn; Desktop: 6 cột */}
-        <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2 sm:gap-3 mt-3 sm:mt-4">
-          {categories.map((item) => (
+        {/* 1. HAI DANH MỤC TRỌNG TÂM: Nhà Đất Bán & Nhà Đất Cho Thuê */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4 mt-4">
+          {PRIMARY_PILLARS.map((pillar) => (
+            <Link
+              key={pillar.path}
+              to={pillar.path}
+              className={`group relative rounded-2xl border ${pillar.borderColor} bg-gradient-to-r ${pillar.bgGradient} p-4 sm:p-5 flex items-center gap-4 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 overflow-hidden`}
+            >
+              <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl ${pillar.iconBg} flex items-center justify-center text-xl sm:text-2xl shrink-0 group-hover:scale-110 transition-transform duration-300`}>
+                <i className={pillar.icon}></i>
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="text-base sm:text-lg font-black text-slate-900 group-hover:text-red-600 transition-colors">
+                    {pillar.title}
+                  </h3>
+                  <span className={`text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md ${pillar.tagColor}`}>
+                    {pillar.badge}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600 line-clamp-1 leading-normal font-medium">
+                  {pillar.desc}
+                </p>
+              </div>
+
+              <div className="w-8 h-8 rounded-full bg-white/80 border border-slate-200/80 text-slate-400 flex items-center justify-center text-xs group-hover:bg-slate-900 group-hover:text-white group-hover:border-slate-900 group-hover:translate-x-1 transition-all shrink-0">
+                <i className="fa-solid fa-arrow-right"></i>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        {/* 2. LƯỚI PHÂN KHÚC BẤT ĐỘNG SẢN CHI TIẾT */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5 sm:gap-3 mt-4">
+          {SUB_CATEGORIES.map((item) => (
             <Link
               key={item.path}
               to={item.path}
-              className="p-2 sm:p-3 rounded-xl border border-slate-100 bg-slate-50/70 hover:bg-white hover:border-red-400 hover:shadow-sm transition-all duration-200 flex flex-col items-center text-center group"
+              className="p-3.5 sm:p-4 rounded-2xl border border-slate-200/70 bg-slate-50/60 hover:bg-white hover:border-slate-300 hover:shadow-sm transition-all duration-200 flex flex-col items-center text-center group min-h-[148px]"
             >
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white border border-slate-200 text-slate-700 flex items-center justify-center text-xs sm:text-base mb-1.5 sm:mb-2 group-hover:scale-110 group-hover:bg-red-50 group-hover:text-red-600 group-hover:border-red-200 transition-all shrink-0">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-white border border-slate-200/80 text-slate-700 flex items-center justify-center text-base sm:text-lg mb-2.5 group-hover:scale-110 group-hover:bg-red-50 group-hover:text-red-600 group-hover:border-red-200 transition-all shrink-0 shadow-xs">
                 <i className={item.icon}></i>
               </div>
-              <span className="font-bold text-[11px] sm:text-xs text-slate-800 group-hover:text-red-600 transition-colors line-clamp-1 leading-snug">
+              <span className="font-extrabold text-[13px] sm:text-sm text-slate-900 group-hover:text-red-600 transition-colors line-clamp-1 leading-snug">
                 {item.title}
               </span>
-              <span className="hidden sm:block text-[10px] text-slate-400 mt-0.5 line-clamp-1">
+              <span className="text-xs text-slate-600 mt-1.5 line-clamp-2 leading-relaxed font-normal">
                 {item.countLabel}
               </span>
             </Link>
           ))}
         </div>
+
       </div>
     </section>
   );

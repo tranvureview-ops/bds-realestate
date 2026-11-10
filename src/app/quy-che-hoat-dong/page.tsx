@@ -1,15 +1,16 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { SITE_URL } from '../../utils/permalink';
 
 // ============================================================================
 // HẰNG SỐ THÔNG TIN THƯƠNG HIỆU ĐỒNG BỘ CÀI ĐẶT WEBSITE
 // ============================================================================
 const BRAND_NAME = 'Kênh Nhà Đất 24H';
 const COMPANY_NAME = 'Sàn Giao Dịch Nhà Đất Kênh Nhà Đất 24H';
-const HOTLINE = '0904 084 888';
+const HOTLINE = '0905 467 138';
 const EMAIL = 'tranvanvu.dev@gmail.com';
 const ADDRESS = 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng';
-const DOMAIN = 'https://kenhnhadat24h.com.vn';
+const DOMAIN = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '');
 
 // ============================================================================
 // 1. METADATA API CHUẨN SEO GOOGLE (TITLE < 60 chars, DESC < 160 chars)

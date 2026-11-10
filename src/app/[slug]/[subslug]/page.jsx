@@ -61,13 +61,13 @@ export default async function Page({ params, searchParams }) {
       }
       const qs = queryParams.toString();
       if (p > 1 && String(p) === sp.page) {
-        permanentRedirect(qs ? `/${slug}/${subslug}/page/${p}/?${qs}` : `/${slug}/${subslug}/page/${p}/`);
+        permanentRedirect(qs ? `/${slug}/${subslug}/p${p}?${qs}` : `/${slug}/${subslug}/p${p}`);
       } else {
         permanentRedirect(qs ? `/${slug}/${subslug}/?${qs}` : `/${slug}/${subslug}/`);
       }
     }
 
-    return renderTaxonomyPage(taxonomyInfo, 1);
+    return renderTaxonomyPage(taxonomyInfo, taxonomyInfo.page || 1, sp);
   }
 
   notFound();

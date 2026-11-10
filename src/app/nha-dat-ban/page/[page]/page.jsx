@@ -29,26 +29,10 @@ export default async function PaginatedSalePage({ params }) {
   const { page } = (await params) || {};
   const pageNum = parseInt(page, 10);
 
-  // 1. Không cho phép /page/1 độc lập -> Chuyển hướng 301 về URL gốc
-  if (page === '1') {
+  if (isNaN(pageNum) || pageNum <= 1) {
     permanentRedirect('/nha-dat-ban/');
   }
 
-  // 2. Kiểm tra tính hợp lệ của số trang (không chấp nhận số âm, thập phân, chữ cái)
-  if (isNaN(pageNum) || pageNum < 1 || String(pageNum) !== page) {
-    notFound();
-  }
-
-  // 3. Tính toán tổng số trang và xử lý khi trang vượt giới hạn (404 chuẩn SEO)
-  const serverProps = await fetchServerProperties();
-  const allProps = (serverProps && serverProps.length > 0) ? serverProps : INITIAL_PROPERTIES;
-  const saleProps = allProps.filter(p => p.demand === 'sale');
-  const pageSize = DEFAULT_SYSTEM_CONFIG.categoryPageSize || 12;
-  const totalPages = Math.max(1, Math.ceil(saleProps.length / pageSize));
-
-  if (pageNum > totalPages) {
-    notFound();
-  }
-
-  return <SaleListingsPage initialPage={pageNum} />;
+  // 301 Chuyển hướng toàn bộ URL cũ /page/{number} sang định dạng mới /p{number}
+  permanentRedirect(`/nha-dat-ban/p${pageNum}`);
 }

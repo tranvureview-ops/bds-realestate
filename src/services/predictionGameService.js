@@ -27,40 +27,97 @@ function broadcastPredictionMessage(msg) {
 
 // Lấy danh sách sự kiện Ticker thời gian thực (Dùng cho Topbar và Trang Dự Đoán)
 export function getLivePredictionTickerEvents() {
+  const now = Date.now();
   const DEFAULT_ITEMS = [
-    { id: 'def-1', userName: '090***240', price: '5.65', totalPrize: '2.000.000 đ', timeText: 'Vừa xong' },
-    { id: 'def-2', userName: 'Dương K***', price: '5.36', totalPrize: '2.000.000 đ', timeText: '1 phút trước' },
-    { id: 'def-3', userName: 'Bùi Đức T***', price: '5.43', totalPrize: '2.000.000 đ', timeText: '2 phút trước' },
-    { id: 'def-4', userName: 'Nguyễn Văn T***', price: '15.6', totalPrize: '2.000.000 đ', timeText: '3 phút trước' },
-    { id: 'def-5', userName: '098***342', price: '15.7', totalPrize: '2.000.000 đ', timeText: '4 phút trước' },
-    { id: 'def-6', userName: 'Trần Thị M***', price: '15.5', totalPrize: '2.000.000 đ', timeText: '5 phút trước' },
-    { id: 'def-7', userName: '097***471', price: '6.01', totalPrize: '2.000.000 đ', timeText: '7 phút trước' }
+    { 
+      id: 'def-1', 
+      userName: '090***240', 
+      price: '15.65', 
+      totalPrize: '2.000.000 đ', 
+      timeText: 'Vừa xong',
+      createdAt: new Date(now - 25 * 1000).toISOString()
+    },
+    { 
+      id: 'def-2', 
+      userName: 'Dương K***', 
+      price: '15.48', 
+      totalPrize: '2.000.000 đ', 
+      timeText: '2 phút trước',
+      createdAt: new Date(now - 120 * 1000).toISOString()
+    },
+    { 
+      id: 'def-3', 
+      userName: 'Bùi Đức T***', 
+      price: '16.42', 
+      totalPrize: '3.000.000 đ', 
+      timeText: '5 phút trước',
+      createdAt: new Date(now - 300 * 1000).toISOString()
+    }
   ];
 
   try {
     const programs = getStoredPredictionPrograms();
+    const activePrograms = (programs || []).filter(p => p.status === 'active');
+    const targetProgs = activePrograms.length > 0 ? activePrograms : (programs || []);
     const events = [];
-    programs.forEach(prog => {
-      const records = getStoredPredictions(prog.id);
-      records.slice(0, 8).forEach((r, idx) => {
-        events.push({
-          id: `${prog.id}-${r.userId || r.userName || idx}`,
-          userName: r.userName || 'Thành viên ẩn danh',
-          price: r.predictedPrice,
-          isBot: Boolean(r.is_bot),
-          programTitle: prog.projectName || prog.title,
-          totalPrize: (Number(prog.totalPrize) || 2000000).toLocaleString('vi-VN') + ' đ',
-          timeText: formatRelativeTime(r.createdAt) || 'Vừa xong',
-          createdAt: r.createdAt || new Date().toISOString()
+
+    targetProgs.forEach(prog => {
+      let records = getStoredPredictions(prog.id);
+      // Nếu chưa có lượt dự đoán nào trong storage nhưng bot đang bật, tự động khởi tạo bot đồng bộ
+      if ((!records || records.length === 0) && prog.botConfig?.isEnabled && Number(prog.botConfig?.botCount || 0) > 0) {
+        records = syncBotsForGame(prog.id, prog.botConfig, prog.startDate, prog.endDate);
+      }
+
+      // Đảm bảo lượt mới nhất luôn tươi mới: nếu đã quá 5 phút chưa có lượt mới thì bổ sung 1 bot live
+      if (prog.botConfig?.isEnabled && Number(prog.botConfig?.botCount || 0) > 0) {
+        const newestTime = records && records.length > 0 ? new Date(records[0].createdAt).getTime() : 0;
+        if (!newestTime || (now - newestTime > 5 * 60 * 1000)) {
+          const freshBot = appendLiveBotPrediction(prog.id, prog.botConfig);
+          if (freshBot) {
+            records = getStoredPredictions(prog.id);
+          }
+        }
+      }
+
+      if (Array.isArray(records)) {
+        // Lấy các lượt mới nhất của kỳ này
+        records.slice(0, 15).forEach((r, idx) => {
+          events.push({
+            id: `${prog.id}-${r.userId || r.userName || idx}`,
+            userName: r.userName || 'Thành viên ẩn danh',
+            price: r.predictedPrice,
+            isBot: Boolean(r.is_bot),
+            programTitle: prog.projectName || prog.title,
+            totalPrize: (Number(prog.totalPrize) || 2000000).toLocaleString('vi-VN') + ' đ',
+            timeText: formatRelativeTime(r.createdAt) || 'Vừa xong',
+            createdAt: r.createdAt || new Date().toISOString()
+          });
         });
-      });
+      }
     });
 
     if (events.length === 0) return DEFAULT_ITEMS;
 
-    return events
-      .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
-      .slice(0, 15);
+    const sortedEvents = events.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+    // Đảm bảo 3 mục hiển thị mới nhất luôn có mốc thời gian sống động
+    return sortedEvents.slice(0, 3).map((item, index) => {
+      let itemTime = new Date(item.createdAt).getTime();
+      // Nếu dữ liệu cũ hơn 10 phút, điều chỉnh mốc thời gian hiển thị tươi mới theo nhịp sống động
+      if (now - itemTime > 10 * 60 * 1000) {
+        const simulatedOffsets = [25 * 1000, 120 * 1000, 300 * 1000];
+        const freshIso = new Date(now - (simulatedOffsets[index] || (index + 1) * 180 * 1000)).toISOString();
+        return {
+          ...item,
+          createdAt: freshIso,
+          timeText: formatRelativeTime(freshIso) || 'Vừa xong'
+        };
+      }
+      return {
+        ...item,
+        timeText: formatRelativeTime(item.createdAt) || 'Vừa xong'
+      };
+    });
   } catch (e) {
     return DEFAULT_ITEMS;
   }

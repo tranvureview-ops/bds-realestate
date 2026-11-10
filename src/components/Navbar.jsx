@@ -436,7 +436,14 @@ export default function Navbar() {
                       to={item.path}
                       target={item.target || '_self'}
                       rel={isBlank ? 'noopener noreferrer' : undefined}
-                      onClick={() => setActiveDropdown(null)}
+                      onClick={() => {
+                        setActiveDropdown(null);
+                        if (item.path === '/nha-dat-ban' || item.path === '/nha-dat-cho-thue') {
+                          if (typeof window !== 'undefined') {
+                            window.dispatchEvent(new CustomEvent('bds:reset-category-filters', { detail: { path: item.path } }));
+                          }
+                        }
+                      }}
                       className={`px-2 xl:px-3 py-1.5 xl:py-2 rounded-xl transition flex items-center gap-1 xl:gap-1.5 whitespace-nowrap ${
                         isActive 
                           ? 'bg-emerald-50 text-emerald-700 font-bold' 
@@ -466,7 +473,14 @@ export default function Navbar() {
                               <Link
                                 key={sub.id}
                                 to={sub.path}
-                                onClick={() => setActiveDropdown(null)}
+                                onClick={() => {
+                        setActiveDropdown(null);
+                        if (item.path === '/nha-dat-ban' || item.path === '/nha-dat-cho-thue') {
+                          if (typeof window !== 'undefined') {
+                            window.dispatchEvent(new CustomEvent('bds:reset-category-filters', { detail: { path: item.path } }));
+                          }
+                        }
+                      }}
                                 className={`px-2.5 py-2 rounded-xl flex items-center gap-2 transition font-medium ${
                                   currentRoute === sub.path 
                                     ? 'bg-emerald-50 text-emerald-700 font-bold' 

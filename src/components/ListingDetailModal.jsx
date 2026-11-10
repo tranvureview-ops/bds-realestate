@@ -435,13 +435,16 @@ export default function ListingDetailModal({ property, onClose }) {
 
                   {/* Fast Loan Calculator trigger */}
                   <div className="ml-auto">
-                    <button
-                      onClick={handleCalculateLoan}
+                    <Link
+                      href={`/tinh-lai-vay?price=${property.price}&propertyTitle=${encodeURIComponent(property.title)}`}
+                      target="_blank"
                       className="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-xl text-xs font-bold transition flex items-center gap-1.5"
+                      title="Mở công cụ tính lãi suất vay mua nhà"
                     >
                       <i className="fa-solid fa-calculator text-blue-600"></i>
                       <span>Ước tính trả góp hàng tháng</span>
-                    </button>
+                      <i className="fa-solid fa-arrow-up-right-from-square text-[10px] text-blue-500"></i>
+                    </Link>
                   </div>
                 </div>
               </div>

@@ -9,8 +9,8 @@ export default function MaintenanceScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const brandName = systemConfig?.brandShortName || 'SÀN NHÀ ĐẤT';
-  const hotline = systemConfig?.hotline || '0904 084 888';
-  const zalo = systemConfig?.zalo || '0904 084 888';
+  const hotline = systemConfig?.hotline || '0905 467 138';
+  const zalo = systemConfig?.zalo || '0905 467 138';
   const email = systemConfig?.email || 'tranvanvu.dev@gmail.com';
   const address = systemConfig?.address || 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng';
 

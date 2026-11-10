@@ -26,7 +26,7 @@ export function normalizePhone(rawPhone) {
  * Định dạng số điện thoại hiển thị chuẩn phong cách Việt Nam
  * Tự động phân tách nhóm số thẩm mỹ, rõ ràng (4 - 3 - 3):
  * Ví dụ: "0898256607" -> "0898 256 607"
- * Ví dụ: "0904084888" -> "0904 084 888"
+ * Ví dụ: "0905467138" -> "0905 467 138"
  * Ví dụ: "0912888999" -> "0912 888 999"
  * Hỗ trợ cả 10 số (0xxx xxx xxx) và 11 số (0xxx xxx xxxx)
  * @param {string|number} rawPhone Số điện thoại thô

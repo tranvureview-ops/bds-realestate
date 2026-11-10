@@ -61,13 +61,13 @@ export default async function Page({ params, searchParams }) {
       }
       const qs = queryParams.toString();
       if (p > 1 && String(p) === sp.page) {
-        permanentRedirect(qs ? `/nha-dat-ban/${subslug}/page/${p}/?${qs}` : `/nha-dat-ban/${subslug}/page/${p}/`);
+        permanentRedirect(qs ? `/nha-dat-ban/${subslug}/p${p}?${qs}` : `/nha-dat-ban/${subslug}/p${p}`);
       } else {
         permanentRedirect(qs ? `/nha-dat-ban/${subslug}/?${qs}` : `/nha-dat-ban/${subslug}/`);
       }
     }
 
-    return renderTaxonomyPage(taxonomyInfo, 1);
+    return renderTaxonomyPage(taxonomyInfo, taxonomyInfo.page || 1, sp);
   }
 
   notFound();

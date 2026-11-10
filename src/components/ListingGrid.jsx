@@ -7,7 +7,7 @@ import CustomSelect from './CustomSelect';
 import { filterProperties } from '../utils/propertyFilter';
 import { useRealEstate } from '../context/RealEstateContext';
 import { Link } from '../router/RouterContext';
-import { buildPaginationUrl } from '../utils/permalink';
+import { buildPaginationUrl, buildSeoUrl } from '../utils/permalink';
 import ListingSidebar from './ListingSidebar';
 
 const InteractiveMap = dynamic(() => import('./InteractiveMap'), {
@@ -43,10 +43,18 @@ export default function ListingGrid({
   pageSize,
   limit,
   isHomePage = false,
+  showDualViewAllLinks = false,
   hasSidebar,
   title,
   subtitle,
   initialPage = 1,
+  currentPage: externalPage,
+  onPageChange,
+  initialSort = 'vip',
+  hideViewControls = false,
+  centerHeader = false,
+  viewAllLink = '',
+  viewAllText = '',
   basePath = '',
   className = ''
 }) {
@@ -56,13 +64,30 @@ export default function ListingGrid({
   const showSidebar = hasSidebar !== undefined ? hasSidebar : !isHomePage;
 
   const [viewMode, setViewMode] = useState('grid'); // 'grid', 'list', 'split'
-  const [sortBy, setSortBy] = useState('vip'); // 'vip', 'price-asc', 'price-desc', 'area-desc', 'newest'
+  const [sortBy, setSortBy] = useState(initialSort || 'vip'); // 'vip', 'price-asc', 'price-desc', 'area-desc', 'newest'
 
-  // Phân trang: Đọc trang hiện tại từ initialPage hoặc URL pathname /page/:page
-  const [currentPage, setCurrentPage] = useState(() => {
+  useEffect(() => {
+    if (initialSort) {
+      setSortBy(initialSort);
+    }
+  }, [initialSort]);
+
+  // Lắng nghe sự kiện bật/tắt bản đồ từ thanh tìm kiếm kiểu Batdongsan
+  useEffect(() => {
+    const handleToggleMap = () => {
+      setViewMode(prev => prev === 'split' ? 'grid' : 'split');
+      gridContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    };
+    window.addEventListener('bds:toggle-map-view', handleToggleMap);
+    return () => window.removeEventListener('bds:toggle-map-view', handleToggleMap);
+  }, []);
+
+  // Phân trang: Đọc trang hiện tại từ externalPage / initialPage hoặc URL pathname /page/:page
+  const [internalPage, setInternalPage] = useState(() => {
+    if (externalPage && Number(externalPage) > 0) return Number(externalPage);
     if (initialPage && Number(initialPage) > 0) return Number(initialPage);
     if (typeof window !== 'undefined') {
-      const pageMatch = window.location.pathname.match(/\/page\/(\d+)/i);
+      const pageMatch = window.location.pathname.match(/\/(?:page\/|p)(\d+)/i);
       if (pageMatch) {
         const num = parseInt(pageMatch[1], 10);
         if (!isNaN(num) && num > 0) return num;
@@ -74,17 +99,29 @@ export default function ListingGrid({
     return 1;
   });
 
-  // Đồng bộ trang khi initialPage thay đổi
-  useEffect(() => {
-    if (initialPage && Number(initialPage) > 0) {
-      setCurrentPage(Number(initialPage));
+  const currentPage = (externalPage !== undefined && Number(externalPage) > 0) ? Number(externalPage) : internalPage;
+
+  const setCurrentPage = (val) => {
+    const nextVal = typeof val === 'function' ? val(currentPage) : val;
+    setInternalPage(nextVal);
+    if (onPageChange) {
+      onPageChange(nextVal);
     }
-  }, [initialPage]);
+  };
+
+  // Đồng bộ trang khi externalPage hoặc initialPage thay đổi
+  useEffect(() => {
+    if (externalPage && Number(externalPage) > 0) {
+      setInternalPage(Number(externalPage));
+    } else if (initialPage && Number(initialPage) > 0) {
+      setInternalPage(Number(initialPage));
+    }
+  }, [externalPage, initialPage]);
 
   // Đồng bộ trạng thái khi người dùng nhấn nút Back/Forward trên trình duyệt
   useEffect(() => {
     const handlePopState = () => {
-      const pageMatch = window.location.pathname.match(/\/page\/(\d+)/i);
+      const pageMatch = window.location.pathname.match(/\/(?:page\/|p)(\d+)/i);
       if (pageMatch) {
         const num = parseInt(pageMatch[1], 10);
         if (!isNaN(num) && num > 0) {
@@ -100,9 +137,47 @@ export default function ListingGrid({
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Reset trang về 1 khi người dùng thay đổi bộ lọc
+  // Reset trang về 1 khi người dùng thực sự thay đổi giá trị trong bộ lọc
+  const prevFiltersRef = useRef(filters);
+  const isFirstMountRef = useRef(true);
+
   useEffect(() => {
-    setCurrentPage(1);
+    if (isFirstMountRef.current) {
+      isFirstMountRef.current = false;
+      prevFiltersRef.current = filters;
+      return;
+    }
+
+    const prev = prevFiltersRef.current;
+    prevFiltersRef.current = filters;
+
+    if (!prev || !filters) return;
+
+    const hasChanged = 
+      prev.keyword !== filters.keyword ||
+      prev.demand !== filters.demand ||
+      prev.city !== filters.city ||
+      prev.district !== filters.district ||
+      prev.ward !== filters.ward ||
+      prev.street !== filters.street ||
+      prev.project !== filters.project ||
+      prev.propertyType !== filters.propertyType ||
+      prev.priceRange !== filters.priceRange ||
+      prev.minPrice !== filters.minPrice ||
+      prev.maxPrice !== filters.maxPrice ||
+      prev.areaRange !== filters.areaRange ||
+      prev.minArea !== filters.minArea ||
+      prev.maxArea !== filters.maxArea ||
+      prev.bedroom !== filters.bedroom ||
+      prev.direction !== filters.direction ||
+      prev.hasVR360 !== filters.hasVR360 ||
+      prev.onlyVerified !== filters.onlyVerified ||
+      JSON.stringify(prev.propertyTypes || []) !== JSON.stringify(filters.propertyTypes || []) ||
+      JSON.stringify(prev.directions || []) !== JSON.stringify(filters.directions || []);
+
+    if (hasChanged) {
+      setCurrentPage(1);
+    }
   }, [filters]);
 
   // Filter Properties
@@ -125,21 +200,25 @@ export default function ListingGrid({
     };
 
     return list.sort((a, b) => {
+      const getFreshnessTimestamp = (p) => {
+        return new Date(p.bumpedAt || p.publishedAt || p.createdAt || 0).getTime();
+      };
+
       if (sortBy === 'vip') {
         const rankDiff = getVipRank(a.vipPackageId) - getVipRank(b.vipPackageId);
         if (rankDiff !== 0) return rankDiff;
-        return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+        return getFreshnessTimestamp(b) - getFreshnessTimestamp(a);
       }
       if (sortBy === 'price-asc') return a.price - b.price;
       if (sortBy === 'price-desc') return b.price - a.price;
       if (sortBy === 'area-desc') return b.area - a.area;
-      if (sortBy === 'newest') return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+      if (sortBy === 'newest') return getFreshnessTimestamp(b) - getFreshnessTimestamp(a);
       return 0;
     });
   }, [filteredProperties, sortBy]);
 
-  // Xác định số lượng hiển thị (Lấy từ cấu hình trang quản trị hoặc props)
-  const homeLimit = limit || systemConfig?.homePageSize || 18;
+  // Xác định số lượng hiển thị (Trang chủ cố định 8 tin theo cấp độ VIP mới nhất | Danh mục phân trang)
+  const homeLimit = 8;
   const categoryLimit = pageSize || systemConfig?.categoryPageSize || 12;
 
   // Tính toán phân trang
@@ -150,26 +229,58 @@ export default function ListingGrid({
   const startIndex = (safePage - 1) * categoryLimit;
   const endIndex = Math.min(startIndex + categoryLimit, totalItems);
 
-  // Danh sách hiển thị theo chế độ (Trang chủ cắt 18 tin | Danh mục phân trang)
+  // Danh sách hiển thị theo chế độ (Trang chủ hoặc limit cố định | Danh mục phân trang)
   const displayedProperties = useMemo(() => {
     if (isHomePage) {
-      return sortedProperties.slice(0, homeLimit);
+      return sortedProperties.slice(0, 8);
+    }
+    if (limit && Number(limit) > 0) {
+      return sortedProperties.slice(0, Number(limit));
     }
     if (enablePagination) {
       return sortedProperties.slice(startIndex, endIndex);
     }
     return sortedProperties;
-  }, [sortedProperties, isHomePage, homeLimit, enablePagination, startIndex, endIndex]);
+  }, [sortedProperties, isHomePage, limit, enablePagination, startIndex, endIndex]);
 
-  // Xác định basePath của trang hiện tại (ưu tiên prop basePath, fallback URL pathname loại bỏ /page/...)
+  // Xác định basePath của trang hiện tại (ưu tiên prop basePath, fallback clean SEO path từ filters, hoặc URL pathname loại bỏ /page/... hoặc /p...)
   const activeBasePath = useMemo(() => {
-    if (basePath) return basePath.replace(/\/+$/, '').replace(/\/page\/\d+$/i, '');
+    // 1. Ưu tiên prop basePath đã truyền vào
+    if (basePath) return basePath.replace(/\/+$/, '').replace(/\/(?:page\/\d+|p\d+)$/i, '');
+
+    // 2. Nếu có filters động đang chọn (khác mặc định), sinh clean SEO base URL tương ứng
+    if (filters && (filters.propertyType !== 'all' || filters.city || filters.district || filters.priceRange !== 'all' || filters.areaRange !== 'all')) {
+      try {
+        const seoUrl = buildSeoUrl({
+          demand: filters.demand || 'sale',
+          propertyType: filters.propertyType !== 'all' ? filters.propertyType : null,
+          propertyTypes: filters.propertyTypes && !filters.propertyTypes.includes('all') ? filters.propertyTypes : null,
+          city: filters.city || null,
+          district: filters.district || null,
+          ward: filters.ward || null,
+          project: filters.project || null,
+          priceRange: filters.priceRange !== 'all' ? filters.priceRange : null,
+          minPrice: filters.minPrice,
+          maxPrice: filters.maxPrice,
+          areaRange: filters.areaRange !== 'all' ? filters.areaRange : null,
+          minArea: filters.minArea,
+          maxArea: filters.maxArea,
+          bedroom: filters.bedroom !== 'all' ? filters.bedroom : null
+        });
+        if (seoUrl) {
+          const [cleanPath] = seoUrl.split('?');
+          if (cleanPath && cleanPath !== '/') return cleanPath;
+        }
+      } catch {}
+    }
+
+    // 3. Fallback pathname trình duyệt
     if (typeof window !== 'undefined') {
-      const p = window.location.pathname.replace(/\/+$/, '').replace(/\/page\/\d+$/i, '');
+      const p = window.location.pathname.replace(/\/+$/, '').replace(/\/(?:page\/\d+|p\d+)$/i, '');
       return p || (filters?.demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban');
     }
     return filters?.demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban';
-  }, [basePath, filters?.demand]);
+  }, [basePath, filters]);
 
   // Query string hiện tại (loại bỏ param `page` vì đã nằm trong path)
   const currentQueryString = useMemo(() => {
@@ -179,7 +290,7 @@ export default function ListingGrid({
       return sp.toString();
     }
     return '';
-  }, [filters]);
+  }, []);
 
   // Tạo URL phân trang chuẩn SEO
   const getPageUrl = (targetPage) => {
@@ -192,6 +303,29 @@ export default function ListingGrid({
       const top = gridContainerRef.current.getBoundingClientRect().top + window.pageYOffset - 80;
       window.scrollTo({ top, behavior: 'smooth' });
     }
+  };
+
+  // Chuyển trang mượt mà (Tối ưu SPA + SEO Link)
+  const handlePageClick = (targetPage, e) => {
+    if (e) {
+      if (e.ctrlKey || e.metaKey || e.shiftKey || e.button === 1) {
+        return; // Giữ nguyên hành vi mở tab mới nếu người dùng bấm chuột giữa hoặc giữ phím Ctrl
+      }
+      e.preventDefault();
+    }
+    const pageNum = Number(targetPage);
+    if (isNaN(pageNum) || pageNum === safePage || pageNum < 1 || pageNum > totalPages) return;
+
+    setCurrentPage(pageNum);
+    const targetUrl = getPageUrl(pageNum);
+    if (typeof window !== 'undefined') {
+      try {
+        window.history.pushState({ page: pageNum }, '', targetUrl);
+      } catch (err) {
+        // Fallback an toàn
+      }
+    }
+    scrollToGridTop();
   };
 
   // Nhãn phân loại nhu cầu hiển thị trên thanh công cụ
@@ -239,7 +373,7 @@ export default function ListingGrid({
   const renderPagination = () => {
     if (!enablePagination || totalPages <= 1) return null;
     return (
-      <div className="mt-8 pt-6 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="mt-6 pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
         {/* Thông tin số lượng tin đang hiển thị */}
         <div className="text-xs sm:text-sm text-slate-700 font-medium text-center sm:text-left">
           Đang hiển thị <span className="font-bold text-slate-900">{startIndex + 1}</span> - <span className="font-bold text-slate-900">{endIndex}</span> trong tổng số <span className="font-bold text-red-600">{totalItems}</span> nhà đất
@@ -259,7 +393,7 @@ export default function ListingGrid({
           ) : (
             <Link
               href={getPageUrl(1)}
-              onClick={scrollToGridTop}
+              onClick={(e) => handlePageClick(1, e)}
               className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-bold transition border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer shadow-2xs"
               title="Về trang đầu tiên"
             >
@@ -280,7 +414,7 @@ export default function ListingGrid({
           ) : (
             <Link
               href={getPageUrl(safePage - 1)}
-              onClick={scrollToGridTop}
+              onClick={(e) => handlePageClick(safePage - 1, e)}
               className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 cursor-pointer shadow-2xs"
               title="Trang trước"
             >
@@ -317,7 +451,7 @@ export default function ListingGrid({
               <Link
                 key={`page-${p}`}
                 href={getPageUrl(p)}
-                onClick={scrollToGridTop}
+                onClick={(e) => handlePageClick(p, e)}
                 className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black transition cursor-pointer border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 hover:text-slate-900"
               >
                 {p}
@@ -338,7 +472,7 @@ export default function ListingGrid({
           ) : (
             <Link
               href={getPageUrl(safePage + 1)}
-              onClick={scrollToGridTop}
+              onClick={(e) => handlePageClick(safePage + 1, e)}
               className="px-3 h-9 rounded-xl flex items-center justify-center gap-1 text-xs font-bold transition border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 cursor-pointer shadow-2xs"
               title="Trang kế tiếp"
             >
@@ -359,7 +493,7 @@ export default function ListingGrid({
           ) : (
             <Link
               href={getPageUrl(totalPages)}
-              onClick={scrollToGridTop}
+              onClick={(e) => handlePageClick(totalPages, e)}
               className="w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black transition border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:text-slate-900 cursor-pointer shadow-2xs"
               title="Đến trang cuối cùng"
             >
@@ -372,27 +506,27 @@ export default function ListingGrid({
   };
 
   return (
-    <div ref={gridContainerRef} className={`max-w-7xl mx-auto px-4 sm:px-8 ${className ? className : (isHomePage ? 'pt-2 pb-3' : 'pt-4 sm:pt-6 pb-8')}`}>
+    <div ref={gridContainerRef} className={`max-w-7xl mx-auto px-4 sm:px-8 ${className ? className : (isHomePage ? 'pt-2 pb-3' : 'pt-4 sm:pt-6 pb-3 sm:pb-4')}`}>
       {/* View Controls & Sorting Bar */}
-      <div className={`flex ${title || isHomePage ? 'flex-col sm:flex-row items-start sm:items-center' : 'flex-row items-center'} justify-between gap-2.5 sm:gap-4 pb-3 sm:pb-5 border-b border-slate-200`}>
+      <div className={`flex ${(isHomePage || centerHeader) ? 'justify-center text-center' : (title ? 'flex-col sm:flex-row items-start sm:items-center justify-between' : 'flex-row items-center justify-between')} gap-2.5 sm:gap-4 pb-3 sm:pb-5 border-b border-slate-200`}>
         {title ? (
-          <div>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+          <div className={centerHeader ? "w-full text-center max-w-4xl mx-auto" : ""}>
+            <h2 className={`text-xl sm:text-2xl font-black text-slate-900 tracking-tight ${centerHeader ? "text-center" : ""}`}>
               {title}
             </h2>
             {subtitle && (
-              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+              <p className={`text-xs sm:text-sm text-slate-600 mt-1.5 leading-relaxed ${centerHeader ? "mx-auto text-center" : ""}`}>
                 {subtitle}
               </p>
             )}
           </div>
         ) : isHomePage ? (
-          <div>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-              Nhà Đất Bán Mới Nhất Trên Toàn Quốc
+          <div className="w-full text-center max-w-4xl mx-auto">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight text-center">
+              Tin Đăng Bất Động Sản Nổi Bật
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-              {subtitle || 'Khám phá các tin đăng mua bán và cho thuê bất động sản.'}
+            <p className="text-xs sm:text-sm text-slate-600 mt-1.5 leading-relaxed mx-auto text-center">
+              {subtitle || 'Tổng hợp danh mục bất động sản tiêu biểu được ưu tiên hiển thị trên hệ thống Kênh Nhà Đất 24H. Đây là những tin đăng chọn lọc, mang đến cho quý khách hàng các phương án mua bán và cho thuê tối ưu, đáng chú ý nhất trên thị trường hiện nay.'}
             </p>
           </div>
         ) : (
@@ -408,62 +542,64 @@ export default function ListingGrid({
           </div>
         )}
 
-        {/* Sorting & View Mode Switches */}
-        <div className={`flex items-center gap-2 sm:gap-3 ${title || isHomePage ? 'w-full sm:w-auto justify-end' : 'shrink-0'}`}>
-          {/* Sort Selection */}
-          <div className="flex items-center gap-1.5 sm:gap-2 text-xs">
-            <span className="text-slate-500 font-semibold hidden md:inline shrink-0">Sắp xếp:</span>
-            <div className="w-[140px] sm:w-[190px]">
-              <CustomSelect
-                value={sortBy}
-                onChange={(val) => setSortBy(val)}
-                dropdownClassName="right-0 left-auto min-w-[180px]"
-                options={[
-                  { value: 'vip', label: 'Mặc định' },
-                  { value: 'newest', label: '🕒 Tin mới đăng nhất' },
-                  { value: 'price-asc', label: '💵 Giá: Thấp đến Cao' },
-                  { value: 'price-desc', label: '💎 Giá: Cao đến Thấp' },
-                  { value: 'area-desc', label: '📐 Diện tích: Lớn đến Nhỏ' }
-                ]}
-              />
+        {/* Sorting & View Mode Switches (Ẩn trên Trang Chủ hoặc khi hideViewControls = true) */}
+        {!isHomePage && !hideViewControls && (
+          <div className={`flex items-center gap-2 sm:gap-3 ${title ? 'w-full sm:w-auto justify-end' : 'shrink-0'}`}>
+            {/* Sort Selection */}
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs">
+              <span className="text-slate-500 font-semibold hidden md:inline shrink-0">Sắp xếp:</span>
+              <div className="w-[140px] sm:w-[190px]">
+                <CustomSelect
+                  value={sortBy}
+                  onChange={(val) => setSortBy(val)}
+                  dropdownClassName="right-0 left-auto min-w-[180px]"
+                  options={[
+                    { value: 'vip', label: 'Mặc định' },
+                    { value: 'newest', label: 'Tin mới đăng nhất' },
+                    { value: 'price-asc', label: 'Giá: Thấp đến Cao' },
+                    { value: 'price-desc', label: 'Giá: Cao đến Thấp' },
+                    { value: 'area-desc', label: 'Diện tích: Lớn đến Nhỏ' }
+                  ]}
+                />
+              </div>
+            </div>
+
+            {/* View Mode Toggle Buttons (Ẩn trên mobile vì không tối ưu màn hình hẹp) */}
+            <div className="hidden sm:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0">
+              <button
+                onClick={() => setViewMode('grid')}
+                className={`p-1.5 px-2.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${viewMode === 'grid' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-700 hover:text-slate-900'}`}
+                title="Dạng lưới"
+              >
+                <i className="fa-solid fa-grip"></i>
+                <span className="hidden sm:inline">Lưới</span>
+              </button>
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-1.5 px-2.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${viewMode === 'list' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-700 hover:text-slate-900'}`}
+                title="Dạng danh sách"
+              >
+                <i className="fa-solid fa-list"></i>
+                <span className="hidden sm:inline">Danh sách</span>
+              </button>
+              <button
+                onClick={() => setViewMode('split')}
+                className={`p-1.5 px-2.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${viewMode === 'split' ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-700 hover:text-slate-900'}`}
+                title="Bản đồ song song"
+              >
+                <i className="fa-solid fa-map-location-dot"></i>
+                <span className="hidden sm:inline">Bản đồ</span>
+              </button>
             </div>
           </div>
-
-          {/* View Mode Toggle Buttons (Ẩn trên mobile vì không tối ưu màn hình hẹp) */}
-          <div className="hidden sm:flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 shrink-0">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={`p-1.5 px-2.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${viewMode === 'grid' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-700 hover:text-slate-900'}`}
-              title="Dạng lưới"
-            >
-              <i className="fa-solid fa-grip"></i>
-              <span className="hidden sm:inline">Lưới</span>
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={`p-1.5 px-2.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${viewMode === 'list' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-700 hover:text-slate-900'}`}
-              title="Dạng danh sách"
-            >
-              <i className="fa-solid fa-list"></i>
-              <span className="hidden sm:inline">Danh sách</span>
-            </button>
-            <button
-              onClick={() => setViewMode('split')}
-              className={`p-1.5 px-2.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${viewMode === 'split' ? 'bg-emerald-700 text-white shadow-sm' : 'text-slate-700 hover:text-slate-900'}`}
-              title="Bản đồ song song"
-            >
-              <i className="fa-solid fa-map-location-dot"></i>
-              <span className="hidden sm:inline">Bản đồ</span>
-            </button>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* ========================================================
           MAIN CONTENT AREA (HỖ TRỢ 2 CỘT CÓ SIDEBAR BÊN PHẢI CHUẨN BATDONGSAN)
          ======================================================== */}
       {showSidebar ? (
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start my-5 sm:my-6">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start mt-4 sm:mt-5 mb-2 sm:mb-3">
           {/* CỘT TRÁI: DANH SÁCH NHÀ ĐẤT CHÍNH (~70% Chiều ngang desktop) */}
           <div className="w-full lg:flex-1 min-w-0 min-h-[550px] transition-opacity duration-200">
             {sortedProperties.length === 0 ? (
@@ -476,7 +612,7 @@ export default function ListingGrid({
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {displayedProperties.map((property, idx) => (
-                    <ListingCard key={property.id} property={property} viewMode="grid" priority={idx === 0} />
+                    <ListingCard key={property.id} property={property} viewMode="grid" priority={idx === 0} isHomePage={isHomePage} />
                   ))}
                 </div>
               </div>
@@ -484,14 +620,14 @@ export default function ListingGrid({
               /* List View: Hiển thị thẻ dạng danh sách ngang rộng rãi */
               <div className="space-y-4">
                 {displayedProperties.map((property, idx) => (
-                  <ListingCard key={property.id} property={property} viewMode="list" priority={idx === 0} />
+                  <ListingCard key={property.id} property={property} viewMode="list" priority={idx === 0} isHomePage={isHomePage} />
                 ))}
               </div>
             ) : (
               /* Grid View: 2 cột chuẩn khi có sidebar bên phải */
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
                 {displayedProperties.map((property, idx) => (
-                  <ListingCard key={property.id} property={property} viewMode="grid" priority={idx === 0} />
+                  <ListingCard key={property.id} property={property} viewMode="grid" priority={idx === 0} isHomePage={isHomePage} />
                 ))}
               </div>
             )}
@@ -520,7 +656,7 @@ export default function ListingGrid({
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 my-6 items-start">
               <div className="lg:col-span-6 space-y-4 max-h-[800px] overflow-y-auto pr-2">
                 {displayedProperties.map((property, idx) => (
-                  <ListingCard key={property.id} property={property} viewMode="grid" priority={idx === 0} />
+                  <ListingCard key={property.id} property={property} viewMode="grid" priority={idx === 0} isHomePage={isHomePage} />
                 ))}
               </div>
               <div className="lg:col-span-6 sticky top-6">
@@ -530,27 +666,46 @@ export default function ListingGrid({
           ) : viewMode === 'list' ? (
             <div className="space-y-4 my-6">
               {displayedProperties.map((property, idx) => (
-                <ListingCard key={property.id} property={property} viewMode="list" priority={idx === 0} />
+                <ListingCard key={property.id} property={property} viewMode="list" priority={idx === 0} isHomePage={isHomePage} />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 my-5 sm:my-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 mt-4 sm:mt-5 mb-0">
               {displayedProperties.map((property, idx) => (
-                <ListingCard key={property.id} property={property} viewMode="grid" priority={idx === 0} />
+                <ListingCard key={property.id} property={property} viewMode="grid" priority={idx === 0} isHomePage={isHomePage} />
               ))}
             </div>
           )}
 
-          {/* Trang Chủ: Nút xem tất cả BĐS nếu còn tin chưa hiển thị */}
-          {isHomePage && sortedProperties.length > homeLimit && (
-            <div className="mt-4 mb-0 text-center">
-              <Link 
-                to={filters?.demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban'}
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-white border border-slate-300 hover:border-red-500 hover:bg-red-50 text-slate-800 hover:text-red-700 font-bold text-xs sm:text-sm shadow-xs transition group cursor-pointer"
-              >
-                <span>Xem tất cả {sortedProperties.length} nhà đất</span>
-                <i className="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition text-red-600"></i>
-              </Link>
+          {/* Trang Chủ hoặc khi có viewAllLink / showDualViewAllLinks: Nút xem tất cả BĐS nếu còn tin chưa hiển thị */}
+          {(showDualViewAllLinks || (isHomePage && sortedProperties.length > homeLimit) || (viewAllLink && sortedProperties.length > (limit || 8))) && (
+            <div className="my-7 sm:my-8 text-center flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+              {showDualViewAllLinks ? (
+                <>
+                  <Link 
+                    to="/nha-dat-ban"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-white border border-slate-300 hover:border-red-500 hover:bg-red-50 text-slate-800 hover:text-red-700 font-bold text-xs sm:text-sm shadow-xs transition group cursor-pointer"
+                  >
+                    <span>Tin nhà đất bán mới nhất</span>
+                    <i className="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition text-red-600"></i>
+                  </Link>
+                  <Link 
+                    to="/nha-dat-cho-thue"
+                    className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-white border border-slate-300 hover:border-blue-500 hover:bg-blue-50 text-slate-800 hover:text-blue-700 font-bold text-xs sm:text-sm shadow-xs transition group cursor-pointer"
+                  >
+                    <span>Tin nhà đất cho thuê mới nhất</span>
+                    <i className="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition text-blue-600"></i>
+                  </Link>
+                </>
+              ) : (
+                <Link 
+                  to={viewAllLink || (filters && (filters.city || (filters.propertyType && filters.propertyType !== 'all') || filters.district) ? buildSeoUrl(filters) : (filters?.demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban'))}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-white border border-slate-300 hover:border-red-500 hover:bg-red-50 text-slate-800 hover:text-red-700 font-bold text-xs sm:text-sm shadow-xs transition group cursor-pointer"
+                >
+                  <span>{viewAllText || 'Xem tất cả'}</span>
+                  <i className="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition text-red-600"></i>
+                </Link>
+              )}
             </div>
           )}
 

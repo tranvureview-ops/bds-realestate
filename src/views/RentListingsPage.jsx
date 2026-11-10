@@ -6,7 +6,8 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { Link, useRouter } from '../router/RouterContext';
 import ListingGrid from '../components/ListingGrid';
 import ListingFilterBar from '../components/ListingFilterBar';
-import { generateCategoryJsonLd, generateCategoryMetadata, parseTaxonomyUrl, buildDynamicTaxonomyInfo, buildSeoUrl } from '../utils/permalink';
+import RentListingsSeoContent from '../components/RentListingsSeoContent';
+import { generateCategoryJsonLd, generateCategoryMetadata, getCanonicalUrl, parseTaxonomyUrl, buildDynamicTaxonomyInfo, buildSeoUrl } from '../utils/permalink';
 import { filterProperties } from '../utils/propertyFilter';
 import { parseCIdsParam } from '../data/propertyTypeTaxonomy';
 
@@ -134,6 +135,79 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
     });
   }, [taxonomyInfo?.canonicalUrl, taxonomyInfo?.propertyType, serverSearchParams?.loai]);
 
+  // Lắng nghe sự kiện bds:reset-category-filters khi người dùng click vào menu Nhà Đất Cho Thuê
+  useEffect(() => {
+    const handleResetEvent = (e) => {
+      const resetPath = e.detail?.path || '';
+      if (resetPath === '/nha-dat-cho-thue' || resetPath.startsWith('/nha-dat-cho-thue')) {
+        setFilters({
+          keyword: '',
+          demand: 'rent',
+          propertyType: 'all',
+          propertyTypes: ['all'],
+          city: '',
+          district: '',
+          ward: '',
+          street: '',
+          project: '',
+          priceRange: 'all',
+          minPrice: null,
+          maxPrice: null,
+          areaRange: 'all',
+          minArea: null,
+          maxArea: null,
+          bedroom: 'all',
+          direction: 'all',
+          hasVR360: false,
+          onlyVerified: false
+        });
+        setCurrentPage(1);
+        if (typeof window !== 'undefined') {
+          if (window.location.search || window.location.pathname !== '/nha-dat-cho-thue') {
+            window.history.pushState(null, '', '/nha-dat-cho-thue');
+          }
+        }
+      }
+    };
+    window.addEventListener('bds:reset-category-filters', handleResetEvent);
+    return () => window.removeEventListener('bds:reset-category-filters', handleResetEvent);
+  }, []);
+
+  // Tự động reset bộ lọc khi điều hướng từ trang danh mục khác về trang gốc /nha-dat-cho-thue
+  const prevCanonicalRef = useRef(taxonomyInfo?.canonicalUrl);
+  useEffect(() => {
+    const prevCanonical = prevCanonicalRef.current;
+    prevCanonicalRef.current = taxonomyInfo?.canonicalUrl;
+
+    if (prevCanonical && prevCanonical !== taxonomyInfo?.canonicalUrl) {
+      const isRootRent = taxonomyInfo?.canonicalUrl?.endsWith('/nha-dat-cho-thue') && !taxonomyInfo?.city && (!taxonomyInfo?.propertyType || taxonomyInfo?.propertyType === 'all');
+      if (isRootRent) {
+        setFilters({
+          keyword: '',
+          demand: 'rent',
+          propertyType: 'all',
+          propertyTypes: ['all'],
+          city: '',
+          district: '',
+          ward: '',
+          street: '',
+          project: '',
+          priceRange: 'all',
+          minPrice: null,
+          maxPrice: null,
+          areaRange: 'all',
+          minArea: null,
+          maxArea: null,
+          bedroom: 'all',
+          direction: 'all',
+          hasVR360: false,
+          onlyVerified: false
+        });
+        setCurrentPage(1);
+      }
+    }
+  }, [taxonomyInfo?.canonicalUrl]);
+
   // Lắng nghe popstate khi người dùng nhấn Back / Forward trên trình duyệt
   useEffect(() => {
     const handlePopState = () => {
@@ -177,16 +251,50 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  // Tự động đồng bộ Clean URL chuẩn SEO (PushState) khi người dùng thay đổi bộ lọc
+  // Tự động đồng bộ Clean URL chuẩn SEO (PushState) CHỈ khi người dùng THỰC SỰ thay đổi bộ lọc
+  const prevFiltersRef = useRef(filters);
   const isFirstRender = useRef(true);
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
+      prevFiltersRef.current = filters;
+      return;
+    }
+
+    const prev = prevFiltersRef.current;
+    prevFiltersRef.current = filters;
+
+    if (!prev) return;
+    const hasFilterChanged = 
+      prev.demand !== filters.demand ||
+      prev.propertyType !== filters.propertyType ||
+      prev.city !== filters.city ||
+      prev.district !== filters.district ||
+      prev.ward !== filters.ward ||
+      prev.project !== filters.project ||
+      prev.priceRange !== filters.priceRange ||
+      prev.minPrice !== filters.minPrice ||
+      prev.maxPrice !== filters.maxPrice ||
+      prev.areaRange !== filters.areaRange ||
+      prev.minArea !== filters.minArea ||
+      prev.maxArea !== filters.maxArea ||
+      prev.bedroom !== filters.bedroom ||
+      prev.direction !== filters.direction ||
+      prev.onlyVerified !== filters.onlyVerified ||
+      prev.hasVR360 !== filters.hasVR360 ||
+      prev.keyword !== filters.keyword ||
+      JSON.stringify(prev.propertyTypes || []) !== JSON.stringify(filters.propertyTypes || []);
+
+    // Nếu bộ lọc không thay đổi (ví dụ người dùng chỉ tải trang, refresh trang /p4, /p6 hoặc ấn phân trang) -> TUYỆT ĐỐI KHÔNG can thiệp URL
+    if (!hasFilterChanged) {
       return;
     }
 
     try {
       if (typeof window === 'undefined') return;
+      // Khi người dùng đổi bộ lọc mới, reset trang hiện tại về 1
+      setCurrentPage(1);
+
       // Xử lý đa danh mục: propertyTypes (mảng) ưu tiên hơn propertyType (đơn)
       // type đầu tiên → slug chính, các type còn lại → ?loai=apartment,mini-apartment
       const multiTypes = filters.propertyTypes && Array.isArray(filters.propertyTypes) && filters.propertyTypes.length > 0 && !filters.propertyTypes.includes('all')
@@ -219,8 +327,7 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
 
       if (targetUrl) {
         const currentUrl = window.location.pathname + (window.location.search || '');
-        // Normalize: bỏ trailing slash, decode %2C → , để so sánh nhất quán
-        const normalize = (u) => decodeURIComponent(u).replace(/\/+(\?|$)/, '$1');
+        const normalize = (u) => decodeURIComponent(u).replace(/\/+(\?|$)/, '$1').replace(/\/(?:page\/\d+|p\d+)(?=[/?#]|$)/i, '');
         if (normalize(currentUrl) !== normalize(targetUrl)) {
           window.history.pushState(null, '', targetUrl);
         }
@@ -257,18 +364,48 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
     };
   }, [dynamicTaxonomy, properties]);
 
-  const activePage = useMemo(() => {
+  // Quản lý trang phân tầng activePage đồng bộ client & server
+  const [currentPage, setCurrentPage] = useState(() => {
     if (initialPage && Number(initialPage) > 0) return Number(initialPage);
     if (taxonomyInfo?.page && Number(taxonomyInfo.page) > 0) return Number(taxonomyInfo.page);
     if (typeof window !== 'undefined') {
-      const pageMatch = window.location.pathname.match(/\/page\/(\d+)/i);
+      const pageMatch = window.location.pathname.match(/\/(?:page\/|p)(\d+)/i);
       if (pageMatch) {
         const num = parseInt(pageMatch[1], 10);
         if (!isNaN(num) && num > 0) return num;
       }
+      const p = new URLSearchParams(window.location.search).get('page');
+      const num = parseInt(p, 10);
+      return !isNaN(num) && num > 0 ? num : 1;
     }
     return 1;
-  }, [initialPage, taxonomyInfo?.page]);
+  });
+
+  useEffect(() => {
+    if (initialPage && Number(initialPage) > 0) {
+      setCurrentPage(Number(initialPage));
+    }
+  }, [initialPage]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const pageMatch = window.location.pathname.match(/\/(?:page\/|p)(\d+)/i);
+      if (pageMatch) {
+        const num = parseInt(pageMatch[1], 10);
+        if (!isNaN(num) && num > 0) {
+          setCurrentPage(num);
+          return;
+        }
+      }
+      const p = new URLSearchParams(window.location.search).get('page');
+      const num = parseInt(p, 10);
+      setCurrentPage(!isNaN(num) && num > 0 ? num : 1);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  const activePage = currentPage;
 
   const categorySeo = useMemo(() => {
     return generateCategoryMetadata(
@@ -278,10 +415,12 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
     );
   }, [dynamicTaxonomy, activePage]);
 
-  // Cập nhật thẻ Title & Meta Description tối ưu SEO
+  // Cập nhật thẻ Title, Meta Description, Canonical & OpenGraph tối ưu SEO On-Page
   useEffect(() => {
     if (categorySeo?.title && typeof document !== 'undefined') {
       document.title = categorySeo.title;
+
+      // Meta Description
       let metaDesc = document.querySelector('meta[name="description"]');
       if (!metaDesc) {
         metaDesc = document.createElement('meta');
@@ -289,8 +428,29 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
         document.head.appendChild(metaDesc);
       }
       metaDesc.setAttribute('content', categorySeo.description);
+
+      // Cập nhật thẻ Canonical URL chuẩn xác
+      const currentBasePath = taxonomyInfo?.basePath || (dynamicTaxonomy?.demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban');
+      const canonicalUrl = getCanonicalUrl(currentBasePath, activePage);
+      let canonicalLink = document.querySelector('link[rel="canonical"]');
+      if (!canonicalLink) {
+        canonicalLink = document.createElement('link');
+        canonicalLink.rel = 'canonical';
+        document.head.appendChild(canonicalLink);
+      }
+      canonicalLink.setAttribute('href', canonicalUrl);
+
+      // Cập nhật Open Graph Tags
+      let ogTitle = document.querySelector('meta[property="og:title"]');
+      if (ogTitle) ogTitle.setAttribute('content', categorySeo.title);
+
+      let ogDesc = document.querySelector('meta[property="og:description"]');
+      if (ogDesc) ogDesc.setAttribute('content', categorySeo.description);
+
+      let ogUrl = document.querySelector('meta[property="og:url"]');
+      if (ogUrl) ogUrl.setAttribute('content', canonicalUrl);
     }
-  }, [categorySeo]);
+  }, [categorySeo, activePage, taxonomyInfo?.basePath, dynamicTaxonomy?.demand]);
 
 
 
@@ -298,8 +458,41 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
     return filterProperties(properties, filters).length;
   }, [properties, filters]);
 
+  // Đường dẫn danh mục SEO hiện tại (tự động thích ứng khi người dùng lọc loại hình, khu vực...)
+  const currentCategoryBasePath = useMemo(() => {
+    try {
+      const multiTypes = filters.propertyTypes && Array.isArray(filters.propertyTypes) && filters.propertyTypes.length > 0 && !filters.propertyTypes.includes('all')
+        ? filters.propertyTypes
+        : null;
+      const singleType = filters.propertyType && filters.propertyType !== 'all' ? filters.propertyType : null;
+
+      const targetUrl = buildSeoUrl({
+        demand: 'rent',
+        propertyType: multiTypes ? null : singleType,
+        propertyTypes: multiTypes,
+        city: filters.city || null,
+        district: filters.district || null,
+        ward: filters.ward || null,
+        project: filters.project || null,
+        priceRange: filters.priceRange && filters.priceRange !== 'all' ? filters.priceRange : null,
+        minPrice: filters.minPrice,
+        maxPrice: filters.maxPrice,
+        areaRange: filters.areaRange && filters.areaRange !== 'all' ? filters.areaRange : null,
+        minArea: filters.minArea,
+        maxArea: filters.maxArea,
+        bedroom: filters.bedroom && filters.bedroom !== 'all' ? filters.bedroom : null
+      });
+
+      if (targetUrl) {
+        const [cleanPath] = targetUrl.split('?');
+        if (cleanPath && cleanPath !== '/') return cleanPath;
+      }
+    } catch {}
+    return taxonomyInfo?.basePath || '/nha-dat-cho-thue';
+  }, [filters, taxonomyInfo?.basePath]);
+
   return (
-    <div className="pb-12">
+    <div className="pb-2 sm:pb-4">
       {/* Header Banner & Breadcrumbs */}
       <div className="bg-slate-900 text-white py-7 sm:py-8 px-4 sm:px-8 border-b border-slate-800">
         <div className="max-w-7xl mx-auto space-y-3">
@@ -340,17 +533,25 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
         taxonomyInfo={taxonomyInfo} 
       />
 
-
-
       {/* Main Listing Grid Component */}
       <ListingGrid 
         properties={properties} 
         filters={filters} 
         setFilters={setFilters}
         enablePagination={true}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
         initialPage={initialPage}
-        basePath={taxonomyInfo?.basePath || (taxonomyInfo?.demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban')}
-        className="pt-4 sm:pt-5 pb-8"
+        basePath={currentCategoryBasePath}
+        className="pt-4 sm:pt-5 pb-2 sm:pb-3"
+      />
+
+      {/* Khối Nội Dung On-Page SEO & Cẩm Nang Cho Thuê Nhà Đất Chuyên Sâu Đồng Bộ Tùy Thành Phố */}
+      <RentListingsSeoContent 
+        city={filters?.city || taxonomyInfo?.city} 
+        district={filters?.district || taxonomyInfo?.district} 
+        propertyType={filters?.propertyType || taxonomyInfo?.propertyType} 
+        taxonomyInfo={taxonomyInfo} 
       />
     </div>
   );

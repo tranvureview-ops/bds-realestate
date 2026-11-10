@@ -19,6 +19,7 @@ import { MOCK_USERS, DEFAULT_GUEST_USER } from '../data/mockData';
 import { isSupabaseConfigured, fetchFullSupabaseDb, fetchSupabaseProfile } from '../lib/supabase';
 import { getFontConfig } from '../utils/fontConfig';
 import { getServerSsrDbCache, setServerSsrDbCache } from '../utils/serverDbCache';
+import { SITE_URL } from '../utils/permalink';
 
 /**
  * Tinh gọn dữ liệu Database cho SSR công khai (Public SSR DB)
@@ -147,8 +148,8 @@ export async function generateMetadata() {
   const brand = sys.brandShortName || 'Sàn Nhà Đất';
   const desc = 'Cổng thông tin mua bán và cho thuê bất động sản xác thực toàn quốc. Tra cứu nhà đất chính chủ, căn hộ, đất nền pháp lý chuẩn 24/7 - Kênh Nhà Đất 24H.';
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.kenhnhadat24h.com.vn';
-  const ogImg = `${siteUrl.replace(/\/+$/, '')}/hero.png`;
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '');
+  const ogImg = `${siteUrl}/mua-ban-nha-dat-toan-quoc.webp`;
 
   return {
     metadataBase: new URL(siteUrl),
@@ -280,90 +281,26 @@ export default async function RootLayout({ children }) {
             `
           }}
         />
-        {/* Preconnect to Google Fonts CDN */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Preload critical local Roboto fonts for above-the-fold content & H1 heading (Zero latency, zero layout shift) */}
-        <link
-          rel="preload"
-          href="/fonts/roboto/roboto-400-vietnamese.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="/fonts/roboto/roboto-400-latin.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="/fonts/roboto/roboto-900-vietnamese.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          href="/fonts/roboto/roboto-900-latin.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        {/* Preload critical Font Awesome Solid Webfont for above-the-fold icons */}
-        <link
-          rel="preload"
-          href="/webfonts/fa-solid-900.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
-        {/* Non-render-blocking Stylesheet for FontAwesome (zero render delay) */}
+        {/* FontAwesome Stylesheet */}
         <link
           rel="stylesheet"
           href="/fontawesome.min.css"
-          media="print"
-          data-async-css="fontawesome"
         />
-        {/* Google Fonts Stylesheet (Rendered synchronously so typography is styled on first paint) */}
-        <link
-          rel="stylesheet"
-          href={fontConfig.googleFontUrl}
-        />
-        {/* Asynchronous Loader for non-critical FontAwesome */}
-        <script
-          id="server-async-styles"
-          nonce={nonce}
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                var fa = document.querySelector('link[data-async-css="fontawesome"]');
-                if (fa) { fa.media = 'all'; }
-              })();
-            `
-          }}
-        />
-        <noscript>
-          <link rel="stylesheet" href={fontConfig.googleFontUrl} />
-          <link rel="stylesheet" href="/fontawesome.min.css" />
-        </noscript>
         <style
           id="app-ssr-font-override"
           dangerouslySetInnerHTML={{
             __html: `
               @font-face {
                 font-family: 'App Font Fallback';
-                src: local('Arial'), local('Helvetica'), local('sans-serif');
-                ascent-override: ${fallback.ascent};
-                descent-override: ${fallback.descent};
-                line-gap-override: ${fallback.lineGap};
-                size-adjust: ${fallback.sizeAdjust};
+                src: local('Arial'), local('Segoe UI');
+                ascent-override: 92.8%;
+                descent-override: 24.4%;
+                line-gap-override: 0%;
+                size-adjust: 100%;
               }
-              :root { --font-custom-family: ${fontConfig.fontFamily}; }
+              :root { --font-custom-family: 'Roboto', 'App Font Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; }
               html, body {
-                font-family: var(--font-custom-family, ${fontConfig.fontFamily}), 'App Font Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+                font-family: var(--font-custom-family), 'App Font Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif !important;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
               }
@@ -371,7 +308,7 @@ export default async function RootLayout({ children }) {
                 font-family: inherit !important;
               }
               .font-mono, .font-sans {
-                font-family: var(--font-custom-family, ${fontConfig.fontFamily}), 'App Font Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+                font-family: var(--font-custom-family), 'App Font Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif !important;
               }
               .font-mono {
                 font-variant-numeric: tabular-nums;
@@ -388,27 +325,35 @@ export default async function RootLayout({ children }) {
               '@graph': [
                 {
                   '@type': 'WebSite',
-                  '@id': 'https://www.kenhnhadat24h.com.vn',
-                  url: 'https://www.kenhnhadat24h.com.vn',
+                  '@id': 'https://kenhnhadat24h.com.vn',
+                  url: 'https://kenhnhadat24h.com.vn',
                   name: 'Kênh Nhà Đất 24H',
                   description: 'Cổng thông tin mua bán và cho thuê bất động sản xác thực toàn quốc',
                   publisher: {
-                    '@id': 'https://www.kenhnhadat24h.com.vn',
+                    '@id': 'https://kenhnhadat24h.com.vn',
                   },
                   inLanguage: 'vi-VN',
+                  potentialAction: {
+                    '@type': 'SearchAction',
+                    target: {
+                      '@type': 'EntryPoint',
+                      urlTemplate: 'https://kenhnhadat24h.com.vn/nha-dat-ban?keyword={search_term_string}'
+                    },
+                    'query-input': 'required name=search_term_string'
+                  }
                 },
                 {
                   '@type': 'RealEstateAgent',
-                  '@id': 'https://www.kenhnhadat24h.com.vn',
+                  '@id': 'https://kenhnhadat24h.com.vn',
                   name: 'Kênh Nhà Đất 24H',
-                  url: 'https://www.kenhnhadat24h.com.vn',
+                  url: 'https://kenhnhadat24h.com.vn',
                   logo: {
                     '@type': 'ImageObject',
-                    '@id': 'https://www.kenhnhadat24h.com.vn/#logo',
-                    url: 'https://www.kenhnhadat24h.com.vn/hero.png',
+                    '@id': 'https://kenhnhadat24h.com.vn/#logo',
+                    url: 'https://kenhnhadat24h.com.vn/hero.png',
                     caption: 'Kênh Nhà Đất 24H',
                   },
-                  image: 'https://www.kenhnhadat24h.com.vn/hero.png',
+                  image: 'https://kenhnhadat24h.com.vn/mua-ban-nha-dat-toan-quoc.webp',
                   telephone: '+84905467138',
                   priceRange: 'đ',
                   address: {

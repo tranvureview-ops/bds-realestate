@@ -220,9 +220,20 @@ export function filterProperties(properties = [], filters = {}) {
       }
     }
 
-    // 10. Hướng nhà (Direction)
-    if (filters.direction && filters.direction !== 'all' && prop.direction !== filters.direction) {
-      return false;
+    // 10. Hướng nhà (Direction phong thủy / la bàn)
+    if (filters.directions && Array.isArray(filters.directions) && filters.directions.length > 0) {
+      if (!filters.directions.includes(prop.direction)) {
+        return false;
+      }
+    } else if (filters.direction && filters.direction !== 'all') {
+      const allowedDirs = Array.isArray(filters.direction)
+        ? filters.direction
+        : typeof filters.direction === 'string' && filters.direction.includes(',')
+          ? filters.direction.split(',').map(s => s.trim())
+          : [filters.direction];
+      if (!allowedDirs.includes(prop.direction)) {
+        return false;
+      }
     }
 
     // 11. VR360

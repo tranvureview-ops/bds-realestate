@@ -178,8 +178,17 @@ function formatArticlePreviewHtml(content) {
       continue;
     }
 
+    // Bỏ qua ký hiệu phân cách rác như '---', '***', '___'
+    if (/^[-*_]{3,}$/.test(trimmed)) {
+      continue;
+    }
+
     // Default Paragraph
-    htmlBlocks.push(`<p class="my-4 text-slate-700 leading-relaxed text-sm sm:text-base">${formatInline(trimmed)}</p>`);
+    const formattedParagraph = formatInline(trimmed);
+    if (!formattedParagraph || formattedParagraph === '---') {
+      continue;
+    }
+    htmlBlocks.push(`<p class="my-4 text-slate-700 leading-relaxed text-sm sm:text-base">${formattedParagraph}</p>`);
   }
 
   return htmlBlocks.join('\n');

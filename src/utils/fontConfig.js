@@ -1,146 +1,50 @@
-// Danh mục phông chữ tiếng Việt chuẩn Google Fonts cho sàn BĐS
+// Danh mục phông chữ chuẩn hoá toàn bộ hệ thống - DUY NHẤT ROBOTO (Local Self-hosted)
 export const AVAILABLE_FONTS = [
-  {
-    id: 'plus-jakarta-sans',
-    name: 'Plus Jakarta Sans',
-    category: 'Hiện đại, Công nghệ, BĐS cao cấp (Mặc định)',
-    fontFamily: "'Plus Jakarta Sans', sans-serif",
-    cssValue: "'Plus Jakarta Sans', sans-serif",
-    googleFontUrl: 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap',
-    fallbackMetrics: {
-      ascent: '100.8%',
-      descent: '26.6%',
-      lineGap: '0%',
-      sizeAdjust: '99.4%'
-    },
-    primaryPreloadWoff2: 'https://fonts.gstatic.com/s/plusjakartasans/v12/LDIoaomQNQcsA88c7O9yZ4KMCoOg4Ko50yyygA.woff2',
-    sampleHeadline: 'Sàn Nhà Đất Kênh Nhà Đất 24H',
-    sampleText: 'Nền tảng mua bán căn hộ, đất nền và biệt thự biển chuẩn pháp lý.',
-    samplePrice: '4.850.000.000 ₫'
-  },
-  {
-    id: 'be-vietnam-pro',
-    name: 'Be Vietnam Pro',
-    category: 'Chuẩn Tiếng Việt, Pháp lý, Báo chí & Văn bản',
-    fontFamily: "'Be Vietnam Pro', sans-serif",
-    cssValue: "'Be Vietnam Pro', sans-serif",
-    googleFontUrl: 'https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&display=swap',
-    fallbackMetrics: {
-      ascent: '96%',
-      descent: '24%',
-      lineGap: '0%',
-      sizeAdjust: '100%'
-    },
-    sampleHeadline: 'Quy Chế & Pháp Lý Nhà Đất Việt Nam',
-    sampleText: 'Thiết kế riêng cho hệ thống chữ Quốc ngữ, dấu thanh hiển thị chuẩn xác nhất.',
-    samplePrice: '12.500.000.000 ₫'
-  },
-  {
-    id: 'montserrat',
-    name: 'Montserrat',
-    category: 'Sang trọng, Đẳng cấp, Khối hình học ấn tượng',
-    fontFamily: "'Montserrat', sans-serif",
-    cssValue: "'Montserrat', sans-serif",
-    googleFontUrl: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap',
-    fallbackMetrics: {
-      ascent: '96.8%',
-      descent: '25.1%',
-      lineGap: '0%',
-      sizeAdjust: '100%'
-    },
-    sampleHeadline: 'BIỆT THỰ BIỂN LUXURY RESORT',
-    sampleText: 'Tạo dấu ấn thương hiệu mạnh mẽ, nổi bật trên các banner quảng cáo VIP.',
-    samplePrice: '25.000.000.000 ₫'
-  },
   {
     id: 'roboto',
     name: 'Roboto',
-    category: 'Phổ biến, Thân thiện, Thích ứng mọi thiết bị',
-    fontFamily: "'Roboto', sans-serif",
-    cssValue: "'Roboto', sans-serif",
-    googleFontUrl: 'https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700;800;900&display=optional',
+    category: 'Phổ biến, Thân thiện, Tối ưu tiếng Việt và tương thích mọi thiết bị (Mặc định)',
+    fontFamily: "'Roboto', 'App Font Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif",
+    cssValue: "'Roboto', 'App Font Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif",
     fallbackMetrics: {
       ascent: '92.8%',
       descent: '24.4%',
       lineGap: '0%',
       sizeAdjust: '100%'
     },
-    primaryPreloadWoff2: 'https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3OUBGEe.woff2',
-    sampleHeadline: 'Bản Đồ Quy Hoạch Đất Nền Đà Nẵng 2026',
-    sampleText: 'Phông chữ tiêu chuẩn của Google, hiển thị mượt mà trên tất cả thiết bị di động.',
-    samplePrice: '1.850.000.000 ₫'
-  },
-  {
-    id: 'open-sans',
-    name: 'Open Sans',
-    category: 'Truyền thống, Dễ nhìn, Độ mở ký tự cao',
-    fontFamily: "'Open Sans', sans-serif",
-    cssValue: "'Open Sans', sans-serif",
-    googleFontUrl: 'https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&display=swap',
-    fallbackMetrics: {
-      ascent: '106.9%',
-      descent: '29.3%',
-      lineGap: '0%',
-      sizeAdjust: '100%'
-    },
-    sampleHeadline: 'Hỗ Trợ Thủ Tục Pháp Lý & Sang Tên Sổ Đỏ',
-    sampleText: 'Nét chữ tròn trịa, ấm áp, tạo cảm giác tin cậy và chuyên nghiệp.',
-    samplePrice: '6.400.000.000 ₫'
+    primaryPreloadWoff2: '/fonts/roboto/roboto-400-vietnamese.woff2',
+    sampleHeadline: 'Sàn Giao Dịch Nhà Đất Kênh Nhà Đất 24H',
+    sampleText: 'Phông chữ Roboto tải trực tiếp từ thư viện nội bộ, hiển thị mượt mà và tải trang tức thì.',
+    samplePrice: '4.850.000.000 ₫'
   }
 ];
 
 export const DEFAULT_FONT_NAME = 'Roboto';
 
-export const getFontConfig = (fontNameOrId) => {
-  if (!fontNameOrId) return AVAILABLE_FONTS.find(f => f.id === 'roboto') || AVAILABLE_FONTS[0];
-  const query = fontNameOrId.trim().toLowerCase();
-  // Tự động chuyển về font mặc định nếu là font đã gỡ bỏ (Inter hoặc Lexend)
-  if (query === 'inter' || query.includes('inter') || query === 'lexend' || query.includes('lexend')) {
-    return AVAILABLE_FONTS.find(f => f.id === 'roboto') || AVAILABLE_FONTS[0];
-  }
-  const match = AVAILABLE_FONTS.find(
-    f => f.id.toLowerCase() === query || 
-         f.name.toLowerCase() === query || 
-         f.fontFamily.toLowerCase().includes(query)
-  );
-  return match || AVAILABLE_FONTS.find(f => f.id === 'roboto') || AVAILABLE_FONTS[0];
+export const getFontConfig = (_fontNameOrId) => {
+  return AVAILABLE_FONTS[0];
 };
 
 /**
- * Áp dụng phông chữ lập tức vào toàn bộ DOM và mọi thành phần UI trên trang
+ * Áp dụng phông chữ Roboto vào toàn bộ DOM và mọi thành phần UI trên trang
  */
-export const applyFontToDom = (fontNameOrId) => {
+export const applyFontToDom = () => {
   if (typeof document === 'undefined') return;
-  const fontObj = getFontConfig(fontNameOrId);
+  const fontObj = AVAILABLE_FONTS[0];
 
-  // Kiểm tra font hiện tại của trang
-  const currentVar = document.documentElement.style.getPropertyValue('--font-custom-family') || 
-                     getComputedStyle(document.documentElement).getPropertyValue('--font-custom-family');
-  if (currentVar && currentVar.includes(fontObj.name)) {
+  // Nếu SSR đã thiết lập sẵn font-override thì không chèn lại để tránh làm layout bị re-flow giật chữ
+  const existingSsrStyle = document.getElementById('app-ssr-font-override');
+  if (existingSsrStyle) {
+    document.documentElement.style.setProperty('--font-custom-family', fontObj.fontFamily);
     return;
   }
 
-  // 1. Gán CSS variable & thuộc tính trực tiếp trên html, body
   document.documentElement.style.setProperty('--font-custom-family', fontObj.fontFamily);
   document.documentElement.style.fontFamily = fontObj.fontFamily;
   if (document.body) {
     document.body.style.fontFamily = fontObj.fontFamily;
   }
 
-  // 2. Nạp thẻ link Google Fonts tương ứng
-  const fontLinkId = 'app-dynamic-google-font';
-  let linkElem = document.getElementById(fontLinkId);
-  if (!linkElem) {
-    linkElem = document.createElement('link');
-    linkElem.id = fontLinkId;
-    linkElem.rel = 'stylesheet';
-    document.head.appendChild(linkElem);
-  }
-  if (linkElem.href !== fontObj.googleFontUrl) {
-    linkElem.href = fontObj.googleFontUrl;
-  }
-
-  // 3. Tiêm style ghi đè với độ ưu tiên cao (!important) để chắc chắn 100% mọi thành phần UI đều đổi font
   const styleId = 'app-dynamic-font-override';
   let styleElem = document.getElementById(styleId);
   if (!styleElem) {
@@ -149,6 +53,14 @@ export const applyFontToDom = (fontNameOrId) => {
     document.head.appendChild(styleElem);
   }
   styleElem.innerHTML = `
+    @font-face {
+      font-family: 'App Font Fallback';
+      src: local('Arial'), local('Segoe UI');
+      ascent-override: 92.8%;
+      descent-override: 24.4%;
+      line-gap-override: 0%;
+      size-adjust: 100%;
+    }
     :root {
       --font-custom-family: ${fontObj.fontFamily};
     }

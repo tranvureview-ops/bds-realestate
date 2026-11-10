@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter, Link } from '../router/RouterContext';
-import { VIP_PACKAGES } from '../data/mockData';
+import { VIP_PACKAGES, PROPERTY_TYPES } from '../data/mockData';
+import { VIETNAM_ADMINISTRATIVE_DATA as LOCATIONS } from '../data/vietnamAdministrativeData';
 import { getPropertyPermalink, formatSentenceCase } from '../utils/permalink';
 import { isVoucherDiscountFree } from '../utils/membershipHelper';
 import PropertyVerificationModal from './PropertyVerificationModal';
 import PropertyVerificationReviewModal from './PropertyVerificationReviewModal';
+import PostListingModal from './PostListingModal';
 import SeoImage from './SeoImage';
 import { 
   calculateTreasureHuntExpiry, 
@@ -69,6 +71,23 @@ export default function UserDashboard({ initialTab = 'listings' }) {
 
   // Bump confirmation modal state
   const [bumpConfirmData, setBumpConfirmData] = useState(null);
+
+  // Pagination State (10 tin mỗi trang)
+  const PAGE_SIZE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [trashCurrentPage, setTrashCurrentPage] = useState(1);
+
+  // Edit Listing Modal State (Sử dụng đồng bộ 100% với PostListingModal)
+  const [editingProperty, setEditingProperty] = useState(null);
+
+  // Tự động về trang 1 khi đổi bộ lọc hoặc chuyển tab
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [statusFilter, activeTab]);
+
+  useEffect(() => {
+    setTrashCurrentPage(1);
+  }, [activeTab]);
 
   const handleOpenRenewModal = (prop) => {
     setRenewModalProp(prop);
@@ -243,15 +262,60 @@ export default function UserDashboard({ initialTab = 'listings' }) {
     return Boolean(info?.isExpired) || p.status === 'expired';
   }).length;
 
-  const filteredListings = myListings.filter(p => {
-    if (statusFilter === 'all') return true;
-    const info = getPropertyExpirationInfo ? getPropertyExpirationInfo(p) : null;
-    if (statusFilter === 'active') return p.status === 'active' && !info?.isExpired;
-    if (statusFilter === 'pending') return p.status === 'pending';
-    if (statusFilter === 'expiring_soon') return Boolean(info?.isExpiringSoon) && p.status === 'active';
-    if (statusFilter === 'expired') return Boolean(info?.isExpired) || p.status === 'expired';
-    return p.status === statusFilter;
-  });
+  const filteredListings = useMemo(() => {
+    const list = myListings.filter(p => {
+      if (statusFilter === 'all') return true;
+      const info = getPropertyExpirationInfo ? getPropertyExpirationInfo(p) : null;
+      if (statusFilter === 'active') return p.status === 'active' && !info?.isExpired;
+      if (statusFilter === 'pending') return p.status === 'pending';
+      if (statusFilter === 'expiring_soon') return Boolean(info?.isExpiringSoon) && p.status === 'active';
+      if (statusFilter === 'expired') return Boolean(info?.isExpired) || p.status === 'expired';
+      return p.status === statusFilter;
+    });
+
+    // Sắp xếp ưu tiên: Tin vừa được đẩy (bumpedAt) hoặc đăng mới (publishedAt) sẽ hiển thị lên đầu
+    return list.sort((a, b) => {
+      const timeA = new Date(a.bumpedAt || a.publishedAt || a.createdAt || 0).getTime();
+      const timeB = new Date(b.bumpedAt || b.publishedAt || b.createdAt || 0).getTime();
+      return timeB - timeA;
+    });
+  }, [myListings, statusFilter, getPropertyExpirationInfo]);
+
+  // Tính toán phân trang cho danh sách tin đăng
+  const totalPages = Math.ceil(filteredListings.length / PAGE_SIZE) || 1;
+  const safePage = Math.min(Math.max(1, currentPage), totalPages);
+  const paginatedListings = useMemo(() => {
+    const start = (safePage - 1) * PAGE_SIZE;
+    return filteredListings.slice(start, start + PAGE_SIZE);
+  }, [filteredListings, safePage, PAGE_SIZE]);
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+    if (typeof window !== 'undefined') {
+      const el = document.getElementById('user-listings-container');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
+
+  // Tính toán phân trang cho thùng rác
+  const trashTotalPages = Math.ceil(trashListings.length / PAGE_SIZE) || 1;
+  const safeTrashPage = Math.min(Math.max(1, trashCurrentPage), trashTotalPages);
+  const paginatedTrashListings = useMemo(() => {
+    const start = (safeTrashPage - 1) * PAGE_SIZE;
+    return trashListings.slice(start, start + PAGE_SIZE);
+  }, [trashListings, safeTrashPage, PAGE_SIZE]);
+
+  const handleTrashPageChange = (newPage) => {
+    setTrashCurrentPage(newPage);
+    if (typeof window !== 'undefined') {
+      const el = document.getElementById('user-trash-container');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
 
   const totalViews = myListings.reduce((sum, p) => sum + (p.viewsCount || 0), 0);
   const totalCalls = myListings.reduce((sum, p) => sum + (p.callsCount || 0), 0);
@@ -518,7 +582,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
 
       {/* TAB 1: LISTINGS MANAGEMENT */}
       {activeTab === 'listings' && (
-        <div className="space-y-4">
+        <div id="user-listings-container" className="space-y-4">
           {/* Subfilter: Status */}
           <div className="flex items-center gap-2 flex-wrap">
             <span className="text-xs text-slate-500 font-bold">Lọc trạng thái:</span>
@@ -619,7 +683,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
             </div>
           ) : (
             <div className="space-y-3">
-              {filteredListings.map(prop => {
+              {paginatedListings.map(prop => {
                 const defaultPkg = VIP_PACKAGES.find(p => p.id === 'normal') || VIP_PACKAGES[VIP_PACKAGES.length - 1];
                 const pkg = activeVipPackages.find(p => p.id === prop.vipPackageId) || defaultPkg;
                 const expInfo = getPropertyExpirationInfo ? getPropertyExpirationInfo(prop) : null;
@@ -759,10 +823,17 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                             </span>
                           )}
 
+                          {prop.bumpedAt && (
+                            <span className="flex items-center gap-1 text-amber-700 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                              <i className="fa-solid fa-arrow-up text-amber-600"></i>
+                              <span>Đã đẩy: <b className="font-mono">{new Date(prop.bumpedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} {new Date(prop.bumpedAt).toLocaleDateString('vi-VN')}</b></span>
+                            </span>
+                          )}
+
                           {prop.updatedAt && (
-                            <span className="flex items-center gap-1 text-amber-700">
-                              <i className="fa-regular fa-pen-to-square"></i>
-                              <span>Đã sửa: <b className="font-mono">{new Date(prop.updatedAt).toLocaleDateString('vi-VN')} {new Date(prop.updatedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}</b></span>
+                            <span className="flex items-center gap-1 text-slate-600 bg-slate-50 border border-slate-200/80 px-2 py-0.5 rounded-full text-[10px]">
+                              <i className="fa-regular fa-pen-to-square text-slate-500"></i>
+                              <span>Đã sửa: <b className="font-mono">{new Date(prop.updatedAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })} {new Date(prop.updatedAt).toLocaleDateString('vi-VN')}</b></span>
                             </span>
                           )}
                         </div>
@@ -997,6 +1068,17 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                         </button>
                       )}
 
+                      {/* Chỉnh sửa bài viết */}
+                      <button
+                        type="button"
+                        onClick={() => setEditingProperty(prop)}
+                        className="px-3 py-1.5 font-bold rounded-xl text-xs transition shadow-xs flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 cursor-pointer"
+                        title="Chỉnh sửa thông tin bài viết"
+                      >
+                        <i className="fa-solid fa-pen-to-square"></i>
+                        <span>Chỉnh sửa</span>
+                      </button>
+
                       {/* View preview */}
                       <Link
                         to={getPropertyPermalink(prop)}
@@ -1024,12 +1106,129 @@ export default function UserDashboard({ initialTab = 'listings' }) {
               })}
             </div>
           )}
+
+          {/* Phân trang danh sách tin đăng */}
+          {totalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-5 border-t border-slate-200 bg-white p-4 rounded-2xl shadow-xs">
+              <div className="text-xs text-slate-500 font-medium">
+                Hiển thị <span className="font-bold text-slate-800">{(safePage - 1) * PAGE_SIZE + 1}</span> - <span className="font-bold text-slate-800">{Math.min(safePage * PAGE_SIZE, filteredListings.length)}</span> trên tổng số <span className="font-bold text-slate-800">{filteredListings.length}</span> tin đăng
+              </div>
+
+              <div className="flex items-center gap-1.5 flex-wrap justify-center">
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(1)}
+                  disabled={safePage === 1}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center text-xs border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                  title="Về trang đầu"
+                >
+                  <i className="fa-solid fa-angles-left text-[10px]"></i>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(safePage - 1)}
+                  disabled={safePage === 1}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center text-xs border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                  title="Trang trước"
+                >
+                  <i className="fa-solid fa-angle-left text-[11px]"></i>
+                </button>
+
+                {(() => {
+                  const pages = [];
+                  const maxVisible = 5;
+                  let start = Math.max(1, safePage - Math.floor(maxVisible / 2));
+                  let end = Math.min(totalPages, start + maxVisible - 1);
+                  if (end - start + 1 < maxVisible) {
+                    start = Math.max(1, end - maxVisible + 1);
+                  }
+
+                  if (start > 1) {
+                    pages.push(
+                      <button
+                        key={1}
+                        type="button"
+                        onClick={() => handlePageChange(1)}
+                        className="w-8 h-8 rounded-xl flex items-center justify-center text-xs border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition cursor-pointer"
+                      >
+                        1
+                      </button>
+                    );
+                    if (start > 2) {
+                      pages.push(
+                        <span key="dots-start" className="px-1 text-slate-400 text-xs">...</span>
+                      );
+                    }
+                  }
+
+                  for (let p = start; p <= end; p++) {
+                    const isActive = p === safePage;
+                    pages.push(
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => handlePageChange(p)}
+                        className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold transition cursor-pointer ${
+                          isActive
+                            ? 'bg-emerald-600 text-white shadow-xs'
+                            : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    );
+                  }
+
+                  if (end < totalPages) {
+                    if (end < totalPages - 1) {
+                      pages.push(
+                        <span key="dots-end" className="px-1 text-slate-400 text-xs">...</span>
+                      );
+                    }
+                    pages.push(
+                      <button
+                        key={totalPages}
+                        type="button"
+                        onClick={() => handlePageChange(totalPages)}
+                        className="w-8 h-8 rounded-xl flex items-center justify-center text-xs border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition cursor-pointer"
+                      >
+                        {totalPages}
+                      </button>
+                    );
+                  }
+
+                  return pages;
+                })()}
+
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(safePage + 1)}
+                  disabled={safePage === totalPages}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center text-xs border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                  title="Trang sau"
+                >
+                  <i className="fa-solid fa-angle-right text-[11px]"></i>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handlePageChange(totalPages)}
+                  disabled={safePage === totalPages}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center text-xs border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                  title="Trang cuối"
+                >
+                  <i className="fa-solid fa-angles-right text-[10px]"></i>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
       {/* TAB 2: TRASH MANAGEMENT (THÙNG RÁC TIN ĐĂNG) */}
       {activeTab === 'trash' && (
-        <div className="space-y-4">
+        <div id="user-trash-container" className="space-y-4">
           <div className="bg-white rounded-2xl p-4 border border-rose-200 bg-rose-50/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center text-lg shrink-0 shadow-inner">
@@ -1090,7 +1289,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
             </div>
           ) : (
             <div className="space-y-3">
-              {trashListings.map(prop => {
+              {paginatedTrashListings.map(prop => {
                 const pkg = activeVipPackages.find(p => p.id === prop.vipPackageId) || activeVipPackages[activeVipPackages.length - 1];
                 return (
                   <div
@@ -1158,6 +1357,87 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {/* Phân trang thùng rác */}
+          {trashTotalPages > 1 && (
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-5 border-t border-rose-200 bg-white p-4 rounded-2xl shadow-xs">
+              <div className="text-xs text-slate-500 font-medium">
+                Hiển thị <span className="font-bold text-slate-800">{(safeTrashPage - 1) * PAGE_SIZE + 1}</span> - <span className="font-bold text-slate-800">{Math.min(safeTrashPage * PAGE_SIZE, trashListings.length)}</span> trên tổng số <span className="font-bold text-slate-800">{trashListings.length}</span> tin trong thùng rác
+              </div>
+
+              <div className="flex items-center gap-1.5 flex-wrap justify-center">
+                <button
+                  type="button"
+                  onClick={() => handleTrashPageChange(1)}
+                  disabled={safeTrashPage === 1}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center text-xs border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                  title="Về trang đầu"
+                >
+                  <i className="fa-solid fa-angles-left text-[10px]"></i>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTrashPageChange(safeTrashPage - 1)}
+                  disabled={safeTrashPage === 1}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center text-xs border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                  title="Trang trước"
+                >
+                  <i className="fa-solid fa-angle-left text-[11px]"></i>
+                </button>
+
+                {(() => {
+                  const pages = [];
+                  const maxVisible = 5;
+                  let start = Math.max(1, safeTrashPage - Math.floor(maxVisible / 2));
+                  let end = Math.min(trashTotalPages, start + maxVisible - 1);
+                  if (end - start + 1 < maxVisible) {
+                    start = Math.max(1, end - maxVisible + 1);
+                  }
+
+                  for (let p = start; p <= end; p++) {
+                    const isActive = p === safeTrashPage;
+                    pages.push(
+                      <button
+                        key={p}
+                        type="button"
+                        onClick={() => handleTrashPageChange(p)}
+                        className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-bold transition cursor-pointer ${
+                          isActive
+                            ? 'bg-rose-600 text-white shadow-xs'
+                            : 'border border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    );
+                  }
+
+                  return pages;
+                })()}
+
+                <button
+                  type="button"
+                  onClick={() => handleTrashPageChange(safeTrashPage + 1)}
+                  disabled={safeTrashPage === trashTotalPages}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center text-xs border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                  title="Trang sau"
+                >
+                  <i className="fa-solid fa-angle-right text-[11px]"></i>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleTrashPageChange(trashTotalPages)}
+                  disabled={safeTrashPage === trashTotalPages}
+                  className="w-8 h-8 rounded-xl flex items-center justify-center text-xs border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
+                  title="Trang cuối"
+                >
+                  <i className="fa-solid fa-angles-right text-[10px]"></i>
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -1825,7 +2105,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
               ) : (
                 <div className="text-[11px] text-slate-500 bg-slate-100 px-2.5 py-1.5 rounded-xl border border-slate-200/80 flex items-center justify-between">
                   <span>Số dư ví chính:</span>
-                  <strong className="text-slate-800 font-mono">{(currentUser?.balance || 0).toLocaleString('vi-VN')} đ</strong>
+                  <strong className="text-slate-800 font-mono">{(currentUser?.walletBalance ?? currentUser?.balance ?? 0).toLocaleString('vi-VN')} đ</strong>
                 </div>
               )}
             </div>
@@ -1857,6 +2137,14 @@ export default function UserDashboard({ initialTab = 'listings' }) {
             </div>
           </div>
         </div>
+      )}
+
+      {/* MODAL CHỈNH SỬA BÀI VIẾT / TIN ĐĂNG - Đồng bộ 100% form và cấu trúc Đăng Tin PostListingModal */}
+      {editingProperty && (
+        <PostListingModal
+          editProperty={editingProperty}
+          onClose={() => setEditingProperty(null)}
+        />
       )}
     </div>
   );

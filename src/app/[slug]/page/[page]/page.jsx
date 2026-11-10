@@ -46,56 +46,13 @@ export function renderTaxonomyPage(taxonomyInfo, page = 1) {
 
 export default async function PaginatedTaxonomyPage({ params }) {
   const { slug, page } = (await params) || {};
-
-  // Chuyển hướng 301 chuẩn SEO cho các alias hoặc lỗi chính tả cũ (như biethu -> biet-thu)
-  if (slug && slug.includes('biethu')) {
-    const cleanSlug = slug.replace(/biethu/g, 'biet-thu');
-    permanentRedirect(`/${cleanSlug}/page/${page}/`);
-  }
-
+  const cleanSlug = (slug || '').replace(/biethu/g, 'biet-thu');
   const pageNum = parseInt(page, 10);
-  const currentPath = `/${slug || ''}`;
 
-  // 1. Không cho phép /page/1 độc lập -> Chuyển hướng 301 về URL gốc
-  if (page === '1') {
-    permanentRedirect(`/${slug}/`);
+  if (isNaN(pageNum) || pageNum <= 1) {
+    permanentRedirect(`/${cleanSlug}/`);
   }
 
-  // 2. Kiểm tra tính hợp lệ của số trang (không chấp nhận số âm, thập phân, chữ cái)
-  if (isNaN(pageNum) || pageNum < 1 || String(pageNum) !== page) {
-    notFound();
-  }
-
-  // 3. Phân tích slug danh mục
-  const taxonomyInfo = parseTaxonomyUrl(currentPath);
-  if (!taxonomyInfo.isTaxonomy) {
-    notFound();
-  }
-
-  // 4. Lấy danh sách properties và kiểm tra trang vượt giới hạn (404 chuẩn SEO)
-  const serverProps = await fetchServerProperties();
-  const allProps = (serverProps && serverProps.length > 0) ? serverProps : INITIAL_PROPERTIES;
-  
-  // Lọc chuẩn xác theo danh mục và bộ lọc clean slug để tính đúng totalPages
-  const categoryFilters = {
-    demand: taxonomyInfo.demand || 'sale',
-    propertyType: taxonomyInfo.propertyType || 'all',
-    city: taxonomyInfo.city || '',
-    district: taxonomyInfo.district || '',
-    ward: taxonomyInfo.ward || '',
-    project: taxonomyInfo.project || '',
-    priceRange: taxonomyInfo.priceRange || 'all',
-    minPrice: taxonomyInfo.minPrice,
-    maxPrice: taxonomyInfo.maxPrice,
-    areaRange: taxonomyInfo.areaRange || 'all'
-  };
-  const matchedProps = filterProperties(allProps, categoryFilters);
-  const pageSize = DEFAULT_SYSTEM_CONFIG.categoryPageSize || 12;
-  const totalPages = Math.max(1, Math.ceil(matchedProps.length / pageSize));
-
-  if (pageNum > totalPages) {
-    notFound();
-  }
-
-  return renderTaxonomyPage(taxonomyInfo, pageNum);
+  // 301 Chuyển hướng toàn bộ URL cũ /page/{number} sang định dạng mới /p{number}
+  permanentRedirect(`/${cleanSlug}/p${pageNum}`);
 }

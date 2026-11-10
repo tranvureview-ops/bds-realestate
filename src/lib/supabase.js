@@ -105,6 +105,8 @@ export async function fetchSupabaseProperties(options = {}) {
           isTreasureHuntActive: Boolean(row.raw_data?.isTreasureHuntActive || row.is_treasure_hunt_active),
           treasureHuntActivatedAt: row.raw_data?.treasureHuntActivatedAt || null,
           treasureHuntExpiresAt: row.raw_data?.treasureHuntExpiresAt || null,
+          bumpedAt: row.bumped_at || row.raw_data?.bumpedAt || null,
+          bumpCount: Number(row.bump_count || row.raw_data?.bumpCount || 0),
           author: cleanAuthor
         };
       }
@@ -151,6 +153,8 @@ export async function fetchSupabaseProperties(options = {}) {
         isFeatured: row.is_featured,
         autoRenew: row.auto_renew,
         isDeleted: row.is_deleted,
+        bumpedAt: row.bumped_at || row.raw_data?.bumpedAt || null,
+        bumpCount: Number(row.bump_count || row.raw_data?.bumpCount || 0),
         isTreasureHuntActive: Boolean(row.raw_data?.isTreasureHuntActive || row.is_treasure_hunt_active),
         treasureHuntActivatedAt: row.raw_data?.treasureHuntActivatedAt || null,
         treasureHuntExpiresAt: row.raw_data?.treasureHuntExpiresAt || null,
@@ -733,9 +737,9 @@ export async function fetchFullSupabaseDb(options = {}) {
           fetchSupabaseTransactions()
         ]);
       } else {
-        // Mặc định cho Khách vãng lai, Người dùng công cộng & SSR: Chỉ tải các cột Card tối giản + phân trang trang đầu để bảo vệ Egress
+        // Mặc định cho Khách vãng lai, Người dùng công cộng & SSR: Tải các cột Card tối giản toàn sàn (không giới hạn 24 tin)
         [props, settingsRes, profiles] = await Promise.all([
-          fetchSupabaseProperties({ rangeFrom: 0, rangeTo: 23, isFull: false, useView: true }),
+          fetchSupabaseProperties({ isFull: false, useView: true }),
           supabase.from('platform_settings').select('key, value').in('key', [...PUBLIC_SETTINGS_KEYS, 'bds_users_list']),
           fetchSupabaseProfiles()
         ]);

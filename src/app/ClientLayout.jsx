@@ -20,7 +20,6 @@ const LiveChatWidget = dynamic(() => import('../components/LiveChatWidget'), { s
 const AuthModal = dynamic(() => import('../components/AuthModal'), { ssr: false });
 const ListingDetailModal = dynamic(() => import('../components/ListingDetailModal'), { ssr: false });
 const PostListingModal = dynamic(() => import('../components/PostListingModal'), { ssr: false });
-const MortgageCalculatorModal = dynamic(() => import('../components/MortgageCalculatorModal'), { ssr: false });
 const WalletDepositModal = dynamic(() => import('../components/WalletDepositModal'), { ssr: false });
 const MaintenanceScreen = dynamic(() => import('../components/MaintenanceScreen'), { ssr: false });
 
@@ -154,10 +153,6 @@ function AppContent({ children }) {
 
       {activeModal === 'post-listing' && (
         <PostListingModal onClose={() => setActiveModal(null)} />
-      )}
-
-      {activeModal === 'mortgage-calc' && (
-        <MortgageCalculatorModal onClose={() => setActiveModal(null)} />
       )}
 
       {activeModal === 'wallet-deposit' && (

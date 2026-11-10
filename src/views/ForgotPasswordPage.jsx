@@ -131,7 +131,7 @@ export default function ForgotPasswordPage() {
               <input
                 type="text"
                 required
-                placeholder="VD: tuan.bds@gmail.com hoặc 0904084888"
+                placeholder="VD: tuan.bds@gmail.com hoặc 0905467138"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl font-bold text-slate-900 focus:ring-2 focus:ring-red-500"

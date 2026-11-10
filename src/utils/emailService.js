@@ -4,7 +4,7 @@
  * lưu trữ Outbox vào localStorage và cung cấp API xem trước (Preview).
  */
 
-import { getPropertyPermalink } from './permalink';
+import { getPropertyPermalink, SITE_URL } from './permalink';
 
 /**
  * Danh mục lý do vi phạm tiếng Việt chuẩn hóa
@@ -204,11 +204,11 @@ export function generateAdminReportAlertEmailHtml({ report, property, customConf
   const permalink = getPropertyPermalink(property);
   const propertyUrl = typeof window !== 'undefined' 
     ? `${window.location.origin}${permalink}`
-    : `https://kenhnhadat24h.com.vn${permalink}`;
+    : `${SITE_URL}${permalink}`;
 
   const siteName = activeConfig?.signature?.companyName || 'Kênh Nhà Đất 24H';
   const hotline = (activeConfig?.signature?.hotline && activeConfig.signature.hotline !== '1900 1881') ? activeConfig.signature.hotline : getSystemHotlineFallback();
-  const websiteUrl = activeConfig?.signature?.websiteUrl || 'https://kenhnhadat24h.com.vn';
+  const websiteUrl = activeConfig?.signature?.websiteUrl || SITE_URL;
 
   const vars = {
     siteName,
@@ -326,7 +326,7 @@ export function generateAdminReportAlertEmailHtml({ report, property, customConf
       <!-- Footer -->
       <div style="background: #f1f5f9; padding: 18px 32px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b; text-align: center;">
         <p style="margin: 0 0 4px 0;">${siteName} • Hệ thống kiểm duyệt tự động</p>
-        <p style="margin: 0;">Hotline tiếp nhận khiếu nại: <strong>${hotline}</strong> • Website: <a href="${activeConfig?.signature?.websiteUrl || 'https://kenhnhadat24h.com.vn'}" style="color: #0284c7; text-decoration: none;">${activeConfig?.signature?.websiteUrl || 'kenhnhadat24h.com.vn'}</a></p>
+        <p style="margin: 0;">Hotline tiếp nhận khiếu nại: <strong>${hotline}</strong> • Website: <a href="${activeConfig?.signature?.websiteUrl || SITE_URL}" style="color: #0284c7; text-decoration: none;">${activeConfig?.signature?.websiteUrl || SITE_URL}</a></p>
       </div>
     </div>
   `;
@@ -341,7 +341,7 @@ export function generateReporterConfirmationEmailHtml({ report, property, custom
   const reasonObj = REPORT_REASONS[report.reason] || { label: report.reason };
   const siteName = activeConfig?.signature?.companyName || 'Kênh Nhà Đất 24H';
   const hotline = (activeConfig?.signature?.hotline && activeConfig.signature.hotline !== '1900 1881') ? activeConfig.signature.hotline : getSystemHotlineFallback();
-  const websiteUrl = activeConfig?.signature?.websiteUrl || 'https://kenhnhadat24h.com.vn';
+  const websiteUrl = activeConfig?.signature?.websiteUrl || SITE_URL;
 
   const vars = {
     siteName,
@@ -399,7 +399,7 @@ export function generateReporterConfirmationEmailHtml({ report, property, custom
 
       <!-- Footer -->
       <div style="background: #f8fafc; padding: 16px 32px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #94a3b8; text-align: center;">
-        Hotline hỗ trợ: <strong>${hotline}</strong> • Website: <a href="${activeConfig?.signature?.websiteUrl || 'https://kenhnhadat24h.com.vn'}" style="color: ${theme.accentColor}; text-decoration: none;">${activeConfig?.signature?.websiteUrl || 'kenhnhadat24h.com.vn'}</a>
+        Hotline hỗ trợ: <strong>${hotline}</strong> • Website: <a href="${activeConfig?.signature?.websiteUrl || SITE_URL}" style="color: ${theme.accentColor}; text-decoration: none;">${activeConfig?.signature?.websiteUrl || SITE_URL}</a>
       </div>
     </div>
   `;
@@ -414,7 +414,7 @@ export function generateAuthorWarningEmailHtml({ property, report: _report, acti
   const isDelisted = actionType === 'delisted';
   const siteName = activeConfig?.signature?.companyName || 'Kênh Nhà Đất 24H';
   const hotline = (activeConfig?.signature?.hotline && activeConfig.signature.hotline !== '1900 1881') ? activeConfig.signature.hotline : getSystemHotlineFallback();
-  const websiteUrl = activeConfig?.signature?.websiteUrl || 'https://kenhnhadat24h.com.vn';
+  const websiteUrl = activeConfig?.signature?.websiteUrl || SITE_URL;
 
   const vars = {
     siteName,
@@ -481,7 +481,7 @@ export function generateResolutionEmailToReporterHtml({ report, property, action
   const tpl = activeConfig?.templates?.report_resolution || {};
   const siteName = activeConfig?.signature?.companyName || 'Kênh Nhà Đất 24H';
   const hotline = (activeConfig?.signature?.hotline && activeConfig.signature.hotline !== '1900 1881') ? activeConfig.signature.hotline : getSystemHotlineFallback();
-  const websiteUrl = activeConfig?.signature?.websiteUrl || 'https://kenhnhadat24h.com.vn';
+  const websiteUrl = activeConfig?.signature?.websiteUrl || SITE_URL;
 
   const actionText = actionTaken === 'delisted' ? '🚫 Đã hạ tin đăng khỏi sàn giao dịch' : '✅ Đã xác minh và yêu cầu người đăng đính chính thông tin';
 
@@ -701,7 +701,7 @@ export function renderCustomEmailPreview(templateId, customTemplate, customConfi
     return generateWelcomeVerificationEmailHtml({
       userName: 'Nguyễn Văn Tuấn',
       userEmail: 'tuan.nguyen@example.com',
-      verificationUrl: 'https://kenhnhadat24h.com.vn/xac-thuc-email?token=demo_verification_token_123',
+      verificationUrl: `${SITE_URL}/xac-thuc-email?token=demo_verification_token_123`,
       bonusAmount: 100000,
       expiryMinutes: 30,
       bonusExpiryDays: 30,
@@ -727,7 +727,7 @@ export function generateWelcomeVerificationEmailHtml({
   const tpl = activeConfig?.templates?.welcome_verification || {};
   const siteName = activeConfig?.signature?.companyName || 'Kênh Nhà Đất 24H';
   const hotline = activeConfig?.signature?.hotline || getSystemHotlineFallback();
-  const websiteUrl = activeConfig?.signature?.websiteUrl || 'https://kenhnhadat24h.com.vn';
+  const websiteUrl = activeConfig?.signature?.websiteUrl || SITE_URL;
   const formattedBonus = (Number(bonusAmount) || 100000).toLocaleString('vi-VN') + ' đ';
 
   const vars = {
@@ -807,7 +807,7 @@ export function generatePasswordResetEmailHtml({
 }) {
   const activeCfg = customConfig || getActiveEmailConfig();
   const siteName = activeCfg?.companyName || 'Sàn Nhà Đất Kênh Nhà Đất 24H';
-  const websiteUrl = activeCfg?.siteUrl || 'https://kenhnhadat24h.com.vn';
+  const websiteUrl = activeCfg?.siteUrl || SITE_URL;
   const hotline = activeCfg?.hotline || getSystemHotlineFallback();
 
   return `

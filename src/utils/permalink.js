@@ -59,7 +59,7 @@ export const formatTitleCase = (str) => {
 };
 
 // Cấu hình Base Domain chuẩn SEO
-export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://kenhnhadat24h.com.vn';
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://kenhnhadat24h.com.vn').replace(/\/+$/, '');
 
 // Tối ưu hóa SEO hình ảnh & tự động tạo thẻ ALT theo tiêu đề
 import { buildImageAlt, DEFAULT_PROPERTY_FALLBACK_IMAGE, DEFAULT_AVATAR_FALLBACK_IMAGE } from './imageSeo.js';
@@ -67,21 +67,21 @@ export { buildImageAlt, DEFAULT_PROPERTY_FALLBACK_IMAGE, DEFAULT_AVATAR_FALLBACK
 
 /**
  * Xây dựng đường dẫn phân trang chuẩn SEO (SEO Pagination Path)
- * - Trang 1: /{basePath}/ (không tạo URL biến thể /page/1/)
- * - Trang 2+: /{basePath}/page/{number}/
+ * - Trang 1: /{basePath}/ (không tạo URL biến thể /page/1/ hay /p1)
+ * - Trang 2+: /{basePath}/p{number} (ví dụ: /nha-dat-ban/p2, /p6)
  */
 export const getPaginationPath = (basePath, page = 1) => {
   if (!basePath) return '/';
   let clean = basePath.replace(/\/+$/, '');
-  // Loại bỏ /page/\d+ nếu basePath đã có sẵn
-  clean = clean.replace(/\/page\/\d+$/i, '');
+  // Loại bỏ /page/\d+ hoặc /p\d+ nếu basePath đã có sẵn
+  clean = clean.replace(/\/(?:page\/\d+|p\d+)$/i, '');
   if (!clean.startsWith('/')) clean = '/' + clean;
 
   const pageNum = parseInt(page, 10);
   if (isNaN(pageNum) || pageNum <= 1) {
-    return `${clean}/`;
+    return clean;
   }
-  return `${clean}/page/${pageNum}/`;
+  return `${clean}/p${pageNum}`;
 };
 
 /**
@@ -663,22 +663,22 @@ export const parseTaxonomyUrl = (urlPath) => {
     return { isTaxonomy: false };
   }
 
-  // Tách segment phân trang: /page/:page
+  // Tách segment phân trang: /page/:page HOẶC /p:page (ví dụ /p2, /p6)
   let page = 1;
   let hasPageSegment = false;
   let isInvalidPage = false;
 
-  const pageMatch = raw.match(/\/page\/([^/?#]+)\/?$/i);
+  const pageMatch = raw.match(/\/(?:page\/([^/?#]+)|p(\d+))\/?$/i);
   if (pageMatch) {
     hasPageSegment = true;
-    const rawPageVal = pageMatch[1];
+    const rawPageVal = pageMatch[1] || pageMatch[2];
     const parsedNum = parseInt(rawPageVal, 10);
     if (isNaN(parsedNum) || parsedNum < 1 || String(parsedNum) !== rawPageVal) {
       isInvalidPage = true;
     } else {
       page = parsedNum;
     }
-    raw = raw.replace(/\/page\/[^/?#]+\/?$/i, '');
+    raw = raw.replace(/\/(?:page\/[^/?#]+|p\d+)\/?$/i, '');
   }
 
   const clean = raw.length > 1 ? raw.replace(/\/+$/, '') : raw;
@@ -1262,7 +1262,7 @@ export const buildFacetedUrl = ({
 /**
  * Sinh Schema.org JSON-LD Structured Data chuẩn SEO cho Nhà Đất (Google Search Rich Results)
  */
-export const generatePropertyJsonLd = (property, siteUrl = 'https://kenhnhadat24h.com.vn') => {
+export const generatePropertyJsonLd = (property, siteUrl = SITE_URL) => {
   if (!property) return null;
 
   const permalink = getPropertyPermalink(property);
@@ -1377,7 +1377,7 @@ export const generatePropertyJsonLd = (property, siteUrl = 'https://kenhnhadat24
 /**
  * Sinh Schema.org JSON-LD CollectionPage/ItemList cho trang chuyên mục BĐS
  */
-export const generateCategoryJsonLd = (categoryInfo, properties = [], siteUrl = 'https://kenhnhadat24h.com.vn') => {
+export const generateCategoryJsonLd = (categoryInfo, properties = [], siteUrl = SITE_URL) => {
   if (!categoryInfo) return null;
 
   const fullUrl = `${siteUrl}${categoryInfo.canonicalUrl || (categoryInfo.demand === 'sale' ? '/nha-dat-ban' : '/nha-dat-cho-thue')}`;
@@ -1435,7 +1435,8 @@ export const generateCategoryJsonLd = (categoryInfo, properties = [], siteUrl = 
  * Đảm bảo Title 50-60 ký tự, Description 150-160 ký tự
  * Thấu hiểu Search Intent, tích hợp mốc thời gian [2026] và hỗ trợ Local SEO linh hoạt.
  */
-export const generateCategoryMetadata = (taxonomyInfo = {}, year = 2026, page = null) => {
+export const generateCategoryMetadata = (taxonomyInfo = {}, yearInput = null, page = null) => {
+  const year = yearInput || new Date().getFullYear();
   const isRent = taxonomyInfo.demand === 'rent';
   const type = taxonomyInfo.propertyType || 'all';
   const actualPage = Number((page !== null && page !== undefined) ? page : (taxonomyInfo.page || 1));
@@ -1768,8 +1769,8 @@ export const buildSeoFilterUrl = ({ basePath = '', demand = 'sale', priceRange =
   // Lấy base path sạch, loại bỏ subslug filter hiện tại nếu có
   let cleanBase = (basePath || (demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban')).split('?')[0].replace(/\/+$/, '');
 
-  // Nếu base path đang kết thúc bằng filter slug cũ (gia-... hoặc dien-tich-... hoặc dt-... hoặc \d+pn hoặc /page/...), bóc tách ra
-  cleanBase = cleanBase.replace(/\/page\/\d+$/i, '');
+  // Nếu base path đang kết thúc bằng filter slug cũ (gia-... hoặc dien-tich-... hoặc dt-... hoặc \d+pn hoặc /page/... hoặc /p...), bóc tách ra
+  cleanBase = cleanBase.replace(/\/(?:page\/\d+|p\d+)$/i, '');
   cleanBase = cleanBase.replace(/\/(?:(?:gia|dien-tich|dt)-[^/]+|[0-9]+pn(?:-[^/]+)?)$/i, '');
 
   if (!cleanBase || cleanBase === '') {

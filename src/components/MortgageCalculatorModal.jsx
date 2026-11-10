@@ -3,16 +3,41 @@
 import React, { useState, useMemo } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 
-export default function MortgageCalculatorModal({ onClose }) {
+export default function MortgageCalculatorModal({ 
+  onClose, 
+  isStandalone = false,
+  customInitialPrice,
+  customInitialRatio,
+  customInitialYears,
+  customInitialRate,
+  propertyTitle
+}) {
   const { selectedPropertyDetail } = useRealEstate();
 
-  // Initial price based on selected property or default 3 tỷ
-  const initialPrice = selectedPropertyDetail ? selectedPropertyDetail.price : 3000000000;
+  // Initial price based on custom prop, selected property, or default 3 tỷ
+  const initialPrice = customInitialPrice !== undefined && !isNaN(Number(customInitialPrice)) && Number(customInitialPrice) > 0
+    ? Number(customInitialPrice)
+    : (selectedPropertyDetail ? selectedPropertyDetail.price : 3000000000);
 
   const [propertyPrice, setPropertyPrice] = useState(initialPrice);
-  const [loanRatio, setLoanRatio] = useState(70); // 70%
-  const [loanYears, setLoanYears] = useState(20); // 20 years
-  const [preferentialRate, setPreferentialRate] = useState(7.5); // 7.5% / year
+  const [loanRatio, setLoanRatio] = useState(() => {
+    if (customInitialRatio !== undefined && !isNaN(Number(customInitialRatio))) {
+      return Math.min(85, Math.max(10, Number(customInitialRatio)));
+    }
+    return 70;
+  });
+  const [loanYears, setLoanYears] = useState(() => {
+    if (customInitialYears !== undefined && !isNaN(Number(customInitialYears))) {
+      return Math.min(35, Math.max(1, Number(customInitialYears)));
+    }
+    return 20;
+  });
+  const [preferentialRate, setPreferentialRate] = useState(() => {
+    if (customInitialRate !== undefined && !isNaN(Number(customInitialRate))) {
+      return Number(customInitialRate);
+    }
+    return 7.5;
+  });
   const [preferentialMonths, setPreferentialMonths] = useState(12); // 12 months
   const [floatingRate, setFloatingRate] = useState(10.5); // 10.5% / year
   const [calcMethod, setCalcMethod] = useState('declining'); // 'declining' (dư nợ giảm dần) or 'equal' (trả đều)
@@ -83,41 +108,41 @@ export default function MortgageCalculatorModal({ onClose }) {
     return Math.round(num).toLocaleString('vi-VN') + ' đ';
   };
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
-      <div 
-        className="relative bg-white rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden my-6 border border-slate-200 animate-in fade-in zoom-in-95 duration-200"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center text-base shadow">
-              <i className="fa-solid fa-calculator"></i>
-            </div>
-            <div>
-              <h2 className="text-lg font-black text-slate-900">
-                Công Cụ Tính Lãi Vay Mua Nhà Ngân Hàng
-              </h2>
-              <p className="text-xs text-slate-500">
-                Lập kế hoạch tài chính chuẩn xác theo dư nợ giảm dần hoặc niên kim
-              </p>
-            </div>
-          </div>
-
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center text-sm transition"
-          >
-            <i className="fa-solid fa-xmark"></i>
-          </button>
+  const cardHeader = (
+    <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+      <div className="flex items-center gap-2.5">
+        <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center text-base shadow shrink-0">
+          <i className="fa-solid fa-calculator"></i>
         </div>
+        <div>
+          <h2 className="text-base sm:text-lg font-black text-slate-900">
+            Công cụ tính lãi suất vay mua nhà ngân hàng
+          </h2>
+          <p className="text-xs text-slate-500 line-clamp-1">
+            {propertyTitle 
+              ? `Đang tính toán cho: ${propertyTitle}` 
+              : 'Lập kế hoạch tài chính chuẩn xác theo dư nợ giảm dần hoặc niên kim'}
+          </p>
+        </div>
+      </div>
 
-        {/* Modal Body */}
-        <div className="p-4 sm:p-6 max-h-[82vh] overflow-y-auto space-y-6">
-          {/* Controls Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-            {/* Input Form Column */}
+      {!isStandalone && onClose && (
+        <button
+          onClick={onClose}
+          className="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 text-slate-700 flex items-center justify-center text-sm transition shrink-0"
+          aria-label="Đóng bảng tính"
+        >
+          <i className="fa-solid fa-xmark"></i>
+        </button>
+      )}
+    </div>
+  );
+
+  const cardBody = (
+    <>
+      {/* Controls Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+        {/* Input Form Column */}
             <div className="space-y-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
               <h3 className="text-xs font-black uppercase text-slate-700 tracking-wider flex items-center gap-1.5">
                 <i className="fa-solid fa-sliders text-blue-600"></i>
@@ -382,6 +407,32 @@ export default function MortgageCalculatorModal({ onClose }) {
               </div>
             </div>
           )}
+    </>
+  );
+
+  if (isStandalone) {
+    return (
+      <div 
+        className="relative bg-white rounded-3xl shadow-sm w-full overflow-hidden border border-slate-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {cardHeader}
+        <div className="p-4 sm:p-8 space-y-6">
+          {cardBody}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4">
+      <div 
+        className="relative bg-white rounded-3xl shadow-2xl w-full max-w-4xl overflow-hidden my-6 border border-slate-200 animate-in fade-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {cardHeader}
+        <div className="p-4 sm:p-6 max-h-[82vh] overflow-y-auto space-y-6">
+          {cardBody}
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 import { getFullSystemDatabase, persistDatabaseSlice } from './serverDbService';
 import { deliverEmailViaSmtp, createMailTransporter, appendEmailLog } from './mailerService';
 import { normalizePhone } from '../utils/authValidation';
+import { SITE_URL } from '../utils/permalink';
 
 /**
  * Tạo nội dung HTML chuyên nghiệp cho email thông báo lịch hẹn xem nhà
@@ -17,7 +18,8 @@ export function generateAppointmentEmailHtml({ appointment, broker, property, em
   const propertyTitle = appointment.propertyTitle || 'Nhà đất';
   const propertyPrice = appointment.propertyPrice || 'Thỏa thuận';
   const propertyAddress = appointment.propertyAddress || '';
-  const propertyUrl = appointment.propertyPermalink ? (appointment.propertyPermalink.startsWith('http') ? appointment.propertyPermalink : `https://kenhnhadat24h.com.vn${appointment.propertyPermalink}`) : 'https://kenhnhadat24h.com.vn';
+  const baseSiteUrl = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '');
+  const propertyUrl = appointment.propertyPermalink ? (appointment.propertyPermalink.startsWith('http') ? appointment.propertyPermalink : `${baseSiteUrl}${appointment.propertyPermalink}`) : baseSiteUrl;
   const zaloChatUrl = `https://zalo.me/${normalizePhone(customerPhone)}`;
   const callUrl = `tel:${customerPhone}`;
 
@@ -164,7 +166,7 @@ export function generateAppointmentEmailHtml({ appointment, broker, property, em
  * @param {string} [params.origin] Origin URL của server
  * @returns {Promise<Object>} Kết quả điều phối từng kênh
  */
-export async function dispatchAppointmentNotifications({ appointment, origin = 'https://kenhnhadat24h.com.vn' }) {
+export async function dispatchAppointmentNotifications({ appointment, origin = SITE_URL }) {
   const db = await getFullSystemDatabase();
   const users = Array.isArray(db.bds_users_list) ? db.bds_users_list : [];
   const emailConfig = db.bds_email_config || null;

@@ -1,14 +1,18 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { PROPERTY_TYPES, SALE_PRICE_PRESETS, RENT_PRICE_PRESETS, AREA_PRESETS } from '../data/mockData';
 import { VIETNAM_ADMINISTRATIVE_DATA, DANANG_MERGERS_MAP } from '../data/vietnamAdministrativeData';
 import { formatPriceRangeText, formatAreaRangeText, buildSeoUrl } from '../utils/permalink';
 import { removeAccents } from '../utils/propertyFilter';
 import { Link, useRouter } from '../router/RouterContext';
+import { getSearchQuerySuggestions, HighlightedQuery } from '../utils/searchQuerySuggestions';
+import { useRecentSearches } from '../utils/recentSearches';
 import PropertyTypeSelector from './PropertyTypeSelector';
 import PriceRangeSelector from './PriceRangeSelector';
 import AreaRangeSelector from './AreaRangeSelector';
+import DirectionCompassSelector from './DirectionCompassSelector';
 import { formatPropertyTypeTriggerLabel } from '../data/propertyTypeTaxonomy';
 import { 
   IconSearch, 
@@ -21,30 +25,6 @@ import {
   IconBed, 
   IconCompass 
 } from './common/Icons';
-
-const DEFAULT_RECENT_SEARCHES = [
-  {
-    id: 'rec-1',
-    title: 'Cho thuê căn hộ chung cư tại Huyện Nhà Bè',
-    subtitle: 'Căn hộ chung cư · Huyện Nhà Bè · TP. Hồ Chí Minh',
-    filters: { demand: 'rent', propertyType: 'apartment', city: 'TP. Hồ Chí Minh', district: 'Huyện Nhà Bè' },
-    keyword: ''
-  },
-  {
-    id: 'rec-2',
-    title: 'Mua bán BĐS',
-    subtitle: '5 - 7 tỷ · Đăng bởi môi giới chuyên nghiệp',
-    filters: { demand: 'sale', priceRange: '5b-7b', onlyVerified: true },
-    keyword: ''
-  },
-  {
-    id: 'rec-3',
-    title: 'Cho thuê BĐS',
-    subtitle: 'Tất cả loại hình cho thuê toàn quốc',
-    filters: { demand: 'rent', propertyType: 'all' },
-    keyword: ''
-  }
-];
 
 const BEDROOM_OPTIONS = [
   { value: 'all', label: 'Bất kỳ' },
@@ -74,11 +54,115 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [openFilterMenu, setOpenFilterMenu] = useState(null); // 'city' | 'type' | 'price' | 'area' | null
 
-  // Recent searches stored in localStorage
-  const [recentSearches, setRecentSearches] = useState(DEFAULT_RECENT_SEARCHES);
+  // Detailed Location Modal state (chuẩn hóa như bên danh mục)
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [draftLocation, setDraftLocation] = useState({
+    city: filters?.city || '',
+    district: filters?.district || '',
+    ward: filters?.ward || '',
+    street: filters?.street || '',
+    project: filters?.project || '',
+    useMergedAddress: Boolean(filters?.useMergedAddress)
+  });
+
+  // Recent searches stored in localStorage via useRecentSearches
+  const { recentSearches, addSearch, removeSearch, clearSearches } = useRecentSearches();
 
   const containerRef = useRef(null);
   const dropdownRef = useRef(null);
+
+  // Khóa scroll khi mở Modal Lọc chi tiết
+  useEffect(() => {
+    if (showLocationModal) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [showLocationModal]);
+
+  const handleOpenDetailedLocation = (e) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setDraftLocation({
+      city: filters?.city || '',
+      district: filters?.district || '',
+      ward: filters?.ward || '',
+      street: filters?.street || '',
+      project: filters?.project || '',
+      useMergedAddress: Boolean(filters?.useMergedAddress)
+    });
+    setOpenFilterMenu(null);
+    setIsDropdownOpen(false);
+    setShowLocationModal(true);
+  };
+
+  const CITIES = useMemo(() => VIETNAM_ADMINISTRATIVE_DATA.map(c => c.name), []);
+
+  const currentCityData = useMemo(() => {
+    if (!draftLocation.city) return null;
+    return VIETNAM_ADMINISTRATIVE_DATA.find(c => 
+      c.name.toLowerCase() === draftLocation.city.toLowerCase() || 
+      removeAccents(c.name) === removeAccents(draftLocation.city)
+    ) || null;
+  }, [draftLocation.city]);
+
+  const districtList = useMemo(() => {
+    return currentCityData?.districts || [];
+  }, [currentCityData]);
+
+  const currentDistrictObj = useMemo(() => {
+    if (!draftLocation.district) return null;
+    return districtList.find(d => d.name === draftLocation.district) || null;
+  }, [draftLocation.district, districtList]);
+
+  const wardList = useMemo(() => {
+    if (draftLocation.useMergedAddress) {
+      const filtered = draftLocation.district
+        ? DANANG_MERGERS_MAP.filter(m => m.newDistrict === draftLocation.district)
+        : DANANG_MERGERS_MAP;
+      return Array.from(new Set(filtered.map(m => m.newWard)));
+    }
+    if (currentDistrictObj?.wards) {
+      return currentDistrictObj.wards;
+    }
+    return [];
+  }, [draftLocation.useMergedAddress, draftLocation.district, currentDistrictObj]);
+
+  const streetList = useMemo(() => {
+    return currentDistrictObj?.streets || [];
+  }, [currentDistrictObj]);
+
+  const projectList = useMemo(() => {
+    return currentDistrictObj?.projects || [];
+  }, [currentDistrictObj]);
+
+  const handleApplyLocation = () => {
+    setFilters(prev => ({
+      ...prev,
+      city: draftLocation.city,
+      district: draftLocation.district,
+      ward: draftLocation.ward,
+      street: draftLocation.street,
+      project: draftLocation.project,
+      useMergedAddress: draftLocation.useMergedAddress
+    }));
+    setShowLocationModal(false);
+  };
+
+  const handleResetLocation = () => {
+    setDraftLocation({
+      city: '',
+      district: '',
+      ward: '',
+      street: '',
+      project: '',
+      useMergedAddress: false
+    });
+  };
 
   // Điều hướng chuyển trang kết quả chuẩn SEO Batdongsan.com.vn
   const executeSearchNavigation = (targetFilters, queryStr = '') => {
@@ -120,45 +204,6 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
       setSearchTerm(filters.keyword);
     }
   }, [filters?.keyword]);
-
-  // Load recent searches from localStorage
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('bds_recent_searches');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setRecentSearches(parsed);
-        }
-      }
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  // Save a recent search item
-  const saveRecentSearch = (newItem) => {
-    try {
-      const updated = [
-        { ...newItem, id: 'rec-' + Date.now() },
-        ...recentSearches.filter(s => s.title !== newItem.title)
-      ].slice(0, 5);
-      setRecentSearches(updated);
-      localStorage.setItem('bds_recent_searches', JSON.stringify(updated));
-    } catch {
-      // ignore
-    }
-  };
-
-  const clearRecentSearches = (e) => {
-    e.stopPropagation();
-    setRecentSearches([]);
-    try {
-      localStorage.removeItem('bds_recent_searches');
-    } catch {
-      // ignore
-    }
-  };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -247,99 +292,44 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
     setIsDropdownOpen(false);
   };
 
-  // Autocomplete Suggestions when user types
+  // Autocomplete Suggestions when user types (Chuẩn Batdongsan.com.vn)
   const suggestions = useMemo(() => {
-    const raw = searchTerm.trim().toLowerCase();
-    if (!raw) return [];
-    const clean = removeAccents(raw);
-    const results = [];
+    if (!searchTerm.trim()) return [];
+    return getSearchQuerySuggestions(searchTerm, {
+      currentDemand,
+      currentCity: filters?.city || '',
+      isMergerMode
+    });
+  }, [searchTerm, currentDemand, filters?.city, isMergerMode]);
 
-    // 1. Post-merger Wards if isMergerMode is enabled
-    if (isMergerMode) {
-      DANANG_MERGERS_MAP.forEach(m => {
-        const matchFound = m.match.some(w => removeAccents(w).includes(clean)) || removeAccents(m.newWard).includes(clean);
-        if (matchFound) {
-          results.push({
-            type: 'merger',
-            badge: 'Địa danh mới',
-            title: `${m.newWard}, ${m.newDistrict}`,
-            subtitle: `Sắp xếp sáp nhập từ các đơn vị cũ (${m.match.join(', ')})`,
-            icon: 'fa-solid fa-arrows-split-up-and-left text-emerald-500',
-            apply: () => {
-              const updatedFilters = {
-                ...filters,
-                city: 'Đà Nẵng',
-                district: m.newDistrict,
-                ward: m.newWard,
-                keyword: ''
-              };
-              setSearchTerm('');
-              setFilters(updatedFilters);
-              executeSearchNavigation(updatedFilters, '');
-            }
-          });
-        }
-      });
+  const handleSelectSuggestion = (sug) => {
+    setIsDropdownOpen(false);
+    addSearch({
+      title: sug.query,
+      subtitle: sug.badge || '',
+      url: sug.url,
+      filters: {
+        demand: sug.demand || filters.demand,
+        propertyType: sug.propertyType || filters.propertyType,
+        city: sug.city || filters.city,
+        district: sug.district || filters.district,
+        ward: sug.ward || filters.ward
+      },
+      keyword: sug.keyword || ''
+    });
+    if (sug.url) {
+      navigate(sug.url);
+    } else {
+      executeSearchNavigation({
+        ...filters,
+        demand: sug.demand || filters.demand,
+        propertyType: sug.propertyType || filters.propertyType,
+        city: sug.city || filters.city,
+        district: sug.district || filters.district,
+        ward: sug.ward || filters.ward
+      }, sug.keyword || '');
     }
-
-    // 2. Matching Cities & Districts
-    VIETNAM_ADMINISTRATIVE_DATA.forEach(city => {
-      const cityClean = removeAccents(city.name);
-      if (cityClean.includes(clean)) {
-        results.push({
-          type: 'city',
-          badge: 'Tỉnh / Thành',
-          title: city.name,
-          subtitle: `Nhà đất tại ${city.name} (${city.districts?.length || 0} Quận/Huyện)`,
-          icon: 'fa-solid fa-location-dot text-red-500',
-          apply: () => {
-            const updatedFilters = { ...filters, city: city.name, district: '', keyword: '' };
-            setSearchTerm('');
-            setFilters(updatedFilters);
-            executeSearchNavigation(updatedFilters, '');
-          }
-        });
-      }
-      city.districts?.forEach(dist => {
-        const distClean = removeAccents(dist.name);
-        if (distClean.includes(clean)) {
-          results.push({
-            type: 'district',
-            badge: 'Quận / Huyện',
-            title: `${dist.name}, ${city.name}`,
-            subtitle: `Khu vực ${dist.name} (${dist.wards?.length || 0} Phường/Xã)`,
-            icon: 'fa-solid fa-map-pin text-blue-500',
-            apply: () => {
-              const updatedFilters = { ...filters, city: city.name, district: dist.name, keyword: '' };
-              setSearchTerm('');
-              setFilters(updatedFilters);
-              executeSearchNavigation(updatedFilters, '');
-            }
-          });
-        }
-      });
-    });
-
-    // 3. Matching Property Types
-    PROPERTY_TYPES.forEach(pt => {
-      if (removeAccents(pt.name).includes(clean)) {
-        results.push({
-          type: 'propertyType',
-          badge: 'Loại hình BĐS',
-          title: pt.name,
-          subtitle: `Tìm theo danh mục ${pt.name}`,
-          icon: `fa-solid ${pt.icon} text-amber-500`,
-          apply: () => {
-            const updatedFilters = { ...filters, propertyType: pt.id };
-            setFilters(updatedFilters);
-            executeSearchNavigation(updatedFilters, searchTerm.trim());
-          }
-        });
-      }
-    });
-
-    return results.slice(0, 6);
-  }, [searchTerm, isMergerMode, filters, setFilters]);
+  };
 
   // Handle Search Submission (Chuẩn Batdongsan.com.vn: Điều hướng sang trang kết quả)
   const handleSearchSubmit = (e) => {
@@ -355,7 +345,7 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
     if (cleanKw || filters.city || (filters.propertyType && filters.propertyType !== 'all')) {
       const locationPart = filters.district ? `${filters.district}, ${filters.city}` : (filters.city || 'Toàn quốc');
       const typePart = filters.propertyType && filters.propertyType !== 'all' ? (PROPERTY_TYPES.find(p => p.id === filters.propertyType)?.name || '') : '';
-      saveRecentSearch({
+      addSearch({
         title: cleanKw || (typePart ? `${typePart} tại ${locationPart}` : (filters.demand === 'rent' ? 'Cho thuê BĐS' : 'Mua bán BĐS')),
         subtitle: [locationPart, typePart, filters.priceRange && filters.priceRange !== 'all' ? (filters.demand === 'rent' ? RENT_PRICE_PRESETS.find(p => p.value === filters.priceRange)?.label : SALE_PRICE_PRESETS.find(p => p.value === filters.priceRange)?.label) : null].filter(Boolean).join(' · '),
         filters: updatedFilters,
@@ -390,6 +380,10 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
       propertyType: 'all',
       city: '',
       district: '',
+      ward: '',
+      street: '',
+      project: '',
+      useMergedAddress: false,
       priceRange: 'all',
       areaRange: 'all',
       bedroom: 'all',
@@ -410,7 +404,12 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
 
   // Labels for Quick Bar
   const getLocationLabel = () => {
-    if (filters.district) return filters.district;
+    const parts = [];
+    if (filters.project) parts.push(filters.project);
+    if (filters.street) parts.push(filters.street);
+    if (filters.ward) parts.push(filters.ward);
+    if (filters.district) parts.push(filters.district);
+    if (parts.length > 0) return parts.join(', ');
     if (filters.city) return filters.city;
     return 'Trên toàn quốc';
   };
@@ -465,6 +464,9 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
 
   const getDirectionLabel = () => {
     if (!filters.direction || filters.direction === 'all') return 'Mọi hướng';
+    if (filters.directions && filters.directions.length > 1) {
+      return `${filters.directions.length} hướng (${filters.direction})`;
+    }
     return filters.direction;
   };
 
@@ -489,11 +491,8 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
         {/* Slogan */}
         <div className="text-center mb-4 sm:mb-5 text-white flex flex-col justify-center min-h-[3.75rem] sm:min-h-[4.25rem] lg:min-h-[3.25rem]">
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-[32px] font-black tracking-tight drop-shadow-md leading-snug sm:leading-tight">
-            <span className="inline-block whitespace-nowrap">Kênh Nhà Đất 24H</span>
-            <span className="hidden lg:inline text-white/50 mx-2 font-normal">-</span>
             <span className="block lg:inline text-[#ff6b6b] mt-1 lg:mt-0">
-              <span className="inline-block whitespace-nowrap">Mua Bán &amp; Cho Thuê</span>{' '}
-              <span className="inline-block whitespace-nowrap">Bất Động Sản Toàn Quốc</span>
+              <span className="inline-block whitespace-nowrap">Mua Bán Nhà Đất, Cho Thuê Bất Động Sản Toàn Quốc</span>
             </span>
           </h1>
           <p className="mt-1.5 text-xs sm:text-sm text-slate-300 max-w-2xl mx-auto font-medium leading-normal">
@@ -622,96 +621,101 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                     </button>
                   </div>
 
-                  {/* Suggestions when typing */}
-                  {searchTerm.trim().length > 0 && suggestions.length > 0 && (
-                    <div className="p-3 border-b border-slate-100">
-                      <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2 pb-1.5">
-                        Gợi ý tìm kiếm
-                      </div>
-                      <div className="space-y-1">
-                        {suggestions.map((sug, idx) => (
+                  {/* GỢI Ý TỪ KHÓA CHUẨN BATDONGSAN.COM.VN */}
+                  {searchTerm.trim().length > 0 ? (
+                    <div className="p-2 sm:p-3">
+                      <div className="space-y-0.5">
+                        {suggestions.map((sug) => (
                           <div
-                            key={idx}
-                            onClick={() => {
-                              sug.apply();
-                              setIsDropdownOpen(false);
-                              handleSearchSubmit();
-                            }}
-                            className="p-2.5 rounded-xl hover:bg-slate-50 flex items-center gap-3 transition cursor-pointer group"
+                            key={sug.id || sug.query}
+                            onClick={() => handleSelectSuggestion(sug)}
+                            className="px-3 py-2.5 rounded-xl hover:bg-slate-50 flex items-center gap-3 transition cursor-pointer group"
                           >
-                            <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                              <i className={sug.icon}></i>
+                            <i className="fa-solid fa-magnifying-glass text-slate-400 text-xs sm:text-sm shrink-0 group-hover:text-red-600 transition-colors"></i>
+                            <div className="flex-1 min-w-0 flex items-center gap-2">
+                              <HighlightedQuery text={sug.query} highlight={searchTerm} />
+                              {sug.badge && (
+                                <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-full shrink-0">
+                                  {sug.badge}
+                                </span>
+                              )}
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-2">
-                                <span>{sug.title}</span>
-                                {sug.badge && (
-                                  <span className="text-[10px] font-semibold px-2 py-0.5 bg-slate-100 text-slate-600 rounded">
-                                    {sug.badge}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="text-[11px] text-slate-500 truncate">{sug.subtitle}</div>
-                            </div>
-                            <i className="fa-solid fa-chevron-right text-slate-300 text-xs shrink-0 group-hover:translate-x-0.5 transition-transform"></i>
                           </div>
                         ))}
+                      </div>
+                    </div>
+                  ) : (
+                    /* Khi chưa nhập từ khóa: Lịch sử tìm kiếm & Chọn địa danh chi tiết */
+                    <div className="p-3 sm:p-4">
+                      {recentSearches.length > 0 && (
+                        <div className="mb-2">
+                          <div className="flex justify-end mb-1 px-1">
+                            <button
+                              type="button"
+                              onClick={clearSearches}
+                              className="text-[11px] text-slate-400 hover:text-red-600 transition font-medium cursor-pointer"
+                            >
+                              Xóa lịch sử
+                            </button>
+                          </div>
+                          <div className="space-y-1">
+                            {recentSearches.map((item) => (
+                              <div
+                                key={item.id}
+                                onClick={() => handleSelectRecentSearch(item)}
+                                className="p-2 sm:p-2.5 rounded-xl hover:bg-slate-50 flex items-center gap-3 transition cursor-pointer group"
+                              >
+                                {/* Red Clock History Icon */}
+                                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-red-50 text-[#e03c31] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                                  <i className="fa-solid fa-clock-rotate-left text-xs sm:text-sm"></i>
+                                </div>
+
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-red-600 transition truncate">
+                                    {item.title}
+                                  </div>
+                                  {item.subtitle && (
+                                    <div className="text-[11px] text-slate-400 truncate">
+                                      {item.subtitle}
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Nút xóa từng mục */}
+                                <button
+                                  type="button"
+                                  onClick={(e) => removeSearch(item.id, e)}
+                                  className="w-6 h-6 rounded-full hover:bg-slate-200 text-slate-400 hover:text-red-600 flex items-center justify-center transition shrink-0 opacity-0 group-hover:opacity-100"
+                                  title="Xóa mục này"
+                                  aria-label="Xóa mục này"
+                                >
+                                  <i className="fa-solid fa-xmark text-xs"></i>
+                                </button>
+
+                                <i className="fa-solid fa-chevron-right text-slate-300 group-hover:text-slate-500 text-xs shrink-0 group-hover:translate-x-0.5 transition-transform"></i>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Bottom Action: Chọn quận huyện, phường xã, đường phố, dự án */}
+                      <div
+                        onClick={handleOpenDetailedLocation}
+                        className={`p-2 sm:p-2.5 rounded-xl hover:bg-red-50/50 flex items-center gap-3 transition cursor-pointer group ${
+                          recentSearches.length > 0 ? 'mt-2 pt-2.5 border-t border-slate-100' : ''
+                        }`}
+                      >
+                        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#c93026] text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+                          <i className="fa-solid fa-sliders text-xs"></i>
+                        </div>
+                        <span className="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-red-600 transition flex-1">
+                          Chọn quận huyện, phường xã, đường phố, dự án
+                        </span>
+                        <i className="fa-solid fa-chevron-right text-slate-400 group-hover:text-red-600 text-xs shrink-0 group-hover:translate-x-0.5 transition-transform"></i>
                       </div>
                     </div>
                   )}
-
-                  {/* Row 2: "Tiếp tục tìm kiếm" (Lịch sử tìm kiếm gần đây) */}
-                  <div className="p-3 sm:p-4">
-                    <div className="flex items-center justify-between mb-2 px-1">
-                      <span className="text-xs sm:text-sm font-bold text-slate-800">
-                        Tiếp tục tìm kiếm
-                      </span>
-                      {recentSearches.length > 0 && (
-                        <button
-                          type="button"
-                          onClick={clearRecentSearches}
-                          className="text-[11px] text-slate-400 hover:text-red-600 transition font-medium cursor-pointer"
-                        >
-                          Xóa lịch sử
-                        </button>
-                      )}
-                    </div>
-
-                    {recentSearches.length > 0 ? (
-                      <div className="space-y-1">
-                        {recentSearches.map((item) => (
-                          <div
-                            key={item.id}
-                            onClick={() => handleSelectRecentSearch(item)}
-                            className="p-2 sm:p-2.5 rounded-xl hover:bg-slate-50 flex items-center gap-3 transition cursor-pointer group"
-                          >
-                            {/* Red Clock History Icon */}
-                            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-red-50 text-[#e03c31] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                              <i className="fa-solid fa-clock-rotate-left text-xs sm:text-sm"></i>
-                            </div>
-
-                            <div className="flex-1 min-w-0">
-                              <div className="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-red-600 transition truncate">
-                                {item.title}
-                              </div>
-                              {item.subtitle && (
-                                <div className="text-[11px] text-slate-400 truncate">
-                                  {item.subtitle}
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Chevron Right */}
-                            <i className="fa-solid fa-chevron-right text-slate-300 group-hover:text-slate-500 text-xs shrink-0 group-hover:translate-x-0.5 transition-transform"></i>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="py-4 text-center text-xs text-slate-400">
-                        Chưa có lịch sử tìm kiếm gần đây
-                      </div>
-                    )}
-                  </div>
                 </div>
               )}
             </form>
@@ -740,10 +744,21 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                   <>
                     {/* Desktop popover */}
                     <div className="hidden md:block absolute top-full left-0 mt-1.5 w-64 bg-white rounded-xl shadow-xl border border-slate-200 z-50 p-2 animate-fadeIn max-h-72 overflow-y-auto">
+                      <div className="px-2 py-1.5 border-b border-slate-100 flex items-center justify-between mb-1.5">
+                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Khu vực</span>
+                        <button
+                          type="button"
+                          onClick={handleOpenDetailedLocation}
+                          className="text-red-600 hover:text-red-700 text-xs font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                        >
+                          <i className="fa-solid fa-sliders text-[10px]"></i>
+                          <span>Lọc chi tiết »</span>
+                        </button>
+                      </div>
                       <button
                         type="button"
                         onClick={() => {
-                          setFilters(prev => ({ ...prev, city: '', district: '' }));
+                          setFilters(prev => ({ ...prev, city: '', district: '', ward: '', street: '', project: '' }));
                           setOpenFilterMenu(null);
                         }}
                         className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold ${
@@ -810,23 +825,33 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                         onClick={e => e.stopPropagation()}
                       >
                         <div className="px-4 py-3.5 border-b border-slate-100 flex items-center justify-between shrink-0">
-                          <h4 className="text-sm sm:text-base font-bold text-slate-900 w-full text-center pl-6">
+                          <h4 className="text-sm sm:text-base font-bold text-slate-900">
                             Khu vực & Tỉnh thành
                           </h4>
-                          <button
-                            type="button"
-                            onClick={() => setOpenFilterMenu(null)}
-                            className="w-7 h-7 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition cursor-pointer shrink-0"
-                            title="Đóng"
-                          >
-                            <i className="fa-solid fa-xmark text-sm"></i>
-                          </button>
+                          <div className="flex items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={handleOpenDetailedLocation}
+                              className="text-red-600 hover:text-red-700 text-xs font-bold hover:underline flex items-center gap-1 cursor-pointer"
+                            >
+                              <i className="fa-solid fa-sliders text-[10px]"></i>
+                              <span>Lọc chi tiết »</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setOpenFilterMenu(null)}
+                              className="w-7 h-7 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-700 flex items-center justify-center transition cursor-pointer shrink-0"
+                              title="Đóng"
+                            >
+                              <i className="fa-solid fa-xmark text-sm"></i>
+                            </button>
+                          </div>
                         </div>
                         <div className="p-3 overflow-y-auto flex-1 divide-y divide-slate-100">
                           <button
                             type="button"
                             onClick={() => {
-                              setFilters(prev => ({ ...prev, city: '', district: '' }));
+                              setFilters(prev => ({ ...prev, city: '', district: '', ward: '', street: '', project: '' }));
                               setOpenFilterMenu(null);
                             }}
                             className={`w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold flex items-center justify-between ${
@@ -1142,28 +1167,31 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                   </button>
 
                   {openFilterMenu === 'direction' && (
-                    <div className="absolute top-full left-0 mt-1.5 w-full bg-white rounded-xl shadow-xl border border-slate-200 z-50 p-1.5 animate-fadeIn max-h-56 overflow-y-auto">
-                      {DIRECTION_OPTIONS.map(opt => {
-                        const isSelected = (filters.direction || 'all') === opt.value;
-                        return (
-                          <button
-                            key={opt.value}
-                            type="button"
-                            onClick={() => {
-                              setFilters(prev => ({ ...prev, direction: opt.value }));
-                              setOpenFilterMenu(null);
-                            }}
-                            className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold flex items-center justify-between transition cursor-pointer ${
-                              isSelected
-                                ? 'bg-red-50 text-red-600 font-bold'
-                                : 'text-slate-700 hover:bg-slate-50'
-                            }`}
-                          >
-                            <span>{opt.label}</span>
-                            {isSelected && <i className="fa-solid fa-check text-xs text-red-600"></i>}
-                          </button>
-                        );
-                      })}
+                    <div className="absolute top-full right-0 sm:left-auto mt-1.5 w-[300px] sm:w-[320px] bg-white rounded-2xl shadow-2xl border border-slate-200 z-50 p-3 animate-fadeIn flex flex-col items-center">
+                      <div className="w-full flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
+                        <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                          <i className="fa-solid fa-compass text-[#00594c]"></i>
+                          <span>Chọn hướng nhà phong thủy</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setOpenFilterMenu(null)}
+                          className="w-6 h-6 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition cursor-pointer"
+                        >
+                          <i className="fa-solid fa-xmark text-xs"></i>
+                        </button>
+                      </div>
+
+                      <DirectionCompassSelector
+                        value={filters.directions && filters.directions.length > 0 ? filters.directions : filters.direction || 'all'}
+                        onChange={(newDirVal, newDirArr) => {
+                          setFilters(prev => ({
+                            ...prev,
+                            direction: newDirVal,
+                            directions: newDirArr
+                          }));
+                        }}
+                      />
                     </div>
                   )}
                 </div>
@@ -1172,6 +1200,186 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
           </div>
         </div>
       </div>
+
+      {/* ====================================================
+          MODAL LỌC CHI TIẾT KHU VỰC, DỰ ÁN (PORTAL)
+         ==================================================== */}
+      {showLocationModal && typeof document !== 'undefined' && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-950/60 backdrop-blur-xs animate-fadeIn">
+          {/* Backdrop click to close */}
+          <div className="fixed inset-0" onClick={() => setShowLocationModal(false)} />
+
+          <div
+            className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden z-10 flex flex-col max-h-[90vh] animate-scaleUp"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between shrink-0">
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+                <i className="fa-solid fa-location-dot text-red-600 text-sm"></i>
+                <span>Khu vực, dự án</span>
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowLocationModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer"
+                aria-label="Đóng"
+              >
+                <i className="fa-solid fa-xmark text-sm"></i>
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="p-4 sm:p-6 space-y-4 overflow-y-auto text-xs flex-1">
+              {/* Switch: Tìm theo địa chỉ mới sau sáp nhập */}
+              <div className="p-3 bg-purple-50/70 border border-purple-100 rounded-2xl flex items-center justify-between gap-3">
+                <span className="font-bold text-xs sm:text-sm text-slate-900">
+                  Tìm theo địa chỉ mới sau sáp nhập
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setDraftLocation(prev => ({ ...prev, useMergedAddress: !prev.useMergedAddress }))}
+                  className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors cursor-pointer ${
+                    draftLocation.useMergedAddress ? 'bg-purple-600' : 'bg-slate-300'
+                  }`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-xs transition-transform ${
+                    draftLocation.useMergedAddress ? 'translate-x-6' : 'translate-x-1'
+                  }`} />
+                </button>
+              </div>
+
+              {/* 1. Tỉnh/Thành phố */}
+              <div className="space-y-1.5">
+                <label className="font-semibold text-slate-700 text-xs sm:text-sm">
+                  Tỉnh/Thành phố
+                </label>
+                <select
+                  value={draftLocation.city || ''}
+                  onChange={(e) => {
+                    const newCity = e.target.value;
+                    setDraftLocation(prev => ({
+                      ...prev,
+                      city: newCity,
+                      district: '',
+                      ward: '',
+                      street: '',
+                      project: ''
+                    }));
+                  }}
+                  className="w-full p-3 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs sm:text-sm font-medium outline-none focus:border-red-500 cursor-pointer"
+                >
+                  <option value="">Tất cả Tỉnh/Thành phố (Toàn quốc)</option>
+                  {CITIES.map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 2. Quận/Huyện */}
+              <div className="space-y-1.5">
+                <label className="font-semibold text-slate-700 text-xs sm:text-sm">
+                  Quận/Huyện
+                </label>
+                <select
+                  value={draftLocation.district || ''}
+                  onChange={(e) => {
+                    const newDist = e.target.value;
+                    setDraftLocation(prev => ({
+                      ...prev,
+                      district: newDist,
+                      ward: '',
+                      street: '',
+                      project: ''
+                    }));
+                  }}
+                  disabled={!draftLocation.city}
+                  className="w-full p-3 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs sm:text-sm font-medium outline-none focus:border-red-500 cursor-pointer disabled:bg-slate-100 disabled:text-slate-400"
+                >
+                  <option value="">{draftLocation.city ? `Tất cả Quận/Huyện tại ${draftLocation.city}` : 'Tất cả Quận/Huyện'}</option>
+                  {districtList.map(dist => (
+                    <option key={dist.id || dist.name} value={dist.name}>{dist.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 3. Phường/Xã */}
+              <div className="space-y-1.5">
+                <label className="font-semibold text-slate-700 text-xs sm:text-sm">
+                  Phường/Xã
+                </label>
+                <select
+                  value={draftLocation.ward || ''}
+                  onChange={(e) => setDraftLocation(prev => ({ ...prev, ward: e.target.value }))}
+                  disabled={wardList.length === 0}
+                  className="w-full p-3 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs sm:text-sm font-medium outline-none focus:border-red-500 cursor-pointer disabled:bg-slate-100 disabled:text-slate-400"
+                >
+                  <option value="">Chọn Phường/Xã</option>
+                  {wardList.map(w => (
+                    <option key={w} value={w}>{w}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 4. Đường/Phố */}
+              <div className="space-y-1.5">
+                <label className="font-semibold text-slate-700 text-xs sm:text-sm">
+                  Đường/Phố
+                </label>
+                <select
+                  value={draftLocation.street || ''}
+                  onChange={(e) => setDraftLocation(prev => ({ ...prev, street: e.target.value }))}
+                  disabled={streetList.length === 0}
+                  className="w-full p-3 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs sm:text-sm font-medium outline-none focus:border-red-500 cursor-pointer disabled:bg-slate-100 disabled:text-slate-400"
+                >
+                  <option value="">Chọn Đường/Phố</option>
+                  {streetList.map(st => (
+                    <option key={st} value={st}>{st}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 5. Dự án */}
+              <div className="space-y-1.5">
+                <label className="font-semibold text-slate-700 text-xs sm:text-sm">
+                  Dự án
+                </label>
+                <select
+                  value={draftLocation.project || ''}
+                  onChange={(e) => setDraftLocation(prev => ({ ...prev, project: e.target.value }))}
+                  disabled={projectList.length === 0}
+                  className="w-full p-3 bg-white border border-slate-300 rounded-xl text-slate-800 text-xs sm:text-sm font-medium outline-none focus:border-red-500 cursor-pointer disabled:bg-slate-100 disabled:text-slate-400"
+                >
+                  <option value="">Chọn Dự án</option>
+                  {projectList.map(pj => (
+                    <option key={pj} value={pj}>{pj}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-slate-200 bg-white flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleResetLocation}
+                className="px-6 py-3 border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-sm rounded-xl transition cursor-pointer shrink-0"
+              >
+                Đặt lại
+              </button>
+
+              <button
+                type="button"
+                onClick={handleApplyLocation}
+                className="flex-1 py-3 bg-[#c93026] hover:bg-red-800 text-white font-bold text-sm rounded-xl shadow-md transition cursor-pointer text-center"
+              >
+                Áp dụng
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

@@ -21,9 +21,17 @@ export function middleware(request) {
     return NextResponse.next();
   }
 
-  // 1. Xử lý trường hợp URL chứa segment /page/1 hoặc /page/1/
-  if (/\/page\/1\/?$/i.test(pathname)) {
-    const cleanPath = pathname.replace(/\/page\/1\/?$/i, '') || '/';
+  // 0. Chuyển hướng 301 chuẩn SEO từ www sang non-www để bảo toàn uy tín tên miền
+  const host = request.headers.get('host') || '';
+  if (host.startsWith('www.')) {
+    const targetUrl = new URL(request.url);
+    targetUrl.host = host.replace(/^www\./i, '');
+    return NextResponse.redirect(targetUrl, { status: 301 });
+  }
+
+  // 1. Xử lý trường hợp URL chứa segment /page/1 hoặc /p1 -> Chuyển hướng 301 về URL gốc
+  if (/\/(?:page\/1|p1)\/?$/i.test(pathname)) {
+    const cleanPath = pathname.replace(/\/(?:page\/1|p1)\/?$/i, '') || '/';
     const normalizedPath = cleanPath === '/' ? '/' : `${cleanPath}/`;
     const targetUrl = new URL(normalizedPath, request.url);
     
@@ -35,7 +43,25 @@ export function middleware(request) {
     return NextResponse.redirect(targetUrl, { status: 301 });
   }
 
-  // 2. Xử lý trường hợp URL có query parameter ?page=...
+  // 2. Chuyển hướng 301 từ URL cũ /page/{number} sang định dạng mới /p{number} (ví dụ: /page/2/ -> /p2, /page/6 -> /p6)
+  if (/\/page\/(\d+)\/?$/i.test(pathname)) {
+    const pageMatch = pathname.match(/\/page\/(\d+)\/?$/i);
+    const pageNum = parseInt(pageMatch[1], 10);
+    const cleanPath = pathname.replace(/\/page\/\d+\/?$/i, '') || '';
+
+    const targetPath = pageNum <= 1 
+      ? (cleanPath ? `${cleanPath}/` : '/') 
+      : (cleanPath ? `${cleanPath}/p${pageNum}` : `/p${pageNum}`);
+
+    const targetUrl = new URL(targetPath, request.url);
+    searchParams.forEach((val, key) => {
+      targetUrl.searchParams.set(key, val);
+    });
+
+    return NextResponse.redirect(targetUrl, { status: 301 });
+  }
+
+  // 3. Xử lý trường hợp URL có query parameter ?page=... -> Chuyển hướng sang /p{number}
   if (searchParams.has('page')) {
     const rawPage = searchParams.get('page');
     const pageNum = parseInt(rawPage, 10);
@@ -55,8 +81,8 @@ export function middleware(request) {
     }
 
     if (pageNum > 1 && String(pageNum) === rawPage) {
-      // Trang 2+: Redirect sang permalink phân trang tĩnh /page/{number}/
-      const targetPath = cleanPath ? `${cleanPath}/page/${pageNum}/` : `/page/${pageNum}/`;
+      // Trang 2+: Redirect sang permalink phân trang mới /p{number}
+      const targetPath = cleanPath ? `${cleanPath}/p${pageNum}` : `/p${pageNum}`;
       const targetUrl = new URL(qs ? `${targetPath}?${qs}` : targetPath, request.url);
       return NextResponse.redirect(targetUrl, { status: 301 });
     }

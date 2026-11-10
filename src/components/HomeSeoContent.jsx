@@ -16,8 +16,8 @@ export default function HomeSeoContent() {
         {/* =====================================================================
             H2: Tin Tức Và Kiến Thức Bất Động Sản
            ===================================================================== */}
-        <div className="mb-14 sm:mb-16">
-          <div className="text-center max-w-4xl mx-auto mb-8 sm:mb-10">
+        <div className="mb-6 sm:mb-8">
+          <div className="text-center max-w-4xl mx-auto mb-6 sm:mb-7">
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug text-center">
               Tin Tức Và Kiến Thức Bất Động Sản
             </h2>
@@ -92,7 +92,7 @@ export default function HomeSeoContent() {
                     to="/kien-thuc/kinh-nghiem"
                     className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-50/80 hover:bg-amber-100 text-amber-700 border border-amber-100/80 transition"
                   >
-                    Đầu Tư & Tối Ưu Vốn
+                    Kinh Nghiệm & Cẩm Nang
                   </Link>
                 </div>
 
@@ -134,7 +134,7 @@ export default function HomeSeoContent() {
               </div>
             </div>
 
-            {/* Nhóm 3: Kiến Thức Pháp Lý Cho Thuê Bất Động Sản */}
+            {/* Nhóm 3: Kiến Thức Pháp Lý & Quy Hoạch Bất Động Sản */}
             <div className="group bg-white rounded-2xl sm:rounded-3xl p-6 sm:p-7 border border-slate-200/90 hover:border-red-300 shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between hover:-translate-y-1">
               <div>
                 <div className="flex items-center justify-between gap-3 mb-5">
@@ -150,10 +150,10 @@ export default function HomeSeoContent() {
                 </div>
 
                 <h3 className="text-base sm:text-lg font-black text-slate-900 leading-snug mb-2.5 group-hover:text-red-600 transition-colors">
-                  Kiến Thức Pháp Lý Cho Thuê Bất Động Sản
+                  Kiến Thức Pháp Lý & Quy Hoạch Bất Động Sản
                 </h3>
                 <p className="text-slate-600 text-xs sm:text-sm leading-relaxed mb-4 font-normal">
-                  Hướng dẫn quy trình làm sổ đỏ, sổ hồng, tra cứu thông tin quy hoạch, biểu mẫu hợp đồng mua bán và các quy định pháp lý về quản lý cho thuê bất động sản.
+                  Hướng dẫn quy trình làm sổ đỏ, sổ hồng, sang tên chuyển nhượng, tra cứu thông tin quy hoạch và biểu mẫu hợp đồng mua bán bất động sản an toàn.
                 </p>
 
                 {/* Flat URL Articles */}
@@ -259,9 +259,9 @@ export default function HomeSeoContent() {
         {/* =====================================================================
             H2: Vì Sao Nên Lựa Chọn Kênh Nhà Đất 24H?
            ===================================================================== */}
-        <div className="mb-14 sm:mb-16">
+        <div className="mb-6 sm:mb-8">
           {/* Section Header */}
-          <div className="text-center max-w-4xl mx-auto mb-8 sm:mb-10">
+          <div className="text-center max-w-4xl mx-auto mb-6 sm:mb-7">
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug text-center">
               Vì Sao Nên Lựa Chọn Kênh Nhà Đất 24H?
             </h2>
@@ -364,8 +364,8 @@ export default function HomeSeoContent() {
         {/* =====================================================================
             H2: Câu Hỏi Thường Gặp Về Mua Bán Và Cho Thuê Nhà Đất
            ===================================================================== */}
-        <div className="mt-14 mb-4">
-          <div className="text-center max-w-4xl mx-auto mb-8 sm:mb-10">
+        <div className="mb-4">
+          <div className="text-center max-w-4xl mx-auto mb-6 sm:mb-7">
             <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug text-center">
               Câu Hỏi Thường Gặp Về Mua Bán Và Cho Thuê Nhà Đất
             </h2>
