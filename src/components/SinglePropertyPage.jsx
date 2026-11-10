@@ -1329,6 +1329,12 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                       <i className="fa-regular fa-calendar-plus text-emerald-600"></i>
                       {new Date(property.publishedAt || property.createdAt || property.submittedAt || Date.now()).toLocaleDateString('vi-VN')}
                     </div>
+                    {property.bumpedAt && (
+                      <div className="text-[10px] text-amber-700 font-bold mt-1 flex items-center gap-1">
+                        <i className="fa-solid fa-arrow-up text-[9px]"></i>
+                        <span>Đã đẩy: {new Date(property.bumpedAt).toLocaleDateString('vi-VN')}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
