@@ -4,7 +4,7 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
 import { useRouter } from '../router/RouterContext';
 import Link from 'next/link';
-import { PROPERTY_TYPES, VIP_PACKAGES, MEMBERSHIP_PACKAGES } from '../data/mockData';
+import { PROPERTY_TYPES, VIP_PACKAGES, MEMBERSHIP_PACKAGES, DEFAULT_APPROVAL_TIERS } from '../data/mockData';
 import ListingTierSelector, { LISTING_RATES, getEffectiveListingRates } from './ListingTierSelector';
 import CustomSelect from './CustomSelect';
 import ListingCard from './ListingCard';
@@ -1414,6 +1414,64 @@ export default function PostListingModal({ onClose, isEmbedded = false, editProp
     }
 
     const isNewAddrSelected = formData.selectedAddressType === 'new';
+    const nowIso = new Date().toISOString();
+    const isAdmin = currentUser?.role === 'admin';
+    const targetVipPkgId = editProperty.vipPackageId || 'normal';
+    const isVipTier = ['vip-diamond', 'vip-gold', 'vip-silver'].includes(targetVipPkgId);
+    const tierConfig = paymentConfig?.approvalTiers?.[targetVipPkgId] || DEFAULT_APPROVAL_TIERS?.[targetVipPkgId] || DEFAULT_APPROVAL_TIERS?.['normal'];
+    const currentPkg = vipPackages?.find(p => p.id === targetVipPkgId) || { name: 'Tin Thường' };
+
+    let newStatus = editProperty.status;
+    let autoApproveAt = editProperty.autoApproveAt || null;
+    let approvalType = editProperty.approvalType || 'content_remod';
+    let approvalNote = editProperty.approvalNote || '';
+    let toastMsg = `Đã cập nhật bài đăng ${editProperty.id} thành công!`;
+    let toastType = 'success';
+
+    // Cơ chế kiểm duyệt lại (Re-moderation) khi chỉnh sửa tin:
+    // Nếu tin đang 'active' hoặc 'pending' và người sửa không phải là Admin
+    if (!isAdmin && (editProperty.status === 'active' || editProperty.status === 'pending')) {
+      if (isVipTier && tierConfig?.mode !== 'countdown' && tierConfig?.mode !== 'manual') {
+        // 1. VIP Kim Cương, VIP Vàng, VIP Bạc (Mặc định duyệt tức thì 0s)
+        newStatus = 'active';
+        autoApproveAt = null;
+        approvalType = 'instant';
+        approvalNote = `Đặc quyền ${currentPkg.name}: Chỉnh sửa nội dung - Duyệt Tức Thì tự động (Active ngay 0s)`;
+        toastMsg = `Đã cập nhật bài đăng ${editProperty.id}! Đặc quyền ${currentPkg.name}: Nội dung được duyệt tự động tức thì.`;
+        toastType = 'success';
+      } else if (isVipTier && tierConfig?.mode === 'countdown') {
+        // Hẹn giờ duyệt VIP theo cấu hình
+        const delayMin = Number(tierConfig?.delayMinutes ?? 15);
+        newStatus = 'pending';
+        autoApproveAt = new Date(Date.now() + delayMin * 60 * 1000).toISOString();
+        approvalType = 'priority_countdown';
+        approvalNote = `${currentPkg.name}: Chỉnh sửa nội dung - Ưu tiên duyệt tự động sau ${delayMin} phút`;
+        toastMsg = `Đã cập nhật bài đăng ${editProperty.id}! Tin được đưa vào hàng đợi ưu tiên kiểm duyệt lại (~${delayMin} phút).`;
+        toastType = 'info';
+      } else if (targetVipPkgId === 'normal' && tierConfig?.mode === 'instant') {
+        // Tin Thường nếu cấu hình Admin bật instant
+        newStatus = 'active';
+        autoApproveAt = null;
+        approvalType = 'instant';
+        approvalNote = 'Tin Thường: Chỉnh sửa nội dung - Duyệt Tức Thì tự động theo cấu hình Admin';
+        toastMsg = `Đã cập nhật bài đăng ${editProperty.id} thành công!`;
+        toastType = 'success';
+      } else {
+        // Tin Thường: Duyệt tự động ngẫu nhiên 5 - 15 phút (hoặc theo cấu hình Admin)
+        const min = Math.max(1, Number(tierConfig?.delayMinMinutes) || 5);
+        const max = Math.max(min, Number(tierConfig?.delayMaxMinutes) || 15);
+        const delayMin = (tierConfig?.mode === 'countdown' && tierConfig?.delayMinutes > 0)
+          ? Number(tierConfig.delayMinutes)
+          : Math.floor(Math.random() * (max - min + 1)) + min;
+        newStatus = 'pending';
+        autoApproveAt = new Date(Date.now() + delayMin * 60 * 1000).toISOString();
+        approvalType = 'random_countdown';
+        approvalNote = `Tin Thường: Chỉnh sửa nội dung - Hàng đợi duyệt tự động ngẫu nhiên ${min} - ${max} phút (Lần này: ~${delayMin} phút)`;
+        toastMsg = `Đã cập nhật bài đăng ${editProperty.id}! Tin đang chờ kiểm duyệt lại tự động (khoảng ~${delayMin} phút).`;
+        toastType = 'info';
+      }
+    }
+
     const payload = {
       ...formData,
       ward: isNewAddrSelected && mergerInfo?.newWard ? mergerInfo.newWard : formData.ward,
@@ -1431,13 +1489,19 @@ export default function PostListingModal({ onClose, isEmbedded = false, editProp
       bedroom: formData.bedroom ? Number(formData.bedroom) : null,
       bathroom: formData.bathroom ? Number(formData.bathroom) : null,
       floor: formData.floor ? Number(formData.floor) : null,
-      updatedAt: new Date().toISOString()
+      status: newStatus,
+      autoApproveAt: autoApproveAt,
+      approvalType: approvalType,
+      approvalNote: approvalNote,
+      publishedAt: editProperty.publishedAt || (newStatus === 'active' ? nowIso : null),
+      expiresAt: editProperty.expiresAt || null,
+      updatedAt: nowIso
     };
 
     if (updateProperty && editProperty?.id) {
       updateProperty(editProperty.id, payload);
     }
-    showToast(`Đã cập nhật bài đăng ${editProperty.id} thành công!`, 'success');
+    showToast(toastMsg, toastType);
     if (onClose) onClose();
   };
 
@@ -2845,7 +2909,7 @@ export default function PostListingModal({ onClose, isEmbedded = false, editProp
                   </div>
                   <p className="text-[11px] text-blue-800/80 pt-1">
                     <i className="fa-solid fa-circle-info mr-1 text-blue-600"></i>
-                    Chỉnh sửa nội dung, hình ảnh và thông số không làm thay đổi hạn dùng của gói tin. Để gia hạn hoặc nâng cấp VIP, vui lòng sử dụng chức năng &quot;Gia Hạn&quot; hoặc &quot;Nâng VIP&quot; tại danh sách tin đăng.
+                    Sau khi lưu chỉnh sửa, bài viết sẽ được hệ thống kiểm duyệt lại tự động theo cấp độ tin (VIP được duyệt tức thì/ưu tiên sớm, Tin Thường duyệt tự động sau 5 - 15 phút). Hạn dùng gốc của tin được bảo lưu nguyên vẹn.
                   </p>
                 </div>
 

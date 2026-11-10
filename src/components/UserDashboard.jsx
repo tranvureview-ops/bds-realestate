@@ -857,11 +857,13 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                             </div>
                           ) : (
                             <div className="mt-2 text-[11px] text-amber-800 bg-amber-50 border border-amber-200/80 px-2.5 py-1 rounded-xl flex items-center gap-1.5 w-fit">
-                              <i className="fa-solid fa-circle-info text-amber-600"></i>
+                              <i className="fa-solid fa-clock text-amber-600"></i>
                               <span>
-                                {prop.vipPackageId === 'normal' || !prop.vipPackageId
-                                  ? 'Tin đang trong Hàng Đợi Tiêu Chuẩn FIFO. Hệ thống sẽ tự động xuất bản trong vòng 1 tiếng (hoặc BQT duyệt sớm).'
-                                  : 'Tin đang trong Hàng Đợi Ưu Tiên Sớm và sẽ tự động kích hoạt.'}
+                                {prop.autoApproveAt
+                                  ? `Tin đang trong hàng đợi kiểm duyệt tự động (Dự kiến hoàn tất lúc ${new Date(prop.autoApproveAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}).`
+                                  : (prop.vipPackageId === 'normal' || !prop.vipPackageId
+                                      ? 'Tin đang trong Hàng Đợi Tiêu Chuẩn FIFO. Hệ thống sẽ tự động xuất bản trong vòng 5 - 15 phút (hoặc BQT duyệt sớm).'
+                                      : 'Tin đang trong Hàng Đợi Ưu Tiên Sớm và sẽ tự động kích hoạt.')}
                               </span>
                             </div>
                           )

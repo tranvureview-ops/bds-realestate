@@ -6264,6 +6264,30 @@
       "place_id": "ChIJb_e9cR0XQjERw1z3hC59_qQ",
       "is_merged": true,
       "created_at": "2026-11-10T01:08:42.186Z"
+    },
+    "a86ef648eab05125261f83d845fef219": {
+      "address_hash": "a86ef648eab05125261f83d845fef219",
+      "raw_address": "Hạ Long, Phường Hải Châu, Quận Hải Châu, Bà Rịa - Vũng Tàu",
+      "clean_address": "Đường Hạ Long, Phường Hải Châu, Bà Rịa - Vũng Tàu",
+      "new_ward": "Phường Hải Châu",
+      "new_district": "Quận Hải Châu",
+      "lat": 16.0748,
+      "lng": 108.224,
+      "place_id": "ChIJb_e9cR0XQjERw1z3hC59_qQ",
+      "is_merged": true,
+      "created_at": "2026-11-10T01:24:09.978Z"
+    },
+    "fcebc2b9f61aa7918eb635752f8b59fa": {
+      "address_hash": "fcebc2b9f61aa7918eb635752f8b59fa",
+      "raw_address": "Phường Hòa Khánh Bắc, Quận Liên Chiểu, Đà Nẵng",
+      "clean_address": "Đường Phường Hòa Khánh Bắc, Phường Hòa Khánh, Đà Nẵng",
+      "new_ward": "Phường Hòa Khánh",
+      "new_district": "Quận Liên Chiểu",
+      "lat": 16.068,
+      "lng": 108.151,
+      "place_id": "ChIJX9YgQ_QWQjERgLpZ2o944Qc",
+      "is_merged": true,
+      "created_at": "2026-11-10T01:28:49.775Z"
     }
   },
   "bds_system_settings": {
