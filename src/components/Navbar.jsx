@@ -320,7 +320,7 @@ export default function Navbar() {
                   className="overflow-x-auto no-scrollbar scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] whitespace-nowrap flex items-center gap-4 text-[11px] text-slate-300 py-0.5 w-full"
                 >
                   {displayTickerList.map((evt, idx) => (
-                    <div key={evt.id || idx} className="inline-flex items-center gap-1.5 shrink-0 bg-slate-800/80 hover:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-slate-700/60 transition">
+                    <div key={`${evt.id || 'ticker'}-${idx}`} className="inline-flex items-center gap-1.5 shrink-0 bg-slate-800/80 hover:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-slate-700/60 transition">
                       <div className="w-3.5 h-3.5 rounded-full bg-indigo-500/30 text-indigo-300 flex items-center justify-center text-[8px] shrink-0">
                         <i className="fa-solid fa-user"></i>
                       </div>
