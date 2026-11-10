@@ -39,10 +39,18 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
     ? property.images
     : ['https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80'];
 
-  // Tra cứu tác giả mới nhất từ usersList để đảm bảo tên & avatar luôn cập nhật đồng bộ 100%
-  const authorUser = property.author?.id 
-    ? usersList?.find(u => String(u.id) === String(property.author.id))
-    : (property.author?.phone ? usersList?.find(u => normalizePhone(u.phone) === normalizePhone(property.author.phone)) : null);
+  // Tra cứu tác giả mới nhất từ usersList theo ID, số điện thoại hoặc tên để đảm bảo tên & avatar luôn cập nhật đồng bộ 100%
+  const cleanPhone = (phone) => (phone || '').replace(/\D/g, '');
+  const pPhone = cleanPhone(property.author?.phone || property.contactPhone);
+  const pName = (property.author?.name || '').trim().toLowerCase();
+
+  const authorUser = usersList?.find(u => {
+    if (property.author?.id && String(u.id) === String(property.author.id)) return true;
+    const uPhone = cleanPhone(u.phone);
+    if (uPhone && pPhone && uPhone.length >= 9 && uPhone === pPhone) return true;
+    if (pName && u.name && u.name.trim().toLowerCase() === pName) return true;
+    return false;
+  });
 
   const rawAuthorPhone = authorUser?.phone || property.author?.phone || property.contactPhone || '0908 123 456';
   const displayAuthorPhone = formatPhoneNumber(rawAuthorPhone);
@@ -72,7 +80,7 @@ export default function ListingCard({ property, viewMode = 'grid', priority = fa
     : Boolean(property.author?.isVerified || property.author?.kycStatus === 'verified');
 
   const rawAvatar = authorUser?.avatar || property.author?.avatar || '/avatars/user-tran-van-vu.jpg';
-  const cleanAvatar = (typeof rawAvatar === 'string' && (rawAvatar.startsWith('data:image') || rawAvatar.includes('photo-1573496359142-b8d87734a5a2')))
+  const cleanAvatar = (typeof rawAvatar === 'string' && (rawAvatar.startsWith('data:image') || rawAvatar.includes('photo-1573496359142-b8d87734a5a2') || rawAvatar.includes('photo-1534528741775')))
     ? '/avatars/user-tran-van-vu.jpg'
     : (rawAvatar || '/avatars/user-tran-van-vu.jpg');
 

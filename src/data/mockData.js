@@ -2794,7 +2794,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -2841,7 +2841,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -2888,7 +2888,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -2932,7 +2932,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -2976,7 +2976,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3017,7 +3017,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3060,7 +3060,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3103,7 +3103,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3148,7 +3148,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3195,7 +3195,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3241,7 +3241,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3284,7 +3284,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3330,7 +3330,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3373,7 +3373,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3419,7 +3419,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3463,7 +3463,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3509,7 +3509,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3552,7 +3552,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3593,7 +3593,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3635,7 +3635,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3682,7 +3682,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3724,7 +3724,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3769,7 +3769,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3812,7 +3812,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3853,7 +3853,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3898,7 +3898,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3944,7 +3944,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -3987,7 +3987,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -4029,7 +4029,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -4075,7 +4075,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -4120,7 +4120,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -4165,7 +4165,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -4206,7 +4206,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -4249,7 +4249,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -4295,7 +4295,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -4340,7 +4340,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -4386,7 +4386,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -4432,7 +4432,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -4475,7 +4475,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -4516,7 +4516,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -4565,7 +4565,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -4661,7 +4661,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -4758,7 +4758,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -4856,7 +4856,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -4953,7 +4953,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -5002,7 +5002,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -5099,7 +5099,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -5196,7 +5196,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
@@ -5294,7 +5294,7 @@ export const INITIAL_PROPERTIES = [
       "name": "Trần Văn Vũ",
       "phone": "0905 467 138",
       "email": "bds24h.contact@gmail.com",
-      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "avatar": "/avatars/user-tran-van-vu.jpg",
       "role": "agent",
       "isVerified": true
     },
