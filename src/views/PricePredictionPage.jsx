@@ -1644,7 +1644,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
         ) : (
           <div className="space-y-8">
             {/* KHU VỰC 1: CÁC KỲ ĐANG MỞ DỰ ĐOÁN (ƯU TIÊN HÀNG ĐẦU) */}
-            {activeGamesList.length > 0 && filterTab !== 'settled' && (
+            {activeGamesList.length > 0 && filterTab !== 'settled' ? (
               <div className="space-y-4">
                 <div className="flex items-center justify-between pb-1">
                   <div className="flex items-center gap-2">
@@ -1666,6 +1666,28 @@ export default function PricePredictionPage({ projectSlug = null }) {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
                     {activeGamesList.map(game => renderGameCard(game, false))}
                   </div>
+                )}
+              </div>
+            ) : filterTab !== 'settled' && (
+              <div className="p-6 bg-slate-900 text-white rounded-3xl border border-slate-800 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg shrink-0">
+                    <i className="fa-solid fa-hourglass-half"></i>
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-sm text-white">Hiện tại chưa có kỳ dự đoán mới đang mở</h4>
+                    <p className="text-xs text-slate-400">Ban Quản Trị đang thẩm định dự án cho kỳ tiếp theo. Hãy đón xem kết quả các kỳ trước bên dưới!</p>
+                  </div>
+                </div>
+                {displayedSettledGames.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setFilterTab('settled')}
+                    className="px-4 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition shrink-0 cursor-pointer"
+                  >
+                    <i className="fa-solid fa-trophy mr-1.5"></i>
+                    Xem kết quả đã trao giải
+                  </button>
                 )}
               </div>
             )}

@@ -69,16 +69,15 @@ export default function Navbar() {
   const userMenuRef = useRef(null);
   const isGuest = !currentUser || currentUser.role === 'guest';
 
-  // Quản lý Live Ticker trên thanh Topbar
-  const [topbarTickerEvents, setTopbarTickerEvents] = useState(() => [
-    { id: 'def-1', userName: '090***240', price: '5.65', totalPrize: '2.000.000 đ', timeText: 'Vừa xong' },
-    { id: 'def-2', userName: 'Dương K***', price: '5.36', totalPrize: '2.000.000 đ', timeText: '1 phút trước' },
-    { id: 'def-3', userName: 'Bùi Đức T***', price: '5.43', totalPrize: '2.000.000 đ', timeText: '2 phút trước' },
-    { id: 'def-4', userName: 'Nguyễn Văn T***', price: '15.6', totalPrize: '2.000.000 đ', timeText: '3 phút trước' },
-    { id: 'def-5', userName: '098***342', price: '15.7', totalPrize: '2.000.000 đ', timeText: '4 phút trước' },
-    { id: 'def-6', userName: 'Trần Thị M***', price: '15.5', totalPrize: '2.000.000 đ', timeText: '5 phút trước' },
-    { id: 'def-7', userName: '097***471', price: '6.01', totalPrize: '2.000.000 đ', timeText: '7 phút trước' }
-  ]);
+  // Quản lý Live Ticker trên thanh Topbar (Tự động ẩn hoàn toàn nếu không có kỳ nào đang mở)
+  const [topbarTickerEvents, setTopbarTickerEvents] = useState(() => {
+    try {
+      const initialEvents = getLivePredictionTickerEvents();
+      return Array.isArray(initialEvents) ? initialEvents : [];
+    } catch {
+      return [];
+    }
+  });
 
   // Nhân bản danh sách 3 lần để đảm bảo cuộn vô tận (Infinite Seamless Loop) trên mọi độ phân giải
   const displayTickerList = useMemo(() => {
@@ -89,13 +88,23 @@ export default function Navbar() {
   const tickerContainerRef = useRef(null);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    const syncTickerEvents = () => {
       try {
         const events = getLivePredictionTickerEvents();
-        if (Array.isArray(events) && events.length > 0) {
-          setTopbarTickerEvents(events);
-        }
-      } catch (e) {}
+        setTopbarTickerEvents(Array.isArray(events) ? events : []);
+      } catch (e) {
+        setTopbarTickerEvents([]);
+      }
+    };
+
+    syncTickerEvents();
+    if (typeof window !== 'undefined') {
+      window.addEventListener('bds_prediction_programs_updated', syncTickerEvents);
+      window.addEventListener('storage', syncTickerEvents);
+      return () => {
+        window.removeEventListener('bds_prediction_programs_updated', syncTickerEvents);
+        window.removeEventListener('storage', syncTickerEvents);
+      };
     }
   }, []);
 
@@ -308,34 +317,36 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Center: LIVE TICKER DỰ ĐOÁN GIÁ BĐS (Đã đưa lên Topbar, ẩn trên giao diện Mobile) */}
-            <div className="hidden md:flex flex-1 min-w-0 mx-1 sm:mx-3 overflow-hidden">
-              <Link
-                to="/trung-tam-phan-thuong/du-doan-gia-bds"
-                className="flex items-center gap-2 overflow-hidden hover:opacity-95 transition cursor-pointer group"
-                title="Bấm để vào tham gia Dự đoán giá BĐS ngay"
-              >
-                <div 
-                  ref={tickerContainerRef}
-                  className="overflow-x-auto no-scrollbar scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] whitespace-nowrap flex items-center gap-4 text-[11px] text-slate-300 py-0.5 w-full"
+            {/* Center: LIVE TICKER DỰ ĐOÁN GIÁ BĐS (Chỉ hiển thị khi có kỳ đang mở, tự động ẩn hoàn toàn nếu không có kỳ nào) */}
+            {displayTickerList.length > 0 && (
+              <div className="hidden md:flex flex-1 min-w-0 mx-1 sm:mx-3 overflow-hidden">
+                <Link
+                  to="/trung-tam-phan-thuong/du-doan-gia-bds"
+                  className="flex items-center gap-2 overflow-hidden hover:opacity-95 transition cursor-pointer group"
+                  title="Bấm để vào tham gia Dự đoán giá BĐS ngay"
                 >
-                  {displayTickerList.map((evt, idx) => (
-                    <div key={`${evt.id || 'ticker'}-${idx}`} className="inline-flex items-center gap-1.5 shrink-0 bg-slate-800/80 hover:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-slate-700/60 transition">
-                      <div className="w-3.5 h-3.5 rounded-full bg-indigo-500/30 text-indigo-300 flex items-center justify-center text-[8px] shrink-0">
-                        <i className="fa-solid fa-user"></i>
+                  <div 
+                    ref={tickerContainerRef}
+                    className="overflow-x-auto no-scrollbar scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] whitespace-nowrap flex items-center gap-4 text-[11px] text-slate-300 py-0.5 w-full"
+                  >
+                    {displayTickerList.map((evt, idx) => (
+                      <div key={`${evt.id || 'ticker'}-${idx}`} className="inline-flex items-center gap-1.5 shrink-0 bg-slate-800/80 hover:bg-slate-800 px-2.5 py-0.5 rounded-lg border border-slate-700/60 transition">
+                        <div className="w-3.5 h-3.5 rounded-full bg-indigo-500/30 text-indigo-300 flex items-center justify-center text-[8px] shrink-0">
+                          <i className="fa-solid fa-user"></i>
+                        </div>
+                        <strong className="text-white font-bold">{evt.userName}</strong>
+                        <span className="text-slate-300"><strong className="text-white font-semibold">Dự đoán giá BĐS</strong> với mức giá <strong className="text-indigo-400 font-mono font-black">{evt.price} tỷ</strong>!</span>
+                        <span className="text-amber-300/90 font-medium">Tổng giải thưởng <strong className="text-amber-300 font-mono font-black">{String(evt.totalPrize || '2.000.000 đ').replace(/\s*Ví\s*KM/gi, '').trim()}</strong></span>
+                        <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1 pl-1 border-l border-slate-700/80">
+                          <i className="fa-regular fa-clock text-[9px] text-slate-400"></i>
+                          <span>{evt.timeText || (evt.createdAt ? formatRelativeTime(evt.createdAt) : 'Vừa xong')}</span>
+                        </span>
                       </div>
-                      <strong className="text-white font-bold">{evt.userName}</strong>
-                      <span className="text-slate-300"><strong className="text-white font-semibold">Dự đoán giá BĐS</strong> với mức giá <strong className="text-indigo-400 font-mono font-black">{evt.price} tỷ</strong>!</span>
-                      <span className="text-amber-300/90 font-medium">Tổng giải thưởng <strong className="text-amber-300 font-mono font-black">{String(evt.totalPrize || '2.000.000 đ').replace(/\s*Ví\s*KM/gi, '').trim()}</strong></span>
-                      <span className="text-[10px] text-slate-400 font-medium flex items-center gap-1 pl-1 border-l border-slate-700/80">
-                        <i className="fa-regular fa-clock text-[9px] text-slate-400"></i>
-                        <span>{evt.timeText || (evt.createdAt ? formatRelativeTime(evt.createdAt) : 'Vừa xong')}</span>
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </Link>
-            </div>
+                    ))}
+                  </div>
+                </Link>
+              </div>
+            )}
 
             {/* Right: Mạng xã hội */}
             <div suppressHydrationWarning className="flex items-center justify-end gap-2 sm:gap-3 text-slate-300 text-[11px] shrink-0">

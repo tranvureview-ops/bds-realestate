@@ -58,10 +58,15 @@ export function getLivePredictionTickerEvents() {
   try {
     const programs = getStoredPredictionPrograms();
     const activePrograms = (programs || []).filter(p => p.status === 'active');
-    const targetProgs = activePrograms.length > 0 ? activePrograms : (programs || []);
+    
+    // Nếu KHÔNG có kỳ nào đang mở (active): ẩn Live Ticker hoàn toàn (trả về mảng rỗng [])
+    if (!activePrograms || activePrograms.length === 0) {
+      return [];
+    }
+
     const events = [];
 
-    targetProgs.forEach(prog => {
+    activePrograms.forEach(prog => {
       let records = getStoredPredictions(prog.id);
       // Nếu chưa có lượt dự đoán nào trong storage nhưng bot đang bật, tự động khởi tạo bot đồng bộ
       if ((!records || records.length === 0) && prog.botConfig?.isEnabled && Number(prog.botConfig?.botCount || 0) > 0) {
