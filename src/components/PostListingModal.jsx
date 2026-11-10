@@ -1340,6 +1340,13 @@ export default function PostListingModal({ onClose, isEmbedded = false, editProp
 
   // Lưu thay đổi khi chỉnh sửa tin đăng (Chế độ Edit)
   const handleSaveEdit = async () => {
+    // 0. Kiểm tra nếu tin đã hết hạn: khóa không cho chỉnh sửa, yêu cầu gia hạn
+    if (editProperty?.status === 'expired' || (editProperty?.expiresAt && new Date(editProperty.expiresAt).getTime() < Date.now())) {
+      showToast('Tin đăng này đã hết hạn hiển thị! Vui lòng Gia hạn tin trước khi Chỉnh sửa.', 'warning');
+      if (onClose) onClose();
+      return;
+    }
+
     // 1. Kiểm tra thông tin Bước 1
     if (!formData.city) {
       setStep(1);

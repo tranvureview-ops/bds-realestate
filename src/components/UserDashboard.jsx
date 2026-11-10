@@ -1073,15 +1073,30 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                       )}
 
                       {/* Chỉnh sửa bài viết */}
-                      <button
-                        type="button"
-                        onClick={() => setEditingProperty(prop)}
-                        className="px-3 py-1.5 font-bold rounded-xl text-xs transition shadow-xs flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 cursor-pointer"
-                        title="Chỉnh sửa thông tin bài viết"
-                      >
-                        <i className="fa-solid fa-pen-to-square"></i>
-                        <span>Chỉnh sửa</span>
-                      </button>
+                      {isItemExpired ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            showToast('Tin đăng này đã hết hạn hiển thị! Vui lòng Gia hạn tin trước khi Chỉnh sửa.', 'warning');
+                            handleOpenRenewModal(prop);
+                          }}
+                          className="px-3 py-1.5 font-medium rounded-xl text-xs transition shadow-xs flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-400 border border-slate-200 cursor-pointer"
+                          title="Tin đăng đã hết hạn hiển thị. Bắt buộc gia hạn tin trước khi chỉnh sửa"
+                        >
+                          <i className="fa-solid fa-lock text-slate-400 text-[10px]"></i>
+                          <span>Chỉnh sửa</span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setEditingProperty(prop)}
+                          className="px-3 py-1.5 font-bold rounded-xl text-xs transition shadow-xs flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 cursor-pointer"
+                          title="Chỉnh sửa thông tin bài viết"
+                        >
+                          <i className="fa-solid fa-pen-to-square"></i>
+                          <span>Chỉnh sửa</span>
+                        </button>
+                      )}
 
                       {/* View preview */}
                       <Link
