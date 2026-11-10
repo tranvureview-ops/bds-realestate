@@ -67,16 +67,16 @@ export function findProperty(propertyList, parsedUrl, currentPath = '') {
     return null;
   }
 
-  // Tiêu chí 1: Khớp mã BĐS định danh chuẩn (ID-first: -pr{id}, /pr{id}, /bds-{id})
-  if (parsedUrl.normalizedBdsId || parsedUrl.rawIdNumber) {
-    const idMatch = findPropertyById(propertyList, parsedUrl.normalizedBdsId, parsedUrl.rawIdNumber);
-    if (idMatch) return idMatch;
-  }
-
-  // Tiêu chí 2: Khớp chính xác Canonical Permalink
+  // Tiêu chí 1: Khớp chính xác Canonical Permalink (Ưu tiên tuyệt đối tránh nhầm lẫn)
   if (currentPath) {
     const permalinkMatch = findPropertyByPermalink(propertyList, currentPath);
     if (permalinkMatch) return permalinkMatch;
+  }
+
+  // Tiêu chí 2: Khớp mã BĐS định danh chuẩn (ID-first: -pr{id}, /pr{id}, /bds-{id})
+  if (parsedUrl.normalizedBdsId || parsedUrl.rawIdNumber) {
+    const idMatch = findPropertyById(propertyList, parsedUrl.normalizedBdsId, parsedUrl.rawIdNumber, parsedUrl.rawSlug);
+    if (idMatch) return idMatch;
   }
 
   // Tiêu chí 3: Khớp slug tiêu đề (ưu tiên tin đang active)
@@ -87,16 +87,38 @@ export function findProperty(propertyList, parsedUrl, currentPath = '') {
   return null;
 }
 
-function findPropertyById(propertyList, normalizedBdsId, rawIdNumber) {
-  return propertyList.find((property) => {
-    if (!property) return false;
-    if (normalizedBdsId && property.id?.toUpperCase() === normalizedBdsId.toUpperCase()) {
-      return true;
+function findPropertyById(propertyList, normalizedBdsId, rawIdNumber, rawSlug = '') {
+  // 1. Khớp chính xác ID định danh (ví dụ BDS-001 hoặc BDS-BRVT-005)
+  if (normalizedBdsId) {
+    const exactMatch = propertyList.find((p) => p && p.id?.toUpperCase() === normalizedBdsId.toUpperCase());
+    if (exactMatch) return exactMatch;
+  }
+
+  // 2. Nếu tìm theo số thuần (ví dụ rawIdNumber = '005'), chỉ khớp với tin có ID thuần số (BDS-005)
+  // và đối chiếu slug để không bao giờ ghép nhầm bài đăng khác
+  if (rawIdNumber && /^\d+$/.test(String(rawIdNumber))) {
+    const numericMatches = propertyList.filter((p) => {
+      if (!p || !p.id) return false;
+      if (!/^BDS-\d+$/i.test(p.id)) return false;
+      const propertyNumber = parseInt(p.id.replace(/\D/g, ''), 10);
+      const parsedNumber = parseInt(rawIdNumber, 10);
+      return !isNaN(propertyNumber) && !isNaN(parsedNumber) && propertyNumber === parsedNumber;
+    });
+
+    if (numericMatches.length > 0) {
+      if (rawSlug) {
+        const slugMatch = numericMatches.find(
+          (p) =>
+            (p.slug && p.slug.toLowerCase() === rawSlug.toLowerCase()) ||
+            toVietnameseSlug(p.title) === rawSlug.toLowerCase()
+        );
+        if (slugMatch) return slugMatch;
+      }
+      return numericMatches[0];
     }
-    const propertyNumber = parseInt(String(property.id || '').replace(/\D/g, ''), 10);
-    const parsedNumber = parseInt(String(rawIdNumber || '').replace(/\D/g, ''), 10);
-    return !isNaN(propertyNumber) && !isNaN(parsedNumber) && propertyNumber === parsedNumber;
-  });
+  }
+
+  return null;
 }
 
 function findPropertyByPermalink(propertyList, currentPath) {

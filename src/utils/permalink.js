@@ -1160,10 +1160,21 @@ export const formatAreaRangeText = (areaRange, label = '') => {
 export const getPropertyPermalink = (property) => {
   if (!property) return '/';
 
-  const numOnly = String(property.id || '').replace(/\D/g, '');
-  const idSuffix = numOnly
-    ? numOnly.padStart(3, '0')
-    : String(property.id || '').replace(/^BDS-?/i, '').toLowerCase();
+  const rawId = String(property.id || '').trim();
+  let idSuffix = '';
+
+  // 1. Nếu ID có định dạng số thuần BDS-001, BDS-031... -> lấy số pad 3 chữ số: '001', '031'
+  if (/^BDS-\d+$/i.test(rawId)) {
+    const numPart = rawId.replace(/^BDS-/i, '');
+    idSuffix = numPart.padStart(3, '0');
+  } else if (/^BDS-/i.test(rawId)) {
+    // 2. Nếu ID có mã khu vực hoặc chuỗi định danh BDS-BRVT-005, BDS-HCM-001... -> giữ nguyên mã khu vực: 'brvt-005', 'hcm-001'
+    idSuffix = rawId.replace(/^BDS-/i, '').toLowerCase();
+  } else if (/^\d+$/.test(rawId)) {
+    idSuffix = rawId.padStart(3, '0');
+  } else {
+    idSuffix = rawId.toLowerCase();
+  }
 
   let baseSlug = property.slug || toVietnameseSlug(property.title) || 'bat-dong-san';
   // Loại bỏ hậu tố -pr cũ nếu đã có trong slug để đảm bảo tính nhất quán tuyệt đối
@@ -1182,11 +1193,18 @@ export const cleanUrlPath = (urlPath) => {
 };
 
 export const formatBdsIdentifier = (rawIdNumber) => {
-  const numOnly = rawIdNumber.replace(/\D/g, '');
-  if (numOnly) return `BDS-${numOnly.padStart(3, '0')}`;
-  return rawIdNumber.toUpperCase().startsWith('BDS-')
-    ? rawIdNumber.toUpperCase()
-    : `BDS-${rawIdNumber.toUpperCase()}`;
+  if (!rawIdNumber) return '';
+  const cleanId = String(rawIdNumber).trim();
+  // 1. Nếu là số thuần: ví dụ '001', '5' -> 'BDS-001', 'BDS-005'
+  if (/^\d+$/.test(cleanId)) {
+    return `BDS-${cleanId.padStart(3, '0')}`;
+  }
+  // 2. Nếu đã có tiền tố BDS- -> BDS-BRVT-005
+  if (cleanId.toUpperCase().startsWith('BDS-')) {
+    return cleanId.toUpperCase();
+  }
+  // 3. Nếu có dạng 'brvt-005' -> 'BDS-BRVT-005'
+  return `BDS-${cleanId.toUpperCase()}`;
 };
 
 /**

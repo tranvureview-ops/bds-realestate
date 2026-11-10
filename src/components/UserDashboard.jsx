@@ -702,7 +702,7 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                   >
                     {/* Property info */}
                     <div className="flex items-start gap-4">
-                      <Link to={getPropertyPermalink(prop)} className="shrink-0 block relative">
+                      <Link to={getPropertyPermalink(prop)} target="_blank" rel="noopener noreferrer" className="shrink-0 block relative">
                         <SeoImage
                           src={prop.images?.[0]}
                           property={prop}
@@ -783,6 +783,8 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                         <h4 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 property-title-sentence">
                           <Link 
                             to={getPropertyPermalink(prop)}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="hover:underline hover:text-emerald-600 transition"
                           >
                             {formatSentenceCase(prop.title)}
@@ -1082,8 +1084,10 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                       {/* View preview */}
                       <Link
                         to={getPropertyPermalink(prop)}
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center text-xs transition"
-                        title="Xem chi tiết tin"
+                        title="Xem chi tiết tin (mở tab mới)"
                       >
                         <i className="fa-solid fa-eye"></i>
                       </Link>

@@ -18,23 +18,26 @@ export default function PropertyDetailPage({ initialProperty = null, slug = '', 
   // 2. Tìm nhà đất phù hợp bằng quy tắc Ưu Tiên ID Tuyệt Đối (Strict ID-First Matching)
   let targetProperty = initialProperty || null;
 
-  // Tiêu chí 1: Strict ID Matching (khi URL chứa -pr{id})
-  if (!targetProperty && (parsed.normalizedBdsId || parsed.rawIdNumber)) {
-    targetProperty = properties.find(p => {
-      if (!p) return false;
-      if (parsed.normalizedBdsId && p.id?.toUpperCase() === parsed.normalizedBdsId.toUpperCase()) return true;
-      const pNum = parseInt(String(p.id || '').replace(/\D/g, ''), 10);
-      const parsedNum = parseInt(String(parsed.rawIdNumber || '').replace(/\D/g, ''), 10);
-      return !isNaN(pNum) && !isNaN(parsedNum) && pNum === parsedNum;
-    });
-  }
-
-  // Tiêu chí 2: Exact Canonical Permalink Matching
+  // Tiêu chí 1: Exact Canonical Permalink Matching (Ưu tiên tuyệt đối)
   if (!targetProperty && effectivePath) {
     targetProperty = properties.find(p => {
       if (!p) return false;
       const pLink = getPropertyPermalink(p);
       return pLink === effectivePath || pLink.replace(/\/$/, '') === effectivePath.replace(/\/$/, '');
+    });
+  }
+
+  // Tiêu chí 2: Strict ID Matching (khi URL chứa -pr{id})
+  if (!targetProperty && (parsed.normalizedBdsId || parsed.rawIdNumber)) {
+    targetProperty = properties.find(p => {
+      if (!p) return false;
+      if (parsed.normalizedBdsId && p.id?.toUpperCase() === parsed.normalizedBdsId.toUpperCase()) return true;
+      if (/^\d+$/.test(String(parsed.rawIdNumber || '')) && /^BDS-\d+$/i.test(String(p.id || ''))) {
+        const pNum = parseInt(String(p.id).replace(/\D/g, ''), 10);
+        const parsedNum = parseInt(parsed.rawIdNumber, 10);
+        return !isNaN(pNum) && !isNaN(parsedNum) && pNum === parsedNum;
+      }
+      return false;
     });
   }
 

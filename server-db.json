@@ -35,6 +35,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": true,
@@ -57,8 +58,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-027",
@@ -96,6 +96,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": true,
@@ -118,8 +119,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-031",
@@ -156,6 +156,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": true,
@@ -178,8 +179,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-028",
@@ -216,6 +216,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": true,
@@ -238,8 +239,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-026",
@@ -277,6 +277,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": true,
@@ -299,8 +300,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-029",
@@ -337,6 +337,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": true,
@@ -359,8 +360,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-023",
@@ -397,6 +397,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -419,8 +420,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-015",
@@ -458,6 +458,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -480,8 +481,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-014",
@@ -518,6 +518,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -540,8 +541,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-013",
@@ -578,6 +578,7 @@
       "autoRenew": false,
       "bumpCount": 1,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": true,
@@ -600,8 +601,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-012",
@@ -638,6 +638,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -660,8 +661,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-011",
@@ -698,6 +698,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -720,8 +721,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-025",
@@ -758,6 +758,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -780,8 +781,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-001",
@@ -820,6 +820,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": true,
@@ -842,8 +843,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-003",
@@ -881,6 +881,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -903,8 +904,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-024",
@@ -941,6 +941,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": true,
@@ -963,8 +964,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-010",
@@ -1001,6 +1001,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": true,
@@ -1023,8 +1024,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-017",
@@ -1061,6 +1061,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": true,
@@ -1083,8 +1084,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-016",
@@ -1121,6 +1121,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": true,
@@ -1143,8 +1144,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-019",
@@ -1181,6 +1181,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": true,
@@ -1203,8 +1204,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-009",
@@ -1240,6 +1240,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -1262,8 +1263,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-002",
@@ -1301,6 +1301,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": true,
@@ -1323,8 +1324,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-004",
@@ -1362,6 +1362,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": true,
@@ -1384,8 +1385,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-021",
@@ -1422,6 +1422,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": true,
@@ -1444,8 +1445,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-020",
@@ -1482,6 +1482,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -1504,8 +1505,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-018",
@@ -1542,6 +1542,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -1564,8 +1565,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-022",
@@ -1601,6 +1601,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -1623,8 +1624,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-005",
@@ -1661,6 +1661,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": true,
@@ -1683,8 +1684,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-006",
@@ -1721,6 +1721,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -1743,8 +1744,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-007",
@@ -1781,6 +1781,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2027-04-30T23:59:59+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": true,
@@ -1803,8 +1804,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-008",
@@ -1833,12 +1833,14 @@
       "address": "Đường Nguyễn Lương Bằng, Phường Hòa Khánh Bắc, Quận Liên Chiểu, Đà Nẵng",
       "bedroom": 0,
       "bathroom": 0,
+      "bumpedAt": null,
       "district": "Quận Liên Chiểu",
       "hasVR360": false,
       "videoUrl": null,
       "vrScenes": [],
       "amenities": [],
       "autoRenew": false,
+      "bumpCount": 0,
       "expiresAt": "2026-09-15T08:07:50.447+00:00",
       "isDeleted": false,
       "archivedAt": "2026-11-04T08:09:06.099Z",
@@ -1869,9 +1871,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "bumpedAt": null,
-      "bumpCount": 0
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-CT-002",
@@ -1907,6 +1907,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -1929,8 +1930,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-CT-001",
@@ -1967,6 +1967,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -1989,8 +1990,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-KH-007",
@@ -2026,6 +2026,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -2048,8 +2049,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-KH-006",
@@ -2086,6 +2086,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -2108,8 +2109,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-DNA-007",
@@ -2145,6 +2145,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -2167,8 +2168,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-DNA-006",
@@ -2205,6 +2205,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -2227,8 +2228,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HP-007",
@@ -2264,6 +2264,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -2286,8 +2287,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HP-006",
@@ -2324,6 +2324,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -2346,8 +2347,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HN-011",
@@ -2384,6 +2384,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -2406,8 +2407,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HN-010",
@@ -2443,6 +2443,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -2465,8 +2466,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HN-009",
@@ -2503,6 +2503,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -2525,8 +2526,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HN-008",
@@ -2562,6 +2562,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -2584,8 +2585,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HCM-013",
@@ -2622,6 +2622,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -2644,8 +2645,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HCM-012",
@@ -2681,6 +2681,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -2703,8 +2704,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HCM-011",
@@ -2741,6 +2741,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -2763,8 +2764,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HCM-010",
@@ -2800,6 +2800,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -2822,8 +2823,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HCM-009",
@@ -2860,6 +2860,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -2882,8 +2883,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HP-001",
@@ -2919,6 +2919,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -2941,8 +2942,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-BRVT-001",
@@ -2978,6 +2978,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -3000,8 +3001,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HN-001",
@@ -3037,6 +3037,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -3059,8 +3060,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-DNA-001",
@@ -3096,6 +3096,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -3118,8 +3119,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HCM-001",
@@ -3156,6 +3156,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -3178,8 +3179,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-KH-001",
@@ -3215,6 +3215,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -3237,8 +3238,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-BD-001",
@@ -3274,6 +3274,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -3296,8 +3297,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-BD-002",
@@ -3332,6 +3332,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -3354,8 +3355,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HP-002",
@@ -3390,6 +3390,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -3412,8 +3413,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-BRVT-002",
@@ -3448,6 +3448,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -3470,8 +3471,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HCM-002",
@@ -3507,6 +3507,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -3529,8 +3530,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-KH-002",
@@ -3565,6 +3565,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -3587,8 +3588,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-DNA-002",
@@ -3623,6 +3623,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -3645,8 +3646,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HN-002",
@@ -3682,6 +3682,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -3704,8 +3705,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-BD-003",
@@ -3740,6 +3740,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -3762,8 +3763,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HP-003",
@@ -3798,6 +3798,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -3820,8 +3821,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-BRVT-003",
@@ -3856,6 +3856,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -3878,8 +3879,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HCM-003",
@@ -3915,6 +3915,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -3937,8 +3938,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-KH-003",
@@ -3973,6 +3973,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -3995,8 +3996,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-DNA-003",
@@ -4031,6 +4031,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -4053,8 +4054,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HN-003",
@@ -4090,6 +4090,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -4112,8 +4113,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HP-004",
@@ -4148,6 +4148,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -4170,8 +4171,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-DNA-004",
@@ -4206,6 +4206,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -4228,8 +4229,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-BRVT-004",
@@ -4264,6 +4264,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -4286,8 +4287,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-KH-004",
@@ -4322,6 +4322,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -4344,8 +4345,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HCM-004",
@@ -4381,6 +4381,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -4403,8 +4404,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-BD-004",
@@ -4439,6 +4439,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -4461,8 +4462,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-KH-005",
@@ -4497,6 +4497,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.448+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -4519,8 +4520,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-BD-005",
@@ -4555,6 +4555,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.449+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -4577,8 +4578,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HN-004",
@@ -4613,6 +4613,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.449+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -4635,15 +4636,18 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-BRVT-005",
+      "lat": 16.07303965024453,
+      "lng": 108.20147037506105,
       "area": 100,
       "city": "Bà Rịa - Vũng Tàu",
       "slug": "ban-nha-pho-marine-city-cua-lap-vung-tau",
-      "ward": "Xã Phước Tỉnh",
+      "ward": "Phường Hải Châu",
+      "floor": null,
+      "legal": "",
       "price": 4500000000,
       "title": "Bán nhà phố marine city cửa lấp vũng tàu 3 mặt sông sinh thái không gian sống lý tưởng",
       "author": {
@@ -4657,44 +4661,69 @@
         "isVerified": false
       },
       "demand": "sale",
+      "facade": null,
       "images": [
         "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
       ],
       "status": "active",
-      "address": "Khu đô thị Marine City, Cửa Lấp, Xã Phước Tỉnh, Huyện Long Điền, Bà Rịa - Vũng Tàu",
+      "street": "Hạ Long",
+      "address": "Đường Hạ Long, Phường Hải Châu, Bà Rịa - Vũng Tàu",
       "bedroom": 3,
+      "project": "",
       "bathroom": 4,
       "bumpedAt": null,
-      "district": "Huyện Long Điền",
+      "district": "Quận Hải Châu",
+      "hasVR360": false,
+      "roadType": "car_pass",
+      "videoUrl": "",
       "vrScenes": [],
       "amenities": [],
       "autoRenew": false,
       "bumpCount": 0,
+      "direction": "",
       "expiresAt": "2026-11-18T08:07:50.449+00:00",
+      "furniture": "",
+      "isDeleted": false,
+      "priceType": "total",
+      "updatedAt": "2026-11-10T01:08:54.675Z",
+      "vrTourUrl": "",
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
+      "newAddress": "Đường Hạ Long, Phường Hải Châu, Bà Rịa - Vũng Tàu",
       "pricePerM2": "45 triệu/m²",
       "viewsCount": 0,
+      "contactName": "Tran Van Vu",
+      "description": "Bán nhà 123 test phố xây mới tâm huyết, ngõ thông ô tô tránh đỗ cửa: q123 test - Diện tích: 65m2 x 5 tầng, mặt tiền rộng 5.2m vuông vắn không lỗi phong thủy. - Đường trước nhà rộng 7.5m trải nhựa, 2 ô tô tránh nhau thoải mái, ô tô 7 chỗ vào thẳng gara trong nhà. - Công năng thiết kế thông minh: + Tầng 1: Gara ô tô, phòng khách phụ, WC. + Tầng 2: Phòng khách lớn sang trọng, bếp ăn hiện đại full tủ bếp. + Tầng 3, 4: Mỗi tầng 2 phòng ngủ rộng khép kín, ban công thoáng sáng. + Tầng 5: Phòng thờ tôn nghiêm, sân phơi giặt đồ, vườn tiểu cảnh BBQ. - Vị trí đắc địa: Gần trường học liên cấp, chợ dân sinh, bệnh viện, ga metro chỉ 300m. - Pháp lý: Sổ đỏ chính chủ, sẵn sàng giao dịch ngay",
       "is_verified": false,
       "listingDays": 15,
       "publishedAt": "2026-03-24T11:20:00+00:00",
+      "contactEmail": "tranvanvu.dev@gmail.com",
+      "contactPhone": "0905 467 138",
+      "entranceRoad": null,
       "priceDisplay": "4.5 tỷ",
       "propertyType": "house",
       "vipExpiredAt": null,
       "vipPackageId": "normal",
       "queuePriority": "standard_fifo",
-      "google_place_id": null,
+      "addressDisplay": "Khu đô thị Marine City, Cửa Lấp, Xã Phước Tỉnh, Huyện Long Điền, Bà Rịa - Vũng Tàu",
+      "contactAddress": "",
+      "coverImageIndex": 0,
+      "detailedAddress": "Khu đô thị Marine City, Cửa Lấp, Xã Phước Tỉnh, Huyện Long Điền, Bà Rịa - Vũng Tàu",
+      "google_place_id": "ChIJb_e9cR0XQjERw1z3hC59_qQ",
+      "balconyDirection": "",
       "nearbyFacilities": [],
+      "propertyTypeName": "Nhà riêng",
       "downgradedFromVip": null,
       "verificationStatus": "unverified",
+      "selectedAddressType": "new",
       "verification_status": "unverified",
       "isTreasureHuntActive": false,
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
+      "isAdministrativeMerged": true,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-DNA-005",
@@ -4729,6 +4758,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.449+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -4751,8 +4781,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HCM-005",
@@ -4788,6 +4817,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.449+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -4810,8 +4840,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HP-005",
@@ -4846,6 +4875,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.449+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -4868,8 +4898,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HCM-006",
@@ -4904,6 +4933,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.449+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -4926,8 +4956,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HN-005",
@@ -4962,6 +4991,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.449+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -4984,8 +5014,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HN-006",
@@ -5020,6 +5049,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.449+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -5042,8 +5072,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HCM-007",
@@ -5078,6 +5107,7 @@
       "autoRenew": false,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.449+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -5100,8 +5130,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HN-007",
@@ -5136,6 +5165,7 @@
       "autoRenew": false,
       "bumpCount": 1,
       "expiresAt": "2026-11-18T08:07:50.449+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -5158,8 +5188,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     },
     {
       "id": "BDS-HCM-008",
@@ -5194,6 +5223,7 @@
       "autoRenew": true,
       "bumpCount": 0,
       "expiresAt": "2026-11-18T08:07:50.449+00:00",
+      "isDeleted": false,
       "callsCount": 0,
       "isFeatured": false,
       "isVerified": false,
@@ -5216,8 +5246,7 @@
       "treasureHuntExpiresAt": null,
       "verificationDocuments": null,
       "treasureHuntActivatedAt": null,
-      "verificationRejectReason": null,
-      "isDeleted": false
+      "verificationRejectReason": null
     }
   ],
   "bds_users_list": [
@@ -6199,6 +6228,42 @@
       "place_id": "ChIJ_nP_w9ABbbQMxQOvGqEnYii",
       "is_merged": false,
       "created_at": "2026-11-09T13:02:49.411Z"
+    },
+    "ca6b4ab04836e6533b3e1133479a5515": {
+      "address_hash": "ca6b4ab04836e6533b3e1133479a5515",
+      "raw_address": "Xã Phước Tỉnh, Huyện Long Điền, Bà Rịa - Vũng Tàu",
+      "clean_address": "Xã Phước Tỉnh, Huyện Long Điền, Bà Rịa - Vũng Tàu",
+      "new_ward": "Xã Phước Tỉnh",
+      "new_district": "Huyện Long Điền",
+      "lat": 16.0544,
+      "lng": 108.2022,
+      "place_id": "ChIJ_NPT6opxexT4r5wEDOaSdVL",
+      "is_merged": false,
+      "created_at": "2026-11-10T01:07:53.218Z"
+    },
+    "ad4fe6a8a22bb768beb155af5befb3ca": {
+      "address_hash": "ad4fe6a8a22bb768beb155af5befb3ca",
+      "raw_address": "Phường 2, Thành phố Vũng Tàu, Bà Rịa - Vũng Tàu",
+      "clean_address": "Đường Phường 2, Phường Hải Châu, Bà Rịa - Vũng Tàu",
+      "new_ward": "Phường Hải Châu",
+      "new_district": "Quận Hải Châu",
+      "lat": 16.0748,
+      "lng": 108.224,
+      "place_id": "ChIJb_e9cR0XQjERw1z3hC59_qQ",
+      "is_merged": true,
+      "created_at": "2026-11-10T01:08:40.587Z"
+    },
+    "c1362e0143d9d16932295ff3cc541c3e": {
+      "address_hash": "c1362e0143d9d16932295ff3cc541c3e",
+      "raw_address": "Hạ Long, Phường 2, Thành phố Vũng Tàu, Bà Rịa - Vũng Tàu",
+      "clean_address": "Đường Hạ Long, Phường Hải Châu, Bà Rịa - Vũng Tàu",
+      "new_ward": "Phường Hải Châu",
+      "new_district": "Quận Hải Châu",
+      "lat": 16.0748,
+      "lng": 108.224,
+      "place_id": "ChIJb_e9cR0XQjERw1z3hC59_qQ",
+      "is_merged": true,
+      "created_at": "2026-11-10T01:08:42.186Z"
     }
   },
   "bds_system_settings": {
