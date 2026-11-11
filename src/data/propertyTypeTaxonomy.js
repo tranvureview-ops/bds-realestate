@@ -177,8 +177,8 @@ export const PROPERTY_TYPE_NAMES = {
   'house-group': 'Các loại nhà bán',
   'house-rent-group': 'Các loại nhà cho thuê',
   'land-group': 'Các loại đất bán',
-  
-  // Các loại hình cụ thể
+
+  // Các loại hình cụ thể (mã chuẩn)
   'all': 'Tất cả nhà đất',
   'apartment': 'Căn hộ chung cư',
   'mini-apartment': 'Chung cư mini, căn hộ dịch vụ',
@@ -194,30 +194,85 @@ export const PROPERTY_TYPE_NAMES = {
   'office': 'Văn phòng',
   'commercial-space': 'Cửa hàng, mặt bằng bán lẻ',
   'room': 'Nhà trọ, phòng trọ',
-  'other': 'Nhà đất khác'
+  'other': 'Nhà đất khác',
+
+  // Biến thể tiền tố rent-*
+  'rent-apartment': 'Căn hộ chung cư',
+  'rent-mini-apartment': 'Chung cư mini, căn hộ dịch vụ',
+  'rent-house': 'Nhà riêng, nhà phố',
+  'rent-villa': 'Nhà biệt thự, liền kề',
+  'rent-street-house': 'Nhà mặt phố',
+  'rent-shophouse': 'Shophouse, nhà phố thương mại',
+  'rent-project-land': 'Đất nền dự án',
+  'rent-land': 'Đất thổ cư, đất ở',
+  'rent-farm-resort': 'Trang trại, khu nghỉ dưỡng',
+  'rent-condotel': 'Condotel',
+  'rent-warehouse': 'Kho, nhà xưởng, đất',
+  'rent-office': 'Văn phòng',
+  'rent-commercial-space': 'Cửa hàng, mặt bằng bán lẻ',
+  'rent-room': 'Nhà trọ, phòng trọ',
+  'rent-other': 'Nhà đất khác',
+
+  // Biến thể slug tiếng Việt
+  'can-ho-chung-cu': 'Căn hộ chung cư',
+  'chung-cu-mini': 'Chung cư mini, căn hộ dịch vụ',
+  'nha-rieng': 'Nhà riêng, nhà phố',
+  'nha-biet-thu-lien-ke': 'Nhà biệt thự, liền kề',
+  'nha-mat-pho': 'Nhà mặt phố',
+  'dat-nen-du-an': 'Đất nền dự án',
+  'dat-nen': 'Đất nền dự án',
+  'dat': 'Đất thổ cư, đất ở',
+  'trang-trai-khu-nghi-duong': 'Trang trại, khu nghỉ dưỡng',
+  'kho-nha-xuong': 'Kho, nhà xưởng',
+  'mat-bang-van-phong': 'Văn phòng, mặt bằng',
+  'van-phong': 'Văn phòng',
+  'cua-hang-mat-bang-ban-le': 'Cửa hàng, mặt bằng bán lẻ',
+  'nha-tro-phong-tro': 'Nhà trọ, phòng trọ',
+  'bat-dong-san-khac': 'Nhà đất khác'
 };
+
+/**
+ * Chuẩn hóa ID loại hình thô (mã số cId, tiền tố rent-*, khoảng trắng) về ID chuẩn
+ */
+function normalizePropertyTypeKey(rawId) {
+  if (!rawId) return '';
+  const trimmed = String(rawId).trim();
+  if (/^\d+$/.test(trimmed)) {
+    return BATDONGSAN_ID_TO_TYPE_MAP[parseInt(trimmed, 10)] || trimmed;
+  }
+  return trimmed;
+}
 
 /**
  * Trả về tên tiếng Việt hiển thị thân thiện cho bất kỳ ID loại hình hoặc nhóm loại hình BĐS
  */
 export function getPropertyTypeDisplayName(id, demand = 'sale') {
-  if (!id || id === 'all') return demand === 'rent' ? 'Tất cả nhà đất cho thuê' : 'Tất cả nhà đất';
-  
-  if (id === 'house-group') return demand === 'rent' ? 'Các loại nhà cho thuê' : 'Các loại nhà bán';
-  if (id === 'house-rent-group') return 'Các loại nhà cho thuê';
-  if (id === 'land-group') return demand === 'rent' ? 'Các loại đất cho thuê' : 'Các loại đất bán';
-  
-  if (PROPERTY_TYPE_NAMES[id]) return PROPERTY_TYPE_NAMES[id];
+  const normalizedId = normalizePropertyTypeKey(id);
+  if (!normalizedId || normalizedId === 'all') {
+    return demand === 'rent' ? 'Tất cả nhà đất cho thuê' : 'Tất cả nhà đất';
+  }
 
-  const flat = getFlatPropertyTypes(demand);
-  const found = flat.find(f => f.id === id);
-  if (found?.name) return found.name;
+  if (normalizedId === 'house-group') return demand === 'rent' ? 'Các loại nhà cho thuê' : 'Các loại nhà bán';
+  if (normalizedId === 'house-rent-group') return 'Các loại nhà cho thuê';
+  if (normalizedId === 'land-group') return demand === 'rent' ? 'Các loại đất cho thuê' : 'Các loại đất bán';
 
-  const options = getPropertyTypeOptions(demand);
-  const opt = options.find(o => o.value === id);
-  if (opt?.label) return opt.label;
+  if (PROPERTY_TYPE_NAMES[normalizedId]) return PROPERTY_TYPE_NAMES[normalizedId];
 
-  return id;
+  const strippedRent = normalizedId.startsWith('rent-') ? normalizedId.slice(5) : normalizedId;
+  if (PROPERTY_TYPE_NAMES[strippedRent]) return PROPERTY_TYPE_NAMES[strippedRent];
+
+  // Tìm trong cây & danh sách của nhu cầu hiện tại trước, sau đó fallback sang nhu cầu còn lại
+  for (const d of [demand, demand === 'rent' ? 'sale' : 'rent']) {
+    const flat = getFlatPropertyTypes(d);
+    const found = flat.find(f => f.id === normalizedId || f.id === strippedRent);
+    if (found?.name) return found.name;
+
+    const options = getPropertyTypeOptions(d);
+    const opt = options.find(o => o.value === normalizedId || o.value === strippedRent);
+    if (opt?.label) return opt.label;
+  }
+
+  return normalizedId;
 }
 
 /**
@@ -410,10 +465,10 @@ export function formatPropertyTypeTriggerLabel(rawSelected, demand = 'sale', fal
 
   let selected = [];
   if (Array.isArray(rawSelected)) {
-    selected = rawSelected.filter(id => id && id !== 'all');
+    selected = rawSelected.map(normalizePropertyTypeKey).filter(id => id && id !== 'all');
   } else if (typeof rawSelected === 'string') {
     if (rawSelected === 'all' || !rawSelected.trim()) return fallbackLabel;
-    selected = rawSelected.split(',').map(s => s.trim()).filter(id => id && id !== 'all');
+    selected = rawSelected.split(',').map(normalizePropertyTypeKey).filter(id => id && id !== 'all');
   }
 
   if (selected.length === 0) return fallbackLabel;
@@ -425,6 +480,7 @@ export function formatPropertyTypeTriggerLabel(rawSelected, demand = 'sale', fal
   flatTypes.forEach(t => {
     if (!typeMap.has(t.id)) typeMap.set(t.id, t.name);
   });
+  const resolveLabel = (id) => typeMap.get(id) || getPropertyTypeDisplayName(id, demand);
 
   // Kiểm tra trọn nhóm nhà (Chấp nhận cả id 'house-group' / 'house-rent-group' hoặc đủ 4 mục con)
   const houseChildren = ['house', 'villa', 'street-house', 'shophouse'];
@@ -448,14 +504,12 @@ export function formatPropertyTypeTriggerLabel(rawSelected, demand = 'sale', fal
 
   // 1 lựa chọn
   if (selected.length === 1) {
-    return typeMap.get(selected[0]) || selected[0];
+    return resolveLabel(selected[0]);
   }
 
   // 2 lựa chọn
   if (selected.length === 2) {
-    const name1 = typeMap.get(selected[0]) || selected[0];
-    const name2 = typeMap.get(selected[1]) || selected[1];
-    return `${name1}, ${name2}`;
+    return `${resolveLabel(selected[0])}, ${resolveLabel(selected[1])}`;
   }
 
   // > 2 lựa chọn
