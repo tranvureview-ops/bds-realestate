@@ -195,7 +195,7 @@ export default function Footer() {
 
           {/* Cột 2: Quick links & Khu vực nổi bật */}
           <div className="lg:col-span-3 space-y-6">
-            <nav aria-label="Khám phá nhanh">
+            <nav aria-label="Khám phá bất động sản">
               <h3 className="text-xs font-black uppercase text-white tracking-wider mb-3">
                 {col2Title}
               </h3>
