@@ -16,13 +16,15 @@ const DOMAIN = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, ''
 // 1. METADATA API CHUẨN SEO GOOGLE (TITLE < 60 chars, DESC < 160 chars)
 // ============================================================================
 export const metadata: Metadata = {
-  title: `Quy Trình Giải Quyết Khiếu Nại | ${BRAND_NAME}`,
+  title: {
+    absolute: `Quy trình giải quyết khiếu nại | ${BRAND_NAME}`,
+  },
   description: `Cơ chế và quy trình 3 bước tiếp nhận, xử lý khiếu nại, tranh chấp giao dịch nhà đất tại ${BRAND_NAME}. Bảo vệ quyền lợi người tiêu dùng 24/7.`,
   alternates: {
     canonical: `${DOMAIN}/giai-quyet-khieu-nai`,
   },
   openGraph: {
-    title: `Quy Trình Giải Quyết Khiếu Nại | ${BRAND_NAME}`,
+    title: `Quy trình giải quyết khiếu nại | ${BRAND_NAME}`,
     description: `Quy trình 3 bước tiếp nhận và xử lý khiếu nại giao dịch nhà đất minh bạch tại sàn ${BRAND_NAME}.`,
     url: `${DOMAIN}/giai-quyet-khieu-nai`,
     siteName: BRAND_NAME,
@@ -31,7 +33,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: `Giải Quyết Tranh Chấp & Khiếu Nại | ${BRAND_NAME}`,
+    title: `Giải quyết tranh chấp & khiếu nại | ${BRAND_NAME}`,
     description: `Cơ chế tiếp nhận và bảo vệ quyền lợi người mua, người bán trên sàn giao dịch ${BRAND_NAME}.`,
   },
   robots: {
@@ -46,7 +48,7 @@ export const metadata: Metadata = {
 const jsonLdData = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
-  name: `Quy Trình Tiếp Nhận và Giải Quyết Khiếu Nại - ${BRAND_NAME}`,
+  name: `Quy trình tiếp nhận và giải quyết khiếu nại - ${BRAND_NAME}`,
   description: `Cơ chế giải quyết tranh chấp giao dịch nhà đất và bảo vệ quyền lợi người tiêu dùng tại ${BRAND_NAME}.`,
   url: `${DOMAIN}/giai-quyet-khieu-nai`,
   inLanguage: 'vi-VN',

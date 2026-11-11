@@ -4,14 +4,14 @@ import { SITE_URL } from '../../utils/permalink';
 
 export const metadata = {
   title: {
-    absolute: 'Xem Tuổi Mua Đất Xây Nhà & Mượn Tuổi Làm Nhà Chuẩn Phong Thủy | Kênh Nhà Đất 24H'
+    absolute: 'Xem tuổi mua đất xây nhà & mượn tuổi làm nhà chuẩn phong thủy | Kênh Nhà Đất 24H'
   },
-  description: 'Công cụ tra cứu phong thủy xem tuổi mua đất, làm nhà, động thổ khởi công chuẩn nhất. Tính hạn Tam Tai, Kim Lâu, Hoang Ốc, Cung Bát Trạch và gợi ý tuổi đẹp mượn tuổi làm nhà.',
+  description: 'Công cụ tra cứu phong thủy xem tuổi mua đất, làm nhà, động thổ khởi công chuẩn nhất. Tính hạn Tam Tai, Kim Lâu, Hoang Ốc, cung Bát Trạch và gợi ý tuổi đẹp mượn tuổi làm nhà.',
   alternates: {
     canonical: `${SITE_URL.replace(/\/+$/, '')}/xem-tuoi-mua-dat-xay-nha`
   },
   openGraph: {
-    title: 'Xem Tuổi Mua Đất Xây Nhà & Mượn Tuổi Làm Nhà Chuẩn Phong Thủy | Kênh Nhà Đất 24H',
+    title: 'Xem tuổi mua đất xây nhà & mượn tuổi làm nhà chuẩn phong thủy | Kênh Nhà Đất 24H',
     description: 'Tra cứu tuổi làm nhà, mua đất hợp phong thủy. Đánh giá 3 đại kỵ Tam Tai, Kim Lâu, Hoang Ốc và danh sách các tuổi đẹp mượn tuổi động thổ trong năm.',
     url: `${SITE_URL.replace(/\/+$/, '')}/xem-tuoi-mua-dat-xay-nha`,
     type: 'website',
@@ -20,7 +20,7 @@ export const metadata = {
         url: `${SITE_URL.replace(/\/+$/, '')}/hero.png`,
         width: 1200,
         height: 630,
-        alt: 'Xem Tuổi Mua Đất Xây Nhà - Kênh Nhà Đất 24H'
+        alt: 'Xem tuổi mua đất xây nhà - Kênh Nhà Đất 24H'
       }
     ]
   }

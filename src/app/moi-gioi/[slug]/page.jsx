@@ -18,7 +18,7 @@ export async function generateMetadata({ params }) {
   const broker = resolveBrokerFromSlug(slug, users, properties);
   if (!broker) {
     return {
-      title: 'Không Tìm Thấy Môi Giới | Kênh Nhà Đất 24H',
+      title: 'Không tìm thấy môi giới | Kênh Nhà Đất 24H',
       robots: {
         index: false,
         follow: false
@@ -26,12 +26,12 @@ export async function generateMetadata({ params }) {
     };
   }
 
-  const formattedName = broker.name || 'Chuyên Viên';
+  const formattedName = broker.name || 'Chuyên viên';
   const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '');
   const canonicalUrl = `${baseUrl}/moi-gioi/${slug || ''}`;
 
   return {
-    title: `Hồ Sơ Môi Giới ${formattedName} | Nhà Đất Đang Quản Lý`,
+    title: `Hồ sơ môi giới ${formattedName} | Nhà đất đang quản lý`,
     description: `Xem toàn bộ danh sách nhà đất và tin đăng nhà đất đang quản lý bởi chuyên viên môi giới ${formattedName}. Liên hệ trực tiếp xem nhà và nhận tư vấn pháp lý chính xác.`,
     alternates: {
       canonical: canonicalUrl,
@@ -41,7 +41,7 @@ export async function generateMetadata({ params }) {
       follow: true,
     },
     openGraph: {
-      title: `Hồ Sơ Môi Giới ${formattedName} | Sàn Giao Dịch BĐS Kênh Nhà Đất 24H`,
+      title: `Hồ sơ môi giới ${formattedName} | Sàn giao dịch BĐS Kênh Nhà Đất 24H`,
       description: `Khám phá các nhà đất bán và cho thuê đang quản lý bởi môi giới ${formattedName}.`,
       url: canonicalUrl,
       type: 'profile',

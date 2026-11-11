@@ -2,7 +2,9 @@ import React from 'react';
 import Link from 'next/link';
 
 export const metadata = {
-  title: '404 - Không Tìm Thấy Trang | Kênh Nhà Đất 24H',
+  title: {
+    absolute: '404 - Không tìm thấy trang | Kênh Nhà Đất 24H',
+  },
   description: 'Trang bạn đang tìm kiếm không tồn tại hoặc đã được chuyển đến địa chỉ mới trên hệ sinh thái Kênh Nhà Đất 24H.',
   robots: {
     index: false,

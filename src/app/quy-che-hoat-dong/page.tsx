@@ -16,14 +16,16 @@ const DOMAIN = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, ''
 // 1. METADATA API CHUẨN SEO GOOGLE (TITLE < 60 chars, DESC < 160 chars)
 // ============================================================================
 export const metadata: Metadata = {
-  title: `Quy Chế Hoạt Động Sàn BĐS | ${BRAND_NAME}`,
-  description: `Quy chế hoạt động Sàn giao dịch TMĐT nhà đất ${BRAND_NAME}. Quyền và nghĩa vụ thành viên, quy định kiểm duyệt tin và chế tài xử lý vi phạm.`,
+  title: {
+    absolute: `Quy chế hoạt động sàn BĐS | ${BRAND_NAME}`,
+  },
+  description: `Quy chế hoạt động sàn giao dịch TMĐT nhà đất ${BRAND_NAME}. Quyền và nghĩa vụ thành viên, quy định kiểm duyệt tin và chế tài xử lý vi phạm.`,
   alternates: {
     canonical: `${DOMAIN}/quy-che-hoat-dong`,
   },
   openGraph: {
-    title: `Quy Chế Hoạt Động Sàn BĐS | ${BRAND_NAME}`,
-    description: `Quy chế hoạt động Sàn TMĐT nhà đất ${BRAND_NAME}. Quyền và nghĩa vụ thành viên, quy định đăng tin và chế tài vi phạm.`,
+    title: `Quy chế hoạt động sàn BĐS | ${BRAND_NAME}`,
+    description: `Quy chế hoạt động sàn TMĐT nhà đất ${BRAND_NAME}. Quyền và nghĩa vụ thành viên, quy định đăng tin và chế tài vi phạm.`,
     url: `${DOMAIN}/quy-che-hoat-dong`,
     siteName: BRAND_NAME,
     locale: 'vi_VN',
@@ -31,8 +33,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: `Quy Chế Hoạt Động Sàn BĐS | ${BRAND_NAME}`,
-    description: `Quy chế hoạt động Sàn TMĐT nhà đất ${BRAND_NAME}. Tuân thủ pháp luật Việt Nam.`,
+    title: `Quy chế hoạt động sàn BĐS | ${BRAND_NAME}`,
+    description: `Quy chế hoạt động sàn TMĐT nhà đất ${BRAND_NAME}. Tuân thủ pháp luật Việt Nam.`,
   },
   robots: {
     index: true,
@@ -46,8 +48,8 @@ export const metadata: Metadata = {
 const jsonLdData = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
-  name: `Quy Chế Hoạt Động Sàn Giao Dịch Nhà Đất ${BRAND_NAME}`,
-  description: `Quy chế hoạt động Sàn TMĐT nhà đất ${BRAND_NAME}. Căn cứ Nghị định 52/2013/NĐ-CP và Nghị định 85/2021/NĐ-CP.`,
+  name: `Quy chế hoạt động sàn giao dịch nhà đất ${BRAND_NAME}`,
+  description: `Quy chế hoạt động sàn TMĐT nhà đất ${BRAND_NAME}. Căn cứ Nghị định 52/2013/NĐ-CP và Nghị định 85/2021/NĐ-CP.`,
   url: `${DOMAIN}/quy-che-hoat-dong`,
   inLanguage: 'vi-VN',
   datePublished: '2024-01-01',

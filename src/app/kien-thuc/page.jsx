@@ -7,15 +7,15 @@ const domain = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, ''
 
 export const metadata = {
   title: {
-    absolute: 'Kiến Thức & Cẩm Nang Bất Động Sản Thực Chiến [2026] | Kênh Nhà Đất 24H'
+    absolute: 'Kiến thức & cẩm nang bất động sản thực chiến [2026] | Kênh Nhà Đất 24H'
   },
-  description: 'Tổng hợp kiến thức bất động sản thực chiến 2026: Phân tích biến động giá thị trường, kinh nghiệm mua bán đầu tư, thủ tục pháp lý sổ đỏ sổ hồng và tra cứu quy hoạch chuẩn 100%.',
+  description: 'Tổng hợp kiến thức bất động sản thực chiến 2026: phân tích biến động giá thị trường, kinh nghiệm mua bán đầu tư, thủ tục pháp lý sổ đỏ sổ hồng và tra cứu quy hoạch chuẩn 100%.',
   alternates: {
     canonical: `${domain}/kien-thuc`
   },
   openGraph: {
-    title: 'Kiến Thức & Cẩm Nang Bất Động Sản Thực Chiến [2026] | Kênh Nhà Đất 24H',
-    description: 'Tổng hợp kiến thức bất động sản thực chiến 2026: Phân tích biến động giá thị trường, kinh nghiệm mua bán đầu tư, thủ tục pháp lý sổ đỏ sổ hồng và tra cứu quy hoạch chuẩn 100%.',
+    title: 'Kiến thức & cẩm nang bất động sản thực chiến [2026] | Kênh Nhà Đất 24H',
+    description: 'Tổng hợp kiến thức bất động sản thực chiến 2026: phân tích biến động giá thị trường, kinh nghiệm mua bán đầu tư, thủ tục pháp lý sổ đỏ sổ hồng và tra cứu quy hoạch chuẩn 100%.',
     url: `${domain}/kien-thuc`,
     type: 'website',
     images: [
@@ -23,14 +23,14 @@ export const metadata = {
         url: `${domain}/hero.png`,
         width: 1200,
         height: 630,
-        alt: 'Kiến Thức Và Cẩm Nang Bất Động Sản - Kênh Nhà Đất 24H'
+        alt: 'Kiến thức và cẩm nang bất động sản - Kênh Nhà Đất 24H'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Kiến Thức & Cẩm Nang Bất Động Sản Thực Chiến [2026] | Kênh Nhà Đất 24H',
-    description: 'Tổng hợp kiến thức bất động sản thực chiến 2026: Phân tích giá cả, kinh nghiệm đầu tư, pháp lý sổ đỏ và tra cứu quy hoạch.',
+    title: 'Kiến thức & cẩm nang bất động sản thực chiến [2026] | Kênh Nhà Đất 24H',
+    description: 'Tổng hợp kiến thức bất động sản thực chiến 2026: phân tích giá cả, kinh nghiệm đầu tư, pháp lý sổ đỏ và tra cứu quy hoạch.',
     images: [`${domain}/hero.png`]
   }
 };
@@ -49,7 +49,7 @@ export default function KnowledgeRootPage() {
       {
         '@type': 'ListItem',
         position: 2,
-        name: 'Kiến Thức & Cẩm Nang Bất Động Sản',
+        name: 'Kiến thức & cẩm nang bất động sản',
         item: `${domain}/kien-thuc`
       }
     ]
@@ -59,8 +59,8 @@ export default function KnowledgeRootPage() {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     '@id': `${domain}/kien-thuc#collection`,
-    name: 'Kiến Thức Và Cẩm Nang Bất Động Sản Thực Chiến [2026] | Kênh Nhà Đất 24H',
-    description: 'Tổng hợp kiến thức bất động sản thực chiến 2026: Phân tích biến động giá thị trường, kinh nghiệm mua bán đầu tư, thủ tục pháp lý sổ đỏ sổ hồng và tra cứu quy hoạch chuẩn 100%.',
+    name: 'Kiến thức và cẩm nang bất động sản thực chiến [2026] | Kênh Nhà Đất 24H',
+    description: 'Tổng hợp kiến thức bất động sản thực chiến 2026: phân tích biến động giá thị trường, kinh nghiệm mua bán đầu tư, thủ tục pháp lý sổ đỏ sổ hồng và tra cứu quy hoạch chuẩn 100%.',
     url: `${domain}/kien-thuc`,
     inLanguage: 'vi-VN',
     isPartOf: {

@@ -9,7 +9,7 @@ export const PROMOTIONS_DATA = [
   {
     id: 'km-01',
     slug: 'tang-100k-nap-dau-tien',
-    title: 'Tặng 100.000đ vào Ví Khuyến Mãi khi nạp ví lần đầu',
+    title: 'Tặng 100.000đ vào ví khuyến mãi khi nạp ví lần đầu',
     category: 'nap-tien',
     categoryLabel: 'Nạp tiền ví',
     badge: 'Hot nhất',
@@ -60,7 +60,7 @@ export const PROMOTIONS_DATA = [
   {
     id: 'km-03',
     slug: 'tri-an-moi-gioi-xuan-2027',
-    title: 'Tri ân Nhà Môi Giới: Tặng 50.000đ Ví KM & 5 lượt đẩy tin TOP',
+    title: 'Tri ân nhà môi giới: tặng 50.000đ ví KM & 5 lượt đẩy tin TOP',
     category: 'hoi-vien',
     categoryLabel: 'Hội viên Môi giới',
     badge: 'Quà tặng',
@@ -82,7 +82,7 @@ export const PROMOTIONS_DATA = [
   {
     id: 'km-04',
     slug: 'uu-dai-hoi-vien-vang',
-    title: 'Nâng cấp Gói Hội Viên Vàng - Chiết khấu 25% trọn đời',
+    title: 'Nâng cấp gói hội viên Vàng - chiết khấu 25% trọn đời',
     category: 'hoi-vien',
     categoryLabel: 'Gói hội viên',
     badge: 'VIP Pro',
@@ -104,7 +104,7 @@ export const PROMOTIONS_DATA = [
   {
     id: 'km-05',
     slug: 'flash-sale-mua-thu-2026',
-    title: 'Flash Sale: Giảm 50% phí đẩy tin Top Khung Giờ Vàng',
+    title: 'Flash sale: giảm 50% phí đẩy tin top khung giờ vàng',
     category: 'goi-vip',
     categoryLabel: 'Gói tin VIP',
     badge: 'Đã Kết Thúc',
@@ -436,34 +436,34 @@ export const PRICE_PREDICTION_GAMES = [
 export const PROMO_WALLET_SERVICES = [
   {
     id: 'srv-01',
-    title: 'Đăng Tin Rao Nhà Đất',
+    title: 'Đăng tin rao nhà đất',
     cost: 'Miễn phí hoặc trừ Ví KM',
     icon: 'fa-solid fa-file-circle-plus text-emerald-500',
     actionText: 'Đăng tin ngay',
     link: '/dang-tin',
-    description: 'Sử dụng 100% số dư Ví Khuyến Mãi để đăng tin thường và tin VIP mà không cần nạp thêm tiền.'
+    description: 'Sử dụng 100% số dư ví khuyến mãi để đăng tin thường và tin VIP mà không cần nạp thêm tiền.'
   },
   {
     id: 'srv-02',
-    title: 'Đẩy Tin TOP 1 Giờ Vàng',
+    title: 'Đẩy tin TOP 1 giờ vàng',
     cost: '400đ / lượt (Trừ Ví KM)',
     icon: 'fa-solid fa-rocket text-blue-500',
     actionText: 'Đẩy tin ngay',
     link: '/quan-ly-tin',
-    description: 'Trừ trực tiếp 400đ trong Ví Khuyến Mãi để đưa tin đăng lên vị trí top đầu danh mục ngay lập tức.'
+    description: 'Trừ trực tiếp 400đ trong ví khuyến mãi để đưa tin đăng lên vị trí top đầu danh mục ngay lập tức.'
   },
   {
     id: 'srv-03',
-    title: 'Nâng Cấp Tin VIP Vàng',
+    title: 'Nâng cấp tin VIP vàng',
     cost: '50.000đ / tuần (Trừ Ví KM)',
     icon: 'fa-solid fa-crown text-amber-500',
     actionText: 'Xem bảng giá VIP',
     link: '/bang-gia-tin-dang',
-    description: 'Sử dụng tiền trong Ví Khuyến Mãi để gắn huy hiệu VIP Vàng nổi bật, tăng lượt xem gấp 5 lần.'
+    description: 'Sử dụng tiền trong ví khuyến mãi để gắn huy hiệu VIP Vàng nổi bật, tăng lượt xem gấp 5 lần.'
   },
   {
     id: 'srv-04',
-    title: 'Nâng Cấp Tin VIP Kim Cương',
+    title: 'Nâng cấp tin VIP kim cương',
     cost: 'Chiết khấu trực tiếp từ Ví KM',
     icon: 'fa-solid fa-gem text-rose-500',
     actionText: 'Xem đặc quyền VIP',

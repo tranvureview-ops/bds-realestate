@@ -4,7 +4,7 @@ import { SITE_URL } from '../../utils/permalink';
 
 export const metadata = {
   title: {
-    absolute: 'Hướng Dẫn Đăng Tin Bất Động Sản Chuẩn SEO & Nhanh Chóng | Kênh Nhà Đất 24H'
+    absolute: 'Hướng dẫn đăng tin bất động sản chuẩn SEO & nhanh chóng | Kênh Nhà Đất 24H'
   },
   description: 'Cẩm nang hướng dẫn đăng tin bán nhà, cho thuê căn hộ, đất nền chuẩn SEO tại Kênh Nhà Đất 24H. Quy trình 4 bước từ địa giới GIS, tiêu đề vàng, ảnh thật, gói VIP đến đẩy tin giờ vàng.',
   keywords: [
@@ -20,7 +20,7 @@ export const metadata = {
     canonical: `${SITE_URL.replace(/\/+$/, '')}/huong-dan-dang-tin`
   },
   openGraph: {
-    title: 'Hướng Dẫn Đăng Tin Bất Động Sản Chuẩn SEO & Nhanh Chóng | Kênh Nhà Đất 24H',
+    title: 'Hướng dẫn đăng tin bất động sản chuẩn SEO & nhanh chóng | Kênh Nhà Đất 24H',
     description: 'Quy trình 4 bước đăng tin bán và cho thuê nhà đất đạt chuẩn kiểm duyệt, lên Top Google và tiếp cận 1.000.000+ khách hàng tiềm năng mỗi tháng.',
     url: `${SITE_URL.replace(/\/+$/, '')}/huong-dan-dang-tin`,
     type: 'article',
@@ -29,13 +29,13 @@ export const metadata = {
         url: `${SITE_URL.replace(/\/+$/, '')}/hero.png`,
         width: 1200,
         height: 630,
-        alt: 'Hướng Dẫn Đăng Tin BĐS - Kênh Nhà Đất 24H'
+        alt: 'Hướng dẫn đăng tin BĐS - Kênh Nhà Đất 24H'
       }
     ]
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Hướng Dẫn Đăng Tin Bất Động Sản Chuẩn SEO & Nhanh Chóng | Kênh Nhà Đất 24H',
+    title: 'Hướng dẫn đăng tin bất động sản chuẩn SEO & nhanh chóng | Kênh Nhà Đất 24H',
     description: 'Quy trình 4 bước đăng tin bán và cho thuê nhà đất đạt chuẩn kiểm duyệt, lên Top Google và tiếp cận 1.000.000+ khách hàng tiềm năng mỗi tháng.',
     images: [`${SITE_URL.replace(/\/+$/, '')}/hero.png`]
   }

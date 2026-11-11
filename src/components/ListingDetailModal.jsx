@@ -580,7 +580,7 @@ export default function ListingDetailModal({ property, onClose }) {
                       aria-label={`Xem hồ sơ ${authorTitle}`}
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <h4 className="text-base font-extrabold text-slate-900 group-hover/brokerInfo:text-emerald-700 transition truncate flex items-center gap-1.5 min-w-0">
+                        <h4 className="text-base font-extrabold text-slate-900 group-hover/brokerInfo:text-emerald-700 transition truncate flex items-center gap-1.5 min-w-0 preserve-case">
                           <span className="truncate">{safeAuthor.name}</span>
                           {safeAuthor.isVerified && (
                             <i className="fa-solid fa-circle-check text-blue-500 text-sm shrink-0" title={`${authorTitle} đã xác thực`}></i>

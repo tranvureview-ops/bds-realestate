@@ -16,13 +16,15 @@ const DOMAIN = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, ''
 // 1. METADATA API CHUẨN SEO GOOGLE (TITLE < 60 chars, DESC < 160 chars)
 // ============================================================================
 export const metadata: Metadata = {
-  title: `Chính Sách Bảo Mật Dữ Liệu | ${BRAND_NAME}`,
+  title: {
+    absolute: `Chính sách bảo mật dữ liệu | ${BRAND_NAME}`,
+  },
   description: `Chính sách bảo mật thông tin và dữ liệu cá nhân tại ${BRAND_NAME}. Cam kết không chia sẻ dữ liệu bên thứ ba, tuân thủ Nghị định 13/2023/NĐ-CP.`,
   alternates: {
     canonical: `${DOMAIN}/chinh-sach-bao-mat`,
   },
   openGraph: {
-    title: `Chính Sách Bảo Mật Dữ Liệu | ${BRAND_NAME}`,
+    title: `Chính sách bảo mật dữ liệu | ${BRAND_NAME}`,
     description: `Chính sách bảo mật thông tin người dùng tại sàn ${BRAND_NAME}. Tuân thủ nghiêm ngặt Nghị định 13/2023/NĐ-CP.`,
     url: `${DOMAIN}/chinh-sach-bao-mat`,
     siteName: BRAND_NAME,
@@ -31,7 +33,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: `Chính Sách Bảo Mật Thông Tin | ${BRAND_NAME}`,
+    title: `Chính sách bảo mật thông tin | ${BRAND_NAME}`,
     description: `Bảo vệ dữ liệu cá nhân và quyền riêng tư của thành viên tại ${BRAND_NAME}.`,
   },
   robots: {
@@ -46,8 +48,8 @@ export const metadata: Metadata = {
 const jsonLdData = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
-  name: `Chính Sách Bảo Mật Thông Tin và Dữ Liệu Cá Nhân - ${BRAND_NAME}`,
-  description: `Cam kết bảo vệ dữ liệu cá nhân theo Nghị định số 13/2023/NĐ-CP của Chính phủ tại Sàn BĐS ${BRAND_NAME}.`,
+  name: `Chính sách bảo mật thông tin và dữ liệu cá nhân - ${BRAND_NAME}`,
+  description: `Cam kết bảo vệ dữ liệu cá nhân theo Nghị định số 13/2023/NĐ-CP của Chính phủ tại sàn BĐS ${BRAND_NAME}.`,
   url: `${DOMAIN}/chinh-sach-bao-mat`,
   inLanguage: 'vi-VN',
   datePublished: '2024-01-01',

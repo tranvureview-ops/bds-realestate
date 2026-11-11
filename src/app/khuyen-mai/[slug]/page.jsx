@@ -17,13 +17,13 @@ export async function generateMetadata({ params }) {
 
   if (!promo) {
     return {
-      title: 'Chương Trình Khuyến Mãi Nhà Đất',
+      title: 'Chương trình khuyến mãi nhà đất',
       description: 'Chương trình khuyến mãi dịch vụ nhà đất.',
     };
   }
 
   return {
-    title: `${promo.title} | Khuyến Mãi BĐS`,
+    title: `${promo.title} | Khuyến mãi BĐS`,
     description: promo.description,
     alternates: {
       canonical: `${baseUrl}/khuyen-mai/${promo.slug}/`,

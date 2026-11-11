@@ -11,16 +11,16 @@ export async function generateMetadata({ params }) {
   const category = resolvedParams?.category;
 
   const titles = {
-    'tan-thu': 'Nhiệm Vụ Tân Thủ',
-    'hang-ngay': 'Nhiệm Vụ Hàng Ngày',
-    'thanh-tuu': 'Nhiệm Vụ Thành Tựu'
+    'tan-thu': 'Nhiệm vụ tân thủ',
+    'hang-ngay': 'Nhiệm vụ hàng ngày',
+    'thanh-tuu': 'Nhiệm vụ thành tựu'
   };
 
-  const name = titles[category] || 'Danh Mục Nhiệm Vụ';
+  const name = titles[category] || 'Danh mục nhiệm vụ';
 
   return {
-    title: `${name} | Thưởng Tiền Vào Ví Khuyến Mãi`,
-    description: `Danh sách ${name.toLowerCase()} nhận tiền thưởng trực tiếp vào Ví Khuyến Mãi.`,
+    title: `${name} | Thưởng tiền vào ví khuyến mãi`,
+    description: `Danh sách ${name.toLowerCase()} nhận tiền thưởng trực tiếp vào ví khuyến mãi.`,
     alternates: {
       canonical: `${baseUrl}/nhiem-vu/${category}/`,
     }

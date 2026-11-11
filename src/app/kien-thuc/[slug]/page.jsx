@@ -63,11 +63,11 @@ export async function generateMetadata({ params }) {
   if (category) {
     const canonicalUrl = `${domain}/kien-thuc/${category.slug}`;
     const categoryTitle = category.slug === 'thi-truong'
-      ? 'Thông Tin Thị Trường Bất Động Sản [2026] | Kênh Nhà Đất 24H'
+      ? 'Thông tin thị trường bất động sản [2026] | Kênh Nhà Đất 24H'
       : (category.slug === 'kinh-nghiem'
-        ? 'Kinh Nghiệm Mua Bán Nhà Đất & Đầu Tư [2026] | Kênh Nhà Đất 24H'
+        ? 'Kinh nghiệm mua bán nhà đất & đầu tư [2026] | Kênh Nhà Đất 24H'
         : (category.slug === 'phap-ly'
-          ? 'Kiến Thức Pháp Lý & Quy Hoạch Bất Động Sản [2026] | Kênh Nhà Đất 24H'
+          ? 'Kiến thức pháp lý & quy hoạch bất động sản [2026] | Kênh Nhà Đất 24H'
           : `${category.name} [2026] | Kênh Nhà Đất 24H`));
     const categoryDesc = category.slug === 'thi-truong'
       ? 'Cập nhật liên tục diễn biến giá nhà đất, báo cáo nguồn cung cầu, xu hướng dòng tiền và dự báo thị trường bất động sản toàn quốc mới nhất 2026.'

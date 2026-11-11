@@ -3,9 +3,9 @@ import EmailVerificationPage from '../../views/EmailVerificationPage';
 
 export const metadata = {
   title: {
-    absolute: 'Kích Hoạt Tài Khoản & Nhận Quà Tặng | Kênh Nhà Đất 24H'
+    absolute: 'Kích hoạt tài khoản & nhận quà tặng | Kênh Nhà Đất 24H'
   },
-  description: 'Trang kích hoạt tài khoản thành viên mới và nhận tiền thưởng chào mừng vào Ví Khuyến Mãi trên sàn giao dịch Kênh Nhà Đất 24H.'
+  description: 'Trang kích hoạt tài khoản thành viên mới và nhận tiền thưởng chào mừng vào ví khuyến mãi trên sàn giao dịch Kênh Nhà Đất 24H.'
 };
 
 export default function Page() {

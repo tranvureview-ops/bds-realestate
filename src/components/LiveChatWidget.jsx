@@ -590,8 +590,8 @@ export default function LiveChatWidget() {
                 <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-400 border-2 border-slate-950 rounded-full animate-pulse"></span>
               </div>
               <div className="truncate">
-                <h4 className="text-xs font-bold leading-tight truncate flex items-center gap-1.5">
-                  <span>{agentInfo.name || 'Chuyên Viên Tư Vấn'}</span>
+                <h4 className="text-xs font-bold leading-tight truncate flex items-center gap-1.5 preserve-case">
+                  <span>{agentInfo.name || 'Chuyên viên tư vấn'}</span>
                   <i className="fa-solid fa-circle-check text-blue-400 text-[10px]" title="Chuyên viên chính thức sàn BĐS"></i>
                 </h4>
                 {agentInfo.title && (

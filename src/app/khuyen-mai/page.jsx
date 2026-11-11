@@ -7,13 +7,13 @@ export const revalidate = 0;
 const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '');
 
 export const metadata = {
-  title: 'Trung Tâm Khuyến Mãi Nhà Đất | Voucher & Ưu Đãi VIP',
+  title: 'Trung tâm khuyến mãi nhà đất | Voucher & ưu đãi VIP',
   description: 'Tổng hợp các chương trình khuyến mãi nạp tiền ví, chiết khấu tin VIP và gói hội viên môi giới mới nhất.',
   alternates: {
     canonical: `${baseUrl}/khuyen-mai/`,
   },
   openGraph: {
-    title: 'Trung Tâm Khuyến Mãi & Voucher Nhà Đất',
+    title: 'Trung tâm khuyến mãi & voucher nhà đất',
     description: 'Nhận ngay voucher nạp tiền, chiết khấu tin VIP và ưu đãi dành riêng cho nhà môi giới.',
     url: `${baseUrl}/khuyen-mai/`,
     type: 'website',

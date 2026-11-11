@@ -14,13 +14,13 @@ export async function generateMetadata({ params }) {
 
   if (!game) {
     return {
-      title: 'Dự Đoán Giá BĐS Dự Án | Sàn Nhà Đất',
+      title: 'Dự đoán giá BĐS dự án | Sàn Nhà Đất',
       description: 'Dự đoán mức giá thị trường nhà đất.',
     };
   }
 
   return {
-    title: `Dự Đoán Giá ${game.projectName} | Quỹ ${game.totalPool}`,
+    title: `Dự đoán giá ${game.projectName} | Quỹ ${game.totalPool}`,
     description: `Tham gia bình chọn mức giá khớp lệnh dự án ${game.projectName} (${game.location}) để nhận thưởng.`,
     alternates: {
       canonical: `${baseUrl}/trung-tam-phan-thuong/du-doan-gia-bds/${game.slug}/`,

@@ -1,7 +1,7 @@
 import FavoritesPage from '../../views/FavoritesPage';
 
 export const metadata = {
-  title: 'Danh Sách Nhà Đất Đã Lưu',
+  title: 'Danh sách nhà đất đã lưu',
   description: 'Quản lý các tin đăng nhà đất mà bạn quan tâm và đã đánh dấu yêu thích để tiện theo dõi biến động giá.',
 };
 

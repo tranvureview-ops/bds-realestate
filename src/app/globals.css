@@ -224,27 +224,43 @@ button, input, select, textarea, optgroup, option, label {
 }
 
 /* ==========================================================================
-   Chuẩn hóa toàn bộ thẻ h1, h2 và h3 sang Sentence Case:
+   Chuẩn hóa toàn bộ thẻ heading (h1 - h6) sang Sentence Case:
    Chỉ chữ cái đầu tiên viết hoa, các chữ sau viết thường
+   (.preserve-case dùng cho họ tên môi giới / danh từ riêng đặc biệt)
    ========================================================================== */
-h1,
-h2,
-h3 {
+h1:not(.preserve-case),
+h2:not(.preserve-case),
+h3:not(.preserve-case),
+h4:not(.preserve-case),
+h5:not(.preserve-case),
+h6:not(.preserve-case) {
   text-transform: lowercase !important;
 }
 
-h1::first-letter,
-h2::first-letter,
-h3::first-letter,
+h1:not(.preserve-case)::first-letter,
+h2:not(.preserve-case)::first-letter,
+h3:not(.preserve-case)::first-letter,
+h4:not(.preserve-case)::first-letter,
+h5:not(.preserve-case)::first-letter,
+h6:not(.preserve-case)::first-letter,
 h1 > a::first-letter,
 h2 > a::first-letter,
 h3 > a::first-letter,
-h1[class*="flex"] > span:not(:empty)::first-letter,
-h2[class*="flex"] > span:not(:empty)::first-letter,
-h3[class*="flex"] > span:not(:empty)::first-letter,
+h4 > a::first-letter,
+h5 > a::first-letter,
+h6 > a::first-letter,
+h1[class*="flex"]:not(.preserve-case) > span:not(:empty)::first-letter,
+h2[class*="flex"]:not(.preserve-case) > span:not(:empty)::first-letter,
+h3[class*="flex"]:not(.preserve-case) > span:not(:empty)::first-letter,
+h4[class*="flex"]:not(.preserve-case) > span:not(:empty)::first-letter,
+h5[class*="flex"]:not(.preserve-case) > span:not(:empty)::first-letter,
+h6[class*="flex"]:not(.preserve-case) > span:not(:empty)::first-letter,
 h1 > a[class*="flex"] > span:not(:empty):first-of-type::first-letter,
 h2 > a[class*="flex"] > span:not(:empty):first-of-type::first-letter,
-h3 > a[class*="flex"] > span:not(:empty):first-of-type::first-letter {
+h3 > a[class*="flex"] > span:not(:empty):first-of-type::first-letter,
+h4 > a[class*="flex"] > span:not(:empty):first-of-type::first-letter,
+h5 > a[class*="flex"] > span:not(:empty):first-of-type::first-letter,
+h6 > a[class*="flex"] > span:not(:empty):first-of-type::first-letter {
   text-transform: uppercase !important;
 }
 

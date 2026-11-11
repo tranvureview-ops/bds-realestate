@@ -13,6 +13,18 @@ const cleanUserName = (name) => {
   return name.replace(/\s*\([^)]*\)\s*$/, '').trim();
 };
 
+const toSentenceLabel = (text) => {
+  if (!text || typeof text !== 'string') return '';
+  const trimmed = text.trim();
+  if (!trimmed) return '';
+  const lower = trimmed
+    .toLowerCase()
+    .replace(/\bbđs\b/g, 'BĐS')
+    .replace(/\bvip\b/g, 'VIP')
+    .replace(/\bseo\b/g, 'SEO');
+  return lower.charAt(0).toUpperCase() + lower.slice(1);
+};
+
 const formatSubMenuTitle = (parentItem, subItem) => {
   if (!subItem?.title) return '';
   const rawTitle = subItem.title.trim();
@@ -21,17 +33,17 @@ const formatSubMenuTitle = (parentItem, subItem) => {
 
   if (isSale) {
     if (!rawTitle.toLowerCase().startsWith('bán')) {
-      return `Bán ${rawTitle}`;
+      return toSentenceLabel(`Bán ${rawTitle}`);
     }
-    return rawTitle;
+    return toSentenceLabel(rawTitle);
   }
   if (isRent) {
     if (!rawTitle.toLowerCase().startsWith('cho thuê')) {
-      return `Cho Thuê ${rawTitle}`;
+      return toSentenceLabel(`Cho thuê ${rawTitle}`);
     }
-    return rawTitle;
+    return toSentenceLabel(rawTitle);
   }
-  return rawTitle;
+  return toSentenceLabel(rawTitle);
 };
 
 export default function Navbar() {
@@ -455,7 +467,7 @@ export default function Navbar() {
                       }`}
                     >
                       {item.icon && <i className={`${item.icon} text-xs ${isActive ? 'text-emerald-700' : 'text-slate-400'}`}></i>}
-                      <span>{item.title}</span>
+                      <span>{toSentenceLabel(item.title)}</span>
                       {item.badge && (
                         <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${item.badgeColor || 'bg-red-600 text-white'}`}>
                           {item.badge}
@@ -468,8 +480,8 @@ export default function Navbar() {
                     {isDropdownOpen && (
                       <div className={`absolute top-full ${item.children.length > 6 ? 'left-0 sm:-left-12 w-[520px]' : 'left-0 w-64'} pt-1.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150`}>
                         <div className="bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-3 text-xs">
-                          <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 mb-2">
-                            <span>Danh mục {item.title}</span>
+                          <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 tracking-wider border-b border-slate-100 mb-2">
+                            <span>Danh mục {toSentenceLabel(item.title).toLowerCase()}</span>
                           </div>
                           <div className={item.children.length > 6 ? "grid grid-cols-2 gap-1" : "space-y-1"}>
                             {item.children.map(sub => (
@@ -517,7 +529,7 @@ export default function Navbar() {
                   }`}
                 >
                   {item.icon && <i className={`${item.icon} text-xs ${isActive ? 'text-emerald-700' : 'text-slate-400'}`}></i>}
-                  <span>{item.title}</span>
+                  <span>{toSentenceLabel(item.title)}</span>
                   {item.badge && (
                     <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${item.badgeColor || 'bg-red-600 text-white'}`}>
                       {item.badge}
@@ -970,7 +982,7 @@ export default function Navbar() {
                         >
                           <div className="flex items-center gap-2.5">
                             {item.icon && <i className={`${item.icon} text-emerald-600 w-4 text-center`}></i>}
-                            <span>{item.title}</span>
+                            <span>{toSentenceLabel(item.title)}</span>
                           </div>
                           <i className={`fa-solid fa-chevron-down text-xs text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}></i>
                         </button>
@@ -1009,7 +1021,7 @@ export default function Navbar() {
                     >
                       <div className="flex items-center gap-2.5">
                         {item.icon && <i className={`${item.icon} text-emerald-600 w-4 text-center`}></i>}
-                        <span>{item.title}</span>
+                        <span>{toSentenceLabel(item.title)}</span>
                       </div>
                       {item.badge && (
                         <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${item.badgeColor || 'bg-red-600 text-white'}`}>

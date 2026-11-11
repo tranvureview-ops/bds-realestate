@@ -3,7 +3,7 @@ import ForgotPasswordPage from '../../views/ForgotPasswordPage';
 
 export const metadata = {
   title: {
-    absolute: 'Quên Mật Khẩu & Khôi Phục Tài Khoản | Kênh Nhà Đất 24H'
+    absolute: 'Quên mật khẩu & khôi phục tài khoản | Kênh Nhà Đất 24H'
   },
   description: 'Khôi phục mật khẩu tài khoản thành viên trên sàn giao dịch Kênh Nhà Đất 24H nhanh chóng và an toàn.'
 };

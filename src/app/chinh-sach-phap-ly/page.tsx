@@ -16,13 +16,15 @@ const DOMAIN = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, ''
 // 1. CẤU HÌNH METADATA API CHUẨN SEO GOOGLE (TITLE < 60 chars, DESC < 160 chars)
 // ============================================================================
 export const metadata: Metadata = {
-  title: `Quy Chế & Chính Sách Pháp Lý | ${BRAND_NAME}`,
+  title: {
+    absolute: `Quy chế & chính sách pháp lý | ${BRAND_NAME}`,
+  },
   description: `Quy chế hoạt động, chính sách bảo mật dữ liệu và quy trình giải quyết khiếu nại minh bạch tại sàn nhà đất ${BRAND_NAME}. Tuân thủ pháp luật Việt Nam.`,
   alternates: {
     canonical: `${DOMAIN}/chinh-sach-phap-ly`,
   },
   openGraph: {
-    title: `Quy Chế & Chính Sách Pháp Lý | ${BRAND_NAME}`,
+    title: `Quy chế & chính sách pháp lý | ${BRAND_NAME}`,
     description: `Quy chế hoạt động sàn TMĐT, chính sách bảo mật dữ liệu và giải quyết khiếu nại tại sàn BĐS ${BRAND_NAME}.`,
     url: `${DOMAIN}/chinh-sach-phap-ly`,
     siteName: BRAND_NAME,
@@ -31,7 +33,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: `Quy Chế Hoạt Động & Bảo Mật | ${BRAND_NAME}`,
+    title: `Quy chế hoạt động & bảo mật | ${BRAND_NAME}`,
     description: `Chính sách pháp lý, quyền lợi người dùng và quy chế bảo vệ dữ liệu cá nhân tại ${BRAND_NAME}.`,
   },
   robots: {
@@ -46,7 +48,7 @@ export const metadata: Metadata = {
 const jsonLdData = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
-  name: `Quy Chế Hoạt Động & Chính Sách Pháp Lý - ${BRAND_NAME}`,
+  name: `Quy chế hoạt động & chính sách pháp lý - ${BRAND_NAME}`,
   description: `Văn bản quy chế hoạt động sàn TMĐT, chính sách bảo mật dữ liệu cá nhân và cơ chế tiếp nhận giải quyết khiếu nại tại ${BRAND_NAME}.`,
   url: `${DOMAIN}/chinh-sach-phap-ly`,
   inLanguage: 'vi-VN',
