@@ -193,24 +193,74 @@ export default function Footer() {
             )}
           </div>
 
-          {/* Cột 2: Quick links */}
-          <nav aria-label="Khám phá nhanh" className="lg:col-span-2">
-            <h3 className="text-xs font-black uppercase text-white tracking-wider mb-3">
-              {col2Title}
-            </h3>
-            <ul className="space-y-0.5 text-xs text-slate-300">
-              {col2Links.map(link => (
-                <li key={link.id || link.url}>
-                  <Link to={link.url} className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                    {link.label}
+          {/* Cột 2: Quick links & Khu vực nổi bật */}
+          <div className="lg:col-span-3 space-y-6">
+            <nav aria-label="Khám phá nhanh">
+              <h3 className="text-xs font-black uppercase text-white tracking-wider mb-3">
+                {col2Title}
+              </h3>
+              <ul className="space-y-0.5 text-xs text-slate-300">
+                {col2Links.map(link => (
+                  <li key={link.id || link.url}>
+                    <Link to={link.url} className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+
+            <nav aria-label="Khu vực nổi bật">
+              <h3 className="text-xs font-black uppercase text-white tracking-wider mb-3">
+                KHU VỰC NỔI BẬT
+              </h3>
+              <ul className="space-y-0.5 text-xs text-slate-300">
+                <li>
+                  <Link to="/nha-dat-ban-ha-noi" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
+                    Nhà đất bán Hà Nội
                   </Link>
                 </li>
-              ))}
-            </ul>
-          </nav>
+                <li>
+                  <Link to="/nha-dat-ban-ho-chi-minh" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
+                    Nhà đất bán TP. Hồ Chí Minh
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/nha-dat-ban-da-nang" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
+                    Nhà đất bán Đà Nẵng
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/nha-dat-ban-hai-phong" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
+                    Nhà đất bán Hải Phòng
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/nha-dat-ban-can-tho" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
+                    Nhà đất bán Cần Thơ
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/nha-dat-ban-quang-ninh" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
+                    Nhà đất bán Quảng Ninh
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/nha-dat-ban-khanh-hoa" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
+                    Nhà đất bán Khánh Hòa
+                  </Link>
+                </li>
+                <li className="pt-1">
+                  <Link to="/nha-dat-ban" className="py-1 sm:py-0.5 text-emerald-400 hover:text-emerald-300 font-semibold transition block">
+                    Xem tất cả tỉnh thành &rarr;
+                  </Link>
+                </li>
+              </ul>
+            </nav>
+          </div>
 
           {/* Cột 3: Service & Member packages (Cố định HTML theo thiết kế, không dùng icon) */}
-          <nav aria-label="Dịch vụ và tiện ích" className="lg:col-span-2">
+          <nav aria-label="Dịch vụ và tiện ích" className="lg:col-span-3">
             <h3 className="text-xs font-black uppercase text-white tracking-wider mb-3">
               DỊCH VỤ & TIỆN ÍCH
             </h3>
@@ -262,104 +312,53 @@ export default function Footer() {
             </ul>
           </nav>
 
-          {/* Cột 4: Danh mục & khu vực */}
-          <nav aria-label="Danh mục và khu vực bất động sản" className="lg:col-span-4">
+          {/* Cột 4: Danh mục bất động sản */}
+          <nav aria-label="Danh mục bất động sản" className="lg:col-span-2">
             <h3 className="text-xs font-black uppercase text-white tracking-wider mb-3">
-              DANH MỤC & KHU VỰC
+              DANH MỤC BẤT ĐỘNG SẢN
             </h3>
-            <div className="grid grid-cols-2 gap-4 sm:gap-6">
-              {/* Phân mục 1: Danh mục bất động sản */}
-              <div>
-                <ul className="space-y-0.5 text-xs text-slate-300">
-                  <li>
-                    <Link to="/ban-can-ho-chung-cu" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                      Căn hộ chung cư
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/ban-nha-rieng" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                      Nhà riêng
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/ban-nha-biet-thu-lien-ke" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                      Biệt thự, liền kề
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/ban-nha-mat-pho" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                      Nhà mặt phố, shophouse
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/ban-dat" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                      Đất nền, đất thổ cư
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/ban-mat-bang-van-phong" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                      Văn phòng, mặt bằng
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/ban-kho-nha-xuong" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                      Kho xưởng
-                    </Link>
-                  </li>
-                  <li className="pt-1">
-                    <Link to="/nha-dat-ban" className="py-1 sm:py-0.5 text-emerald-400 hover:text-emerald-300 font-semibold transition block">
-                      Xem tất cả danh mục &rarr;
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Phân mục 2: Khu vực nổi bật */}
-              <div>
-                <ul className="space-y-0.5 text-xs text-slate-300">
-                  <li>
-                    <Link to="/nha-dat-ban-ha-noi" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                      Nhà đất bán Hà Nội
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/nha-dat-ban-ho-chi-minh" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                      Nhà đất bán TP. Hồ Chí Minh
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/nha-dat-ban-da-nang" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                      Nhà đất bán Đà Nẵng
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/nha-dat-ban-hai-phong" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                      Nhà đất bán Hải Phòng
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/nha-dat-ban-can-tho" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                      Nhà đất bán Cần Thơ
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/nha-dat-ban-quang-ninh" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                      Nhà đất bán Quảng Ninh
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/nha-dat-ban-khanh-hoa" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                      Nhà đất bán Khánh Hòa
-                    </Link>
-                  </li>
-                  <li className="pt-1">
-                    <Link to="/nha-dat-ban" className="py-1 sm:py-0.5 text-emerald-400 hover:text-emerald-300 font-semibold transition block">
-                      Xem tất cả tỉnh thành &rarr;
-                    </Link>
-                  </li>
-                </ul>
-              </div>
-            </div>
+            <ul className="space-y-0.5 text-xs text-slate-300">
+              <li>
+                <Link to="/ban-can-ho-chung-cu" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
+                  Căn hộ chung cư
+                </Link>
+              </li>
+              <li>
+                <Link to="/ban-nha-rieng" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
+                  Nhà riêng
+                </Link>
+              </li>
+              <li>
+                <Link to="/ban-nha-biet-thu-lien-ke" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
+                  Biệt thự, liền kề
+                </Link>
+              </li>
+              <li>
+                <Link to="/ban-nha-mat-pho" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
+                  Nhà mặt phố, shophouse
+                </Link>
+              </li>
+              <li>
+                <Link to="/ban-dat" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
+                  Đất nền, đất thổ cư
+                </Link>
+              </li>
+              <li>
+                <Link to="/ban-mat-bang-van-phong" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
+                  Văn phòng, mặt bằng
+                </Link>
+              </li>
+              <li>
+                <Link to="/ban-kho-nha-xuong" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
+                  Kho xưởng
+                </Link>
+              </li>
+              <li className="pt-1">
+                <Link to="/nha-dat-ban" className="py-1 sm:py-0.5 text-emerald-400 hover:text-emerald-300 font-semibold transition block">
+                  Xem tất cả danh mục &rarr;
+                </Link>
+              </li>
+            </ul>
           </nav>
         </div>
 
