@@ -475,9 +475,8 @@ export default function Navbar() {
                     {isDropdownOpen && (
                       <div className={`absolute top-full ${item.children.length > 6 ? 'left-0 sm:-left-12 w-[520px]' : 'left-0 w-64'} pt-1.5 z-50 animate-in fade-in slide-in-from-top-1 duration-150`}>
                         <div className="bg-white rounded-2xl shadow-2xl border border-slate-200/90 p-3 text-xs">
-                          <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 mb-2 flex items-center justify-between">
+                          <div className="px-3 py-1.5 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 mb-2">
                             <span>Danh mục {item.title}</span>
-                            <span className="text-emerald-700 font-bold lowercase">({item.children.length} loại hình)</span>
                           </div>
                           <div className={item.children.length > 6 ? "grid grid-cols-2 gap-1" : "space-y-1"}>
                             {item.children.map(sub => (
