@@ -1122,7 +1122,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
                 <i className="fa-solid fa-crown text-amber-400"></i>
                 Bảng Vinh Danh Danh Dự • Hall of Fame
               </span>
-              <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
+              <h2 className="text-xl font-black text-white tracking-tight flex items-center gap-2.5">
                 <span>Vinh Danh Người Trúng Thưởng Các Giải Của Kỳ</span>
               </h2>
               <p className="text-slate-300 text-xs sm:text-sm">
@@ -1562,7 +1562,7 @@ export default function PricePredictionPage({ projectSlug = null }) {
         {/* Tiêu đề Section 2: Danh sách các kỳ thẩm định giá */}
         <div id="cac-ky-du-doan" className="pt-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-0.5">
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+            <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
               <i className="fa-solid fa-trophy text-amber-500"></i>
               <span>Danh Sách Kỳ Dự Đoán Giá BĐS</span>
             </h2>

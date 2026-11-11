@@ -52,7 +52,7 @@ export default function HomeCategoryShowcase() {
         <div className="text-center pb-4 border-b border-slate-100">
           <div className="inline-flex items-center justify-center gap-2.5 mb-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-pulse"></span>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight text-center">
+            <h2 className="text-xl font-black text-slate-900 tracking-tight text-center">
               Khám Phá Danh Mục Bất Động Sản
             </h2>
           </div>

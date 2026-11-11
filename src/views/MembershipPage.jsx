@@ -390,7 +390,7 @@ export default function MembershipPage() {
         {/* Billing Cycle Selector (1 Tháng, 3 Tháng, 6 Tháng) */}
         <section aria-labelledby="membership-plans-heading" className="space-y-4">
           <div className="flex flex-col items-center justify-center space-y-2.5">
-            <h2 id="membership-plans-heading" className="text-xl sm:text-2xl font-black text-slate-900 text-center">
+            <h2 id="membership-plans-heading" className="text-xl font-black text-slate-900 text-center">
               Chọn Gói Hội Viên &amp; Kỳ Hạn Đăng Ký Phù Hợp
             </h2>
             <p className="text-xs text-slate-500 font-medium text-center">
@@ -710,7 +710,7 @@ export default function MembershipPage() {
         {/* Feature Comparison Table */}
         <section aria-labelledby="membership-comparison-heading" className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="p-6 border-b border-slate-200">
-            <h2 id="membership-comparison-heading" className="text-xl sm:text-2xl font-black text-slate-900">
+            <h2 id="membership-comparison-heading" className="text-xl font-black text-slate-900">
               Bảng So Sánh Chi Tiết Quyền Lợi Các Gói Hội Viên
             </h2>
             <p className="text-xs text-slate-500 mt-1">
@@ -921,7 +921,7 @@ export default function MembershipPage() {
         {/* Hướng Dẫn Chọn Gói (AIO/GEO Direct Answer + E-E-A-T + Silo Internal Links) */}
         <section aria-labelledby="membership-guide-heading" className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
           <div className="space-y-2">
-            <h2 id="membership-guide-heading" className="text-xl sm:text-2xl font-black text-slate-900">
+            <h2 id="membership-guide-heading" className="text-xl font-black text-slate-900">
               Hướng Dẫn Chọn Gói Hội Viên &amp; Bài Toán Tối Ưu Chi Phí Môi Giới [{currentYear}]
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -996,7 +996,7 @@ export default function MembershipPage() {
 
         {/* FAQ Section (Đồng bộ 100% với JSON-LD FAQPage) */}
         <section aria-labelledby="membership-faq-heading" className="bg-slate-100 rounded-3xl p-6 sm:p-8 space-y-4">
-          <h2 id="membership-faq-heading" className="text-xl sm:text-2xl font-black text-slate-900">
+          <h2 id="membership-faq-heading" className="text-xl font-black text-slate-900">
             Câu Hỏi Thường Gặp Về Gói Hội Viên &amp; Kho Voucher (FAQ)
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-600">

@@ -74,7 +74,7 @@ function formatArticlePreviewHtml(content) {
     // Heading 2
     if (/^##\s+/.test(trimmed)) {
       const title = trimmed.replace(/^##\s+/, '').replace(/\s+\{#.*\}$/, '');
-      htmlBlocks.push(`<h2 class="text-xl sm:text-2xl font-black text-slate-900 mt-8 mb-4 pb-2 border-b border-slate-200 flex items-center gap-2"><span>${formatInline(title)}</span></h2>`);
+      htmlBlocks.push(`<h2 class="text-xl font-black text-slate-900 mt-8 mb-4 pb-2 border-b border-slate-200 flex items-center gap-2"><span>${formatInline(title)}</span></h2>`);
       continue;
     }
 

@@ -224,7 +224,7 @@ export default function PostListingPage() {
         {/* Section AIO/GEO & E-E-A-T Tóm Tắt Quy Trình + Silo Links */}
         <section aria-labelledby="post-listing-guide-heading" className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
           <div className="space-y-2">
-            <h2 id="post-listing-guide-heading" className="text-xl sm:text-2xl font-black text-slate-900">
+            <h2 id="post-listing-guide-heading" className="text-xl font-black text-slate-900">
               Quy Trình 4 Bước Đăng Tin Nhanh &amp; Mẹo Tăng Lượt Gọi [{currentYear}]
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
@@ -295,7 +295,7 @@ export default function PostListingPage() {
 
         {/* FAQ Section (Đồng bộ 100% với JSON-LD FAQPage) */}
         <section aria-labelledby="post-listing-faq-heading" className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-4">
-          <h2 id="post-listing-faq-heading" className="text-xl sm:text-2xl font-black text-slate-900">
+          <h2 id="post-listing-faq-heading" className="text-xl font-black text-slate-900">
             Câu Hỏi Thường Gặp Khi Đăng Tin Nhà Đất
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-600">

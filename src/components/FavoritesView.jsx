@@ -38,7 +38,7 @@ export default function FavoritesView({ setCurrentView }) {
           <div className="w-16 h-16 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center text-2xl mx-auto mb-3">
             <i className="fa-regular fa-heart"></i>
           </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-800">Bạn chưa lưu nhà đất nào</h2>
+          <h2 className="text-xl font-bold text-slate-800">Bạn chưa lưu nhà đất nào</h2>
           <p className="text-xs text-slate-500 mt-1 mb-5">
             Bấm vào biểu tượng trái tim trên các thẻ tin đăng để lưu lại và xem lại tại đây bất cứ lúc nào.
           </p>

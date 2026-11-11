@@ -47,7 +47,7 @@ export default function SaleListingsSeoContent({ city = null, district = null, p
             <span className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-lg font-bold shrink-0">
               <i className="fa-solid fa-chart-line"></i>
             </span>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-xl font-black text-slate-900 tracking-tight">
               {seoData.marketTitle}
             </h2>
           </div>
@@ -64,7 +64,7 @@ export default function SaleListingsSeoContent({ city = null, district = null, p
             <span className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center text-lg font-bold shrink-0">
               <i className="fa-solid fa-tags"></i>
             </span>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-xl font-black text-slate-900 tracking-tight">
               {seoData.priceTableTitle}
             </h2>
           </div>
@@ -105,7 +105,7 @@ export default function SaleListingsSeoContent({ city = null, district = null, p
             <span className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center text-lg font-bold shrink-0">
               <i className="fa-solid fa-shield-halved"></i>
             </span>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-xl font-black text-slate-900 tracking-tight">
               {seoData.legalTitle}
             </h2>
           </div>
@@ -144,7 +144,7 @@ export default function SaleListingsSeoContent({ city = null, district = null, p
             <span className="w-10 h-10 rounded-2xl bg-purple-50 text-purple-700 flex items-center justify-center text-lg font-bold shrink-0">
               <i className="fa-solid fa-book-open-reader"></i>
             </span>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-xl font-black text-slate-900 tracking-tight">
               {seoData.guidesTitle}
             </h2>
           </div>
@@ -182,7 +182,7 @@ export default function SaleListingsSeoContent({ city = null, district = null, p
             <span className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-700 flex items-center justify-center text-lg font-bold shrink-0">
               <i className="fa-solid fa-circle-question"></i>
             </span>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-xl font-black text-slate-900 tracking-tight">
               {seoData.faqTitle}
             </h2>
           </div>
@@ -223,7 +223,7 @@ export default function SaleListingsSeoContent({ city = null, district = null, p
               <span className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-700 flex items-center justify-center text-lg font-bold shrink-0">
                 <i className="fa-solid fa-layer-group"></i>
               </span>
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+              <h2 className="text-xl font-black text-slate-900 tracking-tight">
                 {seoData.discoveryTitle}
               </h2>
             </div>

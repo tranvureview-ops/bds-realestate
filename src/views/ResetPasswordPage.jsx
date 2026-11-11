@@ -97,7 +97,7 @@ export default function ResetPasswordPage() {
       <div className="min-h-[80vh] flex items-center justify-center p-4 bg-slate-50">
         <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-xl text-center space-y-4 max-w-md w-full">
           <div className="w-14 h-14 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto" />
-          <h2 className="text-lg font-black text-slate-800">Đang Kiểm Tra Mã Token...</h2>
+          <h2 className="text-xl font-black text-slate-800">Đang Kiểm Tra Mã Token...</h2>
           <p className="text-xs text-slate-500">Vui lòng chờ trong giây lát trong khi hệ thống xác thực đường dẫn của bạn.</p>
         </div>
       </div>

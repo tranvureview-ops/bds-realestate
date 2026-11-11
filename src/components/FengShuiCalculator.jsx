@@ -42,7 +42,7 @@ export default function FengShuiCalculator() {
           <i className="fa-solid fa-compass-drafting text-amber-500"></i>
           <span>BỘ CÔNG CỤ TRA CỨU PHONG THỦY BẤT ĐỘNG SẢN</span>
         </div>
-        <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug mb-2">
+        <h2 className="text-xl font-black text-slate-900 tracking-tight leading-snug mb-2">
           Xem Tuổi Mua Đất, Làm Nhà & Động Thổ Khởi Công
         </h2>
         <p className="text-xs sm:text-sm text-slate-600 leading-relaxed max-w-3xl mb-6">

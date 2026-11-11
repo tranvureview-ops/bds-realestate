@@ -97,7 +97,7 @@ export default function HomeCityShowcase({ className = '' }) {
     <section className={`max-w-7xl mx-auto px-4 sm:px-8 ${className ? className : 'pt-0 pb-0'}`}>
       {/* Header H2 căn giữa */}
       <div className="w-full text-center max-w-4xl mx-auto pb-4 sm:pb-5 border-b border-slate-200">
-        <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight text-center">
+        <h2 className="text-xl font-black text-slate-900 tracking-tight text-center">
           Tìm Kiếm Bất Động Sản Theo Tỉnh Thành
         </h2>
         <p className="text-xs sm:text-sm text-slate-600 mt-1.5 leading-relaxed mx-auto text-center font-normal">

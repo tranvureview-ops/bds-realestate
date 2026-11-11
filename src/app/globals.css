@@ -216,17 +216,10 @@ button, input, select, textarea, optgroup, option, label {
 }
 
 @layer base {
-  /* Chuẩn hóa font-size mặc định cho thẻ h2 đồng bộ toàn website (tương đương text-xl sm:text-2xl) */
+  /* Chuẩn hóa font-size mặc định cho thẻ h2 đồng bộ toàn website (tương đương text-xl) */
   h2 {
     font-size: 1.25rem;
     line-height: 1.75rem;
-  }
-
-  @media (min-width: 640px) {
-    h2 {
-      font-size: 1.5rem;
-      line-height: 2rem;
-    }
   }
 }
 

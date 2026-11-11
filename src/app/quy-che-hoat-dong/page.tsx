@@ -235,7 +235,7 @@ export default function OperatingRegulationPage() {
 
               {/* Mục 1: Nguyên tắc chung & Định nghĩa */}
               <section id="nguyen-tac-chung" className="scroll-mt-24 border-b border-slate-200 pb-8">
-                <h2 className="text-xl font-black text-slate-900 sm:text-2xl flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">1</span>
                   <span>Nguyên Tắc Chung và Định Nghĩa Thuật Ngữ</span>
                 </h2>
@@ -254,7 +254,7 @@ export default function OperatingRegulationPage() {
 
               {/* Mục 2: Quyền & Nghĩa vụ thành viên */}
               <section id="quyen-nghia-vu-thanh-vien" className="scroll-mt-24 border-b border-slate-200 py-8">
-                <h2 className="text-xl font-black text-slate-900 sm:text-2xl flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">2</span>
                   <span>Quyền và Nghĩa Vụ của Thành Viên</span>
                 </h2>
@@ -287,7 +287,7 @@ export default function OperatingRegulationPage() {
 
               {/* Mục 3: Quyền & Trách nhiệm Ban quản trị */}
               <section id="quyen-nghia-vu-ban-quan-tri" className="scroll-mt-24 border-b border-slate-200 py-8">
-                <h2 className="text-xl font-black text-slate-900 sm:text-2xl flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">3</span>
                   <span>Quyền và Trách Nhiệm của Ban Quản Trị Sàn</span>
                 </h2>
@@ -306,7 +306,7 @@ export default function OperatingRegulationPage() {
 
               {/* Mục 4: Các hành vi bị cấm */}
               <section id="cac-hanh-vi-bi-cam" className="scroll-mt-24 border-b border-slate-200 py-8">
-                <h2 className="text-xl font-black text-slate-900 sm:text-2xl flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">4</span>
                   <span>Các Hành Vi Nghiêm Cấm Tuyệt Đối</span>
                 </h2>
@@ -332,7 +332,7 @@ export default function OperatingRegulationPage() {
 
               {/* Mục 5: Quy định tin đăng */}
               <section id="quy-dinh-tin-dang" className="scroll-mt-24 border-b border-slate-200 py-8">
-                <h2 className="text-xl font-black text-slate-900 sm:text-2xl flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">5</span>
                   <span>Quy Định Chuẩn Về Tiêu Đề, Nội Dung và Hình Ảnh Tin Rao</span>
                 </h2>
@@ -354,7 +354,7 @@ export default function OperatingRegulationPage() {
 
               {/* Mục 6: Chế tài xử lý */}
               <section id="che-tai-xu-ly" className="scroll-mt-24 pt-8">
-                <h2 className="text-xl font-black text-slate-900 sm:text-2xl flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">6</span>
                   <span>Quy Trình và Chế Tài Xử Lý Thành Viên Vi Phạm</span>
                 </h2>

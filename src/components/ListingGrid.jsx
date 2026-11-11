@@ -511,7 +511,7 @@ export default function ListingGrid({
       <div className={`flex ${(isHomePage || centerHeader) ? 'justify-center text-center' : (title ? 'flex-col sm:flex-row items-start sm:items-center justify-between' : 'flex-row items-center justify-between')} gap-2.5 sm:gap-4 pb-3 sm:pb-5 border-b border-slate-200`}>
         {title ? (
           <div className={centerHeader ? "w-full text-center max-w-4xl mx-auto" : ""}>
-            <h2 className={`text-xl sm:text-2xl font-black text-slate-900 tracking-tight ${centerHeader ? "text-center" : ""}`}>
+            <h2 className={`text-xl font-black text-slate-900 tracking-tight ${centerHeader ? "text-center" : ""}`}>
               {title}
             </h2>
             {subtitle && (
@@ -522,7 +522,7 @@ export default function ListingGrid({
           </div>
         ) : isHomePage ? (
           <div className="w-full text-center max-w-4xl mx-auto">
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight text-center">
+            <h2 className="text-xl font-black text-slate-900 tracking-tight text-center">
               Tin Đăng Bất Động Sản Nổi Bật
             </h2>
             <p className="text-xs sm:text-sm text-slate-600 mt-1.5 leading-relaxed mx-auto text-center">

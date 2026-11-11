@@ -117,7 +117,7 @@ export default function PropertyDetailPage({ initialProperty = null, slug = '', 
             <i className="fa-solid fa-triangle-exclamation"></i>
           </div>
           <div>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-800">Không tìm thấy bài viết nhà đất</h2>
+            <h2 className="text-xl font-black text-slate-800">Không tìm thấy bài viết nhà đất</h2>
             <p className="text-xs sm:text-sm text-slate-500 mt-2 leading-relaxed">
               Bài đăng có mã số hoặc đường dẫn này có thể đã được gỡ bỏ, chưa được phê duyệt, hoặc bạn truy cập bằng liên kết cũ không còn tồn tại trên sàn.
             </p>

@@ -18,7 +18,7 @@ export default function HomeSeoContent() {
            ===================================================================== */}
         <div className="mb-6 sm:mb-8">
           <div className="text-center max-w-4xl mx-auto mb-6 sm:mb-7">
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug text-center">
+            <h2 className="text-xl font-black text-slate-900 tracking-tight leading-snug text-center">
               Tin Tức Và Kiến Thức Bất Động Sản
             </h2>
             <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal max-w-3xl mx-auto text-center">
@@ -262,7 +262,7 @@ export default function HomeSeoContent() {
         <div className="mb-6 sm:mb-8">
           {/* Section Header */}
           <div className="text-center max-w-4xl mx-auto mb-6 sm:mb-7">
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug text-center">
+            <h2 className="text-xl font-black text-slate-900 tracking-tight leading-snug text-center">
               Vì Sao Nên Lựa Chọn Kênh Nhà Đất 24H?
             </h2>
             <p className="mt-3 text-xs sm:text-sm text-slate-600 leading-relaxed font-normal max-w-3xl mx-auto text-center">
@@ -366,7 +366,7 @@ export default function HomeSeoContent() {
            ===================================================================== */}
         <div className="mb-4">
           <div className="text-center max-w-4xl mx-auto mb-6 sm:mb-7">
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug text-center">
+            <h2 className="text-xl font-black text-slate-900 tracking-tight leading-snug text-center">
               Câu Hỏi Thường Gặp Về Mua Bán Và Cho Thuê Nhà Đất
             </h2>
             <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed font-normal max-w-3xl mx-auto text-center">

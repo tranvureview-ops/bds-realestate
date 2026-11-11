@@ -69,7 +69,7 @@ export default function VipPackageShowcase({ onClose = null, className = '' }) {
             <i className="fa-solid fa-crown text-amber-500"></i>
             Hệ Thống Phân Loại Tin Đăng & Biểu Phí
           </div>
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+          <h2 className="text-xl font-black text-slate-900 tracking-tight">
             Chọn Phân Loại Tin Đăng Để <span className="text-red-600">Bán Nhanh Gấp 15 Lần</span>
           </h2>
           <p className="mt-2 text-xs sm:text-sm text-slate-600">

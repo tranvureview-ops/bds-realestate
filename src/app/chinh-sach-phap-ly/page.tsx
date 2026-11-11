@@ -254,7 +254,7 @@ export default function LegalPolicyPage() {
                   <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">
                     I
                   </span>
-                  <h2 className="text-xl font-black text-slate-900 sm:text-2xl">
+                  <h2 className="text-xl font-black text-slate-900">
                     Quy Chế Hoạt Động Sàn Giao Dịch Nhà Đất {BRAND_NAME}
                   </h2>
                 </div>
@@ -342,7 +342,7 @@ export default function LegalPolicyPage() {
                   <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-600 text-xs font-black text-white">
                     II
                   </span>
-                  <h2 className="text-xl font-black text-slate-900 sm:text-2xl">
+                  <h2 className="text-xl font-black text-slate-900">
                     Chính Sách Bảo Mật Thông Tin & Dữ Liệu Cá Nhân
                   </h2>
                 </div>
@@ -425,7 +425,7 @@ export default function LegalPolicyPage() {
                   <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">
                     III
                   </span>
-                  <h2 className="text-xl font-black text-slate-900 sm:text-2xl">
+                  <h2 className="text-xl font-black text-slate-900">
                     Cơ Chế Giải Quyết Tranh Chấp & Khiếu Nại Minh Bạch
                   </h2>
                 </div>

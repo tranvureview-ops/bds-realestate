@@ -241,7 +241,7 @@ function KnowledgeActionBanner() {
         <span className="inline-block px-3 py-1 rounded-full bg-emerald-900/60 text-emerald-200 text-xs font-bold border border-emerald-500/30 mb-3">
           CỔNG THÔNG TIN MUA BÁN NHÀ ĐẤT XÁC THỰC
         </span>
-        <h2 className="text-xl sm:text-2xl font-black tracking-tight leading-snug">
+        <h2 className="text-xl font-black tracking-tight leading-snug">
           Cập Nhật Tin Tức & Khám Phá Nhà Đất Chính Chủ
         </h2>
         <p className="text-xs sm:text-sm text-emerald-100 mt-3 leading-relaxed">
@@ -313,7 +313,7 @@ function QuickToolsSection() {
       <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-2">
         <div>
           <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Tiện ích hỗ trợ giao dịch</span>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
+          <h2 className="text-xl font-bold text-slate-900 mt-1">
             Bộ Công Cụ Tiện Ích Hỗ Trợ Đầu Tư Bất Động Sản
           </h2>
         </div>
@@ -378,7 +378,7 @@ function MarketOverviewSection() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 pb-4 border-b border-slate-100 gap-2">
         <div>
           <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">Báo cáo tổng hợp</span>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">
+          <h2 className="text-xl font-bold text-slate-900 mt-0.5">
             Tổng Quan Diễn Biến & Động Lực Thị Trường BĐS [2026]
           </h2>
         </div>
@@ -435,7 +435,7 @@ function ExperienceOverviewSection() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 pb-4 border-b border-slate-100 gap-2">
         <div>
           <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">Cẩm nang thực chiến</span>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">
+          <h2 className="text-xl font-bold text-slate-900 mt-0.5">
             3 Nguyên Tắc Vàng Khi Mua Bán & Đầu Tư Bất Động Sản An Toàn
           </h2>
         </div>
@@ -492,7 +492,7 @@ function LegalOverviewSection() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 pb-4 border-b border-slate-100 gap-2">
         <div>
           <span className="text-xs font-bold text-red-700 uppercase tracking-wider">Pháp lý minh bạch</span>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">
+          <h2 className="text-xl font-bold text-slate-900 mt-0.5">
             3 Điểm Tựa Pháp Lý Sống Còn Khi Giao Dịch Nhà Đất [2026]
           </h2>
         </div>
@@ -577,7 +577,7 @@ function KnowledgeFaqAccordion({ activeCategorySlug = null }) {
           <i className={badgeIcon}></i>
           <span>{badgeText}</span>
         </div>
-        <h2 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+        <h2 className="text-xl font-bold text-slate-900 tracking-tight">
           {sectionTitle}
         </h2>
         <p className="text-xs sm:text-sm text-slate-600 mt-2 leading-relaxed">
@@ -673,7 +673,7 @@ function LocalSeoLinks() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-2">
         <div>
           <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Thị trường trọng điểm</span>
-          <h2 id="local-seo-heading" className="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">
+          <h2 id="local-seo-heading" className="text-xl font-bold text-slate-900 mt-0.5">
             Khám Phá Nhà Đất Mua Bán & Cho Thuê: Hồ Chí Minh, Hà Nội & Đà Nẵng
           </h2>
         </div>
@@ -853,7 +853,7 @@ export default function KnowledgeHubPage({ activeCategorySlug = null }) {
             <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
               {activeCategory ? `Chuyên mục ${activeCategory.shortName || activeCategory.name}` : 'Tất cả bài viết thực chiến'}
             </span>
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mt-1">
+            <h2 className="text-xl font-bold text-slate-900 mt-1">
               {activeCategory ? `Bài Viết & Báo Cáo ${activeCategory.name}` : 'Bài Viết & Báo Cáo Phân Tích Thực Chiến Mới Nhất [2026]'}
             </h2>
           </div>

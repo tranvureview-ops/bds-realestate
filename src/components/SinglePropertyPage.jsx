@@ -1263,7 +1263,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
           {/* B. DETAILED DESCRIPTION & HIGHLIGHTS */}
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
-            <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+            <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
               <span className="w-2 h-5 bg-emerald-600 rounded-full"></span>
               <span>Thông Tin Mô Tả Chi Tiết</span>
             </h2>
@@ -1317,7 +1317,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
             return (
               <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                   <span className="w-2 h-5 bg-purple-600 rounded-full"></span>
                   <span>Đặc Điểm Tin Đăng</span>
                 </h2>
@@ -1387,7 +1387,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
           {/* C. SATELLITE GIS MAP & NEARBY FACILITIES */}
           {singleConfig?.features?.showInteractiveMap !== false && (
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4 content-visibility-auto">
-              <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+              <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                 <span className="w-2 h-5 bg-blue-600 rounded-full"></span>
                 <span>Vị Trí Bản Đồ & Tiện Ích Xung Quanh (Bán Kính 1km)</span>
               </h2>
@@ -1422,7 +1422,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+                  <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                     <span className="w-2 h-5 bg-amber-500 rounded-full"></span>
                     <span>Ước Tính Trả Góp Vay Mua Căn Nhà Này</span>
                   </h2>
@@ -1646,7 +1646,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
+                  <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                     <span className="w-2 h-5 bg-indigo-600 rounded-full"></span>
                     <span>Tìm Kiếm Theo Từ Khóa & Cụm Từ Liên Quan</span>
                   </h2>
@@ -2004,7 +2004,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
               <div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2.5">
+                <h2 className="text-xl font-black text-slate-900 flex items-center gap-2.5">
                   <span className="w-2.5 h-6 bg-emerald-600 rounded-full"></span>
                   <span>Tin Đăng Cùng {authorTitle}</span>
                 </h2>
@@ -2039,7 +2039,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
               <div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2.5">
+                <h2 className="text-xl font-black text-slate-900 flex items-center gap-2.5">
                   <span className="w-2.5 h-6 bg-rose-600 rounded-full"></span>
                   <span>Nhà Đất Tương Tự Cùng Phân Khúc</span>
                 </h2>

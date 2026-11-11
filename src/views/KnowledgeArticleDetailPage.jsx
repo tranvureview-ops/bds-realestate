@@ -362,7 +362,7 @@ function ArticleLocalSeoLinks() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-2">
         <div>
           <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Thị trường trọng điểm</span>
-          <h2 id="article-local-seo-heading" className="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">
+          <h2 id="article-local-seo-heading" className="text-xl font-bold text-slate-900 mt-0.5">
             Khám Phá Nhà Đất Mua Bán & Cho Thuê: Hồ Chí Minh, Hà Nội & Đà Nẵng
           </h2>
         </div>
@@ -743,7 +743,7 @@ function formatArticleHtml(content) {
         const titleText = match[1];
         const headingId = match[2] || slugify(titleText);
         htmlBlocks.push(
-          `<h2 id="${headingId}" class="text-xl sm:text-2xl font-black text-slate-900 mt-9 mb-4 tracking-tight scroll-mt-24 pb-2.5 border-b border-slate-200/80 flex items-center gap-2"><span>${formatInline(titleText)}</span></h2>`
+          `<h2 id="${headingId}" class="text-xl font-black text-slate-900 mt-9 mb-4 tracking-tight scroll-mt-24 pb-2.5 border-b border-slate-200/80 flex items-center gap-2"><span>${formatInline(titleText)}</span></h2>`
         );
         const remaining = lines.slice(1).join('\n').trim();
         if (remaining) {
