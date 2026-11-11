@@ -5584,6 +5584,22 @@ export const INITIAL_NAV_MENU = [
     ]
   },
   {
+    id: 'menu-knowledge',
+    title: 'Kiến Thức',
+    path: '/kien-thuc',
+    icon: 'fa-solid fa-book-open-reader',
+    badge: '',
+    badgeColor: '',
+    isVisible: true,
+    order: 4,
+    target: '_self',
+    children: [
+      { id: 'sub-knowledge-market', title: 'Thông Tin Thị Trường', path: '/kien-thuc/thi-truong', icon: 'fa-solid fa-chart-line' },
+      { id: 'sub-knowledge-exp', title: 'Kinh Nghiệm Mua Bán & Đầu Tư', path: '/kien-thuc/kinh-nghiem', icon: 'fa-solid fa-lightbulb' },
+      { id: 'sub-knowledge-legal', title: 'Kiến Thức Pháp Lý & Quy Hoạch', path: '/kien-thuc/phap-ly', icon: 'fa-solid fa-scale-balanced' }
+    ]
+  },
+  {
     id: 'menu-membership',
     title: 'Gói Hội Viên',
     path: '/goi-hoi-vien',
@@ -5591,23 +5607,9 @@ export const INITIAL_NAV_MENU = [
     badge: '',
     badgeColor: '',
     isVisible: true,
-    order: 4,
-    target: '_self',
-    children: []
-  },
-  {
-    id: 'menu-knowledge',
-    title: 'Kiến Thức',
-    path: '/kien-thuc',
-    icon: 'fa-solid fa-book-open-reader',
-    isVisible: true,
     order: 5,
     target: '_self',
-    children: [
-      { id: 'sub-knowledge-market', title: 'Thông Tin Thị Trường', path: '/kien-thuc/thi-truong', icon: 'fa-solid fa-chart-line' },
-      { id: 'sub-knowledge-exp', title: 'Kinh Nghiệm Mua Bán & Đầu Tư', path: '/kien-thuc/kinh-nghiem', icon: 'fa-solid fa-lightbulb' },
-      { id: 'sub-knowledge-legal', title: 'Kiến Thức Pháp Lý & Quy Hoạch', path: '/kien-thuc/phap-ly', icon: 'fa-solid fa-scale-balanced' }
-    ]
+    children: []
   }
 ];
 

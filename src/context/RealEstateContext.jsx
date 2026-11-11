@@ -137,7 +137,10 @@ const normalizeNavMenuItems = (rawMenu) => {
 
   const existingIds = new Set(baseMenu.map(item => item?.id).filter(Boolean));
   const missingDefaults = INITIAL_NAV_MENU.filter(def => def?.id && !existingIds.has(def.id));
-  const mergedMenu = missingDefaults.length > 0 ? [...baseMenu, ...missingDefaults] : baseMenu;
+  const adjustedBase = missingDefaults.some(d => d.id === 'menu-knowledge')
+    ? baseMenu.map(item => (item?.id === 'menu-membership' && item.order === 4 ? { ...item, order: 5 } : item))
+    : baseMenu;
+  const mergedMenu = missingDefaults.length > 0 ? [...adjustedBase, ...missingDefaults] : adjustedBase;
 
   return mergedMenu.map(item => {
     const isSale = item.path?.includes('nha-dat-ban') || item.id === 'menu-sale' || item.title?.toLowerCase().includes('bán');

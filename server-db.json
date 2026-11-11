@@ -5796,18 +5796,6 @@
       "badgeColor": ""
     },
     {
-      "id": "menu-membership",
-      "icon": "fa-solid fa-crown",
-      "path": "/goi-hoi-vien",
-      "badge": "",
-      "order": 4,
-      "title": "Gói Hội Viên",
-      "target": "_self",
-      "children": [],
-      "isVisible": true,
-      "badgeColor": ""
-    },
-    {
       "id": "menu-knowledge",
       "title": "Kiến Thức",
       "path": "/kien-thuc",
@@ -5815,7 +5803,7 @@
       "badge": "",
       "badgeColor": "",
       "isVisible": true,
-      "order": 5,
+      "order": 4,
       "target": "_self",
       "children": [
         {
@@ -5837,6 +5825,18 @@
           "icon": "fa-solid fa-scale-balanced"
         }
       ]
+    },
+    {
+      "id": "menu-membership",
+      "icon": "fa-solid fa-crown",
+      "path": "/goi-hoi-vien",
+      "badge": "",
+      "order": 5,
+      "title": "Gói Hội Viên",
+      "target": "_self",
+      "children": [],
+      "isVisible": true,
+      "badgeColor": ""
     }
   ],
   "bds_vip_packages": [
