@@ -54,9 +54,18 @@ const TAM_TAI_MAPPING = {
   'Sửu': ['Hợi', 'Tý', 'Sửu']
 };
 
-// Cung mệnh Bát Trạch cho Nam & Nữ
-const CUNG_MENH_NAM = ['Khảm', 'Ly', 'Cấn', 'Đoài', 'Càn', 'Khôn', 'Tốn', 'Chấn', 'Khôn'];
-const CUNG_MENH_NU = ['Cấn', 'Càn', 'Đoài', 'Cấn', 'Ly', 'Khảm', 'Khôn', 'Chấn', 'Tốn'];
+// Bảng ánh xạ Quái Số (1-9) sang Cung Phi Bát Trạch chuẩn Lạc Thư
+// Quái số 5 (Trung Cung): Nam quy về Khôn, Nữ quy về Cấn
+const QUAI_SO_TO_CUNG = {
+  1: 'Khảm',
+  2: 'Khôn',
+  3: 'Chấn',
+  4: 'Tốn',
+  6: 'Càn',
+  7: 'Đoài',
+  8: 'Cấn',
+  9: 'Ly'
+};
 
 const HUONG_BAT_TRACH = {
   'Khảm': { nhom: 'Đông Tứ Mệnh', tot: ['Đông Nam (Sinh Khí)', 'Đông (Thiên Y)', 'Nam (Diên Niên)', 'Bắc (Phục Vị)'], xau: ['Tây Nam (Tuyệt Mệnh)', 'Đông Bắc (Ngũ Quỷ)', 'Tây Bắc (Lục Sát)', 'Tây (Họa Hại)'] },
@@ -196,31 +205,29 @@ export function checkHoangOc(tuoiMu) {
 }
 
 /**
- * Tra cứu cung phi Bát Trạch
+ * Tra cứu cung phi Bát Trạch chuẩn Lạc Thư (chính xác cho cả trước và sau năm 2000)
  */
 export function getBatTrach(birthYear, gender = 'nam') {
-  // Rút gọn tổng các chữ số năm sinh
-  let sum = birthYear.toString().split('').reduce((acc, digit) => acc + parseInt(digit, 10), 0);
+  // Rút gọn tổng các chữ số năm sinh về 1 chữ số (1-9)
+  let sum = Math.abs(parseInt(birthYear, 10) || 1990)
+    .toString()
+    .split('')
+    .reduce((acc, digit) => acc + parseInt(digit, 10), 0);
   while (sum >= 10) {
     sum = sum.toString().split('').reduce((acc, digit) => acc + parseInt(digit, 10), 0);
   }
 
-  let cungIndex = 0;
+  let quaiSo;
+  let cungName;
   if (gender === 'nam') {
-    // Với người sinh sau năm 2000 có thể khác, nhưng chuẩn cổ:
-    // Nam: 11 - sum (trước 2000) hoặc 9 - sum (sau 2000)
-    let val = birthYear < 2000 ? 11 - sum : 9 - sum;
-    if (val <= 0) val += 9;
-    cungIndex = (val - 1) % 9;
-    const cungName = CUNG_MENH_NAM[cungIndex] || 'Khôn';
-    return { cung: cungName, ...HUONG_BAT_TRACH[cungName] };
+    quaiSo = (((11 - sum - 1) % 9) + 9) % 9 + 1;
+    cungName = quaiSo === 5 ? 'Khôn' : QUAI_SO_TO_CUNG[quaiSo];
   } else {
-    let val = birthYear < 2000 ? 4 + sum : 6 + sum;
-    while (val > 9) val -= 9;
-    cungIndex = (val - 1) % 9;
-    const cungName = CUNG_MENH_NU[cungIndex] || 'Cấn';
-    return { cung: cungName, ...HUONG_BAT_TRACH[cungName] };
+    quaiSo = ((4 + sum - 1) % 9) + 1;
+    cungName = quaiSo === 5 ? 'Cấn' : QUAI_SO_TO_CUNG[quaiSo];
   }
+
+  return { cung: cungName, ...HUONG_BAT_TRACH[cungName] };
 }
 
 /**
@@ -254,7 +261,11 @@ export function calculateFengShui(birthYear, targetYear, gender = 'nam') {
   } else {
     rating = 'can-muon-tuoi';
     titleVerdict = 'KHÔNG NÊN ĐỘNG THỔ - NÊN MƯỢN TUỔI LÀM NHÀ';
-    summary = `Năm ${targetYear}, tuổi của gia chủ phạm vào ${kimLau.isPham ? 'Kim Lâu (' + kimLau.loaiKimLau + ')' : ''}${kimLau.isPham && hoangOc.isPham ? ' và ' : ''}${hoangOc.isPham ? 'Hoang Ốc (' + hoangOc.cung + ')' : ''}. Nếu tiến hành khởi công xây nhà hoặc mua đất có thể gặp nhiều trắc trở, hao tài tán của. GIẢI PHÁP TỐI ƯU NHẤT LÀ MƯỢN TUỔI NGƯỜI THÂN ĐỂ ĐỨNG RA ĐỘNG THỔ.`;
+    const phamList = [];
+    if (tamTai.isPham) phamList.push('Tam Tai');
+    if (kimLau.isPham) phamList.push(`Kim Lâu (${kimLau.loaiKimLau})`);
+    if (hoangOc.isPham) phamList.push(`Hoang Ốc (${hoangOc.cung})`);
+    summary = `Năm ${targetYear}, tuổi của gia chủ phạm vào ${phamList.join(', ')}. Nếu tiến hành khởi công xây nhà hoặc mua đất có thể gặp nhiều trắc trở, hao tài tán của. GIẢI PHÁP TỐI ƯU NHẤT LÀ MƯỢN TUỔI NGƯỜI THÂN ĐỂ ĐỨNG RA ĐỘNG THỔ.`;
   }
 
   // Danh sách gợi ý các tuổi mượn đẹp nhất trong năm targetYear
@@ -285,8 +296,7 @@ export function calculateFengShui(birthYear, targetYear, gender = 'nam') {
  */
 export function findBestBorrowAges(targetYear) {
   const result = [];
-  // Quét các tuổi nam giới từ 22 đến 75 tuổi
-  const currentYear = new Date().getFullYear();
+  // Quét các tuổi nam giới từ 20 đến 75 tuổi
   const maxBirth = targetYear - 20;
   const minBirth = targetYear - 75;
 

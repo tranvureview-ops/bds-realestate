@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { Link } from '../router/RouterContext';
-import { calculateFengShui } from '../utils/fengshuiCalculator';
+import { calculateFengShui, getCanChi } from '../utils/fengshuiCalculator';
 
 export default function FengShuiCalculator() {
   const currentYear = new Date().getFullYear();
@@ -65,7 +65,7 @@ export default function FengShuiCalculator() {
               >
                 {birthYearOptions.map(y => (
                   <option key={y} value={y}>
-                    Năm {y} ({result.birthYear === y ? result.canChiBirth.fullName : ''})
+                    Năm {y} ({getCanChi(y).fullName})
                   </option>
                 ))}
               </select>
@@ -121,7 +121,7 @@ export default function FengShuiCalculator() {
               >
                 {targetYearOptions.map(y => (
                   <option key={y} value={y}>
-                    Năm {y} {y === currentYear ? '(Năm nay)' : y === currentYear + 1 ? '(Năm tới)' : ''}
+                    Năm {y} ({getCanChi(y).fullName}){y === currentYear ? ' — Năm nay' : y === currentYear + 1 ? ' — Năm tới' : ''}
                   </option>
                 ))}
               </select>
