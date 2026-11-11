@@ -69,15 +69,8 @@ export default function Navbar() {
   const userMenuRef = useRef(null);
   const isGuest = !currentUser || currentUser.role === 'guest';
 
-  // Quản lý Live Ticker trên thanh Topbar (Tự động ẩn hoàn toàn nếu không có kỳ nào đang mở)
-  const [topbarTickerEvents, setTopbarTickerEvents] = useState(() => {
-    try {
-      const initialEvents = getLivePredictionTickerEvents();
-      return Array.isArray(initialEvents) ? initialEvents : [];
-    } catch {
-      return [];
-    }
-  });
+  // Quản lý Live Ticker trên thanh Topbar (chỉ nạp sau khi hydrate để khớp SSR/Client và ẩn hoàn toàn nếu không có kỳ mở)
+  const [topbarTickerEvents, setTopbarTickerEvents] = useState([]);
 
   // Nhân bản danh sách 3 lần để đảm bảo cuộn vô tận (Infinite Seamless Loop) trên mọi độ phân giải
   const displayTickerList = useMemo(() => {
