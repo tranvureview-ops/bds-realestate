@@ -5643,7 +5643,7 @@
         {
           "id": "sub-sale-mini-apt",
           "icon": "fa-solid fa-city",
-          "path": "/ban-chung-cu-mini-can-ho-dich-vu",
+          "path": "/ban-chung-cu-mini",
           "title": "Bán Chung Cư Mini, Căn Hộ Dịch Vụ"
         },
         {
@@ -5655,7 +5655,7 @@
         {
           "id": "sub-sale-villa",
           "icon": "fa-solid fa-landmark",
-          "path": "/ban-nha-biethu-lien-ke",
+          "path": "/ban-nha-biet-thu-lien-ke",
           "title": "Bán Nhà Biệt Thự, Liền Kề"
         },
         {
@@ -5667,7 +5667,7 @@
         {
           "id": "sub-sale-shophouse",
           "icon": "fa-solid fa-store",
-          "path": "/ban-shophouse-nha-pho-thuong-mai",
+          "path": "/ban-shophouse",
           "title": "Bán Shophouse"
         },
         {
@@ -5728,7 +5728,7 @@
         {
           "id": "sub-rent-mini-apt",
           "icon": "fa-solid fa-city",
-          "path": "/cho-thue-chung-cu-mini-can-ho-dich-vu",
+          "path": "/cho-thue-chung-cu-mini",
           "title": "Cho Thuê Chung Cư Mini, Căn Hộ Dịch Vụ"
         },
         {
@@ -5740,7 +5740,7 @@
         {
           "id": "sub-rent-villa",
           "icon": "fa-solid fa-landmark",
-          "path": "/cho-thue-nha-biethu-lien-ke",
+          "path": "/cho-thue-nha-biet-thu-lien-ke",
           "title": "Cho Thuê Nhà Biệt Thự, Liền Kề"
         },
         {
@@ -5752,7 +5752,7 @@
         {
           "id": "sub-rent-shophouse",
           "icon": "fa-solid fa-store",
-          "path": "/cho-thue-shophouse-nha-pho-thuong-mai",
+          "path": "/cho-thue-shophouse",
           "title": "Cho Thuê Shophouse"
         },
         {
@@ -5806,6 +5806,37 @@
       "children": [],
       "isVisible": true,
       "badgeColor": ""
+    },
+    {
+      "id": "menu-knowledge",
+      "title": "Kiến Thức",
+      "path": "/kien-thuc",
+      "icon": "fa-solid fa-book-open-reader",
+      "badge": "",
+      "badgeColor": "",
+      "isVisible": true,
+      "order": 5,
+      "target": "_self",
+      "children": [
+        {
+          "id": "sub-knowledge-market",
+          "title": "Thông Tin Thị Trường",
+          "path": "/kien-thuc/thi-truong",
+          "icon": "fa-solid fa-chart-line"
+        },
+        {
+          "id": "sub-knowledge-exp",
+          "title": "Kinh Nghiệm Mua Bán & Đầu Tư",
+          "path": "/kien-thuc/kinh-nghiem",
+          "icon": "fa-solid fa-lightbulb"
+        },
+        {
+          "id": "sub-knowledge-legal",
+          "title": "Kiến Thức Pháp Lý & Quy Hoạch",
+          "path": "/kien-thuc/phap-ly",
+          "icon": "fa-solid fa-scale-balanced"
+        }
+      ]
     }
   ],
   "bds_vip_packages": [

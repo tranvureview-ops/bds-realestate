@@ -127,6 +127,41 @@ import { syncFeaturesWithVouchers } from '../utils/membershipHelper';
 export const createVietnameseSlug = toVietnameseSlug;
 
 /**
+ * Chuẩn hóa danh sách menu điều hướng và tự động bổ sung các mục mặc định bị thiếu (VD: Kiến Thức)
+ * từ cấu hình INITIAL_NAV_MENU mà không ghi đè tùy biến ẩn/hiện hiện có.
+ */
+const normalizeNavMenuItems = (rawMenu) => {
+  const hasItems = Array.isArray(rawMenu) && rawMenu.length > 0;
+  const hasNewCategories = hasItems && rawMenu.some(m => m.children?.some(c => c.path?.includes('chung-cu-mini')));
+  const baseMenu = hasNewCategories ? rawMenu : INITIAL_NAV_MENU;
+
+  const existingIds = new Set(baseMenu.map(item => item?.id).filter(Boolean));
+  const missingDefaults = INITIAL_NAV_MENU.filter(def => def?.id && !existingIds.has(def.id));
+  const mergedMenu = missingDefaults.length > 0 ? [...baseMenu, ...missingDefaults] : baseMenu;
+
+  return mergedMenu.map(item => {
+    const isSale = item.path?.includes('nha-dat-ban') || item.id === 'menu-sale' || item.title?.toLowerCase().includes('bán');
+    const isRent = item.path?.includes('cho-thue') || item.id === 'menu-rent' || item.title?.toLowerCase().includes('thuê');
+    if ((isSale || isRent) && Array.isArray(item.children)) {
+      return {
+        ...item,
+        children: item.children.map(sub => {
+          const rawTitle = sub.title || '';
+          if (isSale && !rawTitle.toLowerCase().startsWith('bán')) {
+            return { ...sub, title: `Bán ${rawTitle}` };
+          }
+          if (isRent && !rawTitle.toLowerCase().startsWith('cho thuê')) {
+            return { ...sub, title: `Cho Thuê ${rawTitle}` };
+          }
+          return sub;
+        })
+      };
+    }
+    return item;
+  });
+};
+
+/**
  * Helper tính toán mốc thời gian chính xác cho Khung Giờ Vàng (Hẹn Giờ Đăng Tin)
  * @param {string} startDateStr Ngày bắt đầu định dạng YYYY-MM-DD
  * @param {string} scheduleTimeStr Khung giờ hẹn định dạng HH:mm (VD: "08:00", "11:30", "14:00", "19:30")
@@ -620,31 +655,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
   });
 
   // 8. Navigation Menu Configuration State
-  const [navMenuItems, setNavMenuItems] = useState(() => {
-    const raw = (initialData?.bds_nav_menu && Array.isArray(initialData.bds_nav_menu) && initialData.bds_nav_menu.length > 0)
-      ? initialData.bds_nav_menu
-      : INITIAL_NAV_MENU;
-    return raw.map(item => {
-      const isSale = item.path?.includes('nha-dat-ban') || item.id === 'menu-sale' || item.title?.toLowerCase().includes('bán');
-      const isRent = item.path?.includes('cho-thue') || item.id === 'menu-rent' || item.title?.toLowerCase().includes('thuê');
-      if ((isSale || isRent) && Array.isArray(item.children)) {
-        return {
-          ...item,
-          children: item.children.map(sub => {
-            const rawTitle = sub.title || '';
-            if (isSale && !rawTitle.toLowerCase().startsWith('bán')) {
-              return { ...sub, title: `Bán ${rawTitle}` };
-            }
-            if (isRent && !rawTitle.toLowerCase().startsWith('cho thuê')) {
-              return { ...sub, title: `Cho Thuê ${rawTitle}` };
-            }
-            return sub;
-          })
-        };
-      }
-      return item;
-    });
-  });
+  const [navMenuItems, setNavMenuItems] = useState(() => normalizeNavMenuItems(initialData?.bds_nav_menu));
 
   // Hàm hợp nhất Social Links giữ nguyên 100% thứ tự kênh từ Database, triệt tiêu lỗi nhảy lộn xộn icon khi F5 / SSR
   const mergeSocialLinks = (rawSocial, defaultSocial = DEFAULT_SOCIAL_LINKS) => {
@@ -1859,29 +1870,7 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           }));
         }
         if (Array.isArray(db.bds_nav_menu) && db.bds_nav_menu.length > 0) {
-          const hasNewCategories = db.bds_nav_menu.some(m => m.children?.some(c => c.path?.includes('chung-cu-mini')));
-          const baseMenu = hasNewCategories ? db.bds_nav_menu : INITIAL_NAV_MENU;
-          const normalized = baseMenu.map(item => {
-            const isSale = item.path?.includes('nha-dat-ban') || item.id === 'menu-sale' || item.title?.toLowerCase().includes('bán');
-            const isRent = item.path?.includes('cho-thue') || item.id === 'menu-rent' || item.title?.toLowerCase().includes('thuê');
-            if ((isSale || isRent) && Array.isArray(item.children)) {
-              return {
-                ...item,
-                children: item.children.map(sub => {
-                  const rawTitle = sub.title || '';
-                  if (isSale && !rawTitle.toLowerCase().startsWith('bán')) {
-                    return { ...sub, title: `Bán ${rawTitle}` };
-                  }
-                  if (isRent && !rawTitle.toLowerCase().startsWith('cho thuê')) {
-                    return { ...sub, title: `Cho Thuê ${rawTitle}` };
-                  }
-                  return sub;
-                })
-              };
-            }
-            return item;
-          });
-          setNavMenuItems(normalized);
+          setNavMenuItems(normalizeNavMenuItems(db.bds_nav_menu));
         }
 
         if (Array.isArray(db.bds_vip_packages) && db.bds_vip_packages.length > 0) {
