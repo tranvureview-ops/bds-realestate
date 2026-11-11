@@ -159,9 +159,9 @@ export default function PrivacyPolicyPage() {
                   <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                   </svg>
-                  <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900">
                     Mục Lục Bảo Mật
-                  </h2>
+                  </h3>
                 </div>
 
                 <nav aria-label="Mục lục nội dung" className="mt-4 space-y-1.5 text-xs">
@@ -244,7 +244,7 @@ export default function PrivacyPolicyPage() {
 
               {/* Mục 1: Mục đích thu thập */}
               <section id="muc-dich-thu-thap" className="scroll-mt-24 border-b border-slate-200 pb-8">
-                <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 sm:text-2xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-600 text-xs font-black text-white">1</span>
                   <span>Mục Đích Thu Thập Dữ Liệu Cá Nhân</span>
                 </h2>
@@ -269,7 +269,7 @@ export default function PrivacyPolicyPage() {
 
               {/* Mục 2: Phạm vi sử dụng */}
               <section id="pham-vi-su-dung" className="scroll-mt-24 border-b border-slate-200 py-8">
-                <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 sm:text-2xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-600 text-xs font-black text-white">2</span>
                   <span>Phạm Vi Sử Dụng Dữ Liệu Cá Nhân</span>
                 </h2>
@@ -286,7 +286,7 @@ export default function PrivacyPolicyPage() {
 
               {/* Mục 3: Thời gian lưu trữ */}
               <section id="thoi-gian-luu-tru" className="scroll-mt-24 border-b border-slate-200 py-8">
-                <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 sm:text-2xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-600 text-xs font-black text-white">3</span>
                   <span>Thời Gian Lưu Trữ Dữ Liệu</span>
                 </h2>
@@ -302,7 +302,7 @@ export default function PrivacyPolicyPage() {
 
               {/* Mục 4: Cam kết không chia sẻ */}
               <section id="cam-ket-khong-chia-se" className="scroll-mt-24 border-b border-slate-200 py-8">
-                <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 sm:text-2xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-600 text-xs font-black text-white">4</span>
                   <span>Cam Kết Tuyệt Đối Không Bán / Chia Sẻ Cho Bên Thứ Ba</span>
                 </h2>
@@ -319,7 +319,7 @@ export default function PrivacyPolicyPage() {
 
               {/* Mục 5: Biện pháp an toàn kỹ thuật */}
               <section id="bien-phap-an-toan" className="scroll-mt-24 border-b border-slate-200 py-8">
-                <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 sm:text-2xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-600 text-xs font-black text-white">5</span>
                   <span>Biện Pháp Kỹ Thuật Bảo Mật Hệ Thống</span>
                 </h2>
@@ -345,7 +345,7 @@ export default function PrivacyPolicyPage() {
 
               {/* Mục 6: Quyền chủ thể dữ liệu */}
               <section id="quyen-chu-the-du-lieu" className="scroll-mt-24 border-b border-slate-200 py-8">
-                <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 sm:text-2xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-600 text-xs font-black text-white">6</span>
                   <span>Quyền Hạn của Chủ Thể Dữ Liệu</span>
                 </h2>
@@ -362,7 +362,7 @@ export default function PrivacyPolicyPage() {
 
               {/* Mục 7: Đầu mối phụ trách an toàn dữ liệu */}
               <section id="dau-moi-lien-he" className="scroll-mt-24 pt-8">
-                <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 sm:text-2xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-600 text-xs font-black text-white">7</span>
                   <span>Đầu Mối Phụ Trách Bảo Vệ Dữ Liệu Cá Nhân</span>
                 </h2>

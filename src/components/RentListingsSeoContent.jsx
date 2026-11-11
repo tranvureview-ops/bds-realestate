@@ -46,7 +46,7 @@ export default function RentListingsSeoContent({ city = null, district = null, p
             <span className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-lg font-bold shrink-0">
               <i className="fa-solid fa-money-bill-wave"></i>
             </span>
-            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
               {seoData.priceTableTitle}
             </h2>
           </div>
@@ -87,7 +87,7 @@ export default function RentListingsSeoContent({ city = null, district = null, p
             <span className="w-10 h-10 rounded-2xl bg-amber-50 text-amber-700 flex items-center justify-center text-lg font-bold shrink-0">
               <i className="fa-solid fa-file-contract"></i>
             </span>
-            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
               {seoData.legalTitle}
             </h2>
           </div>
@@ -117,7 +117,7 @@ export default function RentListingsSeoContent({ city = null, district = null, p
             <span className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-lg font-bold shrink-0">
               <i className="fa-solid fa-circle-question"></i>
             </span>
-            <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
               {seoData.faqTitle}
             </h2>
           </div>
@@ -162,7 +162,7 @@ export default function RentListingsSeoContent({ city = null, district = null, p
               <span className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-700 flex items-center justify-center text-lg font-bold shrink-0">
                 <i className="fa-solid fa-layer-group"></i>
               </span>
-              <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                 {seoData.discoveryTitle}
               </h2>
             </div>

@@ -51,7 +51,7 @@ function renderMarkdownContent(text) {
     } else if (trimmed.startsWith('## ')) {
       flushList();
       elements.push(
-        <h2 key={idx} className="text-lg font-black text-slate-900 pt-6 pb-2 border-b border-slate-300 flex items-center gap-2">
+        <h2 key={idx} className="text-xl sm:text-2xl font-black text-slate-900 pt-6 pb-2 border-b border-slate-300 flex items-center gap-2">
           <i className="fa-solid fa-gift text-red-600 text-sm"></i>
           <span>{trimmed.replace(/^##\s+/, '')}</span>
         </h2>
@@ -123,7 +123,7 @@ export default function PromotionDetailPage({ slug }) {
 
           {/* Related Promos Carousel */}
           <div className="pt-10 text-left">
-            <h2 className="text-lg font-bold text-slate-900 mb-4">Các khuyến mãi đang diễn ra</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-4">Các khuyến mãi đang diễn ra</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {relatedPromos.map(rp => (
                 <Link
@@ -315,7 +315,7 @@ export default function PromotionDetailPage({ slug }) {
             {/* Content Details: Hiển thị Thể Lệ Chương Trình */}
             <div className="pt-6 border-t border-slate-100 space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
                   <i className="fa-solid fa-file-contract text-red-600"></i>
                   <span>Chi Tiết & Thể Lệ Chương Trình</span>
                 </h2>
@@ -344,7 +344,7 @@ export default function PromotionDetailPage({ slug }) {
         {/* Other Promos */}
         <div className="pt-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-slate-900">Các chương trình ưu đãi khác</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Các chương trình ưu đãi khác</h2>
             <Link to="/khuyen-mai/" className="text-xs font-bold text-red-600 hover:underline">
               Xem tất cả &rarr;
             </Link>

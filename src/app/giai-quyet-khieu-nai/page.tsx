@@ -159,9 +159,9 @@ export default function DisputeResolutionPage() {
                   <svg className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                   </svg>
-                  <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900">
                     Mục Lục Khiếu Nại
-                  </h2>
+                  </h3>
                 </div>
 
                 <nav aria-label="Mục lục nội dung" className="mt-4 space-y-1.5 text-xs">
@@ -240,7 +240,7 @@ export default function DisputeResolutionPage() {
 
               {/* Mục 1: Nguyên tắc giải quyết */}
               <section id="nguyen-tac-giai-quyet" className="scroll-mt-24 border-b border-slate-200 pb-8">
-                <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 sm:text-2xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">1</span>
                   <span>Nguyên Tắc Tiếp Nhận và Hòa Giải Tranh Chấp</span>
                 </h2>
@@ -259,7 +259,7 @@ export default function DisputeResolutionPage() {
 
               {/* Mục 2: Quy trình 3 bước chuẩn */}
               <section id="quy-trinh-3-buoc" className="scroll-mt-24 border-b border-slate-200 py-8">
-                <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 sm:text-2xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">2</span>
                   <span>Quy Trình 3 Bước Xử Lý Khiếu Nại Minh Bạch</span>
                 </h2>
@@ -333,7 +333,7 @@ export default function DisputeResolutionPage() {
 
               {/* Mục 3: Thời hiệu & Cam kết thời gian */}
               <section id="thoi-gian-cam-ket" className="scroll-mt-24 border-b border-slate-200 py-8">
-                <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 sm:text-2xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">3</span>
                   <span>Thời Hiệu Tiếp Nhận & Thời Gian Xử Lý Cam Kết</span>
                 </h2>
@@ -374,7 +374,7 @@ export default function DisputeResolutionPage() {
 
               {/* Mục 4: Trách nhiệm của các bên */}
               <section id="trach-nhiem-cac-ben" className="scroll-mt-24 border-b border-slate-200 py-8">
-                <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 sm:text-2xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">4</span>
                   <span>Trách Nhiệm của Các Bên Trong Quá Trình Khiếu Nại</span>
                 </h2>
@@ -396,7 +396,7 @@ export default function DisputeResolutionPage() {
 
               {/* Mục 5: Biện pháp chế tài */}
               <section id="bien-phap-che-tai" className="scroll-mt-24 border-b border-slate-200 py-8">
-                <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 sm:text-2xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">5</span>
                   <span>Biện Pháp Chế Tài Đối Với Hành Vi Lừa Đảo Trục Lợi</span>
                 </h2>
@@ -412,7 +412,7 @@ export default function DisputeResolutionPage() {
 
               {/* Mục 6: Đầu mối liên hệ tiếp nhận */}
               <section id="thong-tin-dau-moi" className="scroll-mt-24 pt-8">
-                <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
+                <h2 className="text-xl font-black text-slate-900 sm:text-2xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">6</span>
                   <span>Đầu Mối Tiếp Nhận Khiếu Nại & Hỗ Trợ Khách Hàng</span>
                 </h2>

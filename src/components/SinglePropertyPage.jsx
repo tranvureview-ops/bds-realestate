@@ -1198,9 +1198,9 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
             {/* Key Specs Matrix */}
             <div>
-              <h2 className="text-xs font-black uppercase text-slate-700 tracking-wider mb-3">
+              <h3 className="text-xs font-black uppercase text-slate-700 tracking-wider mb-3">
                 Thông Số Kỹ Thuật Nhà Đất
-              </h2>
+              </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
                 <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
                   <div className="text-slate-600 font-bold uppercase text-[10px]">Diện tích sử dụng</div>
@@ -1263,7 +1263,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
           {/* B. DETAILED DESCRIPTION & HIGHLIGHTS */}
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
-            <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
               <span className="w-2 h-5 bg-emerald-600 rounded-full"></span>
               <span>Thông Tin Mô Tả Chi Tiết</span>
             </h2>
@@ -1317,7 +1317,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
 
             return (
               <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
-                <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
                   <span className="w-2 h-5 bg-purple-600 rounded-full"></span>
                   <span>Đặc Điểm Tin Đăng</span>
                 </h2>
@@ -1387,7 +1387,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
           {/* C. SATELLITE GIS MAP & NEARBY FACILITIES */}
           {singleConfig?.features?.showInteractiveMap !== false && (
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4 content-visibility-auto">
-              <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
                 <span className="w-2 h-5 bg-blue-600 rounded-full"></span>
                 <span>Vị Trí Bản Đồ & Tiện Ích Xung Quanh (Bán Kính 1km)</span>
               </h2>
@@ -1422,7 +1422,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
                     <span className="w-2 h-5 bg-amber-500 rounded-full"></span>
                     <span>Ước Tính Trả Góp Vay Mua Căn Nhà Này</span>
                   </h2>
@@ -1572,9 +1572,9 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                     <span className={`w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold ${badgeClass}`}>
                       <i className={discCfg.icon || 'fa-solid fa-shield-halved'}></i>
                     </span>
-                    <h2 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
                       {discCfg.title || 'Thông Báo Về Nội Dung & Miễn Trừ Trách Nhiệm'}
-                    </h2>
+                    </h3>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -1646,7 +1646,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                  <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
                     <span className="w-2 h-5 bg-indigo-600 rounded-full"></span>
                     <span>Tìm Kiếm Theo Từ Khóa & Cụm Từ Liên Quan</span>
                   </h2>

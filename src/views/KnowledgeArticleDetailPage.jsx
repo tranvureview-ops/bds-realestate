@@ -362,7 +362,7 @@ function ArticleLocalSeoLinks() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-2">
         <div>
           <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Thị trường trọng điểm</span>
-          <h2 id="article-local-seo-heading" className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
+          <h2 id="article-local-seo-heading" className="text-xl sm:text-2xl font-bold text-slate-900 mt-0.5">
             Khám Phá Nhà Đất Mua Bán & Cho Thuê: Hồ Chí Minh, Hà Nội & Đà Nẵng
           </h2>
         </div>

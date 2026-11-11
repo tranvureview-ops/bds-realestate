@@ -179,7 +179,7 @@ export default function PromotionListPage() {
             <div>
               <div className="flex items-center gap-2">
                 <i className="fa-solid fa-ticket text-red-600 text-lg"></i>
-                <h2 className="text-base font-black text-slate-900">
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900">
                   Kiểm Tra & Kích Hoạt Mã Ưu Đãi
                 </h2>
               </div>

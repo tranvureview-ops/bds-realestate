@@ -215,6 +215,21 @@ button, input, select, textarea, optgroup, option, label {
   text-transform: uppercase !important;
 }
 
+@layer base {
+  /* Chuẩn hóa font-size mặc định cho thẻ h2 đồng bộ toàn website (tương đương text-xl sm:text-2xl) */
+  h2 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+
+  @media (min-width: 640px) {
+    h2 {
+      font-size: 1.5rem;
+      line-height: 2rem;
+    }
+  }
+}
+
 /* ==========================================================================
    Chuẩn hóa toàn bộ thẻ h2 và h3 sang Sentence Case:
    Chỉ chữ cái đầu tiên viết hoa, các chữ sau viết thường

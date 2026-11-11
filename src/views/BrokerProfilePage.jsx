@@ -28,7 +28,7 @@ export default function BrokerProfilePage({ slug = '', initialProperties = [], i
           <div className="w-16 h-16 rounded-2xl bg-rose-50 text-rose-500 mx-auto flex items-center justify-center text-2xl shadow-inner border border-rose-100">
             <i className="fa-solid fa-user-slash" />
           </div>
-          <h2 className="text-xl font-black text-slate-900 tracking-tight">Không Tìm Thấy Môi Giới</h2>
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">Không Tìm Thấy Môi Giới</h2>
           <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">
             Đường dẫn chuyên viên môi giới <strong className="text-slate-700 font-mono">/moi-gioi/{slug}</strong> không tồn tại trên hệ thống hoặc đã ngừng hoạt động.
           </p>
@@ -260,7 +260,7 @@ export default function BrokerProfilePage({ slug = '', initialProperties = [], i
                 <i className="fa-solid fa-house-chimney text-base"></i>
               </div>
               <div>
-                <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                   Danh Sách Nhà Đất Của {authorName}
                 </h2>
                 <p className="text-xs text-slate-500">

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useRealEstate } from '../context/RealEstateContext';
-import { useRouter } from '../router/RouterContext';
+import { Link, useRouter } from '../router/RouterContext';
 import { isPropertyTreasureActive } from '../services/treasureHuntService';
 import { 
   getResolvedFeatures, 
@@ -10,7 +10,8 @@ import {
   getAverageCycleDiscount, 
   getPackageCycleDiscount,
   getStandardPackageSavePercent,
-  getPremiumPackageSavePercent
+  getPremiumPackageSavePercent,
+  MEMBERSHIP_FAQS
 } from '../utils/membershipHelper';
 
 export default function MembershipPage() {
@@ -108,9 +109,11 @@ export default function MembershipPage() {
   const commonPublishDiscount = (activePackage?.vouchersPerCycle?.normalPublishDiscount && activePackage?.vouchersPerCycle?.normalPublishDiscount !== 35000)
     ? Number(activePackage.vouchersPerCycle.normalPublishDiscount)
     : defaultNormalPrice;
-  const commonBumpDiscount = activePackage?.vouchersPerCycle?.normalBumpDiscount ?? 400;
+  const baseBumpUnitPrice = Number(bumpServicePrice) || 400;
+  const commonBumpDiscount = activePackage?.vouchersPerCycle?.normalBumpDiscount ?? baseBumpUnitPrice;
   const commonVipDiscount = (membershipPackages || []).find(p => Number(p.vouchersPerCycle?.vipDiscount || 0) > 0)?.vouchersPerCycle?.vipDiscount 
     ?? (activePackage?.vouchersPerCycle?.vipDiscount || 50000);
+  const currentYear = new Date().getFullYear();
 
   // Quyền lợi Tin Nổi Bật (Săn Kho Báu) của gói hội viên hiện tại
   const isTreasureAllowed = Boolean(isMemberActive && (activePackage?.allowTreasureHunt !== false));
@@ -183,24 +186,59 @@ export default function MembershipPage() {
         
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-500 font-medium">
-          <button onClick={() => navigate('/')} className="hover:text-emerald-600 transition">Trang chủ</button>
-          <span>/</span>
-          <span className="text-slate-800 font-bold">Gói Hội Viên</span>
+          <Link to="/" className="hover:text-emerald-600 transition">Trang chủ</Link>
+          <span aria-hidden="true">/</span>
+          <span className="text-slate-800 font-bold" aria-current="page">Gói Hội Viên Môi Giới</span>
         </nav>
 
         {/* Hero Section */}
-        <div className="text-center max-w-3xl mx-auto space-y-3">
+        <header className="text-center max-w-3xl mx-auto space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200">
             <i className="fa-solid fa-crown text-amber-500"></i>
-            <span>Chính Sách Gói Hội Viên {systemConfig?.brandShortName || 'Môi Giới Chuyên Nghiệp'}</span>
+            <span>Chính Sách Hội Viên Dành Cho Môi Giới &amp; Sàn BĐS</span>
           </div>
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            Gói Hội Viên Nhà Đất
+          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
+            Gói Hội Viên Môi Giới Bất Động Sản [{currentYear}] — Tiết Kiệm Tới {premiumSavePercent}%
           </h1>
           <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-            Giải pháp tối ưu hóa chi phí quảng cáo và tiếp cận khách mua nhà toàn diện. Nhận kho <strong className="text-emerald-700">Voucher 30 ngày</strong> định kỳ giúp tiết kiệm tới <strong className="text-red-600">{premiumSavePercent}%</strong> so với đăng tin và đẩy tin mua lẻ.
+            Giải pháp tối ưu chi phí đăng tin và tiếp cận khách mua nhà toàn quốc. Nhận kho <strong className="text-emerald-700">Voucher 30 ngày</strong> định kỳ (đăng tin thường 0 đ, đẩy tin miễn phí, giảm giá tin VIP) giúp tiết kiệm tới <strong className="text-red-600">{premiumSavePercent}%</strong> so với mua lẻ.
           </p>
-        </div>
+        </header>
+
+        {/* Guest CTA Banner (Tối ưu CRO cho khách truy cập từ Google chưa đăng nhập) */}
+        {isGuest && (
+          <div className="rounded-3xl p-5 sm:p-6 bg-gradient-to-r from-slate-900 via-slate-850 to-slate-900 text-white shadow-xl border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-amber-400">
+                <i className="fa-solid fa-bolt"></i>
+                <span>Kích Hoạt Nhanh Trong 30 Giây Qua Ví VietQR</span>
+              </div>
+              <div className="text-base sm:text-lg font-black text-white">
+                Đăng nhập để kích hoạt Gói Hội Viên &amp; nhận ngay bộ Voucher 30 ngày
+              </div>
+              <p className="text-xs text-slate-300 max-w-2xl">
+                Dù là môi giới cá nhân hay sàn giao dịch, hệ thống tự động cộng ngay voucher Đăng tin, Đẩy tin và đặc quyền Tin Nổi Bật ngay sau khi đăng ký.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+              <button
+                type="button"
+                onClick={() => setActiveModal('auth')}
+                className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-lg transition flex items-center gap-1.5"
+              >
+                <i className="fa-solid fa-right-to-bracket"></i>
+                <span>Đăng Nhập / Đăng Ký Ngay</span>
+              </button>
+              <Link
+                to="/bang-gia-tin-dang"
+                className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold text-xs border border-slate-700 transition flex items-center gap-1.5"
+              >
+                <span>So Sánh Giá Tin Lẻ</span>
+                <i className="fa-solid fa-arrow-right text-[10px]"></i>
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Current User Membership & Voucher Status Box (Chỉ hiển thị khi đã đăng nhập) */}
         {isLoggedIn && (
@@ -215,12 +253,12 @@ export default function MembershipPage() {
               <div className="flex items-start sm:items-center gap-4">
                 <img 
                   src={currentUser.avatar} 
-                  alt="" 
+                  alt={`Ảnh đại diện ${currentUser.name || 'Hội viên'}`} 
                   className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl object-cover border-2 border-emerald-500/50 shadow-md shrink-0" 
                 />
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-lg font-black text-white">{currentUser.name}</h3>
+                    <div className="text-lg font-black text-white">{currentUser.name}</div>
                     {isMemberActive ? (
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${currentUser.membership.badgeColor || 'bg-amber-400 text-slate-950'}`}>
                         <i className="fa-solid fa-crown mr-1"></i> {currentUser.membership.packageName}
@@ -350,11 +388,15 @@ export default function MembershipPage() {
         )}
 
         {/* Billing Cycle Selector (1 Tháng, 3 Tháng, 6 Tháng) */}
-        <div className="flex flex-col items-center justify-center space-y-3">
-          <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            Chọn kỳ hạn đăng ký gói hội viên:
-          </div>
-          <div className="inline-flex p-1.5 rounded-2xl bg-white border border-slate-200 shadow-sm gap-1">
+        <section aria-labelledby="membership-plans-heading" className="space-y-4">
+          <div className="flex flex-col items-center justify-center space-y-2.5">
+            <h2 id="membership-plans-heading" className="text-xl sm:text-2xl font-black text-slate-900 text-center">
+              Chọn Gói Hội Viên &amp; Kỳ Hạn Đăng Ký Phù Hợp
+            </h2>
+            <p className="text-xs text-slate-500 font-medium text-center">
+              Đăng ký kỳ hạn 3 tháng hoặc 6 tháng để được chiết khấu trực tiếp và tự động cấp mới voucher mỗi 30 ngày
+            </p>
+            <div className="inline-flex p-1.5 rounded-2xl bg-white border border-slate-200 shadow-sm gap-1">
             <button
               onClick={() => setSelectedCycle(1)}
               className={`px-5 py-2 rounded-xl text-xs font-bold transition ${
@@ -499,7 +541,7 @@ export default function MembershipPage() {
 
                       {/* Đẩy tin voucher */}
                       {(() => {
-                        const bumpDisc = pkg.vouchersPerCycle?.normalBumpDiscount ?? 10000;
+                        const bumpDisc = pkg.vouchersPerCycle?.normalBumpDiscount ?? baseBumpUnitPrice;
                         const isBumpFree = isVoucherDiscountFree('normalBump', bumpDisc, pricingOptions);
                         return (
                           <div className="p-2.5 rounded-xl bg-blue-50/80 border border-blue-100 flex items-center justify-between text-xs">
@@ -532,7 +574,7 @@ export default function MembershipPage() {
                             <span className="font-bold text-amber-950">Voucher Giảm Tin VIP</span>
                           </div>
                           <span className="text-amber-800 font-black text-[11px]">
-                            -{Number(pkg.vouchersPerCycle?.vipDiscount || 400000).toLocaleString('vi-VN')} đ/tin
+                            -{Number(pkg.vouchersPerCycle?.vipDiscount || 50000).toLocaleString('vi-VN')} đ/tin
                           </span>
                         </div>
                       ) : (
@@ -663,15 +705,16 @@ export default function MembershipPage() {
             );
           })}
         </div>
+        </section>
 
         {/* Feature Comparison Table */}
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+        <section aria-labelledby="membership-comparison-heading" className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="p-6 border-b border-slate-200">
-            <h3 className="text-lg font-black text-slate-900">
+            <h2 id="membership-comparison-heading" className="text-xl sm:text-2xl font-black text-slate-900">
               Bảng So Sánh Chi Tiết Quyền Lợi Các Gói Hội Viên
-            </h3>
+            </h2>
             <p className="text-xs text-slate-500 mt-1">
-              Chính sách cấp voucher định kỳ 30 ngày theo quy chế sàn
+              Chính sách cấp voucher định kỳ 30 ngày theo quy chế sàn Kênh Nhà Đất 24H
             </p>
           </div>
 
@@ -726,7 +769,7 @@ export default function MembershipPage() {
                 <tr>
                   <td className="p-4 font-bold text-slate-800">Voucher Đẩy Tin (30 ngày)</td>
                   {(membershipPackages || []).map(p => {
-                    const bumpDisc = p.vouchersPerCycle?.normalBumpDiscount ?? 10000;
+                    const bumpDisc = p.vouchersPerCycle?.normalBumpDiscount ?? baseBumpUnitPrice;
                     const isBumpFree = isVoucherDiscountFree('normalBump', bumpDisc, pricingOptions);
                     return (
                       <td key={p.id} className={`p-4 text-center font-black text-blue-600 text-sm ${p.recommended ? 'bg-amber-50/30' : ''}`}>
@@ -749,7 +792,7 @@ export default function MembershipPage() {
                       {(p.vouchersPerCycle?.vipVouchers || 0) > 0 ? (
                         <>
                           {p.vouchersPerCycle.vipVouchers} voucher/tháng
-                          <div className="text-[10px] text-slate-400 font-normal">(-{Number(p.vouchersPerCycle?.vipDiscount || 400000).toLocaleString('vi-VN')} đ/tin)</div>
+                          <div className="text-[10px] text-slate-400 font-normal">(-{Number(p.vouchersPerCycle?.vipDiscount || 50000).toLocaleString('vi-VN')} đ/tin)</div>
                         </>
                       ) : '—'}
                     </td>
@@ -873,28 +916,98 @@ export default function MembershipPage() {
               </tbody>
             </table>
           </div>
-        </div>
+        </section>
 
-        {/* FAQ Section */}
-        <div className="bg-slate-100 rounded-3xl p-6 sm:p-8 space-y-4">
-          <h4 className="text-base font-black text-slate-900">
-            Câu Hỏi Thường Gặp Về Gói Hội Viên & Voucher
-          </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-600">
-            <div className="p-4 bg-white rounded-2xl border border-slate-200 space-y-1.5">
-              <div className="font-bold text-slate-900">1. Voucher được cấp và sử dụng như thế nào?</div>
-              <p>Ngay khi bạn đăng ký gói hội viên thành công, toàn bộ số lượng voucher tương ứng sẽ được cộng tự động vào kho voucher cá nhân của bạn. Khi đăng tin hoặc đẩy tin, hệ thống sẽ tự động gợi ý bạn áp dụng voucher để giảm trừ chi phí về 0 đ.</p>
+        {/* Hướng Dẫn Chọn Gói (AIO/GEO Direct Answer + E-E-A-T + Silo Internal Links) */}
+        <section aria-labelledby="membership-guide-heading" className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+          <div className="space-y-2">
+            <h2 id="membership-guide-heading" className="text-xl sm:text-2xl font-black text-slate-900">
+              Hướng Dẫn Chọn Gói Hội Viên &amp; Bài Toán Tối Ưu Chi Phí Môi Giới [{currentYear}]
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              Gói Hội Viên trên <strong className="text-slate-900">Kênh Nhà Đất 24H</strong> cung cấp trọn bộ voucher Đăng tin thường, Đẩy tin giờ vàng và Giảm giá tin VIP định kỳ mỗi 30 ngày, giúp môi giới duy trì tần suất hiển thị ổn định trên trang đầu và tiết kiệm tới <strong className="text-emerald-700">{premiumSavePercent}%</strong> chi phí so với nạp tiền mua lẻ từng lượt.
+            </p>
+          </div>
+
+          {/* 3-tier recommendation cards grounded in live package pricing */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            {(membershipPackages || []).map((pkg) => {
+              const price1 = resolveCycle(pkg, 1).price;
+              const price6 = resolveCycle(pkg, 6).price;
+              const full6 = price1 * 6;
+              const save6Amount = Math.max(0, full6 - price6);
+              return (
+                <div key={`guide-${pkg.id}`} className={`p-4 rounded-2xl border space-y-2 ${pkg.recommended ? 'bg-amber-50/50 border-amber-200' : 'bg-slate-50 border-slate-200'}`}>
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="font-black text-slate-900 text-sm">{pkg.name}</h3>
+                    <span className="text-[11px] font-black text-emerald-700 font-mono">
+                      {price1.toLocaleString('vi-VN')} đ/tháng
+                    </span>
+                  </div>
+                  <p className="text-slate-600 leading-relaxed">
+                    Phù hợp cho <strong>{pkg.targetAudience}</strong>. Bao gồm{' '}
+                    <strong>{pkg.vouchersPerCycle?.normalPublishVouchers || 0}</strong> voucher tin thường,{' '}
+                    <strong>{pkg.vouchersPerCycle?.normalBumpVouchers || 0}</strong> lượt đẩy tin
+                    {(pkg.vouchersPerCycle?.vipVouchers || 0) > 0 ? ` và ${pkg.vouchersPerCycle.vipVouchers} voucher giảm Tin VIP` : ''}.
+                  </p>
+                  {save6Amount > 0 && (
+                    <div className="text-[11px] font-bold text-emerald-700">
+                      ✓ Đăng ký 6 tháng tiết kiệm thêm {save6Amount.toLocaleString('vi-VN')} đ
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* E-E-A-T Trust & Internal Silo Cross-Links */}
+          <div className="pt-4 border-t border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div className="text-xs text-slate-600 space-y-1">
+              <div className="font-bold text-slate-800 flex items-center gap-1.5">
+                <i className="fa-solid fa-shield-check text-emerald-600"></i>
+                <span>Cam kết minh bạch &amp; Thẩm định vận hành bởi Ban Điều Hành Kênh Nhà Đất 24H</span>
+              </div>
+              <p className="text-[11px] text-slate-500">
+                Đối soát số dư ví và lịch cấp voucher 30 ngày tự động • Thanh toán VietQR 24/7 • Tham khảo thêm chính sách dịch vụ liên quan:
+              </p>
             </div>
-            <div className="p-4 bg-white rounded-2xl border border-slate-200 space-y-1.5">
-              <div className="font-bold text-slate-900">2. Mua gói 3 tháng, 6 tháng thì voucher được cấp thế nào?</div>
-              <p>Theo quy chế hội viên (Hình thức 1), quyền lợi voucher được cấp mới định kỳ mỗi 30 ngày một lần. Khách hàng mua gói 3 tháng sẽ nhận 3 đợt cấp voucher, gói 6 tháng nhận 6 đợt. Mỗi 30 ngày, hệ thống sẽ tự động cấp mới bộ voucher tương ứng để bạn sử dụng cho tháng tiếp theo.</p>
-            </div>
-            <div className="p-4 bg-white rounded-2xl border border-slate-200 space-y-1.5">
-              <div className="font-bold text-slate-900">3. Tôi có thể đổi sang gói khác khi đang dùng không?</div>
-              <p>Để đảm bảo quyền lợi và sự đồng bộ của kho voucher, khi gói hội viên hiện tại đang còn hạn sử dụng, bạn sẽ không thể đăng ký gói khác mà chỉ có thể gia hạn gói đang dùng. Bạn có thể đổi sang gói mới sau khi gói cũ hết hạn sử dụng.</p>
+            <div className="flex flex-wrap gap-2 text-xs font-bold">
+              <Link to="/bang-gia-tin-dang" className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 transition">
+                Bảng Giá Tin Đăng VIP
+              </Link>
+              <Link to="/huong-dan-dang-tin" className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 transition">
+                Hướng Dẫn Đăng Tin Chuẩn SEO
+              </Link>
+              <Link to="/dang-tin" className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white transition">
+                Đăng Tin Nhà Đất Ngay
+              </Link>
+              <Link to="/trung-tam-phan-thuong/san-kho-bau-bds" className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-amber-50 text-slate-700 hover:text-amber-800 border border-slate-200 transition">
+                Săn Kho Báu BĐS
+              </Link>
+              <Link to="/trung-tam-phan-thuong/du-doan-gia-bds" className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-purple-50 text-slate-700 hover:text-purple-700 border border-slate-200 transition">
+                Dự Đoán Giá BĐS
+              </Link>
+              <Link to="/khuyen-mai" className="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700 border border-slate-200 transition">
+                Ưu Đãi &amp; Khuyến Mãi
+              </Link>
             </div>
           </div>
-        </div>
+        </section>
+
+        {/* FAQ Section (Đồng bộ 100% với JSON-LD FAQPage) */}
+        <section aria-labelledby="membership-faq-heading" className="bg-slate-100 rounded-3xl p-6 sm:p-8 space-y-4">
+          <h2 id="membership-faq-heading" className="text-xl sm:text-2xl font-black text-slate-900">
+            Câu Hỏi Thường Gặp Về Gói Hội Viên &amp; Kho Voucher (FAQ)
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-600">
+            {MEMBERSHIP_FAQS.map((faq, idx) => (
+              <div key={idx} className="p-4 bg-white rounded-2xl border border-slate-200 space-y-1.5">
+                <h3 className="font-bold text-slate-900 text-xs sm:text-[13px]">{faq.q}</h3>
+                <p className="leading-relaxed">{faq.a}</p>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
 
       {/* Confirmation Modal */}
@@ -914,9 +1027,9 @@ export default function MembershipPage() {
                   <i className="fa-solid fa-crown text-amber-500"></i>
                 </div>
                 <div>
-                  <h4 className="font-black text-slate-900 text-base">
+                  <h3 className="font-black text-slate-900 text-base">
                     {isRenew ? 'Xác Nhận Gia Hạn Hội Viên' : 'Xác Nhận Đăng Ký Hội Viên'}
-                  </h4>
+                  </h3>
                   <div className="text-xs text-slate-500">{confirmingPackage.pkg.name}</div>
                 </div>
               </div>
@@ -973,7 +1086,7 @@ export default function MembershipPage() {
                   <div className="font-bold text-slate-700">Kho Voucher sẽ nhận:</div>
                   {(() => {
                     const pubDisc = confirmingPackage.pkg.vouchersPerCycle?.normalPublishDiscount ?? defaultNormalPrice;
-                    const bumpDisc = confirmingPackage.pkg.vouchersPerCycle?.normalBumpDiscount ?? 10000;
+                    const bumpDisc = confirmingPackage.pkg.vouchersPerCycle?.normalBumpDiscount ?? baseBumpUnitPrice;
                     const isPubFree = isVoucherDiscountFree('normalPublish', pubDisc, pricingOptions);
                     const isBumpFree = isVoucherDiscountFree('normalBump', bumpDisc, pricingOptions);
                     return (
@@ -988,7 +1101,7 @@ export default function MembershipPage() {
                     );
                   })()}
                   {(confirmingPackage.pkg.vouchersPerCycle?.vipVouchers || 0) > 0 && (
-                    <div>✓ {confirmingPackage.pkg.vouchersPerCycle.vipVouchers} voucher giảm {Number(confirmingPackage.pkg.vouchersPerCycle?.vipDiscount || 400000).toLocaleString('vi-VN')} đ tin VIP</div>
+                    <div>✓ {confirmingPackage.pkg.vouchersPerCycle.vipVouchers} voucher giảm {Number(confirmingPackage.pkg.vouchersPerCycle?.vipDiscount || 50000).toLocaleString('vi-VN')} đ tin VIP</div>
                   )}
                 </div>
               </div>

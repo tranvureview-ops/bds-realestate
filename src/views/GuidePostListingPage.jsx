@@ -124,9 +124,9 @@ export default function GuidePostListingPage() {
         <section aria-labelledby="toc-heading" className="bg-white p-5 sm:p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3">
           <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
             <i className="fa-solid fa-list-ol text-emerald-600 text-base"></i>
-            <h2 id="toc-heading" className="text-sm font-black text-slate-900 uppercase tracking-wide">
+            <h3 id="toc-heading" className="text-sm font-black text-slate-900 uppercase tracking-wide">
               Mục Lục Hướng Dẫn Nhanh
-            </h2>
+            </h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs font-semibold text-slate-700">
             <a href="#buoc-1" className="hover:text-emerald-700 flex items-center gap-2 py-1">
@@ -424,7 +424,7 @@ export default function GuidePostListingPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <span className="text-xs font-bold text-amber-600 uppercase tracking-wider">Đòn bẩy thanh khoản</span>
-              <h2 id="vip-heading" className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+              <h2 id="vip-heading" className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                 So Sánh Hiệu Quả 4 Cấp Độ Tin Đăng Tại Kênh Nhà Đất 24H
               </h2>
             </div>
@@ -509,7 +509,7 @@ export default function GuidePostListingPage() {
         <section id="cau-hoi-thuong-gap" aria-labelledby="faq-heading" className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
           <div className="border-b border-slate-100 pb-3">
             <span className="text-xs font-bold text-emerald-600 uppercase tracking-wider">Giải đáp thắc mắc</span>
-            <h2 id="faq-heading" className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+            <h2 id="faq-heading" className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
               Những Câu Hỏi Thường Gặp Về Đăng Tin BĐS
             </h2>
           </div>
@@ -549,7 +549,7 @@ export default function GuidePostListingPage() {
             CTA BANNER
            ======================================================== */}
         <section aria-label="Kêu gọi hành động" className="rounded-3xl bg-gradient-to-r from-emerald-700 via-teal-700 to-cyan-800 text-white p-8 sm:p-10 text-center space-y-4 shadow-xl shadow-teal-900/20">
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-black tracking-tight">
             Sẵn Sàng Tiếp Cận Hàng Triệu Khách Hàng Tiềm Năng?
           </h2>
           <p className="text-xs sm:text-sm text-emerald-100 max-w-2xl mx-auto leading-relaxed">

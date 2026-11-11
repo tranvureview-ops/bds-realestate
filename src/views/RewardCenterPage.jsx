@@ -274,7 +274,7 @@ export default function RewardCenterPage() {
         {/* CÁC KHU VỰC THƯỞNG CHÍNH */}
         <div>
           <div className="mb-4">
-            <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
               <i className="fa-solid fa-cubes text-indigo-600"></i>
               <span>Danh Mục Tính Năng Tương Tác</span>
             </h2>
@@ -320,7 +320,7 @@ export default function RewardCenterPage() {
         <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-6">
           <div className="flex items-center justify-between border-b border-slate-100 pb-4">
             <div>
-              <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
                 <i className="fa-solid fa-tags text-rose-500"></i>
                 <span>Chương Trình Khuyến Mãi Mới Nhất</span>
               </h2>
@@ -424,7 +424,7 @@ export default function RewardCenterPage() {
         <div className="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-8 shadow-sm space-y-6">
           <div className="flex items-center justify-between border-b border-slate-100 pb-4">
             <div>
-              <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
                 <i className="fa-solid fa-list-check text-blue-600"></i>
                 <span>Nhiệm Vụ Nhận Tiền Tươi Vào Ví Khuyến Mãi</span>
               </h2>

@@ -415,9 +415,9 @@ export default function ListingSidebar({
           <div className="w-7 h-7 rounded-lg bg-red-50 text-red-600 flex items-center justify-center shrink-0">
             <i className="fa-solid fa-tag text-xs"></i>
           </div>
-          <h2 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
+          <h3 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
             Lọc theo khoảng giá
-          </h2>
+          </h3>
         </div>
 
         <div className="grid grid-cols-2 gap-1.5 text-xs">
@@ -429,7 +429,7 @@ export default function ListingSidebar({
             });
 
             return (
-              <h3 key={item.value} className="m-0 p-0 text-xs font-normal">
+              <div key={item.value} className="m-0 p-0 text-xs font-normal">
                 <Link
                   href={targetUrl}
                   scroll={false}
@@ -440,7 +440,7 @@ export default function ListingSidebar({
                   <span className="truncate">{item.label}</span>
                   <i className="fa-solid fa-chevron-right text-[9px] text-slate-300 group-hover:text-red-500 group-hover:translate-x-0.5 transition-transform"></i>
                 </Link>
-              </h3>
+              </div>
             );
           })}
         </div>
@@ -465,9 +465,9 @@ export default function ListingSidebar({
           <div className="w-7 h-7 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
             <i className="fa-solid fa-ruler-combined text-xs"></i>
           </div>
-          <h2 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
+          <h3 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
             Lọc theo diện tích
-          </h2>
+          </h3>
         </div>
 
         <div className="grid grid-cols-2 gap-1.5 text-xs">
@@ -479,7 +479,7 @@ export default function ListingSidebar({
             });
 
             return (
-              <h3 key={item.value} className="m-0 p-0 text-xs font-normal">
+              <div key={item.value} className="m-0 p-0 text-xs font-normal">
                 <Link
                   href={targetUrl}
                   scroll={false}
@@ -490,7 +490,7 @@ export default function ListingSidebar({
                   <span className="truncate">{item.label}</span>
                   <i className="fa-solid fa-chevron-right text-[9px] text-slate-300 group-hover:text-teal-500 group-hover:translate-x-0.5 transition-transform"></i>
                 </Link>
-              </h3>
+              </div>
             );
           })}
         </div>
@@ -518,9 +518,9 @@ export default function ListingSidebar({
             <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
               <i className={`fa-solid ${isCitySelected ? 'fa-location-dot' : 'fa-map-location-dot'} text-xs`}></i>
             </div>
-            <h2 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight truncate">
+            <h3 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight truncate">
               {isCitySelected ? `Khu vực tại ${activeCity}` : 'Nhà đất theo tỉnh thành'}
-            </h2>
+            </h3>
           </div>
           {isCitySelected && (
             <button
@@ -552,7 +552,7 @@ export default function ListingSidebar({
                 });
 
                 return (
-                  <h3 key={item.name} className="m-0 p-0 text-xs font-normal">
+                  <div key={item.name} className="m-0 p-0 text-xs font-normal">
                     <Link
                       href={targetUrl}
                       scroll={false}
@@ -567,7 +567,7 @@ export default function ListingSidebar({
                         {count > 0 ? `${count} tin` : 'Xem tin'}
                       </span>
                     </Link>
-                  </h3>
+                  </div>
                 );
               })}
             </div>
@@ -599,7 +599,7 @@ export default function ListingSidebar({
                 });
 
                 return (
-                  <h3 key={item.name} className="m-0 p-0 text-xs font-normal">
+                  <div key={item.name} className="m-0 p-0 text-xs font-normal">
                     <Link
                       href={targetUrl}
                       scroll={false}
@@ -614,7 +614,7 @@ export default function ListingSidebar({
                         {count > 0 ? `${count} tin` : 'Xem tin'}
                       </span>
                     </Link>
-                  </h3>
+                  </div>
                 );
               })}
             </div>
@@ -642,9 +642,9 @@ export default function ListingSidebar({
             <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
               <i className="fa-solid fa-city text-xs"></i>
             </div>
-            <h2 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
+            <h3 className="font-bold text-sm sm:text-base text-slate-900 tracking-tight">
               Dự án nổi bật
-            </h2>
+            </h3>
           </div>
           <span className="text-[10px] bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-full">
             Hot 2026

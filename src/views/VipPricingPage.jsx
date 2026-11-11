@@ -271,7 +271,7 @@ export default function VipPricingPage() {
               <div className="inline-block px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 text-[10px] font-black uppercase mb-1">
                 Lưu Ý Quan Trọng
               </div>
-              <h2 className="text-base sm:text-lg font-black text-slate-900">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900">
                 Phân Biệt Rõ Ràng: "Phân Loại Tin Đăng" và "Gói Hội Viên"
               </h2>
               <p className="text-xs text-slate-600 mt-0.5">
@@ -619,7 +619,7 @@ export default function VipPricingPage() {
             <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-black uppercase">
               Minh Bạch & Chuẩn Hóa
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900">
               Bảng So Sánh Quyền Lợi Chi Tiết 4 Cấp Độ Tin Đăng
             </h2>
             <p className="text-xs sm:text-sm text-slate-500">
@@ -955,7 +955,7 @@ export default function VipPricingPage() {
             <span className="px-3 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-black uppercase">
               Hỏi Đáp Dịch Vụ
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
+            <h2 className="text-xl sm:text-2xl font-black text-slate-900">
               Câu Hỏi Thường Gặp Về Tin Đăng Nhà Đất
             </h2>
             <p className="text-xs sm:text-sm text-slate-500">

@@ -62,7 +62,7 @@ export default function MortgageCalculatorPage({ initialParams = {} }) {
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
             <div>
-              <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
                 <span className="w-2 h-5 bg-blue-600 rounded-full"></span>
                 <span>Bảng Lãi Suất Vay Mua Nhà Các Ngân Hàng Hàng Đầu</span>
               </h2>
@@ -108,7 +108,7 @@ export default function MortgageCalculatorPage({ initialParams = {} }) {
 
         {/* Cẩm Nang & 4 Lưu Ý Quan Trọng Khi Vay Mua Nhà */}
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
-          <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+          <h2 className="text-xl sm:text-2xl font-black text-slate-900 flex items-center gap-2">
             <span className="w-2 h-5 bg-amber-500 rounded-full"></span>
             <span>4 Lời Khuyên Tài Chính Vàng Khi Vay Mua Nhà Đất</span>
           </h2>
