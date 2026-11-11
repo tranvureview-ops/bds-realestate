@@ -136,17 +136,21 @@ export default async function sitemap() {
     priority: 0.8,
   }));
 
-  // 2. 12 Danh mục loại hình bán & cho thuê
+  // 2. Danh mục loại hình bán & cho thuê (khử trùng lặp slug và đồng bộ không trailing slash theo canonical)
   const taxonomyRoutes = [];
+  const seenTaxonomySlugs = new Set();
   for (const demand of ['sale', 'rent']) {
     const group = PROPERTY_TAXONOMY[demand];
     if (group?.types) {
       for (const typeInfo of Object.values(group.types)) {
+        const cleanSlug = (typeInfo.slug || '').replace(/\/+$/, '');
+        if (!cleanSlug || seenTaxonomySlugs.has(cleanSlug)) continue;
+        seenTaxonomySlugs.add(cleanSlug);
         taxonomyRoutes.push({
-          url: `${baseUrl}${typeInfo.slug}/`,
+          url: `${baseUrl}${cleanSlug}`,
           lastModified: now,
           changeFrequency: 'daily',
-          priority: 0.8,
+          priority: 0.85,
         });
       }
     }
