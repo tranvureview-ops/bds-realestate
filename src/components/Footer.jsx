@@ -6,6 +6,35 @@ import { useRealEstate } from '../context/RealEstateContext';
 import { DEFAULT_FOOTER_CONFIG } from '../data/mockData';
 import SocialIcon from './SocialIcon';
 
+const FOOTER_CATEGORY_COLUMNS = [
+  {
+    key: 'sale',
+    viewAllUrl: '/nha-dat-ban',
+    items: [
+      { label: 'Bán căn hộ chung cư', url: '/ban-can-ho-chung-cu' },
+      { label: 'Bán nhà riêng', url: '/ban-nha-rieng' },
+      { label: 'Bán biệt thự, liền kề', url: '/ban-nha-biet-thu-lien-ke' },
+      { label: 'Bán nhà mặt phố, shophouse', url: '/ban-nha-mat-pho' },
+      { label: 'Bán đất nền, đất thổ cư', url: '/ban-dat' },
+      { label: 'Bán văn phòng, mặt bằng', url: '/ban-mat-bang-van-phong' },
+      { label: 'Bán kho xưởng', url: '/ban-kho-nha-xuong' }
+    ]
+  },
+  {
+    key: 'rent',
+    viewAllUrl: '/nha-dat-cho-thue',
+    items: [
+      { label: 'Thuê căn hộ chung cư', url: '/cho-thue-can-ho-chung-cu' },
+      { label: 'Thuê nhà riêng', url: '/cho-thue-nha-rieng' },
+      { label: 'Thuê biệt thự, liền kề', url: '/cho-thue-nha-biet-thu-lien-ke' },
+      { label: 'Thuê nhà mặt phố, shophouse', url: '/cho-thue-nha-mat-pho' },
+      { label: 'Thuê đất nền, đất thổ cư', url: '/cho-thue-dat' },
+      { label: 'Thuê văn phòng, mặt bằng', url: '/cho-thue-van-phong' },
+      { label: 'Thuê kho xưởng', url: '/cho-thue-kho-nha-xuong' }
+    ]
+  }
+];
+
 export default function Footer() {
   const { systemConfig, headerConfig, currentUser, footerConfig } = useRealEstate();
 
@@ -194,7 +223,7 @@ export default function Footer() {
           </div>
 
           {/* Cột 2: Quick links & Khu vực nổi bật */}
-          <div className="lg:col-span-3 space-y-6">
+          <div className="lg:col-span-2 space-y-6">
             <nav aria-label="Khám phá bất động sản">
               <h3 className="text-xs font-black uppercase text-white tracking-wider mb-3">
                 {col2Title}
@@ -260,7 +289,7 @@ export default function Footer() {
           </div>
 
           {/* Cột 3: Service & Member packages (Cố định HTML theo thiết kế, không dùng icon) */}
-          <nav aria-label="Dịch vụ và tiện ích" className="lg:col-span-3">
+          <nav aria-label="Dịch vụ và tiện ích" className="lg:col-span-2">
             <h3 className="text-xs font-black uppercase text-white tracking-wider mb-3">
               DỊCH VỤ & TIỆN ÍCH
             </h3>
@@ -312,53 +341,29 @@ export default function Footer() {
             </ul>
           </nav>
 
-          {/* Cột 4: Danh mục bất động sản */}
-          <nav aria-label="Danh mục bất động sản" className="lg:col-span-2">
+          {/* Cột 4: Danh mục bất động sản (2 cột Bán & Thuê) */}
+          <nav aria-label="Danh mục bất động sản" className="lg:col-span-4">
             <h3 className="text-xs font-black uppercase text-white tracking-wider mb-3">
               DANH MỤC BẤT ĐỘNG SẢN
             </h3>
-            <ul className="space-y-0.5 text-xs text-slate-300">
-              <li>
-                <Link to="/ban-can-ho-chung-cu" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                  Căn hộ chung cư
-                </Link>
-              </li>
-              <li>
-                <Link to="/ban-nha-rieng" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                  Nhà riêng
-                </Link>
-              </li>
-              <li>
-                <Link to="/ban-nha-biet-thu-lien-ke" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                  Biệt thự, liền kề
-                </Link>
-              </li>
-              <li>
-                <Link to="/ban-nha-mat-pho" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                  Nhà mặt phố, shophouse
-                </Link>
-              </li>
-              <li>
-                <Link to="/ban-dat" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                  Đất nền, đất thổ cư
-                </Link>
-              </li>
-              <li>
-                <Link to="/ban-mat-bang-van-phong" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                  Văn phòng, mặt bằng
-                </Link>
-              </li>
-              <li>
-                <Link to="/ban-kho-nha-xuong" className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
-                  Kho xưởng
-                </Link>
-              </li>
-              <li className="pt-1">
-                <Link to="/nha-dat-ban" className="py-1 sm:py-0.5 text-emerald-400 hover:text-emerald-300 font-semibold transition block">
-                  Xem tất cả danh mục &rarr;
-                </Link>
-              </li>
-            </ul>
+            <div className="grid grid-cols-2 gap-4 sm:gap-6">
+              {FOOTER_CATEGORY_COLUMNS.map(col => (
+                <ul key={col.key} className="space-y-0.5 text-xs text-slate-300">
+                  {col.items.map(item => (
+                    <li key={item.url}>
+                      <Link to={item.url} className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                  <li className="pt-1">
+                    <Link to={col.viewAllUrl} className="py-1 sm:py-0.5 text-emerald-400 hover:text-emerald-300 font-semibold transition block">
+                      Xem tất cả danh mục &rarr;
+                    </Link>
+                  </li>
+                </ul>
+              ))}
+            </div>
           </nav>
         </div>
 
