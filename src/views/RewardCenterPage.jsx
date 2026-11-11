@@ -276,7 +276,7 @@ export default function RewardCenterPage() {
           <div className="mb-4">
             <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
               <i className="fa-solid fa-cubes text-indigo-600"></i>
-              Danh Mục Tính Năng Tương Tác
+              <span>Danh Mục Tính Năng Tương Tác</span>
             </h2>
           </div>
 
@@ -322,7 +322,7 @@ export default function RewardCenterPage() {
             <div>
               <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
                 <i className="fa-solid fa-tags text-rose-500"></i>
-                Chương Trình Khuyến Mãi Mới Nhất
+                <span>Chương Trình Khuyến Mãi Mới Nhất</span>
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
                 Voucher nạp tiền và chiết khấu gói tin VIP đang hoạt động trên hệ thống.
@@ -426,7 +426,7 @@ export default function RewardCenterPage() {
             <div>
               <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
                 <i className="fa-solid fa-list-check text-blue-600"></i>
-                Nhiệm Vụ Nhận Tiền Tươi Vào Ví Khuyến Mãi
+                <span>Nhiệm Vụ Nhận Tiền Tươi Vào Ví Khuyến Mãi</span>
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
                 Hoàn thành nhiệm vụ nhận tiền thưởng cộng trực tiếp vào ví để đăng tin ngay.

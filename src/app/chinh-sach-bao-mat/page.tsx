@@ -246,7 +246,7 @@ export default function PrivacyPolicyPage() {
               <section id="muc-dich-thu-thap" className="scroll-mt-24 border-b border-slate-200 pb-8">
                 <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-600 text-xs font-black text-white">1</span>
-                  Mục Đích Thu Thập Dữ Liệu Cá Nhân
+                  <span>Mục Đích Thu Thập Dữ Liệu Cá Nhân</span>
                 </h2>
                 <p className="mt-3 text-sm text-slate-600 leading-relaxed">
                   Chúng tôi chỉ thu thập các thông tin thực sự cần thiết phục vụ cho việc vận hành sàn giao dịch, đảm bảo an toàn giao dịch và tuân thủ các quy định quản lý của Nhà nước:
@@ -271,7 +271,7 @@ export default function PrivacyPolicyPage() {
               <section id="pham-vi-su-dung" className="scroll-mt-24 border-b border-slate-200 py-8">
                 <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-600 text-xs font-black text-white">2</span>
-                  Phạm Vi Sử Dụng Dữ Liệu Cá Nhân
+                  <span>Phạm Vi Sử Dụng Dữ Liệu Cá Nhân</span>
                 </h2>
                 <div className="mt-3 space-y-2 text-sm text-slate-600">
                   <p>Thông tin thu thập từ thành viên chỉ được sử dụng trong phạm vi nội bộ sàn <strong>{BRAND_NAME}</strong> nhằm:</p>
@@ -288,7 +288,7 @@ export default function PrivacyPolicyPage() {
               <section id="thoi-gian-luu-tru" className="scroll-mt-24 border-b border-slate-200 py-8">
                 <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-600 text-xs font-black text-white">3</span>
-                  Thời Gian Lưu Trữ Dữ Liệu
+                  <span>Thời Gian Lưu Trữ Dữ Liệu</span>
                 </h2>
                 <div className="mt-3 text-sm text-slate-600 space-y-2">
                   <p>
@@ -304,7 +304,7 @@ export default function PrivacyPolicyPage() {
               <section id="cam-ket-khong-chia-se" className="scroll-mt-24 border-b border-slate-200 py-8">
                 <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-600 text-xs font-black text-white">4</span>
-                  Cam Kết Tuyệt Đối Không Bán / Chia Sẻ Cho Bên Thứ Ba
+                  <span>Cam Kết Tuyệt Đối Không Bán / Chia Sẻ Cho Bên Thứ Ba</span>
                 </h2>
                 <div className="mt-4 rounded-2xl bg-rose-50 border border-rose-200 p-4 text-xs text-rose-950 space-y-2">
                   <strong className="text-rose-900 text-sm block">⚠️ Nguyên tắc bảo mật tuyệt đối:</strong>
@@ -321,7 +321,7 @@ export default function PrivacyPolicyPage() {
               <section id="bien-phap-an-toan" className="scroll-mt-24 border-b border-slate-200 py-8">
                 <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-600 text-xs font-black text-white">5</span>
-                  Biện Pháp Kỹ Thuật Bảo Mật Hệ Thống
+                  <span>Biện Pháp Kỹ Thuật Bảo Mật Hệ Thống</span>
                 </h2>
                 <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
@@ -347,7 +347,7 @@ export default function PrivacyPolicyPage() {
               <section id="quyen-chu-the-du-lieu" className="scroll-mt-24 border-b border-slate-200 py-8">
                 <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-600 text-xs font-black text-white">6</span>
-                  Quyền Hạn của Chủ Thể Dữ Liệu
+                  <span>Quyền Hạn của Chủ Thể Dữ Liệu</span>
                 </h2>
                 <div className="mt-3 space-y-2 text-sm text-slate-600">
                   <p>Theo quy định tại Nghị định 13/2023/NĐ-CP, bạn có các quyền hợp pháp sau:</p>
@@ -364,7 +364,7 @@ export default function PrivacyPolicyPage() {
               <section id="dau-moi-lien-he" className="scroll-mt-24 pt-8">
                 <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-600 text-xs font-black text-white">7</span>
-                  Đầu Mối Phụ Trách Bảo Vệ Dữ Liệu Cá Nhân
+                  <span>Đầu Mối Phụ Trách Bảo Vệ Dữ Liệu Cá Nhân</span>
                 </h2>
                 <div className="mt-4 rounded-2xl bg-slate-900 p-5 text-white text-xs space-y-2">
                   <p className="text-emerald-400 font-bold uppercase tracking-wider">

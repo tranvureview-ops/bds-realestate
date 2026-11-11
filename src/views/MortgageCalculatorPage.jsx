@@ -64,7 +64,7 @@ export default function MortgageCalculatorPage({ initialParams = {} }) {
             <div>
               <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
                 <span className="w-2 h-5 bg-blue-600 rounded-full"></span>
-                Bảng Lãi Suất Vay Mua Nhà Các Ngân Hàng Hàng Đầu
+                <span>Bảng Lãi Suất Vay Mua Nhà Các Ngân Hàng Hàng Đầu</span>
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
                 Mức lãi suất tham khảo từ các ngân hàng thương mại lớn tại Việt Nam (cập nhật mới nhất)
@@ -110,7 +110,7 @@ export default function MortgageCalculatorPage({ initialParams = {} }) {
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
           <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
             <span className="w-2 h-5 bg-amber-500 rounded-full"></span>
-            4 Lời Khuyên Tài Chính Vàng Khi Vay Mua Nhà Đất
+            <span>4 Lời Khuyên Tài Chính Vàng Khi Vay Mua Nhà Đất</span>
           </h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs sm:text-sm">

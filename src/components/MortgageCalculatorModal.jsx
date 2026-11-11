@@ -146,7 +146,7 @@ export default function MortgageCalculatorModal({
             <div className="space-y-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
               <h3 className="text-xs font-black uppercase text-slate-700 tracking-wider flex items-center gap-1.5">
                 <i className="fa-solid fa-sliders text-blue-600"></i>
-                Thông Số Khoản Vay
+                <span>Thông Số Khoản Vay</span>
               </h3>
 
               {/* Property Value */}

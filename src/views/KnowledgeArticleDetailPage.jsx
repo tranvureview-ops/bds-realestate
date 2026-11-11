@@ -743,7 +743,7 @@ function formatArticleHtml(content) {
         const titleText = match[1];
         const headingId = match[2] || slugify(titleText);
         htmlBlocks.push(
-          `<h2 id="${headingId}" class="text-xl sm:text-2xl font-black text-slate-900 mt-9 mb-4 tracking-tight scroll-mt-24 pb-2.5 border-b border-slate-200/80 flex items-center gap-2">${formatInline(titleText)}</h2>`
+          `<h2 id="${headingId}" class="text-xl sm:text-2xl font-black text-slate-900 mt-9 mb-4 tracking-tight scroll-mt-24 pb-2.5 border-b border-slate-200/80 flex items-center gap-2"><span>${formatInline(titleText)}</span></h2>`
         );
         const remaining = lines.slice(1).join('\n').trim();
         if (remaining) {

@@ -242,7 +242,7 @@ export default function DisputeResolutionPage() {
               <section id="nguyen-tac-giai-quyet" className="scroll-mt-24 border-b border-slate-200 pb-8">
                 <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">1</span>
-                  Nguyên Tắc Tiếp Nhận và Hòa Giải Tranh Chấp
+                  <span>Nguyên Tắc Tiếp Nhận và Hòa Giải Tranh Chấp</span>
                 </h2>
                 <div className="mt-3 space-y-2.5 text-sm text-slate-600 leading-relaxed">
                   <p>
@@ -261,7 +261,7 @@ export default function DisputeResolutionPage() {
               <section id="quy-trinh-3-buoc" className="scroll-mt-24 border-b border-slate-200 py-8">
                 <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">2</span>
-                  Quy Trình 3 Bước Xử Lý Khiếu Nại Minh Bạch
+                  <span>Quy Trình 3 Bước Xử Lý Khiếu Nại Minh Bạch</span>
                 </h2>
                 <p className="mt-2 text-sm text-slate-600">Quy trình xử lý phản ánh và khiếu nại được tiến hành theo 3 bước tuần tự:</p>
 
@@ -335,7 +335,7 @@ export default function DisputeResolutionPage() {
               <section id="thoi-gian-cam-ket" className="scroll-mt-24 border-b border-slate-200 py-8">
                 <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">3</span>
-                  Thời Hiệu Tiếp Nhận & Thời Gian Xử Lý Cam Kết
+                  <span>Thời Hiệu Tiếp Nhận & Thời Gian Xử Lý Cam Kết</span>
                 </h2>
                 <div className="mt-3 overflow-x-auto">
                   <table className="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
@@ -376,7 +376,7 @@ export default function DisputeResolutionPage() {
               <section id="trach-nhiem-cac-ben" className="scroll-mt-24 border-b border-slate-200 py-8">
                 <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">4</span>
-                  Trách Nhiệm của Các Bên Trong Quá Trình Khiếu Nại
+                  <span>Trách Nhiệm của Các Bên Trong Quá Trình Khiếu Nại</span>
                 </h2>
                 <div className="mt-3 space-y-2.5 text-xs text-slate-600">
                   <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
@@ -398,7 +398,7 @@ export default function DisputeResolutionPage() {
               <section id="bien-phap-che-tai" className="scroll-mt-24 border-b border-slate-200 py-8">
                 <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">5</span>
-                  Biện Pháp Chế Tài Đối Với Hành Vi Lừa Đảo Trục Lợi
+                  <span>Biện Pháp Chế Tài Đối Với Hành Vi Lừa Đảo Trục Lợi</span>
                 </h2>
                 <div className="mt-3 text-xs text-slate-600 space-y-2">
                   <p>Đối với thành viên có hành vi gian dối, sàn sẽ áp dụng các biện pháp quyết liệt:</p>
@@ -414,7 +414,7 @@ export default function DisputeResolutionPage() {
               <section id="thong-tin-dau-moi" className="scroll-mt-24 pt-8">
                 <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">6</span>
-                  Đầu Mối Tiếp Nhận Khiếu Nại & Hỗ Trợ Khách Hàng
+                  <span>Đầu Mối Tiếp Nhận Khiếu Nại & Hỗ Trợ Khách Hàng</span>
                 </h2>
                 
                 <div className="mt-4 rounded-3xl bg-slate-900 p-6 sm:p-8 text-white shadow-xl">

@@ -550,7 +550,7 @@ export default function TreasureHuntPage() {
           <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-sm space-y-4">
             <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
               <i className="fa-solid fa-clock-rotate-left text-slate-500"></i>
-              Lịch sử các rương đã mở hôm nay ({claimsToday.length}/{dailyLimit})
+              <span>Lịch sử các rương đã mở hôm nay ({claimsToday.length}/{dailyLimit})</span>
             </h3>
             <div className="divide-y divide-slate-100">
               {claimsToday.map((c, idx) => (
@@ -583,7 +583,7 @@ export default function TreasureHuntPage() {
             <div>
               <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
                 <i className="fa-solid fa-fire text-red-500"></i>
-                Danh Sách Nhà Đất Chứa Hộp Quà Hôm Nay {totalItems > 0 && <span className="text-sm font-bold text-amber-700">({totalItems})</span>}
+                <span>Danh Sách Nhà Đất Chứa Hộp Quà Hôm Nay {totalItems > 0 && <span className="text-sm font-bold text-amber-700">({totalItems})</span>}</span>
               </h3>
               <p className="text-xs text-slate-500">
                 Bấm vào từng nhà đất bên dưới, cuộn xuống phần mô tả để mở rương kho báu:

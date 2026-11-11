@@ -266,7 +266,8 @@ export default function LegalPolicyPage() {
                 {/* 1.1 Quyền & Nghĩa vụ thành viên */}
                 <h3 id="quyen-nghia-vu-thanh-vien" className="scroll-mt-24 mt-6 text-base font-bold text-slate-900 flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-red-500"></span>
-                  1. Quyền và Nghĩa Vụ của Thành Viên Tham Gia Sàn
+                  <span>1.</span>
+                  <span>Quyền và Nghĩa Vụ của Thành Viên Tham Gia Sàn</span>
                 </h3>
                 
                 <div className="mt-3 space-y-3 text-sm">
@@ -294,7 +295,8 @@ export default function LegalPolicyPage() {
                 {/* 1.2 Các hành vi nghiêm cấm */}
                 <h3 id="cac-hanh-vi-bi-cam" className="scroll-mt-24 mt-8 text-base font-bold text-slate-900 flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-red-500"></span>
-                  2. Các Hành Vi Nghiêm Cấm Tuyệt Đối Trên Sàn
+                  <span>2.</span>
+                  <span>Các Hành Vi Nghiêm Cấm Tuyệt Đối Trên Sàn</span>
                 </h3>
                 <p className="mt-2 text-sm text-slate-600">
                   Nhằm xây dựng thị trường nhà đất văn minh và minh bạch, Ban quản trị sàn <strong>{BRAND_NAME}</strong> nghiêm cấm các hành vi sau:
@@ -321,7 +323,8 @@ export default function LegalPolicyPage() {
                 {/* 1.3 Chế tài xử lý */}
                 <h3 id="che-tai-xu-ly" className="scroll-mt-24 mt-8 text-base font-bold text-slate-900 flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-red-500"></span>
-                  3. Chế Tài Xử Lý Thành Viên Vi Phạm
+                  <span>3.</span>
+                  <span>Chế Tài Xử Lý Thành Viên Vi Phạm</span>
                 </h3>
                 <ul className="mt-3 list-decimal pl-5 space-y-2 text-sm text-slate-600">
                   <li><strong>Khóa tạm thời tin đăng:</strong> Ẩn tin vi phạm trong vòng 24h đối với lỗi sơ bộ (sai danh mục, ảnh mờ, chèn số điện thoại vào tiêu đề).</li>
@@ -351,7 +354,8 @@ export default function LegalPolicyPage() {
                 {/* 2.1 Mục đích thu thập */}
                 <h3 id="muc-dich-thu-thap" className="scroll-mt-24 mt-6 text-base font-bold text-slate-900 flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
-                  1. Mục Đích và Phạm Vi Thu Thập Dữ Liệu
+                  <span>1.</span>
+                  <span>Mục Đích và Phạm Vi Thu Thập Dữ Liệu</span>
                 </h3>
                 <p className="mt-2 text-sm text-slate-600">Chúng tôi chỉ thu thập các trường thông tin cần thiết tối thiểu nhằm phục vụ các mục đích sau:</p>
                 <div className="mt-3 overflow-x-auto">
@@ -382,7 +386,8 @@ export default function LegalPolicyPage() {
                 {/* 2.2 Cam kết không chia sẻ bên thứ ba */}
                 <h3 id="cam-ket-khong-chia-se" className="scroll-mt-24 mt-8 text-base font-bold text-slate-900 flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
-                  2. Cam Kết Tuyệt Đối Không Bán / Chia Sẻ Dữ Liệu Cho Bên Thứ Ba
+                  <span>2.</span>
+                  <span>Cam Kết Tuyệt Đối Không Bán / Chia Sẻ Dữ Liệu Cho Bên Thứ Ba</span>
                 </h3>
                 <div className="mt-3 rounded-2xl bg-emerald-50/60 p-4 border border-emerald-200 text-sm text-emerald-950 space-y-2">
                   <p className="font-bold flex items-center gap-2">
@@ -402,7 +407,8 @@ export default function LegalPolicyPage() {
                 {/* 2.3 Quyền chủ thể dữ liệu */}
                 <h3 id="quyen-chu-the-du-lieu" className="scroll-mt-24 mt-8 text-base font-bold text-slate-900 flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
-                  3. Quyền Hạn Của Chủ Thể Dữ Liệu
+                  <span>3.</span>
+                  <span>Quyền Hạn Của Chủ Thể Dữ Liệu</span>
                 </h3>
                 <ul className="mt-3 list-disc pl-5 space-y-2 text-sm text-slate-600">
                   <li><strong>Quyền tra cứu & điều chỉnh:</strong> Thành viên có quyền tự do chỉnh sửa họ tên, mật khẩu, số điện thoại trong mục <em>"Cài Đặt Hồ Sơ Cá Nhân"</em> bất cứ lúc nào.</li>
@@ -431,7 +437,8 @@ export default function LegalPolicyPage() {
                 {/* 3.1 Quy trình 3 bước tiếp nhận & xử lý */}
                 <h3 id="quy-trinh-3-buoc" className="scroll-mt-24 mt-6 text-base font-bold text-slate-900 flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-blue-500"></span>
-                  1. Quy Trình 3 Bước Tiếp Nhận & Giải Quyết Khiếu Nại
+                  <span>1.</span>
+                  <span>Quy Trình 3 Bước Tiếp Nhận & Giải Quyết Khiếu Nại</span>
                 </h3>
 
                 <div className="mt-4 space-y-3">
@@ -490,7 +497,8 @@ export default function LegalPolicyPage() {
                 {/* 3.2 Cam kết thời gian xử lý */}
                 <h3 id="thoi-gian-giai-quyet" className="scroll-mt-24 mt-8 text-base font-bold text-slate-900 flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-blue-500"></span>
-                  2. Cam Kết Thời Gian Xử Lý Phản Hồi
+                  <span>2.</span>
+                  <span>Cam Kết Thời Gian Xử Lý Phản Hồi</span>
                 </h3>
                 <ul className="mt-3 list-disc pl-5 space-y-1.5 text-sm text-slate-600">
                   <li><strong>Thời gian xác nhận tiếp nhận khiếu nại:</strong> Không quá <strong>24 giờ</strong> kể từ thời điểm gửi.</li>

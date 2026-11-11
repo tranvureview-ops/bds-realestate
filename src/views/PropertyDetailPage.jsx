@@ -156,7 +156,7 @@ export default function PropertyDetailPage({ initialProperty = null, slug = '', 
               <div>
                 <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2">
                   <i className="fa-solid fa-fire text-rose-500"></i>
-                  Gợi ý nhà đất nổi bật dành cho bạn
+                  <span>Gợi ý nhà đất nổi bật dành cho bạn</span>
                 </h3>
                 <p className="text-xs text-slate-500">Các tin đăng được xác thực và quan tâm nhiều nhất hôm nay</p>
               </div>

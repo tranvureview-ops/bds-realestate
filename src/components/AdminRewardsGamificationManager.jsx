@@ -1227,7 +1227,7 @@ export default function AdminRewardsGamificationManager() {
               <div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
                   <i className="fa-solid fa-shield-halved text-amber-400"></i>
-                  Cấu Hình Hạn Mức & Chống Spam Bài Viết
+                  <span>Cấu Hình Hạn Mức & Chống Spam Bài Viết</span>
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
                   Kiểm soát số lượng hộp quà mỗi ngày và điều kiện ngăn chặn công cụ gian lận F5.

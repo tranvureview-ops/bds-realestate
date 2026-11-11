@@ -1265,7 +1265,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
           <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
             <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
               <span className="w-2 h-5 bg-emerald-600 rounded-full"></span>
-              Thông Tin Mô Tả Chi Tiết
+              <span>Thông Tin Mô Tả Chi Tiết</span>
             </h2>
 
             <div className="text-sm text-slate-700 leading-relaxed whitespace-pre-line bg-slate-50/70 p-5 rounded-2xl border border-slate-100">
@@ -1319,7 +1319,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
               <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
                 <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
                   <span className="w-2 h-5 bg-purple-600 rounded-full"></span>
-                  Đặc Điểm Tin Đăng
+                  <span>Đặc Điểm Tin Đăng</span>
                 </h2>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
@@ -1389,7 +1389,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4 content-visibility-auto">
               <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
                 <span className="w-2 h-5 bg-blue-600 rounded-full"></span>
-                Vị Trí Bản Đồ & Tiện Ích Xung Quanh (Bán Kính 1km)
+                <span>Vị Trí Bản Đồ & Tiện Ích Xung Quanh (Bán Kính 1km)</span>
               </h2>
 
               <div className="rounded-2xl overflow-hidden border border-slate-200">
@@ -1424,7 +1424,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 <div>
                   <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
                     <span className="w-2 h-5 bg-amber-500 rounded-full"></span>
-                    Ước Tính Trả Góp Vay Mua Căn Nhà Này
+                    <span>Ước Tính Trả Góp Vay Mua Căn Nhà Này</span>
                   </h2>
                   <p className="text-xs text-slate-500 mt-0.5">
                     Tính toán số tiền vay dựa trên giá trị thực tế: <strong>{property.priceDisplay}</strong>
@@ -1648,7 +1648,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
                 <div>
                   <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
                     <span className="w-2 h-5 bg-indigo-600 rounded-full"></span>
-                    Tìm Kiếm Theo Từ Khóa & Cụm Từ Liên Quan
+                    <span>Tìm Kiếm Theo Từ Khóa & Cụm Từ Liên Quan</span>
                   </h2>
                   <p className="text-xs text-slate-500 mt-0.5">
                     Khám phá các nhà đất tương tự trong khu vực {property.district}, {property.city}

@@ -237,7 +237,7 @@ export default function OperatingRegulationPage() {
               <section id="nguyen-tac-chung" className="scroll-mt-24 border-b border-slate-200 pb-8">
                 <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">1</span>
-                  Nguyên Tắc Chung và Định Nghĩa Thuật Ngữ
+                  <span>Nguyên Tắc Chung và Định Nghĩa Thuật Ngữ</span>
                 </h2>
                 <div className="mt-3 space-y-3 text-sm text-slate-600">
                   <p>
@@ -256,12 +256,12 @@ export default function OperatingRegulationPage() {
               <section id="quyen-nghia-vu-thanh-vien" className="scroll-mt-24 border-b border-slate-200 py-8">
                 <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">2</span>
-                  Quyền và Nghĩa Vụ của Thành Viên
+                  <span>Quyền và Nghĩa Vụ của Thành Viên</span>
                 </h2>
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                   <div className="rounded-2xl bg-slate-50 p-4 border border-slate-200">
                     <h3 className="font-black text-slate-900 text-sm mb-2 text-emerald-700 flex items-center gap-1.5">
-                      <i className="fa-solid fa-circle-check"></i> Quyền Lợi Của Thành Viên
+                      <i className="fa-solid fa-circle-check"></i> <span>Quyền Lợi Của Thành Viên</span>
                     </h3>
                     <ul className="space-y-1.5 text-slate-600 list-disc pl-4">
                       <li>Được cấp quyền đăng ký tài khoản, quản lý tin đăng và sử dụng các công cụ tính toán tài chính, tra cứu bản đồ quy hoạch miễn phí.</li>
@@ -273,7 +273,7 @@ export default function OperatingRegulationPage() {
 
                   <div className="rounded-2xl bg-slate-50 p-4 border border-slate-200">
                     <h3 className="font-black text-slate-900 text-sm mb-2 text-red-700 flex items-center gap-1.5">
-                      <i className="fa-solid fa-circle-exclamation"></i> Nghĩa Vụ Của Thành Viên
+                      <i className="fa-solid fa-circle-exclamation"></i> <span>Nghĩa Vụ Của Thành Viên</span>
                     </h3>
                     <ul className="space-y-1.5 text-slate-600 list-disc pl-4">
                       <li>Cung cấp chính xác thông tin cá nhân khi đăng ký và xuất trình giấy tờ chứng minh quyền sở hữu hoặc ủy quyền khi có yêu cầu.</li>
@@ -289,7 +289,7 @@ export default function OperatingRegulationPage() {
               <section id="quyen-nghia-vu-ban-quan-tri" className="scroll-mt-24 border-b border-slate-200 py-8">
                 <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">3</span>
-                  Quyền và Trách Nhiệm của Ban Quản Trị Sàn
+                  <span>Quyền và Trách Nhiệm của Ban Quản Trị Sàn</span>
                 </h2>
                 <div className="mt-3 space-y-3 text-sm text-slate-600">
                   <p>
@@ -308,7 +308,7 @@ export default function OperatingRegulationPage() {
               <section id="cac-hanh-vi-bi-cam" className="scroll-mt-24 border-b border-slate-200 py-8">
                 <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">4</span>
-                  Các Hành Vi Nghiêm Cấm Tuyệt Đối
+                  <span>Các Hành Vi Nghiêm Cấm Tuyệt Đối</span>
                 </h2>
                 <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   <div className="rounded-xl border border-rose-200 bg-rose-50/50 p-3.5">
@@ -334,7 +334,7 @@ export default function OperatingRegulationPage() {
               <section id="quy-dinh-tin-dang" className="scroll-mt-24 border-b border-slate-200 py-8">
                 <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">5</span>
-                  Quy Định Chuẩn Về Tiêu Đề, Nội Dung và Hình Ảnh Tin Rao
+                  <span>Quy Định Chuẩn Về Tiêu Đề, Nội Dung và Hình Ảnh Tin Rao</span>
                 </h2>
                 <div className="mt-3 space-y-2.5 text-xs text-slate-600">
                   <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
@@ -356,7 +356,7 @@ export default function OperatingRegulationPage() {
               <section id="che-tai-xu-ly" className="scroll-mt-24 pt-8">
                 <h2 className="text-lg font-black text-slate-900 sm:text-xl flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">6</span>
-                  Quy Trình và Chế Tài Xử Lý Thành Viên Vi Phạm
+                  <span>Quy Trình và Chế Tài Xử Lý Thành Viên Vi Phạm</span>
                 </h2>
                 <div className="mt-3 overflow-x-auto">
                   <table className="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
