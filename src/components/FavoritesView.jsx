@@ -17,7 +17,7 @@ export default function FavoritesView({ setCurrentView }) {
             <span className="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center text-sm">
               <i className="fa-solid fa-heart"></i>
             </span>
-            Danh Sách Nhà Đất Đã Lưu ({favoriteProperties.length})
+            <span>Danh Sách Nhà Đất Đã Lưu ({favoriteProperties.length})</span>
           </h1>
           <p className="text-xs text-slate-500 mt-1">
             Theo dõi các căn nhà đất bạn quan tâm và dễ dàng so sánh giá

@@ -492,7 +492,7 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
         <div className="text-center mb-4 sm:mb-5 text-white flex flex-col justify-center min-h-[3.75rem] sm:min-h-[4.25rem] lg:min-h-[3.25rem]">
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-[32px] font-black tracking-tight drop-shadow-md leading-snug sm:leading-tight">
             <span className="block lg:inline text-[#ff6b6b] mt-1 lg:mt-0">
-              <span className="inline-block whitespace-nowrap">Mua Bán Nhà Đất, Cho Thuê Bất Động Sản Toàn Quốc</span>
+              <span className="inline-block whitespace-nowrap property-title-sentence">Mua Bán Nhà Đất, Cho Thuê Bất Động Sản Toàn Quốc</span>
             </span>
           </h1>
           <p className="mt-1.5 text-xs sm:text-sm text-slate-300 max-w-2xl mx-auto font-medium leading-normal">

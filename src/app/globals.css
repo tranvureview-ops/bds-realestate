@@ -224,20 +224,25 @@ button, input, select, textarea, optgroup, option, label {
 }
 
 /* ==========================================================================
-   Chuẩn hóa toàn bộ thẻ h2 và h3 sang Sentence Case:
+   Chuẩn hóa toàn bộ thẻ h1, h2 và h3 sang Sentence Case:
    Chỉ chữ cái đầu tiên viết hoa, các chữ sau viết thường
    ========================================================================== */
+h1,
 h2,
 h3 {
   text-transform: lowercase !important;
 }
 
+h1::first-letter,
 h2::first-letter,
 h3::first-letter,
+h1 > a::first-letter,
 h2 > a::first-letter,
 h3 > a::first-letter,
+h1[class*="flex"] > span:not(:empty)::first-letter,
 h2[class*="flex"] > span:not(:empty)::first-letter,
 h3[class*="flex"] > span:not(:empty)::first-letter,
+h1 > a[class*="flex"] > span:not(:empty):first-of-type::first-letter,
 h2 > a[class*="flex"] > span:not(:empty):first-of-type::first-letter,
 h3 > a[class*="flex"] > span:not(:empty):first-of-type::first-letter {
   text-transform: uppercase !important;
