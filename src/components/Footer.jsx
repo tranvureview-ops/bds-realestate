@@ -9,6 +9,8 @@ import SocialIcon from './SocialIcon';
 const FOOTER_CATEGORY_COLUMNS = [
   {
     key: 'sale',
+    title: 'BẤT ĐỘNG SẢN BÁN',
+    ariaLabel: 'Bất động sản bán',
     viewAllUrl: '/nha-dat-ban',
     items: [
       { label: 'Bán căn hộ chung cư', url: '/ban-can-ho-chung-cu' },
@@ -22,6 +24,8 @@ const FOOTER_CATEGORY_COLUMNS = [
   },
   {
     key: 'rent',
+    title: 'BẤT ĐỘNG SẢN THUÊ',
+    ariaLabel: 'Bất động sản thuê',
     viewAllUrl: '/nha-dat-cho-thue',
     items: [
       { label: 'Thuê căn hộ chung cư', url: '/cho-thue-can-ho-chung-cu' },
@@ -341,14 +345,14 @@ export default function Footer() {
             </ul>
           </nav>
 
-          {/* Cột 4: Danh mục bất động sản (2 cột Bán & Thuê) */}
-          <nav aria-label="Danh mục bất động sản" className="lg:col-span-4">
-            <h3 className="text-xs font-black uppercase text-white tracking-wider mb-3">
-              DANH MỤC BẤT ĐỘNG SẢN
-            </h3>
-            <div className="grid grid-cols-2 gap-4 sm:gap-6">
-              {FOOTER_CATEGORY_COLUMNS.map(col => (
-                <ul key={col.key} className="space-y-0.5 text-xs text-slate-300">
+          {/* Cột 4: Bất động sản bán & Bất động sản thuê */}
+          <div className="lg:col-span-4 grid grid-cols-2 gap-4 sm:gap-6">
+            {FOOTER_CATEGORY_COLUMNS.map(col => (
+              <nav key={col.key} aria-label={col.ariaLabel}>
+                <h3 className="text-xs font-black uppercase text-white tracking-wider mb-3">
+                  {col.title}
+                </h3>
+                <ul className="space-y-0.5 text-xs text-slate-300">
                   {col.items.map(item => (
                     <li key={item.url}>
                       <Link to={item.url} className="py-1.5 sm:py-1 hover:text-emerald-400 transition block">
@@ -362,9 +366,9 @@ export default function Footer() {
                     </Link>
                   </li>
                 </ul>
-              ))}
-            </div>
-          </nav>
+              </nav>
+            ))}
+          </div>
         </div>
 
         {/* Bottom copyright */}
