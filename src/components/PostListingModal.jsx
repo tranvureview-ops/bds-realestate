@@ -285,7 +285,10 @@ export default function PostListingModal({ onClose, isEmbedded = false, editProp
   const [formData, setFormData] = useState(() => {
     if (editProperty) {
       const rawDemand = editProperty.demand === 'rent' || editProperty.demand === 'cho-thue' ? 'rent' : 'sale';
-      const rawType = editProperty.propertyType || editProperty.type || 'apartment';
+      let rawType = editProperty.propertyType || editProperty.type || 'apartment';
+      if (rawDemand === 'rent' && rawType === 'project-land') {
+        rawType = 'land';
+      }
       const typeObj = PROPERTY_TYPES.find(t => t.id === rawType || t.slug === rawType);
 
       return {
@@ -403,7 +406,10 @@ export default function PostListingModal({ onClose, isEmbedded = false, editProp
   useEffect(() => {
     if (editProperty) {
       const rawDemand = editProperty.demand === 'rent' || editProperty.demand === 'cho-thue' ? 'rent' : 'sale';
-      const rawType = editProperty.propertyType || editProperty.type || 'apartment';
+      let rawType = editProperty.propertyType || editProperty.type || 'apartment';
+      if (rawDemand === 'rent' && rawType === 'project-land') {
+        rawType = 'land';
+      }
       const typeObj = PROPERTY_TYPES.find(t => t.id === rawType || t.slug === rawType);
 
       setFormData({
@@ -1891,7 +1897,11 @@ export default function PostListingModal({ onClose, isEmbedded = false, editProp
                   <button
                     type="button"
                     onClick={() => {
-                      setFormData(prev => ({ ...prev, demand: 'rent' }));
+                      setFormData(prev => ({
+                        ...prev,
+                        demand: 'rent',
+                        ...(prev.propertyType === 'project-land' ? { propertyType: 'house', propertyTypeName: 'Nhà riêng' } : {})
+                      }));
                       updatePriceCalculations(formData.price, formData.priceType, formData.area, 'rent');
                     }}
                     className={`py-3 px-4 rounded-2xl border-2 text-xs font-bold flex items-center justify-center gap-2 transition ${formData.demand === 'rent' ? 'bg-blue-50 border-blue-600 text-blue-800 shadow-sm ring-2 ring-blue-500/20' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'}`}
@@ -1911,17 +1921,19 @@ export default function PostListingModal({ onClose, isEmbedded = false, editProp
                   2. Loại Hình Nhà Đất <span className="text-red-500">*</span>
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {PROPERTY_TYPES.map(t => (
-                    <button
-                      key={t.id}
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, propertyType: t.id, propertyTypeName: t.name }))}
-                      className={`p-2.5 rounded-xl border text-left text-xs font-bold transition flex items-center gap-2 ${formData.propertyType === t.id ? 'bg-slate-900 text-white border-slate-900 shadow' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}`}
-                    >
-                      <i className={`fa-solid ${t.icon} text-amber-500 text-sm`}></i>
-                      <span className="truncate">{t.name}</span>
-                    </button>
-                  ))}
+                  {PROPERTY_TYPES
+                    .filter(t => formData.demand !== 'rent' || t.id !== 'project-land')
+                    .map(t => (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, propertyType: t.id, propertyTypeName: t.name }))}
+                        className={`p-2.5 rounded-xl border text-left text-xs font-bold transition flex items-center gap-2 ${formData.propertyType === t.id ? 'bg-slate-900 text-white border-slate-900 shadow' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}`}
+                      >
+                        <i className={`fa-solid ${t.icon} text-amber-500 text-sm`}></i>
+                        <span className="truncate">{t.name}</span>
+                      </button>
+                    ))}
                 </div>
               </div>
 
