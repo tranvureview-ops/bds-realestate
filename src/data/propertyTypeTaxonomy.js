@@ -105,14 +105,24 @@ export const PROPERTY_TYPE_TREE_RENT = [
     icon: 'fa-solid fa-briefcase'
   },
   {
-    id: 'commercial-space',
-    name: 'Cửa hàng, mặt bằng bán lẻ',
-    icon: 'fa-solid fa-store'
+    id: 'condotel',
+    name: 'Condotel',
+    icon: 'fa-solid fa-hotel'
   },
   {
     id: 'warehouse',
-    name: 'Kho, nhà xưởng, đất',
+    name: 'Kho, nhà xưởng',
     icon: 'fa-solid fa-warehouse'
+  },
+  {
+    id: 'farm-resort',
+    name: 'Trang trại, khu nghỉ dưỡng',
+    icon: 'fa-solid fa-tree'
+  },
+  {
+    id: 'land',
+    name: 'Đất cho thuê',
+    icon: 'fa-solid fa-map'
   },
   {
     id: 'other',
@@ -150,8 +160,10 @@ export const RENT_PROPERTY_TYPE_OPTIONS = [
   { value: 'shophouse', label: 'Shophouse, nhà phố thương mại', icon: 'fa-solid fa-store' },
   { value: 'room', label: 'Nhà trọ, phòng trọ', icon: 'fa-solid fa-door-open' },
   { value: 'office', label: 'Văn phòng', icon: 'fa-solid fa-briefcase' },
-  { value: 'commercial-space', label: 'Cửa hàng, mặt bằng bán lẻ', icon: 'fa-solid fa-store' },
-  { value: 'warehouse', label: 'Kho, nhà xưởng, đất', icon: 'fa-solid fa-warehouse' },
+  { value: 'condotel', label: 'Condotel', icon: 'fa-solid fa-hotel' },
+  { value: 'farm-resort', label: 'Trang trại, khu nghỉ dưỡng', icon: 'fa-solid fa-tree' },
+  { value: 'land', label: 'Đất cho thuê', icon: 'fa-solid fa-map' },
+  { value: 'warehouse', label: 'Kho, nhà xưởng', icon: 'fa-solid fa-warehouse' },
   { value: 'other', label: 'Nhà đất khác', icon: 'fa-solid fa-shapes' }
 ];
 
@@ -336,7 +348,9 @@ export const BATDONGSAN_CID_MAP = {
   'rent-shophouse': 363,
   'rent-room': 48,
   'rent-office': 50,
-  'rent-commercial-space': 52,
+  'rent-condotel': 360,
+  'rent-farm-resort': 44,
+  'rent-land': 283,
   'rent-warehouse': 47
 };
 
