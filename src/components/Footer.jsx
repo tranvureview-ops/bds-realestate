@@ -18,7 +18,6 @@ const FOOTER_CATEGORY_COLUMNS = [
       { label: 'Bán biệt thự, liền kề', url: '/ban-nha-biet-thu-lien-ke' },
       { label: 'Bán nhà mặt phố, shophouse', url: '/ban-nha-mat-pho' },
       { label: 'Bán đất nền, đất thổ cư', url: '/ban-dat' },
-      { label: 'Bán văn phòng, mặt bằng', url: '/ban-mat-bang-van-phong' },
       { label: 'Bán kho xưởng', url: '/ban-kho-nha-xuong' }
     ]
   },

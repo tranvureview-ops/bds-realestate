@@ -142,8 +142,7 @@ export const PROPERTY_TAXONOMY = {
       'farm-resort': { slug: '/ban-trang-trai-khu-nghi-duong', name: 'Bán trang trại, khu nghỉ dưỡng' },
       condotel: { slug: '/ban-condotel', name: 'Bán condotel' },
       warehouse: { slug: '/ban-kho-nha-xuong', name: 'Bán kho, nhà xưởng' },
-      other: { slug: '/ban-bat-dong-san-khac', name: 'Bán loại BĐS khác' },
-      office: { slug: '/ban-mat-bang-van-phong', name: 'Bán văn phòng, mặt bằng' }
+      other: { slug: '/ban-bat-dong-san-khac', name: 'Bán loại BĐS khác' }
     }
   },
   rent: {

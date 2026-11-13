@@ -80,7 +80,6 @@ export const ALL_INTERNAL_ROUTES = [
       { label: 'Bán trang trại, khu nghỉ dưỡng', url: '/ban-trang-trai-khu-nghi-duong' },
       { label: 'Bán condotel', url: '/ban-condotel' },
       { label: 'Bán kho, nhà xưởng', url: '/ban-kho-nha-xuong' },
-      { label: 'Bán văn phòng, mặt bằng', url: '/ban-mat-bang-van-phong' },
       { label: 'Bán loại BĐS khác', url: '/ban-bat-dong-san-khac' }
     ]
   },
