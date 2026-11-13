@@ -1689,11 +1689,11 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, yearInput = null, pa
       case 'mini-apartment':
         if (isPaginated) {
           title = hasSpecificLocation
-            ? `Cho thuê chung cư mini, căn hộ DV${pageStr} | ${titleLoc}`
+            ? `Cho thuê chung cư mini, căn hộ dịch vụ${pageStr} | ${titleLoc}`
             : `Cho thuê chung cư mini, căn hộ dịch vụ${pageStr} toàn quốc`;
         } else {
           title = hasSpecificLocation
-            ? `Cho thuê chung cư mini, căn hộ DV [${year}] | ${titleLoc}`
+            ? `Cho thuê chung cư mini, căn hộ dịch vụ [${year}] | ${titleLoc}`
             : `Cho thuê chung cư mini, căn hộ dịch vụ [${year}] toàn quốc`;
         }
         description = `Cho thuê chung cư mini, căn hộ dịch vụ khép kín giá rẻ ${year}${pageDescStr}, full nội thất cao cấp, giờ tự do. Xem phòng ${locPhrase}`;

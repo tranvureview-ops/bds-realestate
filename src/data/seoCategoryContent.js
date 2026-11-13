@@ -182,9 +182,9 @@ const SALE_CATEGORY_PROFILES = {
 
   'mini-apartment': {
     label: 'Chung Cư Mini, Căn Hộ Dịch Vụ',
-    shortLabel: 'chung cư mini & CHDV',
+    shortLabel: 'chung cư mini, căn hộ dịch vụ',
     priceUnit: 'tr/m²',
-    tableCols: ['Căn Studio (20 - 30m²)', 'CHDV 1PN - 2PN', 'Tòa nhà dòng tiền (Cả tòa)', 'Khu vực sôi động'],
+    tableCols: ['Căn Studio (20 - 30m²)', 'Căn hộ dịch vụ 1PN - 2PN', 'Tòa nhà dòng tiền (Cả tòa)', 'Khu vực sôi động'],
     priceRanges: {
       national: [
         { area: 'TP. Hồ Chí Minh', cols: ['1.1 - 1.8 tỷ/căn', '1.8 - 3.2 tỷ/căn', '12 - 35 tỷ/tòa'], hotspots: 'Bình Thạnh, Tân Bình, Phú Nhuận, Quận 7' },
@@ -195,7 +195,7 @@ const SALE_CATEGORY_PROFILES = {
     },
     scaleFactor: [0.42, 0.65, 1.0],
     marketFocus: 'Luật Nhà ở 2023 chính thức công nhận quyền cấp Sổ hồng riêng cho căn hộ chung cư mini nếu đáp ứng đầy đủ điều kiện về quy chuẩn xây dựng và phòng cháy chữa cháy (PCCC). Điều này thúc đẩy phân khúc chung cư mini, tòa căn hộ dịch vụ vận hành dòng tiền trở thành tâm điểm của giới đầu tư tìm kiếm tỷ suất cho thuê 6% - 9%/năm tại các khu vực tập trung nhiều đại học và khu văn phòng.',
-    legalTitlePrefix: '4 Bước Thẩm Định Pháp Lý Khi Mua Chung Cư Mini & Tòa CHDV',
+    legalTitlePrefix: '4 Bước Thẩm Định Pháp Lý Khi Mua Chung Cư Mini & Căn Hộ Dịch Vụ',
     legalSteps: [
       {
         title: 'Kiểm tra Giấy phép xây dựng & Điều kiện cấp Sổ hồng theo Luật Nhà ở 2023',
@@ -207,21 +207,21 @@ const SALE_CATEGORY_PROFILES = {
       },
       {
         title: 'Phân biệt mua từng căn (vi bằng/sổ chung) với mua nguyên tòa (sổ đỏ riêng)',
-        text: 'Nếu mua nguyên tòa nhà CHDV để khai thác dòng tiền, đảm bảo Sổ hồng đứng tên một chủ sở hữu duy nhất, hoàn công đúng hiện trạng số tầng và không vi phạm chỉ giới.',
+        text: 'Nếu mua nguyên tòa nhà căn hộ dịch vụ để khai thác dòng tiền, đảm bảo Sổ hồng đứng tên một chủ sở hữu duy nhất, hoàn công đúng hiện trạng số tầng và không vi phạm chỉ giới.',
         linkText: 'tra cứu quy hoạch trực tuyến trước khi cọc',
         linkTo: '/kien-thuc/cach-tra-cuu-quy-hoach-dat-dai'
       },
       {
         title: 'Rà soát hợp đồng thuê hiện hữu & Giấy phép kinh doanh lưu trú',
-        text: 'Nếu tòa CHDV đang có khách thuê sẵn, kiểm tra toàn bộ hợp đồng thuê đang chạy, sổ tiền cọc bàn giao và cam kết không tranh chấp trước khi ký ',
+        text: 'Nếu tòa căn hộ dịch vụ đang có khách thuê sẵn, kiểm tra toàn bộ hợp đồng thuê đang chạy, sổ tiền cọc bàn giao và cam kết không tranh chấp trước khi ký ',
         linkText: 'hợp đồng đặt cọc chuẩn pháp lý',
         linkTo: '/kien-thuc/hop-dong-dat-coc-mua-ban-nha-dat-chuan-phap-ly'
       }
     ],
     guides: [
-      { badge: 'Kinh nghiệm', badgeTone: 'emerald', icon: 'fa-solid fa-city', title: 'Kinh Nghiệm Mua Căn Hộ Chung Cư & CHDV Cho Thuê An Toàn', desc: 'Đánh giá tỷ suất dòng tiền thực tế, chi phí vận hành và rủi ro pháp lý cần tránh.', to: '/kien-thuc/kinh-nghiem-mua-can-ho-chung-cu-lan-dau' },
+      { badge: 'Kinh nghiệm', badgeTone: 'emerald', icon: 'fa-solid fa-city', title: 'Kinh Nghiệm Mua Căn Hộ Chung Cư & Căn Hộ Dịch Vụ Cho Thuê An Toàn', desc: 'Đánh giá tỷ suất dòng tiền thực tế, chi phí vận hành và rủi ro pháp lý cần tránh.', to: '/kien-thuc/kinh-nghiem-mua-can-ho-chung-cu-lan-dau' },
       { badge: 'Pháp lý', badgeTone: 'blue', icon: 'fa-solid fa-file-shield', title: 'Hướng Dẫn Tra Cứu Quy Hoạch & Hiện Trạng Xây Dựng Chuẩn', desc: 'Cách kiểm tra lộ giới, hệ số sử dụng đất và thông tin quy hoạch quận/huyện nhanh nhất.', to: '/kien-thuc/cach-tra-cuu-quy-hoach-dat-dai' },
-      { badge: 'Tài chính', badgeTone: 'amber', icon: 'fa-solid fa-calculator', title: 'Tính Dòng Tiền & Lãi Suất Vay Đầu Tư Tòa Căn Hộ Dịch Vụ', desc: 'So sánh tiền lãi ngân hàng hàng tháng với doanh thu cho thuê CHDV dự kiến.', to: '/tinh-lai-vay' }
+      { badge: 'Tài chính', badgeTone: 'amber', icon: 'fa-solid fa-calculator', title: 'Tính Dòng Tiền & Lãi Suất Vay Đầu Tư Tòa Căn Hộ Dịch Vụ', desc: 'So sánh tiền lãi ngân hàng hàng tháng với doanh thu cho thuê căn hộ dịch vụ dự kiến.', to: '/tinh-lai-vay' }
     ],
     faqsBuilder: (citySuffix, cityName) => [
       {
@@ -230,7 +230,7 @@ const SALE_CATEGORY_PROFILES = {
       },
       {
         q: `Có nên mua chung cư mini chưa tách sổ bằng hình thức vi bằng không?`,
-        a: `Không khuyến khích mua bán bằng vi bằng vì vi bằng của Thừa phát lại chỉ ghi nhận sự kiện giao nhận tiền chứ không có giá trị chuyển quyền sở hữu hợp pháp. Người mua nên ưu tiên căn hộ mini đã có sổ riêng hoặc mua trọn tòa CHDV có sổ hồng hoàn công đầy đủ.`
+        a: `Không khuyến khích mua bán bằng vi bằng vì vi bằng của Thừa phát lại chỉ ghi nhận sự kiện giao nhận tiền chứ không có giá trị chuyển quyền sở hữu hợp pháp. Người mua nên ưu tiên căn hộ mini đã có sổ riêng hoặc mua trọn tòa căn hộ dịch vụ có sổ hồng hoàn công đầy đủ.`
       },
       {
         q: `Tỷ suất sinh lời khi mua cả tòa căn hộ dịch vụ cho thuê năm 2026 là bao nhiêu?`,
@@ -817,7 +817,7 @@ const buildSaleDiscoveryLinks = ({ activeCity, propertyType, profile }) => {
       path: buildSeoUrl({ demand: 'sale', propertyType: norm, city: c })
     }));
     const siblingMap = {
-      apartment: { type: 'mini-apartment', name: 'Bán chung cư mini, CHDV' },
+      apartment: { type: 'mini-apartment', name: 'Bán chung cư mini, căn hộ dịch vụ' },
       'mini-apartment': { type: 'apartment', name: 'Bán căn hộ chung cư' },
       land: { type: 'project-land', name: 'Bán đất nền dự án' },
       'project-land': { type: 'land-group', name: 'Bán đất thổ cư, đất nền' },
@@ -1196,9 +1196,9 @@ const RENT_CATEGORY_PROFILES = {
     ]
   },
   'mini-apartment': {
-    label: 'Chung Cư Mini, CHDV Cho Thuê',
-    shortLabel: 'chung cư mini, CHDV',
-    tableCols: ['Phòng Studio', 'CHDV 1 Phòng ngủ', 'CHDV 2 Phòng ngủ / Duplex', 'Khu vực sôi động'],
+    label: 'Chung Cư Mini, Căn Hộ Dịch Vụ Cho Thuê',
+    shortLabel: 'chung cư mini, căn hộ dịch vụ',
+    tableCols: ['Phòng Studio', 'Căn hộ dịch vụ 1 Phòng ngủ', 'Căn hộ dịch vụ 2 Phòng ngủ / Duplex', 'Khu vực sôi động'],
     priceRanges: {
       national: [
         { area: 'TP. Hồ Chí Minh', cols: ['4.5 - 7.5 tr/tháng', '7 - 11 tr/tháng', '10 - 16 tr/tháng'], hotspots: 'Bình Thạnh, Tân Bình, Quận 1, Quận 7' },
@@ -1207,8 +1207,8 @@ const RENT_CATEGORY_PROFILES = {
         { area: 'Bình Dương & Đồng Nai', cols: ['2.5 - 4.2 tr/tháng', '4 - 6.5 tr/tháng', '5.5 - 8.5 tr/tháng'], hotspots: 'Thuận An, Dĩ An, Biên Hòa' }
       ]
     },
-    marketFocus: 'mô hình chung cư mini và căn hộ dịch vụ (CHDV) đầy đủ nội thất, giờ giấc tự do không chung chủ tiếp tục là lựa chọn số 1 của sinh viên và nhân sự trẻ tại các quận trung tâm. Người thuê năm 2026 ưu tiên đặc biệt các tòa nhà đạt chuẩn an toàn PCCC có thang thoát hiểm và hệ thống báo cháy riêng từng phòng.',
-    legalTitle: '4 Lưu Ý Pháp Lý & An Toàn Khi Thuê Chung Cư Mini, CHDV',
+    marketFocus: 'mô hình chung cư mini và căn hộ dịch vụ đầy đủ nội thất, giờ giấc tự do không chung chủ tiếp tục là lựa chọn số 1 của sinh viên và nhân sự trẻ tại các quận trung tâm. Người thuê năm 2026 ưu tiên đặc biệt các tòa nhà đạt chuẩn an toàn PCCC có thang thoát hiểm và hệ thống báo cháy riêng từng phòng.',
+    legalTitle: '4 Lưu Ý Pháp Lý & An Toàn Khi Thuê Chung Cư Mini, Căn Hộ Dịch Vụ',
     legalSteps: [
       { title: 'Kiểm tra thực tế hệ thống PCCC & Lối thoát nạn thứ hai', text: 'Ưu tiên tòa nhà có thang thoát hiểm ngoài trời, cửa chống cháy tầng hầm xe máy và không bịt kín ban công bằng "chuồng cọp".' },
       { title: 'Chốt rõ đơn giá điện, nước, dịch vụ dọn phòng & gửi xe', text: 'Kiểm tra công tơ điện riêng từng phòng và hỏi rõ chi phí phát sinh như phí thang máy, vệ sinh chung, wifi trước khi cọc.' },
@@ -1219,7 +1219,7 @@ const RENT_CATEGORY_PROFILES = {
       { q: `Thuê chung cư mini${isCity ? ` tại ${cityName}` : ''} cần lưu ý tiêu chuẩn an toàn PCCC nào?`, a: `Kiểm tra cầu thang thoát hiểm khẩn cấp, bình chữa cháy tại hành lang, đầu báo khói tự động, lối ra từ tầng hầm để xe riêng biệt và van ngắt điện an toàn.` },
       { q: `Giá điện nước ở chung cư mini tính như thế nào?`, a: `Nhiều tòa nhà áp dụng đơn giá điện theo đồng hồ riêng từ 3.500 - 4.000đ/kWh (hoặc theo bậc EVN nếu có định mức) và tiền nước 20.000 - 30.000đ/m³ hoặc khoán theo người.` },
       { q: `Có nên đặt cọc giữ phòng chung cư mini qua chuyển khoản trước khi xem trực tiếp?`, a: `Tuyệt đối không chuyển cọc giữ phòng khi chưa đến xem trực tiếp căn phòng, kiểm tra hợp đồng thuê và đối chiếu thông tin chủ nhà.` },
-      { q: `Thời hạn hợp đồng thuê CHDV thường kéo dài bao lâu?`, a: `Phổ biến là 6 tháng đến 12 tháng với mức cọc 1 tháng tiền phòng.` }
+      { q: `Thời hạn hợp đồng thuê căn hộ dịch vụ thường kéo dài bao lâu?`, a: `Phổ biến là 6 tháng đến 12 tháng với mức cọc 1 tháng tiền phòng.` }
     ]
   },
   house: {
@@ -1537,7 +1537,7 @@ const GENERAL_RENT_CITY_CONTENT = {
     faqs: [
       { q: 'Người đi thuê nhà cần kiểm tra những giấy tờ pháp lý nào trước khi đặt cọc?', a: 'Yêu cầu bên cho thuê xuất trình Sổ hồng/Sổ đỏ (bản gốc hoặc sao y công chứng), CCCD gắn chip chính chủ và hợp đồng ủy quyền có công chứng nếu làm việc qua đơn vị quản lý.' },
       { q: 'Tiền đặt cọc thuê nhà thông thường là bao nhiêu tháng và làm sao lấy lại cọc an toàn?', a: 'Phổ biến 1 - 2 tháng với căn hộ/nhà ở, hoặc 3 - 6 tháng với mặt bằng kinh doanh. Ghi rõ thời hạn hoàn cọc 100% trong vòng 3 ngày làm việc sau khi thanh lý hợp đồng.' },
-      { q: 'Chi phí điện, nước, internet và phí dịch vụ quản lý tòa nhà được tính như thế nào?', a: 'Nhà riêng nguyên căn thường tính điện nước theo hóa đơn EVN/cấp nước; căn hộ chung cư và CHDV cần thỏa thuận rõ phí quản lý, gửi xe, đơn giá điện nước trước khi ký.' },
+      { q: 'Chi phí điện, nước, internet và phí dịch vụ quản lý tòa nhà được tính như thế nào?', a: 'Nhà riêng nguyên căn thường tính điện nước theo hóa đơn EVN/cấp nước; căn hộ chung cư và căn hộ dịch vụ cần thỏa thuận rõ phí quản lý, gửi xe, đơn giá điện nước trước khi ký.' },
       { q: 'Làm thế nào để tìm được nhà cho thuê chính chủ, không qua trung gian môi giới?', a: 'Sử dụng bộ lọc khu vực, mức giá và bật bộ lọc \'Tin chính chủ / Đã xác thực\' trên Kênh Nhà Đất 24H để liên hệ trực tiếp chủ nhà.' }
     ]
   }
@@ -1617,7 +1617,7 @@ export const buildRentSeoContentData = ({
             title: isSpecificCity ? `Khám Phá Nhà Đất Cho Thuê Tại ${cityDisplay} Theo Phân Khúc` : 'Khám Phá Nhà Đất Cho Thuê Theo Phân Khúc',
             links: [
               { name: `Cho thuê căn hộ chung cư${isSpecificCity ? ` ${cityDisplay}` : ''}`, path: buildSeoUrl({ demand: 'rent', propertyType: 'apartment', city: isSpecificCity ? cityDisplay : null }) },
-              { name: `Cho thuê chung cư mini, CHDV${isSpecificCity ? ` ${cityDisplay}` : ''}`, path: buildSeoUrl({ demand: 'rent', propertyType: 'mini-apartment', city: isSpecificCity ? cityDisplay : null }) },
+              { name: `Cho thuê chung cư mini, căn hộ dịch vụ${isSpecificCity ? ` ${cityDisplay}` : ''}`, path: buildSeoUrl({ demand: 'rent', propertyType: 'mini-apartment', city: isSpecificCity ? cityDisplay : null }) },
               { name: `Cho thuê nhà riêng nguyên căn${isSpecificCity ? ` ${cityDisplay}` : ''}`, path: buildSeoUrl({ demand: 'rent', propertyType: 'house', city: isSpecificCity ? cityDisplay : null }) },
               { name: `Cho thuê nhà mặt phố kinh doanh${isSpecificCity ? ` ${cityDisplay}` : ''}`, path: buildSeoUrl({ demand: 'rent', propertyType: 'street-house', city: isSpecificCity ? cityDisplay : null }) },
               { name: `Cho thuê văn phòng, mặt bằng${isSpecificCity ? ` ${cityDisplay}` : ''}`, path: buildSeoUrl({ demand: 'rent', propertyType: 'office', city: isSpecificCity ? cityDisplay : null }) },
