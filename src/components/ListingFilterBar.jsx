@@ -541,38 +541,34 @@ export default function ListingFilterBar({
     return currentDistrictObj?.projects || [];
   }, [currentDistrictObj]);
 
-  // Kiểm tra các tiêu chí lọc đang được kích hoạt (không tính các giá trị mặc định của chính trang danh mục)
+  // Đếm tổng số tiêu chí lọc đang được áp dụng (Chuẩn Batdongsan.com.vn: đồng bộ 100% với các nút đang kích hoạt trên thanh tìm kiếm)
+  const isLocationFilterActive = Boolean(
+    filters.city || filters.district || filters.ward || filters.street || filters.project
+  );
   const isTypeFilterActive = Boolean(
     (filters.propertyTypes && filters.propertyTypes.length > 0 && !filters.propertyTypes.includes('all')) ||
-    (filters.propertyType && filters.propertyType !== 'all' && filters.propertyType !== taxonomyInfo?.propertyType)
-  );
-  const isCityFilterActive = Boolean(
-    filters.city && filters.city !== taxonomyInfo?.city
-  );
-  const isDistrictFilterActive = Boolean(
-    filters.district && filters.district !== taxonomyInfo?.district
+    (filters.propertyType && filters.propertyType !== 'all')
   );
   const isPriceFilterActive = Boolean(
-    ((filters.priceRange && filters.priceRange !== 'all') || filters.minPrice || filters.maxPrice) &&
-    filters.priceRange !== taxonomyInfo?.priceRange
+    (filters.priceRange && filters.priceRange !== 'all') || filters.minPrice || filters.maxPrice
   );
   const isAreaFilterActive = Boolean(
-    ((filters.areaRange && filters.areaRange !== 'all') || filters.minArea || filters.maxArea) &&
-    filters.areaRange !== taxonomyInfo?.areaRange
+    (filters.areaRange && filters.areaRange !== 'all') || filters.minArea || filters.maxArea
+  );
+  const isBedroomFilterActive = Boolean(
+    filters.bedroom && filters.bedroom !== 'all'
+  );
+  const isDirectionFilterActive = Boolean(
+    filters.direction && filters.direction !== 'all'
   );
 
-  // Đếm tổng số tiêu chí lọc nâng cao đang được kích hoạt (chuẩn Batdongsan.com.vn)
   const advancedCount = [
+    isLocationFilterActive,
     isTypeFilterActive,
     isPriceFilterActive,
     isAreaFilterActive,
-    isDistrictFilterActive,
-    isCityFilterActive,
-    Boolean(filters.ward && filters.ward !== taxonomyInfo?.ward),
-    Boolean(filters.street && filters.street !== taxonomyInfo?.street),
-    Boolean(filters.project && filters.project !== taxonomyInfo?.project),
-    Boolean(filters.bedroom && filters.bedroom !== 'all' && filters.bedroom !== taxonomyInfo?.bedroom),
-    Boolean(filters.direction && filters.direction !== 'all'),
+    isBedroomFilterActive,
+    isDirectionFilterActive,
     Boolean(filters.hasVR360),
     Boolean(filters.onlyVerified)
   ].filter(Boolean).length;
