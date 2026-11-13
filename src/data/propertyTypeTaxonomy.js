@@ -44,11 +44,6 @@ export const PROPERTY_TYPE_TREE_SALE = [
     ]
   },
   {
-    id: 'office',
-    name: 'Văn phòng, mặt bằng',
-    icon: 'fa-solid fa-briefcase'
-  },
-  {
     id: 'farm-resort',
     name: 'Trang trại, khu nghỉ dưỡng',
     icon: 'fa-solid fa-tree'
@@ -145,7 +140,6 @@ export const SALE_PROPERTY_TYPE_OPTIONS = [
   { value: 'villa', label: 'Nhà biệt thự, liền kề', icon: 'fa-solid fa-landmark-dome' },
   { value: 'street-house', label: 'Nhà mặt phố', icon: 'fa-solid fa-shop' },
   { value: 'shophouse', label: 'Shophouse, nhà phố thương mại', icon: 'fa-solid fa-store' },
-  { value: 'office', label: 'Văn phòng, mặt bằng', icon: 'fa-solid fa-briefcase' },
   { value: 'land-group', label: 'Tất cả các loại đất bán', icon: 'fa-solid fa-mountain-sun' },
   { value: 'project-land', label: 'Đất nền dự án', icon: 'fa-solid fa-map-location-dot' },
   { value: 'land', label: 'Đất thổ cư, đất ở', icon: 'fa-solid fa-vector-square' },

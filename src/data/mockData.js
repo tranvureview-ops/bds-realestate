@@ -5665,7 +5665,6 @@ export const INITIAL_NAV_MENU = [
       { id: 'sub-sale-villa', title: 'Bán Nhà Biệt Thự, Liền Kề', path: '/ban-nha-biet-thu-lien-ke', icon: 'fa-solid fa-landmark' },
       { id: 'sub-sale-street', title: 'Bán Nhà Mặt Phố', path: '/ban-nha-mat-pho', icon: 'fa-solid fa-shop' },
       { id: 'sub-sale-shophouse', title: 'Bán Shophouse', path: '/ban-shophouse', icon: 'fa-solid fa-store' },
-      { id: 'sub-sale-office', title: 'Bán Văn Phòng, Mặt Bằng', path: '/ban-mat-bang-van-phong', icon: 'fa-solid fa-briefcase' },
       { id: 'sub-sale-project-land', title: 'Bán Đất Nền Dự Án', path: '/ban-dat-nen-du-an', icon: 'fa-solid fa-mountain-sun' },
       { id: 'sub-sale-land', title: 'Bán Đất', path: '/ban-dat', icon: 'fa-solid fa-map' },
       { id: 'sub-sale-farm', title: 'Bán Trang Trại, Khu Nghỉ Dưỡng', path: '/ban-trang-trai-khu-nghi-duong', icon: 'fa-solid fa-tree' },

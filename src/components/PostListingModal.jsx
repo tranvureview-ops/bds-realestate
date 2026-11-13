@@ -289,6 +289,9 @@ export default function PostListingModal({ onClose, isEmbedded = false, editProp
       if (rawDemand === 'rent' && rawType === 'project-land') {
         rawType = 'land';
       }
+      if (rawDemand === 'sale' && rawType === 'office') {
+        rawType = 'apartment';
+      }
       const typeObj = PROPERTY_TYPES.find(t => t.id === rawType || t.slug === rawType);
 
       return {
@@ -409,6 +412,9 @@ export default function PostListingModal({ onClose, isEmbedded = false, editProp
       let rawType = editProperty.propertyType || editProperty.type || 'apartment';
       if (rawDemand === 'rent' && rawType === 'project-land') {
         rawType = 'land';
+      }
+      if (rawDemand === 'sale' && rawType === 'office') {
+        rawType = 'apartment';
       }
       const typeObj = PROPERTY_TYPES.find(t => t.id === rawType || t.slug === rawType);
 
@@ -1883,7 +1889,11 @@ export default function PostListingModal({ onClose, isEmbedded = false, editProp
                   <button
                     type="button"
                     onClick={() => {
-                      setFormData(prev => ({ ...prev, demand: 'sale' }));
+                      setFormData(prev => ({
+                        ...prev,
+                        demand: 'sale',
+                        ...(prev.propertyType === 'office' ? { propertyType: 'apartment', propertyTypeName: 'Căn hộ chung cư' } : {})
+                      }));
                       updatePriceCalculations(formData.price, formData.priceType, formData.area, 'sale');
                     }}
                     className={`py-3 px-4 rounded-2xl border-2 text-xs font-bold flex items-center justify-center gap-2 transition ${formData.demand === 'sale' ? 'bg-emerald-50 border-emerald-600 text-emerald-800 shadow-sm ring-2 ring-emerald-500/20' : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'}`}
@@ -1922,7 +1932,12 @@ export default function PostListingModal({ onClose, isEmbedded = false, editProp
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {PROPERTY_TYPES
-                    .filter(t => formData.demand !== 'rent' || t.id !== 'project-land')
+                    .filter(t => {
+                      if (formData.demand === 'rent') {
+                        return t.id !== 'project-land'; // Cho thuê không có đất nền dự án
+                      }
+                      return t.id !== 'office'; // Bán không có văn phòng, mặt bằng (chỉ dành cho Cho thuê)
+                    })
                     .map(t => (
                       <button
                         key={t.id}
