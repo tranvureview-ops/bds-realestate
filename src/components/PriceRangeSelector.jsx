@@ -41,40 +41,64 @@ export default function PriceRangeSelector({
     return Math.round(Number(unitVal) * multiplier);
   };
 
+  const resolvePriceBounds = (minP, maxP, pRange) => {
+    const initMin = toUnitVal(minP);
+    const initMax = toUnitVal(maxP);
+    if ((initMin !== null && initMin > 0) || (initMax !== null && initMax > 0)) {
+      return {
+        min: initMin !== null && initMin > 0 ? initMin : 0,
+        max: initMax !== null && initMax > 0 ? initMax : maxLimit
+      };
+    }
+    if (pRange && pRange !== 'all') {
+      const found = presets.find(p => p.value === pRange);
+      if (found) {
+        return {
+          min: found.min ? (toUnitVal(found.min) || 0) : 0,
+          max: found.max ? (toUnitVal(found.max) || maxLimit) : maxLimit
+        };
+      }
+      const dynBetween = pRange.match(/^([0-9.]+)([bm])-([0-9.]+)([bm])$/i);
+      if (dynBetween) {
+        const u1 = dynBetween[2].toLowerCase() === 'm' ? 1e6 : 1e9;
+        const u2 = dynBetween[4].toLowerCase() === 'm' ? 1e6 : 1e9;
+        const v1 = parseFloat(dynBetween[1]) * u1;
+        const v2 = parseFloat(dynBetween[3]) * u2;
+        return { min: toUnitVal(v1) || 0, max: toUnitVal(v2) || maxLimit };
+      }
+    }
+    return { min: 0, max: maxLimit };
+  };
+
   // State cục bộ cho khoảng giá
   const [minUnit, setMinUnit] = useState(() => {
-    const val = toUnitVal(initialMinPrice);
-    return val !== null && val > 0 ? val : 0;
+    const { min } = resolvePriceBounds(initialMinPrice, initialMaxPrice, initialPriceRange);
+    return min;
   });
 
   const [maxUnit, setMaxUnit] = useState(() => {
-    const val = toUnitVal(initialMaxPrice);
-    return val !== null && val > 0 ? val : maxLimit;
+    const { max } = resolvePriceBounds(initialMinPrice, initialMaxPrice, initialPriceRange);
+    return max;
   });
 
   const [inputMin, setInputMin] = useState(() => {
-    const val = toUnitVal(initialMinPrice);
-    return val !== null && val > 0 ? String(val) : '';
+    const { min } = resolvePriceBounds(initialMinPrice, initialMaxPrice, initialPriceRange);
+    return min > 0 ? String(min) : '';
   });
 
   const [inputMax, setInputMax] = useState(() => {
-    const val = toUnitVal(initialMaxPrice);
-    return val !== null && val > 0 && val < maxLimit ? String(val) : '';
+    const { max } = resolvePriceBounds(initialMinPrice, initialMaxPrice, initialPriceRange);
+    return max < maxLimit ? String(max) : '';
   });
 
   // Đồng bộ khi prop thay đổi
   useEffect(() => {
-    const initMin = toUnitVal(initialMinPrice);
-    const initMax = toUnitVal(initialMaxPrice);
-
-    const m = initMin !== null && initMin > 0 ? initMin : 0;
-    const M = initMax !== null && initMax > 0 ? initMax : maxLimit;
-
-    setMinUnit(m);
-    setMaxUnit(M);
-    setInputMin(m > 0 ? String(m) : '');
-    setInputMax(M < maxLimit ? String(M) : '');
-  }, [initialMinPrice, initialMaxPrice, demand]);
+    const { min, max } = resolvePriceBounds(initialMinPrice, initialMaxPrice, initialPriceRange);
+    setMinUnit(min);
+    setMaxUnit(max);
+    setInputMin(min > 0 ? String(min) : '');
+    setInputMax(max < maxLimit ? String(max) : '');
+  }, [initialMinPrice, initialMaxPrice, initialPriceRange, demand]);
 
   // --- PIECEWISE MAPPING (Cho phép kéo thanh trượt mượt mà ở khoảng phổ biến) ---
   const valToPercent = (val) => {

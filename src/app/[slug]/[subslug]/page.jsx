@@ -2,13 +2,19 @@ import { notFound, permanentRedirect } from 'next/navigation';
 import { parseTaxonomyUrl, buildSeoUrl, getPaginationPath } from '../../../utils/permalink';
 import { buildTaxonomyMetadata, renderTaxonomyPage } from '../page';
 
-export async function generateMetadata({ params }) {
+export async function generateMetadata({ params, searchParams }) {
   const { slug, subslug } = (await params) || {};
+  const sp = (await searchParams) || {};
   const currentPath = `/${slug || ''}/${subslug || ''}`;
 
   const taxonomyInfo = parseTaxonomyUrl(currentPath);
   if (taxonomyInfo.isTaxonomy) {
-    return buildTaxonomyMetadata(taxonomyInfo);
+    const meta = buildTaxonomyMetadata(taxonomyInfo);
+    const hasQueryFilter = Object.keys(sp).some(k => k !== 'page' && sp[k]);
+    if (hasQueryFilter) {
+      meta.robots = { index: false, follow: false };
+    }
+    return meta;
   }
 
   return { title: 'Không tìm thấy trang', robots: { index: false, follow: false } };

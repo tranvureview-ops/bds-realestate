@@ -46,7 +46,7 @@ export default function ListingFilterBar({
   const effectiveDemand = (filters?.demand === 'rent' || taxonomyInfo?.demand === 'rent' || demand === 'rent') ? 'rent' : 'sale';
 
   const [keywordInput, setKeywordInput] = useState(filters?.keyword || '');
-  const [openDropdown, setOpenDropdown] = useState(null); // 'type' | 'price' | 'area' | null
+  const [openDropdown, setOpenDropdown] = useState(null); // 'type' | 'price' | 'area' | 'bedroom' | null
   const [expandedCity, setExpandedCity] = useState(filters?.city || '');
   const [showAdvancedModal, setShowAdvancedModal] = useState(false);
   const [modalScreen, setModalScreen] = useState('main'); // 'main' | 'location' | 'price' | 'area' | 'type'
@@ -167,7 +167,7 @@ export default function ListingFilterBar({
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
     if (isMobile) {
       openedFromQuickFilterRef.current = type;
-      handleOpenAdvancedModal(type);
+      handleOpenAdvancedModal(type === 'bedroom' ? 'main' : type);
       return;
     }
     setOpenDropdown(prev => prev === type ? null : type);
@@ -438,6 +438,12 @@ export default function ListingFilterBar({
       return found.label.replace('Dưới ', '≤ ').replace('Trên ', '≥ ');
     }
     return formatAreaRangeText(rangeKey).replace('Dưới ', '≤ ').replace('Trên ', '≥ ');
+  };
+
+  const getBedroomLabel = (bedroom = filters?.bedroom) => {
+    if (!bedroom || bedroom === 'all') return 'Số phòng ngủ';
+    if (bedroom === '4+') return '4+ PN';
+    return `${bedroom} PN`;
   };
 
   // Summary labels for Modal rows (Screenshot 1)
@@ -1036,6 +1042,62 @@ export default function ListingFilterBar({
                   }}
                   onClose={() => setOpenDropdown(null)}
                 />
+              </div>
+            )}
+          </div>
+
+          {/* 6. Dropdown "Số phòng ngủ ⌵" chuẩn Batdongsan */}
+          <div className="relative shrink-0">
+            <button
+              type="button"
+              onClick={() => handleQuickFilterClick('bedroom')}
+              className={`border rounded-lg px-2.5 sm:px-3.5 py-1.5 sm:py-2 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs whitespace-nowrap shrink-0 ${
+                filters.bedroom && filters.bedroom !== 'all'
+                  ? 'border-red-500 bg-red-50/50 text-red-700 font-bold'
+                  : 'border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-700'
+              }`}
+            >
+              <span>{getBedroomLabel()}</span>
+              <i className={`fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform ${openDropdown === 'bedroom' ? 'rotate-180' : ''}`}></i>
+            </button>
+
+            {/* Menu Dropdown Số phòng ngủ (chỉ mở trên desktop >= 768px) */}
+            {openDropdown === 'bedroom' && (
+              <div className="hidden md:block absolute top-full left-0 sm:left-auto sm:right-0 mt-1.5 z-50 animate-fadeIn bg-white rounded-2xl shadow-xl border border-slate-200 p-2 min-w-[170px]">
+                <div className="space-y-0.5">
+                  {[
+                    { val: 'all', label: 'Tất cả phòng ngủ' },
+                    { val: '1', label: '1 phòng ngủ (1 PN)' },
+                    { val: '2', label: '2 phòng ngủ (2 PN)' },
+                    { val: '3', label: '3 phòng ngủ (3 PN)' },
+                    { val: '4+', label: '4+ phòng ngủ' },
+                  ].map(b => {
+                    const isSelected = (filters.bedroom || 'all') === b.val;
+                    return (
+                      <button
+                        key={b.val}
+                        type="button"
+                        onClick={() => {
+                          if (setFilters) {
+                            setFilters(prev => ({
+                              ...prev,
+                              bedroom: b.val
+                            }));
+                          }
+                          setOpenDropdown(null);
+                        }}
+                        className={`w-full text-left px-3 py-2 rounded-xl text-xs cursor-pointer transition flex items-center justify-between ${
+                          isSelected
+                            ? 'bg-red-50 text-red-700 font-bold'
+                            : 'text-slate-700 hover:bg-slate-50 font-medium'
+                        }`}
+                      >
+                        <span>{b.label}</span>
+                        {isSelected && <i className="fa-solid fa-check text-xs text-red-600"></i>}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>

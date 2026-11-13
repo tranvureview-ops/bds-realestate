@@ -407,64 +407,7 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
 
   const activePage = currentPage;
 
-  const categorySeo = useMemo(() => {
-    // Khi trang là danh mục chuẩn (ví dụ: /ban-can-ho-chung-cu), bất kể URL có thêm query bộ lọc (?loai=room, ?gia=...)
-    // thì meta title, meta description và content seo luôn sử dụng dữ liệu của trang chuẩn taxonomyInfo
-    const targetTaxonomy = (taxonomyInfo && taxonomyInfo.isTaxonomy)
-      ? taxonomyInfo
-      : dynamicTaxonomy;
-
-    return generateCategoryMetadata(
-      targetTaxonomy,
-      2026,
-      activePage
-    );
-  }, [taxonomyInfo, dynamicTaxonomy, activePage]);
-
-  // Cập nhật thẻ Title, Meta Description, Canonical & OpenGraph tối ưu SEO On-Page
-  useEffect(() => {
-    if (categorySeo?.title && typeof document !== 'undefined') {
-      document.title = categorySeo.title;
-
-      // Meta Description
-      let metaDesc = document.querySelector('meta[name="description"]');
-      if (!metaDesc) {
-        metaDesc = document.createElement('meta');
-        metaDesc.name = 'description';
-        document.head.appendChild(metaDesc);
-      }
-      metaDesc.setAttribute('content', categorySeo.description);
-
-      // Cập nhật thẻ Canonical URL chuẩn xác
-      const currentBasePath = taxonomyInfo?.basePath || (dynamicTaxonomy?.demand === 'rent' ? '/nha-dat-cho-thue' : '/nha-dat-ban');
-      const canonicalUrl = getCanonicalUrl(currentBasePath, activePage);
-      let canonicalLink = document.querySelector('link[rel="canonical"]');
-      if (!canonicalLink) {
-        canonicalLink = document.createElement('link');
-        canonicalLink.rel = 'canonical';
-        document.head.appendChild(canonicalLink);
-      }
-      canonicalLink.setAttribute('href', canonicalUrl);
-
-      // Cập nhật Open Graph Tags
-      let ogTitle = document.querySelector('meta[property="og:title"]');
-      if (ogTitle) ogTitle.setAttribute('content', categorySeo.title);
-
-      let ogDesc = document.querySelector('meta[property="og:description"]');
-      if (ogDesc) ogDesc.setAttribute('content', categorySeo.description);
-
-      let ogUrl = document.querySelector('meta[property="og:url"]');
-      if (ogUrl) ogUrl.setAttribute('content', canonicalUrl);
-    }
-  }, [categorySeo, activePage, taxonomyInfo?.basePath, dynamicTaxonomy?.demand]);
-
-
-
-  const saleCount = useMemo(() => {
-    return filterProperties(properties, filters).length;
-  }, [properties, filters]);
-
-  // Đường dẫn danh mục SEO hiện tại (tự động thích ứng khi người dùng lọc loại hình, khu vực...)
+  // Đường dẫn danh mục SEO hiện tại (tự động thích ứng khi người dùng lọc loại hình, khu vực, giá, diện tích, phòng ngủ...)
   const currentCategoryBasePath = useMemo(() => {
     try {
       const multiTypes = filters.propertyTypes && Array.isArray(filters.propertyTypes) && filters.propertyTypes.length > 0 && !filters.propertyTypes.includes('all')
@@ -497,23 +440,77 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
     return taxonomyInfo?.basePath || '/nha-dat-ban';
   }, [filters, taxonomyInfo?.basePath]);
 
-  const displayTitle = useMemo(() => {
-    // Khi người dùng đang ở trang taxonomy chuẩn (ví dụ: /ban-can-ho-chung-cu),
-    // tiêu đề H1 và Breadcrumb luôn bảo toàn theo danh mục gốc chuẩn của trang,
-    // không bị ghép thêm tên các danh mục phụ từ query lọc (?loai=office)
-    if (taxonomyInfo && taxonomyInfo.isTaxonomy && taxonomyInfo.canonicalPath && taxonomyInfo.canonicalPath !== '/nha-dat-ban') {
-      const baseTitle = taxonomyInfo.title || 'Mua Bán Nhà Đất';
-      let titleWithLoc = baseTitle;
-      if (taxonomyInfo.city) {
-        titleWithLoc = baseTitle.includes(taxonomyInfo.city) ? baseTitle : `${baseTitle} tại ${taxonomyInfo.city}`;
-      } else if (!baseTitle.toLowerCase().includes('toàn quốc')) {
-        titleWithLoc = `${baseTitle} trên toàn quốc`;
+  // Taxonomy sạch chuẩn SEO đồng bộ theo cleanPath hiện tại (chứa danh mục, địa điểm, giá, diện tích, phòng ngủ; KHÔNG bị ô nhiễm bởi tham số query như ?loai=...)
+  const currentCleanTaxonomy = useMemo(() => {
+    if (currentCategoryBasePath && currentCategoryBasePath !== '/nha-dat-ban') {
+      const parsed = parseTaxonomyUrl(currentCategoryBasePath);
+      if (parsed && parsed.isTaxonomy) {
+        return parsed;
       }
-      return formatSentenceCase(titleWithLoc);
     }
-    const raw = dynamicTaxonomy?.title || 'Mua bán nhà đất trên toàn quốc';
-    return formatSentenceCase(raw);
-  }, [taxonomyInfo, dynamicTaxonomy]);
+    return taxonomyInfo || dynamicTaxonomy;
+  }, [currentCategoryBasePath, taxonomyInfo, dynamicTaxonomy]);
+
+  const categorySeo = useMemo(() => {
+    return generateCategoryMetadata(
+      currentCleanTaxonomy,
+      2026,
+      activePage
+    );
+  }, [currentCleanTaxonomy, activePage]);
+
+  // Cập nhật thẻ Title, Meta Description, Canonical & OpenGraph tối ưu SEO On-Page
+  useEffect(() => {
+    if (categorySeo?.title && typeof document !== 'undefined') {
+      document.title = categorySeo.title;
+
+      // Meta Description
+      let metaDesc = document.querySelector('meta[name="description"]');
+      if (!metaDesc) {
+        metaDesc = document.createElement('meta');
+        metaDesc.name = 'description';
+        document.head.appendChild(metaDesc);
+      }
+      metaDesc.setAttribute('content', categorySeo.description);
+
+      // Cập nhật thẻ Canonical URL chuẩn xác
+      const currentBasePath = currentCleanTaxonomy?.canonicalPath || currentCleanTaxonomy?.basePath || '/nha-dat-ban';
+      const canonicalUrl = getCanonicalUrl(currentBasePath, activePage);
+      let canonicalLink = document.querySelector('link[rel="canonical"]');
+      if (!canonicalLink) {
+        canonicalLink = document.createElement('link');
+        canonicalLink.rel = 'canonical';
+        document.head.appendChild(canonicalLink);
+      }
+      canonicalLink.setAttribute('href', canonicalUrl);
+
+      // Cập nhật Open Graph Tags
+      let ogTitle = document.querySelector('meta[property="og:title"]');
+      if (ogTitle) ogTitle.setAttribute('content', categorySeo.title);
+
+      let ogDesc = document.querySelector('meta[property="og:description"]');
+      if (ogDesc) ogDesc.setAttribute('content', categorySeo.description);
+
+      let ogUrl = document.querySelector('meta[property="og:url"]');
+      if (ogUrl) ogUrl.setAttribute('content', canonicalUrl);
+    }
+  }, [categorySeo, activePage, currentCleanTaxonomy]);
+
+  const saleCount = useMemo(() => {
+    return filterProperties(properties, filters).length;
+  }, [properties, filters]);
+
+  const displayTitle = useMemo(() => {
+    // Tiêu đề H1 và Breadcrumb luôn lấy từ currentCleanTaxonomy chuẩn SEO (bảo toàn danh mục chuẩn + bộ lọc sạch, không bị ghép query thừa ?loai=...)
+    const baseTitle = currentCleanTaxonomy?.title || 'Mua Bán Nhà Đất';
+    let titleWithLoc = baseTitle;
+    if (currentCleanTaxonomy?.city) {
+      titleWithLoc = baseTitle.includes(currentCleanTaxonomy.city) ? baseTitle : `${baseTitle} tại ${currentCleanTaxonomy.city}`;
+    } else if (!baseTitle.toLowerCase().includes('toàn quốc')) {
+      titleWithLoc = `${baseTitle} trên toàn quốc`;
+    }
+    return formatSentenceCase(titleWithLoc);
+  }, [currentCleanTaxonomy]);
 
   return (
     <div className="pb-2 sm:pb-4">

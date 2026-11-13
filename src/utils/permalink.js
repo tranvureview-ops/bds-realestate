@@ -398,7 +398,10 @@ export const buildSeoUrl = ({
   let normalizedType = null;
   let multiTypeParam = null;
 
-  const rawType = (propertyType && propertyType !== 'all') ? propertyType : (propertyTypes && propertyTypes !== 'all' ? propertyTypes : null);
+  const hasMultiTypes = Array.isArray(propertyTypes)
+    ? propertyTypes.length > 0 && !propertyTypes.includes('all')
+    : Boolean(propertyTypes && propertyTypes !== 'all');
+  const rawType = hasMultiTypes ? propertyTypes : ((propertyType && propertyType !== 'all') ? propertyType : null);
   let typeList = [];
   if (Array.isArray(rawType)) {
     typeList = rawType.filter(t => t && t !== 'all');

@@ -25,33 +25,66 @@ export default function AreaRangeSelector({
   const maxLimit = 3000; // 3.000 m²
   const presets = AREA_PRESETS;
 
+  const resolveAreaBounds = (minA, maxA, aRange) => {
+    if ((minA !== null && minA !== undefined && minA > 0) || (maxA !== null && maxA !== undefined && maxA > 0)) {
+      return {
+        min: minA && minA > 0 ? Number(minA) : 0,
+        max: maxA && maxA > 0 ? Number(maxA) : maxLimit
+      };
+    }
+    if (aRange && aRange !== 'all') {
+      const found = presets.find(p => p.value === aRange);
+      if (found) {
+        return {
+          min: found.min || 0,
+          max: found.max || maxLimit
+        };
+      }
+      const dynBetween = aRange.match(/^([0-9.]+)-([0-9.]+)$/);
+      if (dynBetween) {
+        return { min: parseFloat(dynBetween[1]), max: parseFloat(dynBetween[2]) };
+      }
+      const dynUnder = aRange.match(/^under-([0-9.]+)$/);
+      if (dynUnder) {
+        return { min: 0, max: parseFloat(dynUnder[1]) };
+      }
+      const dynOver = aRange.match(/^over-([0-9.]+)$/);
+      if (dynOver) {
+        return { min: parseFloat(dynOver[1]), max: maxLimit };
+      }
+    }
+    return { min: 0, max: maxLimit };
+  };
+
   // State cục bộ cho diện tích (m²)
   const [minVal, setMinVal] = useState(() => {
-    return initialMinArea && initialMinArea > 0 ? Number(initialMinArea) : 0;
+    const { min } = resolveAreaBounds(initialMinArea, initialMaxArea, initialAreaRange);
+    return min;
   });
 
   const [maxVal, setMaxVal] = useState(() => {
-    return initialMaxArea && initialMaxArea > 0 ? Number(initialMaxArea) : maxLimit;
+    const { max } = resolveAreaBounds(initialMinArea, initialMaxArea, initialAreaRange);
+    return max;
   });
 
   const [inputMin, setInputMin] = useState(() => {
-    return initialMinArea && initialMinArea > 0 ? String(initialMinArea) : '';
+    const { min } = resolveAreaBounds(initialMinArea, initialMaxArea, initialAreaRange);
+    return min > 0 ? String(min) : '';
   });
 
   const [inputMax, setInputMax] = useState(() => {
-    return initialMaxArea && initialMaxArea > 0 && initialMaxArea < maxLimit ? String(initialMaxArea) : '';
+    const { max } = resolveAreaBounds(initialMinArea, initialMaxArea, initialAreaRange);
+    return max < maxLimit ? String(max) : '';
   });
 
   // Đồng bộ khi prop thay đổi từ bên ngoài
   useEffect(() => {
-    const m = initialMinArea && initialMinArea > 0 ? Number(initialMinArea) : 0;
-    const M = initialMaxArea && initialMaxArea > 0 ? Number(initialMaxArea) : maxLimit;
-
-    setMinVal(m);
-    setMaxVal(M);
-    setInputMin(m > 0 ? String(m) : '');
-    setInputMax(M < maxLimit ? String(M) : '');
-  }, [initialMinArea, initialMaxArea]);
+    const { min, max } = resolveAreaBounds(initialMinArea, initialMaxArea, initialAreaRange);
+    setMinVal(min);
+    setMaxVal(max);
+    setInputMin(min > 0 ? String(min) : '');
+    setInputMax(max < maxLimit ? String(max) : '');
+  }, [initialMinArea, initialMaxArea, initialAreaRange]);
 
   // --- PIECEWISE MAPPING (0 - 300 m² chiếm 60% thanh trượt; 300 - 3000 m² chiếm 40%) ---
   const valToPercent = (val) => {
