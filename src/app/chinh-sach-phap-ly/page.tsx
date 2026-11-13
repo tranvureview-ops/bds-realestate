@@ -449,19 +449,30 @@ export default function LegalPolicyPage() {
                     III
                   </span>
                   <h2 className="text-xl font-black text-slate-900">
-                    Cơ Chế Giải Quyết Tranh Chấp & Khiếu Nại Minh Bạch
+                    Cơ Chế Giải Quyết Khiếu Nại Hoạt Động Website & Dịch Vụ
                   </h2>
                 </div>
 
-                <p className="mb-4 text-sm leading-relaxed">
-                  <strong>{BRAND_NAME}</strong> luôn đề cao giải pháp thương lượng hòa giải giữa các bên nhằm đảm bảo quyền lợi tối thượng của khách hàng và uy tín lâu dài của thị trường nhà đất.
+                <p className="mb-4 text-sm leading-relaxed text-slate-600">
+                  Ban Quản Trị sàn <strong>{BRAND_NAME}</strong> tiếp nhận và xử lý các phản ánh, khiếu nại liên quan đến hoạt động vận hành website, dịch vụ tin đăng và giao dịch ví thành viên.
                 </p>
 
-                {/* 3.1 Quy trình 3 bước tiếp nhận & xử lý */}
+                {/* Tuyên bố miễn trừ tranh chấp người bán & người mua */}
+                <div className="mb-6 rounded-2xl bg-rose-50/70 border border-rose-200 p-4 text-xs text-rose-950 space-y-1.5 leading-relaxed">
+                  <strong className="text-rose-900 block font-bold uppercase flex items-center gap-1.5">
+                    <i className="fa-solid fa-triangle-exclamation text-rose-600"></i>
+                    Tuyên bố phạm vi giải quyết & miễn trừ tranh chấp dân sự:
+                  </strong>
+                  <p>
+                    Sàn {BRAND_NAME} là nền tảng công nghệ trung gian (Sàn TMĐT), <strong>hoàn toàn không tham gia vào quan hệ mua bán, chuyển nhượng hay đặt cọc thực tế giữa Người Bán và Người Mua</strong>. Sàn chỉ chịu trách nhiệm giải quyết các sự cố vận hành kỹ thuật, lỗi nạp ví, lỗi gói tin dịch vụ trên website. Mọi tranh chấp dân sự, tiền cọc hoặc pháp lý tài sản giữa hai bên mua bán do hai bên tự thương lượng hoặc yêu cầu Tòa án/Cơ quan Công an thụ lý giải quyết theo quy định của pháp luật.
+                  </p>
+                </div>
+
+                {/* 3.1 Quy trình 3 bước tiếp nhận & xử lý sự cố website */}
                 <h3 id="quy-trinh-3-buoc" className="scroll-mt-24 mt-6 text-base font-bold text-slate-900 flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-blue-500"></span>
                   <span>1.</span>
-                  <span>Quy Trình 3 Bước Tiếp Nhận & Giải Quyết Khiếu Nại</span>
+                  <span>Quy Trình 3 Bước Xử Lý Sự Cố Kỹ Thuật & Dịch Vụ Website</span>
                 </h3>
 
                 <div className="mt-4 space-y-3">
@@ -473,10 +484,10 @@ export default function LegalPolicyPage() {
                       </span>
                       <div>
                         <h4 className="text-sm font-bold text-slate-900">
-                          Bước 1: Tiếp nhận thông tin khiếu nại (Trong vòng 24 giờ)
+                          Bước 1: Tiếp nhận yêu cầu khiếu nại dịch vụ (Trong vòng 24 giờ)
                         </h4>
                         <p className="mt-1 text-xs text-slate-600">
-                          Khách hàng gửi phản ánh qua nút <strong>"Báo cáo tin rao vi phạm"</strong> trực tiếp trên từng bài đăng, gọi điện đến hotline <strong>{HOTLINE}</strong> hoặc gửi email tới <strong>{EMAIL}</strong> kèm theo mã tin, bằng chứng giao dịch (biên nhận, tin nhắn thỏa thuận).
+                          Thành viên gửi phản ánh qua hotline <strong>{HOTLINE}</strong>, email <strong>{EMAIL}</strong> hoặc mục báo lỗi trên website kèm mã tin đăng, mã giao dịch nạp tiền hoặc ảnh chụp màn hình sự cố.
                         </p>
                       </div>
                     </div>
@@ -490,10 +501,10 @@ export default function LegalPolicyPage() {
                       </span>
                       <div>
                         <h4 className="text-sm font-bold text-slate-900">
-                          Bước 2: Xác minh độc lập & Làm trung gian hòa giải (24h - 48h)
+                          Bước 2: Thẩm tra nhật ký hệ thống & Đối soát dữ liệu (24h - 48h)
                         </h4>
                         <p className="mt-1 text-xs text-slate-600">
-                          Ban Kiểm Duyệt & Pháp Chế tiến hành liên hệ người đăng tin bị khiếu nại, yêu cầu giải trình văn bản và cung cấp giấy tờ chứng minh. Trong thời gian này, tin đăng bị khiếu nại sẽ được <strong>tạm ẩn khỏi hệ thống tìm kiếm</strong> để phòng ngừa rủi ro.
+                          Bộ phận Kỹ thuật kiểm tra nhật ký máy chủ (server logs), đối soát sao kê cổng thanh toán ngân hàng và rà soát trạng thái duyệt tin trong cơ sở dữ liệu để xác định nguyên nhân.
                         </p>
                       </div>
                     </div>
@@ -507,10 +518,10 @@ export default function LegalPolicyPage() {
                       </span>
                       <div>
                         <h4 className="text-sm font-bold text-slate-900">
-                          Bước 3: Đưa ra kết luận & Biện pháp khắc phục (Tối đa 72 giờ)
+                          Bước 3: Khắc phục sự cố & Bồi hoàn dịch vụ (Tối đa 72 giờ)
                         </h4>
                         <p className="mt-1 text-xs text-slate-600">
-                          Ban quản trị gửi thông báo kết luận bằng văn bản điện tử cho cả hai bên. Trường hợp người đăng tin có hành vi gian dối, sàn sẽ tiến hành khóa tài khoản vĩnh viễn, hoàn trả phí dịch vụ cho người mua (nếu thuộc phạm vi bảo vệ) và hỗ trợ hồ sơ pháp lý nếu người bị hại khởi kiện ra Tòa án.
+                          Nếu lỗi do hệ thống website, sàn hoàn trả 100% tiền vào ví, cộng bù thời gian hiển thị tin VIP hoặc cấp lại lượt đẩy tin; đồng thời gửi văn bản điện tử thông báo kết quả cho thành viên.
                         </p>
                       </div>
                     </div>
@@ -521,12 +532,12 @@ export default function LegalPolicyPage() {
                 <h3 id="thoi-gian-giai-quyet" className="scroll-mt-24 mt-8 text-base font-bold text-slate-900 flex items-center gap-2">
                   <span className="h-2 w-2 rounded-full bg-blue-500"></span>
                   <span>2.</span>
-                  <span>Cam Kết Thời Gian Xử Lý Phản Hồi</span>
+                  <span>Cam Kết Thời Gian Xử Lý Sự Cố Website</span>
                 </h3>
                 <ul className="mt-3 list-disc pl-5 space-y-1.5 text-sm text-slate-600">
-                  <li><strong>Thời gian xác nhận tiếp nhận khiếu nại:</strong> Không quá <strong>24 giờ</strong> kể từ thời điểm gửi.</li>
-                  <li><strong>Thời gian xử lý dứt điểm vụ việc thông thường:</strong> Không quá <strong>03 ngày làm việc</strong>.</li>
-                  <li><strong>Vụ việc phức tạp liên quan nhiều bên:</strong> Tối đa <strong>07 ngày làm việc</strong> (có thông báo tiến độ định kỳ cho người khiếu nại).</li>
+                  <li><strong>Sự cố nạp tiền ví, lỗi thanh toán:</strong> Xử lý đối soát và cộng điểm trong vòng <strong>4 - 8 giờ làm việc</strong>.</li>
+                  <li><strong>Lỗi hiển thị tin VIP, lịch đẩy tin:</strong> Khôi phục trạng thái và gia hạn trong vòng <strong>12 giờ</strong>.</li>
+                  <li><strong>Báo cáo tin đăng rác, spam trên website:</strong> Kiểm duyệt và hạ tin vi phạm trong vòng <strong>24 giờ</strong>.</li>
                 </ul>
 
                 {/* 3.3 Thông tin liên hệ đầu mối tiếp nhận */}

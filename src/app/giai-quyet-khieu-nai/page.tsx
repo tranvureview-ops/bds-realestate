@@ -17,15 +17,15 @@ const DOMAIN = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, ''
 // ============================================================================
 export const metadata: Metadata = {
   title: {
-    absolute: `Quy trình giải quyết khiếu nại | ${BRAND_NAME}`,
+    absolute: `Quy trình khiếu nại dịch vụ website | ${BRAND_NAME}`,
   },
-  description: `Cơ chế và quy trình 3 bước tiếp nhận, xử lý khiếu nại, tranh chấp giao dịch nhà đất tại ${BRAND_NAME}. Bảo vệ quyền lợi người tiêu dùng 24/7.`,
+  description: `Quy trình tiếp nhận và giải quyết khiếu nại về hoạt động website, sự cố kỹ thuật, dịch vụ tin đăng và giao dịch nạp ví tại sàn ${BRAND_NAME}.`,
   alternates: {
     canonical: `${DOMAIN}/giai-quyet-khieu-nai`,
   },
   openGraph: {
-    title: `Quy trình giải quyết khiếu nại | ${BRAND_NAME}`,
-    description: `Quy trình 3 bước tiếp nhận và xử lý khiếu nại giao dịch nhà đất minh bạch tại sàn ${BRAND_NAME}.`,
+    title: `Quy trình khiếu nại dịch vụ website | ${BRAND_NAME}`,
+    description: `Quy trình tiếp nhận và xử lý khiếu nại hoạt động website, giao dịch ví và dịch vụ tin đăng minh bạch tại ${BRAND_NAME}.`,
     url: `${DOMAIN}/giai-quyet-khieu-nai`,
     siteName: BRAND_NAME,
     locale: 'vi_VN',
@@ -33,8 +33,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: `Giải quyết tranh chấp & khiếu nại | ${BRAND_NAME}`,
-    description: `Cơ chế tiếp nhận và bảo vệ quyền lợi người mua, người bán trên sàn giao dịch ${BRAND_NAME}.`,
+    title: `Giải quyết khiếu nại hoạt động website | ${BRAND_NAME}`,
+    description: `Quy trình xử lý sự cố kỹ thuật, dịch vụ gói tin và nạp ví thành viên trên sàn ${BRAND_NAME}.`,
   },
   robots: {
     index: true,
@@ -50,8 +50,8 @@ const jsonLdData = {
   '@graph': [
     {
       '@type': 'WebPage',
-      name: `Quy trình tiếp nhận và giải quyết khiếu nại - ${BRAND_NAME}`,
-      description: `Cơ chế giải quyết tranh chấp giao dịch nhà đất và bảo vệ quyền lợi người tiêu dùng tại ${BRAND_NAME}.`,
+      name: `Quy trình tiếp nhận và giải quyết khiếu nại dịch vụ website - ${BRAND_NAME}`,
+      description: `Cơ chế tiếp nhận và xử lý sự cố kỹ thuật, dịch vụ gói tin, nạp ví và vận hành website tại sàn ${BRAND_NAME}.`,
       url: `${DOMAIN}/giai-quyet-khieu-nai`,
       inLanguage: 'vi-VN',
       datePublished: '2024-01-01',
@@ -139,16 +139,16 @@ export default function DisputeResolutionPage() {
               <div>
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 ring-1 ring-inset ring-blue-600/20">
                   <span className="h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse"></span>
-                  Bảo vệ quyền lợi người tiêu dùng
+                  Cơ chế hỗ trợ kỹ thuật & vận hành website
                 </span>
                 <h1 className="mt-2 text-2xl font-black tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
-                  Cơ Chế Giải Quyết Tranh Chấp & Khiếu Nại {BRAND_NAME}
+                  Quy Trình Tiếp Nhận & Giải Quyết Khiếu Nại Hoạt Động Website
                 </h1>
               </div>
 
               <div className="text-xs text-slate-500 shrink-0">
                 <p>Cập nhật: <strong className="text-slate-700">{currentDateFormatted}</strong></p>
-                <p>Cam kết phản hồi: <strong className="text-blue-700">Trong vòng 24 giờ</strong></p>
+                <p>Cam kết phản hồi kỹ thuật: <strong className="text-blue-700">Trong vòng 24 giờ</strong></p>
               </div>
             </div>
 
@@ -195,52 +195,52 @@ export default function DisputeResolutionPage() {
 
                 <nav aria-label="Mục lục nội dung" className="mt-4 space-y-1.5 text-xs">
                   <Link
-                    href="#nguyen-tac-giai-quyet"
+                    href="#pham-vi-giai-quyet"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-blue-600"
                   >
-                    <span>1. Nguyên tắc giải quyết tranh chấp</span>
+                    <span>1. Phạm vi xử lý dịch vụ website</span>
                     <span className="text-[10px] text-slate-400 font-mono">01</span>
+                  </Link>
+                  <Link
+                    href="#mien-tru-tranh-chap"
+                    className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-blue-600"
+                  >
+                    <span>2. Miễn trừ tranh chấp mua bán</span>
+                    <span className="text-[10px] text-slate-400 font-mono">02</span>
                   </Link>
                   <Link
                     href="#quy-trinh-3-buoc"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-blue-600"
                   >
-                    <span>2. Quy trình xử lý 3 bước</span>
-                    <span className="text-[10px] text-slate-400 font-mono">02</span>
+                    <span>3. Quy trình 3 bước xử lý</span>
+                    <span className="text-[10px] text-slate-400 font-mono">03</span>
                   </Link>
                   <Link
                     href="#thoi-gian-cam-ket"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-blue-600"
                   >
-                    <span>3. Thời hiệu & thời gian cam kết</span>
-                    <span className="text-[10px] text-slate-400 font-mono">03</span>
-                  </Link>
-                  <Link
-                    href="#trach-nhiem-cac-ben"
-                    className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-blue-600"
-                  >
-                    <span>4. Trách nhiệm của các bên</span>
+                    <span>4. Thời hiệu & cam kết xử lý</span>
                     <span className="text-[10px] text-slate-400 font-mono">04</span>
                   </Link>
                   <Link
-                    href="#bien-phap-che-tai"
+                    href="#che-tai-ky-thuat"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-blue-600"
                   >
-                    <span>5. Biện pháp xử lý đối tượng vi phạm</span>
+                    <span>5. Chế tài kỹ thuật trên website</span>
                     <span className="text-[10px] text-slate-400 font-mono">05</span>
                   </Link>
                   <Link
                     href="#thong-tin-dau-moi"
                     className="flex items-center justify-between rounded-lg p-2 font-semibold text-slate-700 transition hover:bg-slate-100 hover:text-blue-600"
                   >
-                    <span>6. Đầu mối liên hệ tiếp nhận</span>
+                    <span>6. Đầu mối tiếp nhận kỹ thuật</span>
                     <span className="text-[10px] text-slate-400 font-mono">06</span>
                   </Link>
                 </nav>
 
                 <div className="mt-6 rounded-xl bg-blue-50/70 p-3.5 border border-blue-100 text-[11px] leading-relaxed text-blue-900">
                   <p className="font-bold text-blue-950 flex items-center gap-1.5">
-                    <i className="fa-solid fa-headset text-blue-600"></i> Hỗ trợ tiếp nhận khẩn cấp:
+                    <i className="fa-solid fa-headset text-blue-600"></i> Hỗ trợ kỹ thuật 24/7:
                   </p>
                   <p className="mt-1">
                     Hotline: <strong className="font-mono text-red-600 font-bold">{HOTLINE}</strong>
@@ -255,44 +255,90 @@ export default function DisputeResolutionPage() {
             {/* Cột Phải: Nội dung chi tiết */}
             <article className="lg:col-span-9 rounded-3xl border border-slate-200 bg-white p-6 sm:p-10 shadow-sm leading-relaxed text-slate-700">
               
+              {/* Khung Tôn chỉ & Nguyên tắc cốt lõi */}
               <div className="mb-8 rounded-2xl bg-blue-50/60 p-4 border border-blue-200 text-xs text-blue-950 leading-relaxed">
                 <p className="font-bold uppercase tracking-wider text-blue-950 mb-1 flex items-center gap-1.5">
                   <svg className="h-4 w-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                   </svg>
-                  Tôn chỉ phục vụ khách hàng
+                  Nguyên tắc vận hành & phạm vi áp dụng
                 </p>
                 <p>
-                  Sàn giao dịch <strong>{BRAND_NAME}</strong> luôn coi trọng quyền lợi hợp pháp của người tiêu dùng và khách hàng tìm kiếm nhà đất. Chúng tôi thiết lập quy trình giải quyết khiếu nại minh bạch, đa kênh và cam kết xử lý rốt ráo mọi phản ánh của người dùng nhằm xây dựng môi trường giao dịch an toàn và tin cậy.
+                  Trang này quy định cơ chế và quy trình tiếp nhận, xử lý khiếu nại liên quan đến <strong>hoạt động vận hành website, các dịch vụ trực tuyến, tài khoản thành viên và giao dịch nạp ví trên sàn {BRAND_NAME}</strong>. Ban Quản Trị cam kết bảo đảm hạ tầng kỹ thuật thông suốt, minh bạch chi phí dịch vụ và bảo vệ quyền lợi thành viên khi sử dụng nền tảng.
                 </p>
               </div>
 
-              {/* Mục 1: Nguyên tắc giải quyết */}
-              <section id="nguyen-tac-giai-quyet" className="scroll-mt-24 border-b border-slate-200 pb-8">
+              {/* Mục 1: Phạm vi giải quyết khiếu nại hoạt động website */}
+              <section id="pham-vi-giai-quyet" className="scroll-mt-24 border-b border-slate-200 pb-8">
                 <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">1</span>
-                  <span>Nguyên Tắc Tiếp Nhận và Hòa Giải Tranh Chấp</span>
+                  <span>Các Trường Hợp Khiếu Nại Thuộc Thẩm Quyền Xử Lý Của Website</span>
                 </h2>
-                <div className="mt-3 space-y-2.5 text-sm text-slate-600 leading-relaxed">
-                  <p>
-                    Mọi khiếu nại, tranh chấp phát sinh giữa người mua và người bán liên quan đến tin đăng trên sàn <strong>{BRAND_NAME}</strong> đều được giải quyết trên các nguyên tắc cơ bản:
-                  </p>
-                  <ul className="list-disc pl-5 space-y-1.5">
-                    <li><strong>Ưu tiên thương lượng & hòa giải:</strong> Khuyến khích hai bên tự thỏa thuận khắc phục hậu quả trên tinh thần tôn trọng quyền lợi của nhau.</li>
-                    <li><strong>Minh bạch & khách quan:</strong> Ban quản trị sàn giữ vai trò trung gian phân xử dựa trên chứng cứ giao dịch thực tế, nhật ký trao đổi và lịch sử tin đăng lưu trên hệ thống.</li>
-                    <li><strong>Bảo vệ bên yếu thế:</strong> Ưu tiên bảo vệ người mua, người thuê nhà trước các hành vi lừa đảo đặt cọc, thông tin sai sự thật hoặc chiếm đoạt tài sản.</li>
-                    <li><strong>Tuân thủ pháp luật:</strong> Nếu vụ việc không thể thương lượng và có dấu hiệu vi phạm pháp luật hình sự, sàn sẽ chủ động hướng dẫn các bên khởi kiện ra Tòa án có thẩm quyền hoặc chuyển giao hồ sơ cho cơ quan Công an.</li>
-                  </ul>
+                <p className="mt-3 text-sm text-slate-600 leading-relaxed">
+                  Ban Quản Trị sàn <strong>{BRAND_NAME}</strong> tiếp nhận, thẩm tra và xử lý triệt để các khiếu nại phát sinh trực tiếp từ quá trình trải nghiệm và sử dụng dịch vụ trên website, bao gồm:
+                </p>
+                
+                <div className="mt-4 space-y-3 text-xs">
+                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                    <strong className="text-slate-900 text-sm block mb-1">A. Khiếu nại về giao dịch tài chính & nạp tiền ví:</strong>
+                    Xảy ra lỗi khi nạp tiền qua cổng thanh toán (VietQR, thẻ ngân hàng, ví điện tử) nhưng tài khoản chưa được cộng điểm; bị trừ tiền trùng lặp; lỗi áp dụng mã khuyến mãi; hoặc hệ thống trừ phí sai so với bảng giá gói tin niêm yết.
+                  </div>
+                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                    <strong className="text-slate-900 text-sm block mb-1">B. Khiếu nại về hiển thị & dịch vụ tin đăng:</strong>
+                    Tin đăng gói VIP (Kim Cương, Vàng, Bạc, Đồng) không hiển thị đúng vị trí ưu tiên cam kết; tính năng đặt lịch đẩy tin tự động bị gián đoạn; ảnh tải lên bị lỗi hiển thị hoặc định vị bản đồ GIS sai lệch do lỗi kỹ thuật của hệ thống.
+                  </div>
+                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                    <strong className="text-slate-900 text-sm block mb-1">C. Khiếu nại về kiểm duyệt tài khoản & tin đăng:</strong>
+                    Thành viên phản ánh về việc tin đăng bị từ chối duyệt hoặc bị tạm ẩn chưa rõ nguyên nhân; tài khoản bị hạn chế tính năng hoặc bị khóa nhầm lẫn do hệ thống quét tự động.
+                  </div>
+                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                    <strong className="text-slate-900 text-sm block mb-1">D. Báo cáo tin đăng vi phạm quy chế trên nền tảng:</strong>
+                    Tiếp nhận báo cáo từ cộng đồng về các tin đăng spam liên tục, tin rác, trùng lặp nội dung, hình ảnh phản cảm hoặc thông tin sai sự thật trên website để Ban Quản Trị áp dụng biện pháp kỹ thuật hạ tin và xử lý tài khoản vi phạm.
+                  </div>
+                  <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200">
+                    <strong className="text-slate-900 text-sm block mb-1">E. Khiếu nại về bản quyền hình ảnh & sở hữu trí tuệ:</strong>
+                    Chủ sở hữu bất động sản hoặc người chụp ảnh gửi yêu cầu gỡ bỏ hình ảnh, nội dung bị người dùng khác sao chép trái phép đưa lên website mà chưa có sự đồng ý.
+                  </div>
                 </div>
               </section>
 
-              {/* Mục 2: Quy trình 3 bước chuẩn */}
+              {/* Mục 2: Miễn trừ tranh chấp giữa người bán & người mua */}
+              <section id="mien-tru-tranh-chap" className="scroll-mt-24 border-b border-slate-200 py-8">
+                <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-red-600 text-xs font-black text-white">2</span>
+                  <span>Tuyên Bố Miễn Trừ Trách Nhiệm Về Tranh Chấp Giữa Người Bán & Người Mua</span>
+                </h2>
+                
+                <div className="mt-4 rounded-2xl bg-rose-50/70 border border-rose-200 p-4 text-xs text-rose-950 space-y-2.5 leading-relaxed">
+                  <div className="flex items-center gap-2 font-bold text-rose-900 text-sm uppercase">
+                    <i className="fa-solid fa-triangle-exclamation text-rose-600"></i>
+                    <span>Tuyên bố pháp lý quan trọng:</span>
+                  </div>
+                  <p>
+                    <strong>Sàn Giao Dịch Nhà Đất {BRAND_NAME} là nền tảng công nghệ trung gian kết nối thông tin (Sàn TMĐT)</strong>, cung cấp dịch vụ đăng tin quảng bá bất động sản. Chúng tôi <strong>KHÔNG PHẢI là một bên tham gia</strong> vào các giao dịch mua bán, chuyển nhượng, cho thuê, đặt cọc hay ủy quyền thực tế ngoài đời thực giữa Người Bán (Chủ nhà/Môi giới) và Người Mua (Khách hàng).
+                  </p>
+                  <p>
+                    Do đó, Ban Quản Trị sàn <strong>HOÀN TOÀN KHÔNG CHỊU TRÁCH NHIỆM</strong> giải quyết, hòa giải, bồi thường thiệt hại hay phân xử đối với các tranh chấp dân sự phát sinh giữa Người Bán và Người Mua, bao gồm nhưng không giới hạn ở:
+                  </p>
+                  <ul className="list-disc pl-5 space-y-1.5 text-rose-900 font-medium">
+                    <li>Tranh chấp về tiền đặt cọc, phạt cọc, chậm thanh toán hoặc không hoàn trả cọc giữa hai bên.</li>
+                    <li>Tranh chấp về pháp lý tài sản (nhà đất dính quy hoạch, tranh chấp ranh giới, đất đang bị kê biên thi hành án hoặc giấy tờ giả mạo).</li>
+                    <li>Sự khác biệt giữa tình trạng thực tế của bất động sản với thông tin mô tả do người đăng tin tự khai báo.</li>
+                    <li>Bất kỳ hành vi lừa đảo chiếm đoạt tài sản, gian lận thương mại hoặc thỏa thuận miệng phát sinh ngoài phạm vi nền tảng website.</li>
+                  </ul>
+                  <p className="pt-1 text-slate-600 italic">
+                    * Các tranh chấp dân sự giữa Người Bán và Người Mua thuộc thẩm quyền tự thỏa thuận của các bên, hoặc do Tòa án Nhân dân, Cơ quan Công an và Trọng tài thương mại thụ lý giải quyết theo quy định của Bộ luật Dân sự và pháp luật hiện hành. Sàn chỉ có trách nhiệm hỗ trợ kỹ thuật: Cung cấp dữ liệu lịch sử tin đăng và thông tin tài khoản cho Cơ quan Nhà nước có thẩm quyền khi có văn bản yêu cầu chính thức theo quy định.
+                  </p>
+                </div>
+              </section>
+
+              {/* Mục 3: Quy trình 3 bước giải quyết khiếu nại dịch vụ website */}
               <section id="quy-trinh-3-buoc" className="scroll-mt-24 border-b border-slate-200 py-8">
                 <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">2</span>
-                  <span>Quy Trình 3 Bước Xử Lý Khiếu Nại Minh Bạch</span>
+                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">3</span>
+                  <span>Quy Trình 3 Bước Xử Lý Khiếu Nại Sự Cố Website & Dịch Vụ</span>
                 </h2>
-                <p className="mt-2 text-sm text-slate-600">Quy trình xử lý phản ánh và khiếu nại được tiến hành theo 3 bước tuần tự:</p>
+                <p className="mt-2 text-sm text-slate-600">Khi gặp sự cố kỹ thuật hoặc lỗi dịch vụ trên website, thành viên được hỗ trợ xử lý theo quy trình 3 bước chuẩn:</p>
 
                 <div className="mt-4 space-y-3">
                   {/* Bước 1 */}
@@ -303,15 +349,15 @@ export default function DisputeResolutionPage() {
                       </span>
                       <div>
                         <h3 className="text-sm font-bold text-slate-900">
-                          Bước 1: Tiếp nhận thông tin khiếu nại (Trong vòng 24 giờ)
+                          Bước 1: Tiếp nhận yêu cầu khiếu nại kỹ thuật (Dưới 24 giờ)
                         </h3>
                         <p className="mt-1 text-xs text-slate-600 leading-relaxed">
-                          Người khiếu nại gửi yêu cầu qua nút <strong>"Báo cáo tin vi phạm"</strong> trên bài đăng, gọi hotline <strong>{HOTLINE}</strong> hoặc gửi email tới <strong>{EMAIL}</strong>. Yêu cầu cần cung cấp:
+                          Thành viên gửi yêu cầu hỗ trợ qua hotline <strong>{HOTLINE}</strong>, email <strong>{EMAIL}</strong> hoặc mục "Báo cáo lỗi / Khiếu nại" trong trang quản lý tài khoản. Hồ sơ khiếu nại gồm:
                         </p>
                         <ul className="mt-1.5 list-disc pl-5 text-[11px] text-slate-500 space-y-0.5">
-                          <li>Mã tin đăng hoặc đường dẫn URL của nhà đất bị phản ánh.</li>
-                          <li>Tóm tắt nội dung vi phạm (Tin giả, sai giá, lừa đảo cọc, dự án ma).</li>
-                          <li>Tài liệu chứng minh kèm theo: Hình ảnh chụp tin nhắn, giấy biên nhận đặt cọc, file ghi âm hoặc hợp đồng thỏa thuận (nếu có).</li>
+                          <li>Tên tài khoản (Username) hoặc Số điện thoại / Email đăng ký trên sàn.</li>
+                          <li>Mã tin đăng gặp sự cố hoặc Mã giao dịch thanh toán nạp tiền ví (Transaction ID).</li>
+                          <li>Mô tả ngắn gọn lỗi kỹ thuật gặp phải kèm ảnh chụp màn hình thông báo lỗi (nếu có).</li>
                         </ul>
                       </div>
                     </div>
@@ -325,13 +371,13 @@ export default function DisputeResolutionPage() {
                       </span>
                       <div>
                         <h3 className="text-sm font-bold text-slate-900">
-                          Bước 2: Xác minh độc lập & Tạm dừng hiển thị tin rao (24h - 48h)
+                          Bước 2: Thẩm tra nhật ký hệ thống & Đối soát dữ liệu (24h - 48h)
                         </h3>
                         <p className="mt-1 text-xs text-slate-600 leading-relaxed">
-                          Ban Kiểm Soát & Thanh Tra sàn liên hệ trực tiếp với Người Đăng Tin bị khiếu nại và yêu cầu văn bản giải trình trong vòng 24 giờ.
+                          Đội ngũ Kỹ thuật và Quản trị sàn tiến hành kiểm tra nhật ký máy chủ (Server Logs), đối soát giao dịch ngân hàng/cổng thanh toán và rà soát trạng thái duyệt tin trong cơ sở dữ liệu:
                         </p>
-                        <div className="mt-2 rounded-xl bg-amber-50 p-2.5 border border-amber-200 text-[11px] text-amber-900 font-medium">
-                          ⚡ Biện pháp khẩn cấp: Tin đăng bị khiếu nại sẽ được <strong>TẠM ẨN KHỎI HỆ THỐNG TÌM KIẾM</strong> ngay trong thời gian xác minh để ngăn chặn rủi ro cho những người mua khác.
+                        <div className="mt-2 rounded-xl bg-blue-50 p-2.5 border border-blue-200 text-[11px] text-blue-900 font-medium">
+                          🛠️ Cam kết xử lý: Nếu phát hiện lỗi hệ thống làm gián đoạn quyền lợi của người dùng, đội ngũ kỹ thuật lập tức can thiệp cô lập lỗi và tái cấp quyền dịch vụ tạm thời cho thành viên.
                         </div>
                       </div>
                     </div>
@@ -345,14 +391,14 @@ export default function DisputeResolutionPage() {
                       </span>
                       <div>
                         <h3 className="text-sm font-bold text-slate-900">
-                          Bước 3: Đưa ra phán quyết & Khắc phục hậu quả (Tối đa 72 giờ)
+                          Bước 3: Khắc phục sự cố & Bồi hoàn quyền lợi dịch vụ (Tối đa 72 giờ)
                         </h3>
                         <p className="mt-1 text-xs text-slate-600 leading-relaxed">
-                          Sau khi đối chiếu chứng cứ hai bên, Ban quản trị sàn ban hành văn bản kết luận giải quyết qua email cho các bên:
+                          Sau khi xác định nguyên nhân sự cố, Ban Quản Trị ban hành kết luận và thực hiện biện pháp khắc phục thỏa đáng:
                         </p>
-                        <ul className="mt-1.5 list-disc pl-5 text-[11px] text-slate-500 space-y-1">
-                          <li><strong>Nếu khiếu nại đúng:</strong> Buộc Người Đăng Tin hoàn trả tiền cọc/bồi thường thỏa đáng cho người mua; khóa vĩnh viễn tài khoản người đăng tin vi phạm; công khai cảnh báo trên sàn.</li>
-                          <li><strong>Nếu khiếu nại sai:</strong> Khôi phục trạng thái tin đăng và thông báo lý do bác đơn cho người khiếu nại.</li>
+                        <ul className="mt-1.5 list-disc pl-5 text-[11px] text-slate-600 space-y-1">
+                          <li><strong>Nếu do lỗi kỹ thuật website:</strong> Hoàn trả 100% số tiền giao dịch lỗi vào ví tài khoản; cộng bù thời gian hiển thị tin VIP tương ứng số ngày bị gián đoạn; hoặc cấp lại lượt đẩy tin miễn phí.</li>
+                          <li><strong>Nếu do thao tác người dùng không đúng quy chế:</strong> Gửi email hướng dẫn thao tác chuẩn, giải thích rõ quy định và hỗ trợ kích hoạt lại dịch vụ nếu đủ điều kiện.</li>
                         </ul>
                       </div>
                     </div>
@@ -360,96 +406,74 @@ export default function DisputeResolutionPage() {
                 </div>
               </section>
 
-              {/* Mục 3: Thời hiệu & Cam kết thời gian */}
+              {/* Mục 4: Thời hiệu & Cam kết thời gian xử lý */}
               <section id="thoi-gian-cam-ket" className="scroll-mt-24 border-b border-slate-200 py-8">
                 <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">3</span>
-                  <span>Thời Hiệu Tiếp Nhận & Thời Gian Xử Lý Cam Kết</span>
+                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">4</span>
+                  <span>Thời Hiệu Tiếp Nhận & Cam Kết Thời Gian Xử Lý</span>
                 </h2>
                 <div className="mt-3 overflow-x-auto">
                   <table className="w-full text-left text-xs border border-slate-200 rounded-xl overflow-hidden">
                     <thead className="bg-slate-100 text-slate-700 font-bold uppercase">
                       <tr>
-                        <th className="p-3 border-b">Hạng mục quy định</th>
-                        <th className="p-3 border-b">Thời hạn cam kết</th>
-                        <th className="p-3 border-b">Ghi chú</th>
+                        <th className="p-3 border-b">Loại sự cố / Khiếu nại website</th>
+                        <th className="p-3 border-b">Thời hạn cam kết xử lý</th>
+                        <th className="p-3 border-b">Biện pháp khắc phục</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200">
                       <tr>
-                        <td className="p-3 font-semibold text-slate-800">Thời hiệu khiếu nại</td>
-                        <td className="p-3 font-bold text-blue-600">30 ngày</td>
-                        <td className="p-3 text-slate-500">Kể từ thời điểm xảy ra sự việc hoặc phát sinh giao dịch.</td>
+                        <td className="p-3 font-semibold text-slate-800">Lỗi nạp tiền ví / Cổng thanh toán</td>
+                        <td className="p-3 font-bold text-emerald-600">4 - 8 giờ làm việc</td>
+                        <td className="p-3 text-slate-500">Đối soát sao kê ngân hàng và cộng điểm thủ công ngay lập tức.</td>
                       </tr>
                       <tr>
-                        <td className="p-3 font-semibold text-slate-800">Phản hồi xác nhận tiếp nhận</td>
-                        <td className="p-3 font-bold text-emerald-600">Dưới 24 giờ</td>
-                        <td className="p-3 text-slate-500">Gửi mã số tiếp nhận hồ sơ vụ việc qua SMS/Email.</td>
+                        <td className="p-3 font-semibold text-slate-800">Lỗi duyệt tin / Hiển thị tin VIP</td>
+                        <td className="p-3 font-bold text-blue-600">Dưới 12 giờ</td>
+                        <td className="p-3 text-slate-500">Khôi phục vị trí tin và gia hạn bù thời gian hiển thị.</td>
                       </tr>
                       <tr>
-                        <td className="p-3 font-semibold text-slate-800">Giải quyết vụ việc thông thường</td>
-                        <td className="p-3 font-bold text-slate-900">03 ngày làm việc</td>
-                        <td className="p-3 text-slate-500">Áp dụng cho trường hợp thông tin sai giá, trùng lặp tin.</td>
+                        <td className="p-3 font-semibold text-slate-800">Báo cáo tin đăng rác, spam trên website</td>
+                        <td className="p-3 font-bold text-slate-900">Dưới 24 giờ</td>
+                        <td className="p-3 text-slate-500">Kiểm duyệt lại, hạ tin vi phạm và gửi cảnh báo tài khoản.</td>
                       </tr>
                       <tr>
-                        <td className="p-3 font-semibold text-slate-800">Vụ việc phức tạp / Tranh chấp cọc</td>
-                        <td className="p-3 font-bold text-amber-600">07 ngày làm việc</td>
-                        <td className="p-3 text-slate-500">Có thông báo cập nhật tiến độ định kỳ cho người khiếu nại.</td>
+                        <td className="p-3 font-semibold text-slate-800">Khiếu nại bản quyền hình ảnh</td>
+                        <td className="p-3 font-bold text-amber-600">24 - 48 giờ</td>
+                        <td className="p-3 text-slate-500">Gỡ bỏ ảnh vi phạm khi người khiếu nại chứng minh bản quyền hợp pháp.</td>
                       </tr>
                     </tbody>
                   </table>
                 </div>
               </section>
 
-              {/* Mục 4: Trách nhiệm của các bên */}
-              <section id="trach-nhiem-cac-ben" className="scroll-mt-24 border-b border-slate-200 py-8">
-                <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">4</span>
-                  <span>Trách Nhiệm của Các Bên Trong Quá Trình Khiếu Nại</span>
-                </h2>
-                <div className="mt-3 space-y-2.5 text-xs text-slate-600">
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <strong className="text-slate-900 block mb-1">A. Người khiếu nại:</strong>
-                    Cung cấp tài liệu trung thực, khách quan và chịu trách nhiệm pháp lý nếu cố tình vu khống, bôi nhọ uy tín người khác nhằm mục đích cạnh tranh không lành mạnh.
-                  </div>
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <strong className="text-slate-900 block mb-1">B. Người bị khiếu nại:</strong>
-                    Có nghĩa vụ chủ động phối hợp giải trình, cung cấp chứng từ pháp lý của nhà đất khi được yêu cầu; bồi hoàn thiệt hại thỏa đáng cho khách hàng nếu có sai phạm.
-                  </div>
-                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                    <strong className="text-slate-900 block mb-1">C. Ban quản trị sàn {BRAND_NAME}:</strong>
-                    Đóng vai trò trọng tài trung gian khách quan, áp dụng các chế tài kỹ thuật nghiêm khắc và hỗ trợ chuyển hồ sơ cơ quan pháp luật khi cần thiết.
-                  </div>
-                </div>
-              </section>
-
-              {/* Mục 5: Biện pháp chế tài */}
-              <section id="bien-phap-che-tai" className="scroll-mt-24 border-b border-slate-200 py-8">
+              {/* Mục 5: Biện pháp chế tài kỹ thuật trên website */}
+              <section id="che-tai-ky-thuat" className="scroll-mt-24 border-b border-slate-200 py-8">
                 <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">5</span>
-                  <span>Biện Pháp Chế Tài Đối Với Hành Vi Lừa Đảo Trục Lợi</span>
+                  <span>Biện Pháp Chế Tài Kỹ Thuật Đối Với Hành Vi Phá Hoại Hoạt Động Sàn</span>
                 </h2>
                 <div className="mt-3 text-xs text-slate-600 space-y-2">
-                  <p>Đối với thành viên có hành vi gian dối, sàn sẽ áp dụng các biện pháp quyết liệt:</p>
+                  <p>Để bảo vệ tính toàn vẹn của website và trải nghiệm người dùng chân chính, sàn sẽ áp dụng các chế tài kỹ thuật nghiêm khắc đối với các hành vi vi phạm:</p>
                   <ul className="list-disc pl-5 space-y-1.5">
-                    <li>Khóa tài khoản vĩnh viễn, tịch thu toàn bộ số dư điểm/ví và không hoàn trả phí các gói tin VIP đã mua.</li>
-                    <li>Đưa số điện thoại, số CCCD và tài khoản ngân hàng của đối tượng vào <strong>"Danh sách đen cảnh báo rủi ro"</strong> (Blacklist) trên toàn hệ thống.</li>
-                    <li>Cung cấp địa chỉ IP, nhật ký hệ thống và thông tin liên quan cho Cơ quan Cảnh sát điều tra để khởi tố vụ án theo Điều 174 Bộ luật Hình sự về tội <em>"Lừa đảo chiếm đoạt tài sản"</em>.</li>
+                    <li>Hạ vĩnh viễn các tin đăng spam, tin lặp lại nhiều lần hoặc tin đăng sai danh mục mà không hoàn phí dịch vụ.</li>
+                    <li>Khóa tính năng đăng tin hoặc khóa vĩnh viễn tài khoản người dùng cố tình lợi dụng lỗ hổng kỹ thuật để trục lợi.</li>
+                    <li>Chặn dải địa chỉ IP (IP Blacklist) đối với các hành vi dùng tool tự động bắn tin, spam bot hoặc tấn công hệ thống website.</li>
                   </ul>
                 </div>
               </section>
 
-              {/* Mục 6: Đầu mối liên hệ tiếp nhận */}
+              {/* Mục 6: Đầu mối liên hệ kỹ thuật */}
               <section id="thong-tin-dau-moi" className="scroll-mt-24 pt-8">
                 <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                   <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-blue-600 text-xs font-black text-white">6</span>
-                  <span>Đầu Mối Tiếp Nhận Khiếu Nại & Hỗ Trợ Khách Hàng</span>
+                  <span>Đầu Mối Tiếp Nhận Hỗ Trợ Kỹ Thuật & Vận Hành Sàn</span>
                 </h2>
                 
                 <div className="mt-4 rounded-3xl bg-slate-900 p-6 sm:p-8 text-white shadow-xl">
                   <div className="border-b border-slate-800 pb-4">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-blue-400">
-                      Trung Tâm Chăm Sóc Khách Hàng & Giải Quyết Tranh Chấp
+                      Bộ Phận Hỗ Trợ Kỹ Thuật & Chăm Sóc Khách Hàng Website
                     </span>
                     <h3 className="text-base font-black text-white mt-1">
                       SÀN GIAO DỊCH NHÀ ĐẤT {BRAND_NAME}
@@ -458,23 +482,23 @@ export default function DisputeResolutionPage() {
 
                   <div className="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
                     <div className="rounded-2xl bg-slate-800/80 p-4 border border-slate-700/80">
-                      <p className="text-slate-400">Đường dây nóng khiếu nại (24/7):</p>
+                      <p className="text-slate-400">Hotline hỗ trợ kỹ thuật (24/7):</p>
                       <p className="text-base font-black text-red-400 font-mono mt-1">
                         {HOTLINE}
                       </p>
-                      <p className="text-[10px] text-slate-400 mt-1">Tiếp nhận phản ánh khẩn cấp</p>
+                      <p className="text-[10px] text-slate-400 mt-1">Tiếp nhận báo lỗi ví, lỗi tin khẩn cấp</p>
                     </div>
 
                     <div className="rounded-2xl bg-slate-800/80 p-4 border border-slate-700/80">
-                      <p className="text-slate-400">Hộp thư điện tử tiếp nhận đơn:</p>
+                      <p className="text-slate-400">Email tiếp nhận sự cố website:</p>
                       <p className="text-sm font-bold text-emerald-400 font-mono mt-1">
                         {EMAIL}
                       </p>
-                      <p className="text-[10px] text-slate-400 mt-1">Phản hồi tự động có mã tiếp nhận</p>
+                      <p className="text-[10px] text-slate-400 mt-1">Phản hồi có mã đối soát hệ thống</p>
                     </div>
 
                     <div className="rounded-2xl bg-slate-800/80 p-4 border border-slate-700/80">
-                      <p className="text-slate-400">Địa chỉ văn phòng tiếp công dân:</p>
+                      <p className="text-slate-400">Địa chỉ văn phòng quản trị:</p>
                       <p className="text-xs font-semibold text-slate-200 mt-1 leading-snug">
                         {ADDRESS}
                       </p>
@@ -487,7 +511,7 @@ export default function DisputeResolutionPage() {
               {/* Lời kết cam kết */}
               <div className="mt-8 border-t border-slate-100 pt-6 text-center text-xs text-slate-400">
                 <p>
-                  Chúng tôi cam kết đồng hành cùng khách hàng xây dựng một thị trường nhà đất văn minh, an toàn và minh bạch.
+                  Kênh Nhà Đất 24H cam kết duy trì hệ thống website ổn định, bảo mật và luôn đồng hành giải quyết mọi khó khăn kỹ thuật của quý thành viên.
                 </p>
               </div>
 
