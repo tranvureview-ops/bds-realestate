@@ -135,7 +135,7 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
     });
   }, [taxonomyInfo?.canonicalUrl, taxonomyInfo?.propertyType, serverSearchParams?.loai]);
 
-  // Lắng nghe sự kiện bds:reset-category-filters khi người dùng click vào menu Nhà Đất Cho Thuê
+  // Lắng nghe sự kiện bds:reset-category-filters khi người dùng click vào menu Nhà Đất Cho Thuê khi đang ở chính trang này
   useEffect(() => {
     const handleResetEvent = (e) => {
       const resetPath = e.detail?.path || '';
@@ -162,10 +162,8 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
           onlyVerified: false
         });
         setCurrentPage(1);
-        if (typeof window !== 'undefined') {
-          if (window.location.search || window.location.pathname !== '/nha-dat-cho-thue') {
-            window.history.pushState(null, '', '/nha-dat-cho-thue');
-          }
+        if (typeof window !== 'undefined' && window.location.search) {
+          window.history.replaceState(null, '', '/nha-dat-cho-thue');
         }
       }
     };

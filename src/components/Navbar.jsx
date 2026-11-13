@@ -454,7 +454,8 @@ export default function Navbar() {
                       rel={isBlank ? 'noopener noreferrer' : undefined}
                       onClick={() => {
                         setActiveDropdown(null);
-                        if (item.path === '/nha-dat-ban' || item.path === '/nha-dat-cho-thue') {
+                        // Chỉ phát sự kiện reset khi người dùng click vào chính trang danh mục đang đứng (để xóa bộ lọc tìm kiếm đang áp dụng)
+                        if (currentRoute === item.path && (item.path === '/nha-dat-ban' || item.path === '/nha-dat-cho-thue')) {
                           if (typeof window !== 'undefined') {
                             window.dispatchEvent(new CustomEvent('bds:reset-category-filters', { detail: { path: item.path } }));
                           }
@@ -489,13 +490,8 @@ export default function Navbar() {
                                 key={sub.id}
                                 to={sub.path}
                                 onClick={() => {
-                        setActiveDropdown(null);
-                        if (item.path === '/nha-dat-ban' || item.path === '/nha-dat-cho-thue') {
-                          if (typeof window !== 'undefined') {
-                            window.dispatchEvent(new CustomEvent('bds:reset-category-filters', { detail: { path: item.path } }));
-                          }
-                        }
-                      }}
+                                  setActiveDropdown(null);
+                                }}
                                 className={`px-2.5 py-2 rounded-xl flex items-center gap-2 transition font-medium ${
                                   currentRoute === sub.path 
                                     ? 'bg-emerald-50 text-emerald-700 font-bold' 
