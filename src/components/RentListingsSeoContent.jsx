@@ -59,7 +59,7 @@ export default function RentListingsSeoContent({ city = null, district = null, p
               <i className="fa-solid fa-money-bill-wave"></i>
             </span>
             <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-              {seoData.priceTableTitle}
+              {seoData.priceTableTitle ? seoData.priceTableTitle.replace(/\[(\d{4})\]/g, '$1') : ''}
             </h2>
           </div>
           <div className="overflow-x-auto rounded-2xl border border-slate-200">

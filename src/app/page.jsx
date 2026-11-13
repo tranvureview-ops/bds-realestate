@@ -5,8 +5,8 @@ export async function generateMetadata() {
   const currentYear = new Date().getFullYear();
   const baseUrl = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '');
   const ogImageUrl = `${baseUrl}/mua-ban-nha-dat-toan-quoc.webp`;
-  const ogTitle = `Mua bán nhà đất, cho thuê bất động sản toàn quốc [${currentYear}] - Kênh Nhà Đất 24H`;
-  const ogDesc = `Tìm mua bán nhà đất, cho thuê bất động sản trên toàn quốc mới nhất [${currentYear}]. Khám phá nhà riêng, căn hộ, đất nền, dự án và đăng tin bất động sản miễn phí tại Kênh Nhà Đất 24H.`;
+  const ogTitle = `Mua bán nhà đất, cho thuê bất động sản toàn quốc ${currentYear} - Kênh Nhà Đất 24H`;
+  const ogDesc = `Tìm mua bán nhà đất, cho thuê bất động sản trên toàn quốc mới nhất ${currentYear}. Khám phá nhà riêng, căn hộ, đất nền, dự án và đăng tin bất động sản miễn phí tại Kênh Nhà Đất 24H.`;
 
   return {
     title: {

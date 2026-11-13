@@ -8,7 +8,7 @@ export function generateMetadata() {
   const canonicalUrl = `${baseUrl}/dang-tin`;
   const ogImg = `${baseUrl}/mua-ban-nha-dat-toan-quoc.webp`;
 
-  const title = `Đăng tin mua bán nhà đất miễn phí [${currentYear}] | Kênh Nhà Đất 24H`;
+  const title = `Đăng tin mua bán nhà đất miễn phí ${currentYear} | Kênh Nhà Đất 24H`;
   const description = `Đăng tin bán nhà, cho thuê căn hộ, đất nền miễn phí ${currentYear} tại Kênh Nhà Đất 24H. Hỗ trợ gắn GPS, VR 360°, duyệt nhanh & gói VIP tiếp cận x30.`;
 
   return {

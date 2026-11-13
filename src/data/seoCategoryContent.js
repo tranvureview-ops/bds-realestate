@@ -692,7 +692,7 @@ const GENERAL_SALE_CITY_CONTENT = {
   danang: {
     marketTitle: 'Thị Trường Mua Bán Nhà Đất Đà Nẵng Năm 2026: Diễn Biến & Tiềm Năng Tăng Trưởng',
     marketDesc: 'Bước sang năm 2026, thị trường bất động sản Đà Nẵng bước vào chu kỳ phục hồi và bứt phá mạnh mẽ khi hàng loạt dự án hạ tầng giao thông quy mô lớn được đẩy nhanh tiến độ: Dự án Cảng Liên Chiểu, Mở rộng Sân bay Quốc tế Đà Nẵng, Cầu Quảng Đà và quy hoạch trung tâm tài chính quốc tế ven biển. Đà Nẵng thu hút mạnh mẽ dòng vốn đầu tư cho phân khúc căn hộ ven sông Hàn, đất nền ven biển và nhà phố thương mại tại Hải Châu, Sơn Trà, Ngũ Hành Sơn và Cẩm Lệ.',
-    priceTableTitle: 'Khung Giá Nhà Đất Chi Tiết Từng Quận/Huyện Tại Đà Nẵng [2026]',
+    priceTableTitle: 'Khung Giá Nhà Đất Chi Tiết Từng Quận/Huyện Tại Đà Nẵng 2026',
     tableHeaders: ['Khu vực / Quận Huyện', 'Nhà phố / Mặt tiền', 'Căn hộ chung cư', 'Đất nền thổ cư', 'Khu vực sôi động'],
     benchmarks: [
       { area: 'Hải Châu (Trung tâm)', cols: ['110 - 220 tr/m²', '45 - 85 tr/m²', '90 - 160 tr/m²'], hotspots: 'Bạch Đằng, Nguyễn Văn Linh, 2/9' },
@@ -713,7 +713,7 @@ const GENERAL_SALE_CITY_CONTENT = {
   hanoi: {
     marketTitle: 'Thị Trường Mua Bán Nhà Đất Hà Nội Năm 2026: Diễn Biến & Tiềm Năng Tăng Trưởng',
     marketDesc: 'Thị trường bất động sản Thủ đô Hà Nội năm 2026 duy trì sức cầu ở thực cực kỳ bền vững. Các dự án phát triển đường Vành đai 4, các cây cầu mới bắc qua sông Hồng cùng việc hoàn thiện mạng lưới metro đô thị tiếp tục thúc đẩy giá trị bất động sản tại các quận nội thành và đô thị vệ tinh phía Tây, phía Đông.',
-    priceTableTitle: 'Khung Giá Nhà Đất Chi Tiết Từng Quận/Huyện Tại Hà Nội [2026]',
+    priceTableTitle: 'Khung Giá Nhà Đất Chi Tiết Từng Quận/Huyện Tại Hà Nội 2026',
     tableHeaders: ['Khu vực / Quận Huyện', 'Nhà phố / Mặt tiền', 'Căn hộ chung cư', 'Đất nền thổ cư', 'Khu vực sôi động'],
     benchmarks: [
       { area: 'Cầu Giấy & Nam Từ Liêm', cols: ['160 - 280 tr/m²', '55 - 95 tr/m²', '120 - 220 tr/m²'], hotspots: 'Duy Tân, Mễ Trì, Trung Hòa Nhân Chính' },
@@ -732,7 +732,7 @@ const GENERAL_SALE_CITY_CONTENT = {
   hcm: {
     marketTitle: 'Thị Trường Mua Bán Nhà Đất TP. Hồ Chí Minh Năm 2026: Diễn Biến & Tiềm Năng Tăng Trưởng',
     marketDesc: 'TP. Hồ Chí Minh tiếp tục là thị trường bất động sản sôi động nhất cả nước. Tuyến Metro số 1 Bến Thành - Suối Tiên vận hành ổn định cùng tiến độ Vành đai 3 và kết nối sân bay Long Thành tạo xung lực mạnh cho bất động sản tại TP. Thủ Đức, khu Nam Quận 7 và khu Tây Bình Tân.',
-    priceTableTitle: 'Khung Giá Nhà Đất Chi Tiết Từng Quận/Huyện Tại TP. Hồ Chí Minh [2026]',
+    priceTableTitle: 'Khung Giá Nhà Đất Chi Tiết Từng Quận/Huyện Tại TP. Hồ Chí Minh 2026',
     tableHeaders: ['Khu vực / Quận Huyện', 'Nhà phố / Mặt tiền', 'Căn hộ chung cư', 'Đất nền thổ cư', 'Khu vực sôi động'],
     benchmarks: [
       { area: 'Quận 1 & Quận 3 (Trung tâm)', cols: ['320 - 750 tr/m²', '95 - 220 tr/m²', '280 - 600 tr/m²'], hotspots: 'Bến Nghé, Đa Kao, Võ Thị Sáu' },
@@ -751,7 +751,7 @@ const GENERAL_SALE_CITY_CONTENT = {
   quangnam: {
     marketTitle: 'Thị Trường Mua Bán Nhà Đất Quảng Nam Năm 2026: Diễn Biến & Tiềm Năng Bứt Phá',
     marketDesc: 'Năm 2026, thị trường bất động sản Quảng Nam đón xung lực mạnh từ khơi thông sông Cổ Cò kết nối Đà Nẵng - Hội An, trục ven biển Võ Chí Công (tuyến 129), cầu Quảng Đà nối Điện Bàn với Hòa Vang và quy hoạch Sân bay Chu Lai. Dòng tiền tập trung vào đất nền ven sông Cổ Cò (Điện Bàn), bất động sản di sản TP. Hội An và đất ở thực quanh TP. Tam Kỳ, KKT Chu Lai (Núi Thành).',
-    priceTableTitle: 'Khung Giá Nhà Đất Chi Tiết Từng Quận/Huyện Tại Quảng Nam [2026]',
+    priceTableTitle: 'Khung Giá Nhà Đất Chi Tiết Từng Quận/Huyện Tại Quảng Nam 2026',
     tableHeaders: ['Khu vực / Quận Huyện', 'Nhà phố / Mặt tiền', 'Căn hộ chung cư', 'Đất nền thổ cư', 'Khu vực sôi động'],
     benchmarks: [
       { area: 'TP. Hội An (Di sản & Du lịch biển)', cols: ['85 - 180 tr/m²', '45 - 85 tr/m²', '40 - 95 tr/m²'], hotspots: 'Trần Phú, Cửa Đại, Cẩm An, Cẩm Châu' },
@@ -771,7 +771,7 @@ const GENERAL_SALE_CITY_CONTENT = {
   national: {
     marketTitle: 'Thị Trường Mua Bán Nhà Đất Toàn Quốc Năm 2026: Diễn Biến & Xu Hướng',
     marketDesc: 'Bước sang năm 2026, thị trường bất động sản Việt Nam chứng kiến bước chuyển mình mạnh mẽ khi bộ ba luật sửa đổi gồm Luật Đất đai 2024, Luật Nhà ở 2023 và Luật Kinh doanh Bất động sản 2023 đi vào thực thi đồng bộ. Dòng tiền đầu tư đang tập trung có chọn lọc vào các sản phẩm phục vụ nhu cầu ở thực, pháp lý minh bạch có sẵn sổ hồng, và các dự án phát triển theo mô hình đô thị tích hợp gắn liền với hạ tầng giao thông kết nối liên vùng.',
-    priceTableTitle: 'Khung Giá Nhà Đất Tham Khảo Tại Các Tỉnh/Thành Phố Trọng Điểm [2026]',
+    priceTableTitle: 'Khung Giá Nhà Đất Tham Khảo Tại Các Tỉnh/Thành Phố Trọng Điểm 2026',
     tableHeaders: ['Khu vực / Tỉnh thành', 'Nhà phố / Mặt tiền', 'Căn hộ chung cư', 'Đất nền thổ cư', 'Khu vực sôi động'],
     benchmarks: [
       { area: 'TP. Hồ Chí Minh', cols: ['95 - 180 tr/m²', '48 - 95 tr/m²', '45 - 85 tr/m²'], hotspots: 'Thủ Đức, Quận 7, Bình Thạnh, Gò Vấp' },
@@ -1029,10 +1029,10 @@ export const buildSaleSeoContentData = ({
     }
 
     const priceTableTitle = facet.hasFacetFilters
-      ? `Khảo Sát Khung Giá Mua Bán ${profile.label} ${locationLabel}${facet.filterSuffix} [2026]`
+      ? `Khảo Sát Khung Giá Mua Bán ${profile.label} ${locationLabel}${facet.filterSuffix} 2026`
       : (isSpecificCity
-          ? `Khung Giá ${profile.label} Tham Khảo Từng Khu Vực Tại ${cityDisplay} [2026]`
-          : `Khung Giá ${profile.label} Tham Khảo Tại Các Đô Thị Trọng Điểm [2026]`);
+          ? `Khung Giá ${profile.label} Tham Khảo Từng Khu Vực Tại ${cityDisplay} 2026`
+          : `Khung Giá ${profile.label} Tham Khảo Tại Các Đô Thị Trọng Điểm 2026`);
 
     const cityBenchmarks = profile.priceRanges[cityCtx.key];
     let benchmarks;
@@ -1137,7 +1137,7 @@ export const buildSaleSeoContentData = ({
   return {
     marketTitle: `Thị Trường Mua Bán Nhà Đất ${cityDisplay} Năm 2026: Diễn Biến & Tiềm Năng Phát Triển`,
     marketDesc: `Thị trường bất động sản ${cityDisplay} năm 2026 ghi nhận bước chuyển mình tích cực nhờ hạ tầng giao thông kết nối liên vùng và hiệu lực của bộ ba Luật Đất đai 2024, Luật Nhà ở 2023 và Luật Kinh doanh Bất động sản 2023. Dòng tiền đầu tư tập trung vào phân khúc ở thực có sẵn sổ hồng tại trung tâm đô thị và khu vực phát triển công nghiệp, dịch vụ.`,
-    priceTableTitle: `Khung Giá Nhà Đất Chi Tiết Từng Quận/Huyện Tại ${cityDisplay} [2026]`,
+    priceTableTitle: `Khung Giá Nhà Đất Chi Tiết Từng Quận/Huyện Tại ${cityDisplay} 2026`,
     tableHeaders: ['Khu vực / Quận Huyện', 'Nhà phố / Mặt tiền', 'Căn hộ chung cư', 'Đất nền thổ cư', 'Khu vực sôi động'],
     benchmarks: provBenchmarks,
     priceFootnote: '* Bảng giá mang tính chất tham khảo thực tế tại thời điểm đầu năm 2026, đơn giá có thể thay đổi tùy thuộc vào vị trí hẻm, mặt tiền và hiện trạng xây dựng công trình.',
@@ -1462,7 +1462,7 @@ const GENERAL_RENT_CITY_CONTENT = {
   danang: {
     marketTitle: 'Thị Trường Cho Thuê Nhà Đất Đà Nẵng Năm 2026: Diễn Biến & Cơ Hội Dòng Tiền',
     marketDesc: 'Thị trường cho thuê bất động sản Đà Nẵng năm 2026 ghi nhận nhu cầu lớn từ du lịch nghỉ dưỡng và lực lượng chuyên gia công nghệ cao. Tỷ lệ lấp đầy căn hộ dịch vụ ven biển, nhà phố thương mại và nhà nguyên căn duy trì mức cao từ 85% - 92%.',
-    priceTableTitle: 'Khung Giá Thuê Nhà Đất Chi Tiết Từng Quận/Huyện Tại Đà Nẵng [2026]',
+    priceTableTitle: 'Khung Giá Thuê Nhà Đất Chi Tiết Từng Quận/Huyện Tại Đà Nẵng 2026',
     benchmarks: [
       { area: 'Hải Châu (Trung tâm)', cols: ['8 - 18 tr/tháng', '15 - 35 tr/tháng', '3.5 - 7 tr/tháng'], hotspots: 'Bạch Đằng, Nguyễn Văn Linh, Lê Duẩn' },
       { area: 'Sơn Trà (Du lịch biển)', cols: ['7 - 16 tr/tháng', '12 - 28 tr/tháng', '3 - 6.5 tr/tháng'], hotspots: 'Võ Nguyên Giáp, Phạm Văn Đồng, An Hải Bắc' },
@@ -1479,7 +1479,7 @@ const GENERAL_RENT_CITY_CONTENT = {
   quangnam: {
     marketTitle: 'Thị Trường Cho Thuê Nhà Đất Quảng Nam Năm 2026',
     marketDesc: 'Thị trường cho thuê nhà đất Quảng Nam năm 2026 tập trung vào phân khúc lưu trú homestay, villa nghỉ dưỡng tại TP. Hội An và nhà ở chuyên gia, kỹ sư tại TP. Tam Kỳ, TX. Điện Bàn, KKT mở Chu Lai (Núi Thành).',
-    priceTableTitle: 'Khung Giá Thuê Nhà Đất Chi Tiết Từng Quận/Huyện Tại Quảng Nam [2026]',
+    priceTableTitle: 'Khung Giá Thuê Nhà Đất Chi Tiết Từng Quận/Huyện Tại Quảng Nam 2026',
     benchmarks: [
       { area: 'TP. Hội An (Homestay & Du lịch)', cols: ['7 - 16 tr/tháng', '12 - 30 tr/tháng', '3 - 6 tr/tháng'], hotspots: 'Cẩm Châu, Cẩm An, Cửa Đại, Phố cổ' },
       { area: 'TX. Điện Bàn (Ven Đà Nẵng)', cols: ['4 - 9 tr/tháng', '6 - 15 tr/tháng', '2 - 4 tr/tháng'], hotspots: 'Điện Ngọc, Điện Nam Trung, KĐT Rosa' },
@@ -1495,7 +1495,7 @@ const GENERAL_RENT_CITY_CONTENT = {
   hanoi: {
     marketTitle: 'Thị Trường Cho Thuê Nhà Đất Hà Nội Năm 2026: Nhu Cầu Ở Thực & Tỷ Suất Ổn Định',
     marketDesc: 'Thị trường cho thuê Hà Nội năm 2026 duy trì sức cầu lớn quanh các trục đại học, khu công nghệ cao Hòa Lạc và tổ hợp văn phòng Cầu Giấy, Nam Từ Liêm, Đống Đa.',
-    priceTableTitle: 'Khung Giá Thuê Nhà Đất Chi Tiết Từng Quận/Huyện Tại Hà Nội [2026]',
+    priceTableTitle: 'Khung Giá Thuê Nhà Đất Chi Tiết Từng Quận/Huyện Tại Hà Nội 2026',
     benchmarks: [
       { area: 'Cầu Giấy & Nam Từ Liêm', cols: ['9 - 22 tr/tháng', '14 - 35 tr/tháng', '3.8 - 7.5 tr/tháng'], hotspots: 'Duy Tân, Mễ Trì, Trung Hòa Nhân Chính' },
       { area: 'Tây Hồ & Ba Đình', cols: ['12 - 32 tr/tháng', '18 - 45 tr/tháng', '4.5 - 9 tr/tháng'], hotspots: 'Quảng An, Xuân Diệu, Liễu Giai' },
@@ -1511,7 +1511,7 @@ const GENERAL_RENT_CITY_CONTENT = {
   hcm: {
     marketTitle: 'Thị Trường Cho Thuê Nhà Đất TP. Hồ Chí Minh Năm 2026: Sức Cầu Sôi Động',
     marketDesc: 'TP. Hồ Chí Minh là thị trường cho thuê sôi động nhất cả nước nhờ tuyến Metro Bến Thành - Suối Tiên kích thích dòng người thuê tại TP. Thủ Đức, Bình Thạnh và sức cầu căn hộ dịch vụ, văn phòng tại Quận 1, Quận 3, Quận 7.',
-    priceTableTitle: 'Khung Giá Thuê Nhà Đất Chi Tiết Từng Quận/Huyện Tại TP. Hồ Chí Minh [2026]',
+    priceTableTitle: 'Khung Giá Thuê Nhà Đất Chi Tiết Từng Quận/Huyện Tại TP. Hồ Chí Minh 2026',
     benchmarks: [
       { area: 'Quận 1 & Quận 3 (Trung tâm)', cols: ['14 - 38 tr/tháng', '22 - 60 tr/tháng', '5 - 10 tr/tháng'], hotspots: 'Bến Nghé, Đa Kao, Võ Thị Sáu' },
       { area: 'TP. Thủ Đức (Đô thị sáng tạo)', cols: ['8 - 22 tr/tháng', '12 - 32 tr/tháng', '3.5 - 7 tr/tháng'], hotspots: 'Thảo Điền, An Phú, Tam Bình' },
@@ -1527,7 +1527,7 @@ const GENERAL_RENT_CITY_CONTENT = {
   national: {
     marketTitle: 'Thị Trường Cho Thuê Nhà Đất Toàn Quốc Năm 2026',
     marketDesc: 'Năm 2026, phân khúc bất động sản cho thuê tiếp tục khẳng định vai trò kênh tạo dòng tiền bền vững tại Hà Nội, TP. Hồ Chí Minh, Đà Nẵng và các đô thị công nghiệp trọng điểm.',
-    priceTableTitle: 'Khung Giá Thuê Nhà Đất Tham Khảo Tại Các Đô Thị Lớn [2026]',
+    priceTableTitle: 'Khung Giá Thuê Nhà Đất Tham Khảo Tại Các Đô Thị Lớn 2026',
     benchmarks: [
       { area: 'TP. Hồ Chí Minh', cols: ['8 - 22 tr/tháng', '12 - 35 tr/tháng', '3.5 - 7 tr/tháng'], hotspots: 'Quận 7, Bình Thạnh, Thủ Đức, Tân Bình' },
       { area: 'Hà Nội', cols: ['7 - 20 tr/tháng', '10 - 30 tr/tháng', '3 - 6.5 tr/tháng'], hotspots: 'Cầu Giấy, Nam Từ Liêm, Đống Đa, Thanh Xuân' },
@@ -1663,8 +1663,8 @@ export const buildRentSeoContentData = ({
     }
 
     const priceTableTitle = facet.hasFacetFilters
-      ? `Khảo Sát Khung Giá & Phân Khúc ${profile.label} ${locationLabel}${facet.filterSuffix} [2026]`
-      : `Khung Giá ${profile.label} Tham Khảo${isSpecificCity ? ` Tại ${cityDisplay}` : ' Tại Các Đô Thị Lớn'} [2026]`;
+      ? `Khảo Sát Khung Giá & Phân Khúc ${profile.label} ${locationLabel}${facet.filterSuffix} 2026`
+      : `Khung Giá ${profile.label} Tham Khảo${isSpecificCity ? ` Tại ${cityDisplay}` : ' Tại Các Đô Thị Lớn'} 2026`;
 
     const benchmarks = profile.priceRanges?.[cityCtx.key]
       || (cityCtx.matchedProvince?.districts?.length
@@ -1718,7 +1718,7 @@ export const buildRentSeoContentData = ({
       : presetGeneral.marketTitle;
 
     const priceTableTitle = facet.hasFacetFilters
-      ? `Khảo Sát Khung Giá Cho Thuê Nhà Đất ${locationLabel}${facet.filterSuffix} [2026]`
+      ? `Khảo Sát Khung Giá Cho Thuê Nhà Đất ${locationLabel}${facet.filterSuffix} 2026`
       : presetGeneral.priceTableTitle;
 
     const facetFaqs = [];
@@ -1769,7 +1769,7 @@ export const buildRentSeoContentData = ({
   return {
     marketTitle: `Thị Trường Cho Thuê Nhà Đất ${cityDisplay} Năm 2026: Nhu Cầu & Tỷ Suất Dòng Tiền`,
     marketDesc: `Thị trường bất động sản cho thuê tại ${cityDisplay} năm 2026 ghi nhận nhu cầu cao từ lực lượng lao động, chuyên gia doanh nghiệp và hộ gia đình trẻ tập trung quanh trung tâm đô thị và khu công nghiệp.`,
-    priceTableTitle: `Khung Giá Thuê Nhà Đất Chi Tiết Từng Quận/Huyện Tại ${cityDisplay} [2026]`,
+    priceTableTitle: `Khung Giá Thuê Nhà Đất Chi Tiết Từng Quận/Huyện Tại ${cityDisplay} 2026`,
     tableHeaders: ['Khu vực / Quận Huyện', 'Căn hộ chung cư', 'Nhà riêng / Nguyên căn', 'Phòng trọ / CH Dịch vụ', 'Khu vực sôi động'],
     benchmarks: provBenchmarks,
     legalTitle: `4 Lưu Ý Pháp Lý Sống Còn Khi Ký Hợp Đồng Thuê Nhà Đất Tại ${cityDisplay}`,

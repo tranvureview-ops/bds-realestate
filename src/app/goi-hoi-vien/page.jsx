@@ -34,7 +34,7 @@ export async function generateMetadata() {
   const canonicalUrl = `${baseUrl}/goi-hoi-vien`;
   const ogImg = `${baseUrl}/mua-ban-nha-dat-toan-quoc.webp`;
 
-  const title = `Gói hội viên môi giới giá tốt [${currentYear}] | Kênh Nhà Đất 24H`;
+  const title = `Gói hội viên môi giới giá tốt ${currentYear} | Kênh Nhà Đất 24H`;
   const description = `Đăng ký gói hội viên môi giới BĐS ${currentYear} chỉ từ 299.000đ/tháng, tiết kiệm tới ${maxSavePercent}%. Tặng kho voucher đăng tin thường, đẩy tin, giảm tin VIP. Xem ngay!`;
 
   return {

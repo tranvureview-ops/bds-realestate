@@ -1495,25 +1495,25 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, yearInput = null, pa
   if (taxonomyInfo.title && hasFacetedFilter) {
     const rawTitle = String(taxonomyInfo.title || '').trim();
     const formattedTitle = rawTitle ? rawTitle.charAt(0).toUpperCase() + rawTitle.slice(1) : '';
-    const yearSuffix = `${formattedTitle}${pageStr}`.length + ' | Kênh Nhà Đất 24H'.length < 50 ? ` [${year}]` : '';
+    const yearSuffix = `${formattedTitle}${pageStr}`.length + ' | Kênh Nhà Đất 24H'.length < 50 ? ` ${year}` : '';
     let baseTitle = `${formattedTitle}${yearSuffix}${pageStr}`;
     let titleWithBrand = `${baseTitle} | Kênh Nhà Đất 24H`;
     if (titleWithBrand.length > 60) {
-      baseTitle = baseTitle.replace(` [${year}]`, '');
+      baseTitle = baseTitle.replace(` ${year}`, '').replace(` [${year}]`, '');
       titleWithBrand = `${baseTitle} | Kênh Nhà Đất 24H`;
       if (titleWithBrand.length > 60) {
         titleWithBrand = baseTitle;
       }
     }
-    let fullDesc = `${formattedTitle}, mới nhất [${year}]${pageDescStr}, vị trí đẹp, hình ảnh thực tế, thông tin xác thực, pháp lý minh bạch.`;
+    let fullDesc = `${formattedTitle}, mới nhất ${year}${pageDescStr}, vị trí đẹp, hình ảnh thực tế, thông tin xác thực, pháp lý minh bạch.`;
     if (fullDesc.length > 160) {
-      fullDesc = `${formattedTitle}, mới nhất [${year}]${pageDescStr}, vị trí đẹp, hình ảnh thực tế, pháp lý minh bạch.`;
+      fullDesc = `${formattedTitle}, mới nhất ${year}${pageDescStr}, vị trí đẹp, hình ảnh thực tế, pháp lý minh bạch.`;
     }
     if (fullDesc.length > 160) {
-      fullDesc = `${formattedTitle}, mới nhất [${year}]${pageDescStr}, hình ảnh thực tế, pháp lý minh bạch.`;
+      fullDesc = `${formattedTitle}, mới nhất ${year}${pageDescStr}, hình ảnh thực tế, pháp lý minh bạch.`;
     }
     if (fullDesc.length > 160) {
-      fullDesc = `${formattedTitle}, cập nhật mới nhất [${year}]${pageDescStr}.`;
+      fullDesc = `${formattedTitle}, cập nhật mới nhất ${year}${pageDescStr}.`;
     }
     return {
       title: titleWithBrand,
@@ -1853,10 +1853,13 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, yearInput = null, pa
       if (diff <= 8) title = title.replace(' | ', ' giá tốt | ');
       else title = title.replace(' | ', ' giá tốt nhất | ');
     } else {
-      title = title + ' [mới nhất]';
+      title = title + ' mới nhất';
     }
   }
   if (title.length > 60) {
+    if (title.includes(` ${year}`)) {
+      title = title.replace(` ${year}`, '');
+    }
     if (title.includes(` [${year}]`)) {
       title = title.replace(` [${year}]`, '');
     }
@@ -1912,7 +1915,10 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, yearInput = null, pa
     }
   }
 
-  return { title, description: desc };
+  const cleanTitle = title.replace(/\[(\d{4})\]/g, '$1').replace(/\[mới nhất\]/g, 'mới nhất');
+  const cleanDesc = desc.replace(/\[(\d{4})\]/g, '$1').replace(/\[mới nhất\]/g, 'mới nhất');
+
+  return { title: cleanTitle, description: cleanDesc };
 };
 
 /**

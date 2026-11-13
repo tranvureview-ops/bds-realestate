@@ -379,7 +379,7 @@ function MarketOverviewSection() {
         <div>
           <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">Báo cáo tổng hợp</span>
           <h2 className="text-xl font-bold text-slate-900 mt-0.5">
-            Tổng Quan Diễn Biến & Động Lực Thị Trường BĐS [2026]
+            Tổng Quan Diễn Biến & Động Lực Thị Trường BĐS 2026
           </h2>
         </div>
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-200 self-start sm:self-auto">
@@ -493,7 +493,7 @@ function LegalOverviewSection() {
         <div>
           <span className="text-xs font-bold text-red-700 uppercase tracking-wider">Pháp lý minh bạch</span>
           <h2 className="text-xl font-bold text-slate-900 mt-0.5">
-            3 Điểm Tựa Pháp Lý Sống Còn Khi Giao Dịch Nhà Đất [2026]
+            3 Điểm Tựa Pháp Lý Sống Còn Khi Giao Dịch Nhà Đất 2026
           </h2>
         </div>
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-red-700 text-xs font-semibold border border-red-200 self-start sm:self-auto">
@@ -549,7 +549,7 @@ function KnowledgeFaqAccordion({ activeCategorySlug = null }) {
         : 'Giải đáp trực tiếp những vướng mắc pháp lý, kinh nghiệm thương lượng và quy trình mua bán nhà đất an toàn theo Luật Đất đai hiện hành.'));
 
   const badgeText = isMarket
-    ? 'HỎI ĐÁP THỊ TRƯỜNG BĐS [2026]'
+    ? 'HỎI ĐÁP THỊ TRƯỜNG BĐS 2026'
     : (isExperience 
       ? 'HỎI ĐÁP KINH NGHIỆM ĐẦU TƯ BĐS' 
       : (isLegal 
@@ -803,18 +803,18 @@ export default function KnowledgeHubPage({ activeCategorySlug = null }) {
               <span>{
                 activeCategorySlug === 'thi-truong' ? 'THỊ TRƯỜNG & DỰ BÁO GIÁ NHÀ ĐẤT 2026' :
                 activeCategorySlug === 'kinh-nghiem' ? 'CẨM NANG & KINH NGHIỆM MUA BÁN BĐS THỰC CHIẾN' :
-                activeCategorySlug === 'phap-ly' ? 'CẨM NANG PHÁP LÝ & QUY HOẠCH BĐS [2026]' :
+                activeCategorySlug === 'phap-ly' ? 'CẨM NANG PHÁP LÝ & QUY HOẠCH BĐS 2026' :
                 'TỔNG HỢP TIN TỨC & KINH NGHIỆM BẤT ĐỘNG SẢN'
               }</span>
             </div>
 
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight leading-snug">
               {activeCategorySlug === 'thi-truong' 
-                ? 'Thông Tin Thị Trường Bất Động Sản & Dự Báo Dòng Tiền [2026]' 
+                ? 'Thông Tin Thị Trường Bất Động Sản & Dự Báo Dòng Tiền 2026' 
                 : (activeCategorySlug === 'kinh-nghiem'
-                  ? 'Kinh Nghiệm Mua Bán Nhà Đất & Đầu Tư Thực Chiến [2026]'
+                  ? 'Kinh Nghiệm Mua Bán Nhà Đất & Đầu Tư Thực Chiến 2026'
                   : (activeCategorySlug === 'phap-ly'
-                    ? 'Kiến Thức Pháp Lý & Quy Hoạch Bất Động Sản [2026]'
+                    ? 'Kiến Thức Pháp Lý & Quy Hoạch Bất Động Sản 2026'
                     : (activeCategory ? activeCategory.name : 'Kiến Thức & Cẩm Nang Bất Động Sản')))}
             </h1>
 
@@ -854,7 +854,7 @@ export default function KnowledgeHubPage({ activeCategorySlug = null }) {
               {activeCategory ? `Chuyên mục ${activeCategory.shortName || activeCategory.name}` : 'Tất cả bài viết thực chiến'}
             </span>
             <h2 className="text-xl font-bold text-slate-900 mt-1">
-              {activeCategory ? `Bài Viết & Báo Cáo ${activeCategory.name}` : 'Bài Viết & Báo Cáo Phân Tích Thực Chiến Mới Nhất [2026]'}
+              {activeCategory ? `Bài Viết & Báo Cáo ${activeCategory.name}` : 'Bài Viết & Báo Cáo Phân Tích Thực Chiến Mới Nhất 2026'}
             </h2>
           </div>
           <div className="text-xs text-slate-500 font-medium">

@@ -7,14 +7,14 @@ const domain = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, ''
 
 export const metadata = {
   title: {
-    absolute: 'Kiến thức & cẩm nang bất động sản thực chiến [2026] | Kênh Nhà Đất 24H'
+    absolute: 'Kiến thức & cẩm nang bất động sản thực chiến 2026 | Kênh Nhà Đất 24H'
   },
   description: 'Tổng hợp kiến thức bất động sản thực chiến 2026: phân tích biến động giá thị trường, kinh nghiệm mua bán đầu tư, thủ tục pháp lý sổ đỏ sổ hồng và tra cứu quy hoạch chuẩn 100%.',
   alternates: {
     canonical: `${domain}/kien-thuc`
   },
   openGraph: {
-    title: 'Kiến thức & cẩm nang bất động sản thực chiến [2026] | Kênh Nhà Đất 24H',
+    title: 'Kiến thức & cẩm nang bất động sản thực chiến 2026 | Kênh Nhà Đất 24H',
     description: 'Tổng hợp kiến thức bất động sản thực chiến 2026: phân tích biến động giá thị trường, kinh nghiệm mua bán đầu tư, thủ tục pháp lý sổ đỏ sổ hồng và tra cứu quy hoạch chuẩn 100%.',
     url: `${domain}/kien-thuc`,
     type: 'website',
@@ -29,7 +29,7 @@ export const metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Kiến thức & cẩm nang bất động sản thực chiến [2026] | Kênh Nhà Đất 24H',
+    title: 'Kiến thức & cẩm nang bất động sản thực chiến 2026 | Kênh Nhà Đất 24H',
     description: 'Tổng hợp kiến thức bất động sản thực chiến 2026: phân tích giá cả, kinh nghiệm đầu tư, pháp lý sổ đỏ và tra cứu quy hoạch.',
     images: [`${domain}/hero.png`]
   }
@@ -59,7 +59,7 @@ export default function KnowledgeRootPage() {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     '@id': `${domain}/kien-thuc#collection`,
-    name: 'Kiến thức và cẩm nang bất động sản thực chiến [2026] | Kênh Nhà Đất 24H',
+    name: 'Kiến thức và cẩm nang bất động sản thực chiến 2026 | Kênh Nhà Đất 24H',
     description: 'Tổng hợp kiến thức bất động sản thực chiến 2026: phân tích biến động giá thị trường, kinh nghiệm mua bán đầu tư, thủ tục pháp lý sổ đỏ sổ hồng và tra cứu quy hoạch chuẩn 100%.',
     url: `${domain}/kien-thuc`,
     inLanguage: 'vi-VN',
