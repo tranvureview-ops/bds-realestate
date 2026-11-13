@@ -7,10 +7,11 @@ import { buildRentSeoContentData } from '../data/seoCategoryContent';
 export default function RentListingsSeoContent({ city = null, district = null, propertyType = null, taxonomyInfo = null }) {
   const [openFaq, setOpenFaq] = useState(null);
 
-  const activeCity = city || taxonomyInfo?.city || null;
-  const activeType = (propertyType && propertyType !== 'all')
-    ? propertyType
-    : (taxonomyInfo?.propertyType || null);
+  // Ưu tiên tuyệt đối danh mục gốc chuẩn SEO của trang (taxonomyInfo), không bị biến dạng bởi query filters (?loai=room, ?gia=...)
+  const activeCity = taxonomyInfo?.city || city || null;
+  const activeType = (taxonomyInfo?.propertyType && taxonomyInfo.propertyType !== 'all')
+    ? taxonomyInfo.propertyType
+    : ((propertyType && propertyType !== 'all') ? propertyType : null);
 
   const seoData = useMemo(
     () => buildRentSeoContentData({ activeCity, propertyType: activeType }),

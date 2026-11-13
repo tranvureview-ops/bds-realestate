@@ -25,10 +25,11 @@ const GUIDE_TONE_CLASSES = {
 export default function SaleListingsSeoContent({ city = null, district = null, propertyType = null, taxonomyInfo = null }) {
   const [openFaq, setOpenFaq] = useState(null);
 
-  const activeCity = city || taxonomyInfo?.city || null;
-  const activeType = (propertyType && propertyType !== 'all')
-    ? propertyType
-    : (taxonomyInfo?.propertyType || null);
+  // Ưu tiên tuyệt đối danh mục gốc chuẩn SEO của trang (taxonomyInfo), không bị biến dạng bởi query filters (?loai=room, ?gia=...)
+  const activeCity = taxonomyInfo?.city || city || null;
+  const activeType = (taxonomyInfo?.propertyType && taxonomyInfo.propertyType !== 'all')
+    ? taxonomyInfo.propertyType
+    : ((propertyType && propertyType !== 'all') ? propertyType : null);
 
   const seoData = useMemo(
     () => buildSaleSeoContentData({ activeCity, propertyType: activeType }),

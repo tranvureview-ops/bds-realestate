@@ -95,8 +95,10 @@ export async function generateMetadata({ params, searchParams }) {
   const taxonomyInfo = parseTaxonomyUrl(currentPath);
   if (taxonomyInfo.isTaxonomy) {
     const meta = buildTaxonomyMetadata(taxonomyInfo);
-    if (sp.loai) {
-      // For multi-category pages, prevent indexing and ensure canonical without query
+    const hasQueryFilter = Object.keys(sp).some(k => k !== 'page' && sp[k]);
+    if (hasQueryFilter) {
+      // Với mọi URL có tham số query lọc (?loai=, ?gia=...), không cho Google index URL rác,
+      // thẻ canonical vẫn luôn trỏ về URL danh mục gốc sạch không query
       meta.robots = { index: false, follow: false };
     }
     return meta;

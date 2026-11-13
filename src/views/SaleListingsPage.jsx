@@ -408,12 +408,18 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
   const activePage = currentPage;
 
   const categorySeo = useMemo(() => {
+    // Khi trang là danh mục chuẩn (ví dụ: /ban-can-ho-chung-cu), bất kể URL có thêm query bộ lọc (?loai=room, ?gia=...)
+    // thì meta title, meta description và content seo luôn sử dụng dữ liệu của trang chuẩn taxonomyInfo
+    const targetTaxonomy = (taxonomyInfo && taxonomyInfo.isTaxonomy)
+      ? taxonomyInfo
+      : dynamicTaxonomy;
+
     return generateCategoryMetadata(
-      dynamicTaxonomy,
+      targetTaxonomy,
       2026,
       activePage
     );
-  }, [dynamicTaxonomy, activePage]);
+  }, [taxonomyInfo, dynamicTaxonomy, activePage]);
 
   // Cập nhật thẻ Title, Meta Description, Canonical & OpenGraph tối ưu SEO On-Page
   useEffect(() => {
@@ -550,9 +556,9 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
 
       {/* Khối Nội Dung On-Page SEO & Cẩm Nang Mua Bán Nhà Đất Chuyên Sâu Đồng Bộ Tùy Thành Phố */}
       <SaleListingsSeoContent 
-        city={filters?.city || taxonomyInfo?.city} 
-        district={filters?.district || taxonomyInfo?.district} 
-        propertyType={filters?.propertyType || taxonomyInfo?.propertyType} 
+        city={taxonomyInfo?.city || filters?.city} 
+        district={taxonomyInfo?.district || filters?.district} 
+        propertyType={taxonomyInfo?.propertyType || filters?.propertyType} 
         taxonomyInfo={taxonomyInfo} 
       />
     </div>

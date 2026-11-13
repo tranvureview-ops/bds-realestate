@@ -12,9 +12,19 @@ import { buildSeoUrl } from '../utils/permalink.js';
 const ALL_TYPES = new Set(['', 'all', 'null', 'undefined']);
 
 const normalizeType = (propertyType) => {
-  if (!propertyType || typeof propertyType !== 'string') return 'all';
+  if (!propertyType) return 'all';
+  if (Array.isArray(propertyType)) {
+    const valid = propertyType.map(normalizeType).filter(t => t !== 'all');
+    return valid.length > 0 ? valid[0] : 'all';
+  }
+  if (typeof propertyType !== 'string') return 'all';
   const trimmed = propertyType.trim().toLowerCase();
-  return ALL_TYPES.has(trimmed) ? 'all' : trimmed;
+  if (ALL_TYPES.has(trimmed)) return 'all';
+  if (trimmed.includes(',')) {
+    const first = trimmed.split(',')[0].trim();
+    return ALL_TYPES.has(first) ? 'all' : first;
+  }
+  return trimmed;
 };
 
 /**
