@@ -146,9 +146,16 @@ const normalizeNavMenuItems = (rawMenu) => {
     const isSale = item.path?.includes('nha-dat-ban') || item.id === 'menu-sale' || item.title?.toLowerCase().includes('bán');
     const isRent = item.path?.includes('cho-thue') || item.id === 'menu-rent' || item.title?.toLowerCase().includes('thuê');
     if ((isSale || isRent) && Array.isArray(item.children)) {
+      const validChildren = item.children.filter(sub => {
+        // Loại bỏ triệt để danh mục cho thuê đất nền dự án
+        if (isRent && (sub.id === 'sub-rent-project-land' || sub.path?.includes('cho-thue-dat-nen-du-an') || sub.title?.toLowerCase().includes('đất nền dự án'))) {
+          return false;
+        }
+        return true;
+      });
       return {
         ...item,
-        children: item.children.map(sub => {
+        children: validChildren.map(sub => {
           const rawTitle = sub.title || '';
           if (isSale && !rawTitle.toLowerCase().startsWith('bán')) {
             return { ...sub, title: `Bán ${rawTitle}` };
