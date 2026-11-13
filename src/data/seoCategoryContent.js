@@ -1073,8 +1073,8 @@ export const buildSaleSeoContentData = ({
     }
 
     const faqTitle = facet.hasFacetFilters
-      ? `Câu Hỏi Thường Gặp Khi Mua Bán ${profile.label}${facet.filterSuffix} (FAQ)`
-      : `Câu Hỏi Thường Gặp Khi Mua Bán ${profile.label}${isSpecificCity ? ` Tại ${cityDisplay}` : ''} (FAQ)`;
+      ? `Câu Hỏi Thường Gặp Khi Mua Bán ${profile.label}${facet.filterSuffix}`
+      : `Câu Hỏi Thường Gặp Khi Mua Bán ${profile.label}${isSpecificCity ? ` Tại ${cityDisplay}` : ''}`;
 
     return {
       marketTitle,
@@ -1108,7 +1108,7 @@ export const buildSaleSeoContentData = ({
       legalSteps: DEFAULT_LEGAL_STEPS(isSpecificCity ? cityDisplay : null),
       guidesTitle: 'Cẩm Nang Tri Thức & Hướng Dẫn Mua Nhà An Toàn Từ Chuyên Gia',
       guides: DEFAULT_GUIDES,
-      faqTitle: `Câu Hỏi Thường Gặp Khi Mua Bán Nhà Đất${isSpecificCity ? ` Tại ${cityDisplay}` : ''} (FAQ)`,
+      faqTitle: `Câu Hỏi Thường Gặp Khi Mua Bán Nhà Đất${isSpecificCity ? ` Tại ${cityDisplay}` : ''}`,
       faqs: presetCity.faqs,
       discoveryTitle: discovery.title,
       discoveryLinks: discovery.links
@@ -1145,7 +1145,7 @@ export const buildSaleSeoContentData = ({
     legalSteps: DEFAULT_LEGAL_STEPS(cityDisplay),
     guidesTitle: 'Cẩm Nang Tri Thức & Hướng Dẫn Mua Nhà An Toàn Từ Chuyên Gia',
     guides: DEFAULT_GUIDES,
-    faqTitle: `Câu Hỏi Thường Gặp Khi Mua Bán Nhà Đất Tại ${cityDisplay} (FAQ)`,
+    faqTitle: `Câu Hỏi Thường Gặp Khi Mua Bán Nhà Đất Tại ${cityDisplay}`,
     faqs: [
       { q: `Người mua nhà đất tại ${cityDisplay} lần đầu cần kiểm tra những thủ tục pháp lý nào?`, a: `Kiểm tra bản gốc Sổ đỏ/Sổ hồng, tra cứu thông tin quy hoạch tại Chi nhánh Văn phòng Đăng ký Đất đai thuộc ${cityDisplay}, xác minh ngăn chặn giao dịch UCHI trước khi ký hợp đồng đặt cọc.` },
       { q: `Thủ tục sang tên chuyển nhượng sổ đỏ tại ${cityDisplay} nộp ở đâu?`, a: `Nộp tại Bộ phận Một cửa Chi nhánh Văn phòng Đăng ký Đất đai cấp quận/huyện/thị xã thuộc ${cityDisplay} sau khi công chứng hợp đồng mua bán. Thời hạn giải quyết 10 - 15 ngày làm việc.` },
@@ -1704,7 +1704,7 @@ export const buildRentSeoContentData = ({
       legalTitle: profile.legalTitle || `4 Lưu Ý Pháp Lý Sống Còn Khi Ký Hợp Đồng ${profile.label}`,
       legalSteps: profile.legalSteps || DEFAULT_RENT_LEGAL_STEPS,
       faqTitle: facet.hasFacetFilters
-        ? `Câu Hỏi Thường Gặp Về ${profile.label}${facet.filterSuffix} (FAQ)`
+        ? `Câu Hỏi Thường Gặp Về ${profile.label}${facet.filterSuffix}`
         : `Câu Hỏi Thường Gặp Về ${profile.label}${isSpecificCity ? ` Tại ${cityDisplay}` : ''}`,
       faqs: [...facetFaqs, ...baseFaqs],
       discoveryTitle: discoveryLinks.title,
