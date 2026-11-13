@@ -7,7 +7,7 @@ import { Link, useRouter } from '../router/RouterContext';
 import ListingGrid from '../components/ListingGrid';
 import ListingFilterBar from '../components/ListingFilterBar';
 import SaleListingsSeoContent from '../components/SaleListingsSeoContent';
-import { generateCategoryJsonLd, generateCategoryMetadata, getCanonicalUrl, parseTaxonomyUrl, buildDynamicTaxonomyInfo, buildSeoUrl } from '../utils/permalink';
+import { generateCategoryJsonLd, generateCategoryMetadata, getCanonicalUrl, parseTaxonomyUrl, buildDynamicTaxonomyInfo, buildSeoUrl, formatSentenceCase } from '../utils/permalink';
 import { filterProperties } from '../utils/propertyFilter';
 import { parseCIdsParam } from '../data/propertyTypeTaxonomy';
 
@@ -497,6 +497,24 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
     return taxonomyInfo?.basePath || '/nha-dat-ban';
   }, [filters, taxonomyInfo?.basePath]);
 
+  const displayTitle = useMemo(() => {
+    // Khi người dùng đang ở trang taxonomy chuẩn (ví dụ: /ban-can-ho-chung-cu),
+    // tiêu đề H1 và Breadcrumb luôn bảo toàn theo danh mục gốc chuẩn của trang,
+    // không bị ghép thêm tên các danh mục phụ từ query lọc (?loai=office)
+    if (taxonomyInfo && taxonomyInfo.isTaxonomy && taxonomyInfo.canonicalPath && taxonomyInfo.canonicalPath !== '/nha-dat-ban') {
+      const baseTitle = taxonomyInfo.title || 'Mua Bán Nhà Đất';
+      let titleWithLoc = baseTitle;
+      if (taxonomyInfo.city) {
+        titleWithLoc = baseTitle.includes(taxonomyInfo.city) ? baseTitle : `${baseTitle} tại ${taxonomyInfo.city}`;
+      } else if (!baseTitle.toLowerCase().includes('toàn quốc')) {
+        titleWithLoc = `${baseTitle} trên toàn quốc`;
+      }
+      return formatSentenceCase(titleWithLoc);
+    }
+    const raw = dynamicTaxonomy?.title || 'Mua bán nhà đất trên toàn quốc';
+    return formatSentenceCase(raw);
+  }, [taxonomyInfo, dynamicTaxonomy]);
+
   return (
     <div className="pb-2 sm:pb-4">
       {/* Header Banner & Breadcrumbs */}
@@ -509,17 +527,13 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
             <Link to="/nha-dat-ban" className="hover:text-emerald-400 font-medium">Bán</Link>
             <i className="fa-solid fa-chevron-right text-[10px]"></i>
             <span className="text-white font-bold">
-              {dynamicTaxonomy?.title?.toLowerCase().includes('các loại nhà bán')
-                ? (filters.city ? `Nhà bán tại ${filters.city}` : 'Nhà bán trên toàn quốc')
-                : dynamicTaxonomy?.title?.toLowerCase().includes('các loại đất bán')
-                ? (filters.city ? `Đất bán tại ${filters.city}` : 'Đất bán trên toàn quốc')
-                : (dynamicTaxonomy?.title || 'Nhà Đất Cần Bán')}
+              {displayTitle}
             </span>
           </div>
 
           <div>
             <h1 className="text-2xl sm:text-3xl font-black text-white">
-              {dynamicTaxonomy?.title || 'Mua Bán Nhà Đất Toàn Quốc'}
+              {displayTitle}
               {activePage > 1 && (
                 <span className="text-emerald-400 font-semibold text-lg sm:text-xl ml-2">
                   - Trang {activePage}

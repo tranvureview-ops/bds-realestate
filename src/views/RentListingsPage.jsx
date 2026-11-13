@@ -7,7 +7,7 @@ import { Link, useRouter } from '../router/RouterContext';
 import ListingGrid from '../components/ListingGrid';
 import ListingFilterBar from '../components/ListingFilterBar';
 import RentListingsSeoContent from '../components/RentListingsSeoContent';
-import { generateCategoryJsonLd, generateCategoryMetadata, getCanonicalUrl, parseTaxonomyUrl, buildDynamicTaxonomyInfo, buildSeoUrl } from '../utils/permalink';
+import { generateCategoryJsonLd, generateCategoryMetadata, getCanonicalUrl, parseTaxonomyUrl, buildDynamicTaxonomyInfo, buildSeoUrl, formatSentenceCase } from '../utils/permalink';
 import { filterProperties } from '../utils/propertyFilter';
 import { parseCIdsParam } from '../data/propertyTypeTaxonomy';
 
@@ -497,6 +497,24 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
     return taxonomyInfo?.basePath || '/nha-dat-cho-thue';
   }, [filters, taxonomyInfo?.basePath]);
 
+  const displayTitle = useMemo(() => {
+    // Khi người dùng đang ở trang taxonomy chuẩn (ví dụ: /cho-thue-chung-cu-mini),
+    // tiêu đề H1 và Breadcrumb luôn bảo toàn theo danh mục gốc chuẩn của trang,
+    // không bị ghép thêm tên các danh mục phụ từ query lọc (?loai=office)
+    if (taxonomyInfo && taxonomyInfo.isTaxonomy && taxonomyInfo.canonicalPath && taxonomyInfo.canonicalPath !== '/nha-dat-cho-thue') {
+      const baseTitle = taxonomyInfo.title || 'Cho Thuê Nhà Đất';
+      let titleWithLoc = baseTitle;
+      if (taxonomyInfo.city) {
+        titleWithLoc = baseTitle.includes(taxonomyInfo.city) ? baseTitle : `${baseTitle} tại ${taxonomyInfo.city}`;
+      } else if (!baseTitle.toLowerCase().includes('toàn quốc')) {
+        titleWithLoc = `${baseTitle} trên toàn quốc`;
+      }
+      return formatSentenceCase(titleWithLoc);
+    }
+    const raw = dynamicTaxonomy?.title || 'Cho thuê nhà đất trên toàn quốc';
+    return formatSentenceCase(raw);
+  }, [taxonomyInfo, dynamicTaxonomy]);
+
   return (
     <div className="pb-2 sm:pb-4">
       {/* Header Banner & Breadcrumbs */}
@@ -509,15 +527,13 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
             <Link to="/nha-dat-cho-thue" className="hover:text-blue-400 font-medium">Cho thuê</Link>
             <i className="fa-solid fa-chevron-right text-[10px]"></i>
             <span className="text-white font-bold">
-              {dynamicTaxonomy?.title?.toLowerCase().includes('các loại nhà')
-                ? (filters.city ? `Nhà cho thuê tại ${filters.city}` : 'Nhà cho thuê trên toàn quốc')
-                : (dynamicTaxonomy?.title || 'Cho Thuê Nhà Đất')}
+              {displayTitle}
             </span>
           </div>
 
           <div>
             <h1 className="text-2xl sm:text-3xl font-black text-white">
-              {dynamicTaxonomy?.title || 'Cho Thuê Nhà Đất Toàn Quốc'}
+              {displayTitle}
               {activePage > 1 && (
                 <span className="text-blue-400 font-semibold text-lg sm:text-xl ml-2">
                   - Trang {activePage}
