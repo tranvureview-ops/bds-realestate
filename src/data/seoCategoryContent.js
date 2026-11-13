@@ -7,7 +7,7 @@
  */
 
 import { VIETNAM_ADMINISTRATIVE_DATA } from './vietnamAdministrativeData.js';
-import { buildSeoUrl } from '../utils/permalink.js';
+import { buildSeoUrl, formatPriceRangeText, formatAreaRangeText } from '../utils/permalink.js';
 
 const ALL_TYPES = new Set(['', 'all', 'null', 'undefined']);
 
@@ -855,27 +855,184 @@ const buildSaleDiscoveryLinks = ({ activeCity, propertyType, profile }) => {
 };
 
 /**
+ * Phân tích và chuẩn hóa nhãn cho các tiêu chí bộ lọc chuẩn SEO (Giá, Diện tích, Số phòng ngủ)
+ */
+const resolveFacetFilterLabels = ({ priceRange, priceLabel, areaRange, areaLabel, bedroom, taxonomyInfo } = {}) => {
+  // 1. Nhãn mức giá
+  let cleanPrice = priceLabel || taxonomyInfo?.priceLabel || '';
+  const effPriceRange = (priceRange && priceRange !== 'all')
+    ? priceRange
+    : (taxonomyInfo?.priceRange && taxonomyInfo.priceRange !== 'all' ? taxonomyInfo.priceRange : null);
+  if (!cleanPrice && effPriceRange) {
+    const dynBetween = String(effPriceRange).match(/^([0-9.]+)([bm])-([0-9.]+)([bm])$/i);
+    if (dynBetween) {
+      const minUnit = dynBetween[2].toLowerCase() === 'm' ? 'triệu' : 'tỷ';
+      const maxUnit = dynBetween[4].toLowerCase() === 'm' ? 'triệu' : 'tỷ';
+      const v1 = parseFloat(dynBetween[1]);
+      const v2 = parseFloat(dynBetween[3]);
+      cleanPrice = minUnit === maxUnit ? `giá từ ${v1} đến ${v2} ${maxUnit}` : `giá từ ${v1} ${minUnit} đến ${v2} ${maxUnit}`;
+    } else {
+      const pText = formatPriceRangeText(effPriceRange);
+      if (pText && pText !== 'Mọi mức giá') {
+        cleanPrice = `giá ${pText.charAt(0).toLowerCase() + pText.slice(1)}`;
+      }
+    }
+  }
+
+  // 2. Nhãn diện tích
+  let cleanArea = areaLabel || taxonomyInfo?.areaLabel || '';
+  const effAreaRange = (areaRange && areaRange !== 'all')
+    ? areaRange
+    : (taxonomyInfo?.areaRange && taxonomyInfo.areaRange !== 'all' ? taxonomyInfo.areaRange : null);
+  if (!cleanArea && effAreaRange) {
+    const aText = formatAreaRangeText(effAreaRange);
+    if (aText && aText !== 'Mọi diện tích') {
+      cleanArea = `diện tích ${aText.charAt(0).toLowerCase() + aText.slice(1)}`;
+    }
+  }
+
+  // 3. Nhãn phòng ngủ
+  const effBedroom = (bedroom && bedroom !== 'all')
+    ? bedroom
+    : (taxonomyInfo?.bedroom && taxonomyInfo.bedroom !== 'all' ? taxonomyInfo.bedroom : null);
+  const cleanBedroom = effBedroom ? `${effBedroom} phòng ngủ` : '';
+
+  const filterParts = [];
+  if (cleanPrice) filterParts.push(cleanPrice);
+  if (cleanArea) filterParts.push(cleanArea);
+  if (cleanBedroom) filterParts.push(cleanBedroom);
+
+  const hasFacetFilters = filterParts.length > 0;
+  const filterSuffix = hasFacetFilters ? `, ${filterParts.join(', ')}` : '';
+
+  return {
+    cleanPrice,
+    cleanArea,
+    cleanBedroom,
+    filterParts,
+    hasFacetFilters,
+    filterSuffix
+  };
+};
+
+/**
+ * Tạo danh sách internal linking Silo thông minh khi người dùng đang ở trang bộ lọc sâu
+ */
+const buildFacetedDiscoveryLinks = ({ demand = 'sale', propertyType = null, activeCity = null, profile = null } = {}) => {
+  const isRent = demand === 'rent';
+  const norm = normalizeType(propertyType);
+  const cParam = activeCity || null;
+  const cSuffix = activeCity ? ` ${activeCity}` : '';
+
+  const links = [];
+  if (isRent) {
+    links.push(
+      { name: `Giá dưới 3 triệu${cSuffix}`, path: buildSeoUrl({ demand, propertyType: norm, city: cParam, priceRange: 'under-3m' }) },
+      { name: `Giá 3 - 5 triệu${cSuffix}`, path: buildSeoUrl({ demand, propertyType: norm, city: cParam, priceRange: '3m-5m' }) },
+      { name: `Giá 5 - 10 triệu${cSuffix}`, path: buildSeoUrl({ demand, propertyType: norm, city: cParam, priceRange: '5m-10m' }) },
+      { name: `Diện tích 30 - 50 m²${cSuffix}`, path: buildSeoUrl({ demand, propertyType: norm, city: cParam, areaRange: '30-50' }) },
+      { name: `Diện tích 50 - 80 m²${cSuffix}`, path: buildSeoUrl({ demand, propertyType: norm, city: cParam, areaRange: '50-80' }) },
+      { name: `Căn 1 phòng ngủ${cSuffix}`, path: buildSeoUrl({ demand, propertyType: norm, city: cParam, bedroom: '1' }) },
+      { name: `Căn 2 phòng ngủ${cSuffix}`, path: buildSeoUrl({ demand, propertyType: norm, city: cParam, bedroom: '2' }) },
+      { name: `Căn 3 phòng ngủ${cSuffix}`, path: buildSeoUrl({ demand, propertyType: norm, city: cParam, bedroom: '3' }) }
+    );
+  } else {
+    links.push(
+      { name: `Giá dưới 2 tỷ${cSuffix}`, path: buildSeoUrl({ demand, propertyType: norm, city: cParam, priceRange: 'under-2b' }) },
+      { name: `Giá 2 - 5 tỷ${cSuffix}`, path: buildSeoUrl({ demand, propertyType: norm, city: cParam, priceRange: '2b-5b' }) },
+      { name: `Giá 5 - 10 tỷ${cSuffix}`, path: buildSeoUrl({ demand, propertyType: norm, city: cParam, priceRange: '5b-10b' }) },
+      { name: `Diện tích 50 - 100 m²${cSuffix}`, path: buildSeoUrl({ demand, propertyType: norm, city: cParam, areaRange: '50-100' }) },
+      { name: `Diện tích 100 - 200 m²${cSuffix}`, path: buildSeoUrl({ demand, propertyType: norm, city: cParam, areaRange: '100-200' }) },
+      { name: `Căn 2 phòng ngủ${cSuffix}`, path: buildSeoUrl({ demand, propertyType: norm, city: cParam, bedroom: '2' }) },
+      { name: `Căn 3 phòng ngủ${cSuffix}`, path: buildSeoUrl({ demand, propertyType: norm, city: cParam, bedroom: '3' }) }
+    );
+  }
+  return {
+    title: `Khám Phá ${profile?.label || 'Bất Động Sản'} Theo Khoảng Giá & Bộ Lọc Đề Xuất`,
+    links
+  };
+};
+
+/**
  * Trả về trọn bộ dữ liệu On-Page SEO cho SaleListingsSeoContent
  */
-export const buildSaleSeoContentData = ({ activeCity = null, propertyType = null } = {}) => {
+export const buildSaleSeoContentData = ({
+  activeCity = null,
+  district = null,
+  propertyType = null,
+  priceRange = null,
+  priceLabel = null,
+  areaRange = null,
+  areaLabel = null,
+  bedroom = null,
+  taxonomyInfo = null
+} = {}) => {
   const cityCtx = resolveCityContext(activeCity);
   const profile = getSaleProfile(propertyType);
   const isSpecificCity = cityCtx.key !== 'national';
   const locHeader = isSpecificCity ? 'Khu vực / Quận Huyện' : 'Khu vực / Tỉnh thành';
   const cityDisplay = cityCtx.displayName;
-  const discovery = buildSaleDiscoveryLinks({ activeCity: isSpecificCity ? cityDisplay : null, propertyType, profile });
+  const norm = normalizeType(propertyType);
+
+  const facet = resolveFacetFilterLabels({
+    priceRange,
+    priceLabel,
+    areaRange,
+    areaLabel,
+    bedroom,
+    taxonomyInfo
+  });
+
+  const effDistrict = district || taxonomyInfo?.district || null;
+  const locationLabel = effDistrict
+    ? `tại ${effDistrict}${activeCity ? `, ${cityDisplay}` : ''}`
+    : (isSpecificCity ? `tại ${cityDisplay}` : 'toàn quốc');
+
+  const discovery = facet.hasFacetFilters
+    ? buildFacetedDiscoveryLinks({ demand: 'sale', propertyType: norm, activeCity: isSpecificCity ? cityDisplay : null, profile })
+    : buildSaleDiscoveryLinks({ activeCity: isSpecificCity ? cityDisplay : null, propertyType, profile });
 
   // Trường hợp 1: Có phân khúc cụ thể (VD: /ban-can-ho-chung-cu hoặc /ban-can-ho-chung-cu-da-nang)
   if (profile) {
-    const locationLabel = isSpecificCity ? cityDisplay : 'Toàn Quốc';
-    const marketTitle = `Thị Trường Mua Bán ${profile.label} ${locationLabel} Năm 2026: Diễn Biến & Xu Hướng`;
-    const cityIntro = isSpecificCity
-      ? `Tại ${cityDisplay}, thị trường mua bán ${profile.shortLabel} năm 2026 ghi nhận sức hút lớn nhờ hạ tầng giao thông kết nối và quy hoạch đô thị đồng bộ. Xét trên bình diện chung, ${profile.marketFocus}`
-      : `Bước sang năm 2026, phân khúc mua bán ${profile.shortLabel} trên toàn quốc chuyển dịch mạnh mẽ khi Luật Đất đai 2024, Luật Nhà ở 2023 và Luật Kinh doanh Bất động sản 2023 thực thi đồng bộ. Đặc biệt, ${profile.marketFocus}`;
+    const marketTitle = facet.hasFacetFilters
+      ? `Thị Trường Mua Bán ${profile.label} ${locationLabel}${facet.filterSuffix} Năm 2026: Diễn Biến & Kinh Nghiệm`
+      : `Thị Trường Mua Bán ${profile.label} ${isSpecificCity ? cityDisplay : 'Toàn Quốc'} Năm 2026: Diễn Biến & Xu Hướng`;
 
-    const priceTableTitle = isSpecificCity
-      ? `Khung Giá ${profile.label} Tham Khảo Từng Khu Vực Tại ${cityDisplay} [2026]`
-      : `Khung Giá ${profile.label} Tham Khảo Tại Các Đô Thị Trọng Điểm [2026]`;
+    let cityIntro = '';
+    if (facet.hasFacetFilters) {
+      let priceInsight = '';
+      if (facet.cleanPrice) {
+        if (facet.cleanPrice.includes('dưới 2') || facet.cleanPrice.includes('dưới 1') || facet.cleanPrice.includes('dưới 500')) {
+          priceInsight = `Ở mức ${facet.cleanPrice}, đây là phân khúc nhà ở bình dân hoặc đất nền vùng ven đón sóng đầu tư hạ tầng; người mua cần thẩm định kỹ quy hoạch, tranh chấp và tính pháp lý sổ đỏ.`;
+        } else if (facet.cleanPrice.includes('2 đến 3') || facet.cleanPrice.includes('2 đến 5') || facet.cleanPrice.includes('2 - 5')) {
+          priceInsight = `Với tầm tài chính ${facet.cleanPrice}, phân khúc này là tâm điểm của nhu cầu an cư thực, thanh khoản tốt và được các ngân hàng thương mại hỗ trợ giải ngân gói vay mua nhà với lãi suất ưu đãi.`;
+        } else if (facet.cleanPrice.includes('5 đến 10') || facet.cleanPrice.includes('5 - 10')) {
+          priceInsight = `Trong tầm giá ${facet.cleanPrice}, người mua có thể sở hữu các bất động sản vị trí đắc địa, căn hộ cao cấp hoặc nhà riêng trung tâm với tiềm năng gia tăng giá trị ổn định theo thời gian.`;
+        } else {
+          priceInsight = `Phân khúc ${facet.cleanPrice} thuộc nhóm bất động sản giá trị cao, biệt thự và nhà mặt phố thương mại mang lại dòng tiền khai thác kinh doanh bền vững.`;
+        }
+      }
+
+      let areaInsight = '';
+      if (facet.cleanArea || facet.cleanBedroom) {
+        const parts = [];
+        if (facet.cleanArea) parts.push(facet.cleanArea);
+        if (facet.cleanBedroom) parts.push(facet.cleanBedroom);
+        areaInsight = `Với tiêu chí ${parts.join(' và ')}, việc kiểm tra hiện trạng hoàn công trên sổ hồng, mật độ xây dựng và cấu trúc chịu lực là yếu tố cốt lõi đảm bảo an toàn tài sản.`;
+      }
+
+      cityIntro = `Năm 2026, thị trường mua bán ${profile.shortLabel} ${locationLabel}${facet.filterSuffix} đang thu hút dòng vốn lớn nhờ các chính sách tháo gỡ pháp lý của Luật Đất đai 2024. ${priceInsight} ${areaInsight} Khuyến nghị từ Kênh Nhà Đất 24H: Người mua nên kiểm tra bản gốc giấy chứng nhận quyền sử dụng đất tại Văn phòng Đăng ký Đất đai, thẩm định giá thị trường thực tế và thực hiện thủ tục đặt cọc qua văn phòng công chứng hợp pháp.`;
+    } else {
+      cityIntro = isSpecificCity
+        ? `Tại ${cityDisplay}, thị trường mua bán ${profile.shortLabel} năm 2026 ghi nhận sức hút lớn nhờ hạ tầng giao thông kết nối và quy hoạch đô thị đồng bộ. Xét trên bình diện chung, ${profile.marketFocus}`
+        : `Bước sang năm 2026, phân khúc mua bán ${profile.shortLabel} trên toàn quốc chuyển dịch mạnh mẽ khi Luật Đất đai 2024, Luật Nhà ở 2023 và Luật Kinh doanh Bất động sản 2023 thực thi đồng bộ. Đặc biệt, ${profile.marketFocus}`;
+    }
+
+    const priceTableTitle = facet.hasFacetFilters
+      ? `Khảo Sát Khung Giá Mua Bán ${profile.label} ${locationLabel}${facet.filterSuffix} [2026]`
+      : (isSpecificCity
+          ? `Khung Giá ${profile.label} Tham Khảo Từng Khu Vực Tại ${cityDisplay} [2026]`
+          : `Khung Giá ${profile.label} Tham Khảo Tại Các Đô Thị Trọng Điểm [2026]`);
 
     const cityBenchmarks = profile.priceRanges[cityCtx.key];
     let benchmarks;
@@ -893,8 +1050,31 @@ export const buildSaleSeoContentData = ({ activeCity = null, propertyType = null
     }
 
     const legalTitle = `${profile.legalTitlePrefix}${isSpecificCity ? ` Tại ${cityDisplay}` : ''}`;
-    const faqs = profile.faqsBuilder(isSpecificCity, isSpecificCity ? cityDisplay : '');
-    const faqTitle = `Câu Hỏi Thường Gặp Khi Mua Bán ${profile.label}${isSpecificCity ? ` Tại ${cityDisplay}` : ''} (FAQ)`;
+    const baseFaqs = profile.faqsBuilder(isSpecificCity, isSpecificCity ? cityDisplay : '');
+
+    const facetFaqs = [];
+    if (facet.hasFacetFilters) {
+      facetFaqs.push({
+        q: `Với tài chính ${facet.cleanPrice || 'hiện tại'}, người mua có thể sở hữu ${profile.shortLabel}${facet.cleanBedroom ? ` ${facet.cleanBedroom}` : ''}${facet.cleanArea ? ` ${facet.cleanArea}` : ''} ${locationLabel} không?`,
+        a: `Hoàn toàn có thể. Năm 2026, các bất động sản ${profile.shortLabel}${facet.filterSuffix} ${locationLabel} có nguồn cung khá phong phú tại các dự án đô thị và khu dân cư quy hoạch đồng bộ. Người mua có thể chuẩn bị sẵn 30 - 50% vốn tự có và tận dụng các gói vay mua nhà hỗ trợ lãi suất từ ngân hàng để tối ưu dòng tiền.`
+      });
+
+      if (facet.cleanArea || facet.cleanBedroom) {
+        facetFaqs.push({
+          q: `Tiêu chuẩn thẩm định pháp lý và chất lượng công trình cho ${profile.shortLabel}${facet.cleanArea ? ` ${facet.cleanArea}` : ''}${facet.cleanBedroom ? ` ${facet.cleanBedroom}` : ''} gồm những gì?`,
+          a: `Người mua cần kiểm tra kỹ: (1) Sổ hồng / Sổ đỏ chính chủ bản gốc, không nằm trong quy hoạch treo hoặc thế chấp ngân hàng chưa giải chấp; (2) Giấy phép xây dựng và biên bản hoàn công khớp đúng hiện trạng; (3) Hệ thống kỹ thuật điện nước, chất lượng tường chịu lực và độ chống thấm; (4) Khảo sát dân trí và an ninh khu vực lân cận.`
+        });
+      }
+
+      facetFaqs.push({
+        q: `Quy trình đặt cọc và công chứng sang tên phân khúc ${facet.cleanPrice || 'này'} thực hiện như thế nào để an toàn tuyệt đối?`,
+        a: `Quy trình 3 bước chuẩn pháp lý: Bước 1 - Ký hợp đồng đặt cọc tại Văn phòng công chứng (tiền cọc từ 5 - 10% giá trị hợp đồng); Bước 2 - Hai bên ký hợp đồng chuyển nhượng công chứng và thanh toán đợt 2 (thường giữ lại 5% để chờ sổ); Bước 3 - Nộp hồ sơ sang tên tại Văn phòng Đăng ký Đất đai, nộp thuế TNCN và lệ phí trước bạ, nhận sổ hồng mang tên người mua mới.`
+      });
+    }
+
+    const faqTitle = facet.hasFacetFilters
+      ? `Câu Hỏi Thường Gặp Khi Mua Bán ${profile.label}${facet.filterSuffix} (FAQ)`
+      : `Câu Hỏi Thường Gặp Khi Mua Bán ${profile.label}${isSpecificCity ? ` Tại ${cityDisplay}` : ''} (FAQ)`;
 
     return {
       marketTitle,
@@ -908,7 +1088,7 @@ export const buildSaleSeoContentData = ({ activeCity = null, propertyType = null
       guidesTitle: `Cẩm Nang Chuyên Sâu & Hướng Dẫn Mua ${profile.label} An Toàn`,
       guides: profile.guides,
       faqTitle,
-      faqs,
+      faqs: [...facetFaqs, ...baseFaqs],
       discoveryTitle: discovery.title,
       discoveryLinks: discovery.links
     };
@@ -1385,7 +1565,17 @@ const getRentProfile = (propertyType) => {
 /**
  * Trả về trọn bộ dữ liệu On-Page SEO cho RentListingsSeoContent
  */
-export const buildRentSeoContentData = ({ activeCity = null, propertyType = null } = {}) => {
+export const buildRentSeoContentData = ({
+  activeCity = null,
+  district = null,
+  propertyType = null,
+  priceRange = null,
+  priceLabel = null,
+  areaRange = null,
+  areaLabel = null,
+  bedroom = null,
+  taxonomyInfo = null
+} = {}) => {
   const cityCtx = resolveCityContext(activeCity);
   const profile = getRentProfile(propertyType);
   const isSpecificCity = cityCtx.key !== 'national';
@@ -1393,50 +1583,117 @@ export const buildRentSeoContentData = ({ activeCity = null, propertyType = null
   const cityDisplay = cityCtx.displayName;
   const norm = normalizeType(propertyType);
 
-  const discoveryLinks = (!isSpecificCity && profile && norm !== 'all')
-    ? {
-        title: `Khám Phá ${profile.label} Tại Các Địa Bàn Nổi Bật`,
-        links: [
-          ...(profile.discoveryCities || ['TP. Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng', 'Bình Dương', 'Khánh Hòa']).map((c) => ({
-            name: `Thuê ${profile.shortLabel} ${c}`,
-            path: buildSeoUrl({ demand: 'rent', propertyType: norm, city: c })
-          })),
-          {
-            name: profile.relatedLink?.name || (norm === 'apartment' ? 'Cho thuê chung cư mini' : 'Cho thuê căn hộ chung cư'),
-            path: profile.relatedLink?.path || buildSeoUrl({ demand: 'rent', propertyType: norm === 'apartment' ? 'mini-apartment' : 'apartment' })
+  const facet = resolveFacetFilterLabels({
+    priceRange,
+    priceLabel,
+    areaRange,
+    areaLabel,
+    bedroom,
+    taxonomyInfo
+  });
+
+  const effDistrict = district || taxonomyInfo?.district || null;
+  const locationLabel = effDistrict
+    ? `tại ${effDistrict}${activeCity ? `, ${cityDisplay}` : ''}`
+    : (isSpecificCity ? `tại ${cityDisplay}` : 'toàn quốc');
+
+  const discoveryLinks = facet.hasFacetFilters
+    ? buildFacetedDiscoveryLinks({ demand: 'rent', propertyType: norm, activeCity: isSpecificCity ? cityDisplay : null, profile })
+    : ((!isSpecificCity && profile && norm !== 'all')
+        ? {
+            title: `Khám Phá ${profile.label} Tại Các Địa Bàn Nổi Bật`,
+            links: [
+              ...(profile.discoveryCities || ['TP. Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng', 'Bình Dương', 'Khánh Hòa']).map((c) => ({
+                name: `Thuê ${profile.shortLabel} ${c}`,
+                path: buildSeoUrl({ demand: 'rent', propertyType: norm, city: c })
+              })),
+              {
+                name: profile.relatedLink?.name || (norm === 'apartment' ? 'Cho thuê chung cư mini' : 'Cho thuê căn hộ chung cư'),
+                path: profile.relatedLink?.path || buildSeoUrl({ demand: 'rent', propertyType: norm === 'apartment' ? 'mini-apartment' : 'apartment' })
+              }
+            ]
           }
-        ]
-      }
-    : {
-        title: isSpecificCity ? `Khám Phá Nhà Đất Cho Thuê Tại ${cityDisplay} Theo Phân Khúc` : 'Khám Phá Nhà Đất Cho Thuê Theo Phân Khúc',
-        links: [
-          { name: `Cho thuê căn hộ chung cư${isSpecificCity ? ` ${cityDisplay}` : ''}`, path: buildSeoUrl({ demand: 'rent', propertyType: 'apartment', city: isSpecificCity ? cityDisplay : null }) },
-          { name: `Cho thuê chung cư mini, CHDV${isSpecificCity ? ` ${cityDisplay}` : ''}`, path: buildSeoUrl({ demand: 'rent', propertyType: 'mini-apartment', city: isSpecificCity ? cityDisplay : null }) },
-          { name: `Cho thuê nhà riêng nguyên căn${isSpecificCity ? ` ${cityDisplay}` : ''}`, path: buildSeoUrl({ demand: 'rent', propertyType: 'house', city: isSpecificCity ? cityDisplay : null }) },
-          { name: `Cho thuê nhà mặt phố kinh doanh${isSpecificCity ? ` ${cityDisplay}` : ''}`, path: buildSeoUrl({ demand: 'rent', propertyType: 'street-house', city: isSpecificCity ? cityDisplay : null }) },
-          { name: `Cho thuê văn phòng, mặt bằng${isSpecificCity ? ` ${cityDisplay}` : ''}`, path: buildSeoUrl({ demand: 'rent', propertyType: 'office', city: isSpecificCity ? cityDisplay : null }) },
-          { name: `Cho thuê kho xưởng, bến bãi${isSpecificCity ? ` ${cityDisplay}` : ''}`, path: buildSeoUrl({ demand: 'rent', propertyType: 'warehouse', city: isSpecificCity ? cityDisplay : null }) }
-        ]
-      };
+        : {
+            title: isSpecificCity ? `Khám Phá Nhà Đất Cho Thuê Tại ${cityDisplay} Theo Phân Khúc` : 'Khám Phá Nhà Đất Cho Thuê Theo Phân Khúc',
+            links: [
+              { name: `Cho thuê căn hộ chung cư${isSpecificCity ? ` ${cityDisplay}` : ''}`, path: buildSeoUrl({ demand: 'rent', propertyType: 'apartment', city: isSpecificCity ? cityDisplay : null }) },
+              { name: `Cho thuê chung cư mini, CHDV${isSpecificCity ? ` ${cityDisplay}` : ''}`, path: buildSeoUrl({ demand: 'rent', propertyType: 'mini-apartment', city: isSpecificCity ? cityDisplay : null }) },
+              { name: `Cho thuê nhà riêng nguyên căn${isSpecificCity ? ` ${cityDisplay}` : ''}`, path: buildSeoUrl({ demand: 'rent', propertyType: 'house', city: isSpecificCity ? cityDisplay : null }) },
+              { name: `Cho thuê nhà mặt phố kinh doanh${isSpecificCity ? ` ${cityDisplay}` : ''}`, path: buildSeoUrl({ demand: 'rent', propertyType: 'street-house', city: isSpecificCity ? cityDisplay : null }) },
+              { name: `Cho thuê văn phòng, mặt bằng${isSpecificCity ? ` ${cityDisplay}` : ''}`, path: buildSeoUrl({ demand: 'rent', propertyType: 'office', city: isSpecificCity ? cityDisplay : null }) },
+              { name: `Cho thuê kho xưởng, bến bãi${isSpecificCity ? ` ${cityDisplay}` : ''}`, path: buildSeoUrl({ demand: 'rent', propertyType: 'warehouse', city: isSpecificCity ? cityDisplay : null }) }
+            ]
+          });
 
   const presetGeneral = GENERAL_RENT_CITY_CONTENT[cityCtx.key];
 
   if (profile) {
-    const locationLabel = isSpecificCity ? cityDisplay : 'Toàn Quốc';
-    const marketTitle = `Thị Trường ${profile.label} ${locationLabel} Năm 2026: Giá Thuê & Kinh Nghiệm`;
-    const marketDesc = profile.marketFocus
-      ? `Năm 2026, thị trường ${profile.shortLabel} cho thuê${isSpecificCity ? ` tại ${cityDisplay}` : ' trên toàn quốc'} ghi nhận ${profile.marketFocus}`
-      : (presetGeneral?.marketDesc || GENERAL_RENT_CITY_CONTENT.national.marketDesc);
+    const marketTitle = facet.hasFacetFilters
+      ? `Thị Trường ${profile.label} ${locationLabel}${facet.filterSuffix} Năm 2026: Đánh Giá & Kinh Nghiệm`
+      : `Thị Trường ${profile.label} ${isSpecificCity ? cityDisplay : 'Toàn Quốc'} Năm 2026: Giá Thuê & Kinh Nghiệm`;
 
-    const priceTableTitle = `Khung Giá ${profile.label} Tham Khảo${isSpecificCity ? ` Tại ${cityDisplay}` : ' Tại Các Đô Thị Lớn'} [2026]`;
+    let marketDesc = '';
+    if (facet.hasFacetFilters) {
+      let priceInsight = '';
+      if (facet.cleanPrice) {
+        if (facet.cleanPrice.includes('dưới 3') || facet.cleanPrice.includes('dưới 2') || facet.cleanPrice.includes('dưới 500')) {
+          priceInsight = `Ở phân khúc ${facet.cleanPrice}, đây là khoảng ngân sách giá rẻ tối ưu cho sinh viên và người mới đi làm; nguồn cung có tính cạnh tranh cao và tập trung quanh các trường đại học, khu công nghiệp.`;
+        } else if (facet.cleanPrice.includes('3 đến 5') || facet.cleanPrice.includes('3 - 5') || facet.cleanPrice.includes('từ 3') || facet.cleanPrice.includes('dưới 5')) {
+          priceInsight = `Với ${facet.cleanPrice}, đây là phân khúc 'vàng' được tìm kiếm nhiều nhất trên thị trường hiện nay, cân bằng hoàn hảo giữa mức chi tiêu hợp lý và đầy đủ tiện nghi sinh hoạt độc lập.`;
+        } else if (facet.cleanPrice.includes('5 đến 10') || facet.cleanPrice.includes('5 - 10') || facet.cleanPrice.includes('dưới 10')) {
+          priceInsight = `Trong khoảng ${facet.cleanPrice}, người thuê dễ dàng tiếp cận các căn hộ dịch vụ cao cấp full nội thất, thang máy thẻ từ, ban công thoáng và dịch vụ quản lý chuyên nghiệp.`;
+        } else {
+          priceInsight = `Ở mức ${facet.cleanPrice}, thị trường cung cấp đa dạng các lựa chọn căn hộ cao cấp, diện tích rộng rãi với tiện ích khép kín tiêu chuẩn cao.`;
+        }
+      }
+
+      let areaInsight = '';
+      if (facet.cleanArea || facet.cleanBedroom) {
+        const parts = [];
+        if (facet.cleanArea) parts.push(facet.cleanArea);
+        if (facet.cleanBedroom) parts.push(facet.cleanBedroom);
+        areaInsight = `Khi lựa chọn tiêu chí ${parts.join(' và ')}, người thuê cần đặc biệt lưu ý kiểm tra độ thông thoáng của giếng trời/ban công, lối thoát hiểm PCCC và khả năng cách âm giữa các không gian phòng.`;
+      }
+
+      marketDesc = `Năm 2026, phân khúc ${profile.shortLabel} ${locationLabel}${facet.filterSuffix} ghi nhận lượng tìm kiếm và giao dịch sôi động. ${priceInsight} ${areaInsight} Lời khuyên từ chuyên gia Kênh Nhà Đất 24H: hãy khảo sát thực tế tối thiểu 3 căn phòng, làm rõ chi phí điện nước, phí dịch vụ phát sinh và lập biên bản bàn giao thiết bị chi tiết trước khi đặt bút ký hợp đồng.`;
+    } else {
+      marketDesc = profile.marketFocus
+        ? `Năm 2026, thị trường ${profile.shortLabel} cho thuê${isSpecificCity ? ` tại ${cityDisplay}` : ' trên toàn quốc'} ghi nhận ${profile.marketFocus}`
+        : (presetGeneral?.marketDesc || GENERAL_RENT_CITY_CONTENT.national.marketDesc);
+    }
+
+    const priceTableTitle = facet.hasFacetFilters
+      ? `Khảo Sát Khung Giá & Phân Khúc ${profile.label} ${locationLabel}${facet.filterSuffix} [2026]`
+      : `Khung Giá ${profile.label} Tham Khảo${isSpecificCity ? ` Tại ${cityDisplay}` : ' Tại Các Đô Thị Lớn'} [2026]`;
+
     const benchmarks = profile.priceRanges?.[cityCtx.key]
       || (cityCtx.matchedProvince?.districts?.length
         ? buildProvincialCategoryBenchmarks(cityCtx.matchedProvince, [0.14, 0.24, 0.38], 'tr/tháng')
         : (profile.priceRanges?.national || presetGeneral?.benchmarks || GENERAL_RENT_CITY_CONTENT.national.benchmarks));
 
-    const faqs = profile.faqsBuilder
+    const baseFaqs = profile.faqsBuilder
       ? profile.faqsBuilder(isSpecificCity, isSpecificCity ? cityDisplay : '')
       : (presetGeneral?.faqs || GENERAL_RENT_CITY_CONTENT.national.faqs);
+
+    const facetFaqs = [];
+    if (facet.hasFacetFilters) {
+      facetFaqs.push({
+        q: `Với ngân sách ${facet.cleanPrice || 'hiện tại'}, có thể tìm thuê ${profile.shortLabel}${facet.cleanBedroom ? ` ${facet.cleanBedroom}` : ''}${facet.cleanArea ? ` ${facet.cleanArea}` : ''} ${locationLabel} không?`,
+        a: `Hoàn toàn có thể. Năm 2026, nguồn cung ${profile.shortLabel}${facet.filterSuffix} ${locationLabel} tập trung tại các khu vực có hạ tầng phát triển, giao thông thuận tiện. Để chọn được căn ưng ý nhất, người thuê nên chủ động liên hệ sớm từ 1-2 tuần, so sánh ít nhất 3 lựa chọn tương đương và kiểm tra trực tiếp hiện trạng phòng trước khi đặt cọc.`
+      });
+
+      if (facet.cleanArea || facet.cleanBedroom) {
+        facetFaqs.push({
+          q: `Khi xem thuê ${profile.shortLabel}${facet.cleanArea ? ` ${facet.cleanArea}` : ''}${facet.cleanBedroom ? ` ${facet.cleanBedroom}` : ''}, cần kiểm tra những chi tiết gì?`,
+          a: `Bạn cần ưu tiên kiểm tra: (1) Ánh sáng tự nhiên và độ thông gió của các phòng ngủ; (2) Hệ thống an toàn PCCC gồm bình chữa cháy, chuông báo khói và thang thoát hiểm; (3) Áp lực nước sinh hoạt, bình nóng lạnh và điều hòa; (4) Khả năng cách âm giữa các phòng và độ an ninh khu vực xung quanh.`
+        });
+      }
+
+      facetFaqs.push({
+        q: `Tiền đặt cọc và các chi phí dịch vụ định kỳ khi thuê ở phân khúc ${facet.cleanPrice || 'này'} thường là bao nhiêu?`,
+        a: `Mức đặt cọc tiêu chuẩn thường là 1 tháng tiền thuê (đối với hợp đồng 6 - 12 tháng). Về chi phí dịch vụ: điện nước nên tính theo đồng hồ riêng hoặc giá nhà nước; các khoản phí quản lý tòa nhà, gửi xe, dọn vệ sinh và internet cần được thỏa thuận chi tiết bằng văn bản trong hợp đồng để tránh tranh chấp phát sinh.`
+      });
+    }
 
     return {
       marketTitle,
@@ -1446,24 +1703,46 @@ export const buildRentSeoContentData = ({ activeCity = null, propertyType = null
       benchmarks,
       legalTitle: profile.legalTitle || `4 Lưu Ý Pháp Lý Sống Còn Khi Ký Hợp Đồng ${profile.label}`,
       legalSteps: profile.legalSteps || DEFAULT_RENT_LEGAL_STEPS,
-      faqTitle: `Câu Hỏi Thường Gặp Về ${profile.label}${isSpecificCity ? ` Tại ${cityDisplay}` : ''}`,
-      faqs,
+      faqTitle: facet.hasFacetFilters
+        ? `Câu Hỏi Thường Gặp Về ${profile.label}${facet.filterSuffix} (FAQ)`
+        : `Câu Hỏi Thường Gặp Về ${profile.label}${isSpecificCity ? ` Tại ${cityDisplay}` : ''}`,
+      faqs: [...facetFaqs, ...baseFaqs],
       discoveryTitle: discoveryLinks.title,
       discoveryLinks: discoveryLinks.links
     };
   }
 
   if (presetGeneral) {
+    const marketTitle = facet.hasFacetFilters
+      ? `Thị Trường Cho Thuê Nhà Đất ${locationLabel}${facet.filterSuffix} Năm 2026: Nhu Cầu & Kinh Nghiệm`
+      : presetGeneral.marketTitle;
+
+    const priceTableTitle = facet.hasFacetFilters
+      ? `Khảo Sát Khung Giá Cho Thuê Nhà Đất ${locationLabel}${facet.filterSuffix} [2026]`
+      : presetGeneral.priceTableTitle;
+
+    const facetFaqs = [];
+    if (facet.hasFacetFilters) {
+      facetFaqs.push({
+        q: `Tìm thuê nhà đất ${locationLabel} với ${facet.filterParts.join(', ')} cần chuẩn bị gì?`,
+        a: `Người thuê nên chuẩn bị sẵn sàng khoản tiền cọc 1-2 tháng, đối chiếu bản gốc sổ hồng và giấy tờ pháp lý của chủ cho thuê, kiểm tra đồng hồ điện nước riêng biệt và các khoản phí dịch vụ đi kèm.`
+      });
+    }
+
     return {
-      marketTitle: presetGeneral.marketTitle,
-      marketDesc: presetGeneral.marketDesc,
-      priceTableTitle: presetGeneral.priceTableTitle,
+      marketTitle,
+      marketDesc: facet.hasFacetFilters
+        ? `Năm 2026, nhu cầu thuê nhà đất ${locationLabel} với ${facet.filterParts.join(', ')} tăng trưởng ổn định. Người thuê cần khảo sát nhiều vị trí, nắm rõ biểu phí dịch vụ và ký kết hợp đồng minh bạch.`
+        : presetGeneral.marketDesc,
+      priceTableTitle,
       tableHeaders: [locHeader, 'Căn hộ chung cư', 'Nhà riêng / Nguyên căn', 'Phòng trọ / CH Dịch vụ', 'Khu vực sôi động'],
       benchmarks: presetGeneral.benchmarks,
-      legalTitle: `4 Lưu Ý Pháp Lý Sống Còn Khi Ký Hợp Đồng Thuê Nhà Đất${isSpecificCity ? ` Tại ${cityDisplay}` : ''}`,
+      legalTitle: `4 Lưu Ý Pháp Lý Sống Còn Khi Ký Hợp Đồng Thuê Nhà Đất ${locationLabel}`,
       legalSteps: DEFAULT_RENT_LEGAL_STEPS,
-      faqTitle: `Câu Hỏi Thường Gặp Khi Thuê Nhà Đất${isSpecificCity ? ` Tại ${cityDisplay}` : ''}`,
-      faqs: presetGeneral.faqs,
+      faqTitle: facet.hasFacetFilters
+        ? `Câu Hỏi Thường Gặp Khi Thuê Nhà Đất ${locationLabel}${facet.filterSuffix}`
+        : `Câu Hỏi Thường Gặp Khi Thuê Nhà Đất${isSpecificCity ? ` Tại ${cityDisplay}` : ''}`,
+      faqs: [...facetFaqs, ...presetGeneral.faqs],
       discoveryTitle: discoveryLinks.title,
       discoveryLinks: discoveryLinks.links
     };
@@ -1509,9 +1788,20 @@ export const buildRentSeoContentData = ({ activeCity = null, propertyType = null
  * Lấy danh sách FAQ đồng bộ 100% giữa Schema JSON-LD (`src/app/[slug]/page.jsx`)
  * và nội dung hiển thị trên màn hình (`SaleListingsSeoContent` / `RentListingsSeoContent`).
  */
-export const getTaxonomyFaqs = ({ demand = 'sale', propertyType = null, city = null } = {}) => {
+export const getTaxonomyFaqs = ({
+  demand = 'sale',
+  propertyType = null,
+  city = null,
+  district = null,
+  priceRange = null,
+  priceLabel = null,
+  areaRange = null,
+  areaLabel = null,
+  bedroom = null,
+  taxonomyInfo = null
+} = {}) => {
   const data = demand === 'rent'
-    ? buildRentSeoContentData({ activeCity: city, propertyType })
-    : buildSaleSeoContentData({ activeCity: city, propertyType });
+    ? buildRentSeoContentData({ activeCity: city, district, propertyType, priceRange, priceLabel, areaRange, areaLabel, bedroom, taxonomyInfo })
+    : buildSaleSeoContentData({ activeCity: city, district, propertyType, priceRange, priceLabel, areaRange, areaLabel, bedroom, taxonomyInfo });
   return data.faqs || [];
 };

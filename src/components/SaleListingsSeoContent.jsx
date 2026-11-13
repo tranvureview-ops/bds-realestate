@@ -27,13 +27,24 @@ export default function SaleListingsSeoContent({ city = null, district = null, p
 
   // Ưu tiên tuyệt đối danh mục gốc chuẩn SEO của trang (taxonomyInfo), không bị biến dạng bởi query filters (?loai=room, ?gia=...)
   const activeCity = taxonomyInfo?.city || city || null;
+  const activeDistrict = taxonomyInfo?.district || district || null;
   const activeType = (taxonomyInfo?.propertyType && taxonomyInfo.propertyType !== 'all')
     ? taxonomyInfo.propertyType
     : ((propertyType && propertyType !== 'all') ? propertyType : null);
 
   const seoData = useMemo(
-    () => buildSaleSeoContentData({ activeCity, propertyType: activeType }),
-    [activeCity, activeType]
+    () => buildSaleSeoContentData({
+      activeCity,
+      district: activeDistrict,
+      propertyType: activeType,
+      priceRange: taxonomyInfo?.priceRange,
+      priceLabel: taxonomyInfo?.priceLabel,
+      areaRange: taxonomyInfo?.areaRange,
+      areaLabel: taxonomyInfo?.areaLabel,
+      bedroom: taxonomyInfo?.bedroom,
+      taxonomyInfo
+    }),
+    [activeCity, activeDistrict, activeType, taxonomyInfo]
   );
 
   return (

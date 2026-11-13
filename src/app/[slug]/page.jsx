@@ -225,7 +225,14 @@ export default async function Page({ params, searchParams }) {
     const syncedFaqs = getTaxonomyFaqs({
       demand: taxonomyInfo.demand || 'sale',
       propertyType: taxonomyInfo.propertyType || null,
-      city: taxonomyInfo.city || null
+      city: taxonomyInfo.city || null,
+      district: taxonomyInfo.district || null,
+      priceRange: taxonomyInfo.priceRange || null,
+      priceLabel: taxonomyInfo.priceLabel || null,
+      areaRange: taxonomyInfo.areaRange || null,
+      areaLabel: taxonomyInfo.areaLabel || null,
+      bedroom: taxonomyInfo.bedroom || null,
+      taxonomyInfo
     });
 
     const faqEntities = syncedFaqs.map((item) => ({
