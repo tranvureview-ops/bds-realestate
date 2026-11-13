@@ -501,7 +501,7 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
   }, [properties, filters]);
 
   const displayTitle = useMemo(() => {
-    // Tiêu đề H1 và Breadcrumb luôn lấy từ currentCleanTaxonomy chuẩn SEO (bảo toàn danh mục chuẩn + bộ lọc sạch, không bị ghép query thừa ?loai=...)
+    // Tiêu đề Breadcrumb luôn lấy từ currentCleanTaxonomy chuẩn SEO (bảo toàn danh mục chuẩn + bộ lọc sạch, không bị ghép query thừa ?loai=...)
     const baseTitle = currentCleanTaxonomy?.title || 'Cho Thuê Nhà Đất';
     let titleWithLoc = baseTitle;
     if (currentCleanTaxonomy?.city) {
@@ -512,6 +512,18 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
     const trimmed = titleWithLoc.trim();
     return trimmed ? trimmed.charAt(0).toUpperCase() + trimmed.slice(1) : '';
   }, [currentCleanTaxonomy]);
+
+  // Tiêu đề H1 chuyên nghiệp chuẩn SEO & Tối ưu chuyển đổi (CRO) theo Phương án 1
+  const h1Title = useMemo(() => {
+    const isGeneralListing = !currentCleanTaxonomy?.propertyType || currentCleanTaxonomy.propertyType === 'all';
+    if (isGeneralListing) {
+      if (currentCleanTaxonomy?.city) {
+        return `Cho Thuê Nhà Đất tại ${currentCleanTaxonomy.city} Năm 2026: Giá Rẻ, Chính Chủ, Xác Thực 100%`;
+      }
+      return 'Cho Thuê Nhà Đất Toàn Quốc Năm 2026: Giá Rẻ, Chính Chủ, Xác Thực 100%';
+    }
+    return displayTitle;
+  }, [currentCleanTaxonomy, displayTitle]);
 
   return (
     <div className="pb-2 sm:pb-4">
@@ -530,8 +542,8 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
           </div>
 
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white">
-              {displayTitle}
+            <h1 className="text-2xl sm:text-3xl font-black text-white leading-tight">
+              {h1Title}
               {activePage > 1 && (
                 <span className="text-blue-400 font-semibold text-lg sm:text-xl ml-2">
                   - Trang {activePage}

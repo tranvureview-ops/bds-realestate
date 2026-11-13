@@ -501,7 +501,7 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
   }, [properties, filters]);
 
   const displayTitle = useMemo(() => {
-    // Tiêu đề H1 và Breadcrumb luôn lấy từ currentCleanTaxonomy chuẩn SEO (bảo toàn danh mục chuẩn + bộ lọc sạch, không bị ghép query thừa ?loai=...)
+    // Tiêu đề Breadcrumb luôn lấy từ currentCleanTaxonomy chuẩn SEO (bảo toàn danh mục chuẩn + bộ lọc sạch, không bị ghép query thừa ?loai=...)
     const baseTitle = currentCleanTaxonomy?.title || 'Mua Bán Nhà Đất';
     let titleWithLoc = baseTitle;
     if (currentCleanTaxonomy?.city) {
@@ -512,6 +512,18 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
     const trimmed = titleWithLoc.trim();
     return trimmed ? trimmed.charAt(0).toUpperCase() + trimmed.slice(1) : '';
   }, [currentCleanTaxonomy]);
+
+  // Tiêu đề H1 chuyên nghiệp chuẩn SEO & Tối ưu chuyển đổi (CRO) theo Phương án 1
+  const h1Title = useMemo(() => {
+    const isGeneralListing = !currentCleanTaxonomy?.propertyType || currentCleanTaxonomy.propertyType === 'all';
+    if (isGeneralListing) {
+      if (currentCleanTaxonomy?.city) {
+        return `Mua Bán Nhà Đất tại ${currentCleanTaxonomy.city} Năm 2026: Sổ Đỏ Chính Chủ, Giá Tốt Nhất`;
+      }
+      return 'Mua Bán Nhà Đất Toàn Quốc Năm 2026: Sổ Đỏ Chính Chủ, Giá Tốt Nhất';
+    }
+    return displayTitle;
+  }, [currentCleanTaxonomy, displayTitle]);
 
   return (
     <div className="pb-2 sm:pb-4">
@@ -530,8 +542,8 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
           </div>
 
           <div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white">
-              {displayTitle}
+            <h1 className="text-2xl sm:text-3xl font-black text-white leading-tight">
+              {h1Title}
               {activePage > 1 && (
                 <span className="text-emerald-400 font-semibold text-lg sm:text-xl ml-2">
                   - Trang {activePage}

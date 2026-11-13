@@ -1832,7 +1832,6 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, yearInput = null, pa
         description = `Tổng hợp tin cho thuê các loại nhà ở, nhà riêng nguyên căn, nhà mặt phố kinh doanh và biệt thự ${year}${pageDescStr}, pháp lý minh bạch, giá tốt chính chủ ${locPhrase}`;
         break;
       case 'house':
-      default:
         if (isPaginated) {
           title = hasSpecificLocation
             ? `Cho thuê nhà riêng, nguyên căn${pageStr} | ${titleLoc}`
@@ -1843,6 +1842,18 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, yearInput = null, pa
             : `Cho thuê nhà riêng, nguyên căn giá rẻ [${year}] toàn quốc`;
         }
         description = `Cho thuê nhà riêng, nguyên căn giá tốt ${year}${pageDescStr}, nhà đẹp hẻm rộng thoáng, tiện ở gia đình hoặc mở văn phòng công ty dài hạn. Xem nhà ${locPhrase}`;
+        break;
+      default:
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Cho thuê nhà đất giá rẻ, chính chủ${pageStr} | ${titleLoc}`
+            : `Cho thuê nhà đất giá rẻ, chính chủ [${year}]${pageStr}`;
+        } else {
+          title = hasSpecificLocation
+            ? `Cho thuê nhà đất giá rẻ, chính chủ [${year}] | ${titleLoc}`
+            : `Cho thuê nhà đất giá rẻ, chính chủ [${year}] toàn quốc`;
+        }
+        description = `Cho thuê nhà đất chính chủ giá rẻ ${year}${pageDescStr}, đa dạng phân khúc căn hộ, nhà nguyên căn, mặt bằng kinh doanh, pháp lý xác thực. Xem tin ${locPhrase}`;
     }
   }
 
