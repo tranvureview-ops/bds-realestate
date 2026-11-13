@@ -509,7 +509,8 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
     } else if (!baseTitle.toLowerCase().includes('toàn quốc')) {
       titleWithLoc = `${baseTitle} trên toàn quốc`;
     }
-    return formatSentenceCase(titleWithLoc);
+    const trimmed = titleWithLoc.trim();
+    return trimmed ? trimmed.charAt(0).toUpperCase() + trimmed.slice(1) : '';
   }, [currentCleanTaxonomy]);
 
   return (

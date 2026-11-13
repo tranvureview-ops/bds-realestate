@@ -1042,9 +1042,17 @@ export const parseTaxonomyUrl = (urlPath) => {
       title += ` toàn quốc`;
     }
 
-    if (priceLabel) title += ` ${priceLabel}`;
-    if (areaLabel) title += ` ${areaLabel}`;
-    if (bedroom !== 'all') title += ` ${bedroom} phòng ngủ`;
+    const filterParts = [];
+    if (priceLabel) filterParts.push(priceLabel);
+    if (areaLabel) filterParts.push(areaLabel);
+    if (bedroom !== 'all') filterParts.push(`${bedroom} phòng ngủ`);
+    if (keyword && !project && !street && !(ward && ward.includes(keyword))) {
+      filterParts.push(keyword);
+    }
+
+    if (filterParts.length > 0) {
+      title += `, ${filterParts.join(', ')}`;
+    }
 
     return buildResult({
       isTaxonomy: true,
@@ -1474,12 +1482,14 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, yearInput = null, pa
 
   const hasFacetedFilter = Boolean(
     taxonomyInfo.project || 
-    taxonomyInfo.priceRange || 
-    taxonomyInfo.areaRange || 
-    taxonomyInfo.rooms || 
+    (taxonomyInfo.priceRange && taxonomyInfo.priceRange !== 'all') || 
+    (taxonomyInfo.areaRange && taxonomyInfo.areaRange !== 'all') || 
+    (taxonomyInfo.bedroom && taxonomyInfo.bedroom !== 'all') || 
+    (taxonomyInfo.rooms && taxonomyInfo.rooms !== 'all') || 
     taxonomyInfo.ward || 
     taxonomyInfo.street ||
-    taxonomyInfo.direction
+    taxonomyInfo.direction ||
+    taxonomyInfo.isFacetedCleanSlug
   );
 
   // Ưu tiên tiêu đề chuẩn xác cho các URL lọc sâu nhiều tiêu chí (Faceted Filters: giá, diện tích, dự án, đường, phường...)
@@ -1496,9 +1506,15 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, yearInput = null, pa
         titleWithBrand = baseTitle;
       }
     }
-    let fullDesc = `${formattedTitle} mới nhất [${year}]${pageDescStr}, vị trí đẹp, hình ảnh thực tế, thông tin xác thực, pháp lý minh bạch, giá tốt chính chủ.`;
+    let fullDesc = `${formattedTitle}, mới nhất [${year}]${pageDescStr}, vị trí đẹp, hình ảnh thực tế, thông tin xác thực, pháp lý minh bạch.`;
     if (fullDesc.length > 160) {
-      fullDesc = `${formattedTitle} mới nhất [${year}]${pageDescStr}, vị trí đẹp, hình ảnh thực tế, thông tin xác thực, pháp lý minh bạch.`;
+      fullDesc = `${formattedTitle}, mới nhất [${year}]${pageDescStr}, vị trí đẹp, hình ảnh thực tế, pháp lý minh bạch.`;
+    }
+    if (fullDesc.length > 160) {
+      fullDesc = `${formattedTitle}, mới nhất [${year}]${pageDescStr}, hình ảnh thực tế, pháp lý minh bạch.`;
+    }
+    if (fullDesc.length > 160) {
+      fullDesc = `${formattedTitle}, cập nhật mới nhất [${year}]${pageDescStr}.`;
     }
     return {
       title: titleWithBrand,
@@ -2134,24 +2150,45 @@ export const buildDynamicTaxonomyInfo = (filters = {}, baseTaxonomyInfo = null) 
   } else if (city) {
     title += ` tại ${city}`;
   } else if (!project && !street && !ward && !district) {
-    title += ` trên toàn quốc`;
+    title += ` toàn quốc`;
   }
 
   // Nhãn mức giá
   let priceLabel = '';
   if (priceRange && priceRange !== 'all') {
-    const pText = formatPriceRangeText(priceRange);
-    if (pText && pText !== 'Mọi mức giá') {
-      priceLabel = `giá ${pText.charAt(0).toLowerCase() + pText.slice(1)}`;
+    if (filters.priceLabel) {
+      priceLabel = filters.priceLabel;
+    } else {
+      const pText = formatPriceRangeText(priceRange);
+      if (pText && pText !== 'Mọi mức giá') {
+        const dynBetween = String(priceRange).match(/^([0-9.]+)([bm])-([0-9.]+)([bm])$/i);
+        if (dynBetween) {
+          const minUnit = dynBetween[2].toLowerCase() === 'm' ? 'triệu' : 'tỷ';
+          const maxUnit = dynBetween[4].toLowerCase() === 'm' ? 'triệu' : 'tỷ';
+          const v1 = parseFloat(dynBetween[1]);
+          const v2 = parseFloat(dynBetween[3]);
+          if (minUnit === maxUnit) {
+            priceLabel = `giá từ ${v1} đến ${v2} ${maxUnit}`;
+          } else {
+            priceLabel = `giá từ ${v1} ${minUnit} đến ${v2} ${maxUnit}`;
+          }
+        } else {
+          priceLabel = `giá ${pText.charAt(0).toLowerCase() + pText.slice(1)}`;
+        }
+      }
     }
   }
 
   // Nhãn diện tích
   let areaLabel = '';
   if (areaRange && areaRange !== 'all') {
-    const aText = formatAreaRangeText(areaRange);
-    if (aText && aText !== 'Mọi diện tích') {
-      areaLabel = `diện tích ${aText.charAt(0).toLowerCase() + aText.slice(1)}`;
+    if (filters.areaLabel) {
+      areaLabel = filters.areaLabel;
+    } else {
+      const aText = formatAreaRangeText(areaRange);
+      if (aText && aText !== 'Mọi diện tích') {
+        areaLabel = `diện tích ${aText.charAt(0).toLowerCase() + aText.slice(1)}`;
+      }
     }
   }
 
@@ -2161,9 +2198,13 @@ export const buildDynamicTaxonomyInfo = (filters = {}, baseTaxonomyInfo = null) 
     bedroomLabel = `${bedroom} phòng ngủ`;
   }
 
-  if (priceLabel) title += ` ${priceLabel}`;
-  if (areaLabel) title += ` ${areaLabel}`;
-  if (bedroomLabel) title += ` ${bedroomLabel}`;
+  const filterParts = [];
+  if (priceLabel) filterParts.push(priceLabel);
+  if (areaLabel) filterParts.push(areaLabel);
+  if (bedroomLabel) filterParts.push(bedroomLabel);
+  if (filterParts.length > 0) {
+    title += `, ${filterParts.join(', ')}`;
+  }
 
   const hasFacetedFilters = Boolean(
     priceLabel || 
