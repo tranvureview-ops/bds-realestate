@@ -236,23 +236,47 @@ const SALE_CATEGORY_PROFILES = {
   house: {
     label: 'Nhà Riêng, Nhà Phố',
     shortLabel: 'nhà riêng, nhà trong ngõ',
+    anchorLabel: 'nhà riêng',
     priceUnit: 'tr/m²',
     tableCols: ['Nhà ngõ nhỏ (xe máy)', 'Nhà ngõ ô tô (4 - 6m)', 'Nhà phố / Phân lô đẹp', 'Khu vực tiêu biểu'],
     priceRanges: {
       national: [
         { area: 'TP. Hồ Chí Minh', cols: ['75 - 125 tr/m²', '130 - 210 tr/m²', '220 - 380 tr/m²'], hotspots: 'Bình Thạnh, Gò Vấp, Phú Nhuận, Thủ Đức' },
-        { area: 'Hà Nội', cols: ['95 - 145 tr/m²', '155 - 245 tr/m²', '250 - 420 tr/m²'], hotspots: 'Đống Đa, Cầu Giấy, Thanh Xuân, Hoàng Mai' },
+        { area: 'Hà Nội', cols: ['95 - 145 tr/m²', '155 - 245 tr/m²', '250 - 420 tr/m²'], hotspots: 'Ba Đình, Đống Đa, Cầu Giấy, Thanh Xuân, Hoàng Mai' },
         { area: 'Đà Nẵng', cols: ['38 - 65 tr/m²', '65 - 115 tr/m²', '115 - 185 tr/m²'], hotspots: 'Hải Châu, Thanh Khê, Sơn Trà, Cẩm Lệ' },
-        { area: 'Quảng Nam & Vệ tinh', cols: ['20 - 38 tr/m²', '38 - 65 tr/m²', '65 - 110 tr/m²'], hotspots: 'TP. Hội An, Điện Bàn, Tam Kỳ, Thuận An' }
+        { area: 'Bình Dương & Đồng Nai', cols: ['28 - 48 tr/m²', '48 - 82 tr/m²', '85 - 140 tr/m²'], hotspots: 'Thuận An, Dĩ An, Thủ Dầu Một, Biên Hòa' },
+        { area: 'Quảng Nam & Miền Trung', cols: ['20 - 36 tr/m²', '36 - 62 tr/m²', '65 - 105 tr/m²'], hotspots: 'TP. Hội An, Điện Bàn, TP. Tam Kỳ, Nha Trang' }
+      ],
+      danang: [
+        { area: 'Hải Châu & Thanh Khê (Trung tâm)', cols: ['55 - 88 tr/m²', '90 - 150 tr/m²', '155 - 235 tr/m²'], hotspots: 'Hùng Vương, Lê Duẩn, Hải Phòng, Núi Thành' },
+        { area: 'Sơn Trà (Gần biển & Cầu Rồng)', cols: ['42 - 70 tr/m²', '72 - 125 tr/m²', '130 - 195 tr/m²'], hotspots: 'An Hải Bắc, An Hải Đông, Mân Thái' },
+        { area: 'Ngũ Hành Sơn & Cẩm Lệ', cols: ['32 - 52 tr/m²', '52 - 90 tr/m²', '92 - 150 tr/m²'], hotspots: 'Khuê Mỹ, KĐT Hòa Xuân, Khuê Trung' },
+        { area: 'Liên Chiểu', cols: ['24 - 40 tr/m²', '40 - 68 tr/m²', '70 - 110 tr/m²'], hotspots: 'Hòa Minh, Hòa Khánh Bắc, Nguyễn Tất Thành' }
+      ],
+      hanoi: [
+        { area: 'Ba Đình, Hoàn Kiếm & Tây Hồ', cols: ['135 - 210 tr/m²', '220 - 340 tr/m²', '350 - 550 tr/m²'], hotspots: 'Đội Cấn, Kim Mã, Thụy Khuê, Lạc Long Quân' },
+        { area: 'Cầu Giấy, Đống Đa & Thanh Xuân', cols: ['115 - 165 tr/m²', '170 - 260 tr/m²', '265 - 420 tr/m²'], hotspots: 'Trung Kính, Thái Hà, Hoàng Quốc Việt, Vũ Tông Phan' },
+        { area: 'Hoàng Mai, Hai Bà Trưng & Long Biên', cols: ['85 - 135 tr/m²', '140 - 210 tr/m²', '215 - 320 tr/m²'], hotspots: 'Minh Khai, Bồ Đề, Việt Hưng, Linh Đàm' },
+        { area: 'Hà Đông & Nam Từ Liêm', cols: ['75 - 115 tr/m²', '120 - 185 tr/m²', '190 - 280 tr/m²'], hotspots: 'Mỹ Đình, Mỗ Lao, Văn Quán' }
+      ],
+      hcm: [
+        { area: 'Quận 1, Quận 3 & Phú Nhuận', cols: ['135 - 220 tr/m²', '230 - 360 tr/m²', '370 - 620 tr/m²'], hotspots: 'Tân Định, Võ Thị Sáu, Phan Xích Long' },
+        { area: 'Bình Thạnh, Tân Bình & Quận 10', cols: ['95 - 150 tr/m²', '155 - 245 tr/m²', '250 - 400 tr/m²'], hotspots: 'D2, Hoàng Hoa Thám, Sư Vạn Hạnh' },
+        { area: 'Gò Vấp, Quận 7 & TP. Thủ Đức', cols: ['72 - 118 tr/m²', '120 - 195 tr/m²', '200 - 320 tr/m²'], hotspots: 'Quang Trung, Lâm Văn Bền, Thảo Điền, Linh Đông' },
+        { area: 'Bình Tân, Tân Phú & Quận 12', cols: ['60 - 95 tr/m²', '95 - 150 tr/m²', '155 - 230 tr/m²'], hotspots: 'Tên Lửa, Tân Kỳ Tân Quý, Hiệp Thành' }
+      ],
+      quangnam: [
+        { area: 'TP. Hội An', cols: ['42 - 72 tr/m²', '75 - 130 tr/m²', '135 - 210 tr/m²'], hotspots: 'Cẩm Châu, Tân An, Sơn Phong, Cẩm Phô' },
+        { area: 'TX. Điện Bàn & TP. Tam Kỳ', cols: ['18 - 32 tr/m²', '32 - 58 tr/m²', '60 - 95 tr/m²'], hotspots: 'Điện Ngọc, Vĩnh Điện, An Mỹ, Tân Thạnh' }
       ]
     },
     scaleFactor: [0.75, 1.0, 1.35],
-    marketFocus: 'nhu cầu mua nhà riêng gắn liền với quyền sử dụng đất ở lâu dài luôn là kênh trú ẩn tài sản an toàn hàng đầu của người Việt. Phân khúc nhà hẻm ô tô tránh nhau, nhà phố xây mới sẵn hoàn công từ 3 - 5 tầng tại các khu dân cư hiện hữu ghi nhận tốc độ giao dịch ổn định nhờ vừa đáp ứng nhu cầu an cư đa thế hệ vừa có thanh khoản dễ sang nhượng hoặc cho thuê lại.',
+    marketFocus: 'nhu cầu mua nhà riêng gắn liền với quyền sử dụng đất ở lâu dài luôn là kênh tích sản an toàn hàng đầu tại Việt Nam. Dưới tiêu chuẩn nghiêm ngặt hơn của Luật Nhà ở 2023 về cấp phép xây dựng (GPXD), hoàn công công trình và lối thoát nạn PCCC nhà ở nhiều tầng trong ngõ, người mua năm 2026 ưu tiên rõ rệt các căn nhà riêng ngõ ô tô (rộng từ 3.5m - 5m trở lên), kết cấu 3 - 5 tầng đã hoàn công đầy đủ trên Sổ hồng và sổ vuông vức.',
     legalTitlePrefix: '4 Bước Thẩm Định Pháp Lý Trước Khi Mua Nhà Riêng, Nhà Phố',
     legalSteps: [
       { title: 'Kiểm tra bản gốc Sổ hồng & Tài sản gắn liền trên đất (Hoàn công)', text: 'Đối chiếu số thửa, diện tích đất và diện tích sàn xây dựng đã được ghi nhận hoàn công trên trang 2/trang 3 Sổ hồng để tránh rủi ro nhà xây sai phép, không được cấp phép sửa chữa sau này.' },
-      { title: 'Tra cứu quy hoạch phân khu & Lộ giới mở rộng hẻm', text: 'Kiểm tra trực tiếp lộ giới hẻm tại Bộ phận Một cửa hoặc qua ', linkText: 'cẩm nang tra cứu quy hoạch đất đai trực tuyến', linkTo: '/kien-thuc/cach-tra-cuu-quy-hoach-dat-dai' },
-      { title: 'Đo đạc thực tế ranh giới, tường riêng & Tranh chấp lối đi chung', text: 'Đo kiểm lại kích thước mặt tiền và chiều sâu nhà xem có trùng khớp bản vẽ tọa độ trên sổ hay bị hàng xóm lấn chiếm; hỏi tổ trưởng dân phố về lịch sử tranh chấp và tình trạng ngập úng.' },
+      { title: 'Tra cứu quy hoạch phân khu & Lộ giới mở rộng hẻm', text: 'Mang bản sao sổ hồng đến Bộ phận Một cửa quận/huyện để kiểm tra chỉ giới mở rộng hẻm, tránh mua phải nhà bị cắt phần lớn diện tích vào lộ giới qua ', linkText: 'hướng dẫn tra cứu quy hoạch đất đai trực tuyến', linkTo: '/kien-thuc/cach-tra-cuu-quy-hoach-dat-dai' },
+      { title: 'Đo đạc thực tế ranh giới, tường riêng & Tranh chấp lối đi chung', text: 'Đo kiểm lại kích thước mặt tiền và chiều sâu nhà xem có trùng khớp bản vẽ tọa độ trên sổ hay bị hàng xóm lấn chiếm; kiểm tra tường riêng/tường chung, hố ga và tình trạng thoát nước mưa.' },
       { title: 'Kiểm tra ngăn chặn UCHI & Ký hợp đồng đặt cọc chuẩn pháp lý', text: 'Xác minh tài sản không bị kê biên thi hành án hay thế chấp ngân hàng trái phép trước khi ký ', linkText: 'mẫu hợp đồng đặt cọc chuẩn pháp lý', linkTo: '/kien-thuc/hop-dong-dat-coc-mua-ban-nha-dat-chuan-phap-ly' }
     ],
     guides: [
@@ -263,19 +287,19 @@ const SALE_CATEGORY_PROFILES = {
     faqsBuilder: (citySuffix, cityName) => [
       {
         q: `Mua nhà riêng ${citySuffix ? `tại ${cityName} ` : ''}chưa hoàn công trên Sổ hồng có công chứng sang tên được không?`,
-        a: `Nhà chưa hoàn công vẫn có thể công chứng chuyển nhượng quyền sử dụng đất (nếu phần đất có Sổ đỏ hợp pháp), tuy nhiên phần nhà trên đất sẽ không được công nhận trên sổ mới. Về lâu dài tài sản khó vay ngân hàng theo đúng giá trị nhà + đất và gặp trở ngại nếu sửa chữa lớn. Do đó người mua nên yêu cầu chủ nhà hoàn công trước hoặc thỏa thuận trừ chi phí hoàn công vào giá bán.`
+        a: `Nhà chưa hoàn công vẫn có thể công chứng chuyển nhượng quyền sử dụng đất (nếu phần đất có Sổ đỏ hợp pháp), nhưng phần công trình nhà trên đất sẽ không được công nhận trên sổ mới. Tài sản chưa hoàn công thường bị ngân hàng định giá thấp hơn 20% - 30% và gặp trở ngại khi xin phép cải tạo lớn, vì vậy nên yêu cầu bên bán hoàn công trước hoặc thỏa thuận trừ chi phí hoàn công vào giá bán.`
       },
       {
         q: `Làm sao biết nhà riêng trong ngõ có bị dính quy hoạch mở đường hay giải tỏa không?`,
-        a: `Bạn có thể chụp ảnh Sổ hồng (trang bản vẽ tọa độ VN-2000) mang đến Chi nhánh Văn phòng Đăng ký Đất đai ${cityName ? `tại ${cityName}` : 'cấp quận/huyện'} nộp phiếu xin cung cấp thông tin quy hoạch, hoặc kiểm tra qua Cổng thông tin quy hoạch đô thị trực tuyến của địa phương.`
+        a: `Chụp ảnh trang bản vẽ tọa độ VN-2000 trên Sổ hồng mang đến Chi nhánh Văn phòng Đăng ký Đất đai ${cityName ? `tại ${cityName}` : 'cấp quận/huyện'} nộp phiếu xin cung cấp thông tin quy hoạch (thời gian trả kết quả 3 - 5 ngày làm việc), hoặc tra cứu qua cổng thông tin quy hoạch trực tuyến của địa phương.`
       },
       {
         q: `Thuế và lệ phí sang tên Sổ hồng nhà riêng bên nào đóng?`,
-        a: `Theo quy định pháp luật hiện hành: Bên bán nộp Thuế TNCN 2%, Bên mua nộp Lệ phí trước bạ 0.5% giá trị chuyển nhượng cùng phí thẩm định hồ sơ và lệ phí cấp đổi sổ (1 - 2 triệu đồng). Hai bên có thể thỏa thuận "bao sang tên" trong hợp đồng đặt cọc.`
+        a: `Theo quy định pháp luật hiện hành: Bên bán nộp Thuế TNCN 2%, Bên mua nộp Lệ phí trước bạ 0.5% giá trị chuyển nhượng cùng phí thẩm định hồ sơ và lệ phí cấp đổi sổ (khoảng 1 - 2 triệu đồng). Hai bên có thể thỏa thuận "bao sang tên" trong hợp đồng đặt cọc.`
       },
       {
-        q: `Kinh nghiệm ép giá và thương lượng khi mua nhà riêng chính chủ là gì?`,
-        a: `Khảo sát ít nhất 5 căn tương đồng trong cùng khu vực, chỉ ra các điểm cần sửa sang (thấm dột, nội thất cũ, hướng nắng) hoặc tình trạng ngõ hẹp, đồng thời chuẩn bị sẵn nguồn tiền đặt cọc nhanh để đàm phán mức giảm 5% - 10%.`
+        q: `Nên chọn nhà riêng hẻm xe máy hay nhà hẻm ô tô tránh và cách thương lượng giá tốt nhất?`,
+        a: `Nhà ngõ ô tô (độ rộng từ 3.5m trở lên) có tính thanh khoản cao gấp 2 - 3 lần hẻm nhỏ, dễ thoát hiểm PCCC và giữ giá bền vững hơn. Khi thương lượng, hãy khảo sát ít nhất 5 căn tương đồng trong bán kính 1 km, kiểm tra điểm yếu thấm dột/kết cấu để đàm phán giảm 5% - 10% kết hợp lộ trình cọc nhanh.`
       }
     ]
   },
@@ -777,8 +801,9 @@ const buildSaleDiscoveryLinks = ({ activeCity, propertyType, profile }) => {
   const norm = normalizeType(propertyType);
   if (!activeCity && profile && norm !== 'all') {
     const topCities = ['TP. Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng', 'Bình Dương', 'Khánh Hòa'];
+    const anchorPrefix = profile.anchorLabel || profile.shortLabel;
     const links = topCities.map((c) => ({
-      name: `Bán ${profile.shortLabel} ${c}`,
+      name: `Bán ${anchorPrefix} ${c}`,
       path: buildSeoUrl({ demand: 'sale', propertyType: norm, city: c })
     }));
     const siblingMap = {
@@ -1093,11 +1118,154 @@ const RENT_CATEGORY_PROFILES = {
       ]
     },
     marketFocus: 'làn sóng thương mại điện tử và mở rộng chuỗi cung ứng giúp nhu cầu thuê kho vận logistics, xưởng sản xuất chuẩn PCCC đạt độ lấp đầy cao gần các trục quốc lộ và cảng biển.',
+    discoveryCities: ['TP. Hồ Chí Minh', 'Hà Nội', 'Bình Dương', 'Đồng Nai', 'Đà Nẵng'],
+    relatedLink: { name: 'Cho thuê đất, bãi đất kinh doanh', path: '/cho-thue-dat' },
     faqsBuilder: () => [
       { q: 'Thuê kho, nhà xưởng cần kiểm tra những tiêu chuẩn kỹ thuật nào?', a: 'Kiểm tra đường xe container 40 feet ra vào 24/24, chiều cao thông thủy trần kho, khả năng chịu tải nền bê tông, trạm biến áp điện 3 pha và nghiệm thu PCCC tự động.' },
       { q: 'Hợp đồng thuê kho xưởng dài hạn có cần xuất hóa đơn VAT không?', a: 'Doanh nghiệp đi thuê nên thỏa thuận rõ việc xuất hóa đơn VAT và tính hợp pháp của đất sản xuất kinh doanh (SKK/SKC) để hạch toán chi phí hợp lệ.' }
     ]
-  }
+  },
+  'farm-resort': {
+    label: 'Trang Trại, Khu Nghỉ Dưỡng Cho Thuê',
+    shortLabel: 'trang trại, khu nghỉ dưỡng',
+    tableCols: ['Nhà vườn / Farmstay nhỏ (<1.000m²)', 'Trang trại sinh thái (1.000 - 5.000m²)', 'Khu nghỉ dưỡng / Resort (>5.000m²)', 'Địa bàn sinh thái nổi bật'],
+    priceRanges: {
+      national: [
+        { area: 'Lâm Đồng (Đà Lạt, Bảo Lộc)', cols: ['12 - 25 tr/tháng', '25 - 55 tr/tháng', '60 - 150 tr/tháng'], hotspots: 'Tà Nung, Cầu Đất, Lạc Dương, Bảo Lộc' },
+        { area: 'Đắk Lắk & Tây Nguyên', cols: ['8 - 18 tr/tháng', '18 - 38 tr/tháng', '45 - 95 tr/tháng'], hotspots: 'Buôn Ma Thuột, Cư M\'gar, Hồ Lắk, Gia Lai' },
+        { area: 'Hà Nội & Vùng ven', cols: ['15 - 30 tr/tháng', '30 - 65 tr/tháng', '70 - 180 tr/tháng'], hotspots: 'Ba Vì, Sóc Sơn, Lương Sơn (Hòa Bình), Thạch Thất' },
+        { area: 'Đà Nẵng & Quảng Nam', cols: ['10 - 22 tr/tháng', '22 - 48 tr/tháng', '50 - 120 tr/tháng'], hotspots: 'Hòa Vang (Hòa Bắc, Hòa Ninh), Hội An, Điện Bàn' },
+        { area: 'Đồng Nai & Bà Rịa', cols: ['12 - 24 tr/tháng', '24 - 50 tr/tháng', '55 - 130 tr/tháng'], hotspots: 'Định Quán, Trảng Bom, Long Thành, Xuyên Mộc' }
+      ],
+      danang: [
+        { area: 'Hòa Vang (Hòa Bắc & Hòa Ninh)', cols: ['10 - 20 tr/tháng', '20 - 45 tr/tháng', '45 - 110 tr/tháng'], hotspots: 'Ven sông Cu Đê, chân núi Bà Nà' },
+        { area: 'Hòa Vang (Hòa Phú & Hòa Khương)', cols: ['8 - 18 tr/tháng', '18 - 40 tr/tháng', '40 - 95 tr/tháng'], hotspots: 'QL14G, KDL Ngầm Đôi, Suối Hoa' },
+        { area: 'Sơn Trà & Ngũ Hành Sơn (Ven biển/sông)', cols: ['18 - 35 tr/tháng', '35 - 75 tr/tháng', '80 - 200 tr/tháng'], hotspots: 'Bán đảo Sơn Trà, ven sông Cổ Cò' }
+      ],
+      quangnam: [
+        { area: 'TP. Hội An (Ven sông/biển)', cols: ['15 - 32 tr/tháng', '32 - 70 tr/tháng', '75 - 180 tr/tháng'], hotspots: 'Cẩm Thanh, Cẩm Châu, An Bàng' },
+        { area: 'TX. Điện Bàn (Ven sông Cổ Cò)', cols: ['9 - 20 tr/tháng', '20 - 45 tr/tháng', '45 - 100 tr/tháng'], hotspots: 'Điện Dương, Điện Ngọc, bãi bồi ven sông' },
+        { area: 'Duy Xuyên & Núi Thành', cols: ['7 - 16 tr/tháng', '16 - 35 tr/tháng', '35 - 80 tr/tháng'], hotspots: 'Gần KDL Mỹ Sơn, Tam Hải, Chu Lai' }
+      ],
+      hanoi: [
+        { area: 'Ba Vì & Sơn Tây', cols: ['14 - 28 tr/tháng', '28 - 60 tr/tháng', '65 - 160 tr/tháng'], hotspots: 'Vân Hòa, Yên Bài, Suối Hai, Đá Chông' },
+        { area: 'Sóc Sơn (Hồ sinh thái)', cols: ['15 - 30 tr/tháng', '30 - 65 tr/tháng', '70 - 170 tr/tháng'], hotspots: 'Hồ Đồng Đò, Hồ Kèo Cà, Minh Trí, Hiền Ninh' },
+        { area: 'Thạch Thất & Quốc Oai', cols: ['12 - 25 tr/tháng', '25 - 55 tr/tháng', '60 - 140 tr/tháng'], hotspots: 'Hòa Lạc, Yên Bình, Đông Xuân' }
+      ],
+      hcm: [
+        { area: 'Củ Chi & Hóc Môn', cols: ['12 - 25 tr/tháng', '25 - 50 tr/tháng', '55 - 130 tr/tháng'], hotspots: 'Ven sông Sài Gòn, Nhuận Đức, An Nhơn Tây' },
+        { area: 'Cần Giờ (Sinh thái rừng mặn)', cols: ['10 - 22 tr/tháng', '22 - 45 tr/tháng', '50 - 120 tr/tháng'], hotspots: 'Bình Khánh, Long Hòa, Cần Thạnh' }
+      ]
+    },
+    marketFocus: 'nhu cầu thuê trang trại sinh thái, nhà vườn farmstay, khu glamping nghỉ dưỡng chữa lành (wellness retreat) và homestay trải nghiệm nông nghiệp phát triển bùng nổ. Khách thuê ưu tiên các khu đất có cảnh quan tự nhiên đẹp, đường xe 16 - 29 chỗ vào tận nơi, nguồn điện nước ổn định và hợp đồng thuê dài hạn 5 - 10 năm để khấu hao chi phí đầu tư.',
+    legalTitle: '4 Lưu Ý Pháp Lý Sống Còn Khi Thuê Trang Trại, Khu Nghỉ Dưỡng',
+    legalSteps: [
+      { title: 'Kiểm tra hiện trạng quy hoạch & Mục đích sử dụng đất', text: 'Xác minh rõ diện tích đất nông nghiệp (cây lâu năm/hàng năm), đất lâm nghiệp (rừng sản xuất) và tỷ lệ đất thổ cư (ONT/ODT). Tuyệt đối không thuê đất dính quy hoạch thu hồi hoặc đất rừng phòng hộ cấm khai thác du lịch.' },
+      { title: 'Quy định dựng công trình tạm, bungalow & An toàn PCCC', text: 'Làm việc trực tiếp với chính quyền địa phương để nắm rõ quy chuẩn xây dựng công trình tiền chế, bungalow lắp ghép tháo dỡ và phương án nghiệm thu PCCC cơ sở lưu trú du lịch.' },
+      { title: 'Thời hạn hợp đồng 5 - 10 năm & Điều khoản khấu hao tài sản', text: 'Kinh doanh farmstay nghỉ dưỡng đòi hỏi chi phí cải tạo cảnh quan lớn, hợp đồng thuê cần từ 5 đến 10 năm. Cần ghi rõ điều khoản bồi hoàn chi phí đầu tư nếu bên cho thuê đòi lại đất trước hạn.' },
+      { title: 'Hạ tầng điện 3 pha, nước tưới tiêu & Đường giao thông', text: 'Khảo sát thực địa công suất trạm biến áp điện 3 pha, giếng khoan/nước tự nhiên và kiểm tra lộ giới đường xe khách ra vào tránh tranh chấp ngõ đi chung với cư dân bản địa.' }
+    ],
+    discoveryCities: ['Lâm Đồng', 'Đà Nẵng', 'Hà Nội', 'Quảng Nam', 'Khánh Hòa'],
+    relatedLink: { name: 'Cho thuê biệt thự, villa nghỉ dưỡng', path: '/cho-thue-nha-biet-thu-lien-ke' },
+    faqsBuilder: (isCity, cityName) => [
+      {
+        q: `Thuê đất trang trại làm farmstay nghỉ dưỡng${isCity ? ` tại ${cityName}` : ''} có cần chuyển mục đích lên đất thổ cư không?`,
+        a: `Để xây dựng công trình lưu trú kiên cố (nhà hàng, lễ tân, phòng ngủ cao tầng), bạn bắt buộc phải có đất ở (thổ cư) hoặc đất thương mại dịch vụ (TMDV). Với mô hình lều glamping, nhà gỗ tiền chế có thể tháo dỡ, nhiều địa phương cho phép thí điểm kinh doanh nông nghiệp kết hợp du lịch sinh thái theo đề án được phê duyệt.`
+      },
+      {
+        q: `Thời hạn thuê trang trại, khu nghỉ dưỡng tối ưu nhất để thu hồi vốn là bao lâu?`,
+        a: `Thời gian thuê tối thiểu khuyến nghị từ 5 đến 10 năm. Năm đầu tiên thường dành cho cải tạo cảnh quan, đào hồ, phủ xanh và hoàn thiện pháp lý. Nên thỏa thuận mức trần tăng giá thuê không quá 5% - 10% sau mỗi 2 - 3 năm.`
+      },
+      {
+        q: `Hợp đồng thuê trang trại nghỉ dưỡng có bắt buộc phải công chứng không?`,
+        a: `Có. Với tài sản diện tích lớn, giá trị cao và thời hạn thuê dài trên 3 năm, việc công chứng hợp đồng thuê tại Văn phòng Công chứng là bắt buộc để đảm bảo giá trị pháp lý, chống lật kèo và đăng ký kinh doanh hợp lệ.`
+      },
+      {
+        q: `Cần những giấy phép kinh doanh gì khi vận hành khu farmstay, resort nghỉ dưỡng?`,
+        a: `Cần Giấy chứng nhận đăng ký doanh nghiệp/hộ kinh doanh ngành dịch vụ lưu trú du lịch, Chứng nhận đủ điều kiện an ninh trật tự (ANTT), Giấy chứng nhận thẩm duyệt/nghiệm thu PCCC và Giấy chứng nhận cơ sở đủ điều kiện an toàn thực phẩm.`
+      }
+    ]
+  },
+  villa: {
+    label: 'Biệt Thự, Liền Kề Cho Thuê',
+    shortLabel: 'biệt thự, villa nghỉ dưỡng',
+    tableCols: ['Villa liền kề / Song lập', 'Biệt thự đơn lập sân vườn', 'Villa cao cấp / Có hồ bơi', 'Khu đô thị / Vị trí nổi bật'],
+    priceRanges: {
+      national: [
+        { area: 'TP. Hồ Chí Minh', cols: ['28 - 50 tr/tháng', '45 - 90 tr/tháng', '80 - 180 tr/tháng'], hotspots: 'Thảo Điền, Phú Mỹ Hưng, An Phú, Vạn Phúc City' },
+        { area: 'Hà Nội', cols: ['25 - 45 tr/tháng', '40 - 85 tr/tháng', '75 - 160 tr/tháng'], hotspots: 'Tây Hồ, Starlake, Vinhomes Riverside, Ciputra' },
+        { area: 'Đà Nẵng', cols: ['20 - 35 tr/tháng', '35 - 65 tr/tháng', '60 - 130 tr/tháng'], hotspots: 'Euro Village, Nam Việt Á, Ocean Villas, Furama' },
+        { area: 'Quảng Nam (Hội An)', cols: ['18 - 32 tr/tháng', '30 - 55 tr/tháng', '50 - 110 tr/tháng'], hotspots: 'Cẩm Thanh, Cẩm An, An Bàng, ven sông Hoài' }
+      ]
+    },
+    marketFocus: 'nhu cầu thuê biệt thự sân vườn, villa cao cấp làm nơi an cư cho chuyên gia nước ngoài, gia đình đa thế hệ hoặc làm trụ sở văn phòng đại diện sang trọng tiếp tục giữ mức hấp thụ cao.',
+    discoveryCities: ['TP. Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng', 'Quảng Nam', 'Khánh Hòa'],
+    relatedLink: { name: 'Cho thuê trang trại, khu nghỉ dưỡng', path: '/cho-thue-trang-trai-khu-nghi-duong' },
+    faqsBuilder: () => [
+      { q: 'Thuê biệt thự, villa ở hoặc làm văn phòng cần lưu ý chi phí quản trị nào?', a: 'Ngoài tiền thuê, người thuê cần làm rõ chi phí chăm sóc cây cảnh sân vườn, hóa chất vận hành hồ bơi định kỳ, phí an ninh khu đô thị và tiền điện sinh hoạt công suất lớn.' },
+      { q: 'Có được cải tạo công năng bên trong biệt thự để làm văn phòng công ty không?', a: 'Cần có điều khoản cho phép thay đổi vách ngăn, trang trí nhận diện thương hiệu trong hợp đồng và đảm bảo không can thiệp kết cấu chịu lực của căn biệt thự.' }
+    ]
+  },
+  shophouse: {
+    label: 'Shophouse, Nhà Phố Thương Mại Cho Thuê',
+    shortLabel: 'shophouse thương mại',
+    tableCols: ['Shophouse khối đế chung cư', 'Shophouse nội khu KĐT', 'Shophouse trục đường lớn', 'Tổ hợp / Khu đô thị sầm uất'],
+    priceRanges: {
+      national: [
+        { area: 'TP. Hồ Chí Minh', cols: ['25 - 45 tr/tháng', '35 - 75 tr/tháng', '65 - 150 tr/tháng'], hotspots: 'Vinhomes Central Park, Sala Đại Quang Minh, TP. Thủ Đức' },
+        { area: 'Hà Nội', cols: ['22 - 40 tr/tháng', '30 - 65 tr/tháng', '60 - 135 tr/tháng'], hotspots: 'Vinhomes Ocean Park, Smart City, The Manor Central Park' },
+        { area: 'Đà Nẵng & Quảng Nam', cols: ['15 - 30 tr/tháng', '25 - 50 tr/tháng', '45 - 90 tr/tháng'], hotspots: 'Đà Nẵng Times Square, FPT City, Shophouse Hội An' }
+      ]
+    },
+    marketFocus: 'shophouse thương mại với ưu thế vừa ở vừa kinh doanh, vỉa hè rộng rãi và lượng cư dân sẵn có tại các đại đô thị thu hút mạnh các thương hiệu F&B, chuỗi siêu thị tiện lợi, nhà thuốc và phòng khám.',
+    discoveryCities: ['TP. Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng', 'Bình Dương', 'Hải Phòng'],
+    relatedLink: { name: 'Cho thuê nhà mặt phố kinh doanh', path: '/cho-thue-nha-mat-pho' },
+    faqsBuilder: () => [
+      { q: 'Thuê shophouse thương mại cần kiểm tra những pháp lý gì?', a: 'Xác minh quyền cho thuê, bảng ngành nghề được phép đăng ký kinh doanh tại khu đô thị (tránh ngành bị cấm như sửa xe, karaoke...) và số lượng chỗ đậu xe cho khách hàng.' },
+      { q: 'Thời gian hoàn trả mặt bằng và bàn giao hiện trạng shophouse tính thế nào?', a: 'Hợp đồng cần ghi rõ bên thuê có phải hoàn trả nguyên trạng phần thô ban đầu hay được để lại các thiết bị nội thất gắn tường khi thanh lý.' }
+    ]
+  },
+  condotel: {
+    label: 'Condotel, Căn Hộ Nghỉ Dưỡng Cho Thuê',
+    shortLabel: 'condotel nghỉ dưỡng',
+    tableCols: ['Condotel Studio (35 - 45m²)', 'Condotel 1 - 2PN (50 - 75m²)', 'Condotel Suite / View biển', 'Dự án / Cung đường biển'],
+    priceRanges: {
+      national: [
+        { area: 'Đà Nẵng', cols: ['6.5 - 11 tr/tháng', '11 - 18 tr/tháng', '18 - 35 tr/tháng'], hotspots: 'Võ Nguyên Giáp, Phạm Văn Đồng, Hoàng Sa' },
+        { area: 'Nha Trang (Khánh Hòa)', cols: ['6 - 10 tr/tháng', '10 - 16 tr/tháng', '16 - 30 tr/tháng'], hotspots: 'Trần Phú, Phạm Văn Đồng, Bãi Dài' },
+        { area: 'Phú Quốc (Kiên Giang)', cols: ['7 - 12 tr/tháng', '12 - 20 tr/tháng', '20 - 40 tr/tháng'], hotspots: 'Bãi Trường, Dương Đông, Grand World' },
+        { area: 'TP. Hồ Chí Minh & Hà Nội', cols: ['8 - 14 tr/tháng', '14 - 24 tr/tháng', '22 - 45 tr/tháng'], hotspots: 'Căn hộ khách sạn trung tâm du lịch' }
+      ]
+    },
+    marketFocus: 'nhu cầu thuê condotel nghỉ dưỡng dài hạn từ các chuyên gia du mục số (digital nomads), khách công tác dài ngày và khách du lịch theo tuần/tháng với đầy đủ tiện ích như khách sạn 4 - 5 sao và bếp nấu riêng.',
+    discoveryCities: ['Đà Nẵng', 'Khánh Hòa', 'Kiên Giang', 'Bà Rịa - Vũng Tàu', 'Quảng Nam'],
+    relatedLink: { name: 'Cho thuê căn hộ chung cư', path: '/cho-thue-can-ho-chung-cu' },
+    faqsBuilder: () => [
+      { q: 'Thuê condotel theo tháng có được sử dụng miễn phí hồ bơi và phòng gym của tòa nhà không?', a: 'Hầu hết các dự án condotel cho phép khách thuê dài hạn sử dụng miễn phí các tiện ích chung như hồ bơi vô cực, gym, sauna; một số dự án tính phí dịch vụ theo thẻ cư dân.' },
+      { q: 'Hợp đồng thuê condotel dài hạn có cần hóa đơn VAT cho công ty thanh toán không?', a: 'Nếu thuê từ đơn vị vận hành hoặc chủ nhà cá nhân đăng ký kinh doanh, bạn hoàn toàn có thể yêu cầu xuất hóa đơn lưu trú VAT hợp lệ để hạch toán chi phí.' }
+    ]
+  },
+  land: {
+    label: 'Đất Nền, Bãi Đất Trống Cho Thuê',
+    shortLabel: 'đất trống, bãi đất kinh doanh',
+    tableCols: ['Bãi đất nhỏ (<300m²)', 'Mặt bằng đất 300 - 1.000m²', 'Khu đất lớn (>1.000m²)', 'Trục đường / Cụm giao thông'],
+    priceRanges: {
+      national: [
+        { area: 'TP. Hồ Chí Minh & Vệ tinh', cols: ['15 - 30 nghìn/m²', '25 - 55 nghìn/m²', '45 - 90 nghìn/m²'], hotspots: 'Quốc Lộ 1A, Bình Chánh, Thủ Đức, Dĩ An' },
+        { area: 'Hà Nội & Bắc Ninh', cols: ['12 - 25 nghìn/m²', '20 - 45 nghìn/m²', '38 - 80 nghìn/m²'], hotspots: 'Vành Đai 3, Vành Đai 4, Gia Lâm, Từ Sơn' },
+        { area: 'Đà Nẵng & Quảng Nam', cols: ['10 - 20 nghìn/m²', '18 - 35 nghìn/m²', '30 - 65 nghìn/m²'], hotspots: 'Trục đường gom Trường Sơn, QL1A, Điện Nam' }
+      ]
+    },
+    marketFocus: 'nhu cầu thuê bãi đất trống, đất nền làm bãi đỗ xe tải, trạm tập kết vật liệu xây dựng, gara ô tô, kho hở và sân thể thao pickleball tăng nhanh nhờ chi phí đầu tư ban đầu hợp lý và pháp lý hợp đồng linh hoạt.',
+    discoveryCities: ['TP. Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng', 'Bình Dương', 'Đồng Nai'],
+    relatedLink: { name: 'Cho thuê kho xưởng, bến bãi', path: '/cho-thue-kho-nha-xuong' },
+    faqsBuilder: () => [
+      { q: 'Thuê đất trống dựng nhà xưởng hoặc gara cần xin giấy phép gì?', a: 'Cần xin Giấy phép xây dựng công trình có thời hạn (công trình tạm) tại UBND quận/huyện và phương án PCCC theo quy chuẩn đất sản xuất kinh doanh/thương mại.' },
+      { q: 'Hợp đồng thuê đất dài hạn có rủi ro bị thu hồi không?', a: 'Cần kiểm tra quy hoạch phân khu tại phòng Tài nguyên & Môi trường và thỏa thuận điều khoản bồi thường tài sản trên đất nếu quy hoạch nhà nước thu hồi trước hạn.' }
+    ]
+  },
+  'land-group': { alias: 'land', label: 'Các Loại Đất Cho Thuê', shortLabel: 'đất trống, mặt bằng đất' },
+  other: { alias: 'house', label: 'Bất Động Sản Cho Thuê Khác', shortLabel: 'nhà đất' }
 };
 
 const GENERAL_RENT_CITY_CONTENT = {
@@ -1217,15 +1385,15 @@ export const buildRentSeoContentData = ({ activeCity = null, propertyType = null
 
   const discoveryLinks = (!isSpecificCity && profile && norm !== 'all')
     ? {
-        title: `Khám Phá ${profile.label} Tại Các Thành Phố Lớn`,
+        title: `Khám Phá ${profile.label} Tại Các Địa Bàn Nổi Bật`,
         links: [
-          ...['TP. Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng', 'Bình Dương', 'Khánh Hòa'].map((c) => ({
+          ...(profile.discoveryCities || ['TP. Hồ Chí Minh', 'Hà Nội', 'Đà Nẵng', 'Bình Dương', 'Khánh Hòa']).map((c) => ({
             name: `Thuê ${profile.shortLabel} ${c}`,
             path: buildSeoUrl({ demand: 'rent', propertyType: norm, city: c })
           })),
           {
-            name: norm === 'apartment' ? 'Cho thuê chung cư mini' : 'Cho thuê căn hộ chung cư',
-            path: buildSeoUrl({ demand: 'rent', propertyType: norm === 'apartment' ? 'mini-apartment' : 'apartment' })
+            name: profile.relatedLink?.name || (norm === 'apartment' ? 'Cho thuê chung cư mini' : 'Cho thuê căn hộ chung cư'),
+            path: profile.relatedLink?.path || buildSeoUrl({ demand: 'rent', propertyType: norm === 'apartment' ? 'mini-apartment' : 'apartment' })
           }
         ]
       }

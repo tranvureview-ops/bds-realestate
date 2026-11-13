@@ -159,7 +159,6 @@ export const PROPERTY_TAXONOMY = {
       villa: { slug: '/cho-thue-nha-biet-thu-lien-ke', name: 'Cho thuê nhà biệt thự, liền kề' },
       'street-house': { slug: '/cho-thue-nha-mat-pho', name: 'Cho thuê nhà mặt phố' },
       shophouse: { slug: '/cho-thue-shophouse', name: 'Cho thuê shophouse' },
-      'project-land': { slug: '/cho-thue-dat-nen-du-an', name: 'Cho thuê đất nền dự án' },
       land: { slug: '/cho-thue-dat', name: 'Cho thuê đất' },
       'farm-resort': { slug: '/cho-thue-trang-trai-khu-nghi-duong', name: 'Cho thuê trang trại, khu nghỉ dưỡng' },
       condotel: { slug: '/cho-thue-condotel', name: 'Cho thuê condotel' },
@@ -798,7 +797,15 @@ export const parseTaxonomyUrl = (urlPath) => {
     else if (raw.includes('nha-mat-pho')) { propertyType = 'street-house'; matchedTypeSlug = 'nha-mat-pho'; }
     else if (raw.includes('shophouse-nha-pho-thuong-mai')) { propertyType = 'shophouse'; matchedTypeSlug = 'shophouse-nha-pho-thuong-mai'; }
     else if (raw.includes('shophouse')) { propertyType = 'shophouse'; matchedTypeSlug = 'shophouse'; }
-    else if (raw.includes('dat-nen-du-an')) { propertyType = 'project-land'; matchedTypeSlug = 'dat-nen-du-an'; }
+    else if (raw.includes('dat-nen-du-an')) {
+      if (isRent) {
+        propertyType = 'land-group';
+        matchedTypeSlug = 'dat-nen-du-an';
+      } else {
+        propertyType = 'project-land';
+        matchedTypeSlug = 'dat-nen-du-an';
+      }
+    }
     else if (raw.includes('trang-trai-khu-nghi-duong')) { propertyType = 'farm-resort'; matchedTypeSlug = 'trang-trai-khu-nghi-duong'; }
     else if (raw.includes('trang-trai')) { propertyType = 'farm-resort'; matchedTypeSlug = 'trang-trai'; }
     else if (raw.includes('condotel')) { propertyType = 'condotel'; matchedTypeSlug = 'condotel'; }
@@ -1462,18 +1469,36 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, yearInput = null, pa
 
   const hasSpecificLocation = Boolean(taxonomyInfo.district || taxonomyInfo.city);
 
-  // Ưu tiên tiêu đề chuẩn xác (Sentence Case) nếu là faceted clean slug URL hoặc có địa điểm / danh mục cụ thể
-  if (taxonomyInfo.title && (taxonomyInfo.isFacetedCleanSlug || hasSpecificLocation || taxonomyInfo.city || taxonomyInfo.district)) {
+  const hasFacetedFilter = Boolean(
+    taxonomyInfo.project || 
+    taxonomyInfo.priceRange || 
+    taxonomyInfo.areaRange || 
+    taxonomyInfo.rooms || 
+    taxonomyInfo.ward || 
+    taxonomyInfo.street ||
+    taxonomyInfo.direction
+  );
+
+  // Ưu tiên tiêu đề chuẩn xác cho các URL lọc sâu nhiều tiêu chí (Faceted Filters: giá, diện tích, dự án, đường, phường...)
+  if (taxonomyInfo.title && hasFacetedFilter) {
     const rawTitle = String(taxonomyInfo.title || '').trim();
     const formattedTitle = rawTitle ? rawTitle.charAt(0).toUpperCase() + rawTitle.slice(1) : '';
     const yearSuffix = `${formattedTitle}${pageStr}`.length + ' | Kênh Nhà Đất 24H'.length < 50 ? ` [${year}]` : '';
-    const baseTitle = `${formattedTitle}${yearSuffix}${pageStr}`;
+    let baseTitle = `${formattedTitle}${yearSuffix}${pageStr}`;
+    let titleWithBrand = `${baseTitle} | Kênh Nhà Đất 24H`;
+    if (titleWithBrand.length > 60) {
+      baseTitle = baseTitle.replace(` [${year}]`, '');
+      titleWithBrand = `${baseTitle} | Kênh Nhà Đất 24H`;
+      if (titleWithBrand.length > 60) {
+        titleWithBrand = baseTitle;
+      }
+    }
     let fullDesc = `${formattedTitle} mới nhất [${year}]${pageDescStr}, vị trí đẹp, hình ảnh thực tế, thông tin xác thực, pháp lý minh bạch, giá tốt chính chủ.`;
     if (fullDesc.length > 160) {
       fullDesc = `${formattedTitle} mới nhất [${year}]${pageDescStr}, vị trí đẹp, hình ảnh thực tế, thông tin xác thực, pháp lý minh bạch.`;
     }
     return {
-      title: `${baseTitle} | Kênh Nhà Đất 24H`,
+      title: titleWithBrand,
       description: fullDesc
     };
   }
@@ -1604,6 +1629,18 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, yearInput = null, pa
           : `Bán condotel căn hộ nghỉ dưỡng [${year}]${pageStr} toàn quốc`;
         description = `Bán condotel, căn hộ du lịch view biển ${year}${pageDescStr}, pháp lý chuẩn, khai thác cho thuê dòng tiền du lịch hấp dẫn ${locPhrase}`;
         break;
+      case 'farm-resort':
+        title = isPaginated
+          ? (hasSpecificLocation ? `Bán trang trại, khu nghỉ dưỡng${pageStr} | ${titleLoc}` : `Bán trang trại, khu nghỉ dưỡng [${year}]${pageStr}`)
+          : (hasSpecificLocation ? `Bán trang trại, khu nghỉ dưỡng [${year}] | ${titleLoc}` : `Bán trang trại, khu nghỉ dưỡng đẹp [${year}] toàn quốc`);
+        description = `Bán trang trại sinh thái, khu nghỉ dưỡng, nhà vườn farmstay ${year}${pageDescStr}, sổ đỏ sẵn, cảnh quan đẹp, tiềm năng du lịch nghỉ dưỡng lớn ${locPhrase}`;
+        break;
+      case 'warehouse':
+        title = isPaginated
+          ? (hasSpecificLocation ? `Bán kho, nhà xưởng sản xuất${pageStr} | ${titleLoc}` : `Bán kho xưởng, bến bãi logistics [${year}]${pageStr}`)
+          : (hasSpecificLocation ? `Bán kho, nhà xưởng sản xuất [${year}] | ${titleLoc}` : `Bán kho xưởng, nhà xưởng bến bãi [${year}] toàn quốc`);
+        description = `Bán kho, nhà xưởng sản xuất, bến bãi logistics chuẩn KCN ${year}${pageDescStr}, PCCC tự động, trạm điện 3 pha, đường xe container 40ft, sổ hồng riêng ${locPhrase}`;
+        break;
       default:
         if (isPaginated) {
           title = hasSpecificLocation
@@ -1666,6 +1703,117 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, yearInput = null, pa
         }
         description = `Cho thuê văn phòng, mặt bằng kinh doanh vị trí trung tâm, diện tích đa dạng, giá rẻ chính chủ ${year}${pageDescStr}. Đặt xem ${locPhrase}`;
         break;
+      case 'farm-resort':
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Cho thuê trang trại, khu nghỉ dưỡng${pageStr} | ${titleLoc}`
+            : `Cho thuê trang trại, khu nghỉ dưỡng [${year}]${pageStr}`;
+        } else {
+          title = hasSpecificLocation
+            ? `Cho thuê trang trại, khu nghỉ dưỡng [${year}] | ${titleLoc}`
+            : `Cho thuê trang trại, khu nghỉ dưỡng đẹp [${year}] toàn quốc`;
+        }
+        description = `Cho thuê trang trại, nhà vườn nghỉ dưỡng, farmstay, homestay sinh thái ${year}${pageDescStr}, cảnh quan đẹp, giao thông thuận tiện, giá tốt chính chủ ${locPhrase}`;
+        break;
+      case 'villa':
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Cho thuê biệt thự, villa cao cấp${pageStr} | ${titleLoc}`
+            : `Cho thuê biệt thự, villa nghỉ dưỡng${pageStr} toàn quốc`;
+        } else {
+          title = hasSpecificLocation
+            ? `Cho thuê biệt thự, villa nghỉ dưỡng [${year}] | ${titleLoc}`
+            : `Cho thuê biệt thự, villa nghỉ dưỡng [${year}] toàn quốc`;
+        }
+        description = `Cho thuê biệt thự, liền kề, villa nghỉ dưỡng cao cấp ${year}${pageDescStr}, full nội thất sang trọng, sân vườn hồ bơi riêng, an ninh 24/7 khép kín ${locPhrase}`;
+        break;
+      case 'shophouse':
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Cho thuê shophouse thương mại${pageStr} | ${titleLoc}`
+            : `Cho thuê shophouse kinh doanh [${year}]${pageStr}`;
+        } else {
+          title = hasSpecificLocation
+            ? `Cho thuê shophouse nhà phố thương mại [${year}] | ${titleLoc}`
+            : `Cho thuê shophouse nhà phố thương mại [${year}] toàn quốc`;
+        }
+        description = `Cho thuê shophouse, nhà phố thương mại vị trí đắc địa ${year}${pageDescStr}, hai mặt thoáng vỉa hè rộng, thích hợp mở showroom, chuỗi F&B sinh lời cao ${locPhrase}`;
+        break;
+      case 'condotel':
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Cho thuê condotel nghỉ dưỡng${pageStr} | ${titleLoc}`
+            : `Cho thuê condotel, căn hộ du lịch [${year}]${pageStr}`;
+        } else {
+          title = hasSpecificLocation
+            ? `Cho thuê condotel, căn hộ nghỉ dưỡng [${year}] | ${titleLoc}`
+            : `Cho thuê condotel, căn hộ nghỉ dưỡng [${year}] toàn quốc`;
+        }
+        description = `Cho thuê condotel, căn hộ du lịch nghỉ dưỡng view biển đẹp ${year}${pageDescStr}, full tiện ích cao cấp chuẩn 4-5 sao, giá tốt chính chủ dài hạn ${locPhrase}`;
+        break;
+      case 'warehouse':
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Cho thuê kho xưởng, bến bãi${pageStr} | ${titleLoc}`
+            : `Cho thuê kho xưởng, nhà xưởng bến bãi${pageStr} toàn quốc`;
+        } else {
+          title = hasSpecificLocation
+            ? `Cho thuê kho xưởng, bến bãi logistics [${year}] | ${titleLoc}`
+            : `Cho thuê kho xưởng, bến bãi logistics [${year}] toàn quốc`;
+        }
+        description = `Cho thuê kho, nhà xưởng, bến bãi logistics ${year}${pageDescStr}, trần cao thông thoáng, nền bê tông chịu tải lớn, đường xe container 40ft tận cửa, PCCC chuẩn ${locPhrase}`;
+        break;
+      case 'land':
+      case 'land-group':
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Cho thuê đất, mặt bằng bãi đất${pageStr} | ${titleLoc}`
+            : `Cho thuê đất trống, bãi đất kinh doanh${pageStr} toàn quốc`;
+        } else {
+          title = hasSpecificLocation
+            ? `Cho thuê đất, mặt bằng bãi đất [${year}] | ${titleLoc}`
+            : `Cho thuê đất, mặt bằng bãi đất trống [${year}] toàn quốc`;
+        }
+        description = `Cho thuê đất trống, mặt bằng bãi đất kinh doanh làm kho bãi, xưởng sản xuất, bãi đỗ xe ${year}${pageDescStr}, hợp đồng dài hạn, giá rẻ chính chủ ${locPhrase}`;
+        break;
+      case 'room':
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Cho thuê phòng trọ, nhà trọ${pageStr} | ${titleLoc}`
+            : `Cho thuê phòng trọ, nhà trọ khép kín${pageStr} toàn quốc`;
+        } else {
+          title = hasSpecificLocation
+            ? `Cho thuê phòng trọ, nhà trọ giá rẻ [${year}] | ${titleLoc}`
+            : `Cho thuê phòng trọ, nhà trọ giá rẻ [${year}] toàn quốc`;
+        }
+        description = `Cho thuê phòng trọ, nhà trọ khép kín giá rẻ ${year}${pageDescStr}, an ninh tốt, giờ giấc tự do không chung chủ, gần trường học khu công nghiệp. Xem phòng ${locPhrase}`;
+        break;
+      case 'commercial-space':
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Cho thuê mặt bằng kinh doanh${pageStr} | ${titleLoc}`
+            : `Cho thuê cửa hàng, mặt bằng buôn bán${pageStr} toàn quốc`;
+        } else {
+          title = hasSpecificLocation
+            ? `Cho thuê cửa hàng, mặt bằng kinh doanh [${year}] | ${titleLoc}`
+            : `Cho thuê cửa hàng, mặt bằng kinh doanh [${year}] toàn quốc`;
+        }
+        description = `Cho thuê cửa hàng, kiot, mặt bằng kinh doanh buôn bán vị trí đẹp, mặt tiền sầm uất, đông dân cư qua lại, giá thuê hợp lý chính chủ ${year}${pageDescStr} ${locPhrase}`;
+        break;
+      case 'house-group':
+      case 'house-rent-group':
+        if (isPaginated) {
+          title = hasSpecificLocation
+            ? `Cho thuê các loại nhà ở, mặt phố${pageStr} | ${titleLoc}`
+            : `Cho thuê các loại nhà ở, mặt phố${pageStr} toàn quốc`;
+        } else {
+          title = hasSpecificLocation
+            ? `Cho thuê các loại nhà: nhà riêng, mặt phố [${year}] | ${titleLoc}`
+            : `Cho thuê các loại nhà: nhà riêng, mặt phố [${year}] toàn quốc`;
+        }
+        description = `Tổng hợp tin cho thuê các loại nhà ở, nhà riêng nguyên căn, nhà mặt phố kinh doanh và biệt thự ${year}${pageDescStr}, pháp lý minh bạch, giá tốt chính chủ ${locPhrase}`;
+        break;
+      case 'house':
       default:
         if (isPaginated) {
           title = hasSpecificLocation
@@ -1676,7 +1824,7 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, yearInput = null, pa
             ? `Cho thuê nhà riêng, nhà nguyên căn [${year}] | ${titleLoc}`
             : `Cho thuê nhà riêng, nguyên căn giá rẻ [${year}] toàn quốc`;
         }
-        description = `Cho thuê nhà riêng, nguyên căn giá tốt ${year}${pageDescStr}, nhà đẹp tiện ở gia đình hoặc làm văn phòng dài hạn. Xem nhà ${locPhrase}`;
+        description = `Cho thuê nhà riêng, nguyên căn giá tốt ${year}${pageDescStr}, nhà đẹp hẻm rộng thoáng, tiện ở gia đình hoặc mở văn phòng công ty dài hạn. Xem nhà ${locPhrase}`;
     }
   }
 

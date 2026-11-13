@@ -5797,34 +5797,34 @@
     },
     {
       "id": "menu-knowledge",
-      "title": "Kiến Thức",
-      "path": "/kien-thuc",
       "icon": "fa-solid fa-book-open-reader",
+      "path": "/kien-thuc",
       "badge": "",
-      "badgeColor": "",
-      "isVisible": true,
       "order": 4,
+      "title": "Kiến Thức",
       "target": "_self",
       "children": [
         {
           "id": "sub-knowledge-market",
-          "title": "Thông Tin Thị Trường",
+          "icon": "fa-solid fa-chart-line",
           "path": "/kien-thuc/thi-truong",
-          "icon": "fa-solid fa-chart-line"
+          "title": "Thông Tin Thị Trường"
         },
         {
           "id": "sub-knowledge-exp",
-          "title": "Kinh Nghiệm Mua Bán & Đầu Tư",
+          "icon": "fa-solid fa-lightbulb",
           "path": "/kien-thuc/kinh-nghiem",
-          "icon": "fa-solid fa-lightbulb"
+          "title": "Kinh Nghiệm Mua Bán & Đầu Tư"
         },
         {
           "id": "sub-knowledge-legal",
-          "title": "Kiến Thức Pháp Lý & Quy Hoạch",
+          "icon": "fa-solid fa-scale-balanced",
           "path": "/kien-thuc/phap-ly",
-          "icon": "fa-solid fa-scale-balanced"
+          "title": "Kiến Thức Pháp Lý & Quy Hoạch"
         }
-      ]
+      ],
+      "isVisible": true,
+      "badgeColor": ""
     },
     {
       "id": "menu-membership",
@@ -6319,6 +6319,18 @@
       "place_id": "ChIJX9YgQ_QWQjERgLpZ2o944Qc",
       "is_merged": true,
       "created_at": "2026-11-10T01:28:49.775Z"
+    },
+    "6ed63f150fc2ec2b5c0c7329e6ae0692": {
+      "address_hash": "6ed63f150fc2ec2b5c0c7329e6ae0692",
+      "raw_address": "Phường Thạch Thang, Quận Hải Châu, Đà Nẵng",
+      "clean_address": "Đường Phường Thạch Thang, Phường Thạch Thang, Đà Nẵng",
+      "new_ward": "Phường Thạch Thang",
+      "new_district": "Quận Hải Châu",
+      "lat": 16.079,
+      "lng": 108.218,
+      "place_id": "ChIJq7nZ4iIXQjER3vS4eD59_pU",
+      "is_merged": true,
+      "created_at": "2026-11-11T10:59:48.946Z"
     }
   },
   "bds_system_settings": {

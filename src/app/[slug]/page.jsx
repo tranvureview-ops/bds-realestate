@@ -159,6 +159,16 @@ export default async function Page({ params, searchParams }) {
       }
     }
 
+    // 301 Redirect các alias URL cũ (VD: /ban-nha-rieng-nha-pho -> /ban-nha-rieng) về đúng Canonical chuẩn
+    if (!taxonomyInfo.hasPageSegment && taxonomyInfo.basePath && currentPath !== taxonomyInfo.basePath) {
+      const queryParams = new URLSearchParams();
+      for (const [k, v] of Object.entries(sp)) {
+        if (v) queryParams.set(k, String(v));
+      }
+      const qs = queryParams.toString();
+      permanentRedirect(qs ? `${taxonomyInfo.basePath}?${qs}` : taxonomyInfo.basePath);
+    }
+
     const domain = (process.env.NEXT_PUBLIC_SITE_URL || SITE_URL).replace(/\/+$/, '');
     const canonicalUrl = taxonomyInfo.canonicalUrl?.startsWith('http')
       ? taxonomyInfo.canonicalUrl

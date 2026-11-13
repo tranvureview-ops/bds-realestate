@@ -274,4 +274,34 @@ export function getPremiumPackageSavePercent(packages = []) {
   return Number(premiumPkg?.savePercent) || 39;
 }
 
+/**
+ * Bộ câu hỏi thường gặp chuẩn AIO/FAQPage dùng chung giữa SSR JSON-LD và DOM Client.
+ */
+export const MEMBERSHIP_FAQS = [
+  {
+    q: '1. Kho voucher của Gói Hội Viên được cấp và khấu trừ như thế nào?',
+    a: 'Ngay sau khi thanh toán đăng ký gói thành công, toàn bộ voucher Đăng tin thường, Đẩy tin và Giảm giá tin VIP được cộng ngay vào kho cá nhân. Khi đăng tin hoặc đẩy tin, hệ thống tự động gợi ý áp dụng voucher để giảm trừ trực tiếp về 0 đ hoặc theo đúng hạn mức gói.'
+  },
+  {
+    q: '2. Mua gói 3 tháng hoặc 6 tháng thì voucher được cấp thành mấy đợt?',
+    a: 'Theo quy chế hội viên trên Kênh Nhà Đất 24H, hạn mức voucher được cấp mới định kỳ mỗi 30 ngày một lần để tránh tồn đọng lãng phí. Gói 3 tháng sẽ được cấp đủ 3 đợt (90 ngày), gói 6 tháng cấp đủ 6 đợt (180 ngày) và được giảm thêm từ 10% đến 30% tổng chi phí.'
+  },
+  {
+    q: '3. Voucher chưa dùng hết trong chu kỳ 30 ngày có được cộng dồn sang tháng sau không?',
+    a: 'Không. Nhằm duy trì mật độ đăng tin đều đặn giúp tài khoản môi giới tăng điểm uy tín, kho voucher được làm mới (reset) theo từng chu kỳ 30 ngày. Vì vậy, bạn nên tận dụng hết lượt đẩy tin trong chu kỳ để tối ưu hóa hiển thị.'
+  },
+  {
+    q: '4. Tôi có thể nâng cấp hoặc đổi sang gói khác khi gói cũ còn hạn không?',
+    a: 'Để đảm bảo tính nhất quán khi đối soát kho voucher theo chu kỳ 30 ngày, hệ thống chỉ cho phép gia hạn đúng gói đang hoạt động khi gói còn hạn. Sau khi chu kỳ hiện tại hết hạn, bạn có thể tự do chuyển sang bất kỳ gói Hội Viên nào khác.'
+  },
+  {
+    q: '5. Quyền lợi Tin Nổi Bật (Săn Kho Báu BĐS) và Dự Đoán Giá BĐS hoạt động ra sao?',
+    a: 'Hội viên từ Gói Tiêu Chuẩn trở lên được đặc quyền gắn các tin bất động sản chất lượng vào mục Tin Nổi Bật Săn Kho Báu BĐS (15 ngày/lần), tăng lượt mở rương kho báu mỗi ngày và tham gia Dự đoán giá BĐS chia thưởng cùng cộng đồng.'
+  },
+  {
+    q: '6. Môi giới mới hoặc chủ nhà đăng ít tin nên chọn Gói Hội Viên nào để tiết kiệm nhất?',
+    a: 'Nếu bạn có giỏ hàng dưới 30 tin/tháng, Gói Cơ Bản (299.000 đ/tháng) đã đáp ứng tốt nhu cầu duy trì đẩy tin hàng ngày. Nếu quản lý từ 30 đến 60 tin và cần gắn Tin Nổi Bật, Gói Tiêu Chuẩn (599.000 đ/tháng) mang lại hiệu quả ROI cao nhất.'
+  }
+];
+
 

@@ -42,7 +42,7 @@ export default async function sitemap() {
       priority: 0.8,
     },
     {
-      url: `${baseUrl}/goi-hoi-vien/`,
+      url: `${baseUrl}/goi-hoi-vien`,
       lastModified: now,
       changeFrequency: 'weekly',
       priority: 0.8,
@@ -100,6 +100,12 @@ export default async function sitemap() {
       lastModified: now,
       changeFrequency: 'weekly',
       priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/dang-tin`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
     },
   ];
 

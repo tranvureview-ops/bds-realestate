@@ -142,6 +142,26 @@ export const LISTING_TYPES = [
 
 export const VIP_PACKAGES = LISTING_TYPES; // Backward compatibility
 
+// Bộ FAQ chuẩn SEO / Schema FAQPage dùng chung cho trang /dang-tin
+export const POST_LISTING_FAQS = [
+  {
+    q: '1. Đăng Tin Thường trên Kênh Nhà Đất 24H miễn phí tối đa bao nhiêu tin mỗi ngày?',
+    a: 'Tài khoản thông thường được đăng Tin Thường hoàn toàn miễn phí với thời hạn hiển thị 60 ngày (tối đa 3 tin/ngày/tài khoản theo quy chế hiện hành), phí đẩy tin làm mới chỉ từ 400 đ/lần. Nếu bạn cần đăng nhiều hơn hoặc dùng đẩy tin không giới hạn, hãy kích hoạt Gói Hội Viên.'
+  },
+  {
+    q: '2. Các bước chuẩn bị để tin đăng BĐS được duyệt nhanh và đạt nhiều cuộc gọi nhất?',
+    a: 'Hoàn tất đủ 4 bước trên biểu mẫu: chọn chính xác loại hình và địa giới hành chính 3 cấp kèm tọa độ GPS; đặt tiêu đề 30 - 99 ký tự chứa loại BĐS + khu vực + giá; mô tả rõ diện tích, pháp lý (Sổ hồng/Sổ đỏ/HĐMB); và tải tối thiểu 4 - 8 ảnh thực tế hoặc nhúng Tour VR 360°.'
+  },
+  {
+    q: '3. Khác biệt về tốc độ duyệt và mức độ tiếp cận giữa Tin Thường và các gói VIP?',
+    a: 'Tin Thường được kiểm duyệt tự động trong 5 - 15 phút và hiển thị bên dưới nhóm VIP. Trong khi đó, VIP Bạc (tiếp cận x8), VIP Vàng (tiếp cận x15) và VIP Kim Cương (tiếp cận x30, vị trí Top 1) đều được duyệt tức thì 0 giây ngay sau khi xuất bản.'
+  },
+  {
+    q: '4. Làm sao dùng Voucher Hội Viên để giảm giá về 0 đ ngay khi đăng tin?',
+    a: 'Sau khi đăng ký Gói Hội Viên, hệ thống tự động cộng kho voucher vào tài khoản. Ở Bước 4 (Cấu hình Gói VIP & Lịch đẩy tin), bạn chỉ cần tích chọn voucher tương ứng để khấu trừ chi phí đăng tin thường, đẩy tin giờ vàng hoặc giảm trừ trực tiếp phí nâng cấp Tin VIP.'
+  }
+];
+
 // Bảng Gói Hội Viên
 export const MEMBERSHIP_PACKAGES = [
   {
@@ -2808,8 +2828,8 @@ export const INITIAL_PROPERTIES = [
     "vipPackageId": "vip-gold",
     "status": "active",
     "demand": "sale",
-    "propertyType": "house",
-    "propertyTypeName": "Nhà mặt phố",
+    "propertyType": "shophouse",
+    "propertyTypeName": "Shophouse",
     "price": 18500000000,
     "priceDisplay": "18.5 tỷ",
     "pricePerM2": "148 triệu/m²",
@@ -3209,7 +3229,7 @@ export const INITIAL_PROPERTIES = [
     "vipPackageId": "vip-gold",
     "status": "active",
     "demand": "sale",
-    "propertyType": "house",
+    "propertyType": "street-house",
     "propertyTypeName": "Nhà mặt phố",
     "price": 39500000000,
     "priceDisplay": "39.5 tỷ",
@@ -3298,8 +3318,8 @@ export const INITIAL_PROPERTIES = [
     "vipPackageId": "vip-silver",
     "status": "active",
     "demand": "sale",
-    "propertyType": "house",
-    "propertyTypeName": "Nhà mặt phố",
+    "propertyType": "shophouse",
+    "propertyTypeName": "Shophouse",
     "price": 48000000000,
     "priceDisplay": "48 tỷ",
     "pricePerM2": "320 triệu/m²",
@@ -3738,7 +3758,7 @@ export const INITIAL_PROPERTIES = [
     "vipPackageId": "vip-silver",
     "status": "active",
     "demand": "sale",
-    "propertyType": "house",
+    "propertyType": "street-house",
     "propertyTypeName": "Nhà mặt phố",
     "price": 16500000000,
     "priceDisplay": "16.5 tỷ",
@@ -4043,8 +4063,8 @@ export const INITIAL_PROPERTIES = [
     "vipPackageId": "normal",
     "status": "active",
     "demand": "sale",
-    "propertyType": "house",
-    "propertyTypeName": "Nhà mặt phố",
+    "propertyType": "shophouse",
+    "propertyTypeName": "Shophouse",
     "price": 13800000000,
     "priceDisplay": "13.8 tỷ",
     "pricePerM2": "250 triệu/m²",
@@ -4400,8 +4420,8 @@ export const INITIAL_PROPERTIES = [
     "vipPackageId": "vip-silver",
     "status": "active",
     "demand": "sale",
-    "propertyType": "house",
-    "propertyTypeName": "Nhà mặt phố",
+    "propertyType": "shophouse",
+    "propertyTypeName": "Shophouse",
     "price": 11500000000,
     "priceDisplay": "11.5 tỷ",
     "pricePerM2": "125 triệu/m²",
@@ -5575,7 +5595,6 @@ export const INITIAL_NAV_MENU = [
       { id: 'sub-rent-villa', title: 'Cho Thuê Nhà Biệt Thự, Liền Kề', path: '/cho-thue-nha-biet-thu-lien-ke', icon: 'fa-solid fa-landmark' },
       { id: 'sub-rent-street', title: 'Cho Thuê Nhà Mặt Phố', path: '/cho-thue-nha-mat-pho', icon: 'fa-solid fa-shop' },
       { id: 'sub-rent-shophouse', title: 'Cho Thuê Shophouse', path: '/cho-thue-shophouse', icon: 'fa-solid fa-store' },
-      { id: 'sub-rent-project-land', title: 'Cho Thuê Đất Nền Dự Án', path: '/cho-thue-dat-nen-du-an', icon: 'fa-solid fa-mountain-sun' },
       { id: 'sub-rent-land', title: 'Cho Thuê Đất', path: '/cho-thue-dat', icon: 'fa-solid fa-map' },
       { id: 'sub-rent-farm', title: 'Cho Thuê Trang Trại, Khu Nghỉ Dưỡng', path: '/cho-thue-trang-trai-khu-nghi-duong', icon: 'fa-solid fa-tree' },
       { id: 'sub-rent-condotel', title: 'Cho Thuê Condotel', path: '/cho-thue-condotel', icon: 'fa-solid fa-hotel' },
@@ -5703,6 +5722,7 @@ export const DEFAULT_FOOTER_CONFIG = {
     { id: 'c2-1', label: 'Nhà Đất Cần Bán', url: '/nha-dat-ban' },
     { id: 'c2-2', label: 'Cho Thuê Nhà Đất', url: '/nha-dat-cho-thue' },
     { id: 'c2-3', label: 'Bảng Giá Tin Đăng', url: '/bang-gia-tin-dang' },
+    { id: 'c2-3b', label: 'Gói Hội Viên Môi Giới', url: '/goi-hoi-vien' },
     { id: 'c2-4', label: 'Đăng Tin Hiệu Quả', url: '/dang-tin' },
     { id: 'c2-5', label: 'Công Cụ Tính Lãi Vay', url: '/tinh-lai-vay' },
     { id: 'c2-6', label: 'Kiến Thức & Cẩm Nang BĐS', url: '/kien-thuc' }

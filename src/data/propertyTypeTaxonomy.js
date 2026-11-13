@@ -203,7 +203,6 @@ export const PROPERTY_TYPE_NAMES = {
   'rent-villa': 'Nhà biệt thự, liền kề',
   'rent-street-house': 'Nhà mặt phố',
   'rent-shophouse': 'Shophouse, nhà phố thương mại',
-  'rent-project-land': 'Đất nền dự án',
   'rent-land': 'Đất thổ cư, đất ở',
   'rent-farm-resort': 'Trang trại, khu nghỉ dưỡng',
   'rent-condotel': 'Condotel',

@@ -4382,9 +4382,9 @@ export default function PostListingModal({ onClose, isEmbedded = false, editProp
                         </span>
                       </div>
 
-                      <h1 className={`text-xl sm:text-2xl font-black text-slate-900 leading-snug ${selectedVipId === 'vip-diamond' ? 'text-red-600 uppercase' : selectedVipId === 'vip-gold' ? 'text-amber-800' : ''}`}>
+                      <h2 className={`text-xl sm:text-2xl font-black text-slate-900 leading-snug ${selectedVipId === 'vip-diamond' ? 'text-red-600 uppercase' : selectedVipId === 'vip-gold' ? 'text-amber-800' : ''}`}>
                         {previewProperty.title}
-                      </h1>
+                      </h2>
 
                       <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-600">
                         <i className="fa-solid fa-location-dot text-red-600"></i>

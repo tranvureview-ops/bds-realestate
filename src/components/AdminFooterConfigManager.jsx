@@ -94,7 +94,6 @@ export const ALL_INTERNAL_ROUTES = [
       { label: 'Cho thuê biệt thự, liền kề', url: '/cho-thue-nha-biet-thu-lien-ke' },
       { label: 'Cho thuê nhà mặt phố', url: '/cho-thue-nha-mat-pho' },
       { label: 'Cho thuê shophouse', url: '/cho-thue-shophouse' },
-      { label: 'Cho thuê đất nền dự án', url: '/cho-thue-dat-nen-du-an' },
       { label: 'Cho thuê đất', url: '/cho-thue-dat' },
       { label: 'Cho thuê trang trại, khu nghỉ dưỡng', url: '/cho-thue-trang-trai-khu-nghi-duong' },
       { label: 'Cho thuê condotel', url: '/cho-thue-condotel' },
