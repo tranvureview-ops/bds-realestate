@@ -384,7 +384,7 @@ export default function AdminReportsManager({
           ${composeFormData.messageContent}
         </div>
         <div style="background: #f8fafc; padding: 14px 24px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b; text-align: center;">
-          Hệ thống email quản trị Sàn Giao Dịch Nhà Đất ${systemConfig?.brandShortName || 'Kênh Nhà Đất 24H'} • Hotline: ${activeHotline}
+          Hệ thống email quản trị ${systemConfig?.brandShortName || 'Kênh Nhà Đất 24H'} • Hotline: ${activeHotline}
         </div>
       </div>
     `;

@@ -853,7 +853,7 @@ export default function AdminFooterConfigManager() {
                         {systemConfig?.brandShortName || 'SÀN NHÀ ĐẤT'}
                       </div>
                       <div className="text-[9px] text-slate-400 uppercase">
-                        {systemConfig?.tagline || 'Sàn Giao Dịch Nhà Đất'}
+                        {systemConfig?.tagline || 'Kênh Nhà Đất 24H'}
                       </div>
                     </div>
                   </div>

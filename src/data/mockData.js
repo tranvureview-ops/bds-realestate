@@ -5779,7 +5779,7 @@ export const DEFAULT_HEADER_CONFIG = {
   logoType: 'text', // 'text' | 'image'
   brandName: 'Kênh Nhà Đất',
   brandHighlight: '24H',
-  brandTagline: 'Sàn Giao Dịch Nhà Đất & Đăng Tin VIP',
+  brandTagline: 'Đăng Tin Bất Động Sản VIP',
   brandIcon: 'fa-solid fa-water',
   badgeText: '',
   badgeColor: 'bg-red-100 text-red-600 border border-red-200',
@@ -5993,7 +5993,7 @@ export const DEFAULT_SYSTEM_CONFIG = {
   brandShortName: 'Kênh Nhà Đất 24H',
   domain: 'kenhnhadat24h.com.vn',
   siteUrl: 'https://kenhnhadat24h.com.vn',
-  tagline: 'Sàn Giao Dịch Nhà Đất & Đăng Tin VIP',
+  tagline: 'Đăng Tin Bất Động Sản VIP',
   hotline: '0905467138',
   zalo: '0905467138',
   email: 'tranvanvu.dev@gmail.com',
@@ -6201,7 +6201,7 @@ export const DEFAULT_EMAIL_CONFIG = {
 
   // 6. Chữ ký thương hiệu & Chân trang Email (Signature / Footer)
   signature: {
-    companyName: 'SÀN GIAO DỊCH NHÀ ĐẤT KÊNH NHÀ ĐẤT 24H',
+    companyName: 'KÊNH NHÀ ĐẤT 24H',
     hotline: '0905 467 138',
     address: 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng',
     websiteUrl: 'https://kenhnhadat24h.com.vn'

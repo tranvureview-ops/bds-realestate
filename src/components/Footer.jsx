@@ -85,7 +85,7 @@ export default function Footer() {
   }, [headerConfig?.brandName, headerConfig?.brandHighlight, systemConfig?.brandShortName]);
 
   const activeBrandName = [brandNameDisplay, brandHighlightDisplay].filter(Boolean).join('') || systemConfig?.brandShortName || 'SÀN NHÀ ĐẤT';
-  const activePlatformName = systemConfig?.platformName || `${activeBrandName} - Sàn Giao Dịch Nhà Đất`;
+  const activePlatformName = systemConfig?.platformName || `${activeBrandName}`;
 
   const activeHotline = footerConfig?.hotline || systemConfig?.hotline || '0898 246 607';
   const activeZalo = footerConfig?.zalo || systemConfig?.zalo;
@@ -139,7 +139,7 @@ export default function Footer() {
                   ) : null}
                 </div>
                 <div className="text-[11px] text-slate-300 uppercase tracking-wider font-bold">
-                  {systemConfig?.tagline || 'Sàn Giao Dịch Nhà Đất & Đăng Tin VIP'}
+                  {systemConfig?.tagline || 'Đăng Tin Bất Động Sản VIP'}
                 </div>
               </div>
             </Link>

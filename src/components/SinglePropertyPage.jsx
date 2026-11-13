@@ -2627,7 +2627,7 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
         <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3 mb-4">
           <div>
             <div className="text-xl font-black text-slate-900 uppercase">
-              {systemConfig?.platformName || 'KÊNH NHÀ ĐẤT 24H • SÀN GIAO DỊCH NHÀ ĐẤT'}
+              {systemConfig?.platformName || 'KÊNH NHÀ ĐẤT 24H'}
             </div>
             <div suppressHydrationWarning className="text-xs text-slate-600 mt-0.5">
               Hotline kiểm định & tư vấn: <strong suppressHydrationWarning>{systemConfig?.hotline || '0905 467 138'}</strong> • Website: <strong suppressHydrationWarning>{typeof window !== 'undefined' ? window.location.host : 'kenhnhadat24h.com.vn'}</strong>

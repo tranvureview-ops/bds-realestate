@@ -6,7 +6,7 @@ import { SITE_URL } from '../../utils/permalink';
 // HẰNG SỐ THÔNG TIN THƯƠNG HIỆU ĐỒNG BỘ CÀI ĐẶT WEBSITE
 // ============================================================================
 const BRAND_NAME = 'Kênh Nhà Đất 24H';
-const COMPANY_NAME = 'Sàn Giao Dịch Nhà Đất Kênh Nhà Đất 24H';
+const COMPANY_NAME = 'Kênh Nhà Đất 24H';
 const HOTLINE = '0905 467 138';
 const EMAIL = 'tranvanvu.dev@gmail.com';
 const ADDRESS = 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng';
@@ -50,7 +50,7 @@ const jsonLdData = {
   '@graph': [
     {
       '@type': 'WebPage',
-      name: `Quy chế hoạt động sàn giao dịch nhà đất ${BRAND_NAME}`,
+      name: `Quy chế hoạt động ${BRAND_NAME}`,
       description: `Quy chế hoạt động sàn TMĐT nhà đất ${BRAND_NAME}. Căn cứ Nghị định 52/2013/NĐ-CP và Nghị định 85/2021/NĐ-CP.`,
       url: `${DOMAIN}/quy-che-hoat-dong`,
       inLanguage: 'vi-VN',

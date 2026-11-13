@@ -6,7 +6,7 @@ import { SITE_URL } from '../../utils/permalink';
 // HẰNG SỐ THÔNG TIN THƯƠNG HIỆU ĐỒNG BỘ CÀI ĐẶT WEBSITE
 // ============================================================================
 const BRAND_NAME = 'Kênh Nhà Đất 24H';
-const COMPANY_NAME = 'Sàn Giao Dịch Nhà Đất Kênh Nhà Đất 24H';
+const COMPANY_NAME = 'Kênh Nhà Đất 24H';
 const HOTLINE = '0905 467 138';
 const EMAIL = 'tranvanvu.dev@gmail.com';
 const ADDRESS = 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng';
@@ -278,7 +278,7 @@ export default function LegalPolicyPage() {
                     I
                   </span>
                   <h2 className="text-xl font-black text-slate-900">
-                    Quy Chế Hoạt Động Sàn Giao Dịch Nhà Đất {BRAND_NAME}
+                    Quy Chế Hoạt Động {BRAND_NAME}
                   </h2>
                 </div>
 
@@ -548,7 +548,7 @@ export default function LegalPolicyPage() {
                         Bộ phận Tiếp nhận Khiếu nại & Kiểm soát chất lượng
                       </span>
                       <h4 className="text-lg font-black text-white mt-1">
-                        SÀN GIAO DỊCH NHÀ ĐẤT {BRAND_NAME}
+                        {BRAND_NAME.toUpperCase()}
                       </h4>
                     </div>
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-300 border border-slate-700">

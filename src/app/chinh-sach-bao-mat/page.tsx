@@ -6,7 +6,7 @@ import { SITE_URL } from '../../utils/permalink';
 // HẰNG SỐ THÔNG TIN THƯƠNG HIỆU ĐỒNG BỘ CÀI ĐẶT WEBSITE
 // ============================================================================
 const BRAND_NAME = 'Kênh Nhà Đất 24H';
-const COMPANY_NAME = 'Sàn Giao Dịch Nhà Đất Kênh Nhà Đất 24H';
+const COMPANY_NAME = 'Kênh Nhà Đất 24H';
 const HOTLINE = '0905 467 138';
 const EMAIL = 'tranvanvu.dev@gmail.com';
 const ADDRESS = 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng';
@@ -267,7 +267,7 @@ export default function PrivacyPolicyPage() {
                   Tuyên ngôn bảo vệ quyền riêng tư
                 </p>
                 <p>
-                  Sàn giao dịch nhà đất <strong>{BRAND_NAME}</strong> coi trọng việc bảo vệ dữ liệu cá nhân của người dùng như một trong những nguyên tắc cốt lõi hàng đầu. Toàn bộ hoạt động thu thập, lưu trữ và xử lý dữ liệu được thực thi nghiêm túc theo <strong>Nghị định số 13/2023/NĐ-CP</strong> của Chính phủ về Bảo vệ dữ liệu cá nhân.
+                  Website <strong>{BRAND_NAME}</strong> coi trọng việc bảo vệ dữ liệu cá nhân của người dùng như một trong những nguyên tắc cốt lõi hàng đầu. Toàn bộ hoạt động thu thập, lưu trữ và xử lý dữ liệu được thực thi nghiêm túc theo <strong>Nghị định số 13/2023/NĐ-CP</strong> của Chính phủ về Bảo vệ dữ liệu cá nhân.
                 </p>
               </div>
 

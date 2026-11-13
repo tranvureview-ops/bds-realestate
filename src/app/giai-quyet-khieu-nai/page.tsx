@@ -6,7 +6,7 @@ import { SITE_URL } from '../../utils/permalink';
 // HẰNG SỐ THÔNG TIN THƯƠNG HIỆU ĐỒNG BỘ CÀI ĐẶT WEBSITE
 // ============================================================================
 const BRAND_NAME = 'Kênh Nhà Đất 24H';
-const COMPANY_NAME = 'Sàn Giao Dịch Nhà Đất Kênh Nhà Đất 24H';
+const COMPANY_NAME = 'Kênh Nhà Đất 24H';
 const HOTLINE = '0905 467 138';
 const EMAIL = 'tranvanvu.dev@gmail.com';
 const ADDRESS = 'Lô A38 Trần Văn Trứ, Phường Hải Châu, Thành Phố Đà Nẵng';
@@ -315,7 +315,7 @@ export default function DisputeResolutionPage() {
                     <span>Tuyên bố pháp lý quan trọng:</span>
                   </div>
                   <p>
-                    <strong>Sàn Giao Dịch Nhà Đất {BRAND_NAME} là nền tảng công nghệ trung gian kết nối thông tin (Sàn TMĐT)</strong>, cung cấp dịch vụ đăng tin quảng bá bất động sản. Chúng tôi <strong>KHÔNG PHẢI là một bên tham gia</strong> vào các giao dịch mua bán, chuyển nhượng, cho thuê, đặt cọc hay ủy quyền thực tế ngoài đời thực giữa Người Bán (Chủ nhà/Môi giới) và Người Mua (Khách hàng).
+                    <strong>{BRAND_NAME} là nền tảng công nghệ trung gian kết nối thông tin (Website TMĐT)</strong>, cung cấp dịch vụ đăng tin quảng bá bất động sản. Chúng tôi <strong>KHÔNG PHẢI là một bên tham gia</strong> vào các giao dịch mua bán, chuyển nhượng, cho thuê, đặt cọc hay ủy quyền thực tế ngoài đời thực giữa Người Bán (Chủ nhà/Môi giới) và Người Mua (Khách hàng).
                   </p>
                   <p>
                     Do đó, Ban Quản Trị sàn <strong>HOÀN TOÀN KHÔNG CHỊU TRÁCH NHIỆM</strong> giải quyết, hòa giải, bồi thường thiệt hại hay phân xử đối với các tranh chấp dân sự phát sinh giữa Người Bán và Người Mua, bao gồm nhưng không giới hạn ở:
@@ -476,7 +476,7 @@ export default function DisputeResolutionPage() {
                       Bộ Phận Hỗ Trợ Kỹ Thuật & Chăm Sóc Khách Hàng Website
                     </span>
                     <h3 className="text-base font-black text-white mt-1">
-                      SÀN GIAO DỊCH NHÀ ĐẤT {BRAND_NAME}
+                      {BRAND_NAME.toUpperCase()}
                     </h3>
                   </div>
 

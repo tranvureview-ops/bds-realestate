@@ -13,7 +13,7 @@ export const AVAILABLE_FONTS = [
       sizeAdjust: '100%'
     },
     primaryPreloadWoff2: '/fonts/roboto/roboto-400-vietnamese.woff2',
-    sampleHeadline: 'Sàn Giao Dịch Nhà Đất Kênh Nhà Đất 24H',
+    sampleHeadline: 'Kênh Nhà Đất 24H',
     sampleText: 'Phông chữ Roboto tải trực tiếp từ thư viện nội bộ, hiển thị mượt mà và tải trang tức thì.',
     samplePrice: '4.850.000.000 ₫'
   }

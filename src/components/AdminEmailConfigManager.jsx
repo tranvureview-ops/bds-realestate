@@ -882,7 +882,7 @@ export default function AdminEmailConfigManager({ onNavigateToEmails = null }) {
                       type="text"
                       value={formData.signature?.companyName || ''}
                       onChange={(e) => handleSignatureChange('companyName', e.target.value)}
-                      placeholder={`Ví dụ: ${systemConfig?.platformName || 'Sàn Giao Dịch Nhà Đất'}`}
+                      placeholder={`Ví dụ: ${systemConfig?.platformName || 'Kênh Nhà Đất 24H'}`}
                       className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-teal-500"
                     />
                   </div>

@@ -7356,7 +7356,7 @@ export default function AdminBackendPage() {
                           type="text"
                           value={formSystemConfig.platformName || ''}
                           onChange={(e) => setFormSystemConfig(prev => ({ ...prev, platformName: e.target.value }))}
-                          placeholder="Ví dụ: SÀN GIAO DỊCH NHÀ ĐẤT LANDMARK VIỆT NAM"
+                          placeholder="Ví dụ: KÊNH THÔNG TIN BẤT ĐỘNG SẢN VIỆT NAM"
                           className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                         />
                         <p className="text-[10px] text-slate-500 mt-1">
@@ -7389,7 +7389,7 @@ export default function AdminBackendPage() {
                             type="text"
                             value={formSystemConfig.tagline || ''}
                             onChange={(e) => setFormSystemConfig(prev => ({ ...prev, tagline: e.target.value }))}
-                            placeholder="Ví dụ: Sàn Giao Dịch Nhà Đất & Đăng Tin VIP"
+                            placeholder="Ví dụ: Kênh Đăng Tin Bất Động Sản VIP"
                             className="w-full p-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white font-bold outline-none focus:border-emerald-500"
                           />
                           <p className="text-[10px] text-slate-500 mt-1">
@@ -7546,7 +7546,7 @@ export default function AdminBackendPage() {
                         style={{ fontFamily: getFontConfig(formSystemConfig.fontFamily).fontFamily }}
                       >
                         <h3 className="text-base font-extrabold text-white">
-                          {formSystemConfig.platformName || formSystemConfig.brandShortName || 'Sàn Giao Dịch Nhà Đất'}
+                          {formSystemConfig.platformName || formSystemConfig.brandShortName || 'Kênh Nhà Đất 24H'}
                         </h3>
                         <p className="text-xs text-slate-300 leading-relaxed">
                           Hệ thống quản lý tin đăng VIP, bản đồ số GIS và pháp lý thương mại điện tử minh bạch. Mọi giao dịch được đảm bảo tuân thủ quy chuẩn pháp luật.
@@ -8338,7 +8338,7 @@ export default function AdminBackendPage() {
                           <span>{formSystemConfig.brandShortName || 'SÀN NHÀ ĐẤT'}</span>
                         </div>
                         <div className="text-[10px] text-slate-400 font-medium">
-                          {formSystemConfig.tagline || 'Sàn Giao Dịch Nhà Đất & Đăng Tin VIP'}
+                          {formSystemConfig.tagline || 'Kênh Đăng Tin Bất Động Sản VIP'}
                         </div>
                         <div className="pt-2 border-t border-slate-800 space-y-1 text-[11px]">
                           <div>📞 Hotline: <strong className="text-white font-mono">{formSystemConfig.hotline || '0905 467 138'}</strong></div>
