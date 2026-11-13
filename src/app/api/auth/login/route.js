@@ -121,8 +121,8 @@ export async function POST(request) {
       }, { status: 401 });
     }
 
-    // Xác định quyền Admin
-    const isUserAdmin = found.role === 'admin' || isVuIdentifier || found.email === 'tranvu.review@gmail.com';
+    // Xác định quyền Admin dựa trên vai trò thực tế role === 'admin'
+    const isUserAdmin = found.role === 'admin';
 
     // Đăng nhập thành công - Loại bỏ triệt để các trường nhạy cảm trước khi trả về client
     const { password: _p, passwordHash: _ph, twoFactorSecret: _tfs, ...restUser } = found;
@@ -132,8 +132,8 @@ export async function POST(request) {
       ...restUser,
       walletBalance: Number(rawWallet !== undefined && !isNaN(Number(rawWallet)) ? rawWallet : (isVuIdentifier ? 2966000 : 0)),
       bonusWalletBalance: Number(rawBonus !== undefined && !isNaN(Number(rawBonus)) ? rawBonus : (isVuIdentifier ? 214000 : 0)),
-      role: isUserAdmin ? 'admin' : restUser.role,
-      roleName: isUserAdmin ? 'Quản Trị Viên' : (restUser.roleName || 'Người dùng')
+      role: restUser.role || 'user',
+      roleName: restUser.roleName || (isUserAdmin ? 'Quản Trị Viên' : 'Người dùng')
     };
 
     // Sinh Token quản trị có chữ ký số bí mật nếu là Admin

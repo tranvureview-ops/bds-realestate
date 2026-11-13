@@ -65,7 +65,7 @@ function AppContent({ children }) {
 
   // Check Maintenance Mode
   const isMaintenance = systemConfig?.maintenanceMode === true;
-  const isAdmin = currentUser?.role === 'admin' || currentUser?.email === 'tranvanvu.dev@gmail.com' || currentUser?.email === 'tranvu.review@gmail.com' || currentUser?.email === 'admin@gmail.com';
+  const isAdmin = currentUser?.role === 'admin';
   // Luôn cho phép truy cập trang đăng nhập để Quản trị viên có thể xác thực và tắt/bật bảo trì
   const isAuthRoute = pathname.startsWith('/dang-nhap') || pathname.startsWith('/api/auth');
 

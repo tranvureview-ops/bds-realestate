@@ -5008,8 +5008,8 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
           name: 'Tran Van Vu',
           email: 'tranvanvu.dev@gmail.com',
           phone: '0905 467 138',
-          role: 'admin',
-          roleName: 'Quản Trị Viên',
+          role: 'broker',
+          roleName: 'Môi Giới',
           walletBalance: 2966000,
           bonusWalletBalance: 214000,
           status: 'active'
@@ -5052,11 +5052,11 @@ export const RealEstateProvider = ({ children, initialData = null, initialUser =
         return false;
       }
 
-      const isUserAdmin = targetUser.role === 'admin' || isVu || targetUser.email === 'tranvu.review@gmail.com';
+      const isUserAdmin = targetUser.role === 'admin';
       const safeLoggedUser = {
         ...targetUser,
-        role: isUserAdmin ? 'admin' : targetUser.role,
-        roleName: isUserAdmin ? 'Quản Trị Viên' : (targetUser.roleName || 'Người dùng')
+        role: targetUser.role,
+        roleName: targetUser.roleName || (isUserAdmin ? 'Quản Trị Viên' : 'Người dùng')
       };
 
       setCurrentUser(safeLoggedUser);

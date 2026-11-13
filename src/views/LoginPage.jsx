@@ -37,7 +37,7 @@ export default function LoginPage() {
 
   const handlePostLoginRedirect = (user) => {
     if (!user) return;
-    const isUserAdmin = user.role === 'admin' || user.email === 'tranvanvu.dev@gmail.com' || user.email === 'tranvu.review@gmail.com';
+    const isUserAdmin = user.role === 'admin';
     if (systemConfig?.maintenanceMode === true && !isUserAdmin) {
       showToast('Hệ thống đang bật chế độ bảo trì kỹ thuật! Chỉ Quản Trị Viên mới có quyền truy cập.', 'warning');
       return;
@@ -81,7 +81,7 @@ export default function LoginPage() {
     const loggedUser = await loginUser(identifier, password);
     setIsSubmitting(false);
     if (loggedUser) {
-      const isUserAdmin = loggedUser.role === 'admin' || loggedUser.email === 'tranvanvu.dev@gmail.com' || loggedUser.email === 'tranvu.review@gmail.com';
+      const isUserAdmin = loggedUser.role === 'admin';
       if (isUserAdmin) {
         // Chỉ bắt buộc 2FA nếu tài khoản Admin đang BẬT tính năng 2FA
         if (loggedUser.twoFactorEnabled === true) {

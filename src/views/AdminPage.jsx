@@ -116,7 +116,7 @@ export default function AdminPage() {
   const { currentUser, isHydrated } = useRealEstate();
   const { navigate } = useRouter();
   const [countdown, setCountdown] = useState(5);
-  const isAdmin = isHydrated && (currentUser?.role === 'admin' || currentUser?.email === 'tranvanvu.dev@gmail.com' || currentUser?.email === 'tranvu.review@gmail.com');
+  const isAdmin = isHydrated && currentUser?.role === 'admin';
 
   // Kiểm tra xem phiên làm việc hiện tại của Admin đã xác thực 2FA Google Authenticator chưa
   const [is2faVerified, setIs2faVerified] = useState(() => {
@@ -144,7 +144,7 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
-    if (!isHydrated || currentUser?.role === 'admin' || currentUser?.email === 'tranvanvu.dev@gmail.com' || currentUser?.email === 'tranvu.review@gmail.com') return;
+    if (!isHydrated || currentUser?.role === 'admin') return;
 
     if (countdown <= 0) {
       handleGoToLogin();
