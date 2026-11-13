@@ -6325,6 +6325,18 @@
       "place_id": "ChIJq7nZ4iIXQjER3vS4eD59_pU",
       "is_merged": true,
       "created_at": "2026-11-11T10:59:48.946Z"
+    },
+    "8e60f8be9fd696ccc0ada904dcca7f0c": {
+      "address_hash": "8e60f8be9fd696ccc0ada904dcca7f0c",
+      "raw_address": "Phường Phước Mỹ, Quận Sơn Trà, Đà Nẵng",
+      "clean_address": "Phường Phước Mỹ, Quận Sơn Trà, Đà Nẵng",
+      "new_ward": "Phường Phước Mỹ",
+      "new_district": "Quận Sơn Trà",
+      "lat": 16.0544,
+      "lng": 108.2022,
+      "place_id": "ChIJ_FrWw4ZCJE-l7QD6jELYbKI",
+      "is_merged": false,
+      "created_at": "2026-11-13T14:13:41.305Z"
     }
   },
   "bds_system_settings": {

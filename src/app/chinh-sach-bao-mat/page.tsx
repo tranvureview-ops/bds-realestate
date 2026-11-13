@@ -47,27 +47,54 @@ export const metadata: Metadata = {
 // ============================================================================
 const jsonLdData = {
   '@context': 'https://schema.org',
-  '@type': 'WebPage',
-  name: `Chính sách bảo mật thông tin và dữ liệu cá nhân - ${BRAND_NAME}`,
-  description: `Cam kết bảo vệ dữ liệu cá nhân theo Nghị định số 13/2023/NĐ-CP của Chính phủ tại sàn BĐS ${BRAND_NAME}.`,
-  url: `${DOMAIN}/chinh-sach-bao-mat`,
-  inLanguage: 'vi-VN',
-  datePublished: '2024-01-01',
-  dateModified: '2026-10-16',
-  publisher: {
-    '@type': 'Organization',
-    name: COMPANY_NAME,
-    url: DOMAIN,
-    logo: `${DOMAIN}/logo.png`,
-    contactPoint: {
-      '@type': 'ContactPoint',
-      telephone: HOTLINE,
-      contactType: 'customer service',
-      email: EMAIL,
-      areaServed: 'VN',
-      availableLanguage: 'Vietnamese',
+  '@graph': [
+    {
+      '@type': 'WebPage',
+      name: `Chính sách bảo mật thông tin và dữ liệu cá nhân - ${BRAND_NAME}`,
+      description: `Cam kết bảo vệ dữ liệu cá nhân theo Nghị định số 13/2023/NĐ-CP của Chính phủ tại sàn BĐS ${BRAND_NAME}.`,
+      url: `${DOMAIN}/chinh-sach-bao-mat`,
+      inLanguage: 'vi-VN',
+      datePublished: '2024-01-01',
+      dateModified: '2026-10-16',
+      publisher: {
+        '@type': 'Organization',
+        name: COMPANY_NAME,
+        url: DOMAIN,
+        logo: `${DOMAIN}/logo.png`,
+        contactPoint: {
+          '@type': 'ContactPoint',
+          telephone: HOTLINE,
+          contactType: 'customer service',
+          email: EMAIL,
+          areaServed: 'VN',
+          availableLanguage: 'Vietnamese',
+        },
+      },
     },
-  },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Trang chủ',
+          item: DOMAIN,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Chính sách pháp lý',
+          item: `${DOMAIN}/chinh-sach-phap-ly`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: 'Chính sách bảo mật',
+          item: `${DOMAIN}/chinh-sach-bao-mat`,
+        },
+      ],
+    },
+  ],
 };
 
 export default function PrivacyPolicyPage() {
@@ -161,9 +188,9 @@ export default function PrivacyPolicyPage() {
                   <svg className="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                   </svg>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900">
+                  <p className="text-sm font-bold uppercase tracking-wider text-slate-900">
                     Mục Lục Bảo Mật
-                  </h3>
+                  </p>
                 </div>
 
                 <nav aria-label="Mục lục nội dung" className="mt-4 space-y-1.5 text-xs">

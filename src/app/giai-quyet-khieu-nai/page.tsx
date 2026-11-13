@@ -47,27 +47,54 @@ export const metadata: Metadata = {
 // ============================================================================
 const jsonLdData = {
   '@context': 'https://schema.org',
-  '@type': 'WebPage',
-  name: `Quy trình tiếp nhận và giải quyết khiếu nại - ${BRAND_NAME}`,
-  description: `Cơ chế giải quyết tranh chấp giao dịch nhà đất và bảo vệ quyền lợi người tiêu dùng tại ${BRAND_NAME}.`,
-  url: `${DOMAIN}/giai-quyet-khieu-nai`,
-  inLanguage: 'vi-VN',
-  datePublished: '2024-01-01',
-  dateModified: '2026-10-16',
-  publisher: {
-    '@type': 'Organization',
-    name: COMPANY_NAME,
-    url: DOMAIN,
-    logo: `${DOMAIN}/logo.png`,
-    contactPoint: {
-      '@type': 'ContactPoint',
-      telephone: HOTLINE,
-      contactType: 'customer service',
-      email: EMAIL,
-      areaServed: 'VN',
-      availableLanguage: 'Vietnamese',
+  '@graph': [
+    {
+      '@type': 'WebPage',
+      name: `Quy trình tiếp nhận và giải quyết khiếu nại - ${BRAND_NAME}`,
+      description: `Cơ chế giải quyết tranh chấp giao dịch nhà đất và bảo vệ quyền lợi người tiêu dùng tại ${BRAND_NAME}.`,
+      url: `${DOMAIN}/giai-quyet-khieu-nai`,
+      inLanguage: 'vi-VN',
+      datePublished: '2024-01-01',
+      dateModified: '2026-10-16',
+      publisher: {
+        '@type': 'Organization',
+        name: COMPANY_NAME,
+        url: DOMAIN,
+        logo: `${DOMAIN}/logo.png`,
+        contactPoint: {
+          '@type': 'ContactPoint',
+          telephone: HOTLINE,
+          contactType: 'customer service',
+          email: EMAIL,
+          areaServed: 'VN',
+          availableLanguage: 'Vietnamese',
+        },
+      },
     },
-  },
+    {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Trang chủ',
+          item: DOMAIN,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Chính sách pháp lý',
+          item: `${DOMAIN}/chinh-sach-phap-ly`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: 'Giải quyết khiếu nại',
+          item: `${DOMAIN}/giai-quyet-khieu-nai`,
+        },
+      ],
+    },
+  ],
 };
 
 export default function DisputeResolutionPage() {
@@ -161,9 +188,9 @@ export default function DisputeResolutionPage() {
                   <svg className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
                   </svg>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-900">
+                  <p className="text-sm font-bold uppercase tracking-wider text-slate-900">
                     Mục Lục Khiếu Nại
-                  </h3>
+                  </p>
                 </div>
 
                 <nav aria-label="Mục lục nội dung" className="mt-4 space-y-1.5 text-xs">
