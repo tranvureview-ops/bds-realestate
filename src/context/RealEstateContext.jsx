@@ -153,6 +153,28 @@ const normalizeNavMenuItems = (rawMenu) => {
         }
         return true;
       });
+
+      // Tự động bổ sung Cho Thuê Văn Phòng / Bán Văn Phòng nếu chưa có trong cache localStorage
+      if (isRent && !validChildren.some(sub => sub.id === 'sub-rent-office' || sub.path?.includes('cho-thue-van-phong') || sub.title?.toLowerCase().includes('văn phòng'))) {
+        const shophouseIdx = validChildren.findIndex(sub => sub.id === 'sub-rent-shophouse' || sub.path?.includes('cho-thue-shophouse'));
+        const officeItem = { id: 'sub-rent-office', title: 'Cho Thuê Văn Phòng, Mặt Bằng', path: '/cho-thue-van-phong', icon: 'fa-solid fa-briefcase' };
+        if (shophouseIdx !== -1) {
+          validChildren.splice(shophouseIdx + 1, 0, officeItem);
+        } else {
+          validChildren.push(officeItem);
+        }
+      }
+
+      if (isSale && !validChildren.some(sub => sub.id === 'sub-sale-office' || sub.path?.includes('ban-mat-bang-van-phong') || sub.title?.toLowerCase().includes('văn phòng'))) {
+        const shophouseIdx = validChildren.findIndex(sub => sub.id === 'sub-sale-shophouse' || sub.path?.includes('ban-shophouse'));
+        const officeItem = { id: 'sub-sale-office', title: 'Bán Văn Phòng, Mặt Bằng', path: '/ban-mat-bang-van-phong', icon: 'fa-solid fa-briefcase' };
+        if (shophouseIdx !== -1) {
+          validChildren.splice(shophouseIdx + 1, 0, officeItem);
+        } else {
+          validChildren.push(officeItem);
+        }
+      }
+
       return {
         ...item,
         children: validChildren.map(sub => {
