@@ -2068,14 +2068,20 @@ export const buildDistrictSeoUrl = ({ basePath = '', demand = 'sale', districtNa
 export const buildDynamicTaxonomyInfo = (filters = {}, baseTaxonomyInfo = null) => {
   const demand = filters.demand || baseTaxonomyInfo?.demand || 'sale';
   const isRent = demand === 'rent';
-  const propertyType = (filters.propertyType && filters.propertyType !== 'all')
-    ? filters.propertyType
-    : (baseTaxonomyInfo?.propertyType || 'all');
-  const city = filters.city || baseTaxonomyInfo?.city || '';
-  const district = filters.district || baseTaxonomyInfo?.district || '';
-  const ward = filters.ward || baseTaxonomyInfo?.ward || '';
-  const street = filters.street || baseTaxonomyInfo?.street || '';
-  const project = filters.project || baseTaxonomyInfo?.project || '';
+  let propertyType = 'all';
+  if (filters.propertyType !== undefined && filters.propertyType !== null) {
+    propertyType = filters.propertyType;
+  } else if (filters.propertyTypes !== undefined && filters.propertyTypes !== null) {
+    const valid = Array.isArray(filters.propertyTypes) ? filters.propertyTypes.filter(t => t && t !== 'all') : [];
+    propertyType = valid.length > 0 ? valid[0] : 'all';
+  } else if (baseTaxonomyInfo?.propertyType) {
+    propertyType = baseTaxonomyInfo.propertyType;
+  }
+  const city = filters.city !== undefined ? filters.city : (baseTaxonomyInfo?.city || '');
+  const district = filters.district !== undefined ? filters.district : (baseTaxonomyInfo?.district || '');
+  const ward = filters.ward !== undefined ? filters.ward : (baseTaxonomyInfo?.ward || '');
+  const street = filters.street !== undefined ? filters.street : (baseTaxonomyInfo?.street || '');
+  const project = filters.project !== undefined ? filters.project : (baseTaxonomyInfo?.project || '');
   const priceRange = filters.priceRange || 'all';
   const areaRange = filters.areaRange || 'all';
   const bedroom = filters.bedroom || 'all';

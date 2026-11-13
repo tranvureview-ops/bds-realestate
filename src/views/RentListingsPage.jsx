@@ -442,14 +442,14 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
 
   // Taxonomy sạch chuẩn SEO đồng bộ theo cleanPath hiện tại (chứa danh mục, địa điểm, giá, diện tích, phòng ngủ; KHÔNG bị ô nhiễm bởi tham số query như ?loai=...)
   const currentCleanTaxonomy = useMemo(() => {
-    if (currentCategoryBasePath && currentCategoryBasePath !== '/nha-dat-cho-thue') {
+    if (currentCategoryBasePath) {
       const parsed = parseTaxonomyUrl(currentCategoryBasePath);
       if (parsed && parsed.isTaxonomy) {
         return parsed;
       }
     }
-    return taxonomyInfo || dynamicTaxonomy;
-  }, [currentCategoryBasePath, taxonomyInfo, dynamicTaxonomy]);
+    return dynamicTaxonomy;
+  }, [currentCategoryBasePath, dynamicTaxonomy]);
 
   const categorySeo = useMemo(() => {
     return generateCategoryMetadata(
@@ -567,10 +567,10 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
 
       {/* Khối Nội Dung On-Page SEO & Cẩm Nang Cho Thuê Nhà Đất Chuyên Sâu Đồng Bộ Tùy Thành Phố */}
       <RentListingsSeoContent 
-        city={taxonomyInfo?.city || filters?.city} 
-        district={taxonomyInfo?.district || filters?.district} 
-        propertyType={taxonomyInfo?.propertyType || filters?.propertyType} 
-        taxonomyInfo={taxonomyInfo} 
+        city={currentCleanTaxonomy?.city} 
+        district={currentCleanTaxonomy?.district} 
+        propertyType={currentCleanTaxonomy?.propertyType} 
+        taxonomyInfo={currentCleanTaxonomy} 
       />
     </div>
   );
