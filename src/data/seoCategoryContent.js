@@ -1094,22 +1094,51 @@ export const buildSaleSeoContentData = ({
     };
   }
 
-  // Trường hợp 2: Trang tổng hợp Mua Bán Nhà Đất (Toàn quốc hoặc theo Thành phố/Tỉnh)
+  // Trường hợp 2: Trang tổng hợp Mua Bán Nhà Đất (Toàn quốc hoặc theo Thành phố/Tỉnh/Quận Huyện)
   const presetCity = GENERAL_SALE_CITY_CONTENT[cityCtx.key];
   if (presetCity) {
+    const targetLocName = effDistrict ? `${effDistrict}, ${cityDisplay}` : (isSpecificCity ? cityDisplay : '');
+
+    let benchmarks = presetCity.benchmarks;
+    if (effDistrict && Array.isArray(benchmarks)) {
+      const cleanDist = effDistrict.replace(/^(Quận|Huyện|Thị xã|TP|Thành phố)\s+/i, '').trim().toLowerCase();
+      const matchedIdx = benchmarks.findIndex(b => b.area.toLowerCase().includes(cleanDist) || cleanDist.includes(b.area.toLowerCase()));
+      if (matchedIdx > -1) {
+        benchmarks = [
+          { ...benchmarks[matchedIdx], isTargetDistrict: true },
+          ...benchmarks.slice(0, matchedIdx),
+          ...benchmarks.slice(matchedIdx + 1)
+        ];
+      }
+    }
+
     return {
-      marketTitle: presetCity.marketTitle,
-      marketDesc: presetCity.marketDesc,
-      priceTableTitle: presetCity.priceTableTitle,
+      marketTitle: effDistrict
+        ? `Thị Trường Mua Bán Nhà Đất ${effDistrict}, ${cityDisplay} Năm 2026: Diễn Biến & Tiềm Năng Phát Triển`
+        : presetCity.marketTitle,
+      marketDesc: effDistrict
+        ? `Thị trường bất động sản ${effDistrict}, ${cityDisplay} năm 2026 ghi nhận lực cầu mua an cư và đầu tư tăng trưởng tích cực nhờ quy hoạch mở rộng đô thị đồng bộ và hệ sinh thái tiện ích dịch vụ hoàn thiện. Các phân khúc đất nền thổ cư, nhà phố thương mại và căn hộ chung cư tại ${effDistrict} tiếp tục giữ vững thanh khoản tốt.`
+        : presetCity.marketDesc,
+      priceTableTitle: effDistrict
+        ? `Khung Giá Nhà Đất Chi Tiết Tại ${effDistrict} & Các Quận Huyện ${cityDisplay} 2026`
+        : presetCity.priceTableTitle,
       tableHeaders: presetCity.tableHeaders,
-      benchmarks: presetCity.benchmarks,
+      benchmarks,
       priceFootnote: '* Bảng giá mang tính chất tham khảo thực tế tại thời điểm đầu năm 2026, đơn giá có thể thay đổi tùy thuộc vào vị trí hẻm, mặt tiền và hiện trạng xây dựng công trình.',
-      legalTitle: `4 Bước Thẩm Định Pháp Lý Bắt Buộc Trước Khi Xuống Tiền Mua Nhà Đất${isSpecificCity ? ` Tại ${cityDisplay}` : ''}`,
-      legalSteps: DEFAULT_LEGAL_STEPS(isSpecificCity ? cityDisplay : null),
+      legalTitle: `4 Bước Thẩm Định Pháp Lý Bắt Buộc Trước Khi Xuống Tiền Mua Nhà Đất${targetLocName ? ` Tại ${targetLocName}` : ''}`,
+      legalSteps: DEFAULT_LEGAL_STEPS(targetLocName || null),
       guidesTitle: 'Cẩm Nang Tri Thức & Hướng Dẫn Mua Nhà An Toàn Từ Chuyên Gia',
       guides: DEFAULT_GUIDES,
-      faqTitle: `Câu Hỏi Thường Gặp Khi Mua Bán Nhà Đất${isSpecificCity ? ` Tại ${cityDisplay}` : ''}`,
-      faqs: presetCity.faqs,
+      faqTitle: `Câu Hỏi Thường Gặp Khi Mua Bán Nhà Đất${targetLocName ? ` Tại ${targetLocName}` : ''}`,
+      faqs: effDistrict
+        ? [
+            {
+              q: `Mua bán nhà đất tại ${effDistrict}, ${cityDisplay} cần lưu ý gì về quy hoạch và pháp lý?`,
+              a: `Trước khi ký hợp đồng mua bán hoặc đặt cọc nhà đất tại ${effDistrict}, người mua cần kiểm tra kỹ bản gốc Giấy chứng nhận quyền sử dụng đất, đối chiếu quy hoạch chi tiết 1/500 tại UBND Quận hoặc Chi nhánh Văn phòng Đăng ký Đất đai, đồng thời tra cứu lịch sử ngăn chặn giao dịch để bảo toàn an toàn dòng vốn.`
+            },
+            ...presetCity.faqs.slice(1)
+          ]
+        : presetCity.faqs,
       discoveryTitle: discovery.title,
       discoveryLinks: discovery.links
     };
@@ -1713,13 +1742,32 @@ export const buildRentSeoContentData = ({
   }
 
   if (presetGeneral) {
+    const targetLocName = effDistrict ? `${effDistrict}, ${cityDisplay}` : (isSpecificCity ? cityDisplay : '');
+
+    let benchmarks = presetGeneral.benchmarks;
+    if (effDistrict && Array.isArray(benchmarks)) {
+      const cleanDist = effDistrict.replace(/^(Quận|Huyện|Thị xã|TP|Thành phố)\s+/i, '').trim().toLowerCase();
+      const matchedIdx = benchmarks.findIndex(b => b.area.toLowerCase().includes(cleanDist) || cleanDist.includes(b.area.toLowerCase()));
+      if (matchedIdx > -1) {
+        benchmarks = [
+          { ...benchmarks[matchedIdx], isTargetDistrict: true },
+          ...benchmarks.slice(0, matchedIdx),
+          ...benchmarks.slice(matchedIdx + 1)
+        ];
+      }
+    }
+
     const marketTitle = facet.hasFacetFilters
       ? `Thị Trường Cho Thuê Nhà Đất ${locationLabel}${facet.filterSuffix} Năm 2026: Nhu Cầu & Kinh Nghiệm`
-      : presetGeneral.marketTitle;
+      : (effDistrict
+          ? `Thị Trường Cho Thuê Nhà Đất ${effDistrict}, ${cityDisplay} Năm 2026: Nhu Cầu & Kinh Nghiệm`
+          : presetGeneral.marketTitle);
 
     const priceTableTitle = facet.hasFacetFilters
       ? `Khảo Sát Khung Giá Cho Thuê Nhà Đất ${locationLabel}${facet.filterSuffix} 2026`
-      : presetGeneral.priceTableTitle;
+      : (effDistrict
+          ? `Khung Giá Cho Thuê Nhà Đất Chi Tiết Tại ${effDistrict} & ${cityDisplay} 2026`
+          : presetGeneral.priceTableTitle);
 
     const facetFaqs = [];
     if (facet.hasFacetFilters) {
@@ -1733,15 +1781,17 @@ export const buildRentSeoContentData = ({
       marketTitle,
       marketDesc: facet.hasFacetFilters
         ? `Năm 2026, nhu cầu thuê nhà đất ${locationLabel} với ${facet.filterParts.join(', ')} tăng trưởng ổn định. Người thuê cần khảo sát nhiều vị trí, nắm rõ biểu phí dịch vụ và ký kết hợp đồng minh bạch.`
-        : presetGeneral.marketDesc,
+        : (effDistrict
+            ? `Thị trường cho thuê nhà đất tại ${effDistrict}, ${cityDisplay} năm 2026 ghi nhận nguồn cầu dồi dào từ chuyên gia, người lao động và khách du lịch lưu trú. Các loại hình căn hộ du lịch, nhà riêng nguyên căn và phòng trọ tiện ích cao luôn đạt tỷ lệ lấp đầy ấn tượng.`
+            : presetGeneral.marketDesc),
       priceTableTitle,
       tableHeaders: [locHeader, 'Căn hộ chung cư', 'Nhà riêng / Nguyên căn', 'Phòng trọ / CH Dịch vụ', 'Khu vực sôi động'],
-      benchmarks: presetGeneral.benchmarks,
+      benchmarks,
       legalTitle: `4 Lưu Ý Pháp Lý Sống Còn Khi Ký Hợp Đồng Thuê Nhà Đất ${locationLabel}`,
       legalSteps: DEFAULT_RENT_LEGAL_STEPS,
       faqTitle: facet.hasFacetFilters
         ? `Câu Hỏi Thường Gặp Khi Thuê Nhà Đất ${locationLabel}${facet.filterSuffix}`
-        : `Câu Hỏi Thường Gặp Khi Thuê Nhà Đất${isSpecificCity ? ` Tại ${cityDisplay}` : ''}`,
+        : `Câu Hỏi Thường Gặp Khi Thuê Nhà Đất${targetLocName ? ` Tại ${targetLocName}` : ''}`,
       faqs: [...facetFaqs, ...presetGeneral.faqs],
       discoveryTitle: discoveryLinks.title,
       discoveryLinks: discoveryLinks.links

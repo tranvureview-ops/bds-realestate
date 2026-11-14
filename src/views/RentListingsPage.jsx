@@ -19,6 +19,9 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
   // Đọc các giá trị bộ lọc đa diện (Faceted Taxonomy parameters) từ URL hoặc Clean Slug taxonomyInfo
   const queryDistrict = serverSearchParams?.district || searchParams?.get('district') || taxonomyInfo?.district || '';
   const queryCity = serverSearchParams?.city || searchParams?.get('city') || taxonomyInfo?.city || '';
+  const queryWard = serverSearchParams?.ward || searchParams?.get('ward') || taxonomyInfo?.ward || '';
+  const queryStreet = serverSearchParams?.street || searchParams?.get('street') || taxonomyInfo?.street || '';
+  const queryProject = serverSearchParams?.project || searchParams?.get('project') || taxonomyInfo?.project || '';
   const queryType = serverSearchParams?.propertyType || searchParams?.get('propertyType') || taxonomyInfo?.propertyType || 'all';
 
   // Đọc ?loai= (đa danh mục): ví dụ ?loai=mini-apartment (kết hợp với primary category từ slug)
@@ -45,7 +48,7 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
 
   const initPropertyTypes = initialCombinedTypes.length > 0 ? initialCombinedTypes : ['all'];
   const initPropertyType = initPropertyTypes.includes('all') ? 'all' : initPropertyTypes[0];
-  const queryKeyword = serverSearchParams?.keyword || serverSearchParams?.q || searchParams?.get('keyword') || searchParams?.get('q') || taxonomyInfo?.project || taxonomyInfo?.street || (taxonomyInfo?.ward ? taxonomyInfo.ward.replace('Phường ', '') : '') || taxonomyInfo?.keyword || '';
+  const queryKeyword = serverSearchParams?.keyword || serverSearchParams?.q || searchParams?.get('keyword') || searchParams?.get('q') || taxonomyInfo?.keyword || '';
   const queryPrice = serverSearchParams?.priceRange || serverSearchParams?.price || searchParams?.get('priceRange') || searchParams?.get('price') || taxonomyInfo?.priceRange || 'all';
   const queryMinPrice = taxonomyInfo?.minPrice ? Number(taxonomyInfo.minPrice) : ((serverSearchParams?.minPrice || searchParams?.get('minPrice')) ? Number(serverSearchParams?.minPrice || searchParams?.get('minPrice')) : null);
   const queryMaxPrice = taxonomyInfo?.maxPrice ? Number(taxonomyInfo.maxPrice) : ((serverSearchParams?.maxPrice || searchParams?.get('maxPrice')) ? Number(serverSearchParams?.maxPrice || searchParams?.get('maxPrice')) : null);
@@ -62,6 +65,9 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
     propertyTypes: initPropertyTypes,
     city: queryCity,
     district: queryDistrict,
+    ward: queryWard,
+    street: queryStreet,
+    project: queryProject,
     priceRange: queryPrice,
     minPrice: queryMinPrice,
     maxPrice: queryMaxPrice,
@@ -99,6 +105,9 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
 
       const nextCity = taxonomyInfo.city || prev.city;
       const nextDistrict = taxonomyInfo.district || prev.district;
+      const nextWard = taxonomyInfo.ward !== undefined ? taxonomyInfo.ward : prev.ward;
+      const nextStreet = taxonomyInfo.street !== undefined ? taxonomyInfo.street : prev.street;
+      const nextProject = taxonomyInfo.project !== undefined ? taxonomyInfo.project : prev.project;
       const nextPriceRange = taxonomyInfo.priceRange || prev.priceRange;
       const nextAreaRange = taxonomyInfo.areaRange || prev.areaRange;
       const nextBedroom = taxonomyInfo.bedroom || prev.bedroom;
@@ -111,6 +120,9 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
         typesEqual &&
         prev.city === nextCity &&
         prev.district === nextDistrict &&
+        prev.ward === nextWard &&
+        prev.street === nextStreet &&
+        prev.project === nextProject &&
         prev.priceRange === nextPriceRange &&
         prev.areaRange === nextAreaRange &&
         prev.bedroom === nextBedroom
@@ -122,6 +134,9 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
         ...prev,
         city: nextCity,
         district: nextDistrict,
+        ward: nextWard,
+        street: nextStreet,
+        project: nextProject,
         propertyType: nextType,
         propertyTypes: nextTypes,
         priceRange: nextPriceRange,
@@ -300,8 +315,9 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
         : null;
       const singleType = filters.propertyType && filters.propertyType !== 'all' ? filters.propertyType : null;
 
+      const isSwitchingDemand = filters.demand && filters.demand !== 'rent';
       const targetUrl = buildSeoUrl({
-        demand: 'rent',
+        demand: isSwitchingDemand ? filters.demand : 'rent',
         propertyType: multiTypes ? null : singleType,
         propertyTypes: multiTypes,
         city: filters.city || null,
@@ -322,6 +338,11 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
           ...(filters.direction && filters.direction !== 'all' ? { direction: filters.direction } : {})
         }
       });
+
+      if (isSwitchingDemand && targetUrl) {
+        navigate(targetUrl);
+        return;
+      }
 
       if (targetUrl) {
         const currentUrl = window.location.pathname + (window.location.search || '');
@@ -515,8 +536,14 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
   const h1Title = useMemo(() => {
     const isGeneralListing = !currentCleanTaxonomy?.propertyType || currentCleanTaxonomy.propertyType === 'all';
     if (isGeneralListing) {
-      if (currentCleanTaxonomy?.city) {
-        return `Cho Thuê Nhà Đất tại ${currentCleanTaxonomy.city} Năm 2026: Giá Rẻ, Chính Chủ, Xác Thực 100%`;
+      const locParts = [];
+      if (currentCleanTaxonomy?.ward) locParts.push(currentCleanTaxonomy.ward);
+      if (currentCleanTaxonomy?.district) locParts.push(currentCleanTaxonomy.district);
+      if (currentCleanTaxonomy?.city) locParts.push(currentCleanTaxonomy.city);
+      const locStr = locParts.join(', ');
+
+      if (locStr) {
+        return `Cho Thuê Nhà Đất tại ${locStr} Năm 2026: Giá Rẻ, Chính Chủ, Xác Thực 100%`;
       }
       return 'Cho Thuê Nhà Đất Toàn Quốc Năm 2026: Giá Rẻ, Chính Chủ, Xác Thực 100%';
     }
