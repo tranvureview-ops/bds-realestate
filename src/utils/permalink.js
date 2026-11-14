@@ -142,6 +142,7 @@ export const PROPERTY_TAXONOMY = {
       'farm-resort': { slug: '/ban-trang-trai-khu-nghi-duong', name: 'Bán trang trại, khu nghỉ dưỡng' },
       condotel: { slug: '/ban-condotel', name: 'Bán condotel' },
       warehouse: { slug: '/ban-kho-nha-xuong', name: 'Bán kho, nhà xưởng' },
+      room: { slug: '/ban-phong-tro', name: 'Bán phòng trọ, nhà trọ' },
       other: { slug: '/ban-bat-dong-san-khac', name: 'Bán loại BĐS khác' }
     }
   },
@@ -158,6 +159,7 @@ export const PROPERTY_TAXONOMY = {
       villa: { slug: '/cho-thue-nha-biet-thu-lien-ke', name: 'Cho thuê nhà biệt thự, liền kề' },
       'street-house': { slug: '/cho-thue-nha-mat-pho', name: 'Cho thuê nhà mặt phố' },
       shophouse: { slug: '/cho-thue-shophouse', name: 'Cho thuê shophouse' },
+      room: { slug: '/cho-thue-phong-tro', name: 'Cho thuê phòng trọ, nhà trọ' },
       land: { slug: '/cho-thue-dat', name: 'Cho thuê đất' },
       'farm-resort': { slug: '/cho-thue-trang-trai-khu-nghi-duong', name: 'Cho thuê trang trại, khu nghỉ dưỡng' },
       condotel: { slug: '/cho-thue-condotel', name: 'Cho thuê condotel' },
@@ -267,6 +269,14 @@ export const DISTRICT_MAP = {
   'soc-son': { name: 'Huyện Sóc Sơn', city: 'Hà Nội' },
   'thach-that': { name: 'Huyện Thạch Thất', city: 'Hà Nội' },
   'quoc-oai': { name: 'Huyện Quốc Oai', city: 'Hà Nội' },
+  'chuong-my': { name: 'Huyện Chương Mỹ', city: 'Hà Nội' },
+  'thanh-oai': { name: 'Huyện Thanh Oai', city: 'Hà Nội' },
+  'thuong-tin': { name: 'Huyện Thường Tín', city: 'Hà Nội' },
+  'phu-xuyen': { name: 'Huyện Phú Xuyên', city: 'Hà Nội' },
+  'ung-hoa': { name: 'Huyện Ứng Hòa', city: 'Hà Nội' },
+  'my-duc': { name: 'Huyện Mỹ Đức', city: 'Hà Nội' },
+  'ba-vi': { name: 'Huyện Ba Vì', city: 'Hà Nội' },
+  'phuc-tho': { name: 'Huyện Phúc Thọ', city: 'Hà Nội' },
   // Khánh Hòa
   'nha-trang': { name: 'Thành phố Nha Trang', city: 'Khánh Hòa' },
   'cam-ranh': { name: 'Thành phố Cam Ranh', city: 'Khánh Hòa' },
@@ -328,7 +338,38 @@ export const KNOWN_ENTITIES = {
   'pham-van-dong': 'Phạm Văn Đồng',
   'truong-sa': 'Trường Sa',
   'an-thuong-2': 'An Thượng 2',
-  'nam-ky-khoi-nghia': 'Nam Kỳ Khởi Nghĩa'
+  'an-duong-vuong': 'An Dương Vương',
+  'chuong-my': 'Chương Mỹ',
+  'nam-ky-khoi-nghia': 'Nam Kỳ Khởi Nghĩa',
+  'tran-phu': 'Trần Phú',
+  'hung-vuong': 'Hùng Vương',
+  'phan-chau-trinh': 'Phan Châu Trinh',
+  'hoang-dieu': 'Hoàng Diệu',
+  'nguyen-thi-minh-khai': 'Nguyễn Thị Minh Khai',
+  'dien-bien-phu': 'Điện Biên Phủ',
+  'nguyen-tri-phuong': 'Nguyễn Tri Phương',
+  'vo-van-kiet': 'Võ Văn Kiệt',
+  'nguyen-huu-tho': 'Nguyễn Hữu Thọ',
+  'le-van-luong': 'Lê Văn Lương',
+  'huynh-tan-phat': 'Huỳnh Tấn Phát',
+  'nguyen-thi-thap': 'Nguyễn Thị Thập',
+  'pham-the-hien': 'Phạm Thế Hiển',
+  'ta-quang-buu': 'Tạ Quang Bửu',
+  'duong-ba-trac': 'Dương Bá Trạc',
+  'nguyen-van-cu': 'Nguyễn Văn Cừ',
+  'ngoc-lam': 'Ngọc Lâm',
+  'co-linh': 'Cổ Linh',
+  'chu-huy-man': 'Chu Huy Mân',
+  'ngo-gia-tu': 'Ngô Gia Tự',
+  'nguyen-son': 'Nguyễn Sơn',
+  'thach-ban': 'Thạch Bàn',
+  'sai-dong': 'Sài Đồng',
+  'nguyen-duc-thuan': 'Nguyễn Đức Thuận',
+  'ly-thanh-tong': 'Lý Thánh Tông',
+  'ha-huy-tap': 'Hà Huy Tập',
+  'ngo-xuan-quang': 'Ngô Xuân Quảng',
+  'quoc-lo-6': 'Quốc Lộ 6',
+  'tinh-lo-419': 'Tỉnh Lộ 419'
 };
 
 /**
@@ -379,6 +420,7 @@ export const buildSeoUrl = ({
   city = null,
   district = null,
   ward = null,
+  street = null,
   project = null,
   priceRange = null,
   minPrice = null,
@@ -452,12 +494,39 @@ export const buildSeoUrl = ({
     let projSlug = toVietnameseSlug(project.trim()).replace(/^du-an-/, '');
     locationOrProjectSegment = `-du-an-${projSlug}`;
   } 
+  // 2.5 Tuyến đường / Phố (Street)
+  else if (street && street.trim()) {
+    let strClean = street.trim().replace(/^(?:đường|phố|tuyến)\s+/i, '');
+    let strSlug = toVietnameseSlug(strClean);
+    let prefix = /^(?:phố|pho)\b/i.test(street.trim()) ? 'pho' : 'duong';
+
+    if (district && district.trim()) {
+      let distShort = toVietnameseSlug(district.trim());
+      if (!distShort.startsWith('quan-') && !distShort.startsWith('huyen-') && !distShort.startsWith('tp-') && !distShort.startsWith('tx-')) {
+        distShort = `quan-${distShort}`;
+      }
+      if (ward && ward.trim()) {
+        let wardSlug = toVietnameseSlug(ward.trim()).replace(/^phuong-|^xa-|^thi-tran-/, '');
+        locationOrProjectSegment = `-${prefix}-${strSlug}-phuong-${wardSlug}-${distShort}`;
+      } else {
+        locationOrProjectSegment = `-${prefix}-${strSlug}-${distShort}`;
+      }
+    } else if (city && city.trim()) {
+      const citySlug = CITY_SLUGS[city.trim()] || toVietnameseSlug(city.trim());
+      locationOrProjectSegment = `-${prefix}-${strSlug}-${citySlug}`;
+    } else {
+      locationOrProjectSegment = `-${prefix}-${strSlug}`;
+    }
+  }
   // 3. Phường/Xã (Cấp 3)
   else if (ward && ward.trim()) {
-    let wardSlug = toVietnameseSlug(ward.trim()).replace(/^phuong-/, '');
+    let wardSlug = toVietnameseSlug(ward.trim()).replace(/^phuong-|^xa-|^thi-tran-/, '');
     let distShort = '';
     if (district && district.trim()) {
-      distShort = toVietnameseSlug(district.trim()).replace(/^quan-|^huyen-|^tp-/, '');
+      distShort = toVietnameseSlug(district.trim());
+      if (!distShort.startsWith('quan-') && !distShort.startsWith('huyen-') && !distShort.startsWith('tp-') && !distShort.startsWith('tx-')) {
+        distShort = `quan-${distShort}`;
+      }
     }
     locationOrProjectSegment = distShort ? `-phuong-${wardSlug}-${distShort}` : `-phuong-${wardSlug}`;
   } 
@@ -748,7 +817,9 @@ export const parseTaxonomyUrl = (urlPath) => {
           (typeKey === 'shophouse' && clean === '/cho-thue-shophouse-nha-pho-thuong-mai' && demand === 'rent') ||
           (typeKey === 'mini-apartment' && (clean === '/ban-chung-cu-mini' || clean === '/ban-can-ho-chung-cu-mini' || clean === '/ban-chung-cu-mini-can-ho-dich-vu') && demand === 'sale') ||
           (typeKey === 'mini-apartment' && (clean === '/cho-thue-chung-cu-mini' || clean === '/cho-thue-can-ho-chung-cu-mini' || clean === '/cho-thue-chung-cu-mini-can-ho-dich-vu') && demand === 'rent') ||
-          (typeKey === 'warehouse' && clean === '/cho-thue-kho-nha-xuong-dat' && demand === 'rent')) {
+          (typeKey === 'warehouse' && clean === '/cho-thue-kho-nha-xuong-dat' && demand === 'rent') ||
+          (typeKey === 'room' && (clean === '/cho-thue-phong-tro' || clean === '/cho-thue-nha-tro' || clean === '/cho-thue-nha-tro-phong-tro' || clean === '/cho-thue-phong-tro-nha-tro') && demand === 'rent') ||
+          (typeKey === 'room' && (clean === '/ban-phong-tro' || clean === '/ban-nha-tro') && demand === 'sale')) {
         return buildResult({
           isTaxonomy: true,
           demand,
@@ -816,6 +887,9 @@ export const parseTaxonomyUrl = (urlPath) => {
     else if (raw.includes('bat-dong-san-khac')) { propertyType = 'other'; matchedTypeSlug = 'bat-dong-san-khac'; }
     else if (raw.includes('mat-bang-van-phong')) { propertyType = 'office'; matchedTypeSlug = 'mat-bang-van-phong'; }
     else if (raw.includes('van-phong')) { propertyType = 'office'; matchedTypeSlug = 'van-phong'; }
+    else if (raw.includes('nha-tro-phong-tro')) { propertyType = 'room'; matchedTypeSlug = 'nha-tro-phong-tro'; }
+    else if (raw.includes('phong-tro')) { propertyType = 'room'; matchedTypeSlug = 'phong-tro'; }
+    else if (raw.includes('nha-tro')) { propertyType = 'room'; matchedTypeSlug = 'nha-tro'; }
     else if (raw.includes('nha-rieng')) {
       propertyType = 'house';
       matchedTypeSlug = 'nha-rieng';
@@ -859,16 +933,16 @@ export const parseTaxonomyUrl = (urlPath) => {
 
     // D. Đường / Phố (Street)
     let street = '';
-    const streetMatch = remainder.match(/(?:^|-)duong-([a-z0-9-]+?)(?:-(?:phuong|xa|quan|huyen|tp|da-nang|$))/i) ||
-                       remainder.match(/(?:^|-)pho-([a-z0-9-]+?)(?:-(?:phuong|xa|quan|huyen|tp|da-nang|$))/i);
+    const streetMatch = remainder.match(/(?:^|-)duong-([a-z0-9-]+?)(?:-(?:phuong|xa|quan|huyen|tp|tx|da-nang|ha-noi|ho-chi-minh)|$)/i) ||
+                       remainder.match(/(?:^|-)pho-([a-z0-9-]+?)(?:-(?:phuong|xa|quan|huyen|tp|tx|da-nang|ha-noi|ho-chi-minh)|$)/i);
     if (streetMatch) {
       street = slugToTitleCase(streetMatch[1]);
     }
 
     // E. Phường/Xã (Ward)
     let ward = '';
-    const wardMatch = remainder.match(/(?:^|-)phuong-([a-z0-9-]+?)(?:-(?:quan|huyen|tp|da-nang|$))/i) ||
-                     remainder.match(/(?:^|-)xa-([a-z0-9-]+?)(?:-(?:quan|huyen|tp|da-nang|$))/i);
+    const wardMatch = remainder.match(/(?:^|-)phuong-([a-z0-9-]+?)(?:-(?:quan|huyen|tp|tx|da-nang|ha-noi|ho-chi-minh)|$)/i) ||
+                     remainder.match(/(?:^|-)xa-([a-z0-9-]+?)(?:-(?:quan|huyen|tp|tx|da-nang|ha-noi|ho-chi-minh)|$)/i);
     if (wardMatch) {
       ward = 'Phường ' + slugToTitleCase(wardMatch[1]);
     }
@@ -1478,46 +1552,84 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, yearInput = null, pa
   const pageDescStr = isPaginated ? ` (trang ${actualPage})` : '';
 
   const hasSpecificLocation = Boolean(taxonomyInfo.district || taxonomyInfo.city);
+  const district = taxonomyInfo.district || '';
+  const city = taxonomyInfo.city || '';
+  const ward = taxonomyInfo.ward || '';
+  const street = taxonomyInfo.street || '';
+  const project = taxonomyInfo.project || '';
+  const locFull = district && city ? `${district}, ${city}` : (district || city || 'Toàn Quốc');
 
-  const hasFacetedFilter = Boolean(
-    taxonomyInfo.project || 
-    (taxonomyInfo.priceRange && taxonomyInfo.priceRange !== 'all') || 
-    (taxonomyInfo.areaRange && taxonomyInfo.areaRange !== 'all') || 
-    (taxonomyInfo.bedroom && taxonomyInfo.bedroom !== 'all') || 
-    (taxonomyInfo.rooms && taxonomyInfo.rooms !== 'all') || 
-    taxonomyInfo.ward || 
-    taxonomyInfo.street ||
-    taxonomyInfo.direction ||
-    taxonomyInfo.isFacetedCleanSlug
+  const hasSpecificFacet = Boolean(
+    project ||
+    street ||
+    ward ||
+    (taxonomyInfo.priceRange && taxonomyInfo.priceRange !== 'all') ||
+    (taxonomyInfo.areaRange && taxonomyInfo.areaRange !== 'all') ||
+    (taxonomyInfo.bedroom && taxonomyInfo.bedroom !== 'all') ||
+    (taxonomyInfo.rooms && taxonomyInfo.rooms !== 'all') ||
+    taxonomyInfo.direction
   );
 
-  // Ưu tiên tiêu đề chuẩn xác cho các URL lọc sâu nhiều tiêu chí (Faceted Filters: giá, diện tích, dự án, đường, phường...)
-  if (taxonomyInfo.title && hasFacetedFilter) {
+  // 1. CHUẨN HÓA DANH MỤC KHU VỰC CẤP QUẬN/HUYỆN & TỈNH/THÀNH (General Regional Category)
+  const isGeneral = !type || type === 'all';
+  if (isGeneral && !hasSpecificFacet) {
+    if (!isRent) {
+      // MUA BÁN NHÀ ĐẤT
+      let title = '';
+      if (district) {
+        const c1 = `Mua Bán Nhà Đất ${district}, ${city} ${year}${pageStr} | Kênh Nhà Đất 24H`;
+        title = c1.length <= 65 ? c1 : `Mua Bán Nhà Đất ${district} ${year}${pageStr} | Kênh Nhà Đất 24H`;
+      } else if (city) {
+        title = `Mua Bán Nhà Đất tại ${city} ${year}${pageStr} | Kênh Nhà Đất 24H`;
+      } else {
+        title = `Mua Bán Nhà Đất Toàn Quốc Giá Tốt ${year}${pageStr} | Kênh Nhà Đất 24H`;
+      }
+
+      let description = `Mua bán nhà đất ${locFull} mới nhất ${year}${pageDescStr}. Đa dạng nhà mặt tiền, nhà kiệt, đất nền sổ đỏ chính chủ, giá tốt. Xem ngay trên Kênh Nhà Đất 24H!`;
+      if (description.length < 145) {
+        description = `Mua bán nhà đất tại ${locFull} mới nhất ${year}${pageDescStr}. Tổng hợp nhà mặt tiền, nhà kiệt, đất nền thổ cư sổ đỏ chính chủ, giá tốt. Xem ngay trên Kênh Nhà Đất 24H!`;
+      }
+
+      return { title, description };
+    } else {
+      // CHO THUÊ NHÀ ĐẤT
+      let title = '';
+      if (district) {
+        const c1 = `Cho Thuê Nhà Đất ${district}, ${city} ${year}${pageStr} | Kênh Nhà Đất 24H`;
+        title = c1.length <= 65 ? c1 : `Cho Thuê Nhà Đất ${district} ${year}${pageStr} | Kênh Nhà Đất 24H`;
+      } else if (city) {
+        title = `Cho Thuê Nhà Đất tại ${city} ${year}${pageStr} | Kênh Nhà Đất 24H`;
+      } else {
+        title = `Cho Thuê Nhà Đất Toàn Quốc Giá Rẻ ${year}${pageStr} | Kênh Nhà Đất 24H`;
+      }
+
+      let description = `Cho thuê nhà đất ${locFull} mới nhất ${year}${pageDescStr}. Tổng hợp nhà nguyên căn, căn hộ, phòng trọ giá rẻ, chính chủ, vị trí đẹp. Xem ngay Kênh Nhà Đất 24H!`;
+      if (description.length < 145) {
+        description = `Cho thuê nhà đất tại ${locFull} mới nhất ${year}${pageDescStr}. Tổng hợp nhà nguyên căn, căn hộ, phòng trọ giá rẻ, chính chủ, vị trí đẹp. Xem ngay trên Kênh Nhà Đất 24H!`;
+      }
+
+      return { title, description };
+    }
+  }
+
+  // 2. ƯU TIÊN TIÊU ĐỀ CHO CÁC URL LỌC SÂU NHIỀU TIÊU CHÍ (Faceted Filters: giá, diện tích, dự án, đường...)
+  if (taxonomyInfo.title && hasSpecificFacet) {
     const rawTitle = String(taxonomyInfo.title || '').trim();
     const formattedTitle = rawTitle ? rawTitle.charAt(0).toUpperCase() + rawTitle.slice(1) : '';
-    const yearSuffix = `${formattedTitle}${pageStr}`.length + ' | Kênh Nhà Đất 24H'.length < 50 ? ` ${year}` : '';
-    let baseTitle = `${formattedTitle}${yearSuffix}${pageStr}`;
-    let titleWithBrand = `${baseTitle} | Kênh Nhà Đất 24H`;
-    if (titleWithBrand.length > 60) {
-      baseTitle = baseTitle.replace(` ${year}`, '').replace(` [${year}]`, '');
-      titleWithBrand = `${baseTitle} | Kênh Nhà Đất 24H`;
-      if (titleWithBrand.length > 60) {
-        titleWithBrand = baseTitle;
-      }
+
+    let titleCandidate = `${formattedTitle} ${year}${pageStr} | Kênh Nhà Đất 24H`;
+    if (titleCandidate.length > 65) {
+      titleCandidate = `${formattedTitle}${pageStr} | Kênh Nhà Đất 24H`;
     }
-    let fullDesc = `${formattedTitle}, mới nhất ${year}${pageDescStr}, vị trí đẹp, hình ảnh thực tế, thông tin xác thực, pháp lý minh bạch.`;
-    if (fullDesc.length > 160) {
-      fullDesc = `${formattedTitle}, mới nhất ${year}${pageDescStr}, vị trí đẹp, hình ảnh thực tế, pháp lý minh bạch.`;
+    if (titleCandidate.length > 65) {
+      titleCandidate = `${formattedTitle} ${year}${pageStr}`;
     }
-    if (fullDesc.length > 160) {
-      fullDesc = `${formattedTitle}, mới nhất ${year}${pageDescStr}, hình ảnh thực tế, pháp lý minh bạch.`;
-    }
-    if (fullDesc.length > 160) {
-      fullDesc = `${formattedTitle}, cập nhật mới nhất ${year}${pageDescStr}.`;
-    }
+
+    const description = `${formattedTitle} mới nhất ${year}${pageDescStr}. Thông tin xác thực 100%, hình ảnh thực tế, sổ đỏ chính chủ, giá tốt. Khám phá ngay trên Kênh Nhà Đất 24H!`;
+
     return {
-      title: titleWithBrand,
-      description: fullDesc
+      title: titleCandidate,
+      description
     };
   }
 
