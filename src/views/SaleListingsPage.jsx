@@ -532,18 +532,19 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
     return trimmed ? trimmed.charAt(0).toUpperCase() + trimmed.slice(1) : '';
   }, [currentCleanTaxonomy]);
 
-  // Tiêu đề H1 chuyên nghiệp chuẩn SEO & Tối ưu chuyển đổi (CRO) theo Phương án 1
+  // Tiêu đề H1 chuyên nghiệp chuẩn SEO & Tối ưu chuyển đổi (CRO)
   const h1Title = useMemo(() => {
     const isGeneralListing = !currentCleanTaxonomy?.propertyType || currentCleanTaxonomy.propertyType === 'all';
     if (isGeneralListing) {
-      const locParts = [];
-      if (currentCleanTaxonomy?.ward) locParts.push(currentCleanTaxonomy.ward);
-      if (currentCleanTaxonomy?.district) locParts.push(currentCleanTaxonomy.district);
-      if (currentCleanTaxonomy?.city) locParts.push(currentCleanTaxonomy.city);
-      const locStr = locParts.join(', ');
-
-      if (locStr) {
-        return `Mua Bán Nhà Đất tại ${locStr} Năm 2026: Sổ Đỏ Chính Chủ, Giá Tốt Nhất`;
+      // Khi vào danh mục cấp Quận/Huyện/Phường: Tinh gọn tiêu đề, bỏ hậu tố năm/slogan để giao diện thoáng gọn
+      if (currentCleanTaxonomy?.district) {
+        const locParts = [];
+        if (currentCleanTaxonomy?.ward) locParts.push(currentCleanTaxonomy.ward);
+        locParts.push(currentCleanTaxonomy.district);
+        return `Mua bán nhà đất tại ${locParts.join(', ')}`;
+      }
+      if (currentCleanTaxonomy?.city) {
+        return `Mua Bán Nhà Đất tại ${currentCleanTaxonomy.city} Năm 2026: Sổ Đỏ Chính Chủ, Giá Tốt Nhất`;
       }
       return 'Mua Bán Nhà Đất Toàn Quốc Năm 2026: Sổ Đỏ Chính Chủ, Giá Tốt Nhất';
     }

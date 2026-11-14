@@ -532,18 +532,19 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
     return trimmed ? trimmed.charAt(0).toUpperCase() + trimmed.slice(1) : '';
   }, [currentCleanTaxonomy]);
 
-  // Tiêu đề H1 chuyên nghiệp chuẩn SEO & Tối ưu chuyển đổi (CRO) theo Phương án 1
+  // Tiêu đề H1 chuyên nghiệp chuẩn SEO & Tối ưu chuyển đổi (CRO)
   const h1Title = useMemo(() => {
     const isGeneralListing = !currentCleanTaxonomy?.propertyType || currentCleanTaxonomy.propertyType === 'all';
     if (isGeneralListing) {
-      const locParts = [];
-      if (currentCleanTaxonomy?.ward) locParts.push(currentCleanTaxonomy.ward);
-      if (currentCleanTaxonomy?.district) locParts.push(currentCleanTaxonomy.district);
-      if (currentCleanTaxonomy?.city) locParts.push(currentCleanTaxonomy.city);
-      const locStr = locParts.join(', ');
-
-      if (locStr) {
-        return `Cho Thuê Nhà Đất tại ${locStr} Năm 2026: Giá Rẻ, Chính Chủ, Xác Thực 100%`;
+      // Khi vào danh mục cấp Quận/Huyện/Phường: Tinh gọn tiêu đề, bỏ hậu tố năm/slogan để giao diện thoáng gọn
+      if (currentCleanTaxonomy?.district) {
+        const locParts = [];
+        if (currentCleanTaxonomy?.ward) locParts.push(currentCleanTaxonomy.ward);
+        locParts.push(currentCleanTaxonomy.district);
+        return `Cho thuê nhà đất tại ${locParts.join(', ')}`;
+      }
+      if (currentCleanTaxonomy?.city) {
+        return `Cho Thuê Nhà Đất tại ${currentCleanTaxonomy.city} Năm 2026: Giá Rẻ, Chính Chủ, Xác Thực 100%`;
       }
       return 'Cho Thuê Nhà Đất Toàn Quốc Năm 2026: Giá Rẻ, Chính Chủ, Xác Thực 100%';
     }
