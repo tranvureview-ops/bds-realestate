@@ -55,6 +55,117 @@ const resolveCityContext = (activeCity) => {
   };
 };
 
+
+export const findDistrictInProvince = (prov, effDist) => {
+  if (!prov?.districts?.length || !effDist) return null;
+  const cleanEff = effDist.toLowerCase().replace(/^(quận|huyện|thị xã|tp|thành phố)\s+/i, '').trim();
+  return prov.districts.find(d => {
+    const cleanD = d.name.toLowerCase().replace(/^(quận|huyện|thị xã|tp|thành phố)\s+/i, '').trim();
+    return cleanD === cleanEff || d.name.toLowerCase() === effDist.toLowerCase();
+  });
+};
+
+export const KNOWN_WARD_STREETS = {
+  // Đà Nẵng - Thanh Khê
+  'Phường Vĩnh Trung': 'Hùng Vương, Hàm Nghi, Đỗ Quang',
+  'Phường Tân Chính': 'Lê Duẩn, Hải Phòng, Ông Ích Khiêm',
+  'Phường Thạc Gián': 'Nguyễn Văn Linh, Nguyễn Tri Phương, Hàm Nghi',
+  'Phường Chính Gián': 'Điện Biên Phủ, Thái Thị Bôi, Bế Văn Đàn',
+  'Phường Tam Thuận': 'Trần Cao Vân, Đinh Tiên Hoàng',
+  'Phường Xuân Hà': 'Nguyễn Tất Thành, Trần Cao Vân, Hà Huy Tập',
+  'Phường An Khê': 'Hà Huy Tập, Nguyễn Phước Nguyên, Trường Chinh',
+  'Phường Thanh Khê Đông': 'Nguyễn Tất Thành, Yên Khê 1, Kỳ Đồng',
+  'Phường Thanh Khê Tây': 'Dũng Sĩ Thanh Khê, Trần Cao Vân, Lý Thái Tông',
+  'Phường Hòa Khê': 'Điện Biên Phủ, Huỳnh Ngọc Huệ, Hà Huy Tập',
+  // Đà Nẵng - Ngũ Hành Sơn
+  'Phường Mỹ An': 'Võ Nguyên Giáp, Hồ Xuân Hương, Phố Tây An Thượng',
+  'Phường Khuê Mỹ': 'Lê Văn Hiến, Nam Kỳ Khởi Nghĩa, KĐT Tiên Sơn',
+  'Phường Hòa Quý': 'KĐT Nam Hòa Xuân, Đồng Nơ, Võ Chí Công',
+  'Phường Hòa Hải': 'Trường Sa, Non Nước, KĐT FPT City',
+  // Đà Nẵng - Hải Châu
+  'Phường Hải Châu 1': 'Bạch Đằng, Trần Phú, Lê Duẩn',
+  'Phường Hải Châu 2': 'Hùng Vương, Triệu Nữ Vương, Ngô Gia Tự',
+  'Phường Thạch Thang': 'Quang Trung, Nguyễn Du, Trần Phú',
+  'Phường Bình Thuận': 'Trưng Nữ Vương, Hoàng Diệu',
+  'Phường Hòa Cường Bắc': 'Nguyễn Hữu Thọ, 30 Tháng 4',
+  'Phường Hòa Cường Nam': '2 Tháng 9, Xô Viết Nghệ Tĩnh',
+  // Đà Nẵng - Sơn Trà
+  'Phường An Hải Bắc': 'Phạm Văn Đồng, Ngô Quyền',
+  'Phường Phước Mỹ': 'Võ Nguyên Giáp, Hồ Nghinh, Hà Bổng',
+  'Phường Thọ Quang': 'Hoàng Sa, Lê Đức Thọ',
+  'Phường Nại Hiên Đông': 'Trần Hưng Đạo, Chu Huy Mân',
+  // Đà Nẵng - Cẩm Lệ
+  'Phường Khuê Trung': 'Cách Mạng Tháng 8, Nguyễn Hữu Thọ',
+  'Phường Hòa Xuân': 'KĐT Sinh Thái Hòa Xuân, Văn Tiến Dũng',
+  'Phường Hòa Phát': 'Tôn Đản, Trường Chinh',
+  'Phường Hòa An': 'Nguyễn Công Hoan, Yên Thế'
+};
+
+export const buildWardBenchmarksForDistrict = (districtObj, baseRow = null, isRent = false) => {
+  if (!districtObj?.wards?.length) return null;
+
+  const wards = districtObj.wards;
+  const streets = districtObj.streets || [];
+  const projects = districtObj.projects || [];
+
+  let minCol1 = isRent ? 6 : 65, maxCol1 = isRent ? 16 : 130;
+  let minCol2 = isRent ? 8 : 32, maxCol2 = isRent ? 22 : 60;
+  let minCol3 = isRent ? 2.5 : 45, maxCol3 = isRent ? 6 : 95;
+
+  if (baseRow?.cols && Array.isArray(baseRow.cols)) {
+    const parseRange = (str) => {
+      if (!str || typeof str !== 'string') return null;
+      const m = str.match(/(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)/);
+      if (m) return [parseFloat(m[1]), parseFloat(m[2])];
+      return null;
+    };
+    const r1 = parseRange(baseRow.cols[0]);
+    if (r1) { minCol1 = r1[0]; maxCol1 = r1[1]; }
+    const r2 = parseRange(baseRow.cols[1]);
+    if (r2) { minCol2 = r2[0]; maxCol2 = r2[1]; }
+    const r3 = parseRange(baseRow.cols[2]);
+    if (r3) { minCol3 = r3[0]; maxCol3 = r3[1]; }
+  }
+
+  const unit = isRent ? 'tr/tháng' : 'tr/m²';
+
+  return wards.map((wardName, idx) => {
+    const factor = Math.max(0.78, Math.min(1.22, 1.15 - (idx * 0.04)));
+    const col1Min = Math.round(minCol1 * factor);
+    const col1Max = Math.round(maxCol1 * factor);
+    const col2Min = Math.round(minCol2 * factor);
+    const col2Max = Math.round(maxCol2 * factor);
+    const col3Min = Math.round(minCol3 * factor);
+    const col3Max = Math.round(maxCol3 * factor);
+
+    let hotspots = KNOWN_WARD_STREETS[wardName];
+    if (!hotspots) {
+      if (streets.length > 0) {
+        const start = (idx * 2) % streets.length;
+        const slice = streets.slice(start, start + 2);
+        if (slice.length < 2 && streets.length >= 2) {
+          slice.push(streets[0]);
+        }
+        hotspots = slice.join(', ');
+      } else if (projects.length > 0) {
+        hotspots = projects[idx % projects.length];
+      } else {
+        hotspots = `Trục chính ${wardName}`;
+      }
+    }
+
+    return {
+      area: wardName,
+      cols: [
+        `${col1Min} - ${col1Max} ${unit}`,
+        `${col2Min} - ${col2Max} ${unit}`,
+        `${col3Min} - ${col3Max} ${unit}`
+      ],
+      hotspots
+    };
+  });
+};
+
 const findProvince = (cityName) => {
   const lower = cityName.toLowerCase();
   return (VIETNAM_ADMINISTRATIVE_DATA || []).find((p) => {
@@ -1100,15 +1211,32 @@ export const buildSaleSeoContentData = ({
     const targetLocName = effDistrict ? `${effDistrict}, ${cityDisplay}` : (isSpecificCity ? cityDisplay : '');
 
     let benchmarks = presetCity.benchmarks;
-    if (effDistrict && Array.isArray(benchmarks)) {
+    let tableHeaders = presetCity.tableHeaders;
+    let priceTableTitle = presetCity.priceTableTitle;
+
+    if (effDistrict) {
       const cleanDist = effDistrict.replace(/^(Quận|Huyện|Thị xã|TP|Thành phố)\s+/i, '').trim().toLowerCase();
-      const matchedIdx = benchmarks.findIndex(b => b.area.toLowerCase().includes(cleanDist) || cleanDist.includes(b.area.toLowerCase()));
-      if (matchedIdx > -1) {
+      const matchedRow = Array.isArray(benchmarks)
+        ? benchmarks.find(b => b.area.toLowerCase().includes(cleanDist) || cleanDist.includes(b.area.toLowerCase()))
+        : null;
+
+      const districtObj = findDistrictInProvince(cityCtx.matchedProvince, effDistrict);
+      const wardRows = districtObj?.wards?.length
+        ? buildWardBenchmarksForDistrict(districtObj, matchedRow, false)
+        : null;
+
+      if (wardRows && wardRows.length > 0) {
+        benchmarks = wardRows;
+        tableHeaders = ['Phường / Xã', 'Nhà phố / Mặt tiền', 'Căn hộ chung cư', 'Đất nền thổ cư', 'Tuyến đường trọng điểm'];
+        priceTableTitle = `Khung Giá Nhà Đất Chi Tiết Từng Phường Tại ${effDistrict} 2026`;
+      } else if (matchedRow) {
+        const matchedIdx = benchmarks.indexOf(matchedRow);
         benchmarks = [
-          { ...benchmarks[matchedIdx], isTargetDistrict: true },
+          { ...matchedRow, isTargetDistrict: true },
           ...benchmarks.slice(0, matchedIdx),
           ...benchmarks.slice(matchedIdx + 1)
         ];
+        priceTableTitle = `Khung Giá Nhà Đất Chi Tiết Tại ${effDistrict} & Các Quận Huyện ${cityDisplay} 2026`;
       }
     }
 
@@ -1119,10 +1247,8 @@ export const buildSaleSeoContentData = ({
       marketDesc: effDistrict
         ? `Thị trường bất động sản ${effDistrict}, ${cityDisplay} năm 2026 ghi nhận lực cầu mua an cư và đầu tư tăng trưởng tích cực nhờ quy hoạch mở rộng đô thị đồng bộ và hệ sinh thái tiện ích dịch vụ hoàn thiện. Các phân khúc đất nền thổ cư, nhà phố thương mại và căn hộ chung cư tại ${effDistrict} tiếp tục giữ vững thanh khoản tốt.`
         : presetCity.marketDesc,
-      priceTableTitle: effDistrict
-        ? `Khung Giá Nhà Đất Chi Tiết Tại ${effDistrict} & Các Quận Huyện ${cityDisplay} 2026`
-        : presetCity.priceTableTitle,
-      tableHeaders: presetCity.tableHeaders,
+      priceTableTitle,
+      tableHeaders,
       benchmarks,
       priceFootnote: '* Bảng giá mang tính chất tham khảo thực tế tại thời điểm đầu năm 2026, đơn giá có thể thay đổi tùy thuộc vào vị trí hẻm, mặt tiền và hiện trạng xây dựng công trình.',
       legalTitle: `4 Bước Thẩm Định Pháp Lý Bắt Buộc Trước Khi Xuống Tiền Mua Nhà Đất${targetLocName ? ` Tại ${targetLocName}` : ''}`,
@@ -1146,7 +1272,7 @@ export const buildSaleSeoContentData = ({
 
   // Trường hợp 3: Tỉnh thành khác trong 63 tỉnh thành (động từ VIETNAM_ADMINISTRATIVE_DATA)
   const prov = cityCtx.matchedProvince;
-  const provBenchmarks = prov?.districts?.length
+  let provBenchmarks = prov?.districts?.length
     ? prov.districts.slice(0, 7).map((d, index) => {
         const baseMin = Math.max(15, 60 - index * 6);
         const baseMax = Math.max(25, 110 - index * 12);
@@ -1163,23 +1289,39 @@ export const buildSaleSeoContentData = ({
       })
     : GENERAL_SALE_CITY_CONTENT.national.benchmarks;
 
+  let tableHeaders = ['Khu vực / Quận Huyện', 'Nhà phố / Mặt tiền', 'Căn hộ chung cư', 'Đất nền thổ cư', 'Khu vực sôi động'];
+  let priceTableTitle = `Khung Giá Nhà Đất Chi Tiết Từng Quận/Huyện Tại ${cityDisplay} 2026`;
+
+  if (effDistrict && prov?.districts?.length) {
+    const districtObj = findDistrictInProvince(prov, effDistrict);
+    const wardRows = districtObj?.wards?.length
+      ? buildWardBenchmarksForDistrict(districtObj, null, false)
+      : null;
+
+    if (wardRows && wardRows.length > 0) {
+      provBenchmarks = wardRows;
+      tableHeaders = ['Phường / Xã', 'Nhà phố / Mặt tiền', 'Căn hộ chung cư', 'Đất nền thổ cư', 'Tuyến đường trọng điểm'];
+      priceTableTitle = `Khung Giá Nhà Đất Chi Tiết Từng Phường Tại ${effDistrict} 2026`;
+    }
+  }
+
   return {
-    marketTitle: `Thị Trường Mua Bán Nhà Đất ${cityDisplay} Năm 2026: Diễn Biến & Tiềm Năng Phát Triển`,
-    marketDesc: `Thị trường bất động sản ${cityDisplay} năm 2026 ghi nhận bước chuyển mình tích cực nhờ hạ tầng giao thông kết nối liên vùng và hiệu lực của bộ ba Luật Đất đai 2024, Luật Nhà ở 2023 và Luật Kinh doanh Bất động sản 2023. Dòng tiền đầu tư tập trung vào phân khúc ở thực có sẵn sổ hồng tại trung tâm đô thị và khu vực phát triển công nghiệp, dịch vụ.`,
-    priceTableTitle: `Khung Giá Nhà Đất Chi Tiết Từng Quận/Huyện Tại ${cityDisplay} 2026`,
-    tableHeaders: ['Khu vực / Quận Huyện', 'Nhà phố / Mặt tiền', 'Căn hộ chung cư', 'Đất nền thổ cư', 'Khu vực sôi động'],
+    marketTitle: `Thị Trường Mua Bán Nhà Đất ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay} Năm 2026: Diễn Biến & Tiềm Năng Phát Triển`,
+    marketDesc: `Thị trường bất động sản ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay} năm 2026 ghi nhận bước chuyển mình tích cực nhờ hạ tầng giao thông kết nối liên vùng và hiệu lực của bộ ba Luật Đất đai 2024, Luật Nhà ở 2023 và Luật Kinh doanh Bất động sản 2023. Dòng tiền đầu tư tập trung vào phân khúc ở thực có sẵn sổ hồng tại trung tâm đô thị và khu vực phát triển công nghiệp, dịch vụ.`,
+    priceTableTitle,
+    tableHeaders,
     benchmarks: provBenchmarks,
     priceFootnote: '* Bảng giá mang tính chất tham khảo thực tế tại thời điểm đầu năm 2026, đơn giá có thể thay đổi tùy thuộc vào vị trí hẻm, mặt tiền và hiện trạng xây dựng công trình.',
-    legalTitle: `4 Bước Thẩm Định Pháp Lý Bắt Buộc Trước Khi Mua Nhà Đất Tại ${cityDisplay}`,
-    legalSteps: DEFAULT_LEGAL_STEPS(cityDisplay),
+    legalTitle: `4 Bước Thẩm Định Pháp Lý Bắt Buộc Trước Khi Mua Nhà Đất Tại ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay}`,
+    legalSteps: DEFAULT_LEGAL_STEPS(effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay),
     guidesTitle: 'Cẩm Nang Tri Thức & Hướng Dẫn Mua Nhà An Toàn Từ Chuyên Gia',
     guides: DEFAULT_GUIDES,
-    faqTitle: `Câu Hỏi Thường Gặp Khi Mua Bán Nhà Đất Tại ${cityDisplay}`,
+    faqTitle: `Câu Hỏi Thường Gặp Khi Mua Bán Nhà Đất Tại ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay}`,
     faqs: [
-      { q: `Người mua nhà đất tại ${cityDisplay} lần đầu cần kiểm tra những thủ tục pháp lý nào?`, a: `Kiểm tra bản gốc Sổ đỏ/Sổ hồng, tra cứu thông tin quy hoạch tại Chi nhánh Văn phòng Đăng ký Đất đai thuộc ${cityDisplay}, xác minh ngăn chặn giao dịch UCHI trước khi ký hợp đồng đặt cọc.` },
-      { q: `Thủ tục sang tên chuyển nhượng sổ đỏ tại ${cityDisplay} nộp ở đâu?`, a: `Nộp tại Bộ phận Một cửa Chi nhánh Văn phòng Đăng ký Đất đai cấp quận/huyện/thị xã thuộc ${cityDisplay} sau khi công chứng hợp đồng mua bán. Thời hạn giải quyết 10 - 15 ngày làm việc.` },
-      { q: `Chi phí thuế và lệ phí khi mua bán nhà đất tại ${cityDisplay} gồm những gì?`, a: `Gồm Thuế TNCN 2% (bên bán), Lệ phí trước bạ 0.5% (bên mua), phí thẩm định hồ sơ và lệ phí cấp đổi sổ mới (1 - 2 triệu đồng).` },
-      { q: `Làm sao tìm được nhà đất chính chủ, giá tốt tại ${cityDisplay} trên Kênh Nhà Đất 24H?`, a: `Sử dụng bộ lọc Quận/Huyện tại ${cityDisplay}, khoảng giá, diện tích và bật bộ lọc 'Tin chính chủ / Đã xác thực'.` }
+      { q: `Người mua nhà đất tại ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay} lần đầu cần kiểm tra những thủ tục pháp lý nào?`, a: `Kiểm tra bản gốc Sổ đỏ/Sổ hồng, tra cứu thông tin quy hoạch tại Chi nhánh Văn phòng Đăng ký Đất đai, xác minh ngăn chặn giao dịch UCHI trước khi ký hợp đồng đặt cọc.` },
+      { q: `Thủ tục sang tên chuyển nhượng sổ đỏ tại ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay} nộp ở đâu?`, a: `Nộp tại Bộ phận Một cửa Chi nhánh Văn phòng Đăng ký Đất đai cấp quận/huyện/thị xã sau khi công chứng hợp đồng mua bán. Thời hạn giải quyết 10 - 15 ngày làm việc.` },
+      { q: `Chi phí thuế và lệ phí khi mua bán nhà đất gồm những gì?`, a: `Gồm Thuế TNCN 2% (bên bán), Lệ phí trước bạ 0.5% (bên mua), phí thẩm định hồ sơ và lệ phí cấp đổi sổ mới (1 - 2 triệu đồng).` },
+      { q: `Làm sao tìm được nhà đất chính chủ, giá tốt trên Kênh Nhà Đất 24H?`, a: `Sử dụng bộ lọc Quận/Huyện, khoảng giá, diện tích và bật bộ lọc 'Tin chính chủ / Đã xác thực'.` }
     ],
     discoveryTitle: discovery.title,
     discoveryLinks: discovery.links
@@ -1745,29 +1887,29 @@ export const buildRentSeoContentData = ({
     const targetLocName = effDistrict ? `${effDistrict}, ${cityDisplay}` : (isSpecificCity ? cityDisplay : '');
 
     let benchmarks = presetGeneral.benchmarks;
-    if (effDistrict && Array.isArray(benchmarks)) {
-      const cleanDist = effDistrict.replace(/^(Quận|Huyện|Thị xã|TP|Thành phố)\s+/i, '').trim().toLowerCase();
-      const matchedIdx = benchmarks.findIndex(b => b.area.toLowerCase().includes(cleanDist) || cleanDist.includes(b.area.toLowerCase()));
-      if (matchedIdx > -1) {
-        benchmarks = [
-          { ...benchmarks[matchedIdx], isTargetDistrict: true },
-          ...benchmarks.slice(0, matchedIdx),
-          ...benchmarks.slice(matchedIdx + 1)
-        ];
-      }
-    }
-
-    const marketTitle = facet.hasFacetFilters
-      ? `Thị Trường Cho Thuê Nhà Đất ${locationLabel}${facet.filterSuffix} Năm 2026: Nhu Cầu & Kinh Nghiệm`
-      : (effDistrict
-          ? `Thị Trường Cho Thuê Nhà Đất ${effDistrict}, ${cityDisplay} Năm 2026: Nhu Cầu & Kinh Nghiệm`
-          : presetGeneral.marketTitle);
-
-    const priceTableTitle = facet.hasFacetFilters
+    let tableHeaders = [locHeader, 'Căn hộ chung cư', 'Nhà riêng / Nguyên căn', 'Phòng trọ / CH Dịch vụ', 'Khu vực sôi động'];
+    let priceTableTitle = facet.hasFacetFilters
       ? `Khảo Sát Khung Giá Cho Thuê Nhà Đất ${locationLabel}${facet.filterSuffix} 2026`
       : (effDistrict
-          ? `Khung Giá Cho Thuê Nhà Đất Chi Tiết Tại ${effDistrict} & ${cityDisplay} 2026`
+          ? `Khung Giá Cho Thuê Nhà Đất Chi Tiết Từng Phường Tại ${effDistrict} 2026`
           : presetGeneral.priceTableTitle);
+
+    if (effDistrict && !facet.hasFacetFilters) {
+      const cleanDist = effDistrict.replace(/^(Quận|Huyện|Thị xã|TP|Thành phố)\s+/i, '').trim().toLowerCase();
+      const matchedRow = Array.isArray(benchmarks)
+        ? benchmarks.find(b => b.area.toLowerCase().includes(cleanDist) || cleanDist.includes(b.area.toLowerCase()))
+        : null;
+
+      const districtObj = findDistrictInProvince(cityCtx.matchedProvince, effDistrict);
+      const wardRows = districtObj?.wards?.length
+        ? buildWardBenchmarksForDistrict(districtObj, matchedRow, true)
+        : null;
+
+      if (wardRows && wardRows.length > 0) {
+        benchmarks = wardRows;
+        tableHeaders = ['Phường / Xã', 'Căn hộ chung cư', 'Nhà riêng / Nguyên căn', 'Phòng trọ / CH Dịch vụ', 'Tuyến đường trọng điểm'];
+      }
+    }
 
     const facetFaqs = [];
     if (facet.hasFacetFilters) {
@@ -1778,14 +1920,18 @@ export const buildRentSeoContentData = ({
     }
 
     return {
-      marketTitle,
+      marketTitle: facet.hasFacetFilters
+        ? `Thị Trường Cho Thuê Nhà Đất ${locationLabel}${facet.filterSuffix} Năm 2026: Nhu Cầu & Kinh Nghiệm`
+        : (effDistrict
+            ? `Thị Trường Cho Thuê Nhà Đất ${effDistrict}, ${cityDisplay} Năm 2026: Nhu Cầu & Kinh Nghiệm`
+            : presetGeneral.marketTitle),
       marketDesc: facet.hasFacetFilters
         ? `Năm 2026, nhu cầu thuê nhà đất ${locationLabel} với ${facet.filterParts.join(', ')} tăng trưởng ổn định. Người thuê cần khảo sát nhiều vị trí, nắm rõ biểu phí dịch vụ và ký kết hợp đồng minh bạch.`
         : (effDistrict
             ? `Thị trường cho thuê nhà đất tại ${effDistrict}, ${cityDisplay} năm 2026 ghi nhận nguồn cầu dồi dào từ chuyên gia, người lao động và khách du lịch lưu trú. Các loại hình căn hộ du lịch, nhà riêng nguyên căn và phòng trọ tiện ích cao luôn đạt tỷ lệ lấp đầy ấn tượng.`
             : presetGeneral.marketDesc),
       priceTableTitle,
-      tableHeaders: [locHeader, 'Căn hộ chung cư', 'Nhà riêng / Nguyên căn', 'Phòng trọ / CH Dịch vụ', 'Khu vực sôi động'],
+      tableHeaders,
       benchmarks,
       legalTitle: `4 Lưu Ý Pháp Lý Sống Còn Khi Ký Hợp Đồng Thuê Nhà Đất ${locationLabel}`,
       legalSteps: DEFAULT_RENT_LEGAL_STEPS,
