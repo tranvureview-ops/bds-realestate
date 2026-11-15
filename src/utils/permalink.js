@@ -931,12 +931,14 @@ export const parseTaxonomyUrl = (urlPath) => {
       project = slugToTitleCase(projMatch[1]);
     }
 
-    // D. Đường / Phố (Street)
+    // D. Đường / Phố (Street) - Tuyệt đối không match nhầm tiền tố 'thanh-pho-...'
     let street = '';
-    const streetMatch = remainder.match(/(?:^|-)duong-([a-z0-9-]+?)(?:-(?:phuong|xa|quan|huyen|tp|tx|da-nang|ha-noi|ho-chi-minh)|$)/i) ||
-                       remainder.match(/(?:^|-)pho-([a-z0-9-]+?)(?:-(?:phuong|xa|quan|huyen|tp|tx|da-nang|ha-noi|ho-chi-minh)|$)/i);
-    if (streetMatch) {
-      street = slugToTitleCase(streetMatch[1]);
+    const duongMatch = remainder.match(/(?:^|-)duong-([a-z0-9-]+?)(?:-(?:phuong|xa|quan|huyen|tp|tx|thanh-pho|da-nang|ha-noi|ho-chi-minh)|$)/i);
+    const phoMatch = remainder.match(/(?:^|(?<!thanh)-)pho-([a-z0-9-]+?)(?:-(?:phuong|xa|quan|huyen|tp|tx|thanh-pho|da-nang|ha-noi|ho-chi-minh)|$)/i);
+    if (duongMatch) {
+      street = slugToTitleCase(duongMatch[1]);
+    } else if (phoMatch && !remainder.includes(`thanh-pho-${phoMatch[1]}`) && !remainder.includes(`tp-${phoMatch[1]}`)) {
+      street = slugToTitleCase(phoMatch[1]);
     }
 
     // E. Phường/Xã (Ward)
@@ -951,12 +953,42 @@ export const parseTaxonomyUrl = (urlPath) => {
     let city = '';
     let district = '';
 
-    // Đối chiếu các quận huyện
+    // Đối chiếu các quận huyện & thành phố thuộc tỉnh
     for (const [dSlug, dInfo] of Object.entries(DISTRICT_MAP)) {
-      if (raw.includes(`quan-${dSlug}`) || raw.includes(`huyen-${dSlug}`) || raw.includes(`tp-${dSlug}`) || raw.includes(`-${dSlug}-`) || raw.endsWith(`-${dSlug}`) || raw.includes(dSlug)) {
+      if (
+        raw.includes(`quan-thanh-pho-${dSlug}`) ||
+        raw.includes(`thanh-pho-${dSlug}`) ||
+        raw.includes(`quan-${dSlug}`) ||
+        raw.includes(`huyen-${dSlug}`) ||
+        raw.includes(`tp-${dSlug}`) ||
+        raw.includes(`tx-${dSlug}`) ||
+        raw.includes(`thi-xa-${dSlug}`) ||
+        raw.includes(`-${dSlug}-`) ||
+        raw.endsWith(`-${dSlug}`) ||
+        raw.includes(dSlug)
+      ) {
         district = dInfo.name;
         city = dInfo.city || '';
         break;
+      }
+    }
+
+    // Sanity check: Nếu phát hiện street thực chất là tên của district (nhận nhầm 'thanh-pho-hoi-an' thành đường Hoi An), loại bỏ street
+    if (street && district) {
+      const cleanStreet = street.toLowerCase().replace(/^(?:đường|phố)\s+/i, '').replace(/[-_]/g, ' ').trim();
+      const cleanDist = district.toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/^(?:thành phố|thị xã|quận|huyện|tp)\s+/i, '')
+        .trim();
+      const cleanStreetAscii = cleanStreet
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd');
+
+      if (cleanStreetAscii === cleanDist || cleanDist.includes(cleanStreetAscii)) {
+        street = '';
       }
     }
 
