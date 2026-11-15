@@ -19,6 +19,7 @@
 
 // Hàm loại bỏ dấu tiếng Việt chuẩn SEO
 import { formatCIdsParam, parseCIdsParam, formatPropertyTypeTriggerLabel } from '../data/propertyTypeTaxonomy.js';
+import { VIETNAM_ADMINISTRATIVE_DATA } from '../data/vietnamAdministrativeData.js';
 
 export const toVietnameseSlug = (str) => {
   if (!str) return '';
@@ -278,6 +279,27 @@ export const DISTRICT_MAP = {
   'khanh-son': { name: 'Huyện Khánh Sơn', city: 'Khánh Hòa' },
   'truong-sa': { name: 'Huyện Trường Sa', city: 'Khánh Hòa' }
 };
+
+// Tự động tích hợp toàn bộ 238+ Quận / Huyện / Thị xã / Thành phố từ 63 tỉnh thành vào DISTRICT_MAP
+if (Array.isArray(VIETNAM_ADMINISTRATIVE_DATA)) {
+  VIETNAM_ADMINISTRATIVE_DATA.forEach(prov => {
+    const cityName = prov.name;
+    (prov.districts || []).forEach(d => {
+      const rawName = d.name;
+      const cleanDist = rawName.toLowerCase()
+        .replace(/^(quận|huyện|thị xã|thành phố|tp\.?)\s+/i, '')
+        .trim();
+      const slug = toVietnameseSlug(cleanDist);
+      if (slug && !DISTRICT_MAP[slug]) {
+        DISTRICT_MAP[slug] = { name: rawName, city: cityName };
+      }
+      const fullSlug = toVietnameseSlug(rawName);
+      if (fullSlug && fullSlug !== slug && !DISTRICT_MAP[fullSlug]) {
+        DISTRICT_MAP[fullSlug] = { name: rawName, city: cityName };
+      }
+    });
+  });
+}
 
 // Danh mục thực thể địa danh và dự án BĐS tiêu biểu tại TP. Đà Nẵng
 export const KNOWN_ENTITIES = {
