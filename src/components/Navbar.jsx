@@ -500,15 +500,6 @@ export default function Navbar() {
               const isDropdownOpen = activeDropdown === item.id;
               const isBlank = item.target === '_blank';
 
-              const isRent = item.path === '/nha-dat-cho-thue' || item.id === 'menu-rent' || item.title?.toLowerCase().includes('cho thuê');
-              const activeColorClass = isRent 
-                ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200/80 shadow-xs' 
-                : 'bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/80 shadow-xs';
-              const activeIconColor = isRent ? 'text-blue-700' : 'text-emerald-700';
-              const hoverColorClass = isRent
-                ? 'hover:bg-blue-50/60 text-slate-700 hover:text-blue-700'
-                : 'hover:bg-slate-50 text-slate-700 hover:text-emerald-700';
-
               if (hasChildren) {
                 return (
                   <div 
@@ -530,20 +521,20 @@ export default function Navbar() {
                           }
                         }
                       }}
-                      className={`px-2 xl:px-3 py-1.5 xl:py-2 rounded-xl transition flex items-center gap-1 xl:gap-1.5 whitespace-nowrap ${
+                      className={`px-2 xl:px-3 py-1.5 xl:py-2 transition-colors flex items-center gap-1 xl:gap-1.5 whitespace-nowrap ${
                         isActive 
-                          ? activeColorClass 
-                          : hoverColorClass
+                          ? 'text-emerald-700 font-bold' 
+                          : 'text-slate-700 hover:text-emerald-700'
                       }`}
                     >
-                      {item.icon && <i className={`${item.icon} text-xs ${isActive ? activeIconColor : 'text-slate-400'}`}></i>}
+                      {item.icon && <i className={`${item.icon} text-xs transition-colors ${isActive ? 'text-emerald-700' : 'text-slate-400'}`}></i>}
                       <span>{toSentenceLabel(item.title)}</span>
                       {item.badge && (
                         <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${item.badgeColor || 'bg-red-600 text-white'}`}>
                           {item.badge}
                         </span>
                       )}
-                      <i className={`fa-solid fa-chevron-down text-[10px] text-slate-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}></i>
+                      <i className={`fa-solid fa-chevron-down text-[10px] transition-transform duration-200 ${isActive ? 'text-emerald-700' : 'text-slate-400'} ${isDropdownOpen ? 'rotate-180' : ''}`}></i>
                     </Link>
 
                     {/* Category Dropdown Menu */}
@@ -563,13 +554,13 @@ export default function Navbar() {
                                   onClick={() => {
                                     setActiveDropdown(null);
                                   }}
-                                  className={`px-2.5 py-2 rounded-xl flex items-center gap-2 transition font-medium ${
+                                  className={`px-2.5 py-2 rounded-xl flex items-center gap-2 transition-colors font-medium ${
                                     isSubActive 
-                                      ? (isRent ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200/60' : 'bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/60') 
-                                      : (isRent ? 'hover:bg-blue-50/50 text-slate-700 hover:text-blue-700' : 'hover:bg-slate-50 text-slate-700 hover:text-emerald-700')
+                                      ? 'text-emerald-700 font-bold bg-slate-50/60' 
+                                      : 'text-slate-700 hover:text-emerald-700 hover:bg-slate-50'
                                   }`}
                                 >
-                                  {sub.icon && <i className={`${sub.icon} ${isSubActive ? (isRent ? 'text-blue-600' : 'text-emerald-600') : 'text-slate-400'} w-4 text-center text-xs shrink-0`}></i>}
+                                  {sub.icon && <i className={`${sub.icon} ${isSubActive ? 'text-emerald-700' : 'text-slate-400'} w-4 text-center text-xs shrink-0`}></i>}
                                   <span className="truncate">{formatSubMenuTitle(item, sub)}</span>
                                 </Link>
                               );
@@ -590,13 +581,13 @@ export default function Navbar() {
                   to={item.path}
                   target={item.target || '_self'}
                   rel={isBlank ? 'noopener noreferrer' : undefined}
-                  className={`px-2 xl:px-3 py-1.5 xl:py-2 rounded-xl transition flex items-center gap-1 xl:gap-1.5 whitespace-nowrap ${
+                  className={`px-2 xl:px-3 py-1.5 xl:py-2 transition-colors flex items-center gap-1 xl:gap-1.5 whitespace-nowrap ${
                     isActive 
-                      ? activeColorClass 
-                      : hoverColorClass
+                      ? 'text-emerald-700 font-bold' 
+                      : 'text-slate-700 hover:text-emerald-700'
                   }`}
                 >
-                  {item.icon && <i className={`${item.icon} text-xs ${isActive ? activeIconColor : 'text-slate-400'}`}></i>}
+                  {item.icon && <i className={`${item.icon} text-xs transition-colors ${isActive ? 'text-emerald-700' : 'text-slate-400'}`}></i>}
                   <span>{toSentenceLabel(item.title)}</span>
                   {item.badge && (
                     <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${item.badgeColor || 'bg-red-600 text-white'}`}>
@@ -1039,30 +1030,24 @@ export default function Navbar() {
                   const isActive = checkIsMenuOrChildActive(item, currentRoute);
                   const isBlank = item.target === '_blank';
 
-                  const isRent = item.path === '/nha-dat-cho-thue' || item.id === 'menu-rent' || item.title?.toLowerCase().includes('cho thuê');
-                  const activeMobileClass = isRent 
-                    ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200/80 shadow-xs' 
-                    : 'bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/80 shadow-xs';
-                  const activeMobileIcon = isRent ? 'text-blue-600' : 'text-emerald-600';
-
                   if (hasChildren) {
                     return (
                       <div key={item.id} className="space-y-1">
                         <button
                           onClick={() => toggleMobileSubmenu(item.id)}
-                          className={`w-full px-3 py-2.5 rounded-xl flex items-center justify-between text-left font-semibold text-sm transition ${
-                            isActive ? activeMobileClass : 'text-slate-700 hover:bg-slate-50'
+                          className={`w-full px-3 py-2.5 rounded-xl flex items-center justify-between text-left font-semibold text-sm transition-colors ${
+                            isActive ? 'text-emerald-700 font-bold' : 'text-slate-700 hover:text-emerald-700'
                           }`}
                         >
                           <div className="flex items-center gap-2.5">
-                            {item.icon && <i className={`${item.icon} ${isActive ? activeMobileIcon : 'text-slate-400'} w-4 text-center`}></i>}
+                            {item.icon && <i className={`${item.icon} ${isActive ? 'text-emerald-700' : 'text-slate-400'} w-4 text-center transition-colors`}></i>}
                             <span>{toSentenceLabel(item.title)}</span>
                           </div>
-                          <i className={`fa-solid fa-chevron-down text-xs text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}></i>
+                          <i className={`fa-solid fa-chevron-down text-xs transition-transform ${isActive ? 'text-emerald-700' : 'text-slate-400'} ${isExpanded ? 'rotate-180' : ''}`}></i>
                         </button>
 
                         {isExpanded && (
-                          <div className={`pl-6 pr-2 space-y-1 border-l-2 ${isRent ? 'border-blue-200' : 'border-emerald-100'} ml-4`}>
+                          <div className="pl-6 pr-2 space-y-1 border-l-2 border-slate-100 ml-4">
                             {item.children.map(sub => {
                               const isSubActive = isSubMenuActive(sub, currentRoute);
                               return (
@@ -1070,13 +1055,13 @@ export default function Navbar() {
                                   key={sub.id}
                                   to={sub.path}
                                   onClick={() => setMobileMenuOpen(false)}
-                                  className={`w-full px-3 py-2 rounded-lg flex items-center gap-2 text-xs font-medium transition ${
+                                  className={`w-full px-3 py-2 rounded-lg flex items-center gap-2 text-xs font-medium transition-colors ${
                                     isSubActive 
-                                      ? (isRent ? 'bg-blue-50 text-blue-700 font-bold' : 'bg-emerald-50 text-emerald-700 font-bold') 
-                                      : 'text-slate-600 hover:bg-slate-50'
+                                      ? 'text-emerald-700 font-bold' 
+                                      : 'text-slate-600 hover:text-emerald-700'
                                   }`}
                                 >
-                                  {sub.icon && <i className={`${sub.icon} ${isSubActive ? (isRent ? 'text-blue-600' : 'text-emerald-600') : 'text-slate-400'} w-3 text-center`}></i>}
+                                  {sub.icon && <i className={`${sub.icon} ${isSubActive ? 'text-emerald-700' : 'text-slate-400'} w-3 text-center transition-colors`}></i>}
                                   <span>{formatSubMenuTitle(item, sub)}</span>
                                 </Link>
                               );
@@ -1094,12 +1079,12 @@ export default function Navbar() {
                       target={item.target || '_self'}
                       rel={isBlank ? 'noopener noreferrer' : undefined}
                       onClick={() => setMobileMenuOpen(false)}
-                      className={`w-full px-3 py-2.5 rounded-xl flex items-center justify-between font-semibold text-sm transition ${
-                        isActive ? activeMobileClass : 'text-slate-700 hover:bg-slate-50'
+                      className={`w-full px-3 py-2.5 rounded-xl flex items-center justify-between font-semibold text-sm transition-colors ${
+                        isActive ? 'text-emerald-700 font-bold' : 'text-slate-700 hover:text-emerald-700'
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
-                        {item.icon && <i className={`${item.icon} ${isActive ? activeMobileIcon : 'text-slate-400'} w-4 text-center`}></i>}
+                        {item.icon && <i className={`${item.icon} ${isActive ? 'text-emerald-700' : 'text-slate-400'} w-4 text-center transition-colors`}></i>}
                         <span>{toSentenceLabel(item.title)}</span>
                       </div>
                       {item.badge && (
