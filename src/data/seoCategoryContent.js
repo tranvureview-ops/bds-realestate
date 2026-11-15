@@ -7,7 +7,7 @@
  */
 
 import { VIETNAM_ADMINISTRATIVE_DATA } from './vietnamAdministrativeData.js';
-import { buildSeoUrl, formatPriceRangeText, formatAreaRangeText } from '../utils/permalink.js';
+import { buildSeoUrl, formatPriceRangeText, formatAreaRangeText, capitalizeLocationEntities } from '../utils/permalink.js';
 
 const ALL_TYPES = new Set(['', 'all', 'null', 'undefined']);
 
@@ -34,7 +34,7 @@ const resolveCityContext = (activeCity) => {
   if (!activeCity || typeof activeCity !== 'string') {
     return { key: 'national', displayName: 'Toàn Quốc', matchedProvince: null };
   }
-  const lower = activeCity.toLowerCase();
+  const lower = activeCity.toLowerCase().replace(/[-_]/g, ' ');
   if (activeCity.includes('Đà Nẵng') || lower.includes('da nang')) {
     return { key: 'danang', displayName: 'Đà Nẵng', matchedProvince: findProvince(activeCity) };
   }
@@ -44,13 +44,13 @@ const resolveCityContext = (activeCity) => {
   if (activeCity.includes('Hà Nội') || lower.includes('ha noi')) {
     return { key: 'hanoi', displayName: 'Hà Nội', matchedProvince: findProvince(activeCity) };
   }
-  if (activeCity.includes('Hồ Chí Minh') || lower.includes('ho chi minh')) {
+  if (activeCity.includes('Hồ Chí Minh') || lower.includes('ho chi minh') || lower.includes('hcm')) {
     return { key: 'hcm', displayName: 'TP. Hồ Chí Minh', matchedProvince: findProvince(activeCity) };
   }
   const matched = findProvince(activeCity);
   return {
     key: 'province',
-    displayName: matched?.name || activeCity,
+    displayName: matched?.name || capitalizeLocationEntities(activeCity.replace(/[-_]/g, ' ')),
     matchedProvince: matched
   };
 };
@@ -1108,7 +1108,7 @@ export const buildSaleSeoContentData = ({
   const profile = getSaleProfile(propertyType);
   const isSpecificCity = cityCtx.key !== 'national';
   const locHeader = isSpecificCity ? 'Khu vực / Quận Huyện' : 'Khu vực / Tỉnh thành';
-  const cityDisplay = cityCtx.displayName;
+  const cityDisplay = capitalizeLocationEntities(cityCtx.displayName);
   const norm = normalizeType(propertyType);
 
   const facet = resolveFacetFilterLabels({
@@ -1120,7 +1120,8 @@ export const buildSaleSeoContentData = ({
     taxonomyInfo
   });
 
-  const effDistrict = district || taxonomyInfo?.district || null;
+  const effDistrictRaw = district || taxonomyInfo?.district || null;
+  const effDistrict = effDistrictRaw ? capitalizeLocationEntities(effDistrictRaw) : null;
   const locationLabel = effDistrict
     ? `tại ${effDistrict}${activeCity ? `, ${cityDisplay}` : ''}`
     : (isSpecificCity ? `tại ${cityDisplay}` : 'toàn quốc');
@@ -1795,7 +1796,7 @@ export const buildRentSeoContentData = ({
   const profile = getRentProfile(propertyType);
   const isSpecificCity = cityCtx.key !== 'national';
   const locHeader = isSpecificCity ? 'Khu vực / Quận Huyện' : 'Khu vực / Tỉnh thành';
-  const cityDisplay = cityCtx.displayName;
+  const cityDisplay = capitalizeLocationEntities(cityCtx.displayName);
   const norm = normalizeType(propertyType);
 
   const facet = resolveFacetFilterLabels({
@@ -1807,7 +1808,8 @@ export const buildRentSeoContentData = ({
     taxonomyInfo
   });
 
-  const effDistrict = district || taxonomyInfo?.district || null;
+  const effDistrictRaw = district || taxonomyInfo?.district || null;
+  const effDistrict = effDistrictRaw ? capitalizeLocationEntities(effDistrictRaw) : null;
   const locationLabel = effDistrict
     ? `tại ${effDistrict}${activeCity ? `, ${cityDisplay}` : ''}`
     : (isSpecificCity ? `tại ${cityDisplay}` : 'toàn quốc');

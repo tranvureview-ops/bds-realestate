@@ -7,7 +7,7 @@ import { Link, useRouter } from '../router/RouterContext';
 import ListingGrid from '../components/ListingGrid';
 import ListingFilterBar from '../components/ListingFilterBar';
 import RentListingsSeoContent from '../components/RentListingsSeoContent';
-import { generateCategoryJsonLd, generateCategoryMetadata, getCanonicalUrl, parseTaxonomyUrl, buildDynamicTaxonomyInfo, buildSeoUrl, formatSentenceCase } from '../utils/permalink';
+import { generateCategoryJsonLd, generateCategoryMetadata, getCanonicalUrl, parseTaxonomyUrl, buildDynamicTaxonomyInfo, buildSeoUrl, formatSentenceCase, capitalizeLocationEntities } from '../utils/permalink';
 import { filterProperties } from '../utils/propertyFilter';
 import { parseCIdsParam } from '../data/propertyTypeTaxonomy';
 
@@ -529,7 +529,8 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
       titleWithLoc = `${baseTitle} trên toàn quốc`;
     }
     const trimmed = titleWithLoc.trim();
-    return trimmed ? trimmed.charAt(0).toUpperCase() + trimmed.slice(1) : '';
+    const capitalized = trimmed ? trimmed.charAt(0).toUpperCase() + trimmed.slice(1) : '';
+    return capitalizeLocationEntities(capitalized);
   }, [currentCleanTaxonomy]);
 
   // Tiêu đề H1 chuyên nghiệp chuẩn SEO & Tối ưu chuyển đổi (CRO)
@@ -539,12 +540,12 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
       // Khi vào danh mục cấp Quận/Huyện/Phường: Tinh gọn tiêu đề, bỏ hậu tố năm/slogan để giao diện thoáng gọn
       if (currentCleanTaxonomy?.district) {
         const locParts = [];
-        if (currentCleanTaxonomy?.ward) locParts.push(currentCleanTaxonomy.ward);
-        locParts.push(currentCleanTaxonomy.district);
+        if (currentCleanTaxonomy?.ward) locParts.push(capitalizeLocationEntities(currentCleanTaxonomy.ward));
+        locParts.push(capitalizeLocationEntities(currentCleanTaxonomy.district));
         return `Cho thuê nhà đất tại ${locParts.join(', ')}`;
       }
       if (currentCleanTaxonomy?.city) {
-        return `Cho Thuê Nhà Đất tại ${currentCleanTaxonomy.city} Năm 2026: Giá Rẻ, Chính Chủ, Xác Thực 100%`;
+        return `Cho Thuê Nhà Đất tại ${capitalizeLocationEntities(currentCleanTaxonomy.city)} Năm 2026: Giá Rẻ, Chính Chủ, Xác Thực 100%`;
       }
       return 'Cho Thuê Nhà Đất Toàn Quốc Năm 2026: Giá Rẻ, Chính Chủ, Xác Thực 100%';
     }
@@ -552,13 +553,13 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
     // Khi có loại tin cụ thể kết hợp với Quận/Huyện
     if (currentCleanTaxonomy?.district) {
       const locParts = [];
-      if (currentCleanTaxonomy?.ward) locParts.push(currentCleanTaxonomy.ward);
-      locParts.push(currentCleanTaxonomy.district);
+      if (currentCleanTaxonomy?.ward) locParts.push(capitalizeLocationEntities(currentCleanTaxonomy.ward));
+      locParts.push(capitalizeLocationEntities(currentCleanTaxonomy.district));
       const rawType = (currentCleanTaxonomy.title || '').split(' tại ')[0].trim() || 'Cho thuê bất động sản';
       return `${rawType} tại ${locParts.join(', ')}`;
     }
 
-    return displayTitle;
+    return capitalizeLocationEntities(displayTitle);
   }, [currentCleanTaxonomy, displayTitle]);
 
   return (

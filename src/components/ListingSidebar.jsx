@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { SALE_PRICE_PRESETS, RENT_PRICE_PRESETS, AREA_PRESETS } from '../data/mockData';
 import { Link } from '../router/RouterContext';
-import { buildSeoUrl, buildSeoFilterUrl, buildDistrictSeoUrl, buildCitySeoUrl, getDistrictSlug, PROPERTY_TAXONOMY } from '../utils/permalink';
+import { buildSeoUrl, buildSeoFilterUrl, buildDistrictSeoUrl, buildCitySeoUrl, getDistrictSlug, PROPERTY_TAXONOMY, capitalizeLocationEntities } from '../utils/permalink';
 import { expandPropertyTypeIds } from '../data/propertyTypeTaxonomy';
 import { VIETNAM_ADMINISTRATIVE_DATA } from '../data/vietnamAdministrativeData';
 import SeoImage from './SeoImage';
@@ -677,16 +677,16 @@ export default function ListingSidebar({
               className="font-bold text-xs sm:text-sm text-slate-900 tracking-tight leading-snug"
               title={
                 isDistrictSelected
-                  ? `${categoryLabel} tại ${activeDistrict}`
+                  ? `${categoryLabel} tại ${capitalizeLocationEntities(activeDistrict)}`
                   : isCitySelected
-                    ? `${categoryLabel} tại ${activeCity}`
+                    ? `${categoryLabel} tại ${capitalizeLocationEntities(activeCity)}`
                     : `${categoryLabel} theo tỉnh thành`
               }
             >
               {isDistrictSelected
-                ? `${categoryLabel} tại ${activeDistrict}`
+                ? `${categoryLabel} tại ${capitalizeLocationEntities(activeDistrict)}`
                 : isCitySelected
-                  ? `${categoryLabel} tại ${activeCity}`
+                  ? `${categoryLabel} tại ${capitalizeLocationEntities(activeCity)}`
                   : `${categoryLabel} theo tỉnh thành`}
             </h3>
           </div>
@@ -696,10 +696,10 @@ export default function ListingSidebar({
               scroll={false}
               onClick={handleResetDistrict}
               className="text-[11px] font-semibold text-slate-600 hover:text-red-600 flex items-center gap-1 cursor-pointer transition-colors shrink-0 ml-2"
-              title={`Quay lại ${categoryLabel} tại ${activeCity || 'thành phố'}`}
+              title={`Quay lại ${categoryLabel} tại ${capitalizeLocationEntities(activeCity) || 'thành phố'}`}
             >
               <i className="fa-solid fa-arrow-left text-[9px]"></i>
-              <span>{activeCity || 'Quay lại'}</span>
+              <span>{capitalizeLocationEntities(activeCity) || 'Quay lại'}</span>
             </Link>
           ) : isCitySelected ? (
             <Link

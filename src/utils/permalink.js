@@ -30,18 +30,8 @@ export const toVietnameseSlug = (str) => {
   return slug;
 };
 
-/**
- * Chuẩn hóa tiêu đề: Chữ cái đầu tiên in hoa, các chữ sau in thường (Sentence Case)
- * Ví dụ: "BÁN BIỆT THỰ VEN SÔNG..." -> "Bán biệt thự ven sông..."
- * @param {string} str Chuỗi tiêu đề cần chuẩn hóa
- * @returns {string} Chuỗi sau chuẩn hóa
- */
-export const formatSentenceCase = (str) => {
-  if (!str || typeof str !== 'string') return '';
-  const trimmed = str.trim();
-  if (!trimmed) return '';
-  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
-};
+import { capitalizeLocationEntities, formatSentenceCase } from './locationFormatter.js';
+export { capitalizeLocationEntities, formatSentenceCase };
 
 /**
  * Chuẩn hóa họ tên / danh từ riêng: Chữ cái đầu mỗi từ viết hoa (Title Case / Capitalize Each Word)
@@ -941,12 +931,17 @@ export const parseTaxonomyUrl = (urlPath) => {
       street = slugToTitleCase(phoMatch[1]);
     }
 
-    // E. Phường/Xã (Ward)
+    // E. Phường/Xã/Thị trấn (Ward)
     let ward = '';
-    const wardMatch = remainder.match(/(?:^|-)phuong-([a-z0-9-]+?)(?:-(?:quan|huyen|tp|tx|da-nang|ha-noi|ho-chi-minh)|$)/i) ||
-                     remainder.match(/(?:^|-)xa-([a-z0-9-]+?)(?:-(?:quan|huyen|tp|tx|da-nang|ha-noi|ho-chi-minh)|$)/i);
-    if (wardMatch) {
-      ward = 'Phường ' + slugToTitleCase(wardMatch[1]);
+    const phuongMatch = remainder.match(/(?:^|-)phuong-([a-z0-9-]+?)(?:-(?:quan|huyen|tp|tx|da-nang|ha-noi|ho-chi-minh)|$)/i);
+    const xaMatch = remainder.match(/(?:^|-)xa-([a-z0-9-]+?)(?:-(?:quan|huyen|tp|tx|da-nang|ha-noi|ho-chi-minh)|$)/i);
+    const thiTranMatch = remainder.match(/(?:^|-)thi-tran-([a-z0-9-]+?)(?:-(?:quan|huyen|tp|tx|da-nang|ha-noi|ho-chi-minh)|$)/i);
+    if (phuongMatch) {
+      ward = 'Phường ' + slugToTitleCase(phuongMatch[1]);
+    } else if (xaMatch) {
+      ward = 'Xã ' + slugToTitleCase(xaMatch[1]);
+    } else if (thiTranMatch) {
+      ward = 'Thị trấn ' + slugToTitleCase(thiTranMatch[1]);
     }
 
     // F. Thành phố & Quận/Huyện
@@ -1159,15 +1154,21 @@ export const parseTaxonomyUrl = (urlPath) => {
       title += `, ${filterParts.join(', ')}`;
     }
 
+    const cleanCity = capitalizeLocationEntities(city);
+    const cleanDistrict = capitalizeLocationEntities(district);
+    const cleanWard = capitalizeLocationEntities(ward);
+    const cleanStreet = capitalizeLocationEntities(street);
+    const cleanTitle = capitalizeLocationEntities(title);
+
     return buildResult({
       isTaxonomy: true,
       isFacetedCleanSlug: true,
       demand,
       propertyType,
-      city,
-      district,
-      ward,
-      street,
+      city: cleanCity,
+      district: cleanDistrict,
+      ward: cleanWard,
+      street: cleanStreet,
       project,
       bedroom,
       priceRange,
@@ -1179,7 +1180,7 @@ export const parseTaxonomyUrl = (urlPath) => {
       maxArea,
       areaLabel,
       keyword,
-      title,
+      title: cleanTitle,
       canonicalUrl: clean
     });
   }
