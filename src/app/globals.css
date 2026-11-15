@@ -192,16 +192,6 @@ button, input, select, textarea, optgroup, option, label {
   color: white;
 }
 
-/* ==========================================================================
-   Chuẩn hóa tiêu đề Bất động sản (Sentence Case):
-   Chữ cái đầu tiên in hoa, các chữ sau in thường
-   Ví dụ: "BÁN BIỆT THỰ..." -> "Bán biệt thự..."
-   ========================================================================== */
-.property-title-sentence,
-.property-card-title {
-  text-transform: lowercase !important;
-}
-
 /* Force strict multi-line clamp utility */
 .line-clamp-3 {
   display: -webkit-box !important;
@@ -210,58 +200,12 @@ button, input, select, textarea, optgroup, option, label {
   overflow: hidden !important;
 }
 
-.property-title-sentence::first-letter,
-.property-card-title::first-letter {
-  text-transform: uppercase !important;
-}
-
 @layer base {
   /* Chuẩn hóa font-size mặc định cho thẻ h2 đồng bộ toàn website (tương đương text-xl) */
   h2 {
     font-size: 1.25rem;
     line-height: 1.75rem;
   }
-}
-
-/* ==========================================================================
-   Chuẩn hóa toàn bộ thẻ heading (h1 - h6) sang Sentence Case:
-   Chỉ chữ cái đầu tiên viết hoa, các chữ sau viết thường
-   (.preserve-case dùng cho họ tên môi giới / danh từ riêng đặc biệt)
-   ========================================================================== */
-h1:not(.preserve-case),
-h2:not(.preserve-case),
-h3:not(.preserve-case),
-h4:not(.preserve-case),
-h5:not(.preserve-case),
-h6:not(.preserve-case) {
-  text-transform: lowercase !important;
-}
-
-h1:not(.preserve-case)::first-letter,
-h2:not(.preserve-case)::first-letter,
-h3:not(.preserve-case)::first-letter,
-h4:not(.preserve-case)::first-letter,
-h5:not(.preserve-case)::first-letter,
-h6:not(.preserve-case)::first-letter,
-h1 > a::first-letter,
-h2 > a::first-letter,
-h3 > a::first-letter,
-h4 > a::first-letter,
-h5 > a::first-letter,
-h6 > a::first-letter,
-h1[class*="flex"]:not(.preserve-case) > span:not(:empty)::first-letter,
-h2[class*="flex"]:not(.preserve-case) > span:not(:empty)::first-letter,
-h3[class*="flex"]:not(.preserve-case) > span:not(:empty)::first-letter,
-h4[class*="flex"]:not(.preserve-case) > span:not(:empty)::first-letter,
-h5[class*="flex"]:not(.preserve-case) > span:not(:empty)::first-letter,
-h6[class*="flex"]:not(.preserve-case) > span:not(:empty)::first-letter,
-h1 > a[class*="flex"] > span:not(:empty):first-of-type::first-letter,
-h2 > a[class*="flex"] > span:not(:empty):first-of-type::first-letter,
-h3 > a[class*="flex"] > span:not(:empty):first-of-type::first-letter,
-h4 > a[class*="flex"] > span:not(:empty):first-of-type::first-letter,
-h5 > a[class*="flex"] > span:not(:empty):first-of-type::first-letter,
-h6 > a[class*="flex"] > span:not(:empty):first-of-type::first-letter {
-  text-transform: uppercase !important;
 }
 
 /* Shimmer & VIP borders */
