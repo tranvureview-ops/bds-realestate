@@ -378,13 +378,20 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
     4
   );
 
-  // Similar properties (prioritize same city or same property type)
+  // Similar properties (prioritize same city or same property type AND matching demand: sale or rent)
+  const currentPropertyDemand = property.demand || 'sale';
   const matchingProperties = properties.filter(
-    p => p.id !== property.id && (p.city === property.city || p.propertyType === property.propertyType)
+    p => p.id !== property.id && 
+         p.status === 'active' && 
+         (p.demand || 'sale') === currentPropertyDemand && 
+         (p.city === property.city || p.propertyType === property.propertyType)
   );
-  // Fallback if not enough matching properties to satisfy similarLimit, backfill from other active properties
+  // Fallback if not enough matching properties to satisfy similarLimit, backfill from other active properties with same demand
   const otherProperties = properties.filter(
-    p => p.id !== property.id && !matchingProperties.some(mp => mp.id === p.id)
+    p => p.id !== property.id && 
+         p.status === 'active' && 
+         (p.demand || 'sale') === currentPropertyDemand && 
+         !matchingProperties.some(mp => mp.id === p.id)
   );
   const similarProperties = [...matchingProperties, ...otherProperties].slice(0, similarLimit);
 
@@ -1417,8 +1424,8 @@ export default function SinglePropertyPage({ propertyOverride = null }) {
             </div>
           )}
 
-          {/* D. EMBEDDED MORTGAGE CALCULATOR FOR THIS EXACT PROPERTY */}
-          {singleConfig?.features?.showLoanCalculator !== false && (
+          {/* D. EMBEDDED MORTGAGE CALCULATOR FOR THIS EXACT PROPERTY (Chỉ áp dụng cho BĐS Mua Bán, ẩn với BĐS Cho Thuê) */}
+          {singleConfig?.features?.showLoanCalculator !== false && (property.demand === 'sale' || !property.demand) && (
             <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-5">
               <div className="flex items-center justify-between">
                 <div>

@@ -1189,7 +1189,8 @@ export const VIETNAM_ADMINISTRATIVE_DATA = [
         "Quốc Lộ 50",
         "Cao Lỗ",
         "Ba Tơ",
-        "An Dương Vương"
+        "An Dương Vương",
+        "Nguyễn Văn Linh"
       ],
       "projects": [
         "Topaz Elite (Tạ Quang Bửu)",
@@ -2208,6 +2209,7 @@ export const VIETNAM_ADMINISTRATIVE_DATA = [
       ],
       "streets": [
         "Nguyễn Văn Cừ",
+        "Nguyễn Văn Linh",
         "Ngọc Lâm",
         "Bồ Đề",
         "Cổ Linh",
@@ -2343,6 +2345,7 @@ export const VIETNAM_ADMINISTRATIVE_DATA = [
       ],
       "streets": [
         "Nguyễn Đức Thuận",
+        "Nguyễn Văn Linh",
         "Cổ Bi",
         "Đa Tốn",
         "Lý Thánh Tông",
@@ -2727,6 +2730,7 @@ export const VIETNAM_ADMINISTRATIVE_DATA = [
         "Xã Văn Võ"
       ],
       "streets": [
+        "Nguyễn Văn Linh",
         "Quốc Lộ 6",
         "Đường Hồ Chí Minh",
         "Tỉnh Lộ 419"

@@ -548,6 +548,16 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
       }
       return 'Mua Bán Nhà Đất Toàn Quốc Năm 2026: Sổ Đỏ Chính Chủ, Giá Tốt Nhất';
     }
+
+    // Khi có loại tin cụ thể (nhà mặt phố, căn hộ, đất nền...) kết hợp với Quận/Huyện
+    if (currentCleanTaxonomy?.district) {
+      const locParts = [];
+      if (currentCleanTaxonomy?.ward) locParts.push(currentCleanTaxonomy.ward);
+      locParts.push(currentCleanTaxonomy.district);
+      const rawType = (currentCleanTaxonomy.title || '').split(' tại ')[0].trim() || 'Bán bất động sản';
+      return `${rawType} tại ${locParts.join(', ')}`;
+    }
+
     return displayTitle;
   }, [currentCleanTaxonomy, displayTitle]);
 

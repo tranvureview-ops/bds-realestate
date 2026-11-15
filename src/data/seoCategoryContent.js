@@ -1133,7 +1133,9 @@ export const buildSaleSeoContentData = ({
   if (profile) {
     const marketTitle = facet.hasFacetFilters
       ? `Thị Trường Mua Bán ${profile.label} ${locationLabel}${facet.filterSuffix} Năm 2026: Diễn Biến & Kinh Nghiệm`
-      : `Thị Trường Mua Bán ${profile.label} ${isSpecificCity ? cityDisplay : 'Toàn Quốc'} Năm 2026: Diễn Biến & Xu Hướng`;
+      : (effDistrict
+          ? `Thị Trường Mua Bán ${profile.label} ${effDistrict}, ${cityDisplay} Năm 2026: Đánh Giá & Xu Hướng`
+          : `Thị Trường Mua Bán ${profile.label} ${isSpecificCity ? cityDisplay : 'Toàn Quốc'} Năm 2026: Diễn Biến & Xu Hướng`);
 
     let cityIntro = '';
     if (facet.hasFacetFilters) {
@@ -1165,14 +1167,15 @@ export const buildSaleSeoContentData = ({
         : `Bước sang năm 2026, phân khúc mua bán ${profile.shortLabel} trên toàn quốc chuyển dịch mạnh mẽ khi Luật Đất đai 2024, Luật Nhà ở 2023 và Luật Kinh doanh Bất động sản 2023 thực thi đồng bộ. Đặc biệt, ${profile.marketFocus}`;
     }
 
-    const priceTableTitle = facet.hasFacetFilters
+    const cityBenchmarks = profile.priceRanges[cityCtx.key];
+    let benchmarks;
+    let tableHeaders = [locHeader, ...(profile.tableCols || ['Phân khúc tiêu chuẩn', 'Mặt tiền / Trục chính', 'Khu vực sôi động'])];
+    let priceTableTitle = facet.hasFacetFilters
       ? `Khảo Sát Khung Giá Mua Bán ${profile.label} ${locationLabel}${facet.filterSuffix} 2026`
       : (isSpecificCity
           ? `Khung Giá ${profile.label} Tham Khảo Từng Khu Vực Tại ${cityDisplay} 2026`
           : `Khung Giá ${profile.label} Tham Khảo Tại Các Đô Thị Trọng Điểm 2026`);
 
-    const cityBenchmarks = profile.priceRanges[cityCtx.key];
-    let benchmarks;
     if (cityBenchmarks) {
       benchmarks = cityBenchmarks;
     } else if (cityCtx.matchedProvince?.districts?.length) {
@@ -1184,6 +1187,19 @@ export const buildSaleSeoContentData = ({
       );
     } else {
       benchmarks = profile.priceRanges.national;
+    }
+
+    if (effDistrict && !facet.hasFacetFilters) {
+      const districtObj = findDistrictInProvince(cityCtx.matchedProvince, effDistrict);
+      if (districtObj?.wards?.length) {
+        const subUnit = getSubUnitLabel(effDistrict, districtObj.wards);
+        const wardRows = buildWardBenchmarksForDistrict(districtObj, benchmarks?.[0], false);
+        if (wardRows && wardRows.length > 0) {
+          benchmarks = wardRows;
+          tableHeaders = [subUnit === 'Xã' ? 'Xã / Thị trấn' : 'Phường / Xã', ...(profile.tableCols || ['Mặt phố nhánh / Kinh doanh nhỏ', 'Mặt tiền đường lớn', 'Mặt phố lõi trung tâm', 'Tuyến phố sầm uất'])];
+          priceTableTitle = `Khung Giá ${profile.label} Chi Tiết Từng ${subUnit} Tại ${effDistrict} 2026`;
+        }
+      }
     }
 
     const legalTitle = `${profile.legalTitlePrefix}${isSpecificCity ? ` Tại ${cityDisplay}` : ''}`;

@@ -792,7 +792,9 @@ export default function UserDashboard({ initialTab = 'listings' }) {
                         </h4>
 
                         <div className="text-xs font-black text-emerald-700 mt-1 flex items-center gap-3">
-                          <span>{prop.priceDisplay}</span>
+                          <span>
+                            {prop.priceDisplay || (prop.price ? (prop.demand === 'rent' ? `${+(prop.price / 1e6).toFixed(2).toString().replace('.', ',')} tr/tháng` : `${+(prop.price / 1e9).toFixed(2).toString().replace('.', ',')} tỷ`) : 'Thỏa thuận')}
+                          </span>
                           <span className="text-slate-400 font-normal">| {prop.area} m²</span>
                           <span className="text-slate-400 font-normal">| Lượt xem: <strong className="text-slate-700">{prop.viewsCount || 0}</strong></span>
                         </div>

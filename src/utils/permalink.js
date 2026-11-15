@@ -1602,7 +1602,7 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, yearInput = null, pa
     taxonomyInfo.direction
   );
 
-  // 1. CHUẨN HÓA DANH MỤC KHU VỰC CẤP QUẬN/HUYỆN & TỈNH/THÀNH (General Regional Category)
+   // 1. CHUẨN HÓA DANH MỤC KHU VỰC CẤP QUẬN/HUYỆN & TỈNH/THÀNH (General & Specific Property Types)
   const isGeneral = !type || type === 'all';
   if (isGeneral && !hasSpecificFacet) {
     if (!isRent) {
@@ -1642,6 +1642,31 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, yearInput = null, pa
 
       return { title, description };
     }
+  }
+
+  // 1B. Chuẩn hóa Loại hình cụ thể kết hợp Quận/Huyện/Tỉnh Thành (VD: Bán nhà mặt phố Quận Ba Đình)
+  if (!isGeneral && hasSpecificLocation && !hasSpecificFacet) {
+    const currentDemand = isRent ? 'rent' : 'sale';
+    const rawType = PROPERTY_TAXONOMY[currentDemand]?.types[type]?.name || (isRent ? 'Cho thuê bất động sản' : 'Bán bất động sản');
+    const act = isRent ? 'Cho Thuê' : 'Bán';
+    const rawTypeTitle = rawType.replace(/^(?:Bán|Cho thuê)\s+/i, '');
+    const typeWords = rawTypeTitle.split(' ').map(w => w ? (w.charAt(0).toUpperCase() + w.slice(1)) : '').join(' ');
+    
+    let title = '';
+    if (district) {
+      const c1 = `${act} ${typeWords} ${district}, ${city} ${year}${pageStr} | Kênh Nhà Đất 24H`;
+      title = c1.length <= 65 ? c1 : `${act} ${typeWords} ${district} ${year}${pageStr} | Kênh Nhà Đất 24H`;
+    } else if (city) {
+      title = `${act} ${typeWords} tại ${city} ${year}${pageStr} | Kênh Nhà Đất 24H`;
+    } else {
+      title = `${act} ${typeWords} Toàn Quốc ${year}${pageStr} | Kênh Nhà Đất 24H`;
+    }
+
+    const description = isRent
+      ? `Cho thuê ${rawTypeTitle.toLowerCase()} tại ${locFull} mới nhất ${year}${pageDescStr}. Đa dạng diện tích, vị trí đẹp, giá thuê tốt, chính chủ. Xem ngay trên Kênh Nhà Đất 24H!`
+      : `Mua bán ${rawTypeTitle.toLowerCase()} tại ${locFull} mới nhất ${year}${pageDescStr}. Vị trí đắc địa, kinh doanh sầm uất, sổ đỏ chính chủ, giá tốt. Xem ngay trên Kênh Nhà Đất 24H!`;
+
+    return { title, description };
   }
 
   // 2. ƯU TIÊN TIÊU ĐỀ CHO CÁC URL LỌC SÂU NHIỀU TIÊU CHÍ (Faceted Filters: giá, diện tích, dự án, đường...)

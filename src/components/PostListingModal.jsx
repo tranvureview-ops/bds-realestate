@@ -117,21 +117,31 @@ const DESCRIPTION_TEMPLATES = {
 - Giá thuê hợp lý, hợp đồng dài hạn, thanh toán linh hoạt theo kỳ 3 - 6 tháng.`
 };
 
-// Hàm chuyển đổi số tiền thành chữ Tiếng Việt
+// Hàm chuyển đổi số tiền thành chữ Tiếng Việt chuẩn xác (không làm tròn số thập phân)
 export function formatPriceToVietnameseText(num, isRent = false) {
   if (!num || num <= 0) return 'Thỏa thuận';
   let text = '';
   if (num >= 1000000000) {
-    const ty = Math.floor(num / 1000000000);
-    const trieu = Math.round((num % 1000000000) / 1000000);
-    const tyText = ty >= 1000 ? ty.toLocaleString('vi-VN') : ty;
-    text = trieu > 0 ? `${tyText} tỷ ${trieu} triệu` : `${tyText} tỷ`;
+    if (isRent) {
+      const tyExact = +(num / 1000000000).toFixed(2);
+      const tyStr = tyExact >= 1000 ? tyExact.toLocaleString('vi-VN') : tyExact.toString().replace('.', ',');
+      text = `${tyStr} tỷ`;
+    } else {
+      const ty = Math.floor(num / 1000000000);
+      const remainder = num % 1000000000;
+      const trieu = +(remainder / 1000000).toFixed(2);
+      const tyText = ty >= 1000 ? ty.toLocaleString('vi-VN') : ty;
+      const trieuStr = trieu.toString().replace('.', ',');
+      text = trieu > 0 ? `${tyText} tỷ ${trieuStr} triệu` : `${tyText} tỷ`;
+    }
   } else if (num >= 1000000) {
-    const trieu = Math.round(num / 1000000);
-    text = isRent ? `${trieu} tr` : `${trieu} triệu`;
+    const trieu = +(num / 1000000).toFixed(2);
+    const trieuStr = trieu.toString().replace('.', ',');
+    text = isRent ? `${trieuStr} tr` : `${trieuStr} triệu`;
   } else if (num >= 1000) {
     const nghin = +(num / 1000).toFixed(2);
-    text = `${nghin.toString().replace('.', ',')} nghìn`;
+    const nghinStr = nghin.toString().replace('.', ',');
+    text = `${nghinStr} nghìn`;
   } else {
     text = `${num.toLocaleString('vi-VN')} đ`;
   }
@@ -737,8 +747,9 @@ export default function PostListingModal({ onClose, isEmbedded = false, editProp
 
       if (newPrice !== '' && !isNaN(numPrice) && numPrice > 0) {
         if (newPriceType === 'm2') {
-          const perM2Text = (numPrice >= 1e6 ? (numPrice / 1e6).toFixed(1) + ' tr' : Math.round(numPrice / 1000) + 'k') + '/m²';
-          pPerM2 = isRentMode ? `${perM2Text}/tháng` : perM2Text;
+          const perM2Val = +(numPrice >= 1e6 ? +(numPrice / 1e6).toFixed(2) : Math.round(numPrice / 1000));
+          const perM2Str = numPrice >= 1e6 ? `${perM2Val.toString().replace('.', ',')} tr/m²` : `${perM2Val}k/m²`;
+          pPerM2 = isRentMode ? `${perM2Str}/tháng` : perM2Str;
           if (numArea > 0) {
             const totalPrice = numPrice * numArea;
             pDisplay = formatPriceToVietnameseText(totalPrice, isRentMode);
@@ -750,8 +761,9 @@ export default function PostListingModal({ onClose, isEmbedded = false, editProp
           pDisplay = formatPriceToVietnameseText(numPrice, isRentMode);
           if (numArea > 0) {
             const m2Val = numPrice / numArea;
-            const perM2 = (m2Val >= 1e6 ? (m2Val / 1e6).toFixed(1) + ' tr' : Math.round(m2Val / 1000) + 'k') + '/m²';
-            pPerM2 = isRentMode ? `${perM2}/tháng` : perM2;
+            const perM2Val = +(m2Val >= 1e6 ? +(m2Val / 1e6).toFixed(2) : Math.round(m2Val / 1000));
+            const perM2Str = m2Val >= 1e6 ? `${perM2Val.toString().replace('.', ',')} tr/m²` : `${perM2Val}k/m²`;
+            pPerM2 = isRentMode ? `${perM2Str}/tháng` : perM2Str;
           }
         }
       }

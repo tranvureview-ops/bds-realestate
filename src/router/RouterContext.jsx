@@ -71,6 +71,8 @@ function RouterProviderWrapper({ children }) {
     currentPath: pathname,
     searchParams: null,
     navigate,
+    push: navigate,
+    replace: navigate,
     goBack,
     matchRoute
   };
@@ -118,6 +120,8 @@ export const useRouter = () => {
       pathname: '/',
       searchParams: null,
       navigate: () => {},
+      push: () => {},
+      replace: () => {},
       goBack: () => {},
       matchRoute: () => ({ match: false, params: {} })
     };

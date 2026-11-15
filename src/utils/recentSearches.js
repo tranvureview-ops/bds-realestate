@@ -29,10 +29,37 @@ export const DEFAULT_RECENT_SEARCHES = [
   }
 ];
 
+export const DEFAULT_RENT_RECENT_SEARCHES = [
+  {
+    id: 'rec-rent-default-1',
+    title: 'Cho thuê nhà đất tại Đà Nẵng',
+    subtitle: 'Đà Nẵng · Toàn bộ khu vực',
+    url: '/nha-dat-cho-thue-da-nang',
+    filters: { demand: 'rent', city: 'Đà Nẵng' },
+    keyword: ''
+  },
+  {
+    id: 'rec-rent-default-2',
+    title: 'Cho thuê căn hộ chung cư tại TP. Hồ Chí Minh',
+    subtitle: 'TP. Hồ Chí Minh · Căn hộ chung cư',
+    url: '/cho-thue-can-ho-chung-cu-ho-chi-minh',
+    filters: { demand: 'rent', city: 'TP. Hồ Chí Minh', propertyType: 'apartment' },
+    keyword: ''
+  },
+  {
+    id: 'rec-rent-default-3',
+    title: 'Cho thuê phòng trọ tại Hà Nội',
+    subtitle: 'Hà Nội · Phòng trọ, nhà trọ',
+    url: '/cho-thue-phong-tro-ha-noi',
+    filters: { demand: 'rent', city: 'Hà Nội', propertyType: 'room' },
+    keyword: ''
+  }
+];
+
 const STORAGE_KEY = 'bds_recent_searches';
 const CLEARED_KEY = 'bds_recent_searches_cleared';
 
-export const getRecentSearches = () => {
+export const getRecentSearches = (demand = 'sale') => {
   if (typeof window === 'undefined') return [];
   try {
     const isCleared = localStorage.getItem(CLEARED_KEY) === 'true';
@@ -40,7 +67,11 @@ export const getRecentSearches = () => {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed)) {
+          return demand === 'rent'
+            ? parsed.filter(item => item.filters?.demand === 'rent' || /thue/i.test(item.title || ''))
+            : parsed.filter(item => item.filters?.demand !== 'rent');
+        }
       }
       return [];
     }
@@ -48,9 +79,14 @@ export const getRecentSearches = () => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored !== null) {
       const parsed = JSON.parse(stored);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        const filtered = demand === 'rent'
+          ? parsed.filter(item => item.filters?.demand === 'rent' || /thue/i.test(item.title || ''))
+          : parsed.filter(item => item.filters?.demand !== 'rent');
+        if (filtered.length > 0) return filtered;
+      }
     }
-    return DEFAULT_RECENT_SEARCHES;
+    return demand === 'rent' ? DEFAULT_RENT_RECENT_SEARCHES : DEFAULT_RECENT_SEARCHES;
   } catch {
     return [];
   }
@@ -113,14 +149,14 @@ export const clearAllRecentSearches = () => {
   }
 };
 
-export function useRecentSearches() {
+export function useRecentSearches(demand = 'sale') {
   const [recentSearches, setRecentSearches] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
   const refresh = useCallback(() => {
-    setRecentSearches(getRecentSearches());
+    setRecentSearches(getRecentSearches(demand));
     setIsLoaded(true);
-  }, []);
+  }, [demand]);
 
   useEffect(() => {
     refresh();

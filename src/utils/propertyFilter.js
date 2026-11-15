@@ -15,6 +15,34 @@ export function removeAccents(str) {
 }
 
 /**
+ * Kiểm tra khớp từ khóa đa token (Multi-token Full-text Search)
+ * Khớp chuẩn xác theo cụm từ hoặc toàn bộ các từ khóa chính
+ */
+export function matchKeywordTokens(searchTargetClean, kwClean, searchTargetRaw = '', kwRaw = '') {
+  if (!kwClean) return true;
+  // 1. Khớp chính xác cụm từ nguyên văn
+  if (searchTargetRaw && kwRaw && searchTargetRaw.includes(kwRaw)) return true;
+  if (searchTargetClean.includes(kwClean)) return true;
+
+  // 2. Tách từ khóa thành các token có ý nghĩa (bỏ stop words thông dụng)
+  const stopWords = new Set(['tai', 'o', 'va', 'cho', 'cua', 'khu', 'vuc', 'trong', 'cac', 'vd']);
+  const tokens = kwClean
+    .split(/\s+/)
+    .map(t => t.trim())
+    .filter(t => t.length > 1 && !stopWords.has(t));
+
+  if (tokens.length === 0) return true;
+
+  // 3. Kiểm tra từng token
+  const matchedCount = tokens.filter(token => searchTargetClean.includes(token)).length;
+
+  if (tokens.length <= 2) {
+    return matchedCount === tokens.length;
+  }
+  return matchedCount >= Math.ceil(tokens.length * 0.75);
+}
+
+/**
  * Utility hàm lọc danh sách Nhà đất chuẩn hóa dùng chung
  * Đảm bảo tính nhất quán giữa ListingGrid, SaleListingsPage, RentListingsPage, HomePage
  */
@@ -22,13 +50,25 @@ export function filterProperties(properties = [], filters = {}) {
   if (!Array.isArray(properties)) return [];
   if (!filters || typeof filters !== 'object') return properties;
 
+  // Tiền xử lý: trích xuất nhanh nhu cầu (sale/rent), khoảng giá hoặc loại hình nếu người dùng gõ vào ô keyword
+  let activeFilters = { ...filters };
+  if (filters.keyword && typeof filters.keyword === 'string') {
+    const rawClean = removeAccents(filters.keyword).toLowerCase();
+    const explicitDemand = /\b(cho thue|thue|can thue|muon)\b/.test(rawClean)
+      ? 'rent'
+      : (/\b(ban|mua ban|can mua|mua)\b/.test(rawClean) ? 'sale' : null);
+    if (explicitDemand) {
+      activeFilters.demand = explicitDemand;
+    }
+  }
+
   return properties.filter(prop => {
     // 1. Trạng thái & Hạn tin
     if (prop.status !== 'active') return false;
     if (prop.expiresAt && Date.now() >= new Date(prop.expiresAt).getTime()) return false;
 
     // 2. Nhu cầu (Demand: 'sale' | 'rent')
-    if (filters.demand && filters.demand !== 'all' && prop.demand !== filters.demand) {
+    if (activeFilters.demand && activeFilters.demand !== 'all' && prop.demand !== activeFilters.demand) {
       return false;
     }
 
@@ -87,18 +127,18 @@ export function filterProperties(properties = [], filters = {}) {
     }
 
     // 5.1 Phường / Xã (Ward)
-    if (filters.ward && filters.ward.trim() && (prop.ward || prop.address)) {
-      const filterWardClean = removeAccents(filters.ward.replace(/^(phường|xã|thị trấn)\s+/i, ''));
-      const propWardClean = removeAccents((prop.ward || '') + ' ' + (prop.address || ''));
+    if (filters.ward && filters.ward.trim()) {
+      const filterWardClean = removeAccents(filters.ward.replace(/^(?:phường|xã|thị trấn)\s+/i, '')).toLowerCase().trim();
+      const propWardClean = removeAccents((prop.ward || '') + ' ' + (prop.address || '') + ' ' + (prop.title || '') + ' ' + (prop.description || '')).toLowerCase();
       if (!propWardClean.includes(filterWardClean)) {
         return false;
       }
     }
 
     // 5.2 Đường / Phố (Street)
-    if (filters.street && filters.street.trim() && (prop.street || prop.address)) {
-      const streetClean = removeAccents(filters.street.replace(/^(đường|phố|tuyến)\s+/i, ''));
-      const propAddressClean = removeAccents((prop.street || '') + ' ' + (prop.address || ''));
+    if (filters.street && filters.street.trim()) {
+      const streetClean = removeAccents(filters.street.replace(/^(?:đường|phố|tuyến)\s+/i, '')).toLowerCase().trim();
+      const propAddressClean = removeAccents((prop.street || '') + ' ' + (prop.address || '') + ' ' + (prop.title || '') + ' ' + (prop.description || '')).toLowerCase();
       if (!propAddressClean.includes(streetClean)) {
         return false;
       }
@@ -113,7 +153,7 @@ export function filterProperties(properties = [], filters = {}) {
       }
     }
 
-    // 6. Từ khóa (Keyword / Search Query)
+    // 6. Từ khóa (Keyword / Search Query) - Áp dụng Multi-token Full-text Search thông minh
     if (filters.keyword && filters.keyword.trim()) {
       const kw = filters.keyword.trim().toLowerCase();
       const kwClean = removeAccents(kw);
@@ -135,10 +175,9 @@ export function filterProperties(properties = [], filters = {}) {
 
       const searchTargetClean = removeAccents(searchTargetRaw);
 
-      const matchExact = searchTargetRaw.includes(kw);
-      const matchClean = searchTargetClean.includes(kwClean);
-
-      if (!matchExact && !matchClean) return false;
+      if (!matchKeywordTokens(searchTargetClean, kwClean, searchTargetRaw, kw)) {
+        return false;
+      }
     }
 
     // 7. Khoảng giá (Price)

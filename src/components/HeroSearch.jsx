@@ -8,7 +8,8 @@ import { formatPriceRangeText, formatAreaRangeText, buildSeoUrl } from '../utils
 import { removeAccents } from '../utils/propertyFilter';
 import { Link, useRouter } from '../router/RouterContext';
 import { getSearchQuerySuggestions, HighlightedQuery } from '../utils/searchQuerySuggestions';
-import { useRecentSearches } from '../utils/recentSearches';
+import { parseSearchQuery } from '../utils/searchQueryParser';
+import { useRecentSearches, DEFAULT_RENT_RECENT_SEARCHES, DEFAULT_RECENT_SEARCHES } from '../utils/recentSearches';
 import PropertyTypeSelector from './PropertyTypeSelector';
 import PriceRangeSelector from './PriceRangeSelector';
 import AreaRangeSelector from './AreaRangeSelector';
@@ -48,6 +49,7 @@ const DIRECTION_OPTIONS = [
 
 export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 }) {
   const { navigate } = useRouter();
+  const currentDemand = filters?.demand === 'rent' ? 'rent' : 'sale';
   const [searchTerm, setSearchTerm] = useState(filters?.keyword || '');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMergerMode, setIsMergerMode] = useState(false);
@@ -65,8 +67,8 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
     useMergedAddress: Boolean(filters?.useMergedAddress)
   });
 
-  // Recent searches stored in localStorage via useRecentSearches
-  const { recentSearches, addSearch, removeSearch, clearSearches } = useRecentSearches();
+  // Recent searches stored in localStorage via useRecentSearches (khớp theo tab Mua bán / Cho thuê)
+  const { recentSearches, addSearch, removeSearch, clearSearches } = useRecentSearches(currentDemand);
 
   const containerRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -178,6 +180,7 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
       city: targetFilters.city || null,
       district: targetFilters.district || null,
       ward: targetFilters.ward || null,
+      street: targetFilters.street || null,
       project: targetFilters.project || null,
       priceRange: targetFilters.priceRange && targetFilters.priceRange !== 'all' ? targetFilters.priceRange : null,
       areaRange: targetFilters.areaRange && targetFilters.areaRange !== 'all' ? targetFilters.areaRange : null,
@@ -275,9 +278,6 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
     setOpenFilterMenu(null);
   };
 
-  // Current Demand
-  const currentDemand = filters?.demand === 'rent' ? 'rent' : 'sale';
-
   // Change Demand Tab
   const handleTabChange = (demandKey) => {
     setFilters(prev => ({
@@ -304,61 +304,112 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
 
   const handleSelectSuggestion = (sug) => {
     setIsDropdownOpen(false);
+    const updatedFilters = {
+      ...filters,
+      demand: sug.demand || filters.demand,
+      propertyType: (sug.propertyType && sug.propertyType !== 'all') ? sug.propertyType : filters.propertyType,
+      city: sug.city || filters.city,
+      district: sug.district || filters.district,
+      ward: sug.ward || filters.ward,
+      street: sug.street || filters.street,
+      project: sug.project || filters.project,
+      maxPrice: sug.maxPrice !== undefined ? sug.maxPrice : filters.maxPrice,
+      minPrice: sug.minPrice !== undefined ? sug.minPrice : filters.minPrice,
+      priceRange: (sug.priceRange && sug.priceRange !== 'all') ? sug.priceRange : filters.priceRange,
+      keyword: sug.keyword || ''
+    };
+    setFilters(updatedFilters);
+    if (sug.keyword !== undefined) {
+      setSearchTerm(sug.keyword);
+    }
+
     addSearch({
       title: sug.query,
       subtitle: sug.badge || '',
       url: sug.url,
-      filters: {
-        demand: sug.demand || filters.demand,
-        propertyType: sug.propertyType || filters.propertyType,
-        city: sug.city || filters.city,
-        district: sug.district || filters.district,
-        ward: sug.ward || filters.ward
-      },
+      filters: updatedFilters,
       keyword: sug.keyword || ''
     });
+
     if (sug.url) {
       navigate(sug.url);
     } else {
-      executeSearchNavigation({
-        ...filters,
-        demand: sug.demand || filters.demand,
-        propertyType: sug.propertyType || filters.propertyType,
-        city: sug.city || filters.city,
-        district: sug.district || filters.district,
-        ward: sug.ward || filters.ward
-      }, sug.keyword || '');
+      executeSearchNavigation(updatedFilters, sug.keyword || '');
     }
   };
 
-  // Handle Search Submission (Chuẩn Batdongsan.com.vn: Điều hướng sang trang kết quả)
+  // Handle Search Submission (Chuẩn Batdongsan.com.vn: Tự động trích xuất intent & điều hướng trang kết quả)
   const handleSearchSubmit = (e) => {
     if (e) e.preventDefault();
     const cleanKw = searchTerm.trim();
-    const updatedFilters = {
-      ...filters,
-      keyword: cleanKw
-    };
+    if (!cleanKw) {
+      executeSearchNavigation(filters, '');
+      return;
+    }
+
+    // Phân tích câu truy vấn tìm kiếm tự nhiên chuẩn Batdongsan
+    const parsed = parseSearchQuery(cleanKw, currentDemand, filters?.city);
+
+    let updatedFilters = { ...filters };
+    if (parsed.hasIntent) {
+      updatedFilters = {
+        ...filters,
+        demand: parsed.demand || currentDemand,
+        propertyType: (parsed.propertyType && parsed.propertyType !== 'all') ? parsed.propertyType : filters.propertyType,
+        city: parsed.city || filters.city,
+        district: parsed.district || filters.district,
+        ward: parsed.ward || filters.ward,
+        street: parsed.street || filters.street,
+        project: parsed.project || filters.project,
+        minPrice: parsed.minPrice !== null ? parsed.minPrice : filters.minPrice,
+        maxPrice: parsed.maxPrice !== null ? parsed.maxPrice : filters.maxPrice,
+        priceRange: (parsed.priceRange && parsed.priceRange !== 'all') ? parsed.priceRange : filters.priceRange,
+        minArea: parsed.minArea !== null ? parsed.minArea : filters.minArea,
+        maxArea: parsed.maxArea !== null ? parsed.maxArea : filters.maxArea,
+        areaRange: (parsed.areaRange && parsed.areaRange !== 'all') ? parsed.areaRange : filters.areaRange,
+        bedroom: (parsed.bedroom && parsed.bedroom !== 'all') ? parsed.bedroom : filters.bedroom,
+        direction: (parsed.direction && parsed.direction !== 'all') ? parsed.direction : filters.direction,
+        keyword: parsed.residualKeyword || ''
+      };
+    } else {
+      updatedFilters.keyword = cleanKw;
+    }
+
     setFilters(updatedFilters);
 
     // Save recent search
-    if (cleanKw || filters.city || (filters.propertyType && filters.propertyType !== 'all')) {
-      const locationPart = filters.district ? `${filters.district}, ${filters.city}` : (filters.city || 'Toàn quốc');
-      const typePart = filters.propertyType && filters.propertyType !== 'all' ? (PROPERTY_TYPES.find(p => p.id === filters.propertyType)?.name || '') : '';
-      addSearch({
-        title: cleanKw || (typePart ? `${typePart} tại ${locationPart}` : (filters.demand === 'rent' ? 'Cho thuê BĐS' : 'Mua bán BĐS')),
-        subtitle: [locationPart, typePart, filters.priceRange && filters.priceRange !== 'all' ? (filters.demand === 'rent' ? RENT_PRICE_PRESETS.find(p => p.value === filters.priceRange)?.label : SALE_PRICE_PRESETS.find(p => p.value === filters.priceRange)?.label) : null].filter(Boolean).join(' · '),
-        filters: updatedFilters,
-        keyword: cleanKw
-      });
-    }
+    addSearch({
+      title: cleanKw,
+      subtitle: parsed.hasIntent ? 'Tìm kiếm thông minh' : '',
+      url: parsed.targetUrl,
+      filters: updatedFilters,
+      keyword: updatedFilters.keyword
+    });
 
-    // Điều hướng trực tiếp sang trang danh sách kết quả chuyên biệt
-    executeSearchNavigation(updatedFilters, cleanKw);
+    setIsDropdownOpen(false);
+    if (parsed.targetUrl) {
+      navigate(parsed.targetUrl);
+    } else {
+      executeSearchNavigation(updatedFilters, updatedFilters.keyword);
+    }
   };
 
   // Handle Selecting a Recent Search Item (Điều hướng sang trang kết quả)
   const handleSelectRecentSearch = (item) => {
+    let targetUrl = item.url;
+    if (item.title && /phong tro/i.test(removeAccents(item.title))) {
+      if (!targetUrl || targetUrl === '/nha-dat-cho-thue-da-nang' || targetUrl.startsWith('/nha-dat-cho-thue')) {
+        const c = /da nang/i.test(removeAccents(item.title)) ? 'Đà Nẵng' : (/ha noi/i.test(removeAccents(item.title)) ? 'Hà Nội' : (/ho chi minh/i.test(removeAccents(item.title)) ? 'TP. Hồ Chí Minh' : (item.city || '')));
+        targetUrl = buildSeoUrl({ demand: 'rent', propertyType: 'room', city: c || null });
+      }
+    }
+
+    if (targetUrl) {
+      setIsDropdownOpen(false);
+      navigate(targetUrl);
+      return;
+    }
+
     const updatedFilters = {
       ...filters,
       ...(item.filters || {}),
@@ -623,7 +674,7 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
 
                   {/* GỢI Ý TỪ KHÓA CHUẨN BATDONGSAN.COM.VN */}
                   {searchTerm.trim().length > 0 ? (
-                    <div className="p-2 sm:p-3">
+                    <div className="p-2 sm:p-3 max-h-[380px] overflow-y-auto">
                       <div className="space-y-0.5">
                         {suggestions.map((sug) => (
                           <div
@@ -631,11 +682,19 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                             onClick={() => handleSelectSuggestion(sug)}
                             className="px-3 py-2.5 rounded-xl hover:bg-slate-50 flex items-center gap-3 transition cursor-pointer group"
                           >
-                            <i className="fa-solid fa-magnifying-glass text-slate-400 text-xs sm:text-sm shrink-0 group-hover:text-red-600 transition-colors"></i>
-                            <div className="flex-1 min-w-0 flex items-center gap-2">
-                              <HighlightedQuery text={sug.query} highlight={searchTerm} />
+                            {sug.category === 'location' ? (
+                              <i className="fa-solid fa-location-dot text-[#e03c31] text-xs sm:text-sm shrink-0"></i>
+                            ) : sug.category === 'project' ? (
+                              <i className="fa-solid fa-building text-blue-600 text-xs sm:text-sm shrink-0"></i>
+                            ) : (
+                              <i className="fa-solid fa-magnifying-glass text-slate-400 text-xs sm:text-sm shrink-0 group-hover:text-red-600 transition-colors"></i>
+                            )}
+                            <div className="flex-1 min-w-0 flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-2 truncate">
+                                <HighlightedQuery text={sug.query} highlight={searchTerm} />
+                              </div>
                               {sug.badge && (
-                                <span className="text-[10px] bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-full shrink-0">
+                                <span className="text-[10px] bg-red-50 text-[#e03c31] border border-red-200 font-bold px-2 py-0.5 rounded-full shrink-0">
                                   {sug.badge}
                                 </span>
                               )}
@@ -647,7 +706,7 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                   ) : (
                     /* Khi chưa nhập từ khóa: Lịch sử tìm kiếm & Chọn địa danh chi tiết */
                     <div className="p-3 sm:p-4">
-                      {recentSearches.length > 0 && (
+                      {recentSearches.length > 0 ? (
                         <div className="mb-2">
                           <div className="flex justify-end mb-1 px-1">
                             <button
@@ -697,14 +756,43 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                             ))}
                           </div>
                         </div>
+                      ) : (
+                        <div className="mb-2">
+                          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-1 flex items-center gap-1.5">
+                            <i className="fa-solid fa-fire text-[#e03c31] text-[10px]"></i>
+                            <span>Tìm kiếm phổ biến ({currentDemand === 'rent' ? 'Cho thuê' : 'Mua bán'})</span>
+                          </div>
+                          <div className="space-y-1">
+                            {(currentDemand === 'rent' ? DEFAULT_RENT_RECENT_SEARCHES : DEFAULT_RECENT_SEARCHES).map((item) => (
+                              <div
+                                key={item.id}
+                                onClick={() => handleSelectRecentSearch(item)}
+                                className="p-2 sm:p-2.5 rounded-xl hover:bg-slate-50 flex items-center gap-3 transition cursor-pointer group"
+                              >
+                                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-red-50 text-[#e03c31] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                                  <i className="fa-solid fa-magnifying-glass text-xs sm:text-sm"></i>
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-red-600 transition truncate">
+                                    {item.title}
+                                  </div>
+                                  {item.subtitle && (
+                                    <div className="text-[11px] text-slate-400 truncate">
+                                      {item.subtitle}
+                                    </div>
+                                  )}
+                                </div>
+                                <i className="fa-solid fa-chevron-right text-slate-300 group-hover:text-slate-500 text-xs shrink-0 group-hover:translate-x-0.5 transition-transform"></i>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
                       )}
 
                       {/* Bottom Action: Chọn quận huyện, phường xã, đường phố, dự án */}
                       <div
                         onClick={handleOpenDetailedLocation}
-                        className={`p-2 sm:p-2.5 rounded-xl hover:bg-red-50/50 flex items-center gap-3 transition cursor-pointer group ${
-                          recentSearches.length > 0 ? 'mt-2 pt-2.5 border-t border-slate-100' : ''
-                        }`}
+                        className="mt-2 pt-2.5 border-t border-slate-100 p-2 sm:p-2.5 rounded-xl hover:bg-red-50/50 flex items-center gap-3 transition cursor-pointer group"
                       >
                         <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#c93026] text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
                           <i className="fa-solid fa-sliders text-xs"></i>

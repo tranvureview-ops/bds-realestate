@@ -311,9 +311,20 @@ export const normalizePropertyExpiration = (p) => {
   // Chuẩn hóa tiêu đề: Chữ cái đầu tiên in hoa, các chữ sau in thường (Sentence Case)
   const title = p.title ? formatSentenceCase(p.title) : p.title;
 
+  // Chuẩn hóa hiển thị giá chính xác (tránh làm tròn các mức giá thuê lẻ như 16.5tr thành 17tr)
+  let priceDisplay = p.priceDisplay;
+  if (p.demand === 'rent' && p.price && typeof p.price === 'number' && p.price % 1000000 !== 0) {
+    if (priceDisplay && (priceDisplay.includes('tr/tháng') || priceDisplay.includes('triệu/tháng'))) {
+      const trieuExact = +(p.price / 1000000).toFixed(2);
+      const trieuStr = trieuExact.toString().replace('.', ',');
+      priceDisplay = `${trieuStr} tr/tháng`;
+    }
+  }
+
   return {
     ...p,
     title,
+    priceDisplay,
     listingDays,
     expiresAt,
     status,

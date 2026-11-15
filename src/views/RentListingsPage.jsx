@@ -548,6 +548,16 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
       }
       return 'Cho Thuê Nhà Đất Toàn Quốc Năm 2026: Giá Rẻ, Chính Chủ, Xác Thực 100%';
     }
+
+    // Khi có loại tin cụ thể kết hợp với Quận/Huyện
+    if (currentCleanTaxonomy?.district) {
+      const locParts = [];
+      if (currentCleanTaxonomy?.ward) locParts.push(currentCleanTaxonomy.ward);
+      locParts.push(currentCleanTaxonomy.district);
+      const rawType = (currentCleanTaxonomy.title || '').split(' tại ')[0].trim() || 'Cho thuê bất động sản';
+      return `${rawType} tại ${locParts.join(', ')}`;
+    }
+
     return displayTitle;
   }, [currentCleanTaxonomy, displayTitle]);
 
