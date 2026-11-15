@@ -101,6 +101,32 @@ export const KNOWN_WARD_STREETS = {
   'Phường Hòa An': 'Nguyễn Công Hoan, Yên Thế'
 };
 
+
+export const getSubUnitLabel = (districtName, wards = []) => {
+  if (!districtName) return 'Phường';
+  const lower = districtName.toLowerCase().trim();
+
+  // 1. Nếu là Huyện -> 100% là Xã
+  if (lower.startsWith('huyện') || lower.includes('huyện ')) {
+    return 'Xã';
+  }
+
+  // 2. Nếu là Quận -> 100% là Phường
+  if (lower.startsWith('quận') || lower.includes('quận ')) {
+    return 'Phường';
+  }
+
+  // 3. Nếu là Thị xã hoặc Thành phố thuộc tỉnh:
+  if (Array.isArray(wards) && wards.length > 0) {
+    const hasXa = wards.some(w => w.toLowerCase().startsWith('xã') || w.toLowerCase().includes('xã '));
+    const hasPhuong = wards.some(w => w.toLowerCase().startsWith('phường') || w.toLowerCase().includes('phường '));
+    if (hasXa && hasPhuong) return 'Xã, Phường';
+    if (hasXa && !hasPhuong) return 'Xã';
+  }
+
+  return 'Phường';
+};
+
 export const buildWardBenchmarksForDistrict = (districtObj, baseRow = null, isRent = false) => {
   if (!districtObj?.wards?.length) return null;
 
@@ -1227,8 +1253,9 @@ export const buildSaleSeoContentData = ({
 
       if (wardRows && wardRows.length > 0) {
         benchmarks = wardRows;
-        tableHeaders = ['Phường / Xã', 'Nhà phố / Mặt tiền', 'Căn hộ chung cư', 'Đất nền thổ cư', 'Tuyến đường trọng điểm'];
-        priceTableTitle = `Khung Giá Nhà Đất Chi Tiết Từng Phường Tại ${effDistrict} 2026`;
+        const subUnit = getSubUnitLabel(effDistrict, districtObj?.wards);
+        tableHeaders = [subUnit === 'Xã' ? 'Xã / Thị trấn' : 'Phường / Xã', 'Nhà phố / Mặt tiền', 'Căn hộ chung cư', 'Đất nền thổ cư', 'Tuyến đường trọng điểm'];
+        priceTableTitle = `Khung Giá Nhà Đất Chi Tiết Từng ${subUnit} Tại ${effDistrict} 2026`;
       } else if (matchedRow) {
         const matchedIdx = benchmarks.indexOf(matchedRow);
         benchmarks = [
@@ -1300,8 +1327,9 @@ export const buildSaleSeoContentData = ({
 
     if (wardRows && wardRows.length > 0) {
       provBenchmarks = wardRows;
-      tableHeaders = ['Phường / Xã', 'Nhà phố / Mặt tiền', 'Căn hộ chung cư', 'Đất nền thổ cư', 'Tuyến đường trọng điểm'];
-      priceTableTitle = `Khung Giá Nhà Đất Chi Tiết Từng Phường Tại ${effDistrict} 2026`;
+      const subUnit = getSubUnitLabel(effDistrict, districtObj?.wards);
+      tableHeaders = [subUnit === 'Xã' ? 'Xã / Thị trấn' : 'Phường / Xã', 'Nhà phố / Mặt tiền', 'Căn hộ chung cư', 'Đất nền thổ cư', 'Tuyến đường trọng điểm'];
+      priceTableTitle = `Khung Giá Nhà Đất Chi Tiết Từng ${subUnit} Tại ${effDistrict} 2026`;
     }
   }
 
@@ -1907,7 +1935,9 @@ export const buildRentSeoContentData = ({
 
       if (wardRows && wardRows.length > 0) {
         benchmarks = wardRows;
-        tableHeaders = ['Phường / Xã', 'Căn hộ chung cư', 'Nhà riêng / Nguyên căn', 'Phòng trọ / CH Dịch vụ', 'Tuyến đường trọng điểm'];
+        const subUnit = getSubUnitLabel(effDistrict, districtObj?.wards);
+        tableHeaders = [subUnit === 'Xã' ? 'Xã / Thị trấn' : 'Phường / Xã', 'Căn hộ chung cư', 'Nhà riêng / Nguyên căn', 'Phòng trọ / CH Dịch vụ', 'Tuyến đường trọng điểm'];
+        priceTableTitle = `Khung Giá Cho Thuê Nhà Đất Chi Tiết Từng ${subUnit} Tại ${effDistrict} 2026`;
       }
     }
 
