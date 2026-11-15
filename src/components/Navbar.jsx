@@ -46,6 +46,67 @@ const formatSubMenuTitle = (parentItem, subItem) => {
   return toSentenceLabel(rawTitle);
 };
 
+const isRouteMatching = (targetPath, currentRoute) => {
+  if (!targetPath || !currentRoute) return false;
+  const cleanTarget = targetPath.split('?')[0].replace(/\/+$/, '') || '/';
+  const cleanCurrent = currentRoute.split('?')[0].replace(/\/+$/, '') || '/';
+
+  if (cleanCurrent === cleanTarget) return true;
+  if (cleanTarget !== '/' && (cleanCurrent.startsWith(`${cleanTarget}/`) || cleanCurrent.startsWith(`${cleanTarget}-`))) {
+    return true;
+  }
+  return false;
+};
+
+const isSubMenuActive = (sub, currentRoute) => {
+  if (!sub || !currentRoute) return false;
+  const cleanCurrent = currentRoute.split('?')[0].replace(/\/+$/, '') || '/';
+  const cleanSub = (sub.path || '').split('?')[0].replace(/\/+$/, '') || '/';
+
+  if (cleanCurrent === cleanSub) return true;
+  if (cleanSub !== '/' && (cleanCurrent.startsWith(`${cleanSub}-`) || cleanCurrent.startsWith(`${cleanSub}/`))) {
+    return true;
+  }
+  return false;
+};
+
+const checkIsMenuOrChildActive = (item, currentRoute) => {
+  if (!item || !currentRoute) return false;
+  const cleanCurrent = currentRoute.split('?')[0].replace(/\/+$/, '') || '/';
+  const cleanPath = (item.path || '').split('?')[0].replace(/\/+$/, '') || '/';
+
+  // 1. Khớp chính xác hoặc đường dẫn con trực tiếp
+  if (isRouteMatching(cleanPath, cleanCurrent)) return true;
+
+  // 2. Nhận diện nhóm Bán Nhà Đất (Sale)
+  const isSaleMenu = cleanPath === '/nha-dat-ban' || item.id === 'menu-sale' || item.title?.toLowerCase().includes('nhà đất bán') || item.title?.toLowerCase() === 'bán';
+  if (isSaleMenu) {
+    if (cleanCurrent === '/nha-dat-ban' || cleanCurrent.startsWith('/nha-dat-ban/') || cleanCurrent.startsWith('/nha-dat-ban-')) return true;
+    if (cleanCurrent.startsWith('/ban-')) return true;
+  }
+
+  // 3. Nhận diện nhóm Cho Thuê Nhà Đất (Rent)
+  const isRentMenu = cleanPath === '/nha-dat-cho-thue' || item.id === 'menu-rent' || item.title?.toLowerCase().includes('cho thuê') || item.title?.toLowerCase() === 'thuê';
+  if (isRentMenu) {
+    if (cleanCurrent === '/nha-dat-cho-thue' || cleanCurrent.startsWith('/nha-dat-cho-thue/') || cleanCurrent.startsWith('/nha-dat-cho-thue-')) return true;
+    if (cleanCurrent.startsWith('/cho-thue-')) return true;
+  }
+
+  // 4. Kiểm tra các menu con trong Dropdown
+  if (item.children && item.children.length > 0) {
+    if (item.children.some(child => isSubMenuActive(child, cleanCurrent))) {
+      return true;
+    }
+  }
+
+  // 5. Các module chức năng khác
+  if (cleanPath !== '/' && cleanCurrent.startsWith(`${cleanPath}/`)) {
+    return true;
+  }
+
+  return false;
+};
+
 export default function Navbar() {
   const { 
     currentUser, 
@@ -435,10 +496,18 @@ export default function Navbar() {
           <nav aria-label="Thanh điều hướng chính" suppressHydrationWarning className="hidden lg:flex items-center gap-0.5 xl:gap-1.5 font-semibold text-xs xl:text-[13.5px] text-slate-700 shrink-0">
             {menuItems.map(item => {
               const hasChildren = item.children && item.children.length > 0;
-              const isChildActive = hasChildren && item.children.some(c => c.path === currentRoute);
-              const isActive = currentRoute === item.path || isChildActive;
+              const isActive = checkIsMenuOrChildActive(item, currentRoute);
               const isDropdownOpen = activeDropdown === item.id;
               const isBlank = item.target === '_blank';
+
+              const isRent = item.path === '/nha-dat-cho-thue' || item.id === 'menu-rent' || item.title?.toLowerCase().includes('cho thuê');
+              const activeColorClass = isRent 
+                ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200/80 shadow-xs' 
+                : 'bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/80 shadow-xs';
+              const activeIconColor = isRent ? 'text-blue-700' : 'text-emerald-700';
+              const hoverColorClass = isRent
+                ? 'hover:bg-blue-50/60 text-slate-700 hover:text-blue-700'
+                : 'hover:bg-slate-50 text-slate-700 hover:text-emerald-700';
 
               if (hasChildren) {
                 return (
@@ -463,11 +532,11 @@ export default function Navbar() {
                       }}
                       className={`px-2 xl:px-3 py-1.5 xl:py-2 rounded-xl transition flex items-center gap-1 xl:gap-1.5 whitespace-nowrap ${
                         isActive 
-                          ? 'bg-emerald-50 text-emerald-700 font-bold' 
-                          : 'hover:bg-slate-50 text-slate-700 hover:text-emerald-700'
+                          ? activeColorClass 
+                          : hoverColorClass
                       }`}
                     >
-                      {item.icon && <i className={`${item.icon} text-xs ${isActive ? 'text-emerald-700' : 'text-slate-400'}`}></i>}
+                      {item.icon && <i className={`${item.icon} text-xs ${isActive ? activeIconColor : 'text-slate-400'}`}></i>}
                       <span>{toSentenceLabel(item.title)}</span>
                       {item.badge && (
                         <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${item.badgeColor || 'bg-red-600 text-white'}`}>
@@ -485,23 +554,26 @@ export default function Navbar() {
                             <span>Danh mục {toSentenceLabel(item.title).toLowerCase()}</span>
                           </div>
                           <div className={item.children.length > 6 ? "grid grid-cols-2 gap-1" : "space-y-1"}>
-                            {item.children.map(sub => (
-                              <Link
-                                key={sub.id}
-                                to={sub.path}
-                                onClick={() => {
-                                  setActiveDropdown(null);
-                                }}
-                                className={`px-2.5 py-2 rounded-xl flex items-center gap-2 transition font-medium ${
-                                  currentRoute === sub.path 
-                                    ? 'bg-emerald-50 text-emerald-700 font-bold' 
-                                    : 'hover:bg-slate-50 text-slate-700 hover:text-emerald-700'
-                                }`}
-                              >
-                                {sub.icon && <i className={`${sub.icon} text-slate-400 w-4 text-center text-xs shrink-0`}></i>}
-                                <span className="truncate">{formatSubMenuTitle(item, sub)}</span>
-                              </Link>
-                            ))}
+                            {item.children.map(sub => {
+                              const isSubActive = isSubMenuActive(sub, currentRoute);
+                              return (
+                                <Link
+                                  key={sub.id}
+                                  to={sub.path}
+                                  onClick={() => {
+                                    setActiveDropdown(null);
+                                  }}
+                                  className={`px-2.5 py-2 rounded-xl flex items-center gap-2 transition font-medium ${
+                                    isSubActive 
+                                      ? (isRent ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200/60' : 'bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/60') 
+                                      : (isRent ? 'hover:bg-blue-50/50 text-slate-700 hover:text-blue-700' : 'hover:bg-slate-50 text-slate-700 hover:text-emerald-700')
+                                  }`}
+                                >
+                                  {sub.icon && <i className={`${sub.icon} ${isSubActive ? (isRent ? 'text-blue-600' : 'text-emerald-600') : 'text-slate-400'} w-4 text-center text-xs shrink-0`}></i>}
+                                  <span className="truncate">{formatSubMenuTitle(item, sub)}</span>
+                                </Link>
+                              );
+                            })}
                           </div>
                         </div>
                       </div>
@@ -520,11 +592,11 @@ export default function Navbar() {
                   rel={isBlank ? 'noopener noreferrer' : undefined}
                   className={`px-2 xl:px-3 py-1.5 xl:py-2 rounded-xl transition flex items-center gap-1 xl:gap-1.5 whitespace-nowrap ${
                     isActive 
-                      ? 'bg-emerald-50 text-emerald-700 font-bold' 
-                      : 'hover:bg-slate-50 text-slate-700 hover:text-emerald-700'
+                      ? activeColorClass 
+                      : hoverColorClass
                   }`}
                 >
-                  {item.icon && <i className={`${item.icon} text-xs ${isActive ? 'text-emerald-700' : 'text-slate-400'}`}></i>}
+                  {item.icon && <i className={`${item.icon} text-xs ${isActive ? activeIconColor : 'text-slate-400'}`}></i>}
                   <span>{toSentenceLabel(item.title)}</span>
                   {item.badge && (
                     <span className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${item.badgeColor || 'bg-red-600 text-white'}`}>
@@ -964,8 +1036,14 @@ export default function Navbar() {
                 {menuItems.map(item => {
                   const hasChildren = item.children && item.children.length > 0;
                   const isExpanded = mobileExpanded[item.id];
-                  const isActive = currentRoute === item.path;
+                  const isActive = checkIsMenuOrChildActive(item, currentRoute);
                   const isBlank = item.target === '_blank';
+
+                  const isRent = item.path === '/nha-dat-cho-thue' || item.id === 'menu-rent' || item.title?.toLowerCase().includes('cho thuê');
+                  const activeMobileClass = isRent 
+                    ? 'bg-blue-50 text-blue-700 font-bold border border-blue-200/80 shadow-xs' 
+                    : 'bg-emerald-50 text-emerald-700 font-bold border border-emerald-200/80 shadow-xs';
+                  const activeMobileIcon = isRent ? 'text-blue-600' : 'text-emerald-600';
 
                   if (hasChildren) {
                     return (
@@ -973,31 +1051,36 @@ export default function Navbar() {
                         <button
                           onClick={() => toggleMobileSubmenu(item.id)}
                           className={`w-full px-3 py-2.5 rounded-xl flex items-center justify-between text-left font-semibold text-sm transition ${
-                            isActive ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-700 hover:bg-slate-50'
+                            isActive ? activeMobileClass : 'text-slate-700 hover:bg-slate-50'
                           }`}
                         >
                           <div className="flex items-center gap-2.5">
-                            {item.icon && <i className={`${item.icon} text-emerald-600 w-4 text-center`}></i>}
+                            {item.icon && <i className={`${item.icon} ${isActive ? activeMobileIcon : 'text-slate-400'} w-4 text-center`}></i>}
                             <span>{toSentenceLabel(item.title)}</span>
                           </div>
                           <i className={`fa-solid fa-chevron-down text-xs text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`}></i>
                         </button>
 
                         {isExpanded && (
-                          <div className="pl-6 pr-2 space-y-1 border-l-2 border-emerald-100 ml-4">
-                            {item.children.map(sub => (
-                              <Link
-                                key={sub.id}
-                                to={sub.path}
-                                onClick={() => setMobileMenuOpen(false)}
-                                className={`w-full px-3 py-2 rounded-lg flex items-center gap-2 text-xs font-medium transition ${
-                                  currentRoute === sub.path ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-600 hover:bg-slate-50'
-                                }`}
-                              >
-                                {sub.icon && <i className={`${sub.icon} text-slate-400 w-3 text-center`}></i>}
-                                <span>{formatSubMenuTitle(item, sub)}</span>
-                              </Link>
-                            ))}
+                          <div className={`pl-6 pr-2 space-y-1 border-l-2 ${isRent ? 'border-blue-200' : 'border-emerald-100'} ml-4`}>
+                            {item.children.map(sub => {
+                              const isSubActive = isSubMenuActive(sub, currentRoute);
+                              return (
+                                <Link
+                                  key={sub.id}
+                                  to={sub.path}
+                                  onClick={() => setMobileMenuOpen(false)}
+                                  className={`w-full px-3 py-2 rounded-lg flex items-center gap-2 text-xs font-medium transition ${
+                                    isSubActive 
+                                      ? (isRent ? 'bg-blue-50 text-blue-700 font-bold' : 'bg-emerald-50 text-emerald-700 font-bold') 
+                                      : 'text-slate-600 hover:bg-slate-50'
+                                  }`}
+                                >
+                                  {sub.icon && <i className={`${sub.icon} ${isSubActive ? (isRent ? 'text-blue-600' : 'text-emerald-600') : 'text-slate-400'} w-3 text-center`}></i>}
+                                  <span>{formatSubMenuTitle(item, sub)}</span>
+                                </Link>
+                              );
+                            })}
                           </div>
                         )}
                       </div>
@@ -1012,11 +1095,11 @@ export default function Navbar() {
                       rel={isBlank ? 'noopener noreferrer' : undefined}
                       onClick={() => setMobileMenuOpen(false)}
                       className={`w-full px-3 py-2.5 rounded-xl flex items-center justify-between font-semibold text-sm transition ${
-                        isActive ? 'bg-emerald-50 text-emerald-700 font-bold' : 'text-slate-700 hover:bg-slate-50'
+                        isActive ? activeMobileClass : 'text-slate-700 hover:bg-slate-50'
                       }`}
                     >
                       <div className="flex items-center gap-2.5">
-                        {item.icon && <i className={`${item.icon} text-emerald-600 w-4 text-center`}></i>}
+                        {item.icon && <i className={`${item.icon} ${isActive ? activeMobileIcon : 'text-slate-400'} w-4 text-center`}></i>}
                         <span>{toSentenceLabel(item.title)}</span>
                       </div>
                       {item.badge && (
