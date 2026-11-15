@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { Link } from '../router/RouterContext';
 import { buildRentSeoContentData } from '../data/seoCategoryContent';
+import { formatSentenceCase } from '../utils/permalink';
 
 export default function RentListingsSeoContent({ city = null, district = null, propertyType = null, taxonomyInfo = null }) {
   const [openFaq, setOpenFaq] = useState(null);
@@ -42,7 +43,7 @@ export default function RentListingsSeoContent({ city = null, district = null, p
               <i className="fa-solid fa-key"></i>
             </span>
             <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-              {seoData.marketTitle}
+              {formatSentenceCase(seoData.marketTitle)}
             </h2>
           </div>
           <p className="text-slate-600 text-xs sm:text-sm leading-relaxed font-normal">
@@ -59,7 +60,7 @@ export default function RentListingsSeoContent({ city = null, district = null, p
               <i className="fa-solid fa-money-bill-wave"></i>
             </span>
             <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-              {seoData.priceTableTitle ? seoData.priceTableTitle.replace(/\[(\d{4})\]/g, '$1') : ''}
+              {formatSentenceCase(seoData.priceTableTitle ? seoData.priceTableTitle.replace(/\[(\d{4})\]/g, '$1') : '')}
             </h2>
           </div>
           <div className="overflow-x-auto rounded-2xl border border-slate-200">
@@ -100,7 +101,7 @@ export default function RentListingsSeoContent({ city = null, district = null, p
               <i className="fa-solid fa-file-contract"></i>
             </span>
             <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-              {seoData.legalTitle}
+              {formatSentenceCase(seoData.legalTitle)}
             </h2>
           </div>
 
@@ -130,7 +131,7 @@ export default function RentListingsSeoContent({ city = null, district = null, p
               <i className="fa-solid fa-circle-question"></i>
             </span>
             <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-              {seoData.faqTitle}
+              {formatSentenceCase(seoData.faqTitle)}
             </h2>
           </div>
 
@@ -175,7 +176,7 @@ export default function RentListingsSeoContent({ city = null, district = null, p
                 <i className="fa-solid fa-layer-group"></i>
               </span>
               <h2 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-                {seoData.discoveryTitle}
+                {formatSentenceCase(seoData.discoveryTitle)}
               </h2>
             </div>
 

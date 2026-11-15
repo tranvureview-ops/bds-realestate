@@ -535,31 +535,35 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
 
   // Tiêu đề H1 chuyên nghiệp chuẩn SEO & Tối ưu chuyển đổi (CRO)
   const h1Title = useMemo(() => {
-    const isGeneralListing = !currentCleanTaxonomy?.propertyType || currentCleanTaxonomy.propertyType === 'all';
-    if (isGeneralListing) {
-      // Khi vào danh mục cấp Quận/Huyện/Phường: Tinh gọn tiêu đề, bỏ hậu tố năm/slogan để giao diện thoáng gọn
+    const rawH1 = (() => {
+      const isGeneralListing = !currentCleanTaxonomy?.propertyType || currentCleanTaxonomy.propertyType === 'all';
+      if (isGeneralListing) {
+        // Khi vào danh mục cấp Quận/Huyện/Phường: Tinh gọn tiêu đề, bỏ hậu tố năm/slogan để giao diện thoáng gọn
+        if (currentCleanTaxonomy?.district) {
+          const locParts = [];
+          if (currentCleanTaxonomy?.ward) locParts.push(currentCleanTaxonomy.ward);
+          locParts.push(currentCleanTaxonomy.district);
+          return `Cho thuê nhà đất tại ${locParts.join(', ')}`;
+        }
+        if (currentCleanTaxonomy?.city) {
+          return `Cho thuê nhà đất tại ${currentCleanTaxonomy.city} năm 2026: giá rẻ, chính chủ, xác thực 100%`;
+        }
+        return 'Cho thuê nhà đất toàn quốc năm 2026: giá rẻ, chính chủ, xác thực 100%';
+      }
+
+      // Khi có loại tin cụ thể kết hợp với Quận/Huyện
       if (currentCleanTaxonomy?.district) {
         const locParts = [];
-        if (currentCleanTaxonomy?.ward) locParts.push(capitalizeLocationEntities(currentCleanTaxonomy.ward));
-        locParts.push(capitalizeLocationEntities(currentCleanTaxonomy.district));
-        return `Cho thuê nhà đất tại ${locParts.join(', ')}`;
+        if (currentCleanTaxonomy?.ward) locParts.push(currentCleanTaxonomy.ward);
+        locParts.push(currentCleanTaxonomy.district);
+        const rawType = (currentCleanTaxonomy.title || '').split(' tại ')[0].trim() || 'Cho thuê bất động sản';
+        return `${rawType} tại ${locParts.join(', ')}`;
       }
-      if (currentCleanTaxonomy?.city) {
-        return `Cho Thuê Nhà Đất tại ${capitalizeLocationEntities(currentCleanTaxonomy.city)} Năm 2026: Giá Rẻ, Chính Chủ, Xác Thực 100%`;
-      }
-      return 'Cho Thuê Nhà Đất Toàn Quốc Năm 2026: Giá Rẻ, Chính Chủ, Xác Thực 100%';
-    }
 
-    // Khi có loại tin cụ thể kết hợp với Quận/Huyện
-    if (currentCleanTaxonomy?.district) {
-      const locParts = [];
-      if (currentCleanTaxonomy?.ward) locParts.push(capitalizeLocationEntities(currentCleanTaxonomy.ward));
-      locParts.push(capitalizeLocationEntities(currentCleanTaxonomy.district));
-      const rawType = (currentCleanTaxonomy.title || '').split(' tại ')[0].trim() || 'Cho thuê bất động sản';
-      return `${rawType} tại ${locParts.join(', ')}`;
-    }
+      return displayTitle;
+    })();
 
-    return capitalizeLocationEntities(displayTitle);
+    return formatSentenceCase(rawH1);
   }, [currentCleanTaxonomy, displayTitle]);
 
   return (

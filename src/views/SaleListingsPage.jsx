@@ -535,31 +535,35 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
 
   // Tiêu đề H1 chuyên nghiệp chuẩn SEO & Tối ưu chuyển đổi (CRO)
   const h1Title = useMemo(() => {
-    const isGeneralListing = !currentCleanTaxonomy?.propertyType || currentCleanTaxonomy.propertyType === 'all';
-    if (isGeneralListing) {
-      // Khi vào danh mục cấp Quận/Huyện/Phường: Tinh gọn tiêu đề, bỏ hậu tố năm/slogan để giao diện thoáng gọn
+    const rawH1 = (() => {
+      const isGeneralListing = !currentCleanTaxonomy?.propertyType || currentCleanTaxonomy.propertyType === 'all';
+      if (isGeneralListing) {
+        // Khi vào danh mục cấp Quận/Huyện/Phường: Tinh gọn tiêu đề, bỏ hậu tố năm/slogan để giao diện thoáng gọn
+        if (currentCleanTaxonomy?.district) {
+          const locParts = [];
+          if (currentCleanTaxonomy?.ward) locParts.push(currentCleanTaxonomy.ward);
+          locParts.push(currentCleanTaxonomy.district);
+          return `Mua bán nhà đất tại ${locParts.join(', ')}`;
+        }
+        if (currentCleanTaxonomy?.city) {
+          return `Mua bán nhà đất tại ${currentCleanTaxonomy.city} năm 2026: sổ đỏ chính chủ, giá tốt nhất`;
+        }
+        return 'Mua bán nhà đất toàn quốc năm 2026: sổ đỏ chính chủ, giá tốt nhất';
+      }
+
+      // Khi có loại tin cụ thể (nhà mặt phố, căn hộ, đất nền...) kết hợp với Quận/Huyện
       if (currentCleanTaxonomy?.district) {
         const locParts = [];
-        if (currentCleanTaxonomy?.ward) locParts.push(capitalizeLocationEntities(currentCleanTaxonomy.ward));
-        locParts.push(capitalizeLocationEntities(currentCleanTaxonomy.district));
-        return `Mua bán nhà đất tại ${locParts.join(', ')}`;
+        if (currentCleanTaxonomy?.ward) locParts.push(currentCleanTaxonomy.ward);
+        locParts.push(currentCleanTaxonomy.district);
+        const rawType = (currentCleanTaxonomy.title || '').split(' tại ')[0].trim() || 'Bán bất động sản';
+        return `${rawType} tại ${locParts.join(', ')}`;
       }
-      if (currentCleanTaxonomy?.city) {
-        return `Mua Bán Nhà Đất tại ${capitalizeLocationEntities(currentCleanTaxonomy.city)} Năm 2026: Sổ Đỏ Chính Chủ, Giá Tốt Nhất`;
-      }
-      return 'Mua Bán Nhà Đất Toàn Quốc Năm 2026: Sổ Đỏ Chính Chủ, Giá Tốt Nhất';
-    }
 
-    // Khi có loại tin cụ thể (nhà mặt phố, căn hộ, đất nền...) kết hợp với Quận/Huyện
-    if (currentCleanTaxonomy?.district) {
-      const locParts = [];
-      if (currentCleanTaxonomy?.ward) locParts.push(capitalizeLocationEntities(currentCleanTaxonomy.ward));
-      locParts.push(capitalizeLocationEntities(currentCleanTaxonomy.district));
-      const rawType = (currentCleanTaxonomy.title || '').split(' tại ')[0].trim() || 'Bán bất động sản';
-      return `${rawType} tại ${locParts.join(', ')}`;
-    }
+      return displayTitle;
+    })();
 
-    return capitalizeLocationEntities(displayTitle);
+    return formatSentenceCase(rawH1);
   }, [currentCleanTaxonomy, displayTitle]);
 
   return (

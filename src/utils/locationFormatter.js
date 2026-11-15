@@ -186,7 +186,8 @@ const LOCATION_STOP_WORDS = new Set([
   'phố', 'và', 'hoặc', 'cho', 'với', 'có', 'là', 'tiện', 'kinh', 'doanh', 'đang',
   'đẹp', 'ngay', 'khu', 'khung', 'bảng', 'thị', 'trường', 'diễn', 'biến', 'tiềm',
   'năng', 'phát', 'triển', 'đánh', 'xu', 'hướng', 'xây', 'tầng', 'thang', 'máy',
-  'chính', 'chủ', 'vị', 'trí', 'view', 'căn', 'hộ', 'nhà', 'đất'
+  'chính', 'chủ', 'vị', 'trí', 'view', 'căn', 'hộ', 'nhà', 'đất', 'chi', 'tiết',
+  'từng', 'các', 'thuộc', 'trong', 'ở', 'trên', 'của'
 ]);
 
 /**
@@ -198,7 +199,10 @@ export const capitalizeLocationEntities = (str) => {
   let res = str;
 
   // 1. Cấp hành chính: Quận, Huyện, Thị xã, Thành phố, Phường, Xã, Thị trấn
-  res = res.replace(/(?<=^|[^\p{L}\p{N}])(quận|huyện|thị xã|thành phố|tp\.?|phường|xã|thị trấn)\s+([\p{L}\p{N}]+(?:\s+[\p{L}\p{N}]+)*)/gui, (match, prefix, rest) => {
+  // Bỏ qua trường hợp theo sau là từ nối (ví dụ: từng phường tại Quận 1)
+  const adminRegex = /(?<=^|[^\p{L}\p{N}])(quận|huyện|thị xã|thành phố|tp\.?|phường|xã|thị trấn)\s+(?!(?:tại|thuộc|trong|ở|trên|của|và|hoặc|cho|với|nào|mỗi|từng|các)(?:[^\p{L}\p{N}]|$))([0-9]+|[\p{L}]+(?:\s+[\p{L}]+){0,3})/gui;
+
+  res = res.replace(adminRegex, (match, prefix, rest) => {
     let pCap = prefix.toLowerCase();
     if (pCap === 'quận') pCap = 'Quận';
     else if (pCap === 'huyện') pCap = 'Huyện';
@@ -211,14 +215,14 @@ export const capitalizeLocationEntities = (str) => {
 
     const words = rest.split(/\s+/);
     const capWords = [];
-    let insideName = true;
     for (const w of words) {
-      const wLower = w.toLowerCase();
-      if (LOCATION_STOP_WORDS.has(wLower) && capWords.length >= 1) insideName = false;
-      if (insideName) capWords.push(w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
-      else capWords.push(w);
+      if (LOCATION_STOP_WORDS.has(w.toLowerCase())) break;
+      capWords.push(w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
     }
-    return `${pCap} ${capWords.join(' ')}`;
+    if (capWords.length === 0) return match;
+    const remainingWords = words.slice(capWords.length);
+    const suffix = remainingWords.length > 0 ? ' ' + remainingWords.join(' ') : '';
+    return pCap + ' ' + capWords.join(' ') + suffix;
   });
 
   // 2. Bảng đối chiếu Khu Vực & Tỉnh Thành trực thuộc 63 tỉnh thành
@@ -264,8 +268,10 @@ export const capitalizeLocationEntities = (str) => {
 };
 
 /**
- * Chuẩn hóa câu / tiêu đề theo chuẩn Sentence Case chuyên nghiệp (Không làm mất chữ hoa của địa danh)
- * Ví dụ: "bán nhà mặt phố tại quận ba đình, hà nội" -> "Bán nhà mặt phố tại Quận Ba Đình, Hà Nội"
+ * Chuẩn hóa câu / tiêu đề theo chuẩn Sentence Case (Chỉ viết hoa đầu câu & viết hoa địa danh)
+ * Đúng chuẩn yêu cầu: "như cũ chỉ in Hoa địa danh, Hồ Chí Minh..."
+ * Ví dụ: "Câu Hỏi Thường Gặp Khi Mua Bán Căn Hộ Chung Cư Tại TP. Hồ Chí Minh"
+ *    -> "Câu hỏi thường gặp khi mua bán căn hộ chung cư tại TP. Hồ Chí Minh"
  * @param {string} str Chuỗi tiêu đề cần chuẩn hóa
  * @returns {string} Chuỗi sau chuẩn hóa
  */
@@ -274,15 +280,10 @@ export const formatSentenceCase = (str) => {
   const trimmed = str.trim();
   if (!trimmed) return '';
 
-  let text = trimmed;
-  // Nếu là chuỗi viết HOA TOÀN BỘ (ALL CAPS), hạ về chữ thường trước khi định dạng lại
-  if (text === text.toUpperCase() && /[A-ZÀ-Ỹ]/.test(text)) {
-    text = text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
-  }
+  // Đưa về Sentence Case: hạ thường toàn bộ rồi chỉ viết hoa chữ cái đầu tiên
+  const lower = trimmed.toLowerCase();
+  const text = lower.charAt(0).toUpperCase() + lower.slice(1);
 
-  // Luôn viết hoa chữ cái đầu tiên
-  text = text.charAt(0).toUpperCase() + text.slice(1);
-
-  // Viết hoa chuẩn cho các Khu Vực, Tỉnh Thành, Quận Huyện, Phường Xã, Tuyến Đường
+  // Chỉ in hoa địa danh, đơn vị hành chính và danh từ riêng
   return capitalizeLocationEntities(text);
 };

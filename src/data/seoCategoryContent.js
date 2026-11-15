@@ -7,7 +7,7 @@
  */
 
 import { VIETNAM_ADMINISTRATIVE_DATA } from './vietnamAdministrativeData.js';
-import { buildSeoUrl, formatPriceRangeText, formatAreaRangeText, capitalizeLocationEntities } from '../utils/permalink.js';
+import { buildSeoUrl, formatPriceRangeText, formatAreaRangeText, capitalizeLocationEntities, formatSentenceCase } from '../utils/permalink.js';
 
 const ALL_TYPES = new Set(['', 'all', 'null', 'undefined']);
 
@@ -1231,19 +1231,19 @@ export const buildSaleSeoContentData = ({
       : `Câu Hỏi Thường Gặp Khi Mua Bán ${profile.label}${isSpecificCity ? ` Tại ${cityDisplay}` : ''}`;
 
     return {
-      marketTitle,
+      marketTitle: formatSentenceCase(marketTitle),
       marketDesc: cityIntro,
-      priceTableTitle,
+      priceTableTitle: formatSentenceCase(priceTableTitle),
       tableHeaders: [locHeader, ...profile.tableCols],
       benchmarks,
       priceFootnote: `* Bảng giá ${profile.shortLabel} mang tính tham khảo thực tế đầu năm 2026, đơn giá có thể chênh lệch tùy dự án, vị trí tầng/hướng, hiện trạng nội thất và pháp lý sổ hồng.`,
-      legalTitle,
+      legalTitle: formatSentenceCase(legalTitle),
       legalSteps: profile.legalSteps,
-      guidesTitle: `Cẩm Nang Chuyên Sâu & Hướng Dẫn Mua ${profile.label} An Toàn`,
+      guidesTitle: formatSentenceCase(`Cẩm nang chuyên sâu & hướng dẫn mua ${profile.label} an toàn`),
       guides: profile.guides,
-      faqTitle,
+      faqTitle: formatSentenceCase(faqTitle),
       faqs: [...facetFaqs, ...baseFaqs],
-      discoveryTitle: discovery.title,
+      discoveryTitle: formatSentenceCase(discovery.title),
       discoveryLinks: discovery.links
     };
   }
@@ -1285,21 +1285,21 @@ export const buildSaleSeoContentData = ({
     }
 
     return {
-      marketTitle: effDistrict
-        ? `Thị Trường Mua Bán Nhà Đất ${effDistrict}, ${cityDisplay} Năm 2026: Diễn Biến & Tiềm Năng Phát Triển`
-        : presetCity.marketTitle,
+      marketTitle: formatSentenceCase(effDistrict
+        ? `Thị trường mua bán nhà đất ${effDistrict}, ${cityDisplay} năm 2026: diễn biến & tiềm năng phát triển`
+        : presetCity.marketTitle),
       marketDesc: effDistrict
         ? `Thị trường bất động sản ${effDistrict}, ${cityDisplay} năm 2026 ghi nhận lực cầu mua an cư và đầu tư tăng trưởng tích cực nhờ quy hoạch mở rộng đô thị đồng bộ và hệ sinh thái tiện ích dịch vụ hoàn thiện. Các phân khúc đất nền thổ cư, nhà phố thương mại và căn hộ chung cư tại ${effDistrict} tiếp tục giữ vững thanh khoản tốt.`
         : presetCity.marketDesc,
-      priceTableTitle,
+      priceTableTitle: formatSentenceCase(priceTableTitle),
       tableHeaders,
       benchmarks,
       priceFootnote: '* Bảng giá mang tính chất tham khảo thực tế tại thời điểm đầu năm 2026, đơn giá có thể thay đổi tùy thuộc vào vị trí hẻm, mặt tiền và hiện trạng xây dựng công trình.',
-      legalTitle: `4 Bước Thẩm Định Pháp Lý Bắt Buộc Trước Khi Xuống Tiền Mua Nhà Đất${targetLocName ? ` Tại ${targetLocName}` : ''}`,
+      legalTitle: formatSentenceCase(`4 bước thẩm định pháp lý bắt buộc trước khi xuống tiền mua nhà đất${targetLocName ? ` tại ${targetLocName}` : ''}`),
       legalSteps: DEFAULT_LEGAL_STEPS(targetLocName || null),
-      guidesTitle: 'Cẩm Nang Tri Thức & Hướng Dẫn Mua Nhà An Toàn Từ Chuyên Gia',
+      guidesTitle: formatSentenceCase('Cẩm nang tri thức & hướng dẫn mua nhà an toàn từ chuyên gia'),
       guides: DEFAULT_GUIDES,
-      faqTitle: `Câu Hỏi Thường Gặp Khi Mua Bán Nhà Đất${targetLocName ? ` Tại ${targetLocName}` : ''}`,
+      faqTitle: formatSentenceCase(`Câu hỏi thường gặp khi mua bán nhà đất${targetLocName ? ` tại ${targetLocName}` : ''}`),
       faqs: effDistrict
         ? [
             {
@@ -1309,7 +1309,7 @@ export const buildSaleSeoContentData = ({
             ...presetCity.faqs.slice(1)
           ]
         : presetCity.faqs,
-      discoveryTitle: discovery.title,
+      discoveryTitle: formatSentenceCase(discovery.title),
       discoveryLinks: discovery.links
     };
   }
@@ -1351,24 +1351,24 @@ export const buildSaleSeoContentData = ({
   }
 
   return {
-    marketTitle: `Thị Trường Mua Bán Nhà Đất ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay} Năm 2026: Diễn Biến & Tiềm Năng Phát Triển`,
+    marketTitle: formatSentenceCase(`Thị trường mua bán nhà đất ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay} năm 2026: diễn biến & tiềm năng phát triển`),
     marketDesc: `Thị trường bất động sản ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay} năm 2026 ghi nhận bước chuyển mình tích cực nhờ hạ tầng giao thông kết nối liên vùng và hiệu lực của bộ ba Luật Đất đai 2024, Luật Nhà ở 2023 và Luật Kinh doanh Bất động sản 2023. Dòng tiền đầu tư tập trung vào phân khúc ở thực có sẵn sổ hồng tại trung tâm đô thị và khu vực phát triển công nghiệp, dịch vụ.`,
-    priceTableTitle,
+    priceTableTitle: formatSentenceCase(priceTableTitle),
     tableHeaders,
     benchmarks: provBenchmarks,
     priceFootnote: '* Bảng giá mang tính chất tham khảo thực tế tại thời điểm đầu năm 2026, đơn giá có thể thay đổi tùy thuộc vào vị trí hẻm, mặt tiền và hiện trạng xây dựng công trình.',
-    legalTitle: `4 Bước Thẩm Định Pháp Lý Bắt Buộc Trước Khi Mua Nhà Đất Tại ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay}`,
+    legalTitle: formatSentenceCase(`4 bước thẩm định pháp lý bắt buộc trước khi mua nhà đất tại ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay}`),
     legalSteps: DEFAULT_LEGAL_STEPS(effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay),
-    guidesTitle: 'Cẩm Nang Tri Thức & Hướng Dẫn Mua Nhà An Toàn Từ Chuyên Gia',
+    guidesTitle: formatSentenceCase('Cẩm nang tri thức & hướng dẫn mua nhà an toàn từ chuyên gia'),
     guides: DEFAULT_GUIDES,
-    faqTitle: `Câu Hỏi Thường Gặp Khi Mua Bán Nhà Đất Tại ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay}`,
+    faqTitle: formatSentenceCase(`Câu hỏi thường gặp khi mua bán nhà đất tại ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay}`),
     faqs: [
       { q: `Người mua nhà đất tại ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay} lần đầu cần kiểm tra những thủ tục pháp lý nào?`, a: `Kiểm tra bản gốc Sổ đỏ/Sổ hồng, tra cứu thông tin quy hoạch tại Chi nhánh Văn phòng Đăng ký Đất đai, xác minh ngăn chặn giao dịch UCHI trước khi ký hợp đồng đặt cọc.` },
       { q: `Thủ tục sang tên chuyển nhượng sổ đỏ tại ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay} nộp ở đâu?`, a: `Nộp tại Bộ phận Một cửa Chi nhánh Văn phòng Đăng ký Đất đai cấp quận/huyện/thị xã sau khi công chứng hợp đồng mua bán. Thời hạn giải quyết 10 - 15 ngày làm việc.` },
       { q: `Chi phí thuế và lệ phí khi mua bán nhà đất gồm những gì?`, a: `Gồm Thuế TNCN 2% (bên bán), Lệ phí trước bạ 0.5% (bên mua), phí thẩm định hồ sơ và lệ phí cấp đổi sổ mới (1 - 2 triệu đồng).` },
       { q: `Làm sao tìm được nhà đất chính chủ, giá tốt trên Kênh Nhà Đất 24H?`, a: `Sử dụng bộ lọc Quận/Huyện, khoảng giá, diện tích và bật bộ lọc 'Tin chính chủ / Đã xác thực'.` }
     ],
-    discoveryTitle: discovery.title,
+    discoveryTitle: formatSentenceCase(discovery.title),
     discoveryLinks: discovery.links
   };
 };
@@ -1913,18 +1913,18 @@ export const buildRentSeoContentData = ({
     }
 
     return {
-      marketTitle,
+      marketTitle: formatSentenceCase(marketTitle),
       marketDesc,
-      priceTableTitle,
+      priceTableTitle: formatSentenceCase(priceTableTitle),
       tableHeaders: [locHeader, ...(profile.tableCols || ['Căn hộ / Mặt bằng nhỏ', 'Phân khúc tiêu chuẩn', 'Diện tích lớn / Cao cấp', 'Khu vực sôi động'])],
       benchmarks,
-      legalTitle: profile.legalTitle || `4 Lưu Ý Pháp Lý Sống Còn Khi Ký Hợp Đồng ${profile.label}`,
+      legalTitle: formatSentenceCase(profile.legalTitle || `4 Lưu Ý Pháp Lý Sống Còn Khi Ký Hợp Đồng ${profile.label}`),
       legalSteps: profile.legalSteps || DEFAULT_RENT_LEGAL_STEPS,
-      faqTitle: facet.hasFacetFilters
+      faqTitle: formatSentenceCase(facet.hasFacetFilters
         ? `Câu Hỏi Thường Gặp Về ${profile.label}${facet.filterSuffix}`
-        : `Câu Hỏi Thường Gặp Về ${profile.label}${isSpecificCity ? ` Tại ${cityDisplay}` : ''}`,
+        : `Câu Hỏi Thường Gặp Về ${profile.label}${isSpecificCity ? ` Tại ${cityDisplay}` : ''}`),
       faqs: [...facetFaqs, ...baseFaqs],
-      discoveryTitle: discoveryLinks.title,
+      discoveryTitle: formatSentenceCase(discoveryLinks.title),
       discoveryLinks: discoveryLinks.links
     };
   }
@@ -1968,26 +1968,26 @@ export const buildRentSeoContentData = ({
     }
 
     return {
-      marketTitle: facet.hasFacetFilters
+      marketTitle: formatSentenceCase(facet.hasFacetFilters
         ? `Thị Trường Cho Thuê Nhà Đất ${locationLabel}${facet.filterSuffix} Năm 2026: Nhu Cầu & Kinh Nghiệm`
         : (effDistrict
             ? `Thị Trường Cho Thuê Nhà Đất ${effDistrict}, ${cityDisplay} Năm 2026: Nhu Cầu & Kinh Nghiệm`
-            : presetGeneral.marketTitle),
+            : presetGeneral.marketTitle)),
       marketDesc: facet.hasFacetFilters
         ? `Năm 2026, nhu cầu thuê nhà đất ${locationLabel} với ${facet.filterParts.join(', ')} tăng trưởng ổn định. Người thuê cần khảo sát nhiều vị trí, nắm rõ biểu phí dịch vụ và ký kết hợp đồng minh bạch.`
         : (effDistrict
             ? `Thị trường cho thuê nhà đất tại ${effDistrict}, ${cityDisplay} năm 2026 ghi nhận nguồn cầu dồi dào từ chuyên gia, người lao động và khách du lịch lưu trú. Các loại hình căn hộ du lịch, nhà riêng nguyên căn và phòng trọ tiện ích cao luôn đạt tỷ lệ lấp đầy ấn tượng.`
             : presetGeneral.marketDesc),
-      priceTableTitle,
+      priceTableTitle: formatSentenceCase(priceTableTitle),
       tableHeaders,
       benchmarks,
-      legalTitle: `4 Lưu Ý Pháp Lý Sống Còn Khi Ký Hợp Đồng Thuê Nhà Đất ${locationLabel}`,
+      legalTitle: formatSentenceCase(`4 Lưu Ý Pháp Lý Sống Còn Khi Ký Hợp Đồng Thuê Nhà Đất ${locationLabel}`),
       legalSteps: DEFAULT_RENT_LEGAL_STEPS,
-      faqTitle: facet.hasFacetFilters
+      faqTitle: formatSentenceCase(facet.hasFacetFilters
         ? `Câu Hỏi Thường Gặp Khi Thuê Nhà Đất ${locationLabel}${facet.filterSuffix}`
-        : `Câu Hỏi Thường Gặp Khi Thuê Nhà Đất${targetLocName ? ` Tại ${targetLocName}` : ''}`,
+        : `Câu Hỏi Thường Gặp Khi Thuê Nhà Đất${targetLocName ? ` Tại ${targetLocName}` : ''}`),
       faqs: [...facetFaqs, ...presetGeneral.faqs],
-      discoveryTitle: discoveryLinks.title,
+      discoveryTitle: formatSentenceCase(discoveryLinks.title),
       discoveryLinks: discoveryLinks.links
     };
   }
@@ -2011,19 +2011,19 @@ export const buildRentSeoContentData = ({
     : GENERAL_RENT_CITY_CONTENT.national.benchmarks;
 
   return {
-    marketTitle: `Thị Trường Cho Thuê Nhà Đất ${cityDisplay} Năm 2026: Nhu Cầu & Tỷ Suất Dòng Tiền`,
+    marketTitle: formatSentenceCase(`Thị Trường Cho Thuê Nhà Đất ${cityDisplay} Năm 2026: Nhu Cầu & Tỷ Suất Dòng Tiền`),
     marketDesc: `Thị trường bất động sản cho thuê tại ${cityDisplay} năm 2026 ghi nhận nhu cầu cao từ lực lượng lao động, chuyên gia doanh nghiệp và hộ gia đình trẻ tập trung quanh trung tâm đô thị và khu công nghiệp.`,
-    priceTableTitle: `Khung Giá Thuê Nhà Đất Chi Tiết Từng Quận/Huyện Tại ${cityDisplay} 2026`,
+    priceTableTitle: formatSentenceCase(`Khung Giá Thuê Nhà Đất Chi Tiết Từng Quận/Huyện Tại ${cityDisplay} 2026`),
     tableHeaders: ['Khu vực / Quận Huyện', 'Căn hộ chung cư', 'Nhà riêng / Nguyên căn', 'Phòng trọ / CH Dịch vụ', 'Khu vực sôi động'],
     benchmarks: provBenchmarks,
-    legalTitle: `4 Lưu Ý Pháp Lý Sống Còn Khi Ký Hợp Đồng Thuê Nhà Đất Tại ${cityDisplay}`,
+    legalTitle: formatSentenceCase(`4 Lưu Ý Pháp Lý Sống Còn Khi Ký Hợp Đồng Thuê Nhà Đất Tại ${cityDisplay}`),
     legalSteps: DEFAULT_RENT_LEGAL_STEPS,
-    faqTitle: `Câu Hỏi Thường Gặp Khi Thuê Nhà Đất Tại ${cityDisplay}`,
+    faqTitle: formatSentenceCase(`Câu Hỏi Thường Gặp Khi Thuê Nhà Đất Tại ${cityDisplay}`),
     faqs: [
       { q: `Người thuê nhà tại ${cityDisplay} cần kiểm tra những giấy tờ gì trước khi đặt cọc?`, a: `Yêu cầu chủ nhà xuất trình bản gốc Sổ đỏ/Sổ hồng, đối chiếu CCCD và làm rõ điện nước, phí dịch vụ trước khi ký hợp đồng.` },
       { q: `Tiền đặt cọc thuê nhà tại ${cityDisplay} thông thường là bao nhiêu?`, a: `Mức cọc phổ biến từ 1 đến 2 tháng tiền thuê; hợp đồng cần ghi rõ hoàn trả cọc trong 3 ngày làm việc sau khi thanh lý.` }
     ],
-    discoveryTitle: discoveryLinks.title,
+    discoveryTitle: formatSentenceCase(discoveryLinks.title),
     discoveryLinks: discoveryLinks.links
   };
 };
