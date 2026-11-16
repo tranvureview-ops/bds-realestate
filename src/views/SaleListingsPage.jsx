@@ -248,6 +248,9 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
           ...prev,
           district: parsed.district || '',
           city: parsed.city || '',
+          ward: parsed.ward || '',
+          street: parsed.street || '',
+          project: parsed.project || '',
           priceRange: parsed.priceRange || 'all',
           minPrice: parsed.minPrice || null,
           maxPrice: parsed.maxPrice || null,
@@ -284,6 +287,7 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
       prev.city !== filters.city ||
       prev.district !== filters.district ||
       prev.ward !== filters.ward ||
+      prev.street !== filters.street ||
       prev.project !== filters.project ||
       prev.priceRange !== filters.priceRange ||
       prev.minPrice !== filters.minPrice ||
@@ -323,6 +327,7 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
         city: filters.city || null,
         district: filters.district || null,
         ward: filters.ward || null,
+        street: filters.street || null,
         project: filters.project || null,
         priceRange: filters.priceRange && filters.priceRange !== 'all' ? filters.priceRange : null,
         minPrice: filters.minPrice,
@@ -441,6 +446,7 @@ export default function SaleListingsPage({ taxonomyInfo = null, initialPage = 1,
         city: filters.city || null,
         district: filters.district || null,
         ward: filters.ward || null,
+        street: filters.street || null,
         project: filters.project || null,
         priceRange: filters.priceRange && filters.priceRange !== 'all' ? filters.priceRange : null,
         minPrice: filters.minPrice,
