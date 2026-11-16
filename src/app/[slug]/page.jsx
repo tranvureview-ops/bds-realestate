@@ -117,15 +117,19 @@ export default async function Page({ params, searchParams }) {
   const { slug } = (await params) || {};
   const sp = (await searchParams) || {};
 
-  // Chuyển hướng 301 chuẩn SEO cho các alias hoặc lỗi chính tả cũ (như biethu -> biet-thu)
-  if (slug && slug.includes('biethu')) {
-    const cleanSlug = slug.replace(/biethu/g, 'biet-thu');
+  // Chuyển hướng 301 chuẩn SEO cho các alias hoặc URL có tiền tố kép sai lệch (quan-thi-xa-, quan-thanh-pho-, biethu)
+  if (slug && (slug.includes('biethu') || slug.includes('quan-thi-xa-') || slug.includes('quan-thanh-pho-') || slug.includes('quan-huyen-'))) {
+    const cleanSlug = slug
+      .replace(/biethu/g, 'biet-thu')
+      .replace(/quan-thi-xa-/g, 'thi-xa-')
+      .replace(/quan-thanh-pho-/g, 'thanh-pho-')
+      .replace(/quan-huyen-/g, 'huyen-');
     const queryParams = new URLSearchParams();
     for (const [k, v] of Object.entries(sp)) {
       if (v) queryParams.set(k, String(v));
     }
     const qs = queryParams.toString();
-    permanentRedirect(qs ? `/${cleanSlug}/?${qs}` : `/${cleanSlug}/`);
+    permanentRedirect(qs ? `/${cleanSlug}?${qs}` : `/${cleanSlug}`);
   }
 
   const currentPath = `/${slug || ''}`;
