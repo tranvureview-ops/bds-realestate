@@ -387,6 +387,13 @@ export const KNOWN_ENTITIES = {
 // Tự động nạp toàn bộ 1,077+ tuyến đường phố, phường xã và dự án từ 63 tỉnh thành vào KNOWN_ENTITIES
 if (Array.isArray(VIETNAM_ADMINISTRATIVE_DATA)) {
   VIETNAM_ADMINISTRATIVE_DATA.forEach(prov => {
+    const pSlug = toVietnameseSlug(prov.name);
+    if (pSlug && !CITY_SLUGS[prov.name]) {
+      CITY_SLUGS[prov.name] = pSlug;
+    }
+    if (pSlug && !SLUG_TO_CITY[pSlug]) {
+      SLUG_TO_CITY[pSlug] = prov.name;
+    }
     (prov.districts || []).forEach(d => {
       (d.streets || []).forEach(st => {
         const cleanSt = st.replace(/^(?:đường|phố|tuyến)\s+/i, '').trim();
@@ -1004,30 +1011,7 @@ export const parseTaxonomyUrl = (urlPath) => {
       project = slugToTitleCase(projMatch[1]);
     }
 
-    // D. Đường / Phố (Street) - Tuyệt đối không match nhầm tiền tố 'thanh-pho-...'
-    let street = '';
-    const duongMatch = remainder.match(/(?:^|-)duong-([a-z0-9-]+?)(?:-(?:phuong|xa|quan|huyen|tp|tx|thanh-pho|da-nang|ha-noi|ho-chi-minh)|$)/i);
-    const phoMatch = remainder.match(/(?:^|(?<!thanh)-)pho-([a-z0-9-]+?)(?:-(?:phuong|xa|quan|huyen|tp|tx|thanh-pho|da-nang|ha-noi|ho-chi-minh)|$)/i);
-    if (duongMatch) {
-      street = slugToTitleCase(duongMatch[1]);
-    } else if (phoMatch && !remainder.includes(`thanh-pho-${phoMatch[1]}`) && !remainder.includes(`tp-${phoMatch[1]}`)) {
-      street = slugToTitleCase(phoMatch[1]);
-    }
-
-    // E. Phường/Xã/Thị trấn (Ward) - Bảo vệ không match nhầm tiền tố 'thi-xa-...' thành 'xa-...'
-    let ward = '';
-    const phuongMatch = remainder.match(/(?:^|-)phuong-([a-z0-9-]+?)(?:-(?:quan|huyen|tp|tx|thanh-pho|thi-xa|da-nang|ha-noi|ho-chi-minh)|$)/i);
-    const xaMatch = remainder.match(/(?:^|(?<!thi)-)xa-([a-z0-9-]+?)(?:-(?:quan|huyen|tp|tx|thanh-pho|thi-xa|da-nang|ha-noi|ho-chi-minh)|$)/i);
-    const thiTranMatch = remainder.match(/(?:^|-)thi-tran-([a-z0-9-]+?)(?:-(?:quan|huyen|tp|tx|thanh-pho|thi-xa|da-nang|ha-noi|ho-chi-minh)|$)/i);
-    if (phuongMatch) {
-      ward = 'Phường ' + slugToTitleCase(phuongMatch[1]);
-    } else if (xaMatch) {
-      ward = 'Xã ' + slugToTitleCase(xaMatch[1]);
-    } else if (thiTranMatch) {
-      ward = 'Thị trấn ' + slugToTitleCase(thiTranMatch[1]);
-    }
-
-    // F. Thành phố & Quận/Huyện
+    // D. Thành phố & Quận/Huyện (Bóc tách trước từ vĩ mô để khoanh vùng chính xác, chống va chạm tiền tố)
     let city = '';
     let district = '';
 
@@ -1035,24 +1019,80 @@ export const parseTaxonomyUrl = (urlPath) => {
     const sortedDistrictEntries = Object.entries(DISTRICT_MAP).sort((a, b) => b[0].length - a[0].length);
     for (const [dSlug, dInfo] of sortedDistrictEntries) {
       const isNumeric = /^\d+$/.test(dSlug);
-      const isMatch = (
-        raw.includes(`quan-thanh-pho-${dSlug}`) ||
-        raw.includes(`thanh-pho-${dSlug}`) ||
-        raw.includes(`quan-${dSlug}`) ||
-        raw.includes(`huyen-${dSlug}`) ||
-        raw.includes(`tp-${dSlug}`) ||
-        raw.includes(`tx-${dSlug}`) ||
-        raw.includes(`thi-xa-${dSlug}`) ||
-        (!isNumeric && (
-          raw.includes(`-${dSlug}-`) ||
-          raw.endsWith(`-${dSlug}`) ||
-          raw.startsWith(`${dSlug}-`)
-        ))
-      );
-      if (isMatch) {
+      const prefixes = ['quan-thanh-pho-', 'thanh-pho-', 'quan-', 'huyen-', 'tp-', 'tx-', 'thi-xa-'];
+      let found = null;
+      for (const p of prefixes) {
+        const fullP = p + dSlug;
+        if (remainder.endsWith('-' + fullP) || remainder === fullP || remainder.includes('-' + fullP + '-')) {
+          found = fullP;
+          break;
+        }
+      }
+      if (!found && !isNumeric) {
+        if (remainder.endsWith('-' + dSlug) || remainder === dSlug || remainder.includes('-' + dSlug + '-')) {
+          found = dSlug;
+        }
+      }
+      if (found) {
         district = dInfo.name;
         city = dInfo.city || '';
+        const idx = remainder.lastIndexOf(found);
+        if (idx !== -1) {
+          remainder = remainder.slice(0, idx).replace(/-+$/, '');
+        }
         break;
+      }
+    }
+
+    // Nếu chưa xác định city từ quận huyện, kiểm tra thành phố trực thuộc hoặc các tỉnh thành
+    if (!city) {
+      for (const [cName, cSlug] of Object.entries(CITY_SLUGS)) {
+        if (remainder.endsWith('-' + cSlug) || remainder === cSlug) {
+          city = cName;
+          remainder = remainder.slice(0, -cSlug.length).replace(/-+$/, '');
+          break;
+        }
+      }
+    }
+
+    // E. Phường/Xã/Thị trấn (Ward)
+    let ward = '';
+    const hasStreetPrefix = remainder.includes('duong-') || remainder.includes('pho-');
+    if (hasStreetPrefix) {
+      // Khi URL có đường, Phường/Xã phải nằm sau đường, không được nhận nhầm từ có tiền tố 'xa-' như Xã Đàn
+      const wardMatch = remainder.match(/(?:^|(?<!duong|pho)-)(phuong|xa|thi-tran)-([a-z0-9-]+)$/i);
+      if (wardMatch) {
+        const wType = wardMatch[1].toLowerCase();
+        const wName = slugToTitleCase(wardMatch[2]);
+        ward = (wType === 'phuong' ? 'Phường ' : (wType === 'xa' ? 'Xã ' : 'Thị trấn ')) + wName;
+        remainder = remainder.slice(0, -wardMatch[0].length).replace(/-+$/, '');
+      }
+    } else {
+      const phuongMatch = remainder.match(/(?:^|-)phuong-([a-z0-9-]+?)(?:-(?:quan|huyen|tp|tx|thanh-pho|thi-xa|da-nang|ha-noi|ho-chi-minh)|$)/i);
+      const xaMatch = remainder.match(/(?:^|(?<!thi)-)xa-([a-z0-9-]+?)(?:-(?:quan|huyen|tp|tx|thanh-pho|thi-xa|da-nang|ha-noi|ho-chi-minh)|$)/i);
+      const thiTranMatch = remainder.match(/(?:^|-)thi-tran-([a-z0-9-]+?)(?:-(?:quan|huyen|tp|tx|thanh-pho|thi-xa|da-nang|ha-noi|ho-chi-minh)|$)/i);
+      if (phuongMatch) {
+        ward = 'Phường ' + slugToTitleCase(phuongMatch[1]);
+      } else if (xaMatch) {
+        ward = 'Xã ' + slugToTitleCase(xaMatch[1]);
+      } else if (thiTranMatch) {
+        ward = 'Thị trấn ' + slugToTitleCase(thiTranMatch[1]);
+      }
+    }
+
+    // F. Đường / Phố (Street)
+    let street = '';
+    const stMatch = remainder.match(/(?:^|-)duong-([a-z0-9-]+)$/i) || remainder.match(/(?:^|(?<!thanh)-)pho-([a-z0-9-]+)$/i);
+    if (stMatch) {
+      street = slugToTitleCase(stMatch[1]);
+    } else {
+      // Fallback cho URL phức hợp
+      const duongMatch = remainder.match(/(?:^|-)duong-([a-z0-9-]+?)(?:-(?:phuong|xa|thi-tran|quan|huyen|tp|tx|thi-xa|thanh-pho)|$)/i);
+      const phoMatch = remainder.match(/(?:^|(?<!thanh)-)pho-([a-z0-9-]+?)(?:-(?:phuong|xa|thi-tran|quan|huyen|tp|tx|thi-xa|thanh-pho)|$)/i);
+      if (duongMatch) {
+        street = slugToTitleCase(duongMatch[1]);
+      } else if (phoMatch && !remainder.includes(`thanh-pho-${phoMatch[1]}`) && !remainder.includes(`tp-${phoMatch[1]}`)) {
+        street = slugToTitleCase(phoMatch[1]);
       }
     }
 

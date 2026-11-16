@@ -433,6 +433,7 @@ export const VIETNAM_ADMINISTRATIVE_DATA = [
           'Xã Điện Phương'
         ],
         streets: [
+          'Trần Thủ Độ',
           'Trần Hưng Đạo',
           'Nguyễn Tất Thành',
           'Dũng Sĩ Điện Ngọc',
