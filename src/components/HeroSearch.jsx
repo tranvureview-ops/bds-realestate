@@ -706,9 +706,13 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                   ) : (
                     /* Khi chưa nhập từ khóa: Lịch sử tìm kiếm & Chọn địa danh chi tiết */
                     <div className="p-3 sm:p-4">
-                      {recentSearches.length > 0 ? (
-                        <div className="mb-2">
-                          <div className="flex justify-end mb-1 px-1">
+                      {recentSearches.length > 0 && (
+                        <div className="mb-3 pb-3 border-b border-slate-100">
+                          <div className="flex items-center justify-between mb-2 px-1">
+                            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                              <i className="fa-solid fa-clock-rotate-left text-slate-400 text-[10px]"></i>
+                              <span>Lịch sử tìm kiếm</span>
+                            </span>
                             <button
                               type="button"
                               onClick={clearSearches}
@@ -756,38 +760,39 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                             ))}
                           </div>
                         </div>
-                      ) : (
-                        <div className="mb-2">
-                          <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-1 flex items-center gap-1.5">
-                            <i className="fa-solid fa-fire text-[#e03c31] text-[10px]"></i>
-                            <span>Tìm kiếm phổ biến ({currentDemand === 'rent' ? 'Cho thuê' : 'Mua bán'})</span>
-                          </div>
-                          <div className="space-y-1">
-                            {(currentDemand === 'rent' ? DEFAULT_RENT_RECENT_SEARCHES : DEFAULT_RECENT_SEARCHES).map((item) => (
-                              <div
-                                key={item.id}
-                                onClick={() => handleSelectRecentSearch(item)}
-                                className="p-2 sm:p-2.5 rounded-xl hover:bg-slate-50 flex items-center gap-3 transition cursor-pointer group"
-                              >
-                                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-red-50 text-[#e03c31] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                                  <i className="fa-solid fa-magnifying-glass text-xs sm:text-sm"></i>
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-red-600 transition truncate">
-                                    {item.title}
-                                  </div>
-                                  {item.subtitle && (
-                                    <div className="text-[11px] text-slate-400 truncate">
-                                      {item.subtitle}
-                                    </div>
-                                  )}
-                                </div>
-                                <i className="fa-solid fa-chevron-right text-slate-300 group-hover:text-slate-500 text-xs shrink-0 group-hover:translate-x-0.5 transition-transform"></i>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
                       )}
+
+                      {/* Gợi ý Tìm kiếm phổ biến (Xu hướng thị trường) */}
+                      <div className="mb-2">
+                        <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-1 flex items-center gap-1.5">
+                          <i className="fa-solid fa-fire text-[#e03c31] text-[10px]"></i>
+                          <span>Tìm kiếm phổ biến ({currentDemand === 'rent' ? 'Cho thuê' : 'Mua bán'})</span>
+                        </div>
+                        <div className="space-y-1">
+                          {(currentDemand === 'rent' ? DEFAULT_RENT_RECENT_SEARCHES : DEFAULT_RECENT_SEARCHES).map((item) => (
+                            <div
+                              key={item.id}
+                              onClick={() => handleSelectRecentSearch(item)}
+                              className="p-2 sm:p-2.5 rounded-xl hover:bg-slate-50 flex items-center gap-3 transition cursor-pointer group"
+                            >
+                              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-red-50 text-[#e03c31] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                                <i className="fa-solid fa-magnifying-glass text-xs sm:text-sm"></i>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-red-600 transition truncate">
+                                  {item.title}
+                                </div>
+                                {item.subtitle && (
+                                  <div className="text-[11px] text-slate-400 truncate">
+                                    {item.subtitle}
+                                  </div>
+                                )}
+                              </div>
+                              <i className="fa-solid fa-chevron-right text-slate-300 group-hover:text-slate-500 text-xs shrink-0 group-hover:translate-x-0.5 transition-transform"></i>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
 
                       {/* Bottom Action: Chọn quận huyện, phường xã, đường phố, dự án */}
                       <div

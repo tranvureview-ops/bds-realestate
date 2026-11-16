@@ -67,7 +67,7 @@ export const getRecentSearches = (demand = 'sale') => {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
+        if (Array.isArray(parsed) && parsed.length > 0) {
           return demand === 'rent'
             ? parsed.filter(item => item.filters?.demand === 'rent' || /thue/i.test(item.title || ''))
             : parsed.filter(item => item.filters?.demand !== 'rent');
@@ -83,10 +83,12 @@ export const getRecentSearches = (demand = 'sale') => {
         const filtered = demand === 'rent'
           ? parsed.filter(item => item.filters?.demand === 'rent' || /thue/i.test(item.title || ''))
           : parsed.filter(item => item.filters?.demand !== 'rent');
-        if (filtered.length > 0) return filtered;
+        return filtered;
       }
     }
-    return demand === 'rent' ? DEFAULT_RENT_RECENT_SEARCHES : DEFAULT_RECENT_SEARCHES;
+    // Khi người dùng chưa từng tìm kiếm gì: Lịch sử cá nhân ban đầu luôn là mảng rỗng []
+    // Các gợi ý mặc định sẽ được hiển thị riêng biệt trong phần "Tìm kiếm phổ biến"
+    return [];
   } catch {
     return [];
   }

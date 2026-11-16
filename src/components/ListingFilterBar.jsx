@@ -741,8 +741,12 @@ export default function ListingFilterBar({
                   /* Khi chưa nhập từ khóa: Lịch sử & Chọn địa danh chi tiết */
                   <div className="p-2 sm:p-3">
                     {recentSearches.length > 0 && (
-                      <div className="pb-2">
-                        <div className="flex justify-end mb-1 px-1">
+                      <div className="pb-2 mb-2 border-b border-slate-100">
+                        <div className="flex items-center justify-between mb-2 px-1">
+                          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                            <i className="fa-solid fa-clock-rotate-left text-slate-400 text-[10px]"></i>
+                            <span>Lịch sử tìm kiếm</span>
+                          </span>
                           <button
                             type="button"
                             onClick={clearSearches}
