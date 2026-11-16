@@ -1376,24 +1376,51 @@ export const buildSaleSeoContentData = ({
     }
   }
 
+  const targetLocName = effStreet && effDistrict
+    ? `${effStreet}, ${effDistrict}`
+    : (effDistrict ? `${effDistrict}, ${cityDisplay}` : (isSpecificCity ? cityDisplay : ''));
+
   return {
-    marketTitle: formatSentenceCase(`Thị trường mua bán nhà đất ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay} năm 2026: diễn biến & tiềm năng phát triển`),
-    marketDesc: `Thị trường bất động sản ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay} năm 2026 ghi nhận bước chuyển mình tích cực nhờ hạ tầng giao thông kết nối liên vùng và hiệu lực của bộ ba Luật Đất đai 2024, Luật Nhà ở 2023 và Luật Kinh doanh Bất động sản 2023. Dòng tiền đầu tư tập trung vào phân khúc ở thực có sẵn sổ hồng tại trung tâm đô thị và khu vực phát triển công nghiệp, dịch vụ.`,
+    marketTitle: formatSentenceCase(effStreet && effDistrict
+      ? `Thị trường mua bán nhà đất ${effStreet}, ${effDistrict} năm 2026: diễn biến & tiềm năng phát triển`
+      : `Thị trường mua bán nhà đất ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay} năm 2026: diễn biến & tiềm năng phát triển`),
+    marketDesc: effStreet && effDistrict
+      ? `Thị trường bất động sản ${effStreet}, ${effDistrict} năm 2026 ghi nhận lực cầu mua an cư và kinh doanh tăng trưởng tích cực nhờ vị trí thương mại sầm uất, kết nối giao thông hoàn hảo và hệ sinh thái tiện ích dịch vụ hoàn thiện. Các sản phẩm nhà mặt phố kinh doanh, đất nền và căn hộ dọc tuyến ${effStreet} giữ vững thanh khoản và biên độ tăng giá tốt.`
+      : `Thị trường bất động sản ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay} năm 2026 ghi nhận bước chuyển mình tích cực nhờ hạ tầng giao thông kết nối liên vùng và hiệu lực của bộ ba Luật Đất đai 2024, Luật Nhà ở 2023 và Luật Kinh doanh Bất động sản 2023. Dòng tiền đầu tư tập trung vào phân khúc ở thực có sẵn sổ hồng tại trung tâm đô thị và khu vực phát triển công nghiệp, dịch vụ.`,
     priceTableTitle: formatSentenceCase(priceTableTitle),
     tableHeaders,
     benchmarks: provBenchmarks,
     priceFootnote: '* Bảng giá mang tính chất tham khảo thực tế tại thời điểm đầu năm 2026, đơn giá có thể thay đổi tùy thuộc vào vị trí hẻm, mặt tiền và hiện trạng xây dựng công trình.',
-    legalTitle: formatSentenceCase(`4 bước thẩm định pháp lý bắt buộc trước khi mua nhà đất tại ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay}`),
-    legalSteps: DEFAULT_LEGAL_STEPS(effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay),
+    legalTitle: formatSentenceCase(`4 bước thẩm định pháp lý bắt buộc trước khi mua nhà đất${targetLocName ? ` tại ${targetLocName}` : ''}`),
+    legalSteps: DEFAULT_LEGAL_STEPS(targetLocName || null),
     guidesTitle: formatSentenceCase('Cẩm nang tri thức & hướng dẫn mua nhà an toàn từ chuyên gia'),
     guides: DEFAULT_GUIDES,
-    faqTitle: formatSentenceCase(`Câu hỏi thường gặp khi mua bán nhà đất tại ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay}`),
-    faqs: [
-      { q: `Người mua nhà đất tại ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay} lần đầu cần kiểm tra những thủ tục pháp lý nào?`, a: `Kiểm tra bản gốc Sổ đỏ/Sổ hồng, tra cứu thông tin quy hoạch tại Chi nhánh Văn phòng Đăng ký Đất đai, xác minh ngăn chặn giao dịch UCHI trước khi ký hợp đồng đặt cọc.` },
-      { q: `Thủ tục sang tên chuyển nhượng sổ đỏ tại ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay} nộp ở đâu?`, a: `Nộp tại Bộ phận Một cửa Chi nhánh Văn phòng Đăng ký Đất đai cấp quận/huyện/thị xã sau khi công chứng hợp đồng mua bán. Thời hạn giải quyết 10 - 15 ngày làm việc.` },
-      { q: `Chi phí thuế và lệ phí khi mua bán nhà đất gồm những gì?`, a: `Gồm Thuế TNCN 2% (bên bán), Lệ phí trước bạ 0.5% (bên mua), phí thẩm định hồ sơ và lệ phí cấp đổi sổ mới (1 - 2 triệu đồng).` },
-      { q: `Làm sao tìm được nhà đất chính chủ, giá tốt trên Kênh Nhà Đất 24H?`, a: `Sử dụng bộ lọc Quận/Huyện, khoảng giá, diện tích và bật bộ lọc 'Tin chính chủ / Đã xác thực'.` }
-    ],
+    faqTitle: formatSentenceCase(`Câu hỏi thường gặp khi mua bán nhà đất${targetLocName ? ` tại ${targetLocName}` : ''}`),
+    faqs: effStreet && effDistrict
+      ? [
+          {
+            q: `Mua bán nhà đất tại ${effStreet}, ${effDistrict} cần lưu ý gì về quy hoạch và pháp lý?`,
+            a: `Trước khi ký hợp đồng mua bán hoặc đặt cọc nhà đất tại ${effStreet}, ${effDistrict}, người mua cần kiểm tra kỹ chỉ giới quy hoạch mở rộng lộ giới, hiện trạng xây dựng có đúng giấy phép hoàn công, đối chiếu bản gốc sổ hồng tại Chi nhánh Văn phòng Đăng ký Đất đai và tra cứu ngăn chặn giao dịch để bảo toàn dòng vốn.`
+          },
+          {
+            q: `Tiềm năng kinh doanh và tính thanh khoản bất động sản trên ${effStreet} như thế nào?`,
+            a: `Tuyến ${effStreet} là một trong những trục giao thông huyết mạch với lưu lượng lưu thông đông đúc, quy tụ nhiều tiện ích thương mại, rất thích hợp mở cửa hàng kinh doanh, tòa nhà văn phòng, showroom, nhà hàng hoặc khai thác cho thuê mặt bằng dòng tiền cao.`
+          },
+          {
+            q: `Chi phí thuế và lệ phí khi mua bán nhà đất gồm những gì?`,
+            a: `Gồm Thuế TNCN 2% (bên bán), Lệ phí trước bạ 0.5% (bên mua), phí thẩm định hồ sơ và lệ phí cấp đổi sổ mới (1 - 2 triệu đồng).`
+          },
+          {
+            q: `Làm sao tìm được nhà đất chính chủ, giá tốt trên Kênh Nhà Đất 24H?`,
+            a: `Sử dụng bộ lọc Quận/Huyện, khoảng giá, diện tích và bật bộ lọc 'Tin chính chủ / Đã xác thực'.`
+          }
+        ]
+      : [
+          { q: `Người mua nhà đất tại ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay} lần đầu cần kiểm tra những thủ tục pháp lý nào?`, a: `Kiểm tra bản gốc Sổ đỏ/Sổ hồng, tra cứu thông tin quy hoạch tại Chi nhánh Văn phòng Đăng ký Đất đai, xác minh ngăn chặn giao dịch UCHI trước khi ký hợp đồng đặt cọc.` },
+          { q: `Thủ tục sang tên chuyển nhượng sổ đỏ tại ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay} nộp ở đâu?`, a: `Nộp tại Bộ phận Một cửa Chi nhánh Văn phòng Đăng ký Đất đai cấp quận/huyện/thị xã sau khi công chứng hợp đồng mua bán. Thời hạn giải quyết 10 - 15 ngày làm việc.` },
+          { q: `Chi phí thuế và lệ phí khi mua bán nhà đất gồm những gì?`, a: `Gồm Thuế TNCN 2% (bên bán), Lệ phí trước bạ 0.5% (bên mua), phí thẩm định hồ sơ và lệ phí cấp đổi sổ mới (1 - 2 triệu đồng).` },
+          { q: `Làm sao tìm được nhà đất chính chủ, giá tốt trên Kênh Nhà Đất 24H?`, a: `Sử dụng bộ lọc Quận/Huyện, khoảng giá, diện tích và bật bộ lọc 'Tin chính chủ / Đã xác thực'.` }
+        ],
     discoveryTitle: formatSentenceCase(discovery.title),
     discoveryLinks: discovery.links
   };
@@ -2044,18 +2071,26 @@ export const buildRentSeoContentData = ({
       })
     : GENERAL_RENT_CITY_CONTENT.national.benchmarks;
 
+  const targetLocName = effStreet && effDistrict
+    ? `${effStreet}, ${effDistrict}`
+    : (effDistrict ? `${effDistrict}, ${cityDisplay}` : (isSpecificCity ? cityDisplay : ''));
+
   return {
-    marketTitle: formatSentenceCase(`Thị Trường Cho Thuê Nhà Đất ${cityDisplay} Năm 2026: Nhu Cầu & Tỷ Suất Dòng Tiền`),
-    marketDesc: `Thị trường bất động sản cho thuê tại ${cityDisplay} năm 2026 ghi nhận nhu cầu cao từ lực lượng lao động, chuyên gia doanh nghiệp và hộ gia đình trẻ tập trung quanh trung tâm đô thị và khu công nghiệp.`,
+    marketTitle: formatSentenceCase(effStreet && effDistrict
+      ? `Thị trường cho thuê nhà đất ${effStreet}, ${effDistrict} năm 2026: nhu cầu & tỷ suất dòng tiền`
+      : `Thị Trường Cho Thuê Nhà Đất ${effDistrict ? `${effDistrict}, ${cityDisplay}` : cityDisplay} Năm 2026: Nhu Cầu & Tỷ Suất Dòng Tiền`),
+    marketDesc: effStreet && effDistrict
+      ? `Thị trường bất động sản cho thuê tại ${effStreet}, ${effDistrict} năm 2026 ghi nhận nhu cầu lưu trú và kinh doanh sôi động nhờ vị trí đắc địa, giao thông kết nối hoàn chỉnh và hệ sinh thái tiện ích dịch vụ hoàn thiện.`
+      : `Thị trường bất động sản cho thuê tại ${cityDisplay} năm 2026 ghi nhận nhu cầu cao từ lực lượng lao động, chuyên gia doanh nghiệp và hộ gia đình trẻ tập trung quanh trung tâm đô thị và khu công nghiệp.`,
     priceTableTitle: formatSentenceCase(`Khung Giá Thuê Nhà Đất Chi Tiết Từng Quận/Huyện Tại ${cityDisplay} 2026`),
     tableHeaders: ['Khu vực / Quận Huyện', 'Căn hộ chung cư', 'Nhà riêng / Nguyên căn', 'Phòng trọ / CH Dịch vụ', 'Khu vực sôi động'],
     benchmarks: provBenchmarks,
-    legalTitle: formatSentenceCase(`4 Lưu Ý Pháp Lý Sống Còn Khi Ký Hợp Đồng Thuê Nhà Đất Tại ${cityDisplay}`),
+    legalTitle: formatSentenceCase(`4 Lưu Ý Pháp Lý Sống Còn Khi Ký Hợp Đồng Thuê Nhà Đất${targetLocName ? ` Tại ${targetLocName}` : ` Tại ${cityDisplay}`}`),
     legalSteps: DEFAULT_RENT_LEGAL_STEPS,
-    faqTitle: formatSentenceCase(`Câu Hỏi Thường Gặp Khi Thuê Nhà Đất Tại ${cityDisplay}`),
+    faqTitle: formatSentenceCase(`Câu Hỏi Thường Gặp Khi Thuê Nhà Đất${targetLocName ? ` Tại ${targetLocName}` : ` Tại ${cityDisplay}`}`),
     faqs: [
-      { q: `Người thuê nhà tại ${cityDisplay} cần kiểm tra những giấy tờ gì trước khi đặt cọc?`, a: `Yêu cầu chủ nhà xuất trình bản gốc Sổ đỏ/Sổ hồng, đối chiếu CCCD và làm rõ điện nước, phí dịch vụ trước khi ký hợp đồng.` },
-      { q: `Tiền đặt cọc thuê nhà tại ${cityDisplay} thông thường là bao nhiêu?`, a: `Mức cọc phổ biến từ 1 đến 2 tháng tiền thuê; hợp đồng cần ghi rõ hoàn trả cọc trong 3 ngày làm việc sau khi thanh lý.` }
+      { q: `Người thuê nhà tại ${targetLocName || cityDisplay} cần kiểm tra những giấy tờ gì trước khi đặt cọc?`, a: `Yêu cầu chủ nhà xuất trình bản gốc Sổ đỏ/Sổ hồng, đối chiếu CCCD và làm rõ điện nước, phí dịch vụ trước khi ký hợp đồng.` },
+      { q: `Tiền đặt cọc thuê nhà tại ${targetLocName || cityDisplay} thông thường là bao nhiêu?`, a: `Mức cọc phổ biến từ 1 đến 2 tháng tiền thuê; hợp đồng cần ghi rõ hoàn trả cọc trong 3 ngày làm việc sau khi thanh lý.` }
     ],
     discoveryTitle: formatSentenceCase(discoveryLinks.title),
     discoveryLinks: discoveryLinks.links

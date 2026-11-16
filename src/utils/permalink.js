@@ -1826,13 +1826,19 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, yearInput = null, pa
 
     let titleCandidate = `${formattedTitle} ${year}${pageStr} | Kênh Nhà Đất 24H`;
     if (titleCandidate.length > 70) {
-      titleCandidate = `${formattedTitle}${pageStr} | Kênh Nhà Đất 24H`;
-    }
-    if (titleCandidate.length > 70) {
-      const compactTitle = formattedTitle.replace(/^(?:Mua bán|Cho thuê) nhà đất tại /i, (m) => m.includes('Cho thuê') ? 'Cho Thuê Nhà Đất ' : 'Mua Bán Nhà Đất ')
-                                         .replace(/, (?:Đà Nẵng|Hà Nội|TP\. Hồ Chí Minh|Quảng Nam|Khánh Hòa|Bình Dương)$/i, '');
+      // 1. Lược bỏ đuôi Tỉnh/Thành phố nếu đã có Quận/Huyện/Thị xã/TP trực thuộc
+      let compactTitle = formattedTitle.replace(/^(?:Mua bán|Cho thuê) nhà đất tại /i, (m) => m.includes('Cho thuê') ? 'Cho Thuê Nhà Đất ' : 'Mua Bán Nhà Đất ')
+                                         .replace(/, [^,]+$/i, '');
       titleCandidate = `${compactTitle} ${year}${pageStr} | Kênh Nhà Đất 24H`;
-      if (titleCandidate.length > 70) {
+
+      // 2. Nếu vượt quá 75 ký tự, rút gọn tiền tố Thành phố / Thị xã để bảo toàn mốc thời gian [2026]
+      if (titleCandidate.length > 75) {
+        compactTitle = compactTitle.replace(/, (?:Thành phố|Thị xã|Huyện)\s+/i, ', ');
+        titleCandidate = `${compactTitle} ${year}${pageStr} | Kênh Nhà Đất 24H`;
+      }
+
+      // 3. Nếu vẫn vượt quá 75 ký tự thì mới bỏ mốc năm
+      if (titleCandidate.length > 75) {
         titleCandidate = `${compactTitle}${pageStr} | Kênh Nhà Đất 24H`;
       }
     }

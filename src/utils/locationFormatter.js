@@ -30,6 +30,7 @@ const PROVINCES_MAP = [
   { re: ub('vũng tàu'), rep: 'Vũng Tàu' },
   { re: ub('lâm đồng'), rep: 'Lâm Đồng' },
   { re: ub('đà lạt'), rep: 'Đà Lạt' },
+  { re: ub('(?:tp\\.?|thành phố)\\s+nha trang'), rep: 'Thành phố Nha Trang' },
   { re: ub('nha trang'), rep: 'Nha Trang' },
   { re: ub('quảng ninh'), rep: 'Quảng Ninh' },
   { re: ub('hạ long'), rep: 'Hạ Long' },
@@ -250,7 +251,7 @@ export const capitalizeLocationEntities = (str) => {
     return `Đường ${capWords.join(' ')}`;
   });
 
-  res = res.replace(/(?<!mặt\s+|nhà\s+mặt\s+|nhà\s+)(?<=^|[^\p{L}\p{N}])(phố)\s+([\p{L}\p{N}]+(?:\s+[\p{L}\p{N}]+)*)/gui, (match, prefix, rest) => {
+  res = res.replace(/(?<!thành\s+|tp\.?\s+|mặt\s+|nhà\s+mặt\s+|nhà\s+)(?<=^|[^\p{L}\p{N}])(phố)\s+([\p{L}\p{N}]+(?:\s+[\p{L}\p{N}]+)*)/gui, (match, prefix, rest) => {
     const words = rest.split(/\s+/);
     if (LOCATION_STOP_WORDS.has(words[0].toLowerCase())) return match;
     const capWords = [];
