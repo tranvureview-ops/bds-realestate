@@ -192,6 +192,94 @@ export const buildWardBenchmarksForDistrict = (districtObj, baseRow = null, isRe
   });
 };
 
+export const buildStreetBenchmarks = (streetName, districtName = '', cityName = '', baseRow = null, isRent = false) => {
+  let minCol1 = isRent ? 8 : 70, maxCol1 = isRent ? 25 : 150;
+  let minCol2 = isRent ? 5 : 30, maxCol2 = isRent ? 15 : 65;
+  let minCol3 = isRent ? 3 : 45, maxCol3 = isRent ? 8 : 100;
+
+  if (baseRow?.cols && Array.isArray(baseRow.cols)) {
+    const parseRange = (str) => {
+      if (!str || typeof str !== 'string') return null;
+      const m = str.match(/(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)/);
+      if (m) return [parseFloat(m[1]), parseFloat(m[2])];
+      return null;
+    };
+    const r1 = parseRange(baseRow.cols[0]);
+    if (r1) { minCol1 = r1[0]; maxCol1 = r1[1]; }
+    const r2 = parseRange(baseRow.cols[1]);
+    if (r2) { minCol2 = r2[0]; maxCol2 = r2[1]; }
+    const r3 = parseRange(baseRow.cols[2]);
+    if (r3) { minCol3 = r3[0]; maxCol3 = r3[1]; }
+  }
+
+  const unit = isRent ? 'tr/tháng' : 'tr/m²';
+
+  const segments = isRent
+    ? [
+        {
+          area: 'Mặt bằng kinh doanh / Mặt tiền trục chính',
+          factor: 1.3,
+          note: 'Vị trí đắc địa, lưu lượng khách đông, nhận diện thương hiệu tốt'
+        },
+        {
+          area: 'Nhà nguyên căn hẻm ô tô (lộ giới >= 5m)',
+          factor: 0.88,
+          note: 'Xe hơi ra vào thuận tiện, vừa ở vừa làm văn phòng công ty'
+        },
+        {
+          area: 'Căn hộ dịch vụ / Phòng trọ khép kín dọc tuyến',
+          factor: 0.65,
+          note: 'Đầy đủ nội thất, giờ giấc tự do, an ninh tốt, gần tiện ích'
+        },
+        {
+          area: 'Mặt bằng góc 2 mặt tiền / Nút giao trọng điểm',
+          factor: 1.45,
+          note: 'Hai mặt tiền thoáng, vỉa hè rộng, kinh doanh đa ngành nghề'
+        }
+      ]
+    : [
+        {
+          area: 'Mặt tiền kinh doanh trục chính',
+          factor: 1.25,
+          note: 'Vị trí đắc địa, kinh doanh sầm uất, tiềm năng gia tăng giá trị cao'
+        },
+        {
+          area: 'Hẻm ô tô thông (lộ giới >= 5m)',
+          factor: 0.85,
+          note: 'Xe hơi tránh nhau, vào tận nhà, an cư lý tưởng, thanh khoản nhanh'
+        },
+        {
+          area: 'Hẻm ba gác / Hẻm ngõ (3m - 4.5m)',
+          factor: 0.68,
+          note: 'Khu dân cư hiện hữu, yên tĩnh, phù hợp nhu cầu an cư thực'
+        },
+        {
+          area: 'Đoạn giao cắt các nút giao trọng điểm',
+          factor: 1.35,
+          note: 'Lưu lượng giao thông lớn, giá trị thương mại và thanh khoản vượt trội'
+        }
+      ];
+
+  return segments.map(seg => {
+    const col1Min = Math.round(minCol1 * seg.factor);
+    const col1Max = Math.round(maxCol1 * seg.factor);
+    const col2Min = Math.round(minCol2 * seg.factor);
+    const col2Max = Math.round(maxCol2 * seg.factor);
+    const col3Min = Math.round(minCol3 * seg.factor);
+    const col3Max = Math.round(maxCol3 * seg.factor);
+
+    return {
+      area: seg.area,
+      cols: [
+        `${col1Min} - ${col1Max} ${unit}`,
+        `${col2Min} - ${col2Max} ${unit}`,
+        `${col3Min} - ${col3Max} ${unit}`
+      ],
+      hotspots: seg.note
+    };
+  });
+};
+
 const findProvince = (cityName) => {
   const lower = cityName.toLowerCase();
   return (VIETNAM_ADMINISTRATIVE_DATA || []).find((p) => {
@@ -1198,7 +1286,11 @@ export const buildSaleSeoContentData = ({
       benchmarks = profile.priceRanges.national;
     }
 
-    if (effDistrict && !facet.hasFacetFilters) {
+    if (effStreet && effDistrict && !facet.hasFacetFilters) {
+      benchmarks = buildStreetBenchmarks(effStreet, effDistrict, cityDisplay, benchmarks?.[0], false);
+      tableHeaders = ['Vị trí / Phân khúc', ...(profile.tableCols || ['Nhà phố / Mặt tiền', 'Căn hộ chung cư', 'Đất nền thổ cư', 'Đặc điểm & Tiềm năng'])];
+      priceTableTitle = `Khung Giá ${profile.label} Tham Khảo ${effStreet}, ${effDistrict} 2026`;
+    } else if (effDistrict && !facet.hasFacetFilters) {
       const districtObj = findDistrictInProvince(cityCtx.matchedProvince, effDistrict);
       if (districtObj?.wards?.length) {
         const subUnit = getSubUnitLabel(effDistrict, districtObj.wards);
@@ -1267,7 +1359,15 @@ export const buildSaleSeoContentData = ({
     let tableHeaders = presetCity.tableHeaders;
     let priceTableTitle = presetCity.priceTableTitle;
 
-    if (effDistrict) {
+    if (effStreet && effDistrict) {
+      const cleanDist = effDistrict.replace(/^(Quận|Huyện|Thị xã|TP|Thành phố)\s+/i, '').trim().toLowerCase();
+      const matchedRow = Array.isArray(benchmarks)
+        ? benchmarks.find(b => b.area.toLowerCase().includes(cleanDist) || cleanDist.includes(b.area.toLowerCase()))
+        : null;
+      benchmarks = buildStreetBenchmarks(effStreet, effDistrict, cityDisplay, matchedRow || benchmarks?.[0], false);
+      tableHeaders = ['Vị trí / Phân khúc', 'Nhà phố / Mặt tiền', 'Căn hộ chung cư', 'Đất nền thổ cư', 'Đặc điểm & Tiềm năng'];
+      priceTableTitle = `Khung Giá Nhà Đất Tham Khảo ${effStreet}, ${effDistrict} 2026`;
+    } else if (effDistrict) {
       const cleanDist = effDistrict.replace(/^(Quận|Huyện|Thị xã|TP|Thành phố)\s+/i, '').trim().toLowerCase();
       const matchedRow = Array.isArray(benchmarks)
         ? benchmarks.find(b => b.area.toLowerCase().includes(cleanDist) || cleanDist.includes(b.area.toLowerCase()))
@@ -1362,7 +1462,11 @@ export const buildSaleSeoContentData = ({
   let tableHeaders = ['Khu vực / Quận Huyện', 'Nhà phố / Mặt tiền', 'Căn hộ chung cư', 'Đất nền thổ cư', 'Khu vực sôi động'];
   let priceTableTitle = `Khung Giá Nhà Đất Chi Tiết Từng Quận/Huyện Tại ${cityDisplay} 2026`;
 
-  if (effDistrict && prov?.districts?.length) {
+  if (effStreet && effDistrict) {
+    provBenchmarks = buildStreetBenchmarks(effStreet, effDistrict, cityDisplay, provBenchmarks?.[0], false);
+    tableHeaders = ['Vị trí / Phân khúc', 'Nhà phố / Mặt tiền', 'Căn hộ chung cư', 'Đất nền thổ cư', 'Đặc điểm & Tiềm năng'];
+    priceTableTitle = `Khung Giá Nhà Đất Tham Khảo ${effStreet}, ${effDistrict} 2026`;
+  } else if (effDistrict && prov?.districts?.length) {
     const districtObj = findDistrictInProvince(prov, effDistrict);
     const wardRows = districtObj?.wards?.length
       ? buildWardBenchmarksForDistrict(districtObj, null, false)
@@ -1973,12 +2077,22 @@ export const buildRentSeoContentData = ({
       });
     }
 
+    let rentBenchmarks = benchmarks;
+    let rentTableHeaders = [locHeader, ...(profile.tableCols || ['Căn hộ / Mặt bằng nhỏ', 'Phân khúc tiêu chuẩn', 'Diện tích lớn / Cao cấp', 'Khu vực sôi động'])];
+    let rentPriceTableTitle = priceTableTitle;
+
+    if (effStreet && effDistrict && !facet.hasFacetFilters) {
+      rentBenchmarks = buildStreetBenchmarks(effStreet, effDistrict, cityDisplay, benchmarks?.[0], true);
+      rentTableHeaders = ['Vị trí / Phân khúc', 'Căn hộ chung cư', 'Nhà riêng / Nguyên căn', 'Phòng trọ / CH Dịch vụ', 'Đặc điểm & Tiềm năng'];
+      rentPriceTableTitle = `Khung Giá Cho Thuê ${profile.label} Tham Khảo ${effStreet}, ${effDistrict} 2026`;
+    }
+
     return {
       marketTitle: formatSentenceCase(marketTitle),
       marketDesc,
-      priceTableTitle: formatSentenceCase(priceTableTitle),
-      tableHeaders: [locHeader, ...(profile.tableCols || ['Căn hộ / Mặt bằng nhỏ', 'Phân khúc tiêu chuẩn', 'Diện tích lớn / Cao cấp', 'Khu vực sôi động'])],
-      benchmarks,
+      priceTableTitle: formatSentenceCase(rentPriceTableTitle),
+      tableHeaders: rentTableHeaders,
+      benchmarks: rentBenchmarks,
       legalTitle: formatSentenceCase(profile.legalTitle || `4 Lưu Ý Pháp Lý Sống Còn Khi Ký Hợp Đồng ${profile.label}`),
       legalSteps: profile.legalSteps || DEFAULT_RENT_LEGAL_STEPS,
       faqTitle: formatSentenceCase(facet.hasFacetFilters
@@ -2001,7 +2115,15 @@ export const buildRentSeoContentData = ({
           ? `Khung Giá Cho Thuê Nhà Đất Chi Tiết Từng Phường Tại ${effDistrict} 2026`
           : presetGeneral.priceTableTitle);
 
-    if (effDistrict && !facet.hasFacetFilters) {
+    if (effStreet && effDistrict && !facet.hasFacetFilters) {
+      const cleanDist = effDistrict.replace(/^(Quận|Huyện|Thị xã|TP|Thành phố)\s+/i, '').trim().toLowerCase();
+      const matchedRow = Array.isArray(benchmarks)
+        ? benchmarks.find(b => b.area.toLowerCase().includes(cleanDist) || cleanDist.includes(b.area.toLowerCase()))
+        : null;
+      benchmarks = buildStreetBenchmarks(effStreet, effDistrict, cityDisplay, matchedRow || benchmarks?.[0], true);
+      tableHeaders = ['Vị trí / Phân khúc', 'Căn hộ chung cư', 'Nhà riêng / Nguyên căn', 'Phòng trọ / CH Dịch vụ', 'Đặc điểm & Tiềm năng'];
+      priceTableTitle = `Khung Giá Cho Thuê Nhà Đất Tham Khảo ${effStreet}, ${effDistrict} 2026`;
+    } else if (effDistrict && !facet.hasFacetFilters) {
       const cleanDist = effDistrict.replace(/^(Quận|Huyện|Thị xã|TP|Thành phố)\s+/i, '').trim().toLowerCase();
       const matchedRow = Array.isArray(benchmarks)
         ? benchmarks.find(b => b.area.toLowerCase().includes(cleanDist) || cleanDist.includes(b.area.toLowerCase()))
@@ -2054,7 +2176,7 @@ export const buildRentSeoContentData = ({
   }
 
   const prov = cityCtx.matchedProvince;
-  const provBenchmarks = prov?.districts?.length
+  let provBenchmarks = prov?.districts?.length
     ? prov.districts.slice(0, 6).map((d, index) => {
         const aptMin = Math.max(3, 7 - index * 0.8).toFixed(1).replace('.0', '');
         const aptMax = Math.max(6, 15 - index * 1.5).toFixed(1).replace('.0', '');
@@ -2071,6 +2193,26 @@ export const buildRentSeoContentData = ({
       })
     : GENERAL_RENT_CITY_CONTENT.national.benchmarks;
 
+  let provTableHeaders = ['Khu vực / Quận Huyện', 'Căn hộ chung cư', 'Nhà riêng / Nguyên căn', 'Phòng trọ / CH Dịch vụ', 'Khu vực sôi động'];
+  let provPriceTableTitle = `Khung Giá Thuê Nhà Đất Chi Tiết Từng Quận/Huyện Tại ${cityDisplay} 2026`;
+
+  if (effStreet && effDistrict) {
+    provBenchmarks = buildStreetBenchmarks(effStreet, effDistrict, cityDisplay, provBenchmarks?.[0], true);
+    provTableHeaders = ['Vị trí / Phân khúc', 'Căn hộ chung cư', 'Nhà riêng / Nguyên căn', 'Phòng trọ / CH Dịch vụ', 'Đặc điểm & Tiềm năng'];
+    provPriceTableTitle = `Khung Giá Cho Thuê Nhà Đất Tham Khảo ${effStreet}, ${effDistrict} 2026`;
+  } else if (effDistrict && prov?.districts?.length) {
+    const districtObj = findDistrictInProvince(prov, effDistrict);
+    const wardRows = districtObj?.wards?.length
+      ? buildWardBenchmarksForDistrict(districtObj, null, true)
+      : null;
+    if (wardRows && wardRows.length > 0) {
+      provBenchmarks = wardRows;
+      const subUnit = getSubUnitLabel(effDistrict, districtObj?.wards);
+      provTableHeaders = [subUnit === 'Xã' ? 'Xã / Thị trấn' : 'Phường / Xã', 'Căn hộ chung cư', 'Nhà riêng / Nguyên căn', 'Phòng trọ / CH Dịch vụ', 'Tuyến đường trọng điểm'];
+      provPriceTableTitle = `Khung Giá Cho Thuê Nhà Đất Chi Tiết Từng ${subUnit} Tại ${effDistrict} 2026`;
+    }
+  }
+
   const targetLocName = effStreet && effDistrict
     ? `${effStreet}, ${effDistrict}`
     : (effDistrict ? `${effDistrict}, ${cityDisplay}` : (isSpecificCity ? cityDisplay : ''));
@@ -2082,8 +2224,8 @@ export const buildRentSeoContentData = ({
     marketDesc: effStreet && effDistrict
       ? `Thị trường bất động sản cho thuê tại ${effStreet}, ${effDistrict} năm 2026 ghi nhận nhu cầu lưu trú và kinh doanh sôi động nhờ vị trí đắc địa, giao thông kết nối hoàn chỉnh và hệ sinh thái tiện ích dịch vụ hoàn thiện.`
       : `Thị trường bất động sản cho thuê tại ${cityDisplay} năm 2026 ghi nhận nhu cầu cao từ lực lượng lao động, chuyên gia doanh nghiệp và hộ gia đình trẻ tập trung quanh trung tâm đô thị và khu công nghiệp.`,
-    priceTableTitle: formatSentenceCase(`Khung Giá Thuê Nhà Đất Chi Tiết Từng Quận/Huyện Tại ${cityDisplay} 2026`),
-    tableHeaders: ['Khu vực / Quận Huyện', 'Căn hộ chung cư', 'Nhà riêng / Nguyên căn', 'Phòng trọ / CH Dịch vụ', 'Khu vực sôi động'],
+    priceTableTitle: formatSentenceCase(provPriceTableTitle),
+    tableHeaders: provTableHeaders,
     benchmarks: provBenchmarks,
     legalTitle: formatSentenceCase(`4 Lưu Ý Pháp Lý Sống Còn Khi Ký Hợp Đồng Thuê Nhà Đất${targetLocName ? ` Tại ${targetLocName}` : ` Tại ${cityDisplay}`}`),
     legalSteps: DEFAULT_RENT_LEGAL_STEPS,

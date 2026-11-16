@@ -70,10 +70,9 @@ export default function SaleListingsSeoContent({ city = null, district = null, p
         </div>
 
         {/* =====================================================================
-            H2: BẢNG KHUNG GIÁ THAM KHẢO (ĐỒNG BỘ THEO DANH MỤC & THÀNH PHỐ)
-            Chỉ hiển thị ở cấp Tỉnh/Thành hoặc Quận/Huyện; khi permalink ở cấp Tuyến Đường thì ẩn để tối ưu Search Intent & EEAT
+            H2: BẢNG KHUNG GIÁ THAM KHẢO (ĐỒNG BỘ THEO TUYẾN ĐƯỜNG, QUẬN HUYỆN & TỈNH THÀNH)
            ===================================================================== */}
-        {!taxonomyInfo?.street && seoData.benchmarks && seoData.benchmarks.length > 0 && (
+        {seoData.benchmarks && seoData.benchmarks.length > 0 && (
           <div>
             <div className="flex items-center gap-2.5 mb-3">
               <span className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center text-base sm:text-lg font-bold shrink-0">
