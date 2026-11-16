@@ -538,11 +538,17 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
     const rawH1 = (() => {
       const isGeneralListing = !currentCleanTaxonomy?.propertyType || currentCleanTaxonomy.propertyType === 'all';
       if (isGeneralListing) {
-        // Khi vào danh mục cấp Quận/Huyện/Phường: Tinh gọn tiêu đề, bỏ hậu tố năm/slogan để giao diện thoáng gọn
-        if (currentCleanTaxonomy?.district) {
+        // Khi vào danh mục cấp Đường / Phường / Quận / Huyện: Tinh gọn tiêu đề, bỏ hậu tố năm/slogan để giao diện thoáng gọn
+        if (currentCleanTaxonomy?.district || currentCleanTaxonomy?.street) {
           const locParts = [];
+          if (currentCleanTaxonomy?.street) {
+            const stName = /^(?:đường|phố|tuyến)\s+/i.test(currentCleanTaxonomy.street)
+              ? currentCleanTaxonomy.street
+              : `Đường ${currentCleanTaxonomy.street}`;
+            locParts.push(stName);
+          }
           if (currentCleanTaxonomy?.ward) locParts.push(currentCleanTaxonomy.ward);
-          locParts.push(currentCleanTaxonomy.district);
+          if (currentCleanTaxonomy?.district) locParts.push(currentCleanTaxonomy.district);
           return `Cho thuê nhà đất tại ${locParts.join(', ')}`;
         }
         if (currentCleanTaxonomy?.city) {
@@ -551,11 +557,17 @@ export default function RentListingsPage({ taxonomyInfo = null, initialPage = 1,
         return 'Cho thuê nhà đất toàn quốc năm 2026: giá rẻ, chính chủ, xác thực 100%';
       }
 
-      // Khi có loại tin cụ thể kết hợp với Quận/Huyện
-      if (currentCleanTaxonomy?.district) {
+      // Khi có loại tin cụ thể kết hợp với Đường / Phường / Quận / Huyện
+      if (currentCleanTaxonomy?.district || currentCleanTaxonomy?.street) {
         const locParts = [];
+        if (currentCleanTaxonomy?.street) {
+          const stName = /^(?:đường|phố|tuyến)\s+/i.test(currentCleanTaxonomy.street)
+            ? currentCleanTaxonomy.street
+            : `Đường ${currentCleanTaxonomy.street}`;
+          locParts.push(stName);
+        }
         if (currentCleanTaxonomy?.ward) locParts.push(currentCleanTaxonomy.ward);
-        locParts.push(currentCleanTaxonomy.district);
+        if (currentCleanTaxonomy?.district) locParts.push(currentCleanTaxonomy.district);
         const rawType = (currentCleanTaxonomy.title || '').split(' tại ')[0].trim() || 'Cho thuê bất động sản';
         return `${rawType} tại ${locParts.join(', ')}`;
       }

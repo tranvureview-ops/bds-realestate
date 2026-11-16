@@ -247,7 +247,7 @@ export const capitalizeLocationEntities = (str) => {
       if (insideName) capWords.push(w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
       else capWords.push(w);
     }
-    return `đường ${capWords.join(' ')}`;
+    return `Đường ${capWords.join(' ')}`;
   });
 
   res = res.replace(/(?<!mặt\s+|nhà\s+mặt\s+|nhà\s+)(?<=^|[^\p{L}\p{N}])(phố)\s+([\p{L}\p{N}]+(?:\s+[\p{L}\p{N}]+)*)/gui, (match, prefix, rest) => {
@@ -261,7 +261,7 @@ export const capitalizeLocationEntities = (str) => {
       if (insideName) capWords.push(w.charAt(0).toUpperCase() + w.slice(1).toLowerCase());
       else capWords.push(w);
     }
-    return `phố ${capWords.join(' ')}`;
+    return `Phố ${capWords.join(' ')}`;
   });
 
   return res;

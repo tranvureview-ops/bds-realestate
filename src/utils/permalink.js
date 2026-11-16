@@ -384,6 +384,42 @@ export const KNOWN_ENTITIES = {
   'tinh-lo-419': 'Tỉnh Lộ 419'
 };
 
+// Tự động nạp toàn bộ 1,077+ tuyến đường phố, phường xã và dự án từ 63 tỉnh thành vào KNOWN_ENTITIES
+if (Array.isArray(VIETNAM_ADMINISTRATIVE_DATA)) {
+  VIETNAM_ADMINISTRATIVE_DATA.forEach(prov => {
+    (prov.districts || []).forEach(d => {
+      (d.streets || []).forEach(st => {
+        const cleanSt = st.replace(/^(?:đường|phố|tuyến)\s+/i, '').trim();
+        const slug = toVietnameseSlug(cleanSt);
+        if (slug && !KNOWN_ENTITIES[slug]) {
+          KNOWN_ENTITIES[slug] = cleanSt;
+        }
+        const fullSlug = toVietnameseSlug(st);
+        if (fullSlug && !KNOWN_ENTITIES[fullSlug]) {
+          KNOWN_ENTITIES[fullSlug] = cleanSt;
+        }
+      });
+      (d.wards || []).forEach(w => {
+        const cleanW = w.replace(/^(?:phường|xã|thị trấn)\s+/i, '').trim();
+        const slug = toVietnameseSlug(cleanW);
+        if (slug && !KNOWN_ENTITIES[slug]) {
+          KNOWN_ENTITIES[slug] = cleanW;
+        }
+        const fullSlug = toVietnameseSlug(w);
+        if (fullSlug && !KNOWN_ENTITIES[fullSlug]) {
+          KNOWN_ENTITIES[fullSlug] = cleanW;
+        }
+      });
+      (d.projects || []).forEach(pj => {
+        const slug = toVietnameseSlug(pj);
+        if (slug && !KNOWN_ENTITIES[slug]) {
+          KNOWN_ENTITIES[slug] = pj;
+        }
+      });
+    });
+  });
+}
+
 /**
  * Chuyển đổi slug dự án/phường xã/địa danh thành Title có dấu hoặc viết hoa chuẩn
  */
@@ -1147,10 +1183,12 @@ export const parseTaxonomyUrl = (urlPath) => {
       if (district) title += `, ${district}`;
       if (city) title += `, ${city}`;
     } else if (street && district) {
-      title += ` tại đường ${street}, ${district}`;
+      const stDisplay = /^(?:đường|phố|tuyến)\s+/i.test(street) ? street : `Đường ${street}`;
+      title += ` tại ${stDisplay}, ${district}`;
       if (city) title += `, ${city}`;
     } else if (street) {
-      title += ` tại đường ${street}`;
+      const stDisplay = /^(?:đường|phố|tuyến)\s+/i.test(street) ? street : `Đường ${street}`;
+      title += ` tại ${stDisplay}`;
       if (city) title += `, ${city}`;
     } else if (ward && district) {
       title += ` tại ${ward}, ${district}`;
@@ -1698,11 +1736,16 @@ export const generateCategoryMetadata = (taxonomyInfo = {}, yearInput = null, pa
     const formattedTitle = rawTitle ? rawTitle.charAt(0).toUpperCase() + rawTitle.slice(1) : '';
 
     let titleCandidate = `${formattedTitle} ${year}${pageStr} | Kênh Nhà Đất 24H`;
-    if (titleCandidate.length > 65) {
+    if (titleCandidate.length > 70) {
       titleCandidate = `${formattedTitle}${pageStr} | Kênh Nhà Đất 24H`;
     }
-    if (titleCandidate.length > 65) {
-      titleCandidate = `${formattedTitle} ${year}${pageStr}`;
+    if (titleCandidate.length > 70) {
+      const compactTitle = formattedTitle.replace(/^(?:Mua bán|Cho thuê) nhà đất tại /i, (m) => m.includes('Cho thuê') ? 'Cho Thuê Nhà Đất ' : 'Mua Bán Nhà Đất ')
+                                         .replace(/, (?:Đà Nẵng|Hà Nội|TP\. Hồ Chí Minh|Quảng Nam|Khánh Hòa|Bình Dương)$/i, '');
+      titleCandidate = `${compactTitle} ${year}${pageStr} | Kênh Nhà Đất 24H`;
+      if (titleCandidate.length > 70) {
+        titleCandidate = `${compactTitle}${pageStr} | Kênh Nhà Đất 24H`;
+      }
     }
 
     const description = `${formattedTitle} mới nhất ${year}${pageDescStr}. Thông tin xác thực 100%, hình ảnh thực tế, sổ đỏ chính chủ, giá tốt. Khám phá ngay trên Kênh Nhà Đất 24H!`;

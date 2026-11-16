@@ -1120,11 +1120,19 @@ export const buildSaleSeoContentData = ({
     taxonomyInfo
   });
 
+  const effStreetRaw = taxonomyInfo?.street || null;
+  const effStreet = effStreetRaw
+    ? (/^(?:đường|phố|tuyến)\s+/i.test(effStreetRaw)
+        ? capitalizeLocationEntities(effStreetRaw)
+        : `Đường ${capitalizeLocationEntities(effStreetRaw)}`)
+    : null;
   const effDistrictRaw = district || taxonomyInfo?.district || null;
   const effDistrict = effDistrictRaw ? capitalizeLocationEntities(effDistrictRaw) : null;
-  const locationLabel = effDistrict
-    ? `tại ${effDistrict}${activeCity ? `, ${cityDisplay}` : ''}`
-    : (isSpecificCity ? `tại ${cityDisplay}` : 'toàn quốc');
+  const locationLabel = effStreet && effDistrict
+    ? `tại ${effStreet}, ${effDistrict}${activeCity ? `, ${cityDisplay}` : ''}`
+    : (effDistrict
+        ? `tại ${effDistrict}${activeCity ? `, ${cityDisplay}` : ''}`
+        : (isSpecificCity ? `tại ${cityDisplay}` : 'toàn quốc'));
 
   const discovery = facet.hasFacetFilters
     ? buildFacetedDiscoveryLinks({ demand: 'sale', propertyType: norm, activeCity: isSpecificCity ? cityDisplay : null, profile })
@@ -1251,7 +1259,9 @@ export const buildSaleSeoContentData = ({
   // Trường hợp 2: Trang tổng hợp Mua Bán Nhà Đất (Toàn quốc hoặc theo Thành phố/Tỉnh/Quận Huyện)
   const presetCity = GENERAL_SALE_CITY_CONTENT[cityCtx.key];
   if (presetCity) {
-    const targetLocName = effDistrict ? `${effDistrict}, ${cityDisplay}` : (isSpecificCity ? cityDisplay : '');
+    const targetLocName = effStreet && effDistrict 
+      ? `${effStreet}, ${effDistrict}` 
+      : (effDistrict ? `${effDistrict}, ${cityDisplay}` : (isSpecificCity ? cityDisplay : ''));
 
     let benchmarks = presetCity.benchmarks;
     let tableHeaders = presetCity.tableHeaders;
@@ -1285,12 +1295,16 @@ export const buildSaleSeoContentData = ({
     }
 
     return {
-      marketTitle: formatSentenceCase(effDistrict
-        ? `Thị trường mua bán nhà đất ${effDistrict}, ${cityDisplay} năm 2026: diễn biến & tiềm năng phát triển`
-        : presetCity.marketTitle),
-      marketDesc: effDistrict
-        ? `Thị trường bất động sản ${effDistrict}, ${cityDisplay} năm 2026 ghi nhận lực cầu mua an cư và đầu tư tăng trưởng tích cực nhờ quy hoạch mở rộng đô thị đồng bộ và hệ sinh thái tiện ích dịch vụ hoàn thiện. Các phân khúc đất nền thổ cư, nhà phố thương mại và căn hộ chung cư tại ${effDistrict} tiếp tục giữ vững thanh khoản tốt.`
-        : presetCity.marketDesc,
+      marketTitle: formatSentenceCase(effStreet && effDistrict
+        ? `Thị trường mua bán nhà đất ${effStreet}, ${effDistrict} năm 2026: diễn biến & tiềm năng phát triển`
+        : (effDistrict
+            ? `Thị trường mua bán nhà đất ${effDistrict}, ${cityDisplay} năm 2026: diễn biến & tiềm năng phát triển`
+            : presetCity.marketTitle)),
+      marketDesc: effStreet && effDistrict
+        ? `Thị trường bất động sản ${effStreet}, ${effDistrict} năm 2026 ghi nhận lực cầu mua an cư và kinh doanh tăng trưởng tích cực nhờ vị trí thương mại sầm uất, kết nối giao thông liên quận hoàn hảo và hệ sinh thái tiện ích dịch vụ hoàn thiện. Các sản phẩm nhà mặt phố kinh doanh, đất nền và căn hộ dọc tuyến ${effStreet} giữ vững thanh khoản và biên độ tăng giá tốt.`
+        : (effDistrict
+            ? `Thị trường bất động sản ${effDistrict}, ${cityDisplay} năm 2026 ghi nhận lực cầu mua an cư và đầu tư tăng trưởng tích cực nhờ quy hoạch mở rộng đô thị đồng bộ và hệ sinh thái tiện ích dịch vụ hoàn thiện. Các phân khúc đất nền thổ cư, nhà phố thương mại và căn hộ chung cư tại ${effDistrict} tiếp tục giữ vững thanh khoản tốt.`
+            : presetCity.marketDesc),
       priceTableTitle: formatSentenceCase(priceTableTitle),
       tableHeaders,
       benchmarks,
@@ -1300,15 +1314,27 @@ export const buildSaleSeoContentData = ({
       guidesTitle: formatSentenceCase('Cẩm nang tri thức & hướng dẫn mua nhà an toàn từ chuyên gia'),
       guides: DEFAULT_GUIDES,
       faqTitle: formatSentenceCase(`Câu hỏi thường gặp khi mua bán nhà đất${targetLocName ? ` tại ${targetLocName}` : ''}`),
-      faqs: effDistrict
+      faqs: effStreet && effDistrict
         ? [
             {
-              q: `Mua bán nhà đất tại ${effDistrict}, ${cityDisplay} cần lưu ý gì về quy hoạch và pháp lý?`,
-              a: `Trước khi ký hợp đồng mua bán hoặc đặt cọc nhà đất tại ${effDistrict}, người mua cần kiểm tra kỹ bản gốc Giấy chứng nhận quyền sử dụng đất, đối chiếu quy hoạch chi tiết 1/500 tại UBND Quận hoặc Chi nhánh Văn phòng Đăng ký Đất đai, đồng thời tra cứu lịch sử ngăn chặn giao dịch để bảo toàn an toàn dòng vốn.`
+              q: `Mua bán nhà đất tại ${effStreet}, ${effDistrict} cần lưu ý gì về quy hoạch và pháp lý?`,
+              a: `Trước khi ký hợp đồng mua bán hoặc đặt cọc nhà đất tại ${effStreet}, ${effDistrict}, người mua cần kiểm tra kỹ chỉ giới quy hoạch mở rộng lộ giới, hiện trạng xây dựng có đúng giấy phép hoàn công, đối chiếu bản gốc sổ hồng tại Chi nhánh Văn phòng Đăng ký Đất đai và tra cứu ngăn chặn giao dịch để bảo toàn dòng vốn.`
+            },
+            {
+              q: `Tiềm năng kinh doanh và tính thanh khoản bất động sản trên ${effStreet} như thế nào?`,
+              a: `Tuyến ${effStreet} là một trong những trục giao thông huyết mạch với lưu lượng lưu thông đông đúc, quy tụ nhiều tiện ích thương mại, rất thích hợp mở cửa hàng kinh doanh, tòa nhà văn phòng, showroom, nhà hàng hoặc khai thác cho thuê mặt bằng dòng tiền cao.`
             },
             ...presetCity.faqs.slice(1)
           ]
-        : presetCity.faqs,
+        : (effDistrict
+            ? [
+                {
+                  q: `Mua bán nhà đất tại ${effDistrict}, ${cityDisplay} cần lưu ý gì về quy hoạch và pháp lý?`,
+                  a: `Trước khi ký hợp đồng mua bán hoặc đặt cọc nhà đất tại ${effDistrict}, người mua cần kiểm tra kỹ bản gốc Giấy chứng nhận quyền sử dụng đất, đối chiếu quy hoạch chi tiết 1/500 tại UBND Quận hoặc Chi nhánh Văn phòng Đăng ký Đất đai, đồng thời tra cứu lịch sử ngăn chặn giao dịch để bảo toàn an toàn dòng vốn.`
+                },
+                ...presetCity.faqs.slice(1)
+              ]
+            : presetCity.faqs),
       discoveryTitle: formatSentenceCase(discovery.title),
       discoveryLinks: discovery.links
     };
@@ -1808,11 +1834,19 @@ export const buildRentSeoContentData = ({
     taxonomyInfo
   });
 
+  const effStreetRaw = taxonomyInfo?.street || null;
+  const effStreet = effStreetRaw
+    ? (/^(?:đường|phố|tuyến)\s+/i.test(effStreetRaw)
+        ? capitalizeLocationEntities(effStreetRaw)
+        : `Đường ${capitalizeLocationEntities(effStreetRaw)}`)
+    : null;
   const effDistrictRaw = district || taxonomyInfo?.district || null;
   const effDistrict = effDistrictRaw ? capitalizeLocationEntities(effDistrictRaw) : null;
-  const locationLabel = effDistrict
-    ? `tại ${effDistrict}${activeCity ? `, ${cityDisplay}` : ''}`
-    : (isSpecificCity ? `tại ${cityDisplay}` : 'toàn quốc');
+  const locationLabel = effStreet && effDistrict
+    ? `tại ${effStreet}, ${effDistrict}${activeCity ? `, ${cityDisplay}` : ''}`
+    : (effDistrict
+        ? `tại ${effDistrict}${activeCity ? `, ${cityDisplay}` : ''}`
+        : (isSpecificCity ? `tại ${cityDisplay}` : 'toàn quốc'));
 
   const discoveryLinks = facet.hasFacetFilters
     ? buildFacetedDiscoveryLinks({ demand: 'rent', propertyType: norm, activeCity: isSpecificCity ? cityDisplay : null, profile })
