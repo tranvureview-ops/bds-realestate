@@ -16,30 +16,79 @@ export function removeAccents(str) {
 
 /**
  * Kiểm tra khớp từ khóa đa token (Multi-token Full-text Search)
- * Khớp chuẩn xác theo cụm từ hoặc toàn bộ các từ khóa chính
+ * Khớp chuẩn xác theo cụm từ hoặc toàn bộ các từ khóa chính, bảo vệ chặt chẽ word-boundary và số định danh
  */
 export function matchKeywordTokens(searchTargetClean, kwClean, searchTargetRaw = '', kwRaw = '') {
   if (!kwClean) return true;
-  // 1. Khớp chính xác cụm từ nguyên văn
-  if (searchTargetRaw && kwRaw && searchTargetRaw.includes(kwRaw)) return true;
-  if (searchTargetClean.includes(kwClean)) return true;
 
-  // 2. Tách từ khóa thành các token có ý nghĩa (bỏ stop words thông dụng)
+  const paddedTargetClean = ` ${searchTargetClean} `;
+  const paddedTargetRaw = searchTargetRaw ? ` ${searchTargetRaw.toLowerCase()} ` : '';
+
+  // 1. Khớp nguyên văn cụm từ (bao bọc khoảng trắng đảm bảo word-boundary)
+  if (paddedTargetRaw && kwRaw && paddedTargetRaw.includes(` ${kwRaw.toLowerCase().trim()} `)) {
+    return true;
+  }
+  if (paddedTargetClean.includes(` ${kwClean.trim()} `)) {
+    return true;
+  }
+
+  // 2. Tiền tố loại hình / đường phố / vị trí thông dụng trong BĐS
+  const prefixRegex = /^(?:duong|pho|tuyen|ngo|ngach|hem|ban|cho thue|thue|mua|nha|dat|can ho|biet thu|shophouse)\s+(.+)$/;
+  let stripped = kwClean;
+  let matchPrefix = stripped.match(prefixRegex);
+  while (matchPrefix && matchPrefix[1]) {
+    stripped = matchPrefix[1].trim();
+    if (paddedTargetClean.includes(` ${stripped} `)) {
+      return true;
+    }
+    matchPrefix = stripped.match(prefixRegex);
+  }
+
+  // 3. Tách từ khóa thành các token có ý nghĩa (bảo toàn token số 1 chữ số như 1, 2, 3...)
   const stopWords = new Set(['tai', 'o', 'va', 'cho', 'cua', 'khu', 'vuc', 'trong', 'cac', 'vd']);
   const tokens = kwClean
     .split(/\s+/)
     .map(t => t.trim())
-    .filter(t => t.length > 1 && !stopWords.has(t));
+    .filter(t => (t.length > 1 || /\d/.test(t)) && !stopWords.has(t));
 
   if (tokens.length === 0) return true;
 
-  // 3. Kiểm tra từng token
-  const matchedCount = tokens.filter(token => searchTargetClean.includes(token)).length;
+  // Tập hợp các từ nguyên vẹn trong target để đối chiếu word-boundary chính xác
+  const targetWords = new Set(searchTargetClean.split(/\s+/).filter(Boolean));
 
-  if (tokens.length <= 2) {
-    return matchedCount === tokens.length;
+  // Token số (VD: 2, 26, 9) BẮT BUỘC phải khớp chính xác theo từ nguyên vẹn
+  const numericTokens = tokens.filter(t => /^\d+$/.test(t));
+  for (const numTok of numericTokens) {
+    if (!targetWords.has(numTok)) {
+      return false;
+    }
   }
-  return matchedCount >= Math.ceil(tokens.length * 0.75);
+
+  // Nếu từ khóa có từ 2 đến 4 token và có chứa token số (VD: 'duong an thuong 2', 'an thuong 2', 'quan 1')
+  // thì toàn bộ cụm danh xưng đó bắt buộc phải xuất hiện liền khối trong target
+  if (tokens.length <= 4 && numericTokens.length > 0) {
+    const nonPrefixKw = kwClean.replace(/^(?:duong|pho|tuyen|ngo|ngach|hem)\s+/, '').trim();
+    if (!paddedTargetClean.includes(` ${nonPrefixKw} `)) {
+      return false;
+    }
+  }
+
+  // 4. Kiểm tra từng token chữ
+  const matchedTokens = tokens.filter(token => {
+    if (targetWords.has(token)) return true;
+    if (token.length >= 5) {
+      for (const word of targetWords) {
+        if (word.startsWith(token)) return true;
+      }
+    }
+    return false;
+  });
+
+  if (tokens.length <= 3) {
+    return matchedTokens.length === tokens.length;
+  }
+
+  return matchedTokens.length >= Math.ceil(tokens.length * 0.8);
 }
 
 /**
