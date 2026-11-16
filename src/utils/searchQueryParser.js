@@ -215,6 +215,7 @@ export function extractLocation(cleanText, currentCity = '') {
   // 0. Nếu có tiền tố đường/phố rõ ràng (ví dụ: "đường an dương vương", "phố huế"), ưu tiên kiểm tra tuyến đường trước
   // để tránh bị nhận nhầm thành Quận/Huyện (như "Huyện An Dương" ở Hải Phòng)
   const hasStreetPrefix = /\b(?:duong|pho|tuyen)\s+/i.test(cleanText);
+  const paddedCleanText = ` ${cleanText} `;
   if (hasStreetPrefix) {
     const sortedCities = currentCity 
       ? [...VIETNAM_ADMINISTRATIVE_DATA].sort((a, b) => (a.name === currentCity ? -1 : (b.name === currentCity ? 1 : 0)))
@@ -224,18 +225,19 @@ export function extractLocation(cleanText, currentCity = '') {
       if (!city.districts) continue;
       for (const dist of city.districts) {
         if (!dist.streets) continue;
-        for (const street of dist.streets) {
+        const sortedStreets = [...dist.streets].sort((a, b) => b.length - a.length);
+        for (const street of sortedStreets) {
           const streetClean = removeAccents(street).toLowerCase().replace(/^(?:duong|pho|tuyen)\s+/i, '').trim();
           const withPrefix = `duong ${streetClean}`;
           const withPho = `pho ${streetClean}`;
           // Không match "pho ..." nếu nó đứng ngay sau "mat " (vì "mat pho" là loại hình nhà mặt phố)
-          const isMatPho = cleanText.includes(`mat ${withPho}`);
-          const hasStreetPrefix = cleanText.includes(withPrefix) || (cleanText.includes(withPho) && !isMatPho);
-          if (hasStreetPrefix) {
+          const isMatPho = paddedCleanText.includes(` mat ${withPho} `);
+          const hasPrefixMatch = paddedCleanText.includes(` ${withPrefix} `) || (paddedCleanText.includes(` ${withPho} `) && !isMatPho);
+          if (hasPrefixMatch) {
             // Nếu tên đường trùng với tên tỉnh/thành phố lớn (như 'da nang', 'ha noi', 'hai phong', 'ho chi minh')
             // và không có từ "duong" ở phía trước thì ưu tiên nhận diện là Thành phố, không phải tên đường của tỉnh khác
             const isCityCollision = ['da nang', 'ha noi', 'hai phong', 'ho chi minh', 'sai gon'].includes(streetClean);
-            if (isCityCollision && !cleanText.includes(withPrefix)) {
+            if (isCityCollision && !paddedCleanText.includes(` ${withPrefix} `)) {
               continue;
             }
             return {
@@ -244,7 +246,7 @@ export function extractLocation(cleanText, currentCity = '') {
               project: '',
               ward: '',
               street: street,
-              matched: cleanText.includes(withPrefix) ? withPrefix : withPho
+              matched: paddedCleanText.includes(` ${withPrefix} `) ? withPrefix : withPho
             };
           }
         }
@@ -403,14 +405,15 @@ export function extractLocation(cleanText, currentCity = '') {
     if (city.districts) {
       for (const dist of city.districts) {
         if (dist.streets) {
-          for (const street of dist.streets) {
+          const sortedStreets = [...dist.streets].sort((a, b) => b.length - a.length);
+          for (const street of sortedStreets) {
             const streetClean = removeAccents(street).toLowerCase().replace(/^(?:duong|pho|tuyen)\s+/i, '').trim();
             const withPrefix = `duong ${streetClean}`;
             const withPho = `pho ${streetClean}`;
-            const isMatch = cleanText.includes(withPrefix) || cleanText.includes(withPho) ||
+            const isMatch = paddedCleanText.includes(` ${withPrefix} `) || paddedCleanText.includes(` ${withPho} `) ||
               (streetClean.length >= 4 && (cleanText === streetClean || new RegExp(`(?:^|\\s)${streetClean}(?:$|\\s)`).test(cleanText)));
             if (isMatch) {
-              const matchedStr = cleanText.includes(withPrefix) ? withPrefix : (cleanText.includes(withPho) ? withPho : streetClean);
+              const matchedStr = paddedCleanText.includes(` ${withPrefix} `) ? withPrefix : (paddedCleanText.includes(` ${withPho} `) ? withPho : streetClean);
               return {
                 city: city.name,
                 district: dist.name,

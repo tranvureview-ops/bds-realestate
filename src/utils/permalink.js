@@ -1006,9 +1006,11 @@ export const parseTaxonomyUrl = (urlPath) => {
     let city = '';
     let district = '';
 
-    // Đối chiếu các quận huyện & thành phố thuộc tỉnh
-    for (const [dSlug, dInfo] of Object.entries(DISTRICT_MAP)) {
-      if (
+    // Đối chiếu các quận huyện & thành phố thuộc tỉnh (sắp xếp độ dài giảm dần, bảo vệ slug số)
+    const sortedDistrictEntries = Object.entries(DISTRICT_MAP).sort((a, b) => b[0].length - a[0].length);
+    for (const [dSlug, dInfo] of sortedDistrictEntries) {
+      const isNumeric = /^\d+$/.test(dSlug);
+      const isMatch = (
         raw.includes(`quan-thanh-pho-${dSlug}`) ||
         raw.includes(`thanh-pho-${dSlug}`) ||
         raw.includes(`quan-${dSlug}`) ||
@@ -1016,10 +1018,13 @@ export const parseTaxonomyUrl = (urlPath) => {
         raw.includes(`tp-${dSlug}`) ||
         raw.includes(`tx-${dSlug}`) ||
         raw.includes(`thi-xa-${dSlug}`) ||
-        raw.includes(`-${dSlug}-`) ||
-        raw.endsWith(`-${dSlug}`) ||
-        raw.includes(dSlug)
-      ) {
+        (!isNumeric && (
+          raw.includes(`-${dSlug}-`) ||
+          raw.endsWith(`-${dSlug}`) ||
+          raw.startsWith(`${dSlug}-`)
+        ))
+      );
+      if (isMatch) {
         district = dInfo.name;
         city = dInfo.city || '';
         break;
