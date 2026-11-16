@@ -9,7 +9,7 @@ import { removeAccents } from '../utils/propertyFilter';
 import { Link, useRouter } from '../router/RouterContext';
 import { getSearchQuerySuggestions, HighlightedQuery } from '../utils/searchQuerySuggestions';
 import { parseSearchQuery } from '../utils/searchQueryParser';
-import { useRecentSearches, DEFAULT_RENT_RECENT_SEARCHES, DEFAULT_RECENT_SEARCHES } from '../utils/recentSearches';
+import { useRecentSearches } from '../utils/recentSearches';
 import PropertyTypeSelector from './PropertyTypeSelector';
 import PriceRangeSelector from './PriceRangeSelector';
 import AreaRangeSelector from './AreaRangeSelector';
@@ -762,42 +762,10 @@ export default function HeroSearch({ filters = {}, setFilters, totalResults = 0 
                         </div>
                       )}
 
-                      {/* Gợi ý Tìm kiếm phổ biến (Xu hướng thị trường) */}
-                      <div className="mb-2">
-                        <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2 px-1 flex items-center gap-1.5">
-                          <i className="fa-solid fa-fire text-[#e03c31] text-[10px]"></i>
-                          <span>Tìm kiếm phổ biến ({currentDemand === 'rent' ? 'Cho thuê' : 'Mua bán'})</span>
-                        </div>
-                        <div className="space-y-1">
-                          {(currentDemand === 'rent' ? DEFAULT_RENT_RECENT_SEARCHES : DEFAULT_RECENT_SEARCHES).map((item) => (
-                            <div
-                              key={item.id}
-                              onClick={() => handleSelectRecentSearch(item)}
-                              className="p-2 sm:p-2.5 rounded-xl hover:bg-slate-50 flex items-center gap-3 transition cursor-pointer group"
-                            >
-                              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-red-50 text-[#e03c31] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
-                                <i className="fa-solid fa-magnifying-glass text-xs sm:text-sm"></i>
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="text-xs sm:text-sm font-semibold text-slate-800 group-hover:text-red-600 transition truncate">
-                                  {item.title}
-                                </div>
-                                {item.subtitle && (
-                                  <div className="text-[11px] text-slate-400 truncate">
-                                    {item.subtitle}
-                                  </div>
-                                )}
-                              </div>
-                              <i className="fa-solid fa-chevron-right text-slate-300 group-hover:text-slate-500 text-xs shrink-0 group-hover:translate-x-0.5 transition-transform"></i>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
                       {/* Bottom Action: Chọn quận huyện, phường xã, đường phố, dự án */}
                       <div
                         onClick={handleOpenDetailedLocation}
-                        className="mt-2 pt-2.5 border-t border-slate-100 p-2 sm:p-2.5 rounded-xl hover:bg-red-50/50 flex items-center gap-3 transition cursor-pointer group"
+                        className="p-2 sm:p-2.5 rounded-xl hover:bg-red-50/50 flex items-center gap-3 transition cursor-pointer group"
                       >
                         <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#c93026] text-white flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
                           <i className="fa-solid fa-sliders text-xs"></i>
