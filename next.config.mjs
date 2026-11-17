@@ -8,6 +8,7 @@ const nextConfig = {
   },
   experimental: {
     optimizePackageImports: ['@supabase/supabase-js'],
+    agentUpgrade: 'security',
   },
   serverExternalPackages: ['nodemailer', 'bcryptjs'],
   images: {
